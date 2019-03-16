@@ -545,6 +545,7 @@ class TRTConditionsServicesSetup:
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
@@ -554,7 +555,6 @@ class TRTConditionsServicesSetup:
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
-
 
 
     from AthenaCommon.GlobalFlags import globalflags

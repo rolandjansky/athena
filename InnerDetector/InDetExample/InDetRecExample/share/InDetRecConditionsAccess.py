@@ -349,10 +349,10 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector",className='CondAttrListVec')
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors",className='CondAttrListVec')
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
 
     #
@@ -401,6 +401,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    # dEdx probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
+    TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
+
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg
@@ -408,6 +412,8 @@ if DetFlags.haveRIO.TRT_on():
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
+    if not hasattr(condSeq, "TRTToTCondAlg"):
+        condSeq += TRTToTCondAlg
 
     
     # Services which only run on raw data

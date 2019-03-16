@@ -202,7 +202,6 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   std::cout << "check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi << std::endl;
   std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
   */
-
   // For calculation of HT probability:
   double pHTel_prod = 1.0;
   double pHTpi_prod = 1.0;
@@ -337,11 +336,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
 
     // Jared - Development Output... 
-    /*
+    /*    
     std::cout << "check Hit: " << nTRThits << "  TrtPart: " << TrtPart << "  GasType: " << GasType << "  SL: " << StrawLayer
              << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local 
             << "  HTMB: " << isHTMB << std::endl;
-            */
+    */
 
     // Then call pHT functions with these values:
     // ------------------------------------------
@@ -366,8 +365,9 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
     
     // Jared - Development Output... 
+    
     //std::cout << "check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi << std::endl;
-
+    
   }//of loop over hits
 
 
@@ -405,7 +405,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   
   // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
   prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?) 
-
+  
   //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
      
   return PIDvalues;

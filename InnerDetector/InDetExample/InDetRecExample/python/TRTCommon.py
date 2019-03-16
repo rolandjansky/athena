@@ -9,6 +9,7 @@ def _args( kwargs, **extra_kwargs) :
 def getInDetTRT_dEdxTool(**kwargs) :
     InDetTRT_dEdxTool = None
 
+
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :

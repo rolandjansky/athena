@@ -743,10 +743,10 @@ if InDetTrigFlags.loadSummaryTool():
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector",className='CondAttrListVec')
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTVectors") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTVectors")):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors")
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors",className='CondAttrListVec')
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue")
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
   from AthenaCommon.GlobalFlags import globalflags
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy

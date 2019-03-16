@@ -4,6 +4,7 @@
 #include "../TRTAlignCondAlg.h"
 #include "../TRTStrawCondAlg.h"
 #include "../TRTHTCondAlg.h"
+#include "../TRTToTCondAlg.h"
 
 
 DECLARE_COMPONENT( TRTCondWrite )
@@ -12,3 +13,4 @@ DECLARE_COMPONENT( TRTStrawStatusWrite )
 DECLARE_COMPONENT( TRTAlignCondAlg )
 DECLARE_COMPONENT( TRTStrawCondAlg )
 DECLARE_COMPONENT( TRTHTCondAlg )
+DECLARE_COMPONENT( TRTToTCondAlg )

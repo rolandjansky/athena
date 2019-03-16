@@ -121,7 +121,6 @@ StatusCode TRTStrawCondAlg::execute(const EventContext& ctx) const
     }
 
 
-
   // Record  CDO
  if(writeHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record AliveStraws " << writeHandle.key() 

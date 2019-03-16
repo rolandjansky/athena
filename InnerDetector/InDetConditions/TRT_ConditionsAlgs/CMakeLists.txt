@@ -18,12 +18,14 @@ atlas_depends_on_subdirs( PUBLIC
 			  DetectorDescription/DetDescrCond/DetDescrConditions 
 			  DetectorDescription/GeoModel/GeoModelUtilities )
 
-
+# External dependencies:
+find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
 atlas_add_component( TRT_ConditionsAlgs
                      src/*.cxx
                      src/components/*.cxx
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TRT_ConditionsData InDetIdentifier
                                                InDetReadoutGeometry AthenaPoolUtilities DetDescrConditions GeoModelUtilities )
 

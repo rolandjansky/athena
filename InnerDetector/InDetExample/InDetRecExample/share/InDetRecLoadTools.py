@@ -976,6 +976,7 @@ if InDetFlags.loadSummaryTool():
 
     import InDetRecExample.TRTCommon
     InDetTRT_dEdxTool = InDetRecExample.TRTCommon.getInDetTRT_dEdxTool()
+
     if (InDetTRT_dEdxTool != None and InDetFlags.doPrintConfigurables()):
         print InDetTRT_dEdxTool
 

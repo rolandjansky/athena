@@ -11,12 +11,13 @@ namespace TRTCond{
   public:
     AliveStraws() {
        // create arrays for alive straws
-       m_stw_total = new int[7];
+      m_stw_total = new int[7]();
        m_stw_local = new int*[6];
        m_stw_wheel = new int*[34];
-       for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32];
-       for (int i=0; i<34; ++i) m_stw_wheel[i] = new int[32];
+       for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32]();
+       for (int i=0; i<34; ++i) m_stw_wheel[i] = new int[32]();
     }
+
     virtual ~AliveStraws() {}
     int  *getStwTotal() const {return m_stw_total; } 
     int **getStwLocal() const {return m_stw_local; } 
