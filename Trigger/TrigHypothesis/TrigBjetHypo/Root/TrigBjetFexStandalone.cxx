@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -18,23 +18,6 @@
 
 #include "TrigBjetHypo/TrigBjetTagger.h"
 #include "TrigBjetHypo/TuningLikelihood.h"
-
-//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-//#include "Particle/TrackParticleContainer.h"
-//#include "TrigInDetEvent/TrigVertexCollection.h"
-//#include "VxVertex/VxContainer.h"
-//#include "VxSecVertex/VxSecVertexInfo.h"
-//#include "VxSecVertex/VxSecVKalVertexInfo.h"
-//#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-//#include "EventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
-
-//#include "TrigParticle/TrigL2BjetContainer.h"
-//#include "TrigParticle/TrigEFBjetContainer.h"
-
-//#include "TrigInDetEvent/TrigVertex.h"
-
-
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
