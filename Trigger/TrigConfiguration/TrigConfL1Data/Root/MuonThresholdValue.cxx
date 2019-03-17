@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/MuonThresholdValue.h"
@@ -10,10 +10,6 @@ using namespace std;
 TrigConf::MuonThresholdValue::MuonThresholdValue() :
    TriggerThresholdValue()
 {}
-
-TrigConf::MuonThresholdValue::~MuonThresholdValue()
-{}  
-
 
 TrigConf::TriggerThresholdValue*
 TrigConf::MuonThresholdValue::createCopy() const {

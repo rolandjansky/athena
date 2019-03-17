@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_TriggerThresholdValue
@@ -36,7 +36,7 @@ namespace TrigConf {
       
    public:
       TriggerThresholdValue();
-      virtual ~TriggerThresholdValue();
+      virtual ~TriggerThresholdValue() = default;
 
       virtual TriggerThresholdValue* createCopy() const = 0;
 

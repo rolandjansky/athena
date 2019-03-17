@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_TrigConfData
@@ -13,8 +13,7 @@ namespace TrigConf {
    class TrigConfData {
    public:
       TrigConfData(const std::string& name = "");
-      TrigConfData(const TrigConfData& o);
-      virtual ~TrigConfData(){}
+      virtual ~TrigConfData() = default;
 
       // getters
       int superMasterTableId() const {return (int)m_smk;}

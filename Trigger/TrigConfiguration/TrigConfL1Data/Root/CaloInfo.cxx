@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/CaloInfo.h"
@@ -25,8 +25,6 @@ CaloInfo::CaloInfo()
      m_JetWindowSizeLarge( 0 )
 {}
   
-CaloInfo::~CaloInfo() {}
-
 void
 CaloInfo::addJetWeight(int jw) {
    m_JetWeights.push_back(jw);
