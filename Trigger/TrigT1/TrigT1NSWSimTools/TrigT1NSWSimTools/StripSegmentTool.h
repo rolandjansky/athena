@@ -97,8 +97,10 @@ namespace NSWL1 {
     std::vector<int> *m_seg_wedge1_size;                        //!< theta
     std::vector<int> *m_seg_wedge2_size;                        //!< theta
     std::vector<float> *m_seg_theta;                        //!< theta
-    std::vector<float> *m_seg_dtheta;                       //!< delta theta
+    std::vector<float> *m_seg_dtheta;                      //!< delta theta
+    std::vector<uint8_t> *m_seg_dtheta_int; 
     std::vector<float> *m_seg_eta;                          //!< m_seg_eta
+    std::vector<float> *m_seg_eta_inf;  
     std::vector<float> *m_seg_phi;
     std::vector<int> *m_seg_bandId;
     std::vector<int> *m_seg_secId;
@@ -115,15 +117,20 @@ namespace NSWL1 {
     
     protected:
         SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-        int m_rIndexBits;
-        StatusCode FetchDetectorEnvelope();
-        std::pair<float,float> m_zbounds;
-        std::pair<float,float> m_etabounds;
-        std::pair<float,float> m_rbounds;
-        int findRIdx(const float& ,const int scheme=0);
-        int m_ridxScheme;
+
     private:
-           ToolHandle<sTGC_RegionSelectorTable> m_regionHandle;
+            ToolHandle<sTGC_RegionSelectorTable> m_regionHandle;
+            int m_rIndexBits;
+            int m_dThetaBits;
+            StatusCode FetchDetectorEnvelope();
+            std::pair<float,float> m_zbounds;
+            std::pair<float,float> m_etabounds;
+            std::pair<float,float> m_rbounds;
+            uint8_t findRIdx(const float&);
+            uint8_t findDtheta(const float&);
+            int m_ridxScheme;
+            float m_dtheta_min;
+            float m_dtheta_max;           
      
     
   };  // end of StripSegmentTool class

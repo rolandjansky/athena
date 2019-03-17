@@ -362,9 +362,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     //**************************************************************************************
     auto pad0=innertrg.pads().at(0);
     
-    //======= THIS NEEDS TO BE FIXED (COORDINATE BASED BAND SELECTION MUST BE IMPLEMENTED)=========================== 
-    //================ EOF NEEDS TO BE FIXED =======================================
-    pt.m_multiplet_id = pad0->multipletId();//S.I inner outer wedge or module 1 2 3 ??
+    pt.m_multiplet_id = pad0->multipletId();
     pt.m_eta_id = innertrg.halfPadCoordinates().ieta;//this is meaningless and shoiuld be removed
     pt.m_phi_id = innertrg.halfPadCoordinates().iphi;//This is the PHI-ID of the trigger 
     pt.m_isSmall= int(innertrg.isSmallSector());
@@ -391,8 +389,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
 
      //S.I value of Z where trigger region is calculated.
      //from Z0 --> <Z of a pad> --->local coordinate
-    static const int INNER=1;
-    static const int OUTER=2;
+
     for(const SingleWedgePadTrigger& swt : stc.wedgeTrigs()){
         std::vector<float> trglocalminY;
         std::vector<float> trglocalmaxY;
@@ -401,7 +398,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         std::vector<int> trgPadPhiIndices;
         std::vector<int> trgPadEtaIndices;
         std::vector< std::shared_ptr<PadData>> trgPads;
-        int wedge=swt.pads().at(0)->multipletId();
     	for(const auto &p : swt.pads()){
                 //S.I 17-07-18
                 const float padZ=p->m_cornerXyz[0][2];
@@ -489,17 +485,16 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     			pt.m_pads.push_back(p);
                 std::vector<float> pad_info={p->multipletId(),p->gasGapId(),bandLocalMinY,bandLocalMaxY};
                 
-                //it seems pad overlap is so precise enough around 5microns .
+                //it seems pad overlap is  precise enough around 5microns .
                 if(!within(local_padminy,local_padmaxy,local_trigminy,local_trigmaxy,0.005)){
                     ATH_MSG_FATAL("TRIGGER REGION FALLS OUTSIDE THE PAD!. SOMETHING IS WRONG.");
                 }     
-    			//pad_info.push_back(p->multipletId());
-    			//pad_info.push_back(p->gasGapId());
+ 
     			pt.m_pad_strip_info.push_back(pad_info);
     	} // for(p) pads
     	
-    	switch(wedge){
-            case INNER:
+    	switch(pt.m_multiplet_id){
+            case 1:
                 pt.m_trglocalminYInner=trglocalminY;
                 pt.m_trglocalmaxYInner=trglocalmaxY;
                 pt.m_trgSelectedLayersInner=trgSelectedLayers;
@@ -507,7 +502,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                 pt.m_trgPadPhiIndicesInner=trgPadPhiIndices;
                 pt.m_trgPadEtaIndicesInner=trgPadEtaIndices;
                 pt.m_padsInner=trgPads;
-            case OUTER:
+            case 2:
                 pt.m_trglocalminYOuter=trglocalminY;
                 pt.m_trglocalmaxYOuter=trglocalmaxY;                
                 pt.m_trgSelectedLayersOuter=trgSelectedLayers;

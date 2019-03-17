@@ -53,17 +53,23 @@ namespace NSWL1 {
       m_sTgcIdHelper(0),
       m_tree(0),
       m_rIndexBits(0),
+      m_dThetaBits(0),
       m_zbounds({-1,1}),
       m_etabounds({-1,1}),
       m_rbounds({-1,-1}),
-      m_ridxScheme(0)
+      m_ridxScheme(0),
+      m_dtheta_min(0),
+      m_dtheta_max(0)
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 
       declareProperty("DoNtuple", m_doNtuple = true, "input the StripTds branches into the analysis ntuple"); 
       declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
-      declareProperty("rIndexBits", m_rIndexBits = 8, "number bits in the rIndex slicing");
-      declareProperty("rIndexScheme", m_ridxScheme = 0, "rIndex sclicing scheme/ 0-->R / 1-->eta");
+      declareProperty("rIndexBits", m_rIndexBits = 8,   "number bits in R-index calculation");
+      declareProperty("dthetaBits", m_dThetaBits = 5,   "number bits in dTheta calculation");
+      declareProperty("dthetaMin", m_dtheta_min = -15,  "minimum allowed value for dtheta in mrad");
+      declareProperty("dthetaMax", m_dtheta_max = 15,   "maximum allowed value for dtheta in mrad");
+      declareProperty("rIndexScheme", m_ridxScheme = 1, "rIndex slicing scheme/ 0-->R / 1-->eta");
       declareProperty("NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
 
     }
@@ -72,7 +78,7 @@ namespace NSWL1 {
 
     }
 
- 
+//  
   
   StatusCode StripSegmentTool::initialize() {
       ATH_MSG_INFO("initializing " << name() );
@@ -213,10 +219,10 @@ namespace NSWL1 {
         return StatusCode::SUCCESS;
     }
   
-  int StripSegmentTool::findRIdx(const float& val,const int scheme){
-    static unsigned int nSlices=(1<<m_rIndexBits);
+  uint8_t StripSegmentTool::findRIdx(const float& val){
+     unsigned int nSlices=(1<<m_rIndexBits);
     std::pair<float,float> range;
-    switch(scheme){
+    switch(m_ridxScheme){
         case 0:
             range=m_rbounds;
             break;
@@ -228,22 +234,33 @@ namespace NSWL1 {
             break;
     }
     
-    static  float step=(range.second-range.first)/nSlices;
+    float step=(range.second-range.first)/nSlices;
     if(val<=range.first) return 0;
     if(val>=range.second) return nSlices-1;
-    for(unsigned int i=0;i<nSlices;i++){
+    for(uint8_t i=0;i<nSlices;i++){
             if(range.first+i*step>=val){
                 return i;
             }
     }
-    return -1;
+    return 0;
   }
-  
+ 
+ 
+  uint8_t StripSegmentTool::findDtheta(const float& val){
+     uint8_t nbins_dtheta=1<<m_dThetaBits;
+     float step_dtheta=(m_dtheta_max-m_dtheta_min)/nbins_dtheta;
+     for(uint8_t i=0;i<nbins_dtheta;i++){
+            if(val<m_dtheta_min+i*step_dtheta) return i;
+     }
+     return 0;
+ } 
+ 
+ 
     StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
       /** S.I If you worry(you should) about events with no clusters why dont we add this at the very beginning ? ***/
       if (clusters.size()==0){
-          ATH_MSG_INFO("Received event with no clusters. Skipping...");  
+          ATH_MSG_WARNING("Received event with no clusters. Skipping...");  
           return StatusCode::SUCCESS;
       }
       /*********************************************************/
@@ -294,7 +311,8 @@ namespace NSWL1 {
          float glx=0;
          float gly=0;
 	     float phi=0;
-	     float eta=0;
+	     float eta_inf=0;
+         float eta=0;
 	     float charge1=0;
          float charge2=0;
 
@@ -335,7 +353,7 @@ namespace NSWL1 {
          glx=(glx1+glx2)/2.;
          gly=(gly1+gly2)/2.;
          float slope=(r2-r1)/(z2-z1);
-         float avg_r=(r1+r2)/2.;//S.I is it possible in the Hardware implementation? Somebody said no
+         float avg_r=(r1+r2)/2.;
          float avg_z=(z1+z2)/2.;
          float inf_slope=(avg_r/avg_z);
          //float dR=slope-inf_slope;
@@ -343,10 +361,12 @@ namespace NSWL1 {
          float theta=atan(slope);
          float dtheta=(theta_inf-theta)*1000;//In Milliradian
          if(avg_z>0){
-            eta=-log(tan(theta/2));//S.I Does this local eta have a meaning ?
+            eta_inf=-log(tan(theta_inf/2));
+            eta=-log(tan(theta/2));
          }
          else if(avg_z<0){
-            eta=log(tan(-theta/2));
+            eta_inf=log(tan(-theta_inf/2));
+            eta=log(tan(theta/2));
          }
          else{
             ATH_MSG_ERROR("Segment Global Z at IP");//S.I : Error so ?
@@ -371,26 +391,37 @@ namespace NSWL1 {
             ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");//S.I does this even necessary ? then what ?
          }
         
-        
-        //if(fabs(dtheta)>15) return StatusCode::SUCCESS; //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
+        //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
+        //if(fabs(dtheta)>15) return StatusCode::SUCCESS; 
         
         //do not get confused. this one is trigger phiId 
         int phiId=band.second[0].at(0)->phiId();
-        float delta_z=fabs(m_zbounds.second-z2);
-        float delta_r=delta_z*tan(theta);
-        float rfar=r2+delta_r;
-        
-        
-        if(rfar < m_rbounds.first || rfar>m_rbounds.second){
-            ATH_MSG_WARNING("R index out of NSW surface rfar="<<rfar<<" where rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second);
+        float delta_z=fabs(m_zbounds.second-avg_z);
+        float delta_r=delta_z*tan(theta_inf);
+        float rfar=avg_r+delta_r;
+
+        if(r1>m_rbounds.second || r2>m_rbounds.second ){
+            ATH_MSG_WARNING("measured r is out of detector envelope! r1="<<r1<<" r2="<<r2<<" rmax="<<m_rbounds.second);
         }
-    
-        uint8_t rIndex=(uint8_t)(findRIdx(rfar));
+        
+        
+        uint8_t rIndex=0;
+        switch(m_ridxScheme){
+            case 0:
+                rIndex=findRIdx(rfar);
+                break;
+            case 1:
+                rIndex=findRIdx(eta_inf);
+                break;
+            default:
+                break;   
+        }
+        
+        
         bool phiRes=true;
         bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
-        uint8_t phiIndex=(uint8_t)phiId;
-        uint8_t deltaTheta=uint8_t(dtheta);
-        auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( deltaTheta,  phiIndex,  rIndex, lowRes,  phiRes);      
+        uint8_t dtheta_int=findDtheta(dtheta);
+        auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);      
         trgRawData->push_back(std::move(rdo_segment));
         
         //Fill ntuple info
@@ -401,7 +432,9 @@ namespace NSWL1 {
         m_seg_rIdx->push_back(rIndex);
         m_seg_theta->push_back(theta);
         m_seg_dtheta->push_back(dtheta);
+        m_seg_dtheta_int->push_back(dtheta_int);
         m_seg_eta->push_back(eta);
+        m_seg_eta_inf->push_back(eta_inf);
         m_seg_phi->push_back(phi);
         m_seg_global_r->push_back(avg_r); 
         m_seg_global_x->push_back(glx);
@@ -428,7 +461,9 @@ namespace NSWL1 {
 
       m_seg_theta = new std::vector< float >();    
       m_seg_dtheta = new std::vector< float >();
-      m_seg_eta = new std::vector< float >();   
+      m_seg_dtheta_int = new std::vector< uint8_t >();
+      m_seg_eta = new std::vector< float >();  
+      m_seg_eta_inf=new std::vector< float >();
       m_seg_phi = new std::vector< float >();
       m_seg_global_r = new std::vector< float >();
       m_seg_global_x = new std::vector< float >();
@@ -448,8 +483,10 @@ namespace NSWL1 {
          const char* n = ToolName.c_str();
          m_tree->Branch(TString::Format("%s_seg_theta",n).Data(),&m_seg_theta);
          m_tree->Branch(TString::Format("%s_seg_dtheta",n).Data(),&m_seg_dtheta);
+         m_tree->Branch(TString::Format("%s_seg_dtheta_int",n).Data(),&m_seg_dtheta_int);
 
          m_tree->Branch(TString::Format("%s_seg_eta",n).Data(),&m_seg_eta);
+         m_tree->Branch(TString::Format("%s_seg_eta_inf",n).Data(),&m_seg_eta_inf);
          m_tree->Branch(TString::Format("%s_seg_phi",n).Data(),&m_seg_phi);
 
          m_tree->Branch(TString::Format("%s_seg_global_r",n).Data(),&m_seg_global_r);
@@ -485,7 +522,9 @@ namespace NSWL1 {
     void StripSegmentTool::clear_ntuple_variables() {
       m_seg_theta->clear();    
       m_seg_dtheta->clear();
-      m_seg_eta->clear();   
+      m_seg_dtheta_int->clear();
+      m_seg_eta->clear();
+      m_seg_eta_inf->clear();
       m_seg_phi->clear();
       m_seg_global_r->clear();
       m_seg_global_x->clear();
