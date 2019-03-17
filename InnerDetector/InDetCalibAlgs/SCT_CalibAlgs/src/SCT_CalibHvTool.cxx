@@ -18,9 +18,9 @@
 using namespace std;
 using namespace SCT_CalibAlgs;
 
-const static string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"};
+static const string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"};
 
-const static string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
+static const string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 namespace {
   void
   initQueue(std::queue<int>& q, const int numvals, const int setval) {

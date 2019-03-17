@@ -50,7 +50,7 @@ protected:
   ///Check if the event passes L1 item
   bool isCalibrationNoise(const std::string& L1_Item);
   ///Abbreviations for level 1 trigger types
-  const static std::string m_triggerNames[8];
+  static const std::string m_triggerNames[8];
   ///Format and output (INFO msg level) the fired triggers
   StatusCode printTriggers() const;
   //@deprecated improper camel casing on old method
