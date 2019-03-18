@@ -67,8 +67,12 @@ echo "art-result: $? physval_2"
 mv ./MyPhysVal.root ./physval_2.root
 
 # Combining two IDPVM outputs using postprocessing
-hadd ./physval_hadd.root ./physval_1.root ./physval_2.root
-$artdata/InDetSLHC_Example/scripts/postprocessHistos ./physval_hadd.root
+( set -x
+  hadd ./physval_hadd.root ./physval_1.root ./physval_2.root
+  cp $artdata/InDetSLHC_Example/scripts/postprocessHistos .
+  chmod a+x ./postprocessHistos  
+  ./postprocessHistos ./physval_hadd.root
+)
 
 mv ./physval_hadd.root ./$dcubemon_postprocessing
 
