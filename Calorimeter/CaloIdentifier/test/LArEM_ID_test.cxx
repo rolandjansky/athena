@@ -55,11 +55,7 @@ void test4 (const LArEM_ID& em_id)
   for (unsigned int iCell = 0 ; iCell < em_id.channel_hash_max(); ++iCell){
     em_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList);
 
-    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-    for (;last!=first; first++){
-      
-      IdentifierHash neighbourHash=(*first);
+    for (IdentifierHash neighbourHash : neighbourList) {
       if(neighbourHash < hash_min ) {
         hash_min = neighbourHash;
       }

@@ -604,7 +604,7 @@ int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbou
   return result;
 }
 
-int         LArFCAL_Base_ID::init_neighbours_from_file(std::string filename, std::vector<std::set<IdentifierHash> > & vec)
+int         LArFCAL_Base_ID::init_neighbours_from_file(const std::string& filename, std::vector<std::set<IdentifierHash> > & vec)
 {
   MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
 

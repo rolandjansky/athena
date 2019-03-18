@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCellGroup.h"
@@ -289,10 +289,7 @@ void CaloCellGroupList::dump(const CaloCell_ID* caloCellId) {
     m_groups[i].printDef();
   }
   std::cout << "Results: "<< std::endl;
-  std::vector<Identifier>::const_iterator it=caloCellId->cell_begin();
-  std::vector<Identifier>::const_iterator it_e=caloCellId->cell_end();
-  for(;it!=it_e;it++) {
-    const Identifier id=(*it);
+  for (const Identifier& id : caloCellId->cell_range()) {
     std::cout << "Values for " << caloCellId->show_to_string(id); 
     const std::vector<float>& x=this->valuesForCell(id);
     std::cout << " [";
