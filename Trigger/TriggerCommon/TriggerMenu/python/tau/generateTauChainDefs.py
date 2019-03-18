@@ -54,7 +54,7 @@ def generateChainDefs(chainDict):
         
     #add support for topological algorithms
     if chainDict["topo"]:
-        log.info("Adding Tau Topological Algorithm(s) to chain")
+        log.debug("Adding Tau Topological Algorithm(s) to chain")
         theChainDef = _addTopoInfo(theChainDef,chainDict)    
         
     return theChainDef
