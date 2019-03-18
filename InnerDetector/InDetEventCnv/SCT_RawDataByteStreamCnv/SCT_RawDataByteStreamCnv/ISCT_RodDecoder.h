@@ -3,10 +3,10 @@
 */
 
 /**
- *      @file header for SCT_RodDecoder Class
- *      AlgTool class to decode ROB bytestream data into RDO
- *      @author: Kondo.Gnanvo@cern.ch, Maria.Jose.Costa@cern.ch
- *      @current developer: Kondo Gnanvo, QMUL (London), august 2005
+ * @file SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h
+ * @author Kondo.Gnanvo@cern.ch, Maria.Jose.Costa@cern.ch
+ *
+ * AlgTool class to decode ROB bytestream data into RDO
  */
 
 #ifndef INDETRAWDATABYTESTREAM_ISCT_RODDECODER_H 
@@ -24,18 +24,17 @@
 class StatusCode;
 class IdentifierHash;
 
-class ISCT_RodDecoder : virtual public IAlgTool {
+class ISCT_RodDecoder : virtual public IAlgTool 
+{
  public: 
 
-  /** destructor  */
-  virtual ~ISCT_RodDecoder() = default;
-
-  /// Creates the InterfaceID and interfaceID() method
+  /** Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(ISCT_RodDecoder, 1, 0);
 
-  /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
-   *  with the RDO built by the makeRDO(..) method
-   **/
+  /** Destructor */
+  virtual ~ISCT_RodDecoder() = default;
+
+  /** Fill Collection method */
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
                                     ISCT_RDO_Container&,
                                     InDetBSErrContainer* errs,

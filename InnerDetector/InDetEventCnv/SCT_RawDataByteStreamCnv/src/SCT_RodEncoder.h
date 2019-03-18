@@ -1,14 +1,6 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-/**
- * @file SCT_RodEncoder.h
- * @author: Nick Barlow (nbarlow@mail.cern.ch, Kondo.Gnanvo@cern.ch)
- * @date 21 June 2007 (SCT_RodEncoder turned into An AlgTool)
- * 
- * This class provides conversion from SCT RDO to ROD format ByteStream.
- */
  
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
@@ -96,9 +88,9 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
    *
    * @param vecTimeBins Vector of time bins for RDOs.
    * @param vec16Words Vector of 16 bit words to filled from encoded RDO data.
-   * @param rdo RDO raw data object to be encoded
-   * @param groupSize Group size info from the RDO
-   * @param strip Strip number info from the RDO
+   * @param rdo RDO raw data object to be encoded.
+   * @param groupSize Group size info from the RDO.
+   * @param strip Strip number info from the RDO.
    */
   void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, 
                   const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const;
@@ -109,11 +101,10 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
    * Method us used by private method encodeData(...).
    *
    * @param vec16Words Vector containing 16 bit words.
-   * @param vec32Words Vector for 32 bit words to be packed
+   * @param vec32Words Vector for 32 bit words to be packed.
    */
   void packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const;
 
-  /// from 16 bits array to 32 bit array   
   /**
    * @breif Method to set pairs of 16 bit words to a 32 bit word.
    *
@@ -177,6 +168,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                                          "SCT_CablingTool", 
                                          "SCT_CablingTool", 
                                          "Tool to retrieve SCT Cabling"};
+
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */
   const SCT_ID* m_sctID;

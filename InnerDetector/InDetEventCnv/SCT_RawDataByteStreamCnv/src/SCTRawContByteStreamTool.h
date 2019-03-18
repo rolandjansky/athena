@@ -2,12 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * @file SCT_RawDataByteStreamCnv/SCTRawContByteStreamTool.h
- * @author Hong Ma
- * @date October 2002
- */
-
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H
 

@@ -4,7 +4,6 @@
 
 #include "SCT_RodDecoder.h"
 
-//Athena
 #include "ByteStreamData/RawEvent.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -13,7 +12,6 @@
 
 #include "Identifier/IdentifierHash.h"
 
-//STL
 #include <algorithm>
 #include <deque>
 #include <utility>
@@ -23,9 +21,10 @@ union RawWord {
   uint16_t word16[2];
 };
 
-//constructor
-SCT_RodDecoder::SCT_RodDecoder
-(const std::string& type, const std::string& name,const IInterface* parent) :
+// Constructor
+
+SCT_RodDecoder::SCT_RodDecoder(const std::string& type, const std::string& name,
+                               const IInterface* parent) :
   base_class(type, name, parent),
   m_sctID{nullptr},
   m_singleCondHitNumber{0},
@@ -61,10 +60,13 @@ SCT_RodDecoder::SCT_RodDecoder
 {
 }
 
-StatusCode SCT_RodDecoder::initialize() {
+// Initialize
+
+StatusCode SCT_RodDecoder::initialize() 
+{
   ATH_CHECK(AlgTool::initialize());
 
-  /** Retrieve cabling tool */
+  // Retrieve cabling tool
   ATH_CHECK(m_cabling.retrieve());
   ATH_MSG_DEBUG("Retrieved tool " << m_cabling);
 
@@ -92,10 +94,11 @@ StatusCode SCT_RodDecoder::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode 
-SCT_RodDecoder::finalize() {
-  
-  /** print out summaries of data and errors decoded */
+// Finalize
+
+StatusCode SCT_RodDecoder::finalize() 
+{
+  // Print out summaries of data and errors decoded
   ATH_MSG_INFO("SCT BytestreamCnv summary: " << m_headNumber  <<" link headers found");
   ATH_MSG_INFO("SCT BytestreamCnv summary: " << m_trailerNumber << " link trailers found");
 
@@ -108,7 +111,7 @@ SCT_RodDecoder::finalize() {
   ATH_MSG_INFO("SCT decoding bytestream summary: " 
                << m_evenExpHitNumber    << " consecutive paired strips with hit in expanded mode");
   ATH_MSG_INFO("SCT decoding bytestream summary: " 
-               << m_lastExpHitNumber    << " last consecutive strip with hit in expanded mode");
+               << m_lastExpHitNumber    << " last consecutive strips with hit in expanded mode");
 
   if (m_headErrorBCID > 0) {
      ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "          
@@ -189,7 +192,7 @@ SCT_RodDecoder::finalize() {
   ATH_MSG_INFO("Number of SCT RDOs created->       " << m_nRDOs);
 
   if (m_numMissingLinkHeader > 0) ATH_MSG_WARNING("SCT Missing Link Headers found " << m_numMissingLinkHeader);
-  if (m_numUnknownOfflineID  > 0) ATH_MSG_WARNING("SCT unknown onlineID found "     << m_numUnknownOfflineID);
+  if (m_numUnknownOfflineID  > 0) ATH_MSG_WARNING("SCT unknown onlineIDs found "     << m_numUnknownOfflineID);
 
   ATH_CHECK(AlgTool::finalize());
   ATH_MSG_DEBUG("SCT_RodDecoder::finalize()");
@@ -197,22 +200,24 @@ SCT_RodDecoder::finalize() {
   return StatusCode::SUCCESS;
 }
 
+// fillCollection method
 
-StatusCode
-SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                               ISCT_RDO_Container& rdoIDCont,
-                               InDetBSErrContainer* errs,
-                               SCT_ByteStreamFractionContainer* bsFracCont,
-                               const std::vector<IdentifierHash>* vecHash) const
+StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                          ISCT_RDO_Container& rdoIDCont,
+                                          InDetBSErrContainer* errs,
+                                          SCT_ByteStreamFractionContainer* bsFracCont,
+                                          const std::vector<IdentifierHash>* vecHash) const
 {
   const uint32_t robID{robFrag.rod_source_id()};
-  /**determine whether this data was generated using the ROD simulator */
+  // Determine whether this data was generated using the ROD simulator
   const uint32_t rodDataType{robFrag.rod_detev_type()};
   const bool rodSimulatedData{static_cast<bool>((rodDataType >> 20) & 1)};
-  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robID, rodSimulatedData);
+  if (bsFracCont) {
+     bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robID, rodSimulatedData);
+  }
   if (rodSimulatedData) addRODError(robID, SCT_ByteStreamErrors::RODSimulatedData, errs);
 
-  /** look for the bit that denotes "Super-condensed" mode.*/
+  // Look for the bit that denotes "Super-condensed" mode
   const bool superCondensedMode{static_cast<bool>((rodDataType >> 21) & 1)};
   if (bsFracCont) {
      bsFracCont->insert(SCT_ByteStreamFractionContainer::SuperCondensedMode, robID, superCondensedMode);
@@ -237,12 +242,9 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
   RawWord robData;
   robData.word32=0;
   int n;
-  int errors{0}; /** encodes the errors on the header
-                  * bit 4: error in condensed mode 1st hit
-                  * bit 5: error in condensed mode 2nd hit
-                  */
+  int errors{0}; // Encodes the errors on the header (bit 4: error in condensed mode 1st hit, bit 5: error in condensed mode 2nd hit)
 
-  /** These are for the trigger */
+  // These are for the trigger
   CacheHelper cache;
   cache.vecHash = vecHash;
   
@@ -252,18 +254,17 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
 
   StatusCode sc{StatusCode::SUCCESS};
 
-  /// look at ROB status word ////////////////////////
-
+  // Look at ROB status word
   if (robFrag.nstatus()!=0) {
     const uint32_t* robStatus;
     robFrag.status(robStatus);
     if ((*robStatus)!=0) {
       ATH_MSG_DEBUG("ROB status word for robID " << std::hex << robID 
                     << " is non-zero " << (*robStatus) << std::dec);
-      /// first store generic "ROBFragmentError" error type..
+      // First store generic "ROBFragmentError" error type.
       addRODError(robID, SCT_ByteStreamErrors::ROBFragmentError, errs);
       sc = StatusCode::RECOVERABLE;
-      /// now look for specific problems, e.g. truncated or masked-off RODs
+      // Now look for specific problems, e.g. truncated or masked-off RODs
       if (((*robStatus) >> 27) & 0x1) {
         ATH_MSG_DEBUG("ROB status word for robID " << std::hex << robID 
                       << std::dec << " indicates data truncation.");
@@ -281,15 +282,14 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
     }
   }
   
-  /// look at ROD status words /////////
-
+  // Look at ROD status words
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vecRODStatus;
   const long unsigned int vecRODStatusSize{robFrag.rod_nstatus()};
 
   robFrag.rod_status(vecRODStatus);
   for (long unsigned int i{0}; i<vecRODStatusSize; i++) {
     const uint32_t statusWord{vecRODStatus[i]};
-    /** check for clock errors in second ROD status word */
+    // Check for clock errors in second ROD status word
     if (i==1) {
       const int timClockError{static_cast<int>((statusWord >> 16) & 0x1)};
       const int bocClockError{static_cast<int>((statusWord >> 17) & 0x1)};
@@ -299,15 +299,14 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         m_rodClockErrorNumber++;
         sc=StatusCode::RECOVERABLE;
       }
-      /** look at bits 20-23 for DCS HV */
+      // Look at bits 20-23 for DCS HV
       const int hvBits{static_cast<int>((statusWord >> 20) & 0xf)};
       const bool hvOn{hvBits==0xf};
       if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::HVOn, robID, hvOn);
     }
   }
   
-  /** now look at the data words */
-
+  // Now look at the data words
   bool foundHeader{false};
   
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vecROBData;
@@ -317,15 +316,13 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
   for (unsigned long int i{0}; i<vecROBDataSize; i++) {
     wordCount++;
     robData.word32 = vecROBData[i];
-    /** the data is 16-bits wide packed to a 32-bit word (rob_it1). So we unpack it here. */
+    // The data is 16-bits wide packed to a 32-bit word (rob_it1). So we unpack it here.
     uint16_t data16[2];
     data16[1] = robData.word16[0];
     data16[0] = robData.word16[1];
     
     for (n=0; n<2; n++) {
-      ///---------------------------------------------------------------------
-      /// hit element
-      ///---------------------------------------------------------------------
+      // Hit element
       if (data16[n]&0x8000) {
         if (not foundHeader) {
           ATH_MSG_INFO(" Missing link header in ROD " << std::hex << robID << std::dec);
@@ -337,16 +334,15 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
 
         m_nHits++;
         if (superCondensedMode) {
-
-          /** super-condensed mode
-           *  chip info : 4 bits  data16[n]>>11)0xF
-           *  chip number == (data16[n]>>11)&0x7 and chip side == (data16[n]>>14)&0x1
-           *  For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
-           */
+          // Super-condensed mode:
+          // Chip info: 4 bits  data16[n]>>11)0xF
+          // Chip number == (data16[n]>>11)&0x7
+          // Chip side == (data16[n]>>14)&0x1
+          // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
           chip = ((data16[n]>>11)&0x7); 
           side = ((data16[n]>>14)&0x1);
           strip = chip*128 + ((data16[n]>>4)&0x7F);
-          timeBin = 0x2; /** assuming timeBin is 010 in super-condensed mode */
+          timeBin = 0x2; // Assuming timeBin is 010 in super-condensed mode
           nStripsInWord = (data16[n]&0xf)+1;
           if (chip>5) {
             ATH_MSG_DEBUG("    Hit super-condensed : xxx Chip number = " << chip << " > 5 " << " for hit " 
@@ -357,10 +353,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             continue;
           }
 
-          /**------------ Search for redundancy only for the master chip */
+          // Search for redundancy only for the master chip
           if ((side==1) and ((linkNumber%2)==0)) {
-            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { /** if it is a new cluster,
-                                                                             * make RDO with the previous cluster */
+            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { 
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -376,8 +372,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             linkNumber++;
           }
           if ((side==0) and ((linkNumber%2)!=0)) {
-            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { /** if it is a new cluster,
-                                                                             * make RDO with the previous cluster */
+            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { 
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -395,13 +391,12 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           onlineID = ((robID & 0xFFFFFF)|(linkNumber << 24));
      
           if (groupSize == 0)  {
-            oldStrip = strip; /** if it's the first super-condensed word */
+            oldStrip = strip; // If it's the first super-condensed word
             oldSide = side;
           }
           
           if ((strip!=oldStrip) or (side!=oldSide)) {
-            /** if it is a new cluster,
-             * make RDO with the previous cluster */
+            // If it is a new cluster, make RDO with the previous cluster
             const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
             if (rdoMade == -1) {
               sc=StatusCode::RECOVERABLE;
@@ -418,16 +413,15 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
      
         } 
         else if (condensedMode) {
-    
-          /** condensed mode
-           *  chip info : 4 bits  data16[n]>>11)0xF
-           *  chip number == (data16[n]>>11)&0x7 and chip side == (data16[n]>>14)&0x1
-           *  For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
-           */
+          // Super-condensed mode:
+          // Chip info: 4 bits  data16[n]>>11)0xF
+          // Chip number == (data16[n]>>11)&0x7
+          // Chip side == (data16[n]>>14)&0x1
+          // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
           chip = ((data16[n]>>11)&0x7); 
           side = ((data16[n]>>14)&0x1);
           strip = chip*128 + ((data16[n]>>4)&0x7F);
-          timeBin = 0x2; /** assuming timeBin is 010 in condensed mode */
+          timeBin = 0x2; // Assuming timeBin is 010 in condensed mode
           if (chip>5) {
             ATH_MSG_DEBUG("    Hit condensed : xxx Chip number = " << chip << " > 5 " << " for hit " 
                           << std::hex << data16[n]);
@@ -437,10 +431,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             continue;
           }
 
-          /**------------ Search for redundancy only for the master chip */
+          // Search for redundancy only for the master chip
           if ((side==1) and ((linkNumber%2)==0)) {
-            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { /** if it is a new cluster,
-                                                                             * make RDO with the previous cluster */
+            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) {
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -456,8 +450,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             linkNumber++;
           }
           if ((side==0) and ((linkNumber%2)!=0)) {
-            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { /** if it is a new cluster,
-                                                                             * make RDO with the previous cluster */
+            if (((strip!=oldStrip) or (side!=oldSide)) and (groupSize>0)) { 
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -474,14 +468,13 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           }
           onlineID = ((robID & 0xFFFFFF)|(linkNumber << 24));
           if (groupSize == 0)  {
-            oldStrip = strip; /** if it's the first condensed word */
+            oldStrip = strip; // If it's the first condensed word
             oldSide = side;
           }
-          if (not (data16[n]&0x1)) { /** 1-hit */
+          if (not (data16[n]&0x1)) { // 1-hit
             m_singleCondHitNumber++;
             if ((strip!=oldStrip) or (side!=oldSide)) {
-              /** if it is a new cluster,
-               * make RDO with the previous cluster */
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -495,7 +488,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               groupSize = 0;
             }
       
-            if (data16[n]&0x4) { /** Error in the hit */
+            if (data16[n]&0x4) { // Error in the hit
               ATH_MSG_DEBUG("    Hit condensed : xxx ERROR in 1-hit " << std::hex << data16[n]);
               errorHit.push_back(groupSize);
               errors = (errors | 0x10);
@@ -504,7 +497,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             }
             groupSize = (groupSize>=2 ? groupSize : 1);
           } 
-          else { /** 2-hits */
+          else { // 2-hits
             if (strip > 767) {
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               sc=StatusCode::RECOVERABLE;
@@ -514,9 +507,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               continue;
             }
             m_pairedCondHitNumber++;
-            if ((strip!=oldStrip) or (side!=oldSide)) { /** if it is a new cluster,
-                                                         * make RDO with the previous cluster 
-                                                         */
+            if ((strip!=oldStrip) or (side!=oldSide)) {
+              // If it is a new cluster, make RDO with the previous cluster
               const int rdoMade{makeRDO(oldStrip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
@@ -529,14 +521,14 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               oldSide = side;
               groupSize = 0;
             }    
-            if (data16[n]&0x4) { /** Error in the first hit */
+            if (data16[n]&0x4) { // Error in the first hit
               ATH_MSG_DEBUG("    Hit condensed : xxx ERROR in 1st hit" << std::hex << data16[n]);
               errorHit.push_back(groupSize);
               m_condHit1Error++;
               errors = (errors | 0x10);
               sc=StatusCode::RECOVERABLE;
             }
-            if (data16[n]&0x8) { /** Error in the second hit */
+            if (data16[n]&0x8) { // Error in the second hit
               ATH_MSG_DEBUG("    Hit condensed : xxx ERROR in 2nd hit" << std::hex << data16[n]);
               errorHit.push_back(groupSize);
               m_condHit2Error++;
@@ -547,18 +539,17 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           }
         } 
         else {
-          /** Expanded mode
-           * chip info from the first word of expanded cluster : 4 bits  data16[n]>>11)0xF
-           * chip number == (data16[n]>>11)&0x7 and chip side == (data16[n]>>14)&0x1
-           * For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
-           */
-
-          if (not (data16[n]&0x8)) {  /** 1st hit cluster expanded */
+          // Expanded mode:
+          // Chip info from the first word of expanded cluster : 4 bits  data16[n]>>11)0xF
+          // Chip number == (data16[n]>>11)&0x7 
+          // Chip side == (data16[n]>>14)&0x1
+          // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
+          if (not (data16[n]&0x8)) {  // 1st hit cluster expanded
             m_firstExpHitNumber++;
             chip = ((data16[n]>>11)&0x7);  
             side = ((data16[n]>>14)&0x1);
             strip = chip*128 + ((data16[n]>>4)&0x7F);
-            timeBin = data16[n]&0x7; /** Real way for obtaining timeBin info */
+            timeBin = data16[n]&0x7; // Real way for obtaining timeBin info
       
             if (chip>5) {
               ATH_MSG_DEBUG("Expanded hit: First hit xxx ERROR chip Nb = " << chip << " > 5");   
@@ -568,7 +559,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             }
       
 
-            /** -------------- Search for redundancy only for the master chip */
+            // Search for redundancy only for the master chip
             if ((side==1) and ((linkNumber%2)==0))  {
               linkNumber++;
             }
@@ -587,8 +578,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             }
             groupSize = 0;
           } 
-          else { /** next hits cluster expanded */
-            if (data16[n]&0x80) { /** paired hits */
+          else { // Next hits cluster expanded
+            if (data16[n]&0x80) { // Paired hits
               if (strip > 767) {
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
                 sc=StatusCode::RECOVERABLE;
@@ -602,7 +593,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
                 continue;
               }
-              /** first hit from the pair  */
+              // First hit from the pair
               strip++;
               timeBin = data16[n]&0x7;
               groupSize = 1;
@@ -614,7 +605,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               else {
                 saved[side*768+strip] = rdoMade1;
               }
-              /** second hit from the pair */
+              // Second hit from the pair
               strip++;
               timeBin = ((data16[n] >> 4) & 0x7);
               const int rdoMade2{makeRDO(strip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
@@ -627,7 +618,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               }
               groupSize = 0;
             } 
-            else {  /** Last hit of the cluster */
+            else { // Last hit of the cluster
               m_lastExpHitNumber++;
               if (chip>5) {
                 ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " > 5");  
@@ -649,13 +640,11 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               groupSize = 0; 
             }
           }
-        } // end expanded mode
-      }// end of hit element
+        } // End expanded mode
+      } // End of hit element
       
       
-      ///---------------------------------------------------------------------
-      /// Header
-      ///---------------------------------------------------------------------
+      // Header
       else if (((data16[n]>>13)&0x7) == 0x1) {
         foundHeader=true;
   
@@ -671,7 +660,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           }
         }
   
-        /** Everything is set to default for a new hunt of RDO */
+        // Everything is set to default for a new hunt of RDO
         strip =0;
         oldStrip = -1;
         oldSide = -1;
@@ -680,10 +669,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         memset(saved,0,768*2);
         errorHit.clear();
 
-        /** Link Number (or stream) in the ROD fragment */
+        // Link Number (or stream) in the ROD fragment
         const int rodlinkNumber{static_cast<int>(data16[n] & 0x7F)};
 
-        /** This is the real calculation for the offline  */
+        // This is the real calculation for the offline
         linkNumber = (((rodlinkNumber >>4)&0x7)*12+(rodlinkNumber &0xF));
         onlineID = ((robID & 0xFFFFFF)|(linkNumber << 24));     
         if ((onlineID ==0) or (linkNumber > 95)) {
@@ -696,10 +685,9 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         else {
           currentLinkIDHash = m_cabling->getHashFromOnlineId(onlineID);
         }
-        /// look for masked off links - bit 7
+        // Look for masked off links - bit 7
         if (data16[n] >> 7 & 0x1) {
           ATH_MSG_DEBUG("Masked link " << onlineID << " " << currentLinkIDHash);
-          //no counter increment here, is that correct? (sar)
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::MaskedLink, errs);
           sc=StatusCode::RECOVERABLE; 
         }
@@ -742,19 +730,15 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
 
         continue;
   
-      } // end header
+      } // End header
       
-      ///---------------------------------------------------------------------
-      /// trailer
-      ///---------------------------------------------------------------------
+      // Trailer
       else if (((data16[n]>>13)&0x7) == 0x2) {
         foundHeader=false;
   
         m_trailerNumber++;
-        //ErrorTrailer = false;
   
         if (data16[n]&0x1000) {
-          //ErrorTrailer = true;
           ATH_MSG_DEBUG("    Trailer: xxx Trailer ERROR " << std::hex << data16[n]);
           m_trailerErrorBit++;
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::TrailerError, errs);
@@ -762,10 +746,9 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         }
   
         if (data16[n]&0x800) {
-          //ErrorTrailer = true;
-          /** no data should appear between header and trailer
-              See 1.2.2 Formatter FPGA - Serial Data Decoding and Formatting of
-              http://www-eng.lbl.gov/~jmjoseph/Atlas-SiROD/Manuals/usersManual-v164.pdf */
+          // No data should appear between header and trailer
+          // See 1.2.2 Formatter FPGA - Serial Data Decoding and Formatting of
+          // http://www-eng.lbl.gov/~jmjoseph/Atlas-SiROD/Manuals/usersManual-v164.pdf
           ATH_MSG_DEBUG("    Trailer: xxx Header-Trailer limit ERROR " << std::hex << data16[n]);
           m_trailerErrorLimit++;
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::HeaderTrailerLimitError, errs);
@@ -773,14 +756,14 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         }
   
         if (data16[n]&0x400) {
-          //ErrorTrailer = true; /** not sure if there are hit elements before (probably yes but in principle they are fine) */
+          // Not sure if there are hit elements before (probably yes but in principle they are fine)
           ATH_MSG_DEBUG("    Trailer: xxx Data Overflow ERROR " << std::hex << data16[n]);
           m_trailerErrorOverflow++;
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::TrailerOverflowError, errs);
           sc=StatusCode::RECOVERABLE;
         }
         if (data16[n] & 0xF) {
-          // fisrt temporarily masked chip information
+          // First temporarily masked chip information
           // 0 means no masked chip (always has been 0 until April 2017)
           // 
           // If Rx redundacy is not used, 
@@ -805,16 +788,13 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         continue; 
       }
       
-      ///---------------------------------------------------------------------
-      /// FlaggedABCD error
-      /// 000xxxxxxFFFFEEE
-      /// 000: FlaggedABCD error: xxxxxxx not used, FFFF: chip, EEE: error code
-      ///---------------------------------------------------------------------
+      // FlaggedABCD error
+      // 000xxxxxxFFFFEEE
+      // 000: FlaggedABCD error: xxxxxxx not used, FFFF: chip, EEE: error code
       else if (((data16[n]>>13)&0x7) == 0x0) {
         chip = ((data16[n]>>3)&0xF);
         abcError = data16[n]&0x7; 
-        /** no data should appear for that chip but how do we 
-         * want to transmit this information ? */
+        // No data should appear for that chip but how do we want to transmit this information?
         IdentifierHash flagIDHash{0};
         if (onlineID == 0) {
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -869,9 +849,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         continue;
       } 
       else if (((data16[n]>>13)&0x7) == 0x3) {
-        ///---------------------------------------------------------------------
-        /// Raw Data
-        ///---------------------------------------------------------------------
+        // Raw Data
         IdentifierHash rawIDHash{0};
         if (onlineID == 0) {
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -882,7 +860,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         }
 
         ATH_MSG_DEBUG(" xxx Raw Data Mode " << std::hex << data16[n] << std::dec << ": Config Data Mode ");
-        /** too many errors in the BS for the ROD to decode the data */
+        // Too many errors in the BS for the ROD to decode the data
         m_configDataBit++;
         addSingleError(rawIDHash, SCT_ByteStreamErrors::RawError, errs);
         sc=StatusCode::RECOVERABLE;
@@ -894,10 +872,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
         sc=StatusCode::RECOVERABLE;
       }
-    } //end of 16-bit word loop
-  }   //end of 32-bit word loop
+    } // End of 16-bit word loop
+  } // End of 32-bit word loop
 
-  /** create RDO of the last ink or stream of the event */
+  // Create RDO of the last ink or stream of the event
   if (saved[side*768+strip]==false and oldStrip>=0) {
     const int rdoMade{makeRDO(strip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
     if (rdoMade == -1) {
@@ -914,12 +892,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;
 }
-/** makeRDO has 3 possible return values: 
- *          1 if RDO was successfully created,
- *          0 if collection was deliberately skipped (for trigger)
- *         -1 if there was an error in the decoding - will be passed
- *            on as StatusCode::RECOVERABLE by fillCollection().
- */
+
+// makeRDO method
 
 int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onlineID, int errors,
                             ISCT_RDO_Container& rdoIDCont,
@@ -930,9 +904,9 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
     ATH_MSG_WARNING("No link header found, possibly corrupt ByteStream.  Will not try to make RDO");
     return -1;
   }
-  /** get offlineId from the link number and ROB number */
-  const IdentifierHash idCollHash{m_cabling->getHashFromOnlineId(onlineID)};
-  if (not idCollHash.is_valid()) {
+  // Get offlineId from the link number and ROB number
+  const IdentifierHash collIDHash{m_cabling->getHashFromOnlineId(onlineID)};
+  if (not collIDHash.is_valid()) {
     m_numUnknownOfflineID++;
     ATH_MSG_ERROR("Unknown OfflineId for OnlineId -> cannot create RDO");
     ATH_MSG_WARNING("Unknown OfflineId for OnlineId " << std::hex << onlineID  
@@ -942,107 +916,110 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
 
   if (((strip & 0x7f) + (groupSize-1) > 127) or (strip<0) or (strip>767)) {
     ATH_MSG_WARNING("Cluster with " << groupSize << " strips, starting at strip " << strip
-                    << " in collection " << idCollHash << " out of range. Will not make RDO");
+                    << " in collection " << collIDHash << " out of range. Will not make RDO");
     return -1;
   }
 
-  /** this option is for the trigger, if there is a vecHash* given, test it ! */
+  // This option is for the trigger, if there is a vecHash* given, test it!
   if (cache.vecHash) {
-    if (idCollHash == cache.skipHash) {
+    if (collIDHash == cache.skipHash) {
       ATH_MSG_VERBOSE("Collection for Hash not to be decoded, skip");
       return 0;
     } 
-    else if (idCollHash != cache.lastHash) {
-      cache.lastHash = idCollHash;
-      /** maybe the new hash is not in the list, so test it */
-      std::vector<IdentifierHash>::const_iterator idHashIterator{find(cache.vecHash->begin(), 
+    else if (collIDHash != cache.lastHash) {
+      cache.lastHash = collIDHash;
+      // Maybe the new hash is not in the list, so test it
+      std::vector<IdentifierHash>::const_iterator hashIDIterator{find(cache.vecHash->begin(), 
                                                                       cache.vecHash->end(), 
-                                                                      idCollHash)};
-      if (idHashIterator == cache.vecHash->end()) {
+                                                                      collIDHash)};
+      if (hashIDIterator == cache.vecHash->end()) {
         ATH_MSG_VERBOSE("Collection for Hash not to be decoded, skip");
-        /** remember this one, so that we do not find(...) forever */
-        cache.skipHash = idCollHash;
+        // Remember this one, so that we do not find(...) forever
+        cache.skipHash = collIDHash;
         return 0;
       }
     }
   }
 
-  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryFetch(idCollHash)){
-    ATH_MSG_DEBUG("Hash already in collection - cache hit " << idCollHash);
+  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryFetch(collIDHash)){
+    ATH_MSG_DEBUG("Hash already in collection - cache hit " << collIDHash);
     return 0;
   }
 
-  /** see if strips go from 0 to 767 or vice versa */
-  if (m_swapPhiReadoutDirection[idCollHash]) {
+  // See if strips go from 0 to 767 or vice versa
+  if (m_swapPhiReadoutDirection[collIDHash]) {
     strip = 767 - strip;
     strip = strip-(groupSize-1);
   }
 
-  /** get identifier from the hash, this is not nice */
-  const Identifier idColl{m_sctID->wafer_id(idCollHash)};
-  const Identifier idDigit{m_sctID->strip_id(idColl, strip)};
-  if (not m_sctID->is_sct(idDigit)) {
+  // Get identifier from the hash, this is not nice
+  const Identifier collID{m_sctID->wafer_id(collIDHash)};
+  const Identifier digitID{m_sctID->strip_id(collID, strip)};
+  if (not m_sctID->is_sct(digitID)) {
     ATH_MSG_WARNING("Cluster with invalid Identifier. Will not make RDO");
     return -1;
   }
+
   const unsigned int rawDataWord{static_cast<unsigned int>(groupSize | (strip << 11) | (timeBin <<22) | (errors << 25))};
 
-  ATH_MSG_DEBUG("Output Raw Data " << std::hex << " Coll " << idColl.getString()
-                << ":-> " << m_sctID->print_to_string(idDigit) << std::dec);
+  ATH_MSG_DEBUG("Output Raw Data " << std::hex << " Coll " << collID.getString()
+                << ":-> " << m_sctID->print_to_string(digitID) << std::dec);
 
 
 
   SCT_RDO_Collection* sctRDOColl{nullptr};
-  ATH_CHECK(rdoIDCont.naughtyRetrieve(idCollHash, sctRDOColl), 0); // Returns null if not present
+  ATH_CHECK(rdoIDCont.naughtyRetrieve(collIDHash, sctRDOColl), 0); // Returns null if not present
 
   if (sctRDOColl==nullptr) {
-    ATH_MSG_DEBUG(" Collection ID = " << idCollHash << " does not exist, create it ");
-    /** create new collection */   
-    sctRDOColl = new SCT_RDO_Collection(idCollHash);
-    sctRDOColl->setIdentifier(idColl);
-    StatusCode sc{rdoIDCont.addCollection(sctRDOColl, idCollHash)};
-    ATH_MSG_DEBUG("Adding " << idCollHash);
+    ATH_MSG_DEBUG(" Collection ID = " << collIDHash << " does not exist, create it ");
+    // Create new collection
+    sctRDOColl = new SCT_RDO_Collection(collIDHash);
+    sctRDOColl->setIdentifier(collID);
+    StatusCode sc{rdoIDCont.addCollection(sctRDOColl, collIDHash)};
+    ATH_MSG_DEBUG("Adding " << collIDHash);
     if (sc.isFailure()){
       ATH_MSG_ERROR("failed to add SCT RDO collection to container");
     }
   }
-  
-  /** Now the Collection is there for sure. Create RDO and push it
-   * into Collection. 
-   */
+ 
+  // Now the Collection is there for sure. Create RDO and push it into Collection.  
   m_nRDOs++;
-  sctRDOColl->push_back(std::make_unique<SCT3_RawData>(idDigit, rawDataWord, &errorHit));
+  sctRDOColl->push_back(std::make_unique<SCT3_RawData>(digitID, rawDataWord, &errorHit));
   return 1;
 }
 
-void 
-SCT_RodDecoder::addRODError(uint32_t rodID, int errorType,
-                            InDetBSErrContainer* errs) const
+// addRODError method
+
+void SCT_RodDecoder::addRODError(uint32_t rodID, int errorType,
+                                 InDetBSErrContainer* errs) const
 {
-  std::vector<IdentifierHash> idHashes;
-  m_cabling->getHashesForRod(idHashes, rodID);
-  for (const IdentifierHash& hash: idHashes) {
+  std::vector<IdentifierHash> hashIDs;
+  m_cabling->getHashesForRod(hashIDs, rodID);
+  for (const IdentifierHash& hash: hashIDs) {
     addSingleError(hash, errorType, errs);
   }
   return;
 }
 
-bool 
-SCT_RodDecoder::addSingleError(const IdentifierHash& idHash,
-                               int bsErrorType,
-                               InDetBSErrContainer* errs) const
+// addSingleError method
+
+bool SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
+                                    int bsErrorType,
+                                    InDetBSErrContainer* errs) const
 {
-  const bool ok{idHash.is_valid() and errs!=nullptr};
+  const bool ok{hashID.is_valid() and errs!=nullptr};
   if (ok) {
-    errs->push_back(std::make_unique<std::pair<IdentifierHash, int> >(idHash, bsErrorType));
+    errs->push_back(std::make_unique<std::pair<IdentifierHash, int> >(hashID, bsErrorType));
   }
   return ok;
 }
 
-void
-SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID, 
-                                       unsigned int firstTempMaskedChip, 
-                                       InDetBSErrContainer* errs) const {
+// setFirstTempMaskedChip method
+
+void SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID, 
+                                            unsigned int firstTempMaskedChip, 
+                                            InDetBSErrContainer* errs) const 
+{
   if (not hashID.is_valid()) {
     ATH_MSG_INFO("setFirstTempMaskedChip hashID " << hashID << " is invalid.");
     return;
@@ -1083,12 +1060,12 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID,
       type = 2;
     } 
     else if (badLinks.first and badLinks.second) {
-      // both link-0 and link-1 are working
+      // Both link-0 and link-1 are working
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
     } 
     else {
-      // both link-0 and link-1 are broken
+      // Both link-0 and link-1 are broken
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
       return;
     }
@@ -1144,7 +1121,7 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID,
   };
 
   if (type==0) {
-    // both link-0 and link-1 are working
+    // Both link-0 and link-1 are working
 
     // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
     // Normally, modules send hits on side 0 via link-0 and side 1 via link-1.
