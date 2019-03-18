@@ -194,7 +194,6 @@ TestDriver::testReading()
     throw std::runtime_error( "Objects read different from objects written" );
   }
 
-
   if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }

@@ -369,12 +369,6 @@ DbStatus DbDatabaseObj::open()   {
             log << "--->Reading Shape[" << m_shapeMap.size() << " , "
                 << pShape->shapeID().toString() << "]: ";
             log << "[" << cols.size() << " Column(s)]" << DbPrint::endmsg;
-/*
-            if ( pShape->clazz() )
-              log << "---->Class:" << DbReflex::fullTypeName(pShape->clazz()) << DbPrint::endmsg;
-            else
-              log << "---->Class:" << "<not availible>" << DbPrint::endmsg;
-*/
             for (size_t ic=0; ic < cols.size();++ic)  {
               const DbColumn* c = cols[ic];
               log << "---->[" << ic << "]:" << c->name()
@@ -394,6 +388,7 @@ DbStatus DbDatabaseObj::open()   {
             it.object()->~DbString(); m_shapes.free(it.object());
           }
         }
+
         if ( m_links.open(dbH,"##Links",m_string_t,type(),mode()).isSuccess() )  {
           DbIter<DbString> it;
           for ( it.scan(m_links, m_string_t); it.next().isSuccess(); )   {
@@ -419,9 +414,12 @@ DbStatus DbDatabaseObj::open()   {
             it.object()->~DbString(); m_links.free(it.object());
           }
         }
+        
         if ( m_params.open(dbH,"##Params",m_string_t,type(),mode()).isSuccess() )    {
 	  vector<string> fids;
           DbIter<DbString> it;
+          //it.scan(m_params, m_string_t);
+          //it.next();
           for ( it.scan(m_params, m_string_t); it.next().isSuccess(); )   {
             string dsc = **it;
             size_t id1 = dsc.find("[NAME=");
@@ -473,6 +471,7 @@ DbStatus DbDatabaseObj::open()   {
             }
           }
         }
+        
 	/// Handle to the sections container
 	if ( mode() == pool::READ && 0 != cntToken("##Sections") ) {
 	  DbContainer sections;
@@ -480,12 +479,11 @@ DbStatus DbDatabaseObj::open()   {
 	    DbIter<DbString> it;
 	    for ( it.scan(sections, m_string_t); it.next().isSuccess(); )   {
 	      string dsc = **it;
-	      //size_t id0 = dsc.find("[DB=");
 	      size_t id1 = dsc.find("[CNT=");
 	      size_t id2 = dsc.find("[OFF=");
 	      size_t id3 = dsc.find("[START=");
 	      size_t id4 = dsc.find("[LEN=");
-	      if ( /*id0 != string::npos &&*/ id1 != string::npos && id2 != string::npos && id3 != string::npos && id4 != string::npos ) {
+	      if( id1 != string::npos && id2 != string::npos && id3 != string::npos && id4 != string::npos ) {
 		string tmp;
 		//string db  = dsc.substr(id0+4, id1-1-4);
 		string cnt = dsc.substr(id1+5, id2-1-5);

@@ -176,7 +176,6 @@ DbStatus DbContainerObj::close()   {
   }
   return Error;
 }
-
 /// Close Database container
 DbStatus DbContainerObj::retire()   {
   if ( m_isOpen )    {

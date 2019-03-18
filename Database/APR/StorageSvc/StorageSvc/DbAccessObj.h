@@ -22,6 +22,11 @@
 #include <map>
 #include <utility>
 
+// #define _DEBUG_REFCOUNTS
+#ifdef _DEBUG_REFCOUNTS
+#  include<iostream>
+#endif
+
 /* 
  *  POOL namespace declaration
  */

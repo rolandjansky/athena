@@ -19,10 +19,10 @@
 // Framework include files
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbContainer.h"
+#include "StorageSvc/DbTypeInfo.h"
 
 // STL include files
 #include <memory>
-
 /*
  *  POOL namespace declaration
  */
@@ -69,9 +69,9 @@ namespace pool  {
     }
   public:
     /// Constructor with initializing arguments
-    DbIter(DbAccessMode mode=pool::READ) : m_token(), m_type(0), m_mode(mode) {        }
-    /// Standard destructor
-    virtual ~DbIter()                   {                                     }
+    DbIter(DbAccessMode mode=pool::READ) : m_token(), m_type(0), m_mode(mode) { }
+    /// Destructor
+    virtual ~DbIter() { }
     /// Access to container handler
     const DbContainer& container() const{    return m_cnt;                    }
     /// Check validity
@@ -99,7 +99,6 @@ namespace pool  {
 
 } // End namespace pool
 
-
 /// Scan the container
 template <class T> inline 
 pool::DbStatus pool::DbIter<T>::scan(const DbContainer& cntH, 
@@ -113,14 +112,13 @@ pool::DbStatus pool::DbIter<T>::scan(const DbContainer& cntH,
 
   return cntH.isValid()? Success : Error;
 }
-
-        
+      
 /// Retrieve next element of iteration
 template <class T> inline pool::DbStatus pool::DbIter<T>::next()
 {
   DbObjectHandle<DbObject> objH(m_obj.ptr());
   objH._setType(m_obj.type());
-  m_token.oid().second++;
+  m_token.oid().second++;     // MN: assuming first OID=1?
   if ( m_cnt.loadNext(objH, m_token.oid(), m_type).isSuccess() ) {
     m_obj._setObject(static_cast<T*>(objH.ptr()));
     return Success;

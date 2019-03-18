@@ -256,12 +256,12 @@ DbStatus DbContainer::_destroy(DbObjectHandle<DbObject>& objH)    {
 DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
                             const Token::OID_t& linkH,
                             const DbTypeInfo* typ,
-                            bool any_next) const
+                            bool any_next)
 {
    if( typ ) {
       TypeH cl = typ->clazz();
       if( cl ) {
-         DbObject* ptr = DbHeap::allocate( cl.SizeOf(), const_cast<DbContainer*>(this), 0, 0 );
+         DbObject* ptr = DbHeap::allocate( cl.SizeOf(), this, 0, 0 );
          if( ptr ) {
             ptr = cl.Construct(ptr);
             objH._setObject( ptr );
@@ -275,6 +275,9 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
                objH.oid() = oid;
                return Success;
             }
+            cl.Class()->Destructor(ptr, true);
+            this->free( ptr );
+            objH._setObject(0);
          }
       }
    }
@@ -284,7 +287,7 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
 /// Load object in the container identified by its link handle
 DbStatus DbContainer::_loadNext(DbObjectHandle<DbObject>& objH,
                                 Token::OID_t& linkH,
-                                const DbTypeInfo* typ) const
+                                const DbTypeInfo* typ)
 {
    if( _load( objH, linkH, typ, true ).isSuccess() ) {
       linkH =  objH.oid();

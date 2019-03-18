@@ -55,11 +55,11 @@ namespace pool  {
     DbStatus _load( DbObjectHandle<DbObject>& objH,
                     const Token::OID_t& linkH,
                     const DbTypeInfo* typ,
-                    bool any_nexrt) const;
+                    bool any_next);
     /// Load next object in the container identified by its link handle
     DbStatus _loadNext(DbObjectHandle<DbObject>& objH,
                     Token::OID_t& linkH,
-                    const DbTypeInfo* typ) const;
+                    const DbTypeInfo* typ);
     /// Internal add of an object entry identified by its handle
     DbStatus _save( const DbObjectHandle<DbObject>& objH,
                     const DbTypeInfo* typ);
@@ -195,12 +195,12 @@ namespace pool  {
     /// Load object in the container identified by its handle
     template <class T> DbStatus load( DbObjectHandle<T>& objH,
                                       const Token::OID_t& linkH,
-                                      const DbTypeInfo* typ)  const
+                                      const DbTypeInfo* typ)
     { return _load(objH, linkH, typ, false);                                 }
     /// Load object in the container identified by its handle
     template <class T> DbStatus loadNext(DbObjectHandle<T>& objH,
                                          Token::OID_t& linkH,
-                                         const DbTypeInfo* typ)  const
+                                         const DbTypeInfo* typ)
     { return _loadNext(objH, linkH, typ);                                    }
     //@}
   };
