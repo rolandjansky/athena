@@ -37,7 +37,6 @@ class JVTCondition: public ICondition{
 
   double m_etThreshold;
   double m_workingPoint;
-  double m_MeVtoGeV = 0.001;
 
 };
 
