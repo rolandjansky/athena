@@ -1,3 +1,7 @@
+/*                                                                                                                                                                                
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                                         
+*/
+
 /*
 Compile Code with: g++ profile_combiner.cpp -Wall -std=c++11 -o converter
 
@@ -35,14 +39,14 @@ using namespace std;
 
 ///////////////////////////////////////////////////////
 
-string define_output_file_name = "profile_output.txt";
-long int conversion_factor1   = 0.582e9;                    //conversion factor from pb-1 to neq/cm2 for 7TeV
-long int conversion_factor2   = 0.839e9;                    //for 13TeV
-long int changeinenergy       = 2014;                       //year< since which there is 13TeV instead of 7TeV
-int time_spacing              = 4;                          //minimal required spacing between two data points in hours
-int replacement88             = 2200;                       //replace no temperature reading from DCS (eg during shutdown) (=-88 C) with this temperature
+const string define_output_file_name = "profile_output.txt";
+const long int conversion_factor1   = 0.582e9;                    //conversion factor from pb-1 to neq/cm2 for 7TeV
+const long int conversion_factor2   = 0.839e9;                    //for 13TeV
+const long int changeinenergy       = 2014;                       //year< since which there is 13TeV instead of 7TeV
+const int time_spacing              = 4;                          //minimal required spacing between two data points in hours
+const int replacement88             = 2200;                       //replace no temperature reading from DCS (eg during shutdown) (=-88 C) with this temperature
 
-bool debug            = false;                             //switch debugging information on/off
+const bool debug            = false;                             //switch debugging information on/off
 
 ///////////////////////////////////////////////////////
 
@@ -151,6 +155,11 @@ unsigned long long int BuildTimeStamp(data newpoint, data oldpoint)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[]) {
+
+  if (argc < 3){
+    cout<<"Sorry, we need more arguments"<<endl;
+    return 0;
+  }
 
       string temp_file_name = argv[1];
       string irr_file_name = argv[2];

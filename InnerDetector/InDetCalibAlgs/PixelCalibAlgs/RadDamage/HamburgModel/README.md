@@ -15,7 +15,7 @@ g++ data_processing.cpp -I /path/to/boost/boost_1_62_0 -Wall -std=c++11 -o outpu
 
 After compilation the program can be called with:
 
-./output temp_rad_data/my_profile.txt
+./output my_profile.txt
 
 By default, a variety of pdf files is generated and all corresponding root histograms are stored in a single root file. Furthermore, by default, the pdf files will be overwritten and the histograms will be added to the existing root file - this can be changed in the first lines of the code, a unique naming scheme based on the system clock is available!
 

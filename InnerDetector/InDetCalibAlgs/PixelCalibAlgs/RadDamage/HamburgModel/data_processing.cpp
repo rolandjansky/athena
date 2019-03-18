@@ -1,4 +1,8 @@
 /*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*
 Compile Code with: g++ data_processing.cpp -I /path/to/boost/boost_1_62_0 -Wall -std=c++11 -o output `root-config --cflags` `root-config --libs`
 
 Requirements: Root (for plotting) and Boost (for Date handling) have to be installed
@@ -23,9 +27,7 @@ Attention 3: to change from one detector type to another, change mainly 3 things
 #include <vector>
 #include <math.h>           		// for fabs()
 #include <sstream>         		// to get string into stream
-//#include <TH2F.h>           		// root stuff for file reading
 #include <TFile.h>          		// more root stuff
-//#include <TH2D.h>           		// root stuff for file reading
 #include <TCanvas.h>
 #include <TROOT.h>
 #include <TGraphErrors.h>
@@ -47,26 +49,26 @@ using namespace boost::gregorian;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool use_CMS_paper_alpha0 = false; //if false: temperature averaging for leakage current calculation a la Moll (theta function for time scale change), if true: use CMS approach of temperature average (attention: constants can only be changed directly in the code in this case)
+const bool use_CMS_paper_alpha0 = false; //if false: temperature averaging for leakage current calculation a la Moll (theta function for time scale change), if true: use CMS approach of temperature average (attention: constants can only be changed directly in the code in this case)
 
-bool debug=false;                                    // additional debugging console outputs
-bool plot_pdf=true;                                  // plots are by default saved as root file, but can also be directly exported as pdf
-bool overwrite_files=true;                           // false = append internal clock identifier to file name, false = overwrite pdfs, append root files // files are by default created with a unique name depending on the internal clock and you can switch it of here such that pdf files are overwritten and the root file is extended (old plots will stay in the root file as well)
-double timestep=1;                                   // step size is 1 second, do not change this!
-double donorremovalfraction=0.99;                    // fraction of donors which can be removed by donor removal
-double userTref=273.15;                              // set a reference temperature for the volume corrected leakage current plot (it will only effect this one plot!) Now: implemented!
-double bandGap=1.21;                                 // eV used for scaling temperatures
+const bool debug=false;                                    // additional debugging console outputs
+const bool plot_pdf=true;                                  // plots are by default saved as root file, but can also be directly exported as pdf
+const bool overwrite_files=true;                           // false = append internal clock identifier to file name, false = overwrite pdfs, append root files // files are by default created with a unique name depending on the internal clock and you can switch it of here such that pdf files are overwritten and the root file is extended (old plots will stay in the root file as well)
+const double timestep=1;                                   // step size is 1 second, do not change this!
+const double donorremovalfraction=0.99;                    // fraction of donors which can be removed by donor removal
+const double userTref=273.15;                              // set a reference temperature for the volume corrected leakage current plot (it will only effect this one plot!) Now: implemented!
+const double bandGap=1.21;                                 // eV used for scaling temperatures
 
-string output_file_name = "simulation_results";      // set unique file name for each simulation
+const string output_file_name = "simulation_results";      // set unique file name for each simulation
 
-date d(2015,May,1);                                  // IBL     //set a date for the plots to begin (to be correct it has to be equal to the beginning of your (!) temp/irr profile)
+const date d(2015,May,1);                                  // IBL     //set a date for the plots to begin (to be correct it has to be equal to the beginning of your (!) temp/irr profile)
 //date d(2011,Feb,11);                               // PIXEL
 
 
 const double Ndonor_0 = 1.7e12;                      // IBL       // initial donor concentration (right now the code only works for originally n-type bulk material!)
 //const double Ndonor_0 = 1.4e12;                    // B-Layer Layer1/2 Disks
 
-double thickness=200;                                // IBL       // sensor thickness
+const double thickness=200;                                // IBL       // sensor thickness
 //double thickness=250;                              // B-Layer Layer1/2 Disks
 
 //double global_layer_conversion=0.92e12;            // Layer 1    //conversion factor from luminosity to neq (1fb-1=2.3e12neq/cm2) - is used only for computation of total luminosity, will be wrong if there are multiple conversion factor in the original profiles as for example due to different center of mass energies
@@ -74,12 +76,12 @@ double thickness=200;                                // IBL       // sensor thic
 //double global_layer_conversion=0.571e12;           // Layer 2
 //double global_layer_conversion=0.7e12;             // Layer 2 average
 //double global_layer_conversion=0.582e12;           // Disks
-double global_layer_conversion=6.262e12;             // IBL
+const double global_layer_conversion=6.262e12;             // IBL
 //double global_layer_conversion=2.8e12;//2.929e12;  // B-Layer
 
-int limit_file_size_input = 0;                       // how many lines should be read from the profile, 0 for everything
+const int limit_file_size_input = 0;                       // how many lines should be read from the profile, 0 for everything
 
-float DoseRateScaling=1.;                            // this parameter is multiplied to all fluence rates from the input profile
+const float DoseRateScaling=1.;                            // this parameter is multiplied to all fluence rates from the input profile
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Do not change things below this line without thinking carefully!
 
