@@ -53,6 +53,11 @@ namespace CP {
 
             std::string m_first_release_name;
             std::string m_second_release_name;
+            
+            float m_pt_cut;
+            float m_eta_cut;
+            
+            unsigned long long m_evNumber;
     };
 
 } // namespace CP

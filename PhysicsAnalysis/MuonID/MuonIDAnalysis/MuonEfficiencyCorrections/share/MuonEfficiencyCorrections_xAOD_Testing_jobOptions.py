@@ -18,35 +18,41 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.MuonSelectionTool = GetSelectionTool()
 alg.DefaultRelease="cSummer2018"
-alg.ValidationRelease="cMoriond2019"
+alg.ValidationRelease="cWinter2019"
+## Select 30 GeV muons for the high-pt WP only
+#alg.MinPt = 15000
+alg.MaxEta = 2.5
 
 WPs = [
          # reconstruction WPs
-     #   "LowPt",
-     #   "Loose", 
-     #   "Medium", 
-     #   "Tight", 
-     #   "HighPt",
+        "LowPt",
+        "Loose", 
+        "Medium", 
+        "Tight", 
+        "HighPt",       
          # track-to-vertex-association WPs
-   #      "TTVA",
+    #     "TTVA",
          # BadMuon veto SFs
-        # "BadMuonVeto_HighPt",
+     #   "BadMuonVeto_HighPt",
+        #"GradientIso",
          # isolation WPs
       #  "FixedCutPflowTightIso",
-        "FixedCutPflowLooseIso",
-        "FixedCutHighPtTrackOnlyIso",
-        "FCTight_FixedRadIso",
-        "FCTightTrackOnly_FixedRadIso",
-        "FCTightTrackOnlyIso",
-        "FCTightIso",
-        "FCLoose_FixedRadIso",
+    #    "FixedCutPflowLooseIso",
+    #    "FixedCutHighPtTrackOnlyIso",
+    #    "FCTight_FixedRadIso",
+    #    "FCTightTrackOnly_FixedRadIso",
+    #    "FCTightTrackOnlyIso",
+    #    "FCTightIso",
+    #    "FCLoose_FixedRadIso",
         ]
 
 for WP in WPs: 
-  #  alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="Moriond_2019", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Moriond_2019_HybridID_noSC/")]
-
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, #Release="190220_Winter_r21", 
+                                                  CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_coarsePtBinning/")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180808_SummerUpdate")]
+  
 theJob += alg
 
 # Do some additional tweaking:

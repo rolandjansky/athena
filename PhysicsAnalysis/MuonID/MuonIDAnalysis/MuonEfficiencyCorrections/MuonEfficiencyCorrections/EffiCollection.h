@@ -44,9 +44,8 @@ namespace CP {
                 ZAnalysis = Central | Calo | Forward,
                 /// Distinguish these two because the systematics
                 /// are named with an extra LOWPT
-                JPsiAnalysis = CentralLowPt | CaloLowPt,
-                
-                OwnFallBack = 1<<5,
+                JPsiAnalysis = CentralLowPt | CaloLowPt,                
+               
                
             };
             enum Systematic{
