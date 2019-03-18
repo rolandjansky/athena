@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* date of creation : 10/X/2002 */
@@ -28,12 +28,12 @@ public:
     /**
      * constructor to be used 
      */
-    CaloID_Exception(std::string  lMessage , int lCode) ;
+    CaloID_Exception(const std::string&  lMessage , int lCode);
 
     /**
      * set error message 
      */
-    void message(std::string lMessage) ;
+   void message(const std::string& lMessage);
 
     /**
      * return error message <br> 

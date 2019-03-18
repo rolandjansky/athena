@@ -40,7 +40,10 @@
 #include "ByteStreamData/RawEvent.h" 
 #include "LArRecEvent/LArFebEnergy.h" 
 #include "LArRecEvent/LArFebEnergyCollection.h" 
-// #include "eformat/RODHeader.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include "eformat/Version.h"
 #include "eformat/Issue.h"
 #include <vector>
@@ -202,6 +205,7 @@ private:
 
   
   ToolHandle<LArCablingLegacyService> m_larCablingSvc;
+  SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
   float	m_LArCellEthreshold ;
   bool m_larCell; // set to True if it is used for ConvertingLArCell 
   bool m_readtdc; // set to True if the tdc phase is read from the upper byte of the nsamples word.

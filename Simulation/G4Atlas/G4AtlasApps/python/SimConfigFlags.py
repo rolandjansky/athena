@@ -8,5 +8,8 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.ISF.Run",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
+    scf.addFlag('Sim.ParticleID',False)
+    scf.addFlag("Sim.CalibrationRun", "DeadLAr") # 'LAr', 'Tile', 'LAr+Tile', 'DeadLAr'
+
 
     return scf

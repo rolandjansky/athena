@@ -314,10 +314,10 @@ protected:
 
     /// Flag for subclasses to know whether or not to perform
     /// checks. In general, this is set to false in optimized mode.
-    mutable bool        m_do_checks;
+    bool        m_do_checks;
     /// Flag for subclasses to know whether or not to perform
     /// neighbour initialization
-    mutable bool        m_do_neighbours;
+    bool        m_do_neighbours;
 
     /// pointer to the message service
     IMessageSvc*        m_msgSvc;

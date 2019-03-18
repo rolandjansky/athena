@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -25,11 +25,7 @@ namespace TrigConf {
          TrigConfData(),
          m_Lvl1MasterId(0)
       {}
-      L1DataBaseclass(const L1DataBaseclass& o) :
-         TrigConfData(o),
-         m_Lvl1MasterId(o.m_Lvl1MasterId)
-      {}
-      virtual ~L1DataBaseclass(){}
+      virtual ~L1DataBaseclass() = default;
 
       unsigned int lvl1MasterTableId() const { return m_Lvl1MasterId; }
       void setLvl1MasterTableId ( unsigned int id) { m_Lvl1MasterId = id; }

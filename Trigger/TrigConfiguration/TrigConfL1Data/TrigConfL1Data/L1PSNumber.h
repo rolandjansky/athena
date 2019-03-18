@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -57,8 +57,7 @@ namespace TrigConf {
 
    public:
       L1PSNumber();
-      //    L1PSNumber(const L1PSNumber& orig);
-      virtual ~L1PSNumber();
+      virtual ~L1PSNumber() = default;
       L1PSNumber(const float ps);
       L1PSNumber(const int64_t ps);
       L1PSNumber(const int ps);

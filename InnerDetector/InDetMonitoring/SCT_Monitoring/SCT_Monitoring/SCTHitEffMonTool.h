@@ -11,41 +11,34 @@
 
 #ifndef SCTEFFICIENCYTOOL_H
 #define SCTEFFICIENCYTOOL_H
-//STL
-#include <string>
-#include <array>
+
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
+#include "CommissionEvent/ComTime.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkTrack/Track.h" 
+#include "TrkTrack/TrackCollection.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
-//Athena
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
-//cannot fwd declare due to typedefs
-#include "TrkTrack/Track.h" 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-
-//SCT
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-
-//
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "CommissionEvent/ComTime.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "xAODEventInfo/EventInfo.h"
 
 //ROOT
 #include "TString.h"
+
+//STL
+#include <string>
+#include <array>
 
 class Identifier;
 class PixelID;
@@ -77,7 +70,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
  public:
   typedef Trk::Track Track;
   /** Constructor */
-  SCTHitEffMonTool (const std::string &type, const std::string &name, const IInterface* parent);
+  SCTHitEffMonTool (const std::string& type, const std::string& name, const IInterface* parent);
   /** Destructor */
   virtual ~SCTHitEffMonTool () = default;
 
@@ -97,37 +90,37 @@ private:
   StatusCode failCut (Bool_t value, std::string name);
 
   /** Method to compute incident angle of track to wafer */
-  StatusCode findAnglesToWaferSurface (const Amg::Vector3D &mom, const Identifier id,
+  StatusCode findAnglesToWaferSurface (const Amg::Vector3D& mom, const Identifier id,
                                        const InDetDD::SiDetectorElementCollection* elements,
-                                       Double_t &theta, Double_t &phi);
+                                       Double_t& theta, Double_t& phi);
 
   /** Method to find the chip just before a given hit */
   Int_t previousChip (Double_t xl, Int_t side, bool swap);
 
   /** Computes residual of a hit to a track */
   Double_t getResidual (const Identifier& surfaceID,
-   const Trk::TrackParameters * trkParam,
+   const Trk::TrackParameters* trkParam,
    const InDet::SCT_ClusterContainer* p_sctclcontainer);
 
   /** Single histogram booking method */
-  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
+  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
                                                 Int_t nbin, Double_t x1, Double_t x2);
 
-  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
+  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
                                                 Int_t nbinx, Double_t x1, Double_t x2,
                                                 Int_t nbiny, Double_t y1, Double_t y2);
 
-  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
+  template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
-                                                Int_t nbinx, Double_t * xbins,
-                                                Int_t nbiny, Double_t * ybins);
+                                                Int_t nbinx, Double_t* xbins,
+                                                Int_t nbiny, Double_t* ybins);
 
   SG::ReadHandle<TrackCollection> m_TrackName;
-  IChronoStatSvc * m_chrono;
+  IChronoStatSvc* m_chrono;
 
-  const std::map < Identifier, unsigned int > * m_badChips;
+  const std::map < Identifier, unsigned int >* m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
@@ -178,21 +171,21 @@ private:
   typedef std::array < TH2F*, SCT_Monitoring::N_REGIONS > TH2FArray;
   typedef std::array < std::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
 
-  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
-  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID;
-  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
-  std::array < std::array < TProfile *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
-  std::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;
-  std::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accPhysMap;
-  std::array < std::array < TProfile2D *, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID;
+  std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
+  std::array < std::array < TProfile*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
+  std::array < TProfile2D*, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;
+  std::array < TProfile2D*, SCT_Monitoring::N_LAYERS_TOTAL > m_accPhysMap;
+  std::array < std::array < TProfile2D*, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;
 
-  TProfile * m_Eff_Total;
-  TProfile * m_Eff_TotalBCID;
-  TProfile * m_Eff_hashCodeHisto;
-  TProfile * m_Eff_LumiBlockHisto_Total;
+  TProfile* m_Eff_Total;
+  TProfile* m_Eff_TotalBCID;
+  TProfile* m_Eff_hashCodeHisto;
+  TProfile* m_Eff_LumiBlockHisto_Total;
   TH1F* m_effdistribution;
 
-  TProfile2D * m_effHashLumiB;
+  TProfile2D* m_effHashLumiB;
 
   TProfArray m_Eff_summaryHisto;
   TProfArray m_Eff_summaryHistoFirstBCID;
@@ -232,8 +225,8 @@ private:
   TProfArray m_Eff_nTrk; 
   TProfArray m_Eff_nGoodTrk; 
 
-  std::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffStrip;
-  std::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffChip;
+  std::array < TProfile2D*, SCT_Monitoring::N_REGIONS > m_inEffStrip;
+  std::array < TProfile2D*, SCT_Monitoring::N_REGIONS > m_inEffChip;
 
   TH1FArray m_EventHisto;
   TH1FArray m_SelectionHisto;
@@ -254,18 +247,24 @@ private:
   TH1FArray m_chi2Histo;
   TH1FArray m_localHitXHisto, m_localHitYHistos; 
 
-  TH1F * m_mNHitHisto, *m_barrelNHitHisto,  *m_pNHitHisto;
-  TH1F * m_SCTNHitHisto, *m_trtNHitHisto,  *m_pixelNHitHisto;
-  TH1F * m_PtTkHisto;
-  TH1F * m_etaTkHisto;
-  TH1F * m_d0TkHisto;
-  TH1F * m_d0PrecTkHisto;
-  TH1F * m_nTrkHisto, * m_nTrkParsHisto, * m_nTrkGoodHisto;
-  TH1F * m_LumiBlock;
-  TH1F * m_z0TkHisto;
-  TH1F * m_hashCodeHisto;
+  TH1F* m_mNHitHisto;
+  TH1F* m_barrelNHitHisto;
+  TH1F* m_pNHitHisto;
+  TH1F* m_SCTNHitHisto;
+  TH1F* m_trtNHitHisto;
+  TH1F* m_pixelNHitHisto;
+  TH1F* m_PtTkHisto;
+  TH1F* m_etaTkHisto;
+  TH1F* m_d0TkHisto;
+  TH1F* m_d0PrecTkHisto;
+  TH1F* m_nTrkHisto;
+  TH1F* m_nTrkParsHisto;
+  TH1F* m_nTrkGoodHisto;
+  TH1F* m_LumiBlock;
+  TH1F* m_z0TkHisto;
+  TH1F* m_hashCodeHisto;
 
-  TH2I * m_badModFineMap;
+  TH2I* m_badModFineMap;
 
   TH2FArray m_localHitHisto, m_localMissHisto, m_localUnasHisto;
   TH2FArray m_localHitGHisto;
@@ -278,13 +277,13 @@ private:
   TH2FArrayLayer m_xlResidualE1Histo;
   TH2FArrayLayer m_xlResidualUnasHisto;
 
-  TGraphErrors * m_badModMap;
-  TGraphErrors * m_badChipMap;
+  TGraphErrors* m_badModMap;
+  TGraphErrors* m_badChipMap;
 
   Int_t m_countEvent;
-  const PixelID * m_pixelId;
-  const SCT_ID * m_sctId;
-  const TRT_ID * m_trtId;
+  const PixelID* m_pixelId;
+  const SCT_ID* m_sctId;
+  const TRT_ID* m_trtId;
 
   SG::ReadHandleKey<ComTime> m_comTimeName;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;

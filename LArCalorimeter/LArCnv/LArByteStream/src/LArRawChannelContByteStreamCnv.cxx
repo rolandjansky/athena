@@ -11,8 +11,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"

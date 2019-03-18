@@ -17,10 +17,9 @@
 #ifndef SCTSummaryMonTool_H
 #define SCTSummaryMonTool_H
 
-#include <string>
-
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+
+#include <string>
 
 // Forward declarations
 class IInterface;
@@ -30,7 +29,7 @@ class StatusCode;
 ///Concrete monitoring tool derived from SCTMotherTrigMonTool
 class SCTSummaryMonTool : public SCTMotherTrigMonTool{
  public:
-  SCTSummaryMonTool(const std::string & type, const std::string & name, const IInterface* parent);
+  SCTSummaryMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTSummaryMonTool() = default;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{

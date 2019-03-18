@@ -20,8 +20,7 @@ if( XAOD_ANALYSIS )
       DataQuality/GoodRunsLists
       Database/AthenaPOOL/AthenaPoolUtilities
       Database/AthenaPOOL/DBDataModel
-      Database/CoraCool
-      Event/EventInfo )
+      Database/CoraCool )
 else()
    atlas_depends_on_subdirs(
       PUBLIC
@@ -37,8 +36,7 @@ else()
       DataQuality/GoodRunsLists
       Database/AthenaPOOL/AthenaPoolUtilities
       Database/AthenaPOOL/DBDataModel
-      Database/CoraCool
-      Event/EventInfo )
+      Database/CoraCool )
 endif()
 
 # External dependencies:
@@ -63,7 +61,7 @@ atlas_add_library( LumiBlockCompsLib
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
    AthenaKernel xAODLuminosity GaudiKernel StoreGateLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} AthenaPoolUtilities DBDataModel
-   EventInfo GoodRunsListsLib xAODRootAccess )
+   GoodRunsListsLib xAODRootAccess )
 
 atlas_add_component( LumiBlockComps
    src/components/*.cxx

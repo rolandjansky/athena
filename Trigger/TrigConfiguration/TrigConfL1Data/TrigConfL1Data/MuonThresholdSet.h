@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MuonThresholdSet
@@ -13,7 +13,7 @@ namespace TrigConf {
    class MuonThresholdSet : public L1DataBaseclass {
    public:
       MuonThresholdSet();
-      ~MuonThresholdSet();
+      ~MuonThresholdSet() = default;
     
       bool rpcAvailable() const {return m_rpc_avail;}
       bool rpcAvailableOnline() const {return m_rpc_avail_online;}

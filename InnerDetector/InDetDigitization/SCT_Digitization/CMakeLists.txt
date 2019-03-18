@@ -42,6 +42,10 @@ atlas_add_component( SCT_Digitization
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel SiDigitization InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry InDetSimData )
 
+atlas_add_test( SCT_DigitizationConfigNew_test
+                SCRIPT test/SCT_DigitizationConfigNew_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_headers( SCT_Digitization )
 atlas_install_python_modules( python/*.py )

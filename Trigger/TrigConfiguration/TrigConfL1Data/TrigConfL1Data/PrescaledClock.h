@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_PrescaledClock
@@ -13,7 +13,7 @@ namespace TrigConf {
    class PrescaledClock : public L1DataBaseclass  {
    public:
       PrescaledClock();
-      ~PrescaledClock();
+      ~PrescaledClock() = default;
     
       // setters
       int clock1() const { return m_clock1; }

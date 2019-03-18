@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/Menu.h"
@@ -15,10 +15,6 @@ using namespace TrigConf;
 TrigConf::Menu::Menu()
    : L1DataBaseclass()
 {}
-
-TrigConf::Menu::~Menu() {
-   clear();
-}
 
 std::vector<uint16_t>
 TrigConf::Menu::bunchgroupMask() const {

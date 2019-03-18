@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -29,10 +29,6 @@ ThresholdConfig::ThresholdConfig() :
       m_thresholdVectors.insert( thrVecMap_t::value_type(tc.first , thrVec_t(0) ) );
 }
 
-
-TrigConf::ThresholdConfig::~ThresholdConfig() {
-   clear();
-}
 
 const vector<TriggerThreshold*>& 
 TrigConf::ThresholdConfig::getThresholdVector(L1DataDef::TriggerType type) const {

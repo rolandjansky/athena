@@ -1086,21 +1086,6 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   }
 
   // Construct EventInfo
-  EventID eventID;
-  const EventInfo* pEvent=eventStore()->tryConstRetrieve<EventInfo>(); //Try getting EventInfo from old-style object
-  if (pEvent) {
-    eventID=*(pEvent->event_ID());
-  }
-  else { //Try getting xAOD::EventInfo object
-    const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
-    if (xAODEvent==nullptr) {
-      error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
-      return; 
-    }
-    eventID=eventIDFromxAOD(xAODEvent);
-  }
-
-
   IOpaqueAddress* addr = nullptr;
   sc = m_evtSelector->next(*m_evtSelCtxt);
   if(!sc.isSuccess()) {
@@ -1124,6 +1109,20 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(eventStore()->loadEventProxies().isFailure()) {
     warning() << "Error loading Event proxies" << endmsg;
     return;
+  }
+
+  EventID eventID;
+  const EventInfo* pEvent=eventStore()->tryConstRetrieve<EventInfo>(); //Try getting EventInfo from old-style object
+  if (pEvent) {
+    eventID=*(pEvent->event_ID());
+  }
+  else { //Try getting xAOD::EventInfo object
+    const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
+    if (xAODEvent==nullptr) {
+      error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
+      return;
+    }
+    eventID=eventIDFromxAOD(xAODEvent);
   }
 
   // Need to make sure we have a valid EventContext in place before

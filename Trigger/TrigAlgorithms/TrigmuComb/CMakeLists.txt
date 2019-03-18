@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/StoreGate
                           Tools/PathResolver
                           Trigger/TrigConfiguration/TrigConfHLTData

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -55,11 +55,7 @@ void test4 (const LArEM_ID& em_id)
   for (unsigned int iCell = 0 ; iCell < em_id.channel_hash_max(); ++iCell){
     em_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList);
 
-    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-    for (;last!=first; first++){
-      
-      IdentifierHash neighbourHash=(*first);
+    for (IdentifierHash neighbourHash : neighbourList) {
       if(neighbourHash < hash_min ) {
         hash_min = neighbourHash;
       }
@@ -77,8 +73,9 @@ void test4 (const LArEM_ID& em_id)
 
 int main()
 {
-  std::unique_ptr<LArEM_ID> idhelper = make_helper<LArEM_ID_Test>();
-  std::unique_ptr<LArEM_ID> idhelper_n = make_helper<LArEM_ID_Test>(true);
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<LArEM_ID> idhelper = make_helper<LArEM_ID_Test>(*parser);
+  std::unique_ptr<LArEM_ID> idhelper_n = make_helper<LArEM_ID_Test>(*parser, true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper);

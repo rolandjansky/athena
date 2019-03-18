@@ -46,6 +46,7 @@ def _setupAtlasUnixStandardJob():
     svcMgr += StoreGateConf.StoreGateSvc()
     svcMgr += StoreGateConf.StoreGateSvc("DetectorStore")
     svcMgr += StoreGateConf.StoreGateSvc("HistoryStore")
+    svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
     #ClassIDSvc configuration
     import CLIDComps.CLIDCompsConf as CLIDCompsConf

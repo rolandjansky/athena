@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/Random.h"
@@ -15,9 +15,6 @@ TrigConf::Random::Random() : L1DataBaseclass(),
                                       "Random2", "Random3" },
                              m_cuts{ 0xffffff, 0xffffff, 0xffffff,
                                      0xffffff }
-{}
-
-TrigConf::Random::~Random()
 {}
 
 float

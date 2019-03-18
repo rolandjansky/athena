@@ -1,12 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from collections import defaultdict
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, findOwningSequence
+from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE
 
@@ -34,8 +30,6 @@ def connectStepToFilter(chainStep, filterNode):
 def generateDecisionTree(chains, allChainDicts):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from collections import defaultdict
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
-    from AthenaCommon.CFElements import findOwningSequence
 
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
@@ -50,8 +44,6 @@ def generateDecisionTree(chains, allChainDicts):
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)
-
-    allSequences = []
 
     ## Matrix with steps lists generated. Creating filters for each cell
     for nstep in chainStepsMatrix:

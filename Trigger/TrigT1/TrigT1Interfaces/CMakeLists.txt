@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           GaudiKernel
                           PRIVATE
-                          Trigger/TrigConfiguration/TrigConfL1Data )
+                          Trigger/TrigConfiguration/TrigConfL1Data
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -33,3 +34,12 @@ atlas_add_dictionary( TrigT1InterfacesDict
                       INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${XERCESC_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthContainers AthenaKernel GaudiKernel TrigConfL1Data TrigT1Interfaces )
 
+
+atlas_add_test( CPRoIDecoder_test
+                SOURCES test/CPRoIDecoder_test.cxx
+                LINK_LIBRARIES TrigT1Interfaces )
+
+
+atlas_add_test( JEPRoIDecoder_test
+                SOURCES test/JEPRoIDecoder_test.cxx
+                LINK_LIBRARIES TrigT1Interfaces )

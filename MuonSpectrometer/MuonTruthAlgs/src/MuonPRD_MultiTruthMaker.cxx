@@ -163,57 +163,52 @@ void MuonPRD_MultiTruthMaker::addPRDRange (SG::WriteHandle<PRD_MultiTruthCollect
 //================================================================
 template <class SIMDATACOLLECTION>
 void MuonPRD_MultiTruthMaker::addPrepRawDatum(SG::WriteHandle<PRD_MultiTruthCollection> prdTruth,
-					      const Trk::PrepRawData* prd,
-					      SG::ReadHandle<SIMDATACOLLECTION> simDataMap
-    )
+                                              const Trk::PrepRawData* prd,
+                                              SG::ReadHandle<SIMDATACOLLECTION> simDataMap
+                                              )
 {
-    ATH_MSG_VERBOSE( "addPrepRawDatum(): new PRD "<<prd<<", id="<<prd->identify()<<", number of RDOs: " << prd->rdoList().size() );
+  ATH_MSG_VERBOSE( "addPrepRawDatum(): new PRD "<<prd<<", id="<<prd->identify()<<", number of RDOs: " << prd->rdoList().size() );
 
-    bool gotSDO = false;
-    bool gotValidParticle = false;
+  bool gotSDO = false;
+  bool gotValidParticle = false;
 
   // loop over RDOs
-    std::vector<Identifier>::const_iterator nextRDO = prd->rdoList().begin();
-    std::vector<Identifier>::const_iterator lastRDO = prd->rdoList().end();   
-    for (; nextRDO!=lastRDO; ++nextRDO) {
-        typename SIMDATACOLLECTION::const_iterator iter(simDataMap->find(*nextRDO));
+  for (const auto& nextRDO : prd->rdoList()) {
+    typename SIMDATACOLLECTION::const_iterator iter(simDataMap->find(nextRDO));
 
-        if(iter != simDataMap->end() )  {
-            gotSDO = true;
+    if(iter != simDataMap->end() )  {
+      gotSDO = true;
       // Got an SDO.  Try to associate the PRD to MC particles we have info about.
-            typedef typename SIMDATACOLLECTION::mapped_type SIMDATA;
-            const SIMDATA& sdo = iter->second; 
-            const std::vector<   typename SIMDATA::Deposit >& deposits = sdo.getdeposits();
-            typename std::vector< typename SIMDATA::Deposit >::const_iterator nextdeposit = deposits.begin();
-            typename std::vector< typename SIMDATA::Deposit >::const_iterator lastdeposit = deposits.end();
-            for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
-                const HepMcParticleLink& particleLink = nextdeposit->first;
-
-                ATH_MSG_VERBOSE("addPrepRawDatum(): Barcode " << particleLink.barcode()<< " evt " << particleLink.eventIndex() );
-
-                if (particleLink.isValid()) {
-                    gotValidParticle = true;
-      // Associate the particle to the PRD. But don't add duplicates.
-      // Note: it may be more efficient to filter out duplicates among particles for the current PRD, then check-and-add the reduced set to the large multimap.
-      // But may be not for the typically small RDO/PRD ratio.
-                    typedef PRD_MultiTruthCollection::iterator truthiter;
-                    std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
-		    if(r.second == std::find_if(r.first, r.second, 
-                          [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
-                             return prd_to_truth.second == particleLink;
-                          } )) {
-                        prdTruth->insert(std::make_pair(prd->identify(), particleLink));
-                    }
-                }
-            }
+      typedef typename SIMDATACOLLECTION::mapped_type SIMDATA;
+      const SIMDATA& sdo = iter->second;
+      const std::vector<   typename SIMDATA::Deposit >& deposits = sdo.getdeposits();
+      if (deposits.empty()) { continue; }
+      for (const auto& [particleLink, mcData] : deposits) {
+        ATH_MSG_VERBOSE("addPrepRawDatum(): particleLink.isValid() " << particleLink.isValid() );
+        ATH_MSG_VERBOSE("addPrepRawDatum(): Barcode " << particleLink.barcode()<< " evt " << particleLink.eventIndex() );
+        if (particleLink.isValid()) {
+          gotValidParticle = true;
+          // Associate the particle to the PRD. But don't add duplicates.
+          // Note: it may be more efficient to filter out duplicates among particles for the current PRD, then check-and-add the reduced set to the large multimap.
+          // But may be not for the typically small RDO/PRD ratio.
+          typedef PRD_MultiTruthCollection::iterator truthiter;
+          std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
+          if(r.second == std::find_if(r.first, r.second,
+                                      [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
+                                        return prd_to_truth.second == particleLink;
+                                      } )) {
+            prdTruth->insert(std::make_pair(prd->identify(), particleLink));
+          }
         }
+      }
     }
+  }
 
-    if(gotSDO && !gotValidParticle) {
+  if(gotSDO && !gotValidParticle) {
     // Looked at all the deposits from all the SDOs, but did not find any valid particle link.
     //prdTruth->insert(std::make_pair(prd, particleLinkUnknown));
-        ATH_MSG_DEBUG("addPrepRawDatum(): got SDO but no particles");
-    }
+    ATH_MSG_DEBUG("addPrepRawDatum(): got SDO but no particles");
+  }
 }
 
 //================================================================

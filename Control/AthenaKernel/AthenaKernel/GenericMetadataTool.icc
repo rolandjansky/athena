@@ -322,8 +322,8 @@ StatusCode GenericMetadataTool<T,U>::buildAthenaInterface(const std::string& inp
   // Make sure sid does not already exist in the MetaCont
   for (auto it = mc->sources().begin(); it != mc->sources().end(); ++it) {
     if (*it==sid) {
-      ATH_MSG_ERROR("Metadata already exists for sid " << sid);
-      return StatusCode::FAILURE;   // Fail if sid already exists
+      ATH_MSG_WARNING("Metadata already exists for sid " << sid);
+      return StatusCode::SUCCESS;   // Assume success if sid already exists
     }
   }
 

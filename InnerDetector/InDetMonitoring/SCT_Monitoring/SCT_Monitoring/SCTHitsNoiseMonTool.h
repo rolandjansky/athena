@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTHitsNoiseMonTool.h
@@ -18,24 +18,22 @@
 #ifndef SCTHITSNOISEMONTOOL_H
 #define SCTHITSNOISEMONTOOL_H
 
+#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackCollection.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include <string>
 #include <vector>
 #include <map>
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
-
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
-
-#include "StoreGate/ReadHandleKey.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 // Forward declarations
 class IInterface;
@@ -61,7 +59,7 @@ class PairBuilder;
 class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
  public:
   typedef unsigned int  ChipNumberType;
-  SCTHitsNoiseMonTool(const std::string & type, const std::string & name,const IInterface* parent); 
+  SCTHitsNoiseMonTool(const std::string& type, const std::string& name,const IInterface* parent); 
   ~SCTHitsNoiseMonTool();
   virtual StatusCode initialize() final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
@@ -80,12 +78,12 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   //@} 
   
  private:
-  typedef TProfile2D * Prof2_t;
-  typedef TProfile_LW * Prof_t;
-  typedef TH1I * H1I_t;
-  typedef TH2I_LW * H2I_t;
-  typedef TH1F_LW * H1_t;
-  typedef TH2F_LW * H2_t;
+  typedef TProfile2D* Prof2_t;
+  typedef TProfile_LW* Prof_t;
+  typedef TH1I* H1I_t;
+  typedef TH2I_LW* H2I_t;
+  typedef TH1F_LW* H1_t;
+  typedef TH2F_LW* H2_t;
   typedef std::vector<Prof2_t> VecProf2_t;
   typedef std::vector<H1I_t> VecH1I_t;
   typedef std::vector<H2I_t> VecH2I_t;
@@ -116,17 +114,17 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmTrigger;
   
   TH1F* m_nSP;
-  int *m_nSP_buf;
+  int* m_nSP_buf;
   int m_nSP_pos;
   TH1F* m_nHits;
-  int *m_nHits_buf;
+  int* m_nHits_buf;
   int m_nHits_pos;
   TH1F* m_nmaxHits;
-  int *m_nmaxHits_buf;
-  Identifier *m_nmaxModule_buf;
+  int* m_nmaxHits_buf;
+  Identifier* m_nmaxModule_buf;
   TH1F* m_nminHits;
-  int *m_nminHits_buf;
-  Identifier *m_nminModule_buf;
+  int* m_nminHits_buf;
+  Identifier* m_nminModule_buf;
 
   //Histograms with hits per luminosity block
   H1_t m_numBarrelHitsPerLumiBlock;
@@ -322,7 +320,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   StatusCode bookGeneralNoiseOccupancyMaps( const unsigned int systemIndex);
   //Book hit occupancy map histograms
   StatusCode bookGeneralHitOccupancyMaps( const unsigned int systemIndex);
-	
+
   // Book Hits Histograms
   StatusCode 
     bookGeneralHits( const unsigned int systemIndex);
@@ -372,7 +370,6 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   int m_occTriggerECm_lb[SCT_Monitoring::NBINS_LBs+1];
   int m_eventsTrigger_lb;
   
-  //Added 09.09.2016
   VecProf2_t m_phitoccupancymapHistoVector;
   VecProf2_t m_phitoccupancymapHistoVectorRecent;
   VecProf2_t m_phitoccupancymapHistoVectorTrigger;
@@ -382,7 +379,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   VecProf2_t m_phitoccupancymapHistoVectorECm;
   VecProf2_t m_phitoccupancymapHistoVectorECmRecent;
   VecProf2_t m_phitoccupancymapHistoVectorECmTrigger;
-	
+
   //Histograms with HO distribution
   TH1F* m_BARHO;
   TH1F* m_BARHOTrigger;
@@ -392,7 +389,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   TH1F* m_ECpHOTrigger;
   TH1F* m_SCTHO;
   TH1F* m_SCTHOTrigger;
-	
+
   //---- results required no triggers
   // # of hits vs LBs
   Prof_t m_HallHitsBAR_vsLB;
@@ -430,7 +427,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   std::map<Identifier, float> m_hitoccSumUnbiased;
   std::map<Identifier, float> m_hitoccSumUnbiasedTrigger;
   std::map<Identifier, float> m_hitoccSumUnbiasedRecent;
-	
+
   std::map<Identifier, float> m_hitoccSumUnbiased_lb;
   std::map<Identifier, float> m_hitoccSumUnbiasedBAR_lb;
   std::map<Identifier, float> m_hitoccSumUnbiasedECp_lb;
@@ -483,27 +480,27 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   ///Determines whether a local summary is written
   int m_localSummary;
   H1_t
-    h1Factory(const std::string & name, const std::string & title, MonGroup & registry, VecH1_t & storageVector, const float lo, const float hi, const unsigned int nbins);
+    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins);
   H1_t
-    h1Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
 
   TH1F*
-    th1Factory(const std::string & name, const std::string & title, MonGroup & registry, std::vector<TH1F*> & storageVector, const float lo, const float hi, const unsigned int nbins);
+    th1Factory(const std::string& name, const std::string& title, MonGroup& registry, std::vector<TH1F*>& storageVector, const float lo, const float hi, const unsigned int nbins);
   TH1F*
-    th1Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+    th1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
 
   H2_t
-    h2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector);
+    h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector);
   H2I_t
-    h2IFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
+    h2IFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
   Prof2_t
-    prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
+    prof2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector);
   Prof2_t
-    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
+    prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
   Prof_t
-    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, float lo, float hi);
+    profFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbin, float lo, float hi);
   Prof_t
-    profFactory(const std::string & name, const std::string & title, MonGroup & registry);
+    profFactory(const std::string& name, const std::string& title, MonGroup& registry);
   //@}
 
   //@name Tool methods
@@ -513,7 +510,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
  
   ///Format the position as a string
   std::string
-    positionString(const Identifier & plane) const;
+    positionString(const Identifier& plane) const;
   //@}
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrkValInterfaces/ITruthNtupleTool.h"
 #include "TrkValInterfaces/ITrackTruthClassifier.h"
@@ -99,6 +101,8 @@ private:
     mutable std::vector< std::vector<TH1D*> >   m_truthTrackCounts;
 
     mutable std::vector<const Trk::ITrackTruthClassifier*> m_trackTruthClassifiers;     //!< the truth classifiers
+
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 

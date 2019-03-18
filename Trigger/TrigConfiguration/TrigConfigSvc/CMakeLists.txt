@@ -57,7 +57,7 @@ atlas_install_joboptions(  share/hltConfigSvc_standalone_test_configurables.py
   share/lvl1ConfigSvc_standalone_test.py
   share/testKeyByNameLoader.py
   share/testTriggerFrontierQuery.py )
-atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfigOld.py )
+atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfigOld.py share/trigconf_property.py )
 atlas_install_xmls( data/*.dtd )
 
 # Aliases:

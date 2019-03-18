@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -13,16 +13,11 @@
 
 
 #include "TTree.h"
-//Gaudi
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-// #include "TrkParameters/Perigee.h"
 #include "TrkTrackSummary/TrackSummary.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "TrkValTools/BasicValTrkParticleNtupleTool.h"
 #include <bitset>
 
@@ -85,6 +80,8 @@ Trk::BasicValTrkParticleNtupleTool::~BasicValTrkParticleNtupleTool() {}
 // initialize
 StatusCode Trk::BasicValTrkParticleNtupleTool::initialize() {
 
+  ATH_CHECK( m_evt.initialize() );
+
     // create ntuple tree
   if (m_bookNewNtuple) {
     // ---------------------------
@@ -92,7 +89,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::initialize() {
     ITHistSvc *tHistSvc;
     StatusCode sc =  service("THistSvc", tHistSvc);
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg;
+        ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
         return sc;
     }
 
@@ -105,7 +102,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::initialize() {
     std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
     sc = tHistSvc->regTree(fullNtupleName, m_nt);
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+        ATH_MSG_ERROR("Unable to register TTree : " << fullNtupleName);
         return sc;
     }
     // add the ntuple branches (this function has to be called by the client of this tool, if m_bookNewNtuple is set to false...)
@@ -121,7 +118,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::BasicValTrkParticleNtupleTool::finalize() {
 
-  msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
+  ATH_MSG_DEBUG("start finalize() in " << name());
   if (m_nt) {
     delete m_nt;
     m_nt = 0;
@@ -181,7 +178,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::addNtupleItems( TTree* tree ) con
 StatusCode Trk::BasicValTrkParticleNtupleTool::writeTrackParticleData (
      const Trk::TrackParticleBase& track)  const {
     if (!m_nt) {
-        msg(MSG::ERROR) << "writeTrackParticleData(...) can only be used, if property BookNewNtuple is set to true"  << endmsg;
+        ATH_MSG_ERROR("writeTrackParticleData(...) can only be used, if property BookNewNtuple is set to true" );
         return StatusCode::FAILURE;
     }
     StatusCode sc;
@@ -202,37 +199,36 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::fillTrackParticleData (
 
   // ---------------------------------------
     // detect new event, reset TrackParticle counter if new event
-    const EventInfo* eventInfo;
-    if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-      msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+    if (!evt.isValid()) {
+      ATH_MSG_WARNING("Could not retrieve event info");
       m_runNumber   = (int)s_errorEntry;
       m_eventNumber = (int)s_errorEntry;
       return StatusCode::FAILURE;
       }
   
-   const EventID* myEventID=eventInfo->event_ID();
-   if (m_lastEventNumber!=myEventID->event_number()) {
+   if (m_lastEventNumber!=evt->eventNumber()) {
         // we have a new event, reset TrackParticleID:
         m_TrackIDcounter = 0;
-        m_lastEventNumber = myEventID->event_number();
+        m_lastEventNumber = evt->eventNumber();
       }
     m_TrackIDcounter++;
     m_TrackID = (unsigned char)m_TrackIDcounter;
-    m_eventNumber = myEventID->event_number();
-    m_runNumber   = myEventID->run_number(); 
+    m_eventNumber = evt->eventNumber();
+    m_runNumber   = evt->runNumber(); 
    
     ATH_MSG_VERBOSE ("Event: " << m_eventNumber << ", Run: "<< m_runNumber  << " TrackID: " << m_TrackID);
             
     //----------------------------------------------
     // fill track parameters in ntuple
     const Trk::Perigee* perpars = track.perigee();
-    if (perpars != NULL && fillTrkParticlePerigee(perpars).isFailure())  msg(MSG::WARNING) << "Perigee parameters could not be written to ntuple" << endmsg;
+    if (perpars != NULL && fillTrkParticlePerigee(perpars).isFailure())  ATH_MSG_WARNING("Perigee parameters could not be written to ntuple");
     
     const Trk::TrackSummary* summary = track.trackSummary();
-    if((!summary) || fillTrkParticleSummary(summary).isFailure()) msg(MSG::WARNING) << "Summary parameters could not be written to ntuple" << endmsg;
+    if((!summary) || fillTrkParticleSummary(summary).isFailure()) ATH_MSG_WARNING("Summary parameters could not be written to ntuple");
 
     const Trk::FitQuality* fitQuality = track.fitQuality();
-    if((!fitQuality) || fillFitQualityData(fitQuality).isFailure() ) msg(MSG::WARNING) << "Fit Quality data could not be written to ntuple" << endmsg;
+    if((!fitQuality) || fillFitQualityData(fitQuality).isFailure() ) ATH_MSG_WARNING("Fit Quality data could not be written to ntuple");
 
     return StatusCode::SUCCESS;
 }
@@ -246,7 +242,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::fillTrkParticlePerigee(const Trk:
   ATH_MSG_VERBOSE ("in fillTrackPerigee");
 
     if (!perigee) {
-        msg(MSG::WARNING) << "Something is wrong - track has no perigee at all!" << endmsg;
+        ATH_MSG_WARNING("Something is wrong - track has no perigee at all!");
         m_Rec_d0    = 0;
         m_Rec_z0    = 0;
         m_Rec_phi0  = 0;
@@ -287,7 +283,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::fillTrkParticleSummary(const Trk:
   ATH_MSG_VERBOSE ("in fillTrackSummary");
 
     if (!summary) {
-        msg(MSG::WARNING) << "Something is wrong - track has no summary at all!" << endmsg;
+        ATH_MSG_WARNING("Something is wrong - track has no summary at all!");
         m_numberOfPixelHits  = 0;
         m_numberOfSCTHits    = 0;
 
@@ -321,14 +317,14 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::fillTrkParticleSummary(const Trk:
 
 StatusCode Trk::BasicValTrkParticleNtupleTool::fillFitQualityData(const Trk::FitQuality* fitQuality) const {
   if (!fitQuality) {
-        msg(MSG::WARNING) << "Something is wrong - track has no fit quality data !!" << endmsg;
+        ATH_MSG_WARNING("Something is wrong - track has no fit quality data !!");
         m_chi2  = 0;
                    
         return StatusCode::FAILURE;
       }
 
   if(fitQuality->numberDoF() == 0) {
-                                    msg(MSG::WARNING) << "Number of DOF is zero !! Could not normalize chi2 " << endmsg;
+                                    ATH_MSG_WARNING("Number of DOF is zero !! Could not normalize chi2 ");
 				    return StatusCode::FAILURE;
                                     }
   

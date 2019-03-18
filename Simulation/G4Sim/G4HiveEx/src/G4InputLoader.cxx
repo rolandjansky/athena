@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -11,15 +11,8 @@
 
 #include "GaudiKernel/Property.h"
 
-// #include "EventInfo/EventInfo.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"
-
-// #include "InDetIdentifier/PixelID.h"
-// #include "InDetSimEvent/SiHitCollection.h"
-// #include "InDetSimEvent/TRTUncompressedHitCollection.h"
-// #include "TrackRecord/TrackRecordCollection.h"
-
 
 G4InputLoader::G4InputLoader( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 

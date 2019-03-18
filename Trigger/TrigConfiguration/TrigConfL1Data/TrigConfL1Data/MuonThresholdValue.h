@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MuonThresholdValue
@@ -11,7 +11,7 @@ namespace TrigConf {
    class MuonThresholdValue : public TriggerThresholdValue {
    public:
       MuonThresholdValue();
-      ~MuonThresholdValue();
+      ~MuonThresholdValue() = default;
 
       virtual TriggerThresholdValue* createCopy() const;
 

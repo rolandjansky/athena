@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_DeadTime
@@ -13,7 +13,7 @@ namespace TrigConf {
    class DeadTime : public L1DataBaseclass {
    public:
       DeadTime();
-      ~DeadTime();
+      ~DeadTime() = default;
     
       // getters
       int simple()        const { return m_simple; }

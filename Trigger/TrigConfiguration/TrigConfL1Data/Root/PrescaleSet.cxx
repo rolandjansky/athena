@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -66,9 +66,6 @@ TrigConf::PrescaleSet::PrescaleSet() :
    m_Prescales_ctp(),
    m_Prescales_float(),
    m_Cuts()
-{}
-
-TrigConf::PrescaleSet::~PrescaleSet()
 {}
 
 void TrigConf::PrescaleSet::reset() {
