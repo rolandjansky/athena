@@ -16,10 +16,11 @@
 #include "eflowRec/PFLCCalibTool.h"
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
-
+#include "eflowRec/PFEGammaPFOAssoc.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
+DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )

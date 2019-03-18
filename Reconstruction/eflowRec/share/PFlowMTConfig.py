@@ -233,3 +233,9 @@ if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
    
 topSequence += PFONeutralCreatorAlgorithm
+
+if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
+
+   from eflowRec.eflowRecConf import PFEGammaPFOAssoc
+   PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
+   topSequence += PFEGammaPFOAssoc
