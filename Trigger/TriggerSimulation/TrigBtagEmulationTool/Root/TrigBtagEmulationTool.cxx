@@ -80,7 +80,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
   declareProperty("InputChainGSC",               std::get< jetCollections::GSC >( m_inputChains )   = "HLT_j15_gsc35_boffperf_split");
 
   // Jet Keys
-  declareProperty("InputJetKey",                 std::get< jetCollections::EF >( m_jetKeys )    = "" );
+  declareProperty("InputJetKey",                 std::get< jetCollections::EF >( m_jetKeys )    = "EFJet" );
   declareProperty("InputJetKey_Split",           std::get< jetCollections::SPLIT >( m_jetKeys ) = "SplitJet" );
   declareProperty("InputJetKey_GSC",             std::get< jetCollections::GSC >( m_jetKeys )   = "GSCJet" );
 
@@ -262,15 +262,19 @@ StatusCode TrigBtagEmulationTool::initialize() {
   m_manager_split_gsc->setContainers( std::get< jetCollections::GSC >( m_jetContainers )  ,m_input_btagName );
   // Set The Keys for the Trigger Navigation
   m_manager_ef->setKeys       ( std::get< jetCollections::EF >( m_jetKeys ),
+				"HLTBjetFex",
 				std::get< jetCollections::EF >( m_pvKeys ),
 				std::get< jetCollections::EF >( m_tpKeys ) );
   m_manager_split->setKeys    ( std::get< jetCollections::SPLIT >( m_jetKeys ),
+				"HLTBjetFex",
                                 std::get< jetCollections::SPLIT >( m_pvKeys ),
                                 std::get< jetCollections::SPLIT >( m_tpKeys ) );
   m_manager_gsc->setKeys      ( std::get< jetCollections::GSC >( m_jetKeys ),
+				"HLTBjetFex",
                                 std::get< jetCollections::GSC >( m_pvKeys ),
                                 std::get< jetCollections::GSC >( m_tpKeys ) );
   m_manager_split_gsc->setKeys( std::get< jetCollections::SPLIT >( m_jetKeys ),
+				"HLTBjetFex",
                                 std::get< jetCollections::SPLIT >( m_pvKeys ),
                                 std::get< jetCollections::SPLIT >( m_tpKeys ) );
 
