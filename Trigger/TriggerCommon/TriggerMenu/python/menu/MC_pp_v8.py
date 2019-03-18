@@ -50,6 +50,8 @@ def setupMenu():
 
     TriggerFlags.AFPSlice.signatures = TriggerFlags.AFPSlice.signatures() + [
         ]
+    TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures()+ [
+        ]
 
 
 
@@ -88,6 +90,13 @@ def setupMenu():
 
 
     if TriggerFlags.doFTK():
+        TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures()+ [
+            ['beamspot_idperf_FTK',      'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+            ['beamspot_idperf_FTKRefit', 'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+            ['beamspot_idperf_FTK_L1All',      '', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+            ['beamspot_idperf_FTKRefit_L1All', '', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1]
+            ]
+
         TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
             ['mu24_idperf_FTK',       'L1_MU20MU21', ['L1_MU20'], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
             ['mu6_idperf_FTK',             'L1_MU6',            [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
@@ -384,7 +393,6 @@ def setupMenu():
 
 
     TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + []
-    TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures()+ []
     TriggerFlags.CalibSlice.signatures   = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures  = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + []
@@ -452,7 +460,7 @@ ps_rerun_list = [
       'xe0noL1_l2fsperf_trkmht',
       ]
 
-if TriggerFlags.doFTK():
+if TriggerFlags.doFTK():  
     ps_rerun_list = [
       'xe0noL1_l2fsperf_trkmht_FTK',
       'xe0noL1_l2fsperf_trktc_lcw_FTK',
@@ -508,22 +516,33 @@ ps_ftk_list = []
 
 ps_Bphys_list = []
 
+ps_ftk_beamspot_list = []
+
+
 if TriggerFlags.doFTK():
+    
+    ps_ftk_beamspot_list = [
+        'beamspot_idperf_FTK_L1All',
+        'beamspot_idperf_FTKRefit_L1All'
+        ]
+
     ps_ftk_list = [
-          'mu6_idperf_FTK_L1MU6',
-          'mu24_idperf_FTK_L1MU20MU21',
-          'mu6_idperf_FTKRefit_L1MU6',
-          'mu24_idperf_FTKRefit_L1MU20MU21',
-          'j35_boffperf_split_FTK_L1J15',
-          'j150_boffperf_split_FTK_L1J40',
-          'j35_boffperf_split_FTKVtx_L1J15',
-          'j150_boffperf_split_FTKVtx_L1J40',
-          'j35_boffperf_split_FTKRefit_L1J15',
-          'j150_boffperf_split_FTKRefit_L1J40',
-          'j225_boffperf_split_FTK_L1J100',
-          'j225_boffperf_split_FTKVtx_L1J100',
-          'j225_boffperf_split_FTKRefit_L1J100',
-          ]       
+        'beamspot_idperf_FTK',
+        'beamspot_idperf_FTKRefit',
+        'mu6_idperf_FTK',
+        'mu24_idperf_FTK',
+        'mu6_idperf_FTKRefit',
+        'mu24_idperf_FTKRefit',
+        'j35_boffperf_split_FTK_L1J15',
+        'j150_boffperf_split_FTK_L1J40',
+        'j35_boffperf_split_FTKVtx_L1J15',
+        'j150_boffperf_split_FTKVtx_L1J40',
+        'j35_boffperf_split_FTKRefit_L1J15',
+        'j150_boffperf_split_FTKRefit_L1J40',
+        'j225_boffperf_split_FTK_L1J100',
+        'j225_boffperf_split_FTKVtx_L1J100',
+        'j225_boffperf_split_FTKRefit_L1J100',
+        ]       
 
     ps_streamers_list = []
 
@@ -533,7 +552,9 @@ if TriggerFlags.doFTK():
 chain_list=ps_online_list+ps_cosmic_list+ps_minb_list
 if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
-
+if TriggerFlags.doFTK():
+    chain_list+=ps_ftk_beamspot_list
+    
 Prescales.HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 
 chain_list=ps_larnoiseburst_rerun_list
