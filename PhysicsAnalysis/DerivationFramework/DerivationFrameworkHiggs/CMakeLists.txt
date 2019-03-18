@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODJet
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTracking
+   Event/xAOD/FourMomUtils
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    Tracking/TrkVertexFitter/TrkVKalVrtFitter
    Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
@@ -43,7 +44,7 @@ atlas_add_component( DerivationFrameworkHiggs
    DerivationFrameworkHiggs/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
-   xAODEgamma xAODJet xAODMuon xAODTracking TrkVKalVrtFitterLib
+   xAODEgamma xAODJet xAODMuon xAODTracking FourMomUtils TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
    GaudiKernel VxVertex xAODTrigger PhotonVertexSelection AthContainers
    TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib )

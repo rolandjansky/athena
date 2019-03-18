@@ -11,6 +11,7 @@
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
+#include "FourMomUtils/P4Helpers.h"
 
 #include <vector>
 
@@ -76,11 +77,8 @@ namespace DerivationFramework {
     }
 
     for( const auto& el : *electrons ){
-
       fillTrackDetails(el);
-
       fillVertexDetails(el);
-
       fillClusterDetails(el);
     }
 
@@ -142,18 +140,28 @@ namespace DerivationFramework {
       trkMatchTrk[7] = deltaPhi[2];
     }
 
+    if(m_emExtrapolationTool->matchesAtCalo (cluster,
+                                           tp,
+                                           isTRT,
+                                           Trk::alongMomentum,
+                                           eta,
+                                           phi,
+                                           deltaEta,
+                                           deltaPhi,
+                                           IEMExtrapolationTools::fromPerigeeRescaled)) //Last Measurement
+    {
+      trkMatchTrk[8] = deltaPhi[2];
+    }
   }
 
 
   int  DerivationFramework::MergedElectronDetailsDecorator::nSiHits( const xAOD::TrackParticle * tp ) const
   {
-
     uint8_t dummy(-1);
     int nPix = tp->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy : 0;
     int nPix_DS = tp->summaryValue( dummy, xAOD::numberOfPixelDeadSensors )? dummy : 0;
     int nSCT = tp->summaryValue( dummy, xAOD::numberOfSCTHits )? dummy : 0;
     int nSCT_DS = tp->summaryValue( dummy, xAOD::numberOfSCTDeadSensors )? dummy : 0;
-
     return nPix + nPix_DS + nSCT + nSCT_DS;
   }
 
@@ -168,11 +176,11 @@ namespace DerivationFramework {
     std::vector<float> trkMatchTrkLM_dEta2(el->nTrackParticles(),-999);
     std::vector<float> trkMatchTrkLM_dPhi1(el->nTrackParticles(),-999);
     std::vector<float> trkMatchTrkLM_dPhi2(el->nTrackParticles(),-999);
+    std::vector<float> trkMatchTrkR_dPhi2(el->nTrackParticles(),-999);
 
     auto caloCluster =  el->caloCluster();
-
     if( caloCluster && caloCluster->pt() > m_minET ){
-      std::vector<float> trkMatch(8,-999);
+      std::vector<float> trkMatch(9,-999);
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
         auto trackParticle = el->trackParticle( i );
         if(trackParticle){
@@ -185,6 +193,7 @@ namespace DerivationFramework {
           trkMatchTrkLM_dEta2[i] = trkMatch[5];
           trkMatchTrkLM_dPhi1[i] = trkMatch[6];
           trkMatchTrkLM_dPhi2[i] = trkMatch[7];
+          trkMatchTrkR_dPhi2[i]  = trkMatch[8];
         }
       }
     }
@@ -197,6 +206,7 @@ namespace DerivationFramework {
     el->auxdecor<std::vector<float>>("TrackMatchingLM_dEta2") = trkMatchTrkLM_dEta2;
     el->auxdecor<std::vector<float>>("TrackMatchingLM_dPhi1") = trkMatchTrkLM_dPhi1;
     el->auxdecor<std::vector<float>>("TrackMatchingLM_dPhi2") = trkMatchTrkLM_dPhi2;
+    el->auxdecor<std::vector<float>>("TrackMatchingR_dPhi2")  = trkMatchTrkR_dPhi2;
   }
 
   void DerivationFramework::MergedElectronDetailsDecorator::fillClusterDetails(const xAOD::Electron* el) const
@@ -214,11 +224,7 @@ namespace DerivationFramework {
         if( link.isValid() ){
           subCluster_E.push_back( (*link)->e() );
           subCluster_dEta.push_back( caloCluster->eta() - (*link)->eta() );
-          float dphi =  caloCluster->phi() - (*link)->phi();
-          while( dphi > TMath::Pi() )
-            dphi -= TMath::Pi() * 2;
-          while( dphi < -TMath::Pi() )
-            dphi += TMath::Pi() * 2;
+          float dphi = P4Helpers::deltaPhi( caloCluster->phi(), (*link)->phi() );
           subCluster_dPhi.push_back(dphi);
         }
       }
@@ -236,30 +242,32 @@ namespace DerivationFramework {
     float vtxR = -999;
     float vtxZ = -999;
     float vtxM = -999;
-    float vtxQ = -999;
-
+    int vtxTrkParticleIndex1 = -999;
+    int vtxTrkParticleIndex2 = -999;
     float vtxRerr = -999;
     float vtxZerr = -999;
     float vtxMerr = -999;
-
     float vtxChi2 = -999;
-    float vtxNdof = -999;
-
+    int   vtxNdof = -999;
     float vtxdEta = -999;
     float vtxdPhi = -999;
-
-
 
     if( caloCluster && caloCluster->pt() > m_minET ){
       const xAOD::TrackParticle* trk1 = nullptr;
       const xAOD::TrackParticle* trk2 = nullptr;
+      int trkIndex1 = -999;
+      int trkIndex2 = -999;
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
         auto trackParticle = el->trackParticle( i );
         if( nSiHits(trackParticle) >= 7 ) {
           if ( trk1 == nullptr ){
             trk1 = trackParticle;
-          } else if( trk2 == nullptr){
+            trkIndex1 = i;
+          } else if( trk2 == nullptr ){
+            if( trk1->charge() == trackParticle->charge() )
+              continue;
             trk2 = trackParticle;
+            trkIndex2 = i;
             break;
           }
         }
@@ -274,6 +282,8 @@ namespace DerivationFramework {
         std::vector<const xAOD::TrackParticle*> trksToFit;
         trksToFit.push_back( trk1 );
         trksToFit.push_back( trk2 );
+        vtxTrkParticleIndex1 = trkIndex1;
+        vtxTrkParticleIndex2 = trkIndex2;
 
         xAOD::Vertex* myVertex = m_VertexFitter->fit( trksToFit, startingPoint );
 
@@ -287,20 +297,14 @@ namespace DerivationFramework {
           std::vector<double> masses = { 0.511e-3, 0.511e-3 };
           vtxM    = m_V0Tools->invariantMass( myVertex, masses);
           vtxMerr = m_V0Tools->invariantMassError( myVertex, masses);
-          vtxQ    = trk1->charge() + trk2->charge();
 
           vtxChi2 = myVertex->chiSquared();
           vtxNdof = myVertex->numberDoF();
 
           m_emExtrapolationTool->getEtaPhiAtCalo( myVertex, &vtxdEta, &vtxdPhi);
-
+          
+          vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) ); 
           vtxdEta -= caloCluster->etaBE(2);
-          vtxdPhi -= caloCluster->phiBE(2);
-          while( vtxdPhi > TMath::Pi() )
-            vtxdPhi -= TMath::Pi() * 2;
-          while( vtxdPhi < -TMath::Pi() )
-            vtxdPhi += TMath::Pi() * 2;
-
         } else {
           vtxChi2 = 0;
           vtxNdof = 0;
@@ -313,9 +317,10 @@ namespace DerivationFramework {
     el->auxdecor<float>("vtxZerr") = vtxZerr;
     el->auxdecor<float>("vtxM")    = vtxM;
     el->auxdecor<float>("vtxMerr") = vtxMerr;
-    el->auxdecor<float>("vtxQ")    = vtxQ;
+    el->auxdecor<int>("vtxTrkParticleIndex1") = vtxTrkParticleIndex1;
+    el->auxdecor<int>("vtxTrkParticleIndex2") = vtxTrkParticleIndex2;
     el->auxdecor<float>("vtxChi2") = vtxChi2;
-    el->auxdecor<float>("vtxNdof") = vtxNdof;
+    el->auxdecor<int>("vtxNdof")   = vtxNdof;
     el->auxdecor<float>("vtxdEta") = vtxdEta;
     el->auxdecor<float>("vtxdPhi") = vtxdPhi;
   }
