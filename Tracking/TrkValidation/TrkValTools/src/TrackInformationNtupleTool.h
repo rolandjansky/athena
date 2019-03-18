@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkValInterfaces/ITrackValidationNtupleTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace Trk {
 
@@ -95,6 +97,7 @@ private:
     mutable int         m_ndof;        //!< number of degrees of freedom of track fit
     mutable int         m_nHits;       //!< number of measurements on the track (including outliers)
 
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 

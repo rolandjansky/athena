@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrkValInterfaces/IJetTruthNtupleTool.h"
 #include <vector>
@@ -72,6 +74,8 @@ private:
     mutable float       m_mc_jetThrust;
     mutable float       m_mc_jetEnergy;
     mutable float       m_mc_jetMomentum;
+
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 
