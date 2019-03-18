@@ -1,30 +1,21 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags              import TriggerFlags
-from TriggerJobOpts.MuonSliceFlags            import MuonSliceFlags
-from TriggerJobOpts.EgammaSliceFlags          import EgammaSliceFlags
-from TriggerJobOpts.JetSliceFlags             import JetSliceFlags
-from TriggerJobOpts.CombinedSliceFlags        import CombinedSliceFlags
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
 
-from AthenaCommon.CFElements import parOR, seqAND, stepSeq
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
+from AthenaCommon.Constants import DEBUG
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import *
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import *
 from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-
-import os, traceback, operator, commands, time
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
@@ -50,14 +41,17 @@ class GenerateMenuMT:
         self.doJetChains         = True
         self.doMuonChains        = True
         self.doCombinedChains    = True
+        self.doTestChains   = True
 
-
+        
     def setTriggerConfigHLT(self):
         # setting the hlt menu configuration
         (HLTPrescales) = self.setupMenu()
         self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile())
         self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
         log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
+        log.debug("   and prescales : %s", HLTPrescales)
+        
 
         
     def generateChainConfig(self, chainDicts):
@@ -67,10 +61,18 @@ class GenerateMenuMT:
         if self.doEgammaChains:
             try:
                 import TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs                
-            except:
-                log.exception('Problems when importing generateElectronChainDefs, disabling egamma chains.')
+            except ImportError:
+                log.exception('Problems when importing generateElectronChainDefs, disabling Egamma chains.')
                 self.doEgammaChains = False
-                        
+
+        if self.doTestChains:
+            try:
+                import TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs  
+            except ImportError:
+                log.exception('Problems when importing generateTestChainDefs, disabling Test chains.')
+                self.doTestChains = False
+              
+
         listOfChainConfigs = []
         chainDicts = splitInterSignatureChainDict(chainDicts)  
       
@@ -79,20 +81,28 @@ class GenerateMenuMT:
             pp = pprint.PrettyPrinter(indent=4, depth=8)
             log.debug('dictionary is: %s', pp.pformat(chainDicts))
 
+        # Loop over all chainDicts and sending them off to their respective assembly code
         for chainDict in chainDicts:
             chainConfigs = None
             log.debug('Checking chainDict for chain %s' , chainDict['chainName'])
             
-
             if chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
                     log.debug("Try to get chain config")
                     chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)                    
-                except:
+                except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
                     continue
+
+            elif chainDict["signature"] == "Test" and self.doTestChains:
+                try:
+                    chainConfigs = TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs.generateChainConfigs(chainDict)
+                except RuntimeError:
+                    log.exception('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    continue
+
             else:                
-                log.error('Chain %s ignored - either trigger signature is turned off or the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
+                log.error('Chain %s ignored - either trigger signature is turned off or chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
             
             log.debug('ChainConfigs  %s ' % chainConfigs)

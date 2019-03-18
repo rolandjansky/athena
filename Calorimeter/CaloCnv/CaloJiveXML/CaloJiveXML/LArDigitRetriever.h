@@ -19,7 +19,6 @@
 
 class IToolSvc;
 
-class CaloIdManager;
 class Identifier;
 class CaloCellContainer;
 
@@ -77,7 +76,6 @@ namespace JiveXML{
       std::string m_sgKeyLArDigit[2]; 
       SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     
-      const CaloIdManager* m_calo_id_man;
       const CaloCell_ID*   m_calocell_id;
 
       bool m_lar;

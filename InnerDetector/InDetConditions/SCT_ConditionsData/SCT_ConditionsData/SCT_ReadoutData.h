@@ -128,7 +128,7 @@ class SCT_ReadoutData {
   std::vector<int>                    m_chipsOnLink0;        //!< The chips read out on link 0
   std::vector<int>                    m_chipsOnLink1;        //! <The chips read out on link 1
 
-  mutable Athena::MsgStreamMember* m_msg;
+  Athena::MsgStreamMember* m_msg;
 };
 
 #endif // SCT_ConditionData_SCT_ReadoutData_h

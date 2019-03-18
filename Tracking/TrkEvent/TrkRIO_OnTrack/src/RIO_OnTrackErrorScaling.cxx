@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 
@@ -13,7 +13,7 @@ CLID RIO_OnTrackErrorScaling::clid() const {
 
 void RIO_OnTrackErrorScaling::checkParameters(const char *label,
                                               unsigned int n_paramter_sets,
-                                              const char **param_names,
+                                              const char* const* param_names,
                                               unsigned int n_paramters) const
 {
   if (params().size() != n_paramter_sets ) {

@@ -61,11 +61,11 @@ void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::st
 
 void JetTagCalibCondData::addDL1NN(const std::string&tagger, const std::string& channel, const lwt::JSONConfig& obj) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
-  log << MSG::WARNING << "#BTAG# JSONConfig in cond data with " << obj.layers.size() << " layers" << endmsg;
-  log << MSG::WARNING << "#BTAG# JSONConfig in cond data for tagger " << tagger << endmsg;
-  log << MSG::WARNING << "#BTAG# JSONConfig in cond data for channel " << channel << endmsg;
+  log << MSG::DEBUG << "#BTAG# JSONConfig in cond data with " << obj.layers.size() << " layers" << endmsg;
+  log << MSG::DEBUG << "#BTAG# JSONConfig in cond data for tagger " << tagger << endmsg;
+  log << MSG::DEBUG << "#BTAG# JSONConfig in cond data for channel " << channel << endmsg;
   m_DL1_NNConfig[tagger].insert(std::make_pair(channel, obj));
-  log << MSG::WARNING << "#BTAG# m_DL1_NNConfig size " << m_DL1_NNConfig.size();
+  log << MSG::DEBUG << "#BTAG# m_DL1_NNConfig size " << m_DL1_NNConfig.size() << endmsg;
 }
 
 void JetTagCalibCondData::addChannelAlias(const std::string& channel, const std::string& alias) {

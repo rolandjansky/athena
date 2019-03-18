@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_SKIAUX_H
@@ -11,7 +11,6 @@
 
 class SCT_Ski;
 // 14th Aug 2005 S.Mima modified.
-//class SCT_Bracket;
 class SCT_Bracket;
 class SCT_Harness;
 class SCT_SkiPowerTape;
@@ -24,16 +23,17 @@ public:
 
 
   SCT_SkiAux(const std::string & name,
-		   const SCT_Ski * ski,
-		   // 14th Aug 2005 S.Mima modified.
-		   //const SCT_Bracket * bracket,
-		   const SCT_Bracket * bracket,
-		   const SCT_Harness * harness,
-		   const SCT_SkiPowerTape * skiPowerTape,
-		   double innerRadius,
-		   double bracketPhiOffset, 
-		   double powerTapePhiOffset,
-		   double divisionAngle);
+             SCT_Ski * ski,
+             SCT_Bracket * bracket,
+             SCT_Harness * harness,
+             SCT_SkiPowerTape * skiPowerTape,
+             double innerRadius,
+             double bracketPhiOffset, 
+             double powerTapePhiOffset,
+             double divisionAngle,
+             InDetDD::SCT_DetectorManager* detectorManager,
+             const SCT_GeometryManager* geometryManager,
+             SCT_MaterialManager* materials);
   
   //
   // Retrieve basic/derived parameters
@@ -71,12 +71,10 @@ private:
   double m_sectorAngle;
  
   // Child detector elements
-  const SCT_Ski * m_ski;
-  // 14th Aug 2005 S.Mima modified.
-  //  const SCT_Bracket * m_bracket;
-  const SCT_Bracket * m_bracket;
-  const SCT_Harness * m_harness;
-  const SCT_SkiPowerTape * m_skiPowerTape;
+  SCT_Ski * m_ski;
+  SCT_Bracket * m_bracket;
+  SCT_Harness * m_harness;
+  SCT_SkiPowerTape * m_skiPowerTape;
  
 };
 

@@ -28,7 +28,9 @@
 #include "LArElecCalib/ILAruA2MeV.h"
 #include "LArElecCalib/ILArMphysOverMcal.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "LArElecCalib/ILArFEBConfigReader.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArFebConfig.h"
 
 #include "StoreGate/DataHandle.h"
 #include "LArCabling/LArCablingBase.h"
@@ -104,7 +106,8 @@ class LArADC2MeVTool: public AthAlgTool,
   mutable LArConditionsContainer< std::vector<float> >* m_ADC2MeV;
   mutable std::vector< std::vector < float > > m_ADC2MeV_vec;
 
-  ToolHandle<ILArFEBConfigReader> m_febConfigReader;
+  SG::ReadCondHandleKey<LArFebConfig> m_configKey{this, "inputKey","LArFebConfig", "Input key for FEB config object"};
+
   bool m_isSC;
 };
 

@@ -141,7 +141,6 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
     return status;
   }
 
-
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
   //PS 3/4/18 jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
@@ -197,6 +196,26 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   ATH_MSG_DEBUG("Primed  jet build Tool");
 
 
+  if ( !secondaryLabelisEmpty() && secondaryLabelisTracks()) {
+  	// adding secondary ghost TRACK pseudojet container.
+  	const xAOD::TrackParticleContainer* ghostTrackInContainer = nullptr;
+  	//const ghostInputContainer* ghostInContainer = nullptr;
+	ATH_MSG_DEBUG("Retrieving secondary input container.");
+	status = this -> getGhostInputContainer(outputTE, ghostTrackInContainer);	
+ 	if (status == HLT::OK) {
+ 	   ATH_MSG_DEBUG("Obtained ghost inputs " 
+ 	                 << ghostTrackInContainer->size());
+ 	} else {
+ 	   ATH_MSG_ERROR("Failed to obtain ghost track constituents");
+ 	   return status;
+ 	}
+  	m_jetBuildTool->primeGhost(ghostTrackInContainer, m_secondarylabel);
+	ATH_MSG_DEBUG("Created ghost track pseudojet container with constituent label '"<<m_secondarylabel<<"'.");
+  }
+
+
+
+
   // add in tracks if appropriate and configured. Implemented in subclasses
   // addTracks(inputTE);
 
@@ -218,6 +237,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   unsigned int j_count{0};
   for(auto j: *j_container)
     {
+
       /*
       ATH_MSG_VERBOSE("EMScale E " 
                       << (j->getAttribute<xAOD::JetFourMom_t>("JetEMScaleMomentum")).E());
@@ -225,7 +245,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
                       << j->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum").E());
       */
       ++j_count;
-  
+ 
       ATH_MSG_DEBUG("jet "  
                       << j_count 
                       << " E " 
@@ -299,6 +319,36 @@ HLT::ErrorCode
 TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
                                                      outputTE,
                                                      const InputContainer*&
+                                                     inContainer){
+
+  // Get the input Container from input trigger element
+
+  // etablish the contianer type to retrieve from the trigger element
+  auto hltStatus = getFeature(outputTE, inContainer);  
+
+  if (hltStatus == HLT::OK) {
+    ATH_MSG_DEBUG("Retrieved the input container at address " << inContainer);
+  } else {
+    ATH_MSG_ERROR("Failed to retrieve the input container");
+    return HLT::ERROR;
+  }
+
+  if (inContainer == nullptr){
+    ATH_MSG_ERROR("The input container address = nullptr, giving up");
+    return HLT::ERROR;
+  }
+
+  ATH_MSG_DEBUG("Number of incoming objects : " << inContainer->size());
+
+  return HLT::OK;
+}
+
+template<typename InputContainer>
+template<typename ghostInputContainer>
+HLT::ErrorCode
+TrigHLTJetRecBase<InputContainer>::getGhostInputContainer(const HLT::TriggerElement*
+                                                     outputTE,
+                                                     const ghostInputContainer*&
                                                      inContainer){
 
   // Get the input Container from input trigger element

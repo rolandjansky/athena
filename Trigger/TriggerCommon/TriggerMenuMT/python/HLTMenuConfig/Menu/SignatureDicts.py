@@ -366,7 +366,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step'],
+    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
     'eventBuildType'  : AllowedEventBuildingIdentifiers,
     }
 # ---- Egamma Dictinary of default Values ----
@@ -848,10 +848,9 @@ def getSignatureInformation(signature):
 #==========================================================            
 def getBasePattern():
     import re
-    import itertools
     allTrigTypes = SliceIDDict.values()
     possibleTT = '|'.join(allTrigTypes)
-    pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT))
+    pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
     return pattern
 
 

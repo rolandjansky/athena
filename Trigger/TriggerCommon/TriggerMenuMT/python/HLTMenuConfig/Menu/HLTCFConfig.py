@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
@@ -6,11 +6,9 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 import sys
-import copy
-from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
+from AthenaCommon.Constants import VERBOSE
 log = logging.getLogger('HLTCFConfig')
 log.setLevel( VERBOSE )
 
@@ -25,27 +23,6 @@ def makeSummary(name, flatDecisions):
     return summary
 
 
-def makeStreamESD(name, flatDecisions):
-    """ Creates output stream for given decisions """
-    import AthenaPoolCnvSvc.WriteAthenaPool
-    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-    StreamESD = createOutputStream(name,"myESD.pool.root",True)
-    StreamESD.OutputLevel=3
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.remove( StreamESD )
-    def addTC(name):   
-        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-    for tc in flatDecisions:
-        addTC( tc )
-
-    addTC("HLTSummary")
-    log.debug("ESD file content: ")
-    log.debug( StreamESD.ItemList  )
-    return StreamESD
-
-
 def createStepRecoNode(name, seq_list, dump=False):
     """ elementary HLT reco step, contianing all sequences of the step """
 
@@ -54,7 +31,8 @@ def createStepRecoNode(name, seq_list, dump=False):
     for seq in seq_list:        
         stepCF += createCFTree(seq)
     
-    if dump: dumpSequence (stepCF, indent=0)        
+    if dump: 
+        dumpSequence (stepCF, indent=0)        
     return stepCF
 
 
@@ -68,7 +46,8 @@ def createStepFilterNode(name, seq_list, dump=False):
         log.info("Add  %s to filter node %s", filterAlg.name(), name)
         stepCF += filterAlg
     
-    if dump: dumpSequence (stepCF, indent=0)        
+    if dump: 
+        dumpSequence (stepCF, indent=0)        
     return stepCF
 
 
@@ -86,6 +65,7 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         ath_sequence = menuseq.sequence.Alg
         name = ath_sequence.name()
+        print('5555555 ATH SEQUENCE NAME ---- ', name)
         if name in already_connected:
             log.debug("AthSequencer %s already in the Tree, not added again",name)
         else:
@@ -159,17 +139,12 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     hltTop +=  steps
     
     # make CF tree
-
     finalDecisions = decisionTree_From_Chains(steps, allChainConfigs, allChainDicts)
-    EnabledChainNames = [c.name for c in allChainConfigs]
-    
+        
     flatDecisions=[]
-    for step in finalDecisions: flatDecisions.extend (step)
+    for step in finalDecisions: 
+        flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    #edmCreator = HLTEDMCreator()    
-    #edmCreator.TrigCompositeContainer = flatDecisions
-    #summary.OutputTools= [ edmCreator ]
     hltTop += summary
 
     # add signature monitor
@@ -182,7 +157,6 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
     monAcc.appendToGlobals()    
     hltTop += monAlg
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)
     
     topSequence += hltTop
 
@@ -210,7 +184,6 @@ def matrixDisplay( allSeq ):
                 return sname.ljust( longestName ) + __nextSteps( index + 1, nextStepName )
         return ""
             
-    from pprint import pprint
     log.debug("" )
     log.debug("chains^ vs steps ->")
     log.debug( "="*90 )    
@@ -230,7 +203,7 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
 
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, ComboMaker
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     HLTNodeName= HLTNode.name()
 
     # find nsteps
@@ -356,7 +329,11 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
     return finalDecisions
 
 
-def generateDecisionTree(HLTNode, chains, allChainDicts):
+"""
+Not used, kept for reference and testing purposes
+To be removed in future
+"""
+def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -485,8 +462,10 @@ def buildFilter(filter_name,  filter_input):
     """
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode       
     sfilter = RoRSequenceFilterNode(name=filter_name)
-    for i in filter_input: sfilter.addInput(i)
-    for i in filter_input: sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
+    for i in filter_input: 
+        sfilter.addInput(i)
+    for i in filter_input: 
+        sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
 
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())

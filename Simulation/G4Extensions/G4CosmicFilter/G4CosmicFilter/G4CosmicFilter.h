@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4COSMICFILTER_G4CosmicFilter_H
@@ -7,10 +7,6 @@
 
 #include "G4UserEventAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 
 namespace G4UA
 {
@@ -22,43 +18,37 @@ namespace G4UA
   class G4CosmicFilter: public AthMessaging, public G4UserEventAction
   {
 
-    public:
+  public:
 
-      struct Config
-      {
-        std::string collectionName = "CaloEntryLayer";
-        int PDGId = 0;
-        double ptMin = -1;
-        double ptMax = -1;
-      };
+    struct Config
+    {
+      std::string collectionName = "CaloEntryLayer";
+      int PDGId = 0;
+      double ptMin = -1;
+      double ptMax = -1;
+    };
 
-      struct Report
-      {
-        int ntot = 0;
-        int npass = 0;
-        void merge(const Report& rep){
-          ntot += rep.ntot;
-          npass += rep.npass;
-        }
-      };
+    struct Report
+    {
+      int ntot = 0;
+      int npass = 0;
+      void merge(const Report& rep){
+        ntot += rep.ntot;
+        npass += rep.npass;
+      }
+    };
 
-      G4CosmicFilter(const Config& config);
+    G4CosmicFilter(const Config& config);
 
-      const Report& getReport() const
-      { return m_report; }
+    const Report& getReport() const
+    { return m_report; }
 
-      virtual void EndOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
 
-    private:
+  private:
 
-      Config m_config;
-      Report m_report;
-
-      typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-      /// Pointer to StoreGate (event store by default)
-      mutable StoreGateSvc_t m_evtStore;
-      /// Pointer to StoreGate (detector store by default)
-      mutable StoreGateSvc_t m_detStore;
+    Config m_config;
+    Report m_report;
 
   }; // class G4CosmicFilter
 

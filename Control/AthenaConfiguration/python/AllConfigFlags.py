@@ -19,9 +19,9 @@ def _createCfgFlags():
     acf.addFlag('Concurrency.NumConcurrentEvents', 0)
 
     acf.addFlag('Scheduler.CheckDependencies', True)
-    acf.addFlag('Scheduler.ShowDataDeps', False)
-    acf.addFlag('Scheduler.ShowDataFlow', False)
-    acf.addFlag('Scheduler.ShowControlFlow', False)
+    acf.addFlag('Scheduler.ShowDataDeps', True)
+    acf.addFlag('Scheduler.ShowDataFlow', True)
+    acf.addFlag('Scheduler.ShowControlFlow', True)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
 
@@ -35,8 +35,9 @@ def _createCfgFlags():
 
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
-    acf.addFlag("Beam.NumberOfCollisions",0) # former global.NumberOfCollisions
-    acf.addFlag('Beam.Type', 'collisions') # former global.BeamType
+    acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
+    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : (GetFileMD(prevFlags.Input.Files)["/Digitization/Parameters"]["numberOfCollisions"] if prevFlags.Input.isMC \
+                                                                   else (2. if prevFlags.Beam.Type=='collisions' else 0.))) # former global.NumberOfCollisions
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
@@ -84,11 +85,14 @@ def _createCfgFlags():
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
     acf.addFlag("Calo.Noise.useCaloNoiseLumi",True)
-                
+
+#CaloCell flags
+    acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
 
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
+    acf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
 
 
     def __trigger():
@@ -101,11 +105,15 @@ def _createCfgFlags():
         return createMuonConfigFlags()
     acf.addFlagsCategory( "Muon", __muon )
 
+    def __egamma():
+        from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
+        return createEgammaConfigFlags()
+    acf.addFlagsCategory( "Egamma", __egamma )
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
         dqf = createDQConfigFlags()
-        createComplexDQConfigFlags(acf)  # TODO try to use the same style?
+        dqf.join( createComplexDQConfigFlags() )
         return dqf
     acf.addFlagsCategory("DQ", __dq )
 

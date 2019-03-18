@@ -31,6 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( COOL COMPONENTS CoolKernel )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread PyROOT )
+find_package( cx_Oracle )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfigSvcLib
@@ -56,7 +57,7 @@ atlas_install_joboptions(  share/hltConfigSvc_standalone_test_configurables.py
   share/lvl1ConfigSvc_standalone_test.py
   share/testKeyByNameLoader.py
   share/testTriggerFrontierQuery.py )
-atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfigOld.py )
+atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfigOld.py share/trigconf_property.py )
 atlas_install_xmls( data/*.dtd )
 
 # Aliases:

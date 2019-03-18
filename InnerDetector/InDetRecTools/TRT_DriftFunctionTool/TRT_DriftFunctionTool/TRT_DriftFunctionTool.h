@@ -85,10 +85,10 @@ public:
   double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const;  
 
   /** Returns time over threshold correction to the drift time (ns) */
-  double driftTimeToTCorrection(double tot, Identifier id);
+  double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false);
   
   /** Returns high threshold correction to the drift time (ns) */
-  double driftTimeHTCorrection(Identifier id);
+  double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false);
   
   /** Initialise Rt relation in data */
   void setupRtRelationData();
@@ -107,8 +107,6 @@ private:
   const InDetDD::TRT_DetectorManager* m_manager{};
   const TRT_ID* m_trtid{};
 
-  bool m_setupToT;                     //!< true at first call
-  bool m_setupHT;                      //!< true at first call
   //  ReadHandle  keys
   SG::ReadCondHandleKey<CondAttrListCollection> m_ToTkey{this,"ToTKeyName","/TRT/Calib/ToTCalib","ToTCalib in-key"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_HTkey{this,"HTKeyName","/TRT/Calib/HTCalib","HTCalib in-key"};
@@ -146,9 +144,14 @@ private:
   double m_t0_barrel[3];               //!< t0 for the 3 barrel rings
   double m_t0_endcap[18];              //!< t0 for the 14(18) endcap wheels
   double m_t0_shift;                   //!< digiversion dependent t0 shift
-  float m_tot_corrections[2][20];      //!< ToT corrections for 20 ToT bins in barrel and endcap
-  double m_ht_corrections[2];  	       //!< HT corrections for barrel and endcap
-  mutable std::mutex m_cacheMutex;
+  double m_ht_correction_barrel_Xe;    //!< HT correction for Xe straws in barrel
+  double m_ht_correction_endcap_Xe;    //!< HT correction for Xe straws in barrel
+  double m_ht_correction_barrel_Ar;    //!< HT correction for Ar straws in barrel
+  double m_ht_correction_endcap_Ar;    //!< HT correction for Ar straws in barrel
+  std::vector<double> m_tot_corrections_barrel_Xe; //!< ToT corrections for 20 ToT bins in Xe barrel straws
+  std::vector<double> m_tot_corrections_endcap_Xe; //!< ToT corrections for 20 ToT bins in Xe endcap straws
+  std::vector<double> m_tot_corrections_barrel_Ar; //!< ToT corrections for 20 ToT bins in Ar barrel straws
+  std::vector<double> m_tot_corrections_endcap_Ar; //!< ToT corrections for 20 ToT bins in Ar endcap straws
 };
 
 inline bool TRT_DriftFunctionTool::isValidTime(double drifttime) const

@@ -686,7 +686,7 @@
            <property name="title" >
             <string>HV Pathologic</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout" >
+           <layout class="QGridLayout" name="gridLayout_7" >
             <item row="0" column="2" >
              <widget class="QLabel" name="hecLabel_2" >
               <property name="text" >

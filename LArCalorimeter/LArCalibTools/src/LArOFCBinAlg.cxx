@@ -4,7 +4,7 @@
 
 #include "LArCalibTools/LArOFCBinAlg.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
-#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 //#include <ifstream>
 #include <fstream>
@@ -31,7 +31,6 @@ StatusCode LArOFCBinAlg::initialize() {
   //}
   m_ntTitle="Bin";
   m_ntpath=std::string("/NTUPLES/FILE1/OFCBINDIFF");
-  ATH_CHECK( m_cablingKey.initialize() );
   return LArCond2NtupleBase::initialize();
 }
 
@@ -98,19 +97,17 @@ StatusCode LArOFCBinAlg::execute() {
     msg(MSG::ERROR) << "Failed to register container with key " << m_outputContainer << " to StoreGate" << endmsg;
   }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{cablingKey()};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
-     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+      ATH_MSG_ERROR( "Do not have cabling mapping from key " << cablingKey().key() );
      return StatusCode::FAILURE;
   }
-  const LArEM_Base_ID* emId;
-  const LArHEC_Base_ID* hecId;
-  const LArFCAL_Base_ID* fcalId;
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance();
-  emId=caloIdMgr->getEM_ID();
-  fcalId=caloIdMgr->getFCAL_ID();
-  hecId=caloIdMgr->getHEC_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  const LArEM_Base_ID* emId = idHelper->em_idHelper();
+  const LArHEC_Base_ID* hecId = idHelper->hec_idHelper();
+  const LArFCAL_Base_ID* fcalId = idHelper->fcal_idHelper();
 
   for (int gain=0;gain<3;++gain) {
     msg(MSG::INFO) << "Working on gain " << gain << endmsg;

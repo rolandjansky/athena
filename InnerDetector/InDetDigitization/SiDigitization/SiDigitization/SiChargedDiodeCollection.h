@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,6 @@
 #include "Identifier/Identifiable.h"
 
 // Data member classes
-#include <map>
 #include <unordered_map>
 #include "SiDigitization/SiChargedDiode.h"
 #include "Identifier/Identifier.h"
@@ -35,6 +34,12 @@
 
 // Input/output classes 
 #include "InDetSimEvent/SiHit.h"
+
+// STL includes
+#include <atomic>
+#include <map>
+#include <memory>
+
 class AtlasDetectorID;
 namespace InDetDD{
   class SiDetectorElement;
@@ -153,7 +158,7 @@ class SiChargedDiodeCollection : Identifiable {
   //SiChargedDiodeMap is empty.
   SiTotalCharge::alloc_t m_allocator; 
   SiChargedDiodeMap m_chargedDiodes; // list of SiChargedDiodes 
-  mutable const InDetDD::SiDetectorElement *m_sielement; // detector element
+  const InDetDD::SiDetectorElement* m_sielement; // detector element
 };
 
 ///////////////////////////////////////////////////////////////////

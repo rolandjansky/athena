@@ -140,13 +140,6 @@ Others.VetoAlgs  += ["Splitter3"]
 Bad.TakeItemsFromInput = True
 Bad.VetoAlgs   = ["Triggered"]
 
-# Add the outputstreams to the execution sequence
-athOutSeq+=Stream1
-athOutSeq+=Stream2
-athOutSeq+=Stream3
-athOutSeq+=Others
-athOutSeq+=Bad
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------

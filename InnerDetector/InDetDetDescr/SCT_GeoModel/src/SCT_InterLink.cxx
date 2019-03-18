@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_InterLink.h"
@@ -16,8 +16,11 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-SCT_InterLink::SCT_InterLink(const std::string & name)
-  : SCT_SharedComponentFactory(name),
+SCT_InterLink::SCT_InterLink(const std::string & name,
+                             InDetDD::SCT_DetectorManager* detectorManager,
+                             const SCT_GeometryManager* geometryManager,
+                             SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
     m_interLinkShape(nullptr),
     m_interLinkLog(nullptr),
     m_interLink(nullptr),
@@ -45,7 +48,7 @@ SCT_InterLink::~SCT_InterLink() {
 void 
 SCT_InterLink::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
 
   // Interlink parameters   
   m_materialName  = parameters->interLinkMaterial();
@@ -86,14 +89,11 @@ GeoVPhysVol *
 SCT_InterLink::build() 
 {
   // Make the interlink.
- 
-  SCT_MaterialManager materials;
-
   if(m_nRepeat == 1) {
     // For old geometry interlink is a simple tube of material
     m_interLinkShape = new GeoTube(m_innerRadius, m_outerRadius, 0.5*m_length);
-    const GeoMaterial* material = materials.getMaterialForVolume(m_materialName, m_interLinkShape->volume());
-    if(!material) {material = materials.getMaterial(m_materialName);}
+    const GeoMaterial* material = m_materials->getMaterialForVolume(m_materialName, m_interLinkShape->volume());
+    if(!material) {material = m_materials->getMaterial(m_materialName);}
     m_interLinkLog = new GeoLogVol(getName(), m_interLinkShape, material);
     m_interLink = new GeoPhysVol(m_interLinkLog);
     m_interLink->ref();
@@ -104,13 +104,13 @@ SCT_InterLink::build()
     // And also include FSI flange segments if defined
     // Air tube:
     m_interLinkShape = new GeoTube(m_innerRadius, m_outerRadiusBearing, 0.5*m_length);
-    m_interLinkLog = new GeoLogVol(getName(), m_interLinkShape, materials.gasMaterial());
+    m_interLinkLog = new GeoLogVol(getName(), m_interLinkShape, m_materials->gasMaterial());
     m_interLink = new GeoPhysVol(m_interLinkLog);
     m_interLink->ref();
 
     // Interlink segments:
     m_interLinkSegShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, - 0.5*m_dPhi*Gaudi::Units::radian, m_dPhi*Gaudi::Units::radian);
-    m_interLinkSegLog = new GeoLogVol("InterlinkSegment", m_interLinkSegShape, materials.getMaterialForVolume(m_materialName, m_interLinkSegShape->volume()));
+    m_interLinkSegLog = new GeoLogVol("InterlinkSegment", m_interLinkSegShape, m_materials->getMaterialForVolume(m_materialName, m_interLinkSegShape->volume()));
     m_interLinkSeg = new GeoPhysVol(m_interLinkSegLog);
     m_interLinkSeg->ref();
 
@@ -124,7 +124,7 @@ SCT_InterLink::build()
 
     // B6 bearings
     m_bearingShape = new GeoTubs(m_innerRadiusBearing, m_outerRadiusBearing, 0.5*m_lengthBearing, - 0.5*m_dPhiBearing*Gaudi::Units::radian, m_dPhiBearing*Gaudi::Units::radian);
-    m_bearingLog = new GeoLogVol("Bearing", m_bearingShape, materials.getMaterialForVolume(m_materialNameBearing, m_bearingShape->volume()));
+    m_bearingLog = new GeoLogVol("Bearing", m_bearingShape, m_materials->getMaterialForVolume(m_materialNameBearing, m_bearingShape->volume()));
     m_bearing = new GeoPhysVol(m_bearingLog);
     m_bearing->ref();
 
@@ -141,7 +141,7 @@ SCT_InterLink::build()
     if(m_includeFSIFlange) {
       double dPhiFSI = (360./m_nRepeat)*Gaudi::Units::deg - m_dPhi; 
       m_FSIFlangeShape = new GeoTubs(m_innerRadiusFSIFlange, m_outerRadiusFSIFlange, 0.5*m_length, - 0.5*dPhiFSI*Gaudi::Units::radian, dPhiFSI*Gaudi::Units::radian);
-      m_FSIFlangeLog = new GeoLogVol("FSIFlangeSegment", m_FSIFlangeShape, materials.getMaterialForVolume(m_materialNameFSIFlange, m_FSIFlangeShape->volume()));
+      m_FSIFlangeLog = new GeoLogVol("FSIFlangeSegment", m_FSIFlangeShape, m_materials->getMaterialForVolume(m_materialNameFSIFlange, m_FSIFlangeShape->volume()));
       m_FSIFlange = new GeoPhysVol(m_FSIFlangeLog);
       m_FSIFlange->ref();
 

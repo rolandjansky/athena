@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLVL1_ID_H
@@ -76,16 +76,21 @@ public:
   /** build a tower identifier */
   Identifier  tower_id   	(int pos_neg_z, int sampling, int region,
 				 int eta,       int phi ) const ;
+  Identifier  tower_id   	(int pos_neg_z, int sampling, int region,
+				 int eta,       int phi, bool checks ) const ;
 				 
   /** build a tower identifier */
   Identifier  tower_id   	(const Identifier regionId,
     				 int eta,       int phi )  const ;
+  Identifier  tower_id   	(const Identifier regionId,
+    				 int eta,       int phi, bool checks )  const ;
   
   /** build a tower identifier */
   Identifier  tower_id   	(const Identifier layerId)  const;
   
   /** build a region (of towers) identifier */
   Identifier region_id  ( int pos_neg_z, int sampling, int region ) const;
+  Identifier region_id  ( int pos_neg_z, int sampling, int region, bool checks) const;
 
   /** build a region (of towers) identifier */
   Identifier region_id  ( const Identifier tower_or_layerId ) const;
@@ -94,9 +99,13 @@ public:
   /** build a layer identifier */
   Identifier layer_id   ( int pos_neg_z, int sampling, int region,
  		          int eta,       int phi,      int layer ) const;
+  Identifier layer_id   ( int pos_neg_z, int sampling, int region,
+ 		          int eta,       int phi,      int layer,
+                          bool checks) const;
 
   /** build a layer identifier */
   Identifier layer_id   ( const Identifier towerId,   int layer ) const;
+  Identifier layer_id   ( const Identifier towerId,   int layer, bool checks ) const;
 
 
   /** access to IdContext's which define which levels of fields are contained in the id */
@@ -398,7 +407,7 @@ CLASS_DEF( CaloLVL1_ID , 108133391 , 1 )
 
 //----------------------------------------------------------------------------
 inline Identifier CaloLVL1_ID::tower_id   ( int pos_neg_z, int sampling, int region,
-					    int eta,       int phi ) const 
+					    int eta,       int phi, bool checks ) const 
 {  
     Identifier result(0);
     // Pack fields independently
@@ -410,16 +419,23 @@ inline Identifier CaloLVL1_ID::tower_id   ( int pos_neg_z, int sampling, int reg
     m_phi_impl.pack      (phi,                   result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	tower_id_checks( pos_neg_z, sampling, region, eta, phi );
     }
 
     return result;
 }
 
+inline Identifier CaloLVL1_ID::tower_id   ( int pos_neg_z, int sampling, int region,
+					    int eta,       int phi ) const
+{
+  return tower_id (pos_neg_z, sampling, region, eta, phi, do_checks());
+}
+
+
 //----------------------------------------------------------------------------
 inline Identifier CaloLVL1_ID::tower_id   ( const Identifier regionId,
-					    int eta,  int phi ) const 
+					    int eta,  int phi, bool checks ) const 
 {
     Identifier result(regionId);
 
@@ -430,12 +446,19 @@ inline Identifier CaloLVL1_ID::tower_id   ( const Identifier regionId,
     m_phi_impl.pack      (phi, result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	tower_id_checks( regionId, eta, phi );
     }
 
     return result;
 }
+
+inline Identifier CaloLVL1_ID::tower_id   ( const Identifier regionId,
+					    int eta,  int phi ) const
+{
+  return tower_id (regionId, eta, phi, do_checks());
+}
+
 
 //----------------------------------------------------------------------------
 inline Identifier CaloLVL1_ID::region_id   ( const Identifier tower_or_layerId ) const 
@@ -458,7 +481,8 @@ inline Identifier CaloLVL1_ID::tower_id   ( const Identifier layerId ) const
 }
 
 //----------------------------------------------------------------------------
-inline Identifier CaloLVL1_ID::region_id (int pos_neg_z, int sampling, int region)const 
+inline Identifier CaloLVL1_ID::region_id (int pos_neg_z, int sampling, int region,
+                                          bool checks)const 
 {
     Identifier result(0);
     // Pack fields independently
@@ -468,16 +492,22 @@ inline Identifier CaloLVL1_ID::region_id (int pos_neg_z, int sampling, int regio
     m_region_impl.pack   (region,                result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	region_id_checks( pos_neg_z, sampling, region);
     }
 
     return result;
 }
 
+inline Identifier CaloLVL1_ID::region_id (int pos_neg_z, int sampling, int region)const
+{
+  return region_id (pos_neg_z, sampling, region, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier CaloLVL1_ID::layer_id   ( int pos_neg_z, int sampling, int region,
-					    int eta,       int phi,      int layer ) const 
+					    int eta,       int phi,      int layer,
+                                            bool checks) const 
 {  
     Identifier result(0);
     // Pack fields independently
@@ -490,16 +520,22 @@ inline Identifier CaloLVL1_ID::layer_id   ( int pos_neg_z, int sampling, int reg
     m_layer_impl.pack    (layer,                 result);
 
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	layer_id_checks( pos_neg_z, sampling, region, eta, phi, layer );
     }
 
     return result;
 }
 
+inline Identifier CaloLVL1_ID::layer_id   ( int pos_neg_z, int sampling, int region,
+					    int eta,       int phi,      int layer ) const
+{
+  return layer_id (pos_neg_z, sampling, region, eta, phi, layer, do_checks());
+}
+
 //----------------------------------------------------------------------------
 inline Identifier CaloLVL1_ID::layer_id   ( const Identifier towerId,
-					    int layer ) const
+					    int layer, bool checks ) const
 {
     Identifier result(towerId);
 
@@ -507,11 +543,17 @@ inline Identifier CaloLVL1_ID::layer_id   ( const Identifier towerId,
     m_layer_impl.reset     (result);
     m_layer_impl.pack      (layer, result);
     // Do checks
-    if(m_do_checks) {
+    if(checks) {
 	layer_id_checks( towerId, layer );
     }
 
     return result;
+}
+
+inline Identifier CaloLVL1_ID::layer_id   ( const Identifier towerId,
+					    int layer ) const
+{
+  return layer_id (towerId, layer, do_checks());
 }
 
 //----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/DeadTime.h"
@@ -14,9 +14,6 @@ TrigConf::DeadTime::DeadTime() :
    m_complex1Rate(0),
    m_complex2Level(0),
    m_complex2Rate(0)
-{}
-
-TrigConf::DeadTime::~DeadTime()
 {}
 
 void

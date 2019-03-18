@@ -46,16 +46,14 @@ endfunction (datamodel_run_test)
 datamodel_run_test (DataModelTestWrite)
 datamodel_run_test (DataModelTestRead DEPENDS DataModelTestWrite)
 datamodel_run_test (DataModelTestRead2 DEPENDS DataModelTestRead)
-datamodel_run_test (AuxDataTestWrite)
+datamodel_run_test (AuxDataTestWrite) #i:auxdata.root
 datamodel_run_test (AuxDataTestRead DEPENDS AuxDataTestWrite)
 datamodel_run_test (AuxDataTestRead2 DEPENDS AuxDataTestRead)
-datamodel_run_test (AuxDataTestRead2b DEPENDS AuxDataTestRead)
 datamodel_run_test (AuxDataTestTypelessRead DEPENDS AuxDataTestWrite)
 datamodel_run_test (AuxDataTestRead3 DEPENDS AuxDataTestTypelessRead)
-datamodel_run_test (xAODTestWrite)
-datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite)
-datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead)
-datamodel_run_test (xAODTestRead2b DEPENDS xAODTestRead)
+datamodel_run_test (xAODTestWrite) # in:xaoddata.root
+datamodel_run_test (xAODTestRead DEPENDS xAODTestWrite) #i:xaoddata.root o:xaoddata2.root
+datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead) #i:xaoddata2.root o:xaoddata2x.root
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
@@ -64,10 +62,6 @@ datamodel_run_test (xAODTestReadRenameMT
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
-datamodel_run_test (xAODTestReadARA
-                    COMMAND python
-                    ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODTestReadARA_t.py
-                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODRootTestRead
                     COMMAND python
                     ARG ${CMAKE_CURRENT_SOURCE_DIR}/share/xAODRootTestRead_t.py
@@ -146,9 +140,6 @@ datamodel_run_test (CondReadWrite)
 #
 # xAODTestReadFilterRead
 # reads xaoddata_filt.root
-#
-# xAODTestReadARA
-# reads xaoddata.root
 #
 # xAODRootTestRead
 # reads xaoddata.root

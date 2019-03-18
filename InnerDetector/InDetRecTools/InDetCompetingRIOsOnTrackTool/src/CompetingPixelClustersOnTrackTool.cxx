@@ -391,8 +391,9 @@ void InDet::CompetingPixelClustersOnTrackTool::updateCompetingROT(
     // update maximum assign prob index:
     compROT->m_indexMaxAssignProb = maximumAssignProbIndex;
     // delete global position (will be recreated by the competingROT itself)
-    delete compROT->m_globalPosition;
-    compROT->m_globalPosition = 0; // very important, otherwise segfault...
+    if (compROT->m_globalPosition) {
+        delete compROT->m_globalPosition.release().get();
+    }
     compROT->setLocalParametersAndErrorMatrix();
     if (msgLvl(MSG::DEBUG)) testCompetingROT(*compROT);
 }
@@ -543,8 +544,9 @@ StatusCode InDet::CompetingPixelClustersOnTrackTool::updateCompetingROTprobs(
     } // end for loop 
     compROT->m_assignProb = assgnProbVector; 
     // delete global position (will be recreated by the competingROT itself) 
-    delete compROT->m_globalPosition; 
-    compROT->m_globalPosition = 0; // very important, otherwise segfault... 
+    if (compROT->m_globalPosition) {
+        delete compROT->m_globalPosition.release().get();
+    }
     // recalc localParameters 
     compROT->setLocalParametersAndErrorMatrix();
 

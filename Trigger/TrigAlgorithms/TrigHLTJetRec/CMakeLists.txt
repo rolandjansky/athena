@@ -17,12 +17,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/JetRec
+                          Reconstruction/Jet/JetRecTools
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigNavStructure
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
+                          Control/CxxUtils
                           Calorimeter/CaloEvent
                           Event/xAOD/xAODEventShape
                           Reconstruction/EventShapes/EventShapeTools

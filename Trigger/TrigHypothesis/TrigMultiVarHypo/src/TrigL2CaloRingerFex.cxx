@@ -38,7 +38,6 @@ TrigL2CaloRingerFex::TrigL2CaloRingerFex(const std::string& name, ISvcLocator* p
   declareProperty("LuminosityTool"    , m_lumiBlockMuTool, "Luminosity Tool"  );
   declareMonitoredVariable("NeuralNetworkOutput", m_output                    );
   
-  m_reader.setMsgStream(msg());
   m_useLumiVar=false;
   m_useEtaVar=false;
   m_key       = "";

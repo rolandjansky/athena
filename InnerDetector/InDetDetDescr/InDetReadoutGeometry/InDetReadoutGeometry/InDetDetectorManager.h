@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,6 +26,14 @@
 
 #include "DetDescrConditions/AlignableTransformContainer.h"
 
+#include "CxxUtils/checker_macros.h"
+
+#include <atomic>
+#include <string>
+#include <map>
+#include <set>
+#include <list>
+
 class StoreGateSvc;
 class AlignableTransform;
 class Identifier; 
@@ -33,10 +41,8 @@ class AtlasDetectorID;
 class GeoVAlignmentStore;
 class CondAttrListCollection;
 
-#include <string>
-#include <map>
-#include <set>
-#include <list>
+// mutable Athena::MsgStreamMember issues warnings.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDetDD {
 
@@ -184,8 +190,9 @@ namespace InDetDD {
       std::set<std::string>                     m_folders;
       std::set<std::string>                     m_specialFolders;
       std::set<std::string>                     m_globalFolders; // new time-dependent global folders
-      mutable bool                              m_suppressWarnings;
-    
+      mutable std::atomic_bool                  m_suppressWarnings;
+
+      static const LevelInfo s_invalidLevel;
     };
 
 } // namespace InDetDD

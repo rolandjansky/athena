@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( MVAUtils )
 
+atlas_depends_on_subdirs(
+  PRIVATE
+  Control/CxxUtils )
+
 # External dependencies:
 find_package( ROOT COMPONENTS Tree TreePlayer TMVA XMLIO Core MathCore Hist RIO pthread )
 

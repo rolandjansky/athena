@@ -1,21 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
 #include <iostream>
-#include "GaudiKernel/Property.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+
 #include "BSFilter.h"
+
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_Decoder.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
 
 using namespace HLT;
 
@@ -96,24 +95,13 @@ StatusCode BSFilter::execute()
   ATH_MSG_INFO("BS Filter");
 
 
-  // Get the EventInfo obj for run/event number
-  const DataHandle<EventInfo> d;
-  if (evtStore()->retrieve(d).isFailure()) {
-    ATH_MSG_ERROR(" Cant retrieve EventInfo ");
-    return StatusCode::FAILURE;
-  }
-  uint32_t run   = d->event_ID()->run_number();
-  uint64_t event = d->event_ID()->event_number();
-  //uint64_t bc_time    = d->event_ID()->time_stamp() + ((uint64_t)(d->event_ID()->time_stamp_ns_offset()) << 32);
-  uint32_t bc_time_sec = d->event_ID()->time_stamp();
-  //uint32_t bc_time_ns = d->event_ID()->time_stamp_ns_offset();
-  //uint32_t run_type   = 0;
-  //uint32_t lvl1_id    = event; // FIXME... temp place for event number
-  //uint32_t lvl1_type  = d->trigger_info()->level1TriggerType();
-  //uint32_t global_id  = event;
-  uint32_t lbn = d->event_ID()->lumi_block();
-  //uint16_t bcid = d->event_ID()->bunch_crossing_id();
-  ////////////////////////////////////////////////////////////
+  // Get event information from EventContext
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  uint32_t run   = ctx.eventID().run_number();
+  uint64_t event = ctx.eventID().event_number();
+  uint32_t time_stamp = ctx.eventID().time_stamp();
+  uint32_t lbn = ctx.eventID().lumi_block();
+
 
   if (m_trigbit>=0){
     const DataHandle< CTP_RDO > ctpRDO;
@@ -194,7 +182,7 @@ StatusCode BSFilter::execute()
 	}
       }
       if (ffile) fprintf(ffile,"run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, noalg=%d, j40=%d, noalgps=%d, j40ps=%d\n",
-			 run,event,bc_time_sec,lbn,passed_noalg,passed_j40,prescale_noalg,prescale_j40);
+			 run,event,time_stamp,lbn,passed_noalg,passed_j40,prescale_noalg,prescale_j40);
     }
     
 
@@ -203,7 +191,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       m_pass++;
-      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_nbr since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
+      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,time_stamp,lbn); //"%ld" for evt_nbr since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -242,7 +230,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       m_pass++;
-      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_n    br since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
+      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,time_stamp,lbn); //"%ld" for evt_n    br since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -253,4 +241,3 @@ StatusCode BSFilter::execute()
   }
   return StatusCode::SUCCESS;
 }
-

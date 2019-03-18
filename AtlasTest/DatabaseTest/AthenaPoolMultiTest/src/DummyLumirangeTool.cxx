@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -52,9 +52,9 @@ DummyLumirangeTool::DummyLumirangeTool(const std::string& name,
     m_firstrun(0),
     m_rangesize(40),
     m_blocksperrun(200),
-    m_lumitot(1000),
-    m_wcmd(name)
+    m_lumitot(1000)
 {
+    m_wcmd = name;
     declareProperty("StoreName",    m_storeName, "Store to find input metadata during finalize");
     declareProperty("Granularity",  m_lumigran,  "skip size");
     declareProperty("FirstRun",     m_firstrun,  "beginning run number");

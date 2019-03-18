@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _RIO_OnTrackErrorScalingKit_H_
@@ -14,7 +14,7 @@ public:
   virtual ~RIO_OnTrackErrorScalingKit() {}
 
   virtual unsigned int nParametres()                        const = 0;
-  virtual const char **paramNames()                         const = 0;
+  virtual const char* const* paramNames()                   const = 0;
   virtual size_t getParamIndex(const std::string &name)     const;
 
   virtual std::unique_ptr<RIO_OnTrackErrorScaling> create() const = 0;

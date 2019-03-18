@@ -55,11 +55,11 @@ def photonMenuSequence():
     #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
-    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
+    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 
 
     return MenuSequence( Maker=l2PhotonViewsMaker,
                              Sequence=photonAthSequence,
                              Hypo=thePhotonHypo,
-                             HypoToolGen=TrigL2PhotonHypoToolFromName)
+                             HypoToolGen=TrigL2PhotonHypoToolFromDict)
 

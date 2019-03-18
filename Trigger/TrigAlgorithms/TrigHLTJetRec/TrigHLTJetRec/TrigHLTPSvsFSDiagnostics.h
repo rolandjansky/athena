@@ -11,6 +11,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "xAODJet/JetContainer.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class TH1D;
 class TH2D;

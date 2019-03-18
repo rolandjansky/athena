@@ -7,16 +7,6 @@ from AthenaCommon.DetFlags import DetFlags
 
 isData = (globalflags.DataSource == 'data')
 
-eventInfoKey = "ByteStreamEventInfo"
-if not isData:
-    eventInfoKey = "McEventInfo"
-if globalflags.isOverlay() and isData :
-    if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-    else :
-        eventInfoKey = "McEventInfo"
-
 if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
@@ -113,7 +103,7 @@ if DetFlags.haveRIO.pixel_on():
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
 
@@ -229,7 +219,6 @@ if DetFlags.haveRIO.SCT_on():
         from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
         sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
         sct_TdaqEnabledToolSetup.setFolder(tdaqFolder)
-        sct_TdaqEnabledToolSetup.setEventInfoKey(eventInfoKey)
         sct_TdaqEnabledToolSetup.setup()
         InDetSCT_TdaqEnabledTool = sct_TdaqEnabledToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
@@ -278,7 +267,7 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
         
     # Setup Lorentz angle tool.
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 
     forceUseDB = False
     forceUseGeoModel = False

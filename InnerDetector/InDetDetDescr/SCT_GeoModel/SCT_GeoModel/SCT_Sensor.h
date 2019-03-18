@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_SENSOR_H
@@ -7,6 +7,7 @@
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
+#include <atomic>
 #include <string>
 
 class GeoMaterial;
@@ -16,7 +17,10 @@ namespace InDetDD{class SiDetectorDesign;}
 class SCT_Sensor: public SCT_UniqueComponentFactory
 {
 public:
-  SCT_Sensor(const std::string & name);
+  SCT_Sensor(const std::string & name,
+             InDetDD::SCT_DetectorManager* detectorManager,
+             const SCT_GeometryManager* geometryManager,
+             SCT_MaterialManager* materials);
 
 public:
   const GeoMaterial * material() const {return m_material;} 
@@ -24,7 +28,7 @@ public:
   double width()     const {return m_width;}
   double length()    const {return m_length;}
 
-  virtual GeoVPhysVol * build(SCT_Identifier id) const;
+  virtual GeoVPhysVol * build(SCT_Identifier id);
   
 private:
   void getParameters();
@@ -38,6 +42,7 @@ private:
   
   InDetDD::SiDetectorDesign * m_design;
 
+  mutable std::atomic_bool m_noElementWarning;
 };
 
 #endif // SCT_GEOMODEL_SCT_SENSOR_H

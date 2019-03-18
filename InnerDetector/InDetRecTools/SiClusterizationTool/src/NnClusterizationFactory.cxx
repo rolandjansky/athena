@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,11 +46,22 @@
 #include <cmath>
 #include <regex>
 
-
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+// The following warning message appears four times and the check is disabled for this file.
+// InnerDetector/InDetRecTools/SiClusterizationTool/src/NnClusterizationFactory.cxx:
+// In member function 'std::vector<double> InDet::NnClusterizationFactory::
+// estimateNumberOfParticles(const InDet::PixelCluster&, Amg::Vector3D&, int, int) const':
+// InnerDetector/InDetRecTools/SiClusterizationTool/src/NnClusterizationFactory.cxx:307:77:
+// warning: Const discarded from expression '<unknown>' of type
+// const InDet::NnClusterizationFactory* const' within function 'std::vector<double>
+// InDet::NnClusterizationFactory::estimateNumberOfParticles
+// (const InDet::PixelCluster&, Amg::Vector3D&, int, int) const'; may not be thread-safe.
+// std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
 
 namespace InDet {
 
-  const char *NnClusterizationFactory::s_nnTypeNames[]={
+  const char * const NnClusterizationFactory::s_nnTypeNames[]={
     "NumberParticlesNN",
     "PositionNN",
     "ErrorXNN",

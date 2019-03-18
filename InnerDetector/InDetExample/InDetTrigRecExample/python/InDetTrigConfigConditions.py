@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsServicesSetup:
   """
@@ -90,13 +90,7 @@ class PixelConditionsServicesSetup:
 
     if not hasattr(condSeq, 'PixelDCSCondTempAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
-
-
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=self.isData)
-
-    ToolSvc += TrigPixelDCSConditionsTool
+      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder, UseConditions=True)
 
     #########################
     # TDAQ Conditions Setup #
@@ -133,7 +127,6 @@ class PixelConditionsServicesSetup:
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
-                                                                PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
                                                                 UseDCSState=self.useDCS, 
                                                                 UseByteStream=self.useBS, 
                                                                 UseTDAQ=self.useTDAQ, 
@@ -188,23 +181,22 @@ class PixelConditionsServicesSetup:
     # Lorentz Angle Setup #
     #######################
     if not hasattr(condSeq, 'PixelSiPropertiesCondAlg'):
-      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
-      condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool)
+      from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
+      condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg")
 
-    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+    from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
     TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
     ToolSvc += TrigSiPropertiesTool
 
     if not hasattr(condSeq, 'PixelSiLorentzAngleCondAlg'):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
-                                            PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
                                             SiPropertiesTool=TrigSiPropertiesTool,
                                             UseMagFieldSvc = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
     ToolSvc += TrigPixelLorentzAngleTool
@@ -435,7 +427,7 @@ class SCT_ConditionsToolsSetup:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+      from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                           SiConditionsTool = sctSiliconConditionsTool,
@@ -444,7 +436,7 @@ class SCT_ConditionsToolsSetup:
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     

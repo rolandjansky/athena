@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRDO_Decoder.h"
@@ -10,19 +10,13 @@
 /** constructor */ 
 Muon::CscRDO_Decoder::CscRDO_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool(type,name,parent),
+  :  base_class(type,name,parent),
      m_cscHelper(0),
      m_cabling( "CSCcablingSvc" ,name),
      m_cscCalibTool( "CscCalibTool") {
   
-  declareInterface<ICSC_RDO_Decoder>( this );
   declareProperty("CscCalibTool",        m_cscCalibTool );
 }
-
-/** destructor 
-*/ 
-Muon::CscRDO_Decoder::~CscRDO_Decoder() 
-{}
 
 StatusCode Muon::CscRDO_Decoder::initialize()
 {

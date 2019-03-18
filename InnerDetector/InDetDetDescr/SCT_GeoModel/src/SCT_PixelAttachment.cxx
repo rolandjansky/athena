@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_PixelAttachment.h"
@@ -17,8 +17,11 @@
 // This is the SCT to Pixel attachment. This was originally defined in the 
 // general indet services but it is in the SCT mother volume.
 
-SCT_PixelAttachment::SCT_PixelAttachment(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_PixelAttachment::SCT_PixelAttachment(const std::string & name,
+                                         InDetDD::SCT_DetectorManager* detectorManager,
+                                         const SCT_GeometryManager* geometryManager,
+                                         SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -28,10 +31,8 @@ SCT_PixelAttachment::SCT_PixelAttachment(const std::string & name)
 void 
 SCT_PixelAttachment::getParameters()
 {
-  const SCT_BarrelParameters * parameters = geometryManager()->barrelParameters();
-  SCT_MaterialManager materials;
-    
-  m_material    = materials.getMaterial(parameters->pixelAttachmentMaterial());
+  const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
+  m_material    = m_materials->getMaterial(parameters->pixelAttachmentMaterial());
   m_length      = parameters->pixelAttachmentDeltaZ();
   m_innerRadius = parameters->pixelAttachmentInnerRadius();
   m_outerRadius = parameters->pixelAttachmentOuterRadius();

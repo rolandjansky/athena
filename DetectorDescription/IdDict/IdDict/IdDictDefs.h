@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IdDictDefs_h__  
-#define __IdDictDefs_h__  
+#ifndef IDDICT_IDDICTDEFS_H
+#define IDDICT_IDDICTDEFS_H
  
 #include "Identifier/Range.h" 
 #include "Identifier/Identifier.h" 
@@ -63,8 +63,8 @@ public:
     void                  add_subdictionary_name  (const std::string& name);  
     void                  add_metadata            (const std::string& name, const std::string& value);
     void                  set_DTD_version         (const std::string& DTD_version);
-    void                  set_do_checks           (bool do_checks) const;
-    void                  set_do_neighbours       (bool do_neighbours) const;
+    void                  set_do_checks           (bool do_checks);
+    void                  set_do_neighbours       (bool do_neighbours);
     
     
     ///  Construct dictionary after parsing
@@ -89,8 +89,8 @@ private:
     std::set<std::string> m_subdictionary_names; 
     bool                  m_resolved_references;
     bool                  m_generated_implementation;
-    mutable bool          m_do_checks;
-    mutable bool          m_do_neighbours;
+    bool                  m_do_checks;
+    bool                  m_do_neighbours;
 };  
   
 class IdDictDictionary  
@@ -107,7 +107,7 @@ public:
     int get_label_value (const std::string& field, const std::string& label, int& value) const;  // > 0 == error
     IdDictSubRegion* find_subregion (const std::string& subregion_name) const;  
     IdDictRegion* find_region (const std::string& region_name) const;  
-    IdDictRegion* find_region (const std::string& region_name, const std::string group_name) const;  
+    IdDictRegion* find_region (const std::string& region_name, const std::string& group_name) const;  
     IdDictGroup* find_group (const std::string& group_name) const;
 
 
@@ -126,7 +126,7 @@ public:
     /// Find first region that matches id
     int find_region(const ExpandedIdentifier& id, size_type& index) const;
     IdDictRegion* find_region(const ExpandedIdentifier& id) const;
-    IdDictRegion* find_region(const ExpandedIdentifier& id,const std::string group_name) const;
+    IdDictRegion* find_region(const ExpandedIdentifier& id,const std::string& group_name) const;
     
     ///  Set up integral of bits for efficient unpacking
     void integrate_bits ();
@@ -139,8 +139,8 @@ public:
      *   'last_field' If last_field == "", all fields are
      * taken. Prepend prefix if provided.  */
     MultiRange build_multirange (const ExpandedIdentifier& region_id,
-                                 const Range prefix = Range(),
-                                 std::string last_field = "") const; 
+                                 const Range& prefix = Range(),
+                                 const std::string& last_field = "") const; 
 
     /**
      *   Get MultiRange for a specific region_id, constrained to be
@@ -150,8 +150,8 @@ public:
 
     MultiRange build_multirange (const ExpandedIdentifier& region_id,
                                  const std::string& group_name,
-                                 const Range prefix = Range(),
-                                 std::string last_field = "") const; 
+                                 const Range& prefix = Range(),
+                                 const std::string& last_field = "") const; 
  
     /** 
      *   Pack to 32bits the subset of id between (inclusive) index1
@@ -259,13 +259,13 @@ public:
     /// in optimized compilation. One can switch or query this mode for
     /// any idHelper with the following methods:
     bool                do_checks       (void) const;
-    void                set_do_checks   (bool do_checks) const;
+    void                set_do_checks   (bool do_checks);
 
     /// Neighbour initialization is performed by default
     /// One can switch or query this mode for
     /// any idHelper with the following methods:
     bool                do_neighbours           (void) const;
-    void                set_do_neighbours       (bool do_neighbours) const;
+    void                set_do_neighbours       (bool do_neighbours);
 
     /// Access to file name
     std::string         file_name        (void) const;
@@ -310,8 +310,8 @@ private:
     std::string m_dict_tag;  
     //bool m_resolved_references;
     bool m_generated_implementation;
-    mutable bool  m_do_checks;
-    mutable bool  m_do_neighbours;
+    bool  m_do_checks;
+    bool  m_do_neighbours;
 };  
   
 class IdDictField 
@@ -517,8 +517,6 @@ public:
                                   IdDictRegion& region,
                                   std::string tag = "");  
     void reset_implementation ();  
- 
-    std::string m_name; 
 }; 
  
 class IdDictRegionEntry 

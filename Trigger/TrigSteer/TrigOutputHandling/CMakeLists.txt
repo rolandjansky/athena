@@ -25,6 +25,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
                           Trigger/TrigMonitoring/TrigCostMonitorMT
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
+			  Trigger/TrigDataAccess/TrigSerializeTP
+			  Control/AthContainersRoot
                           )
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )
@@ -35,7 +37,7 @@ atlas_add_library( TrigOutputHandlingLib
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
-                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib )
+                   xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx
@@ -54,3 +56,14 @@ atlas_add_test( void_record_test
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
       )
+
+
+atlas_add_test( serial_deserial_test
+      SOURCES test/serial_deserial_test.cxx
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} xAODTrigEgamma
+            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib
+      ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+      POST_EXEC_SCRIPT nopost.sh
+      PROPERTIES TIMEOUT 300
+      ) 

@@ -17,9 +17,6 @@
 // Local include(s):
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
-// External(s):
-extern long ByteStream_StorageType;
-
 /**
  *   @short ByteStream converter for the RoIBResult object
  *
@@ -50,9 +47,9 @@ public:
   virtual StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr );
 
   /// Function needed by the framework
-  virtual long repSvcType() const { return ByteStream_StorageType; }
+  virtual long repSvcType() const { return i_repSvcType(); }
   /// Function needed by the framework
-  static long storageType() { return ByteStream_StorageType; }
+  static long storageType();
   /// Function needed by the framework
   static const CLID& classID();
 

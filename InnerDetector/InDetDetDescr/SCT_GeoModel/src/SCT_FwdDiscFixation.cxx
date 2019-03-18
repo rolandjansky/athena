@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdDiscFixation.h"
@@ -15,8 +15,11 @@
 #include "GeoModelKernel/Units.h"
 
 
-SCT_FwdDiscFixation::SCT_FwdDiscFixation(const std::string & name)
-  : SCT_SharedComponentFactory(name)
+SCT_FwdDiscFixation::SCT_FwdDiscFixation(const std::string & name,
+                                         InDetDD::SCT_DetectorManager* detectorManager,
+                                         const SCT_GeometryManager* geometryManager,
+                                         SCT_MaterialManager* materials)
+  : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_physVolume = build();
@@ -26,7 +29,7 @@ SCT_FwdDiscFixation::SCT_FwdDiscFixation(const std::string & name)
 void 
 SCT_FwdDiscFixation::getParameters()
 {
-  const SCT_ForwardParameters * parameters = geometryManager()->forwardParameters();
+  const SCT_ForwardParameters * parameters = m_geometryManager->forwardParameters();
         
   m_materialName= parameters->fwdDiscFixationMaterial();
   m_thickness   = parameters->fwdDiscFixationThickness();
@@ -36,11 +39,8 @@ SCT_FwdDiscFixation::getParameters()
 GeoVPhysVol * 
 SCT_FwdDiscFixation::build() 
 {
-
-  SCT_MaterialManager materials;
-
   const GeoTube * discFixationShape = new GeoTube(0., m_radius, 0.5*m_thickness);
-  m_material = materials.getMaterialForVolume(m_materialName, discFixationShape->volume());
+  m_material = m_materials->getMaterialForVolume(m_materialName, discFixationShape->volume());
   const GeoLogVol * discFixationLog = new GeoLogVol(getName(), discFixationShape, m_material);
 
   GeoPhysVol * discFixation = new GeoPhysVol(discFixationLog);

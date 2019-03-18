@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,7 +81,7 @@ const std::string& CoreParser::DOMNode::get_value () const
   return (m_value);
 }
 
-CoreParser::DOMSiblings& CoreParser::DOMNode::get_siblings()
+const CoreParser::DOMSiblings& CoreParser::DOMNode::get_siblings() const
 {
   return (m_siblings);
 }
@@ -106,10 +106,9 @@ CoreParser::DOMNode* CoreParser::DOMNode::get_next_sibling ()
   return (*m_it);
 }
 
-void CoreParser::DOMNode::print (const std::string& header) const
+void CoreParser::DOMNode::print (const std::string& header,
+                                 int depth /*= 0*/) const
 {
-  static int depth = 0;
-
   if (header != "")
     {
       std::cout << header << std::endl;
@@ -150,9 +149,7 @@ void CoreParser::DOMNode::print (const std::string& header) const
 	{
 	  const DOMNode* n = *sit;
 	  
-	  depth++;
-	  n->print ();
-	  depth--;
+	  n->print ("", depth+1);
 	}
       
       for (i = 0; i < depth; i++) std::cout << "  ";

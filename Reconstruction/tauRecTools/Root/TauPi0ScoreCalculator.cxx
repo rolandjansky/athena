@@ -102,7 +102,7 @@ StatusCode TauPi0ScoreCalculator::finalize()
 }
 
 
-StatusCode TauPi0ScoreCalculator::execute(xAOD::TauJet& pTau) 
+StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
 {
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -115,15 +115,10 @@ StatusCode TauPi0ScoreCalculator::execute(xAOD::TauJet& pTau)
     //---------------------------------------------------------------------
     // retrieve neutral PFOs from tau, calculate BDT scores and store them in PFO
     //---------------------------------------------------------------------
-    for( auto neutralPFOLink : pTau.protoNeutralPFOLinks() )
+    for( auto neutralPFO : neutralPFOContainer )
     {
-        if( not neutralPFOLink.isValid() ){
-            ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-            continue;
-        }
-        float BDTScore = calculateScore(*neutralPFOLink);
-        xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
-        neutralPFO->setBDTPi0Score((float) BDTScore);
+      float BDTScore = calculateScore(neutralPFO);
+      neutralPFO->setBDTPi0Score((float) BDTScore);
     }
 
     ATH_MSG_DEBUG("End of TauPi0ScoreCalculator::execute");

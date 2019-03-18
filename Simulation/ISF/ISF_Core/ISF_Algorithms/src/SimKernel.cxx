@@ -23,8 +23,9 @@
 #include "TTree.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
-// McEventCollection
+// GeneratorObjects
 #include "GeneratorObjects/McEventCollection.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -322,8 +323,7 @@ StatusCode ISF::SimKernel::execute()
   ATH_CHECK( prepareInput(m_inputHardScatterEvgen, m_outputHardScatterTruth, simParticles) );
   //  b. pileup
   if (!m_inputPileupEvgen.key().empty()) {
-    bool isPileup = true;
-    ATH_CHECK( prepareInput(m_inputPileupEvgen, m_outputPileupTruth, simParticles, isPileup) );
+    ATH_CHECK( prepareInput(m_inputPileupEvgen, m_outputPileupTruth, simParticles) );
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -479,8 +479,7 @@ StatusCode ISF::SimKernel::execute()
     generator truth collection into output simulation truth collection */
 StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& inputTruth,
                                         SG::WriteHandle<McEventCollection>& outputTruth,
-                                        ISFParticleContainer& simParticles,
-                                        bool isPileup) const {
+                                        ISFParticleContainer& simParticles) const {
 
   if (!inputTruth.isValid()) {
     ATH_MSG_FATAL("Unable to read input GenEvent collection '" << inputTruth.key() << "'");
@@ -490,7 +489,7 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
   // create copy
   outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
 
-  ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, isPileup) );
+  ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, HepMcParticleLink::find_enumFromKey(outputTruth.name())) );
 
   return StatusCode::SUCCESS;
 }

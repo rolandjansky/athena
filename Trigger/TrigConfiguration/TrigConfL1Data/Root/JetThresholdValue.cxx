@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/JetThresholdValue.h"
@@ -13,9 +13,6 @@ TrigConf::JetThresholdValue::JetThresholdValue() :
    TriggerThresholdValue()
 {}
 
-TrigConf::JetThresholdValue::~JetThresholdValue()
-{}  
- 
 TrigConf::TriggerThresholdValue*
 TrigConf::JetThresholdValue::createCopy() const{
    return new JetThresholdValue(*this);

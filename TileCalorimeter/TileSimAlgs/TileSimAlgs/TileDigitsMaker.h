@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -50,7 +50,7 @@
 #include "TileEvent/TileHitContainer.h"
 
 
-class IAtRndmGenSvc;
+class IAthRNGSvc;
 class PileUpMergeSvc;
 class TileID;
 class TileTBID;
@@ -153,9 +153,7 @@ class TileDigitsMaker: public AthAlgorithm {
     int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
     double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
-    CLHEP::HepRandomEngine * m_pHRengine;    //!< Random number generator engine to use
-
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};

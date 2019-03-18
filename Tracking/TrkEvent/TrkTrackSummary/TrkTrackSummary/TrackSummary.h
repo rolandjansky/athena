@@ -100,6 +100,15 @@ enum SummaryType {
         numberOfMdtHoles                =25,       //! number of MDT measurements missing from the track
         numberOfTgcEtaHoles             =26,       //! number of TGC Eta measurements missing from the track
         numberOfTgcPhiHoles             =27,       //! number of TGC Phi measurements missing from the track
+
+        // New Small Wheel
+        numberOfStgcEtaHits             =67,       //! number of TGC Eta measurements missing from the track
+        numberOfStgcPhiHits             =68,       //! number of TGC Phi measurements missing from the track
+        numberOfMmHits               =69,       //! number of TGC Eta measurements missing from the track
+        numberOfStgcEtaHoles            =70,       //! number of TGC Eta measurements missing from the track
+        numberOfStgcPhiHoles            =71,       //! number of TGC Phi measurements missing from the track
+        numberOfMmHoles              =72,       //! number of TGC Eta measurements missing from the track
+
         numberOfCscUnspoiltEtaHits      =45,       //! number of unspoilt CSC eta measurements (all CSC phi measurements are by definition spoilt). See Muon::CscClusterStatus for definitions of 'spoiled' hits.
 	numberOfGoodMdtHits             =66,       //!number of non-deweighted MDT hits.  Only here as a placeholder, will be filled only on xAOD::Muon
     // --- all
@@ -115,7 +124,7 @@ enum SummaryType {
 	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 67
+        numberOfTrackSummaryTypes = 73
     };
 
 // Troels.Petersen@cern.ch:

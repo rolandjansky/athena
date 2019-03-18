@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -76,8 +76,9 @@ void test_neighbors (const LArHEC_ID& idhelper)
 
 int main()
 {
-  std::unique_ptr<LArHEC_ID> idhelper = make_helper<LArHEC_ID_Test>();
-  std::unique_ptr<LArHEC_ID> idhelper_n = make_helper<LArHEC_ID_Test>(true);
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<LArHEC_ID> idhelper = make_helper<LArHEC_ID_Test>(*parser);
+  std::unique_ptr<LArHEC_ID> idhelper_n = make_helper<LArHEC_ID_Test>(*parser,true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);

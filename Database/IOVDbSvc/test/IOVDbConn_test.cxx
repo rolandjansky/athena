@@ -40,7 +40,9 @@ struct IOVDbConnFixture{
   IOVDbConnFixture():msgSvc("msgSvc","test"),
    connectionString("sqlite://;schema=IOVDbConnTest.db;dbname=OFLP200"),
    log(msgSvc.get(), "IOVDbConn_Boost_test"),
-   connection(connectionString, true, log){
+   connection(connectionString, true, log)
+  {
+    (void)unlink ("IOVDbConnTest.db");
   }
 };
 

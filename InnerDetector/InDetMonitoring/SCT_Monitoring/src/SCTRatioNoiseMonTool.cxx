@@ -8,38 +8,34 @@
  *
  */
 #include "SCT_Monitoring/SCTRatioNoiseMonTool.h"
-#include "deletePointers.h"
+
 #include "SCT_NameFormatter.h"
-#include <cmath>
 
-#include "GaudiKernel/IToolSvc.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile2D.h"
-#include "TF1.h"
 #include "AthContainers/DataVector.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetRawData/SCT3_RawData.h"
 #include "AthenaKernel/errorcheck.h"
-#include "SCT_Monitoring/SCT_ClusterStruct.h"
-#include "GaudiKernel/ITHistSvc.h"
-
-// conditions stuff
+#include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "TMath.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "TProfile2D.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
 #include "StoreGate/ReadHandle.h"
+
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IToolSvc.h"
+
+#include "TF1.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH2I.h"
+#include "TMath.h"
+#include "TProfile2D.h"
+#include "TProfile2D.h"
+
+#include <cmath>
 
 //
 using namespace std;
@@ -91,8 +87,8 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
  *  numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
-                                           const string &name,
+SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
+                                           const string& name,
                                            const IInterface *parent) :
   SCTMotherTrigMonTool(type, name, parent),
   m_eventID(0),
@@ -242,7 +238,7 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   declareProperty("NOTrigger", m_NOTrigger = "L1_RD0_EMPTY");
   declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
 
-  for (auto &i:m_goodModules) {
+  for (auto& i:m_goodModules) {
     i = true;
   }
 }
@@ -277,7 +273,7 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   }
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;
+    ATH_MSG_WARNING("Error in bookRatioNoiseHistos()");
   }
   return StatusCode::SUCCESS;
 }
@@ -299,7 +295,7 @@ SCTRatioNoiseMonTool::bookHistograms() {
   }
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;
+    ATH_MSG_WARNING("Error in bookRatioNoiseHistos()");
   }
 
   return StatusCode::SUCCESS;
@@ -374,11 +370,11 @@ SCTRatioNoiseMonTool::fillHistograms() {
   if (isSelectedTrigger == true) {
     for (; col_it != lastCol; ++col_it) {
       m_correct_TimeBin = false;
-      const InDetRawDataCollection<SCTRawDataType> *SCT_Collection(*col_it);
+      const InDetRawDataCollection<SCTRawDataType>* SCT_Collection(*col_it);
       if (!SCT_Collection) {
         continue; // select only SCT RDOs
       }
-      const InDetRawDataCollection<SCT_RDORawData> *rd(*col_it);
+      const InDetRawDataCollection<SCT_RDORawData>* rd(*col_it);
 
       Identifier SCT_Identifier = SCT_Collection->identify();
       int thisBec = m_pSCTHelper->barrel_ec(SCT_Identifier);
@@ -400,7 +396,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       DataVector<SCTRawDataType>::const_iterator p_rdo_end = SCT_Collection->end();
       for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {
         count_SCT_RDO++;
-        const SCT3_RawData *rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
+        const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
         if (rdo3 != 0) {
           m_tbin = (rdo3)->getTimeBin();
         }
@@ -425,7 +421,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
     // ignores the RDO cut online since the empty events are pre-filtered there
     if (count_SCT_RDO < 1E6 || (m_ignore_RDO_cut_online && m_environment == AthenaMonManager::online)) {
       m_num_RDO->Fill(count_SCT_RDO);
-      if(m_current_lb<=SCT_Monitoring::NBINS_LBs) m_noisyM[m_current_lb] = 0;
+      if (m_current_lb<=SCT_Monitoring::NBINS_LBs) m_noisyM[m_current_lb] = 0;
       for (int j = 0; j < n_mod[GENERAL_INDEX]; j++) {
         m_noSidesHit = false;
         m_oneSideHit = false;
@@ -507,7 +503,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
         }
         // --------------------------------------
         if (calculateNoiseOccupancyUsingRatioMethod(m_nOneSide_lb[j], m_nNoSides_lb[j]) * 1E5 > 100.) {
-          if(m_current_lb<=SCT_Monitoring::NBINS_LBs) m_noisyM[m_current_lb] += 1;
+          if (m_current_lb<=SCT_Monitoring::NBINS_LBs) m_noisyM[m_current_lb] += 1;
         }
       }
 
@@ -800,9 +796,7 @@ SCTRatioNoiseMonTool::procHistograms() {
   m_NOECCSide->SetBinContent(m_NOECCSide->GetNbinsX(), m_NOECCSide->GetBinContent(
                                m_NOECCSide->GetNbinsX()) + m_NOECCSide->GetBinContent(m_NOECCSide->GetNbinsX() + 1));
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Total Rec Event Number: " << m_numberOfEvents << endmsg;
-  }
+  ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
   return StatusCode::SUCCESS;
 }
 
@@ -830,10 +824,10 @@ SCTRatioNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 //                              SCTRatioNoiseMonTool :: bookRatioNoiseHistos
 // ====================================================================================================
 StatusCode
-SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
-  if (newRunFlag()) {                                         // hidetoshi 14.01.22
+SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
+  if (newRunFlag()) {
     string stem = m_path + "/SCT/GENERAL/RatioNoise/";
-    MonGroup RatioNoise(this, m_path + "SCT/GENERAL/RatioNoise", run, ATTRIB_UNMANAGED); // hidetoshi 14.01.22
+    MonGroup RatioNoise(this, m_path + "SCT/GENERAL/RatioNoise", run, ATTRIB_UNMANAGED);
 
     string hNumBarrel[N_BARRELS] = {
       "0", "1", "2", "3"
@@ -915,14 +909,14 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
     const unsigned int limits[] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
-    VecProf2_t *storageVectors[] = {
+    VecProf2_t* storageVectors[] = {
       &m_pnoiseoccupancymapHistoVectorECC, &m_pnoiseoccupancymapHistoVectorBAR, &m_pnoiseoccupancymapHistoVectorECA
     };
-    VecProf2_t *storageVectorsSide0[] = {
+    VecProf2_t* storageVectorsSide0[] = {
       &m_pnoiseoccupancymapHistoVectorECCSide0, &m_pnoiseoccupancymapHistoVectorBARSide0,
       &m_pnoiseoccupancymapHistoVectorECASide0
     };
-    VecProf2_t *storageVectorsSide1[] = {
+    VecProf2_t* storageVectorsSide1[] = {
       &m_pnoiseoccupancymapHistoVectorECCSide1, &m_pnoiseoccupancymapHistoVectorBARSide1,
       &m_pnoiseoccupancymapHistoVectorECASide1
     };
@@ -1084,58 +1078,58 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {      // hidetoshi 14.01.22
 }
 
 SCTRatioNoiseMonTool::Prof_t
-SCTRatioNoiseMonTool::pFactory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
+SCTRatioNoiseMonTool::pFactory(const std::string& name, const std::string& title, MonGroup& registry, const float lo,
                                const float hi, const unsigned int nbins) {
   Prof_t tmp = new TProfile(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTRatioNoiseMonTool::H1_t
-SCTRatioNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo,
+SCTRatioNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo,
                                 const float hi, const unsigned int nbins) {
   H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTRatioNoiseMonTool::H2_t
-SCTRatioNoiseMonTool::h2Factory(const std::string &name, const std::string &title, MonGroup &registry, const float lo_x,
+SCTRatioNoiseMonTool::h2Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo_x,
                                 const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y,
                                 const unsigned int nbins_y) {
   H2_t tmp = TH2F_LW::create(TString(name), TString(title), nbins_x, lo_x, hi_x, nbins_y, lo_y, hi_y);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTRatioNoiseMonTool::H1_t
-SCTRatioNoiseMonTool::h1Factory(const std::string &name, const std::string &title, MonGroup &registry,
-                                VecH1_t &storageVector, const float lo, const float hi, const unsigned int nbins) {
+SCTRatioNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                                VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) {
   H1_t tmp = TH1F_LW::create(TString(name), TString(title), nbins, lo, hi);
   bool success(registry.regHist(tmp).isSuccess());
 
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 SCTRatioNoiseMonTool::Prof2_t
-SCTRatioNoiseMonTool::prof2Factory(const std::string &name, const std::string &title, const unsigned int &bec,
-                                   MonGroup &registry, VecProf2_t &storageVector) {
+SCTRatioNoiseMonTool::prof2Factory(const std::string& name, const std::string& title, const unsigned int& bec,
+                                   MonGroup& registry, VecProf2_t& storageVector) {
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS),
   nPhi(N_PHI_BINS);
 
@@ -1153,10 +1147,10 @@ SCTRatioNoiseMonTool::prof2Factory(const std::string &name, const std::string &t
   tmp->SetYTitle("Index in the direction of #phi");
   bool success(registry.regHist(tmp).isSuccess());
   if (not success) {
-    msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
+    ATH_MSG_WARNING("Cannot book SCT histogram: " << name);
   }
   storageVector.push_back(tmp);
-  return success ? tmp : NULL;
+  return success ? tmp : nullptr;
 }
 
 float

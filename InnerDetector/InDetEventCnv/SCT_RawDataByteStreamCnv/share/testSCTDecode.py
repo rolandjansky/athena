@@ -46,13 +46,12 @@ print globalflags
 # --- switch on InnerDetector
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.SCT_setOn()
-DetFlags.ID_setOn()
+DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
 DetFlags.SCT_setOn()
-DetFlags.TRT_setOff()
 
 # ---- switch parts of ID off/on as follows
 #switch off tasks
@@ -102,8 +101,8 @@ topSequence.InDetSCTRawDataProvider.ProviderTool.Decoder.OutputLevel = INFO
 topSequence.InDetSCTEventFlagWriter.OutputLevel = DEBUG
 
 # Set up SCT clsutering
-from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",

@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotRooFit.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxContainer.h"
 #include <RooRealVar.h>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -28,8 +28,6 @@ Updated:  Ilija Vukotic August 2008.
 #include "GaudiKernel/IMessageSvc.h"
 // include header files
 #include "Identifier/IdentifierHash.h"
-
-#include "CaloIdentifier/CaloIdManager.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -73,8 +71,9 @@ CaloTowerStore::towers (const CaloTowerSeg::SubSeg& subseg) const
 }
 
 
-bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
-                                 std::vector<CaloCell_ID::SUBCALO> theCalos)
+bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
+                                 const CaloTowerSeg& theTowerSeg,
+                                 const std::vector<CaloCell_ID::SUBCALO>& theCalos)
 {
   m_seg = theTowerSeg;
   m_entries.clear();
@@ -95,15 +94,12 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
   }
   MsgStream msg(theMsgSvc,"CaloTowerStore");
 
-  // get cell id helper
-  const CaloCell_ID* cellIdHelper = (CaloIdManager::instance())->getCaloCell_ID();
-
   // get cell description manager
-  const CaloDetDescrManager* theManager = CaloDetDescrManager::instance();
-  if ( ! theManager->isInitialized() ){
+  if ( ! theManager.isInitialized() ){
 	msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!"<< endmsg;
 	return false;
 	}
+  const CaloCell_ID& cellIdHelper = *theManager.getCaloCell_ID();
 
   // Get list of Calos to be considered
   size_t sizeCalos = theCalos.size();
@@ -119,7 +115,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
 
       // find numerical ranges
       IdentifierHash firstIndex, lastIndex;
-      cellIdHelper->calo_cell_hash_range((int)theCalos[iCalo], firstIndex, lastIndex);
+      cellIdHelper.calo_cell_hash_range((int)theCalos[iCalo], firstIndex, lastIndex);
       msg << MSG::DEBUG << " firstInder,lastIndex " << firstIndex << " " << lastIndex << endmsg;
 
       
@@ -129,7 +125,7 @@ bool CaloTowerStore::buildLookUp(const CaloTowerSeg& theTowerSeg,
 	  for( size_t cellIndex = firstIndex; cellIndex < lastIndex;   cellIndex++){     // Cell Loop  //
 
 		  
-	  const CaloDetDescrElement* theDDE = theManager->get_element(cellIndex);
+	  const CaloDetDescrElement* theDDE = theManager.get_element(cellIndex);
 
 	  if(theDDE==0) {
 	    msg << MSG::ERROR<< " CellIndex =  "<< cellIndex<< " has a DDE pointer NULL " << endmsg;

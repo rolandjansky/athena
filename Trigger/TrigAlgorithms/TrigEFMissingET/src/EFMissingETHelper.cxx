@@ -66,6 +66,91 @@ std::string TrigEFMissingEtComponent::getFormattedValues(){
   return std::string(buff);
 }
 
+std::string TrigEFMissingEtComponent::ComponentToName(const Component c)
+{
+  std::string name;
+  switch(c)
+  {
+    // 00-03 LAr barrel 
+    case PreSamplB:  name="PreSamplB";    break;
+    case EMB1:       name="EMB1";         break;
+    case EMB2:       name="EMB2";         break;
+    case EMB3:       name="EMB3";         break;
+
+    // 04-07 LAr EM endcap 
+    case PreSamplE:  name="PreSamplE";    break;
+    case EME1:       name="EME1";         break;
+    case EME2:       name="EME2";         break;
+    case EME3:       name="EME3";         break;
+
+    // 08-11 Hadronic end cap cal.
+    case HEC0:       name="HEC0";         break;
+    case HEC1:       name="HEC1";         break;
+    case HEC2:       name="HEC2";         break;
+    case HEC3:       name="HEC3";         break;
+
+    // 12-14 Tile barrel
+    case TileBar0:   name="TileBar0";     break;
+    case TileBar1:   name="TileBar1";     break;
+    case TileBar2:   name="TileBar2";     break;
+
+    // 15-17 Tile gap (ITC & scint)  
+    case TileGap1:   name="TileGap1";     break;
+    case TileGap2:   name="TileGap2";     break;
+    case TileGap3:   name="TileGap3";     break;
+
+    // 18-20 Tile extended barrel 
+    case TileExt0:   name="TileExt0";     break;
+    case TileExt1:   name="TileExt1";     break;
+    case TileExt2:   name="TileExt2";     break;
+
+    // 21-23 Forward cal endcap  
+    case FCalEM:     name="FCalEM";       break;
+    case FCalHad1:   name="FCalHad1";     break;
+    case FCalHad2:   name="FCalHad2";     break;
+
+    // 24    Topo. clusters Had  
+    case TCLCW:      name="TCLCW";        break;
+
+    // 25-26 pos. and neg. eta barrel                         
+    case TCLCWB1:    name="TCLCWB1";      break;
+    case TCLCWB2:    name="TCLCWB2";      break;
+
+    // 27-28 pos. and neg. eta endcap             
+    case TCLCWE1:    name="TCLCWE1";      break;
+    case TCLCWE2:    name="TCLCWE2";      break;
+
+    // 29    Topo. clusters EM             
+    case TCEM:       name="TCEM";         break;
+
+    // 30-31 pos. and neg. eta barrel                         
+    case TCEMB1:     name="TCEMB1";       break;
+    case TCEMB2:     name="TCEMB2";       break;
+
+    // 32-33 pos. and neg. eta endcap              
+    case TCEME1:     name="TCEME1";       break;
+    case TCEME2:     name="TCEME2";       break;
+
+    // 34-38 Jet              
+    case JET:        name="JET";          break;
+    case JETB1:      name="JETB1";        break;
+    case JETB2:      name="JETB2";        break;
+    case JETE1:      name="JETE1";        break;
+    case JETE2:      name="JETE2";        break;
+
+    // 39    Topo. cluster Fit              
+    case TCPUC:      name="TCPUC";        break;
+
+    // 40    Topo. cluster Fit -- uncorrected                         
+    case TCPUCUnc:   name="TCPUCUnc";     break;
+
+    // 41    Muons                         
+    case Muons:      name="Muons";        break;
+
+    default:         name="Unknown";
+  }
+  return name;                                    
+}
 
 /////////////////////////////////////////////////////////////////////
 
@@ -77,77 +162,12 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
   len>REASONABLE_MAX ? m_elements=REASONABLE_MAX : m_elements=len;
   m_vecOfComponents.resize(m_elements);
 
-  char names[42][10] = { // from CaloSampling::CaloSample, apart from muons
-    "PreSamplB", "EMB1     ", "EMB2     ", "EMB3     ",   // LAr barrel
-    "PreSamplE", "EME1     ", "EME2     ", "EME3     ",   // LAr EM endcap 
-    "HEC0     ", "HEC1     ", "HEC2     ", "HEC3     ",   // Hadronic end cap cal.
-    "TileBar0 ", "TileBar1 ", "TileBar2 ",                // Tile barrel
-    "TileGap1 ", "TileGap2 ", "TileGap3 ",                // Tile gap (ITC & scint)
-    "TileExt0 ", "TileExt1 ", "TileExt2 ",                // Tile extended barrel
-    "FCalEM   ", "FCalHad1 ", "FCalHad2 ",                // Forward cal endcap
-    "TCLCW    ",										  // Topo. clusters Had
-    "TCLCWB1  ", "TCLCWB2  ",						      // pos. and neg. eta barrel 
-    "TCLCWE1  ", "TCLCWE2  ",							  // pos. and neg. eta endcap 
-    "TCEM     ",                                          // Topo. clusters EM
-    "TCEMB1   ", "TCEMB2   ",							  // pos. and neg. eta barrel 
-    "TCEME1   ", "TCEME2   ",							  // pos. and neg. eta endcap 
-    "JET      ",                                          // Jet 
-    "JETB1   ", "JETB2   ",							      //
-    "JETE1   ", "JETE2   ",						     	  // 
-    "TCPUC    ",                                          // Topo. cluster Fit 
-    "TCPUCUnc ",                                          // Topo. cluster Fit -- uncorrected
-    "Muons    "                                           // Muons 
-  };
-  // calibration: constant term, MeV
-  float c0[42] = { 0.0,   0.0,   0.0,   0.0,    // LAr barrel
-		   0.0,   0.0,   0.0,   0.0,    // LAr EM endcap
-		   0.0,   0.0,   0.0,   0.0,    // Hadronic end cap cal.
-		   0.0,   0.0,   0.0,           // Tile barrel
-		   0.0,   0.0,   0.0,           // Tile gap (ITC & scint)
-		   0.0,   0.0,   0.0,           // Tile extended barrel
-		   0.0,                         // FCal EM
-		   0.0,   0.0,                  // FCal Had
-		   0.0,                         // Topo. clusters EM
-		   0.0,   0.0,                  // 
-		   0.0,   0.0,                  // 
-		   0.0,                         // Topo. clusters Had
-		   0.0,   0.0,                  // 
-		   0.0,   0.0,                  // 		   
-		   0.0,                         // Jet
-		   0.0,   0.0,                  // 
-		   0.0,   0.0,                  // 		   
-		   0.0,                         // Topo. cluster Fit 
-		   0.0,                         // Topo. cluster Fit -- uncorrected
-		   0.0                          // Muons
-  };
-  // calibration: linear term (slope)
-  float c1[42] = { 1.0,  1.0,  1.0,  1.0,    // LAr barrel
-		   1.0,  1.0,  1.0,  1.0,    // LAr EM endcap
-		   1.0,  1.0,  1.0,  1.0,    // Hadronic end cap cal.
-		   1.0,  1.0,  1.0,           // Tile barrel
-		   1.0,  1.0,  1.0,           // Tile gap (ITC & scint)
-		   1.0,  1.0,  1.0,           // Tile extended barrel
-		   1.0,                         // FCal EM
-		   1.0,  1.0,                  // FCal Had
-		   1.0,                          // Topo. clusters EM
-		   1.0, 1.0,                     // 
-		   1.0, 1.0,                     // 
-		   1.0,                          // Topo. clusters Had
-		   1.0, 1.0,                     // 
-		   1.0, 1.0,                     // 
-		   1.0,                          // Jet
-		   1.0, 1.0,                     // 
-		   1.0, 1.0,                     // 
-		   1.0,                          // Topo. cluster Fit 
-		   1.0,                          // Topo. cluster Fit -- uncorrected
-		   1.0                           // Muons
-  };
-
+  // Initialize component names and calibration constants (c0, c1) = (0, 1)
   for (unsigned char i=0; i<m_elements; ++i){
     if(m_elements==42){ // finest granularity
-      std::snprintf(m_vecOfComponents[i].m_name,10, "%s", names[i]);
-      m_vecOfComponents[i].m_calib0 = c0[i];
-      m_vecOfComponents[i].m_calib1 = c1[i];
+      std::snprintf(m_vecOfComponents[i].m_name,10, "%s", TrigEFMissingEtComponent::ComponentToName(i).c_str());
+      m_vecOfComponents[i].m_calib0 = 0.0;
+      m_vecOfComponents[i].m_calib1 = 1.0;
     } else {
       std::snprintf(m_vecOfComponents[i].m_name,10, "comp%03d  ", i);
       m_vecOfComponents[i].m_calib0 = 0;
@@ -174,12 +194,12 @@ void TrigEFMissingEtHelper::Reset(){
 
 //---
 
-  TrigEFMissingEtComponent* TrigEFMissingEtHelper::GetComponent(unsigned char c){
-    if (c<m_elements)
-      return &(m_vecOfComponents[c]);
-    else
-      return 0;
-  }
+TrigEFMissingEtComponent* TrigEFMissingEtHelper::GetComponent(unsigned char c){
+  if (c<m_elements)
+    return &(m_vecOfComponents[c]);
+  else
+    return 0;
+}
 
 //---
 

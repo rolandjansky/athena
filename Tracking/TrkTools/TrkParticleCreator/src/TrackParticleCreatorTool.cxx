@@ -1026,6 +1026,7 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
     if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
       continue;
     }
+    if( i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) continue;
     // coverity[mixed_enums]
     if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;
 
@@ -1065,21 +1066,21 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
 
   //muon hit info
   if(m_useMuonSummaryTool){
-  ATH_MSG_DEBUG("now do muon hit info");
-  Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
-  uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;
-  ATH_MSG_DEBUG("# of prec layers: "<<numberOfPrecisionLayers);
-  uint8_t numberOfPrecisionHoleLayers = msSummary.nprecisionHoleLayers;
-  uint8_t numberOfPhiLayers = msSummary.nphiLayers;
-  uint8_t numberOfPhiHoleLayers = msSummary.nphiHoleLayers;
-  uint8_t numberOfTriggerEtaLayers = msSummary.ntrigEtaLayers;
-  uint8_t numberOfTriggerEtaHoleLayers = msSummary.ntrigEtaHoleLayers;
-  tp.setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
-  tp.setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
-  tp.setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
-  tp.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
-  tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
-  tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
+    ATH_MSG_DEBUG("now do muon hit info");
+    Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
+    uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;
+    ATH_MSG_DEBUG("# of prec layers: "<<numberOfPrecisionLayers);
+    uint8_t numberOfPrecisionHoleLayers = msSummary.nprecisionHoleLayers;
+    uint8_t numberOfPhiLayers = msSummary.nphiLayers;
+    uint8_t numberOfPhiHoleLayers = msSummary.nphiHoleLayers;
+    uint8_t numberOfTriggerEtaLayers = msSummary.ntrigEtaLayers;
+    uint8_t numberOfTriggerEtaHoleLayers = msSummary.ntrigEtaHoleLayers;
+    tp.setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
+    tp.setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
+    tp.setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
+    tp.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
+    tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
+    tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
   }
 }
 

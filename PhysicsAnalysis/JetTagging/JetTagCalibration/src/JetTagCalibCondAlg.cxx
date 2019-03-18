@@ -737,9 +737,11 @@ namespace Analysis {
   }
 
   StatusCode JetTagCalibCondAlg::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
-     // now read the histogram into memory
+     // now read the histogram into memor
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
-     pfile->GetObject(histname.c_str(),hist);
+     std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
+     hist = dynamic_cast<TObject *>(hist_raw.get());
+     hist_raw.release();
      if (hist==nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;

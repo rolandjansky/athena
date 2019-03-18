@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_Random
@@ -15,7 +15,7 @@ namespace TrigConf {
    class Random : public L1DataBaseclass {
    public:
       Random();
-      ~Random();
+      ~Random() = default;
     
       // getters
       uint32_t              cuts(unsigned int idx) const { return m_cuts[idx]; }

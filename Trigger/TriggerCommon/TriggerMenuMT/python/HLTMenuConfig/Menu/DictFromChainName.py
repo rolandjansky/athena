@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -11,8 +11,6 @@ __author__  = 'Catrin Bernius'
 __version__=""
 __doc__="Decoding of chain name into a dictionary"
 
-
-import re
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -40,13 +38,15 @@ class DictFromChainName(object):
 
         elif type(chainInfo) == list:
             m_chainName = chainInfo[0]
-            m_L1item = chainInfo[1]
-            m_L1items_chainParts = chainInfo[2]
-            m_stream = chainInfo[3]
-            m_groups = chainInfo[4]
-            m_EBstep = chainInfo[5]
+            m_L1item = '' 
+            m_L1items_chainParts = chainInfo[1]
+            m_stream = chainInfo[2]
+            m_groups = chainInfo[3]
+            m_EBstep = chainInfo[4]
         else:
             logDict.error("Format of chainInfo passed to genChainDict not known")
+
+        m_L1item = self.getOverallL1item(m_chainName)
 
         logDict.debug("Analysing chain with name: %s", m_chainName)
         chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts, m_L1item)
@@ -66,13 +66,16 @@ class DictFromChainName(object):
             for i in xrange(6, len(chainInfo)):
                 mergingInfoFilled = False
                 tsfInfoFilled = False
-                if (type(chainInfo[i]) is list):
-                    if mergingInfoFilled == False:
+                typeOfChainInfo = type(chainInfo[i])
+
+                if typeOfChainInfo is list:
+                    if mergingInfoFilled is False:
                         m_mergingStrategy = chainInfo[i][0]
                         if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
                             logDict.error("Merging strategy %s is not known.", m_mergingStrategy)
                         m_mergingOffset = chainInfo[i][1]
                         m_mergingOrder = chainInfo[i][2]
+
                         if(len(chainInfo[i]) >3):
                             m_preserveL2EFOrder = chainInfo[i][3]
                         else:
@@ -84,14 +87,17 @@ class DictFromChainName(object):
                         chainProp['mergingPreserveL2EFOrder'] = m_preserveL2EFOrder
 
                         mergingInfoFilled = True
-                    else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
+                    else: 
+                        logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
 
-                elif (type(chainInfo[i]) is bool):
-                    if tsfInfoFilled == False: 
+                elif typeOfChainInfo is bool:
+                    if tsfInfoFilled is False: 
                         chainProp['topoStartFrom'] = chainInfo[i]
                         tsfInfoFilled = True
-                    else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
-                else: logDict.error('Input format not recognised for chainInfo[%s]', chainInfo[i])
+                    else: 
+                        logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
+                else: 
+                    logDict.error('Input format not recognised for chainInfo[%s]', chainInfo[i])
                 
         # setting the L1 item
         if (chainProp['L1item']== ''): 
@@ -106,6 +112,30 @@ class DictFromChainName(object):
         return chainProp
 
 
+    def checkL1inName(self, m_chainName):
+        if '_L1' in m_chainName:
+            return True
+        else:
+            return False
+
+    def getOverallL1item(self, chainName):
+        mainL1 = ''
+
+        if not self.checkL1inName(chainName):
+            logDict.warning("Chain name not complying with naming convention: L1 item missing! PLEASE FIX THIS!!")
+            return mainL1
+        # this assumes that the last string of a chain name is the overall L1 item
+        cNameParts = chainName.split("_") 
+        mainL1 = cNameParts[-1]
+
+        if "L1" not in mainL1:
+            logDict.warning("Chain name not complying with naming convention: L1 item missing! PLEASE FIX THIS!!")
+            return ''
+        mainL1 = mainL1.replace("L1", "L1_")
+
+        return mainL1
+        
+
     def getChainMultFromDict(self, chainDict):
         allMultis = []
         for cpart in chainDict['chainParts']:
@@ -119,9 +149,6 @@ class DictFromChainName(object):
 
         from SignatureDicts import getBasePattern
         pattern = getBasePattern()
-        mdicts=[]
-        multichainindex=[]
-        signatureNames = []
 
         allMultis = []
         for cpart in cNameParts:
@@ -139,9 +166,6 @@ class DictFromChainName(object):
 
         from SignatureDicts import getBasePattern
         pattern = getBasePattern()
-        mdicts=[]
-        multichainindex=[]
-        signatureNames = []
         trigType = []
         thresholdToPass = 0
 
@@ -149,7 +173,7 @@ class DictFromChainName(object):
         for cpart in cNameParts:
             m = pattern.match(cpart)
             if m: 
-                logDict.debug("In getChainMultFromName: Pattern found in this string: %s", cpart)
+                logDict.debug("In getChainThresholdFromName: Pattern found in this string: %s", cpart)
                 m_groupdict = m.groupdict()
                 allThresh.append(m_groupdict['threshold'])
                 trigType.append(m_groupdict['trigType'])
@@ -166,7 +190,6 @@ class DictFromChainName(object):
         are defined in SliceDicts
         The naming ocnvention is defined inthis document http://
         """
-        chainName_orig = chainName
 
         # ---- dictionary with all chain properties ----
         from SignatureDicts import ChainDictTemplate
@@ -183,7 +206,10 @@ class DictFromChainName(object):
            
         # ---- identify the topo algorithm and add to genchainDict -----
         from SignatureDicts import AllowedTopos
-        topo = '';topos=[];toposIndexed={}; topoindex = -5
+        topo = ''
+        topos=[]
+        toposIndexed={} 
+        topoindex = -5
         for cindex, cpart in enumerate(cparts):
             if  cpart in AllowedTopos:
                 logDict.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
@@ -215,24 +241,17 @@ class DictFromChainName(object):
 
         # ---- obtain dictionary parts for signature defining patterns ----
         from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
-            AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
-            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
-            #, AllowedMatchingKeywords
+            AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
 
         logDict.debug("cparts: %s", cparts)
         for cpart in cparts:
 
             logDict.debug("Looping over cpart: %s", cpart)
             m = pattern.match(cpart)
-            #if 'mu4antidr05' in str(cpart): continue
             if m: 
                 logDict.debug("Pattern found in this string: %s", cpart)
                 m_groupdict = m.groupdict()
                 # Check whether the extra contains a special keyword
-                skip=False
-#                for keyword in AllowedMatchingKeywords :
-#                    if keyword in m_groupdict['extra']: skip=True
-#                if skip: continue
                 
                 multiChainIndices = [i for i in range(len(chainName)) if ( chainName.startswith(cpart, i) ) ]
                 logDict.debug("MultiChainIndices: %s", multiChainIndices)
@@ -240,13 +259,10 @@ class DictFromChainName(object):
                     # this check is necessary for the bjet chains, example: j45_bloose_3j45
                     # j45 would be found in [0, 13], and 3j45 in [12]
                     # so need to make sure the multiplicities are considered here!
-                    if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): continue
-                    skip=False
-#                    for keyword in AllowedMatchingKeywords :
-#                        if chainName[theMultiChainIndex:len(chainName)].startswith(cpart+keyword): skip=True
-#                    if skip: continue
-                    
-                    if not theMultiChainIndex in multichainindex:
+                    if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): 
+                        continue
+
+                    if theMultiChainIndex not in multichainindex:
                         multichainindex.append(theMultiChainIndex)
 
                 logDict.debug("ChainName: %s", chainName)
@@ -258,7 +274,8 @@ class DictFromChainName(object):
                 m_groupdict['signature'] = sName
                 logDict.debug('groupdictionary m_groupdict: %s', m_groupdict)
                 sigToken = getSignatureNameFromToken(cpart)
-                if sigToken not in signatureNames: signatureNames.append(sigToken)
+                if sigToken not in signatureNames: 
+                    signatureNames.append(sigToken)
                 mdicts.append(m_groupdict)
 
                     
@@ -266,7 +283,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'Streaming', 'threshold': '', 'multiplicity': '', 
                                 'trigType': 'streamer', 'extra': ''}
-                if 'Streaming' not in signatureNames: signatureNames.append('Streaming')
+                if 'Streaming' not in signatureNames: 
+                    signatureNames.append('Streaming')
                 mdicts.append(m_groupdict)
                 break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
 
@@ -275,7 +293,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'MinBias', 'threshold': '', 'multiplicity': '', 
                                'trigType': 'mb', 'extra': ''}
-                if 'MinBias' not in signatureNames:  signatureNames.append('MinBias')
+                if 'MinBias' not in signatureNames:  
+                    signatureNames.append('MinBias')
                 mdicts.append(m_groupdict)
 
             elif cpart=='hi':
@@ -283,7 +302,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart))
                 m_groupdict = {'signature': 'HeavyIon', 'threshold': '', 'multiplicity': '',
                                'trigType': 'mb', 'extra': ''}
-                if 'HeavyIon' not in signatureNames:  signatureNames.append('HeavyIon')
+                if 'HeavyIon' not in signatureNames:  
+                    signatureNames.append('HeavyIon')
                 mdicts.append(m_groupdict)
 
             elif cpart in AllowedCosmicChainIdentifiers:
@@ -291,7 +311,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'Cosmic', 'threshold': '', 'multiplicity': '', 
                                 'trigType': 'cosmic', 'extra': ''}
-                if 'Cosmic' not in signatureNames: signatureNames.append('Cosmic')
+                if 'Cosmic' not in signatureNames: 
+                    signatureNames.append('Cosmic')
                 logDict.debug('%s',signatureNames)
                 mdicts.append(m_groupdict)
                 
@@ -300,7 +321,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'Calibration', 'threshold': '', 'multiplicity': '', 
                                'trigType': 'calib', 'extra': ''}
-                if 'Calibration' not in signatureNames:  signatureNames.append('Calibration')
+                if 'Calibration' not in signatureNames:  
+                    signatureNames.append('Calibration')
                 logDict.debug('%s',signatureNames)
                 mdicts.append(m_groupdict)
 
@@ -309,7 +331,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'Monitoring', 'threshold': '', 'multiplicity': '', 
                                 'trigType': 'calib', 'extra': ''}
-                if 'Monitoring' not in signatureNames:  signatureNames.append('Monitoring')
+                if 'Monitoring' not in signatureNames:  
+                    signatureNames.append('Monitoring')
                 logDict.debug('%s',signatureNames)
                 mdicts.append(m_groupdict)
 
@@ -318,7 +341,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'Beamspot', 'threshold': '', 'multiplicity': '', 
                                 'trigType': 'beamspot', 'extra': ''}
-                if 'Beamspot' not in signatureNames:  signatureNames.append('Beamspot')
+                if 'Beamspot' not in signatureNames:  
+                    signatureNames.append('Beamspot')
                 logDict.debug('%s',signatureNames)
                 mdicts.append(m_groupdict)
 
@@ -327,7 +351,8 @@ class DictFromChainName(object):
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'EnhancedBias', 'threshold': '', 'multiplicity': '', 
                                'trigType': 'eb', 'extra': ''}
-                if 'EnhancedBias' not in signatureNames:  signatureNames.append('EnhancedBias')
+                if 'EnhancedBias' not in signatureNames:  
+                    signatureNames.append('EnhancedBias')
                 mdicts.append(m_groupdict)
 
            
@@ -335,8 +360,6 @@ class DictFromChainName(object):
         # ---- part depending on the signature it belongs to ----
         # ----  ----
         multichainparts=[]
-
-        remainder = chainName
         multichainindex = sorted(multichainindex, key=int)
         cN = chainName
         for i in reversed(multichainindex):
@@ -359,7 +382,7 @@ class DictFromChainName(object):
             logDict.debug('chainparts %s', chainparts)
 
             # ---- check if L1 item is specified in chain Name ----
-            L1itemFromChainName = ''; L1item = ''; 
+            L1item = '' 
             chainpartsNoL1 = chainparts
             
             #Checking for L1 item for chain part and overall in the name
@@ -387,7 +410,7 @@ class DictFromChainName(object):
                     chainparts = chainparts[:allL1indices[1]]
                     
                 if (allL1items[0] not in L1items_chainParts):
-                    logDict.error("L1 chain part " +L1items_chainParts+" item does not seem to match the one in the chain name "+llL1items[0])
+                    logDict.error("L1 chain part " +L1items_chainParts+" item does not seem to match the one in the chain name "+allL1items[0])
 
 
 
@@ -475,7 +498,6 @@ class DictFromChainName(object):
 
             # ---- check remaining parts for complete machtes in allowedPropertiesAndValues Dict ----
             # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-            unmatched = [] 
             parts = filter(None, parts)     #removing empty strings from list
 
             matchedparts = []
@@ -483,7 +505,7 @@ class DictFromChainName(object):
                 origpart = part
                 for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                     if part in allowedValues:
-                        if type(chainProperties[prop]) == list:
+                        if type(chainProperties[prop]) is list:
                             chainProperties[prop] += [part]
                         else:
                             chainProperties[prop] = part
@@ -494,7 +516,8 @@ class DictFromChainName(object):
             logDict.debug('leftoverparts %s', leftoverparts)
             for pindex, part in enumerate(leftoverparts):
                 for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
-                    if prop in chainProperties.keys():  continue
+                    if prop in chainProperties.keys():  
+                        continue
                     for aV in allowedValues:
                         if (aV in part):
                             if (chainProperties['signature'] in ['Egamma', 'Muon'] )& (prop in ['trkInfo','hypoInfo']):

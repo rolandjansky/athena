@@ -99,7 +99,7 @@ StatusCode Hid2RESrcID::initialize()
       SourceIdentifier sid = SourceIdentifier(detid,m); 
       uint32_t rod_id =  sid.code(); 
 
-      assert( m_coll2ROD.count(mId) == 0 )  ; 
+      assert( m_coll2ROD.count(mId) == 0 );
       m_coll2ROD[ mId ]=rod_id;        
 
     } 
@@ -111,7 +111,7 @@ StatusCode Hid2RESrcID::initialize()
 }
 
 
-uint32_t  Hid2RESrcID::getRodIDFromROM(const COLLECTION_ID& id)
+uint32_t  Hid2RESrcID::getRodIDFromROM(const COLLECTION_ID& id) const
 { // this method returns a RESrcID for the ROD, for a given COLLECTION_ID
 
   COLL_MAP::const_iterator it = m_coll2ROD.find( id ); 
@@ -124,7 +124,7 @@ uint32_t  Hid2RESrcID::getRodIDFromROM(const COLLECTION_ID& id)
 }
 
 
-uint32_t  Hid2RESrcID::getRodID(const HWIdentifier& hid)
+uint32_t  Hid2RESrcID::getRodID(const HWIdentifier& hid) const
 { // this method returns a RESrcID for the ROD, for a given LArOnlineID
   // channel number is ignored.
   HWIdentifier febId =  m_onlineHelper->feb_Id(hid) ;
@@ -136,36 +136,36 @@ uint32_t  Hid2RESrcID::getRodID(const HWIdentifier& hid)
 
 /** mapping SrcID from ROD to ROB
  */ 
-uint32_t Hid2RESrcID::getRobID( uint32_t rod_id)
+uint32_t Hid2RESrcID::getRobID( uint32_t rod_id) const
 {
 //  Change Module Type to ROB 
 
- SourceIdentifier  id  = SourceIdentifier(rod_id)         ; 
- SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), id.module_id()) ; 
- return    id2.code()                  ;
+ SourceIdentifier  id  = SourceIdentifier(rod_id);
+ SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), id.module_id());
+ return    id2.code();
 
 }
 
 
 /** mapping SrcID from ROB to ROS
  */ 
-uint32_t Hid2RESrcID::getRosID( uint32_t rob_id)
+uint32_t Hid2RESrcID::getRosID( uint32_t rob_id) const
 {
 //  Change Module Type to ROS, moduleid = 0  
 
  SourceIdentifier  id  = SourceIdentifier(rob_id);
- SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), 0)      ; 
- return    id2.code()       ; 
+ SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), 0);
+ return    id2.code();
 
 }
 
 /** mapping SrcID from ROS to Det
  */ 
-uint32_t Hid2RESrcID::getDetID  ( uint32_t ros_id) 
+uint32_t Hid2RESrcID::getDetID  ( uint32_t ros_id) const
 {
 //  ROS to DET
 
  SourceIdentifier  id  = SourceIdentifier(ros_id);
- SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), 0) ; 
- return    id2.code() ; 
+ SourceIdentifier  id2 = SourceIdentifier(id.subdetector_id(), 0);
+ return    id2.code();
 }

@@ -18,22 +18,20 @@
 #ifndef SCTRATIONOISEMONTOOL_H
 #define SCTRATIONOISEMONTOOL_H
 
+#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
 #include <string>
 #include <vector>
 
-// for Updator
-#include "TrkToolInterfaces/IUpdator.h"
-
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-
-#include "StoreGate/ReadHandleKey.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "xAODEventInfo/EventInfo.h"
 
 // Forward declarations
 class IInterface;
@@ -57,19 +55,19 @@ class SCT_ID;
 ///Concrete monitoring tool derived from SCTMotherTrigMonTool
 class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
  public:
-  SCTRatioNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent);
+  SCTRatioNoiseMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTRatioNoiseMonTool() = default;
   // initialize
   virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  virtual StatusCode bookHistogramsRecurrent();                                                     // hidetoshi 14.01.21
-  virtual StatusCode bookHistograms();                                                              // hidetoshi 14.01.21
+  virtual StatusCode bookHistogramsRecurrent();
+  virtual StatusCode bookHistograms();
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  virtual StatusCode procHistograms();                                                              // hidetoshi 14.01.21
+  virtual StatusCode procHistograms();
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
 //@}
@@ -78,12 +76,12 @@ class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
 private:
   //@name typedefs centralised to enable easy changing of types
   //@{
-  typedef TProfile * Prof_t;
-  typedef TProfile2D * Prof2_t;
-  typedef TH1F_LW * H1_t;
-  typedef TH2F_LW * H2_t;
-  typedef TH1I * H1I_t;
-  typedef TH2I * H2I_t;
+  typedef TProfile* Prof_t;
+  typedef TProfile2D* Prof2_t;
+  typedef TH1F_LW* H1_t;
+  typedef TH2F_LW* H2_t;
+  typedef TH1I* H1I_t;
+  typedef TH2I* H2I_t;
   typedef std::vector<Prof2_t> VecProf2_t;
   typedef std::vector<Prof_t> VecProf_t;
   typedef std::vector<H1_t> VecH1_t;
@@ -249,14 +247,13 @@ private:
   //@name  Histograms related methods
   //@{
   // Book Histograms
-  //  StatusCode bookRatioNoiseHistos(bool isNewRun,bool isNewLumiBlock);  // hidetoshi 14.01.22
-  StatusCode bookRatioNoiseHistos();                                       // hidetoshi 14.01.22
+  StatusCode bookRatioNoiseHistos();
   //@}
 
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, float &theta, float &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, float& theta, float& phi );
   float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   bool isBarrel(const int moduleNumber);
@@ -266,19 +263,19 @@ private:
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
   Prof_t 
-    pFactory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+    pFactory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
   H1_t
-    h1Factory(const std::string & name, const std::string & title, MonGroup & registry, VecH1_t & storageVector, const float lo, const float hi, const unsigned int nbins);
+    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins);
   H1_t
-    h1Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
   H2_t
-    h2Factory(const std::string & name, const std::string & title, MonGroup & registry, const float lo_x, const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y, const unsigned int nbins_y);
+    h2Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo_x, const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y, const unsigned int nbins_y);
   H1I_t
-    h1IFactory(const std::string & name, const std::string & title, MonGroup & registry, VecH1I_t & storageVector, const float lo, const float hi, const unsigned int nbins);
+    h1IFactory(const std::string& name, const std::string& title, MonGroup& registry, VecH1I_t& storageVector, const float lo, const float hi, const unsigned int nbins);
   H1I_t
-    h1IFactory(const std::string & name, const std::string & title, MonGroup & registry, const float lo, const float hi, const unsigned int nbins);
+    h1IFactory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
   Prof2_t
-    prof2Factory(const std::string & name, const std::string & title, const unsigned int&, MonGroup & registry, VecProf2_t & storageVector);
+    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, MonGroup& registry, VecProf2_t& storageVector);
  
   //@}
 };

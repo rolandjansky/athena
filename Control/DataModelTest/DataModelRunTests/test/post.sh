@@ -183,6 +183,7 @@ PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is alrea
 PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
 PP="$PP"'|^RootDatabase.open *I[nN][fF][oO]'
 PP="$PP"'|Unable to locate catalog'
+PP="$PP"'|CLIDRegistry entries for module'
 
 # StoreGate INFO messages changed to VERBOSE
 PP="$PP"'|^(StoreGateSvc|DetectorStore|MetaDataStore|InputMetaDataStore|TagMetaDataStore) +(INFO|VERBOSE) (Stop|stop|Start)'
@@ -225,6 +226,7 @@ PP="$PP"'|INFO Found MetaDataTools'
 PP="$PP"'|INFO AthenaOutputStream'
 PP="$PP"'|^DbSession.*INFO'
 PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
+PP="$PP"'|Resolved path'
 
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'

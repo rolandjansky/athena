@@ -3,14 +3,13 @@ Py:Athena            INFO Should see a warning about attempt at adding invalid e
 Py:CfgItemList    WARNING Attempt to add an invalid element: 'Bla#Blah*'
 Py:CfgItemList    WARNING      ==> Ignoring invalid element: 'Bla#Blah*'
 Py:Athena            INFO Creating an AthenaPoolOutputStream...
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3e/f3b8d1f32f4] -- built on [2018-09-06T2000]
-Py:ConfigurableDb    INFO Read module info for 5528 configurables from 12 genConfDb files
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-centos7-gcc8-opt] [atlas-work3/d3f8824dfe7] -- built on [2019-02-23T1624]
+Py:ConfigurableDb    INFO Read module info for 5463 configurables from 40 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'JetCollection#HLT_AutoKey*', 'VxContainer#Conversions']
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'JetCollection#HLT_AutoKey*', 'VxContainer#Conversions']
 Py:Athena            INFO removing TrigEsd item list
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'VxContainer#Conversions']
-Py:Athena            INFO '<AthenaOutputStream/FooFoo at 0x1b88850>' is not a CfgItemList
+Py:Athena            INFO '<AthenaOutputStream/FooFoo at 0x13b8850>' is not a CfgItemList
 Py:Athena            INFO Error has been caught, good
 Py:Athena            INFO ESD item list: ['CaloCellContainer#Boo', 'CaloClusterContainer#BooBoo', 'VxContainer#Conversions']
 Py:Athena            INFO InDet list: ['AnotherVxContainer#Conversions', 'VxContainer#Conversions']

@@ -255,7 +255,7 @@ void TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             goto done;
         }
         Trk::TrackSurfaceIntersection baseIsect(pos, dir, 0.0);
-        const Trk::TrackSurfaceIntersection* pNewBaseIsect = m_pIntersector.unConst()->intersectSurface(surface, &baseIsect, 0.0);
+        const Trk::TrackSurfaceIntersection* pNewBaseIsect = m_pIntersector->intersectSurface(surface, &baseIsect, 0.0);
         Amg::Vector2D pSegPos;
         bool loc_pos_ok(false);
 	if(pNewBaseIsect) {

@@ -249,10 +249,11 @@ namespace xAOD {
       enum PileUpType {
          Unknown     = 99, ///< Type not known/specified
          Signal      =  0, ///< The signal event
-         MinimumBias =  1, ///< Minimum bias pileup event
+         MinimumBias =  1, ///< (Low pT) Minimum bias pileup event
          Cavern      =  2, ///< Cavern background pileup event
          HaloGas     =  3, ///< Halo-gas non-collision background
-         ZeroBias    =  4, ///< Zero bias pileup event
+         HighPtMinimumBias = 4, ///< High pT Minimum bias pileup event
+         ZeroBias    = 5,  ///< Zero bias pileup event
          PileUp_NTYPES
       }; // enum PileUpType
 
@@ -411,7 +412,7 @@ namespace xAOD {
       /// Turn on a set of event flags for one particular sub-detector.
       /// This does a logical OR of the exising flags and FLAGS.
       bool updateEventFlags( const EventFlagSubDet subDet,
-                             const uint32_t flags ) const;
+                             const uint32_t flags_in ) const;
       /// Update the error state for one particular sub-detector.
       /// The error state may only be increased by this method.
       /// If STATE is less than the current error state, then this method

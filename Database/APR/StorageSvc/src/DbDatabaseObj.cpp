@@ -27,6 +27,7 @@
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbDatabase.h"
+#include "StorageSvc/IDbContainer.h"
 
 #include <memory>
 #include <cstdio>
@@ -191,6 +192,8 @@ DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
           link->setDb(s_localDb);
 	  link->setLocal(true);
         }
+        // Update link to use persistent oid
+        link->oid().first = m_links->info()->nextRecordId() + 2; // Taking into account unsaved ##Container links
         DbHandle<DbString> persH = new(m_links, m_string_t) DbString(link->toString());
         if ( !m_links.save(persH, m_string_t).isSuccess() )    {
           return Error;
@@ -704,7 +707,7 @@ DbStatus DbDatabaseObj::getLink(const Token::OID_t& lnkH, Token* pTok, const DbS
 std::string DbDatabaseObj::cntName(const Token& token) {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
-    int lnk = token.oid().first;
+    int lnk = token.oid().first; // Remove leading 32 bit, switch to index later
     if ( lnk >= 0 )  {
       Redirections::iterator i=m_redirects.find(token.dbID().toString());
       Sections::const_iterator j=m_sections.find("##Links");
@@ -884,7 +887,7 @@ void DbDatabaseObj::setAge(int value) {
   if ( 0 == m_info )  {
     m_fileAge = 0;
   }
-  else  {
+  else if (m_fileAge >= 0) {
     switch ( value )  {
     case 0:
       m_fileAge = 0;

@@ -25,7 +25,6 @@ TrigL2CaloRingerHypo::TrigL2CaloRingerHypo(const std::string& name, ISvcLocator*
   declareProperty("CalibPath"         , m_calibPath = ""                      );
   declareProperty("HltFeature"        , m_hlt_feature = "TrigRingerNeuralFex" );  
   
-  m_reader.setMsgStream(msg());
   m_useNoActivationFunctionInTheLastLayer=false;
   m_doPileupCorrection=false;
   m_lumiCut=50;

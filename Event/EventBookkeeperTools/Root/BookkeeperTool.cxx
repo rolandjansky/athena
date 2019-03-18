@@ -5,7 +5,7 @@
 */
 
 // Implementation file for class BookkeeperTool
-// Authors: Joao Firmino da Costa <joao.costa@cern.ch> and David Cote <david.cote@cern.ch>
+// Authors: Jack Cranshaw <Jack.Cranshaw@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 #include "EventBookkeeperTools/BookkeeperTool.h"
@@ -59,7 +59,7 @@ BookkeeperTool::initialize()
 
 
 //__________________________________________________________________________
-StatusCode BookkeeperTool::beginInputFile()
+StatusCode BookkeeperTool::beginInputFile(const SG::SourceID&)
 {
   //OPENING NEW INPUT FILE
   //Things to do:
@@ -161,7 +161,7 @@ StatusCode BookkeeperTool::beginInputFile()
 }
 
 
-StatusCode BookkeeperTool::endInputFile()
+StatusCode BookkeeperTool::endInputFile(const SG::SourceID&)
 {
 
   if (copyContainerToOutput(m_outputCollName).isFailure()) return StatusCode::FAILURE;
@@ -285,7 +285,11 @@ resolveLink (const xAOD::CutBookkeeper* old,
 
 } // anonymous namespace
 
-
+//
+// (Merge) method required by base clase GenericMetdataTool
+//   Note that the implementation of the IMetaDataTool interface 
+//   is done in GenericMetadataTool and configured by properties 
+//   of that class
 StatusCode
 BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) 
@@ -410,4 +414,5 @@ StatusCode BookkeeperTool::copyContainerToOutput(const std::string& outname)
     
   return StatusCode::SUCCESS;
 }
+
 

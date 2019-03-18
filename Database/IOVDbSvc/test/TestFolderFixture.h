@@ -46,14 +46,14 @@ struct TestFolderFixtureBase{
     cool::RecordSpecification spec;
     spec.extend ("int", cool::StorageType::Int32);
     cool::FolderSpecification fSpec (cool::FolderVersioning::SINGLE_VERSION,spec,cool::PayloadMode::INLINEPAYLOAD);
-    std::string desc = "<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+    std::string desc = "<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
     {
       cool::IFolderPtr f = coolDb->createFolder (fixtureFoldername, fSpec, desc);
       cool::Record payload (f->payloadSpecification());
       payload[0].setValue (1);
-      f->storeObject ((10ull<<32) + 10, (10ull<<32) + 20, payload, 0);
+      f->storeObject (0, 100, payload, 0);
       payload[0].setValue (2);
-      f->storeObject ((10ull<<32) + 30, cool::ValidityKeyMax, payload, 0);
+      f->storeObject (100, cool::ValidityKeyMax, payload, 0);
     }
     coolDb->closeDatabase();
   }

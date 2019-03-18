@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTRAMCNVSVC_COLLECTIONBYTESTREAMCNV_H
@@ -18,9 +18,6 @@ class IROBDataProviderSvc;
 
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
-
-// Externals 
-extern long ByteStream_StorageType;
 
 /**
  * @class CollectionByteStreamCnv
@@ -43,23 +40,23 @@ class CollectionByteStreamCnv: public Converter {
 
   /** @brief initialize the converter
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** @brief create data object from Address
    */
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
+  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
   
   /** @brief write data object to Bytestream
    */
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
   /** @brief  Storage type for BS 
    */
-  virtual long repSvcType() const { return ByteStream_StorageType; }
+  virtual long repSvcType() const override { return i_repSvcType(); }
 
   /** @brief  Storage type for BS 
    */
-  static long storageType()       { return ByteStream_StorageType; }
+  static long storageType();
 
   /** @brief  CLID for the data type 
    */

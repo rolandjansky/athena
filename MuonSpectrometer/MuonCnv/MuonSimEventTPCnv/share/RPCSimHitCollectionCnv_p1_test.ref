@@ -5,5 +5,5 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
+HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
 test                 INFO Processing 

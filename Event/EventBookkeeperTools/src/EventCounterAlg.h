@@ -70,9 +70,6 @@ class EventCounterAlg
 
   /// Keep a vector of all cutIDs for the non-nominal MC event weights
   std::vector<CutIdentifier> m_mcCutIDs;
-
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
-  { this, "EventInfoKey", "EventInfo", "" };
 };
 
 // I/O operators

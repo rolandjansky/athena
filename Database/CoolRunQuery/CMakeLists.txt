@@ -1,10 +1,12 @@
-# $Id: CMakeLists.txt 722392 2016-02-08 12:13:08Z krasznaa $
 #
 # CMake description for the package.
 #
 
 # Declare the package's name:
 atlas_subdir( CoolRunQuery )
+
+# Necessary external(s):
+find_package( cx_Oracle )
 
 # Declare the python modules of the package:
 atlas_install_python_modules( python/*.py python/html python/selector

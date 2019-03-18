@@ -1,20 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMMETADATATOOL_H
 #define BYTESTREAMMETADATATOOL_H
 
 /** @file ByteStreamMetadataTool.h
- *  @brief This file contains the class definition for the ByteStreamMetadataTool class.
+ *  @brief This class is an implementation of the GenericMetadataToolNoAux
+ *  for the ByteStreamMetadataContainer.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  *  $Id: $
  **/
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/SourceID.h"
-#include "AthenaKernel/IMetaDataTool.h"
+#include "AthenaKernel/GenericMetadataToolNoAux.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 
 #include <string>
 
@@ -23,8 +24,8 @@ class StoreGateSvc;
 /** @class ByteStreamMetadataTool
  *  @brief This class provides the MetaDataTool for ByteStreamMetadata objects
  **/
-class ByteStreamMetadataTool : public ::AthAlgTool,
-	virtual public IMetaDataTool {
+class ByteStreamMetadataTool : public GenericMetadataToolNoAux <ByteStreamMetadataContainer> 
+{
 public: 
    /// Standard Service Constructor
    ByteStreamMetadataTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -32,21 +33,11 @@ public:
    virtual ~ByteStreamMetadataTool();
 
    /// Gaudi Service Interface method implementations:
-   StatusCode initialize();
-   StatusCode finalize();
-
-   /// Incident service handle listening for BeginInputFile and EndInputFile.
-   virtual StatusCode beginInputFile();
-   virtual StatusCode endInputFile();
-   virtual StatusCode metaDataStop(const SG::SourceID&);
-   virtual StatusCode beginInputFile(const SG::SourceID&);
-   virtual StatusCode endInputFile(const SG::SourceID&);
-   virtual StatusCode metaDataStop();
-
-private:
-   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-   StoreGateSvc_t m_pMetaDataStore;
-   StoreGateSvc_t m_pInputStore;
+   StatusCode initialize() override;
+   StatusCode finalize() override;
+   /// Virtual method to update a container with information from another one
+   virtual StatusCode updateContainer(ByteStreamMetadataContainer* bsmdc_out,
+                                const ByteStreamMetadataContainer* bsmdc_in ) override;
 };
 
 #endif

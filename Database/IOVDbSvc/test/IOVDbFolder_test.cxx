@@ -83,7 +83,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
   BOOST_FIXTURE_TEST_SUITE(IOVDbFolderMethods, TestFolderFixture)
     BOOST_AUTO_TEST_CASE(PublicMethods){
       //preload tests
-      IOVDbConn connection("sqlite://;schema=cooldummy.db;dbname=OFLP200", true, parserFixture.log);
+      IOVDbConn connection("sqlite://;schema=IOVDbFolderTest.db;dbname=OFLP200", true, parserFixture.log);
       IOVDbFolder iovDbFolder(&connection, parserFixture.parser, parserFixture.log, clidSvc.get(),false);
       BOOST_TEST_CHECKPOINT("After instantiation, but before any loading method call");
       BOOST_TEST(iovDbFolder.folderName() == "/key1");
@@ -91,7 +91,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST(iovDbFolder.conn() != nullptr);
       BOOST_TEST(iovDbFolder.multiVersion() == false);
       const bool isEpochTimestamp(true);
-      BOOST_TEST(iovDbFolder.timeStamp() != isEpochTimestamp);
+      BOOST_TEST(iovDbFolder.timeStamp() != isEpochTimestamp);//before looking
       BOOST_TEST(iovDbFolder.tagOverride() == false);
       BOOST_TEST(iovDbFolder.retrieved() == false);
       BOOST_TEST(iovDbFolder.noOverride() == false);
@@ -111,14 +111,15 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST_CHECKPOINT("After preLoadFolder method call");
       const std::string tag("");
       auto addr=iovDbFolder.preLoadFolder(detStore.get(),0,600);
-      BOOST_TEST(iovDbFolder.loadCache(cool::ValidityKey((10ull<<32) + 20),600, tag, true) == true);
+      BOOST_TEST(iovDbFolder.loadCache(cool::ValidityKey(50),600, tag, true) == true);
       BOOST_TEST_CHECKPOINT("After loadCache method call");
+      BOOST_TEST(iovDbFolder.timeStamp() == isEpochTimestamp);//after looking
       BOOST_TEST(iovDbFolder.retrieved() == false);//only changed by getAddress method
-      BOOST_TEST(iovDbFolder.bytesRead() == 12);//why not 8? we got two int32 
+      BOOST_TEST(iovDbFolder.bytesRead() == 8);
       BOOST_TEST(iovDbFolder.readTime() > 0.0);
       BOOST_TEST(iovDbFolder.clid() == 1238547719);
       auto theValidityKey=iovDbFolder.iovTime(cool::ValidityKey(600));
-      BOOST_TEST(theValidityKey == cool::ValidityKey(18446744073709551615ull));//why? is this -1?
+      BOOST_TEST(theValidityKey == cool::ValidityKey(600));
       IOVRange zeroRange{0,0};
       BOOST_TEST(iovDbFolder.currentRange() ==  zeroRange);//why?
       BOOST_TEST(iovDbFolder.cacheValid(cool::ValidityKey(600)) );

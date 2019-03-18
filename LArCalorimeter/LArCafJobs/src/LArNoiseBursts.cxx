@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// LArNoiseBursts
@@ -13,7 +13,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -49,7 +48,6 @@
 
 // Lar HV
 #include "LArElecCalib/ILArHVTool.h"
-#include "StoreGate/DataHandle.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
@@ -123,7 +121,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_LArEM_IDHelper(0),
     m_LArFCAL_IDHelper(0),
     m_LArHEC_IDHelper(0),
-    m_caloIdMgr(0),
     m_calodetdescrmgr(0),
     m_CosmicCaloStream(false),
     m_nb_sat(0),
@@ -250,8 +247,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    
    // Keep cell properties
    declareProperty("KeepOnlyCellID",          m_keepOnlyCellID = false);
-
-   m_calodetdescrmgr = CaloDetDescrManager::instance(); 
  }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -302,28 +297,31 @@ StatusCode LArNoiseBursts::initialize() {
   ATH_CHECK( m_BCKey.initialize() );
 
   // Retrieve online ID helper
-  const DataHandle<LArOnlineID> LArOnlineIDHelper;
+  const LArOnlineID* LArOnlineIDHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(LArOnlineIDHelper, "LArOnlineID") );
   m_LArOnlineIDHelper = LArOnlineIDHelper;
   ATH_MSG_DEBUG( " Found LArOnline Helper");
 
   // Retrieve HV line ID helper
-  const DataHandle<LArHVLineID> LArHVLineIDHelper;
-  ATH_CHECK( detStore()->retrieve(LArHVLineIDHelper, "LArHVLineID") );
+  const LArHVLineID* LArHVLineIDHelper = nullptr;
+    ATH_CHECK( detStore()->retrieve(LArHVLineIDHelper, "LArHVLineID") );
   m_LArHVLineIDHelper = LArHVLineIDHelper;
   ATH_MSG_DEBUG( " Found LArOnlineIDHelper Helper");
 
   // Retrieve HV electrode ID helper
-  const DataHandle<LArElectrodeID> LArElectrodeIDHelper;
+  const LArElectrodeID* LArElectrodeIDHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(LArElectrodeIDHelper, "LArElectrodeID") );
   m_LArElectrodeIDHelper = LArElectrodeIDHelper;
   ATH_MSG_DEBUG( " Found LArElectrodeIDHelper Helper");
 
+  ATH_CHECK( detStore()->retrieve (m_calodetdescrmgr, "CaloMgr") );
+
   // Retrieve ID helpers
-  ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
-  m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
-  m_LArHEC_IDHelper  = m_caloIdMgr->getHEC_ID();
-  m_LArFCAL_IDHelper = m_caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_LArEM_IDHelper   = idHelper->em_idHelper();
+  m_LArHEC_IDHelper  = idHelper->hec_idHelper();
+  m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
   if ( m_calo_noise_tool.retrieve().isFailure() ) {
     ATH_MSG_WARNING ( "Failed to retrieve tool " << m_calo_noise_tool );

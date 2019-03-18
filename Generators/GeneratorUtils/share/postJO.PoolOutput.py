@@ -1,6 +1,9 @@
 ## Pool persistency for evgen
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-stream = AthenaPoolOutputStream("StreamEVGEN")
+from AthenaCommon.AppMgr import theApp
+stream = theApp.getOutputStream( "StreamEVGEN" )
+if stream is None:
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    stream = AthenaPoolOutputStream("StreamEVGEN")
 stream.OutputFile = "evgen.pool.root"
 if "OUTFILE" in dir():
     stream.OutputFile = OUTFILE

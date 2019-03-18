@@ -41,7 +41,7 @@ def setupMessageSvc():
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "%t  % F%35W%S%4W%e%s%7W%R%T %0W%M"
+   MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 
    # Message suppression
    MessageSvc.enableSuppression    = False
@@ -75,3 +75,34 @@ def setupMessageSvc():
    # publish message counts during RUNNING in histogram
    MessageSvc.publishStats = True
    MessageSvc.publishLevel = INFO
+
+# online ROB data provider service 
+from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
+class HltROBDataProviderSvc(_HltROBDataProviderSvc):
+   __slots__ = ()
+
+   def __init__(self, name='ROBDataProviderSvc'):
+      super(HltROBDataProviderSvc, self).__init__(name)
+      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool.Histograms = [ 
+         defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',
+                         title='Time to reserve ROBs for later retrieval;time [ms]',
+                         xbins=100, xmin=0, xmax=100),
+         defineHistogram('NUMBER_ROBReserveData', path='EXPERT', type='TH1F',
+                         title='Number of reserved ROBs for later retrieval;number',
+                         xbins=100, xmin=0, xmax=500),
+         defineHistogram('TIME_ROBRequest', path='EXPERT', type='TH1F',
+                         title='Time for ROB retrievals;time [ms]',
+                         xbins=100, xmin=0, xmax=500),
+         defineHistogram('NUMBER_ROBRequest', path='EXPERT', type='TH1F',
+                         title='Number of retrieved ROBs;number',
+                         xbins=100, xmin=0, xmax=1000),
+         defineHistogram('TIME_CollectAllROBs', path='EXPERT', type='TH1F',
+                         title='Time for retrieving complete event data;time [ms]',
+                         xbins=100, xmin=0, xmax=1000),
+         defineHistogram('NUMBER_CollectAllROBs', path='EXPERT', type='TH1F',
+                         title='Number of received ROBs for collect call;number',
+                         xbins=100, xmin=0, xmax=2500)
+         ]
+      return

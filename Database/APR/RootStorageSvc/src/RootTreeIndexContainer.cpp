@@ -47,16 +47,23 @@ long long int RootTreeIndexContainer::nextRecordId()    {
 
 DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) {
    long long int s = 0;
-   if( m_tree != nullptr && isBranchContainer() ) {
+   if( isBranchContainer() ) {
       TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
       if (pBranch != nullptr) s = pBranch->GetEntries();
    } else {
       s = m_tree->GetEntries();
    }
+   if (m_index_ref  == nullptr && m_index_foreign == nullptr) {
+      if (m_tree->GetBranch("index_ref") == nullptr) {
+         m_index_ref = (TBranch*)m_tree->Branch("index_ref", m_index);
+      } else {
+         m_index_foreign = (TBranch*)m_tree->GetBranch("index_ref");
+      }
+   }
    if (m_index_ref != nullptr && s >= m_index_ref->GetEntries()) {
       *m_index = this->nextRecordId();
       m_index_ref->SetAddress(m_index);
-      if (this->isBranchContainer()) m_index_ref->Fill();
+      if( isBranchContainer() && !m_treeFillMode ) m_index_ref->Fill();
    }
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
    DbStatus status = RootTreeContainer::writeObject(ent);
@@ -65,27 +72,11 @@ DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) 
 }
 
 DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
-   if (action == Transaction::TRANSACT_COMMIT) {
-      if (m_tree == nullptr) return Error;
-      if (m_tree->GetName()[0] != '#') {
-         if (m_index_foreign == nullptr && m_tree->GetBranch("index_ref") == nullptr) {
-            m_index_ref = (TBranch*)m_tree->Branch("index_ref", m_index);
-         }
-/*
-         if (m_index_ref != nullptr && RootTreeContainer::size() > m_index_ref->GetEntries()) {
-            *m_index = this->nextRecordId();
-            m_index_ref->SetAddress(m_index);
-            if (!m_treeFillMode) m_index_ref->Fill();
-         }
-*/
-      }
-   }
    DbStatus status = RootTreeContainer::transAct(action);
    if (action == Transaction::TRANSACT_FLUSH) {
-      if (m_tree->GetName()[0] != '#') {
-         if (m_index_ref != nullptr && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
-            m_tree->BuildIndex("index_ref");
-         }
+      if (m_tree == nullptr) return Error;
+      if (m_index_ref != nullptr && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
+         m_tree->BuildIndex("index_ref");
       }
    }
    return status;

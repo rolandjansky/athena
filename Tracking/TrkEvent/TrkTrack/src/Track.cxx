@@ -29,15 +29,12 @@ Trk::Track::Track ():
   m_cachedParameterVector{},
   m_cachedMeasurementVector{},
   m_cachedOutlierVector{}, 
-  m_trackStateVector( 0 ),
-  m_perigeeParameters{},
-  m_fitQuality(0),
-  m_trackSummary(0)
+  m_trackStateVector(nullptr),
+  m_perigeeParameters{},//default c-tor value to invalid
+  m_fitQuality(nullptr),
+  m_trackSummary(nullptr)
 {
   if (debug) std::cout<<"Trk::Track Ctor 1 :"<<this<<std::endl;
-  //perigee parameters are nullptr and invalid
-  m_perigeeParameters.store(nullptr); 
-  m_perigeeParameters.reset();
 
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Track, so increment total count
@@ -53,12 +50,12 @@ Trk::Track::Track( const TrackInfo& info,
   m_trackStateVector(trackStateOnSurfaces),
   m_perigeeParameters{},//default c-tor value to invalid
   m_fitQuality(fitQuality),
-  m_trackSummary(0),
+  m_trackSummary(nullptr),
   m_trackInfo( info )
 {
   if (debug) std::cout<<"Trk::Track Ctor 2 :"<<this<<std::endl;
   //find the Perigee params they will become valid given the outcome
-  findPerigee();
+  findPerigeeImpl();
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Track, so increment total count
 #endif
@@ -69,10 +66,10 @@ Trk::Track::Track (const Track& rhs):
   m_cachedParameterVector {},
   m_cachedMeasurementVector {},
   m_cachedOutlierVector{}, 
-  m_trackStateVector( 0 ),
+  m_trackStateVector(nullptr),
   m_perigeeParameters{}, //default c-tor value to invalid
-  m_fitQuality(0),
-  m_trackSummary(0)
+  m_fitQuality(nullptr),
+  m_trackSummary(nullptr)
 {
   if (debug) std::cout<<"Trk::Track Ctor 3 :"<<this<<std::endl;
   using namespace Trk;
@@ -122,9 +119,10 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
     if (rhs.trackSummary()!=nullptr){
       m_trackSummary = new TrackSummary( *(rhs.m_trackSummary) );
     }
-    //perigee parameters are nullptr and invalid
-    m_perigeeParameters.store(nullptr); 
+    //perigee parameters set to invalid
     m_perigeeParameters.reset();
+    
+    //Create the TrackStateVector and the perigeeParamters
     if( rhs.m_trackStateVector!=0 )
     {
       m_trackStateVector = new DataVector<const TrackStateOnSurface>;
@@ -136,13 +134,9 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
         TrackStateOnSurface* tsos = (**itTSoS).clone();
         m_trackStateVector->push_back( tsos );
         if(tsos!=nullptr){
-          if(!m_perigeeParameters.isValid()){//should be invalid from above
-            //Now will contain a ptr and be valid
-            if (const Trk::Perigee* perigee = 
-                dynamic_cast<const Trk::Perigee*>( tsos->trackParameters()))
-            {
-              m_perigeeParameters.store(perigee);
-            }
+          const Trk::Perigee*  perigee = dynamic_cast<const Trk::Perigee*>(tsos->trackParameters() ) ;
+          if (perigee!=0 && tsos->type(TrackStateOnSurface::Perigee)){ 
+            m_perigeeParameters.store(perigee);//Now they will be valid
           }
         }
       }
@@ -182,7 +176,13 @@ const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() cons
   return m_cachedParameterVector.ptr();
 }
 
-void Trk :: Track :: findPerigee() const
+void Trk::Track::findPerigee() const {
+  if (!m_perigeeParameters.isValid()){
+    findPerigeeImpl();
+  }
+} 
+
+void Trk::Track::findPerigeeImpl() const
 {
   // loop through all passed parameters and, if there is a Perigee in there,
   // assign it to Perigee parameters. Obviously there should never be more
@@ -191,12 +191,7 @@ void Trk :: Track :: findPerigee() const
   // there can be other objects, like VertexOnTrack measurements, with
   // params at a Perigee surface, thus an additional TSoS type check. AS/WL
 
-  /* Here I assume, that this is externally wrapped like
-   * if (!m_perigeeParameters.valid){
-   *  findPerigee();
-   * }
-   */
-  const Trk::Perigee* tmpPerigeeParameters=nullptr; 
+ const Trk::Perigee* tmpPerigeeParameters=nullptr; 
   if (m_trackStateVector!=nullptr){
     DataVector<const TrackStateOnSurface>::const_iterator it = 
       m_trackStateVector->begin();

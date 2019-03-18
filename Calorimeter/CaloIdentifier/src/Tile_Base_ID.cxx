@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -371,20 +371,13 @@ Tile_Base_ID::tile_gap        ()      const
 
 // For any Tilecal section
 Identifier
-Tile_Base_ID::tile_det        ( int section )        const
+Tile_Base_ID::tile_det        ( int section, bool checks )        const
 {
-    if(m_do_checks) {
+    if(checks) {
 	// Check that id is within allowed range
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) ;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::tile_det , values ok but did not build, "+
-              strformat("section: %d ", section);
-	    throw TileID_Exception(errorMessage , 1);
-	}
     }
 
     Identifier result;
@@ -401,6 +394,12 @@ Tile_Base_ID::tile_det        ( int section )        const
     return result;
 }
 
+Identifier
+Tile_Base_ID::tile_det        ( int section )        const
+{
+  return tile_det (section, do_checks());
+}
+
 // single region, module, tower, cell, pmt, adc identifiers
 Identifier
 Tile_Base_ID::region_id       ( int index )           const
@@ -415,22 +414,15 @@ Tile_Base_ID::region_id       ( int index )           const
 }
 
 Identifier
-Tile_Base_ID::region_id       ( int section, int side )      const
+Tile_Base_ID::region_id       ( int section, int side, bool checks )      const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::region_id, values ok but did not build, "+
-              strformat ("section: %d, side: %d ", section, side);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_region_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::region_id() result is not OK: ID, range = "
@@ -455,6 +447,13 @@ Tile_Base_ID::region_id       ( int section, int side )      const
 }
 
 Identifier
+Tile_Base_ID::region_id       ( int section, int side )      const
+{
+  return region_id (section, side, do_checks());
+}
+
+
+Identifier
 Tile_Base_ID::region_id       ( const Identifier& any_id )   const
 {
   Identifier result;
@@ -468,23 +467,16 @@ Tile_Base_ID::region_id       ( const Identifier& any_id )   const
 
 Identifier
 Tile_Base_ID::module_id       ( int section, int side, 
-                                int module ) const
+                                int module,
+                                bool checks ) const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side << module;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::module_id, values ok but did not build, "+
-              strformat ("section: %d, side: %d, module: %d ",
-                         section, side, module);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_module_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::module_id() result is not OK: ID, range = "
@@ -510,6 +502,14 @@ Tile_Base_ID::module_id       ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::module_id       ( int section, int side, 
+                                int module ) const
+{
+  return module_id (section, side, module, do_checks());
+}
+
+
+Identifier
 Tile_Base_ID::module_id       ( const Identifier& any_id )   const
 {
   Identifier result;
@@ -523,23 +523,16 @@ Tile_Base_ID::module_id       ( const Identifier& any_id )   const
 
 Identifier
 Tile_Base_ID::tower_id        ( int section, int side,
-                                int module,   int tower )     const
+                                int module,   int tower,
+                                bool checks)     const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side << module << tower;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::tower_id, values ok but did not build, "+
-              strformat ("section: %d, side: %d, module: %d, tower: %d ",
-                         section, side, module, tower);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_tower_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::tower_id() result is not OK: ID, range = "
@@ -563,6 +556,13 @@ Tile_Base_ID::tower_id        ( int section, int side,
     }
 
     return result;
+}
+
+Identifier
+Tile_Base_ID::tower_id        ( int section, int side,
+                                int module,   int tower) const
+{
+  return tower_id (section, side, module, tower, do_checks());
 }
 
 Identifier
@@ -592,23 +592,16 @@ Tile_Base_ID::cell_id         ( const Identifier & any_id )   const
 Identifier
 Tile_Base_ID::cell_id         ( int section, int side,
                                 int module,   int tower, 
-                                int sample )                  const
+                                int sample,
+                                bool checks )                  const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side << module << tower << sample;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::cell_id, values ok but did not build, " +
-              strformat ("section: %d, side: %d, module: %d, tower: %d, sample: %d ",
-                         section, side, module, tower, sample);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_cell_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::cell_id() result is not OK: ID, range = "
@@ -636,6 +629,14 @@ Tile_Base_ID::cell_id         ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::cell_id         ( int section, int side,
+                                int module,   int tower, 
+                                int sample )                  const
+{
+  return cell_id (section, side, module, tower, sample, do_checks());
+}
+
+Identifier
 Tile_Base_ID::pmt_id          ( const Identifier & any_id )   const
 {
   Identifier result;
@@ -649,7 +650,7 @@ Tile_Base_ID::pmt_id          ( const Identifier & any_id )   const
 
 Identifier
 Tile_Base_ID::pmt_id          ( const Identifier & cell_id, 
-                                int pmt )                     const
+                                int pmt, bool checks )                const
 {
     Identifier result;
 
@@ -666,7 +667,7 @@ Tile_Base_ID::pmt_id          ( const Identifier & cell_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -684,13 +685,6 @@ Tile_Base_ID::pmt_id          ( const Identifier & cell_id,
 
 	expId << pmt;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::pmt_id, values ok but did not build, " +
-              strformat ("pmt: %d ", pmt);
-	    throw TileID_Exception(errorMessage , 1);
-	}
-
 	if (!m_full_pmt_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::pmt_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_region_range;
@@ -702,25 +696,25 @@ Tile_Base_ID::pmt_id          ( const Identifier & cell_id,
 }
 
 Identifier
+Tile_Base_ID::pmt_id          ( const Identifier & cell_id, 
+                                int pmt )                const
+{
+  return pmt_id (cell_id, pmt, do_checks());
+}
+
+Identifier
 Tile_Base_ID::pmt_id          ( int section, int side,
                                 int module,   int tower,
-                                int sample,   int pmt )       const
+                                int sample,   int pmt,
+                                bool checks)       const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side << module << tower << sample << pmt;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::pmt_id, values ok but did not build, " +
-              strformat ("section: %d, side: %d, module: %d, tower: %d, sample: %d, pmt: %d ",
-                         section, side, module, tower, sample, pmt);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_pmt_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::pmt_id() result is not OK: ID, range = "
@@ -749,8 +743,16 @@ Tile_Base_ID::pmt_id          ( int section, int side,
 }
 
 Identifier
+Tile_Base_ID::pmt_id          ( int section, int side,
+                                int module,   int tower,
+                                int sample,   int pmt) const
+{
+  return pmt_id (section, side, module, tower, sample, pmt, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( const Identifier & cell_id,
-                                int pmt, int adc )            const
+                                int pmt, int adc, bool checks )       const
 {
     Identifier result;
 
@@ -768,7 +770,7 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -786,13 +788,6 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
 
 	expId << pmt << adc;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::adc_id, values ok but did not build, " +
-              strformat ("pmt: %d, adc: %d ", pmt, adc);
-	    throw TileID_Exception(errorMessage , 1);
-	}
-
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::adc_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_region_range;
@@ -804,8 +799,15 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
 }
 
 Identifier
+Tile_Base_ID::adc_id          ( const Identifier & cell_id,
+                                int pmt, int adc )       const
+{
+  return adc_id (cell_id, pmt, adc, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
-                                int adc )                     const
+                                int adc, bool checks )               const
 {
     Identifier result;
 
@@ -822,7 +824,7 @@ Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
       throw TileID_Exception(errorMessage , 1);
     }
 
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
@@ -840,13 +842,6 @@ Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
 
 	expId << adc;
 
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::adc_id, values ok but did not build, " +
-              strformat ("adc: %d ", adc);
-	    throw TileID_Exception(errorMessage , 1);
-	}
-
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::adc_id() result is not OK: ID, range = "
 		+ std::string(expId) + " , " + (std::string)m_full_region_range;
@@ -858,25 +853,25 @@ Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
 }
 
 Identifier
+Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
+                                int adc )               const
+{
+  return adc_id (pmt_id, adc, do_checks());
+}
+
+Identifier
 Tile_Base_ID::adc_id          ( int section, int side,
                                 int module, int tower, int sample, 
-                                int pmt, int adc )            const
+                                int pmt, int adc,
+                                bool checks)            const
 {
-    if(m_do_checks) {
+    if(checks) {
 	
 	// Check that id is within allowed range
 
 	// Fill expanded id
 	ExpandedIdentifier expId(tile_exp());
 	expId << encode_section (section) << side << module << tower << sample << pmt << adc;
-
-	if(  expId.last_error () != ExpandedIdentifier::none ){
-	    std::string errorMessage =
-              "Error in Tile_Base_ID::adc_id, values ok but did not build, " +
-              strformat ("section: %d, side: %d, module: %d, tower: %d, sample: %d, pmt: %d, adc: %d ",
-                         section, side, module, tower, sample, pmt, adc);
-	    throw TileID_Exception(errorMessage , 1);
-	}
 
 	if (!m_full_adc_range.match(expId)) { 
 	    std::string errorMessage = "Tile_Base_ID::adc_id() result is not OK: ID, range = "
@@ -903,6 +898,14 @@ Tile_Base_ID::adc_id          ( int section, int side,
     }
 
     return result;
+}
+
+Identifier
+Tile_Base_ID::adc_id          ( int section, int side,
+                                int module, int tower, int sample, 
+                                int pmt, int adc)            const
+{
+  return adc_id (section, side, module, tower, sample, pmt, adc, do_checks());
 }
 
 bool Tile_Base_ID::module_id  ( const Identifier& region_id,

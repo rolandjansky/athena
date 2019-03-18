@@ -1308,7 +1308,7 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBplusEEKplus(const ElementLink<xAOD::TrackP
     ATH_MSG_DEBUG("Try to build B+ -> mu mu K+ with track " << *eltrack1 );
     float massKEE = KEEMass(*ellep1,*ellep2,*eltrack1);
     
-    static std::vector<double> masses = {KPLUSMASS,EMASS,EMASS};
+    static const std::vector<double> masses = {KPLUSMASS,EMASS,EMASS};
     
     if( !(massKEE > m_lowerKEEMassCut && massKEE < m_upperKEEMassCut) ) {
         ATH_MSG_DEBUG(" B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKEE );

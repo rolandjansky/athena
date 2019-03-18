@@ -8,11 +8,10 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "EventInfo/EventInfo.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
+#include "SCT_Cabling/SCT_OnlineId.h"
 #include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
@@ -34,9 +33,10 @@ class SCT_TdaqEnabledCondAlg : public AthReentrantAlgorithm
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/TDAQ/Resources/ATLAS/SCT/Robins", "Key of input (raw) conditions folder"};
   SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey{this, "WriteKey", "SCT_TdaqEnabledCondData", "Key of output (derived) conditions data"};
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfoKey", "ByteStreamEventInfo", "Key of non-xAOD EventInfo"};
   ServiceHandle<ICondSvc> m_condSvc; 
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
+
+  SCT_OnlineId m_onlineId;
 
   static const unsigned int s_NRODS;
   static const unsigned int s_modulesPerRod;

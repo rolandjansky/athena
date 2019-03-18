@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonRIO_OnTrack/MDTRIO_OnTrackErrorScaling.h"
 #include <iostream>
 
-const char *MDTRIO_OnTrackErrorScaling::s_names[MDTRIO_OnTrackErrorScaling::kNParamTypes]={
+const char* const MDTRIO_OnTrackErrorScaling::s_names[MDTRIO_OnTrackErrorScaling::kNParamTypes]={
     "MDT Barrel",
     "MDT Endcap"
   };

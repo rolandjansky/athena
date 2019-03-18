@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------------------------------------
@@ -16,6 +16,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include <boost/algorithm/cxx11/partition_point.hpp>
+#include <atomic>
 
 
 namespace {
@@ -38,16 +39,17 @@ int ilog2 (size_t x)
 }
 
 
+std::atomic<int> nWarningsToBePrinted = 20;
+
+
 } // anomymous namespace
 
 
 CaloCellContainer::CaloCellContainer(SG::OwnershipPolicy ownPolicy ) : 
-  DataVector<CaloCell>(ownPolicy), 
-  m_lookUpTable (8),
+  DataVector<CaloCell>(ownPolicy),
   m_hasTotalSize(false),
   m_isOrdered(false),
-  m_isOrderedAndComplete(false),
-  m_nWarningsToBePrinted(20) // maximum number of warning to be printed 
+  m_isOrderedAndComplete(false)
 { 
   //initialise with empty iterators
   for (int iCalo=0; iCalo< static_cast<int>(CaloCell_ID::NSUBCALO); ++iCalo){
@@ -360,55 +362,81 @@ int CaloCellContainer::findIndex(const IdentifierHash   theHash) const
   // if container is complete and in order use directly the container
   if (isOrderedAndComplete()) return theIndex;
 
-  if (theIndex < m_lookUpTable.size() )
-    return (int)m_lookUpTable[theIndex] - 1;
+  if (this->empty()) return -1;
 
-  // if lookupTable not empty and index greater than size 
-  // the cell is not there 
-  if (!m_lookUpTable.empty() || this->empty()) return -1;
-
-  // look up table is empty and container not empty: initialisation is not done
-  const_cast<CaloCellContainer*>(this)->initializeLookUpTable();
-
-  // try again on the reinitialized container
-  if (theIndex < m_lookUpTable.size() )
-    return (int)m_lookUpTable[theIndex] - 1;
-
-  // definitely not there
+  const CxxUtils::PackedArray& lookUpTable = getLookUpTable();
+  if (theIndex < lookUpTable.size() )
+    return (int)lookUpTable[theIndex] - 1;
   return -1;
 }
 
 
-void CaloCellContainer::findCellVector(const std::vector<IdentifierHash> & theVectorHash,CellVector & theCellVector) const {
+/**
+ * @brief Look up a group of cells by IdentifierHash.
+ *        This is a templated version that can be instantiated for both
+ *        const and non-const versions.
+ * @param cont The container from which to fetch cells.
+ * @param theVectorHash Vector of desired IdentifierHash's.
+ * @param theCellVector Found cells will be appended to this vector.
+ */
+template <class CONT, class VECT>
+void CaloCellContainer::findCellVectorT (CONT& cont, const std::vector<IdentifierHash> & theVectorHash, VECT& theCellVector)
+{
+  theCellVector.reserve (theCellVector.size() + theVectorHash.size());
+  if (cont.isOrderedAndComplete()) {
 
-  //look directly in container
-  std::vector<IdentifierHash>::const_iterator theItrHash=theVectorHash.begin();
-  std::vector<IdentifierHash>::const_iterator itrHashEnd=theVectorHash.end();
+    for (IdentifierHash hash : theVectorHash) {
+      theCellVector.push_back( cont[hash] );
+    }
+    return;
+  }
 
+  if (cont.empty()) return ;
+
+  const CxxUtils::PackedArray& lookUpTable = cont.getLookUpTable();
+
+  //look in look up table (do not put empty cells)
+
+  size_t tbsize = lookUpTable.size();
+  for (IdentifierHash hash : theVectorHash) {
+    // careful that the look up table might be shorter than the maximum hash
+    if (hash>=tbsize) continue ;
+    int ndx = (int)lookUpTable[ hash ] - 1;
+    if (ndx >= 0) {
+      auto theCell = cont[ndx];
+      if (theCell!=0) {
+        theCellVector.push_back( theCell);
+      }
+    }
+    
+  }
+}
+
+
+void CaloCellContainer::findCellVector(const std::vector<IdentifierHash> & theVectorHash,CellVector & theCellVector) const
+{
+  findCellVectorT (*this, theVectorHash, theCellVector);
+#if 0
   theCellVector.reserve (theCellVector.size() + theVectorHash.size());
   if (isOrderedAndComplete()) {
-    
-    for (;theItrHash!=itrHashEnd;++theItrHash){
-      // both statements are equivalent, second one maybe more efficient
-      //      theCellVector.push_back( (this->operator[])( *theItrHash ) );
-      theCellVector.push_back( (this->operator[])( *theItrHash ) );
+
+    for (IdentifierHash hash : theVectorHash) {
+      theCellVector.push_back( (*this)[hash] );
     }
     return;
   }
 
   if (this->empty()) return ;
 
-  // look up table is empty and container not empty: initialisation is not done
-  if (m_lookUpTable.empty())
-    const_cast<CaloCellContainer*>(this)->initializeLookUpTable();
+  const CxxUtils::PackedArray& lookUpTable = getLookUpTable();
 
   //look in look up table (do not put empty cells)
 
-  size_t tbsize = m_lookUpTable.size();
-  for (;theItrHash!=itrHashEnd;++theItrHash){
+  size_t tbsize = lookUpTable.size();
+  for (IdentifierHash hash : theVectorHash) {
     // careful that the look up table might be shorter than the maximum hash
-    if (*theItrHash>=tbsize) continue ;
-    int ndx = (int)m_lookUpTable[ *theItrHash ] - 1;
+    if (hash>=tbsize) continue ;
+    int ndx = (int)lookUpTable[ hash ] - 1;
     if (ndx >= 0) {
       const CaloCell * theCell = (*this)[ndx];
       if (theCell!=0) {
@@ -417,103 +445,23 @@ void CaloCellContainer::findCellVector(const std::vector<IdentifierHash> & theVe
     }
     
   }
+#endif
+}
 
-  return;
-
+void CaloCellContainer::findCellVector(const std::vector<IdentifierHash> & theVectorHash, MutableCellVector & theCellVector)
+{
+  findCellVectorT (*this, theVectorHash, theCellVector);
 }
 
 void CaloCellContainer::resetLookUpTable()
  { 
-  m_lookUpTable.clear();
+  m_lookUpTable.reset();
  }
 
 void CaloCellContainer::initializeLookUpTable()
 {
-  // FIXME should have an argument about duplicates
-  // fill the look up table
-  // note that if CaloCellContainer is not completely filled, there 
-  // is no guarantee it has the correct size, hence the size should 
-  // be checked at every call
-  // (CaloCellContainer has no way to know the maximum size)
-  
-  // Now (30.07.2008) have it always max number of cells (hardcoded) to speed up.
-  // consider moving to DataPool. Gain of ~20%	
-	
   this->resetLookUpTable();
- 
-
-  unsigned int theSize=0;
-  
-  size_t ncells = size();
-  m_lookUpTable.set_bitsize (std::max (1, ilog2 (ncells + 1)));
-
-  // Set the size of the lookup table.
-  // If the cells are sorted, we can look at the last cell to know
-  // the maximum hash we're dealing with.  Otherwise, set it to the
-  // maximum cell hash value.
-  if (ncells == 0) {
-    // Special case --- don't do anything for an empty container.
-    theSize = 0;
-  }
-  else if (isOrdered()) {
-    // Set LUT size from the hash of the last cell.
-    theSize = back()->caloDDE()->calo_hash()+1;
-  }
-  else {
-    // Find the maximum hash.
-    const CaloDetDescriptor* desc = front()->caloDDE()->descriptor();
-    IdentifierHash max_hash = desc->get_calo_helper()->calo_cell_hash_max();
-    theSize = max_hash + 1;
-  }
-  m_lookUpTable.resize (theSize);
-  
-  for (size_t icell = 0; icell < ncells; icell++) {
-
-    const CaloCell * theCell = (*this)[icell];
-    const IdentifierHash theHash=theCell->caloDDE()->calo_hash();
-
-    assert (theHash < theSize);
-		
-    if (m_nWarningsToBePrinted > 0) { // begining of print out
-      int iold = (int)(m_lookUpTable[theHash])-1;
-      if (iold >= 0) {
-	if ((size_t)iold == icell) {
-          REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
-            << "Repeated cell. hash= " << theHash;
-	}
-	else if ((*this)[iold]->ID()==theCell->ID()) {
-          REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
-            << "Duplicated cell. hash=" 
-            << theHash 
-            << " E1=" << (*this)[iold]->e()
-            << " E2=" << theCell->e();
-	// should delete the cell
-	//CaloCell * theCellToBeDeleted = const_cast<CaloCell *> (theCell);
-	//CaloCell * theCellToBeModified = const_cast<CaloCell *> (theOldCell);
-	//theCellToBeModified->setEnergy(theCell->e()+theOldCell->e());
-	// delete theCellToBeDeleted;
-	
-	// this change (*itr) to point on theOldCell instead of theCell 
-        // DataVector is implemented such that this AUTOMATICALLy deletes
-        // theCell, depending on ownPolicy
-	//(*itr)=theOldCell;
-	// then theCell will be pointed at from two places in the main vector, 
-        // only once from the LUT. So only one will remain after copy is made
-	//  theCell=theOldCell;
-	} else {
-          REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
-            << "Should be impossible ! Repeated cell. hash= " << theHash;
-	}
-        --m_nWarningsToBePrinted;
-	if (m_nWarningsToBePrinted==0) {
-          REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "CaloCellContainer")
-            << "No more WARNING will be printed";
-	} 
-      }
-    } // end of print out
-
-    m_lookUpTable[theHash]=icell+1;
-  }
+  getLookUpTable();
 }
 
 
@@ -627,6 +575,89 @@ void CaloCellContainer::orderWhenComplete()
   // look up table is not necessary anymore
   this->resetLookUpTable();
 }
+
+const CxxUtils::PackedArray& CaloCellContainer::getLookUpTable() const
+{
+  // FIXME should have an argument about duplicates
+  // fill the look up table
+  // note that if CaloCellContainer is not completely filled, there 
+  // is no guarantee it has the correct size, hence the size should 
+  // be checked at every call
+  // (CaloCellContainer has no way to know the maximum size)
+  // Now (30.07.2008) have it always max number of cells (hardcoded) to speed up.
+
+  if (!m_lookUpTable.isValid()) {
+
+    unsigned int theSize=0;
+    size_t ncells = size();
+    CxxUtils::PackedArray lookUpTable (std::max (1, ilog2 (ncells + 1)));
+
+    if (ncells > 0) {
+
+      // Set the size of the lookup table.
+      // If the cells are sorted, we can look at the last cell to know
+      // the maximum hash we're dealing with.  Otherwise, set it to the
+      // maximum cell hash value.
+      if (ncells == 0) {
+        // Special case --- don't do anything for an empty container.
+        theSize = 0;
+      }
+      else if (isOrdered()) {
+        // Set LUT size from the hash of the last cell.
+        theSize = back()->caloDDE()->calo_hash()+1;
+      }
+      else {
+        // Find the maximum hash.
+        const CaloDetDescriptor* desc = front()->caloDDE()->descriptor();
+        IdentifierHash max_hash = desc->get_calo_helper()->calo_cell_hash_max();
+        theSize = max_hash + 1;
+      }
+      lookUpTable.resize (theSize);
+  
+      for (size_t icell = 0; icell < ncells; icell++) {
+
+        const CaloCell * theCell = (*this)[icell];
+        const IdentifierHash theHash=theCell->caloDDE()->calo_hash();
+
+        assert (theHash < theSize);
+		
+        if (nWarningsToBePrinted > 0) {
+          // We may actually enter here nWarningsToBePrinted times
+          // if multiple threads race here, but it doesn't matter.
+          int nwarn = nWarningsToBePrinted--;
+          int iold = (int)(lookUpTable[theHash])-1;
+          if (iold >= 0) {
+            if ((size_t)iold == icell) {
+              REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
+                << "Repeated cell. hash= " << theHash;
+            }
+            else if ((*this)[iold]->ID()==theCell->ID()) {
+              REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
+                << "Duplicated cell. hash=" 
+                << theHash 
+                << " E1=" << (*this)[iold]->e()
+                << " E2=" << theCell->e();
+              // should delete the cell?
+            } else {
+              REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
+                << "Should be impossible ! Repeated cell. hash= " << theHash;
+            }
+            if (nwarn==0) {
+              REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "CaloCellContainer")
+                << "No more WARNING will be printed";
+            } 
+          }
+        } // end of print out
+
+        lookUpTable[theHash]=icell+1;
+      }
+    }
+    m_lookUpTable.set (std::move (lookUpTable));
+  }
+
+  return *m_lookUpTable.ptr();
+}
+
 
 bool CaloCellContainer::orderWithCaloHash::operator() ( const CaloCell * a ,const CaloCell * b ) const {
 	  return a->caloDDE()->calo_hash() < b->caloDDE()->calo_hash(); }

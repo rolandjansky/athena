@@ -31,7 +31,7 @@ namespace LVL1BS {
 
 template<typename ContainerT, typename AuxContainerT>
 L1CaloByteStreamAuxCnv<ContainerT, AuxContainerT>::L1CaloByteStreamAuxCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(), svcloc),
+    Converter(storageType(), classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "L1CaloByteStreamAuxCnv"),
     m_name("L1CaloByteStreamAuxCnv"),
     m_readTool("LVL1BS::L1CaloByteStreamReadTool/L1CaloByteStreamReadTool") {
@@ -44,11 +44,13 @@ const CLID& L1CaloByteStreamAuxCnv<ContainerT,AuxContainerT>::classID() {
   return ClassID_traits<ContainerT>::ID();
 }
 
+long L1CaloByteStreamAuxCnv<ContainerT,AuxContainerT>::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 
 template<typename ContainerT, typename AuxContainerT>
 StatusCode L1CaloByteStreamAuxCnv<ContainerT, AuxContainerT>::initialize() {

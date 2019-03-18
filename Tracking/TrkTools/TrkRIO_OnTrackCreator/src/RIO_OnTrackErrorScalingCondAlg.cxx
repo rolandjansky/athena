@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
@@ -71,7 +71,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling(const std::string &ty
     return StatusCode::FAILURE;
   }
   m_kits.push_back(the_kit);
-  const char **parameters=the_kit->paramNames();
+  const char* const* parameters=the_kit->paramNames();
   for (unsigned int param_i=0; param_i<the_kit->nParametres(); ++param_i) {
     registerAttribute( std::string(parameters[param_i]), m_kits.size()-1, param_i);
   }

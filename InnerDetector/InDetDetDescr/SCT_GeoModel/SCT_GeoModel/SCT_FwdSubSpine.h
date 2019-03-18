@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDSUBSPINE_H 
@@ -20,7 +20,10 @@ class SCT_FwdSubSpine : public SCT_SharedComponentFactory
 {
 
 public:
-  SCT_FwdSubSpine(const std::string & name, int ringType, int spineSide);
+  SCT_FwdSubSpine(const std::string & name, int ringType, int spineSide,
+                  InDetDD::SCT_DetectorManager* detectorManager,
+                  const SCT_GeometryManager* geometryManager,
+                  SCT_MaterialManager* materials);
 
 public:
   const GeoMaterial * material() const {return m_material;}

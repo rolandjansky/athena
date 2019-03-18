@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTopBottomMonTool.cxx
@@ -45,25 +45,21 @@ InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
      m_top_d0(0), 
      m_top_z0(0),
      m_top_phi(0), 
-     m_top_dphi(0), 
      m_top_eta(0),
      m_top_chi2(0),
      m_bottom_d0(0), 
      m_bottom_z0(0),
      m_bottom_phi(0),
-     m_bottom_dphi(0),
      m_bottom_eta(0),
      m_bottom_chi2(0),
      m_top_d0_1trk(0), 
      m_top_z0_1trk(0),
      m_top_phi_1trk(0), 
-     m_top_dphi_1trk(0), 
      m_top_eta_1trk(0),
      m_top_chi2_1trk(0),
      m_bottom_d0_1trk(0), 
      m_bottom_z0_1trk(0),
      m_bottom_phi_1trk(0),
-     m_bottom_dphi_1trk(0),
      m_bottom_eta_1trk(0),
      m_bottom_chi2_1trk(0),
      m_top_bottom_dd0(0), 

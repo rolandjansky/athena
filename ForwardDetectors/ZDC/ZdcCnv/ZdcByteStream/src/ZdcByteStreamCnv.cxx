@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -51,7 +51,7 @@
 
 //==================================================================================================
 ZdcByteStreamCnv::ZdcByteStreamCnv(ISvcLocator* svcloc) :
-	Converter(ByteStream_StorageType, classID(), svcloc), m_name("ZdcByteStreamCnv"),
+    Converter(storageType(), classID(), svcloc), m_name("ZdcByteStreamCnv"),
 	//m_tool("ZdcByteStreamTool/ZdcByteStreamTool"), // old style
 	m_tool("ZdcByteStreamReadV1V2Tool/ZdcByteStreamReadV1V2Tool"), // new style
 	m_robDataProvider("ROBDataProviderSvc",m_name),
@@ -75,6 +75,13 @@ const CLID& ZdcByteStreamCnv::classID()
   //std::cout << "In ZdcByteStreamCnv::classID()" << std::endl;
   return ClassID_traits<ZdcDigitsCollection>::ID();
   //return ClassID_traits<xAOD::TriggerTowerContainer>::ID();
+}
+//==================================================================================================
+
+//==================================================================================================
+long ZdcByteStreamCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
 }
 //==================================================================================================
 

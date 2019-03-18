@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCompactCellTool_test.cxx,v 1.12 2009-03-31 19:04:04 ssnyder Exp $
@@ -1115,6 +1115,8 @@ std::vector<CaloCell*> init (IdDictParser* parser)
   CHECK( detstore->record (mgr, "CaloMgr") );
   CHECK( detstore->record (scmgr, "CaloSuperCellMgr") );
   CHECK( detstore->record (idmgr, "CaloIdManager") );
+  CHECK( detstore->record (helper, "CaloCell_ID") );
+  CHECK( detstore->record (schelper, "CaloCell_SuperCell_ID") );
 
   arena = new SG::Arena ("arena");
 

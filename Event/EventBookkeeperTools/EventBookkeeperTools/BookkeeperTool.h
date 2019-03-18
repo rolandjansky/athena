@@ -6,9 +6,10 @@
 #define BOOKKEEPERTOOL_H
 
 /** @file BookkeeperTool.h
- *  @brief This file contains the class definition for the BookkeeperTool class.
- *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: BookkeeperTool.h 663679 2015-04-29 08:31:54Z krasznaa $
+ *  @brief This class is an implementation of the GenericMetadataTool
+ *  for the xAOD::CutBookkeeperContainer.
+ *  @author Jack Cranshaw <cranshaw@anl.gov>
+ *  $Id: $
  **/
 
 //#include "GaudiKernel/AlgTool.h"
@@ -27,10 +28,6 @@
 
 #include <string>
 
-/** @class BookkeeperTool
- *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
- **/
-
 
 class BookkeeperTool : public asg::AsgMetadataTool
 #ifdef ASGTOOL_ATHENA
@@ -47,15 +44,10 @@ public: // Constructor and Destructor
 public:
    //void handle(const Incident& incident);
    virtual StatusCode metaDataStop();
-   virtual StatusCode beginInputFile();
-   virtual StatusCode endInputFile();
-   /// Function collecting the metadata from a new input file
-   virtual StatusCode beginInputFile(const SG::SourceID&) {return this->beginInputFile();}
-   /// Function collecting the metadata from a new input file
-   virtual StatusCode endInputFile(const SG::SourceID&) {return this->endInputFile();}
-   /// Function writing the collected metadata to the output
-   virtual StatusCode metaDataStop(const SG::SourceID&) {return this->metaDataStop();}
-   //
+   virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
+   virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}
+   virtual StatusCode beginInputFile(const SG::SourceID&) override;
+   virtual StatusCode endInputFile(const SG::SourceID&) override;
    virtual StatusCode initialize();
    virtual StatusCode finalize();
 
@@ -87,4 +79,5 @@ private:
 };
 
 #endif
+
 

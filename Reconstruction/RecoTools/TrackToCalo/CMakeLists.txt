@@ -25,8 +25,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           DetectorDescription/AtlasDetDescr
                           Event/FourMomUtils
-                          Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODMuon
+			  Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTruth
                           Reconstruction/RecoTools/ParticlesInConeTools
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -47,7 +48,7 @@ atlas_add_library( TrackToCaloLib
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces 
 		   TrackCaloClusterRecTools TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth TrkSurfaces 
+		   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODTracking xAODMuon xAODEgamma xAODTruth TrkSurfaces 
 		   TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
 
 atlas_add_component( TrackToCalo

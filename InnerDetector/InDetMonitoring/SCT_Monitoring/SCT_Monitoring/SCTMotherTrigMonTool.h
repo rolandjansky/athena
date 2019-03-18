@@ -11,15 +11,14 @@
 #ifndef SCTMotherTrigMonTool_H
 #define SCTMotherTrigMonTool_H
 
-//Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Standard C++
 #include <string>
 #include <bitset>
-
-#include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
 
 //Fwd declarations
 class IInterface;
@@ -29,7 +28,7 @@ class StatusCode;
 class SCTMotherTrigMonTool : public ManagedMonitorToolBase {
 public:
   ///Constructor    
-  SCTMotherTrigMonTool( const std::string & type, const std::string & name,const IInterface* parent); 
+  SCTMotherTrigMonTool( const std::string& type, const std::string& name,const IInterface* parent); 
 
   ///Destructor
   virtual ~SCTMotherTrigMonTool() = default;
@@ -47,9 +46,9 @@ protected:
   ///Get the status of a particular trigger bit (trigger bit 0-7)
   bool hasTriggerFired(const unsigned int trigger) const;
   ///Check if the event belongs to Stream = StreamName
-  bool isStream(const std::string & StreamName);
+  bool isStream(const std::string& StreamName);
   ///Check if the event passes L1 item
-  bool isCalibrationNoise(const std::string & L1_Item);
+  bool isCalibrationNoise(const std::string& L1_Item);
   ///Abbreviations for level 1 trigger types
   const static std::string m_triggerNames[8];
   ///Format and output (INFO msg level) the fired triggers
@@ -63,7 +62,7 @@ protected:
 private:
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfoKey", "Key of xAOD::EventInfo"};
 };
 
 #endif

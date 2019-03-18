@@ -36,6 +36,9 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include <fstream>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 #define DEBUG_ROI_VS_FULL false
 
 /**

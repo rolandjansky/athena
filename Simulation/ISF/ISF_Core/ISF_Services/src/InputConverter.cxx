@@ -133,15 +133,11 @@ ISF::InputConverter::finalize()
 StatusCode
 ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
                              ISF::ISFParticleContainer& simParticles,
-                             bool isPileup) const
+                             EBC_EVCOLL kindOfCollection) const
 {
   for ( const auto& eventPtr : inputGenEvents ) {
     // skip empty events
     if (eventPtr == nullptr) { continue; }
-
-    // @FIXME: set the bunch-crossing identifier for pileup dynamically
-    // rather than a constant '1' (e.g. could use GenEvent index for that?)
-    int bcid = isPileup ? 1 : 0;
 
     ATH_MSG_DEBUG("Starting conversion of GenEvent with"
                   " signal_process_id=" << eventPtr->signal_process_id() <<
@@ -157,7 +153,7 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
 
     for ( auto& genPartPtr : passedGenParticles ) {
       ATH_MSG_VERBOSE("Picking up following GenParticle for conversion to ISFParticle: " <<  *genPartPtr);
-      auto *simParticlePtr = this->convertParticle(genPartPtr, bcid);
+      auto simParticlePtr = convertParticle(genPartPtr, kindOfCollection);
       if (!simParticlePtr) {
         ATH_MSG_ERROR("Error while trying to convert input generator particles. Aborting.");
         return StatusCode::FAILURE;
@@ -176,10 +172,10 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
 
 StatusCode ISF::InputConverter::convertHepMCToG4Event(McEventCollection& inputGenEvents,
                                                       G4Event*& outputG4Event,
-                                                      bool isPileup) const
+                                                      EBC_EVCOLL kindOfCollection) const
 {
   ISF::ISFParticleContainer simParticleList{}; // particles for ISF simulation
-  ATH_CHECK(this->convert(inputGenEvents, simParticleList, isPileup));
+  ATH_CHECK(this->convert(inputGenEvents, simParticleList, kindOfCollection));
   //Convert from ISFParticleContainer to ConstISFParticleVector
   ISF::ConstISFParticleVector simParticleVector{std::make_move_iterator(std::begin(simParticleList)),
                                                 std::make_move_iterator(std::end(simParticleList))};
@@ -227,9 +223,13 @@ ISF::InputConverter::getSelectedParticles(const HepMC::GenEvent& evnt, bool lega
 
 /** get all generator particles which pass filters */
 ISF::ISFParticle*
-ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid) const {
+ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL kindOfCollection) const {
   if (!genPartPtr) { return nullptr; }
   auto& genPart = *genPartPtr;
+
+  // @FIXME: set the bunch-crossing identifier for pile-up dynamically
+  // rather than a constant '1' (e.g. could use GenEvent index for that?)
+  const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
 
   HepMC::GenVertex* pVertex = genPart.production_vertex();
   if (!pVertex) {
@@ -249,19 +249,26 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid) c
   /// particle origin (TODO: add proper GeoID, collision/cosmics)
   DetRegionSvcIDPair origin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   const auto pBarcode = genPart.barcode();
-  ISF::TruthBinding* tBinding = new ISF::TruthBinding(genPartPtr);
+  auto tBinding = std::make_unique<ISF::TruthBinding>(genPartPtr);
 
-  auto* sParticle = new ISF::ISFParticle( std::move(pos),
-                                         std::move(mom),
-                                         pMass,
-                                         charge,
-                                         pPdgId,
-                                         pTime,
-                                         origin,
-                                         bcid,
-                                         pBarcode,
-                                         tBinding );
-  return sParticle;
+  auto *parentEvent = genPart.parent_event();
+  if(!parentEvent) {
+    ATH_MSG_ERROR("Cannot convert a GenParticle without a parent GenEvent into an ISFParticle!!!");
+    return nullptr;
+  }
+  auto hmpl = std::make_unique<HepMcParticleLink>(&genPart, parentEvent->event_number(), kindOfCollection);
+  auto sParticle = std::make_unique<ISF::ISFParticle>( std::move(pos),
+                                                       std::move(mom),
+                                                       pMass,
+                                                       charge,
+                                                       pPdgId,
+                                                       pTime,
+                                                       origin,
+                                                       bcid,
+                                                       pBarcode,
+                                                       tBinding.release(),
+                                                       hmpl.release() );
+  return sParticle.release();
 }
 
 

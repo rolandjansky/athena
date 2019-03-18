@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Sensor.h"
@@ -24,8 +24,12 @@
 
 using namespace InDetDD;
 
-SCT_Sensor::SCT_Sensor(const std::string & name)
-  : SCT_UniqueComponentFactory(name)
+SCT_Sensor::SCT_Sensor(const std::string & name,
+                       InDetDD::SCT_DetectorManager* detectorManager,
+                       const SCT_GeometryManager* geometryManager,
+                       SCT_MaterialManager* materials)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
+    m_noElementWarning{true}
 {
   getParameters();
   m_logVolume = preBuild();
@@ -36,10 +40,8 @@ void
 SCT_Sensor::getParameters()
 {
   
-  const SCT_BarrelModuleParameters * parameters = geometryManager()->barrelModuleParameters();
-  SCT_MaterialManager materials;
-
-  m_material  = materials.getMaterial(parameters->sensorMaterial());
+  const SCT_BarrelModuleParameters * parameters = m_geometryManager->barrelModuleParameters();
+  m_material  = m_materials->getMaterial(parameters->sensorMaterial());
   m_thickness = parameters->sensorThickness();
   m_length    = 0;
   if (parameters->sensorNumWafers() == 2) {
@@ -62,7 +64,7 @@ SCT_Sensor::preBuild()
   // Make the moduleside design for this sensor
   makeDesign();
 
-  detectorManager()->addDesign(m_design);
+  m_detectorManager->addDesign(m_design);
   
   return sensorLog;
 }
@@ -74,8 +76,8 @@ SCT_Sensor::makeDesign()
   //SiDetectorDesign::Axis etaAxis   = SiDetectorDesign::zAxis;
   //SiDetectorDesign::Axis phiAxis   = SiDetectorDesign::yAxis;
   //SiDetectorDesign::Axis depthAxis = SiDetectorDesign::xAxis;
-  
-  const SCT_BarrelModuleParameters * parameters = geometryManager()->barrelModuleParameters();
+
+  const SCT_BarrelModuleParameters * parameters = m_geometryManager->barrelModuleParameters();
   
   double stripPitch      = parameters->sensorStripPitch();
   double stripLength     = parameters->sensorStripLength();
@@ -131,7 +133,7 @@ SCT_Sensor::makeDesign()
 
 
 GeoVPhysVol * 
-SCT_Sensor::build(SCT_Identifier id) const
+SCT_Sensor::build(SCT_Identifier id)
 {
   GeoFullPhysVol * sensor = new GeoFullPhysVol(m_logVolume); 
   
@@ -140,7 +142,7 @@ SCT_Sensor::build(SCT_Identifier id) const
 
   //id.print(); // for debugging only
 
-  SiCommonItems* commonItems =  geometryManager()->commonItems();
+  const SiCommonItems* commonItems =  m_geometryManager->commonItems();
 
   if (commonItems->getIdHelper()) {
 
@@ -152,14 +154,12 @@ SCT_Sensor::build(SCT_Identifier id) const
                                         commonItems);
     
     // Add the detector element.
-    detectorManager()->addDetectorElement(detElement);
+    m_detectorManager->addDetectorElement(detElement);
 
   } else {
-
-    static bool noElementWarning = true; // So we don't get the message thousands of times.
-    if (noElementWarning) {
+    if (m_noElementWarning) {
       std::cout << "WARNING!!!!: No SCT id helper and so no elements being produced." << std::endl;
-      noElementWarning = false;
+      m_noElementWarning = false;
     }
   }
   return sensor;

@@ -47,15 +47,11 @@ SolenoidalIntersector::SolenoidalIntersector (const std::string&	type,
 	m_countExtrapolations		(0),
 	m_countRKSwitches		(0)
 {
-    declareInterface<Trk::IIntersector>(this);
     declareProperty("MagFieldSvc",		m_magFieldSvc );
     declareProperty("RungeKuttaIntersector",	m_rungeKuttaIntersector);
     declareProperty("SurfaceTolerance",		m_surfaceTolerance);
 }
 
-SolenoidalIntersector::~SolenoidalIntersector (void)
-{}
- 
 StatusCode
 SolenoidalIntersector::initialize()
 {
@@ -151,7 +147,7 @@ SolenoidalIntersector::getSolenoidParametrization() const
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectSurface(const Surface&		surface,
 					const TrackSurfaceIntersection*	trackIntersection,
-					const double      	qOverP)
+					const double      	qOverP) const
 {
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
     if (plane)		return intersectPlaneSurface(*plane,trackIntersection,qOverP);
@@ -178,21 +174,21 @@ SolenoidalIntersector::intersectSurface(const Surface&		surface,
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 					      const TrackSurfaceIntersection*	trackIntersection,
-					      const double      	qOverP)
+					      const double      	qOverP) const
 { return m_rungeKuttaIntersector->approachPerigeeSurface(surface, trackIntersection, qOverP); }
 	
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::approachStraightLineSurface(const StraightLineSurface& surface,
 						   const TrackSurfaceIntersection*	trackIntersection,
-						   const double      	qOverP)
+						   const double      	qOverP) const
 { return m_rungeKuttaIntersector->approachStraightLineSurface(surface, trackIntersection, qOverP); }
               
 /**IIntersector interface method for specific Surface type : CylinderSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectCylinderSurface(const CylinderSurface&	surface,
 						const TrackSurfaceIntersection*	trackIntersection,
-						const double      	qOverP)
+						const double      	qOverP) const
 {
     const SolenoidParametrization* solenoidParametrization =
       getSolenoidParametrization();
@@ -219,7 +215,7 @@ SolenoidalIntersector::intersectCylinderSurface(const CylinderSurface&	surface,
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectDiscSurface (const DiscSurface&		surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double      		qOverP)
+					     const double      		qOverP) const
 {
     const SolenoidParametrization* solenoidParametrization =
       getSolenoidParametrization();
@@ -250,7 +246,7 @@ SolenoidalIntersector::intersectDiscSurface (const DiscSurface&		surface,
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double      		qOverP)
+					     const double      		qOverP) const
 {
     const SolenoidParametrization* solenoidParametrization =
       getSolenoidParametrization();

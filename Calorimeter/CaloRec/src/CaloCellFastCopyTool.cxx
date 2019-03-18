@@ -153,6 +153,7 @@ StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsFast
     if (cell) destCont->push_back_fast(cell);
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -176,6 +177,7 @@ StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsFast
     }
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -193,6 +195,7 @@ StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsNotFast
     if (m_cellsToBeCopied[cellHash])
       destCont->push_back_fast(cell);
   }
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -217,6 +220,7 @@ StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsNotFast
       destCont->push_back_fast(cell);
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -233,6 +237,7 @@ StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsFast
     if (cell) destCont->push_back_fast(cell->clone());
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -258,6 +263,7 @@ StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsFast
     }
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -277,6 +283,7 @@ StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsNotFast
       destCont->push_back_fast(cell->clone());
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 
@@ -302,6 +309,7 @@ StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast
       destCont->push_back_fast(cell->clone());
   }
 
+  destCont->resetLookUpTable();
   return StatusCode::SUCCESS;
 }
 

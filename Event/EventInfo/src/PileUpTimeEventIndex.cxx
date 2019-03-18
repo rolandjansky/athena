@@ -11,9 +11,9 @@
 
 const std::string&
 PileUpTimeEventIndex::typeName(PileUpTimeEventIndex::PileUpType typ) {
-  static std::string typNam[PileUpTimeEventIndex::NTYPES+1] = 
+  static std::string typNam[PileUpTimeEventIndex::NTYPES+1] =
     {"Unknown" /*-1*/, "Signal" /*0*/, "MinimumBias" /*1*/, "Cavern" /*2*/,
-     "HaloGas"/*3*/, "ZeroBias"/*4*/ };
+     "HaloGas"/*3*/, "HighPtMinimumBias" /*4*/, "ZeroBias"/*5*/ };
   assert(typ < PileUpTimeEventIndex::NTYPES);
   return typNam[typ+1];
 } 
@@ -25,7 +25,8 @@ PileUpTimeEventIndex::ushortToType(unsigned short uType) {
   case 1: puType = PileUpTimeEventIndex::MinimumBias; break;
   case 2: puType = PileUpTimeEventIndex::Cavern; break;
   case 3: puType = PileUpTimeEventIndex::HaloGas; break;
-  case 4: puType = PileUpTimeEventIndex::ZeroBias; break;
+  case 4: puType = PileUpTimeEventIndex::HighPtMinimumBias; break;
+  case 5: puType = PileUpTimeEventIndex::ZeroBias; break;
   default: 
     std::ostringstream merr;
     merr << 

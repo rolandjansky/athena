@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -18,29 +18,15 @@
  **
  **************************************************************************/
 
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigL2BMuMuHypo.h"
-//#include "TrigParticle/TrigL2BphysContainer.h"
-//
-//#include "StoreGate/StoreGateSvc.h"
-//#include "StoreGate/DataHandle.h"
 
 #include <math.h>
-//#include "EventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
-//#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 
 #include "TrigBphysHelperUtilsTool.h"
-// additions of xAOD objects
-//#include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
-
-//class ISvcLocator;
-
 
 TrigL2BMuMuHypo::TrigL2BMuMuHypo(const std::string & name, ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator)

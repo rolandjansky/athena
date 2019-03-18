@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @author John Chapman
  * @date June, 2016
- * @brief Tests for BeamEffectsAlg.
  */
 
 #undef NDEBUG
@@ -20,8 +19,6 @@
 
 // Google Test
 #include "gtest/gtest.h"
-// Google Mock
-// #include "gmock/gmock.h"
 
 // HepMC includes
 #include "HepMC/GenEvent.h"
@@ -201,7 +198,7 @@ namespace MCTesting {
   TEST_F(HepMcParticleLink_test, old_test) {
     std::cout << "*** HepMcParticleLink_test starts ***" <<std::endl;
 
-    SG::WriteHandle<McEventCollection> inputTestDataHandle{HepMcParticleLink::s_DEFAULTKEY};
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
     inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
 
     HepMC::GenEvent* pEvent(buildEvent());
@@ -244,7 +241,7 @@ namespace MCTesting {
     ASSERT_LT( gammaLink1, gammaLink11 );  //FIXME weird! Can't check ptr...
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore();
+    pStore->clearStore(true); // forceRemove=true to remove all proxies
     std::cout << "*** HepMcParticleLink_test OK ***" <<std::endl;
   }
 
@@ -262,12 +259,12 @@ namespace MCTesting {
     HepMcParticleLink testLink1a(particle1,0);
     ASSERT_TRUE( testLink1a.isValid() );
     // A HepMcParticleLink built using the barcode and the position of
-    // the GenEvent in the McEventCollection will not work.
+    // the GenEvent in the McEventCollection should still work.
     HepMcParticleLink testLink1b(particle1->barcode(),0);
-    ASSERT_FALSE( testLink1b.isValid() );
+    ASSERT_TRUE( testLink1b.isValid() );
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore();
+    pStore->clearStore(true); // forceRemove=true to remove all proxies
   }
 
   TEST_F(HepMcParticleLink_test, truth_event_link) {
@@ -296,22 +293,25 @@ namespace MCTesting {
     const HepMC::GenParticle* particle3 = populateGenEvent(ge3);
 
     //Testing links to the first dummy GenEvent
+    const IProxyDict* sg = SG::CurrentEventStore::store();
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink1a(particle1,0);
+    HepMcParticleLink testLink1a(particle1,0, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1a.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1a.barcode());
-    ASSERT_EQ(  0, testLink1a.eventIndex());
-    ASSERT_NE( event_number1, testLink1a.eventIndex());
+    ASSERT_EQ( event_number1, testLink1a.eventIndex());
+    ASSERT_EQ( 0, testLink1a.getEventPositionInCollection(sg));
     ASSERT_EQ(particle1,testLink1a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink1b(particle1->barcode(),0);
+    HepMcParticleLink testLink1b(particle1->barcode(),0, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1b.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1b.barcode());
-    ASSERT_EQ(  0, testLink1b.eventIndex());
-    ASSERT_NE( event_number1, testLink1b.eventIndex());
+    ASSERT_EQ( event_number1, testLink1b.eventIndex());
+    ASSERT_EQ( 0, testLink1b.getEventPositionInCollection(sg));
     ASSERT_EQ(*(testLink1a.cptr()),*(testLink1b.cptr()));
     // HepMcParticleLink built using a GenParticle pointer and the
     // event_number of the GenEvent.
@@ -320,6 +320,7 @@ namespace MCTesting {
     ASSERT_EQ( particle1->barcode(), testLink1c.barcode());
     ASSERT_NE(  0, testLink1c.eventIndex());
     ASSERT_EQ( event_number1, testLink1c.eventIndex());
+    ASSERT_EQ( 0, testLink1c.getEventPositionInCollection(sg));
     ASSERT_EQ(particle1,testLink1c.cptr());
     // A HepMcParticleLink built using the barcode and the event_number of
     // the GenEvent.
@@ -328,22 +329,29 @@ namespace MCTesting {
     ASSERT_EQ( particle1->barcode(), testLink1d.barcode());
     ASSERT_NE(  0, testLink1d.eventIndex());
     ASSERT_EQ( event_number1, testLink1d.eventIndex());
+    ASSERT_EQ( 0, testLink1d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle1,testLink1d.cptr());
 
     //Testing links to the second dummy GenEvent
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink2a(particle2,1);
+    HepMcParticleLink testLink2a(particle2,1, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink2a.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2a.barcode());
-    ASSERT_EQ(  1, testLink2a.eventIndex());
-    ASSERT_NE( event_number2, testLink2a.eventIndex());
+    ASSERT_EQ( event_number2, testLink2a.eventIndex());
+    ASSERT_EQ( 1, testLink2a.getEventPositionInCollection(sg));
     ASSERT_EQ(particle2,testLink2a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
-    // the GenEvent. BROKEN
-    HepMcParticleLink testLink2b(particle2->barcode(),1);
-    ASSERT_FALSE( testLink2b.isValid() );
+    // the GenEvent.
+    HepMcParticleLink testLink2b(particle2->barcode(),1, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink2b.isValid() );
+    ASSERT_EQ( particle2->barcode(), testLink2b.barcode());
+    ASSERT_EQ( event_number2, testLink2b.eventIndex());
+    ASSERT_EQ( 1, testLink2b.getEventPositionInCollection(sg));
+    ASSERT_EQ(particle2,testLink2b.cptr());
     // HepMcParticleLink built using a GenParticle pointer and the
     // event_number of the GenEvent.
     HepMcParticleLink testLink2c(particle2,event_number2);
@@ -351,6 +359,7 @@ namespace MCTesting {
     ASSERT_EQ( particle2->barcode(), testLink2c.barcode());
     ASSERT_NE(  1, testLink2c.eventIndex());
     ASSERT_EQ( event_number2, testLink2c.eventIndex());
+    ASSERT_EQ( 1, testLink2c.getEventPositionInCollection(sg));
     ASSERT_EQ(particle2,testLink2c.cptr());
     // A HepMcParticleLink built using the barcode and the event_number of
     // the GenEvent.
@@ -359,22 +368,27 @@ namespace MCTesting {
     ASSERT_EQ( particle2->barcode(), testLink2d.barcode());
     ASSERT_NE(  1, testLink2d.eventIndex());
     ASSERT_EQ( event_number2, testLink2d.eventIndex());
+    ASSERT_EQ( 1, testLink2d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle2,testLink2d.cptr());
 
     //Testing links to the third dummy GenEvent
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink3a(particle3,2);
+    HepMcParticleLink testLink3a(particle3,2, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink3a.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3a.barcode());
-    ASSERT_EQ(  2, testLink3a.eventIndex());
-    ASSERT_NE( event_number3, testLink3a.eventIndex());
+    ASSERT_EQ( event_number3, testLink3a.eventIndex());
     ASSERT_EQ(particle3,testLink3a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
-    // the GenEvent. BROKEN
-    HepMcParticleLink testLink3b(particle3->barcode(),2);
-    ASSERT_FALSE( testLink3b.isValid() );
+    // the GenEvent.
+    HepMcParticleLink testLink3b(particle3->barcode(),2, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink3b.isValid() );
+    ASSERT_EQ( particle3->barcode(), testLink3b.barcode());
+    ASSERT_EQ( event_number3, testLink3b.eventIndex());
+    ASSERT_EQ(particle3,testLink3b.cptr());
     // HepMcParticleLink built using a GenParticle pointer and the
     // event_number of the GenEvent.
     HepMcParticleLink testLink3c(particle3,event_number3);
@@ -395,7 +409,7 @@ namespace MCTesting {
 
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore();
+    pStore->clearStore(true); // forceRemove=true to remove all proxies
   }
 
 } // <-- namespace MCTesting

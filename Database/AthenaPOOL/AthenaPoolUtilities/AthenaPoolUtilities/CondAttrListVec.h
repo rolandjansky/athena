@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,6 +25,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/CachedValue.h"
 #include "GaudiKernel/DataObject.h"
 
 class CondAttrListVec : public DataObject
@@ -40,6 +41,12 @@ class CondAttrListVec : public DataObject
   typedef AttrListIOVMap::size_type iov_size_type;
   typedef std::map<unsigned int, std::vector<const coral::AttributeList*> >
     AttrListCVMap;
+
+  struct Index
+  {
+    AttrListCVMap m_indexchanvec;
+    std::vector<unsigned int> m_indexchan;
+  };
 
   // constructor with specification of type of time: run/event or timestamp
   CondAttrListVec(bool runevent);
@@ -106,13 +113,11 @@ class CondAttrListVec : public DataObject
   IOVRange m_minrange;
   bool m_uniqueiov;
   bool m_runevent;
-  mutable bool m_indexed;
   coral::AttributeListSpecification* m_spec;
   // indexing variables
-  mutable AttrListCVMap m_indexchanvec;
-  mutable std::vector<unsigned int> m_indexchan;
+  CxxUtils::CachedValue<Index> m_index;
 
-  void makeIndex() const;
+  const Index& index() const;
 };
 
 CLASS_DEF( CondAttrListVec , 55403898 , 1)
@@ -123,7 +128,7 @@ CONDCONT_DEF( CondAttrListVec, 74272308 );
 inline CondAttrListVec::CondAttrListVec(bool runevent) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 
 		      IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT))),
-  m_uniqueiov(true),m_runevent(runevent),m_indexed(false),m_spec(0) {
+  m_uniqueiov(true),m_runevent(runevent),m_spec(0) {
   if (!runevent) m_minrange=IOVRange(IOVTime(IOVTime::MINTIMESTAMP), 
 				     IOVTime(IOVTime::MAXTIMESTAMP));
 }
@@ -131,7 +136,7 @@ inline CondAttrListVec::CondAttrListVec(bool runevent) :
 inline CondAttrListVec::CondAttrListVec(bool runevent, size_type nelm) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 
 		      IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT))),
-	 m_uniqueiov(true),m_runevent(runevent),m_indexed(false),m_spec(0) {
+	 m_uniqueiov(true),m_runevent(runevent),m_spec(0) {
   if (!runevent) m_minrange=IOVRange(IOVTime(IOVTime::MINTIMESTAMP), 
 				     IOVTime(IOVTime::MAXTIMESTAMP));
   m_data.reserve(nelm);
@@ -147,7 +152,7 @@ inline CondAttrListVec::CondAttrListVec(const CondAttrListVec& rhs) :
   m_iovmap(rhs.m_iovmap),
   m_minrange(rhs.m_minrange),
   m_uniqueiov(rhs.m_uniqueiov),
-  m_runevent(rhs.m_runevent),m_indexed(false),
+  m_runevent(rhs.m_runevent),
   m_spec(0)
 {
   // members with normal semantics setup in initialisation list
@@ -236,7 +241,7 @@ inline void CondAttrListVec::add(const IOVRange& range,
 	   const unsigned int chan, 
 	   AttrListDataIter data_begin, AttrListDataIter data_end) {
   //invalidate index
-  m_indexed=false;
+  m_index.reset();
   // set minimum range correctly
   IOVTime start=m_minrange.start();
   if (m_minrange.start()<range.start()) start=range.start();
@@ -265,7 +270,7 @@ inline void CondAttrListVec::addSlice(const IOVRange& range,
 	   const std::vector<coral::AttributeList>& data,
 	   const unsigned int datastart,const unsigned int dataend) {
   // invalidate index
-  m_indexed=false;
+  m_index.reset();
   // set minimum range correctly
   IOVTime start=m_minrange.start();
   if (m_minrange.start()<range.start()) start=range.start();
@@ -296,41 +301,51 @@ inline void CondAttrListVec::addNewStop(const IOVTime& stop) {
 }
 
 inline const std::vector<unsigned int>& CondAttrListVec::channelIDs() const {
-  makeIndex();
-  return m_indexchan;
+  return index().m_indexchan;
 }
 
 inline bool CondAttrListVec::hasChannel(const int chan) const {
-  return (m_indexchanvec.find(chan)!=m_indexchanvec.end());
+  const AttrListCVMap& m = index().m_indexchanvec;
+  return (m.find(chan)!=m.end());
 }
 
 inline const std::vector<const coral::AttributeList*>& 
-  CondAttrListVec::attrListVec(const int chan) const {
-  makeIndex();
-  return m_indexchanvec[chan];
+CondAttrListVec::attrListVec(const int chan) const
+{
+  const AttrListCVMap& m = index().m_indexchanvec;
+  AttrListCVMap::const_iterator it = m.find (chan);
+  if (it != m.end()) {
+    return it->second;
+  }
+  static const std::vector<const coral::AttributeList*> dum;
+  return dum;
 }
 
-inline void CondAttrListVec::makeIndex() const {
-  // check if already indexed
-  if (m_indexed) return;
-  m_indexchanvec.clear();
-  m_indexchan.clear();
-  // loop over all the elements, build vector of AttributeList for each channel
-  // and a vector of all the channels
-  for (const_iterator citr=m_data.begin();citr!=m_data.end();++citr) {
-    unsigned int chan=citr->first;
-    AttrListCVMap::iterator clist=m_indexchanvec.find(chan);
-    if (clist==m_indexchanvec.end()) {
-      // channel not seen before, create a new entry in map and vector
-      std::pair<AttrListCVMap::iterator,bool> res=
-	m_indexchanvec.insert(AttrListCVMap::value_type(chan,
-	std::vector<const coral::AttributeList*>()));
-      clist=res.first;
-      m_indexchan.push_back(chan);
+inline
+const CondAttrListVec::Index& CondAttrListVec::index() const
+{
+  if (!m_index.isValid()) {
+    Index index;
+
+    // loop over all the elements, build vector of AttributeList for each channel
+    // and a vector of all the channels
+    for (const AttrListPair& p : m_data) {
+      unsigned int chan=p.first;
+      AttrListCVMap::iterator clist=index.m_indexchanvec.find(chan);
+      if (clist==index.m_indexchanvec.end()) {
+        // channel not seen before, create a new entry in map and vector
+        std::pair<AttrListCVMap::iterator,bool> res=
+          index.m_indexchanvec.insert(AttrListCVMap::value_type(chan,
+                                       std::vector<const coral::AttributeList*>()));
+        clist=res.first;
+        index.m_indexchan.push_back(chan);
+      }
+      clist->second.push_back(&(p.second));
     }
-    clist->second.push_back(&(citr->second));
+
+    m_index.set (std::move (index));
   }
-  m_indexed=true;
+  return *m_index.ptr();
 }
 
 #endif //  DBDATAOBJECTS_CONDATTRLISTVEC_H 

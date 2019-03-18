@@ -7,7 +7,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -32,7 +31,6 @@
 #include "NavFourMom/IParticleContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
-#include "StoreGate/DataHandle.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -65,7 +63,6 @@ LArHECNoise::LArHECNoise(const std::string& name,
     m_tree(0),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
-    m_caloIdMgr(0),
     m_calodetdescrmgr(0),
     m_calocell_id(nullptr),
     m_nt_run(0),
@@ -95,7 +92,8 @@ LArHECNoise::LArHECNoise(const std::string& name,
     m_nt_z(0),
     m_nt_r(0),
     m_nt_ped(0),
-    m_nt_pedRMS(0)
+    m_nt_pedRMS(0),
+    m_ped(nullptr)
  {
 
    // Trigger
@@ -126,16 +124,15 @@ StatusCode LArHECNoise::initialize() {
   ATH_CHECK( m_cablingKey.initialize() );
 
   // Retrieve online ID helper
-  const DataHandle<LArOnlineID> LArOnlineIDHelper;
+  const LArOnlineID* LArOnlineIDHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(LArOnlineIDHelper, "LArOnlineID") );
   m_LArOnlineIDHelper = LArOnlineIDHelper;
   ATH_MSG_DEBUG( " Found LArOnline Helper");
 
   // Retrieve ID helpers
-  ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
-  m_calocell_id  = m_caloIdMgr->getCaloCell_ID();
+  ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
+  ATH_CHECK( detStore()->retrieve (m_calodetdescrmgr, "CaloMgr") );
 
-  m_calodetdescrmgr = CaloDetDescrManager::instance();
   /** get a handle on the NTuple and histogramming service */
   ATH_CHECK( service("THistSvc", m_thistSvc) );
  

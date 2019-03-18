@@ -9,7 +9,6 @@
 #include "EventContainers/SelectAllObject.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
@@ -32,14 +31,13 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("LArDigit")
+    m_typeName("LArDigit"),
+    m_calocell_id(nullptr)
   {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
     
-    m_calo_id_man  = CaloIdManager::instance();
-    m_calocell_id  = m_calo_id_man->getCaloCell_ID();
     m_sgKey = "AllCalo"; 
     m_sgKeyLArDigit[0] = "FREE"; // can also be: "HIGH" (for raw data)
     m_sgKeyLArDigit[1] = "LArDigitContainer_Thinned"; // used for DPD/ESD
@@ -70,7 +68,8 @@ namespace JiveXML {
 
   StatusCode LArDigitRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    ATH_MSG_DEBUG( "Initialising Tool"  );
+    ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
 
     ATH_CHECK( m_cablingKey.initialize() );
 
@@ -82,7 +81,7 @@ namespace JiveXML {
    */
   StatusCode LArDigitRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    ATH_MSG_DEBUG( "in retrieve()"  );
 
     if (m_doLArDigit || m_doHECDigit || m_doFCalDigit){ 
       m_doDigit = true; 
@@ -91,39 +90,26 @@ namespace JiveXML {
     const CaloCellContainer* cellContainer = nullptr;
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 
-          "Could not retrieve Calorimeter Cells" << endmsg;
+        ATH_MSG_WARNING( "Could not retrieve Calorimeter Cells"  );
 //        return StatusCode::SUCCESS;
       }
 
    if(m_fcal){
       DataMap data = getLArDigitData(cellContainer,"FCAL",CaloCell_ID::LARFCAL);
-      if ( FormatTool->AddToEvent("FCAL", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading FCAL data" << endmsg;
-//        return StatusCode::SUCCESS;
-      } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCAL retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent("FCAL", m_sgKey, &data) );
+      ATH_MSG_DEBUG( "FCAL retrieved"  );
     }
 
     if(m_lar){
       DataMap data = getLArDigitData(cellContainer,"LAr",CaloCell_ID::LAREM);
-      if ( FormatTool->AddToEvent("LAr", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading LAr data" << endmsg;
-//        return StatusCode::SUCCESS;
-      } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent("LAr", m_sgKey, &data) );
+      ATH_MSG_DEBUG( "LAr retrieved"  );
     }
 
     if(m_hec){
       DataMap data = getLArDigitData(cellContainer,"HEC",CaloCell_ID::LARHEC);
-      if ( FormatTool->AddToEvent("HEC", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading HEC data" << endmsg;
-//        return StatusCode::SUCCESS;
-      } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HEC retrieved" << endmsg;
-      }
+      ATH_CHECK( FormatTool->AddToEvent("HEC", m_sgKey, &data) );
+      ATH_MSG_DEBUG( "HEC retrieved"  );
     }
     
     //Tile cells retrieved okay
@@ -141,7 +127,7 @@ namespace JiveXML {
   {
     
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArDigitData()" << endmsg;
+    ATH_MSG_DEBUG( "getLArDigitData()"  );
     
     char rndStr[30];
     DataMap DataMap;
@@ -180,25 +166,25 @@ namespace JiveXML {
     }
 
     if (scLArDigit.isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDigits" << endmsg;
+      ATH_MSG_WARNING( "Could not retrieve LArDigits"  );
     }
 
 
-    const ILArPedestal* larPedestal;
+    const ILArPedestal* larPedestal = nullptr;
     if ( detStore()->retrieve(larPedestal).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr Pedestal" << endmsg;
+      ATH_MSG_ERROR( "in getLArDigitData(), Could not retrieve LAr Pedestal"  );
     }
     
-    const LArOnlineID* onlineId;
+    const LArOnlineID* onlineId = nullptr;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(),Could not get LArOnlineID!" << endmsg;
+      ATH_MSG_ERROR( "in getLArDigitData(),Could not get LArOnlineID!"  );
     }
      
-    IAlgTool* algtool;
+    IAlgTool* algtool = nullptr;
     ILArADC2MeVTool* adc2mevTool=0;
 
     if ( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
+      ATH_MSG_ERROR( "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool"  );
     } else {
       adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
     }
@@ -253,7 +239,7 @@ namespace JiveXML {
         if ( adc2mevTool ){
           polynom_adc2mev = &(adc2mevTool->ADC2MEV(LArId,largain));
 	}else{
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not access LAr ADC2MeV Tool" <<endmsg;
+	  ATH_MSG_ERROR( "in getLArDigitData(), Could not access LAr ADC2MeV Tool"  );
 	}
         
         if ( Index >= 0 ){ // can be -1
@@ -501,9 +487,7 @@ namespace JiveXML {
     DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
-    }
+    ATH_MSG_DEBUG( dataTypeName() << " retrieved with " << phi.size() << " entries" );
 
     //All collections retrieved okay
     return DataMap;

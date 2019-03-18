@@ -52,7 +52,7 @@
 
 namespace LVL1BS {
 RodHeaderByteStreamAuxCnv::RodHeaderByteStreamAuxCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "RodHeaderByteStreamAuxCnv"),
   m_name("RodHeaderByteStreamAuxCnv"),
   m_readTool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool")
@@ -63,11 +63,13 @@ const CLID& RodHeaderByteStreamAuxCnv::classID() {
   return ClassID_traits<xAOD::RODHeaderAuxContainer>::ID();
 }
 
+long RodHeaderByteStreamAuxCnv::storageType()
+{
+  return ByteStreamAddress::storageType();
+}
+
 //  Init method gets all necessary services etc.
 
-#ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION "unknown"
-#endif
 StatusCode RodHeaderByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG(
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);

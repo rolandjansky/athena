@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,10 +27,6 @@
 class BCM_RawContByteStreamTool;
 class IByteStreamEventAccess;
 class StoreGateSvc;
-class IChronoStatSvc;
-
-// Externals 
-extern long ByteStream_StorageType;
 
 class BCM_RawContByteStreamCnv: public Converter {
 
@@ -40,18 +36,14 @@ class BCM_RawContByteStreamCnv: public Converter {
 
   BCM_RawContByteStreamCnv(ISvcLocator* svcloc);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // create the RawEvent fragments for BCM
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
   // Storage type and class ID
-  virtual long repSvcType() const { 
-    return ByteStream_StorageType;
-  }
-  static long storageType() {
-    return ByteStream_StorageType;
-  }
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static long storageType();
   static const CLID& classID();
 
   //Declaring the Message method for further use
@@ -67,8 +59,6 @@ private:
   IByteStreamEventAccess* m_ByteStreamEventAccess; 
 
   StoreGateSvc* m_StoreGate;
-
-  IChronoStatSvc* m_ChronoStat;
 
   //Declaring private message stream member.
   mutable Athena::MsgStreamMember m_msg;

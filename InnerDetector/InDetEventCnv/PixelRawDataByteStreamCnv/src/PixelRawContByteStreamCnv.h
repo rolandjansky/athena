@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,14 +31,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 
-// Externals 
-extern long ByteStream_StorageType;
-
 class ByteStreamAddress;
 class PixelRawContByteStreamTool;
 class IByteStreamEventAccess;
 class PixelRDORawData;
-class IChronoStatSvc;
 
 
 class PixelRawContByteStreamCnv: public Converter {
@@ -48,18 +44,14 @@ class PixelRawContByteStreamCnv: public Converter {
 
   PixelRawContByteStreamCnv(ISvcLocator* svcloc);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! this creates the RawEvent fragments for Pixel
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
   /// Storage type and class ID
-  virtual long repSvcType() const { 
-    return ByteStream_StorageType;
-  }
-  static long storageType() {
-    return ByteStream_StorageType;
-  }
+  virtual long repSvcType() const override { return i_repSvcType(); }
+  static long storageType();
   static const CLID& classID();
 
 private: 
@@ -70,7 +62,6 @@ private:
 
   StoreGateSvc* m_StoreGate;
 
-  IChronoStatSvc * m_ChronoStat;
   MsgStream m_log;
 
 };

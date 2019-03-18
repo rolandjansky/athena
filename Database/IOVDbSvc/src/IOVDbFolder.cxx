@@ -380,6 +380,7 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
             m_cacheattr[m_cacheattr.size()-1].fastCopyData(*pitr);
             m_nbytesread+=IOVDbNamespace::attributeListSize(*pitr);
           }
+          
           // save pointers to start and end
           m_cacheccstart.push_back(istart);
           m_cacheccend.push_back(m_cacheattr.size());
@@ -1246,7 +1247,6 @@ IOVDbFolder::setSharedSpec(const coral::AttributeList& atrlist) {
       " in folder " << m_foldername <<  " will not be counted for bytes-read statistics" );
     }
   }
-  m_nbytesread+=IOVDbNamespace::attributeListSize(atrlist);
   ATH_MSG_DEBUG( "Setup shared AttributeListSpecification with " <<  m_cachespec->size() << " elements" );
 }
 

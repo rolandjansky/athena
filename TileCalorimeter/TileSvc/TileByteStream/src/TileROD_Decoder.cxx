@@ -2415,20 +2415,27 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */,
   // p[2]    00 00 00 tt    Daq Type
   // p[3]    nn nn nn nn    Laser Count
   // p[4]    rr rr mm mm    rrrr = Requested Intensity    mmmm = measured intensity
-  // p[5]    00 0f dd dd    f = filter    dddd = Delay Slama
+  // p[5]    t0 0f dd dd    t= timeout (bit 31 and 30) f = filter    dddd = Delay Slama
   // [[6]    00 00 ll ll    Linearity DAC Value
-  laserObject.setLaser(p[3], (p[4]>>16), (p[4] & 0xFFFF), (p[5]>>16) & 0x000F, (p[5] & 0xFFFF), 2);
-  laserObject.setControl(-99,-99,-99,-99,-99,-99,-99,-99,-99,-99);
-  laserObject.setPLC(-99,-99,-99,-99,-99,-99);
-  laserObject.setDaqType(int(p[2]));
   
   ATH_MSG_DEBUG("SETTING DAQ TYPE IN DECODER = " << MSG::hex << "0x" << int(p[2]) << "  " << MSG::dec << int(p[2]));
   
   int countr = p[3];
   int idiode = (p[4]>>16);
+  int intensity = (p[4]&0xFFFF);
   int filter = (p[5]>>16) & 0x000F;
+  bool qdctimeout = !((p[5]>>31) & 0x1);
+  bool tdctimeout = !((p[5]>>30) & 0x1);
+
   int timing = (p[5] & 0xFFFF);
   int daqtyp = p[2];
+
+  laserObject.setLaser(countr, idiode, intensity, filter, timing, 2);
+  laserObject.setControl(-99,-99,-99,-99,-99,-99,-99,-99,-99,-99);
+  laserObject.setPLC(-99,-99,-99,-99,-99,-99);
+  laserObject.setDaqType(daqtyp);
+  laserObject.setTimeouts(qdctimeout, tdctimeout);
+
   
   if(laserObject.isLASERII()) ATH_MSG_DEBUG("LASERII VERSION IS " << laserObject.getVersion());
   else                        ATH_MSG_DEBUG("LASERI VERSION IS "  << laserObject.getVersion());

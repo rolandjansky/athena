@@ -27,7 +27,8 @@ class PixelChargeInterpolationParameters {
 
   public: 
     PixelChargeInterpolationParameters();
-  ~PixelChargeInterpolationParameters(){};
+   ~PixelChargeInterpolationParameters() = default;
+    PixelChargeInterpolationParameters(const PixelChargeInterpolationParameters&) = delete;
 
     // get/set version number
     int getVersion() const;
@@ -80,10 +81,10 @@ class PixelChargeInterpolationParameters {
     int getNumberOfXbins() const;
     int getNumberOfYbins() const;
 
-    const std::vector<float> getEtaBins() const{return m_etabins;}
-    const std::vector<float> getAngleBins() const{return m_phibins;}
-    const std::vector<float> getClusterSizeXBins() const{return m_csx;}
-    const std::vector<float> getClusterSizeYBins() const{return m_csy;}
+    const std::vector<float>& getEtaBins() const{return m_etabins;}
+    const std::vector<float>& getAngleBins() const{return m_phibins;}
+    const std::vector<float>& getClusterSizeXBins() const{return m_csx;}
+    const std::vector<float>& getClusterSizeYBins() const{return m_csy;}
     
     void setParameters(const int ncsx, const int ncsy, const int neta, 
                        const int nalpha, int offset, std::vector<float> constants);
@@ -92,8 +93,8 @@ class PixelChargeInterpolationParameters {
     void Load(std::string filename);
 
     // IBL
-    const std::vector<float> getIBLEtaBins() const{return m_ibletabins;}
-    const std::vector<float> getIBLAngleBins() const{return m_iblphibins;}
+    const std::vector<float>& getIBLEtaBins() const{return m_ibletabins;}
+    const std::vector<float>& getIBLAngleBins() const{return m_iblphibins;}
     int getIBLcsxbins() const {return m_csxbinsibl;}
     int getIBLcsybins() const {return m_csybinsibl;}
     int getIBLetabins() const {return m_etaibl;}

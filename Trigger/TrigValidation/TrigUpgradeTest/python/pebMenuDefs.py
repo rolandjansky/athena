@@ -29,7 +29,8 @@ def addHLTResultToROBList(robList, moduleId=0):
     hltResultSID = SourceIdentifier(SubDetector.TDAQ_HLT,moduleId)
     robList.extend([hltResultSID.code()])
 
-def pebInfoWriterToolFromName(name, conf):
+def pebInfoWriterToolFromDict(chainDict):
+    name = chainDict['chainName']
     # pebtestone is a physics-type PEB example, i.e. saves a few detector ROBs and the full HLT result
     if "pebtestone" in name:
         tool = StaticPEBInfoWriterTool(name)
@@ -50,7 +51,7 @@ def pebInfoWriterToolFromName(name, conf):
         log.error("Unknown name %s passed to pebInfoWriterToolFromName" % name)
         sys.exit("Configuration error")
 
-def pebInfoWriterSequence(name,toolGenerator=pebInfoWriterToolFromName):
+def pebInfoWriterSequence(name,toolGenerator=pebInfoWriterToolFromDict):
     """Creates a MenuSequence for PEBInfo writer. The algorithm and tools are given unique names derived from
     the name parameter. This is required to avoid execution stall from having the same algorithm instance configured
     in different steps awaiting different inputs."""
@@ -73,7 +74,8 @@ def dataScoutingResultIDFromName(name):
       log.error("Unknown name %s, cannot assign result ID" % name)
       sys.exit("Configuration error")
 
-def dataScoutingInfoWriter(name, conf):
+def dataScoutingInfoWriter(chainDict):
+    name = chainDict['chainName']
     '''Creates a StaticPEBInfoWriterTool, which adds the data scouting HLT result to the PEBInfo'''
     tool = StaticPEBInfoWriterTool(name)
     moduleId = dataScoutingResultIDFromName(name)

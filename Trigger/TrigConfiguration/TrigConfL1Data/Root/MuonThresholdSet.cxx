@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/MuonThresholdSet.h"
@@ -27,9 +27,6 @@ TrigConf::MuonThresholdSet::MuonThresholdSet() :
    m_tgc_set_name = "unknown";
    m_tgc_set_ext_id = -1;
 }
-
-TrigConf::MuonThresholdSet::~MuonThresholdSet()
-{}
 
 void
 TrigConf::MuonThresholdSet::print(const std::string& indent, unsigned int /*detail*/) const {

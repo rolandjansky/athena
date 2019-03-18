@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -23,11 +23,13 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            HepMcParticleLink* transObj,
                                            MsgStream &/*msg*/ )
 {
-  if (transObj->m_ptrs.m_dict == nullptr)
-    transObj->init_dict();
-  transObj->m_extBarcode =
-    HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
-                                        persObj->m_mcEvtIndex );
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  if (persObj->m_mcEvtIndex>0) evColl = EBC_FIRSTPUEVCOLL; // HACK
+  transObj->setExtendedBarCode
+    ( HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
+                                          persObj->m_mcEvtIndex,
+                                          evColl,
+                                          HepMcParticleLink::IS_POSITION) );
   return;
 }
 
@@ -35,8 +37,8 @@ void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p1* persObj,
                                            MsgStream &/*msg*/ )
 {
-  persObj->m_mcEvtIndex = transObj->eventIndex();
-  persObj->m_barcode    = transObj->m_extBarcode.barcode();
+  persObj->m_mcEvtIndex = transObj->getEventPositionInCollection(SG::CurrentEventStore::store());
+  persObj->m_barcode    = transObj->barcode();
   return;
 }
 

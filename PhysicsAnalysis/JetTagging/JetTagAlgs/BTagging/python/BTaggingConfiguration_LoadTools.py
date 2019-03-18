@@ -130,10 +130,9 @@ def Initiate(ConfInstance=None):
     # -------------- Calibration Broker --------------
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.Resilience import treatException,protectedInclude
-    if ConfInstance._name == "":
-      print ConfInstance.BTagTag()+' - No calibration broker setup - The condition algorithm is used'
-    elif ConfInstance._name == "Trig":
-      print ConfInstance.BTagTag()+' - No calibration broker setup - The condition algorithm is used'
+    if ConfInstance._name == "" or ConfInstance._name == "Trig":
+      # No calibration broker setup - The condition algorithm is used
+      pass
     elif ConfInstance._name == "AODFix":
       protectedInclude("BTagging/BTagCalibBroker_AODFix_jobOptions.py")
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")

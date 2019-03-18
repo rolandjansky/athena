@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "LUCID_RawDataByteStreamCnv/LUCID_DigitByteStreamCnv.h"
 
 LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) : 
-  Converter(ByteStream_StorageType, classID(), svcloc),
+  Converter(storageType(), classID(), svcloc),
   m_RodBlockVersion      (0),
   m_BCs_per_LVL1ID       (1)
 {
@@ -33,6 +33,11 @@ StatusCode LUCID_DigitByteStreamCnv::initialize() {
 const CLID& LUCID_DigitByteStreamCnv::classID() {
 
   return ClassID_traits<LUCID_DigitContainer>::ID();
+}
+
+long LUCID_DigitByteStreamCnv::storageType() {
+
+  return ByteStreamAddress::storageType();
 }
 
 StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {

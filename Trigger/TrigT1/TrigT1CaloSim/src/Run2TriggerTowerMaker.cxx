@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -95,7 +95,6 @@ namespace LVL1 {
       m_isDataReprocessing(false),
       m_doOverlay(false), m_isReco(false)
   {
-    declareProperty("EventInfoKey", m_evtKey=std::string{"EventInfo"});
     declareProperty("xAODEventInfoKey", m_xaodevtKey=std::string{"EventInfo"});
     declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
@@ -188,7 +187,6 @@ namespace LVL1 {
     // reserve enough storage for the amps
     m_xaodTowersAmps.assign(7168, std::vector<double>());
 
-    ATH_CHECK(m_evtKey.initialize());
     ATH_CHECK(m_xaodevtKey.initialize());
 
     ATH_CHECK(m_inputTTLocation.initialize());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTK_SGHitInput.h"
@@ -365,7 +365,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX  );
               }
               // bcs.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               // if( particleLink.eventIndex()==0 ) {
@@ -402,6 +403,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 
         //output//
         if(m_dooutFileRawHits){ //bz2 file
+          HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+          best_extcode.eventIndex(best_extcode_index, best_extcode_position);
           (*m_oflraw) << "S\t"
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
@@ -417,7 +420,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
                     << m_pixelId->phi_index(rdoId) << '\t'
                     << m_pixelId->eta_index(rdoId) << '\t'
                     << (*iRDO)->getToT() << '\t'
-                    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                    << (long)(best_parent ? best_extcode_position : std::numeric_limits<long>::max()) << '\t'
                     << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                     << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                     << parent_mask.to_ulong() << '\t'
@@ -449,7 +452,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         tmpSGhit.setPhiSide(m_pixelId->phi_index(rdoId));
         tmpSGhit.setEtaStrip(m_pixelId->eta_index(rdoId));
         tmpSGhit.setNStrips((*iRDO)->getToT());
-        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
+        HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+        best_extcode.eventIndex(best_extcode_index, best_extcode_position);
+        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode_position : std::numeric_limits<long>::max()));
         tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
         tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
         tmpSGhit.setParentageMask(parent_mask.to_ulong());
@@ -587,7 +592,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               // bcs.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               // if( particleLink.eventIndex()==0 ) {
@@ -619,6 +625,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           } // end if truth found for this strip
         } // end if sct truth available
         if(m_dooutFileRawHits){
+          HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+          best_extcode.eventIndex(best_extcode_index, best_extcode_position);
           (*m_oflraw) << "S\t"
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
@@ -634,7 +642,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
                     << m_sctId->side(rdoId) << '\t'
                     << m_sctId->strip(rdoId) << '\t'
                     << (*iRDO)->getGroupSize() << '\t'
-                    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+                    << (long)(best_parent ? best_extcode_position : std::numeric_limits<long>::max()) << '\t'
                     << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
                     << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                     << parent_mask.to_ulong() << '\t'
@@ -655,7 +663,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         tmpSGhit.setPhiSide(m_sctId->side(rdoId));
         tmpSGhit.setEtaStrip(m_sctId->strip(rdoId));
         tmpSGhit.setNStrips((*iRDO)->getGroupSize());
-        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
+        HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+        best_extcode.eventIndex(best_extcode_index, best_extcode_position);
+        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode_position : std::numeric_limits<long>::max()));
         tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
         tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
         tmpSGhit.setParentageMask(parent_mask.to_ulong());
@@ -791,7 +801,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               // "best_parent" is the highest pt particle
               if( !best_parent || best_parent->momentum().perp()<genPt ) {
                 best_parent = particle;
-                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() );
+                best_extcode = HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex(),
+                                                                   particleLink.getEventCollection(), HepMcParticleLink::IS_INDEX );
               }
               parent_mask |= construct_truth_bitmap( particle );
             } // loop over deposits
@@ -800,6 +811,8 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       } // if we have pixel sdo's available
 
       if(m_dooutFileRawHits){
+        HepMcParticleLink::index_type best_extcode_index, best_extcode_position;
+        best_extcode.eventIndex(best_extcode_index, best_extcode_position);
         (*m_oflraw) << "P\t"
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
@@ -818,7 +831,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
                   << (*iCluster)->width().colRow().y() << '\t' // width in eta?
                   << (*iCluster)->rdoList().size() << '\t' // number of pixels in cluster
                   // Cluster truth
-                  << (long)(best_parent ? best_extcode.eventIndex() : -1) << '\t'
+                  << (long)(best_parent ? best_extcode_position : -1) << '\t'
                   << (long)(best_parent ? best_extcode.barcode() : -1) << '\t'
                   << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
                   << parent_mask.to_ulong()
@@ -1019,7 +1032,7 @@ FTK_SGHitInput::read_truth_tracks()
       // print truth track info and geant matching for highest figure-of-merit track
       int irecmatch = -1;
       float precmatch = 0.;
-      HepMcParticleLink::ExtendedBarCode extBarcode2( particle->barcode(), ievt );
+      HepMcParticleLink::ExtendedBarCode extBarcode2( particle->barcode(), ievt, EBC_MAINEVCOLL, HepMcParticleLink::IS_INDEX ); //FIXME need to determine event collection properly
       /*if( !_ttrProbMap.empty() ) {
         TruthToRecoProbMap::const_iterator barcode=_ttrProbMap.find(extBarcode2);
         if( barcode!=_ttrProbMap.end() ) {
@@ -1036,6 +1049,8 @@ FTK_SGHitInput::read_truth_tracks()
         }*///toshi  comment out
       ParentBitmask parent_mask( construct_truth_bitmap( particle ) );
       if(m_dooutFileRawHits){
+        HepMcParticleLink::index_type extBarcode2_index, extBarcode2_position;
+        extBarcode2.eventIndex(extBarcode2_index, extBarcode2_position);
         (*m_oflraw) << setiosflags(ios::scientific) << "T\t"
                   << setw(14) << setprecision(10) << track_truth_x0 << '\t'
                   << setw(14) << setprecision(10) << track_truth_y0 << '\t'
@@ -1049,7 +1064,7 @@ FTK_SGHitInput::read_truth_tracks()
                   << pdgcode << '\t'
                   << setw(14) << (int)irecmatch << '\t'
                   << setw(14) << setprecision(10) << precmatch << '\t'
-                  << extBarcode2.eventIndex() << '\t'
+                  << extBarcode2_position << '\t'
                   << extBarcode2.barcode() << '\t'
                   << parent_mask.to_ulong() << '\t'
                   << isDetPaperCut << '\t'
@@ -1068,7 +1083,9 @@ FTK_SGHitInput::read_truth_tracks()
       tmpSGTrack.setPZ(track_truth_p*track_truth_costheta);
       tmpSGTrack.setPDGCode(pdgcode);
       tmpSGTrack.setBarcode(extBarcode2.barcode());
-      tmpSGTrack.setEventIndex(extBarcode2.eventIndex());
+      HepMcParticleLink::index_type extBarcode2_index, extBarcode2_position;
+      extBarcode2.eventIndex(extBarcode2_index, extBarcode2_position);
+      tmpSGTrack.setEventIndex(extBarcode2_position);
       m_truth_track.push_back(tmpSGTrack);
 
 

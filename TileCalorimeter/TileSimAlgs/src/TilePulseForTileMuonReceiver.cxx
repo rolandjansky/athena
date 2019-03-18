@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************************
@@ -48,7 +48,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
+
 
 // external
 #include <CLHEP/Random/Randomize.h>
@@ -76,8 +78,6 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_nBinsPerX(0)
   , m_binTime0(0)
   , m_timeStep(0.0)
-  , m_pHRengine(0)
-  , m_rndmSvc("AtRndmGenSvc", name)
   , m_MuRcvBuildTool("TileRawChannelBuilderMF")
   , m_run2(true)
 {
@@ -89,7 +89,6 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   declareProperty("UseCoolPulseShapes"             , m_useCoolPulseShapes   = false, "Pulse shapes from database (default=false)");
   declareProperty("UseCoolNoise"                   , m_tileNoise            = false, "Noise from database (default=false)");
   declareProperty("UseCoolPedestal"                , m_tilePedestal         = false, "Pedestal from database (default=false)");
-  declareProperty("RndmSvc"                        , m_rndmSvc, "Random Number Service used in TilePulseForTileMuonReceiver");
   declareProperty("TileRawChannelBuilderMF"        , m_MuRcvBuildTool, "The tool by default is the Matched Filter");
 }
 
@@ -136,7 +135,7 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
                    << " ADC saturation value: "       << m_adcMax
                    << " TileCal Threshold LOW GAIN: " << m_tileThresh);
 
-  m_pHRengine = m_rndmSvc->GetEngine("Tile_PulseForTileMuonReceiver");
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   m_nShape    = m_tileInfo->MuRcvNBins();
   m_nBinsPerX = m_tileInfo->MuRcvBinsPerX();
@@ -262,6 +261,10 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
   // Vector of digits to set into the container
   //
   std::vector<float> digitsBuffer(m_nSamples);
+
+  // Prepare RNG service
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
 
   /////////////////////////////////////////////////////////////////////////////////
   // (a.0) iterate over collections in the HIT container: access 'ros' and 'drawer'
@@ -496,7 +499,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
       // Generate an array to randomize the noise for each digit
       //
-      RandGaussQ::shootArray(m_pHRengine, m_nSamples, Rndm, 0.0, 1.0);
+      RandGaussQ::shootArray(*rngWrapper, m_nSamples, Rndm, 0.0, 1.0);
 
       ATH_MSG_VERBOSE( "(D.02)   Pulse digits [MeV]:"
                        << " " << pDigitSamples[0]
@@ -531,7 +534,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       // Collecting noise from the database
       //
       if (m_tileNoise) {
-        RandFlat::shootArray(m_pHRengine, 1, Rndm_dG, 0.0, 1.0);
+        RandFlat::shootArray(*rngWrapper, 1, Rndm_dG, 0.0, 1.0);
         sigma_Hfn1 = m_tileToolNoiseSample->getHfn1(idhash, TMDBchan, TileID::LOWGAIN);
         sigma_Hfn2 = m_tileToolNoiseSample->getHfn2(idhash, TMDBchan, TileID::LOWGAIN);
         if (sigma_Hfn1 > 0 || sigma_Hfn2) {

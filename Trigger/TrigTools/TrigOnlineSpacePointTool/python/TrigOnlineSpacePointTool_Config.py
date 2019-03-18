@@ -25,7 +25,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
         # --- SiLorentzAngleTool
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
@@ -59,7 +59,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += InDetL2TrigSCT_ClusteringTool
 
         # SiLorentzAngleTool for FastSCT_RodDecoder
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
 
         # FastSCT_RodDecoder

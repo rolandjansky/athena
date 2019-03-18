@@ -16,20 +16,20 @@ template <class HIT>
 class TimedHitPtr {
 public:
   ///STL required constructors
-  TimedHitPtr() : m_eventTime(0), m_eventId(0), m_pHit(0) {}
+  TimedHitPtr() : m_eventTime(0), m_eventId(0), m_pileupType(0), m_pHit(nullptr) {}
   TimedHitPtr(const TimedHitPtr<HIT>& rhs) :
-    m_eventTime(rhs.m_eventTime), m_eventId(rhs.m_eventId), m_pHit(rhs.m_pHit)  {}
+    m_eventTime(rhs.m_eventTime), m_eventId(rhs.m_eventId), m_pileupType(rhs.m_pileupType), m_pHit(rhs.m_pHit)  {}
 
   ///minimal constructor: pass only t0 offset of bunch xing
-  TimedHitPtr(float eventTime, const HIT* pHit) :
-    m_eventTime(eventTime), m_eventId(0), m_pHit(pHit) {}
+  TimedHitPtr(float eventTime, const HIT* pHit, int pileupType=0) :
+    m_eventTime(eventTime), m_eventId(0), m_pileupType(pileupType), m_pHit(pHit) {}
   ///use this constructor when hit has a PileUpTimeEventIndex
-  TimedHitPtr(float eventTime, unsigned short eventId, const HIT* pHit) :
-    m_eventTime(eventTime), m_eventId(eventId), m_pHit(pHit) {}
+  TimedHitPtr(float eventTime, unsigned short eventId, const HIT* pHit, int pileupType=0) :
+    m_eventTime(eventTime), m_eventId(eventId), m_pileupType(pileupType), m_pHit(pHit) {}
 
   ///assignment operator
   TimedHitPtr<HIT>& operator=(const TimedHitPtr<HIT>& rhs) {
-    if(&rhs != this) { m_eventTime = rhs.m_eventTime; m_eventId = rhs.m_eventId; m_pHit = rhs.m_pHit; }
+    if(&rhs != this) { m_eventTime = rhs.m_eventTime; m_eventId = rhs.m_eventId; m_pileupType = rhs.m_pileupType; m_pHit = rhs.m_pHit; }
     return *this;
   }
 
@@ -41,6 +41,10 @@ public:
   ///to navigate back to the parent event
   unsigned short eventId() const { return m_eventId; }
 
+  ///the type of event which the hit came from (signal, low pt
+  ///minbias, high pt minbias, cavern bg, etc.)
+  int pileupType() const { return m_pileupType; }
+
   /// t0 offset of the bunch xing containing the hit in ns. This is an integer
   /// multiple of the bunch xing distance for a certain event (e.g. N*25ns)
   float eventTime() const { return m_eventTime; }
@@ -51,6 +55,7 @@ private:
   float m_eventTime;
   ///the index in PileUpEventInfo of the component event hosting this hit
   unsigned short m_eventId;
+  int m_pileupType;
   const HIT* m_pHit; //don't own
 
   template <class FHIT>

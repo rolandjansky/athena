@@ -19,7 +19,7 @@ doElectron = True
 doPhoton = True
 doMuon   = True
 doJet    = True
-doMET    = False
+doMET    = True
 doBJet   = False
 doCombo  = True
 

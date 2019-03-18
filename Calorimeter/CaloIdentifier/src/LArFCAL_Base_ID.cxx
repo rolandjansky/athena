@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArFCAL_Base_ID.h"
@@ -256,13 +256,6 @@ void LArFCAL_Base_ID::module_id_checks ( int pos_neg, int module ) const
   ExpandedIdentifier expId(lar_fcal_exp());
   expId << pos_neg << module;
 
-  if(  expId.last_error () != ExpandedIdentifier::none ){
-    std::string errorMessage =
-      "Error in LArFCAL_Base_ID::module_id, " + 
-      strformat ("pos_neg: %d , module: %d", pos_neg , module);
-    throw LArID_Exception(errorMessage , 9);
-  }
-
   if (!m_full_module_range.match(expId)) { 
     std::string errorMessage = "LArFCAL_Base_ID::module_id() result is not OK: ID, range = "
       + std::string(expId) + " , " + (std::string)m_full_module_range;
@@ -277,14 +270,6 @@ void LArFCAL_Base_ID::channel_id_checks ( int pos_neg, int module, int eta, int 
   // Fill expanded id
   ExpandedIdentifier expId(lar_fcal_exp());
   expId << pos_neg << module << eta << phi << m_slar ;
-
-  if( expId.last_error () != ExpandedIdentifier::none) {
-    std::string errorMessage =
-      "Error in LArFCAL_Base_ID::channel_id, " +
-      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
-                 pos_neg , module , eta , phi);
-    throw LArID_Exception(errorMessage , 10);
-  }
 
   if (!m_full_channel_range.match(expId)) { 
     std::string errorMessage = "LArFCAL_Base_ID::channel_id() result is not OK: ID, range = "

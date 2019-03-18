@@ -51,6 +51,7 @@ atlas_add_component( IOVDbSvc
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.txt )
 
 
 atlas_add_test( IOVDbSvc_test
@@ -59,7 +60,7 @@ atlas_add_test( IOVDbSvc_test
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
                 LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES}
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG |Warning in <TFile::Init>: no" 
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG |Warning in <TFile::Init>: no |Initializing" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
                 
 atlas_add_test( IOVDbSvc_Boost_test                
@@ -67,9 +68,7 @@ atlas_add_test( IOVDbSvc_Boost_test
                 test/IOVDbSvc_Boost_test.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}        
                 LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES} 
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
-                ENVIRONMENT  "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-                )
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" )
                 
 set_target_properties( IOVDbSvc_IOVDbSvc_Boost_test  PROPERTIES ENABLE_EXPORTS True )
 
@@ -77,9 +76,7 @@ atlas_add_test( IOVDbConn_test
                 SOURCES
                 test/IOVDbConn_test.cxx src/IOVDbConn.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}        
-                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES} CoraCool
-                ENVIRONMENT  "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-                )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES} CoraCool )
                 
 atlas_add_test( IOVDbStringFunctions_test                
                 SOURCES
@@ -121,9 +118,7 @@ atlas_add_test( IOVDbFolder_test
                 test/IOVDbFolder_test.cxx src/IOVDbFolder.cxx src/IOVDbConn.cxx src/IOVDbParser.cxx src/FolderTypes.cxx src/IOVDbCoolFunctions.cxx src/IOVDbStringFunctions.cxx src/ReadFromFileMetaData.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}        
                 LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES} CoraCool
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
-                ENVIRONMENT  "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-                )
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"  )
 
 
 if( NOT SIMULATIONBASE )

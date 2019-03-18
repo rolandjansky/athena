@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -403,7 +403,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       m_PhiCalo.push_back(tmpphi);
       m_ECalib.push_back(clus->e());
       const xAOD::CaloCluster *origClus=nullptr;
-      static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+      static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
       if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
           ATH_MSG_DEBUG("Problem with original cluster link");
       }

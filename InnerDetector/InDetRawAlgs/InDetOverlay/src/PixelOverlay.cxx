@@ -1,27 +1,41 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetOverlay/PixelOverlay.h"
+
+#include "IDC_OverlayBase/IDC_OverlayHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 namespace Overlay
 {
-  // Specialize copyCollection() for the Pixel
-  template<> void copyCollection(const InDetRawDataCollection<PixelRDORawData> *input_coll, InDetRawDataCollection<PixelRDORawData> *copy_coll)
+  // Specialize mergeChannelData() for the Pixel
+  template <>
+  void mergeChannelData(PixelRDORawData &/* baseDatum */,
+                        const PixelRDORawData &/* additionalDatum */,
+                        IDC_OverlayBase *algorithm)
   {
-    copy_coll->setIdentifier(input_coll->identify());
-    InDetRawDataCollection<PixelRDORawData>::const_iterator firstData = input_coll->begin();
-    InDetRawDataCollection<PixelRDORawData>::const_iterator lastData = input_coll->end();	
-    for ( ; firstData != lastData; ++firstData)
-    {	
-      const Identifier ident = (*firstData)->identify();
-      const unsigned int word = (*firstData)->getWord();
-      Pixel1RawData *newData = new Pixel1RawData(ident, word);
-      copy_coll->push_back(newData);
+    algorithm->msg(MSG::WARNING) << "Overlay::mergeChannelData<PixelRDORawData>(): "
+      << "Merging of data on the same channel is not implemented for PixelRDORawData" << endmsg;
+  }
+
+  // Specialize copyCollection() for the Pixel
+  template<>
+  std::unique_ptr<PixelRDO_Collection> copyCollection(const IdentifierHash &hashId,
+                                                      const PixelRDO_Collection *collection)
+  {
+    auto outputCollection = std::make_unique<PixelRDO_Collection>(hashId);
+    outputCollection->setIdentifier(collection->identify());
+
+    for (const PixelRDORawData *existingDatum : *collection) {
+      // Owned by the collection
+      auto *datumCopy = new Pixel1RawData(existingDatum->identify(), existingDatum->getWord());
+      outputCollection->push_back(datumCopy);
     }
+
+    return outputCollection;
   }
 } // namespace Overlay
 
@@ -29,7 +43,6 @@ namespace Overlay
 PixelOverlay::PixelOverlay(const std::string &name, ISvcLocator *pSvcLocator)
   : IDC_OverlayBase(name, pSvcLocator)
 {
-  
 }
 
 StatusCode PixelOverlay::initialize()
@@ -69,7 +82,7 @@ StatusCode PixelOverlay::execute()
     bkgContainerPtr = bkgContainer.cptr();
 
     ATH_MSG_DEBUG("Found background Pixel RDO container " << bkgContainer.name() << " in store " << bkgContainer.store());
-    ATH_MSG_DEBUG("Pixel Background = " << shortPrint(bkgContainer.cptr()));
+    ATH_MSG_DEBUG("Pixel Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   }
 
   SG::ReadHandle<PixelRDO_Container> signalContainer(m_signalInputKey);
@@ -78,18 +91,19 @@ StatusCode PixelOverlay::execute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal Pixel RDO container " << signalContainer.name() << " in store " << signalContainer.store());
-  ATH_MSG_DEBUG("Pixel Signal     = " << shortPrint(signalContainer.cptr()));
+  ATH_MSG_DEBUG("Pixel Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
 
   // Creating output RDO container
   SG::WriteHandle<PixelRDO_Container> outputContainer(m_outputKey);
   ATH_CHECK(outputContainer.record(std::make_unique<PixelRDO_Container>(signalContainer->size())));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output Pixel RDO container " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG("Recorded output Pixel RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  if (outputContainer.isValid()) {
-    overlayContainerNew(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr());
-
-    ATH_MSG_DEBUG("Pixel Result   = " << shortPrint(outputContainer.ptr()));
-  }
+  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
+  ATH_MSG_DEBUG("Pixel Result   = " << Overlay::debugPrint(outputContainer.ptr()));
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;

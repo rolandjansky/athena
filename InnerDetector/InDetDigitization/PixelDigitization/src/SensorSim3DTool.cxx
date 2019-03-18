@@ -16,7 +16,7 @@
 #include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesTool/SiliconProperties.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"

@@ -160,6 +160,15 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
   out << " * Number of dead TRT straws     : "<<trackSum.get(numberOfTRTDeadStraws)<<"\n";
   out << " * Number of MDT hits            : "<<trackSum.get(numberOfMdtHits)<<"\n";
   out << " * Number of MDT holes           : "<<trackSum.get(numberOfMdtHoles)<<"\n";
+
+  // New Small Wheel
+  out << " * Number of STGC hits           : phi "<<trackSum.get(numberOfStgcPhiHits)
+      << " eta " <<trackSum.get(numberOfStgcEtaHits)<<"\n";
+  out << " * Number of STGC holes          : phi "<<trackSum.get(numberOfStgcPhiHoles)
+      << " eta  "<<trackSum.get(numberOfStgcEtaHoles)<<"\n";
+  out << " * Number of MM hits             : "<<trackSum.get(numberOfMmHits)<<"\n";
+  out << " * Number of MM holes            : "<<trackSum.get(numberOfMmHoles)<<"\n";
+
   out << " * Number of TGC hits            : phi "<<trackSum.get(numberOfTgcPhiHits)
       << " eta " <<trackSum.get(numberOfTgcEtaHits)<<"\n";
   out << " * Number of TGC holes           : phi "<<trackSum.get(numberOfTgcPhiHoles)

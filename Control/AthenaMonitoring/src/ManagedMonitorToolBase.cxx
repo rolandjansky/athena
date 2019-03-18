@@ -32,6 +32,8 @@
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;    // legacy (serial) DQ monitoring framework
+
 //____________________________________________________________________
 class ManagedMonitorToolBase::Imp {
 public:

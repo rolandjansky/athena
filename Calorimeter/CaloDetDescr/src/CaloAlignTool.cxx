@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloAlignTool.h"
@@ -30,7 +30,6 @@
 #include "LArReadoutGeometry/FCALDetectorManager.h"
  
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloIdManager.h"
 
 #include "CaloConditions/CaloCellPositionShift.h"
 
@@ -126,12 +125,10 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   else 
     log << MSG::DEBUG << "Successfully retrieved CaloCellPositionShift from the DetectorStore" << endmsg;
 
-  const CaloIdManager* caloId_mgr = caloMgr->getCalo_Mgr();
-
-  const CaloCell_ID* cell_id = caloId_mgr->getCaloCell_ID();
-  const LArEM_ID* em_id = caloId_mgr->getEM_ID();
-  const LArHEC_ID* hec_id = caloId_mgr->getHEC_ID();
-  const LArFCAL_ID* fcal_id = caloId_mgr->getFCAL_ID();
+  const CaloCell_ID* cell_id = caloMgr->getCaloCell_ID();
+  const LArEM_ID* em_id = cell_id->em_idHelper();
+  const LArHEC_ID* hec_id = cell_id->hec_idHelper();
+  const LArFCAL_ID* fcal_id = cell_id->fcal_idHelper();
 
   // Get minimal value for Hash ID - needed to retrieve sagging information
   IdentifierHash emmin,emmax;

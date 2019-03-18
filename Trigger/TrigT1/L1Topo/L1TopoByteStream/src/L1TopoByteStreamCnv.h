@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TOPOBYTESTREAM_L1TOPOBYTESTREAMCNV_H
@@ -22,9 +22,6 @@
 
 // Forward declaration(s):
 class L1TopoSrcIdMap;
-
-// External(s):
-extern long ByteStream_StorageType;
 
 /**
  *   @short ByteStream converter for the L1TopoRDOCollection
@@ -61,9 +58,9 @@ public:
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
   /// Function needed by the framework
-  virtual long repSvcType() const { return ByteStream_StorageType; }
+  virtual long repSvcType() const { return i_repSvcType(); }
   /// Function needed by the framework
-  static long storageType() { return ByteStream_StorageType; }
+  static long storageType();
   /// Function needed by the framework
   static const CLID& classID();
 

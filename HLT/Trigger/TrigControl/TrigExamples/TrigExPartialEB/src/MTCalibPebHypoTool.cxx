@@ -13,6 +13,7 @@
 #include <random>
 #include <thread>
 #include <sstream>
+#include <algorithm>
 
 // Local implementation-specific helper methods
 namespace {
@@ -80,6 +81,23 @@ namespace {
     }
     return StatusCode::SUCCESS;
   }
+  /// Fill a TrigCompositeContainer with random data
+  void fillRandomData(xAOD::TrigCompositeContainer& data, unsigned int maxElements) {
+    unsigned int nObjects = randomInteger<unsigned int>(0, maxElements);
+    for (unsigned int iObj=0; iObj<nObjects; ++iObj) {
+      xAOD::TrigComposite* object = new xAOD::TrigComposite;
+      data.push_back(object);
+      object->setName(std::string("object_")+std::to_string(iObj));
+      unsigned int nAuxDataVec = randomInteger<unsigned int>(0, maxElements);
+      for (unsigned int iAuxDataVec=0; iAuxDataVec<nAuxDataVec; ++iAuxDataVec) {
+        xAOD::TrigComposite::Accessor<std::vector<float>> floatVec(std::string("floatVec_")+std::to_string(iAuxDataVec));
+        unsigned int nValues = randomInteger<unsigned int>(0, maxElements);
+        std::vector<float> values;
+        for (unsigned int iValue=0; iValue<nValues; ++iValue) values.push_back( randomRealNumber<float>(0,1) );
+        floatVec(*object) = values;
+      }
+    }
+  }
 }
 
 // =============================================================================
@@ -101,6 +119,14 @@ MTCalibPebHypoTool::~MTCalibPebHypoTool() {}
 StatusCode MTCalibPebHypoTool::initialize() {
   ATH_MSG_INFO("Initialising " << name());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
+
+  // Copy keys from map<string,uint> to WriteHandleKeyArray
+  std::transform(m_createRandomData.begin(),
+                 m_createRandomData.end(),
+                 std::back_inserter(m_randomDataWHK),
+                 [](const auto& p){return p.first;});
+  ATH_CHECK(m_randomDataWHK.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -110,6 +136,7 @@ StatusCode MTCalibPebHypoTool::initialize() {
 StatusCode MTCalibPebHypoTool::finalize() {
   ATH_MSG_INFO("Finalising " << name());
   ATH_CHECK(m_robDataProviderSvc.release());
+  ATH_CHECK(m_randomDataWHK.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -168,6 +195,27 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
       ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(m_timeBetweenRobReqMillisec));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Produce random data
+  // ---------------------------------------------------------------------------
+  {
+    using DataCont = xAOD::TrigCompositeContainer;
+    using AuxCont = xAOD::TrigCompositeAuxContainer;
+    for (const SG::WriteHandleKey<DataCont>& handleKey : m_randomDataWHK) {
+      // Create data and aux container
+      std::unique_ptr<DataCont> data = std::make_unique<DataCont>();
+      std::unique_ptr<AuxCont> aux = std::make_unique<AuxCont>();
+      data->setStore(aux.get());
+      // Record the container in event store
+      SG::WriteHandle<DataCont> handle(handleKey,input.eventContext);
+      ATH_CHECK( handle.record(std::move(data),std::move(aux)) );
+      ATH_MSG_DEBUG("Recorded TrigCompositeContainer " << handleKey.key() << " in event store");
+      // Fill the container with random data
+      unsigned int maxElements = m_createRandomData.value().at(handleKey.key());
+      fillRandomData(*handle,maxElements);
+    }
   }
 
   // ---------------------------------------------------------------------------

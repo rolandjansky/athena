@@ -14,12 +14,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
+                          Control/CxxUtils
                           Event/EventPrimitives
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkParameters )
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT )
 
 # Component(s) in the package:
 atlas_add_component( TrkExSolenoidalIntersector
@@ -42,7 +44,8 @@ atlas_add_test( SolenoidParametrization_test
 
 atlas_add_test( SolenoidalIntersector_test
                 SOURCES test/SolenoidalIntersector_test.cxx
-                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES}
                 EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
