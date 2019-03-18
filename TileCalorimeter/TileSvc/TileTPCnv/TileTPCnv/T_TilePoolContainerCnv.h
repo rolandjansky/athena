@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // T_TilePoolContainerCnv.h 
@@ -15,6 +15,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "EventContainers/SelectAllObject.h"
 #include "TileEvent/TileRawDataContainer.h"
+#include "TileEvent/TileMutableDataContainer.h"
 
 #include <vector>
 #include <inttypes.h>
@@ -26,6 +27,7 @@ public:
   typedef typename PERS::ElemVector pers_ElemVector;
   typedef typename PERS::const_iterator pers_const_iterator;
   typedef typename SelectAllObject<TRANS>::const_iterator trans_const_iterator;
+  using Collection = typename TRANS::IDENTIFIABLE;
 
   T_TilePoolContainerCnv() : m_elementCnv()  {}
 
@@ -52,7 +54,6 @@ public:
         << " - " <<  bsflags << " " << unit << " " << type << " " << hashType
         << MSG::dec << " Nelements= " << vec.size() << endmsg;
 
-    //trans->clear(); // only remove elements
     trans->cleanup(); // remove all collections
 
     if ( abs(trans->get_hashType()-hashType) > 0xF) {
@@ -67,11 +68,27 @@ public:
     trans->set_type((TileFragHash::TYPE)type);
     trans->set_bsflags(bsflags);
 
-    for( pers_const_iterator it = vec.begin(),
-                           iEnd = vec.end();
-         it != iEnd; ++it) {
-      trans->push_back( m_elementCnv.createTransient(&(*it), log)  );
+
+    auto mutableContainer = std::make_unique<TileMutableDataContainer<TRANS>>();
+    if (mutableContainer->status().isFailure()) {
+      throw std::runtime_error("Failed to initialize Tile mutable Container");
     }
+
+    for(const auto& element : vec) {
+      if (mutableContainer->push_back(m_elementCnv.createTransient(&element, log)).isFailure()) {
+        throw std::runtime_error("Failed to add Tile element to Collection");
+      }
+    }
+
+    auto hashes = mutableContainer->GetAllCurrentHashes();
+    for (auto hash : hashes) {
+      Collection* coll = mutableContainer->indexFindPtr(hash);
+      auto newColl = std::make_unique<Collection>(std::move(*coll));
+      if (trans->addOrDelete(std::move(newColl), hash).isFailure()) {
+        throw std::runtime_error("Failed to add Tile collection to Identifiable Container");
+      }
+    }
+
   }
   
   /** Converts vector of TRANS::value_type objects to vector of PERS::value_type objects,

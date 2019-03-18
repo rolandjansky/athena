@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -52,6 +52,9 @@ template <typename TELEMENT> class TileRawDataCollection
     TileRawDataCollection<TELEMENT> ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
       : DataVector < TELEMENT > (ownPolicy),
         m_id(0), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
+
+    TileRawDataCollection<TELEMENT> (const TileRawDataCollection<TELEMENT>& rhs) = default;
+    TileRawDataCollection<TELEMENT> (TileRawDataCollection<TELEMENT>&& rhs) = default;
 
     // destructor               
     virtual ~TileRawDataCollection<TELEMENT> () = default;

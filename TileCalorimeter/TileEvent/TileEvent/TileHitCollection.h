@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileHitCollection_H       
@@ -29,6 +29,13 @@ public:
    * Does a deep copy of the contents.
    */
   TileHitCollection (const TileHitCollection& other);
+
+  /**
+   * @brief Move constructor.
+   * @param other Collection to move.
+   * Move the contents from other collection.
+   */
+  TileHitCollection(TileHitCollection&& other) = default;
 
   
   ~TileHitCollection() { }

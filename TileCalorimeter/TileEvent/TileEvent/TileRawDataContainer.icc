@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of TileRawDataContainer 
@@ -90,82 +90,6 @@ void TileRawDataContainer<TCOLLECTION>::clear()
     return; 
 }
 
-template <typename TCOLLECTION> 
-void TileRawDataContainer<TCOLLECTION>::add(TElement* rc, bool createColl,
-                                             SG::OwnershipPolicy ownPolicy)
-{
-    if (this->m_hashFunc.max() == 0 && TileCablingService::getInstance()->getTileHWID() != 0) {
-        // not initialized yet - initialize hash function
-        initialize(false,m_type);
-    }
-
-    //if (isLocked()) {
-    //    std::cout << " Can not change TileRawDataContainer anymore, It is locked"<<std::endl;
-    //    return ; 
-    //}
-                                
-    TCOLLECTION * coll; 
-
-    int frag = rc->frag_ID();
-    IdentifierHash fragHash = static_cast<IdentifierHash>(m_hashFunc(frag));
-                              
-    TContainer_const_iterator it = MyBase::indexFind(fragHash);
-
-    if( it == MyBase::end() ){ // collection doesn't exist
-
-        // do not create collection, because it'll not work anyhow:
-        // the fact that collection doesn't exist cashed already
-        // waitng for update of core package
-        // createColl = false;
-
-        if (createColl) {
-
-            coll = new TCOLLECTION(frag,ownPolicy);
-            StatusCode sc = this->addCollection(coll,fragHash);
-            if (sc.isFailure() ) {
-
-                ISvcLocator* svcLoc = Gaudi::svcLocator( );
-                IMessageSvc*  msgSvc;
-                sc = svcLoc->service( "MessageSvc", msgSvc  );
-                if ( sc.isFailure() ) {
-                    std::cout << "TileRawDataContainer   ERROR Can not retrieve MessageSvc" << std::endl;
-                    std::cout << "TileRawDataContainer   ERROR Can not create collection for frag 0x" << std::hex << frag
-                              << " in container with CLID " << std::dec << this->clID() << std::endl;
-                } else {
-                    MsgStream log(msgSvc, "TileRawDataContainer");
-                    log << MSG::ERROR <<" Can not create collection for frag 0x" << MSG::hex << frag
-                        << " in container with CLID " << MSG::dec << this->clID() << endmsg;
-                }
-                return ;
-            }
-
-        } else {
-            
-            ISvcLocator* svcLoc = Gaudi::svcLocator( );
-            IMessageSvc*  msgSvc;
-            StatusCode sc = svcLoc->service( "MessageSvc", msgSvc  );
-            if ( sc.isFailure() ) {
-                std::cout << "TileRawDataContainer   ERROR Can not retrieve MessageSvc" << std::endl;
-                std::cout << "TileRawDataContainer   ERROR Collection for frag 0x" << std::hex << frag 
-                          << " in container with CLID " << std::dec << this->clID()
-                          << " does not exist " << std::endl; 
-            } else {
-                MsgStream log(msgSvc, "TileRawDataContainer");
-                log << MSG::ERROR <<" Collection for frag 0x" << MSG::hex << frag 
-                    << " in container with CLID " << MSG::dec << this->clID()
-                    << " does not exist " << endmsg; 
-            }
-            return ;
-          } 
-    } else { // collection exists
-
-        const TCOLLECTION * const_coll = *it; 
-        coll = const_cast<TCOLLECTION *>(const_coll);
-    }
-    
-    coll->push_back(rc);         
-    return ;
-}                             
                               
 template <typename TCOLLECTION> 
 void TileRawDataContainer<TCOLLECTION>::print() const
