@@ -236,6 +236,31 @@ class AthConfigFlags(object):
             f.get(self)
         return
 
+
+    def fillFromArgs(self,listOfArgs=None):
+        if listOfArgs is None:
+            import sys
+            listOfArgs=sys.argv[1:]
+
+        for arg in listOfArgs:
+            #Safety check on arg: Contains exactly one '=' and left side is a valid flag
+            argsplit=arg.split("=")
+            if len(argsplit)!=2:
+                raise ValueError("Can't interpret argument %s, expected a key=value format" % arg)
+
+            key=argsplit[0].strip()
+            if not self.hasFlag(key):
+                raise KeyError("%s is not a known configuration flag" % key)
+            
+            #Arg looks good enough, just exec it:
+            argToExec="self."+arg
+
+            exec(argToExec)
+            pass
+        return
+
+
+
 import unittest
 class TestFlagsSetup(unittest.TestCase):    
     def setUp(self):
