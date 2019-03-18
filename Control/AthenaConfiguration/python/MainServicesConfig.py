@@ -81,6 +81,7 @@ def MainServicesThreadedCfg(cfgFlags):
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
+    cfg.addService( StoreGateSvc("ConditionStore") )
     
     cfg.setAppProperty('InitializationLoopCheck',False)
 
@@ -108,9 +109,6 @@ def MainServicesThreadedCfg(cfgFlags):
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
         hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
         cfg.addService( hivesvc )
-
-        from StoreGate.StoreGateConf import StoreGateSvc
-        cfg.addService( StoreGateSvc("ConditionStore") )
 
         from GaudiHive.GaudiHiveConf import AlgResourcePool
         from AthenaCommon.Constants import INFO
