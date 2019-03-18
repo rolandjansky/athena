@@ -40,8 +40,6 @@ StatusCode RPVLLTestRates::initialize() {
   ATH_CHECK(m_tHistSvc.retrieve());
   ATH_CHECK( m_evt.initialize() );
 
-  ATH_CHECK( m_evt.initialize() );
-
   m_myTree= new TTree("myTree","myTree");
   StatusCode sc = m_tHistSvc->regTree("/AANT/myTree",m_myTree);
   if (sc.isFailure()) ATH_MSG_ERROR("Failed to book TTree");
