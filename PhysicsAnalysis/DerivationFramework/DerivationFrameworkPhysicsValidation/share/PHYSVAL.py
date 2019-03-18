@@ -106,7 +106,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                        "MET_LocHadTopo","MET_LocHadTopoRegions","MET_EMTopo","MET_EMTopoRegions",
                                        "MET_Truth","MET_TruthRegions","MET_Track","MET_Calo",
-                                       "TauJets", "TauTracks", 
+                                       "TauJets", "DiTauJets", "TauTracks", 
                                        "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
                                        "CombinedMuonTrackParticles",
                                        "ExtrapolatedMuonTrackParticles",
