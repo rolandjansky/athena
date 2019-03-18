@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigDataAccess/TrigROBDataProviderSvc
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
+                          Control/CxxUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigSteer/TrigOutputHandling )

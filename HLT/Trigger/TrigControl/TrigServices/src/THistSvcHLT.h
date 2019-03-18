@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  * This is a copy of GaudiSvc/src/THistSvc with THistSvc renamed to THistSvcHLT
@@ -32,6 +32,9 @@
 #include "TTree.h"
 
 #include "AthenaBaseComps/AthService.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // copied from Gaudi, no checking
 
 class IIncidentSvc;
 
