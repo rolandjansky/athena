@@ -52,6 +52,7 @@ namespace FlavorTagDiscriminants {
       {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
       {".*_isDefaults"_r, EDMType::UCHAR},
       {"(JetFitter_|SV1_).*|secondaryVtx_L.*"_r, EDMType::FLOAT},
+      {"(softMuon_).*"_r, EDMType::FLOAT},
       };
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
@@ -61,6 +62,7 @@ namespace FlavorTagDiscriminants {
       {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
       {".*_trk_flightDirRelEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"softMuon_.*"_r, "softMuon_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
     std::vector<DL2InputConfig> input_config;
