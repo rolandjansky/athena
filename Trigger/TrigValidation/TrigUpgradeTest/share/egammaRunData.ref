@@ -156,10 +156,10 @@ HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG    Fragment size includi
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut                 20        10        6         5         5         
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut decisions                           16        100       
 TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut               20        20        12        11        11        
-TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut decisions                         46        279       
+TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut decisions                         46        280       
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        9         8         8         8         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        140       
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        141       
 TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        17        17        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            52        333       
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            52        334       
 TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        11        11        11        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            17        173       
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            17        174       
