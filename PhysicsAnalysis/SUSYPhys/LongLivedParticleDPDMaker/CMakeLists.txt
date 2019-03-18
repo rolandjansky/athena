@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaKernel
                           Event/EventBookkeeperMetaData
-                          Event/EventInfo
                           Event/FourMomUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODJet
@@ -35,7 +34,7 @@ atlas_add_component( LongLivedParticleDPDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps xAODCaloEvent xAODEgamma xAODMuon xAODTracking GaudiKernel MuonSelectorToolsLib TrigDecisionToolLib TrigObjectMatchingLib AthenaKernel EventBookkeeperMetaData EventInfo FourMomUtils xAODEventInfo xAODJet xAODMissingET )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps xAODCaloEvent xAODEgamma xAODMuon xAODTracking GaudiKernel MuonSelectorToolsLib TrigDecisionToolLib TrigObjectMatchingLib AthenaKernel EventBookkeeperMetaData FourMomUtils xAODEventInfo xAODJet xAODMissingET )
 
 # Install files from the package:
 atlas_install_headers( LongLivedParticleDPDMaker )

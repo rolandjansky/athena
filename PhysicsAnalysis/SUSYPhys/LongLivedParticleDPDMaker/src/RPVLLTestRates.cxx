@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LongLivedParticleDPDMaker/RPVLLTestRates.h"
 #include "EventBookkeeperMetaData/EventBookkeeperCollection.h"
 #include "EventBookkeeperMetaData/SkimDecisionCollection.h" 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include <iostream>
 
 
@@ -23,7 +21,6 @@ RPVLLTestRates::RPVLLTestRates(const std::string& name, ISvcLocator* pSvcLocator
   m_runNum(0),
   m_lumiBlock(0),
   m_evtNum(0)
-  //  m_filterPassed(0)
 {
 }
 
@@ -42,6 +39,8 @@ StatusCode RPVLLTestRates::initialize() {
 
   StatusCode sc = m_tHistSvc.retrieve();
   if (sc.isFailure()) return StatusCode::FAILURE;
+
+  ATH_CHECK( m_evt.initialize() );
 
   m_myTree= new TTree("myTree","myTree");
   sc = m_tHistSvc->regTree("/AANT/myTree",m_myTree);
@@ -94,19 +93,19 @@ StatusCode RPVLLTestRates::execute() {
 
   m_EventCounter++;
 
-  const EventInfo* eventInfo = nullptr;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if (!evt.isValid()) {
     ATH_MSG_ERROR( "Could not retrieve event info" );
+    return StatusCode::FAILURE;
   }
-  m_runNum     = eventInfo->event_ID()->run_number();
-  m_evtNum   = eventInfo->event_ID()->event_number();
-  m_lumiBlock     = eventInfo->event_ID()->lumi_block();
+  m_runNum    = evt->runNumber();
+  m_evtNum    = evt->eventNumber();
+  m_lumiBlock = evt->lumiBlock();
   
   
   //// these are the ones that are useful for RPVLL filters
   const SkimDecisionCollection *SDcoll = 0;
-  sc = evtStore()->retrieve(SDcoll, "StreamDESDM_RPVLL_SkimDecisionsContainer");
+  StatusCode sc = evtStore()->retrieve(SDcoll, "StreamDESDM_RPVLL_SkimDecisionsContainer");
   int isAc=0;
 
   if (sc.isSuccess()){
