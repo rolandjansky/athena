@@ -73,10 +73,8 @@ namespace EL
       while ((obj = itr())) {
 	EL::OutputStream *os = dynamic_cast<EL::OutputStream*>(obj);
 	if (os) {
-	  const std::string name
-	    = location + "/" + os->label() + ".root";
-          Detail::OutputStreamData data;
-          data.m_file = std::make_unique<TFile> (name.c_str(), "RECREATE");
+          Detail::OutputStreamData data {
+            location + "/" + os->label() + ".root", "RECREATE"};
           ANA_CHECK_THROW (addOutputStream (os->label(), std::move (data)));
 	}
 	else {

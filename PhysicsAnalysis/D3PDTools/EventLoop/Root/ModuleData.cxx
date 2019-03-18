@@ -27,7 +27,7 @@ namespace EL
     addOutput (std::unique_ptr<TObject> output)
     {
       RCU_ASSERT (m_histOutput != nullptr);
-      m_histOutput->m_output.emplace_back (std::move (output));
+      m_histOutput->addOutput (std::move (output));
     }
   }
 }
