@@ -31,13 +31,11 @@ from IOVSvc.IOVSvcConf import CondInputLoader
 from AthenaServices.AthenaServicesConf import Athena__ConditionsCleanerSvc
 from AthenaServices.AthenaServicesConf import Athena__DelayedConditionsCleanerSvc
 from AthenaCommon.AlgSequence import AthSequencer
-import StoreGate.StoreGateConf as StoreGateConf
 
 condInputLoader = CondInputLoader( "CondInputLoader")
 condSeq = AthSequencer("AthCondSeq")
 
 svcMgr += CondSvc()
-svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 condSeq += condInputLoader
 
 # Enable conditions garbage collection.
