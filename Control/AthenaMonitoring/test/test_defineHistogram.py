@@ -35,5 +35,9 @@ class Test( unittest.TestCase ):
       with self.assertRaises(AssertionError):
          defineHistogram('var', 'TH1F', path='EXPERT', labels='l1:l2')
 
+   def test_efficiency( self ):
+      s = defineHistogram('var', 'TEfficiency', 'EXPERT', 'title', 10, 0.0, 10.0)
+      self.assertEqual(s, 'EXPERT, TEfficiency, var, title, 10, 0.000000, 10.000000')
+
 if __name__ == '__main__':
    unittest.main()

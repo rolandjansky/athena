@@ -21,6 +21,7 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   TProfile* histoProfile(0);
   TH2* histo2D(0);
   TProfile2D* histo2DProfile(0);
+  TEfficiency* histoEfficiency(0);
 
   if (def.type == "TH1F") {
     histo1D = histo = create1D<TH1F>(def);
@@ -43,16 +44,21 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   } else if (def.type == "TProfile2D") {
     histo = create2DProfile<TProfile2D>(def);
     histo2DProfile = dynamic_cast<TProfile2D*>(histo);
+  } else if (def.type == "TEfficiency") {
+    histoEfficiency = createEfficiency(def);
   }
   
-  if (histo == 0) {
+  if (histo == 0 && histoEfficiency == 0) {
     throw HistogramFillerCreateException("Can not create yet histogram of type: >" + def.type + "<\n" +
-                                         "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D");
-  }
-  histo->GetYaxis()->SetTitleOffset( 1.25 );// magic shift to make histograms readable even if no post-procesing is done
+                                         "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D, " +
+                                         "TEfficiency.");
+  } else if (histo!=0) {
+    // magic shift to make histograms readable even if no post-procesing is done
+    histo->GetYaxis()->SetTitleOffset( 1.25 );
 
-  setLabels(histo, def.labels);
-  setOpts(histo, def.opt);
+    setLabels(histo, def.labels);
+    setOpts(histo, def.opt);
+  }
 
   HistogramFiller* result(0);
 
@@ -72,9 +78,41 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
       result = new HistogramFiller2DProfile(histo2DProfile, def);
   } else if ( histo2D ) {
       result = new HistogramFiller2D(histo2D, def);
+  } else if ( histoEfficiency ) {
+    result = new HistogramFillerEfficiency(histoEfficiency,def);
   }
   
   return result;
+}
+
+/**
+  * Invent path name
+  *
+  * If def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online 
+  * convention this becomes the first element of the path followed by the group name.
+  * Else if the def.path is DEFAULT then only the group name is used if the path yet 
+  * different is concatenated with the group name.
+ */
+std::string HistogramFillerFactory::getFullName(const HistogramDef& def) {
+  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
+  
+  std::string path;
+  if( online.count( def.path) != 0 ) {
+    path =  "/" + def.path + "/" + m_groupName;
+  } else if ( def.path == "DEFAULT" ) {
+    path = "/" + m_groupName;
+  } else {
+    path = "/" + m_groupName + "/"+def.path; 
+  }
+  
+  // remove duplicate
+  std::string fullName = path + "/" + def.alias;
+  fullName.erase( std::unique( fullName.begin(), fullName.end(), 
+    [](const char a, const char b) { 
+      return a == b and a == '/';
+    } ), fullName.end() );
+
+  return fullName;
 }
 
 /**
@@ -87,27 +125,9 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
  */
 template<class H, class HBASE, typename... Types> 
 HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs) {    
-  // invent path name
-  // if def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online convention
-  // this becomes the first element of the path followed by the group name
-  // else if the def.path is DEFAULT then only the group name is used
-  // if the path yet different is concatenated with the group name
-  //
-  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
-  std::string path;
-  if( online.count( def.path) != 0 )
-      path =  "/" + def.path + "/" + m_groupName;
-  else if ( def.path == "DEFAULT" )
-    path = "/" + m_groupName;
-  else
-    path = "/" + m_groupName + "/"+def.path; 
-  // remove duplicate //
-  std::string fullName = path + "/" + def.alias;
-  fullName.erase( std::unique( fullName.begin(), fullName.end(), 
-			       [](const char a, const char b){ 
-				 return a == b and a == '/'; 
-			       } ), fullName.end() );
-   
+  
+  std::string fullName = getFullName(def);
+
   // Check if histogram exists already
   HBASE* histo = nullptr;
   if ( m_histSvc->exists( fullName ) ) {
@@ -147,6 +167,30 @@ template<class H>
 TH1* HistogramFillerFactory::create2DProfile(const HistogramDef& def) {
   return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
                             def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
+}
+
+TEfficiency* HistogramFillerFactory::createEfficiency(const HistogramDef& def) {    
+  
+  std::string fullName = getFullName(def);
+
+  // Check if efficiency exists already
+  TEfficiency* e = nullptr;
+  if ( m_histSvc->exists(fullName) ) {
+    TGraph* g = reinterpret_cast<TGraph*>(e);
+    if ( !m_histSvc->getGraph(fullName,g) ) {
+      throw HistogramFillerCreateException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
+    }
+    return e;
+  }
+
+  // Otherwise, create the efficiency and register it
+  e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
+  TGraph* g = reinterpret_cast<TGraph*>(e);
+  if ( !m_histSvc->regGraph(fullName,g) ) {
+    delete e;
+    throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
+  }
+  return e;
 }
 
 void HistogramFillerFactory::setOpts(TH1* hist, const std::string& opt) {
@@ -347,6 +391,23 @@ unsigned HistogramFiller2D::fill() {
     for (i = 0; i < valuesVector1.size(); ++i) {
       hist->Fill(valuesVector1[i], valuesVector2[i]);
     }
+  }
+  
+  return i;
+}
+
+unsigned HistogramFillerEfficiency::fill() {
+  if (m_monVariables.size() != 2) {
+    return 0;
+  }
+
+  unsigned i(0);
+  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
+  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  for (i = 0; i < valuesVector1.size(); ++i) {
+    m_eff->Fill(valuesVector1[i],valuesVector2[i]);
   }
   
   return i;

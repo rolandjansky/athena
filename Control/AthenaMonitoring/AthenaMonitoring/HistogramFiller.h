@@ -14,6 +14,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TEfficiency.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -29,8 +30,13 @@ namespace Monitored {
   public:
     HistogramFiller(TH1* hist, const HistogramDef& histDef) 
       : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
+    HistogramFiller(TEfficiency* eff, const HistogramDef& histDef) 
+      : m_eff(eff), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
     HistogramFiller(const HistogramFiller& hf) 
-      : m_hist(hf.m_hist), m_mutex(hf.m_mutex), m_histDef(hf.m_histDef) {}
+      : m_hist(hf.m_hist)
+      , m_eff(hf.m_eff)
+      , m_mutex(hf.m_mutex)
+      , m_histDef(hf.m_histDef) {}
     HistogramFiller(HistogramFiller&&) = default;
   
     virtual ~HistogramFiller() {}
@@ -49,6 +55,7 @@ namespace Monitored {
     virtual TH1* histogram() = 0;
   
     TH1* m_hist;
+    TEfficiency* m_eff;
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
@@ -81,7 +88,9 @@ namespace Monitored {
     TH1* create2D(const HistogramDef& def);
     template<class H> 
     TH1* create2DProfile(const HistogramDef& def);
+    TEfficiency* createEfficiency(const HistogramDef& def);
     
+    std::string getFullName(const HistogramDef& def);
     static void setOpts(TH1* hist, const std::string& opt);
     static void setLabels(TH1* hist, const std::vector<std::string>& labels);
     
@@ -167,6 +176,19 @@ namespace Monitored {
   protected:
     virtual TProfile2D* histogram() override { return static_cast<TProfile2D*>(m_hist); }
   };
+
+  /**
+   * @brief filler for TEfficiency histograms
+   */
+  class HistogramFillerEfficiency : public HistogramFiller {
+  public:
+    HistogramFillerEfficiency(TEfficiency* eff, const HistogramDef& histDef)
+      : HistogramFiller(eff, histDef) {};
+    virtual unsigned fill() override;
+    virtual HistogramFillerEfficiency* clone() override { return new HistogramFillerEfficiency(*this); };
+  protected:
+    virtual TH1* histogram() { return m_hist; } // Keep the compiler happy
+  };
 }
- 
+
 #endif /* HistogramFiller */
