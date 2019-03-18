@@ -44,8 +44,8 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge( TileGMCfg( flags ) )
     acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
-    from RegionSelector.RegSelConfig import RegSelConfig
-    acc.mergeAll( RegSelConfig( flags ) )
+    from RegionSelector.RegSelConfig import regSelCfg
+    acc.mergeAll( regSelCfg( flags ) )
     
     acc.merge( createLArRoI_Map( flags ) )
 
