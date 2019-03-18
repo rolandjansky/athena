@@ -12,8 +12,6 @@ from LArG4SD.LArG4SDConf import LArG4__DeadSDTool
 from LArG4SD.LArG4SDConf import LArG4__ActiveSDTool
 from LArG4SD.LArG4SDConf import LArG4__InactiveSDTool
 
-#todo - investigate old comments in the code
-
 def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetector", **kwargs):
     ## Main configuration
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
