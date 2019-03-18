@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_JVTCONDITION_H
@@ -37,6 +37,7 @@ class JVTCondition: public ICondition{
 
   double m_etThreshold;
   double m_workingPoint;
+  double m_MeVtoGeV = 0.001;
 
 };
 

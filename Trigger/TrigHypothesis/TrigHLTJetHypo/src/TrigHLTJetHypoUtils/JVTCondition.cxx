@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JVTCondition.h"
@@ -33,8 +33,8 @@ bool JVTCondition::isSatisfied(const HypoJetVector& ips) const{
 // passCuts()
 bool JVTCondition::passCuts(pHypoJet jet) const {
   // The conditions for each jet are: ET>etmin, 0<|eta|<320 and (JVT>JVTwp or |eta|>2.5 or pT>60)
-  auto et        = 0.001 * jet->et(); // MeV -> GeV
-  auto pt        = 0.001 * jet->pt(); // MeV -> GeV
+  auto et        = m_MeVtoGeV * jet->et();
+  auto pt        = m_MeVtoGeV * jet->pt();
   auto absEta    = std::abs(jet->eta());
   float detEta   = 0;
   if(!(jet->getAttribute("DetectorEta",detEta))){

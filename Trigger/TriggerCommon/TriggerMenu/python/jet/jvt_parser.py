@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 import re
 jvt_re = re.compile(r'((?P<njet>[1-9]))?jvt(?P<workingpoint>\d{3})?\et(?P<etmin>\d{2,3})$')
 
