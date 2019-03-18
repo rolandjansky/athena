@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/StoreID.h"
@@ -24,13 +24,14 @@ namespace SG {
   
   template <class T>
   StatusCode
-  CondHandleKey<T>::initialize() {
+  CondHandleKey<T>::initialize(bool used /*= true*/) {
     if (m_isInit) return StatusCode::SUCCESS;
     
 
-    if (VarHandleKey::initialize() != StatusCode::SUCCESS) {
+    if (VarHandleKey::initialize(used) != StatusCode::SUCCESS) {
       return StatusCode::FAILURE;
     }
+    if (empty()) return StatusCode::SUCCESS;
 
     if (!m_cs.isValid()) {
       MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
@@ -94,6 +95,14 @@ namespace SG {
 
   }
 
+  template <class T>
+  StatusCode
+  CondHandleKey<T>::initialize(AllowEmptyEnum) {
+    if (key().empty()) {
+      return StatusCode::SUCCESS;
+    }
+    return initialize (true);
+  }
 //---------------------------------------------------------------------------
 
   template <class T>
