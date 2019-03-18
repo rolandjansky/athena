@@ -638,7 +638,7 @@ class GenerateMenu:
             if doTopo:
                 log.info('run generateCombinedChainDefs')
                 theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
-                
+                log.info(theChainDef)        
         return theChainDef
 
     

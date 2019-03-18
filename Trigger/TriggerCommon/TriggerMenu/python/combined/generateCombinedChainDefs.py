@@ -516,12 +516,18 @@ def _adddR(theChainDef,chainDicts,listOfChainDefs):
     for iS in range(0, len(theChainDef.signatureList) ):
         inputTE_taus_tmp=[]
         for TE in theChainDef.signatureList[iS]['listOfTriggerElements'] :
-            if 'EF_e' in TE or 'EF_mu' in TE: 
+            el_TE  = re.compile('_e[0-9]')
+            mu_TE  = re.compile('_mu[0-9]')
+            tau_TE = re.compile('_tau[0-9]')
+            if 'EF_' in TE and ('_e' in TE or '_mu' in TE): 
                # last lepton TE
-               inputTE_lepton=TE
-               if 'EF_e' in TE: chain_type = "eltau"
-               if 'EF_mu' in TE: chain_type = "mutau"
-            if 'EF_tau' in TE: 
+               if len(re.findall(el_TE, TE)): 
+                  inputTE_lepton=TE
+                  chain_type = "eltau"
+               elif len(re.findall(mu_TE, TE)): 
+                  inputTE_lepton=TE	
+                  chain_type = "mutau"
+            if 'EF_' in TE and len(re.findall(tau_TE, TE)): 
                inputTE_taus_tmp+=[TE]
         if len(inputTE_taus_tmp)>0:
             # last set of tau TEs
@@ -535,6 +541,7 @@ def _adddR(theChainDef,chainDicts,listOfChainDefs):
 
     if len(inputTEsEF)!=2:
        log.error("dRtt: found %d TEs instead of 2", len(inputTEsEF))
+       log.error(inputTEsEF)
 
     maxdR=-1
     mindR=-1

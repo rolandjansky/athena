@@ -97,7 +97,7 @@ HLT::ErrorCode EFTauTopoHypo::hltExecute(const HLT::TriggerElement* inputTE, boo
                 m_cutCounter++;               
                 m_monDRall = m_dR;
                 if(m_dR<0.1){
-                     ATH_MSG_WARNING("EFTauTopoHypo: pair with dR "<<m_dR);
+                     ATH_MSG_DEBUG("EFTauTopoHypo: pair with dR "<<m_dR);
                 }
 
 		if( m_dR>=m_dRmin &&  m_dR<m_dRmax ){
