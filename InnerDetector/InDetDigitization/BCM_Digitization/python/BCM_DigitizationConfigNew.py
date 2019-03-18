@@ -55,10 +55,10 @@ def BCM_DigitizationCfg(configFlags, name="BCM_OverlayDigitization", **kwargs):
 
 def BCM_OverlayDigitizationToolCfg(configFlags, name="BCM_OverlayDigitizationTool", **kwargs):
     """Return tuple (ComponentAccumulator, tool) configured for BCM Overlay Digitization"""
-    kwargs.setdefault("EvtStore", configFlags.Overlay.EventStore)
+    kwargs.setdefault("EvtStore", configFlags.Overlay.Legacy.EventStore)
     return BCM_DigitizationToolCfg(configFlags, name, **kwargs)
 
-def BCM_OverlayDigitization(configFlags, name="BCM_OverlayDigitization", **kwargs):
+def BCM_OverlayDigitizationCfg(configFlags, name="BCM_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with BCM Overlay Digitization algorithm"""
     acc, tool = BCM_OverlayDigitizationToolCfg(configFlags, **kwargs)
     kwargs.setdefault("DigitizationTool", tool)

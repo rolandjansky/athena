@@ -52,7 +52,12 @@ atlas_add_test( SCT_RODVetoTool_test
                 LINK_LIBRARIES TestTools SCT_ConditionsToolsLib ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( SCT_ConditionsConfig_test
+                SCRIPT test/SCT_ConditionsConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_headers( SCT_ConditionsTools )
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/*.py )
+

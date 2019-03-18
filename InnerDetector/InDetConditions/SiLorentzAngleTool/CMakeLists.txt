@@ -41,6 +41,10 @@ atlas_add_test( TestSCTLorentzAngle
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 
+atlas_add_test( SiLorentzAngleConfig_test
+                SCRIPT test/SiLorentzAngleConfig_test.py
+                PROPERTIES TIMEOUT 30 )
+
 # Install files from the package:
 atlas_install_headers( SiLorentzAngleTool )
 atlas_install_python_modules( python/*.py )
