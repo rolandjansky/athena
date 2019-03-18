@@ -74,7 +74,7 @@ namespace InDet {
     float pseudoFakeProbability(const xAOD::TrackParticle* track, float mu) const;
     bool dropPseudoFake(float prob) const;
 
-    int m_seed = 0;
+    int m_seed = 42;
     std::unique_ptr<TRandom3> m_rnd; //!
     
     float m_fPrim = 1.;
