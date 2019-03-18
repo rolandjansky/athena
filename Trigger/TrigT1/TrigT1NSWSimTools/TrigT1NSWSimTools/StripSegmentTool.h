@@ -17,7 +17,10 @@
 
 
 //To access detector envelope
-#include "MuonRegionSelector/sTGC_RegionSelectorTable.h"
+#include "RegionSelector/IRegionLUT_Creator.h"
+#include "RegSelLUT/IRegionIDLUT_Creator.h"
+
+
 
 //local includes
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
@@ -117,9 +120,9 @@ namespace NSWL1 {
     
     protected:
         SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-
+        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
     private:
-            ToolHandle<sTGC_RegionSelectorTable> m_regionHandle;
+            
             int m_rIndexBits;
             int m_dThetaBits;
             StatusCode FetchDetectorEnvelope();

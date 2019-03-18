@@ -383,14 +383,34 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     pt.m_etamax=(trg_etaminmax.second)->first;
     pt.m_phimin=(trg_phiminmax.first)->second;
     pt.m_phimax=(trg_phiminmax.second)->second;
-    pt.m_moduleIdInner= (stc.wedgeTrigs().size()==2 ? stc.wedgeTrigs().at(0).pads().at(0)->moduleId() : stc.wedgeTrigs().at(0).pads().at(0)->moduleId());
-    pt.m_moduleIdOuter=(stc.wedgeTrigs().size()==2 ? stc.wedgeTrigs().at(1).pads().at(0)->moduleId() : stc.wedgeTrigs().at(0).pads().at(0)->moduleId());
+    
+    pt.m_moduleIdInner=-1;
+    pt.m_moduleIdOuter=-1;
+    
+    if(stc.wedgeTrigs().size()==2){//double wedge trigger
+        pt.m_moduleIdInner=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
+        pt.m_moduleIdOuter=stc.wedgeTrigs().at(1).pads().at(1)->moduleId();
+    }
+    else{//single wedge trigger
+        //if the first one is inner set m_moduleIdInner
+        int multId0=stc.wedgeTrigs().at(0).pads().at(0)->multipletId();
+        if( multId0==1){
+            pt.m_moduleIdInner=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
+        }
+        //if the first one is outer set m_moduleIdOuter
+        else{
+            pt.m_moduleIdOuter=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
+        }
+        //one of the module Ids remain as -1;
+    }
+
     //****************************************************************************************
 
      //S.I value of Z where trigger region is calculated.
      //from Z0 --> <Z of a pad> --->local coordinate
 
     for(const SingleWedgePadTrigger& swt : stc.wedgeTrigs()){
+        int currwedge=swt.pads().at(0)->multipletId();
         std::vector<float> trglocalminY;
         std::vector<float> trglocalmaxY;
         std::vector<int> trgSelectedLayers;
@@ -454,26 +474,20 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                     bandOffset+=0;//do not apply band Offsets as strip channels start from 1 on the next module;
                 }
                 if(bandisUp ){
-                     //std::cout<<"Selecting BAND UP"<<std::endl;
                       selectedbandId=p->padEtaId()*2;
                       bandLocalMinY=padMidY;
                       bandLocalMaxY=local_padmaxy;
                 }
                 else if(bandisDown){
-                    //std::cout<<"Selecting BAND DOWN"<<std::endl;
                       selectedbandId=p->padEtaId()*2-1;
                       bandLocalMinY=local_padminy;
                       bandLocalMaxY=padMidY;
                 }
                 else{
-                     //std::cout<<"Fuzzy Band Selection. Vetoing the padTrigger "<<std::endl;
-                     //std::cout<<"padminY="<<local_padminy<<" padmaxY="<<local_padmaxy<<" trgMinY="<<local_trigminy<<" trgMaxY="<<local_trigmaxy<<std::endl;
-                     //std::cout<<"sectorType="<<p->sectorType()<<" sectorID="<<p->sectorId()<<" moduleId="<<p->moduleId()<<" multipletId="<<p->multipletId()<<" layer="<<p->gasGapId()<<" ieta="<<p->padEtaId()<<" iphi="<<p->padPhiId()<<std::endl;
-                     //return a null trigger;
+
                      return PadTrigger();
                 }
                 
-                //std::cout<<"bandminy="<<bandLocalMinY<<" bandMaxY="<<bandLocalMaxY<<std::endl;
                 selectedbandId+=bandOffset;
                 trglocalminY.push_back(bandLocalMinY);
                 trglocalmaxY.push_back(bandLocalMaxY);
@@ -483,36 +497,32 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                 trgPadEtaIndices.push_back(p->padEtaId());
                 trgPads.push_back(p);
     			pt.m_pads.push_back(p);
-                std::vector<float> pad_info={p->multipletId(),p->gasGapId(),bandLocalMinY,bandLocalMaxY};
                 
                 //it seems pad overlap is  precise enough around 5microns .
                 if(!within(local_padminy,local_padmaxy,local_trigminy,local_trigmaxy,0.005)){
                     ATH_MSG_FATAL("TRIGGER REGION FALLS OUTSIDE THE PAD!. SOMETHING IS WRONG.");
-                }     
- 
-    			pt.m_pad_strip_info.push_back(pad_info);
+                }
     	} // for(p) pads
-    	
-    	switch(pt.m_multiplet_id){
-            case 1:
-                pt.m_trglocalminYInner=trglocalminY;
-                pt.m_trglocalmaxYInner=trglocalmaxY;
-                pt.m_trgSelectedLayersInner=trgSelectedLayers;
-                pt.m_trgSelectedBandsInner=trgSelectedBands;
-                pt.m_trgPadPhiIndicesInner=trgPadPhiIndices;
-                pt.m_trgPadEtaIndicesInner=trgPadEtaIndices;
-                pt.m_padsInner=trgPads;
-            case 2:
-                pt.m_trglocalminYOuter=trglocalminY;
-                pt.m_trglocalmaxYOuter=trglocalmaxY;                
-                pt.m_trgSelectedLayersOuter=trgSelectedLayers;
-                pt.m_trgSelectedBandsOuter=trgSelectedBands;
-                pt.m_trgPadPhiIndicesOuter=trgPadPhiIndices;
-                pt.m_trgPadEtaIndicesOuter=trgPadEtaIndices;
-                pt.m_padsOuter=trgPads;
-            default:
-                break;
+        if(currwedge==1){
+            pt.m_trglocalminYInner=trglocalminY;
+            pt.m_trglocalmaxYInner=trglocalmaxY;
+            pt.m_trgSelectedLayersInner=trgSelectedLayers;
+            pt.m_trgSelectedBandsInner=trgSelectedBands;
+            pt.m_trgPadPhiIndicesInner=trgPadPhiIndices;
+            pt.m_trgPadEtaIndicesInner=trgPadEtaIndices;
+            pt.m_padsInner=trgPads;
         }
+        if(currwedge==2){
+            pt.m_trglocalminYOuter=trglocalminY;
+            pt.m_trglocalmaxYOuter=trglocalmaxY;                
+            pt.m_trgSelectedLayersOuter=trgSelectedLayers;
+            pt.m_trgSelectedBandsOuter=trgSelectedBands;
+            pt.m_trgPadPhiIndicesOuter=trgPadPhiIndices;
+            pt.m_trgPadEtaIndicesOuter=trgPadEtaIndices;
+            pt.m_padsOuter=trgPads;
+        }    	
+	
+
         trglocalminY.clear();
         trglocalmaxY.clear();
         trgSelectedLayers.clear();
@@ -522,9 +532,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         trgPads.clear();
         
     } // for (swt) single wedge trigger
-    //the below is meaningless but is a relic. so lets do this workaroubnd for now
 
-    
     pt.m_bandid=pt.m_trgSelectedBandsInner.size() >0? pt.m_trgSelectedBandsInner.at(0) : pt.m_trgSelectedBandsOuter.at(0);
     return pt;
 }

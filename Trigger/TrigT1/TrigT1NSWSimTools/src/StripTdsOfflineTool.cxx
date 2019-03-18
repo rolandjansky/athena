@@ -477,28 +477,6 @@ namespace NSWL1 {
         
 
             bool read_strip=readStrip(strip.get(),padTriggers);
-            //bool _tmp=false;
-            /*
-            for( const auto& p : padTriggers){
-                //	    if(p->sectorId()!=stationPhi)
-                //  {
-                //		ATH_MSG_INFO("ReadStrip Trigger Candidate in different sector " << p->sectorId() << "  " <<stationPhi );
-                //		continue; //Only take triggers in the same sector
-                //  }
-
-                if(p->sideId()!=strip->sideId()){
-                    ATH_MSG_DEBUG(" ReadStrip Trigger Candidate in different side " << p->sideId() << "  " <<strip->sideId() );
-                    continue;
-                }
-                //_tmp=readStrip(p->bandId(),strip.get(),p->m_pad_strip_info); //this readStrip is the function
-                
-                if( _tmp and read_strip){
-                    ATH_MSG_DEBUG("Multiple pad trigger candidate in a single wedge for strip "<<read_strip );
-                    
-                }
-                read_strip=read_strip || _tmp;
-            }
-            */
             if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
                 ATH_MSG_DEBUG("StripTdsOfflineTool:NO MATCH ALL \n" <<
                     "wedge:" << strip->wedge() << "\n"
@@ -572,7 +550,7 @@ namespace NSWL1 {
 		 <<"loc_x:"<< strip->locX()<< "\n");
 
     for(const auto& trig :padTriggers){
-
+        
         const auto& innerbandsLocMinY=trig->m_trglocalminYInner;
         const auto& innerbandsLocMaxY=trig->m_trglocalmaxYInner;
         const auto& outerbandsLocMinY=trig->m_trglocalminYOuter;
@@ -583,31 +561,23 @@ namespace NSWL1 {
         for(const auto& lyr : innerLayers){
                   int loc_min_y = innerbandsLocMinY.at(idxinner);
                   int loc_max_y = innerbandsLocMaxY.at(idxinner);
-                  
                   auto pad=trig->m_padsInner.at(idxinner);
                   int trgwedge=pad->multipletId();
-                  /*
-                  Identifier padId(pad->id());
-                  auto padSurface= m_detManager->getsTgcReadoutElement(padId)->surface(padId);
-                  const Amg::Vector3D strip_global(strip->globX(), strip->globY() ,strip->globZ());
-                  Amg::Vector2D strip_lpos_onpad;
-                  padSurface.globalToLocal(strip_global,strip_global,strip_lpos_onpad);
-                  */
                   if (trgwedge != strip->wedge()||
                       lyr != strip->layer() ||
                       strip->sideId()!=pad->sideId() ||
                       strip->isSmall()==pad->sectorType() || //strip returns 1 pad returns 0 for small
                       strip->sectorId()!=pad->sectorId() ||
                       strip->moduleId() !=pad->moduleId() ||
-                      strip->locX() > loc_max_y ||
-                      strip->locX() < loc_min_y )
+                      strip->locX() > loc_max_y+3.2 ||
+                      strip->locX() < loc_min_y-3.2 )
+                      
                   {
                       idxinner++;
                       continue;
                   }
-                          strip->setBandId(trig->m_bandid);
-                          strip->setPhiId(trig->m_phi_id);
-
+                  strip->setBandId(trig->m_bandid);
+                  strip->setPhiId(trig->m_phi_id);
                   return true;
         }//inner layers loop
         
@@ -615,15 +585,9 @@ namespace NSWL1 {
         for(const auto& lyr : outerLayers){
                   int loc_min_y = outerbandsLocMinY.at(idxouter);
                   int loc_max_y = outerbandsLocMaxY.at(idxouter);
+
                   auto pad=trig->m_padsOuter.at(idxouter);
                   int trgwedge=pad->multipletId();
-                  /*
-                  Identifier padId(pad->id());
-                  auto padSurface= m_detManager->getsTgcReadoutElement(padId)->surface(padId);
-                  const Amg::Vector3D strip_global(strip->globX(), strip->globY() ,strip->globZ());
-                  Amg::Vector2D strip_lpos_onpad;
-                  padSurface.globalToLocal(strip_global,Amg::Vector3D(),strip_lpos_onpad);                  
-                  */
                   
                   if (trgwedge != strip->wedge() ||
                       lyr != strip->layer() ||
@@ -631,58 +595,21 @@ namespace NSWL1 {
                       strip->isSmall()==pad->sectorType() || //strip returns 1 pad returns 0 for small
                       strip->sectorId()!=pad->sectorId() ||
                       strip->moduleId() !=pad->moduleId() ||
-                       strip->locX() > loc_max_y ||
-                       strip->locX() < loc_min_y )
+                       strip->locX() > loc_max_y+3.2 ||
+                       strip->locX() < loc_min_y-3.2 )
                   {
                       idxouter++;
                       continue;
                   }
-                          strip->setBandId(trig->m_bandid);
-                          strip->setPhiId(trig->m_phi_id);
-
+                  strip->setBandId(trig->m_bandid);
+                  strip->setPhiId(trig->m_phi_id);
                   return true;
         }//outer layer loop
         
     }//padtriggers loop
     return false;
   } 
-    /*
-    for( auto pad_data: pad_strip_info){
-      if (pad_data.size()!=4){
-        ATH_MSG_WARNING("StripTdsOfflineTool:ReadStrip: pad data of incorrect size:\n");
-        continue;
-	  }
-      float wedge = pad_data.at(0);
-      float layer = pad_data.at(1);
-      int loc_min_y = pad_data.at(2);
-      int loc_max_y = pad_data.at(3);
 
-      ATH_MSG_DEBUG("StripTdsOfflineTool:Pad: \n" <<
-		   "wedge:" << wedge << "\n"
-		   <<"layer:"<< layer << "\n"
-		   <<"loc_y:"<< loc_min_y << ":"<<loc_max_y << "\n");
-      
-      if (wedge != strip->wedge()) continue;
-      if (layer != strip->layer()) continue;
-      if (strip->locX() > loc_max_y || strip->locX()< loc_min_y) continue;
-      strip->setBandId((int) bandID);
-      
-
-      ATH_MSG_DEBUG("StripTdsOfflineTool:MATCH");
-	  return true;
-    }
-    ATH_MSG_DEBUG("StripTdsOfflineTool:NoMATCH");
-    return false;
-    
-  }
-  */
-
-    /*   else { ATH_MSG_DEBUG("StripCluster:ReadStrip Found detector with:\n" <<
-			"type:" << type << "\n"
-			<<"moduleID:"<< strip->moduleId() << "\n"
-			<<"sectiorID:"<< strip->sectorId()<< "\n"
-			<<"layer:"<<layer<< "\n"
-			<<"side:"<<side<< "\n");}*/
 
 
     /* Code for when pand id is fixed*/

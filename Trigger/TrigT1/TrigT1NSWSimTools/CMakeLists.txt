@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/EventInfo
-
+                          DetectorDescription/RegionSelector
                           MuonSpectrometer/MuonDetDescr/MuonRegionSelector
                           MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -42,7 +42,7 @@ atlas_add_library( TrigT1NSWSimToolsLib
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO   MuonRegionSelector )
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO   RegionSelector )
 
 
 # Component(s) in the package:
@@ -52,16 +52,10 @@ atlas_add_component( TrigT1NSWSimTools
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${BOOST_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  MuonRegionSelector TrigT1NSWSimToolsLib)
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegionSelector  )
 
 
-#loop over each cxx file in the util directory of this package
-  file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/util" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
-  foreach (SOURCE ${util_sources})	
-    #use the name of the file as the name of the executable (e.g. myApplication.cxx will be executed with: myApplication)
-    string (REGEX REPLACE ".cxx$" "" FILE ${SOURCE})
-    atlas_add_executable (${FILE} SOURCES util/${FILE}.cxx LINK_LIBRARIES  TrigT1NSWSimToolsLib)
-  endforeach (SOURCE ${util_sources})
+
 
 
 

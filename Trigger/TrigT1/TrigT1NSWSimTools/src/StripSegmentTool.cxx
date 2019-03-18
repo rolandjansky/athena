@@ -52,6 +52,7 @@ namespace NSWL1 {
       m_detManager(0),
       m_sTgcIdHelper(0),
       m_tree(0),
+      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),//name can be made configurable through JO just in case storegate config. changes in the future
       m_rIndexBits(0),
       m_dThetaBits(0),
       m_zbounds({-1,1}),
@@ -152,12 +153,16 @@ namespace NSWL1 {
       
       ATH_CHECK( m_trigRdoContainer.initialize() );
       
-      
+      /*
       if(m_regionHandle.retrieve().isFailure()){
             ATH_MSG_FATAL("Error retrieving sTGC_RegionSelectorTable");
             return StatusCode::FAILURE;
       }      
-
+*/    
+      ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
+      
+      
+      
       ATH_CHECK( FetchDetectorEnvelope());
       return StatusCode::SUCCESS;
     }
@@ -172,7 +177,8 @@ namespace NSWL1 {
         const auto  p_IdHelper =m_detManager->stgcIdHelper();
         const auto ModuleContext = p_IdHelper->module_context();
         
-        auto regSelector=m_regionHandle->getLUT();
+        auto regSelector = m_lutCreatorToolsTGC->getLUT();
+        //auto regSelector=m_regionHandle->getLUT();
         float rmin=-1.;
         float rmax=-1.;
         float zfar=-1.;
@@ -183,7 +189,7 @@ namespace NSWL1 {
           for(const auto& i : p_IdHelper->idVector()){// all modules
             IdentifierHash moduleHashId;            
             p_IdHelper->get_hash( i, moduleHashId, &ModuleContext );
-            auto module=regSelector->Module(moduleHashId);//pick envelope from the regionselector
+            auto module=regSelector->Module(moduleHashId);
             if(module->zMax()<0) continue;
             if(ctr==0){
                 rmin=module->rMin();

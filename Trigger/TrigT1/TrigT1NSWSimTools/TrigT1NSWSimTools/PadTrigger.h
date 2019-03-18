@@ -50,7 +50,7 @@ namespace NSWL1 {
         std::vector<int> m_trgPadEtaIndicesInner;
         std::vector<int> m_trgPadEtaIndicesOuter;        
         
-        std::vector<std::vector<float>> m_pad_strip_info; // hack to match pads to strips until we fix the band id issue
+        //std::vector<std::vector<float>> m_pad_strip_info; // hack to match pads to strips until we fix the band id issue
                                                         // m_pad_strip_info.size gives the number of pads in each PadTrigger
                                                         // m_pad_strip_info[i][0] gives the multilayer id of the ith pad in this trigger
                                                         // m_pad_strip_info[i][1] gives the gasgap id     of the ith pad in this trigger
@@ -67,7 +67,7 @@ namespace NSWL1 {
         \todo when we have an inner+outer candidate, will they get the same bandid?
         Also do we need to cache it as a datamember?
         */
-        PadTrigger() : m_bandid(0), m_eta(0), m_phi(0), m_eta_id(0), m_phi_id(0),m_moduleIdInner(0),m_moduleIdOuter(0), m_multiplet_id(0), m_pad_strip_info{{0.}} {
+        PadTrigger() : m_bandid(0), m_eta(0), m_phi(0), m_eta_id(0), m_phi_id(0),m_moduleIdInner(0),m_moduleIdOuter(0), m_multiplet_id(0)/*, m_pad_strip_info{{0.}}*/ {
         
         }
 

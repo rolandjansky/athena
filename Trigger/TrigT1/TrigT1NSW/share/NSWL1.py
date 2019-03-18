@@ -15,7 +15,7 @@
 #serhat
 import glob
 import os
-#serhat 
+
 if 'customInput' not in locals() or 'customInput' not in globals():
     print("customInput not defined yet setting the default as input.rdo.pool.root")
     customInput='input.rdo.pool.root'
@@ -27,7 +27,6 @@ if(not os.path.isdir(customInput) and not os.path.isfile(customInput) ):
         os.sys.exit()
 if(os.path.isdir(customInput)):
     customInput+="/*.root"
-#eof serhat
 
 MessageSvc.defaultLimit=10000
 MessageSvc.useColors = True
@@ -103,11 +102,11 @@ ServiceMgr += Agdd2GeoSvc
 #-----------------------------------------------------------------------------
 # Algorithms:  NSW L1 simulation
 #-----------------------------------------------------------------------------
-# please import configurables yourself instead.
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 from AthenaCommon.AppMgr import ServiceMgr
 theRegSelSvc = RegSelSvcDefault()
 ServiceMgr += theRegSelSvc
+
 
 
 include ('TrigT1NSW/TrigT1NSW_jobOptions.py')
@@ -134,12 +133,12 @@ topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="NSWTRGRDO"
 
 
 #Tools' Messaging Levels
-topSequence.NSWL1Simulation.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.OutputLevel=INFO
+topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=INFO
 topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
-topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
 
 # Simulation parameters
 #topSequence.NSWL1Simulation.PadTdsTool.VMM_DeadTime=3
