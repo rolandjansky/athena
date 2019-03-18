@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 # art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi
 # art-type: grid
-# 
+#
 
 # specify branches of athena that are being targeted:
 
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
+
 # job 1: Simulation from evgen
 
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
@@ -21,9 +20,10 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' \
     --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" \
     --outputHITSFile "Hits.pool.root" \
-    --maxEvents 50
+    --maxEvents 50 \
+    --imf False
 
-echo "art-result: $? evgen step"
+echo "art-result: $? EVNTtoHITS step"
 
 #merging of hits file
 
@@ -32,9 +32,10 @@ HITSMerge_tf.py --inputHITSFile='Hits.pool.root' \
     --maxEvents=50 \
     --skipEvents='0' \
     --geometryVersion 'ATLAS-R2-2015-03-01-00' \
-    --conditionsTag 'OFLCOND-RUN12-SDR-19'
+    --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+    --imf False
 
-echo "art-result: $? Merge step"
+echo "art-result: $? HITS Merge step"
 #digi
 Digi_tf.py --inputHITSFile 'Merge.pool.root' \
     --outputRDOFile 'RDO.pool.root' \
@@ -45,9 +46,10 @@ Digi_tf.py --inputHITSFile 'Merge.pool.root' \
     --digiSeedOffset2 '2345678' \
     --postInclude 'PyJobTransforms/UseFrontier.py' \
     --AddCaloDigi 'False' \
-    --conditionsTag 'OFLCOND-RUN12-SDR-31'
+    --conditionsTag 'OFLCOND-RUN12-SDR-31' \
+    --imf False
 
-echo "art-result: $? Digi step"
+echo "art-result: $? HITStoRDO step"
 
 FastChain_tf.py --maxEvents 50 \
     --skipEvents 0 \
@@ -55,28 +57,27 @@ FastChain_tf.py --maxEvents 50 \
     --conditionsTag OFLCOND-RUN12-SDR-31 \
     --inputRDOFile RDO.pool.root \
     --outputAODFile AOD_Split_stdFullSimDigi.pool.root \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
+    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);" \
+    --imf False
+
 #end of job
-echo "art-result: $? AOD step"
+echo "art-result: $? RDOtoAOD step"
 #add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 
 
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi_InDetStandardPlots.root
 
 
 
 
 # InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+# art-output: dcube/
 
 echo  "art-result: $? histcomp test"
