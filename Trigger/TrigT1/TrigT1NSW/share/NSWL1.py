@@ -9,10 +9,7 @@
 # AthenaCommon configuration
 #--------------------------------------------------------------
 
-#from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-#GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
-#serhat
+
 import glob
 import os
 
@@ -28,7 +25,7 @@ if(not os.path.isdir(customInput) and not os.path.isfile(customInput) ):
 if(os.path.isdir(customInput)):
     customInput+="/*.root"
 
-MessageSvc.defaultLimit=10000
+MessageSvc.defaultLimit=100
 MessageSvc.useColors = True
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 
@@ -125,7 +122,6 @@ topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
 
 topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
-topSequence.NSWL1Simulation.StripSegmentTool.rIndexBits=8
 topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="NSWTRGRDO"
 
 

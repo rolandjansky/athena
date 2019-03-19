@@ -160,9 +160,7 @@ namespace NSWL1 {
       }      
 */    
       ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
-      
-      
-      
+
       ATH_CHECK( FetchDetectorEnvelope());
       return StatusCode::SUCCESS;
     }
@@ -176,9 +174,7 @@ namespace NSWL1 {
     StatusCode StripSegmentTool::FetchDetectorEnvelope(){//S.I : Sufficient to call this only once. probably inside init()
         const auto  p_IdHelper =m_detManager->stgcIdHelper();
         const auto ModuleContext = p_IdHelper->module_context();
-        
         auto regSelector = m_lutCreatorToolsTGC->getLUT();
-        //auto regSelector=m_regionHandle->getLUT();
         float rmin=-1.;
         float rmax=-1.;
         float zfar=-1.;
