@@ -8,47 +8,37 @@ atlas_subdir( DecisionHandling )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
-                          #GaudiKernel
+                          GaudiKernel
                           Control/AthContainers
                           Control/AthLinks 
                           PRIVATE
                           Control/AthViews
-                          #Control/StoreGate
+                          Control/StoreGate
                           Control/AthenaBaseComps
-                          #Control/CxxUtils
+                          Control/CxxUtils
                           Trigger/TrigConfiguration/TrigConfHLTData
-                          #Trigger/TrigEvent/TrigSteeringEvent
-                          #Trigger/TrigSteer/L1Decoder
                           AtlasTest/TestTools
                           Control/StoreGate
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT )
 
-find_package( ROOT )
-find_package( Boost )
-
 atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
-                   LINK_LIBRARIES xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent TrigTimeAlgsLib )
+                   LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES}
-                     ${ROOT_LIBRARIES} GaudiKernel AthViews  AthenaBaseComps CxxUtils xAODTrigger DecisionHandlingLib
-                     )
+                     LINK_LIBRARIES DecisionHandlingLib )
 
-
+# Unit tests:
 atlas_add_test( TrigCompositeUtils_test
                 SOURCES test/TrigCompositeUtils_test.cxx
-                LINK_LIBRARIES  TestTools xAODTrigger DecisionHandlingLib
-                AthContainers SGtests )
+                LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers SGtests )
 
 atlas_add_test( Combinators_test
                 SOURCES test/Combinators_test.cxx
-                LINK_LIBRARIES  TestTools xAODTrigger DecisionHandlingLib
-                AthContainers )
+                LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers )
