@@ -87,6 +87,7 @@ namespace InDet {
     size_t              m_barrelLayerBinsZ;               //!< Barrel bins for the material in z
     size_t              m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
     bool		m_customMaterial;
+    bool    m_impMatDescription;
     
   };
 }

@@ -104,7 +104,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm1200j50'
                     ]
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
-AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99', 'bXemu']
+AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99', 'bXemu','03dRtt']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 
@@ -293,8 +293,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA'],
-    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA','t2MVA'],
+    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'mRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],

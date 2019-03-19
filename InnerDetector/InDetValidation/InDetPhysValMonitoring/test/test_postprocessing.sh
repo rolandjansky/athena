@@ -5,6 +5,7 @@
 # art-output: *.root
 # art-output: *.xml
 # art-output: dcube*
+# art-output: report
 
 # Fix ordering of output in logfile
 exec 2>&1
@@ -53,7 +54,7 @@ dcube() {
 ( set -x
   exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$individual_ESD_1"
 )
-echo "art-result: $? physval"
+echo "art-result: $? physval_1"
 
 mv ./MyPhysVal.root ./physval_1.root
 
@@ -61,13 +62,17 @@ mv ./MyPhysVal.root ./physval_1.root
 ( set -x
   exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$individual_ESD_2"
 )
-echo "art-result: $? physval"
+echo "art-result: $? physval_2"
 
 mv ./MyPhysVal.root ./physval_2.root
 
 # Combining two IDPVM outputs using postprocessing
-hadd ./physval_hadd.root ./physval_1.root ./physval_2.root
-$artdata/InDetSLHC_Example/scripts/postprocessHistos ./physval_hadd.root
+( set -x
+  hadd ./physval_hadd.root ./physval_1.root ./physval_2.root
+  cp $artdata/InDetSLHC_Example/scripts/postprocessHistos .
+  chmod a+x ./postprocessHistos  
+  ./postprocessHistos ./physval_hadd.root
+)
 
 mv ./physval_hadd.root ./$dcubemon_postprocessing
 
@@ -75,7 +80,7 @@ mv ./physval_hadd.root ./$dcubemon_postprocessing
 ( set -x
   exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$combined_ESD"
 )
-echo "art-result: $? physval"
+echo "art-result: $? physval_comb"
   
 mv ./MyPhysVal.root ./$dcuberef_postprocessing
   

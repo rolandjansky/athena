@@ -1526,6 +1526,10 @@ trigMuonEFCombinerDiMuonMassThresholds = {
      'Jpsi'    : [  2.5,    4.3 ],
      'Upsi'    : [  8.0,   12.0 ],
      'Z'       : [ 80.0,  100.0 ],
+     '0invm60': [  0.0,   60.0 ],
+     '10invm60': [ 10.0,   60.0 ],
+     '20invm60': [ 20.0,   60.0 ],
+     '20invm80': [ 20.0,   80.0 ],
     }
 
 class TrigMuonEFCombinerDiMuonMassHypoConfig(TrigMuonEFCombinerDiMuonMassHypo) :
