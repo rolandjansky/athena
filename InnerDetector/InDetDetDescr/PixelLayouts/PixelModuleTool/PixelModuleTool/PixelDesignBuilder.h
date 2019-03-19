@@ -54,13 +54,14 @@ class PixelDesignBuilder:  public AthService, virtual public IPixelDesignSvc,  p
 					  int circuitsPhi, int circuitsEta,
 					  int diodeRowPerCirc, int diodeColPerCirc);
   
- 
+  void initModuleMap(const PixelGeoBuilderBasics*);
+
  private:
  
   static std::vector<InDetDD::PixelModuleDesign*> s_designs; 
   InDetDD::PixelModuleDesign* build(  const PixelGeoBuilderBasics* basics, int moduleIndex);
  
-  GeoDetModulePixelMap m_moduleMap;
+  const GeoDetModulePixelMap * m_moduleMap;
 };
 
 inline const InterfaceID & PixelDesignBuilder::interfaceID(){

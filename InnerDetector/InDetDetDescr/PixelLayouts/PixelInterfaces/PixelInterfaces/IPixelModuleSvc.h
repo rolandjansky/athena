@@ -1,7 +1,6 @@
- /**
- * @file iPixelModuleSvc.h
- * @author Grant.Gorfine@cern.ch
-**/
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef IPixelModuleSvc_h
 #define IPixelModuleSvc_h
@@ -43,6 +42,7 @@ class IPixelModuleSvc: virtual public IInterface {
   virtual double getWidth(int moduleIndex) const =0;
   virtual double getLength(int moduleIndex) const =0;
   virtual int getChipNumber(int moduleIndex) const =0;
+  virtual void initModuleMap(const PixelGeoBuilderBasics*) =0;
 
 };
 

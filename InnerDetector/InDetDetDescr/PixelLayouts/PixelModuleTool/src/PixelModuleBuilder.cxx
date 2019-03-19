@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelModuleTool/PixelModuleBuilder.h"
@@ -17,17 +17,23 @@ std::vector<GeoDetModulePixel*> PixelModuleBuilder::s_geometries;
 std::vector<InDet::GeoDetModule*> PixelModuleBuilder::s_geometries_geocomp;
 std::vector<int> PixelModuleBuilder::s_geometries_index;
 
-PixelModuleBuilder::PixelModuleBuilder( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthService(name, pSvcLocator)
+PixelModuleBuilder::PixelModuleBuilder( const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthService(name, pSvcLocator),
+  m_moduleMap(nullptr)
 {
   s_geometries.clear();
-  m_moduleMap = GeoDetModulePixelMap();
 }
-
 
 PixelModuleBuilder::~PixelModuleBuilder()
 {
   for(int i=0; i<(int)s_geometries.size(); i++) delete s_geometries[i];
+  if(m_moduleMap) delete m_moduleMap;
+}
+
+void PixelModuleBuilder::initModuleMap(const PixelGeoBuilderBasics* basics)
+{
+  m_moduleMap = new GeoDetModulePixelMap(basics);
+ 
 }
 
 StatusCode PixelModuleBuilder::initialize()
@@ -66,15 +72,15 @@ StatusCode PixelModuleBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
 // -------- GeoModel ----------------------------------------------------
 
-GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics*, int /*moduleIndex*/)
+GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics* basics, int /*moduleIndex*/)
 {
-  std::cout<<"ERROR - try to retrieve module without specifying brl/ec and layer/disc"<<std::endl;
+  basics->msgStream()<<MSG::ERROR<<" try to retrieve module without specifying brl/ec and layer/disc"<<endreq;
   return 0;
 }
 
-GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics*, std::string /*moduleType*/)
+GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics* basics, std::string /*moduleType*/)
 {
-  std::cout<<"ERROR - try to retrieve module without specifying brl/ec and layer/disc"<<std::endl;
+  basics->msgStream()<<MSG::ERROR<<" try to retrieve module without specifying brl/ec and layer/disc"<<std::endl;
   return 0;
 }
 
@@ -84,7 +90,6 @@ GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics* ba
   if(brl_ec<0)brl_ec=-brl_ec;
   int vIndex = brl_ec*10000+layerdisk*100+moduleIndex;
 
-  //  std::cout<<"New index : "<<vIndex<<" // Index defined : ";for(int i=0; i<(int)s_geometries_index.size(); i++) std::cout<<s_geometries_index[i]<<" "; std::cout<<std::endl;
 
   for(int i=0; i<(int)s_geometries_index.size(); i++) {
     if(s_geometries_index[i]==vIndex) return s_geometries[i];
@@ -101,7 +106,11 @@ GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics* ba
 GeoDetModulePixel* PixelModuleBuilder::getModule(const PixelGeoBuilderBasics* basics,  int brl_ec, int layerdisk, std::string moduleType)
 {
 
-  int moduleIndex = m_moduleMap.getModuleIndex(moduleType);
+  if(!m_moduleMap) {
+    basics->msgStream()<<MSG::ERROR<<"No Module Map avilable! Did you call initModuleMap?"<<endreq;
+    return nullptr;
+  }
+  int moduleIndex = m_moduleMap->getModuleIndex(moduleType);
   return getModule(basics, brl_ec, layerdisk, moduleIndex);
 }
 
@@ -128,8 +137,11 @@ InDet::GeoDetModule* PixelModuleBuilder::getModuleGeoComp(const PixelGeoBuilderB
 
 InDet::GeoDetModule* PixelModuleBuilder::getModuleGeoComp(const PixelGeoBuilderBasics* basics, int brl_ec, int layerdisk, std::string moduleType)
 {
-
-  int moduleIndex = m_moduleMap.getModuleIndex(moduleType);
+  if(!m_moduleMap) {
+    basics->msgStream()<<MSG::ERROR<<"No Module Map avilable! Did you call initModuleMap?"<<endreq;
+    return nullptr;
+  }
+  int moduleIndex = m_moduleMap->getModuleIndex(moduleType);
   return getModuleGeoComp(basics, brl_ec, layerdisk, moduleIndex);
 }
 

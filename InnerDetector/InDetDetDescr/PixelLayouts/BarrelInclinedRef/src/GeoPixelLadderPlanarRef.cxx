@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "BarrelInclinedRef/GeoPixelLadderPlanarRef.h"
 #include "BarrelInclinedRef/GeoPixelStaveSupportInclRef.h"
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
@@ -92,6 +96,9 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
       msg(MSG::INFO) << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
   else 
       msg(MSG::INFO) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
+
+   m_pixelModuleSvc->initModuleMap(getBasics());
+   m_pixelDesignSvc->initModuleMap(getBasics());
   
   // Access stave description xml file				
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());

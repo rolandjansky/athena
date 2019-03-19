@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelModule/GeoDetModulePixelMap.h"
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 
 #include "Identifier/Identifier.h"
@@ -25,8 +26,17 @@
 
 using std::max;
 
+GeoDetModulePixelMap::GeoDetModulePixelMap():
+  GeoXMLUtils(),
+  m_basics(nullptr),
+  m_bModule(false)
+{
+  //try this to make compiler happy...
+}
 
-GeoDetModulePixelMap::GeoDetModulePixelMap(bool bModule):
+GeoDetModulePixelMap::GeoDetModulePixelMap(const PixelGeoBuilderBasics * basics,bool bModule):
+  GeoXMLUtils(),
+  m_basics(basics),
   m_bModule(bModule)
 {
   preBuild();
@@ -34,11 +44,6 @@ GeoDetModulePixelMap::GeoDetModulePixelMap(bool bModule):
 
 void GeoDetModulePixelMap::preBuild()
 {
-  //  std::cout<<" GeoDetModule* GeoDetModulePixelMap::build"<<std::endl;
-
-  // -----------------------------------------------------------------------------
-  // Read data from the XML file -------------------------------------------------
-
   
   std::string fileName="AlpineModules.xml";
   std::string itemGen = "PixelModules";
@@ -52,25 +57,35 @@ void GeoDetModulePixelMap::preBuild()
     itemName = "FrontEndChipGeo";
   }
 
-  // std::cout<<"XML file read to create map for modules / readout geos "<<fileName<<endmsg;
+  bool readXMLfromDB = m_basics->ReadInputDataFromDB();
+  bool bParsed = false;
 
-  InitializeXML();
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  bool bParsed = ParseFile(file);
-
+  if(readXMLfromDB)
+    {
+      m_basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(m_basics);
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else{
+    InitializeXML();
+    m_basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+    std::string file = PathResolver::find_file (fileName, "DATAPATH");
+    bParsed = ParseFile(file);
+  }
+  
   if(!bParsed){
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+     m_basics->msgStream()<<"XML file "<<fileName<<" not found"<<endreq;
     return;
   }
 
   int nbModule = getChildCount(itemGen.c_str(), 0, itemName.c_str());
-  //  std::cout<<"# module defined : "<<nbModule<<std::endl;
   for(int iModule=0; iModule<nbModule; iModule++)
     {
       std::string moduleName = getChildValue(itemName.c_str(), iModule, "moduleName");
       moduleName.erase(std::remove(moduleName.begin(),moduleName.end(),' '),moduleName.end());
 
-      //  std::cout<<"   - "<<moduleName<<" "<<iModule<<std::endl;
       m_moduleMap.insert( std::pair<std::string,int>(moduleName,iModule) );
     }
 
@@ -84,6 +99,7 @@ int GeoDetModulePixelMap::getModuleIndex(std::string moduleType) const
   for (auto it = m_moduleMap.begin(); it != m_moduleMap.end(); it++) {
     if(moduleType.compare(it->first)==0) return it->second;
   }
+  m_basics->msgStream()<<MSG::ERROR<<"Unable to retrieve module of type "<<moduleType<<" from GeoDetModulePixelMap - please check that it exists!"<<endreq;
   return -1;
 }
 

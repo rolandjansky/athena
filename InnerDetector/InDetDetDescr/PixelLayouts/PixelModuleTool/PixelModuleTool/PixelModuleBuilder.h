@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelModuleBuilder_H
@@ -17,6 +17,8 @@
 
 #include "PixelGeoModelModule/GeoDetModulePixelMap.h"
 #include "PixelGeoComponent/GeoDetModule.h"
+
+#include "PixelLayoutUtils/GeoXMLUtils.h"
 
 #include <string>
 #include <vector>
@@ -58,6 +60,8 @@ class PixelModuleBuilder:  public AthService, virtual public IPixelModuleSvc {
   double getWidth(int moduleIndex) const;
   double getLength(int moduleIndex) const;
   int getChipNumber(int moduleIndex) const;
+
+  void initModuleMap(const PixelGeoBuilderBasics*);
     
  private:
   
@@ -66,7 +70,7 @@ class PixelModuleBuilder:  public AthService, virtual public IPixelModuleSvc {
   static std::vector<InDet::GeoDetModule*> s_geometries_geocomp;  
   GeoDetModulePixel* build(const PixelGeoBuilderBasics* basics, int moduleindex, int brl_ec=-1, int layerdisk=-1);
 
-  GeoDetModulePixelMap m_moduleMap;
+  const GeoDetModulePixelMap * m_moduleMap;
 
 };
 
