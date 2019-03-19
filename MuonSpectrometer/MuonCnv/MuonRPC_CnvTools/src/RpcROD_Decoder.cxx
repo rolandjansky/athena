@@ -54,58 +54,49 @@ Muon::RpcROD_Decoder::~RpcROD_Decoder() {
 }
 
 StatusCode Muon::RpcROD_Decoder::initialize() {
- 
-
 
   ServiceHandle<IRPCcablingServerSvc> rpc_server("RPCcablingServerSvc", name());
   if (rpc_server.retrieve().isFailure()) {
-	msg(MSG::FATAL) << " Can't get RPCcablingServerSvc " << endmsg;
-	return StatusCode::FAILURE;
-    }
+    ATH_MSG_FATAL("Can't get RPCcablingServerSvc" );
+    return StatusCode::FAILURE;
+  }
   
-    if (StatusCode::SUCCESS != rpc_server->giveCabling(m_cabling)) {
-	msg(MSG::FATAL) << " Can't get RPCcablingSvc from Server" << endmsg;
-	return StatusCode::FAILURE; 
-    }
+  if (StatusCode::SUCCESS != rpc_server->giveCabling(m_cabling)) {
+    ATH_MSG_FATAL("Can't get RPCcablingSvc from Server");
+    return StatusCode::FAILURE; 
+  }
 
-    StatusCode status=StatusCode::SUCCESS;
+  StatusCode status=StatusCode::SUCCESS;
 
 
     // Get the RPC id helper from the detector store
-    status = detStore()->retrieve(m_pRpcIdHelper, "RPCIDHELPER");
-    if (status.isFailure()) {
-	msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endmsg;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	msg(MSG::VERBOSE) << " Found the RpcIdHelper. " << endmsg;
-    }
-  
-    //m_hashfunc = new RpcPadIdHash();
-  
-    if (m_specialROBNumber>0) {
-	msg(MSG::DEBUG) << "Setting the special ROB Number to: 0x" << MSG::hex << m_specialROBNumber
-			<< MSG::dec <<endmsg;
-    }
+  status = detStore()->retrieve(m_pRpcIdHelper, "RPCIDHELPER");
+  if (status.isFailure()) {
+    ATH_MSG_FATAL("Could not get RpcIdHelper !");
+    return StatusCode::FAILURE;
+  } 
+  else {
+    ATH_MSG_VERBOSE("Found the RpcIdHelper.");
+  }
 
-    //==LBTAG initialize vector and variables for format failure check
-    for(int i=0; i<13; i++) m_RPCcheckfail[i]=0;
-    m_previous=0;
-    m_printerror=0;
+  if (m_specialROBNumber>0) {
+    ATH_MSG_DEBUG("Setting the special ROB Number to: 0x" << MSG::hex << m_specialROBNumber << MSG::dec );
+  }
 
-    return StatusCode::SUCCESS;
+  //==LBTAG initialize vector and variables for format failure check
+  for(int i=0; i<13; i++) m_RPCcheckfail[i]=0;
+  m_previous=0;
+  m_printerror=0;
 
+  return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode Muon::RpcROD_Decoder::finalize() {
-    //if(m_hashfunc) delete m_hashfunc;
-  
   //==LBTAG print format failure final statistics
   printcheckformat();
-
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 } 
 
 

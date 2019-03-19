@@ -509,25 +509,24 @@ namespace Muon
     if (type==3)
     {
       std::map<Identifier,RpcPad*> mapOfCollections; 
-      std::vector<IdentifierHash>::const_iterator it = collections.begin();
-      for( ; it!=collections.end(); ++it)
-      {
+      // Request to update to range-based for-loop
+      for(const IdentifierHash& it : collections){
 
         // Normally, we would get a write handle and put a lock, but we do not process the decoding in this loop
         // Therefore, we just query the cache via the container and process the hashes which have not been decoded yet
         // Note that this means different threads may decode the same data if processing simultaneously
         // However, only one will be written to the cache using the lock
         
-        bool alreadyPresent = rdoIdc.tryFetch( *it );
+        bool alreadyPresent = rdoIdc.tryFetch( it );
         
         if(alreadyPresent){
-          ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
+          ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(it) << " converting is skipped!");
         }
         else{
-          ATH_MSG_DEBUG ( "Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+          ATH_MSG_DEBUG ( "Created new Pad Collection Hash ID = " << static_cast<unsigned int>(it) );
 
 		      // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
-          RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
+          RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(it), it);
           mapOfCollections[coll->identify()]=coll;
           
 	      }// endif collection not found in the container 
@@ -552,45 +551,44 @@ namespace Muon
 	    }
 
       // All un-decoded collections were decoded successfully, so they are passed back to the IDC
-      for (std::map<Identifier,RpcPad*>::const_iterator it=mapOfCollections.begin(); it!=mapOfCollections.end(); ++it)
-	    {
+      // Request to update to range-based for-loop
+      for(const std::map<Identifier, RpcPad*>::value_type& it : mapOfCollections){
 	      // Get the WriteHandle for this hash but we need to then check if it has already been decoded and
         // added to the event cache for this hash in a different view
-        RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( ((*it).second)->identifyHash() );
+        RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( (it.second)->identifyHash() );
         
         if(lock.alreadyPresent()){
-          ATH_MSG_DEBUG("RpcPad collection with hash " << (int)((*it).second)->identifyHash() << " was already decoded in a parallel view");
+          ATH_MSG_DEBUG("RpcPad collection with hash " << (int)(it.second)->identifyHash() << " was already decoded in a parallel view");
         }
         else{
           // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-          StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>((*it).second) ) );
+          StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>(it.second) ) );
 
           if(status_lock != StatusCode::SUCCESS)
           {
-            ATH_MSG_ERROR("Failed to add RPC PAD collection to container with hash " << (int)((*it).second)->identifyHash() );
+            ATH_MSG_ERROR("Failed to add RPC PAD collection to container with hash " << (int)(it.second)->identifyHash() );
           }
           else{
-            ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)((*it).second)->identifyHash()<<" to the RpcPad Container | size = "<<((*it).second)->size());
+            ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(it.second)->identifyHash()<<" to the RpcPad Container | size = "<<(it.second)->size());
           }
         }
       }
       return cnv_sc;
     }//endif (type==3)
     
-    std::vector<IdentifierHash>::const_iterator it = collections.begin();
-    for( ; it!=collections.end(); ++it)
-    {
+    // Request to update to range-based for-loop
+    for(const IdentifierHash& it : collections){
       // IDC_WriteHandle
-      RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( (*it) );
+      RpcPadContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( it );
 
       if(lock.alreadyPresent() ){
-        ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(*it) << " converting is skipped!");
+        ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(it) << " converting is skipped!");
       }
       else{
-        ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(*it) );
+        ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(it) );
 
         // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
-        RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(*it), *it);
+        RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(it), it);
         
         //convert collection - note case3 will never be used due to statement above
         switch(type)
@@ -620,7 +618,7 @@ namespace Muon
           //report the error condition
         }
         else
-          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(*it)<<" to the RpcPad Container | size = " << coll->size());
+          ATH_MSG_DEBUG("Adding RpcPad collection with hash "<<(int)(it)<<" to the RpcPad Container | size = " << coll->size());
       }
     }
     return cnv_sc;
