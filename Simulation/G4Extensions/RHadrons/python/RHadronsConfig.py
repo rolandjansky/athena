@@ -11,5 +11,19 @@ def getSG_StepNtupleTool(name="G4UA::SG_StepNtupleTool", **kwargs):
         #from AthenaCommon.AppMgr import theApp
         #theApp.exit(1)
         return False
+    # Get the PDG IDs for RHadrons
+    from RHadronMasses import offset_options
+    kwargs.setdefault('RHadronPDGIDList',offset_options.keys())
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
     from RHadrons.RHadronsConf import G4UA__SG_StepNtupleTool
     return G4UA__SG_StepNtupleTool(name, **kwargs)
+
+def getRHadronsPythiaPhysicsTool(name='RHadronsPythiaPhysicsTool', **kwargs):
+    kwargs.setdefault('UsePythia8',False)
+    return CfgMgr.RHadronsPhysicsTool(name,**kwargs)
+
+def getRHadronsPythia8PhysicsTool(name='RHadronsPythia8PhysicsTool', **kwargs):
+    kwargs.setdefault('UsePythia8',True)
+    return CfgMgr.RHadronsPhysicsTool(name,**kwargs)

@@ -36,8 +36,6 @@ public:
 
   virtual RHadronsPhysicsTool* GetPhysicsOption();
 
-protected:
-
 };
 
 
