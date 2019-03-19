@@ -49,6 +49,10 @@ namespace G4UA{
       HistoMapMap_t histoMapMap_vol_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_vol_stepEnergyNonIonDeposit;
       HistoMapMap_t histoMapMap_vol_stepSecondaryKinetic;
+      HistoMapMap_t histoMapMap_vol_numberOfSteps;
+      HistoMapMap_t histoMapMap_vol_numberOfStepsPerInitialE;
+      HistoMapMap_t histoMapMap_vol_trackLengthPerInitialE;
+      HistoMapMap_t histoMapMap_vol_InitialE;
 
       // distributions per material per particle type
       HistoMapMap_t histoMapMap_mat_stepSize;
@@ -58,6 +62,10 @@ namespace G4UA{
       HistoMapMap_t histoMapMap_mat_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_mat_stepEnergyNonIonDeposit;
       HistoMapMap_t histoMapMap_mat_stepSecondaryKinetic;
+      HistoMapMap_t histoMapMap_mat_numberOfSteps;
+      HistoMapMap_t histoMapMap_mat_numberOfStepsPerInitialE;
+      HistoMapMap_t histoMapMap_mat_trackLengthPerInitialE;
+      HistoMapMap_t histoMapMap_mat_InitialE;
 
       // distributions per process per particle type
       HistoMapMap_t histoMapMap_prc_stepSize;
@@ -67,10 +75,15 @@ namespace G4UA{
       HistoMapMap_t histoMapMap_prc_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_prc_stepEnergyNonIonDeposit;
       HistoMapMap_t histoMapMap_prc_stepSecondaryKinetic;
+      HistoMapMap_t histoMapMap_prc_numberOfSteps;
+      HistoMapMap_t histoMapMap_prc_numberOfStepsPerInitialE;
+      HistoMapMap_t histoMapMap_prc_trackLengthPerInitialE;
+      HistoMapMap_t histoMapMap_prc_InitialE;
 
-      // n steps
+      // all atlas
       HistoMapMap_t histoMapMap_numberOfSteps;
       HistoMapMap_t histoMapMap_numberOfStepsPerInitialE;
+      HistoMapMap_t histoMapMap_trackLengthPerInitialE;
       HistoMapMap_t histoMapMap_InitialE;
       HistoMapMap_t histoMapMap_stepKinetic;
       HistoMapMap_t histoMapMap_postStepKinetic;
@@ -122,6 +135,9 @@ namespace G4UA{
                                  int nbins, double *edges, double value, double weight);
 
     float m_initialKineticEnergyOfStep;
+    G4String m_initialVolume;
+    G4String m_initialMaterial;
+    G4String m_initialProcess;
     int m_trackID;
 
   }; // class StepHistogram
