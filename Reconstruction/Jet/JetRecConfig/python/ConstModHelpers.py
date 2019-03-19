@@ -44,9 +44,7 @@ ConstModConfigs = {
     "SK":     {}
 }
 
-def ConstitModCfg(inputtype,sequence,suffix=""):
-    components = ComponentAccumulator()
-
+def ConstitModAlg(inputtype,sequence,suffix=""):
     # May wish to pass an empty sequence for regular PFlow
     modlist = []
     if inputtype == xAODType.ParticleFlow:
@@ -102,6 +100,5 @@ def ConstitModCfg(inputtype,sequence,suffix=""):
 
     constitmodalg = JetRecConf.JetAlgorithm("jetalg_{0}".format(modseq.getName()))
     constitmodalg.Tools = [modseq]
-    components.addEventAlgo( constitmodalg )
 
-    return components
+    return constitmodalg

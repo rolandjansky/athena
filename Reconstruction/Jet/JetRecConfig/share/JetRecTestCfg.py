@@ -6,11 +6,10 @@ from pprint import pprint, pformat
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger("testJetRecDeps")
 
-def JetRecTestCfg(configFlags,args):
+def JetRecTestCfg(jetdefs,configFlags,args):
 
-    jetlist = configFlags.JetRec.Definitions
     if args.printDependencies:
-        for jetdef in jetlist:
+        for jetdef in jetdefs:
             deps = JetRecConfig.resolveDependencies(jetdef)
             jetlog.info("Dumping dependency dict for {0}".format(jetdef))
             depstr = pformat(deps)
@@ -19,8 +18,8 @@ def JetRecTestCfg(configFlags,args):
     if args.printAccumulators:
         jetlog.info("Printing component accumulators for each jet collection")
     jetcas = []
-    for jetdef in jetlist:
-       jetcomps = JetRecConfig.JetRecCfg(jetdef,configFlags,jetnameprefix=configFlags.JetRec.Prefix)
+    for jetdef in jetdefs:
+       jetcomps = JetRecConfig.JetRecCfg(jetdef,configFlags,jetnameprefix="New")
        if args.printAccumulators:
            jetcomps.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
        jetcas.append(jetcomps)
@@ -33,14 +32,14 @@ def JetRecTestCfg(configFlags,args):
 
     return components
 
-def DefineJetCollections():
+def DefineJetCollections(configFlags):
 
     # Here we define the jet configurations we want to build
     # These mod and ghost lists should go in a common module
     standardrecomods = ["Width","TrackMoments","TrackSumMoments","JVF","JVT","OriginSetPV",
                         "CaloEnergies","LArHVCorr"]
     clustermods = ["ECPSFrac","ClusterMoments"]
-    truthmods = ["PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000"]
+    truthmods = ["PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000"] if configFlags.Input.isMC else []
 
     from JetRecConfig.JetDefinition import JetGhost
     ghostlist = ["Track","MuonSegment","Truth"]
@@ -56,32 +55,34 @@ def DefineJetCollections():
 
     ########################################################################
     # First a demonstration of just building jets using standard definitions
-    from JetRecConfig.StandardJetDefs import AntiKt4LCTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
+    from JetRecConfig.StandardJetDefs import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
 
     # This updates the original jet definitions, so might be a little risky
     # in derivation code. Safer would be to always deepcopy into a local variable.
-    AntiKt4LCTopo.ptminfilter = 15e3
-    AntiKt4LCTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
-    AntiKt4LCTopo.ghostdefs = standardghosts
-    #AntiKt4LCTopo.modifiers = ["Calib:AnalysisLatest:mc"]
+    AntiKt4EMTopo.ptminfilter = 15e3
+    AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
+    AntiKt4EMTopo.ghostdefs = standardghosts
+    #AntiKt4EMTopo.modifiers = ["Calib:AnalysisLatest:mc"]
 
     AntiKt4EMPFlow.ptminfilter = 10e3
     AntiKt4EMPFlow.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + truthmods
     AntiKt4EMPFlow.ghostdefs = standardghosts
     #AntiKt4EMPFlow.modifiers = ["Calib:AnalysisLatest:mc"]
 
-    from copy import deepcopy
     AntiKt4Truth.ptminfilter = 2e3
+    AntiKt4Truth.extrainputs = ["EventDensity"]
 
     AntiKt4TruthWZ.ptminfilter = 2e3
+    AntiKt4TruthWZ.extrainputs = ["EventDensity"]
 
     ########################################################################
     # Now we define our own definitions
     from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
-    LCTopoCSSK = JetConstit(xAODType.CaloCluster, ["LC","Origin","CS","SK"])
-    AntiKt4LCTopoCSSK = JetDefinition("AntiKt",0.4,LCTopoCSSK,ptmin=2e3,ptminfilter=2e3)
-    AntiKt4LCTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
-    AntiKt4LCTopoCSSK.ghostdefs = standardghosts
+    EMTopoCSSK = JetConstit(xAODType.CaloCluster, ["EM","Origin","CS","SK"])
+    AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3)
+    AntiKt4EMTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
+    AntiKt4EMTopoCSSK.ghostdefs = standardghosts
+    AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
 
     ########################################################################
     # We can also copy and modify the standard ones
@@ -96,13 +97,16 @@ def DefineJetCollections():
     AntiKt4EMPFlowCSSK.ptmin = 2e3
     AntiKt4EMPFlowCSSK.ptminfilter = 2e3
     AntiKt4EMPFlowCSSK.ghostdefs = standardghosts
+    AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
 
-    jetdefs = [#AntiKt4Truth,
-               #AntiKt4TruthWZ,
-               AntiKt4LCTopo,
+    jetdefs = [AntiKt4EMTopo,
                AntiKt4EMPFlow,
-               AntiKt4LCTopoCSSK,
+               AntiKt4EMTopoCSSK,
                AntiKt4EMPFlowCSSK]
+    if configFlags.Input.isMC:
+        jetdefs += [AntiKt4Truth,
+                    AntiKt4TruthWZ]
+    
     return jetdefs
 
 if __name__=="__main__":
@@ -152,14 +156,12 @@ if __name__=="__main__":
         ConfigFlags.Scheduler.ShowControlFlow = True
         ConfigFlags.Concurrency.NumConcurrentEvents = args.nThreads
 
-    ########################################################################
-    # Define flags steering the jet reco config
-    jetdefs = DefineJetCollections()
-    ConfigFlags.addFlag("JetRec.Definitions",jetdefs)
-    ConfigFlags.addFlag("JetRec.Prefix","New")
-
     # Prevent the flags from being modified
     ConfigFlags.lock()
+
+    ########################################################################
+    # Define flags steering the jet reco config
+    jetdefs = DefineJetCollections(ConfigFlags)
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
@@ -170,7 +172,7 @@ if __name__=="__main__":
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Add the components from our jet reconstruction job
-    cfg.merge(JetRecTestCfg(ConfigFlags,args))
+    cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
 
     # # build eventinfo attribute list
     # from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
@@ -180,12 +182,12 @@ if __name__=="__main__":
     # Write what we produced to AOD
     # First define the output list
     outputlist = ["EventInfo#*"]
-    originaljets = ["AntiKt4EMPFlowJets"]
+    originaljets = ["AntiKt4EMPFlowJets","AntiKt4EMTopoJets"]
     for jetcoll in originaljets:
         outputlist += ["xAOD::JetContainer#"+jetcoll,
                        "xAOD::JetAuxContainer#"+jetcoll+"Aux."]
-    for jetdef in ConfigFlags.JetRec.Definitions:
-        key = "{0}{1}Jets".format(ConfigFlags.JetRec.Prefix,jetdef.basename)
+    for jetdef in jetdefs:
+        key = "{0}{1}Jets".format("New",jetdef.basename)
         outputlist += ["xAOD::JetContainer#"+key,
                        "xAOD::JetAuxContainer#"+key+"Aux."]
 
@@ -193,6 +195,7 @@ if __name__=="__main__":
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
     pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
+    cfg.getEventAlgo("OutputStreamxAOD").ForceRead = True
   
     # Optionally, print the contents of the store every event
     cfg.getService("StoreGateSvc").Dump = args.dumpSG

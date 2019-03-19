@@ -41,10 +41,14 @@ __all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
 # peeking such that we don't attempt to reproduce stuff that's already
 # in the input file
 def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
-    components = ComponentAccumulator()
-
     jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
     jetlog.info("Setting up to find {0}".format(jetsfullname))
+
+    sequencename = jetsfullname
+
+    components = ComponentAccumulator()
+    from AthenaCommon.AlgSequence import AthSequencer
+    components.addSequence( AthSequencer(sequencename) )
 
     deps = resolveDependencies( jetdef )
     
@@ -54,20 +58,21 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     # 
     # To facilitate running in serial mode, we also prepare
     # the constituent PseudoJetGetter here (needed for rho)
-    inputcomps, constitpjkey = JetInputCfgAndConstitPJName(deps["inputs"], configFlags)
+    inputcomps, constitpjkey = JetInputCfgAndConstitPJName(deps["inputs"], configFlags, sequenceName=jetsfullname)
     components.merge(inputcomps)
     pjs = [constitpjkey]
 
     # Schedule the ghost PseudoJetGetterAlgs
     for ghostdef in deps["ghosts"]:
-        ghostpjcomps, ghostpjkey = GhostPJGCfgAndOutputName( ghostdef )
-        components.merge( ghostpjcomps )
+        ghostpjalg = GhostPJGAlg( ghostdef )
+        components.addEventAlgo( ghostpjalg, sequencename )
+        ghostpjkey = ghostpjalg.PJGetter.OutputContainer
         pjs.append( ghostpjkey )
 
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
-    reccomps = JetAlgorithmCfg(jetsfullname, jetdef, pjs, deps["mods"])
-    components.merge(reccomps)
+    jetrecalg = getJetAlgorithm(jetsfullname, jetdef, pjs, deps["mods"])
+    components.addEventAlgo(jetrecalg, sequencename)
 
     jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetsfullname))
     return components
@@ -86,6 +91,7 @@ def resolveDependencies(jetdef):
     # We just collect everything and sort out the types later
     prereqs = set() # Resolve duplication as we go
     prereqs.update( getConstitPrereqs( jetdef.inputdef ) )
+    prereqs.update( set( ["input:"+dep for dep in jetdef.extrainputs] ) )
 
     # Add the Filter modifier if desired (usually it is)
     # It might be simpler to just eliminate ptminfilter
@@ -200,30 +206,18 @@ def expandPrereqs(reqtype,prereqs):
 #
 # This includes constituent modifications, track selection, copying of
 # input truth particles and event density calculations
-def JetInputCfgAndConstitPJName(inputdeps, configFlags):
+def JetInputCfgAndConstitPJName(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
-    components = ComponentAccumulator()
+    components = ComponentAccumulator(sequenceName)
 
     jetlog.info("Inspecting first input file")
     # Get the list of SG keys for the first input file
     # I consider it silly to run on a set of mixed file types
     firstinput = configFlags.Input.Files[0]
     import os, pickle
-    # Cache details in a pickle file
-    cachename = "fpcache.{0}.pkl".format(firstinput)
-    fileinfo = None
-    if os.path.isfile(cachename):
-        jetlog.debug("Reading file info from cache \"{0}\"".format(cachename))
-        fpcache = open(cachename)
-        fileinfo = pickle.load(fpcache)
-    else:
-        from FilePeeker.FilePeeker import PeekFiles
-        fileinfo = PeekFiles([firstinput])[firstinput]
-        fpcache = open(cachename,'w')
-        pickle.dump(fileinfo,fpcache)
-        jetlog.debug("Wrote file info to cache \"{0}\"".format(cachename))
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     # PeekFiles returns a dict for each input file
-    filecontents = fileinfo["SGKeys"].split(' ')
+    filecontents = GetFileMD([firstinput])["SGKeys"].split(' ')
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
@@ -236,12 +230,13 @@ def JetInputCfgAndConstitPJName(inputdeps, configFlags):
             # May need to generate constituent modifier sequences to
             # produce the input collection
             import ConstModHelpers
-            constitcomps = ConstModHelpers.ConstitModCfg(constit.basetype,constit.modifiers)
-            components.merge( constitcomps )
+            constitalg = ConstModHelpers.ConstitModAlg(constit.basetype,constit.modifiers)
+            components.addEventAlgo(constitalg)
 
     # Schedule the constituent PseudoJetGetterAlg
-    constitpjcomps, constitpjkey = ConstitPJGCfgAndOutputName( constit )
-    components.merge( constitpjcomps )
+    constitpjalg = ConstitPJGAlg( constit )
+    constitpjkey = constitpjalg.PJGetter.OutputContainer
+    components.addEventAlgo( constitpjalg )
 
     # Track selection and vertex association kind of go hand in hand, though it's not
     # completely impossible that one might want one and not the other
@@ -340,8 +335,7 @@ def getGhostPrereqs(ghostdef):
         prereqs = ["input:JetInputTruthParticles"]
     return prereqs
 
-def ConstitPJGCfgAndOutputName(basedef):
-    ca = ComponentAccumulator()
+def ConstitPJGAlg(basedef):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
     # 
     getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
@@ -356,11 +350,9 @@ def ConstitPJGCfgAndOutputName(basedef):
         "pjgalg_"+basedef.label,
         PJGetter = getter
         )
-    ca.addEventAlgo( pjgalg )
-    return ca, getter.OutputContainer
+    return pjgalg
 
-def GhostPJGCfgAndOutputName(ghostdef):
-    ca = ComponentAccumulator()
+def GhostPJGAlg(ghostdef):
     label = "Ghost"+ghostdef.inputtype
     kwargs = {
         "OutputContainer":    "PseudoJet"+label,
@@ -395,16 +387,14 @@ def GhostPJGCfgAndOutputName(ghostdef):
         "pjgalg_"+label,
         PJGetter = getter
         )
-    ca.addEventAlgo( pjgalg )
-    return ca, getter.OutputContainer
+    return pjgalg
 
 ########################################################################
 # Function for configuring the jet algorithm and builders, given the
 # set of dependencies
 #
-def JetAlgorithmCfg(jetname, jetdef, pjs, modlist):
+def getJetAlgorithm(jetname, jetdef, pjs, modlist):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
-    components = ComponentAccumulator()
 
     builder = getJetBuilder()
 
@@ -421,9 +411,8 @@ def JetAlgorithmCfg(jetname, jetdef, pjs, modlist):
 
     jetalg = JetRecConf.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]
-    components.addEventAlgo(jetalg)
 
-    return components
+    return jetalg
     
 
 ########################################################################

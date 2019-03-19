@@ -22,8 +22,11 @@ def getTrackSelTool():
     # Track selector needs its own hierarchical config getter in JetRecTools?
     idtrackselloose = InDetTrackSelectionToolConf.InDet__InDetTrackSelectionTool(
         "idtrackselloose",
-        CutLevel = "Loose",
-        minPt    = 500
+        CutLevel         = "Loose",
+        minPt            = 500,
+        UseTrkTrackTools = False,
+        Extrapolator     = "",
+        TrackSummaryTool = ""
     )
     jettrackselloose = JetRecToolsConf.JetTrackSelectionTool(
         "jettrackselloose",
