@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #ifndef TrigEgammaSelectorBaseTool_H_
@@ -22,17 +22,6 @@
 //#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
 
 
-
-//define RINGER_OFFLINE_PACKAGES
-#ifdef RINGER_OFFLINE_PACKAGES
-//////////////////////// Ringer Offline //////////////////////////
-#include "xAODCaloRings/RingSetContainer.h"                     //
-#include "xAODCaloRings/CaloRingsContainer.h"                   //
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
-//////////////////////////////////////////////////////////////////
-#endif
-
-
 namespace Trig{
   class TrigEgammaSelectorBaseTool:
     public asg::AsgTool,
@@ -43,25 +32,25 @@ namespace Trig{
 
       //using ITrigEgammaSelectorBaseTool::emulation;
       TrigEgammaSelectorBaseTool(const std::string& myname);
-      virtual ~TrigEgammaSelectorBaseTool(){;}
+      ~TrigEgammaSelectorBaseTool(){;}
 
-      virtual StatusCode initialize() override;
-      virtual StatusCode finalize() override;
+      StatusCode initialize();
+      StatusCode finalize();
 
       //FIXME: static_cast for IParticleContainer to EmTau and emCluster
       //doent work. Because this I add these extra methods. Need to check
       //how generate this for these levels.
-      virtual bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &) override {return true;}
-      virtual bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &) override {return true;}
-      virtual bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &) override {return true;}
-      virtual bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &) override {return true;}
+      bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
       
       //parser TDT tool as a pointer
-      virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s) override
-      { m_trigdec=&(*t); m_storeGate=s;}
-      virtual void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s) override
-      { m_trigdec=t; m_storeGate=s;}
-      virtual void setTe(const HLT::TriggerElement *te) override {m_te=te;}
+      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s)
+      { m_trigdec=&(*t); m_storeGate=s;};
+      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s)
+      { m_trigdec=t; m_storeGate=s;};
+      void setTe(const HLT::TriggerElement *te){m_te=te;}; 
 
     protected:
       /* dress decision */

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
-using namespace TrigCaloRingsHelper;
+#include "TrigMultiVarHypo/tools/common/RingerHelper.h"
+using namespace Ringer;
   
 void parseTrigCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, 
                                std::string &caloLayerName)

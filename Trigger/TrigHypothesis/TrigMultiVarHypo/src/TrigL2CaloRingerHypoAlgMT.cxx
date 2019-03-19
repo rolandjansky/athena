@@ -4,6 +4,11 @@
 #include <map>
 #include "GaudiKernel/Property.h"
 #include "TrigL2CaloRingerHypoAlgMT.h"
+#include "AthViews/ViewHelper.h"
+#include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthViews/ViewHelper.h"
+
 
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer;
@@ -11,65 +16,91 @@ using TrigCompositeUtils::DecisionIDContainer;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
-
+using TrigCompositeUtils::createAndStore; 
 
 TrigL2CaloRingerHypoAlgMT::TrigL2CaloRingerHypoAlgMT( const std::string& name, 
               ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
+
 TrigL2CaloRingerHypoAlgMT::~TrigL2CaloRingerHypoAlgMT() {}
 
-StatusCode TrigL2CaloRingerHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-  ATH_CHECK( m_hypoTools.retrieve() );
-  
-  ATH_CHECK( m_views.initialize() );
-  ATH_CHECK( m_decisionsKey.initialize() );
-  
-  renounce( m_outputKey );  
-  ATH_CHECK( m_outputKey.initialize() );
 
+StatusCode TrigL2CaloRingerHypoAlgMT::initialize() {
+  
+  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+  ATH_CHECK( m_hypoTools.retrieve() );  
+  ATH_CHECK( m_ringsKey.initialize());
+  ATH_CHECK( m_clustersKey.initialize());
+  renounce(m_clustersKey);
+  renounce(m_ringsKey);
 
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigL2CaloRingerHypoAlgMT::finalize() {
+  return StatusCode::SUCCESS;
+}
 
 StatusCode TrigL2CaloRingerHypoAlgMT::execute( const EventContext& context ) const {  
+  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+  auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
+  if( not previousDecisionsHandle.isValid() ) {//implicit
+    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
+    return StatusCode::SUCCESS;      
+  }
   
-  // prepare decisions container and link back to the clusters, and decision on clusters
-  auto decisions = std::make_unique<DecisionContainer>();
-  auto aux = std::make_unique<DecisionAuxContainer>();
-  decisions->setStore( aux.get() );
-
-
-  //ATH_MSG_DEBUG( "RNNOutput ptr to decision map has size " << clusterToIndexMap.size() );
-
-  // prepare imput for tools
-  std::vector<TrigL2CaloRingerHypoToolMT::RNNOutInfo> hypoToolInput;
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  // new decisions
+  // new output decisions
+  SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+  auto decisions = outputHandle.ptr();
+  // input for decision
+  std::vector<TrigL2CaloRingerHypoToolMT::RingerInfo> hypoToolInput;
   
-  auto viewsHandle = SG::makeHandle( m_views, context );
-  for ( auto view: *viewsHandle ) {
-    size_t counter = 0;
-    auto rnnOutHandle = SG::makeHandle( m_outputKey, context );  
-    //CHECK( electronsHandle.setProxyDict( view ) );
-    //CHECK( electronsHandle.isValid() );
-
-    for ( auto rnnOutIter = rnnOutHandle->begin(); rnnOutIter != rnnOutHandle->end(); ++rnnOutIter, counter++ ) {
-      auto d = newDecisionIn( decisions.get() );
-      d->setObjectLink( "feature", ElementLink<xAOD::TrigRNNOutputContainer>( view->name()+"_"+m_outputKey.key(), counter ) );
-      hypoToolInput.emplace_back( TrigL2CaloRingerHypoToolMT::RNNOutInfo{ d, *rnnOutIter } );
+  // loop over previous decisions
+  size_t counter=0;
+  for ( auto previousDecision: *previousDecisionsHandle ) {
+    
+    // get View
+    auto view = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+    ATH_CHECK( view.isValid() );
+    auto ringerShapeHandle = ViewHelper::makeHandle( *(view.link), m_ringsKey, context);
+    ATH_CHECK( ringerShapeHandle.isValid() );
+    ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
+    // create new decision
+    auto d = newDecisionIn( decisions,  name() );
+    hypoToolInput.emplace_back( TrigL2CaloRingerHypoToolMT::RingerInfo{ d, ringerShapeHandle.cptr()->at(0) } );
+    
+    {
+      auto el = ViewHelper::makeLink( *(view.link), ringerShapeHandle, 0 );
+      ATH_CHECK( el.isValid() );
+      d->setObjectLink( "feature",  el );
     }
+    
+    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+    counter++;
   }
 
-  for ( auto & tool: m_hypoTools ) {
+  ATH_MSG_DEBUG( "Found "<<hypoToolInput.size()<<" inputs to tools");
+   
+  for ( auto& tool: m_hypoTools ) {
     ATH_CHECK( tool->decide( hypoToolInput ) );
-    
-  } 
+  }
+ 
 
-  {
-    auto handle =  SG::makeHandle( m_decisionsKey, context );
-    CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  {// make output handle and debug
+    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
+    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
+    if ( outputHandle.isValid() ) {
+      for ( auto decisionObject: *outputHandle )  {
+        TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+      }
+      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
+        ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+      }
+    }
   }
 
   return StatusCode::SUCCESS;

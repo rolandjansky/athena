@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
 from egammaRec.Factories  import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue
@@ -11,49 +11,68 @@ from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import OutputLevel
 from TrigEgammaHypo.TrigL2CaloHypoCutDefs                import L2CaloCutMaps
 # define eta bins
 EtaBins    = [0.00, 0.60, 0.80, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
-theCutMaps = L2CaloCutMaps(22)
-# create L2Calo tool    
-EgammaL2CaloLooseEmulator = ToolFactory(Trig__TrigEgammaL2CaloSelectorTool, 
-                                        OutputLevel    = OutputLevel,
-                                        name           = "TrigEgammaL2CaloLooseEmulator", 
-                                        HADETthr       = theCutMaps.MapsHADETthr["loose"],
-                                        CARCOREthr     = theCutMaps.MapsCARCOREthr["loose"],
-                                        CAERATIOthr    = theCutMaps.MapsCAERATIOthr["loose"],
-                                        EtaBins        = EtaBins ,
-                                        dETACLUSTERthr = 0.1,
-                                        dPHICLUSTERthr = 0.1,
-                                        ET2thr         = 90.0*GeV,
-                                        F1thr          = 0.005)
+
+# Do not change this order.
+#etBins      = [0,22,999]
+etBins      = [0.0,15.0,28.] # Same from rDev Selector
+
+EgammaL2CaloSelectors = []
+
+for idx, et  in enumerate(etBins):
+
+  theCutMaps = L2CaloCutMaps(et)
+  # create L2Calo tool    
+  EgammaL2CaloLooseEmulator = ToolFactory(Trig__TrigEgammaL2CaloSelectorTool, 
+                                          OutputLevel    = OutputLevel,
+                                          name           = "TrigEgammaL2CaloLooseEmulator_etBin_"+str(idx), 
+                                          HADETthr       = theCutMaps.MapsHADETthr["loose"],
+                                          CARCOREthr     = theCutMaps.MapsCARCOREthr["loose"],
+                                          CAERATIOthr    = theCutMaps.MapsCAERATIOthr["loose"],
+                                          EtaBins        = EtaBins ,
+                                          dETACLUSTERthr = 0.1,
+                                          dPHICLUSTERthr = 0.1,
+                                          ET2thr         = 90.0*GeV,
+                                          F1thr          = 0.005)
+  
+
+  #********************************************************************************
+  # VeryLoose
+  EgammaL2CaloVeryLooseEmulator = EgammaL2CaloLooseEmulator.copy(
+                                  name        = "TrigEgammaL2CaloVeryLooseEmulator_etBin_"+str(idx),
+                                  OutputLevel       = OutputLevel,
+                                  HADETthr    = theCutMaps.MapsHADETthr['vloose'],
+                                  CARCOREthr  = theCutMaps.MapsCARCOREthr['vloose'],
+                                  CAERATIOthr = theCutMaps.MapsCAERATIOthr['vloose'])
+  
+
+  #********************************************************************************
+  # Medium
+  EgammaL2CaloMediumEmulator = EgammaL2CaloLooseEmulator.copy(
+                               name        = "TrigEgammaL2CaloMediumEmulator_etBin_"+str(idx),
+                               OutputLevel = OutputLevel,
+                               HADETthr    = theCutMaps.MapsHADETthr['medium'],
+                               CARCOREthr  = theCutMaps.MapsCARCOREthr['medium'],
+                               CAERATIOthr = theCutMaps.MapsCAERATIOthr['medium'])
+  
+
+  #********************************************************************************
+  # Tight
+  EgammaL2CaloTightEmulator = EgammaL2CaloLooseEmulator.copy(
+                              name        = "TrigEgammaL2CaloTightEmulator_etBin_"+str(idx),
+                              OutputLevel = OutputLevel,
+                              HADETthr    = theCutMaps.MapsHADETthr['tight'],
+                              CARCOREthr  = theCutMaps.MapsCARCOREthr['tight'],
+                              CAERATIOthr = theCutMaps.MapsCAERATIOthr['tight'])
+
+
+  # Do not change this order.
+  EgammaL2CaloSelectors.append( EgammaL2CaloTightEmulator )
+  EgammaL2CaloSelectors.append( EgammaL2CaloMediumEmulator )
+  EgammaL2CaloSelectors.append( EgammaL2CaloLooseEmulator )
+  EgammaL2CaloSelectors.append( EgammaL2CaloVeryLooseEmulator )
 
 #********************************************************************************
-# VeryLoose
-EgammaL2CaloVeryLooseEmulator = EgammaL2CaloLooseEmulator.copy(
-                                name        = "TrigEgammaL2CaloVeryLooseEmulator",
-                                OutputLevel       = OutputLevel,
-                                HADETthr    = theCutMaps.MapsHADETthr['vloose'],
-                                CARCOREthr  = theCutMaps.MapsCARCOREthr['vloose'],
-                                CAERATIOthr = theCutMaps.MapsCAERATIOthr['vloose'])
 
-#********************************************************************************
-# Medium
-EgammaL2CaloMediumEmulator = EgammaL2CaloLooseEmulator.copy(
-                             name        = "TrigEgammaL2CaloMediumEmulator",
-                             OutputLevel = OutputLevel,
-                             HADETthr    = theCutMaps.MapsHADETthr['medium'],
-                             CARCOREthr  = theCutMaps.MapsCARCOREthr['medium'],
-                             CAERATIOthr = theCutMaps.MapsCAERATIOthr['medium'])
-
-#********************************************************************************
-# Tight
-EgammaL2CaloTightEmulator = EgammaL2CaloLooseEmulator.copy(
-                            name        = "TrigEgammaL2CaloTightEmulator",
-                            OutputLevel = OutputLevel,
-                            HADETthr    = theCutMaps.MapsHADETthr['tight'],
-                            CARCOREthr  = theCutMaps.MapsCARCOREthr['tight'],
-                            CAERATIOthr = theCutMaps.MapsCAERATIOthr['tight'])
-
-
-#********************************************************************************
 # L2 Electron configurations
 EgammaL2ElectronEmulator  = ToolFactory(Trig__TrigEgammaL2ElectronSelectorTool,
                                         name                     = "TrigEgammaL2ElectronEmulator",

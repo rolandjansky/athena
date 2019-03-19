@@ -19,10 +19,13 @@
 
 /// Luminosity tool
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
-#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
-#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
 
+// ringer libs
+#include "TrigMultiVarHypo/tools/procedures/IModel.h"
+#include "TrigMultiVarHypo/tools/procedures/INormalization.h"
+#include "TrigMultiVarHypo/tools/common/RingerReader.h"
+
+#include<memory>
 
 class TrigL2CaloRingerFex: public HLT::FexAlgo {
  
@@ -40,7 +43,8 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     ///Time monitoring
     TrigTimer* m_storeTimer;
     TrigTimer* m_normTimer;
-    TrigTimer* m_decisionTimer;
+    TrigTimer* m_totalTimer;
+    TrigTimer* m_propagateTimer;
 
   private:
 
@@ -58,20 +62,15 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     float       m_lumiCut;
     float       m_output;
     bool        m_useLumiTool;
-    bool        m_useEtaVar;
-    bool        m_useLumiVar;
     
     //LumiTool
     ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
-    ///Prepoc configuration
-    std::vector<unsigned int>  m_nRings;
-    std::vector<unsigned int>  m_normRings;
-    std::vector<unsigned int>  m_sectionRings;
     
     ///Discriminator holder 
-    std::vector<MultiLayerPerceptron*>       m_discriminators;
-    std::vector<TrigRingerPreprocessor*>     m_preproc; 
-    TrigL2CaloRingerReader                   m_reader;
+    std::vector<std::shared_ptr<Ringer::IModel>>          m_discriminators;
+    std::vector<std::shared_ptr<Ringer::INormalization>>  m_preproc; 
+    
+    Ringer::RingerReader m_reader;
 
 };
 //!===============================================================================================

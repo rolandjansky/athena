@@ -1,14 +1,14 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef MULTIVARHYPO_TRIGL2CALORINGERHYPOALG_H
-#define MULTIVARHYPO_TRIGL2CALORINGERHYPOALG_H 1
+#ifndef TRIGL2CALORINGERHYPOALGMT_H
+#define TRIGL2CALORINGERHYPOALGMT_H 1
 
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "xAODTrigRinger/TrigRNNOutput.h"
-#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 #include "AthViews/View.h"
@@ -23,28 +23,17 @@ class TrigL2CaloRingerHypoAlgMT
  public: 
 
   TrigL2CaloRingerHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
-
   virtual ~TrigL2CaloRingerHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
+  virtual StatusCode  finalize() override;
   virtual StatusCode  execute(const EventContext& context) const override;
 
  
  private: 
   TrigL2CaloRingerHypoAlgMT();
   ToolHandleArray< TrigL2CaloRingerHypoToolMT > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-
-
-  SG::ReadHandleKey< ViewContainer > m_views {this, "Views", "Unspecified", "Views to read electrons from" };
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this, "RNNOutDecisions", "RNNOutDecisions", "Output decisions"};
-  //SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_RNNOutdecisionsKey {this, "RNNOutDecisions", "RNNOutDecisions", "Output decisions"};
-
-  SG::ReadHandleKey<xAOD::TrigRNNOutputContainer> m_outputKey {
-      this,
-      "RNNOutputContainer",
-      "CaloRNNOutput",
-      ""
-  };
+  SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsKey { this, "RingerKey","CaloRings",""};
+  SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_clustersKey { this,"ClustersKey","CaloClusters",""};
 
 
 
