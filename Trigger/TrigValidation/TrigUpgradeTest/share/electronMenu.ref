@@ -94,10 +94,10 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut ID#243
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        9         8         7         7         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        137       
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        138       
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step decisions                       54        0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        329       
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        330       
 TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        264       
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        265       
