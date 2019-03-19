@@ -46,7 +46,7 @@ def IOVDbSvcCfg(configFlags):
 
     iovDbSvc.GlobalTag=configFlags.IOVDb.GlobalTag
 
-    result.addService(iovDbSvc)
+    result.addService(iovDbSvc,primary=True)
 
 
     # Set up POOLSvc with appropriate catalogs
@@ -72,7 +72,7 @@ def IOVDbSvcCfg(configFlags):
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
     
-    return result,iovDbSvc
+    return result
 
 
 #Convenience method to add folders:
@@ -88,7 +88,8 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     if isinstance(folderstrings,str):
         folderstrings=[folderstrings,]
 
-    result,iovDbSvc=IOVDbSvcCfg(configFlags)
+    result=IOVDbSvcCfg(configFlags)
+    iovDbSvc=result()
 
 
     #Add class-name to CondInputLoader (if reqired)

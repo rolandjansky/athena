@@ -13,7 +13,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
 
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-    acc.merge( RPCCablingConfigCfg(flags)[0] )
+    acc.merge( RPCCablingConfigCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -35,14 +35,15 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         RpcRdoToRpcPrepData.RoIs = "MURoIs"
 
-    return acc, RpcRdoToRpcPrepData
+    acc.addEventAlgo(RpcRdoToRpcPrepData)
+    return acc
 
 def TgcRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the TGC cabling to be setup
     from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
-    acc.merge( TGCCablingConfigCfg(flags)[0] )
+    acc.merge( TGCCablingConfigCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -64,17 +65,18 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
         TgcRdoToTgcPrepData.DoSeededDecoding = True
         TgcRdoToTgcPrepData.RoIs = "MURoIs"
 
-    return acc, TgcRdoToTgcPrepData
+    acc.addEventAlgo(TgcRdoToTgcPrepData)
+    return acc
 
 def MdtRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the MDT cabling to be setup
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    acc.merge( MDTCablingConfigCfg(flags)[0] )
+    acc.merge( MDTCablingConfigCfg(flags) )
 
     from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)[0]  )
+    acc.merge( MdtCalibrationSvcCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -96,17 +98,18 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         MdtRdoToMdtPrepData.DoSeededDecoding = True
         MdtRdoToMdtPrepData.RoIs = "MURoIs"
 
-    return acc, MdtRdoToMdtPrepData
+    acc.addEventAlgo(MdtRdoToMdtPrepData)
+    return acc
 
 def CscRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the CSC cabling to be setup
     from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
-    acc.merge( CSCCablingConfigCfg(flags)[0] )
+    acc.merge( CSCCablingConfigCfg(flags) )
 
     from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-    acc.merge( CscCoolStrSvcCfg(flags)[0]  )
+    acc.merge( CscCoolStrSvcCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -128,7 +131,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
         CscRdoToCscPrepData.DoSeededDecoding = True
         CscRdoToCscPrepData.RoIs = "MURoIs"
 
-    return acc, CscRdoToCscPrepData
+    acc.addEventAlgo(CscRdoToCscPrepData)
+    return acc
 
 def CscClusterBuildCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
@@ -142,8 +146,8 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
     CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                    cluster_builder = CscClusterBuilderTool ) 
-    
-    return acc, CscClusterBuilder
+    acc.addEventAlgo(CscClusterBuilder)
+    return acc
 
 
 # This function runs the decoding on a data file
@@ -175,6 +179,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
+    # Schedule Rpc bytestream data decoding 
     if forTrigger:
         # cache creators loaded independently
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
@@ -182,52 +187,43 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-    rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 
+    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( rpcdecodingAcc )
-    cfg.addEventAlgo( rpcdecodingAlg )
 
-    # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
+    # Schedule Mdt data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcdecodingAcc, tgcdecodingAlg = TgcBytestreamDecodeCfg( ConfigFlags ) 
+    tgcdecodingAcc  = TgcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( tgcdecodingAcc )
-    cfg.addEventAlgo( tgcdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
+    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
     # Put into a verbose logging mode to check the caching
     if forTrigger:
-        mdtdecodingAlg.ProviderTool.OutputLevel = VERBOSE    
+        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
-    cfg.addEventAlgo( mdtdecodingAlg )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
+    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
     # Put into a verbose logging mode to check the caching
     if forTrigger:
-        cscdecodingAlg.ProviderTool.OutputLevel = VERBOSE 
+        cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
-    cfg.addEventAlgo( cscdecodingAlg )
 
-    # Schedule RDO conversion - can replace this with cfg.mergeAll once that is working
-    rpcdecodingAcc, rpcdecodingAlg = RpcRDODecodeCfg( ConfigFlags )
+    # Schedule RDO conversion 
+    rpcdecodingAcc  = RpcRDODecodeCfg( ConfigFlags )
     cfg.merge(rpcdecodingAcc)
-    cfg.addEventAlgo(rpcdecodingAlg)
 
-    tgcdecodingAcc, tgcdecodingAlg = TgcRDODecodeCfg( ConfigFlags )
+    tgcdecodingAcc = TgcRDODecodeCfg( ConfigFlags )
     cfg.merge(tgcdecodingAcc)
-    cfg.addEventAlgo(tgcdecodingAlg)
 
-    mdtdecodingAcc, mdtdecodingAlg = MdtRDODecodeCfg( ConfigFlags )
+    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
     cfg.merge(mdtdecodingAcc)
-    cfg.addEventAlgo(mdtdecodingAlg)
 
-    cscdecodingAcc, cscdecodingAlg = CscRDODecodeCfg( ConfigFlags )
+    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
     cfg.merge(cscdecodingAcc)
-    cfg.addEventAlgo(cscdecodingAlg)
 
-    cscbuildingAcc, cscbuildingAlg = CscClusterBuildCfg( ConfigFlags )
+    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
     cfg.merge(cscbuildingAcc)
-    cfg.addEventAlgo(cscbuildingAlg)
 
 
     # Need to add POOL converter  - may be a better way of doing this?
@@ -273,28 +269,23 @@ def muonRdoDecodeTestMC():
 
     # Schedule RDO conversion - can replace this with cfg.mergeAll once that is working
     # RPC decoding
-    rpcdecodingAcc, rpcdecodingAlg = RpcRDODecodeCfg( ConfigFlags )
+    rpcdecodingAcc = RpcRDODecodeCfg( ConfigFlags )
     cfg.merge(rpcdecodingAcc)
-    cfg.addEventAlgo(rpcdecodingAlg)
 
     # TGC decoding
-    tgcdecodingAcc, tgcdecodingAlg = TgcRDODecodeCfg( ConfigFlags )
+    tgcdecodingAcc  = TgcRDODecodeCfg( ConfigFlags )
     cfg.merge(tgcdecodingAcc)
-    cfg.addEventAlgo(tgcdecodingAlg)
 
     # MDT decoding
-    mdtdecodingAcc, mdtdecodingAlg = MdtRDODecodeCfg( ConfigFlags )
+    mdtdecodingAcc = MdtRDODecodeCfg( ConfigFlags )
     cfg.merge(mdtdecodingAcc)
-    cfg.addEventAlgo(mdtdecodingAlg)
 
     # CSC decoding
-    cscdecodingAcc, cscdecodingAlg = CscRDODecodeCfg( ConfigFlags )
+    cscdecodingAcc = CscRDODecodeCfg( ConfigFlags )
     cfg.merge(cscdecodingAcc)
-    cfg.addEventAlgo(cscdecodingAlg)
 
-    cscbuildingAcc, cscbuildingAlg = CscClusterBuildCfg( ConfigFlags )
+    cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
     cfg.merge(cscbuildingAcc)
-    cfg.addEventAlgo(cscbuildingAlg)
 
     log.info('Print Config')
     cfg.printConfig(withDetails=True)

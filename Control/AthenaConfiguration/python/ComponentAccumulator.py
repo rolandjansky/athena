@@ -32,6 +32,7 @@ class ComponentAccumulator(object):
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
         self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
+        self._primaryComp=None           #A placeholder to designate the primary service 
 
         self._theAppProps=dict()        #Properties of the ApplicationMgr
 
@@ -165,7 +166,6 @@ class ComponentAccumulator(object):
         """Use this method to carry private AlgTool(s) to the caller when returning this ComponentAccumulator. 
         The method accepts either a single private AlgTool or a list of private AlgTools (typically assigned to ToolHandleArray)
         """
-
         if self._privateTools is not None:
             raise ConfigurationError("This ComponentAccumulator holds already a (list of) private tool. Only one (list of)  private tool(s) is allowed")
 
@@ -189,7 +189,7 @@ class ComponentAccumulator(object):
         return tool
         
 
-    def addEventAlgo(self, algorithms,sequenceName=None):
+    def addEventAlgo(self, algorithms,sequenceName=None,primary=False):
         if not isinstance(algorithms,collections.Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
             algorithms=[algorithms,]
@@ -212,6 +212,15 @@ class ComponentAccumulator(object):
             else:
                 seq+=algo #TODO: Deduplication necessary?
             pass
+
+        if primary:
+            if len(algorithms)>1:
+                self._msg.warning("Called addEvenAlgo with a list of algorithms and primary==True. Designating the first algorithm as primary component")
+            if self._primaryComp: 
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
+                                  (self._primaryComp.getType(),self._primaryComp.getName(),algorithms[0].getType(),algorithms[0].getName()))
+            #keep a ref of the algorithm as primary component
+            self._primaryComp=algorithms[0]
         return None
 
 
@@ -240,11 +249,17 @@ class ComponentAccumulator(object):
             seq = findSubSequence(self._sequence, seqName )
         return list( set( sum( flatSequencers( seq ).values(), []) ) )
 
-    def addCondAlgo(self,algo):
+    def addCondAlgo(self,algo,primary=False):
         if not isinstance(algo, ConfigurableAlgorithm):
             raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % type( algo ).__name__)
             pass
         self._deduplicate(algo,self._conditionsAlgs) #will raise on conflict
+        if primary: 
+            if self._primaryComp: 
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
+                                  (self._primaryComp.getType(),self._primaryComp.getName(),algo.getType(),algo.getName()))
+            #keep a ref of the de-duplicated conditions algorithm as primary component
+            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos") 
         return algo
 
 
@@ -254,24 +269,44 @@ class ComponentAccumulator(object):
             raise ConfigurationError("More than one conditions algorithm with name %s found" % name)
         return hits[0]
 
-    def addService(self,newSvc):
+    def addService(self,newSvc,primary=False):
         if not isinstance(newSvc,ConfigurableService):
             raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
             pass
         self._deduplicate(newSvc,self._services)  #will raise on conflict
+        if primary: 
+            if self._primaryComp: 
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
+                                  (self._primaryComp.getType(),self._primaryComp.getName(),newSvc.getType(),newSvc.getName()))
+            #keep a ref of the de-duplicated public tool as primary component
+            self._primaryComp=self.__getOne( self._services, newSvc.getName(), "Services") 
         return 
 
 
-    def addPublicTool(self,newTool):
+    def addPublicTool(self,newTool,primary=False):
         if not isinstance(newTool,ConfigurableAlgTool):
             raise TypeError("Attempt to add wrong type: %s as AlgTool" % type( newTool ).__name__)
         if newTool.getParent() != "ToolSvc":
             newTool.setParent("ToolSvc")
         self._deduplicate(newTool,self._publicTools)
+        if primary: 
+            if self._primaryComp: 
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
+                                  (self._primaryComp.getType(),self._primaryComp.getName(),newTool.getType(),newTool.getName()))
+            #keep a ref of the de-duplicated service as primary component
+            self._primaryComp=self.__getOne( self._publicTools, newTool.getName(), "Public Tool") 
         return
 
 
+    def getPrimary(self):
+        if self._primaryComp:
+            return self._primaryComp
+        else:
+            return self.popPrivateTools()
 
+    def __call__(self):
+        return self.getPrimary()
+        
 
     def _deduplicate(self,newComp,compList):
         #Check for duplicates:
@@ -394,7 +429,10 @@ class ComponentAccumulator(object):
 
     def getService(self, name=None):        
         """ Returns single service, exception if either not found or to many found"""
-        return self.__getOne( self._services, name, "Services")
+        if name is None:
+            return self._primarySvc
+        else:
+            return self.__getOne( self._services, name, "Services")
     
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
@@ -466,6 +504,9 @@ class ComponentAccumulator(object):
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
 
+        privTool=self._privateTools or other._privateTools
+        if (privTool is not None):
+            raise RuntimeError("merge called on a ComponentAccumulator with and dangling private tool %s/%s" % (privTool.getType(),privTool.getName()))
 
         if not Configurable.configurableRun3Behavior:
             raise ConfigurationError("discoverd Configurable.configurableRun3Behavior=False while working woth ComponentAccumulator")

@@ -47,9 +47,9 @@ def RPCCablingConfigCfg(flags):
     acc.addPublicTool( RPCCablingDbTool )
     rpcCablingSvc.TheRpcCablingDbTool = RPCCablingDbTool
 
-    acc.addService( rpcCablingSvc )
+    acc.addService( rpcCablingSvc,primary=True )
 
-    return acc, rpcCablingSvc
+    return acc
 
 def TGCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
@@ -65,11 +65,11 @@ def TGCCablingConfigCfg(flags):
     TGCCablingSvc.Atlas=True
     TGCCablingSvc.useMuonTGC_CablingSvc=True
     TGCCablingSvc.forcedUse=True    
-    acc.addService( TGCCablingSvc )
+    acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
-    return acc, TGCCablingSvc
+    return acc
 
 # This should be checked by experts since I just wrote it based on 
 # athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCablingConfig.py
@@ -109,9 +109,9 @@ def MDTCablingConfigCfg(flags):
     acc.addPublicTool( MDTCablingDbTool )
     mdtCablingSvc.DBTool = MDTCablingDbTool
 
-    acc.addService( mdtCablingSvc )
+    acc.addService( mdtCablingSvc, primary=True )
 
-    return acc, mdtCablingSvc
+    return acc
 
 
 # This should be checked by experts 
@@ -123,9 +123,9 @@ def CSCCablingConfigCfg(flags):
     from CSCcabling.CSCcablingConf import CSCcablingSvc
     cscCablingSvc = CSCcablingSvc()
 
-    acc.addService( cscCablingSvc )
+    acc.addService( cscCablingSvc, primary=True )
 
-    return acc, cscCablingSvc
+    return acc
 
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
@@ -141,15 +141,15 @@ if __name__ == '__main__':
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
-    result,svc = RPCCablingConfigCfg(ConfigFlags)
+    result = RPCCablingConfigCfg(ConfigFlags)
     acc.merge( result )
-    result,svc = TGCCablingConfigCfg(ConfigFlags)
-    acc.merge( result )
-
-    result,svc = MDTCablingConfigCfg(ConfigFlags)
+    result = TGCCablingConfigCfg(ConfigFlags)
     acc.merge( result )
 
-    result,svc = CSCCablingConfigCfg(ConfigFlags)
+    result = MDTCablingConfigCfg(ConfigFlags)
+    acc.merge( result )
+
+    result = CSCCablingConfigCfg(ConfigFlags)
     acc.merge( result )
 
     f=open('MuonCabling.pkl','w')

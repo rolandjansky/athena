@@ -65,8 +65,8 @@ def MagneticFieldSvcCfg(flags):
     else:
       kwargs.setdefault( "UseDCS", True )
     mag_field_svc = MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
-    result.addService(mag_field_svc)
-    return result, mag_field_svc
+    result.addService(mag_field_svc,primary=True)
+    return result 
     
 if __name__=="__main__":
     # To run this, do e.g. 
@@ -87,10 +87,11 @@ if __name__=="__main__":
 
     cfg=ComponentAccumulator()
 
-    acc,magfield = MagneticFieldSvcCfg(ConfigFlags)
+    acc  = MagneticFieldSvcCfg(ConfigFlags)
+    log.verbose(acc.getPrimary())    
     cfg.merge(acc)
 
-    log.verbose(magfield)    
+
           
     f=open("MagneticFieldSvc.pkl","w")
     cfg.store(f)

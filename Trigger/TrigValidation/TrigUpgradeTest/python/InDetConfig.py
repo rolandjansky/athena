@@ -218,9 +218,8 @@ def TrigInDetCondConfig( flags ):
 
 
   from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  mfsc, mag_field_svc = MagneticFieldSvcCfg(flags)
+  mfsc = MagneticFieldSvcCfg(flags)
   acc.merge( mfsc )
-  acc.addService(mag_field_svc)
   return acc
 
 def TrigInDetConfig( flags, roisKey="EMRoIs" ):
