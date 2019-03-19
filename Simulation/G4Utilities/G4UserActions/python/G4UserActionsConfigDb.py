@@ -26,3 +26,4 @@ addTool("G4UserActions.G4UserActionsConfig.getRadiationMapsMakerTool", "G4UA::Ra
 addTool("G4UserActions.G4UserActionsConfig.getStoppedParticleActionTool", "G4UA::StoppedParticleActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getRadLengthActionTool", "G4UA::RadLengthActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getLooperThresholdSetTool", "G4UA::LooperThresholdSetTool")
+addTool("G4UserActions.G4UserActionsConfig.getVolumeDumperTool", "G4UA::VolumeDumperTool")
