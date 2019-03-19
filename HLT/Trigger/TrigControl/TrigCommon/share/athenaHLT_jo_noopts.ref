@@ -3,12 +3,12 @@
     <childLogName>athenaHLT:</childLogName>
     <numForks>1</numForks>
     <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
-    <softTimeoutFraction>0.9</softTimeoutFraction>
+    <softTimeoutFraction>0.95</softTimeoutFraction>
     <HLTImplementationLibraries>
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
     <UID>HLTMPPy</UID>
-    <HardTimeout>36000</HardTimeout>
+    <HardTimeout>60000</HardTimeout>
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>1</numberOfEventSlots>
     <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>

@@ -3,7 +3,7 @@
     <childLogName>athenaHLT:</childLogName>
     <numForks>4</numForks>
     <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
-    <softTimeoutFraction>0.9</softTimeoutFraction>
+    <softTimeoutFraction>0.95</softTimeoutFraction>
     <HLTImplementationLibraries>
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
