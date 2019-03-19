@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainerObj.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbContainerObj class definitions
 //--------------------------------------------------------------------
@@ -25,7 +24,6 @@
  */
 namespace pool  {
 
-  class DataCallBack;
   typedef const class Shape        *ShapeH;
 
   /** @class DbContainerObj DbContainerObj.h src/DbContainerObj.h
@@ -158,10 +156,10 @@ namespace pool  {
     DbStatus update(DbContainer& cntH, const void* object, ShapeH shape, const DbObjectHandle<DbObject>& objH);
 
     /// Select object in the container identified by its handle
-    DbStatus load(DataCallBack* call, 
-                  const Token::OID_t& linkH, 
-                  Token::OID_t&       oid,
-                  bool          any_next);
+    DbStatus load( void** ptr, ShapeH shape, 
+                   const Token::OID_t& linkH, 
+                   Token::OID_t&       oid,
+                   bool          any_next);
     //@}
 
     /// Perform UPDATE select

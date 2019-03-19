@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -325,16 +325,16 @@ DbStatus DbContainerObj::update(DbContainer& cntH, const void* object, ShapeH sh
 }
 
 /// Select object in the container identified by its handle
-DbStatus DbContainerObj::load(DataCallBack* call,
-                              const Token::OID_t& linkH, 
-                              Token::OID_t& oid,
-                              bool          any_next)
+DbStatus DbContainerObj::load( void** ptr, ShapeH shape,
+                               const Token::OID_t& linkH, 
+                               Token::OID_t& oid,
+                               bool any_next)
 {
-  if ( hasAccess() && call && m_isOpen )  {
+  if ( hasAccess() && m_isOpen )  {
     m_dbH.setAge(0);
     oid.first  = token()->oid().first;
     // Specific implementation may overwrite OID
-    return m_info->load(call, linkH, oid, any_next);
+    return m_info->load(ptr, shape, linkH, oid, any_next);
   }
   return Error;
 }

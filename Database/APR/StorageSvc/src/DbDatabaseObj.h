@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDatabaseObj.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbDatabaseObj object definition
 //--------------------------------------------------------------------
@@ -120,7 +119,7 @@ namespace pool    {
     /// Access to the logon string
     const std::string& logon() const  {  return m_logon;        }
     /// Access the size of the database: May be undefined for some technologies
-    long long int size()  const;
+    long long int size();
     /// Access to technology dependent implementation
     IDbDatabase* info() const         {  return m_info;         }
     /// Access to domain handle (CONST)
@@ -171,7 +170,7 @@ namespace pool    {
     /// Allow access to all known shapes used by the database
     DbStatus shapes(std::vector<const DbTypeInfo*>& shaps);
     /// Retrieve the number of user parameters
-    int nParam() const;
+    int nParam();
     /// Add a persistent parameter to the file
     DbStatus addParam(const std::string& nam, const std::string& val);
     /// Retrieve existing parameter by name

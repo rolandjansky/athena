@@ -19,7 +19,6 @@
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbInstanceCount.h"
-#include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbArray.h"
 #include "POOLCore/DbPrint.h"
 #include "StorageSvc/Transaction.h"
@@ -373,10 +372,9 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
 using namespace std;
 
 DbStatus 
-RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
+RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
 {
   long long evt_id = oid.second;
-  void *object = const_cast<void*>(call->object());
   // lock access to this DB for MT safety
   std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
   try {
@@ -384,8 +382,6 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
      bool hasRead(false);
      for( auto& dsc : m_branches ) {
         RootDataPtr p(nullptr), q(nullptr);
-        p.ptr = object;
-        
         int typ = dsc.column->typeID();
         // cout << "LOAD: object=" << object << " p.ptr=" << p.ptr << " col offset=" << dsc.column->offset() << endl;
         // associate branch with an object
@@ -396,6 +392,7 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
          case DbColumn::LONG_NTCHAR:
          case DbColumn::TOKEN:
             // set data pointer to the object data member for this branch
+            p = *obj_p;
             p.c_str += dsc.column->offset(); 
             break;
          case DbColumn::BLOB:
@@ -406,7 +403,8 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
          case DbColumn::ANY:
          case DbColumn::POINTER:
          default:
-            dsc.branch->SetAddress( &p.ptr );
+            //dsc.branch->SetAddress( &p.ptr );
+            dsc.branch->SetAddress( obj_p );
             break;
         }
         // Must move tree entry to correct value
@@ -437,7 +435,8 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
             case DbColumn::NTCHAR:
             case DbColumn::LONG_NTCHAR:
             case DbColumn::TOKEN:
-               q.ptr = dsc.leaf->GetValuePointer();
+               p = *obj_p;
+               q = dsc.leaf->GetValuePointer();
                ::strcpy(q.c_str, p.c_str);
                break;
             case DbColumn::BLOB:
@@ -445,12 +444,12 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid)
                s_char_Blob.release(false);
                break;
             case DbColumn::POINTER:
-               call->setObject(p.ptr);
+               // call->setObject(p.ptr);
                // for AUX store objects with the right interface supply a special store object
                // that will read branches on demand
                if( dsc.aux_reader ) {
                   // cout << " ***  AuxDyn reader detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
-                  dsc.aux_reader->addReaderToObject(p.ptr, evt_id, &m_rootDb->ioMutex());
+                  dsc.aux_reader->addReaderToObject( *obj_p, evt_id, &m_rootDb->ioMutex() );
                }
                break;
            }

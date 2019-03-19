@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainerImp.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -16,7 +15,6 @@
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbContainerImp.h"
 
@@ -270,10 +268,10 @@ DbStatus DbContainerImp::fetch(const Token::OID_t& linkH, Token::OID_t& stmt)  {
 }
 
 // Interface Implementation: Find entry in container
-DbStatus DbContainerImp::load(DataCallBack* call,
-                              const Token::OID_t& linkH,
-                              Token::OID_t& oid,
-                              bool          any_next)
+DbStatus DbContainerImp::load( void** ptr, ShapeH shape, 
+                               const Token::OID_t& linkH,
+                               Token::OID_t& oid,
+                               bool          any_next)
 {
   DbStatus sc = Error;
   oid.second = linkH.second;
@@ -281,10 +279,10 @@ DbStatus DbContainerImp::load(DataCallBack* call,
     while ( oid.second < size() ) {
       sc = fetch(linkH, oid);
       if ( sc.isSuccess() )  {
-	sc = loadObject(call, oid);
-	if ( sc.isSuccess() )  {
-	  return sc;
-	}
+         sc = loadObject(ptr, shape, oid);
+         if ( sc.isSuccess() )  {
+            return sc;
+         }
       }
       oid.second++;
     }
@@ -295,13 +293,13 @@ DbStatus DbContainerImp::load(DataCallBack* call,
     }
   }
   else {
-    sc = loadObject(call, oid);
+     sc = loadObject(ptr, shape, oid);
   }
   return sc;
 }
 
 /// Find object by object identifier and load it into memory
-DbStatus DbContainerImp::loadObject(DataCallBack* /* call */,
+DbStatus DbContainerImp::loadObject( void**, ShapeH,
                                     Token::OID_t& /* oid  */)
 {
   return Error;

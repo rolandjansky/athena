@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbIter.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbIter definition
 //--------------------------------------------------------------------

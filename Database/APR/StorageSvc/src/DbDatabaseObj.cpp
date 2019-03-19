@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -37,15 +37,7 @@ using namespace pool;
 
 static const Guid s_localDb("00000000-0000-0000-0000-000000000000");
 static DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
-//static DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Error;
-namespace pool  {
-  void setDumpLinkTables(DbPrintLvl::MsgLevel value)  {
-    dbg_lvl = value;
-  }
-  static DbStatus i_openDb(const DbDatabaseObj* db)  {
-    return const_cast<DbDatabaseObj*>(db)->open();
-  }
-}
+
 
 // Standard Constructor
 DbDatabaseObj::DbDatabaseObj( const DbDomain& dom, 
@@ -117,9 +109,9 @@ DbDatabaseObj::~DbDatabaseObj()  {
 }
 
 /// Access the size of the database: May be undefined for some technologies
-long long int DbDatabaseObj::size()  const   {
+long long int DbDatabaseObj::size() {
   if ( 0 == m_info )    {  // Re-open the database if it was retired
-    i_openDb(this);
+     open();
   }
   return 0==m_info ? -1 : m_info->size();
 }
@@ -619,9 +611,9 @@ const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cn
 }
 
 /// Retrieve the number of user parameters
-int DbDatabaseObj::nParam() const  {
+int DbDatabaseObj::nParam() {
   if ( 0 == m_info )    {  // Re-open the database if it was retired
-    i_openDb(this);
+    open();
   }
   return 0 == m_info ? -1 : int(m_paramMap.size());
 }

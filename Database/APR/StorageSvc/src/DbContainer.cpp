@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainer.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbContainerObj handle implementation
 //--------------------------------------------------------------------
@@ -17,7 +16,6 @@
 // Framework include files
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbObject.h"
-#include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
 #include "StorageSvc/DbToken.h"
@@ -193,13 +191,9 @@ DbStatus DbContainer::load( void** ptr,
                             ShapeH shape,
                             const Token::OID_t& linkH ) const
 {
-  DbObjectCallBack call;
-  call.setObject(*ptr);
-  call.setShape(shape);
   if ( isValid() )  {
     Token::OID_t oid;
-    DbStatus sc = m_ptr->load(&call, linkH, oid, false);
-    *ptr = const_cast<void*>(call.object());
+    DbStatus sc = m_ptr->load(ptr, shape, linkH, oid, false);
     return sc;
   }
   return Error;
@@ -264,14 +258,9 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
          DbObject* ptr = DbHeap::allocate( cl.SizeOf(), this, 0, 0 );
          if( ptr ) {
             ptr = cl.Construct(ptr);
-            objH._setObject( ptr );
-
             Token::OID_t oid;
-            DbObjectCallBack call;
-            call.setObject( ptr );
-            call.setShape( typ );
-            if ( m_ptr->load(&call, linkH, oid, any_next).isSuccess() )  {
-               objH._setObject(call.object());
+            if ( m_ptr->load(&ptr, typ, linkH, oid, any_next).isSuccess() )  {
+               objH._setObject( ptr );
                objH.oid() = oid;
                return Success;
             }

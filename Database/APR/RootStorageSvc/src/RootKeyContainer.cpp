@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -17,7 +17,6 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbArray.h"
 #include "StorageSvc/DbReflex.h"
@@ -169,7 +168,7 @@ DbStatus RootKeyContainer::fetch(DbSelect& sel)   {
 } 
 
 // Interface Implementation: Find entry in container
-DbStatus RootKeyContainer::load( DataCallBack* call,
+DbStatus RootKeyContainer::load( void** ptr, ShapeH shape,
                                  const Token::OID_t& linkH,
                                  Token::OID_t& oid,
                                  bool          any_next)
@@ -181,7 +180,7 @@ DbStatus RootKeyContainer::load( DataCallBack* call,
     ::sprintf(txt, "_pool_valid_%08d", int(oid.second));
     const TKey* key = (TKey*)m_dir->GetListOfKeys()->FindObject(txt);
     if ( key )    {
-      sc = loadObject(call, oid);
+       sc = loadObject(ptr, shape, oid);
       if ( sc.isSuccess() )  {
         return sc;
       }
@@ -223,27 +222,26 @@ DbStatus RootKeyContainer::destroyObject(ActionList::value_type& entry) {
   return Error;
 }
 
-DbStatus RootKeyContainer::loadObject( DataCallBack*   call,
+DbStatus RootKeyContainer::loadObject( void** ptr, ShapeH shape,
                                        Token::OID_t&   oid )
 {
    char txt[64];
    ::sprintf(txt, "_pool_valid_%08d", int(oid.second));
    TDirectory::TContext dirCtxt(m_dir->GetFile());
    TKey* key = (TKey*)m_dir->GetListOfKeys()->FindObject(txt);
-   if ( key && call )    {
+   if ( key && ptr )    {
       const char* class_name = key->GetClassName();
-      const DbTypeInfo* typ = (const DbTypeInfo*)call->shape();
+      const DbTypeInfo* typ = dynamic_cast<const DbTypeInfo*>(shape);
       if( typ )  {
          TClass* cl = TClass::GetClass(class_name);
          if( 0 != cl ) {
             if ( typ->columns().size() == 1) {
-               RootDataPtr p( cl->New() );
-               int nbyte = m_ioHandler->read( key, &p.ptr );
+               *ptr = cl->New();
+               int nbyte = m_ioHandler->read( key, ptr );
                if ( nbyte > 1 ) {
                   /// Update statistics
                   m_ioBytes = nbyte;
                   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);
-                  call->setObject( p.ptr );
                   return Success;
                }
             }
@@ -254,9 +252,8 @@ DbStatus RootKeyContainer::loadObject( DataCallBack*   call,
                err << DbPrintLvl::Error << "Type: " << typ->toString() << DbPrint::endmsg; 
                return Error;
                
-               RootDataPtr object( call->object() );
-               RootCallEnv env( object, static_cast<const DbTypeInfo*>(call->shape()) );
-               int nbyte = m_ioHandler->read( key, &object.ptr );
+               RootCallEnv env( *ptr, typ );
+               int nbyte = m_ioHandler->read( key, ptr );
                if ( nbyte > 0 )  {
                   m_ioBytes = nbyte;
                   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);

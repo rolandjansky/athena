@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
 // Local implementation files
@@ -85,7 +85,7 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    return status;
 }
 
-DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oid) {
+DbStatus RootTreeIndexContainer::loadObject(void** ptr, ShapeH shape, Token::OID_t& oid) {
    if ((oid.second >> 32) > 0) {
       long long int evt_id = m_tree->GetEntryNumberWithIndex(oid.second);
       if (evt_id == -1) {
@@ -96,5 +96,5 @@ DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oi
          oid.second = evt_id;
       }
    }
-   return RootTreeContainer::loadObject(call, oid);
+   return RootTreeContainer::loadObject(ptr, shape, oid);
 }

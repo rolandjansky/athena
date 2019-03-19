@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestDriver.h"
@@ -19,9 +19,7 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DatabaseConnection.h"
 #include "StorageSvc/FileDescriptor.h"
-#include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbType.h"
-#include "StorageSvc/DbObjectCallBack.h"
 
 #include <stdexcept>
 #include <iostream>

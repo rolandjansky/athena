@@ -97,7 +97,8 @@ namespace pool    {
     virtual DbStatus fetch(DbSelect& sel) = 0;
 
     /// Find object within the container and load it into memory
-    /** @param  call      [IN]   Callback to load data
+    /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
+      * @param  shape     [IN]   Object type
       * @param  linkH     [IN]   Preferred object OID
       * @param  oid      [OUT]   Actual object OID
       * @param  any_next  [IN]   On selection, objects may be skipped.
@@ -105,10 +106,10 @@ namespace pool    {
       *                          will differ from the preferred oid.
       * @return Status code indicating success or failure.
       */
-    virtual DbStatus load(  DataCallBack* call, 
-                            const Token::OID_t& linkH,
-                            Token::OID_t&       oid,
-                            bool          any_next=false) = 0;
+    virtual DbStatus load( void** ptr, ShapeH shape, 
+                           const Token::OID_t& lnkH, 
+                           Token::OID_t&       oid,
+                           bool                any_next=false) = 0;
 
     /// Save new object in the container and return its handle
     /** @param  cntH      [IN]   Handle to container object.
