@@ -397,6 +397,11 @@ if DetFlags.haveRIO.TRT_on():
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
                                       TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
                                       isGEANT4 = useOldStyle)
+    # Active Fraction algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
+    TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+
     # HT probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
@@ -408,6 +413,8 @@ if DetFlags.haveRIO.TRT_on():
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg
+    if not hasattr(condSeq, "TRTActiveCondAlg"):
+        condSeq += TRTActiveCondAlg
 
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
@@ -451,9 +458,4 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTConditionsSummaryService 
 
-    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
-    InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name = "InDetTRTActiveFractionSvc")
-
-    ServiceMgr += InDetTRT_ActiveFractionSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetTRT_ActiveFractionSvc
+        

@@ -540,6 +540,11 @@ class TRTConditionsServicesSetup:
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
                                       TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
                                       isGEANT4 = self._isMC)
+    # Active Fraction algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
+    TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+
 
     # HT probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
@@ -552,6 +557,8 @@ class TRTConditionsServicesSetup:
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg
+    if not hasattr(condSeq, "TRTActiveCondAlg"):
+        condSeq += TRTActiveCondAlg
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
@@ -617,12 +624,6 @@ class TRTConditionsServicesSetup:
     ServiceMgr += InDetTRTConditionsSummaryService
     if self._print:
       print InDetTRTConditionsSummaryService 
-
-    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
-    InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name=self.instanceName("InDetTRTActiveFractionSvc"),
-                                                       #missing link to TRTSummarySvc
-                                                       )
-    ServiceMgr += InDetTRT_ActiveFractionSvc
 
 
   def instanceName(self, toolname):

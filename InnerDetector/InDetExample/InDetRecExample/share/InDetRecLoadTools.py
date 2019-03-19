@@ -1162,10 +1162,6 @@ if InDetFlags.doPattern():
                                                                MinOffsetDCs           = 5,
                                                                UseNewParameterization = True,  # Use Thomas's new parameterization by default
                                                                UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
-    if (DetFlags.haveRIO.TRT_on()):
-        InDetTRTDriftCircleCut.TrtConditionsSvc = InDetTRT_ActiveFractionSvc
-    else:
-        InDetTRTDriftCircleCut.TrtConditionsSvc = None        
     
     ToolSvc += InDetTRTDriftCircleCut
     if (InDetFlags.doPrintConfigurables()):
@@ -1241,10 +1237,6 @@ if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
                                                                                  MinOffsetDCs           = 5,
                                                                                  UseNewParameterization = InDetNewTrackingCuts.useNewParameterizationTRT(),  # Use new parameterization only for high lumi
                                                                                  UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
-        if (DetFlags.haveRIO.TRT_on()):
-            InDetTRTDriftCircleCutForPatternReco.TrtConditionsSvc = InDetTRT_ActiveFractionSvc
-        else:
-            InDetTRTDriftCircleCutForPatternReco.TrtConditionsSvc = None        
             
         ToolSvc += InDetTRTDriftCircleCutForPatternReco
         if (InDetFlags.doPrintConfigurables()):

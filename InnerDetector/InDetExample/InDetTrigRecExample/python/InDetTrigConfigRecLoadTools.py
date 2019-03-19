@@ -862,13 +862,9 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
 # TRT segment minimum number of drift circles tool
 #
 
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
-InDetTrigTRT_ActiveFractionSvc = TRT_ConditionsSetup.instanceName("InDetTRTActiveFractionSvc")
-
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
 InDetTrigTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCut',
-  TrtConditionsSvc = InDetTrigTRT_ActiveFractionSvc,
   MinOffsetDCs     = 5,
   UseNewParameterization = True,
   UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
@@ -880,7 +876,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCutForPatt',
-  TrtConditionsSvc = InDetTrigTRT_ActiveFractionSvc,
   MinOffsetDCs     = 5,
   UseNewParameterization = InDetTrigCutValues.useNewParameterizationTRT(),
   UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default

@@ -1,29 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrtDriftCircleCutTool.h"
-#include "InDetRecToolInterfaces/ITRT_ActiveFractionSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 StatusCode  InDet::InDetTrtDriftCircleCutTool::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
 
-  /* Get the trt active fraction tool */
-  if(m_useTRT){
-    if ( m_trtCondSvc.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_trtCondSvc << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trtCondSvc << endmsg;
-    }
-  }
 
   if(sc.isFailure()){
     msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
     return StatusCode::FAILURE;
   }
 
+    // Read key
+   ATH_CHECK( m_strawReadKey.initialize() );
+ 
   return StatusCode::SUCCESS;
 }
     
@@ -35,13 +29,11 @@ StatusCode InDet::InDetTrtDriftCircleCutTool::finalize()
     
 InDet::InDetTrtDriftCircleCutTool::InDetTrtDriftCircleCutTool(const std::string& t, const std::string& n, const IInterface*  p)
   :AthAlgTool(t,n,p),
-   m_trtCondSvc("TRT_ActiveFractionSvc",n),
    m_minOffset(0),
    m_param(false),
    m_useTRT(true)
 {
   declareInterface<ITrtDriftCircleCutTool>(this);
-  declareProperty("TrtConditionsSvc",       m_trtCondSvc);
   declareProperty("MinOffsetDCs",           m_minOffset );
   declareProperty("UseNewParameterization", m_param     );
   declareProperty("UseActiveFractionSvc",   m_useTRT    );
@@ -74,12 +66,17 @@ int InDet::InDetTrtDriftCircleCutTool::minNumberDCs(const Trk::TrackParameters* 
     
     double eta = fabs(trkp->momentum().eta());
 
+    SG::ReadCondHandle<TRTCond::ActiveFraction> strawReadHandle{m_strawReadKey};
+    const TRTCond::ActiveFraction* actF{*strawReadHandle};
+
     for(int i=0; i!=6; ++i) {
       if(eta <= TrtEtaBin[i+1]) {
 	double diff = eta;
 	double nDiffTRT = TrtA[i]+TrtB[i]*diff+TrtC[i]*diff*diff+TrtD[i]*diff*diff*diff-TrtO[i];
 	double activeF = 1.;
-	if(m_useTRT) activeF = m_trtCondSvc->getActiveFraction(trkp);
+        float phi = trkp->momentum().phi();
+        float eta = trkp->momentum().eta();
+	if(m_useTRT) activeF = actF->getActiveFraction(eta,phi);
         nDiffTRT = nDiffTRT*activeF;
 	if (nDiffTRT>=1) return int(nDiffTRT);
 	else return int(m_minOffset);
