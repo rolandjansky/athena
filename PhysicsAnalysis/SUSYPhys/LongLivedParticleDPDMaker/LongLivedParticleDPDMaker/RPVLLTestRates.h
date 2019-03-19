@@ -54,8 +54,6 @@ class RPVLLTestRates : public AthAlgorithm  {
    int m_lumiBlock;
    int m_evtNum;
    std::vector<int>         m_filterPassed;   
-
-   SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 #endif 
