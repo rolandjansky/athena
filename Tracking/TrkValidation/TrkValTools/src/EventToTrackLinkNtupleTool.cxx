@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -12,16 +12,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TTree.h"
-//Gaudi
-// #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
-// #include "GaudiKernel/ISvcLocator.h"
-// #include "GaudiKernel/PropertyMgr.h"
 #include "TrkValTools/EventToTrackLinkNtupleTool.h"
 #include "CommissionEvent/ComTime.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
 
   const std::string Trk::EventToTrackLinkNtupleTool::s_trackTypeName = "Trk::Track";
   const std::string Trk::EventToTrackLinkNtupleTool::s_trkParticleTypeName = "Rec::TrackParticle";

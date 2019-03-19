@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOIDENTIFIER_CALONEIGHBOURS_H
@@ -43,7 +43,7 @@ class CaloNeighbourRegion {
 
   enum {SIDE = 2, SAMPL = 3, REGION = 4, ETA = 5, PHI = 6, TILESECTION = 1, TILEPHI = 3, TILEETA = 4, TILESAMPL = 5, FCALETA = 4, FCALPHI = 5};
  
-  CaloNeighbourRegion(const std::string name,
+  CaloNeighbourRegion(const std::string& name,
                       const CaloCell_Base_ID * theCaloId);
 
   virtual ~CaloNeighbourRegion();
@@ -86,8 +86,8 @@ class CaloNeighbourRegion {
   bool m_isValidMinus,m_isValidPlus;
 
   IdentifierHash m_minHashMinus,m_maxHashMinus,m_minHashPlus,m_maxHashPlus;
-  std::vector< std::vector<IdentifierHash>* > m_neighbours_plus;
-  std::vector< std::vector<IdentifierHash>* > m_neighbours_minus;
+  std::vector< std::unique_ptr<std::vector<IdentifierHash> > > m_neighbours_plus;
+  std::vector< std::unique_ptr<std::vector<IdentifierHash> > > m_neighbours_minus;
 };
 
 class CaloNeighbours {
@@ -106,12 +106,14 @@ public:
 
   int get_prevInCalo(const IdentifierHash &id,std::vector<IdentifierHash>& neighbourList) const;
 
-  int get_neighbours(const IdentifierHash &id, const std::vector<CaloNeighbourRegion*> &regions, std::vector<IdentifierHash>& neighbourList) const;
+  int get_neighbours(const IdentifierHash &id,
+                     const std::vector<std::unique_ptr<CaloNeighbourRegion> > &regions,
+                     std::vector<IdentifierHash>& neighbourList) const;
 
  private:
   const CaloCell_Base_ID * m_calo_id;
 
-  std::vector<CaloNeighbourRegion*> m_next_regions;
-  std::vector<CaloNeighbourRegion*> m_prev_regions;
+  std::vector<std::unique_ptr<CaloNeighbourRegion> > m_next_regions;
+  std::vector<std::unique_ptr<CaloNeighbourRegion> > m_prev_regions;
 };
 #endif // CALOIDENTIFIER_CALONEIGHBOURS_H

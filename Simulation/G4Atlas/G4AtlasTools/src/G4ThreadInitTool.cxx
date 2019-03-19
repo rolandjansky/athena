@@ -114,12 +114,23 @@ void G4ThreadInitTool::initThread()
 //-----------------------------------------------------------------------------
 void G4ThreadInitTool::terminateThread()
 {
-  ATH_MSG_INFO("terminateThread ==> tbb thread 0x" <<
+  ATH_MSG_DEBUG("terminateThread ==> tbb thread 0x" <<
                std::hex << pthread_self() << std::dec);
 
   // Geant4 worker finalization
-  G4RunManager::GetRunManager()->RunTermination();
-
-  // Atomic decrement number of initialized threads
-  m_nInitThreads--;
+  auto runMgr = G4RunManager::GetRunManager();
+  ATH_MSG_DEBUG("G4RunManager ptr" << runMgr);
+  if(runMgr) {
+    runMgr->RunTermination();
+    ATH_MSG_INFO("terminateThread ==> safely called G4AtlasWorkerRunManager::RunTermination for tbb thread 0x" <<
+               std::hex << pthread_self() << std::dec);
+    // Atomic decrement number of initialized threads
+    m_nInitThreads--;
+  }
+  else {
+    ATH_MSG_WARNING("skipping attempt to call terminateThread for tbb thread 0x" <<
+                    std::hex << pthread_self() << std::dec <<
+                    " without having first called initThread.");
+    // Not decrementing m_nInitThreads as initThread was not called in this case.
+  }
 }

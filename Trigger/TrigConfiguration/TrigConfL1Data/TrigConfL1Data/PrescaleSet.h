@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_PrescaleSet
@@ -31,7 +31,7 @@ namespace TrigConf {
       static double getPrescaleFromCut(int32_t cut);
 
       PrescaleSet();
-      ~PrescaleSet();
+      ~PrescaleSet() = default;
 
       // Accessors
       bool                         isNull() const { return m_null; }

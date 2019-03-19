@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -268,6 +268,7 @@ CaloIDHelper::fill_vec_of_dict_regions (const std::string& group_name /*= ""*/)
       m_vecOfDictRegions.push_back (m_dict->find_region(expRegId,group_name));
     }
   }
+  // cppcheck-suppress assertWithSideEffect
   assert (m_vecOfDictRegions.size() == regions().hash_max());
   return 0;
 }

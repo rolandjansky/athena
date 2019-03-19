@@ -148,10 +148,9 @@ SiDetectorElement::updateCache() const
 {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-  m_cacheValid = true;
-
   bool firstTimeTmp = m_firstTime;
   m_firstTime = false;
+  m_cacheValid = true;
   
   const GeoTrf::Transform3D & geoTransform = transformHit();
 
@@ -289,7 +288,7 @@ SiDetectorElement::updateCache() const
       m_etaDirection = true; // Don't swap
     }   
 
-  } // end if (m_firstTime)
+  } // end if (firstTimeTmp)
   
 
 
@@ -361,7 +360,6 @@ SiDetectorElement::updateCache() const
       m_isStereo = false;
     }
   }    
-  
 }
 
 
@@ -415,6 +413,7 @@ SiDetectorElement::recoToHitTransform() const
 
   // Determine the reconstruction local (LocalPosition) to global transform.
 
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (m_firstTime) updateCache();
 
   // global = transform * recoLocal
@@ -550,6 +549,7 @@ SiDetectorElement::phiAxis() const
 Amg::Vector2D
 SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const  // Will change order to phi,eta
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   if (!m_etaDirection) xEta = -xEta;
   if (!m_phiDirection) xPhi = -xPhi;
@@ -560,6 +560,7 @@ HepGeom::Point3D<double>
 SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> & hitPosition) const
 {
   // Equiv to transform().inverse * transformHit() * hitPosition
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
   double xDepth = hitPosition[m_hitDepth];
   double xPhi = hitPosition[m_hitPhi];
@@ -644,6 +645,7 @@ double SiDetectorElement::sinTilt() const
 
   double SiDetectorElement::sinTilt(const Amg::Vector2D &localPos) const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // tilt angle is not defined for the endcap
@@ -708,6 +710,7 @@ double SiDetectorElement::sinStereo() const
 
   double SiDetectorElement::sinStereo(const Amg::Vector2D &localPos) const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   HepGeom::Point3D<double> point=globalPositionCLHEP(localPos);
@@ -752,6 +755,7 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
 bool 
 SiDetectorElement::isStereo() const 
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (m_firstTime) updateCache();
   return m_isStereo;
 }
@@ -895,6 +899,7 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &etaMax, double &phiMin, 
                                         double &phiMax, double &rz) const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   HepGeom::Point3D<double> corners[4];
@@ -980,6 +985,7 @@ void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> & point, d
 
 void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   // This makes the assumption that the forward SCT detectors are orientated such that 

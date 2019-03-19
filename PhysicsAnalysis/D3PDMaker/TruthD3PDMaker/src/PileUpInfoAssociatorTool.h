@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**                                                                            
@@ -13,7 +13,6 @@
 #ifndef TRUTHD3P3MAKER_PILEUPINFOASSOCIATORTOOL_H
 #define TRUTHD3P3MAKER_PILEUPINFOASSOCIATORTOOL_H
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/PileUpEventInfo.h"
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 

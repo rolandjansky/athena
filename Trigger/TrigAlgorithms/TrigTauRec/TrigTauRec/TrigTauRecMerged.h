@@ -22,6 +22,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/ITauToolBase.h"
+//#include "tauRecTools/TauJetRNNEvaluator.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -205,14 +206,36 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   std::vector<unsigned char> m_calo_errors;
   /** track errors */
   std::vector<unsigned char> m_track_errors;
-  /** author */
-  std::vector<unsigned char> m_author;
 
-  /** deltaZ0 core Trks*/
-  std::vector<float> m_deltaZ0coreTrks;
+  //  RNN ID monitoring
+  // retrieved from tool handle, if tool exists
+  // needs migration of RNN tools to master
+  //TauJetRNNEvaluator* m_rnn_evaluator;
 
-  /** deltaZ0 wide Trks*/
-  std::vector<float> m_deltaZ0wideTrks;
+  float m_RNN_scalar_ptRatioEflowApprox; 
+  float m_RNN_scalar_mEflowApprox; 
+  float m_RNN_scalar_pt_jetseed_log;
+
+  int m_RNN_Nclusters;
+  std::vector<double> m_RNN_cluster_et_log;
+  std::vector<double> m_RNN_cluster_dEta;
+  std::vector<double> m_RNN_cluster_dPhi;
+  std::vector<double> m_RNN_cluster_CENTER_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_R;
+
+  int m_RNN_Ntracks;
+  std::vector<double> m_RNN_track_pt_log;
+  std::vector<double> m_RNN_track_dEta;
+  std::vector<double> m_RNN_track_dPhi;
+  std::vector<double> m_RNN_track_d0_abs_log;
+  std::vector<double> m_RNN_track_z0sinThetaTJVA_abs_log;
+  std::vector<double> m_RNN_track_nInnermostPixelHits;
+  std::vector<double> m_RNN_track_nPixelHits;
+  std::vector<double> m_RNN_track_nSCTHits;
+
+  float m_RNNJetScore;
+  float m_RNNJetScoreSigTrans;
 
 };
 #endif

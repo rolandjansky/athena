@@ -650,7 +650,7 @@ int         LArMiniFCAL_ID::init_hashes(void)
 }
 
 
-int         LArMiniFCAL_ID::init_neighbors_from_file(std::string filename, std::vector<std::set<IdentifierHash> > & vec)
+int         LArMiniFCAL_ID::init_neighbors_from_file(const std::string& filename, std::vector<std::set<IdentifierHash> > & vec)
 {
   MsgStream log(m_msgSvc, "LArMiniFCAL_ID" );
 

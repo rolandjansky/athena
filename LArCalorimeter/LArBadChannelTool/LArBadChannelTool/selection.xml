@@ -27,8 +27,5 @@
 <class name="std::pair<bool,LArBadChannelEnum::ProblemType>"/> 
 
 <class name="ILArBadChannelMasker"/>
-<class name="ILArBadChanTool"/>
-<!-- <class name="LArBadChannelMasker"/> -->
-<!-- <class name="LArBadChanTool"/> -->
 
 </lcgdict>

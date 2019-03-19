@@ -21,13 +21,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
-#include "xAODEventInfo/EventInfo.h"
-//#include "EventKernel/PdtPdg.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include <vector>
 #include <string>
@@ -59,9 +55,6 @@ DerivationFramework::HardTruthThinning::HardTruthThinning(
 {
   declareInterface<DerivationFramework::IThinningTool>(this);
   declareProperty("ThinningService", m_thinningSvc);
-
-  declareProperty("EventInfo", m_eventInfoName,
-                  "EventInfo name");
 
   declareProperty("TruthParticles", m_truthParticleName,
                   "truth particle container name");
@@ -116,6 +109,8 @@ DerivationFramework::HardTruthThinning::~HardTruthThinning() {
 
 StatusCode DerivationFramework::HardTruthThinning::initialize()
 {
+  ATH_CHECK( m_evt.initialize() );
+
   m_evtCount = -1;
   m_errCount = 0;
 
@@ -151,14 +146,12 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
   //bool doExtra = false;
 
 
-  // Retrieve Event/EventInfo -- FIXME
-
-  const EventInfo* eventInfo = 0;
-  if( !evtStore()->retrieve( eventInfo, m_eventInfoName).isSuccess() ){
-    ATH_MSG_ERROR("No EventInfo found with name " <<m_eventInfoName );
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if(!evt.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve EventInfo");
     return StatusCode::FAILURE;
   }
-  long long int evtNum = eventInfo->event_ID()->event_number();
+  long long int evtNum = evt->eventNumber();
 
   // Retrieve truth particles and vertices
 

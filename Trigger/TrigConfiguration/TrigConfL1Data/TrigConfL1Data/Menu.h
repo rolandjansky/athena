@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_Menu
@@ -49,7 +49,7 @@ namespace TrigConf {
    class Menu  : public L1DataBaseclass {
    public:
       Menu();
-      ~Menu();
+      ~Menu() = default;
 
       item_by_ctpid_t&           item_by_ctpid();
       const item_by_ctpid_t&     item_by_ctpid() const;

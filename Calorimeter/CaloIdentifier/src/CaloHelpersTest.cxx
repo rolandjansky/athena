@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -16,8 +16,8 @@
 
 
 CaloHelpersTest::CaloHelpersTest()
+  : m_parser (std::make_unique<IdDictParser>())
 {
-  m_parser = std::make_unique<IdDictParser>();
   m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = m_parser->parse("IdDictParser/ATLAS_IDS.xml");
   m_em_idHelper.set_quiet (true);

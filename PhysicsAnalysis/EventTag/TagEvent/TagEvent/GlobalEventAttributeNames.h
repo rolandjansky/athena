@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTAGALGS_GLOBALEVENTATTRIBUTENAMES_H
@@ -9,7 +9,7 @@
  Author - Ketevi A. Assamagan
  Feb 2006
 ****************************************/
-//#include "EventInfo/EventInfo.h"
+
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "GlobalGroupAndUnitNames.h"
 #include <string>
