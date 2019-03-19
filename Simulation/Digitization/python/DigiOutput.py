@@ -174,6 +174,7 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
             StreamRDO_ItemList+=["GenericMuonSimHitCollection#MicromegasSensitiveDetector"]
+            StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():
@@ -212,4 +213,6 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.any_on():
         # Pool Output
         StreamRDO_ItemList+=["EventInfo#*"];
+        # xAOD::EventInfo
+        StreamRDO_ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
     return StreamRDO_ItemList

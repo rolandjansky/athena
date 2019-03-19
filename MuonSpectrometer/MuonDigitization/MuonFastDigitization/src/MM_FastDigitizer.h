@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_FASTDIGITIZER_H
@@ -62,9 +62,6 @@ class MM_FastDigitizer : public AthAlgorithm {
   
   TFile* m_file;
   TTree* m_ntuple;
-  float  m_slx; // local position simhit in G4
-  float  m_sly;
-  float  m_slz;
   float  m_dlx;  //  local position simhit in GeoModel frame
   float  m_dly;
   float  m_dlz;
@@ -78,9 +75,6 @@ class MM_FastDigitizer : public AthAlgorithm {
   float  m_stsulz;
   float  m_ang; // local angel
   float  m_shift; // m_shift due to bunch offset 
-  float  m_resx; // residuals in local G4 - GeoModel
-  float  m_resy;
-  float  m_resz;
   float  m_suresx; // residuals g4 - RE stripPosition in tracking frame
   float  m_suresy;
   float  m_err;    // error

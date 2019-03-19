@@ -31,6 +31,7 @@ namespace MuonGM
 namespace Muon 
 {
   class IMuonRawDataProviderTool;
+  class ISTgcClusterBuilderTool;
 
   /** @class STGC_RawDataToPrepDataTool 
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
@@ -95,6 +96,8 @@ namespace Muon
       SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey;//"TGCRDO"
       SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
       bool m_merge; // merge Prds
+
+      ToolHandle<ISTgcClusterBuilderTool> m_clusterBuilderTool;
 
    }; 
 } // end of namespace

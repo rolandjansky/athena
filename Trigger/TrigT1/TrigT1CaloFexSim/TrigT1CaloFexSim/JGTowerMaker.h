@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERMAKER_H
@@ -26,22 +26,26 @@ class JGTowerMaker: public ::AthAlgorithm {
   JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerMaker(); 
 
+
+ private: 
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContainer*towerContainer);   
+  virtual StatusCode  FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT,  xAOD::JGTowerContainer*towerContainer);
   virtual StatusCode  beginInputFile();
   virtual StatusCode  SCTowerMapping();
   virtual StatusCode  ForwardMapping();
-  virtual StatusCode  TileMapping(); 
+  virtual StatusCode  TileMapping();
 
-  std::vector<JGTower*> jT;
-  std::vector<JGTower*> gT;
+  std::vector<std::shared_ptr<JGTower>> m_jT;
+  std::vector<std::shared_ptr<JGTower>> m_gT;
 
-  GTowerSCMap *myGMap = new GTowerSCMap();
-  JTowerSCMap *myJMap = new JTowerSCMap();
- private: 
+  GTowerSCMap *m_GMap = new GTowerSCMap();
+  JTowerSCMap *m_JMap = new JTowerSCMap();
+
+
   const DataHandle<CaloSuperCellDetDescrManager> m_sem_mgr;
+
 //  const DataHandle<CaloTTDescrManager> m_tt_mgr; //kept temporarily to use trigger tower id for for ID mapping in the futher
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;

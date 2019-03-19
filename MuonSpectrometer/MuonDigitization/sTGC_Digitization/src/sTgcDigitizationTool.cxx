@@ -530,15 +530,13 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
 
   ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
-
+  
   IdContext tgcContext = m_idHelper->module_context();
   
   float earliestEventTime = 9999;
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
   while(m_thpcsTGC->nextDetectorElement(i, e)) {
-//	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const sTGCSimHit*> > merged_SimHit;
-      std::map< const sTGCSimHit*, int > SimHits;  //std::map container to associate if this hit came from the signal (0) or pileup (!0) simEvent
 	  int nhits = 0;
       ATH_MSG_VERBOSE("Next Detector Element");
 	  while(i != e){ //loop through the hits on this Detector Element
@@ -569,7 +567,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           int eventId = phit.eventId();
           std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
 		  int isSmall = stationName[2] == 'S';
-//		  int multiPlet = m_idHelper->multilayer(layid);
 		  int gasGap = m_idHelper->gasGap(layid);
           ATH_MSG_VERBOSE("Gas Gap " << gasGap );
 
@@ -630,55 +627,24 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
           ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
           
-          const int pileupType = phit.pileupType();
-          HepMcParticleLink trklink(hit.particleLink());
-          if (m_needsMcEventCollHelper) {
-            if(pileupType!=lastPileupType)        {
-              currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
-              lastPileupType=pileupType;
-            }
-            trklink.setEventCollection(currentMcEventCollection);
-          }
-
-          sTGCSimHit* wireHit = new sTGCSimHit(idHit, (hit.globalTime() + eventTime), G_HITONSURFACE_WIRE, hit.particleEncoding(), hit.globalDirection(), hit.depositEnergy() , trklink );
-          SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
-          ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
-	  } // end of while(i != e)
-
+        ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
     
-	  ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
-    
-    // Loop over the hits:
-    int hitNum = 0;
-    typedef std::map< const sTGCSimHit*, int >::iterator it_SimHits;
- 
-        ATH_MSG_VERBOSE("Digitizing " << SimHits.size() << " hits.");
-        
-    for(it_SimHits it_SimHit = SimHits.begin(); it_SimHit!=SimHits.end(); it_SimHit++ ) {
-    	hitNum++;
-    	double depositEnergy = it_SimHit->first->depositEnergy();
-    	if(depositEnergy<0) {
-    		msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
-    		continue;
-    	}
-    	const sTGCSimHit temp_hit = *(it_SimHit->first);
-
-    	const sTGCSimHit hit(temp_hit.sTGCId(), temp_hit.globalTime(), 
-    			     temp_hit.globalPosition(),
-			     temp_hit.particleEncoding(),
-			     temp_hit.globalDirection(),
-			     depositEnergy,
-			     temp_hit.particleLink()
+    	const sTGCSimHit temp_hit(hit.sTGCId(), hit.globalTime(), 
+    			 G_HITONSURFACE_WIRE,
+			     hit.particleEncoding(),
+			     hit.globalDirection(),
+			     hit.depositEnergy(),
+			     hit.particleLink()
 			     );
 
 
-    	float globalHitTime = hit.globalTime();
-    	float tof = hit.globalPosition().mag()/CLHEP::c_light;
+    	float globalHitTime = temp_hit.globalTime() + eventTime;
+    	float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
     	float bunchTime = globalHitTime - tof;
 
 		sTgcDigitCollection* digiHits = 0;
-
-		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+        
+    	digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
 		if(!digiHits)
 			continue;
 
@@ -721,10 +687,11 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 			bool isDead = 0;
 			bool isPileup = 0;
-            ATH_MSG_VERBOSE("SimHits map second: " << it_SimHit->second << " newTime: " << newTime);
-			if(it_SimHit->second!= 0)  //hit not from the main signal subevent
+            ATH_MSG_VERBOSE("Hit is from the main signal subevent if eventId is zero, eventId = " << eventId << " newTime: " << newTime);
+			if(eventId != 0)  //hit not from the main signal subevent
 				  isPileup = 1;
                   
+            ATH_MSG_VERBOSE("...Check time 5: " << newTime );
             // Create a new digit with updated time and BCTag
             sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
 			IdentifierHash coll_hash;  //Hash defining the detector element
@@ -732,6 +699,17 @@ StatusCode sTgcDigitizationTool::doDigitization() {
             ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
 			ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
 			ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
+
+            // Update HepMcParticleLink required for making SDO
+            const int pileupType = phit.pileupType();
+            HepMcParticleLink trklink(hit.particleLink());
+            if (m_needsMcEventCollHelper) {
+              if(pileupType!=lastPileupType)        {
+                currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
+                lastPileupType=pileupType;
+              }
+              trklink.setEventCollection(currentMcEventCollection);
+            }
 
             // Create a MuonSimData (SDO) corresponding to the digit
             MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.depositEnergy(), tof));
@@ -762,9 +740,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		} // end of loop digiHits
 		delete digiHits;
 		digiHits = 0;
-    }// end of loop(merged_SimHit)
-    SimHits.clear();
-  }//while(m_thpcsTGC->nextDetectorElement(i, e))
+	  } // end of while(i != e)
+  } //end of while(m_thpcsTGC->nextDetectorElement(i, e))
   
        /*********************
        * Process Pad Digits *

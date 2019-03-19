@@ -44,6 +44,7 @@ namespace G4UA{
       // distributions per volume per particle type
       HistoMapMap_t histoMapMap_vol_stepSize;
       HistoMapMap_t histoMapMap_vol_stepKineticEnergy;
+      HistoMapMap_t histoMapMap_vol_postStepKineticEnergy;
       HistoMapMap_t histoMapMap_vol_stepPseudorapidity;
       HistoMapMap_t histoMapMap_vol_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_vol_stepEnergyNonIonDeposit;
@@ -52,6 +53,7 @@ namespace G4UA{
       // distributions per material per particle type
       HistoMapMap_t histoMapMap_mat_stepSize;
       HistoMapMap_t histoMapMap_mat_stepKineticEnergy;
+      HistoMapMap_t histoMapMap_mat_postStepKineticEnergy;
       HistoMapMap_t histoMapMap_mat_stepPseudorapidity;
       HistoMapMap_t histoMapMap_mat_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_mat_stepEnergyNonIonDeposit;
@@ -60,6 +62,7 @@ namespace G4UA{
       // distributions per process per particle type
       HistoMapMap_t histoMapMap_prc_stepSize;
       HistoMapMap_t histoMapMap_prc_stepKineticEnergy;
+      HistoMapMap_t histoMapMap_prc_postStepKineticEnergy;
       HistoMapMap_t histoMapMap_prc_stepPseudorapidity;
       HistoMapMap_t histoMapMap_prc_stepEnergyDeposit;
       HistoMapMap_t histoMapMap_prc_stepEnergyNonIonDeposit;
@@ -69,7 +72,8 @@ namespace G4UA{
       HistoMapMap_t histoMapMap_numberOfSteps;
       HistoMapMap_t histoMapMap_numberOfStepsPerInitialE;
       HistoMapMap_t histoMapMap_InitialE;
-      HistoMapMap_t histoMapMap_stepSecondaryKinetic;
+      HistoMapMap_t histoMapMap_stepKinetic;
+      HistoMapMap_t histoMapMap_postStepKinetic;
 
       // 2D maps
       HistoMapMap_t histoMapMap2D_vol_RZ;

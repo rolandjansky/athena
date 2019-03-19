@@ -128,6 +128,18 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addMVis(theChainDef,chainDicts,listOfChainDefs)
 
+    elif any("dRtt" in alg for alg in topoAlgs):
+        # tau-lep/tau chains with dRtt cut
+        inputChains=[]
+        for ChainPart in chainDicts:
+           if 'Electron' in ChainPart['signature'] or 'Muon' in ChainPart['signature'] or 'Tau' in ChainPart['signature']:
+                inputChains.append(ChainPart['signature'])
+        if len(inputChains)==0 or len(inputChains)>2:
+            log.warning("dRtt: Need Electron or Muon and a Tau chain to run the matching algorithm")
+        else:
+            log.debug("Configuring dRtt combo hypo")
+            theChainDef=_adddR(theChainDef,chainDicts,listOfChainDefs)
+
     # elif any("deta" in alg for alg in topoAlgs):
     #     ##Check that we only have a Jet and Muon chain
     #     inputChains=[]
@@ -489,6 +501,84 @@ def _addMVis(theChainDef,chainDicts,listOfChainDefs):
     EFChainName = "EF_" + chainDicts[0]['chainName']
 
     theChainDef.addSequence([EFFex, PhotonTaumVis_Hypo],inputTEsEF,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    return theChainDef
+
+##############################################################################
+def _adddR(theChainDef,chainDicts,listOfChainDefs):
+    # dR between lep/tau+tau chains
+    inputTEsEF=[]
+    inputTE_lepton=''
+    inputTE_taus=[]
+    chain_type = "ditau"
+
+    for iS in range(0, len(theChainDef.signatureList) ):
+        inputTE_taus_tmp=[]
+        for TE in theChainDef.signatureList[iS]['listOfTriggerElements'] :
+            el_TE  = re.compile('_e[0-9]')
+            mu_TE  = re.compile('_mu[0-9]')
+            tau_TE = re.compile('_tau[0-9]')
+            if 'EF_' in TE and ('_e' in TE or '_mu' in TE): 
+               # last lepton TE
+               if len(re.findall(el_TE, TE)): 
+                  inputTE_lepton=TE
+                  chain_type = "eltau"
+               elif len(re.findall(mu_TE, TE)): 
+                  inputTE_lepton=TE	
+                  chain_type = "mutau"
+            if 'EF_' in TE and len(re.findall(tau_TE, TE)): 
+               inputTE_taus_tmp+=[TE]
+        if len(inputTE_taus_tmp)>0:
+            # last set of tau TEs
+            inputTE_taus = inputTE_taus_tmp
+
+    if len(inputTE_taus)==0:
+       log.error("dRtt: no tau TE found")
+    if inputTE_lepton!='':
+       inputTEsEF+=[inputTE_lepton]
+    inputTEsEF+=inputTE_taus
+
+    if len(inputTEsEF)!=2:
+       log.error("dRtt: found %d TEs instead of 2", len(inputTEsEF))
+       log.error(inputTEsEF)
+
+    maxdR=-1
+    mindR=-1
+    topoAlgs = chainDicts[0]["topo"]
+    for topo_item in topoAlgs:
+            if 'dRtt' in topo_item:
+              if(topo_item.split('dRtt')[0]!=''):
+                 mindR=float(topo_item.split('dRtt')[0])
+              else:
+                 mindR=0.
+              if(topo_item.split('dRtt')[1]!=''):
+                 maxdR=float(topo_item.split('dRtt')[1])
+              else:
+                 maxdR=100.
+    log.debug("dRtt cuts at: %f and %f", mindR*0.1, maxdR*0.1)
+    if mindR == -1 or maxdR == -1:
+           log.error("No dRtt chain part found in tau-tau / tau-mu / tau-e dR Topo cut")
+
+    from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoHypo
+    from TrigTauHypo.TrigTauHypoConf       import EFTauTopoFex
+
+    log.info('Topo picks up:')
+    log.info(chainDicts[0])
+    log.info("Chain {} is of type {}".format(chainDicts[0]['chainName'], chain_type))
+
+    EFFex  =  EFTauTopoFex(comb=chain_type)
+    theVars    = ['DRMin', 'DRMax']
+    theThresh  = [mindR * 0.1, maxdR * 0.1] # treshold specified as integers -> change them to e.g. 0.3, 3.0
+    TauTaudR_Hypo = EFTauTopoHypo(
+            'EFTauTopo_{0}dRtt{1}_{2}'.format(
+                str(mindR).replace('.', ''), str(maxdR).replace('.', ''), chain_type),
+            theVars, theThresh)
+    log.debug("Input TEs to dRtt algorithm: %s", inputTEsEF)
+
+    EFChainName = "EF_" + chainDicts[0]['chainName']
+
+    theChainDef.addSequence([EFFex,  TauTaudR_Hypo], inputTEsEF, EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     return theChainDef

@@ -24,7 +24,7 @@
 export NAME="slice_bphysicsexo_aod_grid"
 export SLICE="mubphysics"
 export INPUT="mubphysics"
-export JOBOPTIONS="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
+export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh

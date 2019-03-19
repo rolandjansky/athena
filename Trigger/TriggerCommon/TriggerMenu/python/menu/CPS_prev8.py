@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -559,7 +559,7 @@ if ( "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenu
 
       })
 
-if "v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup():
+if ( ("v7" in TriggerFlags.triggerMenuSetup() or "v8" in TriggerFlags.triggerMenuSetup()) and not "primaries" in TriggerFlags.triggerMenuSetup()):
     HLT_CPS_Groups.update({
 
     # Single-jet chains
@@ -812,3 +812,6 @@ if ( "v7" in TriggerFlags.triggerMenuSetup()  or "v8" in TriggerFlags.triggerMen
                                 'j45_L1J12'],
  
     })
+
+
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,7 +380,7 @@ StatusCode MM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
 	m_MMHitCollList.clear();
 
 	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>();
+		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
 	} else {
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -407,7 +407,7 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 
 		PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
 
-		const GenericMuonSimHitCollection* seHitColl = nullptr;
+		const MMSimHitCollection* seHitColl = nullptr;
 		ATH_CHECK( seStore.retrieve(seHitColl,m_inputObjectName) );
 		ATH_MSG_VERBOSE ( "MicroMegas SimHitCollection found with " << seHitColl->size() << " hits" );
 
@@ -415,10 +415,10 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 		ATH_MSG_DEBUG ( "timeOfBCID " << timeOfBCID );
 
 		//Copy hit Collection
-		GenericMuonSimHitCollection* MMHitColl = new GenericMuonSimHitCollection(m_inputObjectName);
+		MMSimHitCollection* MMHitColl = new MMSimHitCollection(m_inputObjectName);
 
-		GenericMuonSimHitCollection::const_iterator i = seHitColl->begin();
-		GenericMuonSimHitCollection::const_iterator e = seHitColl->end();
+		MMSimHitCollection::const_iterator i = seHitColl->begin();
+		MMSimHitCollection::const_iterator e = seHitColl->end();
 
 		// Read hits from this collection
 		for (; i!=e; ++i){
@@ -446,9 +446,9 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 	}
 
 	//  get the container(s)
-	typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
+	typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
 
-	//this is a list<info<time_t, DataLink<GenericMuonSimHitCollection> > >
+	//this is a list<info<time_t, DataLink<MMSimHitCollection> > >
 	TimedHitCollList hitCollList;
 
 	ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList) );
@@ -462,7 +462,7 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 	// create a new hits collection - Define Hit Collection
 	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>();
+		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
 	}else{
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -474,7 +474,7 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 	// loop on the hit collections
 	while(iColl != endColl) {
-		const GenericMuonSimHitCollection* tmpColl(iColl->second);
+		const MMSimHitCollection* tmpColl(iColl->second);
 		m_timedHitCollection_MM->insert(iColl->first, tmpColl);
 		ATH_MSG_DEBUG ( "MMSimHitCollection found with " << tmpColl->size() << " hits"  );
 		++iColl;
@@ -498,8 +498,8 @@ StatusCode MM_DigitizationTool::mergeEvent() {
 	}
 
 	// remove cloned one in processBunchXing......
-	std::list<GenericMuonSimHitCollection*>::iterator MMHitColl = m_MMHitCollList.begin();
-	std::list<GenericMuonSimHitCollection*>::iterator MMHitCollEnd = m_MMHitCollList.end();
+	std::list<MMSimHitCollection*>::iterator MMHitColl = m_MMHitCollList.begin();
+	std::list<MMSimHitCollection*>::iterator MMHitCollEnd = m_MMHitCollList.end();
 	while(MMHitColl!=MMHitCollEnd) {
 		delete (*MMHitColl);
 		++MMHitColl;
@@ -570,11 +570,11 @@ StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
 StatusCode MM_DigitizationTool::doDigitization() {
 
 
-	GenericMuonSimHitCollection* inputSimHitColl=nullptr;
+	MMSimHitCollection* inputSimHitColl=nullptr;
 
 	IdentifierHash detectorElementHash=0;
 
-	inputSimHitColl = new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
+	inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
 	ATH_CHECK( m_storeGateService->record(inputSimHitColl,"InputMicroMegasHits") );
 
 	if( m_maskMultiplet == 3 ) {
@@ -592,8 +592,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 	v_stripDigitOutput.clear();
 
 	//iterate over hits and fill id-keyed drift time map
-	TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;
-	const GenericMuonSimHit* previousHit = nullptr;
+	TimedHitCollection< MMSimHit >::const_iterator i, e;
 
 	EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
 	int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
@@ -614,28 +613,17 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			//
 
 
-			TimedHitPtr<GenericMuonSimHit> phit = *i++;
+			TimedHitPtr<MMSimHit> phit = *i++;
 			m_eventTime = phit.eventTime();
-			const GenericMuonSimHit& hit(*phit);
+			const MMSimHit& hit(*phit);
 
-			if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-				Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-				ATH_MSG_DEBUG("Second hit from a muon: prev "
-								<<     previousHit->localPosition()
-								<< " current "
-								<<     hit.localPrePosition()
-								<< " diff "
-								<<     diff
-								);
-				if( diff.mag() < m_DiffMagSecondMuonHit ) continue;
-			}
 			m_n_hitPDGId = hit.particleEncoding();
 			m_n_hitDepositEnergy = hit.depositEnergy();
 			m_n_hitKineticEnergy = hit.kineticEnergy();
 
 			const Amg::Vector3D globalHitPosition = hit.globalPosition();
 
-			m_globalHitTime = hit.globalpreTime();
+			m_globalHitTime = hit.globalTime();
 			m_tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
 			m_bunchTime = m_globalHitTime - m_tofCorrection + m_eventTime;
 
@@ -658,16 +646,16 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			m_n_StrRespCharge.clear();
 			m_n_StrRespTime.clear();
 
-			const int hitID = hit.GenericId();
+			const int hitID = hit.MMId();
 			// the G4 time or TOF from IP
 			// double G4Time(hit.globalTime());
-			// see what are the members of GenericMuonSimHit
+			// see what are the members of MMSimHit
 
 			// convert sim id helper to offline id
 			MM_SimIdToOfflineId simToOffline(*m_idHelper);
 
 			//get the hit Identifier and info
-			int simId=hit.GenericId();
+			int simId=hit.MMId();
 			layerID = simToOffline.convert(simId);
 
 			HepMcParticleLink trklink(hit.particleLink());
@@ -706,18 +694,13 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 			// For collection of inputs to throw back in SG
 
-			GenericMuonSimHit* copyHit = new GenericMuonSimHit( hitID,
+			MMSimHit* copyHit = new MMSimHit( hitID,
 																m_globalHitTime+m_eventTime,
-																m_eventTime,
 																globalHitPosition,
-																hit.localPosition(),
-																hit.globalPrePosition(),
-																hit.localPrePosition(),
 																hit.particleEncoding(),
 																hit.kineticEnergy(),
 																hit.globalDirection(),
 																hit.depositEnergy(),
-																hit.StepLength(),
 																trklink
 																);
 
@@ -1071,7 +1054,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			//
 			////////////////////////////////////////////////////////////////////
 
-			previousHit = &hit;
 
 		} // Hit Loop
 
@@ -1267,6 +1249,6 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	return stripDigitOutputAllHits;
 }
 /*******************************************************************************/
-bool MM_DigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const {
+bool MM_DigitizationTool::checkMMSimHit( const MMSimHit& /*hit*/ ) const {
 	return true;
 }

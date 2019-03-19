@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERREADER_H
@@ -83,6 +83,7 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_map_jet_min_ET_MeV;
 
   bool m_plotSeeds;
+  bool m_saveSeeds;
 
   float m_gJet_seed_size;
   float m_gJet_max_r;
@@ -152,8 +153,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  jJet_L1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
-  std::map<TString, TH1*> hName;
-  std::map<TString, TH2*> h2Name;
+  std::map<TString, TH1*> m_hName;
+  std::map<TString, TH2*> m_h2Name;
   int m_jTowerHashMax;
   int m_gTowerHashMax;
 

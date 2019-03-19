@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Gaudi - Core
@@ -15,7 +15,7 @@
 
 #include "MM_FastDigitizer.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -44,9 +44,9 @@ using namespace Muon;
 /*******************************************************************************/ 
   MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name, pSvcLocator) , m_activeStore(NULL) , m_detManager(NULL) , m_idHelper(NULL)
-  , m_file(NULL) , m_ntuple(NULL) , m_slx(0.) , m_sly(0.) , m_slz(0.) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
+  , m_file(NULL) , m_ntuple(NULL) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
   , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.) , m_stsulx(0.) , m_stsuly(0.) , m_stsulz(0.)
-  , m_ang(0.) , m_shift(0.) , m_resx(0.) , m_resy(0.) , m_resz(0.) , m_suresx(0.) , m_suresy(0.) , m_err(0.) , m_res(0.)
+  , m_ang(0.) , m_shift(0.) , m_suresx(0.) , m_suresy(0.) , m_err(0.) , m_res(0.)
   , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0) , m_sml(0) , m_sl(0) , m_ss(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0)
   , m_ich(0) , m_istr(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.)
   , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.), m_dgpr(0.) , m_dgpp(0.) , m_tofCorrection(0.)
@@ -131,9 +131,6 @@ StatusCode MM_FastDigitizer::initialize() {
 
   m_file = new TFile("MM_plots.root","RECREATE");
   m_ntuple = new TTree("a","a");
-  m_ntuple->Branch("slx",&m_slx);
-  m_ntuple->Branch("sly",&m_sly);
-  m_ntuple->Branch("slz",&m_slz);
   m_ntuple->Branch("dlx",&m_dlx);
   m_ntuple->Branch("dly",&m_dly);
   m_ntuple->Branch("dlz",&m_dlz);
@@ -147,11 +144,8 @@ StatusCode MM_FastDigitizer::initialize() {
   m_ntuple->Branch("stsulz",&m_stsulz);
   m_ntuple->Branch("ang",&m_ang);
   m_ntuple->Branch("shift",&m_shift);
-  m_ntuple->Branch("resx",&m_resx);
-  m_ntuple->Branch("resy",&m_resy);
   m_ntuple->Branch("suresx",&m_suresx);
   m_ntuple->Branch("suresy",&m_suresy);
-  m_ntuple->Branch("resz",&m_resz);
   m_ntuple->Branch("err",&m_err);
   m_ntuple->Branch("res",&m_res);
   m_ntuple->Branch("pull",&m_pull);
@@ -214,7 +208,7 @@ StatusCode MM_FastDigitizer::execute() {
   // as the MMPrepDataContainer only allows const accesss, need a local vector as well.
   std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->module_hash_max());
 
-  const DataHandle< GenericMuonSimHitCollection > collGMSH;
+  const DataHandle< MMSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,m_inputObjectName ).isFailure()) {
     ATH_MSG_WARNING("No MM hits found in SG");
     return StatusCode::FAILURE;
@@ -228,26 +222,17 @@ StatusCode MM_FastDigitizer::execute() {
   std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
 
-  GenericMuonSimHitCollection::const_iterator iterMM;
-
-  const GenericMuonSimHit* previousHit = 0;
+  MMSimHitCollection::const_iterator iterMM;
 
   for (iterMM=collGMSH->begin();iterMM!=collGMSH->end();++iterMM) {
-    const GenericMuonSimHit& hit = *iterMM;
+    const MMSimHit& hit = *iterMM;
 
     // SimHits without energy loss are not recorded. 
     // not needed because of already done in sensitive detector
     // https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonG4/MuonG4SD/trunk/src/MicromegasSensitiveDetector.cxx?rev=542333#L65
     // if(hit.depositEnergy()==0.) continue;
 
-    if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-      Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-      ATH_MSG_VERBOSE("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() 
-		      << " diff " << diff );
-      if( diff.mag() < 0.1 ) continue;
-    }
-
-    m_globalHitTime = hit.globalpreTime();
+    m_globalHitTime = hit.globalTime();
     m_tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
     m_bunchTime = m_globalHitTime - m_tofCorrection;
     const float stripPropagationTime = 0.;
@@ -265,7 +250,7 @@ StatusCode MM_FastDigitizer::execute() {
     ATH_MSG_VERBOSE("MM hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink() );
 
     //  convert simHit id to offline layer id; make sanity checks; retrieve the associated detector element.
-    int simId = hit.GenericId();
+    int simId = hit.MMId();
     Identifier layid = simToOffline.convert(simId);
 
     // sanity checks
@@ -399,9 +384,6 @@ StatusCode MM_FastDigitizer::execute() {
 
     std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
     int isSmall = stName[2] == 'S';
-    m_slx = hit.localPosition().x();
-    m_sly = hit.localPosition().y();
-    m_slz = hit.localPosition().z();
     m_dlx = lpos.x();
     m_dly = lpos.y();
     m_sulx = posOnSurf.x();
@@ -414,9 +396,6 @@ StatusCode MM_FastDigitizer::execute() {
     m_stsulz = hitAfterTimeShiftOnSurface.z();
     m_ang = inAngle_XZ;
     m_shift  = shiftTimeOffset;
-    m_resx = hit.localPosition().x() - lpos.x();
-    m_resy = hit.localPosition().y() - lpos.y();
-    m_resz = hit.localPosition().z() - lpos.z();
     m_suresx = posOnSurf.x()-hitOnSurface.x();
     m_suresy = posOnSurf.y()-hitOnSurface.y();
     m_err  = -99999.; 
@@ -519,7 +498,6 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D  gdir = surf.transform().linear()*Amg::Vector3D(0.,1.,0.);
     ATH_MSG_DEBUG(" MM detector surface direction phi " << gdir.phi());
     ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
-    ATH_MSG_VERBOSE("Local hit in Det Element Frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
     ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
 		  << " pull " << (posOnSurf.x() - hitOnSurface.x())/resolution );
     Amg::Vector3D CurrentHitInDriftGap = slpos;
@@ -614,7 +592,6 @@ StatusCode MM_FastDigitizer::execute() {
     m_ntuple->Fill();
     // OLD CODE ENDS HERE
 
-    previousHit = &hit;
   } 
 
   if( msgLvl(MSG::DEBUG) ){
