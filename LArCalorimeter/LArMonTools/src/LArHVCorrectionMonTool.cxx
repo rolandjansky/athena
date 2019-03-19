@@ -47,13 +47,9 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_strHelper(0),
     m_rootStore(0),
     m_larCablingService("LArCablingLegacyService"),
-    m_hvCorrTool("LArHVCorrTool"),
-    m_keyHVScaleCorr("LArHVScaleCorr"),
     m_eventsCounter(0)
 {
   declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
-  declareProperty("HVCorrTool",m_hvCorrTool);
-  declareProperty("keyHVScaleCorr",m_keyHVScaleCorr);
   declareProperty("ErrorThreshold",m_threshold=0.02);
   declareProperty("EtaGranularity",m_delta_eta=0.01);
   declareProperty("PhiGranularity",m_delta_phi=0.01);
@@ -83,51 +79,21 @@ StatusCode LArHVCorrectionMonTool::initialize()
 {
   
   ATH_MSG_INFO( "Initialize LArHVCorrectionMonTool" );
-  StatusCode sc;
   
-  sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get LArOnlineIDHelper" );
-    return sc;
-  }
-  
-  // Retrieve HVCorrTool 
-  sc = m_hvCorrTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to find tool for LArHVCorrTool" );
-    return StatusCode::FAILURE;
-  }
-  
-  // Retrieve HV Correction reference
-  sc = detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to register handle to HVScaleCorr " );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   
   // Retrieve ID helpers
-  sc =  detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get CaloIdMgr" );
-    return sc;
-  }
-  m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
-  m_LArHEC_IDHelper  = m_caloIdMgr->getHEC_ID();
-  m_LArFCAL_IDHelper = m_caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve( idHelper, "CaloCell_ID" ) );
+  m_LArEM_IDHelper   = idHelper->em_idHelper();
+  m_LArHEC_IDHelper  = idHelper->hec_idHelper();
+  m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
-  // CaloDetDescrMgr gives "detector description", including real positions of cells
-  sc = detStore()->retrieve(m_CaloDetDescrMgr);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get CaloDetDescrMgr ");
-    return sc;
-  }
-  
-  // Get LAr Cabling Service
-  sc=m_larCablingService.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_CaloDetDescrMgr) );
+  ATH_CHECK( m_larCablingService.retrieve() );
+
+  ATH_CHECK( m_scaleCorrKey.initialize() );
+  ATH_CHECK( m_onlineScaleCorrKey.initialize() );
   
   // LArOnlineIDStrHelper
   m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
@@ -272,6 +238,7 @@ StatusCode
 LArHVCorrectionMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG( "in fillHists()" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   
   m_eventsCounter++;
   
@@ -298,6 +265,9 @@ LArHVCorrectionMonTool::fillHistograms()
       ATH_MSG_WARNING( "Can't retrieve LArRawChannelContainer with key " << m_channelKey );
       return StatusCode::SUCCESS;
     }
+
+    SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+    SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
     
     // Loop over LArRawChannels
     //SelectAllLArRawChannels AllRaw(pRawChannelsContainer);
@@ -329,9 +299,9 @@ LArHVCorrectionMonTool::fillHistograms()
       
       // Retrieve HV correction info
       float hvdev = 0;
-      float hvcorr = m_hvCorrTool->Scale(offlineID);
+      float hvcorr = scaleCorr->HVScaleCorr(id);
       //ATH_MSG_VERBOSE( "hvcorr" << hvcorr );
-      float hvonline = m_dd_HVScaleCorr->HVScaleCorr(id);
+      float hvonline = onlineScaleCorr->HVScaleCorr(id);
       if (hvonline<=0) continue; //No valid online correction
       //ATH_MSG_VERBOSE( "hvonline" << hvonline );
       if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 
