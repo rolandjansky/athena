@@ -121,8 +121,7 @@ def CaloNoiseToolCfg(configFlags):
     caloNoiseToolDB.FolderNames=[f[1] for f in folders]    
 
     result.addPublicTool(caloNoiseToolDB)
-
-    return result,caloNoiseToolDB
+    return result
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -134,7 +133,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc, caloNoiseToolDB = CaloNoiseToolCfg(ConfigFlags)
+    acc = CaloNoiseToolCfg(ConfigFlags)
 
     f=open('test.pkl','w')
     acc.store(f)

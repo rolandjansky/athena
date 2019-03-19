@@ -1,4 +1,40 @@
 Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : 0
+Beam.Type                                : 'collisions'
+Beam.estimatedLuminosity                 : [function]
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : 'RUN2'
+GeoModel.StripGeoType                    : 'GMX'
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.isMC                               : [function]
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myROD.pool.root'
+Output.doESD                             : False
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
 Flag categories that can be loaded dynamically
 Category        :                 Generator name : Defined in
 DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
@@ -36,8 +72,113 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.25/141317d] -- built on [2019-03-11T2107]
 dynamically loading the flag Detector
 Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : 0
+Beam.Type                                : 'collisions'
+Beam.estimatedLuminosity                 : [function]
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : False
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : False
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : [function]
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : [function]
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : [function]
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : [function]
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : [function]
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : 'RUN2'
+GeoModel.StripGeoType                    : 'GMX'
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.isMC                               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myROD.pool.root'
+Output.doESD                             : False
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
 Flag categories that can be loaded dynamically
 Category        :                 Generator name : Defined in
 DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
@@ -53,12 +194,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -77,6 +221,7 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
@@ -101,25 +246,37 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool to the job
@@ -130,12 +287,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -155,6 +315,7 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
@@ -176,17 +337,38 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TGCcablingServerSvc/TGCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -195,12 +377,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -220,8 +405,10 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
@@ -262,6 +449,12 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
@@ -276,6 +469,166 @@ Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersiste
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 dynamically loading the flag Muon
 Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : 0
+Beam.Type                                : 'collisions'
+Beam.estimatedLuminosity                 : [function]
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : False
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : False
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : False
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : False
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : False
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : False
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : False
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : 'RUN2'
+GeoModel.StripGeoType                    : 'GMX'
+IOVDb.DatabaseInstance                   : 'CONDBR2'
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : 'data17_13TeV'
+Input.RunNumber                          : [function]
+Input.isMC                               : False
+Muon.Align.UseALines                     : False
+Muon.Align.UseAsBuilt                    : False
+Muon.Align.UseBLines                     : 'none'
+Muon.Align.UseILines                     : False
+Muon.Calib.CscF001FromLocalFile          : False
+Muon.Calib.CscNoiseFromLocalFile         : False
+Muon.Calib.CscPSlopeFromLocalFile        : False
+Muon.Calib.CscPedFromLocalFile           : False
+Muon.Calib.CscRmsFromLocalFile           : False
+Muon.Calib.CscStatusFromLocalFile        : False
+Muon.Calib.CscT0BaseFromLocalFile        : False
+Muon.Calib.CscT0PhaseFromLocalFile       : False
+Muon.Calib.EventTag                      : 'MoMu'
+Muon.Calib.applyRtScaling                : True
+Muon.Calib.correctMdtRtForBField         : False
+Muon.Calib.correctMdtRtForTimeSlewing    : False
+Muon.Calib.correctMdtRtWireSag           : False
+Muon.Calib.mdtCalibrationSource          : 'MDT'
+Muon.Calib.mdtMode                       : 'ntuple'
+Muon.Calib.mdtPropagationSpeedBeta       : 0.85
+Muon.Calib.readMDTCalibFromBlob          : True
+Muon.Calib.useMLRt                       : True
+Muon.Chi2NDofCut                         : 20.0
+Muon.createTrackParticles                : True
+Muon.doCSCs                              : True
+Muon.doDigitization                      : True
+Muon.doFastDigitization                  : False
+Muon.doMDTs                              : True
+Muon.doMSVertex                          : False
+Muon.doMicromegas                        : False
+Muon.doPseudoTracking                    : False
+Muon.doRPCClusterSegmentFinding          : False
+Muon.doRPCs                              : True
+Muon.doSegmentT0Fit                      : False
+Muon.doTGCClusterSegmentFinding          : False
+Muon.doTGCs                              : True
+Muon.dosTGCs                             : False
+Muon.enableCurvedSegmentFinding          : False
+Muon.enableErrorTuning                   : False
+Muon.optimiseMomentumResolutionUsingChi2 : False
+Muon.patternsOnly                        : False
+Muon.prdToxAOD                           : False
+Muon.printSummary                        : False
+Muon.refinementTool                      : 'Moore'
+Muon.rpcRawToxAOD                        : False
+Muon.segmentOrigin                       : 'Muon'
+Muon.straightLineFitMomentum             : 2000.0
+Muon.strategy                            : []
+Muon.trackBuilder                        : 'Moore'
+Muon.updateSegmentSecondCoordinate       : [function]
+Muon.useAlignmentCorrections             : False
+Muon.useLooseErrorTuning                 : False
+Muon.useSegmentMatching                  : [function]
+Muon.useTGCPriorNextBC                   : False
+Muon.useTrackSegmentMatching             : True
+Muon.useWireSagCorrections               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myROD.pool.root'
+Output.doESD                             : False
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
 Flag categories that can be loaded dynamically
 Category        :                 Generator name : Defined in
 DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
@@ -302,12 +655,38 @@ Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:IOVDbSvc.CondDB   DEBUG Loading basic services for CondDBSetup...
+Py:ConfigurableDb   DEBUG loading confDb files...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libMagFieldServices.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libCaloRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libTrigUpgradeTest.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libCaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libLArCabling.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libegammaCaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libLArBadChannelTool.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libLArCellRec.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/WorkDir.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/wlampl/master/build/x86_64-centos7-gcc8-opt/lib/libTrigT2CaloCommon.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-03-11T2143/GAUDI/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/lib/Gaudi.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-03-11T2143/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/lib/Athena.confdb]...
+Py:ConfigurableDb   DEBUG loading confDb files... [DONE]
+Py:ConfigurableDb   DEBUG loaded 1103 confDb packages
+Py:ConfigurableDb    INFO Read module info for 5461 configurables from 12 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb   DEBUG : Found configurable <class 'GaudiCoreSvc.GaudiCoreSvcConf.MessageSvc'> in module GaudiCoreSvc.GaudiCoreSvcConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool...
+Py:ConfigurableDb   DEBUG : Found configurable <class 'PoolSvc.PoolSvcConf.PoolSvc'> in module PoolSvc.PoolSvcConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaPoolCnvSvc.AthenaPoolCnvSvcConf.AthenaPoolCnvSvc'> in module AthenaPoolCnvSvc.AthenaPoolCnvSvcConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaServices.AthenaServicesConf.MetaDataSvc'> in module AthenaServices.AthenaServicesConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'StoreGate.StoreGateConf.StoreGateSvc'> in module StoreGate.StoreGateConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool... [DONE]
 Py:loadBasicIOVDb   DEBUG Loading basic services for IOVDbSvc...
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
 Py:loadBasicEventInfoMgt   DEBUG Loading basic services for EventInfoMgt...
+EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.EventPersistencySvc) ... dupe ignored
+Py:ConfigurableDb   DEBUG : Found configurable <class 'SGComps.SGCompsConf.ProxyProviderSvc'> in module SGComps.SGCompsConf
 Py:Configurable     ERROR attempt to add a duplicate (ServiceManager.ProxyProviderSvc) ... dupe ignored
 Py:loadBasicEventInfoMgt   DEBUG Loading basic services for EventInfoMgt... [DONE]
 Py:loadBasicIOVDb   DEBUG Loading basic services for IOVDb... [DONE]
@@ -323,9 +702,23 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
@@ -337,21 +730,42 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
@@ -362,12 +776,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -390,16 +807,32 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component CSCcablingSvc/CSCcablingSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -408,12 +841,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -432,6 +868,7 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
@@ -456,14 +893,38 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonRPC_CnvTools.MuonRPC_CnvToolsConf.Muon__RpcRDO_Decoder'> in module MuonRPC_CnvTools.MuonRPC_CnvToolsConf
 Py:ComponentAccumulator   DEBUG Adding component Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component RPCcablingServerSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonRPC_CablingSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.RPCCablingDbTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -472,12 +933,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -497,6 +961,7 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
@@ -518,14 +983,36 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component LVL1TGC::TGCRecRoiSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TGCcablingServerSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -534,12 +1021,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -559,8 +1049,10 @@ Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingAlg/MuonMDT_CablingAlg to the job
 Py:ComponentAccumulator   DEBUG Adding component MDTCablingDbTool/MDTCablingDbTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonMDT_CablingSvc/MuonMDT_CablingSvc to the job
@@ -599,6 +1091,12 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
@@ -638,9 +1136,23 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationDbSvc/MdtCalibrationDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MdtCalibrationSvc/MdtCalibrationSvc to the job
@@ -652,14 +1164,42 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonMDT_CablingAlg
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonMDT_CablingSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AtlasFieldSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MdtCalibrationDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MdtCalibrationSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.MDTCablingDbTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.MuonCalib::MdtCalibDbCoolStrTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -668,12 +1208,15 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -720,6 +1263,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -732,6 +1281,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -744,6 +1299,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -756,6 +1317,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -768,6 +1335,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -780,6 +1353,12 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -792,11 +1371,18 @@ Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::CscCoolStrSvc/MuonCalib::CscCoolStrSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -805,19 +1391,48 @@ Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the jo
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
 Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
 Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ConfigurableDb   DEBUG : Found configurable <class 'MuonCSC_CnvTools.MuonCSC_CnvToolsConf.Muon__CscRDO_Decoder'> in module MuonCSC_CnvTools.MuonCSC_CnvToolsConf
+Py:ConfigurableDb   DEBUG : Found configurable <class 'CscCalibTools.CscCalibToolsConf.CscCalibTool'> in module CscCalibTools.CscCalibToolsConf
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CSCcablingSvc
 Py:ComponentAccumulator   DEBUG Adding component MuonCalib::CscCoolStrSvc/MuonCalib::CscCoolStrSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
 Py:ComponentAccumulator   DEBUG Adding component CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool to the job
+Py:ConfigurableDb   DEBUG : Found configurable <class 'AthenaPoolCnvSvc.AthenaPoolCnvSvcConf.AthenaPoolCnvSvc'> in module AthenaPoolCnvSvc.AthenaPoolCnvSvcConf
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component AthenaPoolCnvSvc
 Py:Athena            INFO Print Config
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
 |-Atomic                                  = False
 |-AuditAlgorithms                         = False
 |-AuditBeginRun                           = False
@@ -829,20 +1444,29 @@ Py:Athena            INFO Print Config
 |-AuditRestart                            = False
 |-AuditStart                              = False
 |-AuditStop                               = False
+|-Cardinality                             = 0
 |-ContinueEventloopOnFPE                  = False
+|-DetStore                   @0x7f8505b81f90 = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                                  = True
 |-ErrorCounter                            = 0
 |-ErrorMax                                = 1
+|-EvtStore                   @0x7f8505b81f10 = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                @0x7f85041a0560 = []  (default: [])
+|-ExtraOutputs               @0x7f85041a05f0 = []  (default: [])
 |-FilterCircularDependencies              = True
 |-IgnoreFilterPassed                      = False
 |-IsIOBound                               = False
+|-Members                    @0x7f85041a0128 = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
 |                                            (default: [])
 |-ModeOR                                  = False
 |-MonitorService                          = 'MonitorSvc'
+|-NeededResources            @0x7f85041a0440 = []  (default: [])
 |-OutputLevel                             = 0
 |-RegisterForContextService               = False
+|-Sequential                 @0x7f8507d45b00 = True  (default: False)
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
+|-Timeline                                = True
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -854,17 +1478,26 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85047a4a50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85047a49d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a06c8 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0680 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0638 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f8504c62908 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
 | |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
+| |-RegionSelectionSvc         @0x7f85047a4ad0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -873,6 +1506,11 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f8504c62a00 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore          @0x7f8504713890 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f85047138d0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f850478e758 = []  (default: [])
+| | |-ExtraOutputs      @0x7f850478e4d0 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RPCSec                         = 'StoreGateSvc+RPC_SECTORLOGIC'
@@ -886,6 +1524,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStop                        = False
 | | | |-AuditTools                       = False
 | | | |-DataErrorPrintLimit              = 1000
+| | | |-DetStore            @0x7f8504713990 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            @0x7f85047139d0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         @0x7f850478e5f0 = []  (default: [])
+| | | |-ExtraOutputs        @0x7f850478e5a8 = []  (default: [])
 | | | |-MonitorService                   = 'MonitorSvc'
 | | | |-OutputLevel                      = 0
 | | | |-Sector13Data                     = False
@@ -904,15 +1546,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85046f5a10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85046f5990 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0908 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a09e0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0950 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f850592f9b0 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
 | |                                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -921,7 +1571,12 @@ Py:Athena            INFO Print Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f850592faa0 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 | | |                                   (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
+| | |-DetStore          @0x7f850473aed0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f850473af10 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f8504744710 = []  (default: [])
+| | |-ExtraOutputs      @0x7f8504744560 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
@@ -933,6 +1588,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f850473afd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f850467f050 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85047443b0 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f8504744518 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ShowStatusWords                = False
@@ -951,15 +1610,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85046f7c50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85046f7bd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0a28 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0ab8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0998 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f85049a3a50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
 | |                                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MDT_RawDataProviderTool/MdtRawDataProvider.MDT_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -969,6 +1636,11 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
 | | |-CsmContainerCacheKey              = 'StoreGateSvc+'
+| | |-Decoder              @0x7f850592fd70 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             @0x7f85042acfd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7f8504234050 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f85042a09e0 = []  (default: [])
+| | |-ExtraOutputs         @0x7f85042a0878 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
@@ -981,6 +1653,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f8504234110 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f8504234150 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85042a0908 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85042a08c0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ReadKey                        = 'ConditionStore+MuonMDT_CablingMap'
@@ -999,15 +1675,23 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f850478ab10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f850478aa90 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0b00 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0b48 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0488 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f85049a3c50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
 | |                                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CSC_RawDataProviderTool/CscRawDataProvider.CSC_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -1017,7 +1701,12 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
 | | |-CscContainerCacheKey              = 'StoreGateSvc+'
+| | |-Decoder              @0x7f85046cf050 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             @0x7f850426de90 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
+| | |-EvtStore             @0x7f850426ded0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f85041f19e0 = []  (default: [])
+| | |-ExtraOutputs         @0x7f85041f1c68 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
@@ -1029,6 +1718,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f850426df90 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f850426dfd0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85041f1b48 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85041f1b00 = []  (default: [])
 | | | |-IsCosmics                      = False
 | | | |-IsOldCosmics                   = False
 | | | |-MonitorService                 = 'MonitorSvc'
@@ -1047,19 +1740,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f8505840e68 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
 | |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
+| |-DetStore                   @0x7f8504227950 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85042278d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0710 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0c20 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0c68 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f85042279d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool ******
 | | |-AuditFinalize                                   = False
 | | |-AuditInitialize                                 = False
@@ -1069,11 +1772,16 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                                       = False
 | | |-AuditTools                                      = False
 | | |-DecodeData                                      = True
+| | |-DetStore                           @0x7f8504195b10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           @0x7f8504195b90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        @0x7f8504202fc8 = []  (default: [])
+| | |-ExtraOutputs                       @0x7f85042027a0 = []  (default: [])
 | | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
 | | |-MonitorService                                  = 'MonitorSvc'
 | | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
 | | |-OutputLevel                                     = 0
 | | |-RPCInfoFromDb                                   = False
+| | |-RdoDecoderTool                     @0x7f850461a590 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
 | | |                                                    (default: 'Muon::RpcRDO_Decoder')
 | | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
 | | |-etaphi_coincidenceTime                          = 20.0
@@ -1091,6 +1799,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f8504195c10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f8504195c50 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f8504202680 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85042028c0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool.Muon::RpcRDO_Decoder) -----
@@ -1107,20 +1819,30 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f85041a6050 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 | |                                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
+| |-DetStore                   @0x7f8504180850 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041807d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0a70 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0cb0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0cf8 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+TGC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectorSvc          @0x7f85041808d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Setting                                 = 0
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool ******
 | | |-AuditFinalize                                        = False
 | | |-AuditInitialize                                      = False
@@ -1130,6 +1852,10 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                                            = False
 | | |-AuditTools                                           = False
 | | |-DecodeData                                           = True
+| | |-DetStore                                @0x7f8504195c90 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                @0x7f8504195e50 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             @0x7f85041a5b00 = []  (default: [])
+| | |-ExtraOutputs                            @0x7f85041a5ab8 = []  (default: [])
 | | |-FillCoinData                                         = True
 | | |-MonitorService                                       = 'MonitorSvc'
 | | |-OutputCoinCollection                                 = 'TrigT1CoinDataCollection'
@@ -1138,7 +1864,9 @@ Py:Athena            INFO Print Config
 | | |-RDOContainer                                         = 'StoreGateSvc+TGCRDO'
 | | |-TGCHashIdOffset                                      = 26000
 | | |-dropPrdsWithZeroWidth                                = True
+| | |-outputCoinKey                           @0x7f85041a5560 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
+| | |-prepDataKeys                            @0x7f85041a5b90 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
@@ -1154,19 +1882,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f8507dee890 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 | |                                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
+| |-DetStore                   @0x7f8504215810 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f8504215790 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0d88 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0e18 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0dd0 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+MDT_DriftCircles'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f8504215890 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool ******
 | | |-AuditFinalize                        = False
 | | |-AuditInitialize                      = False
@@ -1177,9 +1915,13 @@ Py:Athena            INFO Print Config
 | | |-AuditTools                           = False
 | | |-CalibratePrepData                    = True
 | | |-DecodeData                           = True
+| | |-DetStore                @0x7f8504195d50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-DiscardSecondaryHitTwin              = False
 | | |-DoPropagationCorrection              = False
 | | |-DoTofCorrection                      = True
+| | |-EvtStore                @0x7f8504195fd0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             @0x7f85041a4ef0 = []  (default: [])
+| | |-ExtraOutputs            @0x7f85041a4e18 = []  (default: [])
 | | |-MonitorService                       = 'MonitorSvc'
 | | |-OutputCollection                     = 'StoreGateSvc+MDT_DriftCircles'
 | | |-OutputLevel                          = 0
@@ -1206,19 +1948,29 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-CscRdoToCscPrepDataTool    @0x7f8504886380 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 | |                                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
+| |-DetStore                   @0x7f85041fbcd0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041fbbd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0ef0 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0b90 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0e60 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+CSC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f85041fbd50 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1228,7 +1980,13 @@ Py:Athena            INFO Print Config
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
 | | |-CSCHashIdOffset                = 22000
+| | |-CscCalibTool      @0x7f8507df1860 = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool @0x7f85041a2de8 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
 | | |-DecodeData                     = True
+| | |-DetStore          @0x7f85041af090 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f85041af190 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f85041b9290 = []  (default: [])
+| | |-ExtraOutputs      @0x7f85041b9710 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputCollection               = 'StoreGateSvc+CSC_Measurements'
 | | |-OutputLevel                    = 0
@@ -1241,6 +1999,10 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                      = False
 | | | |-AuditStop                       = False
 | | | |-AuditTools                      = False
+| | | |-DetStore           @0x7f85041af1d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           @0x7f85041af210 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        @0x7f85041b5fc8 = []  (default: [])
+| | | |-ExtraOutputs       @0x7f85041b58c0 = []  (default: [])
 | | | |-IsOnline                        = True
 | | | |-Latency                         = 100.0
 | | | |-MonitorService                  = 'MonitorSvc'
@@ -1267,6 +2029,11 @@ Py:Athena            INFO Print Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-CscCalibTool      @0x7f85041af110 = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          @0x7f85041af0d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f85041af150 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85041b92d8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85041b90e0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscRDO_Decoder) -----
@@ -1283,17 +2050,49 @@ Py:Athena            INFO Print Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85041da650 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041da5d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f8504121050 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0f80 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0fc8 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
+| |-cluster_builder            @0x7f850410bf50 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
 | |                                            (default: 'CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
 | \----- (End of Algorithm CscThresholdClusterBuilder/CscThesholdClusterBuilder) ---------------------
 \----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO ['CondInputLoader', 'MuonMDT_CablingAlg']
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'ByteStreamAttListMetadataSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'RPCcablingServerSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'MuonRPC_CablingSvc', 'LVL1TGC::TGCRecRoiSvc', 'TGCcablingServerSvc', 'AthenaPoolCnvSvc', 'MuonMDT_CablingSvc', 'AtlasFieldSvc', 'MdtCalibrationDbSvc', 'MdtCalibrationSvc', 'CSCcablingSvc', 'MuonCalib::CscCoolStrSvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO   IOVDbMetaDataTool/IOVDbMetaDataTool,
+Py:ComponentAccumulator    INFO   ByteStreamMetadataTool/ByteStreamMetadataTool,
+Py:ComponentAccumulator    INFO   Muon::MuonIdHelperTool/Muon::MuonIdHelperTool,
+Py:ComponentAccumulator    INFO   RPCCablingDbTool/RPCCablingDbTool,
+Py:ComponentAccumulator    INFO   Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   MDTCablingDbTool/MDTCablingDbTool,
+Py:ComponentAccumulator    INFO   MuonCalib::MdtCalibDbCoolStrTool/MuonCalib::MdtCalibDbCoolStrTool,
+Py:ComponentAccumulator    INFO   Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool,
+Py:ComponentAccumulator    INFO   Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool,
+Py:ComponentAccumulator    INFO   CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool,
+Py:ComponentAccumulator    INFO ]
 Py:Athena            INFO Save Config
 /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
 |-Atomic                                  = False
@@ -1307,20 +2106,29 @@ Py:Athena            INFO Save Config
 |-AuditRestart                            = False
 |-AuditStart                              = False
 |-AuditStop                               = False
+|-Cardinality                             = 0
 |-ContinueEventloopOnFPE                  = False
+|-DetStore                   @0x7f8505b81f90 = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                                  = True
 |-ErrorCounter                            = 0
 |-ErrorMax                                = 1
+|-EvtStore                   @0x7f8505b81f10 = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                @0x7f85041a0560 = []  (default: [])
+|-ExtraOutputs               @0x7f85041a05f0 = []  (default: [])
 |-FilterCircularDependencies              = True
 |-IgnoreFilterPassed                      = False
 |-IsIOBound                               = False
+|-Members                    @0x7f8504749320 = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
 |                                            (default: [])
 |-ModeOR                                  = False
 |-MonitorService                          = 'MonitorSvc'
+|-NeededResources            @0x7f85041a0440 = []  (default: [])
 |-OutputLevel                             = 0
 |-RegisterForContextService               = False
+|-Sequential                 @0x7f8507d45b00 = True  (default: False)
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
+|-Timeline                                = True
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
 | |-AuditAlgorithms                         = False
 | |-AuditBeginRun                           = False
@@ -1332,17 +2140,26 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85047a4a50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85047a49d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a06c8 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0680 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0638 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f8504c62908 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
 | |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
+| |-RegionSelectionSvc         @0x7f85047a4ad0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1351,6 +2168,11 @@ Py:Athena            INFO Save Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f8504c62a00 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore          @0x7f8504713890 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f85047138d0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f850478e758 = []  (default: [])
+| | |-ExtraOutputs      @0x7f850478e4d0 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RPCSec                         = 'StoreGateSvc+RPC_SECTORLOGIC'
@@ -1364,6 +2186,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStop                        = False
 | | | |-AuditTools                       = False
 | | | |-DataErrorPrintLimit              = 1000
+| | | |-DetStore            @0x7f8504713990 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            @0x7f85047139d0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         @0x7f850478e5f0 = []  (default: [])
+| | | |-ExtraOutputs        @0x7f850478e5a8 = []  (default: [])
 | | | |-MonitorService                   = 'MonitorSvc'
 | | | |-OutputLevel                      = 0
 | | | |-Sector13Data                     = False
@@ -1382,15 +2208,23 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85046f5a10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85046f5990 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0908 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a09e0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0950 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f850592f9b0 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
 | |                                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1399,7 +2233,12 @@ Py:Athena            INFO Save Config
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
+| | |-Decoder           @0x7f850592faa0 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 | | |                                   (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
+| | |-DetStore          @0x7f850473aed0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f850473af10 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f8504744710 = []  (default: [])
+| | |-ExtraOutputs      @0x7f8504744560 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
@@ -1411,6 +2250,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f850473afd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f850467f050 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85047443b0 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f8504744518 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ShowStatusWords                = False
@@ -1429,15 +2272,23 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85046f7c50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85046f7bd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0a28 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0ab8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0998 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f85049a3a50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
 | |                                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MDT_RawDataProviderTool/MdtRawDataProvider.MDT_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -1447,6 +2298,11 @@ Py:Athena            INFO Save Config
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
 | | |-CsmContainerCacheKey              = 'StoreGateSvc+'
+| | |-Decoder              @0x7f850592fd70 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             @0x7f85042acfd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7f8504234050 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f85042a09e0 = []  (default: [])
+| | |-ExtraOutputs         @0x7f85042a0878 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
@@ -1459,6 +2315,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f8504234110 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f8504234150 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85042a0908 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85042a08c0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ReadKey                        = 'ConditionStore+MuonMDT_CablingMap'
@@ -1477,15 +2337,23 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f850478ab10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f850478aa90 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0b00 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0b48 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0488 = []  (default: [])
 | |-OutputLevel                             = 0
+| |-ProviderTool               @0x7f85049a3c50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
 | |                                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CSC_RawDataProviderTool/CscRawDataProvider.CSC_RawDataProviderTool *****
 | | |-AuditFinalize                     = False
 | | |-AuditInitialize                   = False
@@ -1495,7 +2363,12 @@ Py:Athena            INFO Save Config
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
 | | |-CscContainerCacheKey              = 'StoreGateSvc+'
+| | |-Decoder              @0x7f85046cf050 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             @0x7f850426de90 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
+| | |-EvtStore             @0x7f850426ded0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f85041f19e0 = []  (default: [])
+| | |-ExtraOutputs         @0x7f85041f1c68 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
@@ -1507,6 +2380,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f850426df90 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f850426dfd0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85041f1b48 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85041f1b00 = []  (default: [])
 | | | |-IsCosmics                      = False
 | | | |-IsOldCosmics                   = False
 | | | |-MonitorService                 = 'MonitorSvc'
@@ -1525,19 +2402,29 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f8505840e68 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
 | |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
+| |-DetStore                   @0x7f8504227950 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85042278d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0710 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0c20 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0c68 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f85042279d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool ******
 | | |-AuditFinalize                                   = False
 | | |-AuditInitialize                                 = False
@@ -1547,11 +2434,16 @@ Py:Athena            INFO Save Config
 | | |-AuditStop                                       = False
 | | |-AuditTools                                      = False
 | | |-DecodeData                                      = True
+| | |-DetStore                           @0x7f8504195b10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           @0x7f8504195b90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        @0x7f8504202fc8 = []  (default: [])
+| | |-ExtraOutputs                       @0x7f85042027a0 = []  (default: [])
 | | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
 | | |-MonitorService                                  = 'MonitorSvc'
 | | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
 | | |-OutputLevel                                     = 0
 | | |-RPCInfoFromDb                                   = False
+| | |-RdoDecoderTool                     @0x7f850461a590 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
 | | |                                                    (default: 'Muon::RpcRDO_Decoder')
 | | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
 | | |-etaphi_coincidenceTime                          = 20.0
@@ -1569,6 +2461,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-DetStore          @0x7f8504195c10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f8504195c50 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f8504202680 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85042028c0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool.Muon::RpcRDO_Decoder) -----
@@ -1585,20 +2481,30 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f85041a6050 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 | |                                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
+| |-DetStore                   @0x7f8504180850 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041807d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0a70 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0cb0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0cf8 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+TGC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectorSvc          @0x7f85041808d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Setting                                 = 0
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool ******
 | | |-AuditFinalize                                        = False
 | | |-AuditInitialize                                      = False
@@ -1608,6 +2514,10 @@ Py:Athena            INFO Save Config
 | | |-AuditStop                                            = False
 | | |-AuditTools                                           = False
 | | |-DecodeData                                           = True
+| | |-DetStore                                @0x7f8504195c90 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                @0x7f8504195e50 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             @0x7f85041a5b00 = []  (default: [])
+| | |-ExtraOutputs                            @0x7f85041a5ab8 = []  (default: [])
 | | |-FillCoinData                                         = True
 | | |-MonitorService                                       = 'MonitorSvc'
 | | |-OutputCoinCollection                                 = 'TrigT1CoinDataCollection'
@@ -1616,7 +2526,9 @@ Py:Athena            INFO Save Config
 | | |-RDOContainer                                         = 'StoreGateSvc+TGCRDO'
 | | |-TGCHashIdOffset                                      = 26000
 | | |-dropPrdsWithZeroWidth                                = True
+| | |-outputCoinKey                           @0x7f85041a5560 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
+| | |-prepDataKeys                            @0x7f85041a5b90 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
@@ -1632,19 +2544,29 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DecodingTool               @0x7f8507dee890 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 | |                                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
+| |-DetStore                   @0x7f8504215810 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f8504215790 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0d88 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0e18 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0dd0 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+MDT_DriftCircles'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f8504215890 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool ******
 | | |-AuditFinalize                        = False
 | | |-AuditInitialize                      = False
@@ -1655,9 +2577,13 @@ Py:Athena            INFO Save Config
 | | |-AuditTools                           = False
 | | |-CalibratePrepData                    = True
 | | |-DecodeData                           = True
+| | |-DetStore                @0x7f8504195d50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-DiscardSecondaryHitTwin              = False
 | | |-DoPropagationCorrection              = False
 | | |-DoTofCorrection                      = True
+| | |-EvtStore                @0x7f8504195fd0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             @0x7f85041a4ef0 = []  (default: [])
+| | |-ExtraOutputs            @0x7f85041a4e18 = []  (default: [])
 | | |-MonitorService                       = 'MonitorSvc'
 | | |-OutputCollection                     = 'StoreGateSvc+MDT_DriftCircles'
 | | |-OutputLevel                          = 0
@@ -1684,19 +2610,29 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-CscRdoToCscPrepDataTool    @0x7f8504886380 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 | |                                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
+| |-DetStore                   @0x7f85041fbcd0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041fbbd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f85041a0ef0 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0b90 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0e60 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+CSC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
+| |-PrintPrepData              @0x7f8507d45b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f85041fbd50 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                                = True
 | |=/***** Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepData.CscRdoToCscPrepDataTool *****
 | | |-AuditFinalize                  = False
 | | |-AuditInitialize                = False
@@ -1706,7 +2642,13 @@ Py:Athena            INFO Save Config
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
 | | |-CSCHashIdOffset                = 22000
+| | |-CscCalibTool      @0x7f8507df1860 = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool @0x7f85041a2de8 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
 | | |-DecodeData                     = True
+| | |-DetStore          @0x7f85041af090 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f85041af190 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f85041b9290 = []  (default: [])
+| | |-ExtraOutputs      @0x7f85041b9710 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputCollection               = 'StoreGateSvc+CSC_Measurements'
 | | |-OutputLevel                    = 0
@@ -1719,6 +2661,10 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                      = False
 | | | |-AuditStop                       = False
 | | | |-AuditTools                      = False
+| | | |-DetStore           @0x7f85041af1d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           @0x7f85041af210 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        @0x7f85041b5fc8 = []  (default: [])
+| | | |-ExtraOutputs       @0x7f85041b58c0 = []  (default: [])
 | | | |-IsOnline                        = True
 | | | |-Latency                         = 100.0
 | | | |-MonitorService                  = 'MonitorSvc'
@@ -1745,6 +2691,11 @@ Py:Athena            INFO Save Config
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
+| | | |-CscCalibTool      @0x7f85041af110 = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          @0x7f85041af0d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f85041af150 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f85041b92d8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f85041b90e0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscRDO_Decoder) -----
@@ -1761,29 +2712,57 @@ Py:Athena            INFO Save Config
 | |-AuditRestart                            = False
 | |-AuditStart                              = False
 | |-AuditStop                               = False
+| |-Cardinality                             = 1
+| |-DetStore                   @0x7f85041da650 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
+| |-EvtStore                   @0x7f85041da5d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f8504121050 = []  (default: [])
+| |-ExtraOutputs               @0x7f85041a0f80 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
+| |-NeededResources            @0x7f85041a0fc8 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
+| |-Timeline                                = True
+| |-cluster_builder            @0x7f850410bf50 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
 | |                                            (default: 'CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
 | \----- (End of Algorithm CscThresholdClusterBuilder/CscThesholdClusterBuilder) ---------------------
 \----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
 
 JOs reading stage finished, launching Athena from pickle file
 
+Wed Mar 13 10:50:38 CET 2019
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-centos7-gcc8-opt] [2.0.25/141317d] -- built on [2019-03-11T2107]
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
+Py:ConfigurableDb    INFO Read module info for 5461 configurables from 12 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on pcaz004 on Wed Mar 13 10:50:42 2019
+====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 3440 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
@@ -1798,6 +2777,10 @@ ByteStreamAddre...   INFO -- Will fill Store with id =  0
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-03-11T2143/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host pcaz004.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
@@ -1806,13 +2789,26 @@ PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
 PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Global tag: CONDBR2-BLKPA-2018-13 set from joboptions
 IOVDbFolder          INFO Inputfile tag override disabled for /GLOBAL/BField/Maps
+IOVDbSvc             INFO Folder /GLOBAL/BField/Maps will be written to file metadata
 IOVDbSvc             INFO Initialised with 8 connections and 19 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool','ByteStreamMetadataTool/ByteStreamMetadataTool'])
 IOVDbSvc             INFO Opening COOL connection for COOLONL_MDT/CONDBR2
+ClassIDSvc           INFO  getRegistryEntries: read 3314 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 163 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4046 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 129 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3110 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Opening COOL connection for COOLONL_RPC/CONDBR2
@@ -1893,6 +2889,10 @@ GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+GeoModelSvc.Muo...   INFO create MuonDetectorTool - package version = MuonGeoModel-00-00-00
+GeoModelSvc.Muo...   INFO (from GeoModelSvc)    AtlasVersion = <ATLAS-R2-2016-01-00-01>  MuonVersion = <>
+GeoModelSvc.Muo...   INFO Keys for Muon Switches are  (key) ATLAS-R2-2016-01-00-01 (node) ATLAS
+GeoModelSvc.Muo...   INFO (from GeoModelSvc) in AtlasVersion = <ATLAS-R2-2016-01-00-01>  default MuonVersion is <MuonSpectrometer-R.08.01>
 GeoModelSvc.Muo...   INFO Properties have been set as follows: 
 GeoModelSvc.Muo...   INFO     LayoutName                     R
 GeoModelSvc.Muo...   INFO     IncludeCutouts                 0
@@ -2007,6 +3007,7 @@ AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary!
 MuGM:MuonFactory     INFO MMIDHELPER retrieved from DetStore
 MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ************************
 MuGM:MuonFactory     INFO  *** Start building the Muon Geometry Tree **********************
+MuGM:RDBReadAtlas    INFO Start retriving dbObjects with tag = <ATLAS-R2-2016-01-00-01> node <ATLAS>
 RDBAccessSvc      WARNING Could not get the tag for XtomoData node. Returning 0 pointer to IRDBQuery
 MuGM:RDBReadAtlas    INFO After getQuery XtomoData
 In DblQ00Xtomo(data)
@@ -2036,6 +3037,7 @@ MuGM:ProcCutouts     INFO  Processing Cutouts DONE
 MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
 MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
 MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
+MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-R2-2016-01-00-01> and node=<ATLAS>
 MuGM:MuonFactory     INFO  TreeTop added to the Manager
 MuGM:MuonFactory     INFO  Muon Layout R.08.01
 MuGM:MuonFactory     INFO Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)
@@ -2059,9 +3061,13 @@ MuGM:MuonFactory     INFO  *****************************************************
 
 MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1758/0
 MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 42840Kb 	 Time = 0.42S
 GeoModelSvc.Muo...   INFO CondAttrListCollection not found in the DetectorStore
 GeoModelSvc.Muo...   INFO Unable to register callback on CondAttrListCollection for any folder in the list 
 GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and deformations from COOL 
+ClassIDSvc           INFO  getRegistryEntries: read 1455 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 1794 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' )   ->
@@ -2071,12 +3077,17 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' ) 
+ClassIDSvc           INFO  getRegistryEntries: read 1370 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 743 CLIDRegistry entries for module ALL
 RpcRawDataProvider   INFO RpcRawDataProvider::initialize
 RpcRawDataProvider   INFO  'DoSeededDecoding':False
+ClassIDSvc           INFO  getRegistryEntries: read 1699 CLIDRegistry entries for module ALL
+MuonRPC_CablingSvc   INFO Initializing MuonRPC_CablingSvc - package version MuonRPC_Cabling-00-00-00
 ToolSvc.RPCCabl...   INFO Initializing - folders names are: conf /RPC/CABLING/MAP_SCHEMA / corr /RPC/CABLING/MAP_SCHEMA_CORR
 MuonRPC_CablingSvc   INFO RPCCablingDbTool retrieved with statusCode = SUCCESS with handle TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')
 MuonRPC_CablingSvc   INFO Register call-back  against 2 folders listed below 
 MuonRPC_CablingSvc   INFO  Folder n. 1 </RPC/CABLING/MAP_SCHEMA>     found in the DetStore
+ClassIDSvc           INFO  getRegistryEntries: read 501 CLIDRegistry entries for module ALL
 MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA>
 MuonRPC_CablingSvc   INFO  Folder n. 2 </RPC/CABLING/MAP_SCHEMA_CORR>     found in the DetStore
 MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA_CORR>
@@ -2091,25 +3102,32 @@ RpcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 RpcRawDataProvi...   INFO  Tool = RpcRawDataProvider.RPC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderTool
 TgcRawDataProvider   INFO TgcRawDataProvider::initialize
+ClassIDSvc           INFO  getRegistryEntries: read 878 CLIDRegistry entries for module ALL
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder
 TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 TgcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 TgcRawDataProvi...   INFO  Tool = TgcRawDataProvider.TGC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 MuonTGC_CablingSvc   INFO for 1/12 sector initialize
 ToolSvc.TGCCabl...   INFO initialize
+ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0x120ae200]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
+ClassIDSvc           INFO  getRegistryEntries: read 922 CLIDRegistry entries for module ALL
 MdtRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 MdtRawDataProvi...   INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvi...   INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvi...   INFO  Tool = MdtRawDataProvider.MDT_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 MdtRawDataProvi...   INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderTool
+ClassIDSvc           INFO  getRegistryEntries: read 658 CLIDRegistry entries for module ALL
 CscRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRawDataProvi...   INFO  Tool = CscRawDataProvider.CSC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderTool
+ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
+RpcRdoToRpcPrep...   INFO package version = MuonRPC_CnvTools-00-00-00
 RpcRdoToRpcPrep...   INFO properties are 
 RpcRdoToRpcPrep...   INFO processingData                     0
 RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
@@ -2124,21 +3142,35 @@ RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcR
 TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 MdtCalibrationSvc    INFO Processing configuration for layouts with BMG chambers.
+ClassIDSvc           INFO  getRegistryEntries: read 194 CLIDRegistry entries for module ALL
 AtlasFieldSvc        INFO initialize() ...
 AtlasFieldSvc        INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
+ClassIDSvc           INFO  getRegistryEntries: read 163 CLIDRegistry entries for module ALL
 AtlasFieldSvc        INFO magnet currents will be read from COOL folder /EXT/DCS/MAGNETS/SENSORDATA
 AtlasFieldSvc        INFO Booked callback for /EXT/DCS/MAGNETS/SENSORDATA
 AtlasFieldSvc        INFO initialize() successful
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for module ALL
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
+ClassIDSvc           INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_PSLOPE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1b246d00]+259 bound to CondAttrListCollection[CSC_T0PHASE]
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 HistogramPersis...WARNING Histograms saving not required.
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
 EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
 EventSelector        INFO reinitialization...
+ClassIDSvc           INFO  getRegistryEntries: read 1126 CLIDRegistry entries for module ALL
 ToolSvc.Luminos...   INFO LuminosityTool::initialize() registering 
 ToolSvc.Luminos...   INFO LumiFolderName is empty, skipping
 ToolSvc.Luminos...   INFO OnlineLumiCalibrationTool.empty() is TRUE, skipping...
@@ -2147,6 +3179,7 @@ ToolSvc.Luminos...   INFO BunchLumisTool.empty() is TRUE, skipping...
 ToolSvc.Luminos...   INFO BunchGroupTool.empty() is TRUE, skipping...
 ToolSvc.Luminos...   INFO LBLBFolderName is empty, skipping...
 EventSelector        INFO Retrieved InputCollections from InputSvc
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -2228,6 +3261,7 @@ phi high-pt    mu11  mu15   mu15
 
 
 RPCcabling           INFO CablingRPC---InitMaps from COOL: going to read configuration
+RPCcabling           INFO CablingRPC--->> RPC cabling map from COOL <<
 RPCcabling           INFO CablingRPC--- ReadConf: map has size 222202
 RPCcabling           INFO CablingRPC--- ReadConf: map n. of lines read is 924
 RPCcabling           INFO CablingRPC--- ReadConf: version is 5.0 Atlas R_07_03_RUN2ver104
@@ -2265,13 +3299,19 @@ AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] 
 AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] Toroids_SCurrent , 4 , 20397.7
 AtlasFieldSvc        INFO Currents read from DCS: solenoid 7729.99 toroid 20399.9
 AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7729.99 toroidCurrent=20399.9)
+AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+ClassIDSvc           INFO  getRegistryEntries: read 672 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLONL_MDT/CONDBR2
 IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMapSchema_BMG_01 for folder /MDT/CABLING/MAP_SCHEMA
 IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMezzanineSchema_M5-RUN2 for folder /MDT/CABLING/MEZZANINE_SCHEMA
 IOVDbSvc             INFO Disconnecting from COOLONL_MDT/CONDBR2
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )  readCdoMez->size()= 24
+MuonMDT_CablingAlg   INFO Range of input is {[0,l:0] - [INVALID]}
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
+MuonMDT_CablingAlg   INFO Range of input is {[327264,l:4294640031] - [327265,l:4294640030]}
+MuonMDT_CablingAlg   INFO recorded new MuonMDT_CablingMap with range {[327264,l:4294640031] - [327265,l:4294640030]} into Conditions Store
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
@@ -2311,11 +3351,42 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #3272
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
+IncidentProcAlg2     INFO Finalize
 AtlasFieldSvc        INFO finalize() successful
 EventInfoByteSt...   INFO finalize 
 IdDictDetDescrCnv    INFO in finalize
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.27 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.76 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     1.37 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.41 ))s
+IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 0/0 objs/chan/bytes 0/1186/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 0/0 objs/chan/bytes 0/1186/0 ((     0.00 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.94 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.55 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.63 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     1.77 ))s
+IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3704 ((     0.97 ))s
+IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.94 ))s
+IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.92 ))s
+IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.26 ))s
+IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/353376 ((     0.22 ))s
+IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.12 ))s
+IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.22 ))s
+IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     0.77 ))s
+IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.58 ))s
+IOVDbSvc             INFO  bytes in ((     11.71 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.78 ))s
+IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     3.90 ))s
+IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 1 nFolders: 2 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     4.03 ))s
+IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.76 ))s
+IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.97 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.27 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
@@ -2339,6 +3410,8 @@ ToolSvc.TGCCabl...   INFO finalize
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
+cObj_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 18
+ChronoStatSvc        INFO Time User   : Tot= 4.92  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

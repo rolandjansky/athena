@@ -15,15 +15,18 @@ def CaloCellMakerCfg(configFlags):
     result.merge(LArGMCfg(configFlags))
     result.merge(TileGMCfg(configFlags))
 
-    acc,theLArCellMaker=LArCellBuilderCfg(configFlags)
-    result.merge(acc)
+    larCellBuilder=LArCellBuilderCfg(configFlags)
 
-    acc,theLArCellCorrectors=LArCellCorrectorCfg(configFlags)
-    result.merge(acc)
+
+    
+    larCellCorrectors=LArCellCorrectorCfg(configFlags)
 
     theTileCellBuilder = TileCellBuilder()
-    cellAlgo=(CaloCellMaker(CaloCellMakerToolNames=[theLArCellMaker,CaloCellContainerFinalizerTool()]+theLArCellCorrectors,
-                            CaloCellsOutputName="AllCalo"))
+
+    cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools(),
+                            CaloCellsOutputName="AllCalo")
+    result.merge(larCellBuilder)
+    result.merge(larCellCorrectors)
     return result,cellAlgo
 
 
@@ -37,8 +40,9 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.Files=["myRDO.pool.root",]
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
