@@ -258,8 +258,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger):
                  "BTagSVName"   : "SecVtx",
         },
         SetupScheme = "",
-#	TaggerList = BTaggingFlags.StandardTaggers,
-	TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
+	    TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 
