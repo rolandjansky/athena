@@ -17,7 +17,6 @@
 
 
 //To access detector envelope
-#include "RegionSelector/IRegionLUT_Creator.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
 //local includes
