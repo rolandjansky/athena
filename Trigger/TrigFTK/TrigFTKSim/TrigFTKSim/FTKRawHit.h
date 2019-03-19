@@ -229,22 +229,22 @@ public:
   friend std::istream& clusterC( std::istream & , FTKRawHit& );
 
   // These are now public because they are needed by FTKHit and FTKCoord
-  const static int row_coord_mask    = 0x00000FFF; ///< Bitmask marking the location of the row coordinate in m_hw_word for pixel(12 bits)
-  const static int phi_width_mask    = 0x00007000; ///< Bitmask marking the location of the row width in m_hw_word for pixel(3 bits)
-  const static int split_mask        = 0x00008000; ///< Bitmask marking the location of the split cluster flag in m_hw_word for pixel(1 bit)
-  const static int column_coord_mask = 0x0FFF0000; ///< Bitmask marking the location of the column coordinate in m_hw_word for pixel(12 bits)
-  const static int eta_width_mask    = 0x70000000; ///< Bitmask marking the location of the column width in m_hw_word for pixel(3 bits)
+  static const int row_coord_mask    = 0x00000FFF; ///< Bitmask marking the location of the row coordinate in m_hw_word for pixel(12 bits)
+  static const int phi_width_mask    = 0x00007000; ///< Bitmask marking the location of the row width in m_hw_word for pixel(3 bits)
+  static const int split_mask        = 0x00008000; ///< Bitmask marking the location of the split cluster flag in m_hw_word for pixel(1 bit)
+  static const int column_coord_mask = 0x0FFF0000; ///< Bitmask marking the location of the column coordinate in m_hw_word for pixel(12 bits)
+  static const int eta_width_mask    = 0x70000000; ///< Bitmask marking the location of the column width in m_hw_word for pixel(3 bits)
 
-  const static int row_coord_bit     = 0; ///< Starting bit of row coordinate in m_hw_word for pixel
-  const static int phi_width_bit     = 12; ///< Starting bit of row width in m_hw_word for pixel
-  const static int split_bit         = 15; ///< Bit for the split cluster flag in m_hw_word for pixel
-  const static int column_coord_bit  = 16; ///<  Starting bit of column coordinate in m_hw_word for pixel
-  const static int eta_width_bit     = 28; ///< Starting bit of column width in m_hw_word for pixel
+  static const int row_coord_bit     = 0; ///< Starting bit of row coordinate in m_hw_word for pixel
+  static const int phi_width_bit     = 12; ///< Starting bit of row width in m_hw_word for pixel
+  static const int split_bit         = 15; ///< Bit for the split cluster flag in m_hw_word for pixel
+  static const int column_coord_bit  = 16; ///<  Starting bit of column coordinate in m_hw_word for pixel
+  static const int eta_width_bit     = 28; ///< Starting bit of column width in m_hw_word for pixel
 
-  const static int strip_coord_mask = 0x07FF; ///< Bitmask marking the location of the strip coordinate in m_hw_word for SCT (3 bits)
-  const static int strip_coord_bit  = 0; ///< Starting bit of strip coordinate in m_hw_word for SCT
-  const static int strip_width_mask = 0x7000; ///< Bitmask marking the location of the strip width in m_hw_word  for SCT (3 bits)
-  const static int strip_width_bit  = 12; ///< Starting bit of strip width in m_hw_word for SCT
+  static const int strip_coord_mask = 0x07FF; ///< Bitmask marking the location of the strip coordinate in m_hw_word for SCT (3 bits)
+  static const int strip_coord_bit  = 0; ///< Starting bit of strip coordinate in m_hw_word for SCT
+  static const int strip_width_mask = 0x7000; ///< Bitmask marking the location of the strip width in m_hw_word  for SCT (3 bits)
+  static const int strip_width_bit  = 12; ///< Starting bit of strip width in m_hw_word for SCT
 
   const float SCT_row_scaling = 2.;
   const float PIX_row_scaling = 8.;
