@@ -698,17 +698,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
 			ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
 
-            // Update HepMcParticleLink required for making SDO
-            const int pileupType = phit.pileupType();
-            HepMcParticleLink trklink(hit.particleLink());
-            if (m_needsMcEventCollHelper) {
-              if(pileupType!=lastPileupType)        {
-                currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
-                lastPileupType=pileupType;
-              }
-              trklink.setEventCollection(currentMcEventCollection);
-            }
-
             // Create a MuonSimData (SDO) corresponding to the digit
             MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.depositEnergy(), tof));
             std::vector<MuonSimData::Deposit> deposits;
