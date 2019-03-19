@@ -129,6 +129,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
     m_mcCampaign(""),
+    m_mcChannel(-99),
     m_prwDataSF(-99.),
     m_prwDataSF_UP(-99.),
     m_prwDataSF_DW(-99.),
@@ -533,6 +534,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
   declareProperty( "mcCampaign",           m_mcCampaign );
+  declareProperty( "mcChannel",            m_mcChannel );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
   declareProperty( "PRWActualMu2017File",  m_prwActualMu2017File );
@@ -870,24 +872,38 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number.");
       return StatusCode::FAILURE;
 #else
-      // OK, this is a fall-back option without using MetaData but one has to manually set 'mcCampaign' property
-      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
-      const xAOD::EventInfo* evtInfo = 0;
-      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-      dsid = evtInfo->mcChannelNumber();
 
       if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") {
-        std::string NoMetadataButPropertyOK("");
-        NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
-        NoMetadataButPropertyOK += m_mcCampaign;
-        NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
-        ATH_MSG_WARNING( NoMetadataButPropertyOK );
-        mcCampaignMD = m_mcCampaign;
-      } else {
-        ATH_MSG_ERROR( "autoconfigurePileupRWTool(): `mcCampaign' is not set properly.");
-        return StatusCode::FAILURE;
-      }
+	// First see if the user set the mcCampaign/run number by property (hopefully temporary workaround)
+	if ( m_mcChannel > 0) {
+	  ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) and campaign from configuration." );
+	  std::string NoMetadataButPropertyOK("");
+	  NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += m_mcCampaign;
+	  NoMetadataButPropertyOK += "'. 'mcChannel' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += std::to_string(m_mcChannel);
+	  NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+	  ATH_MSG_WARNING( NoMetadataButPropertyOK );
+	  mcCampaignMD = m_mcCampaign;
+	  dsid = m_mcChannel;
+	} else {
+	  // OK, this is a fall-back option without using MetaData but one has to manually set 'mcCampaign' property
+	  ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
+	  const xAOD::EventInfo* evtInfo = 0;
+	  ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+	  dsid = evtInfo->mcChannelNumber();
 
+	  std::string NoMetadataButPropertyOK("");
+	  NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += m_mcCampaign;
+	  NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+	  ATH_MSG_WARNING( NoMetadataButPropertyOK );
+	  mcCampaignMD = m_mcCampaign;
+	}
+      } else {
+	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): `mcCampaign' is not set properly.");
+	return StatusCode::FAILURE;
+      }
 #endif
     }
 
