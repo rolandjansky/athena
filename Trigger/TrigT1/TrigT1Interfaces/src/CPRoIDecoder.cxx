@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          CPRoIDecoder.cxx  -  description
@@ -13,13 +13,13 @@
 
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
 
 namespace LVL1 {
 
   CPRoIDecoder::CPRoIDecoder()
-    : m_cpm( 0 ), m_cp( 0 ), m_lc( 0 ) {
-
+  {
   }
 
   CPRoIDecoder::~CPRoIDecoder() {
@@ -47,9 +47,7 @@ namespace LVL1 {
 
 
   /** Return coordinate information for RoI */
-  CoordinateRange CPRoIDecoder::coordinate( const unsigned int roiWord ) {
-
-    decodeWord( roiWord );
+  CoordinateRange CPRoIDecoder::coordinate( const unsigned int roiWord ) const {
 
     //phi
     const double cratePhiSize = M_PI / 2.0;
@@ -66,27 +64,32 @@ namespace LVL1 {
     // (where each cell is 0.1x0.1)
     // so
 
-    unsigned int top = ( m_lc & 2 ) >> 1; // top=1, bot=0
-    double localCoordEta = ( ( ( m_lc & 4 ) >> 1 ) + ( m_lc & 1 ) ) * localCoordEtaSize; 
+    unsigned int crate = this->crate (roiWord);
+    unsigned int cpm   = this->module (roiWord);
+    unsigned int cp    = this->chip (roiWord);
+    unsigned int lc    = this->localcoord (roiWord);
 
-    double phiMin = ( static_cast< double >( m_crate ) * cratePhiSize ) +
-                    ( static_cast< double >( m_cp ) * fpgaPhiSize ) + ( top * localCoordPhiSize );
-    double phiMax = ( static_cast< double >( m_crate ) * cratePhiSize ) +
-                    ( static_cast< double >( m_cp ) * fpgaPhiSize ) + ( top * localCoordPhiSize ) + 2. * localCoordPhiSize;
-    double etaMin = ( ( static_cast< double >( static_cast< int >( m_cpm ) - 8 ) ) * cpmEtaSize ) + localCoordEta;
+    unsigned int top = ( lc & 2 ) >> 1; // top=1, bot=0
+    double localCoordEta = ( ( ( lc & 4 ) >> 1 ) + ( lc & 1 ) ) * localCoordEtaSize;
 
-    double etaMax = ( static_cast< double >( static_cast< int >( m_cpm ) - 8 ) * cpmEtaSize ) + localCoordEta + 2. * localCoordEtaSize;
+    double phiMin = ( static_cast< double >( crate ) * cratePhiSize ) +
+                    ( static_cast< double >( cp ) * fpgaPhiSize ) + ( top * localCoordPhiSize );
+    double phiMax = ( static_cast< double >( crate ) * cratePhiSize ) +
+                    ( static_cast< double >( cp ) * fpgaPhiSize ) + ( top * localCoordPhiSize ) + 2. * localCoordPhiSize;
+    double etaMin = ( ( static_cast< double >( static_cast< int >( cpm ) - 8 ) ) * cpmEtaSize ) + localCoordEta;
+
+    double etaMax = ( static_cast< double >( static_cast< int >( cpm ) - 8 ) * cpmEtaSize ) + localCoordEta + 2. * localCoordEtaSize;
 
     if ( RoIDecoder::m_DEBUG ) {
 
       cout << "phiMin : " << phiMin << "phiMax : " << phiMax << endl
            << "etaMin : " << etaMin << "etaMax : " << etaMax << endl
            << "Phi" << endl << "===" << endl
-           << "Crate phi min   : " << ( m_crate * cratePhiSize ) << " (size: " << ( cratePhiSize ) << ")" << endl
-           << "CP FPGA phi min : " << ( m_cp * fpgaPhiSize ) << " (size: " << ( fpgaPhiSize ) << ")" << endl
+           << "Crate phi min   : " << ( crate * cratePhiSize ) << " (size: " << ( cratePhiSize ) << ")" << endl
+           << "CP FPGA phi min : " << ( cp * fpgaPhiSize ) << " (size: " << ( fpgaPhiSize ) << ")" << endl
            << "Local coord min : " << ( top * localCoordPhiSize ) << " (size: " << ( localCoordPhiSize ) << ")" << endl
            << "Eta" << endl << "===" << endl
-           << "CPM eta min     : " << ( ( m_cpm - 8 ) * cpmEtaSize ) << " (size: " << ( cpmEtaSize ) << ")" << endl
+           << "CPM eta min     : " << ( ( cpm - 8 ) * cpmEtaSize ) << " (size: " << ( cpmEtaSize ) << ")" << endl
            << "CP FPGA phi min : " << localCoordEta << " (size: " << ( localCoordEtaSize ) << ")" << endl;
 
     }
@@ -98,57 +101,35 @@ namespace LVL1 {
   }
 
   /** Decode crate number from RoI word */
-  unsigned int CPRoIDecoder::crate( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_crate;
+  unsigned int CPRoIDecoder::crate( const unsigned int roiWord ) const {
+    int offset = 0;
+    if (roiType( roiWord ) == TrigT1CaloDefs::CpRoIWordType) offset = 2;
+    return extractBits( roiWord, 27+offset, 2 );
   }
 
   /** Decode module number from RoI word */
-  unsigned int CPRoIDecoder::module( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_cpm;
+  unsigned int CPRoIDecoder::module( const unsigned int roiWord ) const {
+    int offset = 0;
+    if (roiType( roiWord ) == TrigT1CaloDefs::CpRoIWordType) offset = 2;
+    return extractBits( roiWord, 23+offset, 4 );
   }
 
   /** Decode CP chip number from RoI word */
-  unsigned int CPRoIDecoder::chip( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_cp;
+  unsigned int CPRoIDecoder::chip( const unsigned int roiWord ) const {
+    int offset = 0;
+    if (roiType( roiWord ) == TrigT1CaloDefs::CpRoIWordType) offset = 2;
+    return extractBits( roiWord, 20+offset, 3 );
   }
 
   /** Decode local coordinate from RoI word */
-  unsigned int CPRoIDecoder::localcoord( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_lc;
-  }
-
-  /** get information from RoI word and store in member variables. */
-  void CPRoIDecoder::decodeWord( const unsigned int word ) {
-
+  unsigned int CPRoIDecoder::localcoord( const unsigned int roiWord ) const {
     int offset = 0;
-    if (roiType( word ) == TrigT1CaloDefs::CpRoIWordType) offset = 2;
-    
-    m_thresholdsPassed = extractBits( word, 1, 16 );
-    m_crate = extractBits( word, 27+offset, 2 );
-    m_cpm = extractBits( word, 23+offset, 4 );
-    m_cp = extractBits( word, 20+offset, 3 );
-    m_lc = extractBits( word, 17+offset, 3 );
-
-    if ( RoIDecoder::m_DEBUG ) {
-
-      cout << "CPRoIDecoder: RoIWord being analysed - " << hex << word << dec << endl;
-      cout << "Crate : " << m_crate << endl
-           << "CPM   : " << m_cpm << endl
-           << "CP    : " << m_cp << endl
-           << "LC    : " << m_lc << endl;
-
-    }
-
-    return;
-
+    if (roiType( roiWord ) == TrigT1CaloDefs::CpRoIWordType) offset = 2;
+    return extractBits( roiWord, 17+offset, 3 );
   }
-  
+
   /** Extract cluster ET from Run 2 RoI word */
-  unsigned int CPRoIDecoder::et( const unsigned int roiWord ) {
+  unsigned int CPRoIDecoder::et( const unsigned int roiWord ) const {
     unsigned int type = roiType( roiWord );
     
     if ( type == TrigT1CaloDefs::EMRoIWordType || type == TrigT1CaloDefs::TauRoIWordType )
@@ -158,7 +139,7 @@ namespace LVL1 {
   }
   
   /** Extract isolation results from Run 2 RoI word */
-  unsigned int CPRoIDecoder::isolationWord( const unsigned int roiWord ) {
+  unsigned int CPRoIDecoder::isolationWord( const unsigned int roiWord ) const {
     unsigned int type = roiType( roiWord );
     
     if ( type == TrigT1CaloDefs::EMRoIWordType || type == TrigT1CaloDefs::TauRoIWordType )
@@ -169,20 +150,20 @@ namespace LVL1 {
   
 
   /** Override default version by adding a check on Run 1/Run 2*/
-  const std::vector<unsigned int>& CPRoIDecoder::thresholdsPassed( const unsigned int word ) {
+  const std::vector<unsigned int> CPRoIDecoder::thresholdsPassed( const unsigned int word ) const {
 
-    m_threshPassedVec.clear();
+    std::vector<unsigned int> threshPassedVec;
     
     if (roiType(word) == TrigT1CaloDefs::CpRoIWordType) {
       unsigned int hitmask = word&0xffff;
       for ( unsigned int thresh = 0; thresh < 16; ++thresh ) {
         if ( ( 1 << thresh ) & hitmask ) {
-           m_threshPassedVec.push_back( thresh + 1 );
+          threshPassedVec.push_back( thresh + 1 );
         }
       }
     }
     
-   return m_threshPassedVec;
+   return threshPassedVec;
 
   }
 

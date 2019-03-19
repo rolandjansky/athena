@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: RecEmTauRoI.cxx 796120 2017-02-08 03:20:47Z ssnyder $
 /***************************************************************************
@@ -91,7 +91,7 @@ void RecEmTauRoI::constructRun1(
   m_hadCoreIsolation.clear();
   m_thresholdType.clear();
 
-  const vector<unsigned int> &passed_thresholds =
+  const vector<unsigned int> passed_thresholds =
       m_decoder->thresholdsPassed(m_roiWord);
 
   //
