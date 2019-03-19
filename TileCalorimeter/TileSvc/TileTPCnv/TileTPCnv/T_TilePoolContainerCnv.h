@@ -74,14 +74,14 @@ public:
       throw std::runtime_error("Failed to initialize Tile mutable Container");
     }
 
-    for(const auto& element : vec) {
-      if (mutableContainer->push_back(m_elementCnv.createTransient(&element, log)).isFailure()) {
+    for( pers_const_iterator it = vec.begin(), iEnd = vec.end(); it != iEnd; ++it) {
+      if (mutableContainer->push_back(m_elementCnv.createTransient(&(*it), log)).isFailure()) {
         throw std::runtime_error("Failed to add Tile element to Collection");
       }
     }
 
-    auto hashes = mutableContainer->GetAllCurrentHashes();
-    for (auto hash : hashes) {
+    std::vector<IdentifierHash> hashes = mutableContainer->GetAllCurrentHashes();
+    for (const IdentifierHash hash : hashes) {
       Collection* coll = mutableContainer->indexFindPtr(hash);
       auto newColl = std::make_unique<Collection>(std::move(*coll));
       if (trans->addOrDelete(std::move(newColl), hash).isFailure()) {
