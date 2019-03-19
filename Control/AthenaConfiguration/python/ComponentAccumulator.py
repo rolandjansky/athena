@@ -31,15 +31,12 @@ class ComponentAccumulator(object):
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
         self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
-
+        self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
 
         self._theAppProps=dict()        #Properties of the ApplicationMgr
 
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
-
-        # small CAs can have only tools
-        self._privateTools=[]
 
         #To check if this accumulator was merged:
         self._wasMerged=False
@@ -54,6 +51,9 @@ class ComponentAccumulator(object):
             raise RuntimeError("ComponentAccumulator was not merged!")
             #log = logging.getLogger("ComponentAccumulator")
             #log.error("The ComponentAccumulator listed below was never merged!")
+
+        if self._privateTools is not None:
+            raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
         #pass
 
 
@@ -161,7 +161,33 @@ class ComponentAccumulator(object):
         else:
             return findSubSequence(self._sequence,sequenceName)
 
+    def setPrivateTools(self,privTool):
+        """Use this method to carry private AlgTool(s) to the caller when returning this ComponentAccumulator. 
+        The method accepts either a single private AlgTool or a list of private AlgTools (typically assigned to ToolHandleArray)
+        """
 
+        if self._privateTools is not None:
+            raise ConfigurationError("This ComponentAccumulator holds already a (list of) private tool. Only one (list of)  private tool(s) is allowed")
+
+        if isinstance(privTool,collections.Sequence):
+            for t in privTool:
+                if not isinstance(t,ConfigurableAlgTool):
+                    raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only ConfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s in a list" % type(t))
+        else: 
+            if not isinstance(privTool,ConfigurableAlgTool):
+                raise  ConfigurationError("ComponentAccumulator.setPrivateTools accepts only cCnfigurableAlgTools or lists of ConfigurableAlgTools. Encountered %s " % type(privTool))
+                
+        self._privateTools=privTool
+        return
+        
+    def popPrivateTools(self):
+        """Get the (list of) private AlgTools from this CompoentAccumulator. 
+        The CA will not keep any reference to the AlgTool.
+        """
+        tool=self._privateTools
+        self._privateTools=None
+        return tool
+        
 
     def addEventAlgo(self, algorithms,sequenceName=None):
         if not isinstance(algorithms,collections.Sequence):
@@ -233,7 +259,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
             pass
         self._deduplicate(newSvc,self._services)  #will raise on conflict
-        return newSvc
+        return 
 
 
     def addPublicTool(self,newTool):
@@ -370,19 +396,6 @@ class ComponentAccumulator(object):
         """ Returns single service, exception if either not found or to many found"""
         return self.__getOne( self._services, name, "Services")
     
-    def addPrivateTool(self, newTool):
-        if not isinstance(newTool,ConfigurableAlgTool):
-            raise TypeError("Attempt to add wrong type: %s as private AlgTool" % type( newTool ).__name__)
-        self._deduplicate(newTool,self._privateTools)
-
-    def getPrivateTools(self):
-        return self._privateTools
-
-    def getPrivateTool(self, name=None):        
-        """ Returns single private tool, exception if either not found or to many found"""
-        return self.__getOne( self._privateTools, name, "PrivateTools")
-        
-
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
         self._eventInput.add(condObj)

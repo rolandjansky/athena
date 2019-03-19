@@ -1,3 +1,4 @@
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
@@ -18,7 +19,7 @@ def CaloNoiseToolCfg(configFlags):
     if configFlags.Common.isOnline:
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
-        result.merge(addFolders(configFlags,inputFlags,folder,'CALO_ONL'))
+        result.merge(addFolders(configFlags,folder,'CALO_ONL'))
         caloNoiseToolDB.FolderNames=[folder,]
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
@@ -35,7 +36,7 @@ def CaloNoiseToolCfg(configFlags):
                 log.info("online mode: ignore pileup noise")
                 pass
         result.addPublicTool(caloNoiseToolDB)
-        return result
+        return result, caloNoiseToolDB
 
     #The not-online case:
     if isMC:
@@ -75,7 +76,7 @@ def CaloNoiseToolCfg(configFlags):
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
                 result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL'))
                 log.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
-                caloNoiseToolDB.LumiFolderName = lumiFolder
+            caloNoiseToolDB.LumiFolderName = lumiFolder
 
 
         folders=[("LAR_OFL","/LAR/NoiseOfl/CellNoise"),
@@ -85,8 +86,32 @@ def CaloNoiseToolCfg(configFlags):
         if configFlags.IOVDb.DatabaseInstance=="COMP200":
             folders.append(("CALO_OFL","/CALO/Ofl/Noise/CellNoise")),
         
-        #Fixme: Add rescaling of noise based on HV! 
+        if configFlags.IOVDb.DatabaseInstance=="CONDBR2" and configFlags.Calo.Cell.doLArHVCorr:
+            log.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
 
+            from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+            result.merge( LArHVScaleCfg(configFlags) )
+
+            from LArCondUtils.LArCondUtilsConf import LArHVToolDB
+            theLArHVToolDB = LArHVToolDB("LArHVToolDB")
+            result.addPublicTool( theLArHVToolDB )
+
+            from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
+            theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
+            theLArHVCorrTool.keyOutput = "LArHVScaleCorr"
+            theLArHVCorrTool.folderName= "/LAR/ElecCalibFlat/HVScaleCorr"
+            theLArHVCorrTool.doTdrift = False
+            theLArHVCorrTool.DeltaTupdate = 0
+            theLArHVCorrTool.HVTool = theLArHVToolDB
+            result.addPublicTool( theLArHVCorrTool )
+
+            from LArCellRec.LArCellRecConf import LArCellHVCorr
+            theLArCellHVCorr = LArCellHVCorr("LArCellHVCorr")
+            theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
+            result.addPublicTool( theLArCellHVCorr )
+
+            caloNoiseToolDB.RescaleForHV=True
+            caloNoiseToolDB.LArHVCellCorrTool = theLArCellHVCorr
 
         pass #end of real data case
     
@@ -96,8 +121,7 @@ def CaloNoiseToolCfg(configFlags):
     caloNoiseToolDB.FolderNames=[f[1] for f in folders]    
 
     result.addPublicTool(caloNoiseToolDB)
-    
-    return result,caloNoiseToolDB
+    return result
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -109,7 +133,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc, caloNoiseToolDB = CaloNoiseToolCfg(ConfigFlags)
+    acc = CaloNoiseToolCfg(ConfigFlags)
 
     f=open('test.pkl','w')
     acc.store(f)

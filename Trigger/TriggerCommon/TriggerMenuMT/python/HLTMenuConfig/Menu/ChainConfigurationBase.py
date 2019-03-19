@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, RecoFragmentsPool
 
 #----------------------------------------------------------------
 # Base class to configure chain

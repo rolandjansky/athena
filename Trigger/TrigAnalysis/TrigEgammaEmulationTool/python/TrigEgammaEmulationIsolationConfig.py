@@ -58,3 +58,4 @@ def createIsoToolElectronSelector():
     RelPtConeCut = isolation_dict[wp] if trkiso else [-1,-1,-1,-1,-1,-1],
 
   return IsoToolSelectors
+

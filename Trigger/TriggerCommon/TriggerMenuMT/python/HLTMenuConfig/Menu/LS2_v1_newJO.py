@@ -10,9 +10,6 @@ def setupMenu(flags):
     Assign chains for LS2_v1 to menu flags
     """
 
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO.py' )
-
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
     # ['chainName', [L1 items for chainParts], [stream], [groups], EBstep],

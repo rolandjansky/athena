@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: RecJetRoI.cxx 796120 2017-02-08 03:20:47Z ssnyder $
 /***************************************************************************
@@ -96,7 +96,7 @@ void RecJetRoI::constructRun1(
   //
   // Extract the properties of the passed thresholds:
   //
-  const vector<unsigned int> &passed_thresholds =
+  const vector<unsigned int> passed_thresholds =
       (this->isForwardJet() ? m_decoder->fwdThresholdsPassed(m_roiWord)
                             : m_decoder->thresholdsPassed(m_roiWord));
 

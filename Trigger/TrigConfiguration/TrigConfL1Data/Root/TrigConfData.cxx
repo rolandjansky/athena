@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/TrigConfData.h"
@@ -17,14 +17,6 @@ TrigConfData::TrigConfData(const string& name) :
    m_name(name),
    m_version(0),
    m_comment("")
-{}
-
-TrigConfData::TrigConfData(const TrigConfData& o) : 
-   m_smk(o.m_smk),
-   m_id(o.m_id),
-   m_name(o.m_name),
-   m_version(o.m_version),
-   m_comment(o.m_comment)
 {}
 
 std::ostream&

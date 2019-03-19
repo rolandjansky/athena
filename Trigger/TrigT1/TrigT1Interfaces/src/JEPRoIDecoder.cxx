@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          JEPRoIDecoder.cxx  -  description
@@ -15,15 +15,13 @@
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
 
 namespace LVL1 {
 
   JEPRoIDecoder::JEPRoIDecoder()
-    : m_fwdThresholdsPassed( 0 ), m_jem( 0 ), m_row( 0 ), m_col( 0 ),
-      m_mEtSigThresholdsPassed( 0 ), m_sumEtThresholdsPassed( 0 ), m_missEtThresholdsPassed( 0 ),
-      m_etLarge(0), m_etSmall(0), m_ex( 0 ), m_ey( 0 ), m_et( 0 ) {
-
+  {
   }
 
   JEPRoIDecoder::~JEPRoIDecoder() {
@@ -65,141 +63,108 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
    else                                          return 999;
 }
 
-  CoordinateRange JEPRoIDecoder::coordinate( const unsigned int roiWord ) {
+  CoordinateRange JEPRoIDecoder::coordinate( const unsigned int roiWord ) const {
 
-    decodeWord( roiWord );
-    unsigned int temp = m_jem % 8;
+    const unsigned int jem = this->module (roiWord);
+    unsigned int temp = jem % 8;
     if ( temp == 0 ){
-        return leftEndJEMCoordinate();
+        return leftEndJEMCoordinate(jem, roiWord);
     } else if( temp == 7 ){
-        return rightEndJEMCoordinate();
-    } else return midJEMCoordinate();
+        return rightEndJEMCoordinate(jem, roiWord);
+    } else return midJEMCoordinate(jem, roiWord);
 
   }
 
   /** Extract crate number from Jet RoI word */
-  unsigned int JEPRoIDecoder::crate( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_crate;
+  unsigned int JEPRoIDecoder::crate( const unsigned int roiWord ) const {
+    return extractBits( roiWord, 29, 1 );
   }
 
   /** Extract module number from Jet RoI word */
-  unsigned int JEPRoIDecoder::module( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_jem;
+  unsigned int JEPRoIDecoder::module( const unsigned int roiWord ) const {
+    return extractBits( roiWord, 25, 4 );
   }
 
   /** Extract RoI row number within module from Jet RoI word */
-  unsigned int JEPRoIDecoder::row( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_row;
+  unsigned int JEPRoIDecoder::row( const unsigned int roiWord ) const {
+    unsigned int rl = extractBits( roiWord, 20, 2 );
+    unsigned int frame = extractBits( roiWord, 22, 3 );
+    return ( frame & 3 ) * 2 + ( rl >> 1 );
   }
 
   /** Extract RoI column number within module from Jet RoI word */
-  unsigned int JEPRoIDecoder::column( const unsigned int roiWord ) {
-    decodeWord( roiWord );
-    return m_col;
+  unsigned int JEPRoIDecoder::column( const unsigned int roiWord ) const {
+    unsigned int rl = extractBits( roiWord, 20, 2 );
+    unsigned int frame = extractBits( roiWord, 22, 3 );
+    return ( frame >> 2 ) * 2 + ( rl & 1 );
   }
 
-  /** Override default version by adding a check on Run 1/Run 2*/
-  const std::vector<unsigned int>& JEPRoIDecoder::thresholdsPassed( const unsigned int word ) {
+  /** Check on Run 1/Run 2*/
+  const std::vector<unsigned int> JEPRoIDecoder::thresholdsPassed( const unsigned int word ) const {
 
-    m_threshPassedVec.clear();
+    std::vector<unsigned int> threshPassedVec;
     
     if (jetRoIVersion(word) == 1) {
-      decodeWord( word );
+      unsigned int thresholdsPassed = extractBits( word, 1, 8 );
       for ( unsigned int thresh = 0; thresh < 16; ++thresh ) {
-        if ( ( 1 << thresh ) & m_thresholdsPassed ) {
-           m_threshPassedVec.push_back( thresh + 1 );
+        if ( ( 1 << thresh ) & thresholdsPassed ) {
+           threshPassedVec.push_back( thresh + 1 );
         }
       }
     }
     
-   return m_threshPassedVec;
+   return threshPassedVec;
 
   }
 
   /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5
       it means that this RoI passed thresholds 1,3 and 5.*/
-  std::vector<unsigned int>& JEPRoIDecoder::fwdThresholdsPassed( const unsigned int word ) {
+  const std::vector<unsigned int> JEPRoIDecoder::fwdThresholdsPassed( const unsigned int word ) const {
 
-    m_fwdThreshPassedVec.clear();
+    std::vector<unsigned int> fwdThreshPassedVec;
     
     if (jetRoIVersion(word) == 1) {
-      decodeWord( word );
+      unsigned int fwdThresholdsPassed = extractBits( word, 9, 4 );
       for ( unsigned int thresh = 0; thresh < 4;thresh++ ) {
-        if ( ( 1 << thresh ) & m_fwdThresholdsPassed ) {
-          m_fwdThreshPassedVec.push_back( thresh + 1 );
+        if ( ( 1 << thresh ) & fwdThresholdsPassed ) {
+          fwdThreshPassedVec.push_back( thresh + 1 );
         }
       } //endfor
     }
     
-    return m_fwdThreshPassedVec;
+    return fwdThreshPassedVec;
 
   }
   
 
   /** Extract larger cluster ET value from Jet RoI word */
-  unsigned int JEPRoIDecoder::etLarge( const unsigned int word ) {
+  unsigned int JEPRoIDecoder::etLarge( const unsigned int word ) const {
     if (jetRoIVersion(word) == 1) return 0;
-    decodeWord( word );
-    return m_etLarge;
+    return extractBits( word, 1, 10 );
   }
 
   /** Extract smaller cluster ET value from Jet RoI word */
-  unsigned int JEPRoIDecoder::etSmall( const unsigned int word ) {
+  unsigned int JEPRoIDecoder::etSmall( const unsigned int word ) const {
     if (jetRoIVersion(word) == 1) return 0;
-    decodeWord( word );
-    return m_etSmall;
-  }
-
-
-  /** get information from RoI word and store in member variables. */
-  void JEPRoIDecoder::decodeWord( const unsigned int word ) {
-
-    // Run 1 data
-    m_thresholdsPassed = extractBits( word, 1, 8 );
-    m_fwdThresholdsPassed = extractBits( word, 9, 4 );
-    
-    // Run 2 data
-    m_etLarge = extractBits( word, 1, 10 );
-    m_etSmall = extractBits( word, 11, 9 );
-    
-    // Common to both
-    unsigned int rl = extractBits( word, 20, 2 );
-    unsigned int frame = extractBits( word, 22, 3 );
-    m_jem = extractBits( word, 25, 4 );
-    m_crate = extractBits( word, 29, 1 );
-
-    m_col = ( frame >> 2 ) * 2 + ( rl & 1 );
-    m_row = ( frame & 3 ) * 2 + ( rl >> 1 );
-
-
-    if ( RoIDecoder::m_DEBUG ) {
-      cout << "JEPRoIDecoder: RoIWord being analysed - " << hex << word << dec << endl;
-      cout << "Crate : " << m_crate << endl
-           << "jem   : " << m_jem << endl
-           << "row    : " << m_row << endl
-           << "col    : " << m_col << endl;
-    } //end debug output
-
-    return;
+    return extractBits( word, 11, 9 );
   }
 
 
   /** return a CoordinateRange for the JEMs coving -2.4<eta<2.4 */
-  CoordinateRange JEPRoIDecoder::midJEMCoordinate() const {
+  CoordinateRange JEPRoIDecoder::midJEMCoordinate(const unsigned int jem,
+                                                  const unsigned int roiWord) const {
 
     double phiMin = 0.0;
     double phiMax = 0.0;
-    setPhiCoords( phiMin, phiMax );
+    setPhiCoords( jem, roiWord, phiMin, phiMax );
 
     //eta
     const double JEMEtaSize = 0.8;
     const double jeEtaSize = 0.2;
 
-    int etaBin = ( m_jem % 8 ) - 4; //bins range from -4 to +3
-    double etaMin = ( etaBin * JEMEtaSize ) + ( jeEtaSize * m_col );
+    const unsigned int col = this->column (roiWord);
+    int etaBin = ( jem % 8 ) - 4; //bins range from -4 to +3
+    double etaMin = ( etaBin * JEMEtaSize ) + ( jeEtaSize * col );
     double etaMax = etaMin + 2. * jeEtaSize;
 
     // there is one nasty "special case" as well
@@ -211,14 +176,15 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
   }
 
   /** returns a CoordinateRange for the end JEMs, i.e. 2.4<eta<4.9 */
-  CoordinateRange JEPRoIDecoder::leftEndJEMCoordinate() const {
+  CoordinateRange JEPRoIDecoder::leftEndJEMCoordinate(const unsigned int jem,
+                                                      const unsigned int roiWord) const {
 
     double phiMin = 0.0;
     double phiMax = 0.0;
-    setPhiCoords( phiMin, phiMax );
+    setPhiCoords( jem, roiWord, phiMin, phiMax );
 
     double etaMin = 0.0; double etaMax = 0.0;
-    switch ( m_col ) {
+    switch ( this->column (roiWord) ) {
     case 0:
       etaMin = -4.9; etaMax = -2.9;
       break;
@@ -238,13 +204,14 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
   }
 
   /** returns a CoordinateRange for the end JEMs, i.e. 2.4<eta<4.9 */
-  CoordinateRange JEPRoIDecoder::rightEndJEMCoordinate() const {
+  CoordinateRange JEPRoIDecoder::rightEndJEMCoordinate(const unsigned int jem,
+                                                       const unsigned int roiWord) const {
 
     double phiMin = 0.0;
     double phiMax = 0.0;
-    setPhiCoords( phiMin, phiMax );
+    setPhiCoords( jem, roiWord, phiMin, phiMax );
     double etaMin = 0.0; double etaMax = 0.0;
-    switch ( m_col ) {
+    switch ( this->column (roiWord) ) {
     case 0:
       etaMin = 2.4; etaMax = 2.9;
       break;
@@ -264,43 +231,44 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
   }
 
   /** set phi coords for Jet RoI */
-  void JEPRoIDecoder::setPhiCoords( double& phiMin, double& phiMax ) const {
+  void JEPRoIDecoder::setPhiCoords( const unsigned int jem, const unsigned int roiWord,
+                                    double& phiMin, double& phiMax ) const {
+
+    const unsigned int row = this->row (roiWord);
+    const unsigned int crate = this->crate (roiWord);
 
     const double jemPhiSize = M_PI / 2;
     const double jePhiSize = M_PI / 16;
-    int crateModifier = ( m_jem / 8 ) * 2; //=0 or 2
-    phiMin = ( m_crate + crateModifier ) * jemPhiSize + ( jePhiSize * m_row );
+    int crateModifier = ( jem / 8 ) * 2; //=0 or 2
+    phiMin = ( crate + crateModifier ) * jemPhiSize + ( jePhiSize * row );
     phiMax = phiMin + 2. * jePhiSize;
 
     return;
   }
 
   /** returns the (signed) Ex energy projection. If the RoIWord looks invalid, then zero will be returned. */
-  int JEPRoIDecoder::energyX( unsigned int energyRoIWord0 ) {
+  int JEPRoIDecoder::energyX( unsigned int energyRoIWord0 ) const {
 
     if ( roiType( energyRoIWord0 ) != TrigT1CaloDefs::EnergyRoIWordType0 ) return 0; // wrong type of word
-    decodeEnergyWord0( energyRoIWord0 );
-    return m_ex;
+    return decodeEnergyComponent( energyRoIWord0 );
   }
 
   /** returns the (signed) Ey energy projection. If the RoIWord looks invalid, then zero will be returned. */
-  int JEPRoIDecoder::energyY( unsigned int energyRoIWord1 ) {
+  int JEPRoIDecoder::energyY( unsigned int energyRoIWord1 ) const {
 
     if ( roiType( energyRoIWord1 ) != TrigT1CaloDefs::EnergyRoIWordType1 ) return 0; // wrong type of word
-    decodeEnergyWord1( energyRoIWord1 );
-    return m_ey;
+    return decodeEnergyComponent( energyRoIWord1 );
   }
 
   /** returns the ETSum value. If the RoIWord looks invalid, then zero will be returned. */
-  int JEPRoIDecoder::energyT( unsigned int energyRoIWord2 ) {
+  int JEPRoIDecoder::energyT( unsigned int energyRoIWord2 ) const {
 
     if ( roiType( energyRoIWord2 ) != TrigT1CaloDefs::EnergyRoIWordType2 ) return 0; // wrong type of word
-    decodeEnergyWord2( energyRoIWord2 );
-    return m_et;
+    return extractBits( energyRoIWord2, 1, 15 );
   }
 
   /** returns the overflow flag for an Energy RoIWord */
-  bool JEPRoIDecoder::energyOverflow( unsigned int energyRoIWord ) {
+  bool JEPRoIDecoder::energyOverflow( unsigned int energyRoIWord ) const {
 
     if ( extractBits( energyRoIWord, 16, 1 ) != 0 ) {
       return true;
@@ -311,86 +279,80 @@ unsigned int LVL1::JEPRoIDecoder::jetRoIVersion( unsigned int word ) const {
 
   /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5 it
       means that this RoI passed thresholds 1,3 and 5.*/
-  std::vector<unsigned int>& JEPRoIDecoder::mEtSigThresholdsPassed( const unsigned int energyRoIWord0 ) {
+  std::vector<unsigned int> JEPRoIDecoder::mEtSigThresholdsPassed( const unsigned int energyRoIWord0 ) const {
 
-    m_mEtSigThreshPassedVec.clear();
+    std::vector<unsigned int> mEtSigThreshPassedVec;
+    unsigned int passed = mEtSigThresholdsFlags( energyRoIWord0 );
     for ( unsigned int thresh = 0; thresh < TrigT1CaloDefs::numOfMEtSigThresholds; thresh++ ) {
-      if ( mEtSigThresholdPassed( energyRoIWord0, thresh ) ) {
-        m_mEtSigThreshPassedVec.push_back( thresh + 1 );
+      if ( passed & (1<<thresh)) {
+        mEtSigThreshPassedVec.push_back( thresh + 1 );
       }
     } //endfor
 
-    return m_sumEtThreshPassedVec;
+    return mEtSigThreshPassedVec;
   }
 
   /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5 it
       means that this RoI passed thresholds 1,3 and 5.*/
-  std::vector<unsigned int>& JEPRoIDecoder::etSumThresholdsPassed( const unsigned int energyRoIWord1 ) {
+  std::vector<unsigned int> JEPRoIDecoder::etSumThresholdsPassed( const unsigned int energyRoIWord1 ) const {
 
-    m_sumEtThreshPassedVec.clear();
-    for ( unsigned int thresh = 0; thresh < TrigT1CaloDefs::numOfSumEtThresholds; thresh++ ) {
-      if ( sumEtThresholdPassed( energyRoIWord1, thresh ) ) {
-        m_sumEtThreshPassedVec.push_back( thresh + 1 );
+    std::vector<unsigned int> sumEtThreshPassedVec;
+    unsigned int passed = sumEtThresholdsFlags( energyRoIWord1 );
+for ( unsigned int thresh = 0; thresh < TrigT1CaloDefs::numOfSumEtThresholds; thresh++ ) {
+      if ( passed & (1<<thresh)) {
+        sumEtThreshPassedVec.push_back( thresh + 1 );
       }
     } //endfor
 
-    return m_sumEtThreshPassedVec;
+    return sumEtThreshPassedVec;
   }
 
   /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5 it
       means that this RoI passed thresholds 1,3 and 5.*/
-  std::vector<unsigned int>& JEPRoIDecoder::etMissThresholdsPassed( const unsigned int energyRoIWord2 ) {
+  std::vector<unsigned int> JEPRoIDecoder::etMissThresholdsPassed( const unsigned int energyRoIWord2 ) const {
 
-    m_missEtThreshPassedVec.clear();
+    std::vector<unsigned int> missEtThreshPassedVec;
+    unsigned int passed = missEtThresholdsFlags( energyRoIWord2 );
     for ( unsigned int thresh = 0; thresh < TrigT1CaloDefs::numOfMissingEtThresholds; thresh++ ) {
-      if ( etMissThresholdPassed( energyRoIWord2, thresh ) ) {
-        m_missEtThreshPassedVec.push_back( thresh + 1 );
+      if ( passed & (1<<thresh)) {
+        missEtThreshPassedVec.push_back( thresh + 1 );
       }
     } //endfor
 
-    return m_missEtThreshPassedVec;
+    return missEtThreshPassedVec;
   }
 
   /** returns true if thresh is passed*/
-  bool JEPRoIDecoder::mEtSigThresholdPassed( const unsigned int energyRoIWord0, const unsigned int thresh ) {
+  bool JEPRoIDecoder::mEtSigThresholdPassed( const unsigned int energyRoIWord0, const unsigned int thresh ) const {
 
-    decodeEnergyWord0( energyRoIWord0 );
-    return ( ( 1 << thresh ) & m_mEtSigThresholdsPassed );
+    return ( ( 1 << thresh ) & mEtSigThresholdsFlags( energyRoIWord0 ) );
   }
 
   /** returns true if thresh is passed*/
-  bool JEPRoIDecoder::sumEtThresholdPassed( const unsigned int energyRoIWord1, const unsigned int thresh ) {
+  bool JEPRoIDecoder::sumEtThresholdPassed( const unsigned int energyRoIWord1, const unsigned int thresh ) const {
 
-    decodeEnergyWord1( energyRoIWord1 );
-    return ( ( 1 << thresh ) & m_sumEtThresholdsPassed );
+    return ( ( 1 << thresh ) & sumEtThresholdsFlags( energyRoIWord1) );
   }
 
   /** returns true if thresh is passed*/
-  bool JEPRoIDecoder::etMissThresholdPassed( const unsigned int energyRoIWord2, const unsigned int thresh ) {
+  bool JEPRoIDecoder::etMissThresholdPassed( const unsigned int energyRoIWord2, const unsigned int thresh ) const {
 
-    decodeEnergyWord2( energyRoIWord2 );
-    return ( ( 1 << thresh ) & m_missEtThresholdsPassed );
+    return ( ( 1 << thresh ) & missEtThresholdsFlags( energyRoIWord2 ) );
   }
 
-  void JEPRoIDecoder::decodeEnergyWord0( const unsigned int energyRoIWord0 ) {
+  unsigned int JEPRoIDecoder::mEtSigThresholdsFlags( const unsigned int energyRoIWord0 ) const {
 
-    m_ex = decodeEnergyComponent( energyRoIWord0 );
-    m_mEtSigThresholdsPassed = extractBits( energyRoIWord0, 17, TrigT1CaloDefs::numOfMEtSigThresholds );
-    return;
+    return extractBits( energyRoIWord0, 17, TrigT1CaloDefs::numOfMEtSigThresholds );
   }
 
-  void JEPRoIDecoder::decodeEnergyWord1( const unsigned int energyRoIWord1 ) {
+  unsigned int JEPRoIDecoder::sumEtThresholdsFlags( const unsigned int energyRoIWord1 ) const {
 
-    m_ey = decodeEnergyComponent( energyRoIWord1 );
-    m_sumEtThresholdsPassed = extractBits( energyRoIWord1, 17, TrigT1CaloDefs::numOfSumEtThresholds );
-    return;
+    return extractBits( energyRoIWord1, 17, TrigT1CaloDefs::numOfSumEtThresholds );
   }
 
-  void JEPRoIDecoder::decodeEnergyWord2( const unsigned int energyRoIWord2 ) {
+  unsigned int JEPRoIDecoder::missEtThresholdsFlags( const unsigned int energyRoIWord2 ) const {
 
-    m_et = extractBits( energyRoIWord2, 1, 15 );
-    m_missEtThresholdsPassed = extractBits( energyRoIWord2, 17, TrigT1CaloDefs::numOfMissingEtThresholds );
-    return;
+    return extractBits( energyRoIWord2, 17, TrigT1CaloDefs::numOfMissingEtThresholds );
   }
 
   int JEPRoIDecoder::decodeEnergyComponent( const unsigned int energyRoIWord ) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/Calorimeter/CaloIdentifier/test/test_lar_id.cxx,v 1.25 2007-02-19 15:56:25 fledroit Exp $ 
@@ -1695,11 +1695,7 @@ static void check_lar_neighbour(IdDictMgr& idd)
 
       em_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList);
 
-      std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-      std::vector<IdentifierHash>::iterator last=neighbourList.end();
-      for (;last!=first; first++){
-	
-	IdentifierHash neighbourHash=(*first);
+      for (IdentifierHash neighbourHash : neighbourList) {
 	if(neighbourHash < hash_min ) {
 	  hash_min = neighbourHash;
 	}
@@ -1738,11 +1734,7 @@ static void check_lar_neighbour(IdDictMgr& idd)
 
       hec_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList2);
 
-      std::vector<IdentifierHash>::iterator first=neighbourList2.begin();
-      std::vector<IdentifierHash>::iterator last=neighbourList2.end();
-      for (;last!=first; first++){
-	
-	IdentifierHash neighbourHash=(*first);
+      for (IdentifierHash neighbourHash : neighbourList2) {
 	if(neighbourHash < hash_min2 ) {
 	  hash_min2 = neighbourHash;
 	}
@@ -1781,11 +1773,7 @@ static void check_lar_neighbour(IdDictMgr& idd)
 
       fcal_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList3);
 
-      std::vector<IdentifierHash>::iterator first=neighbourList3.begin();
-      std::vector<IdentifierHash>::iterator last=neighbourList3.end();
-      for (;last!=first; first++){
-	
-	IdentifierHash neighbourHash=(*first);
+      for (IdentifierHash neighbourHash : neighbourList3) {
 	if(neighbourHash < hash_min3 ) {
 	  hash_min3 = neighbourHash;
 	}

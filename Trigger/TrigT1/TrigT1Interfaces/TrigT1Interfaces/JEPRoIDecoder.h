@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          JEPRoIDecoder.h  -  description
@@ -37,85 +37,63 @@ namespace LVL1 {
     unsigned int jetRoIVersion( unsigned int word ) const;
 
     /** Return eta/phi coordinate object */
-    CoordinateRange coordinate( const unsigned int roiWord );
+    virtual CoordinateRange coordinate( const unsigned int roiWord ) const override;
     /** Return hardware coordinates */
-    unsigned int crate( const unsigned int word );
-    unsigned int module( const unsigned int word );
-    unsigned int row( const unsigned int word );
-    unsigned int column( const unsigned int word );
+    unsigned int crate( const unsigned int word ) const;
+    unsigned int module( const unsigned int word ) const;
+    unsigned int row( const unsigned int word ) const;
+    unsigned int column( const unsigned int word ) const;
     /** returns a vector containing the numbers of threshold passed i.e. if the vector contains 1,3,5
         it means that this RoI passed thresholds 1,3 and 5.*/
-    const std::vector< unsigned int >& thresholdsPassed( const unsigned int word );
-    std::vector<unsigned int>& fwdThresholdsPassed( const unsigned int word );
+    const std::vector< unsigned int > thresholdsPassed( const unsigned int word ) const;
+    const std::vector<unsigned int> fwdThresholdsPassed( const unsigned int word ) const;
     
     /** Return ET values from Run 2 Jet RoIs */
-    unsigned int etLarge( const unsigned int word );
-    unsigned int etSmall( const unsigned int word );
+    unsigned int etLarge( const unsigned int word ) const;
+    unsigned int etSmall( const unsigned int word ) const;
     
     /** returns the (signed) Ex energy projection. If the RoIWord looks invalid, then zero will be returned. */
-    int energyX( unsigned int energyRoIWord0 );
+    int energyX( unsigned int energyRoIWord0 ) const;
     /** returns the (signed) Ex energy projection. If the RoIWord looks invalid, then zero will be returned. */
-    int energyY( unsigned int energyRoIWord1 );
+    int energyY( unsigned int energyRoIWord1 ) const;
     /** returns the (signed) Ex energy projection. If the RoIWord looks invalid, then zero will be returned. */
-    int energyT( unsigned int energyRoIWord2 );
+    int energyT( unsigned int energyRoIWord2 ) const;
     /** returns overflow flag energy RoIWord */
-    bool energyOverflow( unsigned int energyRoIWord );
+    bool energyOverflow( unsigned int energyRoIWord ) const;
     /** returns a vector containing the numbers of threshold passed
     i.e. if the vector contains 1,3,5 it means that this RoI passed thresholds 1,3 and 5.*/
-    std::vector<unsigned int>& mEtSigThresholdsPassed( const unsigned int energyRoIWord0 );
+    std::vector<unsigned int> mEtSigThresholdsPassed( const unsigned int energyRoIWord0 ) const;
     /** returns a vector containing the numbers of threshold passed
     i.e. if the vector contains 1,3,5 it means that this RoI passed thresholds 1,3 and 5.*/
-    std::vector<unsigned int>& etSumThresholdsPassed( const unsigned int energyRoIWord1 );
+    std::vector<unsigned int> etSumThresholdsPassed( const unsigned int energyRoIWord1 ) const;
     /** returns a vector containing the numbers of threshold passed
     i.e. if the vector contains 1,3,5 it means that this RoI passed thresholds 1,3 and 5.*/
-    std::vector<unsigned int>& etMissThresholdsPassed( const unsigned int energyRoIWord2 );
+    std::vector<unsigned int> etMissThresholdsPassed( const unsigned int energyRoIWord2 ) const;
     /** returns true if thresh is passed*/
-    bool mEtSigThresholdPassed( const unsigned int energyRoIWord0, const unsigned int thresh );
+    bool mEtSigThresholdPassed( const unsigned int energyRoIWord0, const unsigned int thresh ) const;
     /** returns true if thresh is passed*/
-    bool sumEtThresholdPassed( const unsigned int energyRoIWord1, const unsigned int thresh );
+    bool sumEtThresholdPassed( const unsigned int energyRoIWord1, const unsigned int thresh ) const;
     /** returns true if thresh is passed*/
-    bool etMissThresholdPassed( const unsigned int energyRoIWord2, const unsigned int thresh );
+    bool etMissThresholdPassed( const unsigned int energyRoIWord2, const unsigned int thresh ) const;
 
 
-  protected:
-    /** get information from Jet RoI word and store in member variables. */
-    void decodeWord( const unsigned int word );
-    /** No descriptions */
-    void decodeEnergyWord0( const unsigned int energyRoIWord0 );
-    /** No descriptions */
-    void decodeEnergyWord1( const unsigned int energyRoIWord1 );
-    /** No descriptions */
-    void decodeEnergyWord2( const unsigned int energyRoIWord2 );
+  private:
+    unsigned int mEtSigThresholdsFlags( const unsigned int energyRoIWord0 ) const;
+    unsigned int sumEtThresholdsFlags( const unsigned int energyRoIWord1 ) const;
+    unsigned int missEtThresholdsFlags( const unsigned int energyRoIWord1 ) const;
+
     /** No descriptions */
     int decodeEnergyComponent( const unsigned int energyRoIWord ) const;
 
-  private:
     /** return a CoordinateRange for the JEMs coving -2.4<eta<2.4 */
-    CoordinateRange midJEMCoordinate() const;
+    CoordinateRange midJEMCoordinate(const unsigned int jem, const unsigned int roiWord) const;
     /** returns a CoordinateRange for the end JEMs, i.e. 2.4<eta<4.9 */
-    CoordinateRange leftEndJEMCoordinate() const;
+    CoordinateRange leftEndJEMCoordinate(const unsigned int jem, const unsigned int roiWord) const;
     /** returns a CoordinateRange for the end JEMs, i.e. 2.4<eta<4.9 */
-    CoordinateRange rightEndJEMCoordinate() const;
+    CoordinateRange rightEndJEMCoordinate(const unsigned int jem, const unsigned int roiWord) const;
     /** set phi coords for Jet RoI */
-    void setPhiCoords( double& phiMin, double& phiMax ) const;
-
-    unsigned int m_fwdThresholdsPassed;
-    unsigned int m_jem;
-    unsigned int m_row;
-    unsigned int m_col;
-    unsigned int m_mEtSigThresholdsPassed;
-    unsigned int m_sumEtThresholdsPassed;
-    unsigned int m_missEtThresholdsPassed;
-    unsigned int m_etLarge;
-    unsigned int m_etSmall;
-    int m_ex;
-    int m_ey;
-    int m_et;
-    std::vector<unsigned int> m_mEtSigThreshPassedVec;
-    std::vector<unsigned int> m_sumEtThreshPassedVec;
-    std::vector<unsigned int> m_missEtThreshPassedVec;
-    std::vector<unsigned int> m_fwdThreshPassedVec;
-
+    void setPhiCoords( const unsigned int jem, const unsigned int roiWord,
+                       double& phiMin, double& phiMax ) const;
   }; // class JEPRoIDecoder
 
 } // namespace LVL1

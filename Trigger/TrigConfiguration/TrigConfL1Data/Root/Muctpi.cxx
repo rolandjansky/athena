@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/Muctpi.h"
@@ -13,8 +13,6 @@ TrigConf::Muctpi::Muctpi() :
    m_HighptThreshold(0),
    m_MaxCand(0)
 {}
-  
-TrigConf::Muctpi::~Muctpi() {}
   
 void
 TrigConf::Muctpi::print(const std::string& indent, unsigned int /*detail*/) const {

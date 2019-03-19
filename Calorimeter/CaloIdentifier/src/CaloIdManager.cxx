@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -35,7 +35,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-CaloIdManager * CaloIdManager::s_instance = 0;
 
 CaloIdManager::CaloIdManager(void)
     :
@@ -61,77 +60,6 @@ CaloIdManager::CaloIdManager(void)
 
 CaloIdManager::~CaloIdManager(void)
 {
-}
-
-
-const CaloIdManager*
-CaloIdManager::instance                (void)
-{
-    if (s_instance == 0) {
-
-	// The following code can be removed once all useage the singleton has
-	// been removed and replaced by accessing this object via the transient
-	// detector store. Use the instance that's in the transient detector
-	// store if it exists. Otherwise create a new instance, register it in
-	// the store and return that. First, locate the StoreGate instance that's
-	// managing the transient detector store.
-
-	StoreGateSvc* detStore = 0;
-	IMessageSvc*  msgSvc;
-	const CaloIdManager* theMgr;
-
-	ISvcLocator* svcLoc = Gaudi::svcLocator( );
-	StatusCode status   = svcLoc->service( "MessageSvc", msgSvc );
-
-	if ( status.isSuccess( ) ) {
-
-	    MsgStream log(msgSvc, "CaloIdManager" );
-	    status = svcLoc->service( "DetectorStore", detStore );
-
-	    if ( status.isSuccess( ) ) {
-
-		// Test whether the instance already exists in the transient
-		// detector store
-		if ( detStore->contains<CaloIdManager>("CaloIdManager") ) {
-
-		    // The instance already exists - retrieve it and save it locally.
-
-		    status     = detStore->retrieve( theMgr );
-		    if ( status.isSuccess( ) ) {
-		      s_instance = const_cast<CaloIdManager*>(theMgr);
-		    }
-		    else
-		      {
-			log << MSG::ERROR << " Failed to retrieve CaloIdManager " << endmsg;
-		      }
-		}
-
-	    } else {
-		log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
-	    }
-
-	} else {
-	    std::cerr << "CaloIdManager: Could not locate the MessageSvc!!!"
-		      << std::endl;
-	}
-
-	if (s_instance == 0) {
-	    s_instance = new CaloIdManager;
-
-	    // Register this instance in the transient detector store if it
-	    // hasn't already been done.
-	    if ( 0 != detStore ) {
-		status = detStore->record( s_instance, "CaloIdManager" );
-		if ( ! status.isSuccess( ) ) {
-		  std::cerr << "CaloIdManager: Failed to record CaloIdManager "
-		      << std::endl;
-		}
-	    }
-	}
-
-    }
-
-    return s_instance;
 }
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
@@ -113,7 +113,14 @@ class useCalibHitTruth(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
-    
+
+class usePFEGammaPFOAssoc(JobProperty):
+    """ Flag to toggle use of linking between electrons and PFOs
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -124,7 +131,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

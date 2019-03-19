@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_Muctpi
@@ -12,7 +12,7 @@ namespace TrigConf {
    class Muctpi : public L1DataBaseclass {
    public:
       Muctpi();
-      ~Muctpi();
+      ~Muctpi() = default;
     
       // getters
       int lowptThreshold()    const { return m_LowptThreshold; }

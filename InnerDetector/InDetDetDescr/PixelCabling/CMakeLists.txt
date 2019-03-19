@@ -40,6 +40,10 @@ atlas_add_component( PixelCabling
    ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
    AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PathResolver PixelCablingLib )
 
+atlas_add_test( PixelCablingConfigNew_test
+                SCRIPT test/PixelCablingConfigNew_test.py
+                PROPERTIES TIMEOUT 30 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

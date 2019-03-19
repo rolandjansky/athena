@@ -30,9 +30,9 @@
 
 using namespace std;
 using namespace SCT_CalibAlgs;
-const static string pathRoot{"/HitMaps/"};
-const static string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"};
-const static string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
+static const string pathRoot{"/HitMaps/"};
+static const string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"};
+static const string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),

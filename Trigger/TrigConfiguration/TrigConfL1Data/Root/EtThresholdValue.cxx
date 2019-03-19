@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/EtThresholdValue.h"
@@ -13,9 +13,6 @@ TrigConf::EtThresholdValue::EtThresholdValue() :
    TriggerThresholdValue()
 {}
 
-TrigConf::EtThresholdValue::~EtThresholdValue()
-{}  
-  
 TrigConf::TriggerThresholdValue*
 TrigConf::EtThresholdValue::createCopy() const{
    return new EtThresholdValue(*this);

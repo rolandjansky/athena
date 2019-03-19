@@ -222,19 +222,19 @@ private:
 
   int         init_hashes(void) ;
 
-  int         init_neighbors_from_file(std::string filename, std::vector<std::set<IdentifierHash> > &vec);
+  int         init_neighbors_from_file(const std::string& filename, std::vector<std::set<IdentifierHash> > &vec);
 
-  int         init_neighbors_2d(std::string filename)
+  int         init_neighbors_2d(const std::string& filename)
     { 
       return init_neighbors_from_file(filename, m_neighbors_2d_vec);
     }
 
-  int         init_neighbors_3d_next(std::string filename)
+  int         init_neighbors_3d_next(const std::string& filename)
     { 
       return init_neighbors_from_file(filename, m_neighbors_3d_next_vec);
     }
 
-  int         init_neighbors_3d_prev(std::string filename)
+  int         init_neighbors_3d_prev(const std::string& filename)
     { 
       return init_neighbors_from_file(filename, m_neighbors_3d_prev_vec);
     }

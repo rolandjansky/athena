@@ -14,9 +14,9 @@ atlas_depends_on_subdirs(
    PRIVATE graphics/VP1/VP1HEPVis )
 
 # Find the external dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport Widgets)
-find_package( SoQt  )
-find_package( Coin3D  )
+find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport Widgets )
+find_package( SoQt )
+find_package( Coin3D )
 
 # Generate UI files automatically:
 # Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
@@ -31,10 +31,7 @@ set( CMAKE_AUTORCC TRUE )
 # declaration of PRIVATE_INCLUDE_DIRS.
 atlas_add_library( VP1Base VP1Base/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Base
-   INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
+   INCLUDE_DIRS ${QT5_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::PrintSupport ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
-   PRIVATE_LINK_LIBRARIES Qt5::OpenGL VP1HEPVis )
-
-
-
+   LINK_LIBRARIES ${QT5_LIBRARIES} ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
+   PRIVATE_LINK_LIBRARIES VP1HEPVis )

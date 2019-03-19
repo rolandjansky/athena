@@ -18,26 +18,22 @@
 #ifndef SCTLORENTZMONTOOL_H
 #define SCTLORENTZMONTOOL_H
 
-#include <string>
-#include <vector>
-
-// for Updator
-#include "TrkToolInterfaces/IUpdator.h"
-
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "TrkTrack/TrackCollection.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-//for vertexTool
-#include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
-
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "TrkTrack/TrackCollection.h"
+#include <string>
+#include <vector>
 
 // Forward declarations
 class IInterface;
@@ -52,21 +48,19 @@ class SCT_ID;
 ///Concrete monitoring tool derived from SCTMotherTrigMonTool
 class SCTLorentzMonTool : public SCTMotherTrigMonTool{
  public:
-  SCTLorentzMonTool(const std::string & type, const std::string & name, const IInterface* parent);
+  SCTLorentzMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTLorentzMonTool() = default;
   //initialize
   virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  //  virtual StatusCode bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun);
-  virtual StatusCode bookHistograms();          // hidetoshi 14.01.21
-  virtual StatusCode bookHistogramsRecurrent(); // hidetoshi 14.01.21
+  virtual StatusCode bookHistograms();
+  virtual StatusCode bookHistogramsRecurrent();
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
-  virtual StatusCode procHistograms();          // hidetoshi 14.01.21
+  virtual StatusCode procHistograms();
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
 //@}
@@ -74,9 +68,9 @@ class SCTLorentzMonTool : public SCTMotherTrigMonTool{
 private:
   //@name typedefs centralised to enable easy changing of types
   //@{
-  typedef TProfile * Prof_t;
-  typedef TH1F * H1_t;
-  typedef TH2F * H2_t;
+  typedef TProfile* Prof_t;
+  typedef TH1F* H1_t;
+  typedef TH2F* H2_t;
   typedef std::vector<Prof_t> VecProf_t;
   typedef std::vector<H1_t> VecH1_t;
   typedef std::vector<H2_t> VecH2_t;
@@ -106,28 +100,24 @@ private:
 
   //@name Service members
   //@{
-  /// Kalman Updator for SCT Unbiased states in Residual calculation
-  //  ToolHandle<Trk::IUpdator> m_updator;
-
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
   //@}
   //@name  Histograms related methods
   //@{
   // Book Histograms
-  //  StatusCode bookLorentzHistos(bool isNewRun,bool isNewLumiBlock);
-  StatusCode bookLorentzHistos();                                           // hidetoshi 14.01.22
+  StatusCode bookLorentzHistos();
   //@}
 
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, const InDetDD::SiDetectorElementCollection* elements, float &theta, float &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, const InDetDD::SiDetectorElementCollection* elements, float& theta, float& phi );
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t  pFactory(const std::string & name, const std::string & title, int nbinsx, float xlow, float xhigh, MonGroup & registry, int& iflag);
+  Prof_t  pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag);
   ///Factory + register for the 1D histograms, returns whether successfully registered
-  bool h1Factory(const std::string & name, const std::string & title, const float extent, MonGroup & registry, VecH1_t & storageVector);
+  bool h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector);
   //@}
 };
 

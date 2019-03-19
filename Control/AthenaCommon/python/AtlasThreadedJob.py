@@ -32,9 +32,6 @@ def _setupAtlasThreadedJob():
     svcMgr += SG__HiveMgrSvc("EventDataSvc")
     svcMgr.EventDataSvc.NSlots = numStores
 
-    import StoreGate.StoreGateConf as StoreGateConf
-    svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     arp=AlgResourcePool( OutputLevel = Constants.INFO )

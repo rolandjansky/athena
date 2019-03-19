@@ -14,13 +14,32 @@ def MainServicesMiniCfg(LoopMgr='AthenaEventLoopMgr'):
     cfg.setAppProperty('JobOptionsPreAction', '')
     return cfg
 
+from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
-def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
+def MainServicesSerialCfg():
+    serialflags=AthConfigFlags()
+    serialflags.addFlag('Concurrency.NumProcs', 0)
+    serialflags.addFlag('Concurrency.NumThreads', 0)
+    serialflags.addFlag('Concurrency.NumConcurrentEvents', 0)
+    return MainServicesThreadedCfg(serialflags)
+
+def MainServicesThreadedCfg(cfgFlags):
+
+    # Run a serial job for threads=0
+    LoopMgr = 'AthenaEventLoopMgr'
+    if cfgFlags.Concurrency.NumThreads>0:
+        if cfgFlags.Concurrency.NumConcurrentEvents==0:
+            # In a threaded job this will mess you up because no events will be processed
+            raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
+
+        LoopMgr = "AthenaHiveEventLoopMgr"
+
+    ########################################################################
+    # Core components needed for serial and threaded jobs
     cfg=ComponentAccumulator("AthMasterSeq")
-    cfg.merge(MainServicesMiniCfg(LoopMgr))
+    cfg.merge( MainServicesMiniCfg(LoopMgr) )
     cfg.setAppProperty('TopAlg',['AthSequencer/AthMasterSeq'],overwrite=True)
-    cfg.setAppProperty('OutStreamType', 'AthenaOutputStream')    
-    
+    cfg.setAppProperty('OutStreamType', 'AthenaOutputStream')
 
     #Build standard sequences:
     cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
@@ -29,9 +48,20 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
     cfg.addSequence(AthSequencer('AthAllAlgSeq'),parentName='AthAlgEvtSeq') 
-    cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+
+    if cfgFlags.Concurrency.NumThreads==0:
+        # For serial execution, we need the CondAlgs to execute first.
+        cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+    else:
+        # In MT, the order of execution is irrelevant (determined by data deps).
+        # We add the conditions sequence later such that the CondInputLoader gets
+        # initialized after all other user Algorithms for MT, so the base classes
+        # of data deps can be correctly determined. 
+        cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
+
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
-    cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
 
     #Set up incident firing:
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
@@ -47,97 +77,82 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
     from CLIDComps.CLIDCompsConf import ClassIDSvc
     cfg.addService(ClassIDSvc(CLIDDBFiles= ['clid.db',"Gaudi_clid.db" ]))
 
-
     from StoreGate.StoreGateConf import StoreGateSvc
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
+    cfg.addService( StoreGateSvc("ConditionStore") )
     
     cfg.setAppProperty('InitializationLoopCheck',False)
-    return cfg
-    
 
-def MainServicesThreadedCfg(cfgFlags):
-    # Neater ways to set the loop manager? Can't be altered
-    # after setting up the 
+    ########################################################################
+    # Additional components needed for threaded jobs only
+    if cfgFlags.Concurrency.NumThreads>0:
 
-    # Run a serial job for threads=0
-    if cfgFlags.Concurrency.NumThreads==0:
-        return MainServicesSerialCfg()
+        # Migrated code from AtlasThreadedJob.py
+        from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
+        from GaudiSvc.GaudiSvcConf import StatusCodeSvc, AuditorSvc
 
-    if cfgFlags.Concurrency.NumConcurrentEvents==0:
-        # In a threaded job this will mess you up because no events will be processed
-        raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
+        msgsvc = MessageSvc()
+        msgsvc.defaultLimit = 0 
+        #msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+        msgFmt = "% F%18W%S%7W%R%T %0W%M"
+        msgsvc.Format = msgFmt
+        cfg.addService(msgsvc)
 
-    cfg = MainServicesSerialCfg("AthenaHiveEventLoopMgr")
+        scsvc = StatusCodeSvc()
+        scsvc.AbortOnError = False
+        cfg.addService(scsvc)
+        cfg.setAppProperty('StatusCodeCheck',False)
 
-    # Migrated code from AtlasThreadedJob.py
-    from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
-    from GaudiSvc.GaudiSvcConf import StatusCodeSvc, AuditorSvc
+        from StoreGate.StoreGateConf import SG__HiveMgrSvc
+        hivesvc = SG__HiveMgrSvc("EventDataSvc")
+        hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
+        cfg.addService( hivesvc )
 
-    msgsvc = MessageSvc()
-    msgsvc.defaultLimit = 0 
-    #msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
-    msgFmt = "% F%18W%S%7W%R%T %0W%M"
-    msgsvc.Format = msgFmt
-    cfg.addService(msgsvc)
+        from GaudiHive.GaudiHiveConf import AlgResourcePool
+        from AthenaCommon.Constants import INFO
+        arp=AlgResourcePool( OutputLevel = INFO )
+        arp.TopAlg=["AthMasterSeq"] #this should enable control flow
+        cfg.addService( arp )
 
-    scsvc = StatusCodeSvc()
-    scsvc.AbortOnError = False
-    cfg.addService(scsvc)
-    cfg.setAppProperty('StatusCodeCheck',False)
+        from GaudiHive.GaudiHiveConf import AvalancheSchedulerSvc
+        scheduler = AvalancheSchedulerSvc()
+        scheduler.CheckDependencies    = cfgFlags.Scheduler.CheckDependencies
+        scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
+        scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
+        scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
+        scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
+        cfg.addService(scheduler)
 
-    from StoreGate.StoreGateConf import SG__HiveMgrSvc
-    hivesvc = SG__HiveMgrSvc("EventDataSvc")
-    hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
-    cfg.addService( hivesvc )
+        from SGComps.SGCompsConf import SGInputLoader
+        # FailIfNoProxy=False makes it a warning, not an error, if unmet data
+        # dependencies are not found in the store.  It should probably be changed
+        # to True eventually.
+        inputloader = SGInputLoader (FailIfNoProxy = False)
+        cfg.addEventAlgo( inputloader, "AthAlgSeq" )
+        scheduler.DataLoaderAlg = inputloader.getName()
 
-    from StoreGate.StoreGateConf import StoreGateSvc
-    cfg.addService( StoreGateSvc("ConditionStore") )
+        from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
 
-    from GaudiHive.GaudiHiveConf import AlgResourcePool
-    from AthenaCommon.Constants import INFO
-    arp=AlgResourcePool( OutputLevel = INFO )
-    arp.TopAlg=["AthMasterSeq"] #this should enable control flow
-    cfg.addService( arp )
+        elmgr = AthenaHiveEventLoopMgr()
+        elmgr.WhiteboardSvc = "EventDataSvc"
+        elmgr.SchedulerSvc = scheduler.getName()
+        cfg.addService( elmgr )
 
-    from GaudiHive.GaudiHiveConf import AvalancheSchedulerSvc
-    scheduler = AvalancheSchedulerSvc()
-    scheduler.CheckDependencies    = cfgFlags.Scheduler.CheckDependencies
-    scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
-    scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
-    scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
-    scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
-    cfg.addService(scheduler)
+        # enable timeline recording
+        from GaudiHive.GaudiHiveConf import TimelineSvc
+        cfg.addService( TimelineSvc( RecordTimeline = True, Partial = False ) )
 
-    from SGComps.SGCompsConf import SGInputLoader
-    # FailIfNoProxy=False makes it a warning, not an error, if unmet data
-    # dependencies are not found in the store.  It should probably be changed
-    # to True eventually.
-    inputloader = SGInputLoader (FailIfNoProxy = False)
-    cfg.addEventAlgo( inputloader, "AthAlgSeq" )
-    scheduler.DataLoaderAlg = inputloader.getName()
+        #
+        ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
+        #
 
-    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
-
-    elmgr = AthenaHiveEventLoopMgr()
-    elmgr.WhiteboardSvc = "EventDataSvc"
-    elmgr.SchedulerSvc = scheduler.getName()
-    cfg.addService( elmgr )
-
-    # enable timeline recording
-    from GaudiHive.GaudiHiveConf import TimelineSvc
-    cfg.addService( TimelineSvc( RecordTimeline = True, Partial = False ) )
-    
-    #
-    ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
-    #
-    
-    auditorsvc = AuditorSvc()
-    from SGComps.SGCompsConf import SGCommitAuditor
-    auditorsvc += SGCommitAuditor()
-    cfg.addService( auditorsvc )
-    cfg.setAppProperty("AuditAlgorithms", True)
+        auditorsvc = AuditorSvc()
+        from SGComps.SGCompsConf import SGCommitAuditor
+        auditorsvc += SGCommitAuditor()
+        cfg.addService( auditorsvc )
+        cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg
     

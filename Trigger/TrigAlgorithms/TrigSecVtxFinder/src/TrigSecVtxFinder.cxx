@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSecVtxFinder/TrigSecVtxFinder.h"
@@ -13,6 +13,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <sstream>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 TrigSecVtxFinder::TrigSecVtxFinder(const std::string &name, ISvcLocator *pSvcLocator):
   HLT::FexAlgo(name, pSvcLocator),

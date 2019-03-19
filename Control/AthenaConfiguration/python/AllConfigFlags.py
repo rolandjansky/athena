@@ -35,8 +35,9 @@ def _createCfgFlags():
 
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
-    acf.addFlag("Beam.NumberOfCollisions",0) # former global.NumberOfCollisions
-    acf.addFlag('Beam.Type', 'collisions') # former global.BeamType
+    acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
+    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : (GetFileMD(prevFlags.Input.Files)["/Digitization/Parameters"]["numberOfCollisions"] if prevFlags.Input.isMC \
+                                                                   else (2. if prevFlags.Beam.Type=='collisions' else 0.))) # former global.NumberOfCollisions
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
@@ -69,6 +70,8 @@ def _createCfgFlags():
     acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
     acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
     acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
+    acf.addFlag("GeoModel.Type", "UNDEFINED") # Geometry type in {ITKLoI, ITkLoI-VF, etc...}
+    acf.addFlag("GeoModel.IBLLayout", "UNDEFINED") # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
@@ -84,12 +87,17 @@ def _createCfgFlags():
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
     acf.addFlag("Calo.Noise.useCaloNoiseLumi",True)
-                
+
+#CaloCell flags
+    acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
 
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
+    acf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
 
+#Random engine Flags:
+    acf.addFlag("Random.Engine", "dSFMT") # Random service used in {"dSFMT", "Ranlux64", "Ranecu"}
 
     def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags

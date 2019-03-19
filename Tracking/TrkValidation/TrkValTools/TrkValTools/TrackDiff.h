@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -19,9 +19,10 @@
 #include "TrkValInterfaces/ITrackDiff.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkValEvent/TrackStateData.h"
-//#include <vector>
 #include "AthContainers/DataVector.h"
-//class INTupleSvc;
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 class AtlasDetectorID;
 class TTree;
 
@@ -152,6 +153,8 @@ private:
     mutable int m_wrongTypeSum[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_PRD_MismatchesSum[Trk::TrackState::NumberOfMeasurementTypes];
     mutable int m_trackSum;
+
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 
     /** extract data from a Trk::Track into a list of Trk::TrackStateData */
     DataVector< const Trk::TrackStateData >* extractDataFromTrack( const Trk::Track& ) const;

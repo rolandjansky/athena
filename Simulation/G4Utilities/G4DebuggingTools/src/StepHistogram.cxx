@@ -25,7 +25,10 @@ namespace G4UA{
   StepHistogram::StepHistogram(const Config& config):
     AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),"StepHistogram"),
     m_config(config),
-    m_initialKineticEnergyOfStep()
+    m_initialKineticEnergyOfStep(),
+    m_initialVolume(),
+    m_initialMaterial(),
+    m_initialProcess()
   {}
   
   void StepHistogram::UserSteppingAction(const G4Step * aStep){
@@ -150,12 +153,23 @@ namespace G4UA{
     if (tr->GetCurrentStepNumber()==1) {
       // initial kinetic energy
       m_initialKineticEnergyOfStep = stepKinetic;
+      
+      // initial volume/material/processes
+      m_initialVolume = volumeName;
+      m_initialMaterial = materialName;
+      m_initialProcess = processName;
 
       // save track ID for checking if we later have the same track
       m_trackID = tr->GetTrackID();
 
       // initial energy
       InitializeFillHistogram(m_report.histoMapMap_InitialE, "InitialE", particleName, "AllATLAS",
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+      InitializeFillHistogram(m_report.histoMapMap_vol_InitialE, "vol_InitialE", particleName, m_initialVolume,
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+      InitializeFillHistogram(m_report.histoMapMap_mat_InitialE, "mat_InitialE", particleName, m_initialMaterial,
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+      InitializeFillHistogram(m_report.histoMapMap_prc_InitialE, "prc_InitialE", particleName, m_initialProcess,
                               1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
     }
 
@@ -170,9 +184,30 @@ namespace G4UA{
       int nSteps = tr->GetCurrentStepNumber() + 1;
       InitializeFillHistogram(m_report.histoMapMap_numberOfSteps, "numberOfSteps", particleName, "AllATLAS",
                               10000, 0.5, 10000.5, nSteps, 1.);
+      InitializeFillHistogram(m_report.histoMapMap_vol_numberOfSteps, "vol_numberOfSteps", particleName, m_initialVolume,
+                              10000, 0.5, 10000.5, nSteps, 1.);
+      InitializeFillHistogram(m_report.histoMapMap_mat_numberOfSteps, "mat_numberOfSteps", particleName, m_initialMaterial,
+                              10000, 0.5, 10000.5, nSteps, 1.);
+      InitializeFillHistogram(m_report.histoMapMap_prc_numberOfSteps, "prc_numberOfSteps", particleName, m_initialProcess,
+                              10000, 0.5, 10000.5, nSteps, 1.);
       // number of steps vs initial energy
       InitializeFillHistogram(m_report.histoMapMap_numberOfStepsPerInitialE, "numberOfStepsPerInitialE", particleName, "AllATLAS",
                               1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+      InitializeFillHistogram(m_report.histoMapMap_vol_numberOfStepsPerInitialE, "vol_numberOfStepsPerInitialE", particleName, m_initialVolume,
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+      InitializeFillHistogram(m_report.histoMapMap_mat_numberOfStepsPerInitialE, "mat_numberOfStepsPerInitialE", particleName, m_initialMaterial,
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+      InitializeFillHistogram(m_report.histoMapMap_prc_numberOfStepsPerInitialE, "prc_numberOfStepsPerInitialE", particleName, m_initialProcess,
+                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+      // track length vs initial energy
+      InitializeFillHistogram(m_report.histoMapMap_trackLengthPerInitialE, "trackLengthPerInitialE", particleName, "AllATLAS",
+                              1000, -9, 7, log10(tr->GetTrackLength()), 1.);
+      InitializeFillHistogram(m_report.histoMapMap_vol_trackLengthPerInitialE, "vol_trackLengthPerInitialE", particleName, m_initialVolume,
+                              1000, -9, 7, log10(tr->GetTrackLength()), 1.);
+      InitializeFillHistogram(m_report.histoMapMap_mat_trackLengthPerInitialE, "mat_trackLengthPerInitialE", particleName, m_initialMaterial,
+                              1000, -9, 7, log10(tr->GetTrackLength()), 1.);
+      InitializeFillHistogram(m_report.histoMapMap_prc_trackLengthPerInitialE, "prc_trackLengthPerInitialE", particleName, m_initialProcess,
+                              1000, -9, 7, log10(tr->GetTrackLength()), 1.);
     }
   }
 
@@ -282,8 +317,21 @@ namespace G4UA{
     mergeMaps(histoMapMap_prc_stepSecondaryKinetic, rep.histoMapMap_prc_stepSecondaryKinetic);
 
     mergeMaps(histoMapMap_numberOfSteps, rep.histoMapMap_numberOfSteps);
+    mergeMaps(histoMapMap_vol_numberOfSteps, rep.histoMapMap_vol_numberOfSteps);
+    mergeMaps(histoMapMap_mat_numberOfSteps, rep.histoMapMap_mat_numberOfSteps);
+    mergeMaps(histoMapMap_prc_numberOfSteps, rep.histoMapMap_prc_numberOfSteps);
     mergeMaps(histoMapMap_numberOfStepsPerInitialE, rep.histoMapMap_numberOfStepsPerInitialE);
+    mergeMaps(histoMapMap_vol_numberOfStepsPerInitialE, rep.histoMapMap_vol_numberOfStepsPerInitialE);
+    mergeMaps(histoMapMap_mat_numberOfStepsPerInitialE, rep.histoMapMap_mat_numberOfStepsPerInitialE);
+    mergeMaps(histoMapMap_prc_numberOfStepsPerInitialE, rep.histoMapMap_prc_numberOfStepsPerInitialE);
+    mergeMaps(histoMapMap_trackLengthPerInitialE, rep.histoMapMap_trackLengthPerInitialE);
+    mergeMaps(histoMapMap_vol_trackLengthPerInitialE, rep.histoMapMap_vol_trackLengthPerInitialE);
+    mergeMaps(histoMapMap_mat_trackLengthPerInitialE, rep.histoMapMap_mat_trackLengthPerInitialE);
+    mergeMaps(histoMapMap_prc_trackLengthPerInitialE, rep.histoMapMap_prc_trackLengthPerInitialE);
     mergeMaps(histoMapMap_InitialE, rep.histoMapMap_InitialE);
+    mergeMaps(histoMapMap_vol_InitialE, rep.histoMapMap_vol_InitialE);
+    mergeMaps(histoMapMap_mat_InitialE, rep.histoMapMap_mat_InitialE);
+    mergeMaps(histoMapMap_prc_InitialE, rep.histoMapMap_prc_InitialE);
     mergeMaps(histoMapMap_stepKinetic, rep.histoMapMap_stepKinetic);
     mergeMaps(histoMapMap_postStepKinetic, rep.histoMapMap_postStepKinetic);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/BunchGroup.h"
@@ -14,8 +14,6 @@ TrigConf::BunchGroup::BunchGroup() :
    m_Bunches()
 {}
   
-TrigConf::BunchGroup::~BunchGroup() {}
-
 void TrigConf::BunchGroup::addBunch(int b) {
    m_Bunches.push_back(b);
 }

@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
+                          Control/CxxUtils
                           Event/FourMom )
 
 # Component(s) in the package:

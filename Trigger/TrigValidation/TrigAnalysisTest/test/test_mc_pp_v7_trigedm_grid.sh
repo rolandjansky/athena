@@ -3,13 +3,9 @@
 # art-description: Trigger Event Data Model test on AOD
 # art-type: grid
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
-# art-include: 21.0-TrigMC/Athena
+# art-include: 21.3/Athena
 # art-include: master/Athena
-# art-include: master/AthenaP1
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-output: *check*
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
@@ -22,6 +18,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_trigedm_grid"
 export JOB_LOG="athena.log"

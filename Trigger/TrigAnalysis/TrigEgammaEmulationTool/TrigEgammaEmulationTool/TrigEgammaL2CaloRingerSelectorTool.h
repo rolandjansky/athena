@@ -8,10 +8,7 @@
 
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
-#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
-#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
-#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
 #include "AsgTools/AsgTool.h"
 #include <vector>
 
@@ -33,14 +30,8 @@ class TrigEgammaL2CaloRingerSelectorTool:
     bool emulation( const xAOD::TrigEMCluster*, bool &, const Trig::Info &);
 
   private:
-    ///Thresholds Holder
-    std::vector<TrigCaloRingsHelper::CutDefsHelper*>  m_cutDefs; 
-    ///Discriminator holder
-    std::vector<MultiLayerPerceptron*>   m_discriminators;
-    ///Pre-processing holder
-    std::vector<TrigRingerPreprocessor*> m_preproc; 
 
-    TrigL2CaloRingerReader m_reader;
+    Ringer::RingerSelectorTool        m_selectorTool;
     
     /* Helper method to retrieve the bins from an index */
     //void index_to_et_eta_bins(unsigned, unsigned &, unsigned &);
@@ -55,10 +46,6 @@ class TrigEgammaL2CaloRingerSelectorTool:
     bool        m_useNoActivationFunctionInTheLastLayer;
     bool        m_useLumiTool;
 
-    //Prepoc configuration
-    std::vector<unsigned int>            m_nRings;
-    std::vector<unsigned int>            m_normRings;
-    std::vector<unsigned int>            m_sectionRings;
 
     //Discriminator configuration
     std::string m_calibPath_constants, m_calibPath_thresholds;

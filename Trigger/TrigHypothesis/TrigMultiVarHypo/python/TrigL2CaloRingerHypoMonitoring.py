@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
 class TrigL2CaloRingerHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
@@ -26,7 +26,7 @@ class TrigL2CaloRingerHypoTimeMonitoring(TrigGenericMonitoringToolConfig):
   def __init__(self, name = "TrigL2CaloRingerHypoTimeMonitoring"):
     super(TrigL2CaloRingerHypoTimeMonitoring,self).__init__(name)
     self.defineTarget("Time")
-    self.Histograms = [defineHistogram('TotalTime',
+    self.Histograms = [defineHistogram('Total',
                                         type='TH1F',title='TotalTime'
                                         ,xbins=220,xmin=0.0,xmax=0.2)]
 
@@ -34,17 +34,25 @@ class TrigL2CaloRingerFexTimeMonitoring(TrigGenericMonitoringToolConfig):
   __slots__ = []
  
   def __init__(self, name = "TrigL2CaloRingerFexTimeMonitoring"):
+    
     super(TrigL2CaloRingerFexTimeMonitoring,self).__init__(name)
     self.defineTarget("Time")
-    self.Histograms = [defineHistogram('TotalTime',
-                                        type='TH1F',title='TotalTime'
-                                        ,xbins=220,xmin=0.0,xmax=0.2)]
-    self.Histograms += [defineHistogram('Decision',
+    self.Histograms  = [defineHistogram('Total',
                                         type='TH1F',title='Decision'
-                                        ,xbins=220,xmin=0.0,xmax=0.2)]
+                                        ,xbins=50,xmin=0.0,xmax=5.0)]
+    self.Histograms  = [defineHistogram('Decision',
+                                        type='TH1F',title='Decision'
+                                        ,xbins=50,xmin=0.0,xmax=5.0)]
     self.Histograms += [defineHistogram('Normalization',
                                         type='TH1F',title='Normalization'
-                                        ,xbins=220,xmin=0.0,xmax=0.2)]
+                                        ,xbins=50,xmin=0.0,xmax=0.3)]
+    self.Histograms += [defineHistogram('Propagation',
+                                        type='TH1F',title='Propagation'
+                                        ,xbins=50,xmin=0.0,xmax=0.3)]
     self.Histograms += [defineHistogram('StoreOutput',
                                         type='TH1F',title='StoreOutput'
-                                        ,xbins=220,xmin=0.0,xmax=0.2)]
+                                        ,xbins=50,xmin=0.0,xmax=5.0)]
+
+
+
+

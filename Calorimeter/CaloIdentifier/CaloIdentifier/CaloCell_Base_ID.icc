@@ -980,7 +980,7 @@ inline float CaloCell_Base_ID::phi0(const Identifier regId) const
 }
 
 //---------------------------------------------------------------------------
-inline int CaloCell_Base_ID::GetSubCaloName(const std::string SubCaloName )const 
+inline int CaloCell_Base_ID::GetSubCaloName(const std::string& SubCaloName )const 
 {
   if(SubCaloName=="LAREM"){
     return(LAREM);

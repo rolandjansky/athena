@@ -76,6 +76,10 @@ namespace pool    {
     /// In place deletion of raw memory
     virtual DbStatus free(  void* ptr,
                             DbContainer&  cntH) = 0;
+
+    /// Number of next record in the container (=size if no delete is allowed)
+    virtual long long int nextRecordId() = 0;
+
     /// Close the container
     virtual DbStatus close() = 0;
     /// Open the container

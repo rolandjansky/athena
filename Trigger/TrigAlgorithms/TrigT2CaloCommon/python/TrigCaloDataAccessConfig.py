@@ -11,8 +11,8 @@ def createLArRoI_Map( flags ):
     from LArCabling.LArCablingConf import LArCablingLegacyService
     cablingTool = LArCablingLegacyService() # this is realy a tool
     # needed by above
-    acc.merge( LArFebRodMappingCfg( flags )[0] )
-    acc.merge( LArCalibIdMappingCfg( flags )[0] )
+    acc.merge( LArFebRodMappingCfg( flags ))
+    acc.merge( LArCalibIdMappingCfg( flags ))
 
     from CaloTriggerTool.CaloTriggerToolConf import CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
@@ -44,8 +44,8 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge( TileGMCfg( flags ) )
     acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
-    from RegionSelector.RegSelConfig import RegSelConfig
-    acc.mergeAll( RegSelConfig( flags ) )
+    from RegionSelector.RegSelConfig import regSelCfg
+    acc.mergeAll( regSelCfg( flags ) )
     
     acc.merge( createLArRoI_Map( flags ) )
 

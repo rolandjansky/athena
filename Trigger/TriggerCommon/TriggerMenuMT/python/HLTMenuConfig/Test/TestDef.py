@@ -6,8 +6,6 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Test.TestDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
 
 #----------------------------------------------------------------
@@ -22,7 +20,6 @@ class TestChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        myStepNames = []
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
         # --------------------

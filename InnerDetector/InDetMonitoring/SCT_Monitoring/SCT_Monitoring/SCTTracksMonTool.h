@@ -13,22 +13,19 @@
 #ifndef SCTTRACKSMONTOOL_H
 #define SCTTRACKSMONTOOL_H
 
-#include <string>
-#include <vector>
-
-// for Updator
-#include "TrkToolInterfaces/IUpdator.h"
-
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "TrkTrack/TrackCollection.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "StoreGate/ReadHandleKey.h"
-#include "TrkTrack/TrackCollection.h"
+#include <string>
+#include <vector>
 
 // Forward declarations
 class IInterface;
@@ -43,19 +40,19 @@ class SCT_ID;
 ///Concrete monitoring tool derived from SCTMotherTrigMonTool
 class SCTTracksMonTool : public SCTMotherTrigMonTool{
  public:
-  SCTTracksMonTool(const std::string & type, const std::string & name, const IInterface* parent); 
+  SCTTracksMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
   virtual ~SCTTracksMonTool() = default;
   //initialize
   virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  virtual StatusCode bookHistogramsRecurrent();                                                     // hidetoshi 12.01.21
-  virtual StatusCode bookHistograms();                                                              // hidetoshi 12.01.21 
+  virtual StatusCode bookHistogramsRecurrent();
+  virtual StatusCode bookHistograms();
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  virtual StatusCode procHistograms();                                                                       // hidetoshi 12.01.21 
+  virtual StatusCode procHistograms();
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
 //@} 
@@ -63,25 +60,25 @@ class SCTTracksMonTool : public SCTMotherTrigMonTool{
 private:
   //@name typedefs centralised to enable easy changing of types
   //@{
-  typedef TProfile2D * Prof2_t;
-  typedef TProfile * Prof_t;
-  typedef TH1F * H1_t;
-  typedef TH2F * H2_t;
+  typedef TProfile2D* Prof2_t;
+  typedef TProfile* Prof_t;
+  typedef TH1F* H1_t;
+  typedef TH2F* H2_t;
   typedef std::vector<Prof2_t> VecProf2_t;
   typedef std::vector<H1_t> VecH1_t;
   typedef std::vector<H2_t> VecH2_t;
   //@}
-  TH1I *m_nTracks;
-  int *m_nTracks_buf;
+  TH1I* m_nTracks;
+  int* m_nTracks_buf;
   int m_nTracks_pos;
-  TH1I *m_trackTrigger;
-  TProfile *m_trackTriggerRate;
-  TH1F *m_totalBarrelResidual;
-  TH1F *m_totalEndCapAResidual;
-  TH1F *m_totalEndCapCResidual;
-  TH1F *m_totalBarrelPull;
-  TH1F *m_totalEndCapAPull;
-  TH1F *m_totalEndCapCPull;
+  TH1I* m_trackTrigger;
+  TProfile* m_trackTriggerRate;
+  TH1F* m_totalBarrelResidual;
+  TH1F* m_totalEndCapAResidual;
+  TH1F* m_totalEndCapCResidual;
+  TH1F* m_totalBarrelPull;
+  TH1F* m_totalEndCapAPull;
+  TH1F* m_totalEndCapCPull;
 
   int m_numberOfEvents;
   //@name Histograms related members
@@ -174,7 +171,6 @@ private:
   //@name  Histograms related methods
   //@{
   // Book Track related  Histograms
-  // hidetoshi 14.01.22
   StatusCode bookTrackHistos(const SCT_Monitoring::Bec becVal);
   StatusCode bookGeneralHistos();
   StatusCode bookPositiveEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_A);}
@@ -187,13 +183,13 @@ private:
   float calculatePull(const float, const float, const float);
   
   ///Factory + register for the 2D histos, returns whether successfully registered
-  StatusCode h2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector);
+  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector);
   
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  StatusCode p2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
+  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector);
   
   ///Factory + register for the 1D histograms, returns whether successfully registered
-  StatusCode h1Factory(const std::string & name, const std::string & title, const float extent, MonGroup & registry, VecH1_t & storageVector);
+  StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector);
   //@}
 };
 

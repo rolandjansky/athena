@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/METSigParam.h"
@@ -31,9 +31,6 @@ TrigConf::METSigParam::METSigParam()
      m_TESqrtMax(0)
 {}
 
-TrigConf::METSigParam::~METSigParam()
-{}  
- 
 void 
 TrigConf::METSigParam::setValues( int XSSigmaScale, int XSSigmaOffset,
                                   int XEmin, int XEmax,

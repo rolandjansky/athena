@@ -71,7 +71,7 @@ public:
   ~CaloCell_Base_ID();
 
 
-  int GetSubCaloName( const std::string SubCaloName ) const;
+  int GetSubCaloName( const std::string& SubCaloName ) const;
 
   /// Initialization from the identifier dictionary
   virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr) override;

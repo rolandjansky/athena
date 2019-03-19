@@ -13,7 +13,7 @@ def CaloFillRectangularClusterCfg(flags):
                                                             phi_size = 7,
                                                             cells_name = flags.Egamma.Keys.Input.Cells)
 
-    result.addPrivateTool(caloFillRectangularCluster)
+    result.setPrivateTools(caloFillRectangularCluster)
     return result
 
 #---------------------------------------

@@ -172,7 +172,8 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
   if (!p) {
     if (0 == barcode()) {
 #if 0
-      mlog() << MSG::DEBUG
+      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+      log << MSG::DEBUG
              << "cptr: no truth particle associated with this hit (barcode==0)."
              << " Probably this is a noise hit" << endmsg;
 #endif
@@ -186,7 +187,16 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
         pEvt = pEvtColl->at(0);
       }
       else if (position != ExtendedBarCode::UNDEFINED) {
-        pEvt = pEvtColl->at (position);
+        if (position < pEvtColl->size()) {
+          pEvt = pEvtColl->at (position);
+        }
+        else {
+#if 0
+          MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+          log << MSG::WARNING << "cptr: position = " << position << ", McEventCollection size = "<< pEvtColl->size() << endmsg;
+#endif
+          return nullptr;
+        }
       }
       else {
         pEvt = pEvtColl->find (index);
@@ -223,7 +233,7 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
   m_extBarcode.eventIndex (index, position);
   if (index == ExtendedBarCode::UNDEFINED) {
     // Don't trip the assertion for a null link.
-    if (barcode() == 0) return 0;
+    if (barcode() == 0 || barcode() == 0x7fffffff) return 0;
     cptr();
     m_extBarcode.eventIndex (index, position);
     assert (index != ExtendedBarCode::UNDEFINED);
@@ -316,8 +326,8 @@ SG::DataProxy* HepMcParticleLink::find_proxy (const IProxyDict* sg) const
   EBC_EVCOLL evColl = getEventCollection();
   assert (evColl < EBC_NCOLLKINDS);
   unsigned int hint_orig = s_hints[evColl];
+  if (hint_orig >= NKEYS) hint_orig = 0;
   unsigned int hint = hint_orig;
-  if (hint >= NKEYS) hint = 0;
   do {
     SG::DataProxy* proxy = sg->proxy (clid, s_keys[evColl][hint]);
     if (proxy) {

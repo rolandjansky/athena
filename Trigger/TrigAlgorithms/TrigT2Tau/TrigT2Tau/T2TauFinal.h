@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,6 +18,9 @@
 #include <string>
 #include "TrigInterfaces/FexAlgo.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 namespace HLT {
   class TriggerElement;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/NimThresholdValue.h"
@@ -12,9 +12,6 @@ TrigConf::NimThresholdValue::NimThresholdValue() :
    TriggerThresholdValue()
 {}
 
-TrigConf::NimThresholdValue::~NimThresholdValue()
-{}  
- 
 TrigConf::TriggerThresholdValue*
 TrigConf::NimThresholdValue::createCopy() const{
    return new NimThresholdValue(*this);

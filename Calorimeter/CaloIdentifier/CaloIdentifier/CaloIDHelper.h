@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -79,7 +79,7 @@ public:
      * @return 0 on success; non-zero on failure.
      */
     template <class T>
-    int init (const T& parent,
+    int init (T& parent,
               const std::string& type,
               const MultiRange& full_range,
               Identifier (T::*idfunc) (const ExpandedIdentifier&) const,
@@ -280,7 +280,7 @@ public:
   std::string name() const;
 
   /// Return the message service for this helper (may be null).
-  IMessageSvc* msgSvc() const;
+  IMessageSvc* msgSvc();
 
 
 

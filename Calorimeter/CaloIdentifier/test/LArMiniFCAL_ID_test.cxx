@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -218,11 +218,7 @@ void test_neighbors (const LArMiniFCAL_ID& idhelper)
   for (unsigned int iCell = 0 ; iCell < idhelper.channel_hash_max(); ++iCell){
     idhelper.get_neighbours(iCell, LArNeighbours::all3D, neighbourList);
 
-    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-    for (;last!=first; first++){
-      
-      IdentifierHash neighbourHash=(*first);
+    for (IdentifierHash neighbourHash : neighbourList) {
       if(neighbourHash < hash_min ) {
         hash_min = neighbourHash;
       }
@@ -241,14 +237,15 @@ void test_neighbors (const LArMiniFCAL_ID& idhelper)
 
 int main()
 {
-  idDictXmlFile = "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml";
-  IdDictMgr& idd = getDictMgr();
+  std::string xmlFile = "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml";
+  std::unique_ptr<IdDictParser> parser = make_parser (idDictType, xmlFile);
+  IdDictMgr& idd = parser->m_idd;
   idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
 
-  std::unique_ptr<LArMiniFCAL_ID> idhelper = make_helper<LArMiniFCAL_ID_Test>();
-  std::unique_ptr<LArMiniFCAL_ID> idhelper_n = make_helper<LArMiniFCAL_ID_Test>(true);
+  std::unique_ptr<LArMiniFCAL_ID> idhelper = make_helper<LArMiniFCAL_ID_Test>(*parser);
+  std::unique_ptr<LArMiniFCAL_ID> idhelper_n = make_helper<LArMiniFCAL_ID_Test>(*parser,true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper);

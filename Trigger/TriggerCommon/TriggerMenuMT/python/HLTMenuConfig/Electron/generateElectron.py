@@ -1,11 +1,10 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg, l2CaloAlgCfg
+from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, RecoFragmentsPool, getChainStepName
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # TODO remove once full tracking is in place

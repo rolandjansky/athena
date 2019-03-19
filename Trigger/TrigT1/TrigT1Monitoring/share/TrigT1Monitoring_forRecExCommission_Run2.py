@@ -96,7 +96,7 @@ if l1caloRawMon:
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
         #ToolSvc += L1CaloHVScalesMonTool
-        L1Man.AthenaMonTools += [ L1CaloHVScalesMonTool ]
+        #L1Man.AthenaMonTools += [ L1CaloHVScalesMonTool ]
         # PMT scores
         from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloPMTScoresMon
         L1CaloPMTScoresMonTool = LVL1__L1CaloPMTScoresMon(

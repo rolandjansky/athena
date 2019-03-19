@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: egammaTimeCorrAlg.h 604352 2014-07-01 04:52:11Z ssnyder $
@@ -22,9 +22,6 @@
 
 #include "VxVertex/VxContainer.h"   
 #include "VxVertex/RecVertex.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "CaloInterface/ICaloClusterTimeTool.h"
 

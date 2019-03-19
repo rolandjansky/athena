@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWUTILS_TILERAWROISELECTOR_H
@@ -57,7 +57,7 @@ class TileRawRoISelector
 	public:
 	const_iterator() ; 
 
-	const_iterator& operator = ( const const_iterator & it ) ; 
+        const_iterator& operator = ( const const_iterator & it ) = default;
 
 	const_iterator& operator ++ () ; 
 
@@ -86,7 +86,7 @@ class TileRawRoISelector
    TileRawRoISelector ( TileRoI_Map* map=NULL, 
 	    TileRawChannelContainer* c=NULL );
 
-   virtual ~TileRawRoISelector () {};
+   virtual ~TileRawRoISelector () = default;
 
    void setMap(TileRoI_Map* map) ; 
    void setContainer(TileRawChannelContainer* c) ;
