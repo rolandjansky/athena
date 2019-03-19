@@ -82,7 +82,8 @@ void RHadronsPhysicsTool::ConstructProcess()
   ATH_MSG_DEBUG("RHadronProcessDefinition::ConstructProcess() called");
   G4Decay* theDecayProcess = new G4Decay();
   theDecayProcess->SetExtDecayer( new RHadronPythiaDecayer("RHadronPythiaDecayer") );
-  PARTICLEITERATOR->reset();
+  G4ParticleTable::G4PTblDicIterator* aParticleIterator = G4ParticleTable::GetParticleTable()->GetIterator();
+  aParticleIterator->reset();
 
   //First deal with the standard particles that G4 doesn't know about...
   //G4Etac::Definition();
@@ -221,8 +222,8 @@ void RHadronsPhysicsTool::ConstructProcess()
   // Now add RHadrons... Keep a vector of those we've already dealt with
   std::vector<int> handled;
   // Use the G4 particle iterator
-  while((*PARTICLEITERATOR)()) {
-    G4ParticleDefinition *particle = PARTICLEITERATOR->value();
+  while((*aParticleIterator)()) {
+    G4ParticleDefinition *particle = aParticleIterator->value();
     if(CustomParticleFactory::isCustomParticle(particle)) {
       if(find(handled.begin(),handled.end(),particle->GetPDGEncoding())==handled.end()) {
         handled.push_back(particle->GetPDGEncoding());
