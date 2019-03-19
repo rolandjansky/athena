@@ -50,16 +50,13 @@ def getConstitFourMomTool(jetdef):
         pass
     ###
     cfourmom = JetMomentToolsConf.JetConstitFourMomTool("constitfourmom_{0}".format(jetdef.basename))
-    if "LCTopo" in jetdef.basename:
+    if "LCTopo" in jetdef.basename or "EMTopo" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
         cfourmom.AltConstitColls = ["CaloCalTopoClusters"]
         cfourmom.AltConstitScales = [CaloClusterStates["CALIBRATED"]]
         cfourmom.AltJetScales = [""]
-    elif "EMTopo" in jetdef.basename:
-        cfourmom.JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"]
-        cfourmom.AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if "Origin" in jetdef.inputdef.modifiers else "CaloCalTopoClusters"]
-        cfourmom.AltConstitScales = [CaloClusterStates["UNCALIBRATED"],CaloClusterStates["CALIBRATED"]]
-        cfourmom.AltJetScales = ["",""]
+    # Drop the LC-calibrated four-mom for EMTopo jets as we only wanted it as a possibility
+    # in MET CST calculations but never used it
     elif "EMPFlow" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
         cfourmom.AltConstitColls = [""]

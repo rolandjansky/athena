@@ -75,8 +75,8 @@ jetmomentmods = {
     "TrackMoments":    JetModifier("JetTrackMomentsTool", "trkmoms",
                                    helperfn=JetMomentToolsConfig.getTrackMomentsTool,
                                    prereqs = [ "input:JetSelectedTracks","input:JetTrackVtxAssoc","ghost:Track" ]),
-    "TrackSumMoments": JetModifier("JetTrackMomentsTool", "trksummoms",
-                                   helperfn=JetMomentToolsConfig.getTrackMomentsTool,
+    "TrackSumMoments": JetModifier("JetTrackSumMomentsTool", "trksummoms",
+                                   helperfn=JetMomentToolsConfig.getTrackSumMomentsTool,
                                    prereqs = [ "input:JetSelectedTracks","input:JetTrackVtxAssoc","ghost:Track" ]),
     }
 jetmoddict.update(jetmomentmods)

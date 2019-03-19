@@ -19,7 +19,7 @@ JetTrackSumMomentsTool::JetTrackSumMomentsTool(const std::string& name)
     : JetModifierBase(name)
       // , m_vertexContainer("")
     , m_assocTracksName("")
-    , m_htsel("")
+    , m_htsel("",this)
     , m_vertexContainer_key("")
     , m_tva_key("")
 {
