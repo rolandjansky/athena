@@ -245,7 +245,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
     return StatusCode::SUCCESS;
 }
 
-void TrigEgammaDistTool::fillL1Calo(const std::string dir, const xAOD::EmTauRoI *l1){
+void TrigEgammaDistTool::fillL1Calo(const std::string &dir, const xAOD::EmTauRoI *l1){
     cd(dir);
     ATH_MSG_DEBUG("Fill L1Calo distributions" << dir);
     hist1("eta")->Fill(l1->eta());
@@ -259,7 +259,7 @@ void TrigEgammaDistTool::fillL1Calo(const std::string dir, const xAOD::EmTauRoI 
     hist2("emClusVsHadCore")->Fill(l1->hadCore()*0.001, l1->emClus()*0.001);
 }
 
-void TrigEgammaDistTool::fillEFCalo(const std::string dir, const xAOD::CaloCluster *clus){
+void TrigEgammaDistTool::fillEFCalo(const std::string &dir, const xAOD::CaloCluster *clus){
     cd(dir);
     ATH_MSG_DEBUG("Fill EFCalo distributions" << dir);
     ATH_MSG_DEBUG("Energy " << clus->e()/1.e3);
@@ -287,7 +287,7 @@ void TrigEgammaDistTool::fillEFCalo(const std::string dir, const xAOD::CaloClust
     hist1("phi_calo")->Fill(tmpphi);
 }
 
-void TrigEgammaDistTool::fillL2Electron(const std::string dir, const xAOD::TrigElectron *el){
+void TrigEgammaDistTool::fillL2Electron(const std::string &dir, const xAOD::TrigElectron *el){
     cd(dir);
     if(!el) ATH_MSG_DEBUG("TrigElectron nullptr");
     else {
@@ -298,7 +298,7 @@ void TrigEgammaDistTool::fillL2Electron(const std::string dir, const xAOD::TrigE
 
 }
 
-void TrigEgammaDistTool::fillL2Calo(const std::string dir, const xAOD::TrigEMCluster *emCluster){
+void TrigEgammaDistTool::fillL2Calo(const std::string &dir, const xAOD::TrigEMCluster *emCluster){
     cd(dir);
     if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
     else{
@@ -310,19 +310,9 @@ void TrigEgammaDistTool::fillL2Calo(const std::string dir, const xAOD::TrigEMClu
     }
 }
 
-void TrigEgammaDistTool::fillRingerShapes(const std::string dir, const xAOD::TrigRingerRings *ringer){
-    cd(dir);
-    if(!ringer) ATH_MSG_DEBUG("Online pointer fails");  
-    else{
-      //for(unsigned r=0; r<ringer->rings().size(); ++r){
-      //  hist2("ringer_shapes")->Fill(r, ringer->rings()[r]);
-      // }
-      ATH_MSG_DEBUG("L2 Calo distributions.");
-    }
-}
 
 
-void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
+void TrigEgammaDistTool::fillShowerShapes(const std::string &dir,const xAOD::Egamma *eg){
     cd(dir);
     ATH_MSG_DEBUG("Fill SS distributions " << dir);
     if(!eg) ATH_MSG_WARNING("Egamma pointer fails"); 
@@ -358,7 +348,7 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
     }
 }
 
-void TrigEgammaDistTool::fillTracking(const std::string dir, const xAOD::Electron *eg){
+void TrigEgammaDistTool::fillTracking(const std::string &dir, const xAOD::Electron *eg){
     cd(dir);  
     ATH_MSG_DEBUG("Fill tracking");
     if(!eg) ATH_MSG_WARNING("Electron pointer fails");

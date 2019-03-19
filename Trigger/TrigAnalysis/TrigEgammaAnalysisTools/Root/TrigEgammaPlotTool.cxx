@@ -135,8 +135,6 @@ void TrigEgammaPlotTool::setBinning(){
     m_defaultEtabins.clear();
     m_coarseEtbins.clear();
     m_coarseEtabins.clear();
-    m_ringerEtbins.clear();
-    m_ringerEtabins.clear();
 
     // Binning as defined in TP framework
     double coarse_eta_bins[9] ={-2.47,-1.52,-1.37,-0.60,0.00,0.60,1.37,1.52,2.47};
@@ -163,10 +161,6 @@ void TrigEgammaPlotTool::setBinning(){
         20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,
         25,25.5};
 
-    //float ringer_eta_bins[10]={0.00, 0.60, 0.80, 1.15, 1.37, 1.54, 1.81, 2.01, 2.37, 2.47};
-    //float ringer_et_bins[9]  ={4.00,7.00,10.0,15.0,20.0,30.0,40.0,50.0,50000.};
-    float ringer_thres_et_bins[6]={15.,20.,30.,40.,50.,50000.};
-    float ringer_thres_eta_bins[6]={0.,0.8,1.37,1.54,2.37,2.5};
 
     if(m_doJpsiee){
         m_nEtbins=51;
@@ -193,8 +187,6 @@ void TrigEgammaPlotTool::setBinning(){
     m_defaultEtabins.insert(m_defaultEtabins.end(), &default_eta_bins[0], &default_eta_bins[m_ndefaultEtabins+1]);
     m_coarseEtbins.insert(m_coarseEtbins.end(), &coarse_et_bins[0], &coarse_et_bins[m_ncoarseEtbins+1]);
     m_coarseEtabins.insert(m_coarseEtabins.end(), &coarse_eta_bins[0], &coarse_eta_bins[m_ncoarseEtabins+1]);
-    m_ringerEtbins.insert(m_ringerEtbins.end(), &ringer_thres_et_bins[0], &ringer_thres_et_bins[6]);
-    m_ringerEtabins.insert(m_ringerEtabins.end(), &ringer_thres_eta_bins[0], &ringer_thres_eta_bins[6]);
 }
 
 StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
@@ -599,19 +591,8 @@ TTree *TrigEgammaPlotTool::tree(const std::string &treeName, const std::string &
     return treeItr->second;
 }
 
-void TrigEgammaPlotTool::parseCaloRingsLayers( unsigned layer, unsigned &minRing, 
-                                                                       unsigned &maxRing, std::string &caloLayerName)
-{
-  if(layer == 0){minRing = 0;   maxRing = 7 ; caloLayerName = "PreSampler";}
-  if(layer == 1){minRing = 8;   maxRing = 71; caloLayerName = "EM1";}
-  if(layer == 2){minRing = 72;  maxRing = 79; caloLayerName = "EM2";}
-  if(layer == 3){minRing = 80;  maxRing = 87; caloLayerName = "EM3";}
-  if(layer == 4){minRing = 88;  maxRing = 91; caloLayerName = "HAD1";}
-  if(layer == 5){minRing = 92;  maxRing = 95; caloLayerName = "HAD2";}
-  if(layer == 6){minRing = 96;  maxRing = 99; caloLayerName = "HAD3";}
-}
 
-void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string &directory){
     cd(directory);    
     addHistogram(new TH1F("res_pt", "HLT p_{T} resolution; (p_{T}(on)-p_{T}(off)) ; Count", 200, -1.5, 1.5));
     addHistogram(new TH1F("res_et", "HLT E_{T} resolution; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.5, 0.5));
@@ -687,7 +668,7 @@ void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string directory){
 
 }
 
-void TrigEgammaPlotTool::bookResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookResolutionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1));
     addHistogram(new TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.001, 0.001));
@@ -712,7 +693,7 @@ void TrigEgammaPlotTool::bookResolutionHistos(const std::string directory){
 
 }
 
-void TrigEgammaPlotTool::bookElectronResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookElectronResolutionHistos(const std::string &directory){
     cd(directory);    
     //Electron
     addHistogram(new TH1F("res_pt", "p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 120, -1.5, 1.5));
@@ -734,7 +715,7 @@ void TrigEgammaPlotTool::bookElectronResolutionHistos(const std::string director
                 50, 0., 1.));
 }
 
-void TrigEgammaPlotTool::bookElectronIsoResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookElectronIsoResolutionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("res_ptcone20", "resolution ptcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1));
     addHistogram(new TH1F("res_ptcone20_rel", "resolution ptcone20/pt; ptcone20/pt (on-off)/off; Count", 100, -0.1, 0.1));
@@ -780,7 +761,7 @@ void TrigEgammaPlotTool::bookElectronIsoResolutionHistos(const std::string direc
 
 }
 
-void TrigEgammaPlotTool::bookPhotonResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookPhotonResolutionHistos(const std::string &directory){
     cd(directory);    
     addHistogram(new TH1F("res_et_cnv", "HLT E_{T} resolution for converted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
     addHistogram(new TH1F("res_et_uncnv", "HLT E_{T} resolution for unconverted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
@@ -809,7 +790,7 @@ void TrigEgammaPlotTool::bookPhotonResolutionHistos(const std::string directory)
     addHistogram(new TH1F("res_uncnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
 
 }
-void TrigEgammaPlotTool::bookPhotonIsoResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookPhotonIsoResolutionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("res_topoetcone20", "resolution topoetcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1));
     addHistogram(new TH1F("res_topoetcone20_rel", "resolution topoetcone20/pt; ptcone20/pt (on-off)/off; Count", 100, -0.1, 0.1));
@@ -839,7 +820,7 @@ void TrigEgammaPlotTool::bookPhotonIsoResolutionHistos(const std::string directo
                 100, -0.5, 0.5));
 }
 
-void TrigEgammaPlotTool::bookExpertResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookExpertResolutionHistos(const std::string &directory){
     cd(directory);    
     
     addHistogram(new TH1F("res_etInEta0", "HLT E_{T} resolution in #eta = [0,1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
@@ -940,7 +921,7 @@ void TrigEgammaPlotTool::bookExpertResolutionHistos(const std::string directory)
     }
 }
 
-void TrigEgammaPlotTool::bookExpertL2CaloResolutionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookExpertL2CaloResolutionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH2F("res_f3VsEta", "L2Calo f3 resolution as function of #eta; #eta; (f3(on)-f3(off))/f3(off); Count",
                 50, -2.47, 2.47,
@@ -1004,14 +985,14 @@ void TrigEgammaPlotTool::bookExpertL2CaloResolutionHistos(const std::string dire
                 50, -0.001, 0.001));
 }
 
-void TrigEgammaPlotTool::bookDistributionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookDistributionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.));
     addHistogram(new TH1F("eta", "eta; eta ; Count", m_nEtabins,m_etabins.data())); 
     addHistogram(new TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2));
 }
 
-void TrigEgammaPlotTool::bookEgammaDistributionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookEgammaDistributionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
     //addHistogram(new TH1F("e011", "e011; e011 ; Count", 165, -15., 150.));
@@ -1036,7 +1017,7 @@ void TrigEgammaPlotTool::bookEgammaDistributionHistos(const std::string director
     addHistogram(new TH1F("topoetcone40_shift_rel", "(topoetcone40-2.45 GeV)/pt; (topoetcone40-2.45 GeV)/pt ; Count", 100, -0.5, 0.5));
 }
 
-void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string directory){
+void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string &directory){
     cd(directory);
     addHistogram(new TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.)); 
     addHistogram(new TH1F("deta1", "deta1; deta1 ; Count", 40, -0.01, 0.01));
@@ -1066,7 +1047,7 @@ void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string direct
 
 }
 
-void TrigEgammaPlotTool::bookEfficiency2DHistos(const std::string directory){
+void TrigEgammaPlotTool::bookEfficiency2DHistos(const std::string &directory){
     cd(directory);
     
     addHistogram(new TH2F("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
@@ -1087,7 +1068,7 @@ void TrigEgammaPlotTool::bookEfficiency2DHistos(const std::string directory){
 
 }
 
-void TrigEgammaPlotTool::bookEfficiencyTProfile(const std::string directory){
+void TrigEgammaPlotTool::bookEfficiencyTProfile(const std::string &directory){
     cd(directory);
     addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; Efficiency",m_nEtbins,m_etbins.data())); 
     addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", m_nEtbins,m_etbins.data())); 
@@ -1100,7 +1081,7 @@ void TrigEgammaPlotTool::bookEfficiencyTProfile(const std::string directory){
       addHistogram(new TProfile("eff_npvtx", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80));
 }
 
-void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string directory){ 
+void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string &directory){ 
     cd(directory);
     bookEfficiencyTProfile(directory);
     // Numerator
@@ -1184,31 +1165,6 @@ void TrigEgammaPlotTool::bookL1Histos(TrigInfo trigInfo){
 
 }
 
-void TrigEgammaPlotTool::bookRnnDistributionHistos(const std::string dir)
-{
-    cd(dir);
-    //addHistogram(new TH2F("RingerShapes","RingerShapes;E_{t};#rings;Count",21000,-1000,20000,100,0,100));
-    addHistogram(new TH1F("discriminant","discriminant(integrated);discriminant(ringer);Count",95,-12,7));
-    addHistogram(new TH2F("discriminantVsMu","discriminantVsMu(integrated);discriminant(ringer);avgmu;Count",95,-12,7,16,0,70));
-    addDirectory(dir+"/discriminant_binned");
-    for(unsigned etBinIdx=0; etBinIdx<m_ringerEtbins.size()-1; ++etBinIdx){
-      for(unsigned etaBinIdx=0; etaBinIdx<m_ringerEtabins.size()-1; ++etaBinIdx){
-        std::stringstream ss1,ss2,ss3,ss4;
-        ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
-        ss2       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
-          " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
-          ";discriminant(ringer);Count";
-        
-        addHistogram(new TH1F(ss1.str().c_str(),ss2.str().c_str(),95,-12.,7.));
-        ss3 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
-        ss4       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
-          " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
-          ";discriminant(ringer);Avgmu;Count";
-        addHistogram(new TH2F(ss3.str().c_str(),ss4.str().c_str(),95,-12.,7.,16,0.,70.));
-      }
-    }
-
-}
 
 void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     
@@ -1362,7 +1318,6 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     dirname=basePath + "/Distributions/L2Calo";
     dirnames.push_back(dirname);
     addDirectory(dirname);
-    bookRnnDistributionHistos(dirname);
 
     //Book the kinematic plots for each trigger level
     for(const auto dir:dirnames) 

@@ -73,8 +73,6 @@ class TrigEgammaPlotTool
           int m_ncoarseEtabins; //2D
           std::vector<float>  m_etbins;
           std::vector<float>  m_etabins;
-          std::vector<float>  m_ringerEtbins;
-          std::vector<float>  m_ringerEtabins;
           std::vector<double> m_defaultEtbins;
           std::vector<double> m_defaultEtabins;
           std::vector<double> m_coarseEtbins;
@@ -117,22 +115,20 @@ class TrigEgammaPlotTool
           void bookL1Histos(TrigInfo);
           void bookShifterHistos();
           //void bookAnalysisHistos(const std::string dir);
-          void bookEfficiencyTProfile(const std::string dir);
-          void bookEfficiencyHistos(const std::string dir);
-          void bookEfficiency2DHistos(const std::string dir);
-          void bookEgammaDistributionHistos(const std::string dir);
-          void bookElectronDistributionHistos(const std::string dir);
-          void bookDistributionHistos(const std::string dir);
-          void bookResolutionHistos(const std::string dir);
-          void bookElectronResolutionHistos(const std::string dir);
-          void bookElectronIsoResolutionHistos(const std::string dir);
-          void bookPhotonResolutionHistos(const std::string dir);
-          void bookPhotonIsoResolutionHistos(const std::string dir);
-          void bookExpertResolutionHistos(const std::string dir);
-          void bookExpertL2CaloResolutionHistos(const std::string dir);
-          void bookAbsResolutionHistos(const std::string dir);
-          void bookRnnDistributionHistos(const std::string dir);
-          void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
+          void bookEfficiencyTProfile(const std::string &dir);
+          void bookEfficiencyHistos(const std::string &dir);
+          void bookEfficiency2DHistos(const std::string &dir);
+          void bookEgammaDistributionHistos(const std::string &dir);
+          void bookElectronDistributionHistos(const std::string &dir);
+          void bookDistributionHistos(const std::string &dir);
+          void bookResolutionHistos(const std::string &dir);
+          void bookElectronResolutionHistos(const std::string &dir);
+          void bookElectronIsoResolutionHistos(const std::string &dir);
+          void bookPhotonResolutionHistos(const std::string &dir);
+          void bookPhotonIsoResolutionHistos(const std::string &dir);
+          void bookExpertResolutionHistos(const std::string &dir);
+          void bookExpertL2CaloResolutionHistos(const std::string &dir);
+          void bookAbsResolutionHistos(const std::string &dir);
   };
 #endif
 

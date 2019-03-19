@@ -390,8 +390,7 @@ void TrigEgammaPhysValBase::linkElectronBranches( TTree *t ){
     InitBranch( t, "el_trk_d0significance"            , &m_el_trk_d0significance            );
     InitBranch( t, "el_trk_summaryValues"             , &m_el_trk_summaryValues         );
  
-
-  
+ 
   }
   
   InitBranch( t, "el_nGoodVtx",              &m_el_nGoodVtx);
@@ -412,7 +411,6 @@ void TrigEgammaPhysValBase::linkElectronBranches( TTree *t ){
 
 void TrigEgammaPhysValBase::linkTriggerBranches( TTree *t ){
 
-  //InitBranch(t, "trig_isPrescaled",        &m_trig_isPrescaled);
   InitBranch(t, "trig_L1_eta",             &m_trig_L1_eta);
   InitBranch(t, "trig_L1_phi",             &m_trig_L1_phi);
   InitBranch(t, "trig_L1_emClus",          &m_trig_L1_emClus);
@@ -420,7 +418,6 @@ void TrigEgammaPhysValBase::linkTriggerBranches( TTree *t ){
   InitBranch(t, "trig_L1_emIsol",          &m_trig_L1_emIsol);
   InitBranch(t, "trig_L1_hadIsol",         &m_trig_L1_hadIsol);
   InitBranch(t, "trig_L1_hadCore",         &m_trig_L1_hadCore);
-  //InitBranch(t, "trig_L1_thrNames",        &m_trig_L1_thrNames);
   InitBranch(t, "trig_L2_calo_et",         &m_trig_L2_calo_et);
   InitBranch(t, "trig_L2_calo_eta",        &m_trig_L2_calo_eta);
   InitBranch(t, "trig_L2_calo_phi",        &m_trig_L2_calo_phi);
@@ -778,46 +775,6 @@ void TrigEgammaPhysValBase::clear(){
   m_mc_isElectron         = false;
   m_mc_hasZMother         = false;
   m_mc_hasWMother         = false;
-
-  /*
-  m_el_nblayerhits        =  0;
-  m_el_nblayerolhits      =  0;
-  m_el_npixhits           =  0;
-  m_el_npixolhits         =  0;
-  m_el_nscthits           =  0;
-  m_el_nsctolhits         =  0;
-  m_el_ntrthightreshits   =  0;
-  m_el_ntrthits           =  0;
-  m_el_ntrthighthresolhits=  0;
-  m_el_ntrtolhits         =  0;
-  m_el_ntrtxenonhits      =  0;
-  m_el_expectblayerhit    =  0;
-  m_el_nsihits            =  0;
-  m_el_nsideadsensors     =  0;
-  m_el_npixdeadsensors    =  0;
-  m_el_nsctdeadsensors    =  0;
-  */
-
-
-  /*  
-  m_trig_EF_el_nblayerhits                   ->clear();  
-  m_trig_EF_el_nblayerolhits                 ->clear(); 
-  m_trig_EF_el_npixhits                      ->clear();  
-  m_trig_EF_el_npixolhits                    ->clear();  
-  m_trig_EF_el_nscthits                      ->clear();  
-  m_trig_EF_el_nsctolhits                    ->clear();  
-  m_trig_EF_el_ntrthightreshits              ->clear();  
-  m_trig_EF_el_ntrthits                      ->clear();  
-  m_trig_EF_el_ntrthighthresolhits           ->clear();   
-  m_trig_EF_el_ntrtolhits                    ->clear();   
-  m_trig_EF_el_ntrtxenonhits                 ->clear(); 
-  m_trig_EF_el_expectblayerhit               ->clear(); 
-  m_trig_EF_el_npixdeadsensors               ->clear(); 
-  m_trig_EF_el_nsctdeadsensors               ->clear(); 
-  m_trig_EF_el_expectNextToInnerMostLayer    ->clear(); 
-  m_trig_EF_el_nNextToInnerMostLayerHits     ->clear(); 
-  m_trig_EF_el_nNextToInnerMostLayerOutliers ->clear(); 
-  */
 
 
 }
