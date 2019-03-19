@@ -20,29 +20,14 @@
 #include "RegionSelector/IRegionLUT_Creator.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
-
-
 //local includes
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
-
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
-class sTgcIdHelper;
-class sTgcDigit;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
@@ -76,64 +61,59 @@ namespace NSWL1 {
 
     
   private:
-    // methods implementing the internal data processing
+        // methods implementing the internal data processing
 
-    StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior                                                                                           
-    void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple                                                                                              
-    void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple                                                                                              
-    //    void fill_strip_validation_id(std::vector< std::vector<StripData*>* >& clusters);                        //!< fill the ntuple branch for the StripTdsOffline   
-    
+        StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior                                                                                           
+        void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple                                                                                              
+        void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple                                                                                              
+        
+        // needed Services, Tools and Helpers
+        ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
 
-    // needed Servives, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
-    const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-    const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
+        // analysis ntuple
+        TTree* m_tree;                                          //!< ntuple for analysis
+        BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
+        StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
+        // analysis variable to be put into the ntuple
+        int m_seg_n;                                            //!< number of Segments found
+        std::vector<int> *m_seg_wedge1_size;                        //!< theta
+        std::vector<int> *m_seg_wedge2_size;                        //!< theta
+        std::vector<float> *m_seg_theta;                        //!< theta
+        std::vector<float> *m_seg_dtheta;                      //!< delta theta
+        std::vector<uint8_t> *m_seg_dtheta_int; 
+        std::vector<float> *m_seg_eta;                          //!< m_seg_eta
+        std::vector<float> *m_seg_eta_inf;  
+        std::vector<float> *m_seg_phi;
+        std::vector<int> *m_seg_bandId;
+        std::vector<int> *m_seg_secId;
+        std::vector<int> *m_seg_bcId;
+        std::vector<int> *m_seg_phiId;
+        std::vector<int> *m_seg_rIdx;
+        std::vector<float> *m_seg_global_r;
+        std::vector<float> *m_seg_global_x;
+        std::vector<float> *m_seg_global_y;
+        std::vector<float> *m_seg_global_z;
+        std::vector<float> *m_seg_dir_r;
+        std::vector<float> *m_seg_dir_y;
+        std::vector<float> *m_seg_dir_z; 
 
-    // analysis ntuple
-    TTree* m_tree;                                          //!< ntuple for analysis
-    BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
-    StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
-    // analysis variable to be put into the ntuple
-    int m_seg_n;                                            //!< number of Segments found
-    std::vector<int> *m_seg_wedge1_size;                        //!< theta
-    std::vector<int> *m_seg_wedge2_size;                        //!< theta
-    std::vector<float> *m_seg_theta;                        //!< theta
-    std::vector<float> *m_seg_dtheta;                      //!< delta theta
-    std::vector<uint8_t> *m_seg_dtheta_int; 
-    std::vector<float> *m_seg_eta;                          //!< m_seg_eta
-    std::vector<float> *m_seg_eta_inf;  
-    std::vector<float> *m_seg_phi;
-    std::vector<int> *m_seg_bandId;
-    std::vector<int> *m_seg_secId;
-    std::vector<int> *m_seg_bcId;
-    std::vector<int> *m_seg_phiId;
-    std::vector<int> *m_seg_rIdx;
-    std::vector<float> *m_seg_global_r;
-    std::vector<float> *m_seg_global_x;
-    std::vector<float> *m_seg_global_y;
-    std::vector<float> *m_seg_global_z;
-    std::vector<float> *m_seg_dir_r;
-    std::vector<float> *m_seg_dir_y;
-    std::vector<float> *m_seg_dir_z; 
-    
+        int m_rIndexBits;
+        int m_dThetaBits;
+        StatusCode FetchDetectorEnvelope();
+        std::pair<float,float> m_zbounds;
+        std::pair<float,float> m_etabounds;
+        std::pair<float,float> m_rbounds;
+        uint8_t findRIdx(const float&);
+        uint8_t findDtheta(const float&);
+        int m_ridxScheme;
+        float m_dtheta_min;
+        float m_dtheta_max;          
+        
     protected:
         SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
         ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
-    private:
             
-            int m_rIndexBits;
-            int m_dThetaBits;
-            StatusCode FetchDetectorEnvelope();
-            std::pair<float,float> m_zbounds;
-            std::pair<float,float> m_etabounds;
-            std::pair<float,float> m_rbounds;
-            uint8_t findRIdx(const float&);
-            uint8_t findDtheta(const float&);
-            int m_ridxScheme;
-            float m_dtheta_min;
-            float m_dtheta_max;           
+         
      
     
   };  // end of StripSegmentTool class

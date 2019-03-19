@@ -47,10 +47,6 @@ namespace NSWL1 {
     StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(0),
-      m_detManager(0),
-      m_sTgcIdHelper(0),
       m_tree(0),
       m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),//name can be made configurable through JO just in case storegate config. changes in the future
       m_rIndexBits(0),
@@ -127,38 +123,9 @@ namespace NSWL1 {
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-      // retrieve the Random Service
-      if( m_rndmSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Random Number Service successfully retrieved");
-      }
-
-      //  retrieve the MuonDetectormanager
-      if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-      }
-
-      //  retrieve the sTGC offline Id helper
-      if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-        ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-      }
       
       ATH_CHECK( m_trigRdoContainer.initialize() );
       
-      /*
-      if(m_regionHandle.retrieve().isFailure()){
-            ATH_MSG_FATAL("Error retrieving sTGC_RegionSelectorTable");
-            return StatusCode::FAILURE;
-      }      
-*/    
       ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
 
       ATH_CHECK( FetchDetectorEnvelope());
@@ -172,7 +139,9 @@ namespace NSWL1 {
     }
     
     StatusCode StripSegmentTool::FetchDetectorEnvelope(){//S.I : Sufficient to call this only once. probably inside init()
-        const auto  p_IdHelper =m_detManager->stgcIdHelper();
+        const MuonGM::MuonDetectorManager* p_det;
+        ATH_CHECK(detStore()->retrieve(p_det));
+        const auto  p_IdHelper =p_det->stgcIdHelper();
         const auto ModuleContext = p_IdHelper->module_context();
         auto regSelector = m_lutCreatorToolsTGC->getLUT();
         float rmin=-1.;
