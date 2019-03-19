@@ -21,12 +21,7 @@
 #include "G4BaryonConstructor.hh"
 #include "G4ProcessManager.hh"
 
-//#include "Pythia8_i/Pythia8_i.h"
-//#include "Pythia8/UserHooks.h"
-//#include "Pythia8/RHadrons.h"
 // STL headers
-//#include <iostream>
-//#include <fstream>
 #include <string>
 
 
