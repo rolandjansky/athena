@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SUSYToolsAlg.h
@@ -54,6 +54,8 @@ class SUSYToolsAlg : public EL::AnaAlgorithm {
     bool m_usePRWAutoconfig;
     std::vector<std::string> m_PRWConfigs;
     std::vector<std::string> m_PRWLumiCalcFiles;
+    std::string m_mcCampaign;
+    int m_mcChannel;
 
     bool m_doSyst;
     std::vector<ST::SystInfo> sysInfoList;
