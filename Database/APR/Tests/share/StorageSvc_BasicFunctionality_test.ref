@@ -1,15 +1,32 @@
 [OVAL] Creating the test driver.
 [OVAL] Loading the shared libraries.
 Loading library test_TestDictionaryDict
+[OVAL] Testing StorageSvc functionality for ROOT_Tree storage technology
 [OVAL] Testing the writing operations
 createStorageSvc
 startSession
 Session connect
-RootDatabase.open Success pool_test.root File version:60602
-startTransaction
+RootDatabase.close  ERROR Failed to modify file: pool_test.root Errno=2 No such file or directory
 [OVAL] ...done
 [OVAL] Testing the reading operations
-RootDatabase.open Success pool_test.root File version:60602
+Closing the session
+[OVAL] ...done
+[OVAL] Testing StorageSvc functionality for ROOT_Key storage technology
+[OVAL] Testing the writing operations
+createStorageSvc
+startSession
+Session connect
+[OVAL] ...done
+[OVAL] Testing the reading operations
+Closing the session
+[OVAL] ...done
+[OVAL] Testing StorageSvc functionality for ROOT_TreeIndex storage technology
+[OVAL] Testing the writing operations
+createStorageSvc
+startSession
+Session connect
+[OVAL] ...done
+[OVAL] Testing the reading operations
 Closing the session
 [OVAL] ...done
 [OVAL] Number of floating tokens : 0
