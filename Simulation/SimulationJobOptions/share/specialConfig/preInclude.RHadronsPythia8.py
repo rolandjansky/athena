@@ -70,7 +70,6 @@ try:
         runNumber = f.infos['tag_info']['mc_channel_number']
     if runNumber<=0:
         runNumber = f.infos['run_number'][0]
-    print 'ZLM:',f.infos
     # This is also used for digitization, so protect in case we're there
     if "StreamHITS" in f.infos["stream_names"]:
         from Digitization.DigitizationFlags import digitizationFlags
@@ -85,7 +84,7 @@ except:
 
 # Add the appropriate physics tool
 from G4AtlasApps.SimFlags import simFlags
-simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
+simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 
 
 # From the run number, load up the configuration.  Not the most beautiful thing, but this works.

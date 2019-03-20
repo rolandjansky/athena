@@ -468,7 +468,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   return theReactionProductList[i];
 }
 
-G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const {
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
   //G4cout<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
@@ -488,18 +488,18 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,c
   return sqrts - M_after;
 }
 
-G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   if (ReactionProductMass(aReaction,aDynamicParticle)>0) return true;
   return false;
 }
 
-G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction){
+G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) const{
   for (ReactionProduct::const_iterator it = aReaction.begin();it!=aReaction.end();it++)
     if(CustomPDGParser::s_isSbaryon(*it)||CustomPDGParser::s_isRBaryon(*it)) return true;
   return false;
 }
 
-G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   G4double qValue = ReactionProductMass(aReaction,aDynamicParticle);
   // Eq 4 of https://arxiv.org/pdf/hep-ex/0404001.pdf
   G4double phi = sqrt(1+qValue/(2*0.139*CLHEP::GeV))*pow(qValue/(1.1*CLHEP::GeV),3./2.);
@@ -508,7 +508,7 @@ G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4Dy
 
 void G4ProcessHelper::ReadAndParse(const G4String& str,
                                    std::vector<G4String>& tokens,
-                                   const G4String& delimiters)
+                                   const G4String& delimiters) const
 {
   // Skip delimiters at beginning.
   G4String::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -536,7 +536,7 @@ void G4ProcessHelper::ReadAndParse(const G4String& str,
     }
 }
 
-double G4ProcessHelper::Regge(const double boost)
+double G4ProcessHelper::Regge(const double boost) const
 {
   // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 1
   // Originally from https://arxiv.org/pdf/0710.3930.pdf
@@ -547,7 +547,7 @@ double G4ProcessHelper::Regge(const double boost)
 }
 
 
-double G4ProcessHelper::Pom(const double boost)
+double G4ProcessHelper::Pom(const double boost) const
 {
   // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 2
   // Originally from https://arxiv.org/pdf/0710.3930.pdf

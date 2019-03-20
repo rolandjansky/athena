@@ -38,8 +38,6 @@ RHadronsPhysicsTool::RHadronsPhysicsTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
   : base_class ( type, nam , parent )
 {
-  ATH_MSG_VERBOSE ( "RHadronsPhysicsTool "<<type<<" "<<nam );
-  declareInterface< IPhysicsOptionTool >( this ) ;
 }
 
 //=============================================================================
