@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_METSigParam
@@ -16,7 +16,7 @@ namespace TrigConf {
                    int XEmin, int XEmax,
                    int TESqrtMin, int TESqrtMax );
       METSigParam();
-      virtual ~METSigParam();
+      virtual ~METSigParam() = default;
 
       // setters and accessors
       void setValues( int XSSigmaScale, int XSSigmaOffset,

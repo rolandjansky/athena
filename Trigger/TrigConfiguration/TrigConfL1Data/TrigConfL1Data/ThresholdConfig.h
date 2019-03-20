@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_ThresholdConfig
@@ -21,7 +21,7 @@ namespace TrigConf {
       typedef std::map< L1DataDef::TriggerType, thrVec_t> thrVecMap_t;
 
       ThresholdConfig();
-      ~ThresholdConfig();
+      ~ThresholdConfig() = default;
       
       std::vector<TriggerThreshold*>& thresholdVector(L1DataDef::TriggerType);
       const std::vector<TriggerThreshold*>& getThresholdVector(L1DataDef::TriggerType) const;

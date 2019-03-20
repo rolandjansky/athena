@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPVLL_TESTRATES_H
@@ -15,6 +15,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -39,6 +41,7 @@ class RPVLLTestRates : public AthAlgorithm  {
 
    int m_EventCounter;
    ServiceHandle<ITHistSvc> m_tHistSvc;
+   SG::ReadHandleKey<xAOD::EventInfo> m_evt{this, "EvtInfo", "EventInfo", "EventInfo name"};
 
    std::vector<std::string> m_DecisionLabel;
    std::vector<int>         m_EventNumber;
@@ -51,6 +54,8 @@ class RPVLLTestRates : public AthAlgorithm  {
    int m_lumiBlock;
    int m_evtNum;
    std::vector<int>         m_filterPassed;   
+
+   SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 #endif 

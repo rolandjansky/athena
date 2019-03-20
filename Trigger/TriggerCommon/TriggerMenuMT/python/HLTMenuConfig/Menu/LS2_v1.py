@@ -8,7 +8,7 @@ def setupMenu():
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
 
-    from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1 as tcl1
+    #from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1 as tcl1
     #if tcl1.current:
     #    log.info("L1 items: %s " % tcl1.current.menu.items.itemNames())
     #else:

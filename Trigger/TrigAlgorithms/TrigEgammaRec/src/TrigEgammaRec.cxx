@@ -996,7 +996,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
                 const xAOD::CaloCluster *clus = egRec->caloCluster(i);
                 // Also check the original (non-calibrated cluster)
-                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+                static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
                 if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
                     ATH_MSG_DEBUG("Problem with original cluster link");
                 }
@@ -1076,7 +1076,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             std::vector< ElementLink< xAOD::CaloClusterContainer > > ph_clusterLinks;
             for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
                 const xAOD::CaloCluster *clus = egRec->caloCluster(i);
-                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+                static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
                 if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
                     ATH_MSG_DEBUG("Problem with original cluster link");
                 }

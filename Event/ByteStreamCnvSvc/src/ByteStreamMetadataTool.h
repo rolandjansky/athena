@@ -37,7 +37,7 @@ public:
    StatusCode finalize() override;
    /// Virtual method to update a container with information from another one
    virtual StatusCode updateContainer(ByteStreamMetadataContainer* bsmdc_out,
-                                const ByteStreamMetadataContainer* bsmdc_in );
+                                const ByteStreamMetadataContainer* bsmdc_in ) override;
 };
 
 #endif

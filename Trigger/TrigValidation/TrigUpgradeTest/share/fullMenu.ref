@@ -34,6 +34,7 @@ TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_g5_etcut ID#140
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut1step ID#1509456583
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j45 ID#3664574289
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e7_etcut ID#2430733989

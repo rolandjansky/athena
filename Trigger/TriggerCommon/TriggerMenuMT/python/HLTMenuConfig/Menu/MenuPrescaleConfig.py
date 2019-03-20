@@ -13,9 +13,12 @@ def MenuPrescaleConfig(triggerConfigHLT):
     
     menu_name = TriggerFlags.triggerMenuSetup()
     ## Do some aliasing here
-    if menu_name == 'Physics_default': menu_name = 'LS2_v1'
-    elif menu_name == 'MC_loose_default': menu_name = 'LS2_v1'
-    elif menu_name == 'MC_tight_default': menu_name = 'LS2_v1'
+    if menu_name == 'Physics_default': 
+        menu_name = 'LS2_v1'
+    elif menu_name == 'MC_loose_default': 
+        menu_name = 'LS2_v1'
+    elif menu_name == 'MC_tight_default': 
+        menu_name = 'LS2_v1'
 
     log.info( 'Menu name: '+ menu_name)
 

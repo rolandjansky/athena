@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,19 +18,20 @@
 #include "calocell_id_test_common.cxx"
 
 
-std::unique_ptr<CaloCell_SuperCell_ID> make_calo_id ()
+std::unique_ptr<CaloCell_SuperCell_ID> make_calo_id (IdDictParser& parser)
 {
   return make_calo_id_t<CaloCell_SuperCell_ID,
                         LArEM_SuperCell_ID,
                         LArHEC_SuperCell_ID,
                         LArFCAL_SuperCell_ID,
-                        Tile_SuperCell_ID> ();
+                        Tile_SuperCell_ID> (parser);
 }
 
 
 int main()
 {
-  std::unique_ptr<CaloCell_SuperCell_ID> calo_id = make_calo_id();
+  std::unique_ptr<IdDictParser> parser = make_parser();
+  std::unique_ptr<CaloCell_SuperCell_ID> calo_id = make_calo_id(*parser);
   try {
     test_cells (*calo_id, true);
     test_sample (*calo_id, true);

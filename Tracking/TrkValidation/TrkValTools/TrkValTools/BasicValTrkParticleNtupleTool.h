@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Trk_BasicValTrkParticleNtupleTool_h
@@ -9,6 +9,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkValInterfaces/IValidationNtupleTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <vector>
 
 class TTree;
@@ -163,6 +165,8 @@ private:
     mutable unsigned long    m_idHitPattern;                  //!< bit word carrying information about hit layers
      
     static const float  s_errorEntry;        //!< error entry costant
+
+    SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
 };
 
 

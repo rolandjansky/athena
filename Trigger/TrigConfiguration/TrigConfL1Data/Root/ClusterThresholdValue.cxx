@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/ClusterThresholdValue.h"
@@ -18,10 +18,6 @@ TrigConf::ClusterThresholdValue::ClusterThresholdValue() :
    m_HadIsolationMask(0),
    m_useIsolationMask(false)
 {}
-
-TrigConf::ClusterThresholdValue::~ClusterThresholdValue()
-{}  
-
 
 TrigConf::TriggerThresholdValue*
 TrigConf::ClusterThresholdValue::createCopy() const {

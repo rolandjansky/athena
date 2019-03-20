@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloID_Exception.h"
@@ -12,11 +12,11 @@ CaloID_Exception::CaloID_Exception() :
 m_message("No error message") , m_code( 999 ) 
 {  }
 
-CaloID_Exception::CaloID_Exception(std::string  lMessage , int lCode) : 
+CaloID_Exception::CaloID_Exception(const std::string&  lMessage , int lCode) : 
 m_message ( lMessage ) , m_code ( lCode ) 
 { }
 
-void CaloID_Exception::message(std::string lMessage) 
+void CaloID_Exception::message(const std::string& lMessage) 
 { m_message = lMessage ;}
 
 std::string CaloID_Exception::message() const 

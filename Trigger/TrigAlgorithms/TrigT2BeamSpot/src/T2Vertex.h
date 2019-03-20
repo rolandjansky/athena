@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
  *
- * @version: $Id: T2Vertex.h 702277 2015-10-22 10:33:51Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -192,12 +191,12 @@ namespace PESA
 
   private:
     // Data members
-    mutable double   m_SumPt   ;
-    mutable double   m_SumPt2  ;
+    double   m_SumPt   ;
+    double   m_SumPt2  ;
     double   m_Mass    ;
     double   m_NDF     ;
     double   m_Qual    ;
-    mutable double   m_Chi2Prob;
+    mutable std::atomic<double>   m_Chi2Prob;
     double   m_XZoom   ;
     double   m_YZoom   ;
     double   m_ZZoom   ;

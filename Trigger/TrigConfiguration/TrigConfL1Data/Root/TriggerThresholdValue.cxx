@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/TriggerThresholdValue.h"
@@ -68,9 +68,6 @@ TrigConf::TriggerThresholdValue::TriggerThresholdValue( )
    , m_PhiMax(64)
    , m_EtaMin(-49)
    , m_EtaMax(49)
-{}
-
-TrigConf::TriggerThresholdValue::~TriggerThresholdValue()
 {}
 
 int

@@ -7,8 +7,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 
 

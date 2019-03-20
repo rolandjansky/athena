@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -9,11 +9,8 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-//Gaudi
-// #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
-// #include "GaudiKernel/PropertyMgr.h"
 
 // Trk
 #include "TrkValTools/JetTruthNtupleTool.h"
@@ -21,9 +18,6 @@
 #include "TrkValEvent/GenParticleJet.h"
 // Truth
 #include "TrkTruthData/TrackTruth.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "HepMC/GenParticle.h"
 
@@ -61,6 +55,8 @@ Trk::JetTruthNtupleTool::~JetTruthNtupleTool() {}
 
 // initialize
 StatusCode Trk::JetTruthNtupleTool::initialize() {
+
+  ATH_CHECK( m_evt.initialize() );
 
     // ---------------------------
     // retrieve pointer to THistSvc
@@ -125,22 +121,17 @@ StatusCode Trk::JetTruthNtupleTool::writeJetTruthData (
                 const int& nTruthRecordsAtCurrentEvent
                 //                const std::vector<unsigned int>& /*particleToJetIndex*/ 
                 ) const {
-
-  StatusCode sc;
-
   ATH_MSG_VERBOSE ( "in writeJetTruthData(...)" );
 
   // ---------------------------------------
   // fill event data
-  const EventInfo* eventInfo = nullptr;
-  sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  if (!evt.isValid()) {
     ATH_MSG_WARNING ( "Could not retrieve event info" );
+    return StatusCode::FAILURE;
   }
-  const EventID* myEventID=eventInfo->event_ID();
-
-  m_runNumber=myEventID->run_number();
-  m_eventNumber=myEventID->event_number();
+  m_runNumber=evt->runNumber();
+  m_eventNumber=evt->eventNumber();
 
   for (std::vector<Trk::GenParticleJet>::const_iterator itJet = jets.begin();
        itJet < jets.end(); ++itJet ) {

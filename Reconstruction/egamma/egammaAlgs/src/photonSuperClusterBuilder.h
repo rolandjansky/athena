@@ -32,19 +32,19 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
 
   /** Return extra clusters that can be added to make supercluster */
   std::vector<std::size_t> 
-    SearchForSecondaryClusters(std::size_t photonInd,
+    searchForSecondaryClusters(std::size_t photonInd,
 			       const EgammaRecContainer *egammaRecs,
 			       std::vector<bool>& isUsed,
 			       int& nWindowClusters,
 			       int& nExtraClusters) const;
 
   /** Does the cluster share conversion vertex? */
-  bool MatchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
+  bool matchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
 		  const std::vector<xAOD::EgammaParameters::ConversionType>& seedVertexType,
 		  const egammaRec *egRec) const;
 
   /** Does the cluster match a conversion vertex track with the seed? */
-  bool MatchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
+  bool matchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
 		  const egammaRec *egRec) const;
 
   /////////////////////////////////////////////////////////////////////

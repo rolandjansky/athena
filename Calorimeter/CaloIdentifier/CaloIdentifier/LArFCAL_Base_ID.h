@@ -176,19 +176,19 @@ private:
   int         initLevelsFromDict(const std::string& group_name) ;
   int         init_hashes(void) ;
 
-  int         init_neighbours_from_file(std::string filename, std::vector<std::set<IdentifierHash> > &vec);
+  int         init_neighbours_from_file(const std::string& filename, std::vector<std::set<IdentifierHash> > &vec);
 
-  int         init_neighbours_2d(std::string filename)
+  int         init_neighbours_2d(const std::string& filename)
     { 
       return init_neighbours_from_file(filename, m_neighbours_2d_vec);
     }
 
-  int         init_neighbours_3d_next(std::string filename)
+  int         init_neighbours_3d_next(const std::string& filename)
     { 
       return init_neighbours_from_file(filename, m_neighbours_3d_next_vec);
     }
 
-  int         init_neighbours_3d_prev(std::string filename)
+  int         init_neighbours_3d_prev(const std::string& filename)
     { 
       return init_neighbours_from_file(filename, m_neighbours_3d_prev_vec);
     }

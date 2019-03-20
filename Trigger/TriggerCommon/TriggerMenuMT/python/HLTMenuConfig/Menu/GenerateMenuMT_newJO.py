@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains, \
-    generateDecisionTreeOld
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
+from AthenaCommon.Constants import VERBOSE
 _log = logging.getLogger('GenerateMenuMT_newJO')
 _log.setLevel( VERBOSE )
 
@@ -41,10 +41,13 @@ def generateMenu( flags ):
     menuChains = []
     allChainDicts =[]
 
-    chainAccumulators = []
+    menuAcc = ComponentAccumulator()
+    mainSequenceName = 'HLTAllSteps'
+    menuAcc.addSequence( seqAND(mainSequenceName) )
+
 
     for name, cfgFlag in list(flags._flagdict.iteritems()):
-        if not 'Trigger.menu.' in name:
+        if 'Trigger.menu.' not in name:
             continue
         value = flags._get(name)
         if len(value) == 0:

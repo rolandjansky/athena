@@ -32,7 +32,7 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
 # Unit Tests
 atlas_add_test( PixelOverlay_test
-                SOURCES src/PixelOverlay.cxx test/PixelOverlay_test.cxx
+                SOURCES test/PixelOverlay_test.cxx src/PixelOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES}
                 EXTRA_PATTERNS "[0-9]+ ms")

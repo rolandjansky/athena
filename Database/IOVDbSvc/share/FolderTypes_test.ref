@@ -1,0 +1,19 @@
+Running 2 test cases...
+
+
+Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.OutputLevel = 5
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO # (3,1): IOVDbSvc.Folders = ["/key1"]
+JobOptionsSvc        INFO # (4,1): EventPersistencySvc.CnvServices += ["AthenaPoolCnvSvc"]
+JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 5
+JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/dvtest/build/joboptions/IOVDbSvc/IOVDbSvc_BoostTest.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Mar  3 18:21:01 2019
+====================================================================================================================================
+ApplicationMgr Ready
+
+*** No errors detected

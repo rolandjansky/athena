@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_PrioritySet
@@ -18,7 +18,7 @@ namespace TrigConf {
       static const unsigned int N_PRIORITIES = 256;
 
       PrioritySet();
-      ~PrioritySet();
+      ~PrioritySet() = default;
 
       // Accessors
       const std::vector<std::string>& priorities() const { return m_Priorities; }
