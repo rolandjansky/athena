@@ -58,9 +58,11 @@ namespace Trk {
     
     /* Copy constructor */
     VxSecVertexInfo(const VxSecVertexInfo &);
-    
+    VxSecVertexInfo(VxSecVertexInfo &&) noexcept = default;
+
     /* Assignment operator */
     VxSecVertexInfo& operator= (const VxSecVertexInfo &);
+    VxSecVertexInfo& operator= (VxSecVertexInfo &&) noexcept = default;
 
     /* get the list of Vertices */
     const std::vector<xAOD::Vertex*> & vertices() const;

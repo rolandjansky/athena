@@ -136,7 +136,7 @@ void applyConstraints(VKVertex * vk)
     for(int i=0; i<NTrk; i++) m_usedParticles[i]=i;
     m_originVertex = vk;
   }
-  VKMassConstraint::VKMassConstraint(int NTRK, double mass, std::vector<int> &listTrk, VKVertex *vk) :
+  VKMassConstraint::VKMassConstraint(int NTRK, double mass, const std::vector<int> &listTrk, VKVertex *vk) :
     VKConstraintBase(1,NTRK),
     m_usedParticles(0), m_targetMass(mass)
   {

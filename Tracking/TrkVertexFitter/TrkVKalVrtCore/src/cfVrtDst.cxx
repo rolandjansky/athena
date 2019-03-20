@@ -35,15 +35,14 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
     double Signif;
 
     extern void combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
-    extern std::vector<double> getCnstParticleMom( VKTrack * , VKVertex *);
+    extern std::array<double, 4> getCnstParticleMom( VKTrack * , VKVertex *);
     extern int cfdinv(double *, double *, long int); 
  /* ------------------------------------------------------------------- */
 
     double ptot[3]= {0.,0.,0.};
     int NTRK = vk->TrackList.size();
-    std::vector<double> pp;
     for ( it=0; it<NTRK; it++) {
-        pp=getCnstParticleMom( vk->TrackList[it], vk );
+        std::array<double, 4>  pp=getCnstParticleMom( vk->TrackList[it], vk );
 	ptot[0] += pp[0];
 	ptot[1] += pp[1];
 	ptot[2] += pp[2];

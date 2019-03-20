@@ -35,7 +35,7 @@ void addCascadeEntry( VKVertex * vk)
    vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(vk);
 }
 
-void addCascadeEntry( VKVertex * vk, std::vector<int> index)
+void addCascadeEntry( VKVertex * vk, const std::vector<int> &index)
 { 
    for(int i=0; i<(int)index.size(); i++){
      VKVertex * predecessor =  vk->vk_fitterControl->getCascadeEvent()->cascadeVertexList.at(index[i]);
@@ -64,8 +64,8 @@ void addCascadeEntry( VKVertex * vk, std::vector<int> index)
 //  cascadeDefinition[iv][ipv] - for given vertex IV the list of previous vertices pointing to it.
 // 
 int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
-                   std::vector< std::vector<int> > vertexDefinition,
-                   std::vector< std::vector<int> > cascadeDefinition,
+                   const std::vector< std::vector<int> > &vertexDefinition,
+                   const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4)
 {
     long int  tk;
@@ -90,13 +90,13 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
       VRT->setRefV(xyz);                               //ref point
       VRT->setRefIterV(xyz);                           //iteration ref. point
       VRT->setIniV(xyz); VRT->setCnstV(xyz);           // initial guess. 0 of course.
-      double *arr=new double[vertexDefinition[iv].size()*5];
+      auto arr = std::make_unique<double[]>(vertexDefinition[iv].size()*5);
       int NTv=vertexDefinition[iv].size(); nTrkTot += NTv;
       for (it=0; it<NTv ; it++) {
         tk=vertexDefinition[iv][it];
         if( tk >= NTRK ) {
           std::cout<<" WRONG INPUT!!!"<<'\n';
-          delete[] arr; delete VRT; return -1;
+          delete VRT; return -1;
 	} 
         VRT->TrackList.push_back(new VKTrack(tk, &inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , VRT, wm[tk]));
         VRT->tmpArr.push_back(new TWRK());
@@ -107,7 +107,7 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
         trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=inp_Trk5[tk*5+4];
 	IERR=cfInv5(&inp_CovTrk5[tk*15], tmpWgt);  
 	if (IERR) IERR=cfdinv(&inp_CovTrk5[tk*15], tmpWgt, 5); 
-	if (IERR) { delete[] arr; delete VRT; return  -1; }
+	if (IERR) { delete VRT; return  -1; }
         trk->setCurrent(&inp_Trk5[tk*5],tmpWgt);
         arr[it*5]=inp_Trk5[tk*5];arr[it*5+1]=inp_Trk5[tk*5+1];arr[it*5+2]=inp_Trk5[tk*5+2];
         arr[it*5+3]=inp_Trk5[tk*5+3];arr[it*5+4]=inp_Trk5[tk*5+4];
@@ -123,7 +123,6 @@ int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich,
         aVrt[0]/=(NTv*(NTv-1)/2); aVrt[1]/=(NTv*(NTv-1)/2); aVrt[2]/=(NTv*(NTv-1)/2);
         VRT->setRefIterV(aVrt);                       //iteration ref. point
       }
-      delete[] arr;
       if(iv==0){                           // start cascade creation
          startCascade( VRT );
          continue;
@@ -204,7 +203,7 @@ int initCascadeEngine(CascadeEvent & cascadeEvent_)
 	    VRT->includedVrt[pseu]->FVC.vrt[0] = VRT->refIterV[0] + VRT->fitV[0];
 	    VRT->includedVrt[pseu]->FVC.vrt[1] = VRT->refIterV[1] + VRT->fitV[1];
 	    VRT->includedVrt[pseu]->FVC.vrt[2] = VRT->refIterV[2] + VRT->fitV[2];
-	    cfdcopy(VRT->fitVcov, VRT->includedVrt[pseu]->FVC.covvrt, 6);
+           std::copy(VRT->fitVcov, VRT->fitVcov + 6, VRT->includedVrt[pseu]->FVC.covvrt);
          }
        }
     }

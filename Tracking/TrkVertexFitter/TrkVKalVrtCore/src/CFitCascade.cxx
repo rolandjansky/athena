@@ -30,15 +30,15 @@ extern  int vkMSolve(double *, double*, long int, double* =0);
 
 extern void copyFullMtx(double *Input, long int IPar, long int IDIM,
                  double *Target, long int TStart, long int TDIM);
-extern void addCrossVertexDeriv(CascadeEvent &, double * , long int , std::vector<int> & );
+extern void addCrossVertexDeriv(CascadeEvent &, double * , long int , const std::vector<int> & );
 extern void setFittedParameters(double * , std::vector<int> &, CascadeEvent &);
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
-extern std::vector<double> getFitParticleMom( VKTrack *, double);
+extern std::array<double, 4> getFitParticleMom( VKTrack *, double);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );
-extern std::vector<double> transformCovar(int , double **, std::vector<double> );
+extern std::vector<double> transformCovar(int , double **, const std::vector<double>& );
 extern double cfVrtDstSig( VKVertex * , bool );
 extern void robtest(VKVertex * , long int );
 
@@ -63,7 +63,7 @@ int setVTrackMass(VKVertex * vk)
    NTRK = vk->TrackList.size();                   // Number of tracks at vertex
    totP.Px=0.;totP.Py=0.;totP.Pz=0.;totP.E=0.;
    for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it], vBz );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it], vBz );
        totP.Px += pp[0];     
        totP.Py += pp[1];     
        totP.Pz += pp[2];     
@@ -752,7 +752,7 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
      myMagFld.getMagFld(vk->refIterV[0]+vk->fitV[0], vk->refIterV[1]+vk->fitV[1], vk->refIterV[2]+vk->fitV[2],
                                                       vBx,vBy,vBz,(vk->vk_fitterControl).get());
      for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it], vBz );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it], vBz );
        prtMom.Px=pp[0]; prtMom.Py=pp[1]; prtMom.Pz=pp[2]; prtMom.E=pp[3]; 
        momCollector.push_back( prtMom );
        if(vk->TrackList[it]->Id >= 0) particleChi2.push_back( vk->TrackList[it]->Chi2 ); //Only real tracks

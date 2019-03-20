@@ -39,14 +39,14 @@ namespace Trk{
  
       virtual VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,
-		                   const  std::vector<VertexID> precedingVertices,
+		                   const  std::vector<VertexID> &precedingVertices,
 				   double massConstraint = 0.) = 0;
 
       virtual VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) = 0;
 
       virtual StatusCode  addMassConstraint(VertexID Vertex,
                                          const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
-                                         const std::vector<VertexID> verticesInConstraint, 
+                                         const std::vector<VertexID> &verticesInConstraint, 
 				         double massConstraint ) = 0;
 
    };

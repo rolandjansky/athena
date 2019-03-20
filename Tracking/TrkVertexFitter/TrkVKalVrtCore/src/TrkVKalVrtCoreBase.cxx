@@ -51,7 +51,7 @@ namespace Trk {
      for(int i=0; i<15; i++) {refCovar[i]=Covariance[i];}
      m_originVertex = vk;
   }
-  VKTrack::~VKTrack(){}
+
 
   void VKTrack::setCurrent(double Perigee[], double Weight[])
   {  for(int i=0; i<5;  i++) Perig[i]=Perigee[i];
@@ -208,8 +208,6 @@ namespace Trk {
     return *this;
   }
 
-  TWRK::TWRK(){}
-  TWRK::~TWRK(){}
 
   void VKalVrtControl::setIterationNum(int Iter)
   {

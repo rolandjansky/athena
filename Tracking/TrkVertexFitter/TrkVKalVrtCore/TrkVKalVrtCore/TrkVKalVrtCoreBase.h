@@ -44,8 +44,8 @@ namespace Trk {
    class TWRK       // collection of temporary arrays for 
    {   
     public:
-      TWRK();
-     ~TWRK();
+      TWRK() = default;
+     ~TWRK() = default;//default destructor allows compiler to optimize out method in this case.
 
      public:
        double   tt[3];    // U_i vector (see Billoir...)
@@ -65,7 +65,7 @@ namespace Trk {
    {
     public:
        VKTrack(long int, double[], double[], VKVertex *, double);
-      ~VKTrack();
+      ~VKTrack() = default; //default destructor allows compiler to optimize out method.
 //       VKTrack(const VKTrack & src);  //copy
        friend std::ostream& operator<<( std::ostream& out, const VKTrack& track );
 
