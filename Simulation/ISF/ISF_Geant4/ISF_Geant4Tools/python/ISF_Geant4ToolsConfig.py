@@ -17,20 +17,7 @@ def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
 ## -----------------------------------------------------------------------------
 ### Base Version
 def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionTool", **kwargs):
-    kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvc')
     return CfgMgr.G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
-### Specialized Versions
-def getG4OnlyPhysicsValidationUserActionTool(name="G4OnlyPhysicsValidationUserActionTool", **kwargs):
-    kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvcNoOrdering')
-    return getPhysicsValidationUserActionTool(name, **kwargs)
-
-def getAFII_G4PhysicsValidationUserActionTool(name="AFII_G4PhysicsValidationUserActionTool", **kwargs):
-    kwargs.setdefault('ParticleBroker'     , 'ISF_AFIIParticleBrokerSvc')
-    return getPhysicsValidationUserActionTool(name, **kwargs)
-
-def getQuasiStableG4PhysicsValidationUserActionTool(name="QuasiStableG4PhysicsValidationUserActionTool", **kwargs):
-    kwargs.setdefault('ParticleBroker'     , 'ISF_LongLivedParticleBrokerSvc')
-    return getPhysicsValidationUserActionTool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -106,8 +93,7 @@ def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
     return getG4TransportTool(name, **kwargs)
 
 def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
-    kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
     kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
-    return getG4TransportTool(name, **kwargs)
+    return getFullG4TransportTool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------
