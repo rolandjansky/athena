@@ -111,8 +111,6 @@ CaloNoiseToolDB::initialize()
   if (m_rescaleForHV) {
     ATH_CHECK( m_larHVCellCorrTool.retrieve() );
     ATH_MSG_INFO( "Retrieved " << m_larHVCellCorrTool << " for on-the-fly noise rescaling"  );
-    ATH_CHECK( detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this) );
-    ATH_MSG_INFO( "Regestered callback on ILArCellHVCorrTool::LoadCalibration"  );
   }
   else {
     m_larHVCellCorrTool.disable();
