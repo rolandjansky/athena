@@ -28,8 +28,6 @@ ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
-from StoreGate.StoreGateConf import StoreGateSvc # FIXME remove this once athena is fixed
-acc.addService(StoreGateSvc("ConditionStore"))
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(InDetGMConfig(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required for BCM
 # Add configuration to write HITS pool file
