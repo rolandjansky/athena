@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -151,7 +151,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
   if(trkMatches.size()>0)
   {
     //sort the track matches
-    std::sort(trkMatches.begin(), trkMatches.end(), TrackMatchSorter());
+    std::sort(trkMatches.begin(), trkMatches.end(), TrackMatchSorter);
 
 
     //set the matching values
@@ -502,5 +502,28 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*        cluster,
   return true; 
 }
 
+bool EMTrackMatchBuilder::TrackMatchSorter(const EMTrackMatchBuilder::TrackMatch& match1,
+					   const EMTrackMatchBuilder::TrackMatch& match2)
+{
+
+  if(match1.score!= match2.score) {//Higher score
+    return match1.score>match2.score;
+  }
+  //sqrt(0.025**2)*sqrt(2)/sqrt(12) ~ 0.01
+  if(fabs(match1.dR-match2.dR)<1e-02) {
+
+    if(fabs(match1.seconddR-match2.seconddR)>1e-02 ){ //Can the second distance separate them?
+      return match1.seconddR < match2.seconddR	;
+    }
+
+    if((match1.hitsScore!= match2.hitsScore)){ //use the one with more pixel
+      return match1.hitsScore>match2.hitsScore;
+    }
+
+  }
+
+  //closest DR
+  return match1.dR < match2.dR	;
+}
 
 
