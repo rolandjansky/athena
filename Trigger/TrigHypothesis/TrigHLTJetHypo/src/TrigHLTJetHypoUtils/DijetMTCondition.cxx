@@ -55,20 +55,6 @@ bool DijetMTCondition::isSatisfied(const HypoJetVector& ips) const{
 
   return true;
 
-  /*
-  auto result =  test(et0, et1, absEta0, absEta1, dEta, mass);
-  std::cout << "DijetMTCondition : " << std::boolalpha << result << '\n'
-            << std::setprecision(3) << std::scientific 
-            << "jet 0 et " << m_etThreshold0 << " " << et0 << '\n'
-            << "jet 1 et " << m_etThreshold1 << " " << et1 << '\n'
-            << "jet 0 eta " << m_etaMin0 << " " << eta0 << " " << m_etaMax0 << '\n'
-            << "jet 1 eta " << m_etaMin1 << " " << eta1 << " " << m_etaMax1 << '\n'
-            << "dEta " << m_dEtaMin << " " << dEta << " " << m_dEtaMax << '\n'
-            << "mass " << m_massMin << " " << mass << " " <<m_massMax << '\n';
-
-  return result;
-  */
-
 }
 
 std::string DijetMTCondition::toString() const noexcept {

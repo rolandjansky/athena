@@ -54,15 +54,5 @@ class TrigJetOrToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
   ToolHandle<ITrigJetHypoToolMT> m_rhs {
     this, "rhs", {}, "RHS boolean binary expression"}; 
 
- 
- // Monitored variables...
- /*
-  declareMonitoredVariable("NJet", m_njet);
-  declareMonitoredVariable("Et", m_et);
-  declareMonitoredVariable("Eta", m_eta);
-  declareMonitoredVariable("Phi", m_phi);
-*/
-
-
 };
 #endif

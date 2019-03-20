@@ -57,15 +57,6 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
 
   virtual StatusCode checkVals()  const override;
- 
- // Monitored variables...
- /*
-  declareMonitoredVariable("NJet", m_njet);
-  declareMonitoredVariable("Et", m_et);
-  declareMonitoredVariable("Eta", m_eta);
-  declareMonitoredVariable("Phi", m_phi);
-*/
-
 
 };
 #endif

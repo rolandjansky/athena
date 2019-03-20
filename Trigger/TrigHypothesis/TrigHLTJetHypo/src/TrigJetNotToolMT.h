@@ -52,15 +52,6 @@ class TrigJetNotToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
   ToolHandle<ITrigJetHypoToolMT> m_hypoTool {
     this, "hypoTool", {}, "predicate to be inverted"};
 
- 
- // Monitored variables...
- /*
-  declareMonitoredVariable("NJet", m_njet);
-  declareMonitoredVariable("Et", m_et);
-  declareMonitoredVariable("Eta", m_eta);
-  declareMonitoredVariable("Phi", m_phi);
-*/
-
 
 };
 #endif
