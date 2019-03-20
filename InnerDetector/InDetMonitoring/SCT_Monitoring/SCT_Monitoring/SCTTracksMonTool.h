@@ -69,7 +69,7 @@ private:
   typedef std::vector<H2_t> VecH2_t;
   //@}
   TH1I* m_nTracks;
-  int* m_nTracks_buf;
+  std::vector<int> m_nTracks_buf;
   int m_nTracks_pos;
   TH1I* m_trackTrigger;
   TProfile* m_trackTriggerRate;
@@ -144,7 +144,7 @@ private:
   bool m_useIDGlobal;
   //@}
   /// Name of the Track collection to use
-  SG::ReadHandleKey<TrackCollection> m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   /// Cut on number of SCT hits on track
   int m_trackHitCut;
   /// CheckHists() frequency
@@ -154,7 +154,7 @@ private:
 
   bool m_doPositiveEndcap;
   bool m_doNegativeEndcap;
-  ToolHandle < Trk::IResidualPullCalculator >   m_residualPullCalculator;
+  ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   bool   m_doUnbiasedCalc;
 
 

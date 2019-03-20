@@ -46,25 +46,15 @@ using namespace SCT_Monitoring;
 // ====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name,
                                      const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent),
-  m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
+  m_numberOfEvents{0},
   m_phiVsNstrips{},
   m_phiVsNstrips_100{},
   m_phiVsNstrips_111{},
   m_phiVsNstrips_Side{},
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
+  m_path{""},
   m_pSCTHelper(nullptr) {
-  /** sroe 3 Sept 2015:
-     histoPathBase is declared as a property in the base class, assigned to m_path
-     with default as empty string.
-     Declaring it here as well gives rise to compilation warning
-     WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-
-     declareProperty("histoPathBase", m_stream = "/stat"); **/
-  m_stream = "/stat";
-  declareProperty("tracksName", m_tracksName = std::string("CombinedInDetTracks")); // this recommended
-  declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
-  m_numberOfEvents = 0;
 }
 
 // ====================================================================================================
@@ -160,13 +150,9 @@ SCTLorentzMonTool::fillHistograms() {
     ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key());
     return StatusCode::SUCCESS;
   }
-  TrackCollection::const_iterator trkitr = tracks->begin();
-  TrackCollection::const_iterator trkend = tracks->end();
 
-  for (; trkitr != trkend; ++trkitr) {
-    // Get track
-    const Trk::Track* track = (*trkitr);
-    if (not track) {
+  for (const Trk::Track* track: *tracks) {
+    if (track==nullptr) {
       ATH_MSG_ERROR("no pointer to track!!!");
       continue;
     }
@@ -184,11 +170,10 @@ SCTLorentzMonTool::fillHistograms() {
       continue;
     }
 
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+    for (const Trk::TrackStateOnSurface* tsos: *trackStates) {
+      if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack* clus =
-          dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack());
+          dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack());
         if (clus) { // Is it a SiCluster? If yes...
           const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
           if (not RawDataClus) {
@@ -216,7 +201,7 @@ SCTLorentzMonTool::fillHistograms() {
             // find cluster size
             const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             int nStrip = rdoList.size();
-            const Trk::TrackParameters* trkp = dynamic_cast<const Trk::TrackParameters*>((*it)->trackParameters());
+            const Trk::TrackParameters* trkp = dynamic_cast<const Trk::TrackParameters*>(tsos->trackParameters());
             if (not trkp) {
               ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
               continue;
@@ -273,10 +258,9 @@ SCTLorentzMonTool::fillHistograms() {
                 }
               }// end if passesCuts
             }// end if mtrkp
-            //            delete perigee;perigee = 0;
           } // end if SCT..
         } // end if (clus)
-      } // if ((*it)->type(Trk::TrackStateOnSurface::Measurement)){
+      } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)){
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   } // end of loop on tracks
 
