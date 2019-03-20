@@ -568,7 +568,8 @@ StatusCode TileAANtuple::execute() {
 StatusCode TileAANtuple::storeLaser() {
   
   ATH_MSG_DEBUG("TileAANtuple::storeLaser()");
-  
+  const char* gainnames[2]  = {"LG","HG"};
+
   const TileLaserObject* laserObj;
   CHECK( evtStore()->retrieve(laserObj, m_laserObject) );
   
@@ -578,64 +579,61 @@ StatusCode TileAANtuple::storeLaser() {
   m_las_ReqAmp = laserObj->getDiodeCurrOrd();
   m_las_MeasAmp = laserObj->getDiodeCurrMeas();
   m_las_Temperature = laserObj->getPumpDiodeTemp();
-  msg(MSG::VERBOSE) << "Laser BCID " << m_las_BCID
-  << " Filt " << m_las_Filt
-  << " ReqAmp " << m_las_ReqAmp
-  << " MeasAmp " << m_las_MeasAmp
-  << " Temp " << m_las_Temperature
-  << endreq;
+  ATH_MSG_VERBOSE( "Laser BCID " << m_las_BCID
+                   << " Filt " << m_las_Filt
+                   << " ReqAmp " << m_las_ReqAmp
+                   << " MeasAmp " << m_las_MeasAmp
+                   << " Temp " << m_las_Temperature);
   
-  if(laserObj->isLASERII()) msg(MSG::DEBUG) << "LASERII VERSION IS " << laserObj->getVersion() << endreq;
-  else                      msg(MSG::DEBUG) << "LASERI VERSION IS "  << laserObj->getVersion() << endreq;
+  ATH_MSG_DEBUG("LASER"<<(laserObj->isLASERII()?"II":"I")<<" VERSION IS " << laserObj->getVersion());
   
   if(laserObj->isLASERII()){
     m_qdctimeout = laserObj->getQDCTimeout();
     m_tdctimeout = laserObj->getTDCTimeout();
     m_daqtype = laserObj->getDaqType();
+    if (msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "DAQ Type    " << m_daqtype << endreq;
+      msg(MSG::DEBUG) << "QDC TimeOut " << m_qdctimeout << endreq;
+      msg(MSG::DEBUG) << "TDC TimeOut " << m_tdctimeout << endreq;
+    }
+
     // RETRIEVE SIGNAL IN ADC COUNTS
-    for(int i=0; i<14; ++i){
+    for(int chan=0;chan<28;++chan){
+      int ch=chan>>1;
+      int gn=chan&1;
       // MONITORING DIODES
-      m_chan[i*2+0] = laserObj->getDiodeADC(i,0);
-      m_chan[i*2+1] = laserObj->getDiodeADC(i,1);
-      
-      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+0] << endreq;
-      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+1] << endreq;
-      
+      m_chan[chan] = laserObj->getDiodeADC(ch,gn);
+      ATH_MSG_DEBUG("LASERII CHANNEL " << ch << " ("<<gainnames[gn]<<") " << m_chan[chan]);
+    } // FOR
+
+    for(int chan=28;chan<32;++chan){
+      int ch=(chan-28)>>1;
+      int gn=chan&1;
       // MONITORING PMTS
-      if(i<2){
-        m_chan[i*2+0+14*2] = laserObj->getPMADC(i,0);
-        m_chan[i*2+1+14*2] = laserObj->getPMADC(i,1);
-        
-        msg(MSG::DEBUG) << "LASERII PMT " << i << " (LG) " << m_chan[i*2+0+14*2] << endreq;
-        msg(MSG::DEBUG) << "LASERII PMT " << i << " (HG) " << m_chan[i*2+1+14*2] << endreq;
-      } // IF
+      m_chan[chan] = laserObj->getPMADC(ch,gn);
+      ATH_MSG_DEBUG("LASERII PMT " << ch << " ("<<gainnames[gn]<<") " << m_chan[chan]);
     } // FOR
     
     // RETRIEVE PEDESTALS IF NOT ALREADY SET
     for(int chan=0;chan<32;++chan){
-      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getMean (chan/2,chan%2,0)>0) m_chan_Ped[chan]    = laserObj->getMean(chan/2,chan%2,0);
-      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getMean (chan/2,chan%2,2)>0) m_chan_Led[chan]    = laserObj->getMean(chan/2,chan%2,2);
-      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getMean (chan/2,chan%2,3)>0) m_chan_Alpha[chan]  = laserObj->getMean(chan/2,chan%2,3);
-      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_chan_Lin[chan]    = laserObj->getMean(chan/2,chan%2,1);
-      if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getSigma(chan/2,chan%2,0)>0) m_chan_SPed[chan]   = laserObj->getSigma(chan/2,chan%2,0);
-      if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getSigma(chan/2,chan%2,2)>0) m_chan_SLed[chan]   = laserObj->getSigma(chan/2,chan%2,2);
-      if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getSigma(chan/2,chan%2,3)>0) m_chan_SAlpha[chan] = laserObj->getSigma(chan/2,chan%2,3);
-      if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getSigma(chan/2,chan%2,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
+      int ch=chan>>1;
+      int gn=chan&1;
+      if(laserObj->isSet(ch, gn, 0) && laserObj->getMean (ch,gn,0)>0) m_chan_Ped[chan]    = laserObj->getMean (ch,gn,0);
+      if(laserObj->isSet(ch, gn, 2) && laserObj->getMean (ch,gn,2)>0) m_chan_Led[chan]    = laserObj->getMean (ch,gn,2);
+      if(laserObj->isSet(ch, gn, 3) && laserObj->getMean (ch,gn,3)>0) m_chan_Alpha[chan]  = laserObj->getMean (ch,gn,3);
+      if(laserObj->isSet(ch, gn, 1) && laserObj->getMean (ch,gn,1)>0) m_chan_Lin[chan]    = laserObj->getMean (ch,gn,1);
+      if(laserObj->isSet(ch, gn, 0) && laserObj->getSigma(ch,gn,0)>0) m_chan_SPed[chan]   = laserObj->getSigma(ch,gn,0);
+      if(laserObj->isSet(ch, gn, 2) && laserObj->getSigma(ch,gn,2)>0) m_chan_SLed[chan]   = laserObj->getSigma(ch,gn,2);
+      if(laserObj->isSet(ch, gn, 3) && laserObj->getSigma(ch,gn,3)>0) m_chan_SAlpha[chan] = laserObj->getSigma(ch,gn,3);
+      if(laserObj->isSet(ch, gn, 1) && laserObj->getSigma(ch,gn,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(ch,gn,1);
       
       // DEBUG OUTPUT
-      if(chan%2==1){
-        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
-        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
-        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
-        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " << endreq;
-        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " << endreq;
-      } // IF
-      if(chan%2==0){
-        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
-        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
-        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
-        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " << endreq;
-        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " << endreq;
+      if (msgLvl(MSG::DEBUG)) {
+        msg(MSG::DEBUG) << gainnames[gn] << " CHAN " << ch << " SIG= " << m_chan[chan] << endreq;
+        msg(MSG::DEBUG) << gainnames[gn] << " CHAN " << ch << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(ch, gn, 0) << " ) " << endreq;
+        msg(MSG::DEBUG) << gainnames[gn] << " CHAN " << ch << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(ch, gn, 1) << " ) " << endreq;
+        msg(MSG::DEBUG) << gainnames[gn] << " CHAN " << ch << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(ch, gn, 2) << " ) " << endreq;
+        msg(MSG::DEBUG) << gainnames[gn] << " CHAN " << ch << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(ch, gn, 3) << " ) " << endreq;
       } // IF
     } // FOR
   } // IF
@@ -646,12 +644,11 @@ StatusCode TileAANtuple::storeLaser() {
         m_las_PMT_TDC[gn][i] = laserObj->getTDC(i,gn);
         m_las_PMT_Ped[gn][i] = laserObj->getPMPedestal(i,gn);
         m_las_PMT_Ped_RMS[gn][i] = laserObj->getPMSigmaPedestal(i,gn);
-        msg(MSG::VERBOSE) << "LasPMT" << i << " g " << gn
-        << " adc " << m_las_PMT_ADC[gn][i]
-        << " ped " << m_las_PMT_Ped[gn][i]
-        << " rms " << m_las_PMT_Ped_RMS[gn][i]
-        << " tdc " << m_las_PMT_TDC[gn][i]
-        << endreq;
+        ATH_MSG_VERBOSE( "LasPMT" << i << " g " << gn
+                         << " adc " << m_las_PMT_ADC[gn][i]
+                         << " ped " << m_las_PMT_Ped[gn][i]
+                         << " rms " << m_las_PMT_Ped_RMS[gn][i]
+                         << " tdc " << m_las_PMT_TDC[gn][i]);
       } // FOR
       
       for (unsigned int i=0; i<14; ++i) {
@@ -663,15 +660,14 @@ StatusCode TileAANtuple::storeLaser() {
         m_las_D_AlphaPed[gn][i] = laserObj->getPedestalAlpha(i,gn);
         m_las_D_AlphaPed_RMS[gn][i] = laserObj->getSigmaPedAlpha(i,gn);
         
-        msg(MSG::VERBOSE) << "LasD" << i << " g " << gn
-        << " adc " << m_las_D_ADC[gn][i]
-        << " ped " << m_las_D_Ped[gn][i]
-        << " rms " << m_las_D_Ped_RMS[gn][i]
-        << " alp " << m_las_D_Alpha[gn][i]
-        << " rms " << m_las_D_Alpha_RMS[gn][i]
-        << " ape " << m_las_D_AlphaPed[gn][i]
-        << " rms " << m_las_D_AlphaPed_RMS[gn][i]
-        << endreq;
+        ATH_MSG_VERBOSE( "LasD" << i << " g " << gn
+                         << " adc " << m_las_D_ADC[gn][i]
+                         << " ped " << m_las_D_Ped[gn][i]
+                         << " rms " << m_las_D_Ped_RMS[gn][i]
+                         << " alp " << m_las_D_Alpha[gn][i]
+                         << " rms " << m_las_D_Alpha_RMS[gn][i]
+                         << " ape " << m_las_D_AlphaPed[gn][i]
+                         << " rms " << m_las_D_AlphaPed_RMS[gn][i]);
       } // FOR
     } // FOR
   } // ELSE
@@ -1794,194 +1790,18 @@ void TileAANtuple::LASER_addBranch(void) {
       m_ntuplePtr->Branch(Form("LASER_TDCTIMEOUT"),&(m_tdctimeout),Form("LASER_TDCTIMEOUT/O"));
       m_ntuplePtr->Branch(Form("LASER_DAQTYPE"),&(m_daqtype),Form("LASER_DAQTYPE/I"));
       for(int chan=0;chan<32;++chan){
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[chan%2],channames[chan/2]),&(m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped",gainnames[chan%2],channames[chan/2]),&(m_chan_Ped[chan]),Form("LASER_%s_%s_Ped/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Led",gainnames[chan%2],channames[chan/2]),&(m_chan_Led[chan]),Form("LASER_%s_%s_Led/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped1",gainnames[chan%2],channames[chan/2]),&(m_chan_Lin[chan]),Form("LASER_%s_%s_Ped1/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Alpha",gainnames[chan%2],channames[chan/2]),&(m_chan_Alpha[chan]),Form("LASER_%s_%s_Alpha/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped",gainnames[chan%2],channames[chan/2]),&(m_chan_SPed[chan]),Form("LASER_%s_%s_Sigma_Ped/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Led",gainnames[chan%2],channames[chan/2]),&(m_chan_SLed[chan]),Form("LASER_%s_%s_Sigma_Led/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped1",gainnames[chan%2],channames[chan/2]),&(m_chan_SLin[chan]),Form("LASER_%s_%s_Sigma_Ped1/F",gainnames[chan%2],channames[chan/2]));
-        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Alpha",gainnames[chan%2],channames[chan/2]),&(m_chan_SAlpha[chan]),Form("LASER_%s_%s_Sigma_Alpha/F",gainnames[chan%2],channames[chan/2]));
+        int ch=chan>>1;
+        int gn=chan&1;
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[gn],channames[ch]),&(m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped",gainnames[gn],channames[ch]),&(m_chan_Ped[chan]),Form("LASER_%s_%s_Ped/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Led",gainnames[gn],channames[ch]),&(m_chan_Led[chan]),Form("LASER_%s_%s_Led/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped1",gainnames[gn],channames[ch]),&(m_chan_Lin[chan]),Form("LASER_%s_%s_Ped1/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Alpha",gainnames[gn],channames[ch]),&(m_chan_Alpha[chan]),Form("LASER_%s_%s_Alpha/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped",gainnames[gn],channames[ch]),&(m_chan_SPed[chan]),Form("LASER_%s_%s_Sigma_Ped/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Led",gainnames[gn],channames[ch]),&(m_chan_SLed[chan]),Form("LASER_%s_%s_Sigma_Led/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Ped1",gainnames[gn],channames[ch]),&(m_chan_SLin[chan]),Form("LASER_%s_%s_Sigma_Ped1/F",gainnames[gn],channames[ch]));
+        m_ntuplePtr->Branch(Form("LASER_%s_%s_Sigma_Alpha",gainnames[gn],channames[ch]),&(m_chan_SAlpha[chan]),Form("LASER_%s_%s_Sigma_Alpha/F",gainnames[gn],channames[ch]));
       } // FOR
-      
-      /*m_ntuplePtr->Branch("LASER_LG_Diode_0_ADC", &(m_las_D_ADC[0][0]), "LASER_LG_Diode_0_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_ADC", &(m_las_D_ADC[0][1]), "LASER_LG_Diode_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_ADC", &(m_las_D_ADC[0][2]), "LASER_LG_Diode_2_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_ADC", &(m_las_D_ADC[0][3]), "LASER_LG_Diode_3_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_ADC", &(m_las_D_ADC[0][4]), "LASER_LG_Diode_4_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_ADC", &(m_las_D_ADC[0][5]), "LASER_LG_Diode_5_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_ADC", &(m_las_D_ADC[0][6]), "LASER_LG_Diode_6_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_ADC", &(m_las_D_ADC[0][7]), "LASER_LG_Diode_7_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_ADC", &(m_las_D_ADC[0][8]), "LASER_LG_Diode_8_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_ADC", &(m_las_D_ADC[0][9]), "LASER_LG_Diode_9_ADC/I");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped", &(m_las_D_Ped[0][0]), "LASER_LG_Diode_0_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped", &(m_las_D_Ped[0][1]), "LASER_LG_Diode_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped", &(m_las_D_Ped[0][2]), "LASER_LG_Diode_2_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped", &(m_las_D_Ped[0][3]), "LASER_LG_Diode_3_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped", &(m_las_D_Ped[0][4]), "LASER_LG_Diode_4_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped", &(m_las_D_Ped[0][5]), "LASER_LG_Diode_5_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped", &(m_las_D_Ped[0][6]), "LASER_LG_Diode_6_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped", &(m_las_D_Ped[0][7]), "LASER_LG_Diode_7_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped", &(m_las_D_Ped[0][8]), "LASER_LG_Diode_8_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped", &(m_las_D_Ped[0][9]), "LASER_LG_Diode_9_Ped/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Ped_RMS", &(m_las_D_Ped_RMS[0][0]), "LASER_LG_Diode_0_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Ped_RMS", &(m_las_D_Ped_RMS[0][1]), "LASER_LG_Diode_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Ped_RMS", &(m_las_D_Ped_RMS[0][2]), "LASER_LG_Diode_2_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Ped_RMS", &(m_las_D_Ped_RMS[0][3]), "LASER_LG_Diode_3_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Ped_RMS", &(m_las_D_Ped_RMS[0][4]), "LASER_LG_Diode_4_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Ped_RMS", &(m_las_D_Ped_RMS[0][5]), "LASER_LG_Diode_5_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Ped_RMS", &(m_las_D_Ped_RMS[0][6]), "LASER_LG_Diode_6_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Ped_RMS", &(m_las_D_Ped_RMS[0][7]), "LASER_LG_Diode_7_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Ped_RMS", &(m_las_D_Ped_RMS[0][8]), "LASER_LG_Diode_8_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Ped_RMS", &(m_las_D_Ped_RMS[0][9]), "LASER_LG_Diode_9_Ped_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha", &(m_las_D_Alpha[0][0]), "LASER_LG_Diode_0_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha", &(m_las_D_Alpha[0][1]), "LASER_LG_Diode_1_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha", &(m_las_D_Alpha[0][2]), "LASER_LG_Diode_2_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha", &(m_las_D_Alpha[0][3]), "LASER_LG_Diode_3_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha", &(m_las_D_Alpha[0][4]), "LASER_LG_Diode_4_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha", &(m_las_D_Alpha[0][5]), "LASER_LG_Diode_5_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha", &(m_las_D_Alpha[0][6]), "LASER_LG_Diode_6_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha", &(m_las_D_Alpha[0][7]), "LASER_LG_Diode_7_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha", &(m_las_D_Alpha[0][8]), "LASER_LG_Diode_8_Alpha/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha", &(m_las_D_Alpha[0][9]), "LASER_LG_Diode_9_Alpha/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_Alpha_RMS", &(m_las_D_Alpha_RMS[0][0]), "LASER_LG_Diode_0_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_Alpha_RMS", &(m_las_D_Alpha_RMS[0][1]), "LASER_LG_Diode_1_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_Alpha_RMS", &(m_las_D_Alpha_RMS[0][2]), "LASER_LG_Diode_2_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_Alpha_RMS", &(m_las_D_Alpha_RMS[0][3]), "LASER_LG_Diode_3_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_Alpha_RMS", &(m_las_D_Alpha_RMS[0][4]), "LASER_LG_Diode_4_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_Alpha_RMS", &(m_las_D_Alpha_RMS[0][5]), "LASER_LG_Diode_5_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_Alpha_RMS", &(m_las_D_Alpha_RMS[0][6]), "LASER_LG_Diode_6_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_Alpha_RMS", &(m_las_D_Alpha_RMS[0][7]), "LASER_LG_Diode_7_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_Alpha_RMS", &(m_las_D_Alpha_RMS[0][8]), "LASER_LG_Diode_8_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_Alpha_RMS", &(m_las_D_Alpha_RMS[0][9]), "LASER_LG_Diode_9_Alpha_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed", &(m_las_D_AlphaPed[0][0]), "LASER_LG_Diode_0_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed", &(m_las_D_AlphaPed[0][1]), "LASER_LG_Diode_1_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed", &(m_las_D_AlphaPed[0][2]), "LASER_LG_Diode_2_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed", &(m_las_D_AlphaPed[0][3]), "LASER_LG_Diode_3_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed", &(m_las_D_AlphaPed[0][4]), "LASER_LG_Diode_4_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed", &(m_las_D_AlphaPed[0][5]), "LASER_LG_Diode_5_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed", &(m_las_D_AlphaPed[0][6]), "LASER_LG_Diode_6_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed", &(m_las_D_AlphaPed[0][7]), "LASER_LG_Diode_7_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed", &(m_las_D_AlphaPed[0][8]), "LASER_LG_Diode_8_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed", &(m_las_D_AlphaPed[0][9]), "LASER_LG_Diode_9_AlphaPed/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_Diode_0_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][0]), "LASER_LG_Diode_0_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_1_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][1]), "LASER_LG_Diode_1_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_2_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][2]), "LASER_LG_Diode_2_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_3_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][3]), "LASER_LG_Diode_3_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_4_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][4]), "LASER_LG_Diode_4_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_5_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][5]), "LASER_LG_Diode_5_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_6_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][6]), "LASER_LG_Diode_6_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_7_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][7]), "LASER_LG_Diode_7_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_8_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][8]), "LASER_LG_Diode_8_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_Diode_9_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[0][9]), "LASER_LG_Diode_9_AlphaPed_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_ADC", &(m_las_D_ADC[1][0]), "LASER_HG_Diode_0_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_ADC", &(m_las_D_ADC[1][1]), "LASER_HG_Diode_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_ADC", &(m_las_D_ADC[1][2]), "LASER_HG_Diode_2_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_ADC", &(m_las_D_ADC[1][3]), "LASER_HG_Diode_3_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_ADC", &(m_las_D_ADC[1][4]), "LASER_HG_Diode_4_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_ADC", &(m_las_D_ADC[1][5]), "LASER_HG_Diode_5_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_ADC", &(m_las_D_ADC[1][6]), "LASER_HG_Diode_6_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_ADC", &(m_las_D_ADC[1][7]), "LASER_HG_Diode_7_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_ADC", &(m_las_D_ADC[1][8]), "LASER_HG_Diode_8_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_ADC", &(m_las_D_ADC[1][9]), "LASER_HG_Diode_9_ADC/I");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped", &(m_las_D_Ped[1][0]), "LASER_HG_Diode_0_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped", &(m_las_D_Ped[1][1]), "LASER_HG_Diode_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped", &(m_las_D_Ped[1][2]), "LASER_HG_Diode_2_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped", &(m_las_D_Ped[1][3]), "LASER_HG_Diode_3_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped", &(m_las_D_Ped[1][4]), "LASER_HG_Diode_4_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped", &(m_las_D_Ped[1][5]), "LASER_HG_Diode_5_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped", &(m_las_D_Ped[1][6]), "LASER_HG_Diode_6_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped", &(m_las_D_Ped[1][7]), "LASER_HG_Diode_7_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped", &(m_las_D_Ped[1][8]), "LASER_HG_Diode_8_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped", &(m_las_D_Ped[1][9]), "LASER_HG_Diode_9_Ped/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Ped_RMS", &(m_las_D_Ped_RMS[1][0]), "LASER_HG_Diode_0_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Ped_RMS", &(m_las_D_Ped_RMS[1][1]), "LASER_HG_Diode_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Ped_RMS", &(m_las_D_Ped_RMS[1][2]), "LASER_HG_Diode_2_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Ped_RMS", &(m_las_D_Ped_RMS[1][3]), "LASER_HG_Diode_3_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Ped_RMS", &(m_las_D_Ped_RMS[1][4]), "LASER_HG_Diode_4_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Ped_RMS", &(m_las_D_Ped_RMS[1][5]), "LASER_HG_Diode_5_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Ped_RMS", &(m_las_D_Ped_RMS[1][6]), "LASER_HG_Diode_6_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Ped_RMS", &(m_las_D_Ped_RMS[1][7]), "LASER_HG_Diode_7_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Ped_RMS", &(m_las_D_Ped_RMS[1][8]), "LASER_HG_Diode_8_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Ped_RMS", &(m_las_D_Ped_RMS[1][9]), "LASER_HG_Diode_9_Ped_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha", &(m_las_D_Alpha[1][0]), "LASER_HG_Diode_0_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha", &(m_las_D_Alpha[1][1]), "LASER_HG_Diode_1_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha", &(m_las_D_Alpha[1][2]), "LASER_HG_Diode_2_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha", &(m_las_D_Alpha[1][3]), "LASER_HG_Diode_3_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha", &(m_las_D_Alpha[1][4]), "LASER_HG_Diode_4_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha", &(m_las_D_Alpha[1][5]), "LASER_HG_Diode_5_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha", &(m_las_D_Alpha[1][6]), "LASER_HG_Diode_6_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha", &(m_las_D_Alpha[1][7]), "LASER_HG_Diode_7_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha", &(m_las_D_Alpha[1][8]), "LASER_HG_Diode_8_Alpha/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha", &(m_las_D_Alpha[1][9]), "LASER_HG_Diode_9_Alpha/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_Alpha_RMS", &(m_las_D_Alpha_RMS[1][0]), "LASER_HG_Diode_0_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_Alpha_RMS", &(m_las_D_Alpha_RMS[1][1]), "LASER_HG_Diode_1_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_Alpha_RMS", &(m_las_D_Alpha_RMS[1][2]), "LASER_HG_Diode_2_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_Alpha_RMS", &(m_las_D_Alpha_RMS[1][3]), "LASER_HG_Diode_3_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_Alpha_RMS", &(m_las_D_Alpha_RMS[1][4]), "LASER_HG_Diode_4_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_Alpha_RMS", &(m_las_D_Alpha_RMS[1][5]), "LASER_HG_Diode_5_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_Alpha_RMS", &(m_las_D_Alpha_RMS[1][6]), "LASER_HG_Diode_6_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_Alpha_RMS", &(m_las_D_Alpha_RMS[1][7]), "LASER_HG_Diode_7_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_Alpha_RMS", &(m_las_D_Alpha_RMS[1][8]), "LASER_HG_Diode_8_Alpha_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_Alpha_RMS", &(m_las_D_Alpha_RMS[1][9]), "LASER_HG_Diode_9_Alpha_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed", &(m_las_D_AlphaPed[1][0]), "LASER_HG_Diode_0_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed", &(m_las_D_AlphaPed[1][1]), "LASER_HG_Diode_1_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed", &(m_las_D_AlphaPed[1][2]), "LASER_HG_Diode_2_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed", &(m_las_D_AlphaPed[1][3]), "LASER_HG_Diode_3_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed", &(m_las_D_AlphaPed[1][4]), "LASER_HG_Diode_4_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed", &(m_las_D_AlphaPed[1][5]), "LASER_HG_Diode_5_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed", &(m_las_D_AlphaPed[1][6]), "LASER_HG_Diode_6_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed", &(m_las_D_AlphaPed[1][7]), "LASER_HG_Diode_7_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed", &(m_las_D_AlphaPed[1][8]), "LASER_HG_Diode_8_AlphaPed/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed", &(m_las_D_AlphaPed[1][9]), "LASER_HG_Diode_9_AlphaPed/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_Diode_0_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][0]), "LASER_HG_Diode_0_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_1_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][1]), "LASER_HG_Diode_1_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_2_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][2]), "LASER_HG_Diode_2_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_3_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][3]), "LASER_HG_Diode_3_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_4_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][4]), "LASER_HG_Diode_4_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_5_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][5]), "LASER_HG_Diode_5_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_6_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][6]), "LASER_HG_Diode_6_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_7_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][7]), "LASER_HG_Diode_7_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_8_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][8]), "LASER_HG_Diode_8_AlphaPed_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_Diode_9_AlphaPed_RMS", &(m_las_D_AlphaPed_RMS[1][9]), "LASER_HG_Diode_9_AlphaPed_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_ADC", &(m_las_PMT_ADC[0][0]), "LASER_LG_PMT_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_ADC", &(m_las_PMT_ADC[0][1]), "LASER_LG_PMT_2_ADC/I");
-       
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_TDC", &(m_las_PMT_TDC[0][0]), "LASER_LG_PMT_1_TDC/I");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_TDC", &(m_las_PMT_TDC[0][1]), "LASER_LG_PMT_2_TDC/I");
-       
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped", &(m_las_PMT_Ped[0][0]), "LASER_LG_PMT_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped", &(m_las_PMT_Ped[0][1]), "LASER_LG_PMT_2_Ped/F");
-       
-       m_ntuplePtr->Branch("LASER_LG_PMT_1_Ped_RMS", &(m_las_PMT_Ped_RMS[0][0]), "LASER_LG_PMT_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_LG_PMT_2_Ped_RMS", &(m_las_PMT_Ped_RMS[0][1]), "LASER_LG_PMT_2_Ped_RMS/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_ADC", &(m_las_PMT_ADC[1][0]), "LASER_HG_PMT_1_ADC/I");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_ADC", &(m_las_PMT_ADC[1][1]), "LASER_HG_PMT_2_ADC/I");
-       
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_TDC", &(m_las_PMT_TDC[1][0]), "LASER_HG_PMT_1_TDC/I");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_TDC", &(m_las_PMT_TDC[1][1]), "LASER_HG_PMT_2_TDC/I");
-       
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped", &(m_las_PMT_Ped[1][0]), "LASER_HG_PMT_1_Ped/F");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped", &(m_las_PMT_Ped[1][1]), "LASER_HG_PMT_2_Ped/F");
-       
-       m_ntuplePtr->Branch("LASER_HG_PMT_1_Ped_RMS", &(m_las_PMT_Ped_RMS[1][0]), "LASER_HG_PMT_1_Ped_RMS/F");
-       m_ntuplePtr->Branch("LASER_HG_PMT_2_Ped_RMS", &(m_las_PMT_Ped_RMS[1][1]), "LASER_HG_PMT_2_Ped_RMS/F");*/
       
     } else {
       

@@ -334,7 +334,7 @@ for iovs in iovList:
     if iov:
         pref = "(%i,%i)  " % (iovs[0][0],iovs[0][1])
     if comment:
-        log.info( blobReader.getComment(iovs[0]) )
+        log.info( pref + blobReader.getComment(iovs[0]) )
     modOk = False
     miss  = 0
     good  = 0

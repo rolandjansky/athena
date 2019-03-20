@@ -333,7 +333,11 @@ for iovs in iovList:
     if prefix:
         pref = prefix + " " + pref
     if comment:
-        log.info( blobReader.getComment(iovs[0]) )
+        log.info( pref + blobReader.getComment(iovs[0]) )
+    if prefix and prefix.startswith("Write"):
+        comm = blobReader.getComment(iovs[0])
+        if ": " in comm: comm = comm[comm.find(": ")+2:]
+        print '%s --update --folder=%s --tag=%s --run=%i --lumi=%i --comment="%s"' % (prefix,folderPath,folderTag,iovs[0][0],iovs[0][1],comm)
     miss=0
     good=0
     for ros in xrange(rosmin,rosmax):
