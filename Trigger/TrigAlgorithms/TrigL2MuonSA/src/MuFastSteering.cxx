@@ -85,31 +85,31 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
   ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
 
-  // 
+  // Locate DataPreparator
   if (m_dataPreparator.retrieve().isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     return HLT::BAD_JOB_SETUP;
   }
   
-  // 
+  // Locate PatternFinder
   if (m_patternFinder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     return HLT::BAD_JOB_SETUP;
   }
 
-  // 
+  // Locate StationFitter
   if (m_stationFitter.retrieve().isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve Tool StationFitter");
     return HLT::BAD_JOB_SETUP;
   }
 
-  // 
+  // Locate TrackFitter
   if (m_trackFitter.retrieve().isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve Tool TrackFitter");
     return HLT::BAD_JOB_SETUP;
   }
 
-  // 
+  // Locate TrackExtrapolator
   if (m_trackExtrapolator.retrieve().isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve Tool TrackExtrapolator");
     return HLT::BAD_JOB_SETUP;
@@ -197,7 +197,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     }
   } 
 
-  //adding a part of DataHandle for AThenaMT
+  // DataHandles for AthenaMT
   if (m_roiCollectionKey.initialize().isFailure() ) { 
     ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
@@ -309,7 +309,6 @@ StatusCode MuFastSteering::execute()
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
-  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " DONE");
 
   // make RecMURoIs maching with MURoIs
   DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
@@ -321,7 +320,6 @@ StatusCode MuFastSteering::execute()
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector->size());
   }
-  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " DONE");
 
   // record data objects with WriteHandle
   auto muFastContainer = SG::makeHandle(m_muFastContainerKey, ctx);
@@ -364,8 +362,6 @@ StatusCode MuFastSteering::execute()
   for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
     ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
   }
-
-  ATH_MSG_DEBUG("REGTEST: Recorded data objects DONE");
 
   totalTimer.stop();
  
@@ -417,7 +413,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
 
     p_roi++;
   }
-  ATH_MSG_DEBUG("REGTEST: DONE");
 
   // define objects to record output data
   // for xAOD::L2StandAloneMuonContainer
@@ -603,7 +598,6 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 
     m_muonRoad.Clear();
 
-    ATH_MSG_DEBUG("Start an algorithm of MuonSA");
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
 
@@ -867,8 +861,8 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
         
         if ( updateTriggerElement ) {
           
-          ATH_MSG_DEBUG("Updating the trigger element");
-          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
+          ATH_MSG_INFO("Updating the trigger element");
+          ATH_MSG_INFO(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
 	  // create the TrigCompositeContainer to store the calibration buffer
 	  // at StatusCode execute() and hltExecute().
 
@@ -1019,6 +1013,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
     endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
   }
 
+  ATH_MSG_DEBUG("### Hit patterns at the Muon Spectrometer ###");
   ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());
   ATH_MSG_DEBUG("pattern#0: # of hits at middle =" << pattern.mdtSegments[middle].size());
   ATH_MSG_DEBUG("pattern#0: # of hits at outer  =" << pattern.mdtSegments[outer].size());
@@ -1030,7 +1025,8 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
     ATH_MSG_DEBUG("pattern#0: # of hits at BME  =" << pattern.mdtSegments[bme].size());
     ATH_MSG_DEBUG("pattern#0: # of hits at barrel endcap inner  =" << pattern.mdtSegments[endcapinner].size());
   }
-  ATH_MSG_DEBUG("pt=" << pattern.pt);
+  ATH_MSG_DEBUG("### ************************************* ###");
+  ATH_MSG_INFO("Estimated muon pt = " << pattern.pt << " GeV");
 
   // ---------
   // store xAOD
@@ -1164,7 +1160,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
                           cscHits[i_hit].eta, cscHits[i_hit].phi, cscHits[i_hit].r, cscHits[i_hit].z,
                           cscHits[i_hit].charge, cscHits[i_hit].time, cscHits[i_hit].Residual);
 	cscResol.push_back(cscHits[i_hit].resolution);
-        ATH_MSG_DEBUG("CSC Hits stored in xAOD: "
+        ATH_MSG_VERBOSE("CSC Hits stored in xAOD: "
       		<< "OL=" << cscHits[i_hit].isOutlier << ","
       		<< "Ch=" << cscHits[i_hit].Chamber << ","
       		<< "StationName=" << cscHits[i_hit].StationName << ","
@@ -1195,7 +1191,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
                       rpcHits[i_hit].x, rpcHits[i_hit].y, rpcHits[i_hit].z,
                       rpcHits[i_hit].time, rpcHits[i_hit].distToEtaReadout, rpcHits[i_hit].distToPhiReadout,
                       rpcHits[i_hit].stationName);
-    ATH_MSG_DEBUG("RPC hits stored in xAOD: "
+    ATH_MSG_VERBOSE("RPC hits stored in xAOD: "
       	    << "stationName=" << rpcHits[i_hit].stationName << ","
       	    << "layer=" << rpcHits[i_hit].layer << ","
       	    << "measuresPhi=" << rpcHits[i_hit].measuresPhi << ","
@@ -1225,7 +1221,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
     muonSA->setTgcHit(tgcHits[i_hit].eta, tgcHits[i_hit].phi, tgcHits[i_hit].r, tgcHits[i_hit].z,
                       tgcHits[i_hit].width, tgcHits[i_hit].sta, tgcHits[i_hit].isStrip,
                       tgcHits[i_hit].bcTag, tgcHits[i_hit].inRoad);
-    ATH_MSG_DEBUG("TGC hits stored in xAOD: "
+    ATH_MSG_VERBOSE("TGC hits stored in xAOD: "
       	    << "eta=" << tgcHits[i_hit].eta << ","
       	    << "phi=" << tgcHits[i_hit].phi << ","
       	    << "r=" << tgcHits[i_hit].r << ","
@@ -1361,11 +1357,11 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
                                                                pattern.phiMS,
                                                                pattern.phiMS);
 
-    ATH_MSG_DEBUG("...TrigRoiDescriptor for MS "
+    ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
       	    << "pattern.etaMap/pattern.phiMS="
       	    << pattern.etaMap << "/" << pattern.phiMS);
 
-    ATH_MSG_DEBUG("will Record an RoiDescriptor for TrigMoore:"
+    ATH_MSG_VERBOSE("will Record an RoiDescriptor for TrigMoore:"
       	    << " phi=" << MSroiDescriptor->phi()
       	    << ",  eta=" << MSroiDescriptor->eta());
 
@@ -1422,11 +1418,11 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
                                                                pattern.phiVtx - phiHalfWidth,
                                                                pattern.phiVtx + phiHalfWidth);
     
-    ATH_MSG_DEBUG("...TrigRoiDescriptor for ID "
+    ATH_MSG_VERBOSE("...TrigRoiDescriptor for ID "
       	    << "pattern.etaVtx/pattern.phiVtx="
       	    << pattern.etaVtx << "/" << pattern.phiVtx);
 
-    ATH_MSG_DEBUG("will Record an RoiDescriptor for Inner Detector:"
+    ATH_MSG_VERBOSE("will Record an RoiDescriptor for Inner Detector:"
                   << " phi=" << IDroiDescriptor->phi()
                   << ",  eta=" << IDroiDescriptor->eta());
 
@@ -1443,7 +1439,7 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
                                                                HLT::wrapPhi(roids->phi() - HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
                                                                HLT::wrapPhi(roids->phi() + HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
 
-    ATH_MSG_DEBUG ("will Record an RoiDescriptor for Inner Detector in case with zero pT:"
+    ATH_MSG_VERBOSE("will Record an RoiDescriptor for Inner Detector in case with zero pT:"
       	     << " phi=" << IDroiDescriptor->phi()
       	     << ", phi min=" << IDroiDescriptor->phiMinus()
       	     << ", phi max=" << IDroiDescriptor->phiPlus()
@@ -1831,7 +1827,7 @@ void MuFastSteering::handle(const Incident& incident) {
 	ATH_MSG_ERROR("Failed to open the connection to the circular buffer");
       }
       else {
-	ATH_MSG_DEBUG("Opened the connection to the circular buffer");
+	ATH_MSG_INFO("Opened the connection to the circular buffer");
       }
     }
   }
