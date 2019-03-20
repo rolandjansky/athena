@@ -1036,15 +1036,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	if(pContainer->size()==0)
 	  return HLT::OK;
 
-	static SG::AuxElement::Accessor< xAOD::TauJet::JetLink_t > jetAcc( "jetLink" );
+	static const SG::AuxElement::Accessor< xAOD::TauJet::JetLink_t > jetAcc( "jetLink" );
 	jetAcc( *p_tau ).toPersistent();
 
-	static SG::AuxElement::Accessor< xAOD::TauJet::VertexLink_t > vertexAcc( "vertexLink" );
+	static const SG::AuxElement::Accessor< xAOD::TauJet::VertexLink_t > vertexAcc( "vertexLink" );
 	vertexAcc( *p_tau ).toPersistent();
 
 	xAOD::TauJet::TauTrackLinks_t new_tauTrackLinks;
-	static SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
-	static SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+	static const SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
+	static const SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
 
 	for( ElementLink< xAOD::TauTrackContainer > tautrack_link : tauTrackAcc( *p_tau ) ) {
 
