@@ -17,13 +17,13 @@
 #ifndef IDC_OVERLAYBASE_H
 #define IDC_OVERLAYBASE_H
 
-#include <OverlayAlgBase/OverlayAlgBase.h>
+#include <AthenaBaseComps/AthAlgorithm.h>
 
-class IDC_OverlayBase : public OverlayAlgBase
+class IDC_OverlayBase : public AthAlgorithm
 {
 public:
   IDC_OverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : OverlayAlgBase(name, pSvcLocator) {}
+    : AthAlgorithm(name, pSvcLocator) {}
 
 protected:
   template <class IDC_Container>
