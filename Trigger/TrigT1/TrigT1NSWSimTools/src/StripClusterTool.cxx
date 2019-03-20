@@ -484,108 +484,95 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
   }
 
 
-  bool StripClusterTool::MatchModule(const std::unique_ptr<StripData>& one, const StripData* two){
-      //S.I : what about sector type ? are sectorId ranging from 1 ... 6 or 1 ... 8  ???? is it a good idea to make this a member ? You use it only at a single place
-    return one->sideId() == two->sideId()          // side
-      && one->wedge()==two->wedge()    // Wedge
-      && one->sectorId()==two->sectorId()       // Sector
-      && one->moduleId()==two->moduleId()        //Eta station
-      && one->layer()==two->layer() ;       //layer
-  }
-
   StatusCode StripClusterTool::cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips, std::vector< std::unique_ptr<StripClusterData> >& clusters){
-      std::vector<std::unique_ptr<StripData>>::iterator hit=strips.begin();
-      std::vector<std::unique_ptr<StripData>>::iterator hit_end=strips.end();
-      //auto hit std::make_move_iterator(strips.begin());
-      //auto hit_end std::make_move_iterator(strips.end());
-      if (hit==hit_end)return StatusCode::SUCCESS;
+      
+      if(strips.size()==0){
+            ATH_MSG_WARNING("Received 0 strip hits... Skip event");
+            return StatusCode::SUCCESS;
+      }
+      
+      //S.I sort strip w.r.t channelId in ascending order
+      std::sort(strips.begin(),strips.end(),
+                [](const auto& s1,const auto& s2){return s1->channelId()<s2->channelId();}
+      );
+            
+      /*S.I remove duplicate strip channels ...
+       The rightmost way is to define an == operator for stripdata// not sure if we need to include charge+time and such though
+       Im sure somehow we get duplicated strip channels. Need to check if all the other aspects like charge, time, etc are exactly the same for those ...
+      */
+      auto pos = std::unique(strips.begin(), strips.end(),
+                             [](const auto& s1, const auto& s2){
+                                 return s1->channelId()==s2->channelId() && s1->channelId()==s2->channelId();
+                             }
+      );
+      
+      strips.resize(std::distance(strips.begin(), pos)); 
+      auto hit=strips.begin();
       
       auto cr_cluster=std::make_shared< std::vector<std::unique_ptr<StripData>> >();
       
-      //      cr_cluster->push_back((*hit));
-      StripData* p_hit=nullptr;
-      int c_ch=(*hit)->channelId();
+      StripData* prev_hit=nullptr;
+      int first_ch=(*hit)->channelId();//channel id of the first strip
       ATH_MSG_DEBUG("Cluster Hits :" << (*hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (*hit)->Identity())
 		    << "   " <<   (*hit)->moduleId() << "   " << (*hit)->sectorId() << "   " <<(*hit)->wedge()
 		    << "  "<< (*hit)->sideId()  );
-      //S.I I dont understand this is this necesary ??
-      hit++;
+      hit++;//S.I is this ncessary ?
 
-      //for(hit=strips.begin();hit!=hit_end;hit++){
-      //for(auto const& hit=strips.begin();hit!=hit_end;hit++){
-      for(auto & hit : strips){
-	      if(!(hit)->readStrip() )continue;
-          if( ((hit)->bandId()==-1 || hit->phiId()==-1) ){ // Someone from sTGC should really check this...
-	       ATH_MSG_WARNING("Read Strip without BandId :" << (hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (hit)->Identity())
-		      << "   " <<   (hit)->moduleId() << "   " << (hit)->sectorId() << "   " <<(hit)->wedge()
-		      << "  "<< (hit)->sideId()   );
+      for(auto & this_hit : strips){
+	      if(!(this_hit)->readStrip() )continue;
+          if( ((this_hit)->bandId()==-1 || this_hit->phiId()==-1) ){
+	       ATH_MSG_WARNING("Read Strip without BandId :" << (this_hit)->channelId() << " " << m_sTgcIdHelper->gasGap( (this_hit)->Identity())
+		      << "   " <<   (this_hit)->moduleId() << "   " << (this_hit)->sectorId() << "   " <<(this_hit)->wedge()
+		      << "  "<< (this_hit)->sideId()   );
 	       continue;
-          }/*S.I : the warning message above is totally misleading someone who reads the code. I didn't check if we fall into the given condition. 
-             However it must be changed into sthg that ends with "skipping this strip ..." anyway..
-             And i am not even sure whether it should be a  warning or debug message...
-            */
+          }
 
-	      //Identifier hit_id=(*hit)->Identity();
 	     bool sameMod=false;
-	     if (!p_hit){
-           //S.I that should be ok as we dont manually delete p_hit
-           p_hit=hit.get();
-           cr_cluster->push_back(std::move(hit));
+	     if (!prev_hit){//for the first time...
+           prev_hit=this_hit.get();
+           cr_cluster->push_back(std::move(this_hit));
 	       continue;
 	     }
-         else{
+         else{ //executed when we are in the second strip and so on...
              static auto MatchHits=[](const auto& a1,const auto& a2){
-                if( a1->sideId() != a2->sideId()  || 
-                    a1->wedge() !=a2->wedge()  || 
-                    a1->sectorId() !=a2->sectorId() || 
+                if( a1->sideId() != a2->sideId()  ||
+                    a1->sectorId() !=a2->sectorId() ||
+                    a1->isSmall() !=a2->isSmall() ||
                     a1->moduleId() !=a2->moduleId() || 
-                    a1->layer() !=a2->layer() ||
-                    a1->isSmall() !=a2->isSmall() 
+                    a1->wedge() !=a2->wedge()  || 
+                    a1->layer() !=a2->layer()
                 ) return false;
                 
                 return true;
              };     
-	         //sameMod=MatchModule((hit),p_hit);
-             sameMod=MatchHits((hit),p_hit);
+             sameMod=MatchHits(this_hit,prev_hit);
          }
-         //S.I
-         p_hit=hit.get();
-         int chid=(hit)->channelId();
-         //S.I
-         if (!((hit)->channelId()>c_ch && sameMod)) ATH_MSG_ERROR("Hits Ordered incorrectly!!!" ) ; // Someone from sTGC should really check this...
-	     if ((hit)->channelId()==c_ch+1 && sameMod){
-	       cr_cluster->push_back(std::move(hit));
+         prev_hit=this_hit.get();
+         int this_chid=(this_hit)->channelId();
+         if ( (this_hit->channelId()<first_ch) && sameMod ) {
+             ATH_MSG_ERROR("Hits Ordered incorrectly!!!" );
+             return StatusCode::FAILURE;
+         }
+	     if ((this_hit)->channelId()==first_ch && sameMod){
+	       ATH_MSG_FATAL("Hits entered twice !!! ChannelId: " << (this_hit)->channelId() );
+           return StatusCode::FAILURE;
+         }
+         
+	     if ((this_hit)->channelId()==first_ch+1 && sameMod){
+	       cr_cluster->push_back(std::move(this_hit));
 	     }
-	     else if ((hit)->channelId()==c_ch && sameMod){
-	       // Keep this for now
-           //cr_cluster->push_back((*hit));
-	       ATH_MSG_ERROR("Hits entered twice Discarding!!! ChannelId: " << (hit)->channelId() );
-         }
+
 	     else{
-	      //	  if (cr_cluster->size() >= 5)ATH_MSG_DEBUG("Large Cluster" << cr_cluster->size() << "hits cutting");
-	      //	  cr_cluster=new std::vector<StripData*>();
-	      // else {
-	      m_clusters.push_back(std::move(cr_cluster));
+	      m_clusters.push_back(std::move(cr_cluster));//put the current cluster into the clusters buffer
 	      ATH_MSG_DEBUG("Adding Cluster with " << cr_cluster->size() << "hits" << m_clusters.size() << " m_clusters so far");
-          
-          cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();
-          cr_cluster->push_back(std::move(hit));
-	       // }
+          cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();//create a new empty cluster and assign this hit as the first hit
+          cr_cluster->push_back(std::move(this_hit));
 	     }
-	     //****************************************************
-	     //S.I from now on "hit" is nulled never access it here ..
-	     //move these statements somewhere before we move "hit"
-	     //p_hit=hit.get();
-	     c_ch=chid;
-	     //*****************************************************
+	     first_ch=this_chid;
       }
       if(cr_cluster->size() != 0)m_clusters.push_back(std::move(cr_cluster));//don't forget the last cluster in the loop
-
       // No sector implemented yet!!!
       ATH_MSG_DEBUG("Found :" << m_clusters.size() << " M_Clusters ");
-
-
-
       fill_strip_validation_id(clusters);
       return StatusCode::SUCCESS;
   }

@@ -72,7 +72,6 @@ namespace NSWL1 {
     void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple                                                                                              
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple                                                                                              
     void fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters);  //!< fill the ntuple branch for the StripTdsOffline   
-    bool MatchModule(const std::unique_ptr<StripData>& one, const StripData* two);
     
 
     // needed Servives, Tools and Helpers

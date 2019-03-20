@@ -478,10 +478,11 @@ namespace NSWL1 {
 
             bool read_strip=readStrip(strip.get(),padTriggers);
             if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
-                ATH_MSG_DEBUG("StripTdsOfflineTool:NO MATCH ALL \n" <<
+                ATH_MSG_FATAL("StripTdsOfflineTool:NO MATCH ALL \n" <<
                     "wedge:" << strip->wedge() << "\n"
                     <<"layer:"<< strip->layer() << "\n"
                     <<"loc_x:"<< strip->locX()<< "\n");
+                return cStatus::FILL_ERROR;
             }
 
             strip->set_readStrip(read_strip);
