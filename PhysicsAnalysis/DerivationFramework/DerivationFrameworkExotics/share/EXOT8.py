@@ -73,6 +73,17 @@ EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += EXOT8ElectronTPThinningTool
 thinningTools.append(EXOT8ElectronTPThinningTool)
 
+########################################## 
+#Tracks associated with Photons
+########################################## 
+EXOT8PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT8PhotonTPThinningTool",
+                                                                             ThinningService         = EXOT8ThinningHelper.ThinningSvc(),
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+
+ToolSvc += EXOT8PhotonTPThinningTool
+thinningTools.append(EXOT8PhotonTPThinningTool)
+
 
 # Thin ak4 jets
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
@@ -90,7 +101,7 @@ EXOT8ak10ThinningTool = DerivationFramework__GenericObjectThinning(name         
                                                                    ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                    ContainerName   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                    ApplyAnd        = False,
-                                                                   SelectionString = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV")
+                                                                   SelectionString = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV")
 ToolSvc += EXOT8ak10ThinningTool
 thinningTools.append(EXOT8ak10ThinningTool)
 
@@ -101,7 +112,7 @@ EXOT8ak10UntrimmedThinningTool = DerivationFramework__GenericObjectThinning(name
                                                                              ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                              ContainerName   = "AntiKt10LCTopoJets",
                                                                              ApplyAnd        = False,
-                                                                             SelectionString = "AntiKt10LCTopoJets.pt > 200*GeV")
+                                                                             SelectionString = "AntiKt10LCTopoJets.pt > 150*GeV")
 ToolSvc += EXOT8ak10UntrimmedThinningTool
 thinningTools.append(EXOT8ak10UntrimmedThinningTool)
 
@@ -153,6 +164,17 @@ augmentationTools.append(EXOT8BJetRegressionVariables_EMTopo)
 ToolSvc += EXOT8BJetRegressionVariables_EMPFlow
 augmentationTools.append(EXOT8BJetRegressionVariables_EMPFlow)
 #print EXOT8BJetRegressionVariables
+
+triggers_for_matching = ['HLT_g60_loose',
+                         'HLT_g140_loose',
+                         'HLT_g160_loose'
+                         ]
+
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="EXOT6",
+                                                 PhotonTriggers=triggers_for_matching)
+
+augmentationTools.append(TrigMatchAug)
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -184,6 +206,7 @@ triggers = ["L1_J50",
             "L1_MU20",            
             ]
 
+trigger_photon = "HLT_g140_loose"
 
 #========================================================================================================================================
 # Event Skimming
@@ -231,9 +254,15 @@ singleMuon           = "count((Muons.DFCommonGoodMuon) && (Muons.pt     > 25*GeV
 singleLepton         = "(%s) || (%s)" % (singleElectron, singleMuon)
 
 boosted_1LargeR      = "count((AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.4)) >= 1"
+boosted_1LargeR_photon = "count((AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.4)) >= 1"
+
+photon               = "count(Photons.pt > 130*GeV) >= 1"
 
 eventSkim_zeroLepton   = "((%s) || (%s))" % (resolved_4jet, boosted_1LargeR)
 eventSkim_singleLepton = "((%s) && (%s))" % (singleLepton, resolved_2jet)
+eventSkim_photonSel = "((%s) && (%s))" % (photon, boosted_1LargeR_photon)
+
+preSkim_photon = "((%s) && (%s))" % (trigger_photon, photon) 
 
 #------------------------------------------
 #pre-skimming tools
@@ -247,6 +276,10 @@ ToolSvc += EXOT8TriggerPreSkimmingTool
 #1 lepton
 EXOT8PreSkimmingTool_sl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8PreSkimmingTool_sl", expression = singleLepton)
 ToolSvc += EXOT8PreSkimmingTool_sl
+
+#photon trigger + photon
+EXOT8PreSkimmingTool_photon = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8PreSkimmingTool_photon", expression = preSkim_photon)
+ToolSvc += EXOT8PreSkimmingTool_photon
 
 #------------------------------------------
 #skimming tools
@@ -265,12 +298,19 @@ ToolSvc += EXOT8SkimmingTool_sl
 EXOT8SkimmingTool_zl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_zl", expression = eventSkim_zeroLepton)
 ToolSvc += EXOT8SkimmingTool_zl
 
+#photon trigger
+EXOT8SkimmingTool_ph_trig = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_ph_trig", expression = trigger_photon)
+ToolSvc += EXOT8SkimmingTool_ph_trig
+
+#photon + large-R
+EXOT8SkimmingTool_ph =  DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_ph", expression = eventSkim_photonSel)
+ToolSvc += EXOT8SkimmingTool_ph
 
 #------------------------------------------
 #pre-skimming tools combinations
 
-#trigger || 1 lepton
-EXOT8PreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8PreSkimmingTool", FilterList = [EXOT8TriggerPreSkimmingTool, EXOT8PreSkimmingTool_sl])
+#trigger || 1 lepton || (photon trigger && photon)
+EXOT8PreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8PreSkimmingTool", FilterList = [EXOT8TriggerPreSkimmingTool, EXOT8PreSkimmingTool_sl, EXOT8PreSkimmingTool_photon])
 ToolSvc += EXOT8PreSkimmingTool
 
 #------------------------------------------
@@ -280,8 +320,12 @@ ToolSvc += EXOT8PreSkimmingTool
 EXOT8ANDSkimmingTool_zl = DerivationFramework__FilterCombinationAND(name = "EXOT8ANDSkimmingTool_zl", FilterList = [EXOT8TriggerSkimmingTool, EXOT8SkimmingTool_zl])
 ToolSvc += EXOT8ANDSkimmingTool_zl
 
-#(trigger && 0 lepton) || 1 lepton
-EXOT8SkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8SkimmingTool", FilterList = [EXOT8ANDSkimmingTool_zl, EXOT8SkimmingTool_sl])
+#photon trigger && 1 photon
+EXOT8ANDSkimmingTool_photon = DerivationFramework__FilterCombinationAND(name = "EXOT8ANDSkimmingTool_photon", FilterList = [EXOT8SkimmingTool_ph_trig, EXOT8SkimmingTool_ph])
+ToolSvc += EXOT8ANDSkimmingTool_photon
+
+#(trigger && 0 lepton) || 1 lepton || (trigger photon + photon + large-R)
+EXOT8SkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8SkimmingTool", FilterList = [EXOT8ANDSkimmingTool_zl, EXOT8SkimmingTool_sl, EXOT8ANDSkimmingTool_photon])
 ToolSvc += EXOT8SkimmingTool
 
 
@@ -399,6 +443,7 @@ EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "PrimaryVertices",
                                         "Electrons",
                                         "Muons",
+                                        "Photons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4TruthJets",
                                         "AntiKt4TruthWZJets",
@@ -445,6 +490,7 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.GhostTrackCount",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.Tau1",                                      
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.Tau2",                                      
+                                      "Photons."+NewTrigVars["Photons"]
                                       ]
 
 EXOT8SlimmingHelper.AllVariables   = ["TruthParticles",
@@ -452,7 +498,6 @@ EXOT8SlimmingHelper.AllVariables   = ["TruthParticles",
                                       "TruthVertices",
                                       "AntiKt10LCTopoJets",
                                       "AntiKt2PV0TrackJets",
-                                      "AntiKt4PV0TrackJets",
                                       "AntiKt10TruthJets",
                                       "CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",

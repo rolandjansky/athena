@@ -15,6 +15,20 @@ exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
 
 augTools = []
 
+triggers = ['HLT_g60_loose',
+            'HLT_g140_loose',
+            'HLT_g160_loose',
+            'HLT_g75_tight_3j50noL1_L1EM22VHI',
+            'HLT_g75_tight_3j25noL1_L1EM22VHI',
+            'HLT_g85_tight_L1EM22VHI_3j50noL1',
+            ]
+
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="EXOT6",
+                                                 PhotonTriggers=triggers)
+
+augTools.append(TrigMatchAug)
+
 # using now TauTruthCommon, so we use a central Python setup and it is not imported twice
 # Tau truth common is a part of the standard truth tools
 if DerivationFrameworkIsMonteCarlo:
@@ -160,6 +174,7 @@ EXOT6SlimmingHelper.SmartCollections = EXOT6SmartContent
 EXOT6SlimmingHelper.AllVariables = EXOT6AllVariablesContent
 
 # Adding extra missing variables from the smart slimming
+EXOT6ExtraVariables.append("Photons."+NewTrigVars["Photons"])
 EXOT6SlimmingHelper.ExtraVariables = EXOT6ExtraVariables
 EXOT6SlimmingHelper.StaticContent = EXOT6UnslimmedContent
 EXOT6SlimmingHelper.AppendContentToStream(EXOT6Stream)
