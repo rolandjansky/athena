@@ -37,7 +37,7 @@ class TrigHLTJetHypo_JVT : public TrigHLTJetHypoBase {
 
  private:
 
-  int m_NJets;
+  int m_nJets;
   double m_ETmin;
   double m_workingPoint;
   double m_scaleWP = 0.01;

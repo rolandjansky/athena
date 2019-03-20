@@ -242,10 +242,10 @@ Conditions conditionsFactoryFalse(double limitMin,
 }
 
 // Jona Bossio, February 2019
-Conditions conditionsFactoryJVT(const int& njets, const double& etThreshold, const double& workingpoint){
+Conditions conditionsFactoryJVT(const int& njets, const double& etThreshold, const double& workingPoint){
   Conditions conditions;
   for(int i = 0; i < njets; ++i){
-    std::shared_ptr<ICondition> pCondition(new JVTCondition(etThreshold, workingpoint));
+    std::shared_ptr<ICondition> pCondition(new JVTCondition(etThreshold, workingPoint));
     conditions.push_back(ConditionBridge(pCondition));
   }
   return conditions;

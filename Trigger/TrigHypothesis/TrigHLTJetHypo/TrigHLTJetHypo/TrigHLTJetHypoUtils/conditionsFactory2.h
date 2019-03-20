@@ -89,6 +89,6 @@ Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
                       const std::vector<double>& limitMaxs);
 
 // Jona Bossio, February 2019
-Conditions conditionsFactoryJVT(const int& njets, const double& etThreshold, const double& workingpoint);
+Conditions conditionsFactoryJVT(const int& njets, const double& etThreshold, const double& workingPoint);
 
 #endif

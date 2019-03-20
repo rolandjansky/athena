@@ -25,7 +25,7 @@ TrigHLTJetHypo_JVT::TrigHLTJetHypo_JVT(const std::string& name, ISvcLocator* pSv
 TrigHLTJetHypoBase(name, pSvcLocator) {
   declareProperty("etmin", m_ETmin);
   declareProperty("wp",    m_workingPoint);
-  declareProperty("njet",  m_NJets);
+  declareProperty("njet",  m_nJets);
 } 
 
 
@@ -46,7 +46,7 @@ HLT::ErrorCode TrigHLTJetHypo_JVT::hltInitialize(){
 
 // getConditions()
 Conditions TrigHLTJetHypo_JVT::getConditions() const{
-  auto conditions = conditionsFactoryJVT(m_NJets,m_ETmin,m_workingPoint);
+  auto conditions = conditionsFactoryJVT(m_nJets,m_ETmin,m_workingPoint);
   std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
   return conditions;
 }
