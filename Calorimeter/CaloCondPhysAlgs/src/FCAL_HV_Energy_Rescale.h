@@ -9,8 +9,9 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"  
 
 class FCAL_HV_Energy_Rescale: public AthAlgorithm
 { 
@@ -35,8 +36,12 @@ class FCAL_HV_Energy_Rescale: public AthAlgorithm
   virtual StatusCode  stop();
 
 private:
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  //m_hvCorrTool
 
   std::string m_folder;
 

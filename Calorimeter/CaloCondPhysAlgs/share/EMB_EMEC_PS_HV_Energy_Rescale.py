@@ -91,9 +91,7 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 #theCaloNoiseTool = CaloNoiseToolDefault()
 #ToolSvc += theCaloNoiseTool
 
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-theLArHVCorrTool=LArHVCorrToolDefault()
-ToolSvc += theLArHVCorrTool
+from LArConditionsCommon import LArHVDB
 
 #--------------------------------------------------------------
 # Private Application Configuration options
