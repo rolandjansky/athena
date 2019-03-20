@@ -30,8 +30,10 @@ EFTauTopoFex::~EFTauTopoFex(){
 HLT::ErrorCode EFTauTopoFex::hltInitialize()
 {
   ATH_MSG_INFO("in initialize()");
-  if (m_comb_type != "ditau" and m_comb_type != "eltau" and m_comb_type != "mutau")
+  if (m_comb_type != "ditau" && m_comb_type != "eltau" && m_comb_type != "mutau")
     return HLT::ERROR;
+
+  msg() << MSG::INFO << " REGTEST: EFTauTopoFex for "<< m_comb_type <<endmsg;
 
   return HLT::OK;
 }
@@ -119,7 +121,7 @@ HLT::ErrorCode EFTauTopoFex :: accept_tautau_Inputs(HLT::TEConstVec& inputTE, bo
   else { ATH_MSG_DEBUG("xAOD::TauJetContainer collections successfully retrieved"); }
   
   if (vectorTauContainers1.size() < 1 || vectorTauContainers2.size() < 1) {
-    ATH_MSG_DEBUG(" empty xAOD::TauJetContainer");
+    ATH_MSG_WARNING(" empty containers in ditau mode. Container sizes TE1: "<<vectorTauContainers1.size()<<" TE2: "<<vectorTauContainers2.size()); 
     return HLT::OK;
   }
 
@@ -147,10 +149,10 @@ HLT::ErrorCode EFTauTopoFex :: accept_eltau_Inputs(HLT::TEConstVec& inputTE, boo
       ATH_MSG_WARNING("Failed to get xAOD::ElectronContainer and xAOD::TauJetContainer collections");
       return HLT::MISSING_FEATURE;
     }
-  else { ATH_MSG_DEBUG("xAOD::TauJetContainer collections successfully retrieved"); }
+  else { ATH_MSG_DEBUG("xAOD::ElectronContainer and xAOD::TauJetContainer collections successfully retrieved"); }
   
   if (vectorElectronContainers.size() < 1 || vectorTauContainers.size() < 1) {
-    ATH_MSG_DEBUG(" empty xAOD::ElectronContainer or xAOD::TauJetContainer collections");
+    ATH_MSG_WARNING(" empty containers in eltau mode. Container sizes el TE: "<<vectorElectronContainers.size()<<" tau TE: "<<vectorTauContainers.size()); 
     return HLT::OK;
   }
 
@@ -178,10 +180,10 @@ HLT::ErrorCode EFTauTopoFex :: accept_mutau_Inputs(HLT::TEConstVec& inputTE, boo
       ATH_MSG_WARNING("Failed to get xAOD::MuonContainer and xAOD::TauJetContainer collections");
       return HLT::MISSING_FEATURE;
     }
-  else { ATH_MSG_DEBUG("xAOD::TauJetContainer collections successfully retrieved"); }
+  else { ATH_MSG_DEBUG("xAOD::MuonContainer and xAOD::TauJetContainer collections successfully retrieved"); }
   
   if (vectorMuonContainers.size() < 1 || vectorTauContainers.size() < 1) {
-    ATH_MSG_DEBUG(" empty xAOD::MuonContainer or xAOD::TauJetContainer collections");
+        ATH_MSG_WARNING(" empty containers in mutau mode. Container sizes mu TE: "<<vectorMuonContainers.size()<<" tau TE: "<<vectorTauContainers.size()); 
     return HLT::OK;
   }
 
