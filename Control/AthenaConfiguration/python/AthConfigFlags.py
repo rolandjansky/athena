@@ -238,6 +238,11 @@ class AthConfigFlags(object):
 
 
     def fillFromArgs(self,listOfArgs=None):
+        """
+        Expects a list of strings of key=value pairs representing configuration flags. 
+        Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
+        """
+        
         if listOfArgs is None:
             import sys
             listOfArgs=sys.argv[1:]
