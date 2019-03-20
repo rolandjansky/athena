@@ -91,6 +91,17 @@ class EFTauTopoHypo (EFTauTopoHypoBase):
         super(EFTauTopoHypo, self).__init__(name)
         setVarCut(self, var, val)
 
+class EFTauTopoFexBase (EFTauTopoFex):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFTauTopoFexBase, self).__init__(name)
+        
+class EFTauTopoFex (EFTauTopoFexBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauTopoFex", chain_type="ditau"):
+        super(EFTauTopoFex, self).__init__(name)
+        self.comb    = chain_type
+
 ## HLTVertexPreSelHypo
 class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):
     __slots__ = []
