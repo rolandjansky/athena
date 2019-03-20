@@ -53,6 +53,9 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
   double insitu_etarestriction_residualmcbased = m_config->GetValue("InsituEtaRestrictionResidualMCbased",0.8);
   //Retrieve the Eta restriction on the Relative and Absolute insitu calibration
   double insitu_etarestriction_relativeandabsolute = m_config->GetValue("InsituEtaRestrictionRelativeandAbsolute",0.8);
+  // Apply Insitu only to calo and TA mass calibrated jets (only for large jets)
+  m_applyInsituCaloTAjets = m_config->GetValue("ApplyInsituCaloTAJets", false);
+
 
   //Find the absolute path to the insitu root file
   if ( !insitu_filename.EqualTo("None") ){
@@ -118,11 +121,13 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
 StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
+float detectorEta = jet.getAttribute<float>("DetectorEta");
+
+// For small R jets
+if(!m_applyInsituCaloTAjets){
   xAOD::JetFourMom_t jetStartP4;
   ATH_CHECK( setStartP4(jet) );
   jetStartP4 = jet.jetP4();
-
-  float detectorEta = jet.getAttribute<float>("DetectorEta");
 
   xAOD::JetFourMom_t calibP4=jetStartP4;
   
@@ -135,18 +140,48 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 
   if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 
-  // If the jet mass calibration was applied the calibrated mass needs to be used!
-  /*
-  if(m_jetStartScale.Contains("JetJMSScaleMomentum")){
-    TLorentzVector TLVjet;
-    TLVjet.SetPtEtaPhiM( calibP4.pt(), jetStartP4.eta(), jetStartP4.phi(), jetStartP4.mass() ); // mass at JMS
-    calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() ); 
-  }
-  */
-
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentum",calibP4);
   jet.setJetP4( calibP4 );
+}
+
+  // For Large R jets: insitu needs to be apply also to calo mass calibrated jets and TA mass calibrated jets (by default it's only applied to combined mass calibrated jets)
+  if(m_applyInsituCaloTAjets){
+	// calo mass calibrated jets
+ 	xAOD::JetFourMom_t jetStartP4_calo = jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo");
+  	xAOD::JetFourMom_t calibP4_calo=jetStartP4_calo;
+
+  	if(m_applyResidualMCbasedInsitu) calibP4_calo=calibP4_calo*getInsituCorr( calibP4_calo.pt(), fabs(detectorEta), "ResidualMCbased" );
+
+	if(m_dev){
+    	  float insituFactor_calo = getInsituCorr( jetStartP4_calo.pt(), detectorEta, "RelativeAbs" );
+    	  jet.setAttribute<float>("JetRelativeAbsInsituCalibFactor_calo",insituFactor_calo);
+ 	}
+
+        if(m_applyRelativeandAbsoluteInsitu) calibP4_calo=calibP4_calo*getInsituCorr( jetStartP4_calo.pt(), detectorEta, "RelativeAbs" );
+
+        //Transfer calibrated jet properties to the Jet object
+        jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo",calibP4_calo);
+        jet.setJetP4( calibP4_calo );	
+
+        // TA mass calibrated jets
+        xAOD::JetFourMom_t jetStartP4_ta = jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA");
+        xAOD::JetFourMom_t calibP4_ta=jetStartP4_ta;
+
+        if(m_applyResidualMCbasedInsitu) calibP4_ta=calibP4_ta*getInsituCorr( calibP4_ta.pt(), fabs(detectorEta), "ResidualMCbased" );
+
+        if(m_dev){
+          float insituFactor_ta = getInsituCorr( jetStartP4_ta.pt(), detectorEta, "RelativeAbs" );
+          jet.setAttribute<float>("JetRelativeAbsInsituCalibFactor_ta",insituFactor_ta);
+        }
+
+        if(m_applyRelativeandAbsoluteInsitu) calibP4_ta=calibP4_ta*getInsituCorr( jetStartP4_ta.pt(), detectorEta, "RelativeAbs" );
+
+        //Transfer calibrated jet properties to the Jet object
+        jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA",calibP4_ta);
+        jet.setJetP4( calibP4_ta );
+
+  }
 
   return StatusCode::SUCCESS;
 }

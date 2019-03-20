@@ -64,6 +64,8 @@ class InsituDataCorrection
   bool m_applyResidualMCbasedInsitu;
   bool m_applyEtaRestrictionResidualMCbased;
 
+  bool m_applyInsituCaloTAjets;
+
 };
 
 #endif
