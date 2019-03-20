@@ -50,14 +50,14 @@ StatusCode TRT_CalDbTool::initialize()
 
   // Get StoreGate access to DetectorStore
   if (StatusCode::SUCCESS!=m_detstore.retrieve()) {
-    msg(MSG::FATAL) << "Unable to retrieve " << m_detstore.name() << endmsg;
+    ATH_MSG_FATAL("Unable to retrieve " << m_detstore.name());
     return StatusCode::FAILURE;
   }
 
   // Get the TRT ID helper
   StatusCode sc = m_detstore->retrieve(m_trtid,"TRT_ID");
   if(sc.isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
+    ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
   }
 
@@ -71,7 +71,7 @@ StatusCode TRT_CalDbTool::initialize()
   if(m_isGEANT4) {
     // processing GEANT4 simulation - revert to old non-MT style cond access
 
-      msg(MSG::INFO) << "TRT_CalDbTool::initialize for simulation"  << endmsg;
+      ATH_MSG_INFO("TRT_CalDbTool::initialize for simulation");
       if(StatusCode::SUCCESS!=m_detstore->retrieve(m_rtContainerG4,m_par_rtcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_rtcontainerkey);
         return StatusCode::FAILURE;
@@ -107,7 +107,7 @@ StatusCode TRT_CalDbTool::initialize()
 
   } else {
 
-     msg(MSG::INFO) << " TRT_CalDbTool::initialize for data "  << endmsg;
+    ATH_MSG_INFO(" TRT_CalDbTool::initialize for data ");
   }
   return StatusCode::SUCCESS;
 }
@@ -243,24 +243,23 @@ double TRT_CalDbTool::driftRadius(const double& time, float& t0, const Identifie
   if (rtr != 0)
      radius = rtr->radius( time - t0 );
   else
-     msg(MSG::FATAL) << " cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtid->layer_or_wheel(ident) << " Please check IOV ranges " << endmsg ;
+    ATH_MSG_FATAL(" cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtid->layer_or_wheel(ident) << " Please check IOV ranges ");
   
-  if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0
-                                 << " radius " << radius << endmsg;
+  ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0 << " radius " << radius);
   //
   if(      radius<0 ) radius=0 ;
   else if( radius>2.) radius=2.;
 
   // add protection for the turnover:
   if (time - t0 > 55){
-    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative" << endmsg;
-		// Check Second Derivative.
-		if (rtr != 0){
-			if (rtr->drdt( time - t0 ) < 0 ){
-	    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 )   << endmsg;
-			radius=2.;
-			}
-		}
+    ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative");
+    // Check Second Derivative.
+    if (rtr != 0){
+      if (rtr->drdt( time - t0 ) < 0 ){
+	ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 ));
+	radius=2.;
+      }
+    }
   }
   return radius;
 }
@@ -278,8 +277,7 @@ double TRT_CalDbTool::driftError( const double& time, const Identifier& ident,bo
     found=false;
     return 0;
   }
-  if(msgLvl(MSG::VERBOSE)) msg() << " time " << time  
-				 << " error on radius " << error << endmsg;
+  ATH_MSG_VERBOSE(" time " << time  << " error on radius " << error);
   return error;
 }
 
@@ -296,8 +294,7 @@ double TRT_CalDbTool::driftSlope( const double& time, const Identifier& ident,bo
     found=false;
     return 0;
   }
-  if(msgLvl(MSG::VERBOSE)) msg() << " time " << time
-                                 << " slope on radius " << slope << endmsg;
+  ATH_MSG_VERBOSE(" time " << time << " slope on radius " << slope);
   return slope;
 }
 

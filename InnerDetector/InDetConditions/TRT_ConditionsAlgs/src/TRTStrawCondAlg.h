@@ -37,7 +37,7 @@ class TRTStrawCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<TRTCond::AliveStraws> m_strawWriteKey{this,"StrawWriteKey","AliveStraws","AliveStraws out-key"};
   const InDetDD::TRT_DetectorManager* m_detManager;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_strawStatus;
-  const TRT_ID *m_trtid;
+  const TRT_ID *m_trtId;
   bool m_isGEANT4;
 
 };

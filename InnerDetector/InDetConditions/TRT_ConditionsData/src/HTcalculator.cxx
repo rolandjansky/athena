@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TRT_ConditionsData/HTcalculator.h"
+#include "AsgTools/MsgStreamMacros.h"
 /*****************************************************************************\
 |*%%%  Default Constructor  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
@@ -22,8 +23,7 @@ HTcalculator::~HTcalculator(){
 
 void HTcalculator::checkInitialization(){
   if( not m_HasBeenInitialized ) {
-    std::cout << "The HTcalculator is about to be used uninitialized" << std::endl;
-    std::cout << "Loading default calibration into memory." << std::endl;
+    //ATH_MSG_WARNING( "The HTcalculator is about to be used uninitialized - Loading default");
     setDefaultCalibrationConstants();
     m_HasBeenInitialized=1;
   }
@@ -163,8 +163,8 @@ float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, flo
 StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
   //std::cout << "Set TRT HT PID Parameters from the Vector Database << std::endl;
    if ( channel_values->size() < 1){
-     std::cout << " HTcalculator ERROR: There are no Pid channels available!!" << std::endl;
-          return StatusCode::FAILURE;
+      //ATH_MSG_ERROR(" There are no Pid channels available!!");
+      return StatusCode::FAILURE;
    }
 
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
@@ -527,7 +527,7 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    } 
   
    m_HasBeenInitialized=1;
-   std::cout <<  " HTcalculator INFO: TRT PID HT Vector DB loaded: " << std::endl;
+   //ATH_MSG_INFO(" TRT PID HT Vector DB loaded: ");
    return StatusCode::SUCCESS;
 }
 

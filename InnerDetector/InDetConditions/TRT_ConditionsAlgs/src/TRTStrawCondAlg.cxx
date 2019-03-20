@@ -11,7 +11,7 @@ TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
     m_condSvc("CondSvc",name),
     m_detManager(nullptr),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtid(0),
+    m_trtId(0),
     m_isGEANT4(true)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus);
   declareProperty("isGEANT4",m_isGEANT4);
@@ -43,7 +43,7 @@ StatusCode TRTStrawCondAlg::initialize()
   ATH_CHECK(detStore()->retrieve(m_detManager,"TRT"));
 
   // TRT ID helper
-  ATH_CHECK(detStore()->retrieve(m_trtid,"TRT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_trtId,"TRT_ID"));
 
   return StatusCode::SUCCESS;
 }
@@ -73,7 +73,7 @@ StatusCode TRTStrawCondAlg::execute(const EventContext& ctx) const
 
   // ____________ Compute number of alive straws for Write Cond object  ____________
 
-  for (std::vector<Identifier>::const_iterator it = m_trtid->straw_layer_begin(); it != m_trtid->straw_layer_end(); it++  ) {
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
 
    unsigned int nstraws = 0;
    if (m_detManager){
@@ -82,13 +82,13 @@ StatusCode TRTStrawCondAlg::execute(const EventContext& ctx) const
      nstraws = el->nStraws();
    }
    else{
-     nstraws = m_trtid->straw_max( *it) + 1; // There is a difference of 1 between both methods....
+     nstraws = m_trtId->straw_max( *it) + 1; // There is a difference of 1 between both methods....
    }
    for (unsigned int i=0; i<nstraws  ;i++) {
-      Identifier id = m_trtid->straw_id( *it, i);
-      int det = m_trtid->barrel_ec(         id)     ;
-      int lay = m_trtid->layer_or_wheel(    id)     ;
-      int phi = m_trtid->phi_module(        id)     ;
+      Identifier id = m_trtId->straw_id( *it, i);
+      int det = m_trtId->barrel_ec(         id)     ;
+      int lay = m_trtId->layer_or_wheel(    id)     ;
+      int phi = m_trtId->phi_module(        id)     ;
       bool status               = m_strawStatus->get_status( id );
 
       if ( status ) {

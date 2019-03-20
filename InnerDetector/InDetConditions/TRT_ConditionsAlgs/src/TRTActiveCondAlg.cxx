@@ -11,7 +11,7 @@ TRTActiveCondAlg::TRTActiveCondAlg(const std::string& name
     m_condSvc("CondSvc",name),
     m_detManager(nullptr),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtid(0)
+    m_trtId(0)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus); }
 TRTActiveCondAlg::~TRTActiveCondAlg(){}
 
@@ -40,7 +40,7 @@ StatusCode TRTActiveCondAlg::initialize()
   ATH_CHECK(detStore()->retrieve(m_detManager,"TRT"));
 
   // TRT ID helper
-  ATH_CHECK(detStore()->retrieve(m_trtid,"TRT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_trtId,"TRT_ID"));
 
   return StatusCode::SUCCESS;
 }
@@ -81,9 +81,9 @@ StatusCode TRTActiveCondAlg::execute(const EventContext& ctx) const
      int bin = writeCdo->findEtaBin( (etaMin+etaMax)/2. );
      ATH_MSG_DEBUG("TRTCond::ActiveFraction: findEtaBin( " << etaMin << ", " << etaMax << " ] = " << bin );
 
-    for (unsigned int i=0; i<writeCdo->getPhiBins().size(); i++) {
-      float phiMin = writeCdo->getPhiBins()[i].first;
-      float phiMax = writeCdo->getPhiBins()[i].second;
+    for (unsigned int j=0; j<writeCdo->getPhiBins().size(); j++) {
+      float phiMin = writeCdo->getPhiBins()[j].first;
+      float phiMax = writeCdo->getPhiBins()[j].second;
       int bin = writeCdo->findPhiBin( (phiMin+phiMax)/2. );
       ATH_MSG_DEBUG("TRTCond::ActiveFraction: findPhiBin( " << phiMin << ", " << phiMax << " ] = " << bin );
     }
@@ -97,11 +97,11 @@ StatusCode TRTActiveCondAlg::execute(const EventContext& ctx) const
   float rMinEndcap = 617.; 
   float rMaxEndcap = 1106.;
   int countAll(0), countDead(0), countSaved(0), countPhiSkipped(0), countEtaSkipped(0), countInvalidEtaValues(0); 
-  for (std::vector<Identifier>::const_iterator it = m_trtid->straw_layer_begin(); it != m_trtid->straw_layer_end(); it++  ) {
-     int nStrawsInLayer = m_trtid->straw_max(*it);
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
+     int nStrawsInLayer = m_trtId->straw_max(*it);
      for (int i=0; i<=nStrawsInLayer; i++) { 
 
-        Identifier id = m_trtid->straw_id(*it, i);	 
+        Identifier id = m_trtId->straw_id(*it, i);	 
         bool status = m_strawStatus->get_status(id);
         countAll++; if (status) countDead++;
 
@@ -115,12 +115,12 @@ StatusCode TRTActiveCondAlg::execute(const EventContext& ctx) const
         }
 
 	// calculate etaMin, etaMax
-	int side = m_trtid->barrel_ec(id);
+	int side = m_trtId->barrel_ec(id);
         float z = fabs( strawPosition.z() );
 	float thetaMin(0.), thetaMax(0.);
 	if (abs(side)==1) { // barrel
            float zRange = 360.; // straw length / 2  
-	   if ( m_trtid->layer_or_wheel(id) == 0 && m_trtid->straw_layer(id) < 9 ) zRange = 160.;  // short straws
+	   if ( m_trtId->layer_or_wheel(id) == 0 && m_trtId->straw_layer(id) < 9 ) zRange = 160.;  // short straws
 	   float r = sqrt( pow(strawPosition.x(), 2) + pow(strawPosition.y(), 2) );
 	   thetaMin = atan( r / (z+zRange) );
 	   thetaMax = ((z-zRange)>0.) ? atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon

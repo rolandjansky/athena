@@ -36,7 +36,7 @@ class TRTActiveCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<TRTCond::ActiveFraction> m_strawWriteKey{this,"ActiveWriteKey","ActiveFraction","ActiveFraction out-key"};
   const InDetDD::TRT_DetectorManager* m_detManager;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_strawStatus;
-  const TRT_ID *m_trtid;
+  const TRT_ID *m_trtId;
 
 };
 #endif

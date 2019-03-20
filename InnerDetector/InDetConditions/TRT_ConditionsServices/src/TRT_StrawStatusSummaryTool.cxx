@@ -65,7 +65,7 @@ TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type,
 
 StatusCode TRT_StrawStatusSummaryTool::initialize() 
 {
-  msg(MSG::INFO) << "TRT_StrawStatusSummaryTool initialize method called" << endmsg;
+  ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialize method called");
 
 
   // Retrieve the DetectorStore
@@ -76,13 +76,13 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
 
   // Find ToolService
   if (StatusCode::SUCCESS!=m_toolsvc.retrieve()) {
-    msg(MSG::FATAL) << "ToolSvc not found" << endmsg;
+    ATH_MSG_FATAL("ToolSvc not found");
     return StatusCode::FAILURE;
   }
 
   // Get the TRT ID helper
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtid,"TRT_ID")) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
+    ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
   }
 
@@ -105,7 +105,7 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
 
   }
 
-  msg(MSG::INFO) << "TRT_StrawStatusSummaryTool initialized successfully  " << endmsg;
+  ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialized successfully  ");
   return StatusCode::SUCCESS;
 }
 
@@ -129,7 +129,7 @@ int TRT_StrawStatusSummaryTool::getStatus(Identifier offlineID) const{
   static int countStrawStatusContainerError(0);
   if (!strawstatuscontainer) {
     if (countStrawStatusContainerError<5) { 
-      msg(MSG::WARNING) << "TRT_StrawStatusSummaryTool::getStatus, strawstatuscontainer == 0, dead straws not set" << endmsg; 
+      ATH_MSG_WARNING(" getStatus, strawstatuscontainer == 0, dead straws not set"); 
       countStrawStatusContainerError++; 
     }
     return 0;
@@ -149,7 +149,7 @@ int TRT_StrawStatusSummaryTool::getStatusPermanent(Identifier offlineID) const{
   const StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuspermanentcontainer) {
-    if (countStrawStatusContainerError<5) {       msg(MSG::WARNING) << "TRT_StrawStatusSummaryTool::getStatusPermanent, strawstatuspermanentcontainer == 0, dead straws not set" << endmsg; 
+    if (countStrawStatusContainerError<5) { ATH_MSG_WARNING(" getStatusPermanent, strawstatuspermanentcontainer == 0, dead straws not set"); 
       countStrawStatusContainerError++; 
     }
     return 0;
@@ -171,7 +171,7 @@ int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID) const{
  static int countStrawStatusContainerError(0);
  if (!strawstatusHTcontainer) {
    if (countStrawStatusContainerError<5) { 
-     msg(MSG::WARNING) << "TRT_StrawStatusSummaryTool::getStatusHT, strawstatusHTcontainer == 0, dead straws not set" << endmsg; 
+     ATH_MSG_WARNING(" getStatusHT, strawstatusHTcontainer == 0, dead straws not set"); 
      countStrawStatusContainerError++; 
    }
     return 0;
@@ -186,7 +186,7 @@ int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID) const{
 
 bool TRT_StrawStatusSummaryTool::get_status(Identifier offlineID) const{
   const unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8)<<endmsg;
+  ATH_MSG_VERBOSE("offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8));
   bool st = false, stperm=false;
   if (getStatus(offlineID)==1) st = true;
   else if (getStatus(offlineID)==0) st = false;
@@ -205,7 +205,7 @@ bool TRT_StrawStatusSummaryTool::get_status(Identifier offlineID) const{
 
 bool TRT_StrawStatusSummaryTool::get_statusHT(Identifier offlineID) const{
   const unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8)<<endmsg;
+  ATH_MSG_VERBOSE("offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8));
   bool stHT=false;
 
 

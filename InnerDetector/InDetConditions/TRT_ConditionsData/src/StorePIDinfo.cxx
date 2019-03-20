@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
+#include "AsgTools/MsgStreamMacros.h"
 #include "TRT_ConditionsData/StorePIDinfo.h"
 
 StorePIDinfo::StorePIDinfo(){
@@ -22,7 +23,7 @@ void StorePIDinfo::update( int nbins, float min, float max, std::vector<float> v
 	m_min 	= min	;
 	m_max	= max	;
 	if (values.size()!=m_nbins){
-    		printf("  ERROR: DIFFERENT Values of n_bins and vector size!!!\n");
+	  //ATH_MSG_ERROR(" Different Values of n_bins and vector size!!!")
 	}
 	m_values.clear();
 	for (unsigned int i = 0; i<values.size(); i++ ){
@@ -47,18 +48,18 @@ void StorePIDinfo::push_back( float value ){
 StatusCode StorePIDinfo::check( int gas, int detpart) const{
 	if 	( m_nbins == 0)
 	{
-		std::cout << "ERROR: PIDDB no bins in the DB!! Gas: " << gas << " detPart: " << detpart << std::endl;
-          	return StatusCode::FAILURE;
+	  std::cout << " StorePIDinfo: No bins in the DB!! Gas: " << gas << " detPart: " << detpart << std::endl;
+          return StatusCode::FAILURE;
 	}
 	else if ( m_nbins != m_values.size() )
 	{
-		std::cout << "ERROR: PIDDB different number of numbers!!!!! " << gas << " detPart: " << detpart << std::endl;
-          	return StatusCode::FAILURE;
+	  std::cout << " Different number of PID numbers!!!!! " << gas << " detPart: " << detpart << std::endl;
+          return StatusCode::FAILURE;
 	}
 	else if ( (m_max < m_min) || (m_max == m_min) )
 	{
-	 	std::cout << "ERROR: PIDDB Max is smaller or equal than min!!!" << gas << " detPart: " << detpart << std::endl;
-          	return StatusCode::FAILURE;
+	  std::cout << " Max is smaller or equal than min!!!" << gas << " detPart: " << detpart << std::endl;
+          return StatusCode::FAILURE;
 	}
         return StatusCode::SUCCESS;
 }
@@ -78,7 +79,7 @@ int StorePIDinfo::GetBin	( float input  ) const {
 	else{
 		float dr = (m_max-m_min)/m_nbins;
 		unsigned int bin = int (                       (input - m_min)/dr    ) ;
-		if 	(bin >=  m_nbins)  	printf("  ERROR: Bin number is larger than number of bins!!!\n");
+		//if 	(bin >=  m_nbins) ATH_MSG_ERROR"  Bin number is larger than number of bins!");
 		return bin;
 	}
 	return 0;

@@ -10,8 +10,9 @@ namespace TRTCond{
   class AliveStraws{
   public:
     AliveStraws() {
-       // create arrays for alive straws
-      m_stw_total = new int[7]();
+       // Create arrays for alive straws
+       // These are moved to CondStore which takes care of their deletion 
+       m_stw_total = new int[7]();
        m_stw_local = new int*[6];
        m_stw_wheel = new int*[34];
        for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32]();
