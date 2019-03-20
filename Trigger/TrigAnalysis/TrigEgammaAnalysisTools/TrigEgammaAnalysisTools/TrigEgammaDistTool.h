@@ -27,13 +27,12 @@ public:
 protected:
 private:
   /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
-  void fillShowerShapes(const std::string, const xAOD::Egamma *); // Online and Offline fillers
-  void fillTracking(const std::string, const xAOD::Electron *); // Online and Offline fillers
-  void fillEFCalo(const std::string,const xAOD::CaloCluster *);
-  void fillL2Electron(const std::string,const xAOD::TrigElectron *);
-  void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
-  void fillRinger(const std::string,const xAOD::TrigEMCluster *);
-  void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
+  void fillShowerShapes(const std::string &, const xAOD::Egamma *); // Online and Offline fillers
+  void fillTracking(const std::string &, const xAOD::Electron *); // Online and Offline fillers
+  void fillEFCalo(const std::string &,const xAOD::CaloCluster *);
+  void fillL2Electron(const std::string &,const xAOD::TrigElectron *);
+  void fillL2Calo(const std::string &,const xAOD::TrigEMCluster *);
+  void fillL1Calo(const std::string &,const xAOD::EmTauRoI *);
    /*! Include more detailed histograms */
   bool m_detailedHists;
 };

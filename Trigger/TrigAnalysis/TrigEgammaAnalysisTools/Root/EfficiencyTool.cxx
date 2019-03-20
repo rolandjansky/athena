@@ -50,26 +50,25 @@ bool EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string p
     const std::string ineff = "Ineff" + pidword;
 
     bool failIsEMLH = true;
-    unsigned int isem = 9999;
     try{
-	ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
-	isem = eg->selectionisEM(pidword);
+	    ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
+	    unsigned int isem = eg->selectionisEM(pidword);
 
-	failIsEMLH = false;
-	for (int ii = 0; ii < 11; ii++) {
-	    if ((isem >> ii) & 0x1) {
-		failIsEMLH = true;
-		hist1(fail)->Fill(ii + 0.5);
-		hist1(ineff)->Fill(ii + 3.5, 1);
+	    failIsEMLH = false;
+	    for (int ii = 0; ii < 11; ii++) {
+	        if ((isem >> ii) & 0x1) {
+	    	failIsEMLH = true;
+	    	hist1(fail)->Fill(ii + 0.5);
+	    	hist1(ineff)->Fill(ii + 3.5, 1);
+	        }
 	    }
-	}
     } catch (const ValidationException &e) {
-	ATH_MSG_WARNING("Exception thrown: " << e.msg() );
-	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
-	failIsEMLH = true;
+	    ATH_MSG_WARNING("Exception thrown: " << e.msg() );
+	    ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
+	    failIsEMLH = true;
     } catch(...) {
-	ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
-	failIsEMLH = true;
+	    ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
+	    failIsEMLH = true;
     }
     return failIsEMLH;
 
@@ -90,18 +89,7 @@ bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid
     bool failtrt = false;
     bool failisem = false;
 
-    unsigned int isem = 9999;
-    try{
-	isem = eg->selectionisEM(pidword);
-    } catch (const ValidationException &eg) {
-	ATH_MSG_WARNING("Exception thrown: " << eg.msg() );
-	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
-	return(true);
-    } catch(...) {
-	ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
-	return(true);
-    }
-
+    unsigned int isem = eg->selectionisEM(pidword);
 
     for (int ii = 0; ii < 29; ii++) {
         if ((isem >> ii) & 0x1) {
@@ -255,8 +243,7 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
             hist1(ineff)->Fill(lastbin - 4, 1);
             hist1(ineff)->Fill(sumbin, 1);
         }
-        else {
-            hist1(ineff)->Fill(lastbin - 3, 1);
+        else{
             hist1(ineff)->Fill(sumbin, 1);
         }
 

@@ -27,20 +27,16 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
-
-/*
- Ringer offline to be include for future
-/////////////////////////////////////////////////////////
-#include "xAODCaloRings/RingSet.h"                     //
-#include "xAODCaloRings/RingSetContainer.h"            //
-#include "xAODCaloRings/CaloRings.h"                   //
-#include "xAODCaloRings/CaloRingsContainer.h"          //
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h" //
-/////////////////////////////////////////////////////////
-*/
+#include "xAODCaloRings/RingSet.h"                     
+#include "xAODCaloRings/RingSetContainer.h"            
+#include "xAODCaloRings/CaloRings.h"                   
+#include "xAODCaloRings/CaloRingsContainer.h"          
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -50,12 +46,12 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
 public:
 
   TrigEgammaAnalysisBaseTool( const std::string& myname);
-  virtual ~TrigEgammaAnalysisBaseTool() {};
+  ~TrigEgammaAnalysisBaseTool() {};
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode book() override;
-  virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize() ;
+  StatusCode book() ;
+  StatusCode execute() ;
+  StatusCode finalize() ;
   template<class T, class B> std::unique_ptr<xAOD::TrigPassBits> createBits(const T* CONT, const B* BITS);
   template<class T> std::unique_ptr<xAOD::TrigPassBits> getBits(const HLT::TriggerElement* te,const T* CONT);
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
@@ -63,15 +59,18 @@ public:
   template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
                                                         float &, bool usePassbits=true,const std::string key="");
   // Interface class methods needed to pass information to additional tools or to set common tools
-  virtual void setParent(IHLTMonTool *parent) override { m_parent = parent;};
-  virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool) override {m_plot=tool;}
-  virtual void setDetail(bool detail) override {m_detailedHists=detail;}
-  virtual void setTP(bool tp) override {m_tp=tp;}
-  virtual void setEmulation(bool doEmu) override {m_doEmulation=doEmu;}
-  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool) override {m_emulationTool=tool;}
-  virtual void setPVertex(const float onvertex, const float ngoodvertex) override {m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
-  virtual void setAvgMu(const float onlmu, const float offmu) override {m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
-
+  void setParent(IHLTMonTool *parent)  { m_parent = parent;};
+  void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool)  {m_plot=tool;}
+  void setDetail(bool detail)  {m_detailedHists=detail;}
+  void setTP(bool tp)  {m_tp=tp;}
+  void setEmulation(bool doEmu)  {m_doEmulation=doEmu;}
+  void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool)  {m_emulationTool=tool;}
+  void setPVertex(const float onvertex, const float ngoodvertex)  {m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
+  void setAvgMu(const float onlmu, const float offmu)  {m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
+  
+  void setSGContainsRnn(bool contains)  {m_sgContainsRnn=contains;}
+  void setSGContainsTrigPhoton(bool contains)  {m_sgContainsTrigPhoton=contains;}
+  
   // Set current MonGroup
   void cd(const std::string &dir);
   // Accessor members
@@ -112,7 +111,10 @@ private:
   float m_offmu;
   float m_nGoodVertex; 
   float m_nPVertex;
- 
+  
+  /*! Hook to check for RNN features in SG */
+  bool m_sgContainsRnn;
+  bool m_sgContainsTrigPhoton;
   // Properties  
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
@@ -137,6 +139,8 @@ protected:
   void bookAnalysisHistos(const std::string);
 
   void setTrigInfo(const std::string);
+  void setTrigEmulation(){m_forceTrigEmulation=true;};
+  
   TrigInfo getTrigInfo(const std::string);
   std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
  
@@ -169,7 +173,11 @@ protected:
   float getNPVtx(){return m_nPVertex;}
   float getNGoodVertex(){return m_nGoodVertex;}
  
-  /* trig rings and offline rings helper method for feature extraction from xaod */
+  /* Protection for Holders not in AOD */
+  bool getSGContainsRnn() { return m_sgContainsRnn;}
+  bool getSGContainsTrigPhoton() { return m_sgContainsTrigPhoton;}
+
+  /* trig rings and offline rings helper method for feature extraction from xaod */ 
   bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
   bool getTrigCaloRings( const xAOD::TrigEMCluster *, std::vector<float> & );
   void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
@@ -213,6 +221,11 @@ protected:
   bool m_tp;
   /*! Emulation Analysis */
   bool m_doEmulation;
+  /*! force emulation trigger */
+  bool m_forceTrigEmulation;
+  /* force trigger attachment into the list */
+  bool m_forceTrigAttachment;
+
   // Infra-structure members
   std::string m_file;
   /*! String for offline container key */

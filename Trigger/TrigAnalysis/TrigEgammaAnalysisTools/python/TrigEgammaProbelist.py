@@ -484,6 +484,7 @@ defaultJpsi=[
   "HLT_e5_lhvloose",
 ]
 
+
 # Lowest single electron triggers for TP analysis
 monitoringTP_electron_extra =[
   'HLT_e24_lhmedium_L1EM18VH',
@@ -544,8 +545,6 @@ supportingTriggerList.extend( [
   'HLT_e40_lhvloose_nod0',
   'HLT_e60_lhvloose_nod0',
 ] )
-
-
 
 
 
