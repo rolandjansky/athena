@@ -34,6 +34,7 @@ public:
   
   static const std::string TriggerTowerLocation;
   static const std::string xAODTriggerTowerLocation;
+  static const std::string xAODTriggerTowerRerunLocation;
   static const std::string CPMTowerLocation;
   static const std::string JetElementLocation;
   

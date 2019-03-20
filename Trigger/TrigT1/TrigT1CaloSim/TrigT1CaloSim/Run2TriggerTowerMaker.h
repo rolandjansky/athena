@@ -131,9 +131,6 @@ private:
   //Flag to enable zero suppression (makes algorithm simulation much faster
   bool m_ZeroSuppress;
 
-  // locations within the TES to store collections of Trigger Towers
-  std::string m_outputLocation;
-
   // require all calorimeters, or allow running with some missing?
   bool m_requireAllCalos;
 
@@ -269,9 +266,10 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey;
   //  location of input TriggerTowers (for reprocessing)
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_inputTTLocation;
-  // locations within the TES to store collections of Trigger Towers
-  //SG::WriteHandleKey<xAOD::TriggerTowerContainer> m_outputLocation;
-  //SG::WriteHandleKey<xAOD::TriggerTowerAuxContainer> m_outputAuxLocation;
+  // locations within StoreGate to store collections of Trigger Towers
+  SG::WriteHandleKey<xAOD::TriggerTowerContainer> m_outputLocation;
+  // locations within StoreGate to store collections of Trigger Towers for reprocessing
+  SG::WriteHandleKey<xAOD::TriggerTowerContainer> m_outputLocationRerun;
 
   // location of LAr TTL1 data
   SG::ReadHandleKey<LArTTL1Container> m_EmTTL1ContainerName;
