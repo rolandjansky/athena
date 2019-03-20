@@ -173,7 +173,11 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
    xAOD::CPMTowerMap_t cpmtowers;
    if( m_emTauTool.isEnabled() && ( ! m_cpmTowerKey.key().empty() ) ) {
       auto cpmTower = SG::makeHandle( m_cpmTowerKey, ctx );
-      m_emTauTool->mapTowers( cpmTower.cptr(), &cpmtowers );
+      if (cpmTower.isValid()) {
+         m_emTauTool->mapTowers( cpmTower.cptr(), &cpmtowers );
+      } else {
+        ATH_MSG_DEBUG( "No CPMTowerCollection found at " << m_cpmTowerKey.key() );
+      }
    }
 
    // reconstruct ROI
@@ -324,7 +328,11 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
    std::map< int, LVL1::JetInput* > jetInputs;
    if( m_jetTool.isEnabled() && ( ! m_jetElementKey.key().empty() ) ) {
       auto jetElement = SG::makeHandle( m_jetElementKey, ctx );
-      m_jetTool->mapJetInputs( jetElement.cptr(), &jetInputs );
+      if (jetElement.isValid()) {
+         m_jetTool->mapJetInputs( jetElement.cptr(), &jetInputs );
+      } else {
+         ATH_MSG_DEBUG( "No JetElementContainer found at " << m_jetElementKey.key() );
+      }
    }
    std::vector< std::unique_ptr< LVL1::JetInput > > jetInputsHolder;
    for( auto pair : jetInputs ) {
