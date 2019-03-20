@@ -19,7 +19,6 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
 #include "LArHV/EMBHVElectrode.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
@@ -360,9 +359,9 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
          const EMBCellConstLink cell = embElement->getEMBCell();
          unsigned int nelec = cell->getNumElectrodes();
          for (unsigned int i=0;i<nelec;i++) {
-            const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+            const EMBHVElectrode& electrode = cell->getElectrode(i);
             for (unsigned int igap=0;igap<2;igap++) {
-              if (electrode->hvLineNo(igap)==HVline) {
+              if (electrode.hvLineNo(igap)==HVline) {
                   list.push_back(2*i+igap);
               }
             } 
@@ -459,7 +458,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
             msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endmsg;
             return -1;
          } else { 
-            return cell->getElectrode(ielec)->hvLineNo(igap);
+            return cell->getElectrode(ielec).hvLineNo(igap);
          }
        }
      }
