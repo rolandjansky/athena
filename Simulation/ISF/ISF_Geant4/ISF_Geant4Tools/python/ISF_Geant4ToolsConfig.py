@@ -96,4 +96,8 @@ def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
     kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
     return getFullG4TransportTool(name, **kwargs)
 
+def getAFII_QS_G4TransportTool(name='AFII_QS_G4TransportTool', **kwargs):
+    kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
+    return getAFII_G4TransportTool(name, **kwargs)
+
 ## -----------------------------------------------------------------------------
