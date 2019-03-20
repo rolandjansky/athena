@@ -80,7 +80,7 @@ private:
   //@{
 
   //for Vertex and perigee
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
   Prof_t m_phiVsNstrips[4];
@@ -91,11 +91,10 @@ private:
   Prof_t m_phiVsNstrips_Side_100[4][2];
   Prof_t m_phiVsNstrips_Side_111[4][2];
 
-  std::string m_stream;
   std::string m_path;
   //@}
   /// Name of the Track collection to use
-  SG::ReadHandleKey<TrackCollection> m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   //@name Service members

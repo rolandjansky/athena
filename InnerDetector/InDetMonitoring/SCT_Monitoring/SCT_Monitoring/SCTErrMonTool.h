@@ -127,8 +127,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   TH1I* m_nErrors;
   TH1I* m_nLinksWithErrors;
-  int* m_nErrors_buf;
-  int* m_nLinksWithErrors_buf;
+  std::vector<int> m_nErrors_buf;
+  std::vector<int> m_nLinksWithErrors_buf;
   int m_nErrors_pos;
 
   TH1I* m_MaskedAllLinks; // maskedLinks||maskedRODs
@@ -158,7 +158,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   // NOTE: The following is not the usual index order, which goes C, Barrel, A
   enum {iECm=0, iBARREL=1, iECp=2, iGEN=3 }; //iECp==EA, iECm==EC
 
-  std::string m_stream;
   std::string m_path;
   /// CheckHists() frequency
   int m_checkrate;
@@ -187,7 +186,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@{
 
   /// Data object name: for the SCT this is "SCT_RDOs"
-  SG::ReadHandle<SCT_RDO_Container> m_dataObjectName;
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -289,7 +288,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   float m_PSTripModules;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
 };
 
 #endif

@@ -13,7 +13,6 @@
 
 #include "SCT_Monitoring/SCTHitsNoiseMonTool.h"
 
-#include "cArrayUtilities.h"
 #include "SCT_NameFormatter.h"
 
 #include "AthContainers/DataVector.h"
@@ -135,17 +134,17 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
                                          const IInterface* parent) :
   SCTMotherTrigMonTool(type, name, parent),
   m_nSP(nullptr),
-  m_nSP_buf(nullptr),
+  m_nSP_buf{},
   m_nSP_pos(0),
   m_nHits(nullptr),
-  m_nHits_buf(nullptr),
+  m_nHits_buf{},
   m_nHits_pos(0),
   m_nmaxHits(nullptr),
-  m_nmaxHits_buf(nullptr),
-  m_nmaxModule_buf(nullptr),
+  m_nmaxHits_buf{},
+  m_nmaxModule_buf{},
   m_nminHits(nullptr),
-  m_nminHits_buf(nullptr),
-  m_nminModule_buf(nullptr),
+  m_nminHits_buf{},
+  m_nminModule_buf{},
   m_numBarrelHitsPerLumiBlock(nullptr),
   m_numHitsPerLumiBlockECp(nullptr),
   m_numHitsPerLumiBlockECm(nullptr),
@@ -153,7 +152,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_numSPPerLumiBlockECp(nullptr),
   m_numSPPerLumiBlockECm(nullptr),
   m_rioMap(nullptr),
-  //
   m_BARNO(nullptr),
   m_BARNOTrigger(nullptr),
   m_ECmNO(nullptr),
@@ -162,7 +160,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_ECpNOTrigger(nullptr),
   m_SCTNO(nullptr),
   m_SCTNOTrigger(nullptr),
-  //
   m_NallHitsBAR_vsLB(nullptr),
   m_NSPHitsBAR_vsLB(nullptr),
   m_NallHitsECm_vsLB(nullptr),
@@ -176,7 +173,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_NoisyModules100_vsLB(nullptr),
   m_NoisyModules1000_vsLB(nullptr),
   m_NoisyModules10000_vsLB(nullptr),
-  //
   m_NallHitsTriggerBAR_vsLB(nullptr),
   m_NSPHitsTriggerBAR_vsLB(nullptr),
   m_NallHitsTriggerECm_vsLB(nullptr),
@@ -190,7 +186,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_NoisyModulesTrigger100_vsLB(nullptr),
   m_NoisyModulesTrigger1000_vsLB(nullptr),
   m_NoisyModulesTrigger10000_vsLB(nullptr),
-  //
   m_MaxOccupancyStripHist(nullptr),
   m_MinOccupancyStripHist(nullptr),
   m_clusize(nullptr),
@@ -199,11 +194,11 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_hitsvsL1ID(nullptr),
   m_ncluHisto(nullptr),
   m_coincidenceHist(nullptr),
+  m_stream{"/stat"},
   m_numberOfEvents(0),
   m_numberOfEventsTrigger(0),
   m_numberOfEventsRecent(0),
   m_skipEvents(0),
-  m_booltxscan(false),
   m_current_lb(0),
   m_last_reset_lb(0),
   m_tbinHisto(nullptr),
@@ -212,12 +207,17 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_tbinHistoRecent(nullptr),
   m_tbinHistoRecentECp(nullptr),
   m_tbinHistoRecentECm(nullptr),
+  m_tbinfrac{},
+  m_tbinfracECp{},
+  m_tbinfracECm{},
+  m_clusizedist{},
+  m_clusizedistECp{},
+  m_clusizedistECm{},
   m_tbinfracall(nullptr),
   m_tbinfracVsLB(nullptr),
   m_tbinfracVsLBECp(nullptr),
   m_tbinfracVsLBECm(nullptr),
   m_initialize(false),
-  m_SCTSPContainerName(std::string("SCT_SpacePoints")),
   m_noisyM100{},
   m_noisyM1000{},
   m_noisyM10000{},
@@ -268,7 +268,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_NoisyModulesWithHOTrigger100_vsLB(nullptr),
   m_NoisyModulesWithHOTrigger1000_vsLB(nullptr),
   m_NoisyModulesWithHOTrigger10000_vsLB(nullptr),
-  //
   m_noisyMWithHO100{},
   m_noisyMWithHO1000{},
   m_noisyMWithHO10000{},
@@ -283,25 +282,12 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
   m_hitoccTriggerBAR_lb{},
   m_hitoccTriggerECp_lb{},
   m_hitoccTriggerECm_lb{},
-  //
-  m_dataObjectName(std::string("SCT_RDOs")),
-  m_pSCTHelper(nullptr),
-  m_eventInfoKey(std::string("EventInfo")),
-  m_clusContainerKey("SCT_Clusters") {
-    /** sroe 3 Sept 2015:
-        histoPathBase is declared as a property in the base class, assigned to m_path
-        with default as empty string.
-        Declaring it here as well gives rise to compilation warning
-        WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-
-        declareProperty("histoPathBase", m_stream = "/stat"); **/
-    m_stream = "/stat";
+  m_pSCTHelper(nullptr) {
     declareProperty("localSummary", m_localSummary = 0);
-    declareProperty("doHitmapHistos", m_boolhitmaps = true);
+    declareProperty("doHitmapHistos", m_boolhitmaps = false);
     declareProperty("doTXScan", m_booltxscan = false);
     declareProperty("CheckRate", m_checkrate = 1000);
     declareProperty("CheckRecent", m_checkrecent = 30);
-    declareProperty("tracksName", m_tracksName = "Combined_Tracks");
     declareProperty("NOTrigger", m_NOTrigger = "L1_RD0_EMPTY");
     declareProperty("numberOfSigma", m_numSigma = 3);
     declareProperty("EvtsBins", m_evtsbins = 5000);
@@ -313,24 +299,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
     declareProperty("doTrackHits", m_doTrackHits = true);
     declareProperty("MaxTracks", m_maxTracks = 1000);
     declareProperty("doLogXNoise", m_doLogXNoise = true);
-
-    clear1D(m_tbinfrac);
-    clear1D(m_tbinfracECp);
-    clear1D(m_tbinfracECm);
-    clear1D(m_clusizedist);
-    clear1D(m_clusizedistECp);
-    clear1D(m_clusizedistECm);
-  }
-
-// ====================================================================================================
-// ====================================================================================================
-SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool() {
-  free(m_nSP_buf);
-  free(m_nmaxHits_buf);
-  free(m_nminHits_buf);
-  free(m_nmaxModule_buf);
-  free(m_nminModule_buf);
-  free(m_nHits_buf);
 }
 
 // ====================================================================================================
@@ -340,7 +308,6 @@ StatusCode SCTHitsNoiseMonTool::initialize() {
 
   ATH_CHECK(m_SCTSPContainerName.initialize());
   ATH_CHECK(m_dataObjectName.initialize());
-  ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_clusContainerKey.initialize());
   ATH_CHECK(m_tracksName.initialize());
 
@@ -767,7 +734,6 @@ SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::generalHistsandNoise() {
-  typedef SCT_RDORawData SCTRawDataType;
   SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
   SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
@@ -785,8 +751,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   }
   Identifier SCT_Identifier;
   // Use new IDC
-  SCT_RDO_Container::const_iterator col_it = p_rdocontainer->begin();
-  SCT_RDO_Container::const_iterator lastCol = p_rdocontainer->end();
   int local_tothits = 0;
   int totalmodules = 0;
   int meanhits = 0;
@@ -831,65 +795,56 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   const bool doThisSubsystem[3] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-  //
-  // Define some iterators over the SP container
-  SpacePointContainer::const_iterator spContainerIterator = sctContainer->begin();
-  SpacePointContainer::const_iterator spContainerIteratorEnd = sctContainer->end();
   // Outer Loop on RDO Collection
-  for (; col_it != lastCol; ++col_it) {
-    const InDetRawDataCollection<SCTRawDataType>* SCT_Collection(*col_it);
-    if (!SCT_Collection) {
+  for (const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection: *p_rdocontainer) {
+    if (SCT_Collection==nullptr) {
       continue;  // select only SCT RDOs
     }
     // MJW new code- try getting the ID of the collection using the identify() method
     Identifier tempID = SCT_Collection->identify();
     Identifier theWaferIdentifierOfTheRDOCollection = tempID;
     Identifier theModuleIdentifierOfTheRDOCollection = m_pSCTHelper->module_id(tempID);
+    IdentifierHash theModuleHash0 = m_pSCTHelper->wafer_hash(theModuleIdentifierOfTheRDOCollection);
+    IdentifierHash theModuleHash1;
+    m_pSCTHelper->get_other_side(theModuleHash0, theModuleHash1);
     int Bec = m_pSCTHelper->barrel_ec(tempID);
     int numberOfHitsFromSPs = 0;
     int numberOfHitsFromAllRDOs = 0;
     // Now we want the space point container for this module
     // We have to compare module IDs- the SP collection is defined for the 'normal' (i.e. no stereo) module side
     // Define a set of spIDs
-    set<Identifier>mySetOfSPIds;
-    for (; spContainerIterator != spContainerIteratorEnd; ++spContainerIterator) {
+    set<Identifier> mySetOfSPIds;
+    for (unsigned int side{0}; side<2; side++) {
+      SpacePointContainer::const_iterator spContainerIterator = sctContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1);
+      if (spContainerIterator==sctContainer->end()) continue;
       Identifier tempSPID = (*spContainerIterator)->identify();
       Identifier theModuleIdentifierOfTheSPCollection = m_pSCTHelper->module_id(tempSPID);
-      if (theModuleIdentifierOfTheSPCollection > theModuleIdentifierOfTheRDOCollection) {
-        break;
-      }
       if (theModuleIdentifierOfTheRDOCollection == theModuleIdentifierOfTheSPCollection) {
-        DataVector<Trk::SpacePoint>::const_iterator nextSpacePoint = (*spContainerIterator)->begin();
-        DataVector<Trk::SpacePoint>::const_iterator nextSpacePointEnd = (*spContainerIterator)->end();
-        for (; nextSpacePoint != nextSpacePointEnd; ++nextSpacePoint) {
-          const Trk::SpacePoint& sp = **nextSpacePoint;
+        for (const Trk::SpacePoint* sp: **spContainerIterator) {
           // the following is nasty; the 'normal' sides (where the sp is defined) swap from layer to layer. To be safe,
           // we get both sides
-          const VecId_t& rdoList0 = sp.clusterList().first->rdoList();
-          const VecId_t& rdoList1 = sp.clusterList().second->rdoList();
+          const VecId_t& rdoList0 = sp->clusterList().first->rdoList();
+          const VecId_t& rdoList1 = sp->clusterList().second->rdoList();
           // copy to mySetOfSPIds. Use inserter(set, iterator_hint) for a set, or back_inserter(vec) for vector...
           copy(rdoList0.begin(), rdoList0.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
           copy(rdoList1.begin(), rdoList1.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
         }
-        break;
+      } else {
+        ATH_MSG_ERROR("Module identifiers are different. indexFind gives a wrong collection??");
       }
     }
     totalmodules++;
     maxrodhits = 0;
     // Now we loop over the RDOs in the RDO collection, and add to the NO vector any that are in the mySetOfSPIds
-    DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin();
-    DataVector<SCTRawDataType>::const_iterator end_rdo = SCT_Collection->end();
-    for (; p_rdo != end_rdo; ++p_rdo) {
-      const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*p_rdo);
-      int tbin;// = (*p_rdo)->getTimeBin();
-      if (rdo3 != 0) {
-        tbin = (rdo3)->getTimeBin();
-      }else {
-        tbin = 3;
+    for (const SCT_RDORawData* rdo: *SCT_Collection) {
+      const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(rdo);
+      int tbin = 3;
+      if (rdo3) {
+        tbin = rdo3->getTimeBin();
       }
-      SCT_Identifier = (*p_rdo)->identify();
+      SCT_Identifier = rdo->identify();
       const unsigned int firstStrip(m_pSCTHelper->strip(SCT_Identifier));
-      const unsigned int numberOfStrips((*p_rdo)->getGroupSize());
+      const unsigned int numberOfStrips(rdo->getGroupSize());
       int thisBec = m_pSCTHelper->barrel_ec(SCT_Identifier);
       int thisLayerDisk = m_pSCTHelper->layer_disk(SCT_Identifier);
       int thisPhi = m_pSCTHelper->phi_module(SCT_Identifier);
@@ -1227,20 +1182,10 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   if (not p_clucontainer.isValid()) {
     ATH_MSG_WARNING("Couldn't retrieve clusters");
   }
-  InDet::SCT_ClusterContainer::const_iterator clucol_it = p_clucontainer->begin();
-  InDet::SCT_ClusterContainer::const_iterator lastcluCol = p_clucontainer->end();
-  for (; clucol_it != lastcluCol; ++clucol_it) {
-    const InDet::SCT_ClusterCollection* SCT_Collection(*clucol_it);
-    if (!SCT_Collection) {
-      continue; // select only SCT RDOs
-    }
-    // Middle Loop on SCT Clusters only
-    DataVector<InDet::SCT_Cluster>::const_iterator p_clu(SCT_Collection->begin());
-    DataVector<InDet::SCT_Cluster>::const_iterator clus_end = SCT_Collection->end();
-    for (; p_clu != clus_end; ++p_clu) {
-      Identifier cluId = (*p_clu)->identify();
-      const InDet::SCT_Cluster& cluster = **p_clu;
-      int GroupSize = cluster.rdoList().size();
+  for (const InDet::SCT_ClusterCollection* SCT_Collection: *p_clucontainer) {
+    for (const InDet::SCT_Cluster* cluster: *SCT_Collection) {
+      Identifier cluId = cluster->identify();
+      int GroupSize = cluster->rdoList().size();
       // Fill  Cluster Size histogram
       int elementIndex = 2 * m_pSCTHelper->layer_disk(cluId) + m_pSCTHelper->side(cluId);
       int thisPhi = m_pSCTHelper->phi_module(cluId);
@@ -1940,10 +1885,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_occSumUnbiased.size() && m_numberOfEvents) {
-        for (std::map<Identifier, float>::iterator it = m_occSumUnbiased.begin(); it != m_occSumUnbiased.end(); it++) {
-          Identifier wafer_id = it->first;
+        for (std::pair<const Identifier, float>& val: m_occSumUnbiased) {
+          Identifier wafer_id = val.first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          float occ = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
+          float occ = (m_numberOfEvents > 0) ? val.second / (m_numberOfEvents) :  val.second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -1966,11 +1911,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       }
       if (m_environment == AthenaMonManager::online) {
         if (m_occSumUnbiasedRecent.size() && m_numberOfEventsRecent) {
-          for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedRecent.begin();
-               it != m_occSumUnbiasedRecent.end(); it++) {
-            Identifier wafer_id = it->first;
+          for (std::pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
+            Identifier wafer_id = val.first;
             int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-            float occ = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
+            float occ = (m_numberOfEventsRecent > 0) ? val.second / (m_numberOfEventsRecent) :  val.second;
             int eta = m_pSCTHelper->eta_module(wafer_id);
             int phi = m_pSCTHelper->phi_module(wafer_id);
             int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -1988,11 +1932,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_occSumUnbiasedTrigger.size() && m_numberOfEventsTrigger) {
-        for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedTrigger.begin();
-             it != m_occSumUnbiasedTrigger.end(); it++) {
-          Identifier wafer_id = it->first;
+        for (std::pair<const Identifier, float>&val: m_occSumUnbiasedTrigger) {
+          Identifier wafer_id = val.first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          float occ = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
+          float occ = (m_numberOfEventsTrigger > 0) ? val.second / (m_numberOfEventsTrigger) :  val.second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2015,11 +1958,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       }
 
       if (m_hitoccSumUnbiased.size() && m_numberOfEvents) {
-        for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiased.begin(); it != m_hitoccSumUnbiased.end();
-             it++) {
-          Identifier wafer_id = it->first;
+        for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiased) {
+          Identifier wafer_id = val.first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          float hitocc = (m_numberOfEvents > 0) ? it->second / (m_numberOfEvents) :  it->second;
+          float hitocc = (m_numberOfEvents > 0) ? val.second / (m_numberOfEvents) :  val.second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2042,11 +1984,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
       }
       if (m_environment == AthenaMonManager::online) {
         if (m_hitoccSumUnbiasedRecent.size() && m_numberOfEventsRecent) {
-          for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedRecent.begin();
-               it != m_hitoccSumUnbiasedRecent.end(); it++) {
-            Identifier wafer_id = it->first;
+          for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
+            Identifier wafer_id = val.first;
             int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-            float hitocc = (m_numberOfEventsRecent > 0) ? it->second / (m_numberOfEventsRecent) :  it->second;
+            float hitocc = (m_numberOfEventsRecent > 0) ? val.second / (m_numberOfEventsRecent) :  val.second;
             int eta = m_pSCTHelper->eta_module(wafer_id);
             int phi = m_pSCTHelper->phi_module(wafer_id);
             int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2064,11 +2005,10 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
         }
       }
       if (m_hitoccSumUnbiasedTrigger.size() && m_numberOfEventsTrigger) {
-        for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedTrigger.begin();
-             it != m_hitoccSumUnbiasedTrigger.end(); it++) {
-          Identifier wafer_id = it->first;
+        for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiasedTrigger) {
+          Identifier wafer_id = val.first;
           int element = 2 * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id);
-          float hitocc = (m_numberOfEventsTrigger > 0) ? it->second / (m_numberOfEventsTrigger) :  it->second;
+          float hitocc = (m_numberOfEventsTrigger > 0) ? val.second / (m_numberOfEventsTrigger) :  val.second;
           int eta = m_pSCTHelper->eta_module(wafer_id);
           int phi = m_pSCTHelper->phi_module(wafer_id);
           int barrel_ec = m_pSCTHelper->barrel_ec(wafer_id);
@@ -2487,13 +2427,11 @@ SCTHitsNoiseMonTool::resetNoiseMapHists() {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::resetNoiseMapsRecent() {
-  for (std::map<Identifier, float>::iterator it = m_occSumUnbiasedRecent.begin(); it != m_occSumUnbiasedRecent.end();
-       ++it) {
-    it->second = 0.0;
+  for (std::pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
+    val.second = 0.0;
   }
-  for (std::map<Identifier, float>::iterator it = m_hitoccSumUnbiasedRecent.begin();
-       it != m_hitoccSumUnbiasedRecent.end(); ++it) {
-    it->second = 0.0;
+  for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
+    val.second = 0.0;
   }
   return StatusCode::SUCCESS;
 }
@@ -2942,53 +2880,35 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
 StatusCode
 SCTHitsNoiseMonTool::bookSPvsEventNumber() {
   if (newRunFlag()) {
-    free(m_nSP_buf);
-    free(m_nHits_buf);
-    free(m_nmaxHits_buf);
-    free(m_nminHits_buf);
-    free(m_nmaxModule_buf);
-    free(m_nminModule_buf);
     MonGroup BarrelSPHist(this, "SCT/GENERAL/hits", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     // Book a histogram
     m_nSP = th1Factory("sct_sp_vs_en", "Number of Spacepoints vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                        m_evtsbins);
     m_nSP->GetXaxis()->SetTitle("Event Number");
     m_nSP->GetYaxis()->SetTitle("Num of Spacepoints");
-    size_t nSP_buf_size;
-    nSP_buf_size = m_evtsbins * sizeof(int);
-    m_nSP_buf = (int*) malloc(nSP_buf_size);
+    m_nSP_buf.reserve(m_evtsbins);
     m_nSP_pos = 0;
 
     m_nHits = th1Factory("sct_av_hits_vs_en", "Number of Average Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                          m_evtsbins);
     m_nHits->GetXaxis()->SetTitle("Event Number");
     m_nHits->GetYaxis()->SetTitle("Num of Average Hits");
-    size_t nHits_buf_size;
-    nHits_buf_size = m_evtsbins * sizeof(int);
-    m_nHits_buf = (int*) malloc(nHits_buf_size);
+    m_nHits_buf.reserve(m_evtsbins);
     m_nHits_pos = 0;
 
     m_nmaxHits = th1Factory("sct_max_hits_vs_en", "Max Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
     m_nmaxHits->GetXaxis()->SetTitle("Event Number");
     m_nmaxHits->GetYaxis()->SetTitle("Num of Max Hits");
-    size_t nmaxHits_buf_size;
-    nmaxHits_buf_size = m_evtsbins * sizeof(int);
-    m_nmaxHits_buf = (int*) malloc(nmaxHits_buf_size);
-    size_t nmaxModule_buf_size;
-    nmaxModule_buf_size = m_evtsbins * sizeof(Identifier);
-    m_nmaxModule_buf = (Identifier*) malloc(nmaxModule_buf_size);
+    m_nmaxHits_buf.reserve(m_evtsbins);
+    m_nmaxModule_buf.reserve(m_evtsbins);
 
     m_nminHits = th1Factory("sct_min_hits_vs_en", "Min Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
     m_nminHits->GetXaxis()->SetTitle("Event Number");
     m_nminHits->GetYaxis()->SetTitle("Num of Min Hits");
-    size_t nminHits_buf_size;
-    nminHits_buf_size = m_evtsbins * sizeof(int);
-    m_nminHits_buf = (int*) malloc(nminHits_buf_size);
-    size_t nminModule_buf_size;
-    nminModule_buf_size = m_evtsbins * sizeof(Identifier);
-    m_nminModule_buf = (Identifier*) malloc(nminModule_buf_size);
+    m_nminHits_buf.reserve(m_evtsbins);
+    m_nminModule_buf.reserve(m_evtsbins);
   }
   return StatusCode::SUCCESS;
 }
@@ -3008,11 +2928,8 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   }
   int sct_nspacepoints(0);
   // loop over SCT space points collections
-  SpacePointContainer::const_iterator it = SCT_spcontainer->begin();
-  SpacePointContainer::const_iterator endit = SCT_spcontainer->end();
-  for (; it != endit; ++it) {
-    const SpacePointCollection* colNext = &(**it);
-    if (!colNext) {
+  for (const SpacePointCollection* colNext: *SCT_spcontainer) {
+    if (colNext==nullptr) {
       continue;
     }
     // Identify the spacepoint collection and gets its barrel_ec to update the num SP histogram
@@ -3027,7 +2944,7 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
     if (thisBec == 2) {
       m_numSPPerLumiBlockECp->Fill(thisLayerDisk, colNext->size());
     }
-    sct_nspacepoints += (int) colNext->size();
+    sct_nspacepoints += static_cast<int>(colNext->size());
   }
 
   if (m_environment == AthenaMonManager::online) {
@@ -3098,7 +3015,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     return StatusCode::SUCCESS;
   }
   // assemble list of rdo ids associated with tracks
-  for (int i = 0; i < (int) tracks->size(); i++) {
+  for (int i = 0; i < static_cast<int>(tracks->size()); i++) {
     const Trk::Track* track = (*tracks)[i];
     if (track == 0) {
       ATH_MSG_WARNING("no pointer to track!!!");
@@ -3109,11 +3026,10 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     if (trackStates == 0) {
       ATH_MSG_WARNING("for current track is TrackStateOnSurfaces == Null, no data will be written for this track");
     }else {// Loop over all track states on surfaces
-      for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
-           it != trackStates->end(); it++) {
+      for (const Trk::TrackStateOnSurface* TSOS: *trackStates) {
         // Get pointer to RIO of right type
         const InDet::SiClusterOnTrack* clus =
-          dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack());
+          dynamic_cast<const InDet::SiClusterOnTrack*>(TSOS->measurementOnTrack());
         if (clus) {
           // Get Pointer to prepRawDataObject
           const InDet::SiCluster* RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
