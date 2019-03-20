@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1CPMTools.h, 
@@ -33,9 +33,9 @@ namespace LVL1
       r RoI location from the stored TriggerTowers.
       Used for offline monitoring and trigger reconstruction.
 
-      Useage: L1CPMTools->mapTowers() // set up event for analysis
-              L1CPMTools->formSums(eta, phi) // for each RoI
-              L1CPMTools->EmClus() // etc. Return values
+      Usage: L1CPMTools->mapTowers() // set up event for analysis
+             L1CPMTools->formSums(eta, phi) // for each RoI
+             L1CPMTools->EmClus() // etc. Return values
       
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
@@ -52,54 +52,54 @@ namespace LVL1
       virtual ~L1CPMTools ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize  () override;
       
       /** Tool-based EM/tau algorithm implementation */
       
       /** Map CPMTowers from user-supplied DataVector of inputs */
-      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers);
+      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers) const override;
        
       /** Find RoIs in user-supplied map of input towers */
-      virtual void findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
+      virtual void findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
       
       /** Find RoIs in user-supplied DataVector of input towers */
-      virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
+      virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) const override;
      
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
      
       /** Form CPM results for specified crate/module using user-supplied vector of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1) const override;
       
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version adds to DataVector of CPMTobRoI and returns backplane data words*/
       virtual void findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
-                                  std::vector<unsigned int>& tauCMXData, int slice = -1);
+                                  std::vector<unsigned int>& tauCMXData, int slice = -1) const override;
       
       /** Return RoI object for a specified location */
-      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
+      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  const override;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
-      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) ;
+      virtual void formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice = -1)  override;
+      virtual void formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) override;
       /** Methods to return the cluster/isolation ET values */
-      virtual int Core() const;
-      virtual int EMCore() const;
-      virtual int HadCore() const;
-      virtual int EMClus() const;
-      virtual int TauClus() const;
-      virtual int EMIsol() const;
-      virtual int HadIsol() const;
-      virtual bool isEtMax() const;  
-      virtual bool isEMRoI() const;  
-      virtual bool isTauRoI() const;  
-      virtual unsigned int EMIsolWord() const;
-      virtual unsigned int TauIsolWord() const;
+      virtual int Core() const override;
+      virtual int EMCore() const override;
+      virtual int HadCore() const override;
+      virtual int EMClus() const override;
+      virtual int TauClus() const override;
+      virtual int EMIsol() const override;
+      virtual int HadIsol() const override;
+      virtual bool isEtMax() const override;
+      virtual bool isEMRoI() const override;
+      virtual bool isTauRoI() const override; 
+      virtual unsigned int EMIsolWord() const override;
+      virtual unsigned int TauIsolWord() const override;
             
     private:
       
