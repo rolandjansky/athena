@@ -442,10 +442,12 @@ double UpgradePerformanceFunctions::getJVTeff_HSjet(double ptMeV, double eta) {
 
   // Pick up the right efficiency curves (TC = ITk only, IH = ITk+HGTD)
   TF1 *eff_lt50 = func_TC_lt50.get(), *eff_gt50 = func_TC_gt50.get();
+  /* Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
   if ( m_bUseHGTD1 || ( m_bUseHGTD0 && absEta > 2.4 ) ) {
     eff_lt50 = func_IH_lt50.get();
     eff_gt50 = func_IH_gt50.get();
   }
+  */
 
   // eff measured in two bins: 20-50 GeV and 50-100 GeV
   // to make a smooth pT dependance, interpolate from bin centres: 35-75
@@ -658,6 +660,8 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 
     //  std::cout  << " m_bUseHGTD0: " << m_bUseHGTD0 << " m_bUseHGTD1: " << m_bUseHGTD1 << std::endl;
     // HGTD add-on two scenarios which surely could be done nicer
+    // Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
+    /*
     if  (m_bUseHGTD0 || m_bUseHGTD1) {
 
       //      std::cout << "UpgradePerformanceFunctions::getTrackJetConfirmEff::Warning You are using an obsolete HGTD implementation, for correct one, initialise with layout=Step1p6" << std::endl;
@@ -686,6 +690,7 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
       }
       // else we keep what is in the central region
     }
+    */
   } else {
 
     // new implementation of the track confirmation
@@ -701,7 +706,8 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 
         if (ptGeV > 20. && ptGeV < 50.) {
 
-          if (m_bUseHGTD0 || m_bUseHGTD1) {
+	  //Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
+	  if (false) { //was: if (m_bUseHGTD0 || m_bUseHGTD1) {
 
             if (fabs(eta) > 2.4 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
               tceff = func_IH_lt50->Eval(fabs(eta));
@@ -743,7 +749,8 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 
         } // end of low pt bin
         else if (ptGeV > 50. &&  ptGeV < 100.) {
-          if (m_bUseHGTD0 || m_bUseHGTD1) {
+ 	  //Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
+          if (false) { //was: if (m_bUseHGTD0 || m_bUseHGTD1) {
 
             if (fabs(eta) > 2.4 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
               tceff = func_IH_gt50->Eval(fabs(eta));

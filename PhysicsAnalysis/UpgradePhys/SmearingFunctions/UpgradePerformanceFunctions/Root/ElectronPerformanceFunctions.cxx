@@ -88,11 +88,13 @@ float UpgradePerformanceFunctions::getElectronEfficiency(float ptMeV, float eta)
   efficiency = interpolateElectronIDMap(mapToUse, ptGeV, eta);
 
   // HGTD hack to improve Electron ID/ISO efficiency
+  // removed for HGTD TDR (no reliable number available)
+  /*
   if (m_bUseHGTD0 || m_bUseHGTD1) {
     if (fabs(eta) > 2.4 && fabs(eta) < 3.6)
       efficiency = 1.2 * efficiency;
   }
-
+  */
 
 
   if (efficiency > 1.0) efficiency = 1.0;
