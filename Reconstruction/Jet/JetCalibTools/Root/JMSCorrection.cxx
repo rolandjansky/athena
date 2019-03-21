@@ -890,7 +890,7 @@ if(!m_OnlyCombination){
       
       // if one of the mass is null, use the other one
       if( (mass_calo==0) || (mass_ta==0) ) { 
-        mass_calo = mass_corr+mass_ta;
+        Mass_comb = mass_ta+mass_calo;
       }
       else {
         // Determine mass combination eta bin to use
