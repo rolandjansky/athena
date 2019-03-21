@@ -23,7 +23,7 @@ def generateChains( flags,  chainDict ):
                                  CaloClusters = 'L2CaloEMClusters')
     l2CaloHypo.HypoTools=[ TrigL2CaloHypoToolFromDict( chainDict ) ]
 
-    l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
+    l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco)
 
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
@@ -38,9 +38,7 @@ def generateChains( flags,  chainDict ):
 
     # # # fast ID
     from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
-    fastInDetReco = RecoFragmentsPool.retrieve( indetInViewRecoCfg,
-                                                flags,
-                                                viewMakerName="ElectronInDet" )
+    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet')
     accTrk.merge( fastInDetReco )
     # TODO once tracking fully works remove fake hypos
 

@@ -2,7 +2,8 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,checkSequenceConsistency
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
+    checkSequenceConsistency, findAllAlgorithms, findAllAlgorithmsByName
 from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
@@ -207,17 +208,13 @@ class ComponentAccumulator(object):
         if seq is None:
             raise ConfigurationError("Can not find sequence %s" % sequenceName )
 
-
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-
-            existingAlg = findAlgorithm(seq, algo.getName())
-            if existingAlg:
-                deduplicateComponent(algo, existingAlg)
-            else:
-                seq+=algo #TODO: Deduplication necessary?
-            pass
+            self._deduplicateWithAll([algo])
+            existingAlgInDest = findAlgorithm(seq, algo.getName())
+            if not existingAlgInDest:
+                seq += algo
 
         if primary:
             if len(algorithms)>1:
@@ -310,6 +307,20 @@ class ComponentAccumulator(object):
         else:
             return self.popPrivateTools()
 
+    
+    def _deduplicateWithAll(self, algorithms):
+        existingAlgsByName = findAllAlgorithmsByName(self.getSequence(), namesToLookFor=set(map(lambda alg: alg.name(), algorithms)))
+        for alg in algorithms:
+            existingAlgs = existingAlgsByName[alg.name()]
+            for idx, existingAlg in enumerate(existingAlgs):
+                if alg == existingAlg:
+                    continue
+                self._deduplicateComponent(alg, existingAlg)
+                if idx == len(existingAlgs) - 1:
+                    # Merge other way around with last algorithm
+                    self._deduplicateComponent(existingAlg, alg)
+
+
     def __call__(self):
         return self.getPrimary()
         
@@ -400,18 +411,18 @@ class ComponentAccumulator(object):
                         mergeSequences(sub, c )
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
+                        algorithms = findAllAlgorithms(c)
+                        self._deduplicateWithAll(algorithms)
                         dest += c
+
                 else: # an algorithm
-                    existingAlg = findAlgorithm( dest, c.name(), depth=1 )
-                    if existingAlg:
-                        if existingAlg != c:
-                            deduplicate(c, existingAlg)
-                    else: # absent, adding
-                        self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
+                    self._deduplicateWithAll([c])
+                    existingAlgInDest = findAlgorithm( dest, c.name(), depth=1 )
+                    if not existingAlgInDest:
+                        self._msg.debug("Adding algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
 
             checkSequenceConsistency(self._sequence)
-                        
 
         #Merge sequences:
         #if (self._sequence.getName()==other._sequence.getName()):
@@ -420,8 +431,6 @@ class ComponentAccumulator(object):
         else:
             destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
         mergeSequences(destSeq,other._sequence)
-
-
 
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
@@ -432,7 +441,6 @@ class ComponentAccumulator(object):
 
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
-
 
         for k in other._outputPerStream.keys():
             if k in self._outputPerStream:
@@ -445,7 +453,6 @@ class ComponentAccumulator(object):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
-
 
 
     def appendToGlobals(self):

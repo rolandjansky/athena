@@ -18,7 +18,7 @@ def generateChains( flags, chainDict ):
 
     l2muFastHypo.HypoTools = [ TrigMufastHypoToolFromDict(chainDict) ]
 
-    l2muFastReco = RecoFragmentsPool.retrieve( l2MuFastRecoCfg, flags )
+    l2muFastReco = l2MuFastRecoCfg(flags)
     acc.merge( l2muFastReco )
 
     l2muFastSequence = MenuSequence( Sequence = l2muFastReco.sequence(),
