@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
   }
 
   if (m_checkBadSCTChip) {
-    // Check if ITk Strip is used because isBadSCTChip method is valid only for SCT.
+    // Check if ITk Strip is used because isBadSCTChipStrip method is valid only for SCT.
     ATH_CHECK(m_geoModelSvc.retrieve());
     if (m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
         m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
@@ -845,7 +845,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
         // the track plus its error hits the active material
         if (isActiveElement) {
 
-          if (m_checkBadSCTChip and isBadSCTChip(id, *parameters, *siElement)) {
+          if (m_checkBadSCTChip and isBadSCTChipStrip(id, *parameters, *siElement)) {
             ATH_MSG_VERBOSE("Track is hiting a bad SCT chip, this is not a hole candidate!");
             isgood = false;
             return false;
@@ -938,27 +938,31 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 }
 
 // ====================================================================================================================
-bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId, 
-                                                   const Trk::TrackParameters& parameters,
-                                                   const InDetDD::SiDetectorElement& siElement) const {
-  // Check if the track passes through a bad SCT ABCD chip
-  // A chip is determined by the extrapolated position.
+bool InDet::InDetTrackHoleSearchTool::isBadSCTChipStrip(const Identifier& waferId, 
+                                                        const Trk::TrackParameters& parameters,
+                                                        const InDetDD::SiDetectorElement& siElement) const {
+  // Check if the track passes through a bad SCT ABCD chip or a bad SCT strip.
+  // A chip and a strip are determined by the extrapolated position.
   // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
 
-  // Check the input
+  // Check the input.
   if (not m_atlasId->is_sct(waferId)) {
     ATH_MSG_WARNING(waferId << " is not an SCT Identifier");
     return true;
   }
 
-  // There is at least one bad chip on the side.
-  // Get strip id from local position
+  // Get strip id from local position.
+  // Due to the limited position resolution, we may pick up a neighboring strip...
   const Amg::Vector2D localPos(parameters.localPosition());
   const Identifier stripIdentifier(siElement.identifierOfPosition(localPos));
   if (not m_atlasId->is_sct(stripIdentifier)) {
     ATH_MSG_WARNING(stripIdentifier << " is not an SCT Identifier");
     return true;
   }
-  
-  return (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP));
+
+  // The extrapolated position is on a bad chip.
+  if (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP)) return true;
+  // The extrapolated position is on a bad strip. (We may need to check neighboring strips.)
+  if (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP)) return true;
+  return false;
 }
