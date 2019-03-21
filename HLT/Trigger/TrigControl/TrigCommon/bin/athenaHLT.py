@@ -147,7 +147,7 @@ def HLTMPPy_cfgdict(args):
    cdict = {}
    cdict['HLTMPPU'] = {
       'application_name' : 'athenaHLT-%d' % os.getpid(),  # unique name required to avoid interference
-      'extra_params' : None,
+      'extra_params' : ["dumpFDs=1", "dumpThreads=1"] if args.debug_fork else None,
       'interactive' : args.interactive,
       'log_root' : os.getcwd(),
       'log_name' : ('' if args.unique_log_files else 'athenaHLT:'),
@@ -157,7 +157,7 @@ def HLTMPPy_cfgdict(args):
       'num_slots' : args.concurrent_events,
       'partition_name' : args.partition,
       'hard_timeout' : args.timeout,
-      'soft_timeout_fraction' : 0.9
+      'soft_timeout_fraction' : 0.95
    }
 
    cdict['datasource'] = {
@@ -299,7 +299,7 @@ def main():
    g.add_argument('--stdcmath', action='store_true', help='use stdcmath library')
    g.add_argument('--imf', action='store_true', default=True, help='use Intel math library')
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
-   g.add_argument('--timeout', metavar='SEC', default=3600*10, help='timeout in seconds')
+   g.add_argument('--timeout', metavar='MSEC', default=60*1000, help='timeout in milliseconds')
 
    ## Database
    g = parser.add_argument_group('Database')
@@ -339,6 +339,7 @@ def main():
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
    g.add_argument('--unique-log-files', '-ul', action='store_true', help='add pid/timestamp to worker log files')
+   g.add_argument('--debug-fork', action='store_true', help='Dump open files/threads during forking')
    g.add_argument('--extra-l1r-robs', metavar='ROBS', type=arg_eval, default=[],
                   help='List of additional ROB IDs that are considered part of the L1 result and passed to the HLT')
    g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},
