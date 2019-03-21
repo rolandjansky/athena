@@ -6,7 +6,7 @@ def get_flag_item(chainName, L1itemsChainParts, groups):
     if L1itemsChainParts == []:
         L1item = chainName.split('_')[-1].replace('L1', 'L1_')    
         L1thresholds = L1item.split('_')[1:]
-        L1itemsChainParts = [L1item, [L1thresholds] ]
+        L1itemsChainParts = [L1item, L1thresholds ]
 
     return [chainName, L1itemsChainParts, [PhysicsStream], groups, -1]
 
