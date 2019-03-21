@@ -43,5 +43,4 @@ atlas_add_component( BarrelInclinedRef
 
 # Install files from the package:
 atlas_install_headers( BarrelInclinedRef )
-atlas_install_runtime( data/*.xml )
 
