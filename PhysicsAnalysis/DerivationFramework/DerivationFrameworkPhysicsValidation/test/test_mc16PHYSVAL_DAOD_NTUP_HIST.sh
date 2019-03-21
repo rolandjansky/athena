@@ -35,7 +35,7 @@ case $ArtProcess in
         # Web display script is in DQ packages not compiled in 21.2, so we set up 21.0 instead
         export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
         source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh || true
-        asetup --platform=x86_64-slc6-gcc62-opt 21.0,Athena,latest
+        asetup --platform=x86_64-slc6-gcc62-opt 21.0,Athena,latest,slc6
         asetup --version
 	
 	# We need to place a reference file on cvmfs
