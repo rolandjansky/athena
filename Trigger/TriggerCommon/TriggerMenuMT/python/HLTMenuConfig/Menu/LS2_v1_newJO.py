@@ -4,10 +4,13 @@ def get_flag_item(chainName, L1itemsChainParts, groups):
     PhysicsStream = 'Main'
 
     if L1itemsChainParts == []:
-        L1item = chainName.split('_')[-1].replace('L1', 'L1_')    
+        L1item = 'L1_'+chainName.split('_L1')[-1]
         L1thresholds = L1item.split('_')[1:]
         L1itemsChainParts = [L1item, L1thresholds ]
-
+    elif L1itemsChainParts[0] == None:
+        L1item = 'L1_'+chainName.split('_L1')[-1]
+        L1itemsChainParts[0] = L1item
+        
     return [chainName, L1itemsChainParts, [PhysicsStream], groups, -1]
 
 def setupMenu(flags):
