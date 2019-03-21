@@ -35,13 +35,15 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
 def setupMessageSvc():
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-   from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING
+   from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING, ERROR
 
    svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
    MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+   MessageSvc.ErsFormat    = "%S: %M"
+   MessageSvc.printEventIDLevel = WARNING
 
    # Message suppression
    MessageSvc.enableSuppression    = False
@@ -63,20 +65,12 @@ def setupMessageSvc():
       MessageSvc.defaultLimit = 0
       MessageSvc.enableSuppression = False
 
-   # publish message counts during RUNNING in histogram
-   MessageSvc.publishStats = True
-   MessageSvc.publishLevel = INFO
-
    # show summary statistics of messages in finalize
    MessageSvc.showStats = True
    MessageSvc.statLevel = WARNING
    MessageSvc.statLevelRun = VERBOSE
 
-   # publish message counts during RUNNING in histogram
-   MessageSvc.publishStats = True
-   MessageSvc.publishLevel = INFO
-
-# online ROB data provider service 
+# online ROB data provider service
 from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
 class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    __slots__ = ()
