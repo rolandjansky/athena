@@ -255,9 +255,9 @@ class MenuSequence():
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
-        self.maker        = InputMakerNode( Alg = Maker )
+        self._maker       = InputMakerNode( Alg = Maker )
         self.hypoToolConf = HypoToolConf( HypoToolGen ) if HypoToolGen else None
-        self.hypo         = HypoAlgNode( Alg = Hypo )
+        self._hypo        = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
@@ -267,6 +267,22 @@ class MenuSequence():
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
         self.hypo= HypoAlgNode( Alg=HypoAlg )
+
+    @property
+    def maker(self):
+        if self.ca is not None:
+            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+            self._maker.Alg = makerAlg
+            # return InputMakerNode(Alg=makerAlg)
+        return self._maker
+
+    @property
+    def hypo(self):
+        if self.ca is not None:
+            hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
+            self._hypo.Alg = hypoAlg
+            # return HypoAlgNode(Alg=hypoAlg)
+        return self._hypo
 
     def connectToFilter(self, outfilter):
         """ Sets the input and output of the hypo, and links to the input maker """

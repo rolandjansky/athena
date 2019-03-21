@@ -19,6 +19,7 @@ from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
+from AthenaCommon.CFElements import createStepView
 
 log = logging.getLogger('EmuNewJOTest')
 
@@ -56,8 +57,12 @@ for index, chain in enumerate(HLTChains):
             hypoTool = seq.hypoToolConf.hypoToolGen(chainDicts[index])
             hypoAlg.HypoTools = [hypoTool]
 
+            stepReco, stepView = createStepView(step.name)
+
             sequenceAcc = ComponentAccumulator()
-            sequenceAcc.addSequence(seq.sequence.Alg)
+            sequenceAcc.addSequence(stepView)
+            sequenceAcc.addSequence(seq.sequence.Alg, parentName=stepReco.getName())
+            sequenceAcc.addEventAlgo(hypoAlg, sequenceName=stepView.getName())
             seq.ca = sequenceAcc
             sequenceAcc.wasMerged()
 

@@ -3,12 +3,12 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
-    checkSequenceConsistency, findAllAlgorithms
+    checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateWithAll, DeduplicationFailed
+from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
 
 import ast
 import collections
@@ -41,6 +41,7 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
 
+        self._algorithms = {}
 
     def empty(self):
         return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
@@ -123,6 +124,9 @@ class ComponentAccumulator(object):
 
     def addSequence(self, newseq, parentName = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
+        if not isSequence(newseq):
+            raise TypeError('{} is not a sequence'.format(newseq.name()))
+
         if parentName is None:
             parent=self._sequence
         else:
@@ -131,10 +135,19 @@ class ComponentAccumulator(object):
                 raise ConfigurationError("Missing sequence %s to add new sequence to" % parentName )
 
         parent += newseq
+        algsByName = findAllAlgorithmsByName(newseq)
+        for name, existingAlgs in algsByName.iteritems():
+            startingIndex = 0
+            if name not in self._algorithms:
+                firstAlg, parent, idx = existingAlgs[0]
+                self._algorithms[name] = firstAlg
+                startingIndex = 1
+            for alg, parent, idx in existingAlgs[startingIndex:]:
+                deduplicateComponent(self._algorithms[name], alg)
+                parent.overwriteChild(idx, self._algorithms[name])
+
         checkSequenceConsistency(self._sequence)
-        return newseq 
-
-
+        return newseq
 
     def moveSequence(self, sequence, destination ):
         """ moves sequence from one sub-sequence to another, primary use case HLT Control Flow """
@@ -207,15 +220,19 @@ class ComponentAccumulator(object):
         else:
             seq = findSubSequence(self._sequence, sequenceName )
         if seq is None:
+            self.printConfig()
             raise ConfigurationError("Can not find sequence %s" % sequenceName )
 
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-            deduplicateWithAll(self.getSequence(), [algo])
-            existingAlgInDest = findAlgorithm(seq, algo.getName())
+            if algo.name() in self._algorithms:
+                deduplicateComponent(self._algorithms[algo.name()], algo)
+            else:
+                self._algorithms[algo.name()] = algo
+            existingAlgInDest = findAlgorithm(seq, algo.name())
             if not existingAlgInDest:
-                seq += algo
+                seq += self._algorithms[algo.name()]
 
         if primary:
             if len(algorithms)>1:
@@ -227,31 +244,17 @@ class ComponentAccumulator(object):
             self._primaryComp=algorithms[0]
         return None
 
-
-    def getEventAlgo(self,name=None,seqName=None):
-        if name is None:
-            algs = self.getEventAlgos(seqName)
-            if len(algs) == 1:
-                return algs[0]
-            raise ConfigurationError("Number of algorithms returned by getEventAlgo %d which is != 1 expected by this API" % len(algs) )
-                
-        if seqName is None:
-            seq=self._sequence
-        else:
-            seq = findSubSequence(self._sequence, seqName )
-        
-
-        algo = findAlgorithm( seq, name )
-        if algo is None:
+    def getEventAlgo(self,name=None):
+        if name not in self._algorithms:
             raise ConfigurationError("Can not find an algorithm of name %s "% name)
-        return algo
+        return self._algorithms[name]
 
     def getEventAlgos(self,seqName=None):
         if seqName is None:
             seq=self._sequence
         else:
             seq = findSubSequence(self._sequence, seqName )
-        return list( set( sum( flatSequencers( seq ).values(), []) ) )
+        return list( set( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ) )
 
     def addCondAlgo(self,algo,primary=False):
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -389,19 +392,32 @@ class ComponentAccumulator(object):
         #if destSubSeq == None:
         #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
         def mergeSequences( dest, src ):
-            for c in src.getChildren():
+            for childIdx, c in enumerate(src.getChildren()):
                 if isSequence( c ):
                     sub = findSubSequence( dest, c.name() ) #depth=1 ???
                     if sub:
                         mergeSequences(sub, c )
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
-                        algorithms = findAllAlgorithms(c)
-                        deduplicateWithAll(self.getSequence(), algorithms)
+                        algorithmsByName = findAllAlgorithmsByName(c)
+                        for name, existingAlgs in algorithmsByName.iteritems():
+                            startingIndex = 0
+                            if name not in self._algorithms:
+                                firstAlg, parent, idx = existingAlgs[0]
+                                self._algorithms[name] = firstAlg
+                                startingIndex = 1
+                            for alg, parent, idx in existingAlgs[startingIndex:]:
+                                deduplicateComponent(self._algorithms[name], alg)
+                                parent.overwriteChild(idx, self._algorithms[name])
                         dest += c
 
                 else: # an algorithm
-                    deduplicateWithAll(self.getSequence(), [c])
+                    if c.name() in self._algorithms:
+                        deduplicateComponent(self._algorithms[c.name()], c)
+                        src.overwriteChild(childIdx, self._algorithms[c.name()])
+                    else:
+                        self._algorithms[c.name()] = c
+
                     existingAlgInDest = findAlgorithm( dest, c.name(), depth=1 )
                     if not existingAlgInDest:
                         self._msg.debug("Adding algorithm %s to a sequence %s", c.name(), dest.name() )
@@ -416,6 +432,12 @@ class ComponentAccumulator(object):
         else:
             destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
         mergeSequences(destSeq,other._sequence)
+
+        # Additional checking and updating other accumulator's algorithms list
+        for name, alg in other._algorithms.iteritems():
+            if name not in self._algorithms:
+                raise ConfigurationError('Error in merging. Algorithm {} missing in destination accumulator'.format(name))
+            other._algorithms[name] = self._algorithms[name]
 
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
@@ -573,7 +595,7 @@ class ComponentAccumulator(object):
                                                         'JobOptionsSvc/JobOptionsSvc']"
 
             #Code seems to be wrong here
-            for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+            for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
                 self._jocat[seqName] = {}
                 for alg in algoList:
                   self._jocat[alg.name()] = {}
@@ -581,13 +603,13 @@ class ComponentAccumulator(object):
                 self._jocat[self._sequence.getName()][k]=str(v)
 
         #EventAlgorithms
-        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
+        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
             evtalgseq=[]
             for alg in algoList:
                 self.appendConfigurable( alg )
                 evtalgseq.append( alg.getFullName() )
 
-        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
+        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
             for prop in self._jocat[seqName]:
                 if prop == "Members":
@@ -702,8 +724,8 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
-        for seqName, algoList in flatSequencers( self._sequence ).iteritems():
-            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
+        for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
             bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
             for alg in algoList:
                 addCompToJos(alg)

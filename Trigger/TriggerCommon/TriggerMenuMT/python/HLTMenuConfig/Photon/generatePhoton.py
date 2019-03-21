@@ -8,11 +8,19 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
+from AthenaCommon.CFElements import createStepView
 
 
 def generateChains(flags, chainDict):
-    accCalo = ComponentAccumulator()
 
+    firstStepName = getChainStepName('Photon', 1)
+    stepReco, stepView = createStepView(firstStepName)
+
+    accCalo = ComponentAccumulator()
+    accCalo.addSequence(stepView)
+
+    l2CaloReco = l2CaloRecoCfg(flags)
+    accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
@@ -20,10 +28,7 @@ def generateChains(flags, chainDict):
 
     l2CaloHypo.HypoTools = [ TrigL2CaloHypoToolFromDict(chainDict) ]
 
-    l2CaloReco = l2CaloRecoCfg(flags)
-    accCalo.merge(l2CaloReco)
-    #l2CaloReco = l2CaloRecoCfg( flags ) 
-    #accCalo.merge( l2CaloReco )
+    accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = MenuSequence( Sequence = l2CaloReco.sequence(),
                                      Maker = l2CaloReco.inputMaker(),
@@ -31,9 +36,17 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = None,
                                      CA = accCalo )
 
-    fastCaloStep = ChainStep(getChainStepName('Photon', 1), [fastCaloSequence])
+    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
+
+
+    secondStepName = getChainStepName('Photon', 2)
+    stepReco, stepView = createStepView(secondStepName)
 
     accPhoton = ComponentAccumulator()
+    accPhoton.addSequence(stepView)
+
+    l2PhotonReco = l2PhotonRecoCfg(flags)
+    accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
                                     Photons = 'L2Photons',
@@ -41,9 +54,7 @@ def generateChains(flags, chainDict):
 
     l2PhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromDict(chainDict) ]
 
-    l2PhotonReco = l2PhotonRecoCfg(flags)
-    accPhoton.merge(l2PhotonReco)
-
+    accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
 
     l2PhotonSequence = MenuSequence( Sequence = l2PhotonReco.sequence(),
                                      Maker = l2PhotonReco.inputMaker(),
@@ -51,7 +62,7 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = None,
                                      CA = accPhoton )
 
-    l2PhotonStep = ChainStep(getChainStepName('Photon', 2), [l2PhotonSequence])
+    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 
     import pprint
     pprint.pprint(chainDict)

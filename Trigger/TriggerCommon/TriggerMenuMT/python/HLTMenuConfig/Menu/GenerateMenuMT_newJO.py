@@ -92,8 +92,6 @@ def generateMenu( flags ):
 
     menuAcc.printConfig()
 
-    # kaboom
-
     _log.info('CF is built')
 
     return menuAcc
