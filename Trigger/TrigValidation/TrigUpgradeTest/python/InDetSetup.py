@@ -6,9 +6,12 @@ def makeInDetAlgs( whichSignature='' ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
 
+
   eventAlgs = []
   viewAlgs = []
+  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
+
   #Create IdentifiableCaches
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
   InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews" + signature,
@@ -38,8 +41,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                              Decoder = InDetPixelRodDecoder)
     ToolSvc += InDetPixelRawDataProviderTool
 
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if (InDetFlags.doPrintConfigurables()):
+    if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetPixelRawDataProviderTool
     
     # load the PixelRawDataProvider
@@ -55,7 +57,7 @@ def makeInDetAlgs( whichSignature='' ):
     viewAlgs.append(InDetPixelRawDataProvider)
     
     
-    if (InDetFlags.doPrintConfigurables()):
+    if (InDetTrigFlags.doPrintConfigurables()):
       print          InDetPixelRawDataProvider
     
     
@@ -69,7 +71,7 @@ def makeInDetAlgs( whichSignature='' ):
     InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool" + signature,
                                                         Decoder = InDetSCTRodDecoder)
     ToolSvc += InDetSCTRawDataProviderTool
-    if (InDetFlags.doPrintConfigurables()):
+    if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetSCTRawDataProviderTool
     
     # load the SCTRawDataProvider

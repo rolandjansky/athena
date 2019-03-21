@@ -34,18 +34,8 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  
-  from InDetRecExample.InDetJobProperties import InDetFlags
-  InDetFlags.doCaloSeededBrem = False
-  InDetFlags.InDet25nsec = True 
-  InDetFlags.doPrimaryVertex3DFinding = False 
-  InDetFlags.doPrintConfigurables = False
-  InDetFlags.doResolveBackTracks = True 
-  InDetFlags.doSiSPSeededTrackFinder = True
-  InDetFlags.doTRTPhaseCalculation = True
-  InDetFlags.doTRTSeededTrackFinder = True
-  InDetFlags.doTruth = False
-  InDetFlags.init()
+  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+  InDetTrigFlags.doPixelClusterSplitting = False
   
   # PixelLorentzAngleSvc and SCTLorentzAngleSvc
   include("InDetRecExample/InDetRecConditionsAccess.py")
