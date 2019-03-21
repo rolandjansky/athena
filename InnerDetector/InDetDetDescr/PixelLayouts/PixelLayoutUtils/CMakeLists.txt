@@ -24,6 +24,4 @@ atlas_add_library( PixelLayoutUtils
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} InDetGeoModelUtils PathResolver 
 		   PRIVATE_LINK_LIBRARIES GeoModelKernel )
 
-# Install files from the package:
-atlas_install_runtime( data/*.xml )
 
