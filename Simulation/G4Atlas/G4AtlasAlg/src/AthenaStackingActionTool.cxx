@@ -15,11 +15,13 @@ namespace G4UA
   AthenaStackingActionTool(const std::string& type, const std::string& name,
                            const IInterface* parent)
     : ActionToolBase<AthenaStackingAction>(type, name, parent),
-      m_config { /*killAllNeutrinos*/ false,
-                 /*photonEnergyCut*/ -1.,
-                 /*russianRouletteThreshold*/ -1.,
-                 /*russianRouletteWeight*/ -1.,
-                 /*isISFJob*/ false
+      m_config { /*killAllNeutrinos*/              false,
+                 /*photonEnergyCut*/                 -1.,
+                 /*russianRouletteNeutronThreshold*/ -1.,
+                 /*russianRouletteNeutronWeight*/    -1.,
+                 /*russianRoulettePhotonThreshold*/  -1.,
+                 /*russianRoulettePhotonWeight*/     -1.,
+                 /*isISFJob*/                      false
       }
   {
     declareInterface<IG4StackingActionTool>(this);
@@ -27,10 +29,14 @@ namespace G4UA
                     "Toggle killing of all neutrinos");
     declareProperty("PhotonEnergyCut", m_config.photonEnergyCut,
                     "Energy threshold for tracking photons");
-    declareProperty("RussianRouletteThreshold", m_config.russianRouletteThreshold,
+    declareProperty("NRRThreshold", m_config.russianRouletteNeutronThreshold,
                     "Energy threshold for the Neutron Russian Roulette");
-    declareProperty("RussianRouletteWeight", m_config.russianRouletteWeight,
+    declareProperty("NRRWeight", m_config.russianRouletteNeutronWeight,
                     "Weight for the Neutron Russian Roulette");
+    declareProperty("PRRThreshold", m_config.russianRoulettePhotonThreshold,
+                    "Energy threshold for the Photon Russian Roulette");
+    declareProperty("PRRWeight", m_config.russianRoulettePhotonWeight,
+                    "Weight for the Photon Russian Roulette");
     declareProperty("IsISFJob", m_config.isISFJob, "");
   }
 
@@ -42,8 +48,10 @@ namespace G4UA
     ATH_MSG_DEBUG( "Initializing " << name() );
     ATH_MSG_DEBUG( "KillAllNeutrinos: " << m_config.killAllNeutrinos );
     ATH_MSG_DEBUG( "PhotonEnergyCut: " << m_config.photonEnergyCut );
-    ATH_MSG_DEBUG( "RussianRouletteThreshold: " << m_config.russianRouletteThreshold );
-    ATH_MSG_DEBUG( "RussianRouletteWeight: " << m_config.russianRouletteWeight );
+    ATH_MSG_DEBUG( "RussianRouletteNeutronThreshold: " << m_config.russianRouletteNeutronThreshold );
+    ATH_MSG_DEBUG( "RussianRouletteNeutronWeight: " << m_config.russianRouletteNeutronWeight );
+    ATH_MSG_DEBUG( "RussianRoulettePhotonThreshold: " << m_config.russianRoulettePhotonThreshold );
+    ATH_MSG_DEBUG( "RussianRoulettePhotonWeight: " << m_config.russianRoulettePhotonWeight );
     return StatusCode::SUCCESS;
   }
 
