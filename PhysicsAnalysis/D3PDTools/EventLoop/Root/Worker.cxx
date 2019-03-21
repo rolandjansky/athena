@@ -586,6 +586,11 @@ namespace EL
       ANA_MSG_ERROR ("output file already defined for label: " + label);
       return ::StatusCode::FAILURE;
     }
+    if (data.file() == nullptr)
+    {
+      ANA_MSG_ERROR ("output stream does not have a file attached");
+      return ::StatusCode::FAILURE;
+    }
     m_outputs.insert (std::make_pair (label, std::move (data)));
     return ::StatusCode::SUCCESS;
   }

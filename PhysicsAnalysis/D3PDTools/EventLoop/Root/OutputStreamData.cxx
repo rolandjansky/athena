@@ -52,7 +52,10 @@ namespace EL
 
         explicit MyWriter (std::unique_ptr<TFile> val_file)
           : m_file (std::move (val_file))
-        {}
+        {
+          if (m_file == nullptr)
+            throw std::runtime_error ("encountered null pointer for output file");
+        }
 
         ~MyWriter ()
         {
@@ -79,6 +82,17 @@ namespace EL
           m_file = 0;
         }
       };
+
+
+
+      /// \brief open the given file, throwing if we fail
+      std::unique_ptr<TFile> checkedOpenFile (const std::string& path, const std::string& mode)
+      {
+        std::unique_ptr<TFile> result (TFile::Open (path.c_str(), mode.c_str()));
+        if (result == nullptr)
+          throw std::runtime_error ("failed to open file " + path + " with mode " + mode);
+        return result;
+      }
     }
 
 
@@ -94,7 +108,7 @@ namespace EL
 
     OutputStreamData ::
     OutputStreamData (const std::string& val_fileName, const std::string& mode)
-      : OutputStreamData (std::unique_ptr<TFile> (TFile::Open (val_fileName.c_str(), mode.c_str())))
+      : OutputStreamData (checkedOpenFile (val_fileName, mode))
     {
       // no invariant used
     }
