@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/geometry.hpp>
@@ -59,10 +59,8 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     AthAlgTool(type,name,parent),
     m_incidentSvc("IncidentSvc",name),
     m_detManager(0),
-    // m_sTgcIdHelper(0),
     m_pad_cache_runNumber(-1),
     m_pad_cache_eventNumber(-1),
-    // m_pad_cache_status(CLEARED),
     m_rndmEngineName(""),
     m_sTgcDigitContainer(""),
     m_sTgcSdoContainer(""),
@@ -75,27 +73,12 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
     declareProperty("UseSimple4of4", m_useSimple4of4 = false, "use simplified logic requiring 4 hits on 4 gas gaps");
     declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple");
-    
-    // DG-todo // reserve enough slots for the trigger sectors and fills empty vectors
-    // DG-todo m_pad_cache.reserve(32);
-    // DG-todo std::vector< std::vector<PadData*> >::iterator it = m_pad_cache.begin();
-    // DG-todo m_pad_cache.insert(it,32,std::vector<PadData*>());
 }
 //------------------------------------------------------------------------------
 PadTriggerLogicOfflineTool::~PadTriggerLogicOfflineTool() {
-    // clear the internal cache
-    // this->clear_cache();
+
 }
-//------------------------------------------------------------------------------
-// void PadTriggerLogicOfflineTool::clear_cache() {
-//     for (std::vector<PadData*> &sector_pads : m_pad_cache) {
-//         for (unsigned int p=0; p< sector_pads.size(); p++) {
-//             delete sector_pads.at(p);
-//         }
-//         sector_pads.clear();
-//     }
-// }
-//------------------------------------------------------------------------------
+
 StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
@@ -344,7 +327,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     };
     
     
-    //S.I 15.08.18 : This method needs to be refactored
     PadTrigger pt;
     const Polygon roi=stc.triggerRegion3();    
     Vertex trgCntr=centroid(roi);

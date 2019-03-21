@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
@@ -52,22 +52,7 @@ namespace NSWL1{
         m_padTriggerlocalminYInner(nullptr),
         m_padTriggerlocalmaxYInner(nullptr),
         m_padTriggerlocalminYOuter(nullptr),
-        m_padTriggerlocalmaxYOuter(nullptr)        
-        // m_nPadHits(0),
-        // m_padGlobalX(nullptr),
-        // m_padGlobalY(nullptr),
-        // m_padGlobalZ(nullptr),
-        // m_padTruthHitGlobalX(nullptr),
-        // m_padTruthHitGlobalY(nullptr),
-        // m_padTruthHitGlobalZ(nullptr),
-        // m_padEtaIdFromOfflineId(nullptr),
-        // m_padPhiIdFromOfflineId(nullptr),
-        // m_padSectorFromOfflineId(nullptr),
-        // m_padLayerFromOfflineId(nullptr),
-        // m_offlineIdPadEtaConverted(nullptr),
-        // m_offlineIdPadPhiConverted(nullptr),
-        // m_padEtaIdFromOldSimu(nullptr),
-        // m_padPhiIdFromOldSimu(nullptr)
+        m_padTriggerlocalmaxYOuter(nullptr)
     {
     }
     //------------------------------------------------------------------------------

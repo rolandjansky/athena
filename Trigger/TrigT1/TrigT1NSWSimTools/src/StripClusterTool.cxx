@@ -57,12 +57,6 @@ namespace NSWL1 {
 
     StripClusterTool::~StripClusterTool() {
 
-      // Clear Ntuple variables
-      //      if(m_cl_charge) delete m_cl_charge;
-      //if(m_cl_eta) delete m_cl_eta;
-      //if(m_cl_phi) delete m_cl_phi;
-
-
     }
 
 
@@ -227,7 +221,6 @@ namespace NSWL1 {
     void StripClusterTool::reset_ntuple_variables() {
       // if ntuple is not booked nothing to do
       if ( m_tree==0 ) return;
-      //reset the ntuple variables
       clear_ntuple_variables();
     }
 
@@ -257,8 +250,6 @@ namespace NSWL1 {
       m_cl_truth_lx->clear();
       m_cl_truth_ly->clear();
       m_cl_truth_lz->clear();
-
-
       m_cl_side->clear();
       m_cl_isSmall->clear();
       m_cl_wedge->clear();
@@ -267,11 +258,6 @@ namespace NSWL1 {
       m_cl_layer->clear();
       m_cl_bandId->clear();
       m_cl_phiId->clear();
-      /*
-      for( auto cl: m_clusters){
-	    delete (cl);
-      }
-      */
       m_clusters.clear();
     }
 void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
@@ -301,7 +287,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       int n_strip=0;
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
-      //std::vector< std::unique_ptr<StripData> >* this_cl=m_clusters.at(cl_i);
       auto this_cl=m_clusters.at(cl_i);
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
@@ -339,14 +324,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 	    double truth_globalPosX = hit_gpos.x();
         double truth_globalPosY = hit_gpos.y();
         double truth_globalPosZ = hit_gpos.z();
-
 	    float  truth_energy    = strip_sdo.word();
-
-	    //Amg::Vector2D  lpos;
-        //Amg::Vector3D hit_gpos(truth_globalPosX, truth_globalPosY,truth_globalPosZ);
-        //Amg::Vector3D orig(0,0,0);
-	   // This orig arugment dosen't appear to do anything
-	   //rdoEl->surface(Id).globalToLocal(hit_gpos, orig, lpos);
 
         if(fabs(locx-lpos.x())>.001 || fabs(locy - lpos.y())>.001){
       	    ATH_MSG_DEBUG("OLD locx " << locx <<" new locx "<<lpos.x() <<" b " << int(locx!=lpos.x()));
@@ -367,17 +345,10 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       	    m_cl_truth_lx->push_back( lpos.x() );
       	    m_cl_truth_ly->push_back( lpos.y() );
       	    m_cl_truth_lz->push_back( 0 );
-
       	    m_cl_truth_E->push_back( truth_energy );
-	        //m_cl_truth_n->push_back(n_clus  );
-
-      	    ///	    locx=lpos.x();
-      	    //	    locy=lpos.y();
       	  }
 	    }
 
-        //ATH_MSG_DEBUG("Cluster " << this_cl << " strip: " << this_cl->at(s_i));
-	    //ATH_MSG_DEBUG("Cluster " << this_cl << " strip: " << this_cl->at(s_i) <<" charge: " << this_cl->at(s_i)->strip_charge_6bit());
         float s_charge=this_cl->at(s_i)->strip_charge_6bit();
         charge+=s_charge;
         x_pos+=this_cl->at(s_i)->globX()*s_charge;
@@ -417,49 +388,21 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       m_cl_lx->push_back(x_lpos);
       m_cl_ly->push_back(y_lpos);
       m_cl_lz->push_back(z_lpos);
+      m_cl_charge->push_back(charge);
+      m_cl_size->push_back(n_strip);
 
+      m_cl_side->push_back(m_clusters.at(cl_i)->at(0)->sideId() );
+      m_cl_isSmall->push_back(m_clusters.at(cl_i)->at(0)->isSmall() );
+      m_cl_wedge->push_back(m_clusters.at(cl_i)->at(0)->wedge());
+      m_cl_sector->push_back(m_clusters.at(cl_i)->at(0)->sectorId());
+      m_cl_module->push_back(m_clusters.at(cl_i)->at(0)->moduleId() );
+      m_cl_layer->push_back(m_clusters.at(cl_i)->at(0)->layer());
+      m_cl_bandId->push_back(m_clusters.at(cl_i)->at(0)->bandId());
+      m_cl_phiId->push_back(m_clusters.at(cl_i)->at(0)->phiId());
+      ATH_MSG_DEBUG("Cluster dump with X:" << x_pos << " Y: " << y_pos << " Z: " << z_pos << " cluster charge: " << charge);
+      ATH_MSG_DEBUG("Cluster dump with lX:" << x_lpos << " lY: " << y_lpos << " lZ: " << z_lpos << " cluster charge: " << charge);
 
-      // Identifier Id = this_cl->at(0)->Identity();
-      //Trk::LocalPosition cl_lo(x_pos,y_pos);
-    // const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
-    //const  Trk::GlobalPosition* hit_gpos = rdoEl->surface(Id).localToGlobal(cl_lo);
-    //m_cl_ltgx->push_back(hit_gpos->x());
-    //m_cl_ltgy->push_back(hit_gpos->y());
-    //m_cl_ltgz->push_back(hit_gpos->z());
-
-
-
-
-     m_cl_charge->push_back(charge);
-     m_cl_size->push_back(n_strip);
-
-     m_cl_side->push_back(m_clusters.at(cl_i)->at(0)->sideId() );
-     m_cl_isSmall->push_back(m_clusters.at(cl_i)->at(0)->isSmall() );
-     m_cl_wedge->push_back(m_clusters.at(cl_i)->at(0)->wedge());
-     m_cl_sector->push_back(m_clusters.at(cl_i)->at(0)->sectorId());
-     m_cl_module->push_back(m_clusters.at(cl_i)->at(0)->moduleId() );
-     m_cl_layer->push_back(m_clusters.at(cl_i)->at(0)->layer());
-     m_cl_bandId->push_back(m_clusters.at(cl_i)->at(0)->bandId());
-     m_cl_phiId->push_back(m_clusters.at(cl_i)->at(0)->phiId());
-     ATH_MSG_DEBUG("Cluster dump with X:" << x_pos << " Y: " << y_pos << " Z: " << z_pos << " cluster charge: " << charge);
-     ATH_MSG_DEBUG("Cluster dump with lX:" << x_lpos << " lY: " << y_lpos << " lZ: " << z_lpos << " cluster charge: " << charge);
-
-     //S.I
-     /*
-     auto scod=new NSWL1::StripClusterOfflineData(m_clusters.at(cl_i)->at(0)->bandId(),
-						 m_clusters.at(cl_i)->at(0)->isSmall(),
-						 m_clusters.at(cl_i)->at(0)->moduleId(),
-						 m_clusters.at(cl_i)->at(0)->sectorId(),
-						 m_clusters.at(cl_i)->at(0)->wedge(),
-						 m_clusters.at(cl_i)->at(0)->layer(),
-						 n_strip,
-						 charge,
-						 x_pos,
-						 y_pos,
-						 z_pos);
-     */
-
-     auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
+      auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
                            m_clusters.at(cl_i)->at(0)->bandId(),
                            m_clusters.at(cl_i)->at(0)->trig_BCID(),                                         
                            m_clusters.at(cl_i)->at(0)->phiId(),
@@ -474,10 +417,8 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 						   y_pos,
 						   z_pos
                         );
-     clusters.push_back(std::move(stripClOfflData));
-     //S.I
-
-
+      clusters.push_back(std::move(stripClOfflData));
+     
     }//of m_clusters loop
 
     ATH_MSG_DEBUG("Finished Fill");
@@ -576,10 +517,6 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
       fill_strip_validation_id(clusters);
       return StatusCode::SUCCESS;
   }
-
-
-
-
+  
 }
 
-//  LocalWords:  pos lpos

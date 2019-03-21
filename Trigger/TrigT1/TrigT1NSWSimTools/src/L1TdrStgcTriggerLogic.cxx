@@ -10,7 +10,7 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include <fstream>
 #include <functional>
-#include <numeric>//iota
+#include <numeric>
 
 using std::distance;
 using std::set_intersection;
@@ -36,14 +36,7 @@ namespace NSWL1{
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
                         const int &iPhi1, std::string &pattern) {
-        // A la ATL-MUON-INT-2014-003 =>>
         pattern = "33";
-        //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
-        //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
-        //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
-        //  else               pattern = (iEta0==iEta1 ? "12" : "22");
-        // <<== A la ATL-MUON-INT-2014-003
-        // New Logic - DeltaEtaDeltaPhi
         if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
             return false;
         if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)

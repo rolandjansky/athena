@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -236,25 +236,6 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_BCID",n).Data(),&m_strip_BCID);
         m_tree->Branch(TString::Format("%s_wedge",n).Data(),&m_strip_wedge);
         m_tree->Branch(TString::Format("%s_time",n).Data(),&m_strip_time);
-
-
-    //	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalX",n).Data(),&m_stripTruthHitGlobalX);
-    //	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalY",n).Data(),&m_stripTruthHitGlobalY);
-    //	m_tree->Branch(TString::Format("%s_stripTruthHitGlobalZ",n).Data(),&m_stripTruthHitGlobalZ);
-
-        
-
-        //   m_tree->Branch(TString::Format("%s_stripGlobalY",n).Data(),&m_stripGlobalY);
-        //   m_tree->Branch(TString::Format("%s_stripGlobalZ",n).Data(),&m_stripGlobalZ);
-        //  m_tree->Branch(TString::Format("%s_stripTruthHitGlobal",n).Data(),&m_stripTruthHitGlobalZ);
-        //   m_tree->Branch(TString::Format("%s_stripEtaIdFromOfflineId",n).Data(),&m_stripEtaIdFromOfflineId);
-        //   m_tree->Branch(TString::Format("%s_stripPhiIdFromOfflineId",n).Data(),&m_stripPhiIdFromOfflineId);
-        //   m_tree->Branch(TString::Format("%s_stripIsSmallIdFromOfflineId",n).Data(),&m_stripIsSmallFromOfflineId);
-        //   m_tree->Branch(TString::Format("%s_stripLayerFromOfflineId",n).Data(),&m_stripLayerFromOfflineId);
-        //   m_tree->Branch(TString::Format("%s_offlineIdStripEtaIdConverted",n).Data(),&m_offlineIdStripEtaConverted);
-        //   m_tree->Branch(TString::Format("%s_offlineIdStripPhiIdConverted",n).Data(),&m_offlineIdStripPhiConverted);
-        //   m_tree->Branch(TString::Format("%s_stripEtaIdFromOldSimu",n).Data(),&m_stripEtaIdFromOldSimu);
-        //   m_tree->Branch(TString::Format("%s_stripPhiIdFromOldSimu",n).Data(),&m_stripPhiIdFromOldSimu);
       }
       else { 
          return StatusCode::FAILURE;
@@ -609,66 +590,5 @@ namespace NSWL1 {
         
     }//padtriggers loop
     return false;
-  } 
-
-
-
-    /* Code for when pand id is fixed*/
-
-  //   sTGCReadoutParameters  roParams=sTGC->GetReadoutParameters();
-    
-
-  //   if (layer_index < 0 || layer_index >= roParams.firstTriggerBand.size()+1){
-  //     ATH_MSG_DEBUG("StripClusterTool:ReadStrip: Asked for layer that dosen't exist:" << layer_index+1);
-  //     return false;
-  //     }
-  //   ATH_MSG_DEBUG("BandID" << "  " << unsigned(bandID) << "  ["<<roParams.firstTriggerBand.at(layer_index) <<","<< roParams.firstTriggerBand.at(layer_index)+ roParams.nTriggerBands.at(layer_index) << "]");
-
-  //   if (unsigned(bandID) <= roParams.firstTriggerBand.at(layer_index)) {
-  //     ATH_MSG_DEBUG("Module not in Trigger Band: low");
-  //     return false;
-  //   } 
-  //   if (unsigned(bandID) >= roParams.firstTriggerBand.at(layer_index)+ roParams.nTriggerBands.at(layer_index)) {
-  //     ATH_MSG_DEBUG("Module not in Trigger Band: high");
-  // 	return false;    }
-
-  //   int band_index=bandID-roParams.firstTriggerBand.at(layer_index);
-  //   /* Strip where counting starts */
-  //   int start_strip=roParams.firstStripInTrigger.at(layer_index);
-
-  //   /* Grab correct layer */
-  //   std::vector<int>* stripsInBands=0;
-  //   if (layer_index==0) stripsInBands= &(roParams.StripsInBandsLayer1);
-  //   else if (layer_index==1) stripsInBands= &(roParams.StripsInBandsLayer2);
-  //   else if (layer_index==2) stripsInBands= &(roParams.StripsInBandsLayer3);
-  //   else if (layer_index==3) stripsInBands= &(roParams.StripsInBandsLayer4);
-  //   else{
-  //     ATH_MSG_DEBUG("StripClusterTool:ReadStrip: Asked for layer that dosen't exist");
-  //     return false;
-  //   }
-  //   /* Sum over all other strips to get the starting strip for this band id */
-
-  //   if (band_index >= stripsInBands->size() or band_index<0) {
-  //     ATH_MSG_DEBUG("StripClusterTool:ReadStrip: band_index is out of range:"<< band_index <<" of " << stripsInBands->size());
-  //     return false;
-  //   }
-
-  //   for( int i=1; i <band_index; i++) start_strip+=stripsInBands->at(i-1);
-    
-  //   /* Check to see if this strip falls in this band Range */
-  //   if (strip->channelId() < start_strip){
-  //     ATH_MSG_DEBUG("Strip not in Trigger Band: low "<< strip->channelId() <<"  "<<start_strip);
-  // 	     return false;}
-  //   if (strip->channelId() > start_strip+stripsInBands->at(band_index)){
-  //     ATH_MSG_DEBUG("Strip not in Trigger Band: high "<< strip->channelId() <<"  "<<start_strip+stripsInBands->at(band_index));
-  // 	return false;
-  //   }
-  
-  //   /* Some code here to cache this results */
-  //   strip->setBandId((int) bandID);
-  //   return true;
-  
-  // }
-
-
+  }
 }

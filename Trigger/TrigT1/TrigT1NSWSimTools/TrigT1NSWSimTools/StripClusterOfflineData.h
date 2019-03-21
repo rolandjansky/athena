@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPCLUSTEROFFLINEDATA_H
@@ -64,12 +64,7 @@ namespace NSWL1 {
 			    float globY,
 			    float globZ);
     ~StripClusterOfflineData();
-        
-   //! methods for retrieving the bare data 
-    /*
-    S.I :  are you sure are these all for retrieving the data ? Someone seems to copy paste without spending even a single second to figure things out 
-    and the bad news is, it all around this codebase
-    */                                        
+                                    
     int set_bandId(int bandId);
     int set_BCID(int);
     int set_phiId(int phiId);

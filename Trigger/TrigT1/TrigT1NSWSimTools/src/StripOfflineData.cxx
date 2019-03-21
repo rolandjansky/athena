@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,10 +81,7 @@ namespace NSWL1 {
 
     int StripOfflineData::sectorId()    const {
       if (m_helper) {
-	//      std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
-        //    bool isSmall = stName[2]=='S';
-	return  m_helper->stationPhi(m_id);
-	    //    return (isSmall)? m_helper->stationPhi(m_id)*2 - 1 : m_helper->stationPhi(m_id)*2 - 2;
+        return  m_helper->stationPhi(m_id);
       }
       return -1;
     }
@@ -110,12 +107,10 @@ namespace NSWL1 {
 
   int StripOfflineData::isSmall() const {
     if (m_helper) {
-      std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
-      bool isSmall = stName[2]=='S';
-      return isSmall;
-        }
-    //return -1;
-    //S.I to be consistent with pads
+        std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
+        bool isSmall = stName[2]=='S';
+        return isSmall;
+    }
     return 0;
   }
 
@@ -170,20 +165,20 @@ namespace NSWL1 {
     return  m_read_strip;
   }
 
-  void StripOfflineData::set_readStrip(bool readStrip)    {
-      m_read_strip=readStrip;  
-      }
+  void StripOfflineData::set_readStrip(bool readStrip){
+      m_read_strip=readStrip;
+  }
 
  
   void StripOfflineData::set_locX(float pos)    {
       m_lx=pos; 
-      }
+  }
   void StripOfflineData::set_locY(float pos)    {
      m_ly=pos; 
-      }
+  }
   void StripOfflineData::set_locZ(float pos)    {
       m_lz=pos; 
-      }
+  }
 
 
 

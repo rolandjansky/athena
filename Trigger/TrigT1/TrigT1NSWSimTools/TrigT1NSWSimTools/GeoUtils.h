@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOUTILS_H
@@ -9,11 +9,6 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include "TrkSurfaces/PlaneSurface.h"
 #include <vector>
-
-
-/*
- author :   Serhat Istin / S.I
- */ 
  
 namespace NSWL1{
     using Vertex=boost::geometry::model::d2::point_xy<double>;
@@ -66,7 +61,6 @@ namespace NSWL1{
     //given a polygon, return the number of vertices... (keep in mind that a polygon is a closed loop in our sense so first and the last vertices are the same)
      int nVertices(const Polygon&);
         
-    //write a function : given a polygon, return the nth vertex...
      Vertex getVertex(const Polygon&,unsigned int);
         
     //Given a polygon get minimum and maximum bounds of a vertical or horizontal coordinate

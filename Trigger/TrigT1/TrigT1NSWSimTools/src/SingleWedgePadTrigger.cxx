@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
@@ -12,9 +12,7 @@
 #include <sstream>
 
 namespace NSWL1{
-
-    //using SingleWedgePadTrigger=SingleWedgePadTrigger;
-
+    
     bool sortByLayer(const std::shared_ptr<PadOfflineData> &p0, const std::shared_ptr<PadOfflineData>& p1) {
         return p0->gasGapId()<p1->gasGapId();
     }
@@ -36,22 +34,13 @@ namespace NSWL1{
 
     SingleWedgePadTrigger::EtaPhiHalf SingleWedgePadTrigger::halfPadCoordinates() const {
         const std::vector<std::shared_ptr<PadOfflineData>> &pads = m_pads;
-        size_t nPads(pads.size());
-        bool haveEnoughPads(nPads>2);
-        if(not haveEnoughPads)
-        std::cerr<<"SingleWedgePadTrigger::halfPadCoordinates: need at least 3 pads"<<std::endl;
-        assert(haveEnoughPads);
-        
+
         const auto &pad0=pads[0], &pad1=pads[1], &pad2=pads[2];
         int l0(pad0->gasGapId()), l1(pad1->gasGapId()), l2(pad2->gasGapId());
-        // DG: Are we assuming that the pad indices are sorted? this assumption might not be always valid
-        // DG: Should we also cross-check the 4th pad if present?
-        bool missLast  (l0==STGC_LAYER_1 && l1==STGC_LAYER_2); // missLast also includes 4 out of 4.
+
+        bool missLast  (l0==STGC_LAYER_1 && l1==STGC_LAYER_2); 
         bool missMiddle(l0==STGC_LAYER_1 && l2==STGC_LAYER_4);
         bool missFirst (l0==STGC_LAYER_2 && l1==STGC_LAYER_3);
-        bool validLayerCombination(missLast || missMiddle || missFirst);
-        assert(validLayerCombination); // probably got a pattern we don't know how to interpret
-        (void) validLayerCombination; // to get rid of weird unused variable warning...
 
         //YR: the following is wrong but we keep it for phi as it isn't used much - for eta we use the simple calculation that follows.
         EtaPhiHalf pos(-999,-999);
@@ -176,7 +165,6 @@ namespace NSWL1{
         bool mismatch(mismatchEta || mismatchPhi);
         //S.I a remnant of verbose plague... will cleanup later
         (void) verbose;
-        //
         return !mismatch;
     }
 

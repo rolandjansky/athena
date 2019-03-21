@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -103,7 +103,6 @@ namespace NSWL1 {
       }
     }
 
-
     // retrieving the private tools implementing the simulation
     
     if(m_dosTGC){
@@ -200,30 +199,19 @@ namespace NSWL1 {
     ATH_MSG_INFO( "execute" << name() );
     m_counters.clear();
 
-    // retrieve the current run number and event number
     const EventInfo* pevt = 0;
     ATH_CHECK( evtStore()->retrieve(pevt) );
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();
 
 
-    m_counters.push_back(1.);  // a new event is being processed
-    //S.I those could be members ...
+    m_counters.push_back(1.);
     std::vector<std::shared_ptr<PadData>> pads;  
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
-    //S.I
     
-    // retrieve the PAD hit and compute pad trigger
     if(m_dosTGC){
-        // DG-2015-10-02
-        // Currently storing pads from all sectors in one vector<>.
-        // Perhaps we could do here for(sector) instead of inside
-        // PadTriggerLogicOfflineTool (since all the pad and
-        // pad-trigger info is per-sector...)
-        
-        //S.I 2019 : that would be good for MTness like others did
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
       
       if(m_doPadTrigger){
@@ -244,19 +232,10 @@ namespace NSWL1 {
 
 
     //retrive the MM Strip hit data
-    
     if(m_doMM){
- //      std::vector<MMStripData*> mmstrips;
- //      sc = m_mmstrip_tds->gather_mmstrip_data(mmstrips);
- //      if ( sc.isFailure() ) {
-	// ATH_MSG_ERROR( "Could not gather the MM Strip hit data" );
-	// return sc;
- //      }
       ATH_CHECK( m_mmtrigger->runTrigger() );
     }
-    //
-    // do monitoring
-    //
+
     ToolHandleArray<IMonitorToolBase>::iterator it;
     for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
       (*it)->fillHists().ignore();
@@ -270,18 +249,12 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::finalize() {
     ATH_MSG_INFO( "finalize" << name() );
-
-    //
-    // monitoring
-    //
     ToolHandleArray<IMonitorToolBase>::iterator it;
     for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
       (*it)->finalHists().ignore();
     }
-
     return StatusCode::SUCCESS;
   }
-
 
   int NSWL1Simulation::resultBuilder() const {
     return 0;

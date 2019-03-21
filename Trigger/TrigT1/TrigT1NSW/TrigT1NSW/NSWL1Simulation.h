@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1NSW_NSWL1SIMULATION_H
@@ -25,12 +25,6 @@
 #include "TrigT1NSWSimTools/IMMStripTdsTool.h"
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
-
-//#include "TrigConfigSvc/ITrigConfigSvc.h"  need the TriggerConfigSvc? maybe not
-
-// local includes
-
-
 
 // Forward includes
 class StoreGateSvc;
