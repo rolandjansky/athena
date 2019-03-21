@@ -601,52 +601,93 @@ bool ImportData::suggestElectronMapKeys(const std::map<std::string,std::string>&
 	}
 	if(!success) return false;
 
-	std::map<std::size_t,std::map<std::size_t,int> > allKeys;
-	if(!importMapKeys(version, allKeys)) return false;
-	std::map<std::size_t,std::vector<std::size_t> > allLegsPerKey;
-	while(legs.size())
+	if(version != "")
 	{
-		allLegsPerKey.clear();
-		for(auto& kvLegs : legs) // loop on remaining legs
+		std::map<std::size_t,std::map<std::size_t,int> > allKeys;
+		if(!importMapKeys(version, allKeys)) return false;
+		std::map<std::size_t,std::vector<std::size_t> > allLegsPerKey;
+		std::set<std::size_t> legsWithMultipleKeys;
+		bool sameKeyForAllyears = true;
+		while(legs.size())
 		{
-			std::size_t leg = kvLegs.first;
-			int years = kvLegs.second;
-			auto itrKeys = allKeys.find(leg); // list of keys for that leg
-			if(itrKeys != allKeys.end())
+			allLegsPerKey.clear();
+			for(auto& kvLegs : legs) // loop on remaining legs
 			{
-				for(auto& kvKeys : itrKeys->second) // loop on those keys
+				std::size_t leg = kvLegs.first;
+				int years = kvLegs.second;
+				auto itrKeys = allKeys.find(leg); // list of keys for that leg
+				if(itrKeys != allKeys.end())
 				{
-					if((kvKeys.second & years) == years) // key must support all years needed for that leg
+					for(auto& kvKeys : itrKeys->second) // loop on those keys
 					{
-						auto insertion = allLegsPerKey.emplace(kvKeys.first,std::vector<std::size_t>{leg});
-						if(!insertion.second) insertion.first->second.push_back(leg); 
+						auto y = (kvKeys.second & years);
+						if((y==years) || (!sameKeyForAllyears && y!=0)) // key must support all years needed for that leg -- until no longer possible
+						{
+							auto insertion = allLegsPerKey.emplace(kvKeys.first,std::vector<std::size_t>{leg});
+							if(!insertion.second) insertion.first->second.push_back(leg); 
+						}
 					}
 				}
+				else
+				{
+					ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
+							<< m_dictionary.at(leg) << "', manual configuration is needed");
+					success = false;
+				}
 			}
-			else
-			{
-				ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
-						<< m_dictionary.at(leg) << "', manual configuration is needed");
-				success = false;
-			}
-		}
-		if(!success)
-		{
-			legsPerKey.clear();
-			break;
-		}
+			if(!success) break;
 
-		using T = decltype(allLegsPerKey)::value_type;
-		auto itrKey = std::max_element(allLegsPerKey.begin(), allLegsPerKey.end(),
-			[](T& x,T& y){return x.second.size()<y.second.size();});
-		std::string& strLegs = legsPerKey[m_dictionary.at(itrKey->first)];
-		for(std::size_t leg : itrKey->second)
-		{
-			legs.erase(leg);
-			if(strLegs.length()>0) strLegs += ',';
-			strLegs += m_dictionary.at(leg);
+			if(!allLegsPerKey.size())
+			{
+				if(sameKeyForAllyears)
+				{
+					sameKeyForAllyears = false;
+					continue;
+				}
+				success = false;
+				break;
+			}
+			
+			using T = decltype(allLegsPerKey)::value_type;
+			auto itrKey = std::max_element(allLegsPerKey.begin(), allLegsPerKey.end(),
+				[](T& x,T& y){return x.second.size()<y.second.size();});
+			std::string& strLegs = legsPerKey[m_dictionary.at(itrKey->first)];
+			for(std::size_t leg : itrKey->second)
+			{
+				int& wantedYears = legs.at(leg);
+				int supportedYears = (allKeys.at(leg).at(itrKey->first)) & wantedYears;
+				if(supportedYears!=wantedYears || legsWithMultipleKeys.count(leg))
+				{
+					legsWithMultipleKeys.insert(leg);
+					for(int i=0;i<32;++i)
+					{
+						if(supportedYears & (1<<i))
+						{
+							if(strLegs.length() && strLegs.back()!=',') strLegs += ',';
+							strLegs += m_dictionary.at(leg) + "[" + std::to_string(2015 + i) + "]";
+						}
+					}
+				}
+				else
+				{
+					if(strLegs.length() && strLegs.back()!=',') strLegs += ',';
+					strLegs += m_dictionary.at(leg);
+				}
+				if(supportedYears == wantedYears) legs.erase(leg);
+				else wantedYears &= ~supportedYears;
+			}
 		}
 	}
+	else
+	{
+		/// If no version is specified, the list of trigger legs is returned
+		for(auto& kv : legs)
+		{
+			legsPerKey.emplace(std::to_string(legsPerKey.size()), m_dictionary.at(kv.first));
+		}
+	}
+	
+	if(!success) legsPerKey.clear();
 	return success;
 }
 

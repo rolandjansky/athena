@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
@@ -461,6 +461,7 @@ namespace ST {
     bool m_force_noElId;
     bool m_force_noMuId;
     bool m_doTTVAsf;
+    bool m_doModifiedEleId;
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
@@ -475,6 +476,9 @@ namespace ST {
 
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
+
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
 
     bool m_tool_init;
     bool m_subtool_init;
@@ -512,6 +516,7 @@ namespace ST {
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;
     std::string m_mcCampaign;
+    int m_mcChannel;
 
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
@@ -554,6 +559,7 @@ namespace ST {
     std::string m_tauIdBaseline;
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
+    double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
@@ -561,6 +567,8 @@ namespace ST {
     std::string m_photonTriggerName;
     std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
+    std::string m_muIsoHighPt_WP;
+    double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
@@ -696,8 +704,6 @@ namespace ST {
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
-    std::string m_WtagConfig;
-    std::string m_ZtagConfig;
     asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 
@@ -724,6 +730,7 @@ namespace ST {
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyBMHighPtSFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonTTVAEfficiencySFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonIsolationSFTool;
+    asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonHighPtIsolationSFTool;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool;
     ToolHandleArray<CP::IMuonTriggerScaleFactors> m_muonTrigSFTools;
     //
@@ -838,7 +845,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
-  const static SG::AuxElement::Decorator<char> dec_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
+  const static SG::AuxElement::Decorator<char> dec_isolHighPt("isolHighPt"); // use different WPs for low-pt and high-pt
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
@@ -847,7 +854,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::ConstAccessor<char> acc_signal("signal");
   const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
-  const static SG::AuxElement::ConstAccessor<char> acc_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
+  const static SG::AuxElement::ConstAccessor<char> acc_isolHighPt("isolHighPt"); // use different WPs for low-pt and high-pt
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");

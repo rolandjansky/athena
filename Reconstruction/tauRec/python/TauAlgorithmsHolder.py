@@ -850,7 +850,9 @@ def getTauWPDecoratorJetBDT():
 
 
 # 
-def getTauWPDecoratorEleBDT():
+def getTauWPDecoratorEleBDT(flatteningFile1Prong="EleBDTFlat1P.root",
+                            flatteningFile3Prong="EleBDTFlat3P.root",
+                            retuned=False):
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
@@ -858,20 +860,40 @@ def getTauWPDecoratorEleBDT():
 
     _name = sPrefix + 'TauWPDecoratorEleBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauScoreFlatteningTool = TauWPDecorator( name=_name,
-                                             flatteningFile1Prong = "EleBDTFlat1P.root",#update
-                                             flatteningFile3Prong = "EleBDTFlat3P.root",#update                                             
-                                             UseEleBDT = True ,
-                                             ScoreName = "BDTEleScore",
-                                             NewScoreName = "BDTEleScoreSigTrans", #dynamic
-                                             DefineWPs = True,
-                                             CutEnumVals = 
-                                             [ROOT.xAOD.TauJetParameters.EleBDTLoose, 
-                                              ROOT.xAOD.TauJetParameters.EleBDTMedium, 
-                                              ROOT.xAOD.TauJetParameters.EleBDTTight],
-                                             SigEff1P = [0.95, 0.85, 0.75],
-                                             SigEff3P = [0.95, 0.85, 0.75],
-                                             ) 
+    if retuned:
+        # Do NOT overwrite the original WPs in isTauFlags
+        # (i.e. do NOT set CutEnumVals and SigEff/1P/3P)
+        # Decorate separately in the aux instead
+        # (i.e. set "DecorWPNames" and "DecorWPCutEff/1P/3P")
+        TauScoreFlatteningTool = TauWPDecorator( name=_name,
+                                                 flatteningFile1Prong = flatteningFile1Prong,
+                                                 flatteningFile3Prong = flatteningFile3Prong,
+                                                 UseEleBDT = True ,
+                                                 ScoreName = "BDTEleScore_retuned",
+                                                 NewScoreName = "BDTEleScoreSigTrans_retuned", #dynamic
+                                                 DefineWPs = True,
+                                                 DecorWPNames =
+                                                 ["BDTEleLoose_retuned",
+                                                  "BDTEleMedium_retuned",
+                                                  "BDTEleTight_retuned"],
+                                                 DecorWPCutEffs1P = [0.95, 0.85, 0.75],
+                                                 DecorWPCutEffs3P = [0.95, 0.85, 0.75],
+                                                 ) 
+    else:
+        TauScoreFlatteningTool = TauWPDecorator( name=_name,
+                                                 flatteningFile1Prong = flatteningFile1Prong,
+                                                 flatteningFile3Prong = flatteningFile3Prong,
+                                                 UseEleBDT = True ,
+                                                 ScoreName = "BDTEleScore",
+                                                 NewScoreName = "BDTEleScoreSigTrans", #dynamic
+                                                 DefineWPs = True,
+                                                 CutEnumVals = 
+                                                 [ROOT.xAOD.TauJetParameters.EleBDTLoose, 
+                                                  ROOT.xAOD.TauJetParameters.EleBDTMedium, 
+                                                  ROOT.xAOD.TauJetParameters.EleBDTTight],
+                                                 SigEff1P = [0.95, 0.85, 0.75],
+                                                 SigEff3P = [0.95, 0.85, 0.75],
+                                                 ) 
     cached_instances[_name] = TauScoreFlatteningTool
     return TauScoreFlatteningTool
 

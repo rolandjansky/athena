@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
@@ -17,6 +15,8 @@
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 namespace CP {
@@ -46,12 +46,18 @@ namespace CP {
 
             /// Scale factor tool
             ToolHandle<IPileupReweightingTool> m_prw_Tool;
+            ToolHandle<IMuonSelectionTool> m_sel_tool;
 
             std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_test_helper;
             std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_comparison_helper;
 
             std::string m_first_release_name;
             std::string m_second_release_name;
+            
+            float m_pt_cut;
+            float m_eta_cut;
+            
+            unsigned long long m_evNumber;
     };
 
 } // namespace CP

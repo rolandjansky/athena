@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2013.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -59,20 +53,32 @@ namespace SH
 
 
 
-  DiskWriter *DiskOutputXRD ::
-  doMakeWriter (const std::string& sample, const std::string& name,
-		int index, const std::string& suffix) const
+  std::unique_ptr<DiskWriter> DiskOutputXRD ::
+  doMakeWriter (const std::string& sampleName,
+                const std::string& segmentName,
+		const std::string& suffix) const
+  {
+    RCU_READ_INVARIANT (this);
+    return std::make_unique<DiskWriterXRD>
+      (targetURL (sampleName, segmentName, suffix));
+  }
+
+
+
+  std::string DiskOutputXRD ::
+  getTargetURL (const std::string& sampleName,
+                const std::string& segmentName,
+                const std::string& suffix) const
   {
     RCU_READ_INVARIANT (this);
     std::ostringstream file;
-    file << m_prefix << "/";
-    file << sample;
-    if (!sample.empty() && !name.empty())
-      file << "-";
-    file << name;
-    if (index >= 0)
-      file << "-" << index;
+    file << m_prefix;
+    if (m_prefix.back() != '-')
+      file << "/";
+    file << sampleName;
+    if (!segmentName.empty())
+      file << "-" << segmentName;
     file << suffix;
-    return new DiskWriterXRD (file.str());
+    return file.str();
   }
 }

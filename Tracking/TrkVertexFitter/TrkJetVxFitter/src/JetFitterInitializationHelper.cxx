@@ -39,110 +39,110 @@ namespace Trk
       return numVertex+5;
     }
 
-    std::pair<double,double> getPhiAndThetaError(const Amg::Vector3D & jetdirection)
-    {
-      double pT=jetdirection.perp();
-      double eta=jetdirection.eta();
+    // std::pair<double,double> getPhiAndThetaError(const Amg::Vector3D & jetdirection)
+    // {
+    //   double pT=jetdirection.perp();
+    //   double eta=jetdirection.eta();
       
-      if (pT<30000.) 
-      {
-        if (fabs(eta)<0.5)
-        {
-          return std::pair<double,double>(0.0745324,0.0707118);
-        }
-        else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
-        {
-          return std::pair<double,double>(0.0706129,0.0700991);
-        }
-        else
-        {
-          return std::pair<double,double>(0.0637408,0.0625573);
-        }
-      } 
-      else if (pT>30000.&&pT<50000.) 
-      {
-        if (fabs(eta)<0.5)
-        {
-          return std::pair<double,double>(0.0471643,0.0522802);
-        }
-        else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
-        {
-          return std::pair<double,double>(0.0481275,0.0496884);
-        }
-        else
-        {
-          return std::pair<double,double>(0.0424792,0.0430283);
-        }
-      } else if (pT>50000.&&pT<80000.) 
-      {
-        if (fabs(eta)<0.5)
-        {
-          return std::pair<double,double>(0.0413781,0.0483138);
-        }
-        else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
-        {
-          return std::pair<double,double>(0.0403793,0.0446019);
-        }
-        else
-        {
-          return std::pair<double,double>(0.0386421,0.040443);
-        }
-      } else if (pT>80000.&&pT<120000.) 
-      {
-        if (fabs(eta)<0.5)
-        {
-          return std::pair<double,double>(0.0418976,0.0513061);
-        }
-        else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
-        {
-          return std::pair<double,double>(0.0421726,0.0463102);
-        }
-        else
-        {
-          return std::pair<double,double>(0.0400686,0.0432175);
-        }
-      } else if (pT>120000.) 
-      {
-        if (fabs(eta)<0.5)
-        {
-          return std::pair<double,double>(0.0477842,0.0562935);
-        }
-        else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
-        {
-          return std::pair<double,double>(0.0489627,0.0511563);
-        }
-        else
-        {
-          return std::pair<double,double>(0.0465861,0.0463104);
-        }
-      }
-      std::cout << " HELP HELP error found" << std::endl;
-      throw;
-      //      return std::pair<double,double>(0,0);
-    }
+    //   if (pT<30000.) 
+    //   {
+    //     if (fabs(eta)<0.5)
+    //     {
+    //       return std::pair<double,double>(0.0745324,0.0707118);
+    //     }
+    //     else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
+    //     {
+    //       return std::pair<double,double>(0.0706129,0.0700991);
+    //     }
+    //     else
+    //     {
+    //       return std::pair<double,double>(0.0637408,0.0625573);
+    //     }
+    //   } 
+    //   else if (pT>30000.&&pT<50000.) 
+    //   {
+    //     if (fabs(eta)<0.5)
+    //     {
+    //       return std::pair<double,double>(0.0471643,0.0522802);
+    //     }
+    //     else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
+    //     {
+    //       return std::pair<double,double>(0.0481275,0.0496884);
+    //     }
+    //     else
+    //     {
+    //       return std::pair<double,double>(0.0424792,0.0430283);
+    //     }
+    //   } else if (pT>50000.&&pT<80000.) 
+    //   {
+    //     if (fabs(eta)<0.5)
+    //     {
+    //       return std::pair<double,double>(0.0413781,0.0483138);
+    //     }
+    //     else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
+    //     {
+    //       return std::pair<double,double>(0.0403793,0.0446019);
+    //     }
+    //     else
+    //     {
+    //       return std::pair<double,double>(0.0386421,0.040443);
+    //     }
+    //   } else if (pT>80000.&&pT<120000.) 
+    //   {
+    //     if (fabs(eta)<0.5)
+    //     {
+    //       return std::pair<double,double>(0.0418976,0.0513061);
+    //     }
+    //     else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
+    //     {
+    //       return std::pair<double,double>(0.0421726,0.0463102);
+    //     }
+    //     else
+    //     {
+    //       return std::pair<double,double>(0.0400686,0.0432175);
+    //     }
+    //   } else if (pT>120000.) 
+    //   {
+    //     if (fabs(eta)<0.5)
+    //     {
+    //       return std::pair<double,double>(0.0477842,0.0562935);
+    //     }
+    //     else if (fabs(eta)>0.5 && fabs(eta)<1.5) 
+    //     {
+    //       return std::pair<double,double>(0.0489627,0.0511563);
+    //     }
+    //     else
+    //     {
+    //       return std::pair<double,double>(0.0465861,0.0463104);
+    //     }
+    //   }
+    //   std::cout << " HELP HELP error found" << std::endl;
+    //   throw;
+    //   //      return std::pair<double,double>(0,0);
+    // }
     
         
       
       
 
-    Amg::Vector3D getSingleVtxPosition(const Amg::VectorX & myPosition,int numVertex) {
-      int numbRow=numRow(numVertex);
-      double xv=myPosition[Trk::jet_xv];
-      double yv=myPosition[Trk::jet_yv];
-      double zv=myPosition[Trk::jet_zv];
-      double phi=myPosition[Trk::jet_phi];
-      double theta=myPosition[Trk::jet_theta];
-      double dist=0.;
-      if (numbRow>=0) {
-	dist=myPosition[numbRow];
-	if (fabs(dist)>1000.) {//MAX 1m
-	  dist=dist/fabs(dist)*1000.;
-	}
-      }
-      return Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
-			   yv+dist*sin(phi)*sin(theta),
-			   zv+dist*cos(theta));
-    }
+    // Amg::Vector3D getSingleVtxPosition(const Amg::VectorX & myPosition,int numVertex) {
+    //   int numbRow=numRow(numVertex);
+    //   double xv=myPosition[Trk::jet_xv];
+    //   double yv=myPosition[Trk::jet_yv];
+    //   double zv=myPosition[Trk::jet_zv];
+    //   double phi=myPosition[Trk::jet_phi];
+    //   double theta=myPosition[Trk::jet_theta];
+    //   double dist=0.;
+    //   if (numbRow>=0) {
+    //     dist=myPosition[numbRow];
+    //     if (fabs(dist)>1000.) {//MAX 1m
+    //       dist=dist/fabs(dist)*1000.;
+    //     }
+    //   }
+    //   return Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
+    //     		   yv+dist*sin(phi)*sin(theta),
+    //     		   zv+dist*cos(theta));
+    // }
 
     Amg::Vector3D getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
 					           int numVertex,

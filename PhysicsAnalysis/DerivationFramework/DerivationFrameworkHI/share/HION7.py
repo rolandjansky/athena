@@ -11,6 +11,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIJetRec.HIJetRecUtils import HasCollection
 
 #====================================================================
 #Read and set conditions
@@ -19,7 +20,7 @@ from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 GetConditionsFromMetaData()
 
 #====================================================================
-#Check to see if it is Pb+Pb or p+Pb Derivation
+#Check to see type of data
 #====================================================================
 from PyUtils import AthFile
 af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
@@ -35,23 +36,26 @@ streamName = derivationFlags.WriteDAOD_HION7Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HION7Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=900 #in MeV
+
+#Trigger selection
+expression=''
+if not HIDerivationFlags.isSimulation():    
+    TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
+    for i, key in enumerate(TriggerDict):
+	    #Event selection based on DF jets for HI
+	    expression = expression + '(' + key + ' && count(DFAntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    #Event selection based also on non-DF jets for pp
+	    if HIDerivationFlags.isPP: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if not i == len(TriggerDict) - 1:
+		    expression = expression + ' || ' 
+	    
+    print "==========Event filtering expression=========="
+    print expression
+    print "=============================================="
+
 #Thinning threshods for jets is applied only in data
-JetThinningThreshold = {'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35} #in GeV
-if project_tag=='data15_hi':
-	expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50'])  
-#TODO to be changed to DF when their performance is understood  
-if HIDerivationFlags.isPP() : expression='(HLT_j60_L1J15 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_L1J20 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j85 && count(AntiKt4HIJets.pt > %d*GeV) >=1) ' % (ppTriggerDict['HLT_j60_L1J15'],ppTriggerDict['HLT_j75_L1J20'],ppTriggerDict['HLT_j85'])
-if HIDerivationFlags.doMinBiasSelection() : expression = 'HLT_noalg_mb_L1TE50 || HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50'
-if project_tag=='data18_hi':
-	expression=''
-	for i, key in enumerate(HI18TriggerDict):
-		expression = expression + '(' + key + ' && count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 ) '
-		if not i == len(HI18TriggerDict) - 1:
-			expression = expression + ' || ' 
-	
-print "================AND====BEGIN=================="
-print expression
-print "================AND====END===================="
+JetThinningThreshold = {'AntiKt2HIJets': 20, 'AntiKt4HIJets': 20,'DFAntiKt2HIJets': 20, 'DFAntiKt4HIJets': 20} #in GeV
+
 
 #########Skimming#########
 skimmingTools=[]
@@ -75,9 +79,6 @@ for t in skimmingTools : ToolSvc+=t
 
 thinningTools=[]
 
-#track thinning
-#Version without track selector: 
-#thinningTools.append(addTrackThinningToolTight(DerivationName,TrackThinningThreshold))
 #Track selector based
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 HITrackSelector=InDet__InDetTrackSelectionTool("InDetTrackSelectionTool_%s" % DerivationName) 
@@ -98,15 +99,19 @@ TPThinningTool=DerivationFramework__HITrackParticleThinningTool(name='%sTPThinni
 ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
-CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets']
- 
-if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
-
-if project_tag=='data18_hi': CollectionList=['AntiKt2HIJets','AntiKt4HIJets']
+#Jet collections to be stored
+CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
+if HIDerivationFlags.isPP() :CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1'] 
+BtaggedCollectionList=['BTagging_DFAntiKt4HI']
+if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): BtaggedCollectionList.append('BTagging_AntiKt4HI')
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
-    for collection in CollectionList : thinningTools.append(addJetThinningTool(collection,DerivationName,JetThinningThreshold[collection]))
+    for collection in BtaggedCollectionList :thinningTools.append(addBtaggThinningTool(collection, collection.split("_",1)[1]+"Jets", DerivationName, JetThinningThreshold[collection.split("_",1)[1]+"Jets"]))
+    for collection in CollectionList :
+        if "Seed" not in collection:
+            thinningTools.append(addJetThinningTool(collection,DerivationName,JetThinningThreshold[collection]))    
+            thinningTools.append(addJetClusterThinningTool(collection,DerivationName,20))
 
 if HIDerivationFlags.isSimulation() :
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -118,12 +123,20 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(truth_thinning_tool)
 
 #########Slimming#########
+extra_Bjets=['BTagging_DFAntiKt4HI']
+
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SlimmingHelper = SlimmingHelper("%sSlimmingHelper" % DerivationName)
 for item in CollectionList :  
     if not SlimmingHelper.AppendToDictionary.has_key(item):
         SlimmingHelper.AppendToDictionary[item]='xAOD::JetContainer'
         SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::JetAuxContainer'
+for item in extra_Bjets :  
+    if not SlimmingHelper.AppendToDictionary.has_key(item):
+        SlimmingHelper.AppendToDictionary[item]='xAOD::BTaggingContainer'
+        SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::BTaggingAuxContainer'
+
+
 
 ##SmartVariables
 SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
@@ -132,22 +145,29 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Photons",
                                     "PrimaryVertices"]
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets"]
+AllVarContent=["AntiKt4HITrackJets","BTagging_DFAntiKt4HI"]
+if HIDerivationFlags.isPP() and HasCollection("BTagging_AntiKt4HI"): AllVarContent+=["BTagging_AntiKt4HI"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
     AllVarContent+=["AntiKt2TruthJets","AntiKt4TruthJets","TruthEvents","TruthParticles"]
 	
 SlimmingHelper.AllVariables=AllVarContent
 
-##ExtraVaraibles
-###ExtraVars=HIJetTriggerVars+HIClusterVars
 ExtraVars=[]
+#if not HIDerivationFlags.isPP: ExtraVars+=HIJetTriggerVars
+#else ExtraVars+=ppJetTriggerVars
+
 for collection in CollectionList :  
-    for j in HIJetBranches: 
-        ExtraVars.append(collection+'.'+j)
+    if "Seed" not in collection:    
+        for j in HIJetBranches: 
+            ExtraVars.append(collection+'.'+j)
+    else:
+        for j in HISeedBranches: 
+            ExtraVars.append(collection+'.'+j)
 
 ExtraVars.append("InDetTrackParticles.truthMatchProbability")
 SlimmingHelper.ExtraVariables=ExtraVars
+for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)
 
 
 augToolList=[]
@@ -176,8 +196,4 @@ TheStream.AddItem("xAOD::EventAuxInfo#*")
 for es in ["EventShapeWeighted_iter0_Modulate","EventShapeWeighted_iter1_Modulate"] :
     TheStream.AddItem("xAOD::HIEventShapeContainer#" + es);
     TheStream.AddItem("xAOD::HIEventShapeAuxContainer#" + es + "Aux.");
-
-
-#    TheStream.AddItem("xAOD::JetContainer#DF"+collection)
-#    TheStream.AddItem("xAOD::JetAuxContainer#DF"+collection+"Aux.")
 

@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonFourMomentumCorrection/get_MaterialResolutionEffect.h"
 
 #include "PathResolver/PathResolver.h"
-#include "CxxUtils/make_unique.h"
 
-#include <stdlib.h>
-#include "TAxis.h"
 #include "Riostream.h"
+
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+#include "TArrayD.h"
 
 get_MaterialResolutionEffect::get_MaterialResolutionEffect()
   : asg::AsgMessaging("get_MaterialResolutionEffect")
@@ -18,8 +20,7 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
 
   const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/histos-systematics-material.root");
   
-  
-  m_file0 = CxxUtils::make_unique<TFile>(filename.c_str());
+  m_file0.reset(TFile::Open( filename.c_str(), "READ" ));
 
   for (Int_t isys=0;isys<4;isys++) {
     for (Int_t ieta=0;ieta<8;ieta++) {
@@ -39,8 +40,10 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
          if (isys==2 && iconv==2) sprintf(name,"systConv_EL_etaBin_%d",ieta);
          if (isys==3 && iconv==2) sprintf(name,"systConv_FMX_etaBin_%d",ieta);
          
-         if (!(m_hSystPeak[isys][ieta][iconv]=(TH1D*) m_file0->Get(name))) ATH_MSG_FATAL("cannot find histogram " << name << " in file '" << filename << "'");
-	 
+         m_hSystPeak.at(isys).at(ieta).at(iconv).reset( dynamic_cast<TH1*>(m_file0->Get(name)));
+         m_hSystPeak.at(isys).at(ieta).at(iconv)->SetDirectory( nullptr );
+         if (!m_hSystPeak.at(isys).at(ieta).at(iconv).get()) ATH_MSG_FATAL("cannot find histogram " << name << " in file '" << filename << "'");
+
 
          if (isys==0 && iconv==0) sprintf(name,"systElec_sigmaG_A_etaBin_%d",ieta);
          if (isys==1 && iconv==0) sprintf(name,"systElec_sigmaG_CD_etaBin_%d",ieta);
@@ -56,24 +59,32 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
          if (isys==2 && iconv==2) sprintf(name,"systConv_sigmaG_EL_etaBin_%d",ieta);
          if (isys==3 && iconv==2) sprintf(name,"systConv_sigmaG_FMX_etaBin_%d",ieta);
 
-         if (!(m_hSystResol[isys][ieta][iconv]=(TH1D*) m_file0->Get(name))) ATH_MSG_FATAL("cannot find histogram " << name << " in file '" << filename << "'");
+         m_hSystResol.at(isys).at(ieta).at(iconv).reset( dynamic_cast<TH1*>(m_file0->Get(name)));
+         m_hSystResol.at(isys).at(ieta).at(iconv)->SetDirectory( nullptr );
+         if (!(m_hSystResol.at(isys).at(ieta).at(iconv).get())) ATH_MSG_FATAL("cannot find histogram " << name << " in file '" << filename << "'");
       }      
     }
   }
 
    // IBL+PP0 material systematics stored in 2D file
-  if (!(m_hsyst_IBL_PP0[0]=(TH2D*) m_file0->Get("systElec_IBLPP0"))) ATH_MSG_FATAL("cannot find histogram systElec_IBLPP0 in file '" << filename << "'");
-  if (!(m_hsyst_IBL_PP0[1]=(TH2D*) m_file0->Get("systUnconv_IBLPP0"))) ATH_MSG_FATAL("cannot find histogram systUnconv_IBLPP0 in file '" << filename << "'");
-  if (!(m_hsyst_IBL_PP0[2]=(TH2D*) m_file0->Get("systConv_IBLPP0"))) ATH_MSG_FATAL("cannot find histogram systConv_IBLPP0 in file '" << filename << "'");
+  m_hsyst_IBL_PP0.at(0).reset(dynamic_cast<TH2*>(m_file0->Get("systElec_IBLPP0")));
+  m_hsyst_IBL_PP0.at(0)->SetDirectory( nullptr );
+  if (!(m_hsyst_IBL_PP0.at(0).get())) ATH_MSG_FATAL("cannot find histogram systElec_IBLPP0 in file '" << filename << "'");
+  m_hsyst_IBL_PP0.at(1).reset(dynamic_cast<TH2*>(m_file0->Get("systUnconv_IBLPP0")));
+  m_hsyst_IBL_PP0.at(1)->SetDirectory( nullptr );
+
+  if (!(m_hsyst_IBL_PP0.at(1).get())) ATH_MSG_FATAL("cannot find histogram systUnconv_IBLPP0 in file '" << filename << "'");
+  m_hsyst_IBL_PP0.at(2).reset(dynamic_cast<TH2*>(m_file0->Get("systConv_IBLPP0")));
+  m_hsyst_IBL_PP0.at(2)->SetDirectory( nullptr );
+  if (!(m_hsyst_IBL_PP0.at(2).get())) ATH_MSG_FATAL("cannot find histogram systConv_IBLPP0 in file '" << filename << "'");
    
 
-  TAxis* aa=m_hSystResol[0][0][1]->GetXaxis();
-  m_etBins = aa->GetXbins();
+  m_etBins=m_hSystResol.at(0).at(0).at(1)->GetXaxis()->GetXbins();
 }
 
 //=========================================================================
 get_MaterialResolutionEffect::~get_MaterialResolutionEffect(){
-  m_file0->Close();
+  ///m_file0->Close();
 }
 
 //============================================================================
@@ -101,7 +112,7 @@ double get_MaterialResolutionEffect::getDelta(int particle_type, double energy, 
       if (et<5.) et2=5.1;
       if (et>2000) et2=1999.;
       if (particle_type==3) particle_type=2;
-      return 0.01*m_hsyst_IBL_PP0[particle_type]->GetBinContent(m_hsyst_IBL_PP0[particle_type]->GetXaxis()->FindBin(aeta),m_hsyst_IBL_PP0[particle_type]->GetYaxis()->FindBin(et2));
+      return 0.01*m_hsyst_IBL_PP0.at(particle_type)->GetBinContent(m_hsyst_IBL_PP0.at(particle_type)->GetXaxis()->FindBin(aeta),m_hsyst_IBL_PP0.at(particle_type)->GetYaxis()->FindBin(et2));
    }
 
 
@@ -128,10 +139,10 @@ double get_MaterialResolutionEffect::getDelta(int particle_type, double energy, 
    //cout << " m_hSystResol " << m_hSystResol[isyst][ieta][particle_type] << endl;
 
    if (response_type==0) {
-      return 0.01*m_hSystPeak[isyst][ieta][particle_type]->GetBinContent(ibinEt+1);
+      return 0.01*m_hSystPeak.at(isyst).at(ieta).at(particle_type)->GetBinContent(ibinEt+1);
    }
    else {
-      return 0.01*m_hSystResol[isyst][ieta][particle_type]->GetBinContent(ibinEt+1);
+      return 0.01*m_hSystResol.at(isyst).at(ieta).at(particle_type)->GetBinContent(ibinEt+1);
    }
 
 }

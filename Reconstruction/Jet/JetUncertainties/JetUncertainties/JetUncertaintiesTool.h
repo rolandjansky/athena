@@ -187,7 +187,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_analysisFile;
         std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
-        bool m_flavourJetByJet;
+        // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
         std::string m_defAnaFile;

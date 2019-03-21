@@ -105,7 +105,8 @@ StatusCode BTaggingSelectionTool::initialize() {
       "AntiKt4EMPFlowJets" != m_jetAuthor &&
       "AntiKt2PV0TrackJets"!= m_jetAuthor &&
       "AntiKt4PV0TrackJets"!= m_jetAuthor &&
-      "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor
+      "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor &&
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"!= m_jetAuthor
       ){
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support jet collection: "+m_jetAuthor );
     return StatusCode::FAILURE;
@@ -584,7 +585,7 @@ int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
 
 int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   double pT = jet.pt();
-  double eta = jet.eta();
+  double eta = std::fabs( jet.eta() );
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
   if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){

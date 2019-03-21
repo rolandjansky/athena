@@ -2,10 +2,12 @@
 
    <class name="CP::AsgPtEtaSelectionTool" />
    <class name="CP::AsgFlagSelectionTool" />
+   <class name="CP::AsgEventScaleFactorAlg" />
    <class name="CP::AsgLeptonTrackSelectionAlg" />
    <class name="CP::AsgSelectionAlg" />
    <class name="CP::AsgViewSelectionAlg" />
    <class name="CP::AsgxAODNTupleMakerAlg" />
+   <class name="CP::EventFlagSelectionAlg" />
    <class name="CP::IsolationCloseByCorrectionAlg" />
    <class name="CP::KinematicHistAlg" />
    <class name="CP::ObjectCutFlowHistAlg" />

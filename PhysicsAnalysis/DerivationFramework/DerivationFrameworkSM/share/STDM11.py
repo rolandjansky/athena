@@ -67,9 +67,9 @@ if isMC:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-triggers = ["HLT_j0_perf_L1RD0_FILLED","HLT_j15","HLT_j25","HLT_j35","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j450","HLT_j460","HLT_j420_320eta490","HLT_j400_320eta490","HLT_j380_320eta490","HLT_j260_320eta490","HLT_j200_320eta490","HLT_j175_320eta490","HLT_j150_320eta490","HLT_j110_320eta490","HLT_j85_320eta490","HLT_j60_320eta490","HLT_j55_320eta490","HLT_j45_320eta490","HLT_j35_320eta490","HLT_j25_320eta490","HLT_j15_320eta490"]
+triggers = ["HLT_noalg_mb_L1J12","HLT_mb_sptrk","HLT_j0_perf_L1RD0_FILLED","HLT_j15","HLT_j25","HLT_j35","HLT_j45","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j450","HLT_j460","HLT_j420_320eta490","HLT_j400_320eta490","HLT_j380_320eta490","HLT_j260_320eta490","HLT_j200_320eta490","HLT_j175_320eta490","HLT_j150_320eta490","HLT_j110_320eta490","HLT_j85_320eta490","HLT_j60_320eta490","HLT_j55_320eta490","HLT_j45_320eta490","HLT_j35_320eta490","HLT_j25_320eta490","HLT_j15_320eta490"]
 
-topology_selection_jet = "((count (AntiKt4EMTopoJets.pt > 60*GeV) >= 1) || (count (AntiKt4EMPFlowJets.pt > 60*GeV) >= 1))"
+topology_selection_jet = "( (count  (AntiKt4EMTopoJets.pt > 60*GeV) >= 1)  || (count ((AntiKt4EMPFlowJets.pt > 60*GeV) ) >= 1) || (count ((AntiKt4EMTopoJets.pt > 20*GeV) && (EventInfo.averageInteractionsPerCrossing < 5)) >= 1) || (count ((AntiKt4EMPFlowJets.pt > 20*GeV) && (EventInfo.averageInteractionsPerCrossing < 5)) >= 1) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND

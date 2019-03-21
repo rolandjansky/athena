@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAG_JET_AUGMENTER_HH
 #define BTAG_JET_AUGMENTER_HH
+
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 // ATLAS things
 #include "xAODJet/Jet.h"
@@ -12,11 +14,15 @@
 class BTagJetAugmenter
 {
 public:
-  BTagJetAugmenter();
+  typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
+  BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
+  ~BTagJetAugmenter();
+  BTagJetAugmenter(BTagJetAugmenter&&);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 private:
   typedef SG::AuxElement AE;
+  bool m_use_floats;
 
   AE::Decorator<double> pt_uncalib;
   AE::Decorator<double> eta_uncalib;
@@ -75,6 +81,20 @@ private:
 
   AE::ConstAccessor<char> rnnip_pbIsValid;
   AE::Decorator<char> rnnip_isDefaults;
+
+  // Replace a lot of the doubles with floats. This is configuralbe
+  // for now because a number of people are using the double versions,
+  // but there's no good reason to use doubles.
+  AE::Decorator<float> new_secondaryVtx_m;
+  AE::Decorator<float> new_secondaryVtx_E;
+  AE::Decorator<float> new_secondaryVtx_EFrac;
+  AE::Decorator<float> new_secondaryVtx_min_trk_flightDirRelEta;
+  AE::Decorator<float> new_secondaryVtx_max_trk_flightDirRelEta;
+  AE::Decorator<float> new_secondaryVtx_avg_trk_flightDirRelEta;
+  AE::Decorator<float> new_min_trk_flightDirRelEta;
+  AE::Decorator<float> new_max_trk_flightDirRelEta;
+  AE::Decorator<float> new_avg_trk_flightDirRelEta;
+
 };
 
 #endif

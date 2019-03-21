@@ -45,9 +45,6 @@ ErroneousAlg::~ErroneousAlg()
 ////////////////////////////
 StatusCode ErroneousAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }

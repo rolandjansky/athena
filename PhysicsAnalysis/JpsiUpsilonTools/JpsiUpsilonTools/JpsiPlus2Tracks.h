@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <string>
+#include "JpsiUpsilonTools/ICandidateSearch.h"
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
@@ -39,29 +40,28 @@ namespace Analysis {
     
     static const InterfaceID IID_JpsiPlus2Tracks("JpsiPlus2Tracks", 1, 0);
     
-    class JpsiPlus2Tracks:  virtual public AthAlgTool
+    class JpsiPlus2Tracks:  public Analysis::ICandidateSearch, public AthAlgTool
     {
     public:
         JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiPlus2Tracks();
-        StatusCode initialize() override;
-        StatusCode finalize() override;
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiPlus2Tracks;};
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& );
+        virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) override;
 
         static double getInvariantMass(const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double);
-        static double getInvariantMass(const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double,
-                                const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double);
+        static double getInvariantMass(const std::vector<const xAOD::TrackParticle*> &trk, const std::vector<double>&);
         static bool   oppositeCharges(const xAOD::TrackParticle*, const xAOD::TrackParticle*);
 
         bool  passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const;
         bool  vertexCuts(xAOD::BPhysHelper &bHelper) const;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&,
-                          bool, double, const xAOD::TrackParticleContainer*, const xAOD::Vertex* pv) const;
+                          const xAOD::TrackParticleContainer*, const xAOD::Vertex* pv, const xAOD::TrackParticleContainer* GSL) const;
         //-------------------------------------------------------------------------------------
         
     private:
@@ -70,6 +70,7 @@ namespace Analysis {
         bool m_kpiMassHyp;
         bool m_kpMassHyp;
         bool m_oppChargesOnly;
+        bool m_sameChargesOnly;
         double m_trkThresholdPt;
         double m_trkMaxEta;
         double m_BThresholdPt;
@@ -79,6 +80,7 @@ namespace Analysis {
         double m_jpsiMassUpper;
         double m_jpsiMassLower;
         std::string m_TrkParticleCollection;
+        std::string m_TrkParticleGSFCollection;
         std::string m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly; //Add by Matt Klein
         bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
@@ -107,6 +109,15 @@ namespace Analysis {
         // fit with PV
         bool m_vertexFittingWithPV;
         std::string m_PVerticesCollection;
+        std::vector<double> m_altMassMuonTracks;
+        std::vector<double>  m_mumukkMasses;
+        std::vector<double>  m_mumupipiMasses;
+        std::vector<double>  m_mumukpiMasses;
+        std::vector<double>  m_mumupikMasses;
+        std::vector<double>  m_mumukpMasses;
+        std::vector<double>  m_mumupkMasses;
+        std::vector<int>     m_useGSFTrackIndices;
+        std::bitset<4>       m_useGSFTrack;
 
     };
 } // end of namespace

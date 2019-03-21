@@ -20,6 +20,7 @@
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/BatchSample.h>
 #include <EventLoop/BatchSegment.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
@@ -97,9 +98,17 @@ namespace EL
       {
 	BatchSegment segment = segments[iter];
 
-	std::ostringstream myname;
-	myname << sample.name << "-" << iter;
-	segment.name = myname.str();
+        segment.sampleName = sample.name;
+        {
+          std::ostringstream myname;
+          myname << sample.name << "-" << iter;
+          segment.fullName = myname.str();
+        }
+        {
+          std::ostringstream myname;
+          myname << iter;
+          segment.segmentName = myname.str();
+        }
 
 	segment.sample = job.samples.size();
 	segment.job_id = job.segments.size();
@@ -321,7 +330,10 @@ namespace EL
   void BatchDriver ::
   doSubmit (const Job& job, const std::string& location) const
   {
+    using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
+
+    ANA_MSG_DEBUG ("submitting batch job in location " << location);
 
     const std::string submitDir = location + "/submit";
     if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
@@ -352,7 +364,7 @@ namespace EL
       for (std::size_t iter = 0, end = myjob.segments.size();
 	   iter != end; ++ iter)
       {
-	file << iter << " " << myjob.segments[iter].name << "\n";
+	file << iter << " " << myjob.segments[iter].fullName << "\n";
       }
     }
 
@@ -430,7 +442,10 @@ namespace EL
   bool BatchDriver ::
   doRetrieve (const std::string& location) const
   {
+    using namespace msgEventLoop;
     RCU_READ_INVARIANT (this);
+
+    ANA_MSG_DEBUG ("retrieving batch job in location " << location);
 
     std::unique_ptr<TFile> file
       (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
@@ -632,7 +647,32 @@ namespace EL
   mergeHists (const std::string& location,
 	      const BatchJob& config)
   {
+    using namespace msgEventLoop;
+
+    // This picks up the DiskOutput object used to write out our
+    // histograms, we will then use that to locate the output files.
+    // this is not really the best way of doing this, but there are
+    // bigger rewrites of this code excepted, so I don't want to spend
+    // a lot of time on this now (06 Feb 19).
+    std::unique_ptr<SH::DiskOutput> origHistOutputMemory;
+    const SH::DiskOutput *origHistOutput = nullptr;
+    for (auto iter = config.job.outputBegin(), end = config.job.outputEnd();
+         iter != end; ++ iter)
+    {
+      if (iter->label() == Job::histogramStreamName)
+        origHistOutput = iter->output();
+    }
+    if (origHistOutput == nullptr)
+    {
+      origHistOutputMemory = std::make_unique<SH::DiskOutputLocal>
+        (config.location + "/fetch/hist-");
+      origHistOutput = origHistOutputMemory.get();
+    }
+    RCU_ASSERT (origHistOutput != nullptr);
+
     bool result = true;
+
+    ANA_MSG_DEBUG ("merging histograms in location " << location);
 
     RCU_ASSERT (config.njobs_old.size() == config.samples.size());
     for (std::size_t sample = 0, end = config.samples.size();
@@ -644,6 +684,8 @@ namespace EL
       output << location << "/hist-" << config.samples[sample].name << ".root";
       if (gSystem->AccessPathName (output.str().c_str()) != 0)
       {
+        ANA_MSG_VERBOSE ("merge files for sample " << config.samples[sample].name);
+
 	bool complete = true;
 	std::vector<std::string> input;
 	for (std::size_t segment = mysample.begin_segments,
@@ -651,8 +693,9 @@ namespace EL
 	{
 	  const BatchSegment& mysegment = config.segments[segment];
 
-	  const std::string hist_file =
-	    location + "/fetch/hist-" + mysegment.name + ".root";
+	  const std::string hist_file = origHistOutput->targetURL
+            (mysegment.sampleName, mysegment.segmentName, ".root");
+
 	  std::ostringstream completed_file;
 	  completed_file << location << "/status/completed-" << segment;
 	  std::ostringstream fail_file;
@@ -660,12 +703,21 @@ namespace EL
 	  std::ostringstream done_file;
 	  done_file << location << "/status/done-" << segment;
 
+          const bool hasCompleted =
+            (gSystem->AccessPathName (completed_file.str().c_str()) == 0);
+          const bool hasFail =
+            (gSystem->AccessPathName (fail_file     .str().c_str()) == 0);
+          const bool hasDone =
+            (gSystem->AccessPathName (done_file     .str().c_str()) == 0);
+
+          ANA_MSG_VERBOSE ("merge segment " << segment << " completed=" << hasCompleted << " done=" << hasDone << " fail=" << hasFail);
+
 	  input.push_back (hist_file);
 
 	  if (gSystem->AccessPathName (fail_file     .str().c_str()) == 0)
 	  {
 	    std::ostringstream message;
-	    message << "subjob " << segment << "/" << mysegment.name
+	    message << "subjob " << segment << "/" << mysegment.fullName
 		    << " failed";
 	    message << std::endl << "found " << fail_file.str();
 	    RCU_THROW_MSG (message.str());
@@ -697,7 +749,7 @@ namespace EL
 		  const BatchSegment& mysegment = config.segments[segment];
 
 		  const std::string infile =
-		    location + "/fetch/data-" + out->label() + "/" + mysegment.name + ".root";
+		    location + "/fetch/data-" + out->label() + "/" + mysegment.fullName + ".root";
 
 		  input.push_back (infile);
 		}

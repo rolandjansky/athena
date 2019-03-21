@@ -38,7 +38,8 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_PtRescale(false),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
-
+  declareProperty( "preBtagToolModifiers", m_preBtagToolModifiers);
+  declareProperty( "postBtagToolModifiers", m_postBtagToolModifiers);
   declareProperty( "BTagTool", m_bTagTool);
   declareProperty( "BTagName", m_BTagName );
   declareProperty( "BTagTrackAssocTool", m_BTagTrackAssocTool);
@@ -71,12 +72,28 @@ StatusCode JetBTaggerTool::initialize() {
      ATH_MSG_DEBUG("#BTAG# No track association tool to retrieve");
   }
 
+  // get the pre-btag tools
+  for (auto& iter: m_preBtagToolModifiers) {
+    if (iter.retrieve().isFailure()) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << iter);
+      return StatusCode::FAILURE;
+    }
+  }
+
   /// retrieve the main BTagTool
   if ( m_bTagTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_bTagTool);
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_bTagTool);
+  }
+
+  // get the post-btag tools
+  for (auto& iter: m_postBtagToolModifiers) {
+    if (iter.retrieve().isFailure()) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << iter);
+      return StatusCode::FAILURE;
+    }
   }
 
   /// retrieve the bTagSecVtxTool
@@ -332,9 +349,15 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
 	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
       }
     }
+    for (const auto& tool: m_preBtagToolModifiers) {
+      tool->modifyJet(jetToTag);
+    }
     StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag );
     if (sc.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
+    }
+    for (const auto& tool: m_postBtagToolModifiers) {
+      tool->modifyJet(jetToTag);
     }
   }
 

@@ -26,6 +26,18 @@ def setup(TOPQname, stream):
 
   TOPQSlimmingHelper = SlimmingHelper(TOPQname + "SlimmingHelper")
 
+  #=====================================================
+  # ADD BTagging_AntiKt4EMPFlow COLLECTION TO DICTIONARY
+  #=====================================================
+  TOPQSlimmingHelper.AppendToDictionary = {
+    "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer",
+    "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
+    "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
+    }
+
   #================================
   # SMART SLIMMING
   #================================
@@ -191,18 +203,6 @@ def setup(TOPQname, stream):
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )
-
-  #=====================================================
-  # ADD BTagging_AntiKt4EMPFlow COLLECTION TO DICTIONARY
-  #=====================================================
-  TOPQSlimmingHelper.AppendToDictionary = {
-    "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer", 
-    "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
-    "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
-    "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
-    }
 
   #================================
   # THIS NEEDS TO BE THE LAST LINE

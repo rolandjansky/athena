@@ -84,7 +84,7 @@ namespace top {
     std::vector<std::string> globalMuonTriggers_Loose;
     if (m_config->useGlobalTrigger()) {
       std::set<std::string> tmp;
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggers(), m_config->getGlobalTriggerMuonTriggers()}) {
+      for (auto const & triggermap : {m_config->getGlobalTriggers()}) {
         for (auto const & pair : triggermap) {
           auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
           tmp.insert(triggers.begin(), triggers.end());
@@ -99,7 +99,7 @@ namespace top {
       }
       tmp.clear();
       // and the usual copy-paste-s/Tight/Loose/g story:
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggersLoose(), m_config->getGlobalTriggerMuonTriggersLoose()}) {
+      for (auto const & triggermap : {m_config->getGlobalTriggersLoose()}) {
         for (auto const & pair : triggermap) {
           auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
           tmp.insert(triggers.begin(), triggers.end());

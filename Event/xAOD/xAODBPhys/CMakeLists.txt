@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    Event/xAOD/xAODMuon
    Event/xAOD/xAODMetaData
+   Event/xAOD/xAODEgamma
    PRIVATE
    )
 
@@ -30,6 +31,7 @@ atlas_add_library( xAODBPhysLib
 		   LINK_LIBRARIES ${ROOT_LIBRARIES} 
 		   xAODTracking
 		   xAODMuon
+                   xAODEgamma
 		   xAODMetaData
 		   )
 

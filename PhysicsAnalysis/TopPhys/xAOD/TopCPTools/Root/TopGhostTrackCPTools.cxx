@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCPTools/TopGhostTrackCPTools.h"
@@ -56,7 +56,7 @@ StatusCode GhostTrackCPTools::initialize() {
   //       input of size n, n-1 ranges are formed. The i-th element is the
   //       lower bound (incl) of the i-th range; the (i+1)-th element is
   //       the upper bound (excl) of the i-th range.
-  m_runPeriods = {276262, 297730, 300909, 999999};
+  m_runPeriods = {276262, 297730, 300909, 311482, 334738, 341650, 364486};
   
   m_config->runPeriodJetGhostTrack(m_runPeriods);
   

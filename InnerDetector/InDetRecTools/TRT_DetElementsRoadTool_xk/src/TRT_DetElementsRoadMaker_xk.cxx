@@ -174,7 +174,10 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::finalize()
 MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -948,9 +951,12 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementInformation
     double r = sqrt(x[i]*x[i]+y[i]*y[i]);
     double f = atan2(y[i],x[i])-P[2]; if(f<-pi) f+=pi2; else if(f>pi) f-=pi2;
     double zf= z[i];
-    if(r <rmin) rmin= r; if(r >rmax) rmax= r;
-    if(zf<zmin) zmin=zf; if(zf>zmax) zmax=zf;
-    if(f <fmin) fmin= f; if(f >fmax) fmax= f;
+    if(r <rmin) rmin= r;
+    if(r >rmax) rmax= r;
+    if(zf<zmin) zmin=zf;
+    if(zf>zmax) zmax=zf;
+    if(f <fmin) fmin= f;
+    if(f >fmax) fmax= f;
   }
   P[ 9]    = rmin;
   P[10]    = rmax;

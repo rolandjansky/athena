@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        Copyright Iowa State University 2017.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -21,7 +15,7 @@
 #include <AsgTools/IMessagePrinter.h>
 #include <AsgTools/MessagePrinterMock.h>
 #include <AsgTools/MessagePrinterOverlay.h>
-#include <AsgTools/UnitTest.h>
+#include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <gtest/gtest-spi.h>

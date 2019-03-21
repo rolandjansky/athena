@@ -68,7 +68,7 @@ private:
 
   void setIDVariables(const xAOD::DiTauJet& xDiTau);
 
-  const xAOD::DiTauJetContainer* m_xDiTauContainer;
+  // const xAOD::DiTauJetContainer* m_xDiTauContainer;
 
   // steering variables
   std::string m_sWeightsFile;
@@ -83,7 +83,6 @@ private:
 
   std::vector<std::string> m_vVarNames;
 private:
-  double GeV = 1000.;
   enum DecayMode{ HadHad, HadMu, HadEl, Default };
   std::string m_sDecayMode;
   DecayMode m_eDecayMode;

@@ -35,6 +35,7 @@ namespace CP
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_uncertaintiesTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -50,7 +51,10 @@ namespace CP
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
         for (xAOD::Jet *jet : *jets)
         {
-          ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_uncertaintiesTool->applyCorrection (*jet));
+          if (m_preselection.getBool (*jet))
+          {
+            ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_uncertaintiesTool->applyCorrection (*jet));
+          }
         }
         return StatusCode::SUCCESS;
       });

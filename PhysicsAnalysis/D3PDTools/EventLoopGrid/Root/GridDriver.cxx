@@ -6,6 +6,7 @@
 #include "EventLoopGrid/GridWorker.h"
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/Job.h"
+#include "EventLoop/MessageCheck.h"
 #include "EventLoop/OutputStream.h"
 #include <PathResolver/PathResolver.h>
 #include "RootCoreUtils/Assert.h"
@@ -17,6 +18,7 @@
 #include "SampleHandler/Sample.h"
 #include "SampleHandler/SampleGrid.h"
 #include "SampleHandler/SampleHandler.h"
+#include "TFile.h"
 #include "TList.h"
 #include "TRegexp.h"
 #include "TSystem.h"
@@ -40,6 +42,7 @@ namespace EL {
 
   std::string getRootCoreConfig ()
   {
+    using namespace msgEventLoop;
     boost::regex expr (".*-.*-.*-.*");
 
      const char *ROOTCORECONFIG = getenv ("ROOTCORECONFIG");
@@ -47,22 +50,21 @@ namespace EL {
      {
        if (RCU::match_expr (expr, ROOTCORECONFIG))
 	 return ROOTCORECONFIG;
-       std::cout << "ERROR: invalid value \"" << ROOTCORECONFIG
-		 << "\" for $ROOTCORECONFIG" << std::endl;
+       ANA_MSG_ERROR ("invalid value \"" << ROOTCORECONFIG
+                      << "\" for $ROOTCORECONFIG");
      }
      const char *rootCmtConfig = getenv ("rootCmtConfig");
      if (rootCmtConfig)
      {
        if (RCU::match_expr (expr, rootCmtConfig))
 	 return rootCmtConfig;
-       std::cout << "ERROR: invalid value \"" << rootCmtConfig
-		 << "\" for $rootCmtConfig" << std::endl;
+       ANA_MSG_ERROR ("invalid value \"" << rootCmtConfig
+                      << "\" for $rootCmtConfig");
      }
-     std::cout <<
-       "WARNING: no valid value for cmt config found.\n"
-       "WARNING: using \"x86_64-slc6-gcc47-opt\" instead.\n"
-       "WARNING: consider updating to a more recent RootCore version\n"
-       "WARNING: or analysis release\n" << std::endl;
+     ANA_MSG_WARNING ("no valid value for cmt config found.");
+     ANA_MSG_WARNING ("using \"x86_64-slc6-gcc47-opt\" instead.");
+     ANA_MSG_WARNING ("consider updating to a more recent RootCore version");
+     ANA_MSG_WARNING ("or analysis release");
      return "x86_64-slc6-gcc47-opt";
    }
 
@@ -479,6 +481,7 @@ namespace EL {
 bool EL::GridDriver::doRetrieve(const std::string& location) const {
   RCU_READ_INVARIANT(this);
   using namespace std;    
+  using namespace msgEventLoop;
 
   const string hist_sh_dir    = location + "/output-hist";
   const string jobDownloadDir = location + "/elg/download";
@@ -596,9 +599,9 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
     }
   }
 
-  std::cout << nTotalTransformsCompleted << "/" << sh.size() 
-	    << " samples processed (" << nTotalUnitsCompleted << "/"
-	    << nTotalUnits << " jobs completed)" << endl;
+  ANA_MSG_INFO (nTotalTransformsCompleted << "/" << sh.size() 
+                << " samples processed (" << nTotalUnitsCompleted << "/"
+                << nTotalUnits << " jobs completed)");
 
   if (isRunning) return false;
 

@@ -50,15 +50,6 @@ namespace top {
     m_operatingPoint         = operatingPoint;
     m_operatingPointLoose    = operatingPointLoose;
 
-    
-    
-    // We cannot allow the HighPtCaloOnly isolation to be implemented for pt cut which is lower than the non-isolation triggers
-    if( (m_isolation->tightLeptonIsolation() == "FCHighPtCaloOnly" || m_isolation->looseLeptonIsolation() == "FCHighPtCaloOnly") && m_ptcut < 60000){
-      std::cerr <<  "ElectronLikelihoodMC15 - Cannot use FCHighPtCaloOnly isolation with pt cut below 60 GeV due to lack of isolation trigger scale factors" << std::endl;
-      std::cerr <<  "ElectronLikelihoodMC15 - If you need two different isolation/trigger/pt thresholds, please open an ANALYSISTO JIRA ticket" << std::endl;
-      throw 1; // ATH_MSG_ERROR is not working, so just throw and quit
-    }
-
   }
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,

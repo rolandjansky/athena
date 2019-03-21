@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSAVERFLATNTUPLE_H_
@@ -474,6 +474,8 @@ private:
     unsigned int m_mcChannelNumber;
     float m_mu_original;
     float m_mu;
+    float m_mu_actual_original;
+    float m_mu_actual;
     // non-collision background flag - usage: https://twiki.cern.ch/twiki/bin/view/Atlas/NonCollisionBackgroundsRunTwo#Recommend_cuts_tools_and_procedu
     unsigned int m_backgroundFlags;
     // hasBadMuon flag - see: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/MuonSelectionTool#is_BadMuon_Flag_Event_Veto
@@ -559,6 +561,16 @@ private:
     std::vector<int>   m_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
+
+    // ghost tracks
+    std::vector<std::vector<float> > m_jet_ghostTrack_pt;
+    std::vector<std::vector<float> > m_jet_ghostTrack_eta;
+    std::vector<std::vector<float> > m_jet_ghostTrack_phi;
+    std::vector<std::vector<float> > m_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
+
     // R21 b-tagging
     std::vector<float> m_jet_MV2r;
     std::vector<float> m_jet_MV2rmu;
@@ -643,13 +655,13 @@ private:
     std::vector<float> m_rrcjet_eta;
     std::vector<float> m_rrcjet_phi;
     std::vector<float> m_rrcjet_e;
-    
+
     std::vector<float> m_rcjet_tau32_clstr;
     std::vector<float> m_rcjet_tau21_clstr;
     std::vector<float> m_rcjet_tau3_clstr;
     std::vector<float> m_rcjet_tau2_clstr;
     std::vector<float> m_rcjet_tau1_clstr;
-     
+
     std::vector<float> m_rcjet_D2_clstr;
     std::vector<float> m_rcjet_ECF1_clstr;
     std::vector<float> m_rcjet_ECF2_clstr;
@@ -658,6 +670,7 @@ private:
     std::vector<float> m_rcjet_d12_clstr;
     std::vector<float> m_rcjet_d23_clstr;
     std::vector<float> m_rcjet_Qw_clstr;
+    std::vector<float> m_rcjet_nconstituent_clstr;
 
     std::vector<float> m_rcjet_gECF332_clstr;
     std::vector<float> m_rcjet_gECF461_clstr;
@@ -674,7 +687,7 @@ private:
     std::vector<float> m_rcjet_L4_clstr;
     std::vector<float> m_rcjet_L5_clstr;
 
-    
+
     //met
     float m_met_met;
     float m_met_phi;
@@ -966,7 +979,7 @@ protected:
   const float& weight_oldTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN; }
   const float& weight_oldTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_UP; }
   const float& weight_oldTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN; }
-  
+
   ///-- individual components for lepton SF --///
   const float& weight_indiv_SF_EL_Trigger() const { return weight_oldTriggerSF(); }
   const float& weight_indiv_SF_EL_Trigger_UP() const { return weight_oldTriggerSF_EL_Trigger_UP(); }
@@ -1262,6 +1275,7 @@ protected:
   const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
   const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
   const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
+  const std::vector<float>& rcjet_nconstituent_clstr() const { return m_rcjet_nconstituent_clstr;}
   const std::vector<float>& rcjet_gECF332_clstr() const { return m_rcjet_gECF332_clstr;}
   const std::vector<float>& rcjet_gECF461_clstr() const { return m_rcjet_gECF461_clstr;}
   const std::vector<float>& rcjet_gECF322_clstr() const { return m_rcjet_gECF322_clstr;}
@@ -1271,7 +1285,7 @@ protected:
   const std::vector<float>& rcjet_gECF212_clstr() const { return m_rcjet_gECF212_clstr;}
   const std::vector<float>& rcjet_gECF321_clstr() const { return m_rcjet_gECF321_clstr;}
   const std::vector<float>& rcjet_gECF311_clstr() const { return m_rcjet_gECF311_clstr;}
-   
+
   const std::vector<float>& rcjet_L1_clstr() const { return m_rcjet_L1_clstr;}
   const std::vector<float>& rcjet_L2_clstr() const { return m_rcjet_L2_clstr;}
   const std::vector<float>& rcjet_L3_clstr() const { return m_rcjet_L3_clstr;}
@@ -1367,7 +1381,7 @@ protected:
   const std::vector<float>& klfitter_model_lj2_from_top2_phi() const { return m_klfitter_model_lj2_from_top2_phi;}
   const std::vector<float>& klfitter_model_lj2_from_top2_E() const { return m_klfitter_model_lj2_from_top2_E;}
   const std::vector<unsigned int>& klfitter_model_lj2_from_top2_jetIndex() const { return m_klfitter_model_lj2_from_top2_jetIndex;}
-  
+
   // calculated KLFitter variables for best perm
   const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
   const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}

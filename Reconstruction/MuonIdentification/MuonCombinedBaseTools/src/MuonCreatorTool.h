@@ -21,7 +21,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 #include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h" 
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h" 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "TrkSegment/SegmentCollection.h"

@@ -17,8 +17,8 @@ TaggerType: TopQuark
 
 DecorationName: DNNTaggerTopQuark80
 
-CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
-#CalibArea: Local
+CalibAreaKeras: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
+#CalibAreaKeras: Local
 
 KerasConfigFile: 6JuneTopTaggingContained.json
 

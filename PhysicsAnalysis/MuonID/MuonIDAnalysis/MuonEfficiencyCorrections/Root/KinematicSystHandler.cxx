@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <MuonEfficiencyCorrections/KinematicSystHandler.h>
@@ -17,6 +17,7 @@ namespace CP {
     float IKinematicSystHandler::AbsEta(const xAOD::Muon &mu) const {
         return fabs(mu.eta());
     }
+    
     IKinematicSystHandler::KinVariable IKinematicSystHandler::GetMuonVariableToUse(const std::string &name) {
         if (name == "pt") return &IKinematicSystHandler::Pt;
         if (name == "ptGeV") return &IKinematicSystHandler::PtGeV;
@@ -25,12 +26,59 @@ namespace CP {
         return nullptr;
     }
 
-    PtDependentSystHandler::PtDependentSystHandler(HistHandler_Ptr HistHandler) :
-                    m_Handler(HistHandler),
+            
+    PtKinematicSystHandler::PtKinematicSystHandler(std::unique_ptr<HistHandler> pt_flatnesss, std::unique_ptr<HistHandler> energy_loss):
+             m_flatness(),
+             m_loss(),
+             m_SystWeight(0){
+        m_flatness.swap(pt_flatnesss);
+        m_loss.swap(energy_loss);
+    }
+   
+    CorrectionCode PtKinematicSystHandler::GetKineDependent(const xAOD::Muon& mu, float& eff) const {
+        int bin_flat(-1), bin_loss(-1);
+        float syst = 0;
+        CorrectionCode cc_flat = m_flatness->FindBin(mu, bin_flat);
+        CorrectionCode cc_eloss = mu.pt() > 200.e3 ? m_loss->FindBin(mu, bin_loss) : cc_flat;
+      
+        float eloss_syst = bin_loss < 1 ? 1.e6 : std::fabs( m_loss->GetBinContent(bin_loss) * mu.pt()/1.0e6);
+        /// We exceed the limits of the histogram
+        if (cc_flat != CorrectionCode::Ok){
+            /// The eloss is going to take over now
+            if (cc_eloss == CorrectionCode::Ok){
+                syst = eloss_syst;
+             } else return cc_flat; 
+        } else {        
+            // The eloss -systematic is valid and smaller than the error from the flatness        
+            float abs_error = std::fabs( m_flatness->GetBinError(bin_flat));
+            if (cc_eloss == CorrectionCode::Ok && mu.pt() > 200.e3 && (eloss_syst < abs_error || abs_error == 0 || mu.pt() > 500.e3)){
+                syst = eloss_syst;
+            // The flatness of the scale-factor is still more precise than the eloss. Assign this as an extra syst
+            } else {            
+                syst = m_flatness->GetBinContent(bin_flat); 
+            }
+        }       
+        
+        eff *= 1 + m_SystWeight * std::fabs(syst);
+        return cc_flat;
+    }
+            
+    void PtKinematicSystHandler::SetSystematicWeight(float syst_weight) {
+        m_SystWeight = syst_weight;
+    }
+            
+    bool PtKinematicSystHandler::initialize(){
+        return m_flatness.get() != nullptr && m_loss.get() != nullptr;
+    }
+   
+    
+    PrimodialPtSystematic::PrimodialPtSystematic(std::unique_ptr<HistHandler> Handler) :
+                    m_Handler(),
                     m_SystWeight(0) {
+        m_Handler.swap(Handler);
 
     }
-    CorrectionCode PtDependentSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
+    CorrectionCode PrimodialPtSystematic::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
         // Account for catastrophic energy loss for  very high
         // pt's
         if (mu.pt() <= 200.e3) return CorrectionCode::Ok;
@@ -43,15 +91,15 @@ namespace CP {
         Eff *= (1. + m_SystWeight * fabs(m_Handler->GetBinContent(binsys)) * mu.pt() / 1.0e6);
         return CorrectionCode::Ok;
     }
-    void PtDependentSystHandler::SetSystematicWeight(float SystWeight) {
+    void PrimodialPtSystematic::SetSystematicWeight(float SystWeight) {
         m_SystWeight = SystWeight;
     }
-    bool PtDependentSystHandler::initialize() {
+    bool PrimodialPtSystematic::initialize() {
         return m_Handler.get() != nullptr;
     }
-    PtDependentSystHandler::~PtDependentSystHandler() {
-    }
-
+    //###############################################################
+    //                  BadMuonVetoSystHandler
+    //###############################################################
     std::string BadMuonVetoSystHandler::GetNextProperty(std::string &sstr) {
         //Elimnate the beginning underscores
         if (sstr.find("_") == 0) {

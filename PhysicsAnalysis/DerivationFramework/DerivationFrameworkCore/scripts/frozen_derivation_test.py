@@ -266,11 +266,11 @@ def main():
     logger.info('%s %s %s',25*'-',' Run AthDerivation Test ',25*'-')
     inputFile  = ( '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/{}'
                    ''.format('AOD.14795494._005958.pool.root.1' if options.mode == 'mc' else 'data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1') )
-    extraArgs  = ( '--outputDAODFile pool.root --maxEvents 20 --reductionConf PHYSVAL --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); '
+    extraArgs  = ( '--outputDAODFile pool.root --imf False --maxEvents 20 --reductionConf PHYSVAL --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); '
                    'from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "{}"; '
                    'from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); '
                    'topSequence += CfgMgr.xAODMaker__DynVarFixerAlg("InDetTrackParticlesFixer", Containers = ["InDetTrackParticlesAux." ] )\''
-                   ''.format('BTagCalibRUN12-08-40' if options.mode == 'mc' else 'BTagCalibRUN12Onl-08-40') )
+                   ''.format('BTagCalibRUN12-08-47' if options.mode == 'mc' else 'BTagCalibRUN12Onl-08-47') )
 
     myprocesses = {}
     if not isPatchedOnly:

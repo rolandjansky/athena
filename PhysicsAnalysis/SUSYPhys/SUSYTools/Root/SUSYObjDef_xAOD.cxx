@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -31,9 +31,10 @@
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -47,8 +48,6 @@
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -93,12 +92,15 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noElId(false),
     m_force_noMuId(false),
     m_doTTVAsf(true),
+    m_doModifiedEleId(false),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
     m_badJetCut(""),
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
+    m_WtagConfig(""),
+    m_ZtagConfig(""),
     m_tool_init(false),
     m_subtool_init(false),
     // set dummies for configuration
@@ -127,6 +129,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
     m_mcCampaign(""),
+    m_mcChannel(-99),
     m_prwDataSF(-99.),
     m_prwDataSF_UP(-99.),
     m_prwDataSF_DW(-99.),
@@ -146,6 +149,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauIdBaseline(""),
     m_eleIso_WP(""),
     m_eleIsoHighPt_WP(""),
+    m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
@@ -153,6 +157,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_photonTriggerName(""),
     m_muBaselineIso_WP(""),
     m_muIso_WP(""),
+    m_muIsoHighPt_WP(""),
+    m_muIsoHighPtThresh(-99.),
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagSystStrategy(""),
@@ -251,6 +257,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_IsoCloseByORpassLabel(""),
 
     m_metJetSelection(""),
+    m_fatJets(""),
     //
     m_currentSyst(),
     m_EG_corrModel(""),
@@ -278,6 +285,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muonEfficiencyBMHighPtSFTool(""),
     m_muonTTVAEfficiencySFTool(""),
     m_muonIsolationSFTool(""),
+    m_muonHighPtIsolationSFTool(""),
     m_muonTriggerSFTool(""),
     //
     m_elecEfficiencySFTool_reco(""),
@@ -436,6 +444,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
+  declareProperty( "JetLargeRcollection",  m_fatJets );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
@@ -453,10 +462,12 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleBaselineId", m_eleIdBaseline);
   declareProperty( "EleBaselineConfig", m_eleConfigBaseline);
   declareProperty( "EleBaselineCrackVeto", m_eleBaselineCrackVeto);
+  declareProperty( "EleModifiedId", m_doModifiedEleId );
   declareProperty( "EleId", m_eleId);
   declareProperty( "EleConfig", m_eleConfig);
   declareProperty( "EleIso", m_eleIso_WP);
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
+  declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
@@ -474,6 +485,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonBaselineId", m_muIdBaseline);
   declareProperty( "MuonId", m_muId);
   declareProperty( "MuonIso", m_muIso_WP);
+  declareProperty( "MuonIsoHighPt", m_muIsoHighPt_WP);
+  declareProperty( "MuonIsoHighPtThresh", m_muIsoHighPtThresh);
   declareProperty( "MuonD0sig", m_mud0sig);
   declareProperty( "MuonZ0", m_muz0);
   declareProperty( "MuonBaselineD0sig", m_mubaselined0sig);
@@ -521,6 +534,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
   declareProperty( "mcCampaign",           m_mcCampaign );
+  declareProperty( "mcChannel",            m_mcChannel );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
   declareProperty( "PRWActualMu2017File",  m_prwActualMu2017File );
@@ -532,6 +546,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
+  declareProperty( "JetWtaggerConfig",  m_WtagConfig );
+  declareProperty( "JetZtaggerConfig",  m_ZtagConfig );
   //Btagging MCtoMC SFs
   declareProperty( "ShowerType",    m_showerType = 0 );
   //Egamma NP correlation model
@@ -559,6 +575,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
+  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
   m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
@@ -657,20 +674,23 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_mu_iso_support.push_back("FixedCutPflowTight");
   m_mu_iso_support.push_back("FixedCutPflowLoose");
   m_mu_iso_support.push_back("FixedCutHighPtTrackOnly");
+  m_mu_iso_support.push_back("FCTightTrackOnly");
+  m_mu_iso_support.push_back("FCTight");
+  m_mu_iso_support.push_back("FCLoose");
 
-  // Construct electron fallback WPs (for trigger SFs)
+  // Construct electron fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_el_iso_fallback = {
-    { "FCHighPtCaloOnly" , "FixedCutHighPtCaloOnly" },
-    { "Gradient"         , "Gradient"               },
-    { "FCLoose"          , "FixedCutLoose"          },
-    { "FCTight"          , "FixedCutTight"          }
+    { "FCHighPtCaloOnly" , "FCHighPtCaloOnly" },
+    { "Gradient"         , "Gradient"         },
+    { "FCLoose"          , "FCLoose"          },
+    { "FCTight"          , "FCTight"          }
   };
 
-  // Construct muon fallback WPs (for SFs)
+  // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_mu_iso_fallback = {
-    { "FCTightTrackOnly"        , "FixedCutHighMuTrackOnly" },
-    { "FCLoose"                 , "FixedCutHighMuLoose"     },
-    { "FCTight"                 , "FixedCutHighMuTight"     }
+    { "FCTightTrackOnly" , "FCTightTrackOnly" },
+    { "FCLoose"          , "FCLoose"          },
+    { "FCTight"          , "FCTight"          }
   };
 
   // load tau trigger support
@@ -803,10 +823,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
   if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWCombinedmode, m_autoconfigPRWRPVmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
   else
     // need to set a full path if you don't use the one in CVMFS
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWCombinedmode, m_autoconfigPRWRPVmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
 
   ATH_CHECK( this->SUSYToolsInit() );
 
@@ -824,7 +844,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
 
   if ( !isData() && m_autoconfigPRW ) {
 
-    prwConfigFile = usePathResolver ? PathResolverFindCalibDirectory(PRWfilesDir) : PRWfilesDir;
+    prwConfigFile = PRWfilesDir;
 
     float dsid = -999;
     std::string amiTag("");
@@ -852,24 +872,38 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number.");
       return StatusCode::FAILURE;
 #else
-      // OK, this is a fall-back option without using MetaData but one has to manually set 'mcCampaign' property
-      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
-      const xAOD::EventInfo* evtInfo = 0;
-      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-      dsid = evtInfo->mcChannelNumber();
 
       if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") {
-        std::string NoMetadataButPropertyOK("");
-        NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
-        NoMetadataButPropertyOK += m_mcCampaign;
-        NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
-        ATH_MSG_WARNING( NoMetadataButPropertyOK );
-        mcCampaignMD = m_mcCampaign;
-      } else {
-        ATH_MSG_ERROR( "autoconfigurePileupRWTool(): `mcCampaign' is not set properly.");
-        return StatusCode::FAILURE;
-      }
+	// First see if the user set the mcCampaign/run number by property (hopefully temporary workaround)
+	if ( m_mcChannel > 0) {
+	  ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) and campaign from configuration." );
+	  std::string NoMetadataButPropertyOK("");
+	  NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += m_mcCampaign;
+	  NoMetadataButPropertyOK += "'. 'mcChannel' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += std::to_string(m_mcChannel);
+	  NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+	  ATH_MSG_WARNING( NoMetadataButPropertyOK );
+	  mcCampaignMD = m_mcCampaign;
+	  dsid = m_mcChannel;
+	} else {
+	  // OK, this is a fall-back option without using MetaData but one has to manually set 'mcCampaign' property
+	  ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
+	  const xAOD::EventInfo* evtInfo = 0;
+	  ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+	  dsid = evtInfo->mcChannelNumber();
 
+	  std::string NoMetadataButPropertyOK("");
+	  NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
+	  NoMetadataButPropertyOK += m_mcCampaign;
+	  NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+	  ATH_MSG_WARNING( NoMetadataButPropertyOK );
+	  mcCampaignMD = m_mcCampaign;
+	}
+      } else {
+	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): `mcCampaign' is not set properly.");
+	return StatusCode::FAILURE;
+      }
 #endif
     }
 
@@ -913,21 +947,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
         m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2018File) );
       }
     }
+    prwConfigFile = usePathResolver ? PathResolverFindCalibFile(prwConfigFile) : prwConfigFile;
 
     TFile testF(prwConfigFile.data(),"read");
-    if(testF.IsZombie()) {
-      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() );
-      ATH_MSG_WARNING( "Now trying with one of the background forum merged mc16 prw input files (it won't however work for signal samples!)." );
-      prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/");
-      if ( mcCampaignMD == "mc16a" ) prwConfigFile += "merged_prw_mc16a_latest.root";
-      else if ( mcCampaignMD == "mc16c" ) prwConfigFile += "mc16c_defaults.NotRecommended.prw.root";
-      // SOON TO BE // else if ( mcCampaignMD == "mc16c" ) prwConfigFile += '';
-      // SOON TO BE // else if ( mcCampaignMD == "mc16d" ) prwConfigFile += '';
-      TFile testF2(prwConfigFile.data(),"read");
-      if(testF2.IsZombie()) {
-	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
-	return StatusCode::FAILURE;
-      }
+    if (testF.IsZombie()) {
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
@@ -1099,6 +1124,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Ele.CrackVeto"] = "EleCrackVeto";
   m_conf_to_prop["EleBaseline.CrackVeto"] = "EleBaselineCrackVeto";
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
+  m_conf_to_prop["Ele.DoModifiedId"] = "EleModifiedId";
   m_conf_to_prop["Muon.ForceNoId"] = "MuonForceNoId";
   m_conf_to_prop["Muon.TTVASF"] = "MuonTTVASF";
   m_conf_to_prop["Muon.passedHighPt"] = "MuonRequireHighPtCuts";
@@ -1157,7 +1183,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
+  configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
@@ -1167,7 +1195,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map1.txt");
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
@@ -1194,6 +1222,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
   configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "FCLoose");
+  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "FCLoose");
+  configFromFile(m_muIsoHighPtThresh, "Muon.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
   configFromFile(m_mubaselined0sig, "MuonBaseline.d0sig", rEnv, -99.);
@@ -1237,7 +1267,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Fall2018/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
-  configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
+  configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
@@ -1339,7 +1369,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, false);
   //
   configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
-  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20181111/purw.actualMu.root");
+  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20190219/purw.actualMu.root");
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
@@ -2174,6 +2204,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   }
   if (!m_elecEfficiencySFTool_trig_singleLep.empty()) {
     if ( m_elecEfficiencySFTool_trig_singleLep->isAffectedBySystematic(sys) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Electron;
+      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
+    }
+  }
+  if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
+    if ( m_elecEfficiencySFTool_trigEff_singleLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Electron;
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);

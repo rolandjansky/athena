@@ -158,6 +158,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( event->retrieve(uncalibJets, jetType+"Jets"));//this retrieves and applies the correction
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > calibJetsPair = xAOD::shallowCopyContainer( *uncalibJets );//make a shallow copy to calibrate
     xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
+
     met::addGhostMuonsToJets(*muons, *calibJets);
     if(calibjets) {
       for ( const auto& jet : *calibJets ) {
@@ -264,6 +265,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       //this is kind of annoying, but applySystematicVariation only takes a SystematicSet, but *isys is a SystematicVariation.
       //We use the SystematicSet constructor which just takes a SystematicVariation
       CP::SystematicSet iSysSet( (*isys).name());
+      if(debug) std::cout << "Syst: " << (*isys).name() << std::endl;
       //tell the tool that we are using this SystematicSet (of one SystematicVariation for now)
       //after this call, when we use applyCorrection, the given met term will be adjusted with this systematic applied
       ANA_CHECK( metSystTool->applySystematicVariation(iSysSet) );
@@ -275,9 +277,10 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       ANA_CHECK( metSystTool->applyCorrection(*softClusMet) );
 
       xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
-      if(debug) std::cout << "Soft track met term met " << softTrkMet->met() << std::endl;
+      if(debug) std::cout << "Soft track met term met before " << softTrkMet->met() << std::endl;
       ANA_CHECK( softTrkMet != nullptr); //check we retrieved the soft trk
       ANA_CHECK( metSystTool->applyCorrection(*softTrkMet) );
+      if(debug) std::cout << "Soft track met term met after " << softTrkMet->met() << std::endl;
 
       //this builds the final track or cluster met sums, using systematic varied container
       //In the future, you will be able to run both of these on the same container to easily output CST and TST
@@ -289,6 +292,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       ANA_CHECK( store->record( newMetAuxContainer, "FinalMETContainer_" + iSysSet.name() + "Aux."));
 
       if(debug) {
+	std::cout << "total MET: " << (*newMetContainer)["FinalTrk"]->met() << std::endl;
+
 	xAOD::MissingET * jetMet = (*newMetContainer)["RefJet"];
 	const std::vector<float>& jetweights = jetMet->auxdataConst<std::vector<float> >("ConstitObjectWeights");
 	const std::vector<ElementLink<xAOD::IParticleContainer> >& constitjets = jetMet->auxdataConst<std::vector<ElementLink<xAOD::IParticleContainer> > >("ConstitObjectLinks");

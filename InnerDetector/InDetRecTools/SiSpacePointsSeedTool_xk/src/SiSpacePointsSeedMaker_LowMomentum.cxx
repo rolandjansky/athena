@@ -220,7 +220,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::finalize()
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+
+  erase();
   i_spforseed   = l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -302,7 +304,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+
+  erase();
   i_spforseed = l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -494,7 +498,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Ve
 
 MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -939,7 +946,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists()
   
   for(int i=0; i!= r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!r_map[i]) continue;
+
+    r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
       
@@ -1078,7 +1087,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
     m_nOneSeeds = 0;
     m_mapOneSeeds.erase(m_mapOneSeeds.begin(), m_mapOneSeeds.end());
 	
-    float              R    = (*r0)->radius(); if(R<m_r2min) continue; if(R>m_r2max) break;
+    float              R    = (*r0)->radius();
+    if(R<m_r2min) continue;
+    if(R>m_r2max) break;
 
     bool pix = true; if((*r0)->spacepoint->clusterList().second) pix = false;
     const Trk::Surface* sur0 = (*r0)->sur();
@@ -1116,7 +1127,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       }
     }
   breakb:
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //

@@ -1,240 +1,208 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
-
-/*
- * EffiCollection.cxx
- *
- *  Created on: Jun 21, 2014
- *      Author: goblirsc
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <MuonEfficiencyCorrections/EffiCollection.h>
 #include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+#include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
 #include <TTree.h>
 namespace CP {
-    std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+    const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+    const std::vector<std::string> ToReplace { "-", "." };
+    EffiCollection::EffiCollection(const MuonEfficiencyScaleFactors& ref_tool) :
+            m_ref_tool(ref_tool),
+            m_central_eff(),
+            m_calo_eff(),
+            m_forward_eff(),
+            m_lowpt_central_eff(),
+            m_lowpt_calo_eff(),
+            m_syst_set(std::make_unique<SystematicSet>()){
 
-    EffiCollection::EffiCollection() :
-                m_central_eff(),
-                m_calo_eff(),
-                m_forward_eff(),
-                m_lowpt_central_eff(),
-                m_lowpt_calo_eff(),
-                m_lowpt_transition(20000.),
-                m_sfType(CP::MuonEfficiencyType::Undefined) {
+        m_central_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::Central);
+        if (m_ref_tool.filename_Calo() != m_ref_tool.filename_Central()){
+            m_calo_eff = std::make_shared<CollectionContainer>(m_ref_tool,CollectionType::Calo);
+        } else m_calo_eff = m_central_eff;
+        
+        if (m_ref_tool.filename_HighEta() != m_ref_tool.filename_Central()){
+            m_forward_eff = std::make_shared<CollectionContainer>(m_ref_tool,CollectionType::Forward);
+        } else m_forward_eff = m_central_eff;
+        
+        if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPt() != m_ref_tool.filename_Central()){
+            m_lowpt_central_eff = std::make_shared<CollectionContainer>(m_ref_tool,CollectionType::CentralLowPt);
+        } else m_lowpt_central_eff = m_central_eff;
+       
+         if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPtCalo() != m_ref_tool.filename_Central()){
+            m_lowpt_calo_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::CaloLowPt);
+        } else m_lowpt_calo_eff = m_central_eff;
     }
-
-    EffiCollection::EffiCollection(const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
-                EffiCollection() {
-        m_lowpt_transition = lowPtTransition;
-        m_sfType = effType;
-        bool KineSyst = effType == CP::MuonEfficiencyType::Reco || effType == CP::MuonEfficiencyType::BadMuonVeto;
-        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
-        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
-        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
-
-        // last argument tells this to respond to dedicated low pt systematic variations
-        if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool,file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
-        }
+    
+    EffiCollection::EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up):
+            m_ref_tool(ref_tool),
+            m_central_eff(),
+            m_calo_eff(),
+            m_forward_eff(),
+            m_lowpt_central_eff(),
+            m_lowpt_calo_eff(),
+            m_syst_set() {
+    
+        if (is_up) syst_bit_map |= EffiCollection::UpVariation;
+        /// Use a lambda function to assign the maps easily
+        std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation = [this,&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
+                if (syst_bit_map & type) {
+                    return std::make_shared<CollectionContainer>(ref_tool,
+                                                                 Nominal->retrieveContainer(type).get(),
+                                                                 syst, syst_bit_map);                                                                             }
+                /// Only the Z reconstruction analysis has different files for bulk / calo-tag / low-pt and forward eta
+                if (ref_tool.measurement() != MuonEfficiencyType::Reco) return m_central_eff;
+                return Nominal->retrieveContainer(type);
+            };
+        m_central_eff = make_variation(CollectionType::Central);
+        m_forward_eff = make_variation(CollectionType::Forward);
+        m_calo_eff = make_variation(CollectionType::Calo);
+        m_lowpt_central_eff = make_variation(CollectionType::CentralLowPt);
+        m_lowpt_calo_eff = make_variation(CollectionType::CaloLowPt);
+        
+        
     }
-
-    EffiCollection::EffiCollection(const EffiCollection* Nominal, const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
-                EffiCollection() {
-        m_lowpt_transition = lowPtTransition;
-        m_sfType = effType;
-        bool KineSyst = effType == CP::MuonEfficiencyType::Reco || effType == CP::MuonEfficiencyType::BadMuonVeto;
-        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Central), ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
-        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Calo), ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
-        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Forward), ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
-
-        // last argument tells this to respond to dedicated low pt systematic variations
-        if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CentralLowPt), ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CaloLowPt), ref_asg_tool, file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
-        }
-    }
-    EffiCollection::CollectionContainer_Ptr EffiCollection::retrieveContainer(CollectionType Type) const {
+    
+    std::shared_ptr<EffiCollection::CollectionContainer> EffiCollection::retrieveContainer(CollectionType Type) const {
         if (Type == CollectionType::Central) return m_central_eff;
         if (Type == CollectionType::Forward) return m_forward_eff;
         if (Type == CollectionType::Calo) return m_calo_eff;
         if (Type == CollectionType::CentralLowPt) return m_lowpt_central_eff;
         if (Type == CollectionType::CaloLowPt) return m_lowpt_calo_eff;
-        return nullptr;
+        return std::shared_ptr<EffiCollection::CollectionContainer>();
     }
-    bool EffiCollection::CheckConsistency() const {
+    bool EffiCollection::CheckConsistency()  {
         if (!m_central_eff || !m_central_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for central file failed");
             return false;
         }
         if (!m_calo_eff || !m_calo_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for calo file failed");            
             return false;
         }
         if (!m_forward_eff || !m_forward_eff->CheckConsistency()) {
+             Error("EffiCollection()", "Consistency check for forward file failed");            
             return false;
-        }
-        if (!m_central_eff || !m_central_eff->CheckConsistency()) {
-            return false;
-        }
-        if (m_lowpt_transition < 0.) {
-            return true;
         }
         if (!m_lowpt_central_eff || !m_lowpt_central_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for low-pt file failed");    
             return false;
         }
         if (!m_lowpt_calo_eff || !m_lowpt_calo_eff->CheckConsistency()) {
+            Error("EffiCollection()", "Consistency check for low-pt calo file failed"); 
             return false;
+        }
+        /// At this stage we know that all efficiencies have been loaded 
+        /// successfully. We need to now to order the maps to make global
+        /// bin numbers
+        unsigned int n = m_central_eff->nBins();
+        std::function<void (EffiCollection::CollectionContainer*)> assign_mapping =  [this, &n](EffiCollection::CollectionContainer* container){
+                if (container != m_central_eff.get()){
+                    container->SetGlobalOffSet(n);
+                     n += container->nBins();
+                };
+        };
+        assign_mapping(m_calo_eff.get());
+        assign_mapping(m_forward_eff.get());
+        assign_mapping(m_lowpt_central_eff.get());
+        assign_mapping(m_lowpt_calo_eff.get());
+       
+        /// Systematic constructor has been called. We can now assemble
+        /// the systematic variations
+        if (!m_syst_set){
+            m_syst_set = std::make_unique<CP::SystematicSet>();
+            size_t glob_sys = m_ref_tool.getPosition(this);
+            if (glob_sys > m_ref_tool.getNCollections()){
+                Error("EffiCollection()", "Invalid position in the list of systematics. It seems that I'm not part of the referring ScaleFactorTool.");
+                return false;
+            }
+            for (const EffiCollection::CollectionType& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
+                                         EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
+                    
+                std::shared_ptr<EffiCollection::CollectionContainer> container = retrieveContainer(file_type);
+                if (container->isNominal()) continue;
+                if (container->seperateBinSyst()){
+                    /// Let the world implode... Yeaha register foreach bin
+                    /// a systematic variation
+                    for (unsigned int b = nBins() - 1; b > 0  ; --b){
+                        unsigned int bin = b + container->globalOffSet();
+                        m_syst_set->insert(CP::SystematicVariation::makeToyVariation("MUON_EFF_" + container->sysname()  + GetBinName(bin) , bin, glob_sys));
+                    }
+                } else {
+                    m_syst_set->insert( SystematicVariation("MUON_EFF_" + container->sysname(), container->isUpVariation() ? 1  : -1));
+                }
+             }
         }
         return true;
     }
 
-    EffiCollection::EffiCollection(const CP::EffiCollection & other) {
-
-        m_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_central_eff)));
-        m_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff)));
-        m_forward_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff)));
-        m_lowpt_transition = other.m_lowpt_transition;
-        m_sfType = other.m_sfType;
-        if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff)));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff)));
-        }
-
-    }
-    CP::EffiCollection & EffiCollection::operator =(const CP::EffiCollection & other) {
-        if (this == &other) {
-            return *this;
-        }
-        m_lowpt_transition = other.m_lowpt_transition;
-        m_sfType = other.m_sfType;
-
-        m_central_eff.reset();
-        m_calo_eff.reset();
-
-        m_forward_eff.reset();
-
-        m_lowpt_central_eff.reset();
-        m_lowpt_calo_eff.reset();
-
-        m_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_central_eff)));
-        m_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff)));
-        m_forward_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff)));
-        if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff)));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff)));
-        }
-        return *this;
-
-    }
-    EffiCollection::CollectionContainer_Ptr EffiCollection::FindContainer(const xAOD::Muon& mu) const {
-        // yes, we need the second check - negative pt does happen!
-        if (mu.pt() < m_lowpt_transition && m_lowpt_transition > 0) {
+    EffiCollection::CollectionContainer* EffiCollection::FindContainer(const xAOD::Muon& mu) const {
+        if (mu.pt() <  m_ref_tool.lowPtTransition()) {
             if (fabs(mu.eta()) >= 2.5) {
-                return m_forward_eff;
+                return m_forward_eff.get();
             }
             if (mu.author() == xAOD::Muon::CaloTag) {
-                return m_lowpt_calo_eff;
+                return m_lowpt_calo_eff.get();
             }
-            return m_lowpt_central_eff;
+            return m_lowpt_central_eff.get();
         }
         if (mu.author() == xAOD::Muon::CaloTag) {
-            return m_calo_eff;
+            return m_calo_eff.get();
         } else if (fabs(mu.eta()) < 2.5) {
-            return m_central_eff;
+            return m_central_eff.get();
         } else {
-            return m_forward_eff;
+            return m_forward_eff.get();
         }
     }
-
-    EfficiencyScaleFactor_Ptr EffiCollection::retrieveSF(const xAOD::Muon& mu, unsigned int RunNumber) const {
-        EffiCollection::CollectionContainer_Ptr Cont = FindContainer(mu);
-        if (Cont.get() != nullptr) return Cont->retrieve(RunNumber);
-        Warning("retrieveSF()", "Invalid muon");
-        return EfficiencyScaleFactor_Ptr();
+    EffiCollection::CollectionContainer* EffiCollection::FindContainer(unsigned int bin) const{
+        if (m_central_eff->isBinInMap(bin)) return m_central_eff.get();
+        if (m_forward_eff->isBinInMap(bin)) return m_forward_eff.get();
+        if (m_calo_eff->isBinInMap(bin)) return m_calo_eff.get();
+        if (m_lowpt_central_eff->isBinInMap(bin)) return m_lowpt_central_eff.get();
+        if (m_lowpt_calo_eff->isBinInMap(bin)) return m_lowpt_calo_eff.get();
+        return nullptr;
     }
-    std::string EffiCollection::sysname(void) const {
-        if (m_central_eff) return m_central_eff->sysname();
-        else return "";
+            
+    EfficiencyScaleFactor* EffiCollection::retrieveSF(const xAOD::Muon& mu, unsigned int RunNumber) const {
+        EffiCollection::CollectionContainer* Cont = FindContainer(mu);
+        if (Cont != nullptr) return Cont->retrieve(RunNumber);
+        Warning("EffiCollection::retrieveSF()", "Invalid muon");
+        return nullptr;
     }
     unsigned int EffiCollection::nBins() const {
         unsigned int Nbins = 0;
         if (m_central_eff) {
             Nbins += m_central_eff->nBins();
         }
-        if (m_calo_eff) {
+        if (m_central_eff != m_calo_eff) {
             Nbins += m_calo_eff->nBins();
         }
-        if (m_forward_eff) {
+        if (m_forward_eff != m_central_eff) {
             Nbins += m_forward_eff->nBins();
         }
-        if (m_lowpt_central_eff) {
+        if (m_lowpt_central_eff != m_central_eff) {
             Nbins += m_lowpt_central_eff->nBins();
         }
-        if (m_lowpt_calo_eff) {
+        if (m_lowpt_calo_eff != m_central_eff) {
             Nbins += m_lowpt_calo_eff->nBins();
         }
         return Nbins;
     }
     bool EffiCollection::SetSystematicBin(unsigned int Bin) {
-        EffiCollection::CollectionContainer_Ptr Cont = FindContainerFromBin(Bin);
+        EffiCollection::CollectionContainer* Cont = FindContainer(Bin);
         if (!Cont) return false;
         return Cont->SetSystematicBin(Bin);
     }
-    EffiCollection::CollectionContainer_Ptr EffiCollection::FindContainerFromBin(unsigned int &Bin) const {
-        if (Bin > nBins()) {
-            return nullptr;
-        }
-        if (DoesBinFitInRange(m_central_eff, Bin)) {
-            return m_central_eff;
-        } else if (DoesBinFitInRange(m_calo_eff, Bin)) {
-            return m_calo_eff;
-        } else if (DoesBinFitInRange(m_forward_eff, Bin)) {
-            return m_forward_eff;
-        } else if (DoesBinFitInRange(m_lowpt_central_eff, Bin)) {
-            return m_lowpt_central_eff;
-        } else if (DoesBinFitInRange(m_lowpt_calo_eff, Bin)) {
-            return m_lowpt_calo_eff;
-        }
-        return nullptr;
-    }
     bool EffiCollection::IsLowPtBin(unsigned int Bin) const {
-        if (DoesBinFitInRange(m_central_eff, Bin)) {
-            return false;
-        } else if (DoesBinFitInRange(m_calo_eff, Bin)) {
-            return false;
-        } else if (DoesBinFitInRange(m_forward_eff, Bin)) {
-            return false;
-        }
-        return true;
+        return (m_central_eff != m_lowpt_central_eff && m_lowpt_central_eff->isBinInMap(Bin)) ||
+               (m_central_eff != m_lowpt_calo_eff && m_lowpt_calo_eff->isBinInMap(Bin));
     }
     bool EffiCollection::IsForwardBin(unsigned int Bin) const {
-        if (DoesBinFitInRange(m_central_eff, Bin)) {
-            return false;
-        } else if (DoesBinFitInRange(m_calo_eff, Bin)) {
-            return false;
-        }
-        return DoesBinFitInRange(m_forward_eff, Bin);
+        return m_forward_eff != m_central_eff && m_forward_eff->isBinInMap(Bin);
     }
-    bool EffiCollection::DoesBinFitInRange(CollectionContainer_Ptr Container, unsigned int & Bin) const {
-        if (Container) {
-            if (Bin <= Container->nBins()) {
-                return true;
-            } else {
-                Bin -= Container->nBins();
-            }
-        }
-        return false;
-    }
-    EffiCollection::~EffiCollection() {
-
-        m_central_eff.reset();
-        m_calo_eff.reset();
-        m_forward_eff.reset();
-
-        m_lowpt_central_eff.reset();
-        m_lowpt_calo_eff.reset();
-    }
+    
     std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
         if (T == CollectionType::Central) return "Central ";
         if (T == CollectionType::Calo) return "Calo ";
@@ -245,11 +213,14 @@ namespace CP {
     }
 
     std::string EffiCollection::GetBinName(unsigned int bin) const {
-        EffiCollection::CollectionContainer_Ptr Cont = FindContainerFromBin(bin);
+        EffiCollection::CollectionContainer* Cont = FindContainer(bin);
         if (Cont) {
             std::string BinName = FileTypeName(Cont->type()) + Cont->GetBinName(bin);
-            for (auto R : ToRemove) {
+            for (const std::string& R : ToRemove) {
                 BinName = ReplaceExpInString(BinName, R, "");
+            }
+            for (const std::string& R : ToReplace) {
+                BinName = ReplaceExpInString(BinName, R, "_");
             }
             return BinName;
         }
@@ -257,59 +228,70 @@ namespace CP {
         return "UNKNOWN_BIN";
     }
     int EffiCollection::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
-        int Bin = 0;
-        if (DoesMuonEnterBin(CollectionType::Central, mu, Bin)) return Bin;
-        if (DoesMuonEnterBin(CollectionType::Calo, mu, Bin)) return Bin;
-        if (DoesMuonEnterBin(CollectionType::Forward, mu, Bin)) return Bin;
-        if (DoesMuonEnterBin(CollectionType::CentralLowPt, mu, Bin)) return Bin;
-        if (DoesMuonEnterBin(CollectionType::CaloLowPt, mu, Bin)) return Bin;
-        return Bin;
+        EffiCollection::CollectionContainer* container = FindContainer(mu);
+        if (container) return container->FindBinSF(mu); 
+        return -1;
     }
-    bool EffiCollection::DoesMuonEnterBin(CollectionType Type, const xAOD::Muon mu, int &Bin) const {
-        EffiCollection::CollectionContainer_Ptr MuonCont = FindContainer(mu);
-        EffiCollection::CollectionContainer_Ptr TypeCont = retrieveContainer(Type);
-        if (!TypeCont || TypeCont != MuonCont) {
-            if (TypeCont) Bin += TypeCont->nBins();
-            return false;
+    SystematicSet* EffiCollection::getSystSet() const{
+        return m_syst_set.get();
+    }
+    bool  EffiCollection::isAffectedBySystematic(const SystematicVariation& variation) const {
+        return m_syst_set->find(variation) != m_syst_set->end();
+    }
+    bool  EffiCollection::isAffectedBySystematic(const SystematicSet& set) const{
+        if (set.empty()) return m_syst_set->empty();
+        for (const SystematicVariation& variation: set){
+            if (isAffectedBySystematic(variation)) return true;
         }
-        int sfBin = TypeCont->FindBinSF(mu);
-        if (sfBin < 0) Bin = sfBin;
-        else Bin += sfBin;
-        return true;
-    }
-
-    std::string EffiCollection::ReplaceExpInString(std::string str, const std::string &exp, const std::string &rep) const {
-        size_t ExpPos = str.find(exp);
-        if (ExpPos == std::string::npos) return str;
-        size_t ExpLen = exp.size();
-
-        str = str.substr(0, ExpPos) + rep + str.substr(ExpPos + ExpLen, std::string::npos);
-        if (str.find(exp) != std::string::npos) return ReplaceExpInString(str, exp, rep);
-        return str;
-    }
-
+        return false;
+    }            
     //################################################################################
     //                               EffiCollection::CollectionContainer
     //################################################################################
-    EffiCollection::CollectionContainer::CollectionContainer(const asg::AsgTool* ref_asg_tool,const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
-                CollectionContainer(CollectionContainer_Ptr(),ref_asg_tool, FileName, sysType, effType, FileType, isLowPt, hasPtDepSys) {
-    }
-
-    EffiCollection::CollectionContainer::CollectionContainer(CollectionContainer_Ptr Nominal, const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
+    EffiCollection::CollectionContainer::CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType):
                 m_SF(),
-                m_currentSF(),
-                m_FileType(FileType) {
-        std::unique_ptr<TFile> fin (TFile::Open(FileName.c_str()));
-        if (!fin) {
-            Error("CollectionContainer", "%s", ("Unable to open file " + FileName).c_str());
-            return;
+                m_currentSF(nullptr),
+                m_FileType(FileType),
+                m_binOffSet(0){
+        
+            std::map<std::string, std::pair<unsigned int, unsigned int>> map = findPeriods(ref_tool);
+            for (auto& period : map) {
+             m_SF.push_back(std::make_shared<EfficiencyScaleFactor>(ref_tool, fileName(ref_tool), period.first));
+             m_SF.back()->setFirstLastRun(period.second.first, period.second.second);
+         }
+    }
+    EffiCollection::CollectionContainer::CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map):
+                m_SF(),
+                m_currentSF(nullptr),
+                m_FileType(Nominal->type()),
+                m_binOffSet(0) {
+            std::map<std::string, std::pair<unsigned int, unsigned int>> map = findPeriods(ref_tool);
+            for (auto& period : map) {
+                std::vector< std::shared_ptr<EfficiencyScaleFactor>>::const_iterator itr = std::find_if( Nominal->m_SF.begin(), 
+                                                                                                      Nominal->m_SF.end(), 
+                                                                                                      [&period](const std::shared_ptr<EfficiencyScaleFactor>& a){
+                                                                                                            return a->coversRunNumber(period.second.first);
+                                                                                                    });
+                m_SF.push_back(std::make_shared<EfficiencyScaleFactor>(*itr, ref_tool, fileName(ref_tool), period.first, syst_name, syst_bit_map));
+                m_SF.back()->setFirstLastRun(period.second.first, period.second.second);
+         }
+    }
+    std::map<std::string, std::pair<unsigned int, unsigned int>> EffiCollection::CollectionContainer::findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const{
+        
+        std::string file_name = fileName(ref_tool);
+        std::map<std::string, std::pair<unsigned int, unsigned int>> map;
+      
+        std::unique_ptr<TFile> fin (TFile::Open(file_name.c_str()));
+        if (!fin || !fin->IsOpen()) {
+            Error("CollectionContainer","Unable to open file %s", file_name.c_str());
+            return map;
         }
         TTree* intree = 0;
         fin->GetObject("LumiData", intree);
-        std::map<std::string, RunRanges> map;
+        
         // if no Lumi tree is found, we assume that the SF are not binned in time
         if (!intree) {
-            map["All"] = RunRanges(1, 999999);
+            map["All"] = std::pair<unsigned int,unsigned int>(1, 999999);
         } else {
             std::string *period = 0;
             unsigned int firstRun = 0;
@@ -318,46 +300,46 @@ namespace CP {
             intree->SetBranchAddress("FirstRun", &firstRun);
             intree->SetBranchAddress("LastRun", &lastRun);
             for (int t = 0; intree->GetEntry(t); t++) {
-                map[*period] = RunRanges(firstRun, lastRun);
+                map[*period] = std::pair<unsigned int, unsigned int>(firstRun, lastRun);
             }
         }
-        fin->Close();
-        for (auto& period : map) {
-            EfficiencyScaleFactor_Ptr effi_factor(nullptr);
-            if (!Nominal) {
-                effi_factor = EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys));
-            } else {
-                effi_factor = EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(Nominal->retrieve(period.second.first).get(),ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys));
-            }
-            effi_factor->setFirstLastRun(period.second.first, period.second.second);
-            m_SF.push_back(effi_factor);
-        }
-        for (auto& period : m_SF)
-            period->ApplySysVariation();
+        return map;
     }
-    bool EffiCollection::CollectionContainer::CheckConsistency() const {
+    std::string EffiCollection::CollectionContainer::fileName(const MuonEfficiencyScaleFactors& ref_tool) const{
+        if (type() == CollectionType::Central) return ref_tool.filename_Central();
+        if (type() == CollectionType::Calo) return ref_tool.filename_Calo();
+        if (type() == CollectionType::CentralLowPt) return ref_tool.filename_LowPt();
+        if (type() == CollectionType::CaloLowPt) return ref_tool.filename_LowPtCalo();
+        return ref_tool.filename_HighEta();
+    }
+                  
+    bool EffiCollection::CollectionContainer::CheckConsistency()  {
         if (m_SF.empty()) {
             Error("CollectionContainer", "Could not retrieve any SFs from the input file");
             return false;
         }
-        for (size_t i = 0 ; i < m_SF.size(); ++i)  {
-            EfficiencyScaleFactor_Ptr first_SF = m_SF[i];
-            if (!first_SF->CheckConsistency()) return false;
-            for (size_t j = i+1 ; j < m_SF.size(); ++j) {
-                EfficiencyScaleFactor_Ptr second_SF = m_SF[j];
-                if (first_SF->coversRunNumber(second_SF->firstRun()) || first_SF->coversRunNumber( second_SF->lastRun()) || second_SF->coversRunNumber(first_SF->firstRun()) || second_SF->coversRunNumber( first_SF->lastRun())){
-                    Error("CollectionContainer", "Overlapping periods observed in filetype %i. As run %i is in period %i - %i. Please check your SF file!",  (int) m_FileType, first_SF->firstRun(), second_SF->firstRun(), second_SF->lastRun());
+        /// Check that there are no overlapping run numbers in the periods        
+        for (std::vector< std::shared_ptr<EfficiencyScaleFactor>>::const_iterator first_sf = m_SF.begin() ; first_sf != m_SF.end(); ++first_sf)  {
+            if (!(*first_sf)->CheckConsistency()) return false;
+            for (std::vector< std::shared_ptr<EfficiencyScaleFactor>>::const_iterator second_sf = m_SF.begin(); second_sf != first_sf; ++second_sf) {
+                if ( (*first_sf)->coversRunNumber( (*second_sf)->firstRun()) || (*first_sf)->coversRunNumber((*second_sf)->lastRun()) || 
+                     (*second_sf)->coversRunNumber( (*first_sf)->firstRun()) || (*second_sf)->coversRunNumber((*first_sf)->lastRun())){
+                    Error("CollectionContainer", "Overlapping periods observed in file type %s. As run %i is in period %i - %i. Please check your SF file!",  
+                           FileTypeName(m_FileType).c_str(), (*first_sf)->firstRun(), (*second_sf)->firstRun(), (*second_sf)->lastRun());
                     return false;
                 }
             }
         }
+        
+        std::sort(m_SF.begin(), m_SF.end(), [](const std::shared_ptr<EfficiencyScaleFactor>& a, const std::shared_ptr<EfficiencyScaleFactor>& b){
+            return a->firstRun() < b->firstRun();});
         return true;
     }
     bool EffiCollection::CollectionContainer::LoadPeriod(unsigned int RunNumber) const {
         if (!m_currentSF || !m_currentSF->coversRunNumber(RunNumber)) {
             for (auto& period : m_SF) {
                 if (period->coversRunNumber(RunNumber)) {
-                    m_currentSF = period;
+                    m_currentSF = period.get();
                     return true;
                 }
             }
@@ -365,56 +347,58 @@ namespace CP {
         Error("CollectionContainer", "Could not find any SF period matching the run number %u", RunNumber);
         return false;
     }
-    std::shared_ptr<EfficiencyScaleFactor> EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) const {
+    EfficiencyScaleFactor* EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) const {
         if (!LoadPeriod(RunNumber)) {
-            return (*m_SF.begin());
+            return (*m_SF.begin()).get();
         }
         return m_currentSF;
     }
-    std::string EffiCollection::CollectionContainer::sysname() const {
-        if (m_SF.empty()) return "";
-        return (*m_SF.begin())->sysname();
-    }
-    EffiCollection::CollectionContainer::~CollectionContainer() {
-
-    }
-    CP::EffiCollection::CollectionContainer& EffiCollection::CollectionContainer::operator =(const EffiCollection::CollectionContainer & other) {
-        if (this == &other) {
-            return *this;
-        }
-        m_SF.clear();
-        for (auto& period : other.m_SF) {
-            m_SF.push_back(EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(*period)));
-        }
-        m_currentSF = EfficiencyScaleFactor_Ptr();
-        return *this;
-    }
-    EffiCollection::CollectionContainer::CollectionContainer(const CollectionContainer & other) :
-                m_FileType(other.m_FileType) {
-        for (auto& period : other.m_SF) {
-            m_SF.push_back(EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(*period)));
-        }
-        m_currentSF = EfficiencyScaleFactor_Ptr();
-    }
     bool EffiCollection::CollectionContainer::SetSystematicBin(unsigned int Bin) {
-        for (auto& Period : m_SF) {
-            if (!Period->SetSystematicBin(Bin)) {
+        for ( std::shared_ptr<EfficiencyScaleFactor>& Period : m_SF) {
+            if (!Period->SetSystematicBin(Bin- m_binOffSet)) {
                 return false;
             }
         }
         return true;
     }
     unsigned int EffiCollection::CollectionContainer::nBins() const {
-        return (*m_SF.begin())->nBinsSF();
+        return m_SF.empty() ? 0 : (*m_SF.begin())->nBins();
+    }
+    bool EffiCollection::CollectionContainer::isBinInMap (unsigned int bin) const{
+        return  m_binOffSet <= bin && bin< m_binOffSet + nBins();
     }
     EffiCollection::CollectionType EffiCollection::CollectionContainer::type() const {
         return m_FileType;
     }
     std::string EffiCollection::CollectionContainer::GetBinName(unsigned int Bin) const {
-        return (*m_SF.begin())->GetBinName(Bin);
+        return (*m_SF.begin())->GetBinName(Bin- m_binOffSet);
     }
     int EffiCollection::CollectionContainer::FindBinSF(const xAOD::Muon &mu) const {
-        return (*m_SF.begin())->FindBinSF(mu);
+        if (m_SF.empty() ) return -1;
+        int bin =  (*m_SF.begin())->FindBinSF(mu);
+        return bin > 0 ? m_binOffSet + bin : bin;
     }
-
+    void EffiCollection::CollectionContainer::SetGlobalOffSet(unsigned int OffSet){
+        m_binOffSet = OffSet;
+    }
+    unsigned int EffiCollection::CollectionContainer::globalOffSet() const{
+        return m_binOffSet;
+    }
+    bool EffiCollection::CollectionContainer::isNominal() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->sysname(false).empty();
+    }
+    bool EffiCollection::CollectionContainer::isUpVariation() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->IsUpVariation();        
+    }
+    bool EffiCollection::CollectionContainer::seperateBinSyst() const {
+        if (m_SF.empty()) return false;
+        return (*m_SF.begin())->SeperateSystBins();
+    }
+    std::string EffiCollection::CollectionContainer::sysname() const{
+        if (m_SF.empty()) return "UNKNOWN SYST";
+        return (*m_SF.begin())->sysname(false);
+    }
+    
 }

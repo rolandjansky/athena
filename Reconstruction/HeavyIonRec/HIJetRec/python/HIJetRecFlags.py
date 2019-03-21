@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -30,7 +30,7 @@ class SeedPtMin(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 20*Units.GeV
+    StoredValue  = 25*Units.GeV
 
 class RecoOutputPtMin(JobProperty):
     """ Minimum pT for seeds after iteration
@@ -68,6 +68,13 @@ class ApplyEtaJESCalibration(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class ApplyTowerEtaPhiCorrection(JobProperty):
+    """ Option to apply MC-derived calibration 
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class DCutMaxOverMean(JobProperty):
     """ Cut for first step in seed finding: max/mean of constituent ET's must be > that this.
     """
@@ -88,7 +95,7 @@ class AntiKtRValues(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = [0.2,0.3,0.4]
+    StoredValue  = [0.2,0.3,0.4,0.8,1.0]
 
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
@@ -102,8 +109,8 @@ class HarmonicsForSubtraction(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    #StoredValue  = [2,3,4]
-    StoredValue  = []
+    StoredValue  = [2,3,4]
+    #StoredValue  = []
 
 class ModulationScheme(JobProperty):
     """ 1, 2 or 3 correspond to total calo, total calo w/ fcal phase, fcal only
@@ -117,7 +124,7 @@ class Remodulate(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class ExtraFlowMoments(JobProperty):
     """ Calculate extra flow moments
@@ -131,7 +138,7 @@ class DoHIBTagging(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 
 class HIClusterKey(JobProperty):
@@ -236,7 +243,12 @@ class HIJetRecFlags(JobPropertyContainer):
     """ The HIJetRec property container.
     """
     pass
-
+class TWConfigFile(JobProperty):
+    """ Name of main track jets used in iteration and ghost matching
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'cluster.geo.HIJING_2018.root'
 # add the flags container to the top container 
 jobproperties.add_Container(HIJetRecFlags)
 
@@ -272,7 +284,9 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteUnsubtracted,
                       WriteSeeds,
                       UseHITracks,
-                      MomentsSkipped
+                      MomentsSkipped,
+                      TWConfigFile,
+                      ApplyTowerEtaPhiCorrection
                       ]
 
 for i in list_jobproperties:

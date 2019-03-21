@@ -144,7 +144,6 @@ private:
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
   int m_use_AFII;
   PATCore::ParticleDataType::DataType m_simulation = PATCore::ParticleDataType::Full;
-  int m_RandomRunNumber;
   //flags duplicated from the underlying ROOT tool
   int m_useLayerCorrection;
   int m_usePSCorrection;

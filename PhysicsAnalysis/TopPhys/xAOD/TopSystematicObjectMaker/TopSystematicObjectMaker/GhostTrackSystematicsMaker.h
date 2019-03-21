@@ -1,10 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
 // Filename: GhostTrackSystematicsMaker.h
 // Description:
 // Author: Fabian Wilk
@@ -142,12 +139,15 @@ namespace top {
 
     private:
         std::shared_ptr<top::TopConfig> m_config;
+	double m_jetPtCut,m_jetEtaCut;
         std::vector<std::uint32_t> m_runPeriods;
 
         std::list<CP::SystematicSet> m_specifiedSystematics;
         std::list<CP::SystematicSet> m_recommendedSystematics;
 
         CP::SystematicSet m_nominalSystematicSet;
+
+	
 
         struct {
             void makeUnique(){

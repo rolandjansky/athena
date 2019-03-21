@@ -17,7 +17,31 @@
 #include "RootCoreUtils/ThrowMsg.h"
 #include "SampleHandler/Sample.h"
 #include "EventLoop/Algorithm.h"
+#include "EventLoop/EventRange.h"
 #include "EventLoop/Job.h"
+#include "EventLoop/MessageCheck.h"
+#include "EventLoop/OutputStream.h"
+#include "EventLoopGrid/GridReportingModule.h"
+
+#include <iostream>
+#include <string>
+#include <exception>
+
+#include <TROOT.h>
+#include <TList.h>
+#include <TFile.h>
+#include <TObject.h>
+
+#include "RootCoreUtils/Assert.h"
+#include "RootCoreUtils/ThrowMsg.h"
+#include "SampleHandler/SampleGrid.h"
+#include "SampleHandler/MetaObject.h"
+#include "SampleHandler/SampleHandler.h"
+#include "EventLoop/Algorithm.h"
+#include "EventLoop/JobConfig.h"
+#include "EventLoopGrid/GridWorker.h"
+#include "EventLoopGrid/PandaRootTools.h"
+#include "EventLoop/Driver.h"
 #include "EventLoop/OutputStream.h"
 
 ClassImp(EL::GridWorker)
@@ -30,23 +54,28 @@ namespace EL
   }
 
   GridWorker::GridWorker (const SH::MetaObject *meta, 
-			  TList *output,
-			  const TList& bigOutputs, 
-                          JobConfig&& jobConfig, 
 			  const std::string& location,
 			  PandaRootTools& pandaTools)
-    : Worker(meta, output), 
-      m_meta(meta), m_location(location), m_pandaTools(pandaTools) {
-        
+    : m_meta(meta), m_location(location), m_pandaTools(pandaTools) {
+
+    RCU_NEW_INVARIANT (this);
+  }
+
+
+  void GridWorker::run(JobConfig&& jobConfig, const TList& bigOutputs, const std::string& location) {
+    using namespace std;
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
     {//Create and register the "big" output files with base class
       TIter itr(&bigOutputs);
       TObject *obj = 0;
       while ((obj = itr())) {
 	EL::OutputStream *os = dynamic_cast<EL::OutputStream*>(obj);
 	if (os) {
-	  const std::string name
-	    = location + "/" + os->label() + ".root";
-	  addOutputFile (os->label(), new TFile (name.c_str(), "RECREATE"));
+          Detail::OutputStreamData data {
+            location + "/" + os->label() + ".root", "RECREATE"};
+          ANA_CHECK_THROW (addOutputStream (os->label(), std::move (data)));
 	}
 	else {
 	  throw "ERROR: Bad input"; 
@@ -56,61 +85,125 @@ namespace EL
 
     setJobConfig (std::move (jobConfig));
 
-    RCU_NEW_INVARIANT (this);
-  }
+    addModule (std::make_unique<Detail::GridReportingModule> ());
+    ANA_CHECK_THROW (initialize());
 
+    for (TString fileUrl = m_pandaTools.getNextFile();
+	 fileUrl != "";
+	 fileUrl = m_pandaTools.getNextFile()) {
 
-  void GridWorker::run() {
-    using namespace std;
-    RCU_CHANGE_INVARIANT (this);
+      EventRange eventRange;
+      eventRange.m_url = fileUrl;
 
-    for (TFile* f = m_pandaTools.OpenNextFile();
-	 f != 0;
-	 f = m_pandaTools.OpenNextFile()) {
+      try {
+        if (processEvents (eventRange).isFailure()) {
+          m_pandaTools.Fail(eventsProcessed());
+        }
 
-      setInputFile (f);
-      treeEntry(0);
-      algsChangeInput();
+      }
+      catch (exception& e) {
+        cout << "Caught exception while executing algorithm:\n"
+             << e.what() << "\n";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+      catch (char const* e) {
+        cout << "Caught exception while executing algorithm:\n"
+             << e << "\n";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+      catch (...) {
+        cout << "Caught unknown exception while executing algorithm";
+        m_pandaTools.Fail(eventsProcessed());
+      }
+    }    
 
+    ANA_CHECK_THROW (finalize ());
 
-      Long64_t nEvents = inputFileNumEntries();
-      std::cout << "Running loop over " << nEvents << " events\n"; 
-      for (Long64_t i = 0; i < nEvents; i++) {
-	m_pandaTools.NotifyNewEvent();
-	treeEntry(i);
-	
-	try {
-
-	  algsExecute();
-
-	}
-	catch (exception& e) {
-	  cout << "Caught exception while executing algorithm:\n"
-	       << e.what() << "\n";
-	  m_pandaTools.Fail();
-	}
-	catch (char const* e) {
-	  cout << "Caught exception while executing algorithm:\n"
-	       << e << "\n";
-	  m_pandaTools.Fail();
-	}
-	catch (...) {
-	  cout << "Caught unknown exception while executing algorithm";
-	  m_pandaTools.Fail();
-	}
-
-      }    
-      f->Close();    
-    }
-
-    algsFinalize();
-
-    int nEvents = m_pandaTools.GetEventsRead();
+    int nEvents = eventsProcessed();
     int nFiles = m_pandaTools.GetFilesRead();
     cout << "\nLoop finished. ";
     cout << "Read " << nEvents << " events in " << nFiles << " files.\n";
 
-    m_pandaTools.NotifyJobFinished();
+    m_pandaTools.NotifyJobFinished(eventsProcessed());
   }
 
+
+
+  void GridWorker ::
+  execute (const std::string& sampleName)
+  {
+    using namespace msgEventLoop;
+
+    ANA_MSG_INFO ("Running with ROOT version " << gROOT->GetVersion()
+                  << " (" << gROOT->GetVersionDate() << ")");
+
+    ANA_MSG_INFO ("Loading EventLoop grid job");
+
+
+    TList bigOutputs;
+    std::unique_ptr<JobConfig> jobConfig;
+    SH::MetaObject *mo = 0;
+    PandaRootTools pandaTools;
+
+    try {
+      std::unique_ptr<TFile> f (TFile::Open("jobdef.root"));
+      if (f && !f->IsZombie()) {
+	
+	mo = dynamic_cast<SH::MetaObject*>(f->Get(sampleName.c_str()));
+	if (!mo) {
+	  throw "Could not read in sample meta object";
+	}
+	
+        jobConfig.reset (dynamic_cast<JobConfig*>(f->Get("jobConfig")));
+        if (jobConfig == nullptr)
+          RCU_THROW_MSG ("failed to read jobConfig object");
+
+        std::unique_ptr<TList> outs ((TList*)f->Get("outputs"));
+	if (outs) {  
+	  TIter itr(outs.get());
+	  TObject *obj = 0;
+	  while ((obj = itr())) {
+	    EL::OutputStream * out = dynamic_cast<EL::OutputStream*>(obj);
+	    if (out) {
+	      bigOutputs.Add(out);
+	    }
+	    else {
+	      throw "Encountered unexpected entry in list of outputs"; 
+	    }
+	  }
+	}
+	else {
+	  throw "Could not read list of outputs"; 
+	}
+      }
+      else {
+	throw "Could not read jobdef"; 
+      }
+
+      f->Close();
+      f.reset ();
+    
+      const std::string location = ".";
+
+      EL::GridWorker worker(mo, 
+                            location, 
+			    pandaTools);
+      worker.setMetaData (mo);
+      worker.setOutputHist (location);
+      worker.setSegmentName ("output");
+      
+      ANA_MSG_INFO ("Starting EventLoop Grid worker");
+
+      worker.run (std::move (*jobConfig), bigOutputs, location);
+
+      ANA_MSG_INFO ("EventLoop Grid worker finished");
+      ANA_MSG_INFO ("Saving output");
+    } catch (...)
+    {
+      Detail::report_exception ();
+      ANA_MSG_ERROR ("Aborting job due to internal GridWorker error");
+      ANA_MSG_ERROR ("The cause of this is probably a misconfigured job");
+      pandaTools.Abort();
+    }
+  }
 }

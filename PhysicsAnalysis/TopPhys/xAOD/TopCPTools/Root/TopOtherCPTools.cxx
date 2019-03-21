@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCPTools/TopOtherCPTools.h"
@@ -102,6 +102,14 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     for (std::string& s : pileup_config_AF)
       s = PathResolverFindCalibFile(s);
 
+    std::vector<std::string> actual_mu_FS = m_config->PileupActualMu_FS();
+    for (std::string& s : actual_mu_FS)
+      s = PathResolverFindCalibFile(s);
+
+    std::vector<std::string> actual_mu_AF = m_config->PileupActualMu_AF();
+    for (std::string& s : actual_mu_AF)
+      s = PathResolverFindCalibFile(s);
+
     // New checks - If FS or AF size != 0, then the general option should be empty
     if( (pileup_config_AF.size() > 0 || pileup_config_FS.size() > 0) && (pileup_config.size() > 0) ){
       ATH_MSG_ERROR("You have used PRWConfigFiles as well as PRWConfigFiles_FS and/or PRWConfigFiles_AF");
@@ -123,15 +131,21 @@ StatusCode OtherCPTools::setupPileupReweighting() {
 		 "Failed to set pileup reweighting config files");
     }
     else if(m_config->isAFII() && pileup_config_AF.size() > 0){
+      // concatenate the config and the actual mu files
+      std::vector<std::string> final_config_AF = pileup_config_AF;
+      final_config_AF.insert(final_config_AF.end(), actual_mu_AF.begin(), actual_mu_AF.end());
       ATH_MSG_INFO("This sample is fast sim");
       ATH_MSG_INFO("PRW tool is being configured only with fast simulation (AF) config files");
-      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_AF),
+      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", final_config_AF),
                  "Failed to set pileup reweighting config files");
     }
     else if(!m_config->isAFII() && pileup_config_FS.size() > 0){
+      // concatenate the config and the actual mu files
+      std::vector<std::string> final_config_FS = pileup_config_FS;
+      final_config_FS.insert(final_config_FS.end(), actual_mu_FS.begin(), actual_mu_FS.end());
       ATH_MSG_INFO("This sample is full sim");
       ATH_MSG_INFO("PRW tool is being configured only with full simulation (FS) config files");
-      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_FS),
+      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", final_config_FS),
                  "Failed to set pileup reweighting config files");
     }
     else{
@@ -167,6 +181,11 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     // Set the unrepresented data tolerence (default is 5% same as the PRW tool)
     top::check(asg::setProperty(pileupReweightingTool, "UnrepresentedDataThreshold", m_config->PileupDataTolerance()),
 	       "Failed to set pileup reweighting data tolerance");
+    if (m_config->PileupPeriodAssignments().size() > 0){
+      // Set the period assignments associated with different running periods
+      top::check(asg::setProperty(pileupReweightingTool, "PeriodAssignments", m_config->PileupPeriodAssignments()),
+	         "Failed to set pileup reweighting period assignments");
+    }
     top::check(pileupReweightingTool->initialize(),
               "Failed to initialize pileup reweighting tool");
 

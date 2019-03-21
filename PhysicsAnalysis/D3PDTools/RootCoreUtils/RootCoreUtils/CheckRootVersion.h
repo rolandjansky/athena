@@ -1,15 +1,13 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
 #ifndef ROOT_CORE_UTILS__CHECK_ROOT_VERSION_H
 #define ROOT_CORE_UTILS__CHECK_ROOT_VERSION_H
-
-//        Copyright Iowa State University 2013.
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 // This module still needs to be documented.  The interface provided
 // in this module is intended for experts only.  The module is

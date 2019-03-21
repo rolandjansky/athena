@@ -73,9 +73,12 @@ config.DoSyst = True
 config.DataSource = 1
 config.PRWLumiCalc = []
 config.UsePRWAutoconfig = True
+if options.type != "DATA" :
+    config.mcChannel = 410470
 
 # Running over '18-like periods
 if options.type == "MCe" or options.type == "AFII" or options.type == "DATA" :
+    config.mcCampaign = "mc16e"
     config.PRWLumiCalc = [
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
         ]
@@ -85,11 +88,13 @@ if options.type == "MCe" or options.type == "AFII" or options.type == "DATA" :
         config.DataSource = 0
 
 elif options.type=="MCd":
+    config.mcCampaign = "mc16d"
     config.PRWLumiCalc = [
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"
         ]
 
 elif options.type=="MCa":
+    config.mcCampaign = "mc16a"
     config.PRWLumiCalc = [
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"

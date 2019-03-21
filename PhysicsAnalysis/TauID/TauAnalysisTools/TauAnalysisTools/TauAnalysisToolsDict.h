@@ -30,6 +30,8 @@
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
 #include "TauAnalysisTools/CommonDiTauEfficiencyTool.h"
 #include "TauAnalysisTools/DiTauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/CommonDiTauSmearingTool.h"
+#include "TauAnalysisTools/DiTauSmearingTool.h"
 #include "TauAnalysisTools/DiTauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 

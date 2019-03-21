@@ -5,7 +5,7 @@
 /** Unit tests for AssociationUtils tools in AnaToolHandle
  */
 
-#include "AsgTools/UnitTest.h"
+#include "AsgTesting/UnitTest.h"
 #include "AsgTools/MessageCheck.h"
 #include "gtest/gtest.h"
 #ifdef ROOTCORE

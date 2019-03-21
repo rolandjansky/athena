@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_HIGH_LEVEL_HH
 #define DL2_HIGH_LEVEL_HH
+
+#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -18,7 +20,9 @@ namespace FlavorTagDiscriminants {
   class DL2HighLevel
   {
   public:
-    DL2HighLevel(const std::string& nn_file_name);
+    DL2HighLevel(const std::string& nn_file_name,
+                 EDMSchema = EDMSchema::WINTER_2018);
+    DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;
   private:

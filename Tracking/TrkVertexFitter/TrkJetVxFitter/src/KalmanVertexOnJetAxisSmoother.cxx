@@ -17,11 +17,11 @@
 namespace Trk
 {  
 
-  namespace {
-    int numRow(int numVertex) {
-      return numVertex+5;
-    }
-  }
+  // namespace {
+  //   int numRow(int numVertex) {
+  //     return numVertex+5;
+  //   }
+  // }
 
   
  StatusCode KalmanVertexOnJetAxisSmoother::initialize()

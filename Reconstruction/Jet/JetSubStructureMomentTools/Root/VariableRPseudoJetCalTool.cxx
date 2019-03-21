@@ -20,7 +20,7 @@
 VariableRPseudoJetCalTool::VariableRPseudoJetCalTool( const std::string& name ) : 
   asg::AsgTool( name ),
   m_exclusiveSubjetsRparam(  true ),
-  m_calToolSelectionMode( 0 ),
+  // m_calToolSelectionMode( 0 ),
   m_jetFromPJTool("JetFromPseudojetTool")
 {
 

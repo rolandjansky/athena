@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
@@ -94,9 +94,18 @@ StatusCode JetJvtEfficiency::initialize(){
     return StatusCode::FAILURE;
   }
 
-  if (!addAffectingSystematic(JvtEfficiencyUp,true) || !addAffectingSystematic(JvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyDown,true) || !addAffectingSystematic(fJvtEfficiencyUp,true)) {
-    ATH_MSG_ERROR("failed to set up Jvt systematics");
-    return StatusCode::FAILURE;
+  if (m_dofJVT) {
+    if (!addAffectingSystematic(fJvtEfficiencyUp,true)
+      || !addAffectingSystematic(fJvtEfficiencyDown,true)) {
+      ATH_MSG_ERROR("failed to set up fJvt systematics");
+      return StatusCode::FAILURE;
+    }
+  } else {
+    if (!addAffectingSystematic(JvtEfficiencyUp,true)
+      || !addAffectingSystematic(JvtEfficiencyDown,true)) {
+      ATH_MSG_ERROR("failed to set up Jvt systematics");
+      return StatusCode::FAILURE;
+    }
   }
   return StatusCode::SUCCESS;
 }

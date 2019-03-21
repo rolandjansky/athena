@@ -46,9 +46,8 @@ namespace EL
     /// requires: sample.get() != 0
     /// requires: output != 0
   public:
-    DirectWorker (const SH::SamplePtr& sample, TList *output,
-		  const Job& job, const std::string& location,
-		  const SH::MetaObject *meta);
+    DirectWorker (const SH::SamplePtr& sample,
+                  const std::string& location);
 
 
     /// effects: run the job
@@ -56,7 +55,15 @@ namespace EL
     /// failures: out of memory II
     /// failures: job failures
   public:
-    void run ();
+    void run (const SH::SamplePtr& sample, const Job& job);
+
+
+    /// \brief run the job
+    /// \par Guarantee
+    ///   basic
+  public:
+    static void execute (const SH::SamplePtr& sample, const Job& job,
+                         const std::string& location, const SH::MetaObject& options);
 
 
 

@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODEventInfo
   PhysicsAnalysis/HeavyIonPhys/HIEventUtils
   Reconstruction/Jet/JetInterface
+  Reconstruction/HeavyIonRec/HIGlobal
   Reconstruction/Jet/JetRec
   PRIVATE
   Control/CxxUtils

@@ -184,12 +184,13 @@ SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 		<< inDetIdDictTag 
 		<< endreq;
 	}
-	if (doChecks != m_doChecks)
+	if (doChecks != m_doChecks) {
 	    // DoChecks flag
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed doChecks flag: "
 		<< doChecks
 		<< endreq;
+        }
     }
     else {
 	// create the helper

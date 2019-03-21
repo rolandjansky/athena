@@ -222,7 +222,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 				 *m_magFieldProperties,
 				 (Trk::ParticleHypothesis)m_particleType);
 
-       if (destParameters && outputLevel() <= MSG::VERBOSE) {
+       if (destParameters && msgLevel() <= MSG::VERBOSE) {
            // global position parameter
            const Amg::Vector3D& gp = destParameters->position();
 

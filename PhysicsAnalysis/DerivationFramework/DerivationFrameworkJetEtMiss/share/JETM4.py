@@ -147,6 +147,16 @@ jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
 
 OutputJets["JETM4"] = []
 
+#==================================================================== 
+# TCC reconstruction
+#==================================================================== 
+
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
@@ -154,16 +164,13 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10PV0TrackJets",
                   "AntiKt4TruthJets",
-                  "AntiKt10TruthJets"]
+                  "AntiKt10TruthJets",
+                  "AntiKt10TrackCaloClusterJets"]
 replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
-
-if DerivationFrameworkIsMonteCarlo:
-  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=True)
-
-addCSSKSoftDropJets(jetm4Seq, "JETM4")
+addTCCTrimmedJets(jetm4Seq,"JETM4")
 
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
@@ -192,8 +199,28 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 addVRJets(jetm4Seq)
 
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJetsTCC
+addVRJetsTCC(jetm4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
+             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
+#=======================================
+# Re-tag PFlow jets so they have b-tagging info
+#=======================================
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
+
+#===============================
+# add xbb taggers
+#===============================
+from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -207,7 +234,9 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMTopo","BTagging_AntiKtVR30Rmax4Rmin02Track"]
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow","BTagging_AntiKtVR30Rmax4Rmin02Track"]
+
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
@@ -215,7 +244,12 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
 
 JETM4SlimmingHelper.ExtraVariables = ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawE.rawEta.rawPhi.rawM","Photons."+NewTrigVars["Photons"],"JetETMissNeutralParticleFlowObjects.m.mEM.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_CENTER_LAMBDA.pt.ptEM.phi.eta",
-"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight"]
+"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",
+"TauJets.truthJetLink.truthParticleLink.IsTruthMatched"]
+
+# XbbScore variables
+from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+JETM4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
 for truthc in [
     "TruthMuons",
@@ -228,22 +262,15 @@ for truthc in [
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
 
 JETM4SlimmingHelper.AppendToDictionary = {
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJets"            :   "xAOD::JetContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
-
+    "BTagging_AntiKt4EMPFlow"                   :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt4EMPFlowAux"                :   "xAOD::BTaggingAuxContainer"
 }
-JETM4SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets", "AntiKtVR30Rmax4Rmin02TrackJets"]
 
-if DerivationFrameworkIsMonteCarlo:
-  JETM4SlimmingHelper.AppendToDictionary = {
-    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-  }
-  JETM4SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
+JETM4SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
 # Trigger content
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -252,6 +279,7 @@ JETM4SlimmingHelper.IncludeEGammaTriggerContent = True
 addJetOutputs(JETM4SlimmingHelper,["SmallR",
                                    #"AntiKt4TruthWZJets",
                                    "AntiKt10LCTopoJets",
+                                   "AntiKt10TrackCaloClusterJets",
                                    "AntiKt10TruthJets",
                                    "JETM4"])
 # Add the MET containers to the stream

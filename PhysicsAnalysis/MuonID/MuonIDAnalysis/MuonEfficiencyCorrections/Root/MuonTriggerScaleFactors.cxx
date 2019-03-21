@@ -1,15 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
-
-/*
- *  MuonTriggerScaleFactors.cxx
- *
- *  Created on: Oct 22, 2014
- *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- *
- *  Updates for 2016: Jun 20, 2016
- *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <sstream>
@@ -47,7 +37,7 @@ namespace CP {
       m_efficiencyMap(),
       m_efficiencyMapReplicaArray(),
       m_muonquality("Medium"),
-      m_calibration_version("181204_TriggerUpdate"),
+      m_calibration_version("190129_Winter_r21"),
       m_custom_dir(),
       m_binning("fine"),
       m_eventInfoContName("EventInfo"),
@@ -86,16 +76,16 @@ namespace CP {
   StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
         std::string fileName = m_fileName;
         if (fileName.empty() && !m_useRel207) {
-	  if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v03.root";
-	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v04.root";
+	  if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v04.root";
+	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v05.root";
 	  else if (year == 2017){
 	    if(m_useMC16c)
 	      fileName = "muontrigger_sf_2017_mc16c_v02.root";
 	    else
-	      fileName = "muontrigger_sf_2017_mc16d_v02.root";
+	      fileName = "muontrigger_sf_2017_mc16d_v03.root";
 	  }
 	  else if (year == 2018)
-	    fileName = "muontrigger_sf_2018_mc16e_v01.root";
+	    fileName = "muontrigger_sf_2018_mc16e_v02.root";
 	  else{
 	    ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
 	    return StatusCode::SUCCESS;
@@ -157,8 +147,6 @@ namespace CP {
                 if (not triggerKey->IsFolder()) continue;
                 TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                 std::string triggerName = std::string(triggerKey->GetName());
-		if (std::set<std::string>{"HLT_mu10", "HLT_mu14", "HLT_mu20", "HLT_mu22"}.count(triggerName) && year == 2018)
-		  continue;
 		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50"}.count(triggerName) && m_binning == "coarse"){
 		  ATH_MSG_DEBUG("Coarse binning not supported for di-muon trigger legs at the moment");
 		  continue;
@@ -493,13 +481,6 @@ namespace CP {
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
-	unsigned int run = getRunNumber();            
-	auto year = getYear(run);
-	if(year == 2018){
-	  ATH_MSG_WARNING("You tried to access di-muon trigger SFs for 2018 which are currently not available. SF will be set to one");
-	  TriggerSF = 1.;
-	  return CorrectionCode::Ok;
-	}
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
@@ -616,7 +597,7 @@ namespace CP {
                 configuration.isData = false;
                 configuration.replicaIndex = -1;
                 CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, *mu, muon_trigger_name, mc_err);
-                if (result_mc != CorrectionCode::Ok) return result_data;
+                if (result_mc != CorrectionCode::Ok) return result_mc;
             }
             rate_not_fired_data *= (1. - eff_data);
             rate_not_fired_mc *= (1. - eff_mc);
@@ -688,7 +669,7 @@ namespace CP {
 	configuration.replicaIndex = -1;
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
-	  return result_data;
+	  return result_mc;
 	if (eff_data == 0)
 	  TriggerSF =  0;
         if (fabs(eff_mc) > 0.0001)
@@ -833,7 +814,7 @@ namespace CP {
         }
         if (!acc_rnd.isAvailable(*info)) {
 	  if(m_forceYear == -1 && m_forcePeriod == "")
-            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
+            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool beforehand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
 	  return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
