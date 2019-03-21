@@ -140,6 +140,15 @@ if(!m_applyInsituCaloTAjets){
 
   if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 
+  // If the jet mass calibration was applied the calibrated mass needs to be used!
+  /*
+  if(m_jetStartScale.Contains("JetJMSScaleMomentum")){
+    TLorentzVector TLVjet;
+    TLVjet.SetPtEtaPhiM( calibP4.pt(), jetStartP4.eta(), jetStartP4.phi(), jetStartP4.mass() ); // mass at JMS
+    calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() ); 
+  }
+  */
+
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentum",calibP4);
   jet.setJetP4( calibP4 );
@@ -148,9 +157,14 @@ if(!m_applyInsituCaloTAjets){
   // For Large R jets: insitu needs to be apply also to calo mass calibrated jets and TA mass calibrated jets (by default it's only applied to combined mass calibrated jets)
   if(m_applyInsituCaloTAjets){
 	// calo mass calibrated jets
- 	xAOD::JetFourMom_t jetStartP4_calo = jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo");
-  	xAOD::JetFourMom_t calibP4_calo=jetStartP4_calo;
-
+        xAOD::JetFourMom_t jetStartP4_calo;
+  	xAOD::JetFourMom_t calibP4_calo;
+        if(jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jetStartP4_calo)){
+          calibP4_calo=jetStartP4_calo;
+        }else{
+          ATH_MSG_FATAL( "Cannot retrieve JetJMSScaleMomentumCalo jets" ); 
+          return StatusCode::FAILURE; 
+        }       
   	if(m_applyResidualMCbasedInsitu) calibP4_calo=calibP4_calo*getInsituCorr( calibP4_calo.pt(), fabs(detectorEta), "ResidualMCbased" );
 
 	if(m_dev){
@@ -165,8 +179,14 @@ if(!m_applyInsituCaloTAjets){
         jet.setJetP4( calibP4_calo );	
 
         // TA mass calibrated jets
-        xAOD::JetFourMom_t jetStartP4_ta = jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA");
-        xAOD::JetFourMom_t calibP4_ta=jetStartP4_ta;
+        xAOD::JetFourMom_t jetStartP4_ta;
+        xAOD::JetFourMom_t calibP4_ta;
+        if(jet.getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jetStartP4_ta)){
+          calibP4_ta=jetStartP4_ta;
+        }else{
+          ATH_MSG_FATAL( "Cannot retrieve JetJMSScaleMomentumTA jets" );
+          return StatusCode::FAILURE;
+        }
 
         if(m_applyResidualMCbasedInsitu) calibP4_ta=calibP4_ta*getInsituCorr( calibP4_ta.pt(), fabs(detectorEta), "ResidualMCbased" );
 

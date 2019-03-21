@@ -253,10 +253,10 @@ if(!m_OnlyCombination){
     else{Combination_File.Insert(14,m_calibAreaTag);}
     file_combination_Name = PathResolverFindCalibFile(Combination_File.Data());
     inputFile_combination = TFile::Open(file_combination_Name);
-    //if (!inputFile_combination && !m_InsituCombination){
-      //ATH_MSG_FATAL("Cannot open Mass Combination file" << fileName);
-      //return StatusCode::FAILURE;
-    //}
+    if (!inputFile_combination && !m_OnlyCombination){
+      ATH_MSG_FATAL("Cannot open Mass Combination file" << inputFile_combination);
+      return StatusCode::FAILURE;
+    }
 
     if (!m_use3Dhisto)
         setMassCombinationEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassCombinationEtaBins","") ) );
@@ -674,7 +674,6 @@ if(!m_OnlyCombination){
     if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
   }
 
-  //TLorentzVector caloCalibJet;
   caloCalibJet.SetPtEtaPhiM(pT_corr, jetStartP4.eta(), jetStartP4.phi(), mass_corr);
   
   if(!m_combination){
@@ -846,40 +845,52 @@ if(!m_OnlyCombination){
 } //!m_OnlyCombination
 
     if(m_combination){
-      float  mass_comb;  
+      float  mass_calo;  
       float  Mass_comb;
-      double pT_comb;
-      double E_comb;
-      double Et_comb;
+      double pT_calo;
+      double E_calo;
+      double Et_calo;
   
       if(m_OnlyCombination){ 
         // Read input values (calo and TA insitu calibrated jets) for combination:
  
-        xAOD::JetFourMom_t jetInsituP4_calo = jet.getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo");
-        xAOD::JetFourMom_t calibP4Insitu_calo=jetInsituP4_calo;
+        xAOD::JetFourMom_t jetInsituP4_calo;
+        xAOD::JetFourMom_t calibP4Insitu_calo;
+        if(jet.getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo",jetInsituP4_calo)){
+          calibP4Insitu_calo=jetInsituP4_calo;
+        }else{
+          ATH_MSG_FATAL( "Cannot retrieve JetInsituScaleMomentumCalo jets" );
+          return StatusCode::FAILURE;
+        }
         TLorentzVector TLVCaloInsituCalib;
         TLVCaloInsituCalib.SetPtEtaPhiM(calibP4Insitu_calo.pt(), calibP4Insitu_calo.eta(), calibP4Insitu_calo.phi(), calibP4Insitu_calo.mass());
-        mass_comb  = TLVCaloInsituCalib.M();  
-        pT_comb = TLVCaloInsituCalib.Pt();
-        E_comb = TLVCaloInsituCalib.E();
-        Et_comb = TLVCaloInsituCalib.Et();
+        mass_calo  = TLVCaloInsituCalib.M();  
+        pT_calo = TLVCaloInsituCalib.Pt();
+        E_calo = TLVCaloInsituCalib.E();
+        Et_calo = TLVCaloInsituCalib.Et();
 
-        xAOD::JetFourMom_t jetInsituP4_ta = jet.getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA");
-        xAOD::JetFourMom_t calibP4Insitu_ta=jetInsituP4_ta;
+        xAOD::JetFourMom_t jetInsituP4_ta;
+        xAOD::JetFourMom_t calibP4Insitu_ta;
+        if(jet.getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA",jetInsituP4_ta)){
+          calibP4Insitu_ta=jetInsituP4_ta;
+        }else{
+          ATH_MSG_FATAL( "Cannot retrieve JetInsituScaleMomentumTA jets" );
+          return StatusCode::FAILURE;
+        }
         TLorentzVector TLVTAInsituCalib;
         TLVTAInsituCalib.SetPtEtaPhiM(calibP4Insitu_ta.pt(), calibP4Insitu_ta.eta(), calibP4Insitu_ta.phi(), calibP4Insitu_ta.mass());
         mass_ta = TLVTAInsituCalib.M();
       }else{
-        mass_comb = caloCalibJet.M();  // combined mass
-        pT_comb = caloCalibJet.Pt();
-        E_comb = caloCalibJet.E();
-        Et_comb = caloCalibJet.Et();
+        mass_calo = caloCalibJet.M();  // combined mass
+        pT_calo = caloCalibJet.Pt();
+        E_calo = caloCalibJet.E();
+        Et_calo = caloCalibJet.Et();
         // mass_ta already defined above 
       }
       
       // if one of the mass is null, use the other one
-      if( (mass_comb==0) || (mass_ta==0) ) { 
-        mass_comb = mass_corr+mass_ta;
+      if( (mass_calo==0) || (mass_ta==0) ) { 
+        mass_calo = mass_corr+mass_ta;
       }
       else {
         // Determine mass combination eta bin to use
@@ -932,81 +943,81 @@ if(!m_OnlyCombination){
             case BinningParam::pt_mass_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( pT_comb/m_GeV, mass_comb/pT_comb, absdetectorEta );
-                relTA   = getRelTA3D(   pT_comb/m_GeV, mass_ta/pT_comb, absdetectorEta );
+                relCalo = getRelCalo3D( pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta );
+                relTA   = getRelTA3D(   pT_calo/m_GeV, mass_ta/pT_calo, absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     pT_comb/m_GeV, mass_comb/pT_comb, absdetectorEta );
+                    rho = getRho3D(     pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   pT_comb/m_GeV, mass_comb/pT_comb, etabin );
-                relTA   = getRelTA(     pT_comb/m_GeV, mass_ta/pT_comb, etabin );
+                relCalo = getRelCalo(   pT_calo/m_GeV, mass_calo/pT_calo, etabin );
+                relTA   = getRelTA(     pT_calo/m_GeV, mass_ta/pT_calo, etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       pT_comb/m_GeV, mass_comb/pT_comb, etabin );
+                    rho = getRho(       pT_calo/m_GeV, mass_calo/pT_calo, etabin );
               }
               break;
             case BinningParam::e_LOGmOe_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( E_comb/m_GeV, log(mass_comb/E_comb), absdetectorEta );
-                relTA   = getRelTA3D(   E_comb/m_GeV, log(mass_ta/E_comb), absdetectorEta );
+                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta );
+                relTA   = getRelTA3D(   E_calo/m_GeV, log(mass_ta/E_calo), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     E_comb/m_GeV, log(mass_comb/E_comb), absdetectorEta );
+                    rho = getRho3D(     E_calo/m_GeV, log(mass_calo/E_calo), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   E_comb/m_GeV, log(mass_comb/E_comb), etabin );
-                relTA   = getRelTA(     E_comb/m_GeV, log(mass_ta/E_comb), etabin );
+                relCalo = getRelCalo(   E_calo/m_GeV, log(mass_calo/E_calo), etabin );
+                relTA   = getRelTA(     E_calo/m_GeV, log(mass_ta/E_calo), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       E_comb/m_GeV, log(mass_comb/E_comb), etabin );
+                    rho = getRho(       E_calo/m_GeV, log(mass_calo/E_calo), etabin );
               }
               break;
             case BinningParam::e_LOGmOet_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( E_comb/m_GeV, log(mass_comb/Et_comb), absdetectorEta );
-                relTA   = getRelTA3D(   E_comb/m_GeV, log(mass_ta/Et_comb), absdetectorEta );
+                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
+                relTA   = getRelTA3D(   E_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     E_comb/m_GeV, log(mass_comb/Et_comb), absdetectorEta );
+                    rho = getRho3D(     E_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   E_comb/m_GeV, log(mass_comb/Et_comb), etabin );
-                relTA   = getRelTA(     E_comb/m_GeV, log(mass_ta/Et_comb), etabin );
+                relCalo = getRelCalo(   E_calo/m_GeV, log(mass_calo/Et_calo), etabin );
+                relTA   = getRelTA(     E_calo/m_GeV, log(mass_ta/Et_calo), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       E_comb/m_GeV, log(mass_comb/Et_comb), etabin );
+                    rho = getRho(       E_calo/m_GeV, log(mass_calo/Et_calo), etabin );
               }
               break;
             case BinningParam::e_LOGmOpt_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( E_comb/m_GeV, log(mass_comb/pT_comb), absdetectorEta );
-                relTA   = getRelTA3D(   E_comb/m_GeV, log(mass_ta/pT_comb), absdetectorEta );
+                relCalo = getRelCalo3D( E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta );
+                relTA   = getRelTA3D(   E_calo/m_GeV, log(mass_ta/pT_calo), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     E_comb/m_GeV, log(mass_comb/pT_comb), absdetectorEta );
+                    rho = getRho3D(     E_calo/m_GeV, log(mass_calo/pT_calo), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   E_comb/m_GeV, log(mass_comb/pT_comb), etabin );
-                relTA   = getRelTA(     E_comb/m_GeV, log(mass_ta/pT_comb), etabin );
+                relCalo = getRelCalo(   E_calo/m_GeV, log(mass_calo/pT_calo), etabin );
+                relTA   = getRelTA(     E_calo/m_GeV, log(mass_ta/pT_calo), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       E_comb/m_GeV, log(mass_comb/pT_comb), etabin );
+                    rho = getRho(       E_calo/m_GeV, log(mass_calo/pT_calo), etabin );
               }
               break;
             case BinningParam::et_LOGmOet_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( Et_comb/m_GeV, log(mass_comb/Et_comb), absdetectorEta );
-                relTA   = getRelTA3D(   Et_comb/m_GeV, log(mass_ta/Et_comb), absdetectorEta );
+                relCalo = getRelCalo3D( Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
+                relTA   = getRelTA3D(   Et_calo/m_GeV, log(mass_ta/Et_calo), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     Et_comb/m_GeV, log(mass_comb/Et_comb), absdetectorEta );
+                    rho = getRho3D(     Et_calo/m_GeV, log(mass_calo/Et_calo), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   Et_comb/m_GeV, log(mass_comb/Et_comb), etabin );
-                relTA   = getRelTA(     Et_comb/m_GeV, log(mass_ta/Et_comb), etabin );
+                relCalo = getRelCalo(   Et_calo/m_GeV, log(mass_calo/Et_calo), etabin );
+                relTA   = getRelTA(     Et_calo/m_GeV, log(mass_ta/Et_calo), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       Et_comb/m_GeV, log(mass_comb/Et_comb), etabin );
+                    rho = getRho(       Et_calo/m_GeV, log(mass_calo/Et_calo), etabin );
               }
               break;
             default:
@@ -1023,16 +1034,16 @@ if(!m_OnlyCombination){
             return StatusCode::FAILURE;
           }
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
-  	  Mass_comb =  ( mass_comb * Weight ) + ( mass_ta * ( 1 - Weight) );
+  	  Mass_comb =  ( mass_calo * Weight ) + ( mass_ta * ( 1 - Weight) );
 	  // Protection
-	  if(Mass_comb>jetStartP4.e()) Mass_comb = mass_comb;
-	  else if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-mass_comb*mass_comb)/cosh( jetStartP4.eta() );
+	  if(Mass_comb>jetStartP4.e()) Mass_comb = mass_calo;
+	  else if(!m_pTfixed) pT_calo = sqrt(jetStartP4.e()*jetStartP4.e()-mass_calo*mass_calo)/cosh( jetStartP4.eta() );
         }
       }
 
 
       TLorentzVector TLVjet;
-      TLVjet.SetPtEtaPhiM( pT_comb, jetStartP4.eta(), jetStartP4.phi(), Mass_comb );
+      TLVjet.SetPtEtaPhiM( pT_calo, jetStartP4.eta(), jetStartP4.phi(), Mass_comb );
       calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
   
       //Transfer calibrated jet properties to the Jet object

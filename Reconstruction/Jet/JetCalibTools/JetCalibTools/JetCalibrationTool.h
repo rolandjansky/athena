@@ -114,13 +114,13 @@ private:
   bool m_doSetDetectorEta;
   bool m_doOnlyResidual;
   std::string m_vertexContainerName;
-  bool m_CombMassCalib;
-  TString m_CombMassConfig;
+  bool m_InsituCombMassCalib;
+  TString m_InsituCombMassConfig;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
   std::vector<TEnv*> m_globalTimeDependentConfigs;
-  TEnv* m_globalCombMassConfig;
+  TEnv* m_globalInsituCombMassConfig;
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;

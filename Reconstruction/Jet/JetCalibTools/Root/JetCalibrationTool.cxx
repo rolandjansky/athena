@@ -185,19 +185,19 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   // Combined Mass Calibration
-  m_CombMassCalib = m_globalConfig->GetValue("CombinedMassCorrection",false);
-  if(m_CombMassCalib && calibSeq.Contains("CombCalibMass")){ // Read Combination Config
-    m_CombMassConfig = m_globalConfig->GetValue("CombinedMassCorrectionFile","");
-    if(m_CombMassConfig=="") ATH_MSG_ERROR("Please check there is a combination config");
+  m_InsituCombMassCalib = m_globalConfig->GetValue("InsituCombinedMassCorrection",false);
+  if(m_InsituCombMassCalib && calibSeq.Contains("InsituCombinedMass")){ // Read Combination Config
+    m_InsituCombMassConfig = m_globalConfig->GetValue("InsituCombinedMassCorrectionFile","");
+    if(m_InsituCombMassConfig=="") ATH_MSG_ERROR("Please check there is a combination config");
 
-      std::string configPath_comb = dir+m_CombMassConfig.Data(); // Full path
+      std::string configPath_comb = dir+m_InsituCombMassConfig.Data(); // Full path
       TString fn_comb =  PathResolverFindCalibFile(configPath_comb);
 
-      ATH_MSG_INFO("Reading combination settings from: " << m_CombMassConfig);
+      ATH_MSG_INFO("Reading combination settings from: " << m_InsituCombMassConfig);
       ATH_MSG_INFO("resolved in: " << fn_comb);
 
-      m_globalCombMassConfig = new TEnv();
-      int status = m_globalCombMassConfig->ReadFile(fn_comb ,EEnvLevel(0));
+      m_globalInsituCombMassConfig = new TEnv();
+      int status = m_globalInsituCombMassConfig->ReadFile(fn_comb ,EEnvLevel(0));
       if (status!=0) { ATH_MSG_FATAL("Cannot read config file " << fn_comb ); return StatusCode::FAILURE; }
   }
 
@@ -288,17 +288,17 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_jetMassCorr);
       return StatusCode::SUCCESS;
     }
-   } else if ( calibration.EqualTo("CombCalibMass") ){
+   } else if ( calibration.EqualTo("InsituCombinedMass") ){
         ATH_MSG_INFO("Initializing Combined Mass Correction");
-        suffix="_CombMassCalib";
+        suffix="_InsituCombinedMass";
         if(m_devMode) suffix+="_DEV";
-        JMSCorrection *CombMassCorr = new JMSCorrection(name+suffix,m_globalCombMassConfig,jetAlgo,calibPath,m_devMode);
-        CombMassCorr->msg().setLevel( this->msg().level() );
-        if ( CombMassCorr->initializeTool(name+suffix).isFailure() ) {
+        JMSCorrection *InsituCombMassCorr = new JMSCorrection(name+suffix,m_globalInsituCombMassConfig,jetAlgo,calibPath,m_devMode);
+        InsituCombMassCorr->msg().setLevel( this->msg().level() );
+        if ( InsituCombMassCorr->initializeTool(name+suffix).isFailure() ) {
           ATH_MSG_FATAL("Couldn't initialize the Combined Mass correction. Aborting");
           return StatusCode::FAILURE;
         } else {
-          m_calibClasses.push_back(CombMassCorr);
+          m_calibClasses.push_back(InsituCombMassCorr);
           return StatusCode::SUCCESS;
         }
   } else if ( calibration.EqualTo("Insitu") ) {
