@@ -27,7 +27,8 @@ namespace LVL1 {
      //constructor 
       MuCTPIL1Topo();
       MuCTPIL1Topo(std::vector<MuCTPIL1TopoCandidate> candList);
-      ~MuCTPIL1Topo();
+      MuCTPIL1Topo(const MuCTPIL1Topo&) = default;
+      ~MuCTPIL1Topo() = default;
 
      //Return the vector of muon to L1Topo candidates
      std::vector<MuCTPIL1TopoCandidate> getCandidates() const;

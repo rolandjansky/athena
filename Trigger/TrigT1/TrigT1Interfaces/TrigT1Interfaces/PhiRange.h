@@ -19,7 +19,7 @@ namespace LVL1 {
   public:
     PhiRange();
     PhiRange( double min, double max );
-    virtual ~PhiRange();
+    ~PhiRange() = default;
 
     double min() const;
     double max() const;
