@@ -216,7 +216,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
           outgoingCloud=tempCust->GetCloud();
           if(outgoingCloud == 0)
             {
-              std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
+              std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud for " << tempDef->GetParticleName() << " not available!!" << std::endl;
             }
         }
 
@@ -356,7 +356,10 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
                                     aPosition);
       aParticleChange.AddSecondary(Track0);
 
-      if(p0->GetKineticEnergy()>e_kin_0) {
+      // Because of the above calculations, and the use of mass, there's going to be a lot of squaring and
+      //  square rooting to get the total energy.  For that reason, we should allow a little buffer before
+      //  we freak out over energy non-conservation...
+      if(p0->GetKineticEnergy()>e_kin_0+1.e-9) { // Allow 1 meV of energy non-conservation in an interaction
         G4cout<<"ALAAAAARM!!! (incident changed from "
               <<IncidentRhadron->GetDefinition()->GetParticleName()
               <<" to "<<p0->GetDefinition()->GetParticleName()<<")"<<G4endl;

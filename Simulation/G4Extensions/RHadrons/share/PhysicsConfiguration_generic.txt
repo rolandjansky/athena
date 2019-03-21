@@ -1,9 +1,0 @@
-Resonant = 0.
-XsecMultiplier = 1.
-ResonanceEnergy = 200.
-Gamma = 0.1
-Amplitude = 100.
-ReggeSuppression = 0.
-HadronLifeTime = 100.
-ReggeModel = 0.
-Mixing = 0.
