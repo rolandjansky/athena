@@ -198,7 +198,11 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     '10j40_L14J20':0.}
+                                     '10j40_L14J20':0.,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':20.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':20.}
     
   hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
                                      'j0_perf_ftk_L1RD0FILLED': 2.5,
@@ -232,7 +236,12 @@ if (pp) or (mc):
                                      '4j45':3.2,
                                      '6j45':3.2,
                                      '6j45_0eta240':2.4,
-                                     '10j40_L14J20':3.2}
+                                     '10j40_L14J20':3.2,
+				     'j0_ftk_jvt015et15':3.2,
+				     'j0_ftk_jvt015et45':3.2,
+				     'j0_ftk_4jvt015et15':3.2,
+				     'j0_ftk_4jvt015et45':3.2}
+
   
   hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
                                      'j0_perf_ftk_L1RD0FILLED': 0.,
@@ -266,7 +275,11 @@ if (pp) or (mc):
                                      '4j45':0.0,
                                      '6j45':0.0,
                                      '6j45_0eta240':0.0,
-                                     '10j40_L14J20':0.0}
+                                     '10j40_L14J20':0.0,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':0.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':0.}
   
   
   hlt_hltJetn                    = { 'j0_perf_L1RD0FILLED': 1,
@@ -301,8 +314,12 @@ if (pp) or (mc):
                                      '4j45':4,
                                      '6j45':6,
                                      '6j45_0eta240':6,
-                                     '10j40_L14J20':10}
-  
+                                     '10j40_L14J20':10,
+				     'j0_ftk_jvt015et15':1,
+				     'j0_ftk_jvt015et45':1,
+				     'j0_ftk_4jvt015et15':4,
+				     'j0_ftk_4jvt015et45':4}
+
   
   hlt_hltContainers              = { 'j0_perf_L1RD0FILLED':'a4tcemsubjesISFS',
                                      'j0_perf_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
@@ -337,8 +354,11 @@ if (pp) or (mc):
                                      '4j45':'a4tcemsubjesISFS',
                                      '6j45':'a4tcemsubjesISFS',
                                      '6j45_0eta240':'a4tcemsubjesISFS',
-                                     '10j40_L14J20':'a4tcemsubjesISFS'
-                                     }
+                                     '10j40_L14J20':'a4tcemsubjesISFS',
+				     'j0_ftk_jvt015et15':'a4tcemsubjesISFSftk',
+				     'j0_ftk_jvt015et45':'a4tcemsubjesISFSftk',
+				     'j0_ftk_4jvt015et15':'a4tcemsubjesISFSftk',
+				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk'}
                 
 # Offline 
   hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
@@ -374,7 +394,12 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     '10j40_L14J20':0.}
+                                     '10j40_L14J20':0.,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':20.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':20.}
+
 
 ############################################# HI Config #########################################################
   

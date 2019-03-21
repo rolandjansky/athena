@@ -433,6 +433,28 @@ class AlgFactory(object):
         algType = 'TrigHLTJetHypo_JetAttrs'
         kargs = self.jetattrs_kargs(algType, hypo)
         return [Alg(algType,(), kargs)]
+
+    # Jona Bossio, February 2019
+    def jvt_kargs(self, algType, hypo):
+
+        kargs = {}
+
+        kargs['name'] = '"%s_%s"' % (algType, hypo.jvt_string.replace('!', '-'))
+
+        kargs['njet']  = hypo.njet
+        kargs['wp']    = hypo.wp
+        kargs['etmin'] = hypo.etmin
+
+        kargs['chain_name'] =  "'%s'" % self.chain_config.chain_name
+
+        return kargs
+
+    def hlthypo2_jvt(self, hypo):
+
+        algType = 'TrigHLTJetHypo_JVT'
+        kargs = self.jvt_kargs(algType, hypo)
+        return [Alg(algType,(), kargs)]
+
     
     def dijet_kargs(self, algType, hypo): 
 
