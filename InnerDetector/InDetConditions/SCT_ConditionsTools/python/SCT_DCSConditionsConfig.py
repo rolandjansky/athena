@@ -44,5 +44,6 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
         acc.addCondAlgo(hvAlg)
         tempAlg = SCT_DCSConditionsTempCondAlg(name=name + "TempCondAlg", ReadKey=tempFolder)
         acc.addCondAlgo(tempAlg)
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 

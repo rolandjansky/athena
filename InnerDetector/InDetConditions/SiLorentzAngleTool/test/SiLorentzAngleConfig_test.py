@@ -16,16 +16,17 @@ from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
+# using __init__ to reset, preventing errors on deletion
 # case online
 ConfigFlags.Common.isOnline = True
-acc, tool = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOnline")
-acc2, tool = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOnline")
-acc.merge(acc2)
-acc.wasMerged()
+tacc = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOnline")
+tacc.__init__()
+tacc = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOnline")
+tacc.__init__()
 # case offline
 ConfigFlags.Common.isOnline = False
-acc, tool = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOffline")
-acc2, tool = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOffline")
-acc.merge(acc2)
-acc.wasMerged()
+tacc = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOffline")
+tacc.__init__()
+tacc = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOffline")
+tacc.__init__()
 
