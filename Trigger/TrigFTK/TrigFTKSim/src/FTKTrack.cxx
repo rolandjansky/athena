@@ -258,8 +258,7 @@ unsigned int FTKTrack::getNCommonHitsFirstStage(const FTKTrack &track, const flo
     }
 
     if ( !((m_bitmask & track.m_bitmask) & (1<<ix)) ) {
-      // majority hits are always common. Actually, firmwire says they never are.
-      //ncommon_hits += 1;
+      // majority hits are never coutned as matched
       continue;
     }
 
@@ -350,7 +349,8 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
 }
 
 
-/** this function compare this track with a different tracks and returns:
+/** this function compare this track with a different tracks for the AUX
+     (First stage) and returns:
      0 if according HW setup the two tracks are different
      1 are similar and the other has a worse quality parameter
      -1 are similar and the other has a better quality parameter */
@@ -360,7 +360,7 @@ int FTKTrack::HWChoiceFirstStage(const FTKTrack &other, const float *HW_dev,
   int accepted(0);
 
   // Choose hitwarrior severity level: 1=in-road, 2=global
-  //I don't think this actually works because the parent function is run at road-level
+  //The parent function is run at road-level, so severity has to be 1 for now
   if(HW_level<2) {
     if(getBankID()!=other.getBankID()) return accepted;
     if(getRoadID()!=other.getRoadID()) return accepted;
@@ -371,24 +371,7 @@ int FTKTrack::HWChoiceFirstStage(const FTKTrack &other, const float *HW_dev,
   // If this doesn't work, we'll need to come up with something smarter
   // check the criteria for considering two tracks the same
   if (ncommon_hits>=HW_ndiff) {//Simple comparison to threshold number of matched hits
-  //if ( m_ncoords-ncommon_hits<=HW_ndiff) { 
     // the track matches
-    // We still want to compare to rejected tracks, so don't want the next bit
-    /*
-    if ( ( getHWRejected() && !other.getHWRejected()) ||
-	 (!getHWRejected() &&  other.getHWRejected()) ) {
-	    
-      // keep the track in the accepted road
-      if (getHWRejected()) {
-	accepted = -1;
-      }
-      else {
-	accepted = 1;
-      }
-	    
-    }
-    //}
-    */
 
     //We should never have more than 1 missing hit in the AUX HW. Necessary because NMissing double-counts pixel hits
     if ((other.getNMissing()==0 && getNMissing()==0) || (other.getNMissing()>0 && getNMissing()>0)) {
