@@ -1197,10 +1197,15 @@ def add_lifetimes(process_dir=None,threshold=None):
 
     mglog.info('Finished adding time of flight information at '+str(time.asctime()))
 
-    # Put the file back where we found it
-    lhe = glob(process_dir+'/Events/*/*lhe')[0]
-    rezip = subprocess.Popen(['gzip',lhe])
-    rezip.wait()
+    # Re-zip the file if needed
+    lhe_gz = glob(process_dir+'/Events/*/*lhe.gz')[0]
+    if not os.access(lhe_gz,os.R_OK):
+        mglog.info('LHE file needs to be zipped')
+        lhe = glob(process_dir+'/Events/*/*lhe.gz')[0]
+        rezip = subprocess.Popen(['gzip',lhe])
+        mglog.info('Zipped')
+    else:
+        mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
     return True
 
