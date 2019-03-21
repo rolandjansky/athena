@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def HLTResultMTMakerCfg():
+def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from TrigOutputHandlingConf import HLTResultMTMaker
    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-   m = HLTResultMTMaker()
+   m = HLTResultMTMaker(name)
 
    # ROBs/SubDets which are enabled but not necessarily part of the ROS-ROB map
    from libpyeformat_helper import SourceIdentifier,SubDetector
@@ -42,6 +42,8 @@ def HLTResultMTMakerCfg():
                                              xbins=10, xmin=0, xmax=10 ),
                             defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
                                              xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
+   
+   
    return m
 
 def TriggerEDMSerialiserToolCfg(name):
@@ -85,4 +87,11 @@ def TriggerEDMSerialiserToolCfg(name):
          return self.__repr__()
 
    serialiser.CollectionsToSerialize = OD()
+
+   from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
+   from TrigEDMConfig.TriggerEDMRun3 import tpMap
+   tpTool = TrigSerTPTool()
+   tpTool.TPMap = tpMap()
+   serialiser.TPTool = tpTool
+
    return serialiser
