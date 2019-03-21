@@ -11,10 +11,6 @@ def _createCfgFlags():
     # e.g. 'CondDB', 'VertexOverrideEventFile.txt', 'VertexOverride.txt',"LongBeamspot" 
     acf.addFlag('Vertex.Source', 'CondDB' )
 
-    # Name of the random number service to use
-    # of ("dSFMT", "Ranlux64", "Ranecu",)
-    acf.addFlag("Random.Engine", "dSFMT")
-
     return acf
 
 

@@ -171,10 +171,9 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     log.setLevel(DEBUG)
     log.info('About to setup Rpc Raw data decoding')
-
+    
     cfg=ComponentAccumulator()
 
-        
     # Seem to need this to read BS properly
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
@@ -187,7 +186,12 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
+
     rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
+    # Put into a verbose logging mode to check the caching
+    if forTrigger:
+        rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
+
     cfg.merge( rpcdecodingAcc )
 
     # Schedule Mdt data decoding 
@@ -224,7 +228,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     cscbuildingAcc = CscClusterBuildCfg( ConfigFlags )
     cfg.merge(cscbuildingAcc)
-
 
     # Need to add POOL converter  - may be a better way of doing this?
     from AthenaCommon import CfgMgr

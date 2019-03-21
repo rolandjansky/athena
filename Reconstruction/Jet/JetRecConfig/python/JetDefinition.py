@@ -178,7 +178,8 @@ class JetGhost(object):
 class JetDefinition(object):
     def __init__(self, algorithm, radius, inputdef,
                  ptmin=5000., ptminfilter=5000.,
-                 ghostdefs=[], modifiers=[]):
+                 ghostdefs=[], modifiers=[],
+                 extrainputs=[]):
 
         # Should add some type checking here
         # Could use JetContainerInfo conversion
@@ -192,11 +193,13 @@ class JetDefinition(object):
         self.defineName()
 
         self.ptmin = ptmin # The pt down to which FastJet is run
-        self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept
+        self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept, may include calibration
         if ptmin<1000. or ptminfilter<1000.:
             jetlog.warning("Very low filter threshold set: ptmin {0:.0f} MeV, ptminfilter {1:.0f} MeV. Are you sure?")
-        self.ghostdefs = ghostdefs
-        self.modifiers = modifiers
+
+        self.ghostdefs = ghostdefs     # Objects to ghost-associate
+        self.modifiers = modifiers     # Tools to modify the jet
+        self.extrainputs = extrainputs # Any extra input dependencies
 
         # Should this be a derived class?
         self.grooming = None
@@ -208,7 +211,7 @@ class JetDefinition(object):
         pass
 
     def __hash__(self):
-        return hash((self.__radius,self.__inputdef,self.ptmin,self.ptminfilter,str(self.ghostdefs),str(self.modifiers)))
+        return hash((self.__radius,self.__inputdef,self.ptmin,self.ptminfilter,str(self.ghostdefs),str(self.modifiers),str(extradeps)))
 
     def __eq__(self,rhs):
         return self.__hash__() == rhs.__hash__()

@@ -27,58 +27,14 @@ def InDetIDCCacheCreatorCfg():
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
 
-
-
-#Set up ID GeoModel
-def InDetGMConfig( flags ):
-  acc = ComponentAccumulator()
-  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  gmc,geoModelSvc = GeoModelCfg( flags )
-  acc.merge( gmc )
-
-  from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
-  acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-
-  from AthenaCommon import CfgGetter
-  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
-
-#  if (DetFlags.detdescr.BCM_on() ) :
-
-  from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
-  bcmTool = InDetDD__BCM_Builder()
-  acc.addPublicTool( bcmTool )
-  geoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
-
-  from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
-  blmTool = InDetDD__BLM_Builder()
-  acc.addPublicTool( blmTool )
-  geoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
-
-  geoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-
-#if ( DetFlags.detdescr.SCT_on() ):
-  # Current atlas specific code
-  from AthenaCommon import CfgGetter
-  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
-
-  geoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-
-#    if ( DetFlags.detdescr.TRT_on() ):
-  from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
-  trtDetectorTool = TRT_DetectorTool()
-#  if ( DetFlags.simulate.TRT_on() ):
-#      trtDetectorTool.DoXenonArgonMixture = True
-#      trtDetectorTool.DoKryptonMixture = True
-  trtDetectorTool.useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
-  geoModelSvc.DetectorTools += [ trtDetectorTool ]
-  acc.addService(geoModelSvc)
-  return acc
-
 #Set up conditions algorithms
 def TrigInDetCondConfig( flags ):
 
   acc = ComponentAccumulator()
-  acc.merge(InDetGMConfig(flags))
+  from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+  acc.merge(InDetGeometryCfg(flags))
+  #acc.merge(InDetGMConfig(flags))
+
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
@@ -494,8 +450,7 @@ if __name__ == "__main__":
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
     from RegionSelector.RegSelConfig import regSelCfg
-    rsc, regSel = regSelCfg( ConfigFlags )
-    regSel.enableCalo = False # turn off calo, certainly a better way to do this...
+    rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )
     acc.addService(regSel)
 

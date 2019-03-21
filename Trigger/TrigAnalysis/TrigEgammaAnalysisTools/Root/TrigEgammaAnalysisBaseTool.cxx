@@ -66,6 +66,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("TPTrigger",m_tp=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateTP,this);
     declareProperty("isEMResultNames",m_isemname,"isEM");
     declareProperty("LHResultNames",m_lhname,"LH");
+    declareProperty("ForceTrigAttachment", m_forceTrigAttachment=false);
 
     m_storeGate = nullptr;
     m_histsvc = nullptr;
@@ -85,6 +86,9 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_nPVertex=0;
     m_offmu=0.;
     m_onlmu=0.;
+    m_sgContainsRnn=false;
+    m_sgContainsTrigPhoton=false;
+    m_forceTrigEmulation=false;
 }
 
 void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
@@ -101,14 +105,14 @@ void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
 
 void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
     plot()->setTP(m_tp);
-    for( auto& tool : m_tools) {
+    for( const auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
 void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
     plot()->setEmulation(m_doEmulation);
-    for( auto& tool : m_tools) {
+    for( const auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
         tool->setEmulationTool(m_emulationTool);
@@ -175,7 +179,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
 
     // propagate the emulation tool for all tools
     if( m_doEmulation ){
-      for( auto& tool : m_tools) {
+      for( const auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
         tool->setEmulationTool(m_emulationTool);  
       }
@@ -351,8 +355,10 @@ void TrigEgammaAnalysisBaseTool::setTrigInfo(const std::string trigger){
 
     if(isL1) etthr=l1thr; // Should be handled elsewhere 
 
-    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr};
+    TrigInfo info{trigger,type,l1item,l1type,pidname,decorator,isL1,perf,etcut,etthr,l1thr,m_forceTrigEmulation};
     m_trigInfo[trigger] = info;
+    
+    m_forceTrigEmulation=false; //hack disable
 }
 
 // return the TrigInfo from trigger name
@@ -557,6 +563,7 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
 
 asg::AcceptData
 TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigInfo info){
+    
     ATH_MSG_DEBUG("setAccept");
     asg::AcceptData acceptData (&m_accept);
     bool passedL1Calo=false;
@@ -571,6 +578,16 @@ TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigIn
     if(getFeature<xAOD::TrigRNNOutput>(te)){
         hasRnn=true;
     }
+    
+    ATH_MSG_DEBUG("Rnn container " << getSGContainsRnn());
+    ATH_MSG_DEBUG("TrigPhotonContainer " << getSGContainsTrigPhoton());
+    
+    if(getSGContainsRnn()){
+        if(getFeature<xAOD::TrigRNNOutput>(te)){
+            hasRnn=true;
+        }
+    }
+    
 
     if(!info.trigL1){ // HLT item get full decision
         ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
@@ -594,7 +611,9 @@ TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigIn
         }
         else if(info.trigType == "photon"){
             ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-            passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
+            if(getSGContainsTrigPhoton()){
+                passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
+            }
             passedEF = ancestorPassed<xAOD::PhotonContainer>(te);
             passedEFTrk=true;// Assume true for photons
         }
@@ -930,7 +949,7 @@ GETTER(pixeldEdx)
 GETTER(deltaPhiRescaled3) 
 #undef GETTER    
 
-    std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
+std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
     static std::map<std::string,std::string> PidMap; //no longer class member but static
     // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
     if(PidMap.empty()){
@@ -992,41 +1011,54 @@ bool TrigEgammaAnalysisBaseTool::getTrigCaloRings( const xAOD::TrigEMCluster *em
   return false;
 }
 
-bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * /*el*/, std::vector<float> & /*ringsE*/ ){
+bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * el, std::vector<float> &ringsE ){
 
-  /*
+  
   if(!el) return false;
   ringsE.clear();
-    
-  auto m_ringsELReader = xAOD::getCaloRingsReader();
 
+  auto ringsELReader = xAOD::getCaloRingsReader();
   // First, check if we can retrieve decoration: 
   const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try { 
-    caloRingsLinks = &(m_ringsELReader->operator()(*el)); 
+    ATH_MSG_DEBUG("getCaloRingsReader->operator()(*el)");
+    caloRingsLinks = &(ringsELReader->operator()(*el)); 
   } catch ( const std::exception &e) { 
     ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
     return false;
   } 
 
-  if ( caloRingsLinks->empty() ){ 
-    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
+  if( caloRingsLinks ){
+    if ( caloRingsLinks->empty() ){ 
+      ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
+      return false;
+    }
+
+    const xAOD::CaloRings *clrings=nullptr;
+    try {
+      // For now, we are using only the first cluster 
+      clrings = *(caloRingsLinks->at(0));
+    } catch(const std::exception &e){
+      ATH_MSG_WARNING("Couldn't retrieve CaloRings. Reason: " << e.what()); 
+      return false;
+    }
+    // For now, we are using only the first cluster 
+    if(clrings) {
+      ATH_MSG_DEBUG("exportRingsTo...");
+      clrings->exportRingsTo(ringsE);
+    }else{
+      ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
+      return false;
+    }
+
+  }else{
+    ATH_MSG_WARNING("CaloRingsLinks in a nullptr...");
     return false;
   }
 
-
-  // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
-  // For now, we are using only the first cluster 
-  
-  if(clrings) clrings->exportRingsTo(ringsE);
-  else{
-    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
-    return false;
-  }
-  */  
   return true;
 }
+
 
 
 void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
@@ -1048,8 +1080,6 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
    }// protection
    ATH_MSG_DEBUG("calculatePileupPrimaryVertex(): nPileupPrimaryVtx = " << m_nPVertex);
 }
-
-
 
 
 MonteCarlo::PDGID TrigEgammaAnalysisBaseTool::pdgid(const xAOD::Egamma *eg, const xAOD::TruthParticleContainer* truthContainer,

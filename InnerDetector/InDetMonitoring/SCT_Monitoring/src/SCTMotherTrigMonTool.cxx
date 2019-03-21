@@ -22,10 +22,9 @@ const std::string SCTMotherTrigMonTool::m_triggerNames[] = {
 
 SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-  m_doTrigger(true),
   m_isStream(false),
   m_firedTriggers(0) {
-  declareProperty("doTrigger", m_doTrigger);
+  declareProperty("doTrigger", m_doTrigger=true);
 }
 
 StatusCode

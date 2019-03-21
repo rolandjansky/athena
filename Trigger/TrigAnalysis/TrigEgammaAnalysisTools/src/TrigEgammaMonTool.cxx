@@ -27,20 +27,23 @@ TrigEgammaMonTool( const std::string & type, const std::string & name, const IIn
 }
 
 TrigEgammaMonTool::~TrigEgammaMonTool(){}
-StatusCode TrigEgammaMonTool::init(){
-   
+
+
+StatusCode TrigEgammaMonTool::init(){   
   return StatusCode::SUCCESS; 
 }
 
 StatusCode TrigEgammaMonTool::book(){
     ATH_MSG_INFO("Initializing " << name() << "...");
-    ATH_MSG_INFO("Retrieving tools...");
+    ATH_MSG_INFO("Retrieving tools..." << m_asgToolNames.size());
 
     for(const auto toolname : m_asgToolNames){
+        ATH_MSG_INFO("Add "<<toolname<<"..." );
         m_asgtools.push_back(ToolHandle<ITrigEgammaAnalysisBaseTool>(toolname));
     }
     for ( ToolHandleArray<ITrigEgammaAnalysisBaseTool>::const_iterator itoo=m_asgtools.begin();
             itoo!=m_asgtools.end(); ++itoo ) {
+        ATH_MSG_INFO("Initializing..." );
         ToolHandle<ITrigEgammaAnalysisBaseTool> htool = *itoo;
         htool->setParent(this);
         StatusCode sc = htool->initialize();
@@ -56,8 +59,6 @@ StatusCode TrigEgammaMonTool::book(){
     }
     
     ATH_MSG_INFO("Tool retrieval completed.");
-
-
     return StatusCode::SUCCESS;
 }
 

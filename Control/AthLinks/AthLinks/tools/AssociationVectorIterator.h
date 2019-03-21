@@ -11,10 +11,10 @@
  * not be included directly into client code.
  */
 
- class AssociationVectorIterator 
+ class AssociationVectorIterator
+   : public std::iterator<std::bidirectional_iterator_tag, asso_type*>
  {
  public:
-
    /*! \brief alternate constructor
     *
     * The alternate constructor is the only meaningful constructor. It requires

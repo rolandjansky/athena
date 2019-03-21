@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDigitsCollection_H
@@ -38,6 +38,13 @@ public:
    */
   TileDigitsCollection (const TileDigitsCollection& other);
 
+  /**
+   * @brief Move constructor.
+   * @param other Collection to move.
+   * Move the contents from other collection.
+   */
+  TileDigitsCollection(TileDigitsCollection&& other) = default;
+
   ~TileDigitsCollection() { }
 
   /**
@@ -66,10 +73,12 @@ public:
    */
   void setFragExtraWords(const std::vector<uint32_t> & extra) {
     m_FragExtraWords = extra;
-    if (extra.size() < 2) m_FragExtraWords.resize(2); }
+    if (extra.size() < 2) m_FragExtraWords.resize(2);
+  }
   void setFragExtraWords(std::vector<uint32_t> && extra) {
     m_FragExtraWords = std::move(extra);
-    if (extra.size() < 2) m_FragExtraWords.resize(2); }
+    if (m_FragExtraWords.size() < 2) m_FragExtraWords.resize(2);
+  }
   /**
    * Get Frag extra words for this collection
    * @return vector with all words

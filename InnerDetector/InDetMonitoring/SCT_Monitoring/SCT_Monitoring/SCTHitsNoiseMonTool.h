@@ -60,7 +60,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
  public:
   typedef unsigned int  ChipNumberType;
   SCTHitsNoiseMonTool(const std::string& type, const std::string& name,const IInterface* parent); 
-  ~SCTHitsNoiseMonTool();
+  ~SCTHitsNoiseMonTool() = default;
   virtual StatusCode initialize() final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
   //@{
@@ -114,17 +114,17 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmTrigger;
   
   TH1F* m_nSP;
-  int* m_nSP_buf;
+  std::vector<int> m_nSP_buf;
   int m_nSP_pos;
   TH1F* m_nHits;
-  int* m_nHits_buf;
+  std::vector<int> m_nHits_buf;
   int m_nHits_pos;
   TH1F* m_nmaxHits;
-  int* m_nmaxHits_buf;
-  Identifier* m_nmaxModule_buf;
+  std::vector<int> m_nmaxHits_buf;
+  std::vector<Identifier> m_nmaxModule_buf;
   TH1F* m_nminHits;
-  int* m_nminHits_buf;
-  Identifier* m_nminModule_buf;
+  std::vector<int> m_nminHits_buf;
+  std::vector<Identifier> m_nminModule_buf;
 
   //Histograms with hits per luminosity block
   H1_t m_numBarrelHitsPerLumiBlock;
@@ -198,7 +198,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   H1_t m_hitsvsL1ID;
 
   /// Name of the Track collection to use
-  SG::ReadHandleKey<TrackCollection> m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
 
   /// Name of the L1 Type to use for filling the extra NO histograms
   std::string m_NOTrigger;
@@ -300,7 +300,6 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   Prof_t m_tbinfracVsLB;
   Prof_t m_tbinfracVsLBECp;
   Prof_t m_tbinfracVsLBECm;
-  //std::string m_tracksName;
   bool m_initialize;
  
   //@name Histograms related methods
@@ -337,7 +336,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   ///additional maps for track NO to compare with SP NO calc
   std::map<Identifier, int> m_RDOs;
   //CAM adds map for SP NO
-  SG::ReadHandle<SpacePointContainer>  m_SCTSPContainerName;
+  SG::ReadHandleKey<SpacePointContainer> m_SCTSPContainerName{this, "SpacePointKey", "SCT_SpacePoints"};
 
   std::map<Identifier, float> m_occSumUnbiased;
   std::map<Identifier, float> m_occSumUnbiasedTrigger;
@@ -472,7 +471,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   //@{
   
   /// Data object name: for the SCT this is "SCT_RDOs"
-  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -513,8 +512,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
     positionString(const Identifier& plane) const;
   //@}
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
-  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey{this, "ClusterKey", "SCT_Clusters"};
 
   // For P->T converter of SCT_Clusters
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -7,6 +7,7 @@
 #include "../src/TileDigitsThresholdFilter.h"
 #include "TileConditions/ITileCondToolDspThreshold.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileMutableDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 
@@ -19,6 +20,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/setupStoreGate.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 // ATLAS C++
 #include "CxxUtils/make_unique.h"
@@ -128,46 +131,37 @@ void test1() {
   assert( (alg->setProperty("TileCondToolDspThreshold", "TileCondToolDspThresholdMock/TileCondToolDspThresholdMock")).isSuccess() );
   assert( (alg->initialize()).isSuccess() );
 
+  {
+    auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true);
 
-  TileDigitsContainer* inputContainer = new TileDigitsContainer(true);
+    digitsContainer->set_unit(TileRawChannelUnit::OnlineADCcounts);
+    digitsContainer->set_type(TileFragHash::Beam);
+    digitsContainer->set_bsflags(3);
 
-  inputContainer->set_unit(TileRawChannelUnit::OnlineADCcounts);
-  inputContainer->set_type(TileFragHash::Beam);
-  inputContainer->set_bsflags(3);
-
-  unsigned int ros = 1;
-  unsigned int drawer = 1;
-  for (unsigned int adc = 0; adc < 2; ++adc) {
-    unsigned int channel = 0;
-    for (const std::vector<float>& digits : TESTDIGITS) {
-      HWIdentifier id = tileHWID->adc_id(ros, drawer, channel, adc);
-      inputContainer->push_back(new TileDigits(id, digits));
-      ++channel;
-      std::cout << ((tileHWID->is_tile(id) ? "TILE" : "NOT TILE")) << " => " << tileHWID->to_string(id) << std::endl;
+    unsigned int ros = 1;
+    unsigned int drawer = 1;
+    for (unsigned int adc = 0; adc < 2; ++adc) {
+      unsigned int channel = 0;
+      for (const std::vector<float>& digits : TESTDIGITS) {
+        HWIdentifier id = tileHWID->adc_id(ros, drawer, channel, adc);
+        digitsContainer->push_back(new TileDigits(id, digits));
+        ++channel;
+        std::cout << ((tileHWID->is_tile(id) ? "TILE" : "NOT TILE")) << " => " << tileHWID->to_string(id) << std::endl;
+      }
+      ++drawer;
     }
-    ++drawer;
+
+    SG::WriteHandle<TileDigitsContainer> digitsCnt("TileDigitsCnt");
+    assert(digitsCnt.record(std::move(digitsContainer)).isSuccess());
   }
-
-  /*
-  for (const TileDigitsCollection* constInputCollection : *inputContainer) {
-    if (constInputCollection->identify() == 0x101) {
-      TileDigitsCollection* inputCollection = const_cast<TileDigitsCollection*>(constInputCollection);
-      inputCollection->setLvl1Id(10100);
-      inputCollection->setLvl1Type(10101);
-      inputCollection->setDetEvType(10102);
-      inputCollection->setRODBCID(10103);
-    }
-  }
-  */
-
-  assert( evtStore->record(inputContainer, "TileDigitsCnt", false).isSuccess() );
-
 
   assert( (alg->execute()).isSuccess() );
 
+  SG::ReadHandle<TileDigitsContainer> inputContainer("TileDigitsCnt");
+  assert( inputContainer.isValid() );
 
-  const TileDigitsContainer* outputContainer;
-  assert( evtStore->retrieve(outputContainer, "TileDigitsFiltered").isSuccess() );
+  SG::ReadHandle<TileDigitsContainer> outputContainer("TileDigitsFiltered");
+  assert( outputContainer.isValid() );
 
   assert( inputContainer->get_unit() == outputContainer->get_unit() );
   assert( inputContainer->get_type() == outputContainer->get_type() );
@@ -179,25 +173,6 @@ void test1() {
     int fragId = outputCollection->identify();
     unsigned int drawer = (fragId & 0x3F);
     unsigned int ros = fragId >> 8;
-
-    /*
-    IdentifierHash fragHash = (inputContainer->hashFunc())(fragId);
-    const TileDigitsCollection* inputCollection = *(inputContainer->indexFind(fragHash));
-
-
-    assert( inputCollection->getLvl1Id() == outputCollection->getLvl1Id() );
-    assert( inputCollection->getLvl1Type() == outputCollection->getLvl1Type() );
-    assert( inputCollection->getDetEvType() == outputCollection->getDetEvType() );
-    assert( inputCollection->getRODBCID() == outputCollection->getRODBCID() );
-
-    assert( inputCollection->getFragSize() == outputCollection->getFragSize() );
-    assert( inputCollection->getFragExtraWords() == outputCollection->getFragExtraWords() );
-    assert( inputCollection->getFragBCID() == outputCollection->getFragBCID() );
-    assert( inputCollection->getFragChipHeaderWords() == outputCollection->getFragChipHeaderWords() );
-    assert( inputCollection->getFragChipHeaderWordsHigh() == outputCollection->getFragChipHeaderWordsHigh() );
-    assert( inputCollection->getFragChipCRCWords() == outputCollection->getFragChipCRCWords() );
-    assert( inputCollection->getFragChipCRCWordsHigh() == outputCollection->getFragChipCRCWordsHigh() );
-    */
 
     for (const TileDigits* digits : *outputCollection) {
       ++nTileDigitsPassedFitler;

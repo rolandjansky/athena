@@ -110,6 +110,7 @@ namespace LVL1 {
     declareProperty("RequireAllCalos",m_requireAllCalos=true,"Should EM,Had and Tile all be available?");
 
     declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::xAODTriggerTowerLocation);
+    declareProperty("TriggerTowerLocationRerun", m_outputLocationRerun = TrigT1CaloDefs::xAODTriggerTowerRerunLocation);
     declareProperty("CellType", m_cellType = TTL1);
 
     // ADC simulation
@@ -190,13 +191,26 @@ namespace LVL1 {
     ATH_CHECK(m_xaodevtKey.initialize());
 
     ATH_CHECK(m_inputTTLocation.initialize());
-    //ATH_CHECK(m_outputLocation.initialize());
-    //m_outputAuxLocation = m_outputAuxLocation.key() + "Aux.";
-    //ATH_CHECK(m_outputAuxLocation.initialize());
 
     ATH_CHECK(m_EmTTL1ContainerName.initialize());
     ATH_CHECK(m_HadTTL1ContainerName.initialize());
     ATH_CHECK(m_TileTTL1ContainerName.initialize());
+    ATH_CHECK(m_outputLocation.initialize());
+
+    ATH_CHECK(m_outputLocationRerun.initialize());
+    
+    //Rerun on trigger towers
+    if (m_cellType == TRIGGERTOWERS) {
+      renounce(m_EmTTL1ContainerName);
+      renounce(m_HadTTL1ContainerName);
+      renounce(m_TileTTL1ContainerName);
+      renounce(m_outputLocation);
+    }
+    //Start from RDO inputs
+    else if (m_cellType == TTL1) {
+      renounce(m_inputTTLocation);
+      renounce(m_outputLocationRerun);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -887,9 +901,6 @@ namespace LVL1 {
   StatusCode Run2TriggerTowerMaker::store()
   {
     ATH_MSG_DEBUG("Storing TTs in DataVector");
-    if(m_outputLocation.empty()) return StatusCode::SUCCESS;
-    //if(m_outputLocation.key().empty()) return StatusCode::SUCCESS;
-
     if(m_ZeroSuppress) {
       // remove trigger towers whose energy is 0
       m_xaodTowers->erase(std::remove_if(m_xaodTowers->begin(), m_xaodTowers->end(),
@@ -899,12 +910,16 @@ namespace LVL1 {
                           m_xaodTowers->end());
     }
 
-    CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
-    CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
-    //SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocation);
-    //SG::WriteHandle<xAOD::TriggerTowerAuxContainer> outputAux(m_outputAuxLocation);
-    //CHECK(output.record(std::move(m_xaodTowers)));
-    //CHECK(outputAux.record(std::move(m_xaodTowersAux)));
+    
+
+    if (m_cellType == TRIGGERTOWERS) {
+      SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocationRerun);
+      CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
+    }
+    else if (m_cellType == TTL1) {
+      SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocation);
+      CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
+    }
 
     return StatusCode::SUCCESS;
   } // end of LVL1::Run2TriggerTowerMaker::store(){

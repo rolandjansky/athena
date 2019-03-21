@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 
 // sandrine
 //#include "CaloIdentifier/LArEM_ID.h"
