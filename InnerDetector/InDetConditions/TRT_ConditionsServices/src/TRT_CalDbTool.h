@@ -87,7 +87,7 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   virtual const StrawT0Container* getT0Container() const override;
   
  private:
-  const TRT_ID* m_trtid;                 //!< id helper
+  const TRT_ID* m_trtId;                 //!< id helper
   ServiceHandle<StoreGateSvc> m_detstore;
 
   /// mutex to protect cache updates
@@ -131,9 +131,9 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
 inline TRTCond::ExpandedIdentifier 
 TRT_CalDbTool::trtcondid( const Identifier& id, int level) const
 {
-  return TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(id),m_trtid->layer_or_wheel(id),
-				      m_trtid->phi_module(id),m_trtid->straw_layer(id),
-				      m_trtid->straw(id),level ) ;
+  return TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(id),m_trtId->layer_or_wheel(id),
+				      m_trtId->phi_module(id),m_trtId->straw_layer(id),
+				      m_trtId->straw(id),level ) ;
 }
 
 inline const TRTCond::RtRelation*

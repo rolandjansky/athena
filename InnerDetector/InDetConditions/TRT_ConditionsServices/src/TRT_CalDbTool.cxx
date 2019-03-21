@@ -22,7 +22,7 @@
 
 TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_trtid(0),
+    m_trtId(0),
     m_detstore("DetectorStore",name),
     m_mutex{},
     m_Rtcache{},
@@ -55,7 +55,7 @@ StatusCode TRT_CalDbTool::initialize()
   }
 
   // Get the TRT ID helper
-  StatusCode sc = m_detstore->retrieve(m_trtid,"TRT_ID");
+  StatusCode sc = m_detstore->retrieve(m_trtId,"TRT_ID");
   if(sc.isFailure()) {
     ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
@@ -243,7 +243,7 @@ double TRT_CalDbTool::driftRadius(const double& time, float& t0, const Identifie
   if (rtr != 0)
      radius = rtr->radius( time - t0 );
   else
-    ATH_MSG_FATAL(" cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtid->layer_or_wheel(ident) << " Please check IOV ranges ");
+    ATH_MSG_FATAL(" cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtId->layer_or_wheel(ident) << " Please check IOV ranges ");
   
   ATH_MSG_VERBOSE(" time " << time << " t0 " << t0 << " t " << time-t0 << " radius " << radius);
   //

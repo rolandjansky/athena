@@ -35,7 +35,7 @@ TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type,
     m_par_strawstatuscontainerkey("/TRT/Cond/Status"),
     m_par_strawstatuspermanentcontainerkey("/TRT/Cond/StatusPermanent"),
     m_par_strawstatusHTcontainerkey("/TRT/Cond/StatusHT"),
-    m_trtid(0),
+    m_trtId(0),
     m_condSvc("CondSvc",name),
     m_statReadKey("/TRT/Cond/Status"),
     m_permReadKey("/TRT/Cond/StatusPermanent"),
@@ -81,7 +81,7 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
   }
 
   // Get the TRT ID helper
-  if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtid,"TRT_ID")) {
+  if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtId,"TRT_ID")) {
     ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
   }
@@ -122,9 +122,9 @@ StatusCode TRT_StrawStatusSummaryTool::finalize()
 int TRT_StrawStatusSummaryTool::getStatus(Identifier offlineID) const{
   int stat = 0;
   int level = TRTCond::ExpandedIdentifier::STRAW ;
-  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
-								       m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
-								       m_trtid->straw(offlineID),level );
+  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
+								       m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
+								       m_trtId->straw(offlineID),level );
   const StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuscontainer) {
@@ -143,9 +143,9 @@ int TRT_StrawStatusSummaryTool::getStatus(Identifier offlineID) const{
 int TRT_StrawStatusSummaryTool::getStatusPermanent(Identifier offlineID) const{
   int stat = 0;
   int level = TRTCond::ExpandedIdentifier::STRAW ;
-  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
-								       m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
-								       m_trtid->straw(offlineID),level );
+  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
+								       m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
+								       m_trtId->straw(offlineID),level );
   const StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuspermanentcontainer) {
@@ -163,9 +163,9 @@ int TRT_StrawStatusSummaryTool::getStatusPermanent(Identifier offlineID) const{
 int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID) const{
   int stat = 0;
   int level = TRTCond::ExpandedIdentifier::STRAW ;
-  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
-								m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
-								m_trtid->straw(offlineID),level );
+  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
+								m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
+								m_trtId->straw(offlineID),level );
   const StrawStatusContainer* strawstatusHTcontainer = getStrawStatusHTContainer();
 
  static int countStrawStatusContainerError(0);

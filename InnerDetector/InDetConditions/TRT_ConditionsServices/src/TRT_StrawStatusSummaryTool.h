@@ -68,7 +68,7 @@ class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSum
   std::string m_par_strawstatusHTcontainerkey;
 
 
-  const TRT_ID* m_trtid;
+  const TRT_ID* m_trtId;
 
   ServiceHandle<ICondSvc> m_condSvc;
   //  ReadHandle  keys
