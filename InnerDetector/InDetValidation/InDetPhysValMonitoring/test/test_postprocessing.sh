@@ -73,6 +73,7 @@ mv ./MyPhysVal.root ./physval_2.root
   chmod a+x ./postprocessHistos  
   ./postprocessHistos ./physval_hadd.root
 )
+echo "art-result: $? postprocessing"
 
 mv ./physval_hadd.root ./$dcubemon_postprocessing
 
@@ -89,3 +90,5 @@ mv ./MyPhysVal.root ./$dcuberef_postprocessing
 
 # Generate test report with custom python script
 python $artdata/InDetSLHC_Example/scripts/compareIDPVoutputs_ratio.py ./$dcuberef_postprocessing ./$dcubemon_postprocessing
+echo "art-result: $? compare_report"
+

@@ -31,7 +31,7 @@ artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 name="InclinedDuals"
 script="`basename \"$0\"`"
 
-evnt_muons_100GeV=$artdata/InDetSLHC_Example/inputs/EVNT.09244573.*.pool.root.1
+evnt_muons_100GeV=$artdata/InDetSLHC_Example/inputs/EVNT.09244578.*.pool.root.1
 hits_ref_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
 
 if [ $dosim -ne 0 ]; then
