@@ -9,11 +9,11 @@
 #include "AsgTools/AnaToolHandle.h"
 
 int main( int argc, char* argv[] ) {
-
+  
   using namespace asg::msgUserCode;
   using namespace Upgrade;
   ANA_CHECK_SET_TYPE (int);
-
+  
   //StatusCode::enableFailure();
   CP::SystematicCode::enableFailure();
   CP::CorrectionCode::enableFailure();
@@ -28,6 +28,9 @@ int main( int argc, char* argv[] ) {
   int testJets = -1;
   //int testTaus = -1; //To be implemented
   int testMET = -1;
+  int testFlavourTagging = -1;
+
+  bool enableHGTD = false;
 
   for (int i = 1 ; i < argc ; i++) {
     const char* key = strtok(argv[i], "=") ;
@@ -41,12 +44,25 @@ int main( int argc, char* argv[] ) {
     if (strcmp(key, "testJets") == 0) testJets = atoi(val);
     //if (strcmp(key, "testTaus") == 0) testTaus = atoi(val);
     if (strcmp(key, "testMET") == 0) testMET = atoi(val);
-
+    if (strcmp(key, "testFlavourTagging") == 0) testFlavourTagging = atoi(val);
+    if (strcmp(key, "enableHGTD") == 0) enableHGTD = (atoi(val) == 0) ? false : true;
+    
   }
-
+  
+  // Setup upgrade smearing functions
   auto m_upgrade = std::unique_ptr<UpgradePerformanceFunctions>( new UpgradePerformanceFunctions("UpgradePerformanceFunctions") );
   Info( APP_NAME, "Layout is %d, and mu value is %f", m_upgrade->getLayout(), m_upgrade->getAvgMu());
-  ANA_CHECK( m_upgrade->setProperty("UseHGTD0", false) )
+  ANA_CHECK( m_upgrade->setProperty("UseHGTD0", enableHGTD) );  
+  if (enableHGTD) {
+    std::cout << "Enabled HGTD." << std::endl;
+  }
+
+  //HGTD local tests
+  ANA_CHECK( m_upgrade->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/flavor_tags_hgtd_v2.0.root") );  
+  //ANA_CHECK( m_upgrade->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/upgradeBtaggingROOTFile/output_ITK.root") );  
+  //ANA_CHECK( m_upgrade->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/upgradeBtaggingROOTFile/output_HGTD_Initial.root") );
+  //end HGTD local tests configuration
+  
   ANA_CHECK( m_upgrade->initialize() );
 
   // This is just a test of some methods without realistic input.
@@ -135,6 +151,8 @@ int main( int argc, char* argv[] ) {
     printf("  First event has %lu PU jets over threshold\n", pileupJets.size());
     printf("  JVT eff for pT=40 GeV, eta=1 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            m_upgrade->getJVTeff_HSjet(40e3, 1.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 1.0) * 100);
+    printf("  JVT eff for pT=40 GeV, eta=3 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
+           m_upgrade->getJVTeff_HSjet(40e3, 3.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 3.0) * 100);
     printf("  JVT eff for pT=40 GeV, eta=4 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            m_upgrade->getJVTeff_HSjet(40e3, 4.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 4.0) * 100);
     printf("  Note: outside tracking acceptance (|eta|>3.8) and jet pT 20-100 GeV, no JVT cut is applied.\n");
@@ -171,32 +189,69 @@ int main( int argc, char* argv[] ) {
 
     printf("\n  Done jet tests.\n===============\n\n");
 
-    // Temporarily change layout for flavour tagging
+  }
+
+  if (testFlavourTagging > 0) {
+    printf("\n====================\n= Flavour Tagging tests\n====================\n");
+    TString tagger="ip3dsv1"; //"mv2c10";
+    bool testTC=false;
 
     std::cout << "b-tagging efficiency for pT=40 GeV, eta=1.0 (no TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', "mv2c10", 70, false) << std::endl;
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', tagger, 70, false) << std::endl;
     std::cout << "c-tagging efficiency for pT=40 GeV, eta=1.0 (no TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', "mv2c10", 70, false) << std::endl;
-    std::cout << "b-tagging efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', "mv2c10", 70, true) << std::endl;
-    std::cout << "c-tagging efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', "mv2c10", 70, true) << std::endl;
-
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', tagger, 70, false) << std::endl;
+    if (testTC) {
+      std::cout << "b-tagging efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', tagger, 70, true) << std::endl;
+      std::cout << "c-tagging efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', tagger, 70, true) << std::endl;
+    }
+    
     std::cout << "b-tagging 85 efficiency for pT=40 GeV, eta=1.0 (no TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', "mv2c10", 85, false) << std::endl;
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', tagger, 85, false) << std::endl;
     std::cout << "c-tagging 85 efficiency for pT=40 GeV, eta=1.0 (no TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', "mv2c10", 85, false) << std::endl;
-    std::cout << "b-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', "mv2c10", 85, true) << std::endl;
-    std::cout << "c-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
-              << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', "mv2c10", 85, true) << std::endl;
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', tagger, 85, false) << std::endl;
+    std::cout << "l-tagging 85 efficiency for pT=40 GeV, eta=1.0 (no TC) is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'L', tagger, 85, false) << std::endl;
+    std::cout << "p-tagging 85 efficiency for pT=40 GeV, eta=1.0 (no TC) is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'P', tagger, 85, false) << std::endl;
 
+    if (testTC) {
+      std::cout << "b-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', tagger, 85, true) << std::endl;
+      std::cout << "c-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'C', tagger, 85, true) << std::endl;    
+      std::cout << "l-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'L', tagger, 85, true) << std::endl;
+      std::cout << "p-tagging 85 efficiency for pT=40 GeV, eta=1.0 (w/ TC) is "
+		<< m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'P', tagger, 85, true) << std::endl;
+    }
+    
+    std::cout << "b-tagging 85 efficiency for pT=270 GeV, eta=1.0 is "
+	      << m_upgrade->getFlavourTagEfficiency(270000., 1.0, 'B', tagger, 85, testTC) << std::endl;
+    std::cout << "c-tagging 85 efficiency for pT=270 GeV, eta=1.0 is "
+	      << m_upgrade->getFlavourTagEfficiency(270000., 1.0, 'C', tagger, 85, testTC) << std::endl;
+    std::cout << "l-tagging 85 efficiency for pT=270 GeV, eta=1.0 is "
+	      << m_upgrade->getFlavourTagEfficiency(270000., 1.0, 'L', tagger, 85, testTC) << std::endl;
+    std::cout << "p-tagging 85 efficiency for pT=270 GeV, eta=1.0 is "
+	      << m_upgrade->getFlavourTagEfficiency(270000., 1.0, 'P', tagger, 85, testTC) << std::endl;
+
+    std::cout << "b-tagging 85 efficiency for pT=40 GeV, eta=3.5 is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 3.5, 'B', tagger, 85, testTC) << std::endl;
+    std::cout << "c-tagging 85 efficiency for pT=40 GeV, eta=3.5 is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 3.5, 'C', tagger, 85, testTC) << std::endl;
+    std::cout << "l-tagging 85 efficiency for pT=40 GeV, eta=3.5 is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 3.5, 'L', tagger, 85, testTC) << std::endl;
+    std::cout << "p-tagging 85 efficiency for pT=40 GeV, eta=3.5 is "
+	      << m_upgrade->getFlavourTagEfficiency(40000., 3.5, 'P', tagger, 85, testTC) << std::endl;
+    
     std::cout << "Four-jet trigger efficiency for pT=100 GeV, eta=1.0 is "
-              << m_upgrade->getFourJetTriggerEfficiency(100000., 1.0,
-                  100000., 1.0,
-                  100000., 1.0,
-                  100000., 1.0)
-              << std::endl;
+	      << m_upgrade->getFourJetTriggerEfficiency(100000., 1.0,
+							100000., 1.0,
+							100000., 1.0,
+							100000., 1.0)
+	      << std::endl;
+
   }
 
   if (testElectrons > 0) {
