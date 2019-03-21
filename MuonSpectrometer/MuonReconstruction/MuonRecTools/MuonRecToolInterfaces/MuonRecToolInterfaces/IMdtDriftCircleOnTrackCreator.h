@@ -39,6 +39,7 @@ namespace Muon {
         virtual const MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& DC, 
                                                                 const Amg::Vector3D& GP,
                                                                 const Amg::Vector3D* GD = 0,
+								float t0Shift = 0,
                                                                 const MuonDriftCircleErrorStrategy* strategy = 0 ) const = 0;
 
         /** @brief Update of the sign of the drift radius. 
