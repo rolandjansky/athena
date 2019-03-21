@@ -268,10 +268,14 @@ class UpgradePerformanceFunctions: public asg::AsgMetadataTool, public virtual I
   double m_jet_absYcut = 3.8;
 
   // Step 1.6 onwards TC implementation
-  std::unique_ptr<TF1> func_TC_lt50;
-  std::unique_ptr<TF1> func_TC_gt50;
-  std::unique_ptr<TF1> func_IH_lt50;
-  std::unique_ptr<TF1> func_IH_gt50;
+  std::unique_ptr<TF1> func_TC_lt50_central;
+  std::unique_ptr<TF1> func_TC_gt50_central;
+  std::unique_ptr<TF1> func_TC_lt50_forward;
+  std::unique_ptr<TF1> func_TC_gt50_forward;
+  std::unique_ptr<TF1> func_IH_lt50_central;
+  std::unique_ptr<TF1> func_IH_gt50_central;
+  std::unique_ptr<TF1> func_IH_lt50_forward;
+  std::unique_ptr<TF1> func_IH_gt50_forward;
 
 
   // -- new stuff for HGTD --> to be included into the Golden Scenario

@@ -336,50 +336,80 @@ StatusCode UpgradePerformanceFunctions::initializePileupTemplates() {
 
   // as of ITk Step 1.6 we have different parametrisation: pol3 below and above 50 GeV
 
-  // pt < 50 GeV
-  float pars_ITK_20_lt50[4] = {0.865632, -0.048153, 0.0411527, -0.0130769};     // ITk 2% PU
-  float pars_ITKHGTD_20_lt50[4] = {1.00826, -0.171095, 0.0667378, -0.00937643}; // ITk+HGTD 2% PU
-  float pars_ITK_10_lt50[4] = {0.977724, -0.310333, 0.160202, -0.0318497};      // ITk 1% PU
-  float pars_ITKHGTD_10_lt50[4] = {1.0473, -0.340747, 0.165846, -0.0265715};    // ITk+HGTD 1% PU
-  float pars_ITK_05_lt50[4] = {0.903501, -0.306444, 0.146269, -0.0300982};      // ITk 0.5% PU
-  float pars_ITKHGTD_05_lt50[4] = {1.0122, -0.311178, 0.145689, -0.024726};     // ITk+HGTD 0.5% PU
+  // 30 < pt < 50 GeV, |eta| < 2.3
+  float pars_ITK_20_lt50_central[7] = {0.921339, 0.122825, -0.22213, 0.124209, 0.00550693, -0.0245591, 0.00536658}; // ITk 2% PU
+  float pars_ITKHGTD_20_lt50_central[7] = {0.921339, 0.122825, -0.22213, 0.124209, 0.00550693, -0.0245591, 0.00536658}; // ITk+HGTD 2% PU
+  float pars_ITK_05_lt50_central[7] = {0.85327, 0.131332, -0.194897, 0.070671, 0.0157236, -0.0106902, 0.000405723};      // ITk 0.5% PU
+  float pars_ITKHGTD_05_lt50_central[7] = {0.85327, 0.131332, -0.194897, 0.070671, 0.0157236, -0.0106902, 0.000405723};     // ITk+HGTD 0.5% PU
 
-  // pt > 50 GeV
-  float pars_ITK_20_gt50[4] = {1.00589, -0.0941386, 0.0655066, -0.0158565};     // ITk 2% PU
-  float pars_ITKHGTD_20_gt50[4] = {1.01645, -0.0630882, 0.0235701, -0.00364137}; // ITk+HGTD 2% PU
-  float pars_ITK_10_gt50[4] = {0.917016, -0.0202391, 0.0501683, -0.0201117};    // ITk 1% PU
-  float pars_ITKHGTD_10_gt50[4] = {0.996236, -0.0552977, 0.028086, -0.00617803}; // ITk+HGTD 1% PU
-  float pars_ITK_05_gt50[4] = {0.743145, 0.201092, -0.118611, 0.00935206};      // ITk 0.5% PU
-  float pars_ITKHGTD_05_gt50[4] = {1.04009, -0.117583, 0.0502864, -0.0101477};  // ITk+HGTD 0.5% PU
+  // 30 < pt < 50 GeV, |eta| > 2.3
+  float pars_ITK_20_lt50_forward[7] = {2.7154, -1.7423, 0.365471, 0.109652, -0.0472849, 0.00403016, 0.0}; // ITk 2% PU
+  float pars_ITKHGTD_20_lt50_forward[7] = {1.07166, -0.0829622, -0.0237881, 0.0102775, 0.00397089, -0.00129608, 0.0}; // ITk+HGTD 2% PU
+  float pars_ITK_05_lt50_forward[7] = {15.7242, -15.8733, 4.16912, 0.793916, -0.487652, 0.05429, 0.0};      // ITk 0.5% PU
+  float pars_ITKHGTD_05_lt50_forward[7] = {2.55166, -2.18842, 0.65984, 0.118451, -0.0787041, 0.00856353, 0.0};     // ITk+HGTD 0.5% PU
 
-  func_TC_lt50.reset( new TF1("func_TC_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) ); // default ITk only
-  func_TC_gt50.reset( new TF1("func_TC_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) );
-  func_IH_lt50.reset( new TF1("func_IH_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) ); // IH = ITk + HGTD
-  func_IH_gt50.reset( new TF1("func_IH_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) );
+  // pt > 50 GeV, |eta| < 2.3
+  float pars_ITK_20_gt50_central[7] = {0.982908, -0.0145804, 0.0286217, -0.0232102, 0.000496221, 0.00534865, -0.00143827}; // ITk 2% PU
+  float pars_ITKHGTD_20_gt50_central[7] = {0.982908, -0.0145804, 0.0286217, -0.0232102, 0.000496221, 0.00534865, -0.00143827}; // ITk+HGTD 2% PU
+  float pars_ITK_05_gt50_central[7] = {0.846853, 0.533312, -1.0802, 0.763498, -0.0174135, -0.169933, 0.0450262};      // ITk 0.5% PU
+  float pars_ITKHGTD_05_gt50_central[7] = {0.846853, 0.533312, -1.0802, 0.763498, -0.0174135, -0.169933, 0.0450262};     // ITk+HGTD 0.5% PU
+
+  // pt > 50 GeV, |eta| > 2.3
+  float pars_ITK_20_gt50_forward[7] = {-0.75594, 1.97061, -0.534466, -0.138732, 0.0848717, -0.0104199, 0.0}; // ITk 2% PU
+  float pars_ITKHGTD_20_gt50_forward[7] = {-1.41119, 2.6577, -0.71127, -0.177139, 0.107807, -0.0129981, 0.0}; // ITk+HGTD 2% PU
+  float pars_ITK_05_gt50_forward[7] = {13.0335, -12.587, 3.06589, 0.748741, -0.407662, 0.0442132, 0.0};      // ITk 0.5% PU
+  float pars_ITKHGTD_05_gt50_forward[7] = {9.55825, -9.38487, 2.39242, 0.591628, -0.33292, 0.0368961, 0.0};     // ITk+HGTD 0.5% PU
+
+  // 1% working point from previous studies (w/o HGTD) may be slightly inconsistent
+  float pars_ITK_10_gt50[7] = {0.917016, -0.0202391, 0.0501683, -0.0201117, 0.0, 0.0, 0.0};    // ITk 1% PU
+  float pars_ITK_10_lt50[7] = {0.977724, -0.310333, 0.160202, -0.0318497, 0.0, 0.0, 0.0}; 
+  float pars_ITKHGTD_10_lt50[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};    // ITk+HGTD 1% PU - not defined
+  float pars_ITKHGTD_10_gt50[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};    // ITk+HGTD 1% PU - not defined
+
+  func_TC_lt50_central.reset( new TF1("func_TC_lt50_central", "pol6", 0.2, 2.3) );
+  func_TC_gt50_central.reset( new TF1("func_TC_gt50_central", "pol6", 0.2, 2.3) );
+  func_TC_lt50_forward.reset( new TF1("func_TC_lt50_forward", "pol6", 2.3, 4.0) );
+  func_TC_gt50_forward.reset( new TF1("func_TC_gt50_forward", "pol6", 2.3, 4.0) );
+  func_IH_lt50_central.reset( new TF1("func_IH_lt50_central", "pol6", 0.2, 2.3) );
+  func_IH_gt50_central.reset( new TF1("func_IH_gt50_central", "pol6", 0.2, 2.3) );
+  func_IH_lt50_forward.reset( new TF1("func_IH_lt50_forward", "pol6", 2.3, 4.0) );
+  func_IH_gt50_forward.reset( new TF1("func_IH_gt50_forward", "pol6", 2.3, 4.0) );
 
   if ( m_layout == Step1p6 ) {
-    if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1) { // "standard setting"
-      for (int i = 0; i < 4; i++) {
-        func_TC_lt50->SetParameter(i, pars_ITK_20_lt50[i]);
-        func_TC_gt50->SetParameter(i, pars_ITK_20_gt50[i]);
-        func_IH_lt50->SetParameter(i, pars_ITKHGTD_20_lt50[i]);
-        func_IH_gt50->SetParameter(i, pars_ITKHGTD_20_gt50[i]);
+    if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1) { // "standard setting" (PU 2%)
+      for (int i = 0; i < 7; i++) {
+        func_TC_lt50_central->SetParameter(i, pars_ITK_20_lt50_central[i]);
+        func_TC_gt50_central->SetParameter(i, pars_ITK_20_gt50_central[i]);
+        func_TC_lt50_forward->SetParameter(i, pars_ITK_20_lt50_forward[i]);
+        func_TC_gt50_forward->SetParameter(i, pars_ITK_20_gt50_forward[i]);
+        func_IH_lt50_central->SetParameter(i, pars_ITKHGTD_20_lt50_central[i]);
+        func_IH_gt50_central->SetParameter(i, pars_ITKHGTD_20_gt50_central[i]);
+        func_IH_lt50_forward->SetParameter(i, pars_ITKHGTD_20_lt50_forward[i]);
+        func_IH_gt50_forward->SetParameter(i, pars_ITKHGTD_20_gt50_forward[i]);
       }
     }
     else if (m_pueff == PU && fabs(m_fEff - 0.01) < 0.001 && fabs( m_avgMu - 200)  < 0.1) { // PU 1% ITk only
-      for (int i = 0; i < 4; i++) {
-        func_TC_lt50->SetParameter(i, pars_ITK_10_lt50[i]);
-        func_TC_gt50->SetParameter(i, pars_ITK_10_gt50[i]);
-        func_IH_lt50->SetParameter(i, pars_ITKHGTD_10_lt50[i]);
-        func_IH_gt50->SetParameter(i, pars_ITKHGTD_10_gt50[i]);
+      for (int i = 0; i < 7; i++) {
+        func_TC_lt50_central->SetParameter(i, pars_ITK_10_lt50[i]);
+        func_TC_gt50_central->SetParameter(i, pars_ITK_10_gt50[i]);
+        func_TC_lt50_forward->SetParameter(i, pars_ITK_10_lt50[i]);
+        func_TC_gt50_forward->SetParameter(i, pars_ITK_10_gt50[i]);
+        func_IH_lt50_central->SetParameter(i, pars_ITKHGTD_10_lt50[i]);
+        func_IH_gt50_central->SetParameter(i, pars_ITKHGTD_10_gt50[i]);
+        func_IH_lt50_forward->SetParameter(i, pars_ITKHGTD_10_lt50[i]);
+        func_IH_gt50_forward->SetParameter(i, pars_ITKHGTD_10_gt50[i]);
       }
     }
     else if (m_pueff == PU && fabs(m_fEff - 0.005) < 0.0001 && fabs( m_avgMu - 200)  < 0.1) { // PU 0.5% ITk only
-      for (int i = 0; i < 4; i++) {
-        func_TC_lt50->SetParameter(i, pars_ITK_05_lt50[i]);
-        func_TC_gt50->SetParameter(i, pars_ITK_05_gt50[i]);
-        func_IH_lt50->SetParameter(i, pars_ITKHGTD_05_lt50[i]);
-        func_IH_gt50->SetParameter(i, pars_ITKHGTD_05_gt50[i]);
+      for (int i = 0; i < 7; i++) {
+        func_TC_lt50_central->SetParameter(i, pars_ITK_05_lt50_central[i]);
+        func_TC_gt50_central->SetParameter(i, pars_ITK_05_gt50_central[i]);
+        func_TC_lt50_forward->SetParameter(i, pars_ITK_05_lt50_forward[i]);
+        func_TC_gt50_forward->SetParameter(i, pars_ITK_05_gt50_forward[i]);
+        func_IH_lt50_central->SetParameter(i, pars_ITKHGTD_05_lt50_central[i]);
+        func_IH_gt50_central->SetParameter(i, pars_ITKHGTD_05_gt50_central[i]);
+        func_IH_lt50_forward->SetParameter(i, pars_ITKHGTD_05_lt50_forward[i]);
+        func_IH_gt50_forward->SetParameter(i, pars_ITKHGTD_05_gt50_forward[i]);
       }
     }
     else
@@ -387,11 +417,15 @@ StatusCode UpgradePerformanceFunctions::initializePileupTemplates() {
 
   } else {
     // in older than Step 1.6 version you won't use the new parametrisation however the function needs to be initialised -> dummy
-    for (int i = 0; i < 4; i++) {
-      func_TC_lt50->SetParameter(i, 100.);
-      func_TC_gt50->SetParameter(i, 100.);
-      func_IH_lt50->SetParameter(i, 100.);
-      func_IH_gt50->SetParameter(i, 100.);
+    for (int i = 0; i < 7; i++) {
+      func_TC_lt50_central->SetParameter(i, 100.);
+      func_TC_gt50_central->SetParameter(i, 100.);
+      func_TC_lt50_forward->SetParameter(i, 100.);
+      func_TC_gt50_forward->SetParameter(i, 100.);
+      func_IH_lt50_central->SetParameter(i, 100.);
+      func_IH_gt50_central->SetParameter(i, 100.);
+      func_IH_lt50_forward->SetParameter(i, 100.);
+      func_IH_gt50_forward->SetParameter(i, 100.);
     }
   }
 
@@ -432,28 +466,45 @@ double UpgradePerformanceFunctions::getJVTeff_HSjet(double ptMeV, double eta) {
   if ( m_layout != Step1p6 && ++nwarn < 5 ) ATH_MSG_WARNING(method << " method is only implemented for Step 1.6 layout");
   if ( m_pueff != PU ) ATH_MSG_FATAL(method + " only supports the PU JVT scheme (flat PU-jet efficiency, variable HS efficiency)");
 
-  // if >100 GeV, no JVT cut is applied. Nor for pT < 20 GeV.
+  // if >100 GeV, no JVT cut is applied. Nor for pT < 30 GeV.
   if ( ptMeV > 100e3 ) return 1.0;
-  if ( ptMeV <  20e3 ) return 1.0;
+  if ( ptMeV <  30e3 ) return 1.0;
 
   double absEta = std::abs(eta);
   // No pileup tagging above maximal eta
   if ( absEta > m_GoldEtaMax ) return 1.0;
 
-  // Pick up the right efficiency curves (TC = ITk only, IH = ITk+HGTD)
-  TF1 *eff_lt50 = func_TC_lt50.get(), *eff_gt50 = func_TC_gt50.get();
-  /* Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
-  if ( m_bUseHGTD1 || ( m_bUseHGTD0 && absEta > 2.4 ) ) {
-    eff_lt50 = func_IH_lt50.get();
-    eff_gt50 = func_IH_gt50.get();
+  TF1 *eff_gt50 = 0;
+  TF1 *eff_lt50 = 0;
+  if (m_bUseHGTD0 || m_bUseHGTD1) {
+    //HGTD configurations
+    if (absEta < 2.3) {
+      eff_lt50 = func_IH_lt50_central.get();
+      eff_gt50 = func_IH_gt50_central.get();
+    } else {
+      eff_lt50 = func_IH_lt50_forward.get();
+      eff_gt50 = func_IH_gt50_forward.get();
+    }
+  } else {
+    //Itk only configuration
+    if (absEta < 2.3) {
+      eff_lt50 = func_TC_lt50_central.get();
+      eff_gt50 = func_TC_gt50_central.get();
+    } else {
+      eff_lt50 = func_TC_lt50_forward.get();
+      eff_gt50 = func_TC_gt50_forward.get();
+    }
   }
-  */
+  if ( (eff_lt50 == 0) || (eff_gt50 == 0) ) {
+    //should never happen
+    ATH_MSG_FATAL("Unexpected jet property for track confirmation. Please report.");   
+  }
 
   // eff measured in two bins: 20-50 GeV and 50-100 GeV
   // to make a smooth pT dependance, interpolate from bin centres: 35-75
   // (pT-35)/40 becomes 0 @ 35 GeV and 1 @ 75 GeV
   double pTfrac = (TMath::Range(35e3, 75e3, ptMeV) - 35e3) / 40e3;
-  absEta = TMath::Range(1.2, m_GoldEtaMax, absEta);
+  absEta = TMath::Range(0.2, m_GoldEtaMax, absEta);
   return (1.0 - pTfrac) * eff_lt50->Eval(absEta) + pTfrac * eff_gt50->Eval(absEta);
 }
 
@@ -660,11 +711,9 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 
     //  std::cout  << " m_bUseHGTD0: " << m_bUseHGTD0 << " m_bUseHGTD1: " << m_bUseHGTD1 << std::endl;
     // HGTD add-on two scenarios which surely could be done nicer
-    // Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
-    /*
     if  (m_bUseHGTD0 || m_bUseHGTD1) {
 
-      //      std::cout << "UpgradePerformanceFunctions::getTrackJetConfirmEff::Warning You are using an obsolete HGTD implementation, for correct one, initialise with layout=Step1p6" << std::endl;
+      //std::cout << "UpgradePerformanceFunctions::getTrackJetConfirmEff::Warning You are using an obsolete HGTD implementation, for correct one, initialise with layout=Step1p6" << std::endl;      
 
       float minHGTD = 0.;
       if (m_bUseHGTD0)
@@ -682,7 +731,7 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
           float tceff1 = tceff;
           if (!bHS) {
             if (fabs(eta) > 2.4)
-              tceff = tceff1 * 0.5;
+              tceff = tceff1 * 0.5; //????
             else
               tceff = tceff1;
           }
@@ -690,8 +739,7 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
       }
       // else we keep what is in the central region
     }
-    */
-  } else {
+  } else { //step1p6 layout
 
     // new implementation of the track confirmation
 
@@ -702,94 +750,7 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
       if (!bHS && ptGeV < 100.) // flat efficiency for PU
         tceff = m_fEff;
       else { // HS jet
-        // pt bin
-
-        if (ptGeV > 20. && ptGeV < 50.) {
-
-	  //Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
-	  if (false) { //was: if (m_bUseHGTD0 || m_bUseHGTD1) {
-
-            if (fabs(eta) > 2.4 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
-              tceff = func_IH_lt50->Eval(fabs(eta));
-            }
-            else if ( fabs(eta) > 1.2 && fabs(eta) < 2.4 ) {
-
-              if (m_bUseHGTD0) // nominal IDR HGTD
-                tceff = func_TC_lt50->Eval(fabs(eta)); // below 2.4 us ITk only
-              else if (m_bUseHGTD1) // nominal IDR HGTD
-                tceff = func_IH_lt50->Eval(fabs(eta)); // below 2.4 us ITk+"HGTD" only
-              else
-                ATH_MSG_ERROR("This should never happen");
-            }
-            else if  ( fabs(eta) <= 1.2 ) {
-
-              if (m_bUseHGTD0) // nominal IDR HGTD
-                tceff = func_TC_lt50->Eval(1.2); // below 2.4 us ITk only
-              else if (m_bUseHGTD1) // nominal IDR HGTD
-                tceff = func_IH_lt50->Eval(1.2); // below 2.4 us ITk+"HGTD" only
-              else
-                ATH_MSG_ERROR("This should never happen");
-            }
-            else {
-              ATH_MSG_WARNING("getTrackJetConfirmEff: You are using eta range outside of the generally adopted areng (<3.8), your eta is = " << eta);
-            }
-
-          } else { // ITk only
-
-            if (fabs(eta) > 1.2 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
-              tceff = func_TC_lt50->Eval(fabs(eta));
-            }
-            else if  ( fabs(eta) <= 1.2 ) {
-              tceff = func_TC_lt50->Eval(1.2); // below 2.4 us ITk only
-            }
-            else {
-              ATH_MSG_WARNING("getTrackJetConfirmEff: You are using eta range outside of the generally adopted areng (<3.8), your eta is = " << eta);
-            }
-          } // end of ITk vs HGTDx
-
-        } // end of low pt bin
-        else if (ptGeV > 50. &&  ptGeV < 100.) {
- 	  //Disable HGTD retrival from here, since it's not a viable approach due to t0 considerations
-          if (false) { //was: if (m_bUseHGTD0 || m_bUseHGTD1) {
-
-            if (fabs(eta) > 2.4 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
-              tceff = func_IH_gt50->Eval(fabs(eta));
-            }
-            else if ( fabs(eta) > 1.2 && fabs(eta) < 2.4 ) {
-
-              if (m_bUseHGTD0) // nominal IDR HGTD
-                tceff = func_TC_gt50->Eval(fabs(eta)); // below 2.4 us ITk only
-              else if (m_bUseHGTD1) // nominal IDR HGTD
-                tceff = func_IH_gt50->Eval(fabs(eta)); // below 2.4 us ITk+"HGTD" only
-              else
-                ATH_MSG_ERROR("This should never happen");
-            }
-            else if  ( fabs(eta) <= 1.2 ) {
-
-              if (m_bUseHGTD0) // nominal IDR HGTD
-                tceff = func_TC_gt50->Eval(1.2); // below 2.4 us ITk only
-              else if (m_bUseHGTD1) // nominal IDR HGTD
-                tceff = func_IH_gt50->Eval(1.2); // below 2.4 us ITk+"HGTD" only
-              else
-                ATH_MSG_ERROR("This should never happen");
-            }
-            else {
-              ATH_MSG_WARNING("getTrackJetConfirmEff: Warning You are using eta range outside of the generally adopted range (<3.8), your eta is = " << eta);
-            }
-
-          } else { // ITk only
-
-            if (fabs(eta) > 1.2 && fabs(eta) < m_GoldEtaMax) {// forward region - always HGTD once at least one ON
-              tceff = func_TC_gt50->Eval(fabs(eta));
-            }
-            else if  ( fabs(eta) <= 1.2 ) {
-              tceff = func_TC_gt50->Eval(1.2); // below 2.4 us ITk only
-            }
-            else {
-              ATH_MSG_WARNING("getTrackJetConfirmEff: You are using eta range outside of the generally adopted range (<3.8), your eta is = " << eta);
-            }
-          } // end of ITk vs HGTDx
-        } // end of high pT bin
+	tceff = getJVTeff_HSjet(ptGeV*1000., eta);
       }
     }
     else {
