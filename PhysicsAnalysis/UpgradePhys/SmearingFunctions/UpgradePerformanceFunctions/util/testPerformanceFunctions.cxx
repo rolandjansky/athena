@@ -153,6 +153,16 @@ int main( int argc, char* argv[] ) {
            m_upgrade->getJVTeff_HSjet(40e3, 1.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 1.0) * 100);
     printf("  JVT eff for pT=40 GeV, eta=3 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            m_upgrade->getJVTeff_HSjet(40e3, 3.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 3.0) * 100);
+
+    ANA_CHECK( m_upgrade->setProperty("UseHGTD0", false) );  
+    //m_upgrade->forceHGTD0(true);
+    printf("  JVT eff for pT=40 GeV, eta=3 is %.1f%% for a HS jet, %.1f%% for a PU jet, forcing HGTD flag to false temporarily\n",
+           m_upgrade->getJVTeff_HSjet(40e3, 3.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 3.0) * 100);
+    ANA_CHECK( m_upgrade->setProperty("UseHGTD0", enableHGTD) );  
+    printf("  JVT eff for pT=40 GeV, eta=3 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
+           m_upgrade->getJVTeff_HSjet(40e3, 3.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 3.0) * 100);
+
+    //m_upgrade->forceHGTD0(false);    
     printf("  JVT eff for pT=40 GeV, eta=4 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            m_upgrade->getJVTeff_HSjet(40e3, 4.0) * 100, m_upgrade->getJVTeff_PUjet(40e3, 4.0) * 100);
     printf("  Note: outside tracking acceptance (|eta|>3.8) and jet pT 20-100 GeV, no JVT cut is applied.\n");
