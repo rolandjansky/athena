@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #ifndef TrigEgammaL1SelectorTool_H
@@ -45,7 +45,6 @@ class TrigEgammaL1SelectorTool:
     std::vector<float>        m_emIsolCutOff;
     std::vector<float>        m_emIsolCutSlope;
     std::vector<std::string>  m_wpNames;
-
 };
 
 }//namespace

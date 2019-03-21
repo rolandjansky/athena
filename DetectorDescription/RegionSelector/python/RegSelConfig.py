@@ -2,14 +2,8 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-
-def RegSelConfig( flags ):
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger ('RegSelConfig')
-    log.warning("Please use regSeCfg - that name matches ComponentAccumulator generator functions naming convention ")
-    return regSelCfg( flags ) 
-
 def regSelCfg( flags ):
+    """ Configures Region Selector Svc according to the detector flags """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from RegionSelector.RegionSelectorConf import RegSelSvc
     from AthenaCommon.SystemOfUnits import mm

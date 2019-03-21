@@ -40,7 +40,7 @@ protected:
 
 private:
   std::string m_name;
-  const static double s_epsilon;
+  static const double s_epsilon;
 
 };
 

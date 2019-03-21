@@ -23,10 +23,6 @@ namespace LVL1 {
     checkValues();
   }
 
-  Range::~Range() {
-
-  }
-
   double Range::min() const {
     return m_min;
   }

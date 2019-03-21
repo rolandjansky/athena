@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #ifndef ITrigEgammaSelectorBaseTool_H_
@@ -33,7 +33,6 @@
 #include <string>
 #include <map>
 #include "boost/any.hpp"
-
 
 
 namespace Trig{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          Coordinate.cxx  -  description
@@ -24,11 +24,6 @@ namespace LVL1 {
 
   Coordinate::Coordinate()
     : m_phi( 0.0 ), m_eta( 0.0 ) {
-
-  }
-
-  // Destructor
-  Coordinate::~Coordinate() {
 
   }
 

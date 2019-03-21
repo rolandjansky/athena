@@ -27,7 +27,7 @@ class iRecCoordRoI {
 
 public:
    iRecCoordRoI();
-   virtual ~iRecCoordRoI();
+   virtual ~iRecCoordRoI() = default;
    /** override this method & return eta coord */
    virtual double eta() const = 0;
    /** override this method & return phi coord */

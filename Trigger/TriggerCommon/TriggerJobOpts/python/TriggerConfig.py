@@ -190,12 +190,9 @@ def triggerBSOutputCfg( flags, decObj ):
     acc = ComponentAccumulator()
 
 
-    # for each type of collection from EDM config 
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
-    
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList, persistent
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool     
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg # , StreamTagMakerTool, TriggerBitsMakerTool     # TODO add config of these two
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
     
     serialiser = TriggerEDMSerialiserToolCfg("Serialiser")

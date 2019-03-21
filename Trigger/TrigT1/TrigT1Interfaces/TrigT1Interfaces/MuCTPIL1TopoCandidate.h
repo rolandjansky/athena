@@ -27,7 +27,7 @@ namespace LVL1 {
      MuCTPIL1TopoCandidate();
      
      
-     ~MuCTPIL1TopoCandidate();
+     ~MuCTPIL1TopoCandidate() = default;
      
      // set candidate data
      void setCandidateData(std::string  sectorName, 

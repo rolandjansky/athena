@@ -223,18 +223,14 @@ private:
   H1_t m_NZ1_vs_modnum;
   H1_t m_N11_vs_modnum;
 
-  std::string m_stream;
   std::string m_path;
   //@}
-  /// Name of the Track collection to use
-  std::string m_tracksName;
   std::string m_NOTrigger;
 
   //@name Service members
   //@{
   /// Data object name: for the SCT this is "SCT_RDOs"
-  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",

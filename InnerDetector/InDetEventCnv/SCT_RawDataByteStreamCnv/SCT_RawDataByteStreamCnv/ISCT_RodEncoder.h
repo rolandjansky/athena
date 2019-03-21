@@ -4,7 +4,7 @@
 
 /**
  * @file SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h
- * @author: Nick Barlow (nbarlow@mail.cern.ch, Kondo.Gnanvo@cern.ch)
+ * @author Nick Barlow (nbarlow@mail.cern.ch, Kondo.Gnanvo@cern.ch)
  * @date 21 June 2007 (SCT_RodEncoder turned into An AlgTool)
  * 
  * This class provides conversion from SCT RDO to ROD format ByteStream.

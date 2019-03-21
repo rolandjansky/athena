@@ -70,6 +70,8 @@ SCTTracksMonTool::SCTTracksMonTool(const string& type,
                                    const IInterface* parent)
   : SCTMotherTrigMonTool(type, name, parent),
   m_nTracks(nullptr),
+  m_nTracks_buf{},
+  m_nTracks_pos{0},
   m_trackTrigger(nullptr),
   m_trackTriggerRate(nullptr),
   m_totalBarrelResidual(nullptr),
@@ -114,29 +116,16 @@ SCTTracksMonTool::SCTTracksMonTool(const string& type,
   m_psctpulls_summaryHistoVector{},
   m_psctpulls_summaryHistoVectorECp{},
   m_psctpulls_summaryHistoVectorECm{},
-  m_path(""),
-  m_useIDGlobal(false),
-  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator", this),
+  m_stream{"/stat"},
+  m_path{""},
   m_pSCTHelper(nullptr) {
-  /** sroe 3 Sept 2015:
-     histoPathBase is declared as a property in the base class, assigned to m_path
-     with default as empty string.
-     Declaring it here as well gives rise to compilation warning
-     WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-
-     declareProperty("histoPathBase", m_stream = "/stat"); **/
-  m_stream = "/stat";
-  declareProperty("tracksName", m_tracksName = std::string("SCT_Cosmic_Tracks")); // "ExtendedTracks");
   declareProperty("trackHitCut", m_trackHitCut = 3);
   declareProperty("CheckRate", m_checkrate = 1000);
   declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
-  declareProperty("doNegativeEndcap", m_doNegativeEndcap = false);
-  declareProperty("ResPullCalc", m_residualPullCalculator);
+  declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
   declareProperty("useIDGlobal", m_useIDGlobal = false);
   declareProperty("doUnbiasedCalc", m_doUnbiasedCalc = true);
   declareProperty("EvtsBins", m_evtsbins = 5000);
-  m_nTracks_buf = nullptr;
-  m_nTracks_pos = 0;
 }
 
 // ====================================================================================================
@@ -145,7 +134,7 @@ StatusCode SCTTracksMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
   ATH_CHECK( m_tracksName.initialize() );
-  CHECK(m_residualPullCalculator.retrieve());
+  ATH_CHECK(m_residualPullCalculator.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -159,12 +148,12 @@ SCTTracksMonTool::bookHistogramsRecurrent() {
   if (newRunFlag()) {
     m_numberOfEvents = 0;
   }
-  CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_doUnbiasedCalc) {
-    CHECK(m_updator.retrieve());
+    ATH_CHECK(m_updator.retrieve());
   }
   // Booking  Track related Histograms
-  CHECK(bookGeneralHistos());
+  ATH_CHECK(bookGeneralHistos());
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
@@ -190,12 +179,12 @@ SCTTracksMonTool::bookHistograms() {
   if (newRunFlag()) {
     m_numberOfEvents = 0;
   }
-  CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_doUnbiasedCalc) {
-    CHECK(m_updator.retrieve());
+    ATH_CHECK(m_updator.retrieve());
   }
   // Booking  Track related Histograms
-  CHECK(bookGeneralHistos());
+  ATH_CHECK(bookGeneralHistos());
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
@@ -272,9 +261,7 @@ SCTTracksMonTool::fillHistograms() {
     return StatusCode::SUCCESS;
   }
   int local_tot_trkhits(0);
-  TrackCollection::const_iterator trkend(tracks->end());
-  TrackCollection::const_iterator trkbegin(tracks->begin());
-  if (trkend == trkbegin) {
+  if (tracks->size()==0) {
     if (m_doTrigger) {
       for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
         m_trackTriggerRate->Fill(trig, 0);
@@ -286,13 +273,12 @@ SCTTracksMonTool::fillHistograms() {
   }
   int goodTrks_N = 0;
   ATH_MSG_DEBUG("Begin loop over " << tracks->size() << " tracks");
-  for (TrackCollection::const_iterator trkitr(tracks->begin()); trkitr != trkend; ++trkitr) {
-    int local_scthits = 0;
-    const Trk::Track* track = (*trkitr);
+  for (const Trk::Track* track: *tracks) {
     if (not track) {
       ATH_MSG_ERROR("No pointer to track");
       break;
     }
+    int local_scthits = 0;
     int scthits_on_trk(0);     // Breaks out of loop if track has less than 3 sct hits
     const Trk::TrackSummary* trkSum(track->trackSummary());
     if (trkSum) {
@@ -365,9 +351,9 @@ SCTTracksMonTool::fillHistograms() {
     H1_t residualsSummaryHistogram(0);
     H1_t pullsSummaryHistogram(0);
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit(trackStates->end());
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it(trackStates->begin()); it != endit; ++it) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-        const InDet::SiClusterOnTrack* clus(dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack()));
+    for (const Trk::TrackStateOnSurface* tsos: *trackStates) {
+      if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
+        const InDet::SiClusterOnTrack* clus(dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack()));
         if (clus) { // Is it a SiCluster? If yes...
           const InDet::SiCluster* RawDataClus(dynamic_cast<const InDet::SiCluster*>(clus->prepRawData()));
           if (not RawDataClus) {
@@ -384,14 +370,14 @@ SCTTracksMonTool::fillHistograms() {
             const bool doThisDetector(doThisSubsystem[subsystemIndex]);
             hasHits[subsystemIndex] = true;
             const Trk::TrackParameters* trkParameters(0);
-            const Trk::RIO_OnTrack* rio(dynamic_cast<const Trk::RIO_OnTrack*>((*it)->measurementOnTrack()));
+            const Trk::RIO_OnTrack* rio(dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack()));
             bool updateSucceeds(true);
             if (rio) {
 #ifndef NDEBUG
               ATH_MSG_DEBUG("if rio");
 #endif
               if (m_doUnbiasedCalc) {
-                const Trk::TrackParameters* trkParam((*it)->trackParameters());
+                const Trk::TrackParameters* trkParam(tsos->trackParameters());
                 if (trkParam) {
                   trkParameters = m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance());
                   updateSucceeds = (trkParameters != 0);
@@ -401,7 +387,7 @@ SCTTracksMonTool::fillHistograms() {
               ATH_MSG_DEBUG("not rio");
             }
             if (!trkParameters) {
-              trkParameters = (*it)->trackParameters();
+              trkParameters = tsos->trackParameters();
             }
             if (trkParameters) {
               const AmgVector(5) LocalTrackParameters(trkParameters->parameters());
@@ -410,11 +396,11 @@ SCTTracksMonTool::fillHistograms() {
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (!m_residualPullCalculator.empty()) {
-                const Trk::ResidualPull* residualPull(m_residualPullCalculator->residualPull(rio, trkParameters,
-                                                                                             m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased));
+                std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(rio, trkParameters,
+                                                                                                             m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased));
                 if (!residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
-                  return StatusCode::FAILURE;
+                  return StatusCode::SUCCESS;
                 } else {
                   float local_residual(residualPull->residual()[Trk::locX]);
                   float local_pull(residualPull->pull()[Trk::locX]);
@@ -454,8 +440,6 @@ SCTTracksMonTool::fillHistograms() {
                     }
                   }
                 }
-                delete residualPull;
-                residualPull = 0;
               }
             } else { // no measured local parameters, pull won't be calculated
               ATH_MSG_WARNING("No measured local parameters, pull won't be calculated");
@@ -519,7 +503,7 @@ SCTTracksMonTool::fillHistograms() {
             }
           } // end if SCT..
         } // end if (clus)
-      } // if ((*it)->type(Trk::TrackStateOnSurface::Measurement))
+      } // if (tsos->type(Trk::TrackStateOnSurface::Measurement))
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
     m_trk_ncluHisto->Fill(local_scthits, 1.);
     // We now know whether this particular track had hits in the barrel or endcaps- update the profile histogram
@@ -538,7 +522,7 @@ SCTTracksMonTool::fillHistograms() {
       }
     }
     // Time Dependent SP plots only online
-    m_nTracks_buf[m_nTracks_pos] = (int) (m_trk_chi2->GetEntries());
+    m_nTracks_buf[m_nTracks_pos] = static_cast<int>(m_trk_chi2->GetEntries());
     m_nTracks_pos++;
     if (m_nTracks_pos == m_evtsbins) {
       m_nTracks_pos = 0;
@@ -652,16 +636,15 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
     }
     //  (*residualsRms[0])[0]->GetXaxis()->SetTitle("Index in the direction of #eta");
   }
-    // Now checking RMS and Means of Pulls 1D Histos
+  // Now checking RMS and Means of Pulls 1D Histos
   TF1 pullgaus("pullgaus", "gaus");
   pullgaus.SetParameter(1, 0.);
   pullgaus.SetParameter(2, 1.);
   if (not m_psctpulls_summaryHistoVector.empty()) {
-    VecH1_t::const_iterator endit(m_psctpulls_summaryHistoVector.end());
-    for (VecH1_t::const_iterator it(m_psctpulls_summaryHistoVector.begin()); it != endit; ++it) {
-      if ((*it)->GetEntries() > 2) {// only fit if #entries > 1, otherwise root crashes
-        ATH_MSG_DEBUG("GetEntries = " << (*it)->GetEntries());
-        (*it)->Fit("pullgaus", "Q", "", -2., 2.); // Fit Pulls with a gaussian, Quiet mode ; adding 'N' would aslo do no
+    for (const H1_t h1: m_psctpulls_summaryHistoVector) {
+      if (h1->GetEntries() > 2) {// only fit if #entries > 1, otherwise root crashes
+        ATH_MSG_DEBUG("GetEntries = " << h1->GetEntries());
+        h1->Fit("pullgaus", "Q", "", -2., 2.); // Fit Pulls with a gaussian, Quiet mode ; adding 'N' would aslo do no
                                                   // drawing of the fitted function: the increase in speed is small,
                                                   // though.
         double par[3], epar[3];
@@ -670,10 +653,10 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
           epar[i] = pullgaus.GetParError(i);    // error on the params
         }
         if (abs(par[1]) > 5. * epar[1]) {
-          (*it)->SetLineColor(2);
+          h1->SetLineColor(2);
         }
         if ((par[2] - 5. * epar[2]) > 2.) {
-          (*it)->SetLineColor(2);
+          h1->SetLineColor(2);
         }
       }
     }
@@ -689,7 +672,7 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
    // use kalman updator to get unbiased states
    IAlgTool*  algTool;
    ListItem ltool("Trk::KalmanUpdator/TrkKalmanUpdator");
-   CHECK(toolSvc()->retrieveTool(ltool.type(), ltool.name(), algTool));
+   ATH_CHECK(toolSvc()->retrieveTool(ltool.type(), ltool.name(), algTool));
    m_updator = dynamic_cast<Trk::IUpdator*>(algTool);
    if (not m_updator ) {
     ATH_MSG_FATAL("Could not get KalmanUpdator for unbiased track states");
@@ -727,28 +710,28 @@ SCTTracksMonTool::bookGeneralHistos() {
     m_tracksPerRegion->GetXaxis()->SetBinLabel(1, "EndCapC");
     m_tracksPerRegion->GetXaxis()->SetBinLabel(2, "Barrel");
     m_tracksPerRegion->GetXaxis()->SetBinLabel(3, "EndCapA");
-    CHECK(Tracks.regHist(m_tracksPerRegion));
+    ATH_CHECK(Tracks.regHist(m_tracksPerRegion));
     m_totalBarrelResidual = new TH1F("totalBarrelResidual", "Overall Residual Distribution for the Barrel", 100, -0.5,
                                      0.5);
     m_totalBarrelResidual->GetXaxis()->SetTitle("Residual [mm]");
-    CHECK(Tracks.regHist(m_totalBarrelResidual));
+    ATH_CHECK(Tracks.regHist(m_totalBarrelResidual));
     m_totalEndCapAResidual = new TH1F("totalEndCapAResidual", "Overall Residual Distribution for the EndCapA", 100,
                                       -0.5, 0.5);
     m_totalEndCapAResidual->GetXaxis()->SetTitle("Residual [mm]");
-    CHECK(Tracks.regHist(m_totalEndCapAResidual));
+    ATH_CHECK(Tracks.regHist(m_totalEndCapAResidual));
     m_totalEndCapCResidual = new TH1F("totalEndCapCResidual", "Overall Residual Distribution for the EndCapC", 100,
                                       -0.5, 0.5);
     m_totalEndCapCResidual->GetXaxis()->SetTitle("Residual [mm]");
-    CHECK(Tracks.regHist(m_totalEndCapCResidual));
+    ATH_CHECK(Tracks.regHist(m_totalEndCapCResidual));
     m_totalBarrelPull = new TH1F("totalBarrelPull", "Overall Pull Distribution for the Barrel", 100, -5, 5);
     m_totalBarrelPull->GetXaxis()->SetTitle("Pull");
-    CHECK(Tracks.regHist(m_totalBarrelPull));
+    ATH_CHECK(Tracks.regHist(m_totalBarrelPull));
     m_totalEndCapAPull = new TH1F("totalEndCapAPull", "Overall Pull Distribution for the EndCapA", 100, -5, 5);
     m_totalEndCapAPull->GetXaxis()->SetTitle("Pull");
-    CHECK(Tracks.regHist(m_totalEndCapAPull));
+    ATH_CHECK(Tracks.regHist(m_totalEndCapAPull));
     m_totalEndCapCPull = new TH1F("totalEndCapCPull", "Overall Pull Distribution for the EndCapC", 100, -5, 5);
     m_totalEndCapCPull->GetXaxis()->SetTitle("Pull");
-    CHECK(Tracks.regHist(m_totalEndCapCPull));
+    ATH_CHECK(Tracks.regHist(m_totalEndCapCPull));
 
     if (m_doTrigger == true) {
       m_trackTrigger = new TH1I("trackTriggers", "Tracks for different trigger types", N_TRIGGER_TYPES, -0.5, 7.5);            //
@@ -762,8 +745,8 @@ SCTTracksMonTool::bookGeneralHistos() {
         m_trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
         m_trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
       }
-      CHECK(Tracks.regHist(m_trackTrigger));
-      CHECK(Tracks.regHist(m_trackTriggerRate));
+      ATH_CHECK(Tracks.regHist(m_trackTrigger));
+      ATH_CHECK(Tracks.regHist(m_trackTriggerRate));
     }
     // Book histogram of track rate for different regions of the detector
     m_trackRate = new TProfile("SCTTrackRate", "Track per event for SCT regions", 3, 0.0, 3.0);
@@ -771,56 +754,54 @@ SCTTracksMonTool::bookGeneralHistos() {
     m_trackRate->GetXaxis()->SetBinLabel(2, "Barrel");
     m_trackRate->GetXaxis()->SetBinLabel(3, "EndcapA");
 
-    CHECK(Tracks.regHist(m_trackRate));
+    ATH_CHECK(Tracks.regHist(m_trackRate));
     //
     m_trk_ncluHisto = new TH1F("trk_sct_hits", "SCT HITS per single Track", N_HIT_BINS, FIRST_HIT_BIN, LAST_HIT_BIN);
     m_trk_ncluHisto->GetXaxis()->SetTitle("Num of Hits");
-    CHECK(Tracks.regHist(m_trk_ncluHisto));
+    ATH_CHECK(Tracks.regHist(m_trk_ncluHisto));
 
     m_trk_nclu_totHisto = new TH1F("sct_hits_onall_tracks", "SCT HITS on all event Tracks", N_HIT_BINS, FIRST_HIT_BIN,
                                    LAST_HIT_BIN);
     m_trk_nclu_totHisto->GetXaxis()->SetTitle("Num of SCT Hits");
     m_trk_nclu_totHisto->GetYaxis()->SetTitle("Num of Events");
-    CHECK(Tracks.regHist(m_trk_nclu_totHisto));
+    ATH_CHECK(Tracks.regHist(m_trk_nclu_totHisto));
 
     m_trk_chi2 = new TH1F("trk_chi2", "Track #chi^{2} div ndf", 150, 0., 150.);
     m_trk_chi2->GetXaxis()->SetTitle("Number of track #chi^{2}/NDF");
-    CHECK(Tracks.regHist(m_trk_chi2));
+    ATH_CHECK(Tracks.regHist(m_trk_chi2));
 
     m_trk_N = new TH1F("trk_N", "Number of tracks", 400, 0, 4000);
     m_trk_N->GetXaxis()->SetTitle("Number of tracks");
-    CHECK(Tracks.regHist(m_trk_N));
+    ATH_CHECK(Tracks.regHist(m_trk_N));
 
 
     m_trk_pt = new TH1F("trk_pt", "Track P_{T}", 150, 0., 150.);
     m_trk_pt->GetXaxis()->SetTitle("P_{T} [GeV]");
-    CHECK(Tracks.regHist(m_trk_pt));
+    ATH_CHECK(Tracks.regHist(m_trk_pt));
 
     m_trk_d0 = new TH1F("trk_d0", "Track d0", 160, -40., 40.);
     m_trk_d0->GetXaxis()->SetTitle("d0 [mm]");
-    CHECK(Tracks.regHist(m_trk_d0));
+    ATH_CHECK(Tracks.regHist(m_trk_d0));
 
     m_trk_z0 = new TH1F("trk_z0", "Track z0", 200, -200., 200.);
     m_trk_z0->GetXaxis()->SetTitle("z0 [mm]");
-    CHECK(Tracks.regHist(m_trk_z0));
+    ATH_CHECK(Tracks.regHist(m_trk_z0));
 
     m_trk_phi = new TH1F("trk_phi", "Track Phi", 160, -4, 4.);
     m_trk_phi->GetXaxis()->SetTitle("#phi [rad]");
-    CHECK(Tracks.regHist(m_trk_phi));
+    ATH_CHECK(Tracks.regHist(m_trk_phi));
 
     m_trk_eta = new TH1F("trk_eta", "Track Eta", 160, -4., 4.);
     m_trk_eta->GetXaxis()->SetTitle("#eta");
-    CHECK(Tracks.regHist(m_trk_eta));
+    ATH_CHECK(Tracks.regHist(m_trk_eta));
 
     if (m_environment == AthenaMonManager::online) {
       m_nTracks = new TH1I("sct_tracks_vs_en", "Number of Tracks vs Event Number", m_evtsbins, 1, m_evtsbins + 1);
       m_nTracks->GetXaxis()->SetTitle("Event Number");
       m_nTracks->GetYaxis()->SetTitle("Num of Tracks");
-      size_t nTracks_buf_size;
-      nTracks_buf_size = m_evtsbins * sizeof(int);
-      m_nTracks_buf = (int*) malloc(nTracks_buf_size);
+      m_nTracks_buf.reserve(m_evtsbins);
       m_nTracks_pos = 0;
-      CHECK(Tracks.regHist(m_nTracks));
+      ATH_CHECK(Tracks.regHist(m_nTracks));
     }
   }
   return StatusCode::SUCCESS;
@@ -884,9 +865,9 @@ SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal) {
     string streamPull(string("pulls") + abbreviation + streamDelimiter + layerSide.name());
     string titleResidual(string("SCT Residuals for ") + polarityString + ": " + layerSide.title());
     string titlePull(string("SCT Pulls: ") + layerSide.title());
-    CHECK(h1Factory(streamResidual + "_summary", "Summary " + titleResidual, 0.5, endCapTracksResi,
+    ATH_CHECK(h1Factory(streamResidual + "_summary", "Summary " + titleResidual, 0.5, endCapTracksResi,
                     *p_residualsSummary));
-    CHECK(h1Factory(streamPull + "_summary", "Summary " + titlePull, 5., endCapTracksPull, *p_pullsSummary));
+    ATH_CHECK(h1Factory(streamPull + "_summary", "Summary " + titlePull, 5., endCapTracksPull, *p_pullsSummary));
   }
 
 
@@ -922,8 +903,8 @@ SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal) {
       string titleResidual(string("SCT Residuals for ") + polarityString + ": " + layerSide.title());
       string titlePull(string("SCT Pulls: ") + layerSide.title());
 
-      CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residuals));
-      CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracksPull, *p_pulls));
+      ATH_CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residuals));
+      ATH_CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracksPull, *p_pulls));
     }
 
     for (unsigned int i(0); i != limit; ++i) {
@@ -935,8 +916,8 @@ SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal) {
       string streamPull("pullsRMS" + abbreviation + streamDelimiter + layerString + streamDelimiter + sideString);
       string titleResidual("SCT Residuals RMS for " + polarityString + ": " + layerSide.title());
       string titlePull(string("SCT Pulls RMS for ") + polarityString + ": " + layerSide.title());
-      CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residualsRms));
-      CHECK(h2Factory(streamPull, titlePull, becVal, endCapTracksPull, *p_pullsRms));
+      ATH_CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residualsRms));
+      ATH_CHECK(h2Factory(streamPull, titlePull, becVal, endCapTracksPull, *p_pullsRms));
     }
   }
 
@@ -959,7 +940,7 @@ SCTTracksMonTool::h2Factory(const std::string& name, const std::string& title,
   }
   H2_t tmp = new TH2F(TString(name), TString(
                         title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5);
-  CHECK(registry.regHist(tmp));
+  ATH_CHECK(registry.regHist(tmp));
   storageVector.push_back(tmp);
   return StatusCode::SUCCESS;
 }
@@ -980,7 +961,7 @@ SCTTracksMonTool::p2Factory(const std::string& name, const std::string& title,
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(
                                  title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5, "s");
-  CHECK(registry.regHist(tmp));
+  ATH_CHECK(registry.regHist(tmp));
   storageVector.push_back(tmp);
   return StatusCode::SUCCESS;
 }
@@ -992,7 +973,7 @@ SCTTracksMonTool::h1Factory(const std::string& name, const std::string& title, c
   const float lo(-extent), hi(extent);
   H1_t tmp = new TH1F(TString(name), TString(title), nbins, lo, hi);
 
-  CHECK(registry.regHist(tmp));
+  ATH_CHECK(registry.regHist(tmp));
   storageVector.push_back(tmp);
   return StatusCode::SUCCESS;
 }

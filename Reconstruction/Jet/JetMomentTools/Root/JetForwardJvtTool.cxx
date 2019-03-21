@@ -20,6 +20,7 @@
 
     static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
     static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+    static SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -84,10 +85,12 @@
     m_pileupMomenta.clear();
     for(const auto& jetF : jetCont) {
       (*m_Dec_out)(*jetF) = 1;
+      fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
       if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*m_Dec_out)(*jetF) = 0;
+      fjvt_dec(*jetF) = fjvt;
     }
     return 0;
   }

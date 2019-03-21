@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 /**********************************************************************
  * AsgTool: TrigEgammaEFPhotonSelectorTool
@@ -12,11 +12,10 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
-#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
-
+#include "PATCore/AcceptData.h"
 using namespace std;
 using namespace Trig;
 //**********************************************************************
@@ -82,14 +81,17 @@ bool TrigEgammaEFPhotonSelectorTool::ApplyPhotonPid(const xAOD::Photon *eg, cons
   bool passTool=false;
   bool passSel=false;
   eg->passSelection(passSel,pidname);
+  //If Alg becomes Reentrant this needs to change
+  const EventContext ctx = Gaudi::Hive::currentContext();
+  
   if (pidname == "Tight") {
-    passTool = (bool) m_photonOnlIsEMTool[0]->accept(eg);
+    passTool = (bool)m_photonOnlIsEMTool[0]->accept(ctx,eg);
   }
   else if (pidname == "Medium") {
-    passTool = (bool) m_photonOnlIsEMTool[1]->accept(eg);
+    passTool = (bool)m_photonOnlIsEMTool[1]->accept(ctx,eg);
   }
   else if (pidname == "Loose") {
-    passTool = (bool) m_photonOnlIsEMTool[2]->accept(eg);
+    passTool = (bool)m_photonOnlIsEMTool[2]->accept(ctx,eg);
   }
   else {
     ATH_MSG_DEBUG("No Pid tool, continue without PID");

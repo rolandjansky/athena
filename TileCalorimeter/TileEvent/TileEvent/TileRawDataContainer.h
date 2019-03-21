@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -59,10 +59,6 @@ public:
     // clear all collections
     void clear();
   
-    // insert a TileRawData element into a collection.
-    // this is only to be used by Algorithm-builder
-    void add (TElement* rc, bool createColl=false, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS);
-    inline void push_back(TElement* rc) { add(rc,true); }
     inline TYPE get_hashType() const { return this->m_hashFunc.type(); }
     inline UNIT get_unit() const { return this->m_unit; }
     inline void set_unit(UNIT unit) { m_unit=unit; }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon                                                 import CfgMgr
 from AthenaCommon.AppMgr                                          import ToolSvc
@@ -17,7 +17,11 @@ ElectronPidTools()
 PhotonPidTools()
 #***********************************************************************
 
+OutputLevel=0
 
+# Track isolation -- remember to add TrackIsolation as a property of the class
+#from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
+#TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 #TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 #TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
 #TrkIsoCfg.TrackSelectionTool.minPt = 1000.

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 /**********************************************************************
@@ -57,9 +57,11 @@ TrigEgammaEmulationTool( const std::string& myname )
     declareProperty("EFCaloSelectorTool"      , m_efCaloSelector          );
     declareProperty("EFElectronSelectorTools" , m_efElectronSelector      );
     declareProperty("EFPhotonSelectorTools"   , m_efPhotonSelector        );
+
     // for expert: use this flags to switch and custo your menu
     declareProperty("DoL2ElectronFex"         , m_doL2ElectronFex=false   );
     declareProperty("DoRinger"                , m_doRinger=false          );
+    declareProperty("DoRingerBelow15GeV"      , m_doRingerBelow15GeV=false);
     declareProperty("DoEFCaloPid"             , m_doEFCaloPid=false       );
 
 
@@ -75,7 +77,7 @@ TrigEgammaEmulationTool( const std::string& myname )
     m_emTauRois      =nullptr;
     m_storeGate      =nullptr;
     m_l1Cont         =nullptr;
-    
+
     // just for compile
     HLT::TriggerElement* t = nullptr;
     const xAOD::TrigElectronContainer* a = getFeature<xAOD::TrigElectronContainer>(t);
@@ -96,8 +98,8 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     if ( (m_trigdec.retrieve()).isFailure() ){
       ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
       return StatusCode::FAILURE;
-    }    
-    
+    }
+
     ATH_MSG_INFO("Initialising Selectors tool...");
     //Enable expert methods
     m_trigdec->ExperimentalAndExpertMethods()->enable();
@@ -111,7 +113,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
         return sc;
       }
     }
-    
+
     ATH_MSG_INFO("Initialising L2 Selectors tool...");
     if(m_l2Selector){
       m_l2Selector->setParents(m_trigdec, m_storeGate);
@@ -121,7 +123,7 @@ StatusCode TrigEgammaEmulationTool::initialize() {
         return sc;
       }
     }
-    
+
     ATH_MSG_INFO("Initialising EFCalo Selectors tool...");
     if(m_efCaloSelector){
       m_efCaloSelector->setParents(m_trigdec, m_storeGate);
@@ -151,16 +153,18 @@ StatusCode TrigEgammaEmulationTool::initialize() {
         return sc;
       }
     }
-   
+
     ATH_MSG_INFO("Initialising accept...");
-    //add cuts into AcceptInfo
+    //add cuts into TAccept
     m_accept.addCut("L1Calo"  , "Trigger L1Calo step"     );
     m_accept.addCut("L2Calo"  , "Trigger L2Calo step"     );
     m_accept.addCut("L2"      , "Trigger L2Electron step" );
     m_accept.addCut("EFCalo"  , "Trigger EFCalo step"     );
     m_accept.addCut("EFTrack" , "Trigger EFTrack step"    );
     m_accept.addCut("HLT"     , "Trigger HLT decision"    );
-     
+    m_accept.addCut("L1_matched"  , "L1 Trigger object Matched"                                   );
+    m_accept.addCut("TE_full"     , "The Trigger Element has all objects needed by the emulation"  );
+ 
     ATH_MSG_INFO("Initialising trigMap...");
     auto trigList = m_trigList;
 
@@ -173,8 +177,16 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     }//Loop over trigger list
 
     ATH_MSG_INFO("Initialising supporting trigger...");
-    std::vector<std::string> chains  = m_trigdec->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
+
     std::vector<std::string> supportingTrigList;
+    auto chains = m_trigdec->getListOfTriggers("HLT_e.*");
+
+
+    ATH_MSG_INFO("Supporting trigger before cleaner...");
+    for(const auto trigName:m_supportingTrigList){
+      ATH_MSG_INFO("    Suppot: " << trigName);
+    }
+
     // All support triggers must be inside of the xaod
     for(const auto trigName:m_supportingTrigList){
       if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){
@@ -183,11 +195,23 @@ StatusCode TrigEgammaEmulationTool::initialize() {
           supportingTrigList.push_back(trigName);
           setTrigInfo(trigName);
         }
+        // To avoid that loose some chain in support trigger list
+        else{
+          supportingTrigList.push_back(trigName);
+        }
       }
-    } 
+    }
+
     // Overwrite all support list
     m_supportingTrigList.clear();
     m_supportingTrigList.insert(m_supportingTrigList.end(), supportingTrigList.begin(), supportingTrigList.end());
+
+    ATH_MSG_INFO("Supporting trigger after cleaner...");
+    for(const auto trigName:m_supportingTrigList){
+      ATH_MSG_INFO("    Suppot: " << trigName);
+    }
+
+
     return sc;
 }
 //!==========================================================================
@@ -205,7 +229,7 @@ StatusCode TrigEgammaEmulationTool::finalize() {
         return sc;
       }
     }
-    
+
     if(m_l2Selector){
       sc = m_l2Selector->finalize();
       if(sc.isFailure()){
@@ -213,7 +237,7 @@ StatusCode TrigEgammaEmulationTool::finalize() {
         return sc;
       }
     }
-    
+
     if(m_efCaloSelector){
       sc = m_efCaloSelector->finalize();
       if(sc.isFailure()){
@@ -297,32 +321,42 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
   if(m_trigInfo.count(trigger) != 0){
 
     Trig::Info info     = getTrigInfo(trigger);
-    bool passedL1Calo = false;  
-    bool passedL2Calo = false; 
+    bool passedL1Calo = false;
+    bool passedL2Calo = false;
     bool passedL2     = false;
-    bool passedEFCalo = false; 
-    bool passedEFTrack= false; 
+    bool passedEFCalo = false;
+    bool passedEFTrack= false;
     bool passedHLT    = false;
 
     // Trigger Element holder
     const HLT::TriggerElement *te=nullptr;
     bool isGoodToGo=false;
+
+    // Here, if the te_external does not have the Electron object means that this te is not completed.
+    // We need to match objects with this RoI to complete the chain.
     if(!getFeature<xAOD::ElectronContainer>(te_external)){
+
       const auto* l1 = getFeature<xAOD::EmTauRoI>(te_external);
-      if(!l1){
+      if(!l1){// Its not possible to match because this TE does not have EmTauRoI, abort
         ATH_MSG_WARNING("Can not retrieve the support element because the current TE does not has xAOD::EmTauRoI object!");
         return acceptData;
       }
+
+      // There is L1 object in this RoI
+      acceptData.setCutResult("L1_matched", true);
+
       // This object is not fully completed, try to found other.
       for (const auto &fctrigger : m_supportingTrigList){
+        ATH_MSG_DEBUG("Searching for EL objects in "<< fctrigger);
         // Retrieve all trigger elements for this fctrigger
         auto fc = m_trigdec->features(fctrigger, TrigDefs::alsoDeactivateTEs);
         // Only TEs with all objects
         auto vec = fc.get<xAOD::ElectronContainer>();
         // Try to match by roiword
-
+        ATH_MSG_DEBUG("VEC SIZE IS "<< vec.size());
         for(const auto &feat : vec){
           if(l1->roiWord() == getFeature<xAOD::EmTauRoI>(feat.te())->roiWord()){
+            ATH_MSG_DEBUG("Searching for EL objects in "<< fctrigger << ": FOUND");
             te = feat.te();
             isGoodToGo=true;
             break;
@@ -330,9 +364,10 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
         }// Loop over Trigger elements
         if(isGoodToGo)
           break;
-      }// Loop over support trigger 
+      }// Loop over support trigger
     }else{
       // The current TE has all objects needed by the emulation
+      acceptData.setCutResult("L1_matched", true);
       isGoodToGo=true;
       te=te_external;
       setTEMatched(te);
@@ -345,7 +380,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
         setTEMatched(te);
       }else{
         ATH_MSG_WARNING("This Trigger Element does not have all features needed by the emulation tool. The external match is " <<
-                     " not possible! Maybe the support trigger list not attend all requirements."); 
+                     " not possible! Maybe the support trigger list not attend all requirements.");
         setTEMatched(nullptr);
         return acceptData;
       }
@@ -355,6 +390,9 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
 
     ATH_MSG_DEBUG("getFeatures from TE...");
 
+    // The TE has RoI and now have all objects needed by the emulatio.
+    acceptData.setCutResult("TE_full", true);
+
     const auto* l1            = getFeature<xAOD::EmTauRoI>(te);
     const auto* emCluster     = getFeature<xAOD::TrigEMCluster>(te);
     const auto* trigElCont    = getFeature<xAOD::TrigElectronContainer>(te);
@@ -363,12 +401,13 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
     //const auto* phCont        = getFeature<xAOD::PhotonContainer>(te);
 
     if(elCont){
-      for(auto& tool : m_efElectronSelector) 
+      for(auto& tool : m_efElectronSelector)
         tool->setTe(te); //Must be passed to config track isolation
     }
 
-    //Level 1
+    // Level 1
     m_l1Selector->emulation( l1, passedL1Calo , info);
+    // passedL1Calo = ancestorPassed<xAOD::EmTauRoI>(te_external);
     acceptData.setCutResult("L1Calo", passedL1Calo);
 
     if( (passedL1Calo ) && !info.isL1 ){
@@ -399,7 +438,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
         if (passedL2){
           m_efCaloSelector->emulation( elCont, passedEFCalo, info);
           acceptData.setCutResult("EFCalo", passedEFCalo);
-          
+
           if(passedEFCalo){
             passedEFTrack=true;
             acceptData.setCutResult("EFTrack"    , passedEFTrack);
@@ -412,7 +451,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
                 acceptData.setCutResult("HLT"    , passedHLT);
               }
             }//EFTrack
-          }//EFCalo 
+          }//EFCalo
         }//L2
       }//L2Calo
     }//L1Calo
@@ -427,14 +466,14 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *
 asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger) {
   clearDecorations();
   asg::AcceptData acceptData (&m_accept);
-  
+
   if( m_trigInfo.count(trigger) != 0){
     Trig::Info info     = getTrigInfo(trigger);
-    bool passedL1Calo = false;  
-    bool passedL2Calo = false; 
+    bool passedL1Calo = false;
+    bool passedL2Calo = false;
     bool passedL2     = false;
-    bool passedEFCalo = false; 
-    bool passedEFTrack= false; 
+    bool passedEFCalo = false;
+    bool passedEFTrack= false;
     bool passedHLT    = false;
 
     boost::dynamic_bitset<> bitL1Accept(m_emTauRois->size());
@@ -458,10 +497,10 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger)
         bitL2CaloAccept.set(bit, pass);
         bit++;
       }
-  
+
       if(bitL2CaloAccept.count()>0)  passedL2Calo=true;
       acceptData.setCutResult("L2Calo", passedL2Calo);
-      
+
       if(passedL2Calo) {
         if(info.perf){//bypass L2 Electron/Photon Level
           passedL2=true;
@@ -486,12 +525,12 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger)
 
           m_efCaloSelector->emulation(m_onlElectrons, passedEFCalo, info);
           acceptData.setCutResult("EFCalo", passedEFCalo);
-          
+
           if(passedEFCalo){
             //TODO: running the EF track step
             passedEFTrack=true;
             acceptData.setCutResult("EFTrack", passedEFTrack);
-            
+
             if(passedEFTrack){
               if(!emulationHLT(m_onlElectrons, passedHLT, info)){
                 acceptData.clear();
@@ -501,7 +540,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger)
               }
             }//EFTrack
 
-          }//EFCalo 
+          }//EFCalo
         }//L2
       }//L2Calo
     }//L1Calo
@@ -544,7 +583,7 @@ bool TrigEgammaEmulationTool::isPassed(const std::string &trigger, const std::st
     ATH_MSG_DEBUG("isPassed()::L2     = " << acceptData.getCutResult("L2"));
     ATH_MSG_DEBUG("isPassed()::EFCalo = " << acceptData.getCutResult("EFCalo"));
     ATH_MSG_DEBUG("isPassed()::EFTrack= " << acceptData.getCutResult("EFTrack"));
-    ATH_MSG_DEBUG("isPassed()::HLT    = " << acceptData.getCutResult("HLT")); 
+    ATH_MSG_DEBUG("isPassed()::HLT    = " << acceptData.getCutResult("HLT"));
   }
   bool pass=false;
   if(bitAccept.count()>0)  pass=true;
@@ -565,7 +604,7 @@ void TrigEgammaEmulationTool::clearDecorations(){
 
 //!==========================================================================
 bool TrigEgammaEmulationTool::emulationHLT(const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info){
- 
+
   if(info.type == "electron"){
     for( auto& tool : m_efElectronSelector){
       if( tool->emulation(container, pass, info) )
@@ -583,6 +622,23 @@ bool TrigEgammaEmulationTool::emulationHLT(const xAOD::IParticleContainer *conta
   return true;
 }
 
+bool TrigEgammaEmulationTool::emulationL2Calo(const xAOD::TrigEMCluster *emCluster, std::string pidname)
+{
+  bool pass=false;
+  Trig::Info info;
+  info.ringer=false;
+  info.etcut=false;
+  info.perf = false;
+  info.hltcalo=false;
+  info.idperf=false;
+  info.thrL2Calo=0.0;
+  info.thrHLT=emCluster->et()*1e-3;
+  info.pidname=pidname;
+  m_l2Selector->emulation(emCluster, pass, info);
+  return pass;
+}
+  
+ 
 //!==========================================================================
 void TrigEgammaEmulationTool::setTrigInfo(const std::string trigger){
   ATH_MSG_DEBUG("setTrigInfo::trigger = "<< trigger);
@@ -603,19 +659,23 @@ void TrigEgammaEmulationTool::setTrigInfo(const std::string trigger){
   parseTriggerName(trigger,"Loose",isL1,type,etthr,l1thr,l1type,l1item,pidname,etcut,perf); // Determines probe PID from trigger
 
 
-  std::string decorator="is"+pidname; 
+  std::string decorator="is"+pidname;
   // isolation types
-  if (boost::contains(trigger,"iloose") || boost::contains(trigger, "ivarloose") || 
-      boost::contains(trigger,"ivarmedium") || boost::contains(trigger, "ivartight") || 
+  if (boost::contains(trigger,"iloose") || boost::contains(trigger, "ivarloose") ||
+      boost::contains(trigger,"ivarmedium") || boost::contains(trigger, "ivartight") ||
       boost::contains(trigger,"icaloloose") || boost::contains(trigger, "icalomedium") ||
       boost::contains(trigger,"icalotight") ) isolation = true;
   if (boost::contains(trigger,"idperf") ) idperf    = true;
   if (boost::contains(trigger,"HLTCalo")) hltcalo   = true;
-  
+
   // Apply L2Calo ringer?
-  if (boost::contains(trigger,"noringer") ) 
+  if (boost::contains(trigger,"noringer") )
     ringer = false;
-  else if ( boost::contains(trigger,"ringer") || m_doRinger) 
+  else if ( boost::contains(trigger,"ringer") )
+    ringer = true;
+  else if ( etthr >= 15.0 && m_doRinger )
+    ringer = true;
+  else if ( etthr < 15.0 && m_doRinger && m_doRingerBelow15GeV )
     ringer = true;
   else
     ringer  =false;
@@ -634,7 +694,7 @@ void TrigEgammaEmulationTool::setTrigInfo(const std::string trigger){
   if(isL1) etthr=l1thr; // Should be handled elsewhere
   std::string strEtthr = boost::lexical_cast<std::string>(etthr);
   Trig::Info info{trigger,type,strEtthr,l1item,l1type,pidname,decorator,lhinfo,isolation,isL1,perf,
-    idperf,hltcalo,ringer,etcut,m_doL2ElectronFex,m_doEFCaloPid,etthr,l1thr};
+    idperf,hltcalo,ringer,etcut,m_doL2ElectronFex,m_doEFCaloPid,etthr,l1thr,etthr};
   m_trigInfo.insert(std::pair<std::string,Trig::Info>(trigger, info));
   ATH_MSG_DEBUG("Inserting trigger: " << trigger << ", completed.");
 }
@@ -703,7 +763,7 @@ void TrigEgammaEmulationTool::parseTriggerName(const std::string trigger, std::s
 
       //Get the L1 information
       if(!boost::contains(strs.back(),"L1"))  strs.push_back(l1item);
-      
+
 
       if(boost::contains(strs.back(),"L1")){
         std::string l1info = strs.back();
@@ -731,7 +791,7 @@ std::string TrigEgammaEmulationTool::getL1Item(std::string trigger){
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");
-        L1_seed = trig_conf->lower_chain_name(); //L1 trigger seed             
+        L1_seed = trig_conf->lower_chain_name(); //L1 trigger seed
         boost::replace_all( L1_seed, "_", "" );
     }else{
       ATH_MSG_WARNING("There is no L1 Seed for this trigger "<< trigger);
@@ -767,17 +827,26 @@ void TrigEgammaEmulationTool::match(const xAOD::Egamma *el,  const  HLT::Trigger
   unsigned nobj1,nobj2;
   nobj1=nobj2=0;
 
+
   for(auto& trigItem : m_supportingTrigList){
     // Trigger match using Matching tool
     m_matchTool->match(el, trigItem, feat);
     if(feat){// If has a match!
+
+      ATH_MSG_DEBUG("AKI, match with " << trigItem );
+
       if(te_external){
         nobj2=0;
         if(getFeature<xAOD::ElectronContainer>(feat)    ) nobj2++; // HLT
+        ATH_MSG_DEBUG("Electron " << nobj2);
         if(getFeature<xAOD::CaloClusterContainer>(feat) ) nobj2++; // EFCalo
+        ATH_MSG_DEBUG("Calo " << nobj2);
         if(getFeature<xAOD::TrigElectronContainer>(feat)) nobj2++; // L2
+        ATH_MSG_DEBUG("TrigElectron " << nobj2);
         if(getFeature<xAOD::TrigEMCluster>(feat)        ) nobj2++; // L2Calo
+        ATH_MSG_DEBUG("Cluster " << nobj2);
         if(getFeature<xAOD::EmTauRoI>(feat)             ) nobj2++; // L2Calo
+        ATH_MSG_DEBUG("L1 " << nobj2);
         if(nobj2>nobj1){
           te_external=feat;
           nobj1=nobj2;
@@ -785,15 +854,20 @@ void TrigEgammaEmulationTool::match(const xAOD::Egamma *el,  const  HLT::Trigger
         //ATH_MSG_INFO("ET  = " << getFeature<xAOD::TrigEMCluster>(te_external)->et());
       }else{
         if(getFeature<xAOD::ElectronContainer>(feat)    ) nobj1++; // HLT
+        ATH_MSG_DEBUG("Electron " << nobj1);
         if(getFeature<xAOD::CaloClusterContainer>(feat) ) nobj1++; // EFCalo
+        ATH_MSG_DEBUG("Calo " << nobj1);
         if(getFeature<xAOD::TrigElectronContainer>(feat)) nobj1++; // L2
+        ATH_MSG_DEBUG("TrigElectron " << nobj1);
         if(getFeature<xAOD::TrigEMCluster>(feat)        ) nobj1++; // L2Calo
+        ATH_MSG_DEBUG("Cluster " << nobj1);
         if(getFeature<xAOD::EmTauRoI>(feat)             ) nobj1++; // L2Calo
+        ATH_MSG_DEBUG("L1 " << nobj1);
         te_external=feat;
       }
 
     }
-    ATH_MSG_DEBUG("Electron with ET = " << el->pt()*1e-3 << " GeV match with " << trigItem 
+    ATH_MSG_DEBUG("Electron with ET = " << el->pt()*1e-3 << " GeV match with " << trigItem
                   << " is good? " << (te_external?"yes":"no") << " and has " << nobj1 << " features.");
 
     // All objects is needed

@@ -108,7 +108,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
   m_nOneSideEndcapC_ev{},
   m_nTwoSideEndcapC_ev{},
   m_nNonGoodModulesEndcapC_ev{},
-  //
   m_pnoiseoccupancymapHistoVectorECC{},
   m_pnoiseoccupancymapHistoVectorECCSide0{},
   m_pnoiseoccupancymapHistoVectorECCSide1{},
@@ -118,7 +117,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
   m_pnoiseoccupancymapHistoVectorECA{},
   m_pnoiseoccupancymapHistoVectorECASide0{},
   m_pnoiseoccupancymapHistoVectorECASide1{},
-  //
   m_d1(0),
   m_n1(0),
   m_n1Barrel{},
@@ -127,28 +125,21 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
   m_d1Barrel{},
   m_d1EndcapA{},
   m_d1EndcapC{},
-  //
   m_noSidesHit(false),
   m_oneSideHit(false),
   m_twoSidesHit(false),
   m_correct_TimeBin(false),
-  //
   m_nNoSides{},
   m_nOneSide{},
   m_nOneSide0{},
   m_nOneSide1{},
   m_nTwoSide{},
-  //
   m_nLink0{},
   m_nLink1{},
-  /** goodModules init in ctor body **/
-  //
   m_nLayer{},
   m_nEta{},
   m_nPhi{},
   m_nNonGoodModule{},
-  //
-  m_checkrecent(1),
   m_current_lb(0),
   m_last_reset_lb(0),
   m_set_timebin(-1),
@@ -172,25 +163,21 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
   m_NZ1(nullptr),
   m_N11(nullptr),
   m_N21(nullptr),
-  //
   m_NZ1BAR{},
   m_N11BAR{},
   m_N21BAR{},
   m_NZ1BAR_vsLB{},
   m_N11BAR_vsLB{},
-  //
   m_NZ1ECC{},
   m_N11ECC{},
   m_N21ECC{},
   m_NZ1ECC_vsLB{},
   m_N11ECC_vsLB{},
-  //
   m_NZ1ECA{},
   m_N11ECA{},
   m_N21ECA{},
   m_NZ1ECA_vsLB{},
   m_N11ECA_vsLB{},
-  //
   m_NO(nullptr),
   m_NOSide(nullptr),
   m_NO_vsLB(nullptr),
@@ -212,33 +199,17 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
   m_NOECA_disk{},
   m_NOECA_disk_vsLB{},
   m_numberHitsinBarrel{},
-  //
   m_NZ1_vs_modnum(nullptr),
   m_N11_vs_modnum(nullptr),
-  //
-  m_stream("/stat"),
   m_path(""),
-  m_tracksName(""), // never used?
-  m_NOTrigger("L1_RD0_EMPTY"),
-  m_dataObjectName(std::string("SCT_RDOs")),
-  m_eventInfoKey(std::string("EventInfo")),
-  m_pSCTHelper(nullptr),
-  m_checkBadModules(true),
-  m_ignore_RDO_cut_online(true) {
-  /** sroe 3 Sept 2015:
-     histoPathBase is declared as a property in the base class, assigned to m_path
-     with default as empty string.
-     Declaring it here as well gives rise to compilation warning
-     WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-     declareProperty("histoPathBase", m_stream = "/stat"); **/
-  m_stream = "/stat";
-  declareProperty("checkBadModules", m_checkBadModules);
+  m_pSCTHelper(nullptr) {
+  declareProperty("checkBadModules", m_checkBadModules=true);
   declareProperty("CheckRate", m_checkrate = 1000);
   declareProperty("CheckRecent", m_checkrecent = 1);
   declareProperty("NOTrigger", m_NOTrigger = "L1_RD0_EMPTY");
-  declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
+  declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online=true);
 
-  for (auto& i:m_goodModules) {
+  for (bool& i: m_goodModules) {
     i = true;
   }
 }
@@ -249,7 +220,6 @@ StatusCode SCTRatioNoiseMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
   ATH_CHECK( m_dataObjectName.initialize() );
-  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -309,16 +279,12 @@ StatusCode
 SCTRatioNoiseMonTool::fillHistograms() {
   ATH_MSG_DEBUG("enters fillHistograms");
   // lets get the raw hit container
-  typedef SCT_RDORawData SCTRawDataType;
   SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
   if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
 
   Identifier SCT_Identifier;
-  // Use new IDC
-  SCT_RDO_Container::const_iterator col_it = p_rdocontainer->begin();
-  SCT_RDO_Container::const_iterator lastCol = p_rdocontainer->end();
 
   // Declare Time Bin
   m_set_timebin = 4;
@@ -354,7 +320,8 @@ SCTRatioNoiseMonTool::fillHistograms() {
 
   SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
-    return ERROR("Could not find event pointer"), StatusCode::FAILURE;
+    ATH_MSG_ERROR("Could not find event pointer");
+    return StatusCode::FAILURE;
   }
 
   const bool isSelectedTrigger = true;
@@ -368,15 +335,13 @@ SCTRatioNoiseMonTool::fillHistograms() {
   m_current_lb = tmplb;
   int count_SCT_RDO = 0;
   if (isSelectedTrigger == true) {
-    for (; col_it != lastCol; ++col_it) {
+    for (const InDetRawDataCollection<SCT_RDORawData>* rd: *p_rdocontainer) {
       m_correct_TimeBin = false;
-      const InDetRawDataCollection<SCTRawDataType>* SCT_Collection(*col_it);
-      if (!SCT_Collection) {
+      if (rd==nullptr) {
         continue; // select only SCT RDOs
       }
-      const InDetRawDataCollection<SCT_RDORawData>* rd(*col_it);
 
-      Identifier SCT_Identifier = SCT_Collection->identify();
+      Identifier SCT_Identifier = rd->identify();
       int thisBec = m_pSCTHelper->barrel_ec(SCT_Identifier);
       int thisLayerDisk = m_pSCTHelper->layer_disk(SCT_Identifier);
       int thisPhi = m_pSCTHelper->phi_module(SCT_Identifier);
@@ -393,11 +358,10 @@ SCTRatioNoiseMonTool::fillHistograms() {
         m_nNonGoodModule[m_modNum] = 1;
       }
 
-      DataVector<SCTRawDataType>::const_iterator p_rdo_end = SCT_Collection->end();
-      for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {
+      for (const SCT_RDORawData* rdo: *rd) {
         count_SCT_RDO++;
-        const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
-        if (rdo3 != 0) {
+        const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(rdo);
+        if (rdo3) {
           m_tbin = (rdo3)->getTimeBin();
         }
         if (timeBinInPattern(m_tbin, XIX) && goodModule) {

@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          CoordinateRange.h  -  description
@@ -32,7 +32,7 @@ class CoordinateRange : public Coordinate {
  public:
   CoordinateRange(double phiMin, double phiMax, double etaMin, double etaMax);
   CoordinateRange();
-  virtual ~CoordinateRange();
+  virtual ~CoordinateRange() = default;
 
   void setRanges(double phiMin, double phiMax, double etaMin, double etaMax);
   PhiRange phiRange() const;

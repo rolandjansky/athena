@@ -27,10 +27,6 @@ namespace LVL1 {
     checkValues();
   }
 
-  PhiRange::~PhiRange() {
-
-  }
-
   double PhiRange::min() const {
     return m_min;
   }

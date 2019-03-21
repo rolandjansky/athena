@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          CPRoIDecoder.h  -  description
@@ -39,28 +39,18 @@ namespace LVL1 {
       TrigT1CaloDefs::RoIType roiType( unsigned int word ) const;
 
       /** RoI coordinate information */
-      CoordinateRange coordinate( const unsigned int roiWord );
-      unsigned int crate( const unsigned int roiWord );
-      unsigned int module( const unsigned int roiWord );
-      unsigned int chip( const unsigned int roiWord );
-      unsigned int localcoord( const unsigned int roiWord );
+      virtual CoordinateRange coordinate( const unsigned int roiWord ) const override;
+      unsigned int crate( const unsigned int roiWord ) const;
+      unsigned int module( const unsigned int roiWord ) const;
+      unsigned int chip( const unsigned int roiWord ) const;
+      unsigned int localcoord( const unsigned int roiWord ) const;
 
       /** Thresholds passed (Run 1 RoIs) */
-      const std::vector< unsigned int >& thresholdsPassed( const unsigned int word );
+      const std::vector< unsigned int > thresholdsPassed( const unsigned int word ) const;
       
       /** ET and Isolation information (Run 2 RoIs) */
-      unsigned int et( const unsigned int roiWord );
-      unsigned int isolationWord( const unsigned int roiWord );
-      
-   protected:
-      /** get information from CP RoI word and store in member variables. */
-      void decodeWord( const unsigned int word );
-
-   private:
-      unsigned int m_cpm;
-      unsigned int m_cp;
-      unsigned int m_lc;
-
+      unsigned int et( const unsigned int roiWord ) const;
+      unsigned int isolationWord( const unsigned int roiWord ) const;
    }; // class CPRoIDecoder
 
 } // namespace LVL1

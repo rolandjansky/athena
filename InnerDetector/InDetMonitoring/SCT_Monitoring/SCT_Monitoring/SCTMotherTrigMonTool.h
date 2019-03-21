@@ -50,7 +50,7 @@ protected:
   ///Check if the event passes L1 item
   bool isCalibrationNoise(const std::string& L1_Item);
   ///Abbreviations for level 1 trigger types
-  const static std::string m_triggerNames[8];
+  static const std::string m_triggerNames[8];
   ///Format and output (INFO msg level) the fired triggers
   StatusCode printTriggers() const;
   //@deprecated improper camel casing on old method
@@ -59,10 +59,11 @@ protected:
   bool m_doTrigger;
   /// Check if the event belongs to the SCTNoise Calibration Stream
   bool m_isStream;
+protected:
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
 private:
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfoKey", "Key of xAOD::EventInfo"};
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: RecEnergyRoI.cxx 342657 2011-01-28 23:42:18Z watsona $
 /***************************************************************************
@@ -164,11 +164,8 @@ namespace LVL1 {
    vector< unsigned int >* RecEnergyRoI::etMissThresholdsPassed() const {
 
       JEPRoIDecoder get;
-      vector< unsigned int >* newVec = new std::vector< unsigned int >;
-      for( vector< unsigned int >::const_iterator i = get.etMissThresholdsPassed( m_roiWord2 ).begin();
-           i != get.etMissThresholdsPassed( m_roiWord2 ).end(); ++i ) {
-         newVec->push_back( *i );
-      }
+      vector< unsigned int >* newVec = new std::vector< unsigned int >
+        ( get.etMissThresholdsPassed( m_roiWord2 )  );
       return newVec;
 
    }
@@ -177,11 +174,8 @@ namespace LVL1 {
    vector< unsigned int >* RecEnergyRoI::sumEtThresholdsPassed() const {
 
       JEPRoIDecoder get;
-      vector< unsigned int >* newVec = new std::vector< unsigned int >;
-      for( vector< unsigned int >::const_iterator i = get.etSumThresholdsPassed( m_roiWord1 ).begin();
-           i != get.etSumThresholdsPassed( m_roiWord1 ).end(); ++i ) {
-         newVec->push_back( *i );
-      }
+      vector< unsigned int >* newVec = new std::vector< unsigned int >
+        ( get.etSumThresholdsPassed( m_roiWord1 ) );
       return newVec;
 
    }
@@ -190,11 +184,8 @@ namespace LVL1 {
    vector< unsigned int >* RecEnergyRoI::mEtSigThresholdsPassed() const {
 
       JEPRoIDecoder get;
-      vector< unsigned int >* newVec = new std::vector< unsigned int >;
-      for( vector< unsigned int >::const_iterator i = get.mEtSigThresholdsPassed( m_roiWord0 ).begin();
-           i != get.mEtSigThresholdsPassed( m_roiWord0 ).end(); ++i ) {
-         newVec->push_back( *i );
-      }
+      vector< unsigned int >* newVec = new std::vector< unsigned int >
+        (get.mEtSigThresholdsPassed( m_roiWord0 ));
       return newVec;
 
    }
