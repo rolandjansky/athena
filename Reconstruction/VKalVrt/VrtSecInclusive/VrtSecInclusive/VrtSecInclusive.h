@@ -390,6 +390,9 @@ namespace VKalVrtAthena {
 
     /** get secondary vertex impact parameters **/
     bool getSVImpactParameters(const xAOD::TrackParticle* trk, Amg::Vector3D vertex, std::vector<double>& impactParameters, std::vector<double>& impactParErrors); 
+
+    enum TrkParameter    { k_d0, k_z0, k_theta, k_phi, k_qOverP };
+    enum TrkParameterUnc { k_d0d0, k_z0z0 };
     
     using vertexingAlg = StatusCode (VrtSecInclusive::*)( std::vector<WrkVrt>* );
     std::vector< std::pair<std::string, vertexingAlg> > m_vertexingAlgorithms;
