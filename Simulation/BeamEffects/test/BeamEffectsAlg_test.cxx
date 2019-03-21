@@ -99,6 +99,12 @@ namespace SimTesting {
     ASSERT_TRUE( m_alg->setProperty( "ISFRun", true).isSuccess()  );
   }
 
+  TEST_F(BeamEffectsAlg_test, patchSignalProcessVertex_empty_GenEvent) {
+    HepMC::GenEvent ge;
+    ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
+    ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
+  }
+
   TEST_F(BeamEffectsAlg_test, signal_process_vertex_exists) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
