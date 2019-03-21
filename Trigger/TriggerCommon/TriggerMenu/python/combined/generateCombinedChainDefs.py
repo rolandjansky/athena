@@ -561,17 +561,19 @@ def _adddR(theChainDef,chainDicts,listOfChainDefs):
            log.error("No dRtt chain part found in tau-tau / tau-mu / tau-e dR Topo cut")
 
     from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoHypo
-    from TrigTauHypo.TrigTauHypoConf       import EFTauTopoFex
+    from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoFex
 
     log.info('Topo picks up:')
     log.info(chainDicts[0])
     log.info("Chain {} is of type {}".format(chainDicts[0]['chainName'], chain_type))
 
-    EFFex  =  EFTauTopoFex(comb=chain_type)
+    EFFex  =  EFTauTopoFex(
+            'EFTauTopoFex_{0}'.format(chain_type),
+            chain_type)
     theVars    = ['DRMin', 'DRMax']
     theThresh  = [mindR * 0.1, maxdR * 0.1] # treshold specified as integers -> change them to e.g. 0.3, 3.0
     TauTaudR_Hypo = EFTauTopoHypo(
-            'EFTauTopo_{0}dRtt{1}_{2}'.format(
+            'EFTauTopoHypo_{0}dRtt{1}_{2}'.format(
                 str(mindR).replace('.', ''), str(maxdR).replace('.', ''), chain_type),
             theVars, theThresh)
     log.debug("Input TEs to dRtt algorithm: %s", inputTEsEF)
