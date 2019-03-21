@@ -84,4 +84,3 @@ print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p, nEvents=10, useBootStrapFile=False, threaded=True )
     p.close()
-
