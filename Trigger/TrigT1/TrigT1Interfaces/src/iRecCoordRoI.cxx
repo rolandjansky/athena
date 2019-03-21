@@ -12,5 +12,3 @@
 
 iRecCoordRoI::iRecCoordRoI(){
 }
-iRecCoordRoI::~iRecCoordRoI(){
-}

@@ -13,10 +13,6 @@ namespace LVL1 {
     m_muonTopoCandidates = candList;
   }
 
-  MuCTPIL1Topo::~MuCTPIL1Topo() {
-
-  }
-
   MuCTPIL1Topo& MuCTPIL1Topo::operator=( const MuCTPIL1Topo& a ) {
     
     clearCandidates();

@@ -616,15 +616,15 @@ namespace InDetDD {
 
       // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
       // in the same direction and false if they are opposite.
-      mutable std::atomic_bool m_depthDirection; // Direction of depth axis. 
+      mutable bool m_depthDirection ATLAS_THREAD_SAFE; // Guarded by m_mutex // Direction of depth axis. 
                              // Also direction of readout implant (n+ for pixel, p+ for SCT).
-      mutable std::atomic_bool m_phiDirection;     //
-      mutable std::atomic_bool m_etaDirection;     //
-    
+      mutable bool m_phiDirection ATLAS_THREAD_SAFE;     //
+      mutable bool m_etaDirection ATLAS_THREAD_SAFE;     //
+
       mutable std::atomic_bool m_cacheValid; // Alignment associated quatities.
       mutable std::atomic_bool m_firstTime;
-      mutable std::atomic_bool m_isStereo;
-    
+      mutable bool m_isStereo ATLAS_THREAD_SAFE;
+
       mutable std::recursive_mutex m_mutex;
 
       mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
@@ -638,12 +638,12 @@ namespace InDetDD {
       mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
       mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-      mutable std::atomic<double> m_minZ;
-      mutable std::atomic<double> m_maxZ;
-      mutable std::atomic<double> m_minR;
-      mutable std::atomic<double> m_maxR;
-      mutable std::atomic<double> m_minPhi;
-      mutable std::atomic<double> m_maxPhi;
+      mutable double m_minZ   ATLAS_THREAD_SAFE;// Guarded by m_mutex
+      mutable double m_maxZ   ATLAS_THREAD_SAFE;// Guarded by m_mutex
+      mutable double m_minR   ATLAS_THREAD_SAFE;// Guarded by m_mutex
+      mutable double m_maxR   ATLAS_THREAD_SAFE;// Guarded by m_mutex
+      mutable double m_minPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
+      mutable double m_maxPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
 
       CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
       mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex

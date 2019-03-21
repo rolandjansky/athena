@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileBeamElemCollection_H       
@@ -28,6 +28,14 @@ public:
    * Does a deep copy of the contents.
    */
   TileBeamElemCollection (const TileBeamElemCollection& other);
+
+  /**
+   * @brief Move constructor.
+   * @param other Collection to move.
+   * Move the contents from other collection.
+   */
+  TileBeamElemCollection(TileBeamElemCollection&& other) = default;
+
 
   ~TileBeamElemCollection() { }
 };

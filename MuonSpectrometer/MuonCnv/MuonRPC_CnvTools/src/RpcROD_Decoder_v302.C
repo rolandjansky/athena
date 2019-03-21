@@ -23,6 +23,10 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
     RpcSectorLogicContainer* sectorLogicContainer ) const 
 {
 
+  bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
+  if(skipSectorLogicDecoding)
+    ATH_MSG_DEBUG("Skip SectorLogic decoding, so SLROC.decodeFragment is not being processed");
+
   /* for (unsigned int i = 0; i<1000; ++i) { */
   /*   //std::cout<<" aaa "<<std::endl; */
   /*   msg(MSG::VERBOSE) << "try to increase cpu time "<<log(pow(((double)i+1.)/999.,3))<<endmsg; */
@@ -229,7 +233,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
       
       RXROS.decodeFragment(currentWord,recFieldROS);
       PDROS.decodeFragment(currentWord,recFieldPAD);
-      SLROS.decodeFragment(currentWord,recFieldSL);
+      if(!skipSectorLogicDecoding){
+        SLROS.decodeFragment(currentWord,recFieldSL);
+      }
       
       if (RXROS.isHeader()) {
         isRXHeader=true;
@@ -256,7 +262,26 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
       } else if (SLROS.isSubHeader() && isSLFragment) {
         isSLSubHeader=true;
       }
+
+      // The SLROS functions still return values (based on default values)
+      if(skipSectorLogicDecoding){
+        isSLHeader    = false;
+        isSLSubHeader = false;
+        isSLFragment  = false;
+        isSLFooter    = false;
+      }
       
+      ATH_MSG_VERBOSE("\n isRXHeader " << isRXHeader <<
+                      "\n isRXFooter " << isRXFooter <<
+                      "\n isPadHeader " << isPadHeader <<
+                      "\n isPadSubHeader " << isPadSubHeader <<
+                      "\n isPADFragment " << isPADFragment <<
+                      "\n isPadPreFooter " << isPadPreFooter <<
+                      "\n isPadFooter " << isPadFooter <<
+                      "\n isSLHeader " << isSLHeader <<
+                      "\n isSLSubHeader " << isSLSubHeader <<
+                      "\n isSLFragment " << isSLFragment <<
+                      "\n isSLFooter " << isSLFooter );
       
 
       
@@ -297,27 +322,26 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
       
       //we must start with an RX Header:  
       if (i==0 && (!isRXHeader)) 
-	{
-	  ATH_MSG_WARNING("Bad data from RPC ROD 0x" << MSG::hex << rodId << MSG::dec
-      << ". RX header not found at ROB fragment begin. Skipping this ROB fragment.");
-    return StatusCode::SUCCESS; //continue decoding data from other ROBs
-	  //bsErrCheck_errorInRXHeader = true;
-	}
+      {
+        ATH_MSG_WARNING("Bad data from RPC ROD 0x" << MSG::hex << rodId << MSG::dec
+        << ". RX header not found at ROB fragment begin. Skipping this ROB fragment.");
+        return StatusCode::SUCCESS; //continue decoding data from other ROBs
+	      //bsErrCheck_errorInRXHeader = true;
+      }
 
 
       if(isRXHeader) { 
-	//bsErrCheck_errorInRXHeader = false;
-	//bsErrCheck_InRX = true;
-	// bsErrCheck_InSL = false;
-	// bsErrCheck_InPD = false;
-	// bsErrCheck_InCM = false;
+	      //bsErrCheck_errorInRXHeader = false;
+	      //bsErrCheck_InRX = true;
+	      // bsErrCheck_InSL = false;
+	      // bsErrCheck_InPD = false;
+	      // bsErrCheck_InCM = false;
 
  
-        if (msgLvl(MSG::VERBOSE) )
-	  {
-	    msg(MSG::VERBOSE)  << " this is a RX Header " << endmsg;
-	    msg(MSG::VERBOSE) <<" Sector ID="    <<RXROS.RXid()<<endmsg;
-	  }
+        if (msgLvl(MSG::VERBOSE) ){
+	        msg(MSG::VERBOSE)  << " this is a RX Header " << endmsg;
+	        msg(MSG::VERBOSE)  << " Sector ID="    <<RXROS.RXid()<<endmsg;
+	      }
         
         // get the sector id according to the new format
         // not yet implemented in the readout classes
@@ -327,7 +351,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         uint16_t rxid = RXROS.RXid();      // range (presumably) 0-1
         sectorForCabling = 2*rodId+rxid;   // range 0-31
         sector = side*32+sectorForCabling; // range 0-63    //side = 1 for side A or 0 for side C // side 1 corresponds to subDetID=65 (side 0 for subDetID=66)
-	if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<std::endl;
+	      if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<std::endl;
         
         //fix for M3 
         if ((rodId==3 || rodId==1) && (m_specialROBNumber > 0) ) {

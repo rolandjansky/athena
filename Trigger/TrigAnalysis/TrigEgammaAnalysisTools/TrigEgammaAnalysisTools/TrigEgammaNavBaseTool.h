@@ -26,6 +26,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODJet/JetContainer.h"

@@ -19,7 +19,7 @@ namespace LVL1 {
   public:
     Range() ;
     Range( double min, double max );
-    virtual ~Range();
+    ~Range() = default;
 
     double min() const;
     double max() const;

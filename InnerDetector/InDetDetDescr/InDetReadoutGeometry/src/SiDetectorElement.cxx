@@ -331,14 +331,8 @@ SiDetectorElement::updateCache() const
   m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0],m_phiAxisCLHEP[1],m_phiAxisCLHEP[2]);
   m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0],m_etaAxisCLHEP[1],m_etaAxisCLHEP[2]);
 
-  double minR, maxR, minZ, maxZ, minPhi, maxPhi;
-  getExtent(minR, maxR, minZ, maxZ, minPhi, maxPhi);
-  m_minR = minR;
-  m_maxR = maxR;
-  m_minZ = minZ;
-  m_maxZ = maxZ;
-  m_minPhi = minPhi;
-  m_maxPhi = maxPhi;
+  getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
+
 
   // Determin isStereo
   if (firstTimeTmp) {

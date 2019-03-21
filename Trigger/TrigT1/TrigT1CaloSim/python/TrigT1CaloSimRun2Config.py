@@ -37,6 +37,9 @@ class Run2TriggerTowerMaker(Run2TriggerTowerMakerBase):
         super(Run2TriggerTowerMaker, self).__init__(name)
         self.CellType = 3 # TTL1 input
         self.ZeroSuppress = True
+
+        from SGComps.AddressRemappingSvc import addInputRename
+        addInputRename ( 'xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers')
         
         from AthenaCommon import CfgMgr
         from AthenaCommon.AppMgr import ToolSvc

@@ -13,9 +13,6 @@ namespace LVL1 {
     m_bcid(0), m_ptThresholdID(0), m_ptL1TopoCode(0), m_ptValue(0), m_eta(0), m_phi(0), m_etacode(0), m_phicode(0), 
     m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0), m_roiWord(0), m_mioctID(0), m_ieta(0), m_iphi(0) {}
 
-  MuCTPIL1TopoCandidate::~MuCTPIL1TopoCandidate() {
-
-  }
   void MuCTPIL1TopoCandidate::setCandidateData(std::string  sectorName, 
 					       unsigned int roiID,     
 					       unsigned int bcid,      

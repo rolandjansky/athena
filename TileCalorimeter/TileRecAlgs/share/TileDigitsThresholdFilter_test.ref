@@ -4,12 +4,12 @@ Initializing Gaudi ApplicationMgr using job opts ./TileDigitsThresholdFilter_tes
 JobOptionsSvc        INFO Job options successfully read in from ./TileDigitsThresholdFilter_test_generated.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Fri Jul 20 15:32:00 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on pcatl12 on Mon Mar 18 19:21:10 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 8597 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 5499 CLIDRegistry entries for module ALL
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
@@ -54,7 +54,3 @@ TILE => 5/0/1/2/1/1
 TILE => 5/0/1/2/2/1
 TILE => 5/0/1/2/3/1
 TILE => 5/0/1/2/4/1
-StoreGateSvc        DEBUG Recorded object @0x1c23240 with key TileDigitsCnt of type TileDigitsContainer(CLID 2925)
- in DataObject @0x16cea90
- object not modifiable when retrieved
-StoreGateSvc        DEBUG Retrieved const pointer to object TileDigitsFiltered  of type TileDigitsContainer(CLID 2925)

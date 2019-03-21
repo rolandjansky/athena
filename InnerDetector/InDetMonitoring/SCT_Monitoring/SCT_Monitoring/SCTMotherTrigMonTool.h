@@ -59,10 +59,11 @@ protected:
   bool m_doTrigger;
   /// Check if the event belongs to the SCTNoise Calibration Stream
   bool m_isStream;
+protected:
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
 private:
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfoKey", "Key of xAOD::EventInfo"};
 };
 
 #endif
