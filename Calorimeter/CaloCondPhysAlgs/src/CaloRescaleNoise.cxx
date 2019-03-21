@@ -14,8 +14,6 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   m_thistSvc(0),
   m_calo_id(0),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
-  m_hvCorrTool("LArHVCorrTool"),
-  m_keyHVScaleCorr("LArHVScaleCorr"),
   m_iCool(0),
   m_SubHash(0),
   m_Hash(0),
@@ -31,8 +29,6 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   m_tree(0)
 {
   declareProperty("noiseTool",m_noiseTool,"noise tool");
-  declareProperty("HVCorrTool",m_hvCorrTool);
-  declareProperty("keyHVScaleCorr",m_keyHVScaleCorr);
   declareProperty("absScaling",m_absScaling=false);
 }
 
@@ -53,9 +49,9 @@ StatusCode CaloRescaleNoise::initialize()
   m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( m_noiseTool.retrieve() );
-  ATH_CHECK( m_hvCorrTool.retrieve() );
+  ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize());
-  ATH_CHECK( detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr) );
+  ATH_CHECK( m_onlineScaleCorrKey.initialize() );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -96,6 +92,11 @@ StatusCode CaloRescaleNoise::stop()
   }
 
   FILE* fp = fopen("calonoise.txt","w");
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
+  
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
@@ -151,8 +152,8 @@ StatusCode CaloRescaleNoise::stop()
        float hvonline=1.;
 
        if (iCool<48) {
-          hvcorr = m_hvCorrTool->Scale(id);
-          hvonline = m_dd_HVScaleCorr->HVScaleCorr(hwid);
+          hvcorr = scaleCorr->HVScaleCorr(hwid);
+          hvonline = onlineScaleCorr->HVScaleCorr(hwid);
        }
 
        const double inv_hvonline = (hvonline != 0) ? 1. / hvonline : 1;
