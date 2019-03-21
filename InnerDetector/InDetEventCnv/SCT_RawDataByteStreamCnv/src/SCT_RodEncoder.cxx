@@ -42,7 +42,8 @@ namespace { // Anonymous namespace
 
 // Constructor
 
-SCT_RodEncoder::SCT_RodEncoder(const std::string& type, const std::string& name, const IInterface* parent) : 
+SCT_RodEncoder::SCT_RodEncoder(const std::string& type, const std::string& name, 
+                               const IInterface* parent) : 
   base_class(type, name, parent),
   m_sctID{nullptr},
   m_swapModuleID{} 
