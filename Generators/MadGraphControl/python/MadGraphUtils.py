@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#! /usr/bin/env python
+
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
@@ -9,6 +11,9 @@ import os,sys,time,subprocess,shutil,glob,re,difflib,stat
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
+MADGRAPH_PDFSETTING=None
+from MadGraphUtilsHelpers import *
+import MadGraphSystematicsUtils
 
 def setup_path_protection():
     # Addition for models directory
@@ -143,9 +148,6 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
             written = False
             for o in needed_options:
                 if o+' =' in l.split('#')[0]:
-                    if not o in option_paths:
-                        mglog.warning('Option '+str(o)+' not found in config file')
-                        continue
                     modified.write( o +' = '+option_paths[o]+'\n' )
                     written = True
                     break
@@ -205,7 +207,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     mode_njobs_consistency_check(mode,njobs,cluster_type)
 
     if is_gen_from_gridpack(grid_pack):
-        if gridpack_dir and nevents and random_seed:
+        if gridpack_dir and nevents!=None and random_seed!=None:
             mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
             generate_from_gridpack(run_name=run_name,gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir,param_card=param_card_loc,madspin_card=madspin_card_loc,extlhapath=extlhapath,gridpack_compile=gridpack_compile,reweight_card=reweight_card_loc)
             return
@@ -505,9 +507,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         configCard.wait()
 
 
-        #generate = subprocess.Popen(['bin/aMCatNLO','launch','-p','-f'],stdin=subprocess.PIPE)
-        #generate.communicate()
-
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         remove_shower = subprocess.Popen(['rm','Cards/shower_card.dat'])
         remove_shower.wait()
@@ -566,16 +565,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
             ### NLO RUN ###
 
-            # Should not be needed any more - run with 1000 events during integration step instead...
-            ## In case a MadSpin card was specified setup MadSpin
-            #if madspin_card_loc:
-            #    # modify run card for nevents 250
-            #    modify_run_card(settings={'nevents': 250})
-            #    # Generate some events -> trigger MadSpin code generation, compilation and setup (overweight estimation)
-            #    run = subprocess.Popen(['./bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+str(run_name)], stdin=subprocess.PIPE)
-            #    run.communicate()
-            #    # The folders with the generated events and decayed events are removed when running from the gridpack
-
 
             gridpack_name=(run_name+'_gridpack.tar.gz')
             mglog.info('Creating gridpack (%s)...'%gridpack_name)
@@ -588,37 +577,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             os.rename(gridpack_dir,proc_dir)
 
 
-
-
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
-
-
-    if madspin_card_loc:
-        if os.path.exists('Events/'+run_name+'_decayed_1'):
-            if not isNLO:
-                shutil.move('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz')
-                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
-            else:
-                shutil.move('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz')
-                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz'))
-
-        else:
-            mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
-            raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
-
-    elif isNLO:
-
-        mglog.info('Moving generated events to be in correct format for arrange_output().')
-        mglog.info('Unzipping generated events.')
-        unzip = subprocess.Popen(['gunzip','-f','Events/'+run_name+'/events.lhe.gz'])
-        unzip.wait()
-
-        mglog.info('Moving file over to '+'Events/'+run_name+'/unweighted_events.lhe')
-        shutil.move('Events/'+run_name+'/events.lhe','Events/'+run_name+'/unweighted_events.lhe')
-
-        mglog.info('Re-zipping into dataset name '+'Events/'+run_name+'/unweighted_events.lhe.gz')
-        rezip = subprocess.Popen(['gzip','Events/'+run_name+'/unweighted_events.lhe'])
-        rezip.wait()
 
     os.chdir(currdir)
 
@@ -657,16 +616,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
     print_cards(run_card=gridpack_dir+'/Cards/run_card.dat',param_card=gridpack_dir+'/Cards/param_card.dat')
 
-    # Work in progress...
-    #if card_check:
-    #    mglog.info('Checking that cards in %s and %s are consistent.'%(gridpack_dir,card_check))
-    #    file_grid=open(gridpack_dir+'/Cards/proc_card_mg5.dat','r')
-    #    file_proc=open('proc_card_mg5.dat','r')
-    #
-    #    for line in difflib.unified_diff(file_grid.readlines(), file_proc.readlines(),
-    #                                     fromfile='file1', tofile='file2', lineterm=''):
-    #        print line
-
 
     mglog.info('Generating events from gridpack')
 
@@ -694,71 +643,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             return 1
         else:
             mglog.info('Found '+gridpack_dir+' bin/run.sh, starting generation.')
-        need_to_add_rwgt=reweight_card!=None
-        run_card_dict=getDictFromCard(gridpack_dir+'/Cards/run_card.dat')
-        need_to_add_syst='use_syst' in run_card_dict and settingIsTrue(run_card_dict['use_syst']) and (not 'systematics_program' in run_card_dict or not run_card_dict['systematics_program']=='syscalc')
-
-        if need_to_add_rwgt or need_to_add_syst:
-            # add systematics calculation and reweighting to run.sh
-            runscript=gridpack_dir+'/bin/run.sh'
-            oldscript = open(runscript,'r')
-            newscript = open(runscript+'.tmp','w')
-            # in older MG versions the gridpack is run with the command below
-            gridrun_line_old='./bin/gridrun $num_events $seed'
-            syst_line_old='./bin/madevent systematics GridRun_${seed} -f\n'
-            reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
-            # in new versions it is run like this
-            gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
-            syst_line_new='$DIR/bin/madevent systematics GridRun_${seed} -f\n'
-            reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
-
-            for line in oldscript:
-                if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
-                    if madspin_card:
-                        # renaming madspin card deactivates madspin -- madspin should be run after reweighting and systematics
-                        newscript.write('mv Cards/madspin_card.dat Cards/madspin_card_backup.dat\n')
-                    newscript.write(line)
-                    # run systematics
-                    if need_to_add_syst:
-                        newscript.write(syst_line_old)
-                        need_to_add_syst=False
-                    # reweight
-                    if need_to_add_rwgt:
-                        newscript.write(reweight_line_old)
-                        need_to_add_rwgt=False
-                    if madspin_card:
-                        # move madspin card back in place and run madspin
-                        newscript.write('mv Cards/madspin_card_backup.dat Cards/madspin_card.dat\n')
-                        newscript.write('./bin/madevent decay_events GridRun_${seed} -f\n')
-                elif (need_to_add_rwgt or need_to_add_syst) and gridrun_line_new in line:
-                    if madspin_card:
-                        # renaming madspin card deactivates madspin -- madspin should be run after reweighting
-                        newscript.write('mv $DIR/Cards/madspin_card.dat $DIR/Cards/madspin_card_backup.dat\n')
-                    newscript.write(line)
-                    # run systematics
-                    if need_to_add_syst:
-                        newscript.write(syst_line_new)
-                        need_to_add_syst=False
-                    # reweight
-                    if need_to_add_rwgt:
-                        newscript.write(reweight_line_new)
-                        need_to_add_rwgt=False
-                    if madspin_card:
-                        # move madspin card back in place and run madspin
-                        newscript.write('mv $DIR/Cards/madspin_card_backup.dat $DIR/Cards/madspin_card.dat\n')
-                        newscript.write('$DIR/bin/madevent decay_events GridRun_${seed} -f\n')
-
-                else:
-                    newscript.write(line)
-            oldscript.close()
-            newscript.close()
-            mglog.info('created '+runscript+'.tmp')
-
-            if reweight_card and need_to_add_rwgt:
-                raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed')
-            shutil.move(runscript+'.tmp',runscript)
-            st = os.stat(runscript)
-            os.chmod(runscript, st.st_mode | stat.S_IEXEC)
+        # hack script to add reweighting and systematics, if required
+        hack_gridpack_script(gridpack_dir,reweight_card,madspin_card)
 
         setNCores(process_dir=gridpack_dir)
 
@@ -815,20 +701,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( "amcatnlo_configuration.txt: "+config_card_loc )
         configCard = subprocess.Popen(['cat',config_card_loc])
         configCard.wait()
-
-        #genxs_loc=gridpack_dir+'/bin/internal/gen_crossxhtml.py'
-        #oldcard = open(genxs_loc,'r')
-        #newcard = open(genxs_loc+'.tmp','w')
-        #for line in oldcard:
-        #    if 'if \'lhe\' in self.parton:' in line:
-        #        mglog.info('Fixing %s card'%(genxs_loc))
-        #        newcard.write('            if \'lhe\' in self.parton: \n')
-        #        newcard.write('                link=\'\'\n')
-        #    else:
-        #        newcard.write(line)
-        #oldcard.close()
-        #newcard.close()
-        #shutil.move(genxs_loc+'.tmp',genxs_loc)
 
         mglog.info('For your information, ls of '+currdir+':')
         mglog.info( sorted( os.listdir( currdir ) ) )
@@ -976,12 +848,50 @@ def setupFastjet(isNLO, proc_dir=None):
     oldcard.close()
     newcard.close()
     shutil.move(config_card+'.tmp',config_card)
-    #mglog.info('New %s card:'%config_card)
-    #configCard = subprocess.Popen(['cat',config_card])
-    #configCard.wait()
 
     return
 
+def get_LHAPDF_DATA_PATH():
+    LHAPATH=os.environ['LHAPATH'].split(':')[0]
+    if len(os.environ['LHAPATH'].split(':')) >=2 :
+        LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
+    else:
+        LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
+    return LHADATAPATH
+
+# function to get lhapdf id and name from either id or name
+def get_lhapdf_id_and_name(pdf):
+    pdfname=''
+    pdfid=-999
+    LHADATAPATH=get_LHAPDF_DATA_PATH()
+    pdflist = open(LHADATAPATH+'/pdfsets.index','r')
+    if isinstance(pdf,int) or pdf.isdigit():
+        pdf=int(pdf)
+        pdfid=pdf
+        for line in pdflist:
+            splitline=line.split()
+            if int(splitline[0]) == pdfid:
+                pdfname=splitline[1]
+                break
+    else:
+        pdfname=pdf
+        for line in pdflist:
+            splitline=line.split()
+            if splitline[1] == pdfname:
+                pdfid=int(splitline[0])
+                break
+    pdflist.close()
+
+    if pdfname=='':
+        err='Couldn\'t find PDF name associated to ID %i in %s.'%(pdfid,LHADATAPATH+'/pdfsets.index')
+        mglog.error(err)
+        raise RuntimeError(err)
+    if pdfid<0:
+        err='Couldn\'t find PDF ID associated to name %s in %s.'%(pdfname,LHADATAPATH+'/pdfsets.index')
+        mglog.error(err)
+        raise RuntimeError(err)
+
+    return pdfid,pdfname
 
 def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links=True):
 
@@ -995,28 +905,12 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
     else:
         LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
 
-
-
-    #pdfname='NNPDF30_nlo_as_0118'
-    #pdfid='260000'
-
     pdfname=''
     pdfid=-999
 
     ### Reading LHAPDF ID from run card
-    mydict={}
     run_card_loc=proc_dir+'/Cards/run_card.dat'
-    runcard = open(run_card_loc,'r')
-    for line in runcard:
-        if not line.strip().startswith('#'): # line commented out
-            command = line.split('!', 1)[0]
-            comment = line.split('!', 1)[1] if '!' in line else ''
-            if '=' in command:
-                setting = command.split('=')[-1].strip()
-                value = command.split('=')[0].strip()
-                mydict[setting]=value
-
-    runcard.close()
+    mydict=getDictFromCard(run_card_loc)
 
     if mydict["pdlabel"].replace("'","") == 'lhapdf':
         #Make local LHAPDF dir
@@ -1031,30 +925,44 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
         mkdir = subprocess.Popen(['mkdir','-p',newMGCLHA])
         mkdir.wait()
 
-
-        # Error checking
-        for pdfid in [ int(x) for x in mydict['lhaid'].replace(' ',',').split(',') ]:
-            pdflist = open(LHADATAPATH+'/pdfsets.index','r')
-            for line in pdflist:
-                splitline=line.split()
-                if int(splitline[0]) == pdfid:
-                    pdfname=splitline[1]
-                    break
-            pdflist.close()
-
-            if pdfname=='':
-                err='Couldn\'t find PDF name associated to ID %i in %s.'%(pdfid,LHADATAPATH+'/pdfsets.index')
-                mglog.error(err)
-                raise RuntimeError(err)
-
+        pdfs_used=[ int(x) for x in mydict['lhaid'].replace(' ',',').split(',') ]
+        # included systematics pdfs here
+        if 'sys_pdf' in mydict:
+            sys_pdf=mydict['sys_pdf'].replace('&&',' ').split()
+            for s in sys_pdf:
+                if s.isdigit():
+                    idx=int(s)
+                    if idx>1000: # the sys_pdf syntax is such that small numbers are used to specify the subpdf index
+                        pdfs_used.append(idx)
+                else:
+                    pdfs_used.append(s)
+        if 'systematics_arguments' in mydict:
+            systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict['systematics_arguments'])
+            if 'pdf' in systematics_arguments:
+                sys_pdf=systematics_arguments['pdf'].replace(',',' ').replace('@',' ').split()
+                for s in sys_pdf:
+                    if s.isdigit():
+                        idx=int(s)
+                        if idx>1000: # the sys_pdf syntax is such that small numbers are used to specify the subpdf index
+                            pdfs_used.append(idx)
+                    else:
+                        pdfs_used.append(s)
+        for pdf in pdfs_used:
+            if isinstance(pdf,str) and (pdf.lower()=='errorset' or pdf.lower()=='central'):
+                continue
+            # new function to get both lhapdf id and name
+            pdfid,pdfname=get_lhapdf_id_and_name(pdf)
             mglog.info("Found LHAPDF ID=%i, name=%s!"%(pdfid,pdfname))
 
-            if allow_links:
-                mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> '+newMGCLHA+pdfname)
-                os.symlink(LHADATAPATH+'/'+pdfname,newMGCLHA+pdfname)
-            else:
-                mglog.info('copying '+LHADATAPATH+'/'+pdfname+' --> '+newMGCLHA+pdfname)
-                shutil.copytree(LHADATAPATH+'/'+pdfname,newMGCLHA+pdfname)
+            if not os.path.exists(newMGCLHA+pdfname) and not os.path.lexists(newMGCLHA+pdfname):
+                if not os.path.exists(LHADATAPATH+'/'+pdfname):
+                    mglog.warning('PDF not installed at '+LHADATAPATH+'/'+pdfname)
+                if allow_links:
+                    mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> '+newMGCLHA+pdfname)
+                    os.symlink(LHADATAPATH+'/'+pdfname,newMGCLHA+pdfname)
+                else:
+                    mglog.info('copying '+LHADATAPATH+'/'+pdfname+' --> '+newMGCLHA+pdfname)
+                    shutil.copytree(LHADATAPATH+'/'+pdfname,newMGCLHA+pdfname)
 
         if allow_links:
             mglog.info('linking '+LHADATAPATH+'/pdfsets.index --> '+newMGCLHA+'pdfsets.index')
@@ -1135,9 +1043,6 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
         oldcard.close()
         newcard.close()
         shutil.move(config_card+'.tmp',config_card)
-        #mglog.info('New me5_configuration.txt card:')
-        #configCard = subprocess.Popen(['cat',config_card])
-        #configCard.wait()
 
         mglog.info('Creating links for LHAPDF')
         if os.path.islink(proc_dir+'/lib/PDFsets'):
@@ -1362,7 +1267,7 @@ output -f"""
     return
 
 
-def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None):
+def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card_loc=None):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -1371,11 +1276,45 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     except:
         pass
 
+
     # NLO is not *really* the question here, we need to know if we should look for weighted or
     #  unweighted events in the output directory.  MadSpin (above) only seems to give weighted
     #  results for now?
     #isNLO=is_NLO_run(proc_dir=proc_dir)
     hasUnweighted = os.access(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz',os.R_OK)
+
+
+    hasRunMadSpin=False
+    madspinDirs=sorted(glob.glob(proc_dir+'/Events/'+run_name+'_decayed_*/'))
+    if len(madspinDirs): hasRunMadSpin=True
+
+    if madspin_card_loc or hasRunMadSpin:
+        if len(madspinDirs):
+            if hasUnweighted:
+                # so this is a bit of a mess now...
+                # if madspin is run from an NLO grid pack the correct lhe events are at both
+                #      madevent/Events/run_01/unweighted_events.lhe.gz
+                # and  madevent/Events/run_01_decayed_1/events.lhe.gz
+                # so there are unweighted events but not in the madspinDir...
+                if os.path.exists(madspinDirs[-1]+'/unweighted_events.lhe.gz'):
+                    shutil.move(madspinDirs[-1]+'/unweighted_events.lhe.gz',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz')
+                    mglog.info('Moving MadSpin events from %s to %s.'%(madspinDirs[-1]+'/unweighted_events.lhe.gz',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'))
+                elif os.path.exists(madspinDirs[-1]+'/events.lhe.gz'):
+                    shutil.move(madspinDirs[-1]+'/events.lhe.gz',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz')
+                    mglog.info('Moving MadSpin events from %s to %s.'%(madspinDirs[-1]+'/events.lhe.gz',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'))
+                else:
+                    raise RuntimeError('MadSpin was run but can\'t find files :(')
+
+
+            else:
+                shutil.move(madspinDirs[-1]+'/events.lhe.gz',proc_dir+'/Events/'+run_name+'/events.lhe.gz')
+                mglog.info('Moving MadSpin events from %s to %s.'%(madspinDirs[-1]+'/events.lhe.gz',proc_dir+'/Events/'+run_name+'/events.lhe.gz'))
+
+        else:
+            mglog.error('MadSpin was run but can\'t find output folder %s.'%(proc_dir+'/Events/'+run_name+'_decayed_1/'))
+            raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%(proc_dir+'/Events/'+run_name+'_decayed_1/'))
+
+
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
@@ -2218,6 +2157,11 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     elif alpsfact<=0:
         alpsfact=1.
 
+    # guess NLO from run card -- not the most robust way to do this but otherwise arguments of build_run_card would need to change
+    isNLO=isNLO_from_run_card(run_card_old)
+    # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
+    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)
+
     # Grab the old run card and move it into place
     # Get the run card from the installation
     if os.access(run_card_old,os.R_OK):
@@ -2259,13 +2203,28 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
                     return -1
 
                 #if '='+ak.strip() in line.replace(' ',''):
-                if '='+ak.strip() in line.replace(' ','') and (len(line.strip().split(ak.strip())[1])==0 or line.split(ak.strip())[1][0]==" "):
-                    newcard.write( ' '+str(extras[ak])+'    ='+'='.join(line.split('=')[1:]) )
+                actual_line=line.split('!')[0]
+                comment=''
+                if len(line.split('!'))>1:
+                    comment=line.split('!')[1]
+                if '='+ak.strip() in actual_line.replace(' ','') and (len(actual_line.strip().split(ak.strip())[1])==0 or actual_line.split(ak.strip())[1][0]==" "):
+                    newline=' '+str(extras[ak])+'    ='+actual_line.split('=')[-1]+'!'+comment
+                    newcard.write(newline )
                     used_options += [ ak ]
                     break
+                # if a setting is partly upper case in the run_card but the user gave a lower case name
+                # (e.g. reweight_PDF is written in the run card but reweight_pdf given by user)
+                # it will still be processed properly
+                elif '='+ak.strip() in actual_line.lower().replace(' ','') and (len(actual_line.lower().strip().split(ak.strip())[1])==0 or actual_line.lower().split(ak.strip())[1][0]==" "):
+                    newline=' '+str(extras[ak])+'    ='+actual_line.split('=')[-1]+'!'+comment
+                    newcard.write(newline )
+                    used_options += [ ak ]
+                    break
+
             else: # Fell through the loop
                 newcard.write(line)
     # Clean up options that weren't used
+    newcard.write('\n')
     for ak in extras:
         if ak in used_options: continue
         mglog.warning('Option '+ak+' was not in the default run_card.  Adding by hand a setting to '+str(extras[ak]) )
@@ -2300,17 +2259,24 @@ def modify_run_card(run_card='Cards/run_card.dat',
             if '=' in command:
                 setting = command.split('=')[-1] #.strip()
                 stripped_setting = setting.strip()
-                oldValue = command.split('=')[0] #.strip()
+                oldValue = '='.join(command.split('=')[:-1])
                 if stripped_setting in settings:
-                    line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
-                    if comment != '': line += '  !' + comment
-                    mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
-                    used_settings += [ stripped_setting ]
+                    # if setting set to 'None' it will be removed from run_card
+                    if settings[stripped_setting]==None:
+                        line=''
+                        mglog.info('Removing '+stripped_setting+'.')
+                        used_settings += [ stripped_setting ]
+                    else:
+                        line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
+                        if comment != '': line += '  !' + comment
+                        mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
+                        used_settings += [ stripped_setting ]
         newCard.write(line)
 
     # Clean up unused options
     for asetting in settings:
         if asetting in used_settings: continue
+        if settings[asetting]==None: continue
         mglog.warning('Option '+asetting+' was not in the default run_card.  Adding by hand a setting to '+str(settings[asetting]) )
         newCard.write( ' '+str(settings[asetting])+'   = '+str(asetting)+'\n')
     # close files
@@ -2438,18 +2404,6 @@ def is_gen_from_gridpack(grid_pack=None):
 
 def is_NLO_run(proc_dir='PROC_mssm_0'):
     isNLO=False
-    #proc_card_loc=proc_dir+'/Cards/proc_card_mg5.dat'
-    #proccard = open(proc_card_loc,'r')
-    #for line in proccard:
-    #    #This is probably better but needs checking:
-    #    #m = re.search('\[.*QCD.*\]', name)
-    #    #if m and m.group():
-    #    if 'generate' in line and ('[QCD]' in line or '[real=QCD]' in line):
-    #        mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
-    #        isNLO=True
-    #        break
-    #proccard.close()
-
 
     lo_config_card_loc=proc_dir+'/Cards/me5_configuration.txt'
     nlo_config_card_loc=proc_dir+'/Cards/amcatnlo_configuration.txt'
@@ -2464,22 +2418,9 @@ def is_NLO_run(proc_dir='PROC_mssm_0'):
 
     return isNLO
 
-
-
 def run_card_consistency_check(isNLO=False,path='.'):
     cardpath=path+'/Cards/run_card.dat'
-    card = open(cardpath, 'r')
-    mydict={}
-    for line in iter(card):
-        if not line.strip().startswith('#'): # line commented out
-            command = line.split('!', 1)[0]
-            comment = line.split('!', 1)[1] if '!' in line else ''
-            if '=' in command:
-                setting = command.split('=')[-1].strip()
-                value = command.split('=')[0].strip()
-                mydict[setting]=value
-
-
+    mydict=getDictFromCard(cardpath)
 
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
@@ -2492,7 +2433,6 @@ def run_card_consistency_check(isNLO=False,path='.'):
             raise RuntimeError(log)
 
         version = getMadGraphVersion() # avoiding code duplication
-
         # Only needed for 2.5.0 and later
         if int(version.split('.')[0])>=2 and int(version.split('.')[1])>=5:
             #event_norm must be "sum" for use_syst to work
@@ -2500,8 +2440,30 @@ def run_card_consistency_check(isNLO=False,path='.'):
                 if 'event_norm' not in mydict or mydict['event_norm']!="sum":
                     modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
 
-    # close files
-    card.close()
+        # Check if user is trying to use deprecated syscalc arguments with the other systematics script
+        if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):
+            syscalc_settings=['sys_pdf', 'sys_scalefact', 'sys_alpsfact', 'sys_matchscale']
+            found_syscalc_setting=False
+            for s in syscalc_settings:
+                if s in mydict:
+                    mglog.warning('Using syscalc setting %s with new systematics script. Systematics script is default from 2.6.2 and steered differently (https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule)'%(s))
+                    found_syscalc_setting=True
+            if found_syscalc_setting:
+                syst_arguments=MadGraphSystematicsUtils.convertSysCalcArguments(mydict)
+                mglog.info('Converted syscalc arguments to systematics arguments: '+syst_arguments)
+                syst_settings_update={'systematics_arguments':syst_arguments}
+                for s in syscalc_settings:
+                    syst_settings_update[s]=None
+                modify_run_card(cardpath,cardpath.replace('.dat','_syscalc.dat'),syst_settings_update)
+
+
+    # usually the pdf and systematics should be set during build_run_card
+    # but check again in case the user did not call the function or provides a different card here
+    mglog.info('Checking PDF and systematics settings')
+    if not MadGraphSystematicsUtils.base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
+        # still need to set pdf and systematics
+        syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
+        modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
 
     mglog.info('Finished checking run card - All OK!')
     return
@@ -2527,6 +2489,100 @@ def mode_njobs_consistency_check(mode,njobs,cluster_type):
     else:
         raise RuntimeError('MadGraph run mode has to be 0, 1, or 2 (= single-core, cluster, multi-core mode)')
 
+def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
+    need_to_add_rwgt=reweight_card!=None
+
+    run_card_dict=getDictFromCard(gridpack_dir+'/Cards/run_card.dat',lowercase=True)
+
+    systematics_program=None
+    if settingIsTrue(run_card_dict['use_syst']):
+        if is_version_or_newer([2,6,2]):
+            systematics_program='systematics'
+        else:
+            systematics_program='syscalc'
+        run_card_dict['systematics_program']
+        if checkSettingExists('systematics_program',run_card_dict):
+            if checkSetting('systematics_program','systematics',run_card_dict):
+                systematics_program='systematics'
+            if checkSetting('systematics_program','syscalc',run_card_dict):
+                systematics_program='syscalc'
+            if checkSetting('systematics_program','none',run_card_dict):
+                systematics_program=None
+    need_to_add_syst=systematics_program!=None
+
+    systematics_arguments=''
+    if checkSettingExists('systematics_arguments',run_card_dict):
+        sys_dict=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+        for s in sys_dict:
+            systematics_arguments+=' --'+s+'='+sys_dict[s]
+
+    # add systematics calculation and reweighting to run.sh
+    runscript=gridpack_dir+'/bin/run.sh'
+    oldscript = open(runscript,'r')
+    newscript = open(runscript+'.tmp','w')
+    # in older MG versions the gridpack is run with the command below
+    gridrun_line_old='./bin/gridrun $num_events $seed'
+    syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
+    if systematics_program=='systematics':
+        #syst_line_old='./bin/madevent systematics GridRun_${seed} -f\n'
+        syst_line_old='python bin/internal/systematics.py Events/GridRun_123456/unweighted_events.lhe.gz Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
+    # in new versions it is run like this
+    gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
+    syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
+    if systematics_program=='systematics':
+#        syst_line_new='${DIR}/bin/madevent systematics GridRun_${seed} -f\n'
+        syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
+
+    for line in oldscript:
+        if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
+            if madspin_card:
+                # renaming madspin card deactivates madspin -- madspin should be run after reweighting and systematics
+                newscript.write('mv Cards/madspin_card.dat Cards/madspin_card_backup.dat\n')
+            newscript.write(line)
+            # run systematics
+            if need_to_add_syst:
+                newscript.write(syst_line_old)
+                need_to_add_syst=False
+            # reweight
+            if need_to_add_rwgt:
+                newscript.write(reweight_line_old)
+                need_to_add_rwgt=False
+            if madspin_card:
+                # move madspin card back in place and run madspin
+                newscript.write('mv Cards/madspin_card_backup.dat Cards/madspin_card.dat\n')
+                newscript.write('./bin/madevent decay_events GridRun_${seed} -f\n')
+        elif (need_to_add_rwgt or need_to_add_syst) and gridrun_line_new in line:
+            if madspin_card:
+                # renaming madspin card deactivates madspin -- madspin should be run after reweighting
+                newscript.write('mv $DIR/Cards/madspin_card.dat $DIR/Cards/madspin_card_backup.dat\n')
+            newscript.write(line)
+            # run systematics
+            if need_to_add_syst:
+                newscript.write(syst_line_new)
+                need_to_add_syst=False
+            # reweight
+            if need_to_add_rwgt:
+                newscript.write(reweight_line_new)
+                need_to_add_rwgt=False
+            if madspin_card:
+                # move madspin card back in place and run madspin
+                newscript.write('mv $DIR/Cards/madspin_card_backup.dat $DIR/Cards/madspin_card.dat\n')
+                newscript.write('$DIR/bin/madevent decay_events GridRun_${seed} -f\n')
+
+        else:
+            newscript.write(line)
+    oldscript.close()
+    newscript.close()
+    mglog.info('created '+runscript+'.tmp')
+
+    if reweight_card and need_to_add_rwgt:
+        raise RuntimeError('Could not add reweighting to gridpack script: '+runscript+' maybe line to generate events changed')
+    shutil.move(runscript+'.tmp',runscript)
+    st = os.stat(runscript)
+    os.chmod(runscript, st.st_mode | stat.S_IEXEC)
+
 
 def SUSY_model():
     if not 'MADPATH' in os.environ:
@@ -2541,26 +2597,3 @@ def SUSY_model():
     mglog.warning('No idea what to do - models not found!')
     return 'import model mssm\n'
 
-
-def getDictFromCard(card_loc,lowercase=True):
-    card=open(card_loc)
-    mydict={}
-    for line in iter(card):
-        if not line.strip().startswith('#'): # line commented out
-            command = line.split('!', 1)[0]
-            comment = line.split('!', 1)[1] if '!' in line else ''
-            if '=' in command:
-                setting = command.split('=')[-1].strip()
-                value = command.split('=')[0].strip()
-                if lowercase:
-                    value=value.lower()
-                    setting=setting.lower()
-                mydict[setting]=value
-    card.close()
-    return mydict
-
-
-def settingIsTrue(setting):
-    if setting.replace('.','').lower() in ['t','true']:
-        return True
-    return False
