@@ -37,9 +37,9 @@ def setupMenu():
 
      ]
     TriggerFlags.EgammaSlice.signatures = [
-        ['HLT_e3_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['HLT_e3_etcut_L1EM3',      ['L1_EM3', ['EM3']],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['HLT_e5_etcut_L1EM3',      ['L1_EM3', ['EM3']],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['HLT_e7_etcut_L1EM3',      ['L1_EM3', ['EM3']],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
         #['e20_L1EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
         ]
     TriggerFlags.CombinedSlice.signatures = [
