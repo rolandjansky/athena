@@ -90,7 +90,7 @@ from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserTool
 serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
 serialiser.addCollectionListToMainResult([
   "xAOD::TrigCompositeContainer_v1#"+hypo.HypoOutputDecisions,
-  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.decisions",
+  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.",
 ])
 
 # StreamTag definitions
