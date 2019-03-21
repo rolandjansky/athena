@@ -13,14 +13,10 @@
 
 #include "CaloIdentifier/TileID.h"
 #include "CaloEvent/CaloCell.h"
-//#include "CaloEvent/CaloCluster.h"
-
 
 #include "StoreGate/ReadHandle.h"
 #include <xAODCore/ShallowCopy.h>
 #include "xAODCaloEvent/CaloCluster.h"
-//#include "JetUtils/JetCaloQualityUtils.h"
-//#include "JetUtils/JetCellAccessor.h"
 
 
 TileJetMonitorAlgorithm::TileJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -431,19 +427,29 @@ bool TileJetMonitorAlgorithm::passesJvt(const xAOD::Jet& jet) const {
   if (jet.pt() > m_jetPtMin
       && jet.pt() < m_jetPtMax
       && fabs(jet.getAttribute<float>("DetectorEta")) < m_jetTrackingEtaLimit
-      && m_jvt->updateJvt(jet) < m_jvtThreshold)
+      && m_jvt->updateJvt(jet) < m_jvtThreshold) {
+
     return false;
-  return true;
+
+  } else {
+    return true;
+  }
 
 }
 
 bool TileJetMonitorAlgorithm::isGoodJet(const xAOD::Jet& jet) const {
 
-  if (! m_doJetCleaning) return true;
-  if (jet.pt() < m_jetPtMin) return false;
-  if (! passesJvt(jet)) return false;
-  if (! m_jetCleaningTool->keep(jet)) return false;
-  return true;
+  if (m_doJetCleaning) {
+
+    if (jet.pt() >= m_jetPtMin && passesJvt(jet) && m_jetCleaningTool->keep(jet)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  } else {
+    return true;
+  }
 
 }
 

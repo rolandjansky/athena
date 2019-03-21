@@ -4,8 +4,6 @@
 
 '''
 @file TileMonitoringHelper.py
-@author 
-@date 
 @brief Helper functions for Run 3 Tile monitoring algorithm configuration
 '''
 

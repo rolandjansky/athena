@@ -4,8 +4,6 @@
 
 '''
 @file TileJetMonitorAlgorithm.py
-@author 
-@date 
 @brief Python configuration of TileJetMonitorAlgorithm algorithm for the Run III
 '''
 
