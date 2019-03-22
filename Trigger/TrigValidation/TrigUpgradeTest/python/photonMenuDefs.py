@@ -18,7 +18,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 def photonMenuSequence():
     """ Creates secpond step photon sequence"""
     
-    from TrigUpgradeTest.CaloMenuDefs import CaloMenuDefs
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
     ViewVerify.OutputLevel = DEBUG

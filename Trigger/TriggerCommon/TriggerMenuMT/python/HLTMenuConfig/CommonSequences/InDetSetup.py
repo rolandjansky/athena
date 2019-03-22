@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 def makeInDetAlgs( whichSignature='' ):
@@ -204,6 +204,8 @@ def makeInDetAlgs( whichSignature='' ):
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
+                                                      #Adding the suffix to flagged conditions
+                                                      #SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = "EMViewRoIs"
@@ -242,11 +244,9 @@ def makeInDetAlgs( whichSignature='' ):
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
       # Setup alignment folders and conditions algorithms
-      from InDetCondFolders import InDetAlignFolders
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg" + signature)
 
-  from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
@@ -257,8 +257,6 @@ def makeInDetAlgs( whichSignature='' ):
                                                            ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   viewAlgs.append(theTrackParticleCreatorAlg)
-
-
 
   return (viewAlgs, eventAlgs)
 

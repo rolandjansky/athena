@@ -1,16 +1,15 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Include import include
 from AthenaCommon.Constants import VERBOSE,DEBUG
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
@@ -29,13 +28,12 @@ def inDetSetup():
 
     # PixelLorentzAngleSvc and SCTLorentzAngleSvc
     include("InDetRecExample/InDetRecConditionsAccess.py")
-    from InDetRecExample.InDetKeys import InDetKeys
 
 
 def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
-    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     (viewAlgs, eventAlgs) = makeInDetAlgs()
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 
@@ -46,7 +44,7 @@ def electronSequence(ConfigFlags):
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
-    from TrigUpgradeTest.CaloMenuDefs import CaloMenuDefs  
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
     ViewVerify.OutputLevel = DEBUG
@@ -74,9 +72,9 @@ def electronSequence(ConfigFlags):
 
 
     for viewAlg in viewAlgs:
-        if viewAlg.properties().has_key("RoIs"):
+        if "RoIs" in viewAlg.properties():
             viewAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
-        if viewAlg.properties().has_key("roiCollectionName"):
+        if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
 
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs    

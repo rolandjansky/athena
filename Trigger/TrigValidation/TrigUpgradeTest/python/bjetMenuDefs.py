@@ -71,7 +71,7 @@ def bJetStep1Sequence():
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
     # Fast Tracking 
-    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     (viewAlgs, eventAlgs) = makeInDetAlgs()
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
@@ -147,7 +147,7 @@ def bJetStep1SequenceALLTE():
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
     # Fast Tracking 
-    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     (viewAlgs, eventAlgs) = makeInDetAlgs()
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
