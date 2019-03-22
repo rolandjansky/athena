@@ -1,9 +1,0 @@
-#! /bin/bash
-#
-#   Use xmllint to check well-formed and DTD-obeyance. 
-#
-if [ ! -f "geomodel.dtd" ]
-then
-   ln ../../../geomodel.dtd geomodel.dtd
-fi
-xmllint --noent --valid --noout ITkStrip.gmx
