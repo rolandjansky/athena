@@ -335,8 +335,6 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     else
         combMass = (caloMassScale.m(jet)*shiftFactorCalo*caloWeight) + (TAMassScale.m(jet)*shiftFactorTA*TAWeight);
 
-    //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("CombMass: %f*%f*%f + %f*%f*%f = %f",caloMassScale(jet).M()*m_energyScale,shiftFactorCalo,caloWeight,TAMassScale(jet).M()*m_energyScale,shiftFactorTA,TAWeight,combMass*m_energyScale));
-
     return true;
 }
 
@@ -375,8 +373,6 @@ double CombinedMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet
     
     const double massUncUp   = fabs((massUp-massDefault)/massDefault);
     const double massUncDown = fabs((massDown-massDefault)/massDefault);
-
-    //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("Combined mass: pT = %.0f, m = %.1f, mComb = %.1f, mCaloUnc = %.1f%%, mTAUnc = %.1f%%, m+1s = %.1f (%.1f%%), m-1s = %.1f (%.1f%%)",jet.pt()*m_energyScale,jet.m()*m_energyScale,massDefault*m_energyScale,100*uncCalo,100*uncTA,massUp*m_energyScale,100*massUncUp,massDown*m_energyScale,100*massUncDown));
 
     return (massUncUp+massUncDown)/2.;
 }
@@ -459,7 +455,9 @@ double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& je
 
 double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double massShiftFactor) const
 {
-    return m_TAMassWeight ? readHistoFromParam(m_TAMassScale_weights(jet),*m_TAMassWeight,m_weightParam,massShiftFactor) : 0;
+    if(m_TAMassScale_weights(jet).M() < 0.0) return 0;
+    if(!m_TAMassWeight) return 0;
+    return readHistoFromParam(m_TAMassScale_weights(jet),*m_TAMassWeight,m_weightParam,massShiftFactor);
 }
 
 

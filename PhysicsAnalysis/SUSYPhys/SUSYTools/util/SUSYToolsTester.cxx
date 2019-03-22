@@ -1059,6 +1059,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           std::cout << "e17_lhloose_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0"))
           std::cout << " 2e17_lhvloose_nod0 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0_L12EM15VHI"))
+          std::cout << " 2e17_lhvloose_nod0_L12EM15VHI SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14"))
           std::cout << " e17_lhloose_nod0_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24"))

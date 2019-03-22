@@ -309,7 +309,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
               BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
               SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	      if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	      if(PixelHits<0)PixelHits=0;
+              if(SctHits<0)SctHits=0;
+              if(BLayHits<0)BLayHits=0; 
               delete testSum;
             }
 //---------------------------------------------------------	
@@ -347,7 +349,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
                BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
                SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	       if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	       if(PixelHits<0)PixelHits=0;
+               if(SctHits<0)SctHits=0;
+               if(BLayHits<0)BLayHits=0; 
                delete testSum;
              }
 //---------------------------------------------------------	
@@ -480,7 +484,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
                  BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	         if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	         if(PixelHits<0)PixelHits=0;
+                 if(SctHits<0)SctHits=0;
+                 if(BLayHits<0)BLayHits=0; 
                  //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError); //VK ImpactSignif not needed
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
@@ -515,7 +521,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
                  BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	         if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	         if(PixelHits<0)PixelHits=0;
+                 if(SctHits<0)SctHits=0;
+                 if(BLayHits<0)BLayHits=0; 
 	         if(SharedHits>0) SharedHits--; BLayHits++; PixelHits++;
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=Impact[0];  

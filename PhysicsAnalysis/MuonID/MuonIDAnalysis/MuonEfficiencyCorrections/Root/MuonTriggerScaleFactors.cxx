@@ -814,7 +814,7 @@ namespace CP {
         }
         if (!acc_rnd.isAvailable(*info)) {
 	  if(m_forceYear == -1 && m_forcePeriod == "")
-            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
+            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool beforehand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
 	  return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");

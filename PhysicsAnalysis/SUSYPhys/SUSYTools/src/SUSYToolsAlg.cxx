@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SUSYToolsAlg.cxx
@@ -71,6 +71,8 @@ SUSYToolsAlg::SUSYToolsAlg(const std::string& name,
   declareProperty( "PRWConfigs", m_PRWConfigs );
   declareProperty( "PRWLumiCalc", m_PRWLumiCalcFiles );
   declareProperty( "UsePRWAutoconfig", m_usePRWAutoconfig = false );
+  declareProperty( "mcCampaign", m_mcCampaign = "");
+  declareProperty( "mcChannel", m_mcChannel = -99);
 
   // asg Tool Handles must be dealt with differently
   m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
@@ -92,7 +94,8 @@ StatusCode SUSYToolsAlg::initialize() {
   ATH_CHECK(m_SUSYTools.setProperty("PRWLumiCalcFiles", m_PRWLumiCalcFiles) );
   if (m_usePRWAutoconfig){
     ATH_CHECK(m_SUSYTools.setProperty("AutoconfigurePRWTool", true) );
-    ATH_CHECK(m_SUSYTools.setProperty("mcCampaign", "mc16a") );
+    ATH_CHECK(m_SUSYTools.setProperty("mcCampaign", m_mcCampaign) );
+    ATH_CHECK(m_SUSYTools.setProperty("mcChannel", m_mcChannel) );
   }else{
     ATH_CHECK(m_SUSYTools.setProperty("PRWConfigFiles", m_PRWConfigs) );
   }

@@ -81,6 +81,15 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = "", BreakDo
         ToolSvc += EffiTool
     return getattr(ToolSvc,ToolName)
 
+def GetSelectionTool():
+    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon import CfgMgr, GlobalFlags
+    if not hasattr(ToolSvc, "selectionTool"):
+        from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+        selTool = CfgMgr.CP__MuonSelectionTool("selectionTool")        
+        ToolSvc += selTool
+    return getattr(ToolSvc,"selectionTool")
+
 def GetPRWTool(
         # this default is for MC16a -> data2016
         PRWLumiCalcFiles = [
@@ -88,13 +97,9 @@ def GetPRWTool(
                "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",  #data16
                 "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root",      #data17
                "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root",     #data18
-       	],
-        PRWMCConfigFiles = [
-        "dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid361107_FS.root"%(c) for c in ["a","d","e"]
-#            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root",
-#            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r10201_r10210_NTUP_PILEUP.root",
-        
-            ]):
+           ],
+        PRWMCConfigFiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16%s_dsid%d_FS.root"%(c,mc) for c in ["a","d","e"] for mc in [410470,301534,361107]  ]
+                            ):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
     if not hasattr(ToolSvc, "prwTool"):

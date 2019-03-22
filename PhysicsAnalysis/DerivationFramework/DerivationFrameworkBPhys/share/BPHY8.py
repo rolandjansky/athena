@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -107,7 +107,7 @@ BPHY8cf.specDataRuns = [339849,358096]
 #====================================================================
 # MC datasets to receive special treatment
 #====================================================================
-BPHY8cf.specMcChannels = [300307]
+BPHY8cf.specMcChannels = [300307,300404,300405,300426,300430,300438]
 #
 #====================================================================
 # Defaults for BPHY8 configuration

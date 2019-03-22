@@ -30,13 +30,14 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("190220_Winter_r21"),
+                m_calibration_version("190312_Winter_r21"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
                 m_init(false),
                 m_seperateSystBins(false),
                 m_breakDownSyst(false),
+                m_applyKineDepSys(true),
                 m_Type(CP::MuonEfficiencyType::Undefined) {
 
         declareProperty("WorkingPoint", m_wp);
@@ -48,6 +49,7 @@ namespace CP {
         declareProperty("CustomFileHighEta", m_custom_file_HighEta);
         declareProperty("CustomFileLowPt", m_custom_file_LowPt);
         declareProperty("CustomFileLowPtCalo", m_custom_file_LowPtCalo);
+        declareProperty("ApplyKinematicSystematic", m_applyKineDepSys);
 
         // Set specific names for the decorations of the scale-factors to the muon
         declareProperty("DataEfficiencyDecorationName", m_efficiency_decoration_name_data);
@@ -416,8 +418,6 @@ namespace CP {
                 break;
             }
             insert_bit("STAT", get_bit(look_up));
-            if (measurement() == TTVA) insert_bit("STAT", EffiCollection::OwnFallBack);
-
           
             /// If the systematics shall be split into bins
             if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
@@ -431,7 +431,7 @@ namespace CP {
                 ATH_MSG_DEBUG("The file "<<look_up<<" does not contain any systematic tree. No break down for that one will be considered");
                 insert_bit("SYS",get_bit(look_up));
                 /// Activate the pt-dependent systematic for the old calibration files by hand
-                if (measurement() == MuonEfficiencyType::Reco || measurement() == MuonEfficiencyType::BadMuonVeto){
+                if (m_applyKineDepSys && (measurement() == MuonEfficiencyType::Reco || measurement() == MuonEfficiencyType::BadMuonVeto)){
                     insert_bit("SYS",  EffiCollection::PtDependent);
                 }
                 continue;
@@ -452,9 +452,8 @@ namespace CP {
             for (int i =0; syst_tree->GetEntry(i); ++i){
                 insert_bit( *syst_name, get_bit(look_up));
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
-                if (has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
-                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);
-                if (measurement() == TTVA) insert_bit(*syst_name, EffiCollection::OwnFallBack);
+                if (m_applyKineDepSys && has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
+                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
         }
         return syst_map;

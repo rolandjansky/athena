@@ -19,6 +19,7 @@
 #include <xAODJet/JetContainer.h>
 #include <xAODMuon/MuonContainer.h>
 #include <xAODTau/TauJetContainer.h>
+#include <xAODTau/DiTauJetContainer.h>
 
 //
 // method implementations
@@ -136,6 +137,11 @@ namespace CP
     {
       m_function =
         &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
+    }
+    else if (dynamic_cast<const xAOD::DiTauJetContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::DiTauJetContainer>;
     }
     else
     {

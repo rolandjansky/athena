@@ -32,7 +32,7 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "GaudiKernel/IToolSvc.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h" 
 #include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TruthInfo.h"

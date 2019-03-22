@@ -56,7 +56,7 @@ namespace Trig {
     ~JetManager();
 
     void setContainers(std::string,std::string);
-    void setKeys(std::string,std::string,std::string);
+    void setKeys(std::string,std::string,std::string,std::string);
 
     StatusCode retrieveByNavigation();
     StatusCode retrieveByContainer();

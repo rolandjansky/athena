@@ -5,6 +5,8 @@
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
@@ -29,7 +31,11 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     // get the graph
-    std::ifstream input_stream(nn_file_name);
+    std::string nn_path = PathResolverFindCalibFile(nn_file_name);
+    if (nn_path.size() == 0) {
+      throw std::runtime_error("no file found at '" + nn_file_name + "'");
+    }
+    std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
 
     // __________________________________________________________________
@@ -46,6 +52,7 @@ namespace FlavorTagDiscriminants {
       {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
       {".*_isDefaults"_r, EDMType::UCHAR},
       {"(JetFitter_|SV1_).*|secondaryVtx_L.*"_r, EDMType::FLOAT},
+      {"(softMuon_).*"_r, EDMType::FLOAT},
       };
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
@@ -55,6 +62,7 @@ namespace FlavorTagDiscriminants {
       {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
       {".*_trk_flightDirRelEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"softMuon_.*"_r, "softMuon_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
     std::vector<DL2InputConfig> input_config;
@@ -88,6 +96,11 @@ namespace FlavorTagDiscriminants {
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
+    // We have a number of special naming conventions to sort and
+    // filter tracks. The track nodes should be named according to
+    //
+    // tracks_<selection>_<sort-order>
+    //
     SortRegexes trk_sort_regexes {
       {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
       {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
