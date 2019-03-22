@@ -264,18 +264,17 @@ namespace Muon {
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " 3D clusters to be fit" );
     if(belowThreshold(clusters,4)) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
-      if(segColl){
-	for(std::vector<Muon::MuonSegment*>::iterator vsit=etaSegs.begin();vsit!=etaSegs.end();++vsit){
-	  segColl->push_back(*vsit);
-	  etaSegs.erase(vsit);
-	}
+      
+      for (auto vsit : etaSegs) {
+        if (segColl) {
+          segColl->push_back(vsit);
+        } else {
+          segments.push_back(vsit);
+        }
       }
-      else{
-	for(std::vector<Muon::MuonSegment*>::iterator vsit=etaSegs.begin();vsit!=etaSegs.end();++vsit){
-	  segments.push_back(*vsit);
-	  etaSegs.erase(vsit);
-	}
-      }
+      
+      etaSegs.clear();
+      return;
     }
     TrackCollection* segTrkColl = new TrackCollection;
     //order the clusters by layer
