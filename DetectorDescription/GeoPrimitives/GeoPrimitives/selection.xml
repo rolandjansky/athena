@@ -10,7 +10,6 @@
   <class name="Eigen::Matrix<double,2,1,0,2,1>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,2,1,0,2,1> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,2,1,0,2,1> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,2,1,0,2,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,2,1,0,2,1> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,2,1,0,2,1>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,2,1,0,2,1>,1>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,2,1,0,2,1>,0>"/>
@@ -20,8 +19,6 @@
   <class name="Eigen::Matrix<double,3,1,0,3,1>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,3,1,0,3,1> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >,false>"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,3>,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,1>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,0>"/>
@@ -31,7 +28,6 @@
   <class name="Eigen::Matrix<double,5,1,0,5,1>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,5,1,0,5,1> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,5,1,0,5,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,5,1,0,5,1>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,5,1,0,5,1>,1>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,5,1,0,5,1>,0>"/>
@@ -41,7 +37,6 @@
   <class name="Eigen::Matrix<double,3,3,0,3,3>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,3,3,0,3,3> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,3,3,0,3,3> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,3,0,3,3>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,3,3,0,3,3> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,3,0,3,3>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,3,0,3,3>,1>"/>
   <class name="Eigen::PlainObjectBase<Eigen::Matrix<double,3,3,0,3,3> >"/>
@@ -49,7 +44,6 @@
   <class name="Eigen::Matrix<double,4,4,0,4,4>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,4,4,0,4,4> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,4,4,0,4,4> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,4,4,0,4,4>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,4,4,0,4,4> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,4,4,0,4,4>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,4,4,0,4,4>,1>"/>
   <class name="Eigen::PlainObjectBase<Eigen::Matrix<double,4,4,0,4,4> >"/>
@@ -59,14 +53,12 @@
   <class name="Eigen::MapBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,0>"/>
   <class name="Eigen::MatrixBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> >"/>
   <class name="Eigen::DenseBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,double,double,Eigen::DenseBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,2>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,0>"/>
 
   <class name="Eigen::Matrix<double,5,5,0,5,5>"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,5,5,0,5,5> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,5,5,0,5,5> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,5,5,0,5,5>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,5,0,5,5> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,5,5,0,5,5>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,5,5,0,5,5>,1>"/>
   <class name="Eigen::PlainObjectBase<Eigen::Matrix<double,5,5,0,5,5> >"/>
@@ -75,7 +67,6 @@
   <class name="Eigen::PlainObjectBase<Eigen::Matrix<double,-1,-1,0,-1,-1> >"/>
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,-1,-1,0,-1,-1> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,-1,-1,0,-1,-1> >"/>
-  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,-1,-1,0,-1,-1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,-1,-1,0,-1,-1> >,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,-1,-1,0,-1,-1>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,-1,-1,0,-1,-1>,1>"/>
 
@@ -180,10 +171,6 @@
       <method name="setOnes"/>
       <method name="forceAlignedAccess"/>
       <method name="trace"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,double,double,Eigen::DenseBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> >,false>">
-      <method name="*"/>
     </class>
 
     <class name="Eigen::PlainObjectBase<Eigen::Matrix<double,3,3,0,3,3> >">
@@ -582,35 +569,6 @@
       <method name="Random"/>
       <method name="Zero"/>
       <method name="Ones"/>
-    </class>
-
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,2,1,0,2,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,2,1,0,2,1> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,5,1,0,5,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,3,0,3,3>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,4,4,0,4,4>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,4,4,0,4,4> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,5,5,0,5,5>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,5,0,5,5> >,false>">
-      <method name="*"/>
-    </class>
-
-    <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,-1,-1,0,-1,-1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,-1,-1,0,-1,-1> >,false>">
-      <method name="*"/>
     </class>
 
     <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,3,0,3,3>,1>">
