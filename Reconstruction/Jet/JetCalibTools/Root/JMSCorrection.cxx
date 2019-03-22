@@ -147,7 +147,6 @@ if(!m_OnlyCombination){
     ATH_MSG_FATAL("Cannot open JMS factors file" << fileName);
     return StatusCode::FAILURE;
   } 
-  //ATH_MSG_INFO("  for " << m_jetAlgo << " jets\n\n");
 
   if (!m_use3Dhisto) setMassEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassEtaBins","") ) );
 
