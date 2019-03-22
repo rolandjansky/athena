@@ -327,16 +327,20 @@ StatusCode GenericMetadataTool<T,U>::buildAthenaInterface(const std::string& inp
     }
   }
 
-  // Get the input bookkeeper of the input metadata store
+  // Get the input container from the input metadata store 
   const T* cbc;
   if (inputMetaStore()->contains(ClassID_traits<T>::ID(),inputName) ) {
     StatusCode ssc = inputMetaStore()->retrieve( cbc, inputName );
     if (ssc.isSuccess()) {
-      // Insert input bookkeeper into MetaCont for this sid
+      //Insert input container into MetaCont for this sid 
       T* tostore = new T(*cbc);
-      if ( !mc->insert(sid,tostore) ) {
-        ATH_MSG_ERROR("Unable to insert " << inputName << " for " << sid << " with key " << name);
-        return StatusCode::FAILURE;   // Fail if insert to mc fails
+      if ( !mc->valid(sid) ) {
+        if ( !mc->insert(sid,tostore) ) {
+          ATH_MSG_ERROR("Unable to insert " << inputName << " for " << sid << " with key " << name);
+          return StatusCode::FAILURE;   // Fail if insert to mc fails
+        }
+      } else {
+        ATH_MSG_WARNING("SID="<<sid<<" already in container");
       }
     }
     else {
