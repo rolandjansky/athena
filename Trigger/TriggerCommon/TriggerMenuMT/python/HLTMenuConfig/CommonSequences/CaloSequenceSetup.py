@@ -1,4 +1,9 @@
-from AthenaCommon.Constants import ERROR, DEBUG
+#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+
+
+from AthenaCommon.Constants import DEBUG
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags

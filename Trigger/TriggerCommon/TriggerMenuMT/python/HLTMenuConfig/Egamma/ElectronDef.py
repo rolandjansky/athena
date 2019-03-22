@@ -8,8 +8,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 
-from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-from TrigUpgradeTest.electronMenuDefs import electronMenuSequence, inDetSetup
+from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 

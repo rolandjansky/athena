@@ -40,7 +40,7 @@ if TriggerFlags.doID:
   # PixelLorentzAngleSvc and SCTLorentzAngleSvc
   include("InDetRecExample/InDetRecConditionsAccess.py")
 
-  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
   (viewAlgs, eventAlgs) = makeInDetAlgs()
 

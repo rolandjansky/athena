@@ -52,8 +52,8 @@ inDetSetup()
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-    from TrigUpgradeTest.electronMenuDefs import electronMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
     fastCaloStep=fastCaloMenuSequence("Ele")
     electronStep=electronMenuSequence()
 
@@ -72,7 +72,7 @@ if (doElectron):
 # photon chains
 ##################################################################
 if (doPhoton):
-    from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
     fastCaloStep = fastCaloMenuSequence("Gamma")
