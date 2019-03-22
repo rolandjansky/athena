@@ -429,8 +429,8 @@ StatusCode BuildTruthTaus::examineTruthTauDecay(const xAOD::TruthParticle& xTrut
       }
     }
 
-    // only process stable particles
-    if (xTruthDaughter->status() != 1 and xTruthDaughter->status() != 2)
+    // only process stable particles and pions and kaons which passed above criteria
+    if (xTruthDaughter->status() != 1 and xTruthDaughter->status() != 2 and xTruthDaughter->status() != 11 and xTruthDaughter->status() != 10902)
       continue;
 
     // add pdgID to vector for decay mode classification
