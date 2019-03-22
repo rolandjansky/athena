@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -114,8 +114,8 @@ private:
   bool m_doSetDetectorEta;
   bool m_doOnlyResidual;
   std::string m_vertexContainerName;
-  bool m_InsituCombMassCalib;
-  TString m_InsituCombMassConfig;
+  bool m_insituCombMassCalib;
+  TString m_insituCombMassConfig;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;

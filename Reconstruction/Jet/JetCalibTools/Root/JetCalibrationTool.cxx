@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -185,15 +185,15 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   // Combined Mass Calibration
-  m_InsituCombMassCalib = m_globalConfig->GetValue("InsituCombinedMassCorrection",false);
-  if(m_InsituCombMassCalib && calibSeq.Contains("InsituCombinedMass")){ // Read Combination Config
-    m_InsituCombMassConfig = m_globalConfig->GetValue("InsituCombinedMassCorrectionFile","");
-    if(m_InsituCombMassConfig=="") ATH_MSG_ERROR("Please check there is a combination config");
+  m_insituCombMassCalib = m_globalConfig->GetValue("InsituCombinedMassCorrection",false);
+  if(m_insituCombMassCalib && calibSeq.Contains("InsituCombinedMass")){ // Read Combination Config
+    m_insituCombMassConfig = m_globalConfig->GetValue("InsituCombinedMassCorrectionFile","");
+    if(m_insituCombMassConfig=="") ATH_MSG_ERROR("Please check there is a combination config");
 
-      std::string configPath_comb = dir+m_InsituCombMassConfig.Data(); // Full path
+      std::string configPath_comb = dir+m_insituCombMassConfig.Data(); // Full path
       TString fn_comb =  PathResolverFindCalibFile(configPath_comb);
 
-      ATH_MSG_INFO("Reading combination settings from: " << m_InsituCombMassConfig);
+      ATH_MSG_INFO("Reading combination settings from: " << m_insituCombMassConfig);
       ATH_MSG_INFO("resolved in: " << fn_comb);
 
       m_globalInsituCombMassConfig = new TEnv();

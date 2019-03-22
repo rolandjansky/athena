@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_JMSCORRECTION_H
@@ -83,7 +83,7 @@ class JMSCorrection
 
   bool m_combination; // Mass Combination of calo mass with track-assisted mass
   bool m_useCorrelatedWeights; 
-  bool m_OnlyCombination; // mass combination using insitu calibrated inputs
+  bool m_onlyCombination; // mass combination using insitu calibrated inputs
 
   // Control the binning using a private class enum
   enum class BinningParam { pt_mass_eta, e_LOGmOe_eta, e_LOGmOet_eta, e_LOGmOpt_eta, et_LOGmOet_eta };

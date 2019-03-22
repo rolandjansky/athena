@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -126,11 +126,11 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
   m_combination = m_config->GetValue("Combination",false); // true: turn on combination of calo mass with track-assisted mass
   m_useCorrelatedWeights = m_config->GetValue("UseCorrelatedWeights",false); // true: turn on combination of calo mass with track-assisted mass
   // Should be applied the combination mass with the insitu calibrated inputs?
-  m_OnlyCombination = m_config->GetValue("OnlyCombination",false);
+  m_onlyCombination = m_config->GetValue("OnlyCombination",false);
 
   //find the ROOT file containing response histograms, path comes from the config file.
  TString JMSFile;
-if(!m_OnlyCombination){
+if(!m_onlyCombination){
   JMSFile = m_config->GetValue("MassCalibrationFile","empty");
   if ( JMSFile.EqualTo("empty") ) { 
     ATH_MSG_FATAL("NO JMSFactorsFile specified. Aborting.");
@@ -232,7 +232,7 @@ if(!m_OnlyCombination){
     }
     else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << file_trkAssisted_Name);
   }
-} //!m_OnlyCombination
+} //!m_onlyCombination
 
   // Combination
   TString Combination_File;
@@ -252,7 +252,7 @@ if(!m_OnlyCombination){
     else{Combination_File.Insert(14,m_calibAreaTag);}
     file_combination_Name = PathResolverFindCalibFile(Combination_File.Data());
     inputFile_combination = TFile::Open(file_combination_Name);
-    if (!inputFile_combination && !m_OnlyCombination){
+    if (!inputFile_combination && !m_onlyCombination){
       ATH_MSG_FATAL("Cannot open Mass Combination file" << inputFile_combination);
       return StatusCode::FAILURE;
     }
@@ -302,7 +302,7 @@ if(!m_OnlyCombination){
     }
 
     //Make sure we put something in the vector of TH2Ds OR filled the TH3s
-  if(!m_OnlyCombination){
+  if(!m_onlyCombination){
     if ( !m_use3Dhisto)
     {
       if ( m_caloResolutionMassCombination.size() < 1 ) {
@@ -329,7 +329,7 @@ if(!m_OnlyCombination){
     }
   }
     ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name);
-  } //m_OnlyCombination
+  } //m_onlyCombination
 
   // Determine the binning strategy
   // History is to use pt_mass_eta, with many past config files that don't specify
@@ -594,7 +594,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   TLorentzVector caloCalibJet;
   float mass_ta;
 
-if(!m_OnlyCombination){
+if(!m_onlyCombination){
   // Determine mass eta bin to use (if using 2D histograms)
   int etabin=-99;
   if (!m_use3Dhisto && (m_massEtaBins.size()==0 || m_respFactorsMass.size() != m_massEtaBins.size()-1)){
@@ -841,16 +841,16 @@ if(!m_OnlyCombination){
 	calibP4_ta.SetPxPyPzE( TACalibJet_pTfixed.Px(), TACalibJet_pTfixed.Py(), TACalibJet_pTfixed.Pz(), TACalibJet_pTfixed.E() );}
         jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",calibP4_ta);
   } //m_trackAssistedJetMassCorr  
-} //!m_OnlyCombination
+} //!m_onlyCombination
 
     if(m_combination){
       float  mass_calo;  
-      float  Mass_comb;
+      float  Mass_comb = 0.;
       double pT_calo;
       double E_calo;
       double Et_calo;
   
-      if(m_OnlyCombination){ 
+      if(m_onlyCombination){ 
         // Read input values (calo and TA insitu calibrated jets) for combination:
  
         xAOD::JetFourMom_t jetInsituP4_calo;
