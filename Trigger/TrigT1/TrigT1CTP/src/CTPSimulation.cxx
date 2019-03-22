@@ -1355,9 +1355,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
 			
          if ( m_muctpiCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_muctpiCTP->muCTPIWord(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrMUMult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrMUTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 6 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrMUMult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrMUTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
 			
       } 
@@ -1381,36 +1383,44 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
       else if ( thr->cableName() == "EM1" ) {
          if ( m_emtauCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_emtauCTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrEMMult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrEMTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 16 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrEMMult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrEMTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
       }
 
       else if ( thr->cableName() == "EM2" ) {
          if ( m_emtauCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_emtauCTP->cableWord1(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrEMMult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrEMTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 16 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrEMMult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrEMTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
       }
 
       else if ( thr->cableName() == "TAU1" ) {
          if ( m_emtauCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_emtauCTP->cableWord2(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrHAMult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrHATot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 16 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrHAMult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrHATot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
       }
 
       else if ( thr->cableName() == "TAU2" ) {
          if ( m_emtauCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_emtauCTP->cableWord3(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrHAMult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrHATot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 16 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrHAMult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrHATot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
       }
 
@@ -1419,20 +1429,23 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
 			
          if ( m_jetCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_jetCTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrJET1Mult->AddBinContent(1+ 8 * thr->mapping() + x);
-            m_thrJETTot->AddBinContent(1+ thr->mapping(), multiplicity);
-         }
-			
+            if( thr->mapping() < 25 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrJET1Mult->AddBinContent(1+ 8 * thr->mapping() + x);
+               m_thrJETTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
+         }			
       } 
 		
       else if ( thr->cableName() == "JEP2" || thr->cableName() == "JET2" ) {
 			
          if ( m_jetCTP.isValid() ) {
             multiplicity = CTPUtil::getMult( m_jetCTP->cableWord1(), thr->cableStart(), thr->cableEnd() );
-            for(int x=0; x<=multiplicity; x++)
-               m_thrJET2Mult->AddBinContent(1+ 4 * (thr->mapping()-10) + x);
-            m_thrJETTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            if( thr->mapping() < 25 ) {
+               for(int x=0; x<=multiplicity; x++)
+                  m_thrJET2Mult->AddBinContent(1+ 4 * (thr->mapping()-10) + x);
+               m_thrJETTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
          }
 			
       } 
@@ -1442,20 +1455,23 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
             multiplicity = CTPUtil::getMult( m_energyCTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
 
             TH1I * hMult(0), * hTot(0);
+            int maxmapping;
             switch(thr->ttype()) {
             case L1DataDef::TE:
-               hMult = m_thrTEMult; hTot = m_thrTETot; break;
+               hMult = m_thrTEMult; hTot = m_thrTETot; maxmapping = 16; break;
             case L1DataDef::XE:
-               hMult = m_thrXEMult; hTot = m_thrXETot; break;
+               hMult = m_thrXEMult; hTot = m_thrXETot; maxmapping = 16; break;
             case L1DataDef::XS:
-               hMult = m_thrXSMult; hTot = m_thrXSTot; break;
+               hMult = m_thrXSMult; hTot = m_thrXSTot; maxmapping = 8; break;
             default:
                break;
             }
             if(hMult) {
-               for(int x=0; x<=multiplicity; x++)
-                  hMult->AddBinContent(1+ 2 * thr->mapping() + x);
-               hTot->AddBinContent(1+ thr->mapping(), multiplicity);
+               if( thr->mapping() < maxmapping ) {
+                  for(int x=0; x<=multiplicity; x++)
+                     hMult->AddBinContent(1+ 2 * thr->mapping() + x);
+                  hTot->AddBinContent(1+ thr->mapping(), multiplicity);
+               }
             }
          }
       }  
@@ -1474,9 +1490,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
                break;
             }
             if(hMult) {
-               for(int x=0; x<=multiplicity; x++)
-                  hMult->AddBinContent(1+ 2 * thr->mapping() + x);
-               hTot->AddBinContent(1+ thr->mapping(), multiplicity);
+               if( thr->mapping() < 16 ) {
+                  for(int x=0; x<=multiplicity; x++)
+                     hMult->AddBinContent(1+ 2 * thr->mapping() + x);
+                  hTot->AddBinContent(1+ thr->mapping(), multiplicity);
+               }
             }
          }
       }  

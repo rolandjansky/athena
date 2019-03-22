@@ -1,7 +1,9 @@
 
+
 def enableJGTowerMaker( SuperCellContainer="SCell", ApplySCQual=True, SCBitMask=0x200 ):
 
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     log = logging.getLogger( 'TrigT1CaloFexSim.EnableJGTowerMaker' )
 
     log.info("Enabling JGTowerMaker. It is setup to read SuperCellContainer %s and %sapply SCQuality" % (SuperCellContainer, "" if ApplySCQual else "not " ) )
@@ -11,8 +13,9 @@ def enableJGTowerMaker( SuperCellContainer="SCell", ApplySCQual=True, SCBitMask=
     # Details for tower builder 
     # svcMgr.IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;schema=ATLAS_COOL_LAR;ATLAS_COOLPROD:OFLP130:ATLAS_COOL_LAR_W:"
     svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=gJTowerMap.db;dbname=OFLP200"
-    svcMgr += CfgMgr.THistSvc()
-    # svcMgr.THistSvc.Output += ["OUTPUT DATAFILE='myOutputFile.root' OPT='RECREATE'"]
+    if not hasattr(svcMgr,"THistSvc"):
+        svcMgr += CfgMgr.THistSvc()
+        svcMgr.THistSvc.Output += ["EXPERT DATAFILE='myOutputFile.root' OPT='RECREATE'"]
 
     # not sure about this as these variables are not used anywhere
     folderlist = [ "/LAR/Identifier/GTowerSCMap",

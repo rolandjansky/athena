@@ -119,7 +119,7 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
              const xAOD::TriggerTower * tt = TTs->at(tt_hs);
              if(tt->sampling()!=1 || fabs(tt->eta())>1.5) continue; // Tile raneg upto 1.5 with sampling == 1
              if(!inBox(jgt->Eta(),tt->eta(),jgt->dEta()/2,jgt->Phi(),tt->phi(),jgt->dPhi()/2)) continue;
-             float cpET = 1000*tt->cpET();
+             float cpET = 500*tt->cpET();
              jgEt+=cpET;
              tile_et+=cpET;
           }

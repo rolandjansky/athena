@@ -67,12 +67,12 @@ namespace PUfitVar{
   float m_towerPhiWidth = TMath::TwoPi()/m_nPhiBins;
 }
 
-float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitVar::m_nSigma, bool useNegTowers=false){
+std::vector<float> Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitVar::m_nSigma, bool useNegTowers=false){
   
   std::vector<Patch> towerConfig;
   towerConfig.resize(PUfitVar::m_nTowers);
   
-  TH2F* pufitGrid = new TH2F("h_pufitGrid", "",  PUfitVar::m_nEtaBins, -PUfitVar::m_maxEta, PUfitVar::m_maxEta, PUfitVar::m_nPhiBins, -TMath::Pi(), TMath::Pi());
+  TH2F pufitGrid("h_pufitGrid", "",  PUfitVar::m_nEtaBins, -PUfitVar::m_maxEta, PUfitVar::m_maxEta, PUfitVar::m_nPhiBins, -TMath::Pi(), TMath::Pi());
   
   float sumEtEta = 0; //Eta restricted sum
   for(unsigned int i = 0; i < towers->size(); i++){
@@ -88,8 +88,8 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitV
     
     sumEtEta += Et_;
     
-    int ieta = pufitGrid->GetXaxis()->FindBin(eta);
-    int iphi = pufitGrid->GetYaxis()->FindBin(phi);
+    int ieta = pufitGrid.GetXaxis()->FindBin(eta);
+    int iphi = pufitGrid.GetYaxis()->FindBin(phi);
     
     ieta -= 1;  // to deal with the conversion from root histogram indicies to c++ vector indicies
     iphi -= 1;  // histograms start with 1, vectors with 0
@@ -98,8 +98,8 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitV
     
     towerConfig.at(index).add(Et_, phi);
     
-    float temp = pufitGrid->GetBinContent(ieta+1, iphi+1);
-    pufitGrid->SetBinContent(ieta+1, iphi+1, temp + Et_);
+    float temp = pufitGrid.GetBinContent(ieta+1, iphi+1);
+    pufitGrid.SetBinContent(ieta+1, iphi+1, temp + Et_);
   }
   
   //int maxConfig;
@@ -163,8 +163,10 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitV
   }
   
   //Stop if no patches are classified as hard scatter
-  if(nHardScatter == 0) return 0.;
-  
+  if(nHardScatter == 0){
+    std::vector<float> blank(2);
+    return blank;
+  }
   double sigma_det = sigma_yy*sigma_xx - sigma_xy*sigma_xy;
   
   double cosPhiPileup = ptPileup.Px()/ptPileup.Mod();
@@ -213,9 +215,14 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitV
     sumEt += hsTowers.at(ii).sumEt;
   }
 
-  delete pufitGrid;
-  return TMath::Sqrt(pxMiss*pxMiss + pyMiss*pyMiss);
+  std::vector<float> MET;
+  float met = TMath::Sqrt(pxMiss*pxMiss + pyMiss*pyMiss);
+  MET.push_back(met);
+  float phi = 0;
+  if(met != 0) TMath::ACos(pxMiss/met);
+  MET.push_back(phi);
 
+  return MET;
 }
 
 

@@ -78,7 +78,7 @@ def defineMenu():
         TopoOutput( algoname='2INVM9-2MU4ab',                               module=0, fpga=1, clock=1, firstbit=10 ),  #v6 new
         TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=0, fpga=1, clock=1, firstbit=11 ),  #v6 new       
         TopoOutput( algoname='INVM_EMs6',                                   module=0, fpga=0, clock=0, firstbit=11 ), # 3bits
-
+ 
         TopoOutput( algoname='400INVM9999-0DPHI20-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=0 ), # v8 new
         TopoOutput( algoname='400INVM9999-0DPHI22-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=1 ), # v8 new
         TopoOutput( algoname='400INVM9999-0DPHI24-J30s6-AJ20s6',            module=1, fpga=1, clock=0, firstbit=2 ), # v8 new

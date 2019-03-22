@@ -1,5 +1,5 @@
 
-def enableEfexAlgorithms(SuperCellContainer='SCell', useTDR=False, doLArFex=False, doEle=True, doTau=True):
+def enableEfexAlgorithms(SuperCellContainer='SCell', useTDR=False, doLArFex=False, doEle=True, doTau=True, ApplySCQual=True, SCBitMask=0x40):
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger( 'TrigT1CaloFexSim.L1Sim.eFEX' )
@@ -20,7 +20,8 @@ def enableEfexAlgorithms(SuperCellContainer='SCell', useTDR=False, doLArFex=Fals
     if(useTDR and doEle):
         log.debug("Adding TDR version of TrigT1CaloEFex/TrigT1CaloEFexCl to AthAlgSeq")
         algseq += CfgMgr.TrigT1CaloEFex( name="TrigT1CaloEFexCl",
-                                         CleanCellContainer=True,
+                                         CleanCellContainerSkim=ApplySCQual,
+                                         QualBitMask = SCBitMask, 
                                          OutputClusterName="SClusterCl",
                                          SuperCellContainer=SuperCellContainer,
                                          EnergyWeightedCluster=True)
@@ -28,15 +29,19 @@ def enableEfexAlgorithms(SuperCellContainer='SCell', useTDR=False, doLArFex=Fals
     elif doEle:
         log.debug("Adding new version of TrigT1CaloEFex/TrigT1CaloEFexCl to AthAlgSeq")
         algseq += CfgMgr.TrigT1CaloEFex( name="TrigT1CaloEFexCl",
-                                         CleanCellContainer=False,
+                                         CleanCellContainer=ApplySCQual, 
+                                         QualBitMask=SCBitMask, 
                                          OutputClusterName="SClusterCl",
                                          SuperCellContainer=SuperCellContainer,
+                                         ClusterEnergyThreshold=4.0,
+                                         ApplyBaseLineSelection=False,
                                          EnergyWeightedCluster=False)
 
     # Schedule the tau algorihtm
     if doTau:
         algseq += CfgMgr.TrigT1CaloRun3TauFex(name="TrigT1CaloEFexTau",
-                                              CleanCellContainer=False,
+                                              CleanCellContainer=False,#Not currently properly enabled for Tau's
+                                              #EnableMonitoring=True,
                                               SuperCellContainer=SuperCellContainer,
                                               OutputClusterName="SClusterTau"
                                               )

@@ -39,7 +39,9 @@ class METAlg{
   struct MET{
     float phi;
     float et;
-    
+    float rho = 0; 
+    float mht = 0;
+    float mst = 0;
   };
 
  static std::map<TString, std::shared_ptr<MET>> m_METMap;
@@ -64,7 +66,10 @@ class METAlg{
    */
   static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
  
-
+  /**
+   *@brief Calculates MET in bins of eta(and phi) depending on jFEX/gFEX geometry
+   */
+  static StatusCode MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFEX, bool useRhoSub, bool usePUfit);
 };
 
 #endif

@@ -40,7 +40,7 @@ bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dph
 bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool acceptEqual){
 
   float dPhi = deltaPhi(phi1, phi2);
-  float dEta = eta1=eta2;
+  float dEta = eta1-eta2;
   float dR2 = dPhi*dPhi + dEta*dEta;
   if(acceptEqual)
     return dR2 <= dR*dR;

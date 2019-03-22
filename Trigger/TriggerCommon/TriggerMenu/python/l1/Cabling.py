@@ -86,6 +86,15 @@ class Cabling:
 
         from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
+
+        if thrtype == 'EM' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'TAU' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'JET' and mapping >= 25:
+            mapping = 24
+        elif thrtype == 'XE' and mapping >=16:
+            mapping = 15
         
         if run1:
             type2cablename  = { 'MUON'   : [(0,6,'MUCTPI')],
@@ -199,6 +208,17 @@ class InputCable:
         else:
             self.thrtype = threshold.ttype
         self.mapping = int(threshold.mapping)
+        thrtype = self.thrtype
+        mapping = self.mapping
+        if thrtype == 'EM' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'TAU' and mapping >= 16:
+            mapping = 15
+        elif thrtype == 'JET' and mapping >= 25:
+            mapping = 24
+        elif thrtype == 'XE' and mapping >=16:
+            mapping = 15
+        self.mapping = mapping
 
         self.isDirectIn  = False # True for TOPO and ALFA which go into CTPCore
         self.slot        = None  # input cable slot, possible values 7..9

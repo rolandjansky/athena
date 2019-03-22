@@ -57,7 +57,11 @@ def defineMenu():
         'EM8I',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
-        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 
+        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM',
+        # ATR-19437
+        'eEM7', 'eEM22',
+        'eEM8VH', 'eEM10VH', 'eEM15VH', 'eEM20VH',
+        'eEM15VHI', 'eEM18VHI', 'eEM20VHI', 'eEM22VHI', 
 
         # 1 x ZB/
         'ZB_EM15',
@@ -67,7 +71,10 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100', 
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100',
+        # ATR-19437
+        'eTAU12', 'eTAU20', 'eTAU40', 'eTAU60', 'eTAU100', 
+        'eTAU12IM', 'eTAU20IM', 'eTAU25IM', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -87,14 +94,20 @@ def defineMenu():
 
         # 3 x Central Jet
         'J35.0ETA23','J40.0ETA25', 'J20.28ETA31',
+        # ATR-19437
+        'jJ12.0ETA23', 'jJ15.0ETA25', 'jJ25.0ETA23', 'jJ35.0ETA23', 'jJ40.0ETA25', 
 
         # 6 Jets # replace J400 with J45.0ETA20 - ATR-19309
         'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J120',
         # 'J40', 'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
+        # ATR-19437
+        'jJ12', 'jJ15', 'jJ20', 'jJ25', 'jJ30', 'jJ40', 'jJ50', 'jJ85', 'jJ100',
 
 
         # 6 x FJ              
         'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', #'JJ15.23ETA49', 'J100.31ETA49',
+        # ATR-19437
+        'jJ15.31ETA49', 'jJ20.31ETA49', 'jJ75.31ETA49', 
 
         #---------------------
         # SLOT 8 / CON 2 (EN1)
@@ -115,6 +128,10 @@ def defineMenu():
 
         'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
         'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
+        # ATR-19437
+        'gXERHO20', 'gXERHO30', 'gXERHO35', 'gXERHO40',   'gXERHO45', 'gXERHO50', 
+        'gXEPUFIT20',  'gXEPUFIT50', 
+       
         
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
@@ -807,7 +824,7 @@ def defineMenu():
 # Run this file as python python/l1menu/Menu_MC_pp_v7.py to print out available IDs
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
-
+    
     Lvl1Flags.CtpIdMap = {
  
         'L1_EM3' : 0,
@@ -825,6 +842,20 @@ def defineMenu():
         'L1_EM22VH' : 295,
         'L1_EM3_EMPTY' : 12,
         'L1_EM7_EMPTY' : 13,
+        'L1_eEM22' : 25,
+        'L1_2eEM15VHI' : 42,
+        'L1_2eEM20VH' : 49,
+        'L1_2eEM8VH_MU10' : 50,
+        'L1_eEM15VHI_2eTAU12IM_4jJ12' : 59,
+        'L1_eEM15VHI_2eTAU12IM_jJ25_3jJ12' : 68,
+        'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 73,
+        'L1_eEM15VH_MU10' : 82,
+        'L1_eEM18VHI_3jJ20' : 86,
+        'L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20' :  87,
+        'L1_eEM20VH_3eEM10VH' : 91,
+        'L1_eEM22VHI' : 107,
+        'L1_eEM20VHI' : 178, 
+        'L1_eEM7_MU20' : 110,
         'L1_MU4' : 14,
         'L1_MU6' : 15,
         'L1_MU10' : 16,
@@ -871,6 +902,7 @@ def defineMenu():
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
         'L1_TAU20IM_2TAU12IM' : 58,
+        'L1_eTAU12' : 29,
         'L1_2TAU5' : 365,
         'L1_2TAU8' : 370,
         'L1_EM15VHI_2TAU12IM' : 60,
@@ -908,6 +940,19 @@ def defineMenu():
         'L1_MU6_J75' : 90,
         'L1_MU20_J40'  : 428,
         'L1_MU20_XE30' : 433,
+        'L1_MU10_2jJ15_jJ20' : 133,
+        'L1_MU10_2jJ20' : 136,
+        'L1_MU10_eTAU12IM_3jJ12' : 138,
+        'L1_MU10_eTAU12IM_jJ25_2jJ12' : 139,
+        'L1_MU10_eTAU12IM_gXERHO35' : 143,
+        'L1_MU10_eTAU20IM' : 152,
+        'L1_MU20_jJ40' : 157,
+        'L1_MU20_gXERHO30' : 158,
+        'L1_eTAU20IM_2jJ20_gXERHO45' : 159,
+        'L1_eTAU20IM_2eTAU12IM_4jJ12.0ETA23' : 160,
+        'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20' : 162,
+        'L1_eTAU40_2eTAU12IM_gXERHO40' : 164,
+        'L1_eTAU60_2eTAU40' : 165,
         'L1_J15' : 92,
         'L1_J20' : 93,
         'L1_J25' : 94,
@@ -920,6 +965,17 @@ def defineMenu():
         'L1_J100' : 100,
         'L1_J120' : 101,
         #'L1_J400' : 102,
+        'L1_jJ100' : 36,
+        'L1_2jJ50_gXERHO40' : 166,
+        'L1_3jJ15.0ETA25_gXERHO40' : 167,
+        'L1_3jJ35.0ETA23' : 168,
+        'L1_3jJ50' : 169,
+        'L1_4jJ15' : 170,
+        'L1_4jJ15.0ETA25' : 171,
+        'L1_jJ25.0ETA23_2jJ15.31ETA49' : 125,
+        'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49' : 126,
+        'L1_jJ75.31ETA49' : 127,
+        'L1_jJ85_3jJ30' : 128,
         'L1_J20.31ETA49' : 103,
         'L1_J30.31ETA49' : 104,
         'L1_J50.31ETA49' : 105,
@@ -976,6 +1032,10 @@ def defineMenu():
         'L1_XE60' : 149,
         'L1_XE70' : 150,
         'L1_XE80' : 151,
+        'L1_gXERHO20' : 177,
+        'L1_gXERHO50' : 30,
+        'L1_gXEPUFIT20' : 174,
+        'L1_gXEPUFIT50' : 31,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
@@ -1226,7 +1286,7 @@ def defineMenu():
 
         
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
-        
+
 
 }
 
