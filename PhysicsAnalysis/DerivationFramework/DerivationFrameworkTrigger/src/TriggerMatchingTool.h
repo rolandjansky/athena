@@ -8,10 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigNavStructure/TrigNavStructure.h"
-#include "TrigNavStructure/TriggerElement.h"
+#include "TriggerMatchingTool/IIParticleRetrievalTool.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -35,8 +32,7 @@ namespace DerivationFramework {
    */
   class TriggerMatchingTool final :
     public AthAlgTool,
-    virtual public IAugmentationTool,
-    virtual public IIncidentListener
+    virtual public IAugmentationTool
   {
     public:
       /// Helper typedefs
@@ -53,16 +49,14 @@ namespace DerivationFramework {
       /// Calculate the matchings
       StatusCode addBranches() const override;
 
-      /// Handle an incident
-      void handle(const Incident& inc) override;
-
     private:
       // Properties
       /// The list of chain names to match
       std::vector<std::string> m_chainNames;
 
-      /// The trigger decision tool to use
-      ToolHandle<Trig::TrigDecisionTool> m_tdt;
+      /// The tool to retrieve the online candidates
+      ToolHandle<Trig::IIParticleRetrievalTool> m_trigParticleTool
+      {"Trig::IParticleRetrievalTool/OnlineParticleTool"};
 
       /// The input containers to use. These are keyed by xAOD object type
       std::map<xAOD::Type::ObjectType, std::string> m_offlineInputs;
@@ -73,18 +67,7 @@ namespace DerivationFramework {
       /// Whether to match in rerun mode or not.
       bool m_rerun;
 
-      // Internal values
-      /// The pointer to the navigation. This is cached from the TDT so is
-      /// *logical* const.
-      mutable const HLT::TrigNavStructure* m_navigation;
-
-      /// The cache of TE ID -> type lookup
-      mutable std::map<HLT::te_id_type, xAOD::Type::ObjectType> m_egammaTEs;
-
       // Internal functions
-      /// Call on every new file
-      void beginNewFile();
-
       /**
        * @brief Create an output container for the named chain
        * @param[out] container A pointer to the created container
@@ -95,59 +78,6 @@ namespace DerivationFramework {
       StatusCode createOuputContainer(
           xAOD::TrigCompositeContainer*& container,
           const std::string& chain) const;
-
-      /**
-       * @brief Retrieve all combinations of online objects that could have
-       * fired the trigger.
-       * @param[out] combinations The found combinations.
-       * @param cg The chain group to query.
-       */
-      StatusCode getOnlineCombinations(
-          std::vector<particleVec_t>& combinations,
-          const Trig::ChainGroup& cg) const;
-
-      /**
-       * @brief Retrieve the combination of online objects from the given
-       * Trig::Combination object.
-       * @param[out] output The found combination will be appended onto this
-       * vector
-       * @param combination The Trig::Combination to query.
-       */
-      StatusCode getCombination(
-          std::vector<particleVec_t>& output,
-          const Trig::Combination& combination) const;
-
-      /**
-       * @brief Retrieve all particles that caused this TE to fire.
-       * @param[out] particles The found particles will be appended to this
-       * vector.
-       * @param te The te to query.
-       */
-      StatusCode processTE(
-          particleVec_t& particles,
-          const HLT::TriggerElement* te) const;
-
-      /**
-       * @brief Retrieve particles from an EGamma TE
-       * @param[out] particles The found particle will be appended to this
-       * vector.
-       * @param te The te to query.
-       * By the time we've reached an 'egamma' node we should be on a single leg
-       * and should therefore only be finding one particle.
-       */
-      StatusCode processEGammaTE(
-          particleVec_t& particles,
-          const HLT::TriggerElement* te) const;
-
-      /**
-       * @brief Retrieve a single particle from a feature.
-       * @param[out] particle The particle will be filled here.
-       * @param feature The feature to read the particle from.
-       */
-      StatusCode retrieveFeatureParticle(
-          const xAOD::IParticle*& particle,
-          const HLT::TriggerElement::FeatureAccessHelper& feature,
-          const HLT::TriggerElement* te) const;
 
       /**
        * @brief Get all offline particles that could match a given online one.
