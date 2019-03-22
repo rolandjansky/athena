@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
+find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_component( PileUpComps
@@ -32,3 +33,7 @@ atlas_add_component( PileUpComps
                      EventInfoUtils xAODEventInfo GaudiKernel )
 
 
+atlas_add_test( PileUpHashHelper_test
+                SOURCES src/PileUpHashHelper.cxx test/PileUpHashHelper_test.cxx
+                INCLUDE_DIRS src ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES xAODEventInfo ${GTEST_LIBRARIES} )

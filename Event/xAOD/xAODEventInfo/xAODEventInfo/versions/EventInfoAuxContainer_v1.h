@@ -115,7 +115,11 @@ namespace xAOD {
       std::vector< std::vector< float > > mcEventWeights;
       /// @}
 
-
+      /// @name Pileup information
+      /// @{
+      std::vector< unsigned long long > pileUpMixtureIDLowBits;
+      std::vector< unsigned long long > pileUpMixtureIDHighBits;
+      /// @}
 
       /// Keep track of the event status flags.
       /// The set bits here correspond to the auxids of all unlocked

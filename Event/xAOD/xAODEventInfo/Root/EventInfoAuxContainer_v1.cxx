@@ -49,6 +49,10 @@ namespace xAOD {
       AUX_VARIABLE( mcChannelNumber );
       AUX_VARIABLE( mcEventNumber );
       AUX_VARIABLE( mcEventWeights );
+      
+      // Pileup information:
+      AUX_VARIABLE( pileUpMixtureIDLowBits );
+      AUX_VARIABLE( pileUpMixtureIDHighBits );
    }
 
    /**
