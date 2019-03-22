@@ -99,6 +99,11 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "TGC_RawDataProviderTool",
                                                                Decoder = TGCRodDecoder )
+
+    if forTrigger:
+        MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
+        MuonTgcRawDataProviderTool.OutputLevel = DEBUG
+
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm

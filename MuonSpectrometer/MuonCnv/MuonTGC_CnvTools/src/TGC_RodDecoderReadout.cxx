@@ -80,83 +80,82 @@ StatusCode Muon::TGC_RodDecoderReadout::fillCollection(const ROBFragment& robFra
       return StatusCode::SUCCESS;
     }
 
+
+  // Get the identifier for this fragment
   uint32_t source_id = robFrag.rod_source_id();
-  SourceIdentifier sid(robFrag.rod_source_id());
+  SourceIdentifier sid(source_id);
   
   // do not convert if the TGC collection is already in the converter
   uint16_t rdoId = TgcRdo::calculateOnlineId(sid.subdetector_id(), sid.module_id());
   TgcRdoIdHash rdoIdHash;
   int idHash = rdoIdHash(rdoId);
-  TgcRdoContainer::const_iterator itColl = rdoIdc.indexFind(idHash);
-  
-  if(itColl == rdoIdc.end())
-    {	
-      OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs;
-      robFrag.rod_data(bs);
-      TgcRdo* rdo = getCollection(robFrag, rdoIdc);
-      if(!rdo){
-	ATH_MSG_WARNING( "Pointer of RDO is NULL. Skip decoding of this ROD in this event..." );
-	return StatusCode::SUCCESS;
-      }
-      byteStream2Rdo(bs, *rdo, robFrag.rod_source_id());
-    }
-  else
-    {
-      ATH_MSG_DEBUG( " Collection ID = " << source_id 
-		     << "already found into the container; do not convert" );
-    }
+
+  // Get the IDC_WriteHandle for this hash (and check if it already exists)
+  std::unique_ptr<TgcRdo> rdo(nullptr);
+  TgcRdoContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle( idHash );
+  if(lock.alreadyPresent() ){
+  	ATH_MSG_DEBUG ( " TGC RDO collection already exist with collection hash = " 
+  		<< idHash << ", ID = " << sid.human() << " - converting is skipped!");
+  }
+  else{
+  	ATH_MSG_DEBUG( " Created new collection with ID = " << sid.human() << ", hash = " << idHash );
+  	// Create collection
+  	rdo = std::make_unique<TgcRdo>(rdoId, idHash);
+  	// Adjust bytestream data
+  	OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs;
+  	robFrag.rod_data(bs);
+  	// Get/fill the collection
+  	getCollection(robFrag, rdo.get() );
+  	// Add bytestream information
+  	byteStream2Rdo(bs, rdo.get(), robFrag.rod_source_id() );
+  	// Add TgcRdo to the container
+  	StatusCode status_lock = lock.addOrDelete( std::move( rdo ) );
+  	if(status_lock != StatusCode::SUCCESS){
+  		ATH_MSG_ERROR(" Failed to add TGC RDO collection to container with hash " << idHash );
+  	}
+  	else{
+			ATH_MSG_DEBUG(" Adding TgcRdo collection with hash " << idHash << ", source id = " << sid.human() << " to the TgcRdo Container");
+  	}
+  }
   
   return StatusCode::SUCCESS;
 }
 
 //================ getCollection ===============================================
-
-TgcRdo* Muon::TGC_RodDecoderReadout::getCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const
+void Muon::TGC_RodDecoderReadout::getCollection(const ROBFragment& robFrag, TgcRdo* rdo) const
 {
-  TgcRdo* theColl = 0;
-  
+  // Retrieve information and set in rdo
   uint32_t source_id = robFrag.rod_source_id();
   SourceIdentifier sid(source_id);
   
   uint16_t rdoId = TgcRdo::calculateOnlineId(sid.subdetector_id(), sid.module_id());
   TgcRdoIdHash rdoIdHash;
-  int idHash = rdoIdHash(rdoId);
-  
-  ATH_MSG_DEBUG( " Created new Collection ID = " << sid.human() << " Hash = " << idHash );
-  
-  // create new collection
-  theColl = new TgcRdo(rdoId, idHash);
-  // add collection into IDC
-  if(rdoIdc.addCollection(theColl, idHash).isFailure())
-    {
-      ATH_MSG_WARNING( "Failed to add TGC RDO collection to container" );
-      delete theColl; theColl = 0;
-      return 0;
-    }
-  theColl->setL1Id(robFrag.rod_lvl1_id());
-  theColl->setBcId(robFrag.rod_bc_id());
-  theColl->setTriggerType(robFrag.rod_lvl1_trigger_type());
-  theColl->setOnlineId(sid.subdetector_id(), sid.module_id());
+  int idHash = rdoIdHash(rdoId);  
+
+  rdo->setL1Id(robFrag.rod_lvl1_id());
+  rdo->setBcId(robFrag.rod_bc_id());
+  rdo->setTriggerType(robFrag.rod_lvl1_trigger_type());
+  rdo->setOnlineId(sid.subdetector_id(), sid.module_id());
   
   uint32_t nstatus = robFrag.rod_nstatus();
   const uint32_t* status;
   robFrag.rod_status(status);
-  theColl->setErrors(nstatus > 0 ? status[0] : 0);
-  theColl->setRodStatus(nstatus > 1 ? status[1] : 0);
-  theColl->setLocalStatus(nstatus > 3 ? status[3] : 0);
-  theColl->setOrbit(nstatus > 4 ? status[4] : 0);
+  rdo->setErrors(nstatus > 0 ? status[0] : 0);
+  rdo->setRodStatus(nstatus > 1 ? status[1] : 0);
+  rdo->setLocalStatus(nstatus > 3 ? status[3] : 0);
+  rdo->setOrbit(nstatus > 4 ? status[4] : 0);
 
   if(m_showStatusWords) {
     showStatusWords(source_id, rdoId, idHash, nstatus, status);
   }
   
-  return theColl;
+  return;
 }
 
 //================ byteStream2Rdo ===============================================
 
 void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs,
-						 TgcRdo& rdo,
+						 TgcRdo* rdo,
 						 uint32_t source_id)
 {
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStream2Rdo" );
@@ -165,7 +164,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
   TGC_BYTESTREAM_SORUCEID sid;
   fromBS32(source_id, sid);
   
-  if(rdo.identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))
+  if(rdo->identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))
     {
       ATH_MSG_DEBUG( "Error: input TgcRdo id does not match bytestream id" );
       return;
@@ -217,12 +216,12 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		ATH_MSG_DEBUG( "WORD" << iFrag << ":" << MSG::hex << bs[iBs] );
 		fromBS32(bs[iBs++], roh);
 
-		ATH_MSG_DEBUG( " rdo.subDetectorId():" << rdo.subDetectorId()
-			       << " rdo.rodId():" <<rdo.rodId()
+		ATH_MSG_DEBUG( " rdo.subDetectorId():" << rdo->subDetectorId()
+			       << " rdo.rodId():" <<rdo->rodId()
 			       << " roh.ldbId:" <<roh.ldbId
 			       << " roh.sbId:" <<roh.sbId
-			       << " rdo.l1Id():"<<rdo.l1Id()
-			       << " rdo.bcId():"<<rdo.bcId() );
+			       << " rdo.l1Id():"<<rdo->l1Id()
+			       << " rdo.bcId():"<<rdo->bcId() );
 
 		uint16_t slbId = roh.sbId;
                 // SBLOCs for EIFI are different in online (ByteStream) and offline (RDO).
@@ -238,12 +237,12 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
                 }
 
 		TgcRawData* raw =  new TgcRawData(bcTag(roh.bcBitmap),
-						  rdo.subDetectorId(),
-						  rdo.rodId(),
+						  rdo->subDetectorId(),
+						  rdo->rodId(),
 						  roh.ldbId,
 						  slbId,
-						  rdo.l1Id(),
-						  rdo.bcId(),
+						  rdo->l1Id(),
+						  rdo->bcId(),
 						  // http://cern.ch/atlas-tgc/doc/ROBformat.pdf
 						  // Table 7 : SB type, bits 15..13
 						  // 0,1: doublet wire, strip
@@ -261,7 +260,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 						  (bool)roh.adj,
 						  roh.tracklet,
 						  roh.channel+40);
-		rdo.push_back(raw);
+				rdo->push_back(raw);
 	      }
 	    break;
 	  }
@@ -281,18 +280,18 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		if(rostrip.slbType == TgcRawData::SLB_TYPE_TRIPLET_STRIP)
 		  {
 		    TgcRawData* raw = new TgcRawData(bcTag(rostrip.bcBitmap),
-						     rdo.subDetectorId(),
-						     rdo.rodId(),
+						     rdo->subDetectorId(),
+						     rdo->rodId(),
 						     rostrip.ldbId,
 						     rostrip.sbId,
-						     rdo.l1Id(),
-						     rdo.bcId(),
+						     rdo->l1Id(),
+						     rdo->bcId(),
 						     TgcRawData::SLB_TYPE_TRIPLET_STRIP,
 						     0,
 						     rostrip.seg,
 						     rostrip.subc,
 						     rostrip.phi);
-		    rdo.push_back(raw);
+		    rdo->push_back(raw);
 		  }
 		else
 		  {
@@ -312,12 +311,12 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		    }
 
 		    TgcRawData* raw = new TgcRawData(bcTag(rotrk.bcBitmap),
-						     rdo.subDetectorId(),
-						     rdo.rodId(),
+						     rdo->subDetectorId(),
+						     rdo->rodId(),
 						     rotrk.ldbId,
 						     slbId,
-						     rdo.l1Id(),
-						     rdo.bcId(),
+						     rdo->l1Id(),
+						     rdo->bcId(),
 						     // http://cern.ch/atlas-tgc/doc/ROBformat.pdf 
 						     // Table 8 : Slave Board type, bits 30..28
 						     // 0,1: doublet wire, strip
@@ -336,7 +335,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 						     rotrk.seg,
 						     rotrk.subm,
 						     rotrk.rphi);
-		    rdo.push_back(raw);
+		    rdo->push_back(raw);
 		  }
 		iBs++;
 	      }
@@ -356,10 +355,10 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		fromBS32(bs[iBs], hptinner);
 		if(hptinner.sector & 4){
                   TgcRawData* raw = new TgcRawData(bcTag(hptinner.bcBitmap),
-                                                   rdo.subDetectorId(),
-                                                   rdo.rodId(),
-                                                   rdo.l1Id(),
-                                                   rdo.bcId(),
+                                                   rdo->subDetectorId(),
+                                                   rdo->rodId(),
+                                                   rdo->l1Id(),
+                                                   rdo->bcId(),
                                                    hptinner.strip,
                                                    0,
                                                    hptinner.sector,
@@ -370,14 +369,14 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
                                                    0,
                                                    0,
                                                    hptinner.inner);
-                  rdo.push_back(raw);
+                  rdo->push_back(raw);
                 }else{
                   fromBS32(bs[iBs], hpt);
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
-                                                   rdo.subDetectorId(),
-                                                   rdo.rodId(),
-                                                   rdo.l1Id(),
-                                                   rdo.bcId(),
+                                                   rdo->subDetectorId(),
+                                                   rdo->rodId(),
+                                                   rdo->l1Id(),
+                                                   rdo->bcId(),
                                                    hpt.strip,
                                                    hpt.fwd,
                                                    hpt.sector,
@@ -388,7 +387,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
                                                    hpt.sub,
                                                    hpt.delta,
                                                    0);
-                  rdo.push_back(raw);
+                  rdo->push_back(raw);
                 }
                 iBs++;
               }
@@ -407,10 +406,10 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		fromBS32(bs[iBs++], sl);
 
 		TgcRawData* raw = new TgcRawData(bcTag(sl.bcBitmap),
-						 rdo.subDetectorId(),
-						 rdo.rodId(),
-						 rdo.l1Id(),
-						 rdo.bcId(),
+						 rdo->subDetectorId(),
+						 rdo->rodId(),
+						 rdo->l1Id(),
+						 rdo->bcId(),
 						 sl.cand2plus,
 						 sl.fwd,
 						 sl.sector,
@@ -420,7 +419,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 						 sl.overlap,
 						 sl.veto,
 						 sl.roi);
-		rdo.push_back(raw);
+		rdo->push_back(raw);
 	      }
 	    break;
 	  }
@@ -431,7 +430,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
         }
     }
 
-  ATH_MSG_DEBUG( "Decoded " << MSG::dec << rdo.size() << " elements" );
+  ATH_MSG_DEBUG( "Decoded " << MSG::dec << rdo->size() << " elements" );
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStream2Rdo done" );
 }
 
