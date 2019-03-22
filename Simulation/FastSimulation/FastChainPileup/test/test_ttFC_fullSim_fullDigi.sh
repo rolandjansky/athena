@@ -2,12 +2,11 @@
 # art-type: grid
 # art-description: test job ttFC_fullSim_fullDigi
 
-# specify branches of athena that are being targeted:                                                             
- 
+# specify branches of athena that are being targeted:
+
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
+# art-output: config.txt
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
@@ -22,20 +21,18 @@ FastChain_tf.py --simulator ATLFASTII \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
-    --DataRunNumber '284500'
+    --DataRunNumber '284500' \
+    --imf False
 
-echo "art-result: $? evgen step"
+echo "art-result: $? EVNTtoRDO step"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
-#add an additional payload from the job (corollary file).                                                           
-# art-output: InDetStandardPlots.root  
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fullSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+#add an additional payload from the job (corollary file).
+# art-output: RDO_truth.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fullSim_fullDigi RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_truth_TEST.root
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+# art-output: dcube/
 echo  "art-result: $? histcomp"
