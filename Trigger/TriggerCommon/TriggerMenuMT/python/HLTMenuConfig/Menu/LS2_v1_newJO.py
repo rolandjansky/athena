@@ -7,7 +7,7 @@ def get_flag_item(chainName, L1itemsChainParts, groups):
         L1item = 'L1_'+chainName.split('_L1')[-1]
         L1thresholds = L1item.split('_')[1:]
         L1itemsChainParts = [L1item, L1thresholds ]
-    elif L1itemsChainParts[0] == None:
+    elif L1itemsChainParts[0] is None:
         L1item = 'L1_'+chainName.split('_L1')[-1]
         L1itemsChainParts[0] = L1item
         
