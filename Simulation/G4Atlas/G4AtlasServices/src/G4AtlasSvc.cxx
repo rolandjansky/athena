@@ -15,6 +15,7 @@ G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
   , m_detGeoSvc("DetectorGeometrySvc",name)
   , m_physicsListTool("PhysicsListToolBase")
+  , m_userLimitsTool("UserLimitsTool")
   , m_isMT(false)
   , m_activateParallelGeometries(false)
 {
@@ -22,6 +23,7 @@ G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
   declareProperty("DetectorGeometrySvc", m_detGeoSvc );
   declareProperty("PhysicsListTool", m_physicsListTool);
+  declareProperty("UserLimitsTool", m_userLimitsTool);
   declareProperty("isMT", m_isMT);
 }
 
@@ -50,6 +52,7 @@ StatusCode G4AtlasSvc::initialize(){
 
   ATH_MSG_INFO( "retrieving the Physics List Tool" );
   CHECK(m_physicsListTool.retrieve());
+  CHECK(m_userLimitsTool.retrieve());
 
   if (m_activateParallelGeometries)
     {
