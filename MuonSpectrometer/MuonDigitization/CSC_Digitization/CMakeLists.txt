@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools
-                          Event/xAOD/xAODEventInfo
                           GaudiKernel
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -32,7 +31,7 @@ atlas_add_component( CSC_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib xAODEventInfo GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects )
 
 # Install files from the package:
 atlas_install_headers( CSC_Digitization )

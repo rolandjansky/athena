@@ -21,9 +21,6 @@
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 
-#include "xAODEventInfo/EventInfo.h"             // NEW EDM
-#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
-
 #include "PileUpTools/PileUpToolBase.h"
 
 class PileUpMergeSvc;
@@ -113,8 +110,6 @@ private:
   double m_driftVelocity;
   double m_electronEnergy;
   bool   m_NInterFixed;
-  unsigned int m_run{0};
-  unsigned int m_evt{0};
 
   ///////////////////////////////////////////////////////////////////
   // Access to the event methods:
