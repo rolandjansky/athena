@@ -18,10 +18,12 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 
 from DerivationFrameworkJetEtMiss import TriggerLists
 metTriggers = TriggerLists.MET_Trig()
+muTriggers = TriggerLists.single_mu_Trig()
 orstr  = ' || '
 andstr = ' && '
 trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
-expression = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) )'
+trackRequirementsMu = '(InDetTrackParticles.pt > 50.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
+expression = '( ( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) ) || ( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) ) )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM12SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM12SkimmingTool1",
