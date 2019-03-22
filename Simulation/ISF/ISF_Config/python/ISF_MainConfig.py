@@ -282,6 +282,7 @@ def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector'  ] )
     kwargs.setdefault("InputConverter"              ,   'ISF_LongLivedInputConverter'          )
+    kwargs.setdefault("QuasiStablePatcher"          , 'ZeroLifetimePositioner')
     return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: FullG4MT_longLived ###############

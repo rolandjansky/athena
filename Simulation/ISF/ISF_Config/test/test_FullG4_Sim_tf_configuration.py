@@ -150,7 +150,7 @@ class TestFullG4(unittest.TestCase):
 
 
     def test___SimKernel_ListOfSetProperties(self):
-        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'TruthRecordService']
+        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'QuasiStablePatcher', 'TruthRecordService']
         simkernel = self._job_config_dict['ISF_Kernel_FullG4']
         actual_list = simkernel.keys()
         expected_property_value_sorted = sorted(expected_list)

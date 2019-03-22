@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    TileCalorimeter/TileSimEvent
    MuonSpectrometer/MuonSimEvent
    Generators/GeneratorObjects
+   Simulation/Interfaces/HepMC_Interfaces
    Simulation/ISF/ISF_Core/ISF_Event
    Simulation/ISF/ISF_Core/ISF_Interfaces
    Tools/PmbCxxUtils
