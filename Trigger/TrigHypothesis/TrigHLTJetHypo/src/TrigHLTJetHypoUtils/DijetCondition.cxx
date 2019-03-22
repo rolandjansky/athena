@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <TLorentzVector.h>
 #include <limits>
+#include "GaudiKernel/SystemOfUnits.h"
+
 // #include <iostream>
 DijetCondition::DijetCondition(
                                double etThreshold0,
@@ -56,8 +58,10 @@ bool DijetCondition::isSatisfied(const HypoJetVector& ips) const{
 
 bool DijetCondition::passJetCuts(pHypoJet j0, pHypoJet j1) const {
 
-  auto et0 = 0.001 * j0->et();
-  auto et1 = 0.001 * j1->et();
+  constexpr double invGeV = 1./Gaudi::Units::GeV;
+
+  auto et0 = j0->et() * invGeV;
+  auto et1 = j1->et() * invGeV;
 
   auto eta0 =  j0->eta();
   auto eta1 =  j1->eta();
@@ -78,9 +82,9 @@ bool DijetCondition::passJetCuts(pHypoJet j0, pHypoJet j1) const {
 
 bool DijetCondition::passDijetCuts(pHypoJet j0, pHypoJet j1) const {
 
-
-  auto rj0 = 0.001 * (j0 -> p4());
-  auto rj1 = 0.001 * (j1 -> p4());
+  constexpr double invGeV = 1./Gaudi::Units::GeV;
+  auto rj0 = (j0 -> p4()) * invGeV;
+  auto rj1 = (j1 -> p4()) * invGeV;
 
   auto mass = (rj0 + rj1).M();
   if (m_massMin > mass or mass >= m_massMax){return false;}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLMT_H
@@ -53,7 +53,7 @@ class TrigJetHypoToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
   // Paraphanalia needed for the Jet Hypo Helper class:
   Conditions m_conditions;
 
-  bool m_dumpJets{false};
+  Gaudi::Property<bool> m_dumpJets{this, "dumpJets", {}, "verbose jet dump flag"};
   
   void setCleaners();
  
@@ -152,9 +152,6 @@ class TrigJetHypoToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
  Gaudi::Property<float>
    m_avLarQFLlpThreshold{this, "AverageLArQFLlpThreshold", 0.8*65535, ""};
 
- Gaudi::Property<std::string>
-   m_chainName{this, "chain_name", {}, "chain name (dbg)"};
-  
  Gaudi::Property<bool>
    m_acceptAll{this, "AcceptAll", false, "flag to turn of hypo"};
  
