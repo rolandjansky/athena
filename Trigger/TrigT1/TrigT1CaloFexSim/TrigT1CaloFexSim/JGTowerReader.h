@@ -46,6 +46,7 @@ class JGTowerReader: public ::AthAlgorithm {
  private: 
   bool m_vetoBCID;
   bool m_outputNoise;
+  std::string m_scType; 
   bool m_debugJetAlg;
   bool m_dumpTowerInfo;
   bool m_dumpSeedsEtaPhi;
@@ -72,6 +73,13 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_jJetRound_jet_tower_noise_multiplier;
   float m_jJetRound_jet_total_noise_multiplier;
   float m_jJetRound_jet_min_ET_MeV;
+
+  bool  m_makeRoundLargeRJets;
+  float m_jJetRound_LargeR_seed_size;
+  float m_jJetRound_LargeR_max_r;
+  float m_jJetRound_LargeR_r;
+  float m_jJetRound_LargeR_seed_min_ET_MeV;
+  float m_jJetRound_LargeR_jet_min_ET_MeV;
 
   bool m_makeJetsFromMap;
   std::string m_towerMap;
@@ -101,6 +109,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_useRMS;
   bool m_useMedian;
   bool m_useNegTowers;
+  bool m_developerMET; 
   bool m_combine_rhoNoise;
   bool m_combine_skNoise;
   bool m_combine_jwojNoise;
@@ -126,16 +135,23 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<TString> hists;
 
   // tower map entries
+  int totalTowers = 0;
+  int towersInMap = 0;
+  std::vector<float> towerMap_towerNumber;
   std::vector<float> towerMap_towerEta;
   std::vector<float> towerMap_towerPhi;
   std::vector<int> towerMap_towerSampling;
   std::vector< std::vector<int> > towerMap_towerLayers;
 
+  int totalSeeds = 0;
+  int seedsInMap = 0;
   std::vector<float> towerMap_seedEta;
   std::vector<float> towerMap_seedPhi;
   std::vector< std::vector<int> > towerMap_seedTowers;
   std::vector< std::vector<int> > towerMap_seedLocalMaxSeeds;
 
+  int totalJets = 0;
+  int jetsInMap = 0;
   std::vector<float> towerMap_jetEta;
   std::vector<float> towerMap_jetPhi;
   std::vector<int> towerMap_jetSeed;
@@ -158,8 +174,10 @@ class JGTowerReader: public ::AthAlgorithm {
   int m_jTowerHashMax;
   int m_gTowerHashMax;
 
-  int m_eventCount = 0;
-
+  unsigned int m_eventCount = 0;
+  SG::AuxElement::Accessor<float>* acc_rho = new SG::AuxElement::Accessor<float>("Rho_avg");
+  SG::AuxElement::Accessor<float>* acc_mht = new SG::AuxElement::Accessor<float>("MHT");
+  SG::AuxElement::Accessor<float>* acc_mst = new SG::AuxElement::Accessor<float>("MST");
 }; 
 
 #endif //> !TRIGT1CALOFEXSIM_JGTOWERREADER_H

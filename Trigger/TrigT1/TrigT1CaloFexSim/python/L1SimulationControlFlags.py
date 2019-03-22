@@ -21,6 +21,10 @@ class SCellType(JobProperty):
     statusOn = True
     allowedType = ['str']
     StoredValue = "Pulse"
+    def _do_action(self):
+        if self.get_Value()=="Emulated":
+            from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
+            simflags.Calo.ApplySCQual=False 
 _caloflags.append(SCellType)
 
 
@@ -62,7 +66,7 @@ class RunCTPEmulation(JobProperty):
     """ Run the CTP Emulation """
     statusOn = True
     allowedType = ['bool']
-    StoredValue = False
+    StoredValue = True
 _ctpflags.append(RunCTPEmulation)
 
 
@@ -78,8 +82,8 @@ _glflags.append(OutputHistFile)
 class EnableDebugOutput(JobProperty):
     """ To enable DEBUG or VERBOSE output for specific algorithms """
     statusOn = True
-    allowedType = ['list']
-    StoredValue = list()
+    allowedType = ['bool']
+    StoredValue = True
 _glflags.append(EnableDebugOutput)
 
 

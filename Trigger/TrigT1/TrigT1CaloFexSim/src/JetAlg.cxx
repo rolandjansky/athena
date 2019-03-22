@@ -40,6 +40,13 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
         std::vector<int> SC_indices = tower->SCIndex();
         if(SC_indices.size()==0) continue;
 
+        // only want EM towers as centres of barrel seeds (overlap in position with hadronic ones). 0 = barrel EM. 1 = barrel had
+        if(tower->sampling()==1) continue;
+
+        // only want to seed from FCAL0 towers in forward region. sampling 2 = FCAL0, also have 3, 4
+        if(tower->sampling() > 2) continue;
+
+
         //make seeds at the edge of tower in eta
         float candi_eta = tower->eta()-tower->deta()/2;           
         if(tower->eta()<0) candi_eta = tower->eta()+tower->deta()/2;
@@ -72,6 +79,11 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
            if(tower->eta()<0) eta = tower->eta()+tower->deta()/2;
            if(fabs(tower->eta())>3.2)  eta = tower->eta();
            if(eta!=seed_candi_eta.at(i)) continue;
+           // only want EM towers for central seeds. 0 = barrel EM. 1 = barrel had
+           if(tower->sampling()==1) continue;
+           // only want to seed from FCAL0 towers in forward region. sampling 2 = FCAL0, also have 3, 4
+           if(tower->sampling() > 2) continue;
+
            dphi = tower->dphi();
            break;
         }
@@ -111,6 +123,8 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
 
   if(m_debug)
     std::cout << "JetAlg::SeedFinding: getting " << seedname << " with size " << seed_size << " and local max range " << range << std::endl;
+  int nSeedsAboveThreshold = 0;
+  int nSeeds = 0;
   for(unsigned i=0; i<m_SeedMap[seedname]->eta.size(); i++){
     std::vector<float> tmp_et;
     tmp_et.clear();
@@ -119,11 +133,16 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
       float thr=0;
       float eta=m_SeedMap[seedname]->eta.at(i);
       float phi=m_SeedMap[seedname]->phi.at(i).at(ii);
+
+      bool seedOnTower = false;
       for(unsigned t=0; t<towers->size(); t++){
         const xAOD::JGTower*tower = towers->at(t);
-        // only want EM towers for seeds. 0 = barrel EM. 1 = barrel had. 2 = forward.
-        if(tower->sampling()==1) continue;
+        // this doesn't work at counting seeds
+        // nSeeds is actually 4256 (taking every forward tower, rather than just FCAL0)
+        if(inBox(tower->eta(),eta,0.1,tower->phi(),phi,0.1))
+          seedOnTower = true;
         if(!inBox(tower->eta(),eta,seed_size/2,tower->phi(),phi,seed_size/2)) continue;
+          
         if(noise.size() < t) {
           std::cout << "JetAlg::SeedFinding FATAL: the noise vector is smaller (at " << noise.size() << " entries) than the tower number " << t << " that you are attempting to use" << std::endl;
           return StatusCode::FAILURE;
@@ -135,15 +154,23 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         }
         thr += noise.at(t);
       }
+        
       if(et < thr*seed_total_noise_multiplier)
         et = 0;
       tmp_et.push_back(et);
-      if (et > 0 && m_debug)
-        std::cout << eta << ", " << phi << " - adding a seed " << i << " with et = " << et << " after thr = " << thr*seed_total_noise_multiplier << std::endl;
+      if(seedOnTower)
+        nSeeds += 1;
+      if (et > 0) {
+        nSeedsAboveThreshold += 1;
+        if(m_debug)
+          std::cout << "found above-noise seed (" << i << ", " << ii << ") at " << eta << ", " << phi << ", et = " << et << ", thr = " << thr*seed_total_noise_multiplier << std::endl;
+      }
     }
     m_SeedMap[seedname]->et.push_back(tmp_et);
   }
-  
+    if(m_debug)
+      std::cout << "in total, found " << nSeedsAboveThreshold << " seeds above noise thresholds out of " << nSeeds << " seeds" << std::endl;
+
   // determine whether the seed is with locally maximal energy
   for(unsigned iseed_eta=0; iseed_eta<m_SeedMap[seedname]->eta.size(); iseed_eta++){
     std::vector<bool> tmp_max;
@@ -167,7 +194,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
 
           float dphi = deltaPhi(m_SeedMap[seedname]->phi.at(iseed_eta).at(iseed_phi),m_SeedMap[seedname]->phi.at(i).at(ii));
           if(dphi>range) continue;
-          if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi)<=m_SeedMap[seedname]->et.at(i).at(ii)){
+          if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi) < m_SeedMap[seedname]->et.at(i).at(ii)){
             eta_p = false;
             break;
           }
@@ -180,7 +207,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         for(unsigned ii=0; ii<m_SeedMap[seedname]->phi.at(i).size(); ii++){
           float dphi = deltaPhi(m_SeedMap[seedname]->phi.at(iseed_eta).at(iseed_phi),m_SeedMap[seedname]->phi.at(i).at(ii));
           if(dphi>range) continue;
-          if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi)<=m_SeedMap[seedname]->et.at(i).at(ii)){
+          if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi) < m_SeedMap[seedname]->et.at(i).at(ii)){
             eta_n = false;
             break;
           }
@@ -191,7 +218,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         if(ii==iseed_phi) continue;
         float dphi = deltaPhi(m_SeedMap[seedname]->phi.at(iseed_eta).at(iseed_phi),m_SeedMap[seedname]->phi.at(iseed_eta).at(ii));
         if(dphi>range) continue;
-        if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi)<=m_SeedMap[seedname]->et.at(iseed_eta).at(ii)){
+        if(m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi) < m_SeedMap[seedname]->et.at(iseed_eta).at(ii)){
           eta_0 = false;
           break;
         }
@@ -202,11 +229,79 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
     
   }
 
+  // I can now have adjacent seeds with identical energy and temp_max = true;
+  // follow firmware implementation: if Deta+Dphi>0: require >, if <0 then >=, if==0 then if Deta>0 then >, else >=
+  // NB: Deta = eta(competitor seed) - eta(potential local max seed)
+
+  for(unsigned iseed_eta=0; iseed_eta<m_SeedMap[seedname]->eta.size(); iseed_eta++){
+    for(unsigned iseed_phi=0; iseed_phi<m_SeedMap[seedname]->phi.at(iseed_eta).size(); iseed_phi++){
+
+      // only look at local max (or equal max) seeds
+      if(!m_SeedMap[seedname]->local_max.at(iseed_eta).at(iseed_phi))
+        continue;
+
+      // now loop over all seeds
+      bool is_localMax = true;
+      for(unsigned iiseed_eta=0; iiseed_eta<m_SeedMap[seedname]->eta.size(); iiseed_eta++){
+        for(unsigned iiseed_phi=0; iiseed_phi<m_SeedMap[seedname]->phi.at(iiseed_eta).size(); iiseed_phi++){
+
+          // don't compare with self!
+          if(iiseed_eta == iseed_eta && iiseed_phi == iseed_phi)
+            continue;
+
+          // care about equal E pairs, the rest have been excluded above
+          if( m_SeedMap[seedname]->et.at(iseed_eta).at(iseed_phi) != m_SeedMap[seedname]->et.at(iiseed_eta).at(iiseed_phi) )
+            continue;
+
+          // I now have another seed with the same energy. Check it's within range in case of weird coincidence
+          float deta = m_SeedMap[seedname]->eta.at(iiseed_eta) - m_SeedMap[seedname]->eta.at(iseed_eta);
+          if(fabs(deta) > range)
+            continue;
+          float dphi = deltaPhi(m_SeedMap[seedname]->phi.at(iiseed_eta).at(iiseed_phi), m_SeedMap[seedname]->phi.at(iseed_eta).at(iseed_phi));
+          if(fabs(dphi) > range)
+            continue;
+          
+          // I now have another seed that this one has to compete with
+          if(m_debug)
+            std::cout << deta << " " << dphi << std::endl;
+          // follow firmware implementation: if Deta+Dphi>0: require >, if <0 then >=, if==0 then if Deta>0 then >, else >=
+          if(deta + dphi > 0) {
+            is_localMax = false;
+            if(m_debug)
+              std::cout << "deta+dphi>0: need >, not local max" << std::endl;
+          }
+          else if(deta + dphi < 0) {
+            is_localMax = true;
+            if(m_debug)
+              std::cout << "deta+dphi<0: only need >=, is local max" << std::endl;
+          }
+          else {
+            if(m_debug)
+              std::cout << "deta+dphi==0: must go further" << std::endl;
+            if(deta > 0) {
+              is_localMax = false;
+              if(m_debug)
+                std::cout << "deta>0: need >, not local max" << std::endl;
+            }
+            else {
+              is_localMax = true;
+              if(m_debug)
+                std::cout << "deta<0: only need >=, is local max" << std::endl;
+            }
+          }
+          
+        }
+      }
+      m_SeedMap[seedname]->local_max.at(iseed_eta).at(iseed_phi) = is_localMax;
+
+    }
+  }
+      
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV){
+StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float /*jet_total_noise_multiplier*/, float jet_min_ET_MeV){
 
 
   std::vector<TowerObject::Block> blocks;
@@ -254,20 +349,23 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
 
     float j_Et = 0;
     float j_totalnoise = 0;
-
+    //std::cout << "cone pT : " << pt_cone << std::endl; 
     if(pt_cone > pt_cone_cut){
+      //std::cout << "cone pT : " << pt_cone << std::endl;
       for(unsigned int t = 0; t < towers.size(); t++){
 	const xAOD::JGTower* tower = towers.at(t);
-	if(fabs(tower->et()) < noise.at(t) * jet_tower_noise_multiplier) continue;
-	if(!inBox(block_eta, tower->eta(), jet_r, block_phi, tower->phi(), jet_r)) continue;
+	if(fabs(tower->et()) < noise.at(t) * jet_tower_noise_multiplier)  continue;
+	if(!withinRadius(block_eta, tower->eta(), block_phi, tower->phi(), jet_r, false) ) continue;
 	j_Et += tower->et();
-      }
-    }
-    if(j_Et < jet_min_ET_MeV) continue;
-    if(j_Et < j_totalnoise * jet_tower_noise_multiplier) continue;
-    std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(block_eta, block_phi, j_Et);
-    js.push_back(j);
+      }//looping over all towers
+      if(j_Et < jet_min_ET_MeV) continue;
+      std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(block_eta, block_phi, j_Et);
+      js.push_back(j);
+    }//cone above threshold 
   }
+  
+  m_JetMap[jetname] = js;
+  
   return StatusCode::SUCCESS;
 }
 

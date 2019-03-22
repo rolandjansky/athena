@@ -1,4 +1,3 @@
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigT1CaloFexSim.L1Sim' )
 log.setLevel(logging.DEBUG)
@@ -51,10 +50,12 @@ if rec.doAOD():
         include ("TrigL1CaloUpgrade/EnableEfexAlgorithms.py")
         enableEfexAlgorithms ( SuperCellContainer = SCIn, 
                                useTDR = False,
-                               doLArFex = False)
+                               doLArFex = False,
+                               ApplySCQual = simflags.Calo.ApplySCQual(), 
+                               SCBitMask = simflags.Calo.QualBitMask() )
         # j/gFEX
         include ( "TrigT1CaloFexSim/EnableFexAlgorithms.py" )
-        enableJGTowerReader(debug = False) # too much debug output
+        enableJGTowerReader(debug = False, SuperCellType=SCIn) # too much debug output
 
     # Schedule CTP Simulation
     if simflags.CTP.RunCTPEmulation():

@@ -18,6 +18,57 @@
  std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
 //------------------------------------------------------------------------------------------------
+StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFEX, bool useRhoSub, bool usePUfit){
+  float met_x = 0;
+  float met_y = 0;
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+  
+  if(usegFEX){   //if we are using the gFEX geometry
+    std::vector<const xAOD::JGTower*> fpga_a;
+    std::vector <const xAOD::JGTower*> fpga_b;
+    std::vector<const xAOD::JGTower*> fpga_c;
+    
+    //loop for splitting gTowers into 3 fpgas
+    for(unsigned int t = 0; t < towers->size(); t++){
+      const xAOD::JGTower* tower = towers->at(t);
+      float eta = tower->eta();
+      if(eta > -2.4 && eta < 0){
+	fpga_a.push_back(tower);
+      }
+      if(eta > 0 && eta < 2.4){
+	fpga_b.push_back(tower);
+      }
+      if(TMath::Abs(eta) >= 2.4){
+	fpga_c.push_back(tower);
+      }
+    }
+    
+    if(useRhoSub){
+      std::vector<float>* met_a = rhoSub(fpga_a, false);
+      std::vector<float>* met_b = rhoSub(fpga_b, false);
+      std::vector<float>* met_c = rhoSub(fpga_c, false);
+      
+      float met_ax = met_a->at(0)*TMath::Cos(met_a->at(1));
+      float met_ay = met_a->at(0)*TMath::Sin(met_a->at(1));
+      
+      float met_bx = met_b->at(0)*TMath::Cos(met_b->at(1));
+      float met_by = met_b->at(0)*TMath::Sin(met_b->at(1));
+      
+      float met_cx = met_c->at(0)*TMath::Cos(met_c->at(1));
+      float met_cy = met_c->at(0)*TMath::Sin(met_c->at(1));
+      
+      met_x = met_ax + met_bx + met_cx;
+      met_y = met_ay + met_by + met_cy;
+      
+      float met_et = TMath::Sqrt(met_x*met_x + met_y*met_y);
+      float phi = TMath::ACos(met_x/met_et);
+      met->et = met_et;
+      met->phi = phi;
+    }    
+  }
+   return StatusCode::SUCCESS;
+}
+//------------------------------------------------------------------------------------------------
 StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
 
   
@@ -26,26 +77,29 @@ StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString met
   
   for(unsigned t=0; t<towers->size(); t++){
     const xAOD::JGTower* tower = towers->at(t);
-    if(tower->LAr_et()>0       && tower->eta()<3.2 && tower->et()<4.5*noise.at(t)) continue;
-    else if(tower->Tile_et()>0 && tower->eta()<3.2  && tower->et()<5.*noise.at(t)) continue;
-    else if(tower->LAr_et()>0  && tower->eta()>=3.2 && tower->et()<5.*noise.at(t)) continue;
-    else if(tower->Tile_et()>0 && tower->eta()>=3.2 && tower->et()<5.5*noise.at(t)) continue;
-
-
+    if(noise.size()>0){
+      if(tower->sampling()==0       && tower->eta()<3.2 && tower->et()<4.5*noise.at(t)) continue;
+      else if(tower->sampling()!=0  && tower->et()<5.*noise.at(t)) continue;
+    }
     float phi=tower->phi();
     float et =tower->et();
-    if(!useNegTowers) et = TMath::Abs(et);
+    if(!useNegTowers && et < 0) continue;
     met_x -= et*cos(phi);
     met_y -= et*sin(phi);
   }
   
   float et_met = sqrt(met_x*met_x+met_y*met_y);
-  float phi_met=TMath::ACos(met_x/et_met);
+  
+  float phi_met=0;
+  if(et_met > 0)
+    phi_met = TMath::ACos(met_x/et_met);
+
   if (met_y<0) phi_met = -phi_met;
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->phi=phi_met;
   met->et = et_met;
+  met->rho = 0;
 
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
   return StatusCode::SUCCESS;
@@ -60,7 +114,7 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
   //can calculate rho as either the average or median gTower energy in the barrel
   float rho = Rho_bar(towers,0);
   if(useMedian) rho = Rho_med(towers, useNegTowers);
-  
+
   unsigned int size = towers->size();
 
   TH1F* h_Et = new TH1F("h_Et", "", 50, 0, 5000);
@@ -68,7 +122,7 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
     for(unsigned int t = 0; t < size; t++){
       const xAOD::JGTower* tower = towers->at(t);
       float Et = tower->et();
-      if(!useNegTowers) Et = TMath::Abs(Et);
+      if(!useNegTowers && Et < 0) continue;
       h_Et->Fill(Et);
     }
     threshold = h_Et->GetRMS();
@@ -96,12 +150,14 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
   }
   
   EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi_met=TMath::ACos(Ex/EtMiss);
+  float phi_met = 0;
+  if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
   if (Ey<0) phi_met = -phi_met;
   //ATH_MSG_INFO("Dumping event rho: " << rho ); 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->phi=phi_met;
   met->et = EtMiss;
+  met->rho = rho;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
   delete h_Et;  
   return StatusCode::SUCCESS;
@@ -151,12 +207,14 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
   }
   
   float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi_met = TMath::ACos(Ex/EtMiss);
+  float phi_met = 0;
+  if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
   if (Ey<0) phi_met = -phi_met;
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->phi=phi_met;
   met->et =EtMiss;
+  met->rho = rho;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   delete grid;
@@ -217,12 +275,16 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metNam
     b = 0.45;
     c = -10.;
   }
-  
+  //a is hard term from gBlocks with pT > 25 GEV
+  //b is total MET term computed from all gTowers 
   float EtMiss = a*Et_values[1] + b*Et_values[2] + c;
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->phi=0;
   met->et =EtMiss;
+  met->rho = 0;
+  met->mst = Et_values[2];
+  met->mht = Et_values[1];
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   return StatusCode::SUCCESS;
@@ -231,11 +293,12 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metNam
 StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, TString metName, bool useNegTowers){
 
 
-  float EtMiss = Run_PUfit(towers, 3, useNegTowers);
+  std::vector<float> EtMiss = Run_PUfit(towers, 3, useNegTowers);
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi=0;
-  met->et=EtMiss;
+  met->phi=EtMiss[1];
+  met->et=EtMiss[0];
+  met->rho = 0;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   return StatusCode::SUCCESS;

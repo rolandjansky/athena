@@ -68,6 +68,13 @@ namespace xAOD{
     static Accessor< float > acc( "eta" );
     return acc( *this );      
   }
+
+  void JGTower_v1::setEta(float eta)
+  {
+    static Accessor< float > acc( "eta" );
+    acc( *this ) = eta;
+  }
+
   
   double JGTower_v1::phi() const
   {
@@ -81,17 +88,16 @@ namespace xAOD{
     acc( *this ) = phi;    
   } 
 
-
-  void JGTower_v1::setEta(float eta)
-  {
-    static Accessor< float > acc( "eta" );
-    acc( *this ) = eta;
-  }
-
   double JGTower_v1::deta() const
   {
     static Accessor< float > acc( "deta" );
     return acc( *this );
+  }
+
+  void JGTower_v1::setdEta(float deta)
+  {
+    static Accessor< float > acc( "deta" );
+    acc( *this ) = deta;
   }
 
   double JGTower_v1::dphi() const
@@ -105,14 +111,6 @@ namespace xAOD{
     static Accessor< float > acc( "dphi" );
     acc( *this ) = dphi;
   }
-
-
-  void JGTower_v1::setdEta(float deta)
-  {
-    static Accessor< float > acc( "deta" );
-    acc( *this ) = deta;
-  }
-
 
   int JGTower_v1::Id() const
   {
@@ -150,45 +148,6 @@ namespace xAOD{
     static Accessor< float > acc( "et" );
     acc( *this ) = et;
   }
-
-  double JGTower_v1::LAr_et() const
-  {
-    static Accessor< float > acc( "LAr_et" );
-    return acc( *this );
-  }
-
-  void JGTower_v1::setLArEt(float LAr_et)
-  {
-    static Accessor< float > acc( "LAr_et" );
-    acc( *this ) = LAr_et;
-  }
-
-  double JGTower_v1::Tile_et() const
-  {
-    static Accessor< float > acc( "Tile_et" );
-    return acc( *this );
-  }
-
-  void JGTower_v1::setTileEt(float Tile_et)
-  {
-    static Accessor< float > acc( "Tile_et" );
-    acc( *this ) = Tile_et;
-  }
-
-
-
-  double JGTower_v1::tileFrac() const
-  {
-    static Accessor< float > acc( "tileFrac" );
-    return acc( *this );
-  }
-
-  void JGTower_v1::setTileFrac(float tileFrac)
-  {
-    static Accessor< float > acc( "tileFrac" );
-    acc( *this ) = tileFrac;
-  }
-
 
     double JGTower_v1::pt() const
   {

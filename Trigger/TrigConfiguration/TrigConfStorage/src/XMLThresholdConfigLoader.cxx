@@ -25,17 +25,21 @@ XMLThresholdConfigLoader::load( ThresholdConfig& thrcfg ) {
 
    if ( ! is_a("TriggerThresholdList") ) return false;
 
-   TRG_MSG_DEBUG("Loading ThresholdConfig object")
+   TRG_MSG_DEBUG("Loading ThresholdConfig object");
+
+   bool respectRun2Limits = false;
 
    // Get the thresholds
    XMLTriggerThresholdLoader* thr_ldr = new XMLTriggerThresholdLoader(m_storageMgr);
    thr_ldr->setLevel(outputLevel());
    for(value_type v: pt() ) {
+      if(v.first == "<xmlcomment>") // ignore comments between the TriggerThresholds
+         continue;
       thr_ldr->setPtree(&v);
       TriggerThreshold* thr = new TriggerThreshold();
       if (thr_ldr->load(*thr)) {
-         TRG_MSG_DEBUG("Adding trigger threshold " << *thr << "(type " << thr->ttype() << ", mapping " << thr->mapping() << ")")
-         thrcfg.addTriggerThreshold(thr);
+         TRG_MSG_DEBUG("Adding trigger threshold " << *thr << "(type " << thr->ttype() << ", mapping " << thr->mapping() << ")");
+         thrcfg.addTriggerThreshold(thr, respectRun2Limits);
       }
    }
    delete thr_ldr;

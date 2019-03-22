@@ -786,8 +786,22 @@ class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
     """
+
+    __wasExecuted = False 
+
+    @classmethod
+    def wasExecuted(cls):
+        return cls.__wasExecuted
+
+    
     def preSetup(self):
 
+        log.info("JOERG Seeting up rerunLVL1 for Run 2")
+
+        if rerunLVL1PhaseI.wasExecuted():
+            raise RuntimeError("ERROR modifiers 'rerunLVL1PhaseI' and 'rerunLVL1' have both been set, but they are exclusive. Please specify only one")
+        rerunLVL1.__wasExecuted = True
+        
         # Do nothing for EF only running
         if TriggerFlags.doLVL2()==False and TriggerFlags.doEF()==True: return
          
@@ -883,6 +897,37 @@ class rerunLVL1(_modifier):
             "MuCTPI_RIO/MUCTPI_RIO",
             "CTP_RIO/CTP_RIO"
             ]
+
+
+class rerunLVL1PhaseI(_modifier):
+    """
+    Reruns the L1 simulation on real data with the new Phase-I L1Calo 
+    """
+
+    __wasExecuted = False 
+
+    @classmethod
+    def wasExecuted(cls):
+        return cls.__wasExecuted
+
+    def postSetup(self):
+        if rerunLVL1.wasExecuted():
+            raise RuntimeError("ERROR modifiers 'rerunLVL1PhaseI' and 'rerunLVL1' have both been set, but they are exclusive. Please specify only one")
+        rerunLVL1.__wasExecuted = True
+        log = logging.getLogger('Modifiers.py:rerunLVL1PhaseI')
+        log.info("JOERG setting up rerunLVL1 for Run 3")
+
+        from AthenaCommon.Include import include
+        include("TrigT1CaloFexSim/createL1SimulationSequenceBS.py")
+
+
+        # def postSetup(self):
+        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+            "MuCTPI_RIO/MUCTPI_RIO",
+            "CTP_RIO/CTP_RIO"
+            ]
+
+
 
 class rerunDMLVL1(_modifier):
     """

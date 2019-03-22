@@ -15,20 +15,27 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")
 log.debug(algseq.getSequence())
 
 log.debug( "=== Top Sequence ===" )
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 log.debug( topSequence.getSequence() )
 
-log.debug( "=== StreamAOD ===" )
-for coll in sorted(StreamAOD.ItemList):
-    log.debug(coll)
+log.debug( "=== Stream output ===" )
+if 'StreamAOD' in dir():
+    for coll in sorted(StreamAOD.ItemList):
+        log.debug(coll)
+if 'StreamRDO' in dir():
+    for coll in sorted(StreamRDO.ItemList):
+        log.debug(coll)
 
 # setting all algorithms to DEBUG
 log.debug( "=== all algorithms in AlqSequence ===" )
 for alg in algseq:
+    if alg.name() in ["TrigSteer_HLT"]: continue
     alg.OutputLevel = DEBUG
     print alg
 
-print CfgMgr.THistSvc()
+if hasattr(svcMgr,"THistSvc"):
+    print svcMgr.THistSvc
 
 Configurable.log.level = configLogLevel
 
-del log

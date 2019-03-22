@@ -1,12 +1,13 @@
-def enableJGTowerReader(debug = False):
+def enableJGTowerReader(debug = False, SuperCellType="SCell"):
     algseq = CfgMgr.AthSequencer("AthAlgSeq")
 
     algseq += CfgMgr.JGTowerReader (
         outputNoise = False,
         debugJetAlg = debug,
-        noise_file = "Run3L1CaloSimulation/Noise/noise_r10684.root",
-        plotSeeds = True,
-        dumpTowerInfo = True,
+        SuperCellType = SuperCellType,
+        noise_file = "Run3L1CaloSimulation/Noise/noise_r10684_MapFixed.root",
+        plotSeeds = False,
+        dumpTowerInfo = False,
         
         makeSquareJets = False,
         jJet_seed_size = 0.2,
@@ -37,8 +38,9 @@ def enableJGTowerReader(debug = False):
         jJetRound_LargeR_seed_min_ET_MeV = 500,
         jJetRound_LargeR_jet_min_ET_MeV = 5000,
         
-        makeJetsFromMap = True,
-        towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-15.txt', # once it's on cvmfs
+        makeJetsFromMap = False,
+        towerMap = 'Run3L1CaloSimulation/JetMaps/jFexJet_towerMap_2019-02-12_notruncation.txt', 
+        #towerMap = 'jFexJet_towerMap_2019-02-15.txt',
         map_seed_tower_noise_multiplier = 2.0,
         map_seed_total_noise_multiplier = 0.0,
         map_seed_min_ET_MeV = 500,
@@ -46,14 +48,11 @@ def enableJGTowerReader(debug = False):
         map_jet_total_noise_multiplier = 0.0,
         map_jet_min_ET_MeV = 500,
         
-        gJet_seed_size=0.4,
+        gJet_seed_size=0.2,#Not for gFEX
         gJet_max_r=1.0,
         gJet_r=1.0,
-        gJet_seed_tower_noise_multiplier = 1.0,
-        gJet_seed_total_noise_multiplier = 1.0,
+        gJet_seed_tower_noise_multiplier = 0.0,
         gJet_seed_min_ET_MeV = 500,
-        gJet_jet_tower_noise_multiplier = 3.0,
-        gJet_jet_total_noise_multiplier = 0.0,
-        gJet_jet_min_ET_MeV = 10000.0,
+        gJet_jet_min_ET_MeV = 5000.,
         )
 

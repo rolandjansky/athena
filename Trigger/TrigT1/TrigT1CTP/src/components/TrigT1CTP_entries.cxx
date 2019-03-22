@@ -13,14 +13,18 @@
 
 #include "TrigT1CTP/CTPSimulation.h"
 #include "TrigT1CTP/CTPDataDumper.h"
+#include "../CTPEmulation.h"
 
 using LVL1CTP::CTPSimulation;
 using LVL1CTP::CTPDataDumper;
 
 DECLARE_ALGORITHM_FACTORY( CTPSimulation )
 DECLARE_ALGORITHM_FACTORY( CTPDataDumper )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( LVL1CTP, CTPEmulation )
+
 
 DECLARE_FACTORY_ENTRIES( TrigT1CTP ) {
   DECLARE_ALGORITHM( CTPSimulation )
   DECLARE_ALGORITHM( CTPDataDumper )
+  DECLARE_NAMESPACE_ALGORITHM( LVL1CTP, CTPEmulation )
 }
