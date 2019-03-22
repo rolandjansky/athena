@@ -3,4 +3,6 @@
    <namespace name="Trig" />
    <class name="Trig::MatchingTool" />
    <class name="Trig::IMatchingTool" />
+   <class name="Trig::IIParticleRetrievalTool" />
+   <class name="Trig::IParticleRetrievalTool" />
 </lcgdict>
