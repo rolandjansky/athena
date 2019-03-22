@@ -103,6 +103,7 @@ class JetSequencesBuilder(object):
                        'jh_tla': self.make_jh_tla,  # TLA hypo
                        'jh_dijet': self.make_jh_dijet,  # dijet hypo
                        'jh_jetattrs': self.make_jh_jetattrs, #jet attributes, including moments
+                       'jh_jvt': self.make_jh_jvt, # JVT hypo
                        'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
                        'jh_dimass_deta_dphi': self.make_jh_dimass_deta_dphi, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
@@ -233,6 +234,8 @@ class JetSequencesBuilder(object):
                     seq_order.append(('jh_dijet', h))
                 elif hypo_type in ('HLThypo2_jetattrs',):
                     seq_order.append(('jh_jetattrs', h))
+                elif hypo_type in ('HLThypo2_jvt',):
+                    seq_order.append(('jh_jvt', h))
                 else:
                     msg = '%s._make_sequence_list: unknown hypo type %s ' % (
                         self.__class__.__name__, str(hypo_type))
@@ -558,6 +561,15 @@ class JetSequencesBuilder(object):
         # menu_data = self.chain_config.menu_data
         # hypo = menu_data.hypo_params
         f = self.alg_factory.hlthypo2_jetattrs
+
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        return AlgList(f(hypo), alias)
+
+    # Jona Bossio, February 2019
+    def make_jh_jvt(self, hypo):
+
+        f = self.alg_factory.hlthypo2_jvt
 
         alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
 

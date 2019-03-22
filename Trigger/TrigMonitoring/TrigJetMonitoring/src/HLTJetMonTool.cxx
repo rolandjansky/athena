@@ -1798,6 +1798,13 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
+	   double jvt  = -0.1;
+	   double sumpttrk500 = 0;
+	   if (j->isAvailable<float>("Jvt")){
+	     sumpttrk500 = j->getAttribute<std::vector<float> >("SumPtTrkPt500")[0]/CLHEP::GeV;
+	     jvt = j->getAttribute<float>("Jvt");
+	   }
+
 	   v_thisjet.SetPtEtaPhiE(j->pt()/CLHEP::GeV,j->eta(), j->phi(),j->e()/CLHEP::GeV);
 	   m_v_HLTjet.push_back(v_thisjet);
            m_n_index++;
@@ -1808,6 +1815,8 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
 	   if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
 	   if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
+	   if((h  = hist("HLTJet_JVT")))           h->Fill(jvt,     m_lumi_weight);
+	   if((h  = hist("HLTJet_SumPtTrk500")))   h->Fill(sumpttrk500,m_lumi_weight);
 
 	   if (count==0){
 	     if((h  = hist("HLTJet_Leading_Et")))            h->Fill(et,      m_lumi_weight);
