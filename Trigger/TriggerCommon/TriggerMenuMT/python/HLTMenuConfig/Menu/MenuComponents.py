@@ -219,9 +219,7 @@ class ComboMaker(AlgNode):
         newdict = {chain : allMultis}
 
         for i in range(1, len(allMultis)):
-            print "MEOW multiplicity ", allMultis[i]
             cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
-            print "MEOW cval ", cval
             if type(cval) is dict:
                 ##cval[chain] = allMultis
                 if chain in cval.keys():

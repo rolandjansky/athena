@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "TrigMonTHistSvc.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 
@@ -52,7 +53,7 @@ StatusCode TrigMonTHistSvc::queryInterface(const InterfaceID & riid,
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TrigMonTHistSvc::initialize() {
+StatusCode TrigMonTHistSvc::initialize ATLAS_NOT_THREAD_SAFE() {
 
   CHECK(THistSvcHLT::initialize());
   CHECK(setProperties());

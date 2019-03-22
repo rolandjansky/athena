@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ISF_Algs includes
@@ -42,6 +42,7 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_inputConverter("",name),
   m_particleBroker("ISF_ParticleBroker", name),
   m_truthRecordSvc("ISF_TruthRecordSvc", name),
+  m_qspatcher("", name),
   m_doMemMon(true),
   m_memMon("MemMonitoringTool"),
   m_memUsageEvts(1000),
@@ -85,6 +86,8 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
     declareProperty("CaloSimulationSelectors"    , m_simSelectors[AtlasDetDescr::fAtlasCalo]     );
     declareProperty("MSSimulationSelectors"      , m_simSelectors[AtlasDetDescr::fAtlasMS]       );
     declareProperty("CavernSimulationSelectors"  , m_simSelectors[AtlasDetDescr::fAtlasCavern]   );
+    // Quasi-stable particle sim
+    declareProperty("QuasiStablePatcher", m_qspatcher);
     // event filter
     declareProperty("EventFilterTools"           , m_eventFilters                      );
     // tuning parameters
@@ -136,6 +139,10 @@ StatusCode ISF::SimKernel::initialize()
   //
   for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
     ATH_CHECK ( initSimSvcs(m_simSelectors[geoID]) );
+  }
+
+  if(!m_qspatcher.empty()) {
+    ATH_CHECK(m_qspatcher.retrieve());
   }
 
   // initialize all the EventFilterTools
@@ -439,6 +446,13 @@ StatusCode ISF::SimKernel::execute()
       return StatusCode::FAILURE;
   }
 
+  // Step 4a: Remove QS patch if required
+  if(!m_qspatcher.empty()) {
+    for (const auto& currentGenEvent : *m_outputHardScatterTruth ) {
+      ATH_CHECK(m_qspatcher->removeWorkaround(*currentGenEvent));
+    }
+  }
+
   // Step 5: Check Any Filters
   ToolHandleArray<IEventFilterTool>::iterator eventFilter(m_eventFilters.begin());
   const ToolHandleArray<IEventFilterTool>::iterator endOfEventFilters(m_eventFilters.end());
@@ -489,6 +503,12 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
   // create copy
   outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
 
+  // Apply QS patch if required
+  if(!m_qspatcher.empty()) {
+    for (const auto& currentGenEvent : *outputTruth ) {
+      ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
+    }
+  }
   ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, HepMcParticleLink::find_enumFromKey(outputTruth.name())) );
 
   return StatusCode::SUCCESS;

@@ -153,6 +153,9 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
+  /// Uses AlgExecStateSvc to determine if any algorithm in the event returned Athena::Status::TIMEOUT
+  bool isTimedOut(const EventContext& eventContext) const;
+
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
 
@@ -212,8 +215,12 @@ private:
     "Debug stream name for events with HLT framework errors"};
 
   Gaudi::Property<std::string> m_algErrorDebugStreamName{
-    this, "AlgErrorDebugStreamName", "HLTError",
+    this, "AlgErrorDebugStreamName", "HltError",
     "Debug stream name for events with HLT algorithm errors"};
+
+  Gaudi::Property<std::string> m_timeoutDebugStreamName{
+    this, "TimeoutDebugStreamName", "HltTimeout",
+    "Debug stream name for events with HLT timeout"};
 
   Gaudi::Property<std::string> m_sorPath{
     this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
@@ -243,7 +250,7 @@ private:
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
   size_t m_localEventNumber{0};
   /// Event selector context
-  IEvtSelector::Context* m_evtSelContext;
+  IEvtSelector::Context* m_evtSelContext{nullptr};
   /// Vector of top level algorithms
   std::vector<SmartIF<IAlgorithm> > m_topAlgList;
   /// Vector of event start-processing time stamps in each slot
@@ -256,10 +263,10 @@ private:
   std::condition_variable m_timeoutCond;
   /// Timeout thread
   std::unique_ptr<std::thread> m_timeoutThread;
-  /// Soft timeout value
-  int m_softTimeoutValue;
+  /// Soft timeout value set to HardTimeout*SoftTimeoutFraction at initialisation
+  int m_softTimeoutValue{0};
   /// Flag set to false if timer thread should be stopped
-  std::atomic<bool> m_runEventTimer;
+  std::atomic<bool> m_runEventTimer{true};
   /// Counter of framework errors
   int m_nFrameworkErrors{0};
   /// Application name

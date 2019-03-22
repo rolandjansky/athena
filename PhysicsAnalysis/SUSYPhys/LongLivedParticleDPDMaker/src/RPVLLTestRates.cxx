@@ -38,7 +38,6 @@ StatusCode RPVLLTestRates::initialize() {
   m_EventCounter=0;
 
   ATH_CHECK(m_tHistSvc.retrieve());
-  ATH_CHECK( m_evt.initialize() );
 
   m_myTree= new TTree("myTree","myTree");
   StatusCode sc = m_tHistSvc->regTree("/AANT/myTree",m_myTree);
@@ -56,6 +55,8 @@ StatusCode RPVLLTestRates::finalize() {
 }		 
 
 StatusCode RPVLLTestRates::execute() {
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   if (m_EventCounter==0) {
 
@@ -90,14 +91,9 @@ StatusCode RPVLLTestRates::execute() {
 
   m_EventCounter++;
 
-  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
-  if (!evt.isValid()) {
-    ATH_MSG_ERROR( "Could not retrieve event info" );
-    return StatusCode::FAILURE;
-  }
-  m_runNum    = evt->runNumber();
-  m_evtNum    = evt->eventNumber();
-  m_lumiBlock = evt->lumiBlock();
+  m_runNum    = ctx.eventID().run_number();
+  m_evtNum    = ctx.eventID().event_number();
+  m_lumiBlock = ctx.eventID().lumi_block();
   
   
   //// these are the ones that are useful for RPVLL filters

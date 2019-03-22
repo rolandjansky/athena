@@ -118,8 +118,8 @@ def CscDataPreparatorCfg( flags, roisKey ):
  
     return acc, CscDataPreparator
 
-# Configure Reco alg of muFast step
-def muFastSteeringCfg( flags, roisKey ):
+# Based on TrigL2MuonSAMTConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
+def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     acc = ComponentAccumulator()
 
@@ -146,24 +146,77 @@ def muFastSteeringCfg( flags, roisKey ):
                                                                RPCDataPreparator = RpcDataPreparator,
                                                                TGCDataPreparator = TgcDataPreparator )
 
+    # Setup the station fitter
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta
+    PtFromAlphaBeta = TrigL2MuonSA__PtFromAlphaBeta()
+    if flags.Trigger.run2Config == '2016':
+        PtFromAlphaBeta.useCscPt = False
+        PtFromAlphaBeta.AvoidMisalignedCSCs = True
+    else:
+        PtFromAlphaBeta.useCscPt = True
+        PtFromAlphaBeta.AvoidMisalignedCSCs = True
+
+    MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
+
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker
+    MuFastPatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
+    MuFastTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
+    MuFastTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
+    MuCalStreamerTool       = TrigL2MuonSA__MuCalStreamerTool()
+    CscSegmentMaker         = TrigL2MuonSA__CscSegmentMaker()
+
     # Set Reco alg of muFast step
+    from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
     from TrigL2MuonSA.TrigL2MuonSAConf import MuFastSteering
-    muFastAlg = MuFastSteering( name                          = "MuFastSteering_Muon",
-                                DataPreparator                = MuFastDataPreparator,
-                                R_WIDTH_TGC_FAILED            = 200,
-                                R_WIDTH_RPC_FAILED            = 400,
-                                DoCalibrationStream           = False,
-                                USE_ROIBASEDACCESS_CSC        = True,
-                                RpcErrToDebugStream           = True,
-                                Timing                        = False,
-                                MonTool                       = "",
-                                # TriggerFlags.run2Config != '2016'
-                                UseEndcapInnerFromBarrel      = True, 
-                                # not 900 GeV
-                                WinPt                         = 6.0,
-                                Scale_Road_BarrelInner        = 1,
-                                Scale_Road_BarrelMiddle       = 1,
-                                Scale_Road_BarrelOuter        = 1 )  
+    muFastAlg = MuFastSteering( name                   = "MuFastSteering_Muon"+setup,
+                                DataPreparator         = MuFastDataPreparator,
+                                StationFitter          = MuFastStationFitter,
+                                PatternFinder          = MuFastPatternFinder,
+                                TrackFitter            = MuFastTrackFitter,
+                                TrackExtrapolator      = MuFastTrackExtrapolator,
+                                CalibrationStreamer    = MuCalStreamerTool, 
+                                CscSegmentMaker        = CscSegmentMaker,
+                                R_WIDTH_TGC_FAILED     = 200,
+                                R_WIDTH_RPC_FAILED     = 400,
+                                DoCalibrationStream    = False,
+                                USE_ROIBASEDACCESS_CSC = True,
+                                RpcErrToDebugStream    = True,
+                                Timing                 = False,
+                                MonTool                = TrigL2MuonSAMonitoring() )
+
+    # Default backextrapolator is for MC Misaligned Detector
+    # Based on MuonBackExtrapolatorForMisalignedDet at TrigMuonBackExtrapolator/TrigMuonBackExtrapolatorConfig.py
+    from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConf import TrigMuonBackExtrapolator
+    muFastAlg.BackExtrapolator = TrigMuonBackExtrapolator( name        = "MisalignedBackExtrapolator",
+                                                           Aligned     = False,
+                                                           DataSet     = False )
+
+    if flags.Trigger.run2Config == '2016':
+        muFastAlg.UseEndcapInnerFromBarrel = False
+    else: 
+        muFastAlg.UseEndcapInnerFromBarrel = True
+
+    if setup == '900GeV':
+        muFastAlg.WinPt = 4.0
+        muFastAlg.Scale_Road_BarrelInner  = 3
+        muFastAlg.Scale_Road_BarrelMiddle = 3
+        muFastAlg.Scale_Road_BarrelOuter  = 3
+    else:
+        muFastAlg.WinPt = 6.0
+        muFastAlg.Scale_Road_BarrelInner  = 1
+        muFastAlg.Scale_Road_BarrelMiddle = 1
+        muFastAlg.Scale_Road_BarrelOuter  = 1
+
+    if setup == 'MuonCalib':
+        muFastAlg.DoCalibrationStream = True
+        muFastAlg.MuonCalDataScouting = False
+        muFastAlg.MuonCalBufferSize   = 1024*1024
+
+    if setup == 'MuonCalibDataScouting':
+        muFastAlg.DoCalibrationStream = True
+        muFastAlg.MuonCalDataScouting = True
+        muFastAlg.MuonCalBufferSize   = 1024*1024
+
     return acc, muFastAlg
 
 def PtBarrelLUTSvcCfg( flags ):

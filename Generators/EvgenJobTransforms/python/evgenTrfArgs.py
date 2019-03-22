@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -83,7 +83,7 @@ def addStdEvgenArgs(parser):
 
     parser.add_argument("--outputTXTFile", group="Evgen",
                         help="optional output TXT file for LHEF events, default is None",
-                        type=trfArgClasses.argFactory(trfArgClasses.argFile))
+                        type=trfArgClasses.argFactory(trfArgClasses.argLHEFile, io='output', runarg=True))
     parser.add_argument("--generatorRunMode", group="Evgen",
                         help="Run mode to pass on to the event generator",
                         default=trfArgClasses.argString("run", runarg=True),
@@ -99,4 +99,20 @@ def addStdEvgenArgs(parser):
                         default=trfArgClasses.argInt(0, runarg=True),
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
 
+    parser.add_argument('--lheOnly', '--lheOnly', group='Evgen',
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Set to 1 if Evgen file should be removed')
 
+    parser.add_argument("--localPath", group="Evgen",
+                        help="Name of local path to JOs",
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+
+    parser.add_argument('--saveList', '--saveList', group='Evgen',
+                        help="a comma-separated list of files to be saved in output or a single digit if the whole output directory is to be saved",
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, runarg=True))
+
+    parser.add_argument('--cleanOut', '--cleanOut', group='Evgen',
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Set to any digit !=0 if the output files should be cleaned up --saveList may help to save selected files')

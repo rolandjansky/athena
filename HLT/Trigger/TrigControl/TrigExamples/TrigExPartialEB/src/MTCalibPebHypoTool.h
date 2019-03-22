@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H
@@ -59,10 +59,6 @@ private:
   Gaudi::Property<bool> m_burnTimeRandomly {
     this, "BurnTimeRandomly", true,
     "If true, burn time per cycle is a random value from uniform distribution between 0 and the given value"
-  };
-  Gaudi::Property<bool> m_failOnTimeout {
-    this, "FailOnTimeout", true,
-    "If true, the execution will return StatusCode::FAILURE when Athena timeout is detected"
   };
   Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDict {
     this, "ROBAccessDict", {},

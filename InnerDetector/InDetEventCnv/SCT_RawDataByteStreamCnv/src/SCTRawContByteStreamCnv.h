@@ -55,8 +55,8 @@ class SCTRawContByteStreamCnv : public Converter
    *
    * Uses SCT RawContByteStreamTool to convert Raw Data to ByteStream.
    *
-   * @param pDataObject Pointer to data object
-   * @param pOpaqueAddress Opaque address to object
+   * @param pDataObject Pointer to data object.
+   * @param pOpaqueAddress Opaque address to object.
    */
   virtual StatusCode createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress) override;
 

@@ -382,7 +382,7 @@ def _setupMdtCondDB(flags):
     return result, mdt_folder_name_appendix
 # end of function setupMdtCondDB()
 
-def MdtCalibDbToolCfg(flags,**kwargs):
+def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
     result=ComponentAccumulator()
     
     # result.merge( IOVDbSvcCfg(flags) )
@@ -400,7 +400,7 @@ def MdtCalibDbToolCfg(flags,**kwargs):
        kwargs.setdefault("TubeFolder", "/MDT/T0"+ mdt_folder_name_appendix)
        kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
     kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
-    if not flags.Input.isMC == 'data':
+    if flags.Input.isMC == False: # Should be " if flags.Input.isMC=='data' " ?
         kwargs.setdefault("defaultT0", 40)
     else:
         kwargs.setdefault("defaultT0", 799)
@@ -408,19 +408,16 @@ def MdtCalibDbToolCfg(flags,**kwargs):
     kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-    result.addPublicTool(MuonCalib__MdtCalibDbCoolStrTool(**kwargs))
+    result.addPublicTool(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
     return result
 
 def MdtCalibrationDbSvcCfg(flags, **kwargs):
-    result=ComponentAccumulator()
-
     kwargs.setdefault( "CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField )
     kwargs.setdefault( "CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag )
     kwargs.setdefault( "CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    
-    acc = MdtCalibDbToolCfg(flags)
+    kwargs.setdefault( "DBTool", "MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool")
+    result = MdtCalibDbToolCfg(flags)
 
-    result.merge(acc)
     # kwargs.setdefault( "DBTool", mdt_calib_db_tool )
     
     mdt_calib_db_svc = MdtCalibrationDbSvc(**kwargs)

@@ -2,6 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+ * @file SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h
+ * 
+ * Athena Algorithm Tool to fill Collections of SCT RDO Containers.
+ */
+
 #ifndef SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
 

@@ -5,9 +5,13 @@
 #ifndef RHADRONS_G4UA__SG_STEPNTUPLETOOL_H
 #define RHADRONS_G4UA__SG_STEPNTUPLETOOL_H
 
+// Base class
 #include "G4AtlasTools/UserActionToolBase.h"
 
+// UA to be constructed
 #include "SG_StepNtuple.h"
+
+#include <vector>
 
 namespace G4UA
 {
@@ -30,6 +34,9 @@ namespace G4UA
     /// creates the action instances
     virtual std::unique_ptr<SG_StepNtuple>
     makeAndFillAction(G4AtlasUserActions&) override final;
+
+  private:
+    std::vector<int> m_pdgids; /// List of PDG IDs for R-Hadrons
 
   }; // class SG_StepNtupleTool
 

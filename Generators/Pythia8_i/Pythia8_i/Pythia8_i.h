@@ -79,6 +79,8 @@ public:
   double pythiaVersion()const;
   
   static std::string    pythia_stream;
+
+  static std::string xmlpath();
     
 protected:
 
@@ -89,9 +91,7 @@ protected:
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
-  
-  static std::string xmlpath();
-  
+
   static std::string findValue(const std::string &command, const std::string &key);
   
   int m_internal_event_number;

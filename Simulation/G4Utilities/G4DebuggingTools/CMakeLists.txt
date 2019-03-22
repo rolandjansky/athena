@@ -28,6 +28,7 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_library( G4DebuggingHelperLib
                    src/G4DebuggingHelper.cxx
+                   PUBLIC_HEADERS G4DebuggingTools
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} )
 

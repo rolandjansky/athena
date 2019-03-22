@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -8,6 +8,7 @@
 
 // Athena includes
 #include "AthenaKernel/Timeout.h"
+#include "AthenaKernel/AthStatusCode.h"
 
 // System includes
 #include <random>
@@ -148,12 +149,8 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
   // ---------------------------------------------------------------------------
   for (unsigned int iCycle = 0; iCycle < m_numBurnCycles; ++iCycle) {
     if (Athena::Timeout::instance(input.eventContext).reached()) {
-      if (m_failOnTimeout) {
-        ATH_MSG_ERROR("Timeout reached in CPU time burning cycle # " << iCycle+1 << " and FailOnTimeout is true");
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO("Timeout reached in CPU time burning cycle # " << iCycle+1);
-      break;
+      ATH_MSG_ERROR("Timeout reached in CPU time burning cycle # " << iCycle+1);
+      return Athena::Status::TIMEOUT;
     }
     unsigned int burnTime = m_burnTimeRandomly
                             ? randomInteger<unsigned int>(0, m_burnTimePerCycleMillisec)
@@ -168,8 +165,8 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
   for (const auto& p : m_robAccessDict) {
     // Check for timeout
     if (Athena::Timeout::instance(input.eventContext).reached()) {
-      ATH_MSG_INFO("Timeout reached in ROB retrieval loop");
-      break;
+      ATH_MSG_ERROR("Timeout reached in ROB retrieval loop");
+      return Athena::Status::TIMEOUT;
     }
     const std::string& instruction = p.first;
     const std::vector<uint32_t>& robs = p.second;

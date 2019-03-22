@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECISIONHANDLING_INPUTMAKERBASE_H
@@ -24,11 +24,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   virtual ~InputMakerBase(); 
   /// initialise this base class and renounce input decision key handles
   virtual StatusCode sysInitialize() override;
-  /// execute to be implemented in derived clas
-  virtual StatusCode execute(const EventContext&) const override = 0;
-  virtual StatusCode finalize() override = 0;
-  virtual StatusCode initialize() override = 0;
-  
+
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;

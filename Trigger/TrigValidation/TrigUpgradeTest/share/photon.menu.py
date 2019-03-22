@@ -9,7 +9,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # menu
 ##########################################
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
 from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
 calostep=fastCaloMenuSequence("Gamma")

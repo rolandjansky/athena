@@ -52,6 +52,10 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   // obtain chain decisions,
   using namespace TrigCompositeUtils;
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
+  if (!chainsHandle.isValid()) {
+    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    return StatusCode::FAILURE;
+  }
 
   const Decision* passRawChains = nullptr;
   const Decision* rerunChains = nullptr;

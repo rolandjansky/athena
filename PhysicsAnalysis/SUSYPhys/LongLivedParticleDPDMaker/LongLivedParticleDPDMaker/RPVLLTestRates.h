@@ -15,8 +15,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -41,7 +39,6 @@ class RPVLLTestRates : public AthAlgorithm  {
 
    int m_EventCounter;
    ServiceHandle<ITHistSvc> m_tHistSvc;
-   SG::ReadHandleKey<xAOD::EventInfo> m_evt{this, "EvtInfo", "EventInfo", "EventInfo name"};
 
    std::vector<std::string> m_DecisionLabel;
    std::vector<int>         m_EventNumber;
