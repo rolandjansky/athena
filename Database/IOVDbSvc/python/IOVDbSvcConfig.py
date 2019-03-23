@@ -230,7 +230,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc, iovdbSvc = IOVDbSvcCfg(ConfigFlags)
+    acc  = IOVDbSvcCfg(ConfigFlags)
 
     f=open('test.pkl','w')
     acc.store(f)
