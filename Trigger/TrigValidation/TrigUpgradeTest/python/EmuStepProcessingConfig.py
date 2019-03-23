@@ -2,9 +2,14 @@
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
-from AthenaCommon.Constants import DEBUG
+from AthenaCommon.Constants import DEBUG, VERBOSE
 from AthenaCommon.CFElements import parOR
+from AthenaCommon.Logging import logging
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
+
+log = logging.getLogger('EmuStepProcessingConfig')
+log.setLevel(VERBOSE)
+
 
 def generateL1DecoderAndChains():
     AlgScheduler.ShowControlFlow( True )
@@ -145,7 +150,7 @@ def generateL1DecoderAndChains():
                 if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
                 if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
 
-        print "enabled Combo chains: ", EnabledMuComboChains,EnabledElComboChains
+        log.debug("enabled Combo chains: %s, %s", EnabledMuComboChains, EnabledElComboChains)
 
 
     # this is a temporary hack to include new test chains
@@ -166,20 +171,20 @@ def generateL1DecoderAndChains():
     emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
     emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
     emUnpacker.Decisions="L1EM"
-    print "EMRoIsUnpackingTool enables chians:"
-    print emUnpacker.ThresholdToChainMapping
+    log.debug("EMRoIsUnpackingTool enables chians:")
+    log.debug(emUnpacker.ThresholdToChainMapping)
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
     muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
     muUnpacker.Decisions="L1MU"
-    print "MURoIsUnpackingTool enables chians:"
-    print muUnpacker.ThresholdToChainMapping
+    log.debug("MURoIsUnpackingTool enables chians:")
+    log.debug(muUnpacker.ThresholdToChainMapping)
 
     l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 
     #print l1Decoder
     L1UnpackingSeq += l1Decoder
-    print L1UnpackingSeq
+    log.debug(L1UnpackingSeq)
 
     ########################## L1 #################################################
 

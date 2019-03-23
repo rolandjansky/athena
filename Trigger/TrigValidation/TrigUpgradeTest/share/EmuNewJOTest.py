@@ -5,7 +5,8 @@ Configurable.configurableRun3Behavior=1
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-from AthenaCommon.Constants import INFO, DEBUG
+from AthenaCommon.Constants import INFO, DEBUG, VERBOSE
+from AthenaCommon.Logging import logging
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
@@ -19,6 +20,8 @@ from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
+log = logging.getLogger('EmuNewJOTest')
+log.setLevel(VERBOSE)
 
 flags.needFlagsCategory("Trigger")
 flags.Input.isMC = False
@@ -92,7 +95,7 @@ acc.getEventAlgo( "TrigSignatureMoniMT").OutputLevel=DEBUG
 acc.printConfig()
 
 fname = "EmuNewJOTest.pkl"
-print("Storing config in the config", fname)
+log.debug("Storing config in the config %s", fname)
 with file(fname, "w") as p:
     acc.store( p, nEvents=4, useBootStrapFile=False, threaded=True )
     p.close()
