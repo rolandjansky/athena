@@ -1,11 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include <algorithm>
-#include <set>
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller1D.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFillerEfficiency.h"
 #include "AthenaMonitoring/HistogramFiller/CumulativeHistogramFiller1D.h"
@@ -15,6 +12,8 @@
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller2D.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller2DProfile.h"
 
+#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
+
 using namespace Monitored;
 
 HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc,
@@ -22,8 +21,7 @@ HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& h
     : m_histSvc(histSvc), m_groupName(std::move(groupName)) { 
 }
     
-HistogramFillerFactory::~HistogramFillerFactory() {
-}
+HistogramFillerFactory::~HistogramFillerFactory() { }
 
 HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   TH1* histo(0);
@@ -165,18 +163,21 @@ TH1* HistogramFillerFactory::create1D(const HistogramDef& def) {
 
 template<class H> 
 TH1* HistogramFillerFactory::create1DProfile(const HistogramDef& def) {
-  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, def.ymin, def.ymax);
+  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
+                            def.ymin, def.ymax);
 }
 
 template<class H> 
 TH1* HistogramFillerFactory::create2D(const HistogramDef& def) {
-  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
+  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+                            def.ybins, def.ymin, def.ymax);
 }
 
 template<class H> 
 TH1* HistogramFillerFactory::create2DProfile(const HistogramDef& def) {
   return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
+                            def.ybins, def.ymin, def.ymax, 
+                            def.zmin, def.zmax);
 }
 
 TEfficiency* HistogramFillerFactory::createEfficiency(const HistogramDef& def) {    
@@ -230,195 +231,4 @@ void HistogramFillerFactory::setLabels(TH1* hist, const std::vector<std::string>
     int bin = i+1-(int)hist->GetNbinsX();
     hist->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
   }
-}
-
-
-unsigned HistogramFiller1D::fill() {
-  if (m_monVariables.size() != 1) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  for (auto value : valuesVector) {
-    histogram()->Fill(value);
-    ++i;
-  }
-
-  return i;
-} 
-
-unsigned CumulativeHistogramFiller1D::fill() {
-  if (m_monVariables.size() != 1) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  for (auto value : valuesVector) {
-    unsigned bin = hist->FindBin(value);
-
-    for (unsigned j = bin; j > 0; --j) {
-      hist->AddBinContent(j);
-    }
-
-    ++i;
-  }
-
-  return i;  
-}
-
-unsigned VecHistogramFiller1D::fill() {
-  if (m_monVariables.size() != 1) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  for (auto value : valuesVector) {
-    hist->AddBinContent(i+1, value);
-    hist->SetEntries(hist->GetEntries() + value);
-
-    ++i;
-  }
-
-  return i;
-}
-
-unsigned VecHistogramFiller1DWithOverflows::fill() {
-  if (m_monVariables.size() != 1) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  for (auto value : valuesVector) {
-    hist->AddBinContent(i, value);
-    hist->SetEntries(hist->GetEntries() + value);
-
-    ++i;
-  }
-
-  return i;
-}
-
-unsigned HistogramFillerProfile::fill() {
-  if (m_monVariables.size() != 2) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  if (valuesVector1.size() != valuesVector2.size()) {
-    if (valuesVector1.size() == 1) {
-      // first variable is scalar -- loop over second
-      for (auto value2 : valuesVector2) {
-        hist->Fill(valuesVector1[0], value2);
-        ++i;
-      }
-    } else if (valuesVector2.size() == 1)  {
-      // second variable is scalar -- loop over first
-      for (auto value1 : valuesVector1) {
-        hist->Fill(value1, valuesVector2[0]); 
-        ++i;
-      } 
-    }
-  } else {
-    for (i = 0; i < valuesVector1.size(); ++i) {
-      hist->Fill(valuesVector1[i], valuesVector2[i]);
-    }
-  }
-  
-  return i;
-}
-
-unsigned HistogramFiller2DProfile::fill() {
-  if (m_monVariables.size() != 3) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-  /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
-  unsigned i(0);
-  if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
-
-  }*/
-
-  //For now lets just consider the case in which all variables are of the same length
-  for (i = 0; i < valuesVector1.size(); ++i) {
-    hist->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
-  }
-  
-  return i;
-}
-
-unsigned HistogramFiller2D::fill() {
-  if (m_monVariables.size() != 2) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto hist = histogram();
-  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  if (valuesVector1.size() != valuesVector2.size()) {
-    if (valuesVector1.size() == 1) {
-      // first variable is scalar -- loop over second
-      for (auto value2 : valuesVector2) {
-        hist->Fill(valuesVector1[0], value2);
-        ++i;
-      }
-    } else if (valuesVector2.size() == 1)  {
-      // second varaible is scalar -- loop over first
-      for (auto value1 : valuesVector1) {
-        hist->Fill(value1, valuesVector2[0]); 
-        ++i;
-      } 
-    }
-  } else {
-    for (i = 0; i < valuesVector1.size(); ++i) {
-      hist->Fill(valuesVector1[i], valuesVector2[i]);
-    }
-  }
-  
-  return i;
-}
-
-unsigned HistogramFillerEfficiency::fill() {
-  if (m_monVariables.size() != 2) {
-    return 0;
-  }
-
-  unsigned i(0);
-  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-  std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-  for (i = 0; i < valuesVector1.size(); ++i) {
-    m_eff->Fill(valuesVector1[i],valuesVector2[i]);
-  }
-  
-  return i;
 }
