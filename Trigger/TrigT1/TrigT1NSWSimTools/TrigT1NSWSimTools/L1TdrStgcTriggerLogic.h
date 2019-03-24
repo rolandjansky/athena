@@ -124,9 +124,7 @@ class L1TdrStgcTriggerLogic {
        std::vector<size_t> filterByMultiplet(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                              const std::vector<size_t> &padSelectedIndices,
                                              int multiplet);
-        std::vector< SectorTriggerCandidate > m_secTrigCand;        
-        bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
-        std::string m_picklePrefix; /// path where the pickle files will be written
+        std::vector< SectorTriggerCandidate > m_secTrigCand;
         
     };
 

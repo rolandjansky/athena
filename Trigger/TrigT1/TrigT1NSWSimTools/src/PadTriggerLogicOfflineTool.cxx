@@ -236,10 +236,10 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
                               <<" : "<<sector_pads.size()<<" pads");
                 if(m_useSimple4of4) {
                     const int innerMultiplet(1), outerMultiplet(2); // DG-2015-10-07 move to enum?
-                    auto padsInner(filterByMultiplet(sector_pads, innerMultiplet));
-                    auto padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
-                    auto triggersInner = build4of4SingleWedgeTriggers(padsInner);
-                    auto triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
+                    std::vector<std::shared_ptr<PadData>> padsInner(filterByMultiplet(sector_pads, innerMultiplet));
+                    std::vector<std::shared_ptr<PadData>> padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
+                    std::vector<std::unique_ptr<PadTrigger>> triggersInner = build4of4SingleWedgeTriggers(padsInner);
+                    std::vector<std::unique_ptr<PadTrigger>> triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
                     ATH_MSG_DEBUG("found "
                                   <<triggersInner.size()<<" inner triggers"
                                   <<" and "

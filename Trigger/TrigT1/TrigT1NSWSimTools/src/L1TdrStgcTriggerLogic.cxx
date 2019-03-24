@@ -23,7 +23,7 @@ namespace NSWL1{
     
     
     L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
-         m_msg("L1TdrStgcTriggerLogic"), m_writePickle(false), m_picklePrefix("./"){
+         m_msg("L1TdrStgcTriggerLogic"){
     }
     //-------------------------------------
     L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
