@@ -67,7 +67,8 @@ namespace NSWL1 {
         \todo when we have an inner+outer candidate, will they get the same bandid?
         Also do we need to cache it as a datamember?
         */
-        PadTrigger() : m_bandid(0), m_eta(0), m_phi(0), m_eta_id(0), m_phi_id(0),m_moduleIdInner(0),m_moduleIdOuter(0), m_multiplet_id(0)/*, m_pad_strip_info{{0.}}*/ {
+        PadTrigger() : m_bandid(0), m_eta(0), m_phi(0),m_etamin(0),m_etamax(0),m_phimin(0),m_phimax(0)
+        ,m_eta_id(0), m_phi_id(0), m_multiplet_id(0),m_isSmall(0),m_moduleIdInner(0),m_moduleIdOuter(0) {
         
         }
 

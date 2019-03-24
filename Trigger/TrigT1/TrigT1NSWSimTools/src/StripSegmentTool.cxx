@@ -48,7 +48,6 @@ namespace NSWL1 {
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
       m_tree(0),
-      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),//name can be made configurable through JO just in case storegate config. changes in the future
       m_rIndexBits(0),
       m_dThetaBits(0),
       m_zbounds({-1,1}),
@@ -56,7 +55,8 @@ namespace NSWL1 {
       m_rbounds({-1,-1}),
       m_ridxScheme(0),
       m_dtheta_min(0),
-      m_dtheta_max(0)
+      m_dtheta_max(0),
+      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable")//name can be made configurable through JO just in case storegate config. changes in the future      
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
 

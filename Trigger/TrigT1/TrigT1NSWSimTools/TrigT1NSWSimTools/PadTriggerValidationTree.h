@@ -90,21 +90,6 @@ private:
     std::vector<std::vector<float>>* m_padTriggerlocalminYOuter;
     std::vector<std::vector<float>>* m_padTriggerlocalmaxYOuter;    
     std::vector<int>* m_padTriggerIndex;
-    // int m_nPadHits;                                         ///< number of PAD hit delivered
-    // std::vector<float>* m_padGlobalX;                       ///< global position X of the PAD hit
-    // std::vector<float>* m_padGlobalY;                       ///< global position Y of the PAD hit
-    // std::vector<float>* m_padGlobalZ;                       ///< global position Z of the PAD hit
-    // std::vector<float>* m_padTruthHitGlobalX;               ///< global position X of the truth hit associated to the PAD hit
-    // std::vector<float>* m_padTruthHitGlobalY;               ///< global position Y of the truth hit associated to the PAD hit
-    // std::vector<float>* m_padTruthHitGlobalZ;               ///< global position Z of the truth hit associated to the PAD hit
-    // std::vector<int>*   m_padEtaIdFromOfflineId;            ///< PAD eta Id from the offline Id
-    // std::vector<int>*   m_padPhiIdFromOfflineId;            ///< PAD phi Id from the offline Id
-    // std::vector<int>*   m_padSectorFromOfflineId;           ///< PAD sector Id from the offline Id
-    // std::vector<int>*   m_padLayerFromOfflineId;            ///< PAD layer Id from the offline Id
-    // std::vector<int>*   m_offlineIdPadEtaConverted;         ///< PAD eta Id from the offline Id that were converted
-    // std::vector<int>*   m_offlineIdPadPhiConverted;         ///< PAD phi Id from the offline Id that were converted
-    // std::vector<int>*   m_padEtaIdFromOldSimu;              ///< PAD eta Id from the standalone simulation code
-    // std::vector<int>*   m_padPhiIdFromOldSimu;              ///< PAD phi Id from the standalone simulation code
 };  // PadTriggerValidationTree
 
 } // NSWL1

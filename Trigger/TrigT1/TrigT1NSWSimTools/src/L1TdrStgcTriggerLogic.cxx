@@ -89,7 +89,7 @@ namespace NSWL1{
     const std::vector<std::string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
     const std::vector<std::string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
 
-    int iL1st = -1; // first layer index
+    int iL1st = -1;
     for (size_t il1 = 0; il1 < nHL1; il1++) {
         int l1Idx = -1;
         std::string sl1("33");
@@ -97,188 +97,64 @@ namespace NSWL1{
             l1Idx = padIndicesLayer0.at(il1);
             sl1 = "11";
             iL1st = l1Idx;
-        } // if l1 is considered  its indices are always 11
+        }
         for (size_t il2 = 0; il2 < nHL2; il2++) {
-        int l2Idx = -1;
-        std::string sl2("33");
-        if (isLayer2) {
-            l2Idx = padIndicesLayer1.at(il2);
-            if (iL1st == -1) {
-                sl2 = "11";
-                iL1st = l2Idx;
-            } // l1 was not considered, l2 gets the first indices
-            else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
-            continue;
-        } // end if(isLayer2)
-        for (size_t il3 = 0; il3 < nHL3; il3++) {
-            int l3Idx = -1;
-            std::string sl3("33");
-            if (isLayer3) {
-                l3Idx = padIndicesLayer2.at(il3);
-            if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
-                continue;
-            }
-            for (size_t il4 = 0; il4 < nHL4; il4++) {
-            int l4Idx = -1;
-            std::string sl4("33");
-            if (isLayer4) {
-                l4Idx = padIndicesLayer3.at(il4);
-                if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
-                continue;
-            }
-            // checked all layers, now store the trigger if it's a valid pattern
-
-            std::string pattern(sl4 + sl3 + sl2 + sl1);
-            // the above line is replaced by a normal order l1,l2,l3,l4 and
-            // separated in phi and eta but it remains the same for later usage in
-            // the trigger selection
-            // Hence the following is only for internal ease of calculation. The
-            // pattern to be passed is the "pattern" not "patternPhi" or
-            // "patternEta"
-            std::string patternPhi;
-            patternPhi.push_back(sl1.at(1));
-            patternPhi.push_back(sl2.at(1));
-            patternPhi.push_back(sl3.at(1));
-            patternPhi.push_back(sl4.at(1));
-
-            std::string patternEta;
-            patternEta.push_back(sl1.at(0));
-            patternEta.push_back(sl2.at(0));
-            patternEta.push_back(sl3.at(0));
-            patternEta.push_back(sl4.at(0));
-
-            int    multipletid ;
-            int    moduleid ;
-            int    sectortype ;
-
-//Please mind the indentation
-            if (sl1 == "11") {
-                multipletid = pads.at(l1Idx)->multipletId();
-                    moduleid = pads.at(l1Idx)->moduleId();
-                    sectortype = pads.at(l1Idx)->sectorType();
-
-            } else if (sl2 == "11") {
-                multipletid = pads.at(l2Idx)->multipletId();
-                    moduleid = pads.at(l2Idx)->moduleId();
-                    sectortype = pads.at(l2Idx)->sectorType();
-
-                }
-
-            std::string etamove, phimove;
-            if (sectortype == 1) {
-                if (multipletid == 1) {
-
-                    etamove = "D";
-                    phimove = "U";
-
-                if (moduleid == 2) {
-                    etamove = "U";
-                    phimove = "U";
-                }
-
-                } else { // multiplet = 2   15-7-18 YR - Confirm   new geometry
-
-                    etamove = "U";
-                    phimove = "DU";
-                }
-
-
-            }
- 
-            if (sectortype == 0) {
-                if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
-                if (moduleid == 1) {
-                    etamove = "U";
-                    phimove = "DU";
-                }
-                if (moduleid == 2) {
-                    etamove = "D";
-                    phimove = "UD";
-                }
-                if (moduleid == 3) {
-                    etamove = "U";
-                    phimove = "UD";
-                }
-                } else { // multiplet = 2
-                if (moduleid == 1) {
-                    etamove = "U";
-                    phimove = "D";
-                }
-                else
-                {
-                    etamove = "U";
-                    phimove = "U";
-                }
-                }
-            }
-
-            if (etamove == "D") {
-                if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
-                            patternEta) == PatternsEtaDown.end()) {
-                continue;
-                }
-            }
-
-            if (etamove == "U") {
-                if (find(PatternsEtaUp.begin(), PatternsEtaUp.end(),
-                            patternEta) == PatternsEtaUp.end()) {
-                continue;
-                }
-            }
-
-            if (phimove == "U") {
-                if (find(PatternsPhiUp.begin(), PatternsPhiUp.end(),
-                            patternPhi) == PatternsPhiUp.end()) {
-                continue;
-                }
-            }
-            if (phimove == "D") {
-                if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
-                            patternPhi) == PatternsPhiDown.end()) {
-                continue;
-                }
-            }
-            if (phimove == "UD") {
-                if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
-                            patternPhi) == PatternsPhiUpDown.end()) {
-                continue;
-                }
-            }
-            if (phimove == "DU") {
-                if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
-                            patternPhi) == PatternsPhiDownUp.end()) {
-                continue;
-                }
-            }
-
-            std::vector< size_t > padIndices;
-
-            if (isLayer1) {
-                assert(l1Idx > -1);
-                padIndices.push_back(l1Idx);
-            }
+            int l2Idx = -1;
+            std::string sl2("33");
             if (isLayer2) {
-                assert(l2Idx > -1);
-                padIndices.push_back(l2Idx);
+                l2Idx = padIndicesLayer1.at(il2);
+                if (iL1st == -1) {
+                    sl2 = "11";
+                    iL1st = l2Idx;
+                } // l1 was not considered, l2 gets the first indices
+                else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
+                continue;
             }
-            if (isLayer3) {
-                assert(l3Idx > -1);
-                padIndices.push_back(l3Idx);
-            }
-            if (isLayer4) {
-                assert(l4Idx > -1);
-                padIndices.push_back(l4Idx);
-            }
-            triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+            for (size_t il3 = 0; il3 < nHL3; il3++) {
+                int l3Idx = -1;
+                std::string sl3("33");
+                if (isLayer3) {
+                    l3Idx = padIndicesLayer2.at(il3);
+                if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
+                    continue;
+                }
+                for (size_t il4 = 0; il4 < nHL4; il4++) {
+                    int l4Idx = -1;
+                    std::string sl4("33");
+                    if (isLayer4) {
+                        l4Idx = padIndicesLayer3.at(il4);
+                        if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
+                        continue;
+                    }
+                    
+                    std::string pattern(sl4 + sl3 + sl2 + sl1);
+                    std::vector< size_t > padIndices;
 
-            if (triggers.size() > 4) {
-                return triggers;
+                    if (isLayer1) {
+                        assert(l1Idx > -1);
+                        padIndices.push_back(l1Idx);
+                    }
+                    if (isLayer2) {
+                        assert(l2Idx > -1);
+                        padIndices.push_back(l2Idx);
+                    }
+                    if (isLayer3) {
+                        assert(l3Idx > -1);
+                        padIndices.push_back(l3Idx);
+                    }
+                    if (isLayer4) {
+                        assert(l4Idx > -1);
+                        padIndices.push_back(l4Idx);
+                    }
+                    triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+
+                    if (triggers.size() > 4) {
+                        return triggers;
+                    }
+                }
             }
-            //////////////////////////////////////////////////
-            } // end for(il4)
-        }   // end for(il3)
-        }     // end for(il2)
-    }       // end for(il1)
+        }
+    }
 
     return triggers;
     }
@@ -342,7 +218,7 @@ namespace NSWL1{
        }
     };
     
-    void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){
+    void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){//haha :)
       for (std::vector< SingleWedgePadTrigger >::const_iterator t4 = trigs4of4.begin(); t4 != trigs4of4.end();++t4) {
          trigs3of4.erase(remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
       }
@@ -557,7 +433,7 @@ namespace NSWL1{
         return patterns;
     }
 
-    //orphant functions .. mut be members TrigT1NSWSimTools
+    //orphant functions .. mut be members TrigT1NSWSimTools or move into a separate file. 
   //-------------------------------------
   std::vector<size_t> L1TdrStgcTriggerLogic::filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                          const std::vector<size_t> &padSelectedIndices,

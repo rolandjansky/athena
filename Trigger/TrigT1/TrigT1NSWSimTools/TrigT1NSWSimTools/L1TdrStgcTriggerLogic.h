@@ -74,32 +74,32 @@ class L1TdrStgcTriggerLogic {
         They are probably obsolete and they should be updated
         \todo update trigger patterns
         */
-        static std::vector<std::string> sTGC_triggerPatterns();
-        static std::vector<std::string> sTGC_triggerPatternsEtaUp();
-        static std::vector<std::string> sTGC_triggerPatternsEtaDown();
-        static std::vector<std::string> sTGC_triggerPatternsPhiUp();
-        static std::vector<std::string> sTGC_triggerPatternsPhiDown();
-        static std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
-        static std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
+         std::vector<std::string> sTGC_triggerPatterns();
+         std::vector<std::string> sTGC_triggerPatternsEtaUp();
+         std::vector<std::string> sTGC_triggerPatternsEtaDown();
+         std::vector<std::string> sTGC_triggerPatternsPhiUp();
+         std::vector<std::string> sTGC_triggerPatternsPhiDown();
+         std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
+         std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
 
-        static bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
+         bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
                             std::string &pattern);
-        static bool hitPattern(const int &iEta0, const int &iPhi0,
+         bool hitPattern(const int &iEta0, const int &iPhi0,
                             const int &iEta1, const int &iPhi1,
                             std::string &pattern);
-        static std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+         std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                         const std::vector< size_t > &padIndicesLayer0,
                                                         const std::vector< size_t > &padIndicesLayer1,
                                                         const std::vector< size_t > &padIndicesLayer2,
                                                         const std::vector< size_t > &padIndicesLayer3,
                                                         bool isLayer1, bool isLayer2,
                                                         bool isLayer3, bool isLayer4);
-        static std::vector< SingleWedgePadTrigger > build34swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+         std::vector< SingleWedgePadTrigger > build34swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
                                                             const std::vector< size_t > &padIndicesLayer3);
-        static std::vector< SingleWedgePadTrigger > build44swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+         std::vector< SingleWedgePadTrigger > build44swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,

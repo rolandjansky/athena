@@ -6,9 +6,6 @@
 //Local includes
 #include "TrigT1NSWSimTools/StripClusterOfflineData.h"
 
-#include <string>
-
-
 namespace NSWL1 {
 
   StripClusterOfflineData::StripClusterOfflineData(int bandId,
