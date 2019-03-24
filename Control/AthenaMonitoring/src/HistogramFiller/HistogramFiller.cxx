@@ -3,7 +3,7 @@
 */
 #include <algorithm>
 #include <set>
-#include "AthenaMonitoring/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
 
 using namespace Monitored;
 

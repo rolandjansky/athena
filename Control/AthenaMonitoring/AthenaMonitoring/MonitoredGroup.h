@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "GaudiKernel/ToolHandle.h"
 
