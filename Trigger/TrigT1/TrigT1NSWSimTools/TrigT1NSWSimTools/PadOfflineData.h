@@ -49,7 +49,8 @@ namespace NSWL1 {
     ~PadOfflineData();
 
     //! methods for retrieving the bare data
-    Identifier Id() const;
+    //Identifier Id() const;
+    Identifier Identity() const;
     uint32_t id()              const;  //!< get the 32 bit word identifing the fragment
     uint16_t BC_Tag()          const;  //!< get the BCID
     float    time()            const;  //!< get the arrival time after the delay is applied

@@ -129,11 +129,11 @@ void PadTriggerLogicOfflineTool::handle(const Incident& inc) {
 
 void PadTriggerLogicOfflineTool::fillGeometricInformation(const std::shared_ptr<PadOfflineData>& pod){
     
-    const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(pod->Id());
-    const Trk::PlaneSurface &surface = rdoEl->surface(pod->Id());
+    const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(pod->Identity());
+    const Trk::PlaneSurface &surface = rdoEl->surface(pod->Identity());
     std::vector<Amg::Vector2D> local_pad_corners;
     //From MuonPadDesign... read pad local corners
-    rdoEl->padCorners(pod->Id(),local_pad_corners);
+    rdoEl->padCorners(pod->Identity(),local_pad_corners);
     Amg::Vector3D pad_corner_global;
     for(unsigned int i=0; i<4; i++) {
         surface.localToGlobal(local_pad_corners.at(i), pad_corner_global, pad_corner_global);

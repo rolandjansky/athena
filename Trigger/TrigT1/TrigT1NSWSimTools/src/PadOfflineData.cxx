@@ -27,7 +27,7 @@ namespace NSWL1 {
  
     //! methods for retrieving the bare data
     uint32_t   PadOfflineData::id()       const { return m_id.get_identifier32().get_compact(); }
-    Identifier PadOfflineData::Id()     const {return m_id;}
+    Identifier PadOfflineData::Identity()     const {return m_id;}
     uint16_t   PadOfflineData::BC_Tag()   const { return m_bc_tag; }
     float      PadOfflineData::time()     const { return m_time; }
 
