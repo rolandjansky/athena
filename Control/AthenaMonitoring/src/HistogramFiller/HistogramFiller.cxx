@@ -3,7 +3,17 @@
 */
 #include <algorithm>
 #include <set>
+
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller1D.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFillerEfficiency.h"
+#include "AthenaMonitoring/HistogramFiller/CumulativeHistogramFiller1D.h"
+#include "AthenaMonitoring/HistogramFiller/VecHistogramFiller1D.h"
+#include "AthenaMonitoring/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFillerProfile.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller2D.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller2DProfile.h"
 
 using namespace Monitored;
 
