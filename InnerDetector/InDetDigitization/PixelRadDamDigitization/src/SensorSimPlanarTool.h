@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,12 +60,16 @@ class SensorSimPlanarTool : public SensorSimTool {
     double m_diffusionConstant;
 
     bool m_doRadDamage;
-    double m_fluence; //eventually, this should be pulled from the conditions.
-
-    std::vector<double> fluence_layers;
-    std::map<std::pair<int, int>, double> fluence_layersMaps;
     double m_trappingTimeElectrons;
     double m_trappingTimeHoles;
+    double m_fluence; //eventually, this should be pulled from the conditions.
+    double m_fluenceB, m_fluence1, m_fluence2;
+    double m_voltage; //eventually, this should be pulled from the conditions.
+    double m_voltageB, m_voltage1, m_voltage2;
+    std::string fTCADibl, fTCADblayer;
+
+    std::vector<double> m_fluence_layers,m_voltage_layers; //merging information from m_fluence* and m_voltage*
+    std::map<std::pair<int, int>, double> m_fluence_layersMaps;
 };
 
 }

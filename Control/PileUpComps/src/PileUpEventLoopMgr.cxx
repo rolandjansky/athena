@@ -498,7 +498,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
       std::unique_ptr< xAOD::EventInfo > pxAODEventInfo( new xAOD::EventInfo());
       pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
-      CHECK(m_xAODCnvTool->convert( pOverEvent, pxAODEventInfo.get(), true, false ));
+      CHECK(m_xAODCnvTool->convert( pOverEvent, pxAODEventInfo.get(), false, false ));
        // Before the record, keep a pointer to the EventInfo object, to be able
       // to add ElementLinks to it afterwards.
       xAOD::EventInfo* pLocalXAODEventInfo = pxAODEventInfo.get();
