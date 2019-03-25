@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_PHYSICSVALIDATIONUSERACTION_H
@@ -7,10 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "G4AtlasInterfaces/IUserActionSvc.h"
-
-#include "ISF_Interfaces/IParticleBroker.h"
-#include "ISF_Interfaces/IParticleHelper.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -25,11 +21,6 @@
 
 // ROOT forward declarations
 class TTree;
-
-namespace ISF {
-  class IParticleHelper;
-  class IParticleBroker;
-}
 
 #include "G4UserEventAction.hh"
 #include "G4UserRunAction.hh"
@@ -47,27 +38,21 @@ namespace G4UA{
       struct Config
       {
         MSG::Level verboseLevel=MSG::INFO;
-	bool validationOutput = true;
-	std::string validationStream="ISFG4SimKernel";
-	ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
-	ServiceHandle<ISF::IParticleBroker>  particleBroker=
-	  ServiceHandle<ISF::IParticleBroker>("ISF::ParticleBroker/ISF_ParticleStackService", "PhysicsValidationUserAction");
-	ToolHandle<ISF::IParticleHelper>     particleHelper=
-	  ToolHandle<ISF::IParticleHelper>("ISF::ParticleHelper/ISF_ParticleHelper");
-	ServiceHandle<ISF::IGeoIDSvc>        geoIDSvc=
-	  ServiceHandle<ISF::IGeoIDSvc>("ISF::GeoIDSvc/ISF_GeoIDSvc", "PhysicsValidationUserAction");  
-	
-	ServiceHandle<G4UA::IUserActionSvc>  UASvc=
-	  ServiceHandle<G4UA::IUserActionSvc>("G4UA::UserActionService","PhysicsValidationUserAction");
-	double idR=1150.-1.e-5;
-	double idZ=3490.;
-	double caloRmean=0.5*(40.+4250.);
-	double caloZmean=0.5*(3490.+6740.);
-	double muonRmean=0.5*(60.+30000.);
-	double muonZmean=0.5*(6740.+30000.);
-	double cavernRmean=300000.0;
-	double cavernZmean=300000.0;
-	
+        bool validationOutput = true;
+        std::string validationStream="ISFG4SimKernel";
+        ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
+        ServiceHandle<ISF::IGeoIDSvc>        geoIDSvc=
+          ServiceHandle<ISF::IGeoIDSvc>("ISF::GeoIDSvc/ISF_GeoIDSvc", "PhysicsValidationUserAction");
+
+        double idR=1150.-1.e-5;
+        double idZ=3490.;
+        double caloRmean=0.5*(40.+4250.);
+        double caloZmean=0.5*(3490.+6740.);
+        double muonRmean=0.5*(60.+30000.);
+        double muonZmean=0.5*(6740.+30000.);
+        double cavernRmean=300000.0;
+        double cavernZmean=300000.0;
+
       };
 
       PhysicsValidationUserAction(const Config& config);

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "PhysicsValidationUserActionTool.h"
 
 namespace G4UA
@@ -17,19 +16,16 @@ namespace G4UA
                                     const IInterface* parent)
       : UserActionToolBase<PhysicsValidationUserAction>(type, name, parent)
     {
-      declareProperty( "ValidationOutput",
-		       m_config.validationOutput,
-		       "If turned on, write out a ROOT tree.");
+      declareProperty("ValidationOutput",
+                      m_config.validationOutput,
+                      "If turned on, write out a ROOT tree.");
       declareProperty("ValidationStreamName",
-		      m_config.validationStream,
-		      "Name of the output stream" );
+                      m_config.validationStream,
+                      "Name of the output stream");
       declareProperty("THistService",
-		      m_config.thistSvc,
-		      "The THistSvc" );
-      declareProperty("ParticleBroker", m_config.particleBroker, "ISF Particle Broker Svc");
-      declareProperty("ParticleHelper", m_config.particleHelper, "ISF Particle Helper"    );
+                      m_config.thistSvc,
+                      "The THistSvc");
       declareProperty("GeoIDSvc"      , m_config.geoIDSvc      , "ISF GeoID Svc"          );
-      declareProperty("UserActionSvc",m_config.UASvc);
       declareProperty("ID_Rmax",m_config.idR);
       declareProperty("ID_Zmax",m_config.idZ);
       declareProperty("CaloRmean",m_config.caloRmean);
