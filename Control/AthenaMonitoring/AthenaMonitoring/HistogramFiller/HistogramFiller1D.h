@@ -18,7 +18,7 @@ namespace Monitored {
     virtual unsigned fill() override;
     HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
   protected:
-    virtual TH1* histogram() override { return m_hist; }
+    virtual TH1* histogram() override { return static_cast<TH1*>(m_hist); }
   };
 }
 

@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-#include "TH1.h"
+#include "TNamed.h"
 #include "TEfficiency.h"
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
@@ -24,13 +24,12 @@ namespace Monitored {
    */
   class HistogramFiller {
   public:
-    HistogramFiller(TH1* hist, const HistogramDef& histDef) 
-      : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
-    HistogramFiller(TEfficiency* eff, const HistogramDef& histDef) 
-      : m_eff(eff), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
+    HistogramFiller(TNamed* hist, const HistogramDef& histDef) 
+      : m_hist(hist), 
+        m_mutex(std::make_shared<std::mutex>()), 
+        m_histDef(new HistogramDef(histDef)) {}
     HistogramFiller(const HistogramFiller& hf) 
       : m_hist(hf.m_hist)
-      , m_eff(hf.m_eff)
       , m_mutex(hf.m_mutex)
       , m_histDef(hf.m_histDef) {}
     HistogramFiller(HistogramFiller&&) = default;
@@ -48,10 +47,9 @@ namespace Monitored {
     }
     
   protected:
-    virtual TH1* histogram() = 0;
+    virtual TNamed* histogram() = 0;
   
-    TH1* m_hist;
-    TEfficiency* m_eff;
+    TNamed* m_hist;
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;

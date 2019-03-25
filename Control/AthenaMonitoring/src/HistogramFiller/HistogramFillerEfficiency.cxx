@@ -12,12 +12,13 @@ unsigned HistogramFillerEfficiency::fill() {
   }
 
   unsigned i(0);
+  auto hist = histogram();
   auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
   auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
   std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
   for (i = 0; i < valuesVector1.size(); ++i) {
-    m_eff->Fill(valuesVector1[i],valuesVector2[i]);
+    hist->Fill(valuesVector1[i],valuesVector2[i]);
   }
   
   return i;

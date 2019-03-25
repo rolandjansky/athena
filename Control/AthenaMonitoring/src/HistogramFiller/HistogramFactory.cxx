@@ -80,7 +80,7 @@ TH2* HistogramFactory::create2DProfile(const HistogramDef& def) {
                             def.zmin, def.zmax);
 }
 
-TEfficiency* HistogramFillerFactory::createEfficiency(const HistogramDef& def) {    
+TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {    
   std::string fullName = getFullName(def);
 
   // Check if efficiency exists already
@@ -88,7 +88,7 @@ TEfficiency* HistogramFillerFactory::createEfficiency(const HistogramDef& def) {
   if ( m_histSvc->exists(fullName) ) {
     TGraph* g = reinterpret_cast<TGraph*>(e);
     if ( !m_histSvc->getGraph(fullName,g) ) {
-      throw HistogramFillerCreateException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
+      throw HistogramException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
     }
     return e;
   }
@@ -98,7 +98,7 @@ TEfficiency* HistogramFillerFactory::createEfficiency(const HistogramDef& def) {
   TGraph* g = reinterpret_cast<TGraph*>(e);
   if ( !m_histSvc->regGraph(fullName,g) ) {
     delete e;
-    throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
+    throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
   }
   return e;
 }
@@ -172,7 +172,7 @@ void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labe
   * Else if the def.path is DEFAULT then only the group name is used if the path yet 
   * different is concatenated with the group name.
  */
-std::string HistogramFillerFactory::getFullName(const HistogramDef& def) {
+std::string HistogramFactory::getFullName(const HistogramDef& def) {
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   
   std::string path;

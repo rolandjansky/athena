@@ -20,7 +20,7 @@ namespace Monitored {
     virtual unsigned fill() override;
     virtual HistogramFillerEfficiency* clone() override { return new HistogramFillerEfficiency(*this); };
   protected:
-    virtual TH1* histogram() { return m_hist; } // Keep the compiler happy
+    virtual TEfficiency* histogram() override { return static_cast<TEfficiency*>(m_hist); }
   };
 }
 
