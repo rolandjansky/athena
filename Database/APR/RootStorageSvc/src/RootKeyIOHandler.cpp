@@ -48,9 +48,9 @@ namespace pool {
 
       Streamer(*fBufferRef);         //write key itself
       fKeylen    = fBufferRef->Length();
-      auto _obj = const_cast<void*>(obj);
-      fBufferRef->MapObject(_obj, cl);    //register obj in map in case of self reference
-      cl->WriteBuffer(*fBufferRef, _obj); //write object
+      auto ptr = const_cast<void*>(obj);
+      fBufferRef->MapObject(ptr, cl);    //register obj in map in case of self reference
+      cl->WriteBuffer(*fBufferRef, ptr); //write object
       lbuf       = fBufferRef->Length();
       fObjlen    = lbuf - fKeylen;
       Int_t cxlevel = gFile->GetCompressionLevel();

@@ -251,7 +251,10 @@ DbStatus RootKeyContainer::loadObject( void** ptr, ShapeH shape,
                    << "I/O for types with more than 1 data member is not currently supported" << DbPrint::endmsg;
                err << DbPrintLvl::Error << "Type: " << typ->toString() << DbPrint::endmsg; 
                return Error;
-               
+
+               /*
+                 MN: the code below is probably not working, but leaving it for now as a reference
+
                RootCallEnv env( *ptr, typ );
                int nbyte = m_ioHandler->read( key, ptr );
                if ( nbyte > 0 )  {
@@ -259,6 +262,7 @@ DbStatus RootKeyContainer::loadObject( void** ptr, ShapeH shape,
                   m_rootDb->addByteCount(RootDatabase::READ_COUNTER, nbyte);
                   return Success;
                }
+               */
             }
          }
       }

@@ -70,7 +70,7 @@ void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shap
   if ( m_stack.size() < m_size+1 )  {
     m_stack.resize(m_size+1024);
   }
-  m_stack[m_size] = _Action( objH.ptr(), shape, objLink, pool::WRITE );
+  m_stack[m_size] = DbAction( objH.ptr(), shape, objLink, pool::WRITE );
   m_stackType |= pool::WRITE;
   m_writeSize++;
   m_size++;
@@ -85,7 +85,7 @@ DbStatus DbContainerImp::allocate(DbContainer& cntH, const void* object, ShapeH 
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }
-    m_stack[m_size] = _Action( object, shape, oid, WRITE );
+    m_stack[m_size] = DbAction( object, shape, oid, WRITE );
     m_stackType |= pool::WRITE;
     m_writeSize++;
     m_size++;
@@ -171,7 +171,7 @@ DbContainerImp::save(DbContainer& /* cntH */, const void* object, ShapeH shape, 
 {
   // Only possible if no open transaction, i.e. No object was allocated
   if ( m_stack.empty() )  {
-     _Action act(object, shape, linkH, WRITE);
+     DbAction act(object, shape, linkH, WRITE);
      return writeObject( act );
   }
   return Error;
@@ -185,7 +185,7 @@ DbContainerImp::update(DbContainer& /* cntH */, const void* object, ShapeH shape
       if ( m_stack.size() < m_size+1 )  {
         m_stack.resize(m_size+1024);
       }
-      m_stack[ m_size ] = _Action(objH.ptr(), shape, objH.oid(), pool::UPDATE);
+      m_stack[ m_size ] = DbAction(objH.ptr(), shape, objH.oid(), pool::UPDATE);
       m_stackType |= pool::UPDATE;
       m_size++;
       return Success;
@@ -208,7 +208,7 @@ DbContainerImp::update(DbContainer& /* cntH */, const void* object, ShapeH shape
       if ( m_stack.size() < m_size+1 )  {
         m_stack.resize(m_size+1024);
       }
-      m_stack[ m_size ] = _Action(object, shape, linkH, pool::UPDATE);
+      m_stack[ m_size ] = DbAction(object, shape, linkH, pool::UPDATE);
       m_stackType |= pool::UPDATE;
       m_size++;
       return Success;
@@ -249,7 +249,7 @@ DbStatus DbContainerImp::destroy(const Token::OID_t& linkH) {
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }
-    m_stack[ m_size ] = _Action(0, 0, linkH, DESTROY);
+    m_stack[ m_size ] = DbAction(0, 0, linkH, DESTROY);
     m_stackType |= DESTROY;
     m_size++;
     return Success;

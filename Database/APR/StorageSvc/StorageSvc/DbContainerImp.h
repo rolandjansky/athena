@@ -45,14 +45,14 @@ namespace pool    {
   protected:
 
     /// List of actions to execute at commit
-    struct _Action {
+    struct DbAction {
       const void*         object;
       const Shape*        shape;
       Token::OID_t        link;
       AccessMode          action;
 
-      _Action() : object(nullptr), shape(nullptr), action(NONE)   { }
-      _Action(const void* obj, const Shape* s, const Token::OID_t&  l, AccessMode a)
+      DbAction() : object(nullptr), shape(nullptr), action(NONE)   { }
+      DbAction(const void* obj, const Shape* s, const Token::OID_t&  l, AccessMode a)
             : object(obj), shape(s), link(l), action(a)   { }
 
       const void*       dataAtOffset(size_t offset) {
@@ -60,7 +60,7 @@ namespace pool    {
       }
     };
     
-    typedef std::vector< _Action > ActionList;
+    typedef std::vector< DbAction > ActionList;
     
   private:
     /// Transaction fifo storage for writing
