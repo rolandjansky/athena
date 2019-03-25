@@ -108,7 +108,6 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
       Acts::BoundParameters startParameters(
           std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagate(startParameters);
-      writeStepsObj(steps);
       m_propStepWriterSvc->write(steps);
   }
 
