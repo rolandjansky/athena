@@ -242,35 +242,40 @@ void  FTKTrack::setParameter(int ipar, float val, bool useraw)
   }
 }
 
-/** return the number of the common hits */
+/** return the number of the common hits for the first stage (AUX).
+The current formatting has coordinates instead of hits, so pixel x and y are checked separately.
+However, we only consider a hit matched if all coordinates in the hit match.
+*/
 unsigned int FTKTrack::getNCommonHitsFirstStage(const FTKTrack &track, const float *HWdev) const
 {
   unsigned int ncommon_hits(0);
 
   // match over the hits list
-  int hit_ready=0;
+  int hit_ready=0;//Hit_ready is 0 if we still need two coords to match, 1 if we only need one more
+  //This loop is over coordinates, which includes pixel x, pixel y, and sct
   for (int ix=0;ix!=m_ncoords;++ix) {
     //Only want it to count as match if pixel x and y both match
     if (ix>(m_ncoords == 11 ? 5 : 7)) { //SCT hit (3 pixel hits when 11 coord, 4 when 16 coord)
-        hit_ready=1;
+        hit_ready=1; //If we're on an SCT hit, we only need one coordinate match to say the hit matches
     } else if (ix==0 || ix==2 || ix==4) {//Beginning of pixel hit
-        hit_ready=0;
+        hit_ready=0; //Pixel hits require two coordinates to match
     }
 
     if ( !((m_bitmask & track.m_bitmask) & (1<<ix)) ) {
-      // majority hits are never coutned as matched
+      // majority hits are never counted as matched
       continue;
     }
 
     double dist = TMath::Abs(getCoord(ix)-track.getCoord(ix));
     if ( dist < HWdev[ix] ) {
-      if ( hit_ready == 1) {
+      if ( hit_ready == 1) { //Either this is SCT, or we already found that pixel x matches
         ++ncommon_hits; // a common hit
       } else {
+        //The pixel x matches, y checked on next iteration of loop
         hit_ready=1;
       }
     }
-  } // end loop over hits
+  } // end loop over coordinates
 
   return ncommon_hits;
 }
