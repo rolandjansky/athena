@@ -137,7 +137,6 @@ def MdtDriftCircleOnTrackCreatorAdjustableT0(name="MdtDriftCircleOnTrackCreatorA
     kwargs.setdefault("TimingMode", 3)
     kwargs.setdefault("DoTofCorrection", True)
     kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))
-    kwargs.setdefault("MuonTofTool", "AdjustableT0Tool")
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 # default RIO_OnTrackCreator for muons
@@ -399,7 +398,6 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
     if doSegmentT0Fit:
         kwargs.setdefault("MdtCreatorT0", "MdtDriftCircleOnTrackCreatorAdjustableT0")
-        kwargs.setdefault("TofTool", "AdjustableT0Tool")
         kwargs.setdefault("MdtSegmentFinder", "MdtMathT0FitSegmentFinder" )
     else:
         kwargs.setdefault("MdtSegmentFinder", "MdtMathSegmentFinder")
