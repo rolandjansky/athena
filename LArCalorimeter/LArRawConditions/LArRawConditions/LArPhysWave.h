@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -50,7 +50,7 @@ class LArPhysWave : public LArWaveCumul {
 		double dt, 
 		unsigned flag=0);
     
-    virtual ~LArPhysWave();
+    virtual ~LArPhysWave() = default;
 
     int  getTimeOffset() const;
     void setTimeOffset(int timeOffset);
@@ -94,8 +94,6 @@ inline LArPhysWave::LArPhysWave(const std::vector<double>& vAmpl,
 				double dt, unsigned flag)
 	:  LArWaveCumul(vAmpl,vErr,vTrig,dt,flag), m_timeOffset(0) {}
   
-inline LArPhysWave::~LArPhysWave() { } 
-
 inline int  LArPhysWave::getTimeOffset() const {return m_timeOffset; } 
 inline void LArPhysWave::setTimeOffset(int timeOffset) { m_timeOffset = timeOffset; } 
 
