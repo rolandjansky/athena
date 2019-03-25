@@ -198,7 +198,7 @@ def triggerBSOutputCfg( flags, decObj ):
     serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
     for coll in decObj:
         serialiser.addCollectionListToMainResult( [ "{}#remap_{}".format( persistent("xAOD::TrigCompositeContainer"), coll ),
-                                                    "{}#remap_{}Aux".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
+                                                    "{}#remap_{}Aux.".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
 
     # EDM
     EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTList )    
