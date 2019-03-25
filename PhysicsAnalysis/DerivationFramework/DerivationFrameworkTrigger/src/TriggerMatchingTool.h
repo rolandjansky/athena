@@ -75,7 +75,7 @@ namespace DerivationFramework {
        * The container will be recorded in the StoreGate using the name of the
        * chain as a key.
        */
-      StatusCode createOuputContainer(
+      StatusCode createOutputContainer(
           xAOD::TrigCompositeContainer*& container,
           const std::string& chain) const;
 

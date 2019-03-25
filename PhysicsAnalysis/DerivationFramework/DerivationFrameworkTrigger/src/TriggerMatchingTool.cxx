@@ -87,7 +87,7 @@ namespace DerivationFramework {
     for (const std::string& chain : m_chainNames) {
       // Create the output
       xAOD::TrigCompositeContainer* container(nullptr);
-      ATH_CHECK( createOuputContainer(container, chain) );
+      ATH_CHECK( createOutputContainer(container, chain) );
 
       // Get the list of online combinations
       std::vector<particleVec_t> onlineCombinations;
@@ -160,7 +160,7 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TriggerMatchingTool::createOuputContainer(
+  StatusCode TriggerMatchingTool::createOutputContainer(
       xAOD::TrigCompositeContainer*& container,
       const std::string& chain) const
   {
