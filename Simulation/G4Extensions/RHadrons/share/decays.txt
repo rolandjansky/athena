@@ -1,3 +1,0 @@
-~g_Delta+ proton s_chi_0_1 1
-~g_Delta0 neutron s_chi_0_1 0.5
-~g_Delta0 neutron pi0 s_chi_0_1 0.5

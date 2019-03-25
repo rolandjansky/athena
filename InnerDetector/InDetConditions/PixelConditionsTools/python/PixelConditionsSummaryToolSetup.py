@@ -78,13 +78,8 @@ class PixelConditionsSummaryToolSetup:
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
         condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
 
+    PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
     if (self.useDeadMap):
-      PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
-      PixelDeadMapInstance = "PIXEL_OFL"
-
-      if not conddb.folderRequested(PixelDeadMapFolder):
-        conddb.addFolder(PixelDeadMapInstance, PixelDeadMapFolder, className="CondAttrListCollection")
-
       if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 

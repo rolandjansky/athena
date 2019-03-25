@@ -104,6 +104,41 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   // its lifetime has to be at least as long as the lifetime of RawEventWrite which points to the StreamTag data
   delete m_streamTagData.release();
 
+  // Read the stream tags to check for debug stream tag and decide which HLT ROBFragments to write out
+  std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
+  bool debugEvent=false;
+  auto isDebugStreamTag = [](const eformat::helper::StreamTag& st){
+    return eformat::helper::string_to_tagtype(st.type) == eformat::TagType::DEBUG_TAG;
+  };
+  for (const eformat::helper::StreamTag& st : hltResult->getStreamTags()) {
+    // Flag debug stream events
+    if (isDebugStreamTag(st)) debugEvent=true;
+    // In case of full event building, add the full result ID
+    if (st.robs.empty() && st.dets.empty()) {
+      eformat::helper::SourceIdentifier sid(eformat::SubDetector::TDAQ_HLT, fullResultModuleId);
+      resultIdsToWrite.insert(sid);
+    }
+    // In case of partial event building, add the results explicitly requested in the stream tag
+    for (const uint32_t robid : st.robs) {
+      eformat::helper::SourceIdentifier sid(robid);
+      if (sid.subdetector_id() == eformat::SubDetector::TDAQ_HLT)
+        resultIdsToWrite.insert(sid);
+    }
+  }
+
+  // Remove all non-debug stream tags if the event goes to the debug stream.
+  // Write all HLT results (if available) to the debug stream.
+  if (debugEvent) {
+    std::vector<eformat::helper::StreamTag>& writableStreamTags = hltResult->getStreamTagsNonConst();
+    writableStreamTags.erase(
+      std::remove_if(writableStreamTags.begin(),writableStreamTags.end(),std::not_fn(isDebugStreamTag)),
+      writableStreamTags.end()
+    );
+    for (eformat::helper::StreamTag& st : writableStreamTags)
+      for (const eformat::helper::SourceIdentifier& sid : resultIdsToWrite)
+        st.robs.insert(sid.code());
+  }
+
   // Fill the stream tags
   uint32_t nStreamTagWords = eformat::helper::size_word(hltResult->getStreamTags());
   m_streamTagData = std::make_unique<uint32_t[]>(nStreamTagWords);
@@ -126,22 +161,6 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   const std::vector<uint32_t>& hltBits = hltResult->getHltBitsAsWords();
   re->hlt_info(hltBits.size(), hltBits.data());
 
-  // Read the stream tags to decide which HLT ROBFragments to write out
-  std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
-  for (const eformat::helper::StreamTag& st : hltResult->getStreamTags()) {
-    // In case of full event building, add the full result ID
-    if (st.robs.empty() && st.dets.empty()) {
-      eformat::helper::SourceIdentifier sid(eformat::SubDetector::TDAQ_HLT, fullResultModuleId);
-      resultIdsToWrite.insert(sid);
-    }
-    // In case of partial event building, add the results explicitly requested in the stream tag
-    for (const uint32_t robid : st.robs) {
-      eformat::helper::SourceIdentifier sid(robid);
-      if (sid.subdetector_id() == eformat::SubDetector::TDAQ_HLT)
-        resultIdsToWrite.insert(sid);
-    }
-  }
-
   // Clear the FEA stack
   m_fullEventAssembler.clear();
 
@@ -152,6 +171,11 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     // Find the serialised data for this module ID
     const auto it = serialisedData.find(resultId.module_id());
     if (it==serialisedData.end()) {
+      if (debugEvent) {
+        ATH_MSG_DEBUG("HLT result with ID 0x" << MSG::hex << resultId.code() << MSG::dec
+                    << " requested by a debug stream tag, but missing in the serialised data - skipping this result");
+        continue;
+      }
       ATH_MSG_ERROR("HLT result with ID 0x" << MSG::hex << resultId.code() << MSG::dec
                     << " requested by a stream tag, but missing in the serialised data");
       return StatusCode::FAILURE;

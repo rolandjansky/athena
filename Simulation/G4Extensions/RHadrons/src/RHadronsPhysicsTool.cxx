@@ -20,8 +20,9 @@
 #include "G4Decay.hh"
 #include "G4BaryonConstructor.hh"
 #include "G4ProcessManager.hh"
+
 // STL headers
-#include <iostream>
+#include <string>
 
 
 //-----------------------------------------------------------------------------
@@ -29,14 +30,6 @@
 //
 // 2015-05-14 Edoardo Farina
 //-----------------------------------------------------------------------------
-
-#if G4VERSION_NUMBER > 1029
-#define PARTICLEITERATOR (this->GetParticleIterator())
-#elif G4VERSION_NUMBER > 1009
-#define PARTICLEITERATOR aParticleIterator
-#else
-#define PARTICLEITERATOR theParticleIterator
-#endif
 
 //=============================================================================
 // Standard constructor, initializes variables
@@ -82,7 +75,8 @@ void RHadronsPhysicsTool::ConstructProcess()
   ATH_MSG_DEBUG("RHadronProcessDefinition::ConstructProcess() called");
   G4Decay* theDecayProcess = new G4Decay();
   theDecayProcess->SetExtDecayer( new RHadronPythiaDecayer("RHadronPythiaDecayer") );
-  PARTICLEITERATOR->reset();
+  G4ParticleTable::G4PTblDicIterator* particleIterator = G4ParticleTable::GetParticleTable()->GetIterator();
+  particleIterator->reset();
 
   //First deal with the standard particles that G4 doesn't know about...
   //G4Etac::Definition();
@@ -185,114 +179,81 @@ void RHadronsPhysicsTool::ConstructProcess()
 //  standardpdgidtodecay.push_back(551);
 //  standardpdgidtodecay.push_back(-551);
 
-  for (unsigned int i=0; i<standardpdgidtodecay.size(); ++i)
-    {
-      int pid=standardpdgidtodecay[i];
-      ATH_MSG_VERBOSE ( "ACH 3830 - Adding decay for "<<pid );
-      G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle( pid );
-      if (particle)
-        {
-          ATH_MSG_VERBOSE ( particle->GetParticleName()<<" is standard for Pythia6, lifetime is "<<particle->GetPDGLifeTime() );
-          G4ProcessManager *pmanager = particle->GetProcessManager();
-          if (!pmanager)
-            {
-
-              //ATH_MSG_VERBOSE ( "ACH: Adding process manager from 4122 (one we know works) to this lady" );
-              //particle->SetProcessManager(G4ParticleTable::GetParticleTable()->FindParticle(4122)->GetProcessManager());
-
-              ATH_MSG_VERBOSE ( "ACH: Copying process manager from 4122 (one we know works) to this lady" );
-              particle->SetProcessManager(new G4ProcessManager(*(G4ParticleTable::GetParticleTable()->FindParticle(4122)->GetProcessManager())));
-
-              //G4cout<<"ACH: Adding new process manager to this lady"<<G4endl;
-              //particle->SetProcessManager(new G4ProcessManager(particle));
-
-              pmanager = particle->GetProcessManager();
-            }
-          G4ProcessVector *pros = pmanager->GetProcessList();
-          for (int pi=0; pi<pros->size(); ++pi)
-            {
-              if ((*pros)[pi]->GetProcessType()==fDecay)
-                {
-                  pmanager->RemoveProcess(pi);
-                  break;
-                }
-            }
-          for (int pi=0; pi<pros->size(); ++pi)
-            {
-              if ((*pros)[pi]->GetProcessType()==fDecay)
-                {
-                  ATH_MSG_WARNING ( "there is still another decay process for this particle already defined!" );
-                  pmanager ->DumpInfo();
-                }
-            }
-          pmanager ->AddProcess(theDecayProcess);
-          pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep); pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
-          //pmanager ->DumpInfo();
+  for (unsigned int i=0; i<standardpdgidtodecay.size(); ++i) {
+    int pid=standardpdgidtodecay[i];
+    ATH_MSG_VERBOSE ( "Adding decay for "<<pid );
+    G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle( pid );
+    if (particle) {
+      ATH_MSG_VERBOSE ( particle->GetParticleName()<<" is standard for Pythia, lifetime is "<<particle->GetPDGLifeTime() );
+      G4ProcessManager *pmanager = particle->GetProcessManager();
+      if (!pmanager) {
+        ATH_MSG_VERBOSE ( "Copying process manager from 4122 (one we know works) to this particle" );
+        particle->SetProcessManager(new G4ProcessManager(*(G4ParticleTable::GetParticleTable()->FindParticle(4122)->GetProcessManager())));
+        pmanager = particle->GetProcessManager();
+      }
+      G4ProcessVector *pros = pmanager->GetProcessList();
+      for (int pi=0; pi<pros->size(); ++pi) {
+        if ((*pros)[pi]->GetProcessType()==fDecay) {
+          pmanager->RemoveProcess(pi);
+          break;
         }
-      else
-        {
-          ATH_MSG_WARNING ( "particle with pdgid "<<pid<<" has no definition in G4?" );
+      }
+      for (int pi=0; pi<pros->size(); ++pi) {
+        if ((*pros)[pi]->GetProcessType()==fDecay) {
+          ATH_MSG_WARNING ( "There is another decay process for this particle already defined!" );
+          pmanager ->DumpInfo();
         }
+      }
+      pmanager ->AddProcess(theDecayProcess);
+      pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep); pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
+      //pmanager ->DumpInfo();
+    } else {
+      ATH_MSG_WARNING ( "Particle with pdgid "<<pid<<" has no definition in G4?" );
     }
+  } // Loop over all particles that we need to define
 
-
-  //Now add Rhadrons...
-
+  // Now add RHadrons... Keep a vector of those we've already dealt with
   std::vector<int> handled;
-
-
-  while((*PARTICLEITERATOR)())
-    {
-      G4ParticleDefinition *particle = PARTICLEITERATOR->value();
-      if(CustomParticleFactory::isCustomParticle(particle))
-        {
-          if(find(handled.begin(),handled.end(),particle->GetPDGEncoding())==handled.end())
-            {
-              handled.push_back(particle->GetPDGEncoding());
-              ATH_MSG_VERBOSE ( particle->GetParticleName() << " is Custom" );
-              G4ProcessManager *pmanager = particle->GetProcessManager();
-              if(particle->GetParticleType()=="rhadron"  ||
-                 particle->GetParticleType()=="mesonino" ||
-                 particle->GetParticleType()=="sbaryon"  ) {
-                pmanager->AddDiscreteProcess(new FullModelHadronicProcess());
-                if (theDecayProcess->IsApplicable(*particle))
-                  {
-                    ATH_MSG_VERBOSE ( "Adding decay..." );
-                    pmanager ->AddProcess(theDecayProcess);
-                    // set ordering for PostStepDoIt and AtRestDoIt
-                    pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
-                    pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
-                  }
-                else
-                  {
-                    ATH_MSG_VERBOSE ( "No decay allowed for " << particle->GetParticleName() );
-                    if (!particle->GetPDGStable() && particle->GetPDGLifeTime()<0.1*CLHEP::ns)
-                      {
-                        ATH_MSG_VERBOSE ( "Gonna decay it anyway!!!" );
-                        pmanager ->AddProcess(theDecayProcess);
-                        // set ordering for PostStepDoIt and AtRestDoIt
-                        pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
-                        pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
-                      }
-                  }
-              }
-              if (particle->GetPDGCharge()/CLHEP::eplus != 0)
-                {
-                  pmanager->AddProcess(new G4hMultipleScattering,-1, 1,1);
-                  pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
-                  ATH_MSG_VERBOSE ( "    Processes for charged particle added." );
-                }
-              else
-                {
-                  ATH_MSG_VERBOSE ( "   It is neutral!!" );
-                }
-              pmanager->DumpInfo();
+  // Use the G4 particle iterator
+  while((*particleIterator)()) {
+    G4ParticleDefinition *particle = particleIterator->value();
+    if(CustomParticleFactory::isCustomParticle(particle)) {
+      if(find(handled.begin(),handled.end(),particle->GetPDGEncoding())==handled.end()) {
+        handled.push_back(particle->GetPDGEncoding());
+        ATH_MSG_VERBOSE ( particle->GetParticleName() << " is Custom" );
+        G4ProcessManager *pmanager = particle->GetProcessManager();
+        if(particle->GetParticleType()=="rhadron"  ||
+           particle->GetParticleType()=="mesonino" ||
+           particle->GetParticleType()=="sbaryon"  ) {
+          pmanager->AddDiscreteProcess(new FullModelHadronicProcess());
+          if (theDecayProcess->IsApplicable(*particle)) {
+            ATH_MSG_VERBOSE ( "Adding decay..." );
+            pmanager ->AddProcess(theDecayProcess);
+            // set ordering for PostStepDoIt and AtRestDoIt
+            pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
+            pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
+          } else {
+            ATH_MSG_VERBOSE ( "No decay allowed for " << particle->GetParticleName() );
+            if (!particle->GetPDGStable() && particle->GetPDGLifeTime()<0.1*CLHEP::ns) {
+              ATH_MSG_VERBOSE ( "Gonna decay it anyway!!!" );
+              pmanager ->AddProcess(theDecayProcess);
+              // set ordering for PostStepDoIt and AtRestDoIt
+              pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
+              pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
             }
-          else
-            {
-              ATH_MSG_VERBOSE ( "Skipping already handled particle: "<<particle->GetParticleName() );
-            }
+          }
         }
-
-    }
+        if (particle->GetPDGCharge()/CLHEP::eplus != 0) {
+          pmanager->AddProcess(new G4hMultipleScattering,-1, 1,1);
+          pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+          ATH_MSG_VERBOSE ( "Processes for charged particle added." );
+        } else {
+          ATH_MSG_VERBOSE ( "It is neutral!!" );
+        }
+        pmanager->DumpInfo();
+      } else {
+        ATH_MSG_VERBOSE ( "Skipping already handled particle: "<<particle->GetParticleName() );
+      } // If it has not been handled yet
+    } // If this is one of our custom particles (RHadrons)
+  } // End of the particle iterator
 }

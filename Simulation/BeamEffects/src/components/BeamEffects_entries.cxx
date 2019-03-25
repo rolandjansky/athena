@@ -1,4 +1,5 @@
 #include "../GenEventValidityChecker.h"
+#include "../ZeroLifetimePositioner.h"
 #include "../GenEventVertexPositioner.h"
 #include "../VertexBeamCondPositioner.h"
 #include "../LongBeamspotVertexPositioner.h"
@@ -7,6 +8,7 @@
 #include "../GenEventBeamEffectBooster.h"
 #include "../GenEventRotator.h"
 #include "../BeamEffectsAlg.h"
+DECLARE_COMPONENT( Simulation::ZeroLifetimePositioner )
 DECLARE_COMPONENT( Simulation::GenEventValidityChecker )
 DECLARE_COMPONENT( Simulation::GenEventVertexPositioner )
 DECLARE_COMPONENT( Simulation::VertexBeamCondPositioner )

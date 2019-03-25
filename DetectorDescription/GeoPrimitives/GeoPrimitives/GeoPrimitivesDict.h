@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -23,12 +23,6 @@ struct GeoPrimitivesInstan
   Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> > m_vb3;
   Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> > m_vb5;
   Eigen::DenseBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> > m_db4;
-#if ! EIGEN_VERSION_AT_LEAST( 3, 3, 0 )
-  Eigen::internal::special_scalar_op_base<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,double,double,Eigen::DenseBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false> >,false> m_ss4;
-  Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,2,1,0,2,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,2,1,0,2,1> >,false> m_ssv2;
-  Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >,false> m_ssv3;
-  Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,5,1,0,5,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,5,1,0,5,1> >,false> m_ssv5;
-#endif // EIGEN_VERSION_AT_LEAST
   Eigen::DenseCoeffsBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,2> m_dc4_2;
   Eigen::DenseCoeffsBase<Eigen::Block<const Eigen::Matrix<double,4,4,0,4,4>,3,1,false>,0> m_dc4_0;
   Eigen::PlainObjectBase<Eigen::Matrix<double,3,3,0,3,3> > m_pm3;

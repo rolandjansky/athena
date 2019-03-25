@@ -57,10 +57,9 @@ G4ProcessHelper::G4ProcessHelper()
                     "Initialization: The reaction product list contained an unknown particle");
       }
     }
-    if (target == "proton")
-      {
-        pReactionMap[incidentPDG].push_back(prod);
-      } else if (target == "neutron") {
+    if (target == "proton"){
+      pReactionMap[incidentPDG].push_back(prod);
+    } else if (target == "neutron") {
       nReactionMap[incidentPDG].push_back(prod);
     } else {
       G4Exception("G4ProcessHelper", "IllegalTarget", FatalException,
@@ -184,24 +183,26 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
   G4double theXsec = 0;
   G4String name = aParticle->GetDefinition()->GetParticleName();
 
-  if(!reggemodel)
-    {
+  if(!reggemodel){
       //Flat cross section
       if(CustomPDGParser::s_isRGlueball(thePDGCode)) {
         theXsec = 24 * CLHEP::millibarn;
       } else {
         std::vector<G4int> nq=CustomPDGParser::s_containedQuarks(thePDGCode);
-        //    G4cout<<"Number of quarks: "<<nq.size()<<G4endl;
         for (std::vector<G4int>::iterator it = nq.begin();
              it != nq.end();
              it++)
           {
-            //    G4cout<<"Quarkvector: "<<*it<<G4endl;
+            // 12 mb taken from asymptotic pion-nucleon scattering cross sections
             if (*it == 1 || *it == 2) theXsec += 12 * CLHEP::millibarn;
-            if (*it == 3) theXsec += 6 * CLHEP::millibarn;
+            // 6 mb taken from asymptotic kaon-nucleon scattering cross sections
+            // No data for D or B, so setting to behave like a kaon
+            if (*it == 3 || *it == 4 || *it == 5) theXsec += 6 * CLHEP::millibarn;
           }
       }
-    } else {
+  } else {
+    // From Eur. Phys. J. C (2010) 66: 493-501
+    // DOI 10.1140/epjc/s10052-010-1262-1
     double R = Regge(boost);
     double P = Pom(boost);
     if(thePDGCode>0)
@@ -226,6 +227,8 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
 
   if(resonant)
     {
+    // Described in Section 5.1 of http://r-hadrons.web.cern.ch/r-hadrons/download/mackeprang_thesis.pdf
+    // mentioned but dismissed in Section 3.3 of https://arxiv.org/pdf/hep-ex/0404001.pdf
       double e_0 = ek_0 + aParticle->GetDefinition()->GetPDGMass(); //Now total energy
 
       e_0 = sqrt(aParticle->GetDefinition()->GetPDGMass()*aParticle->GetDefinition()->GetPDGMass()
@@ -268,11 +271,10 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       NumberOfNucleons += NbOfAtomsPerVolume[elm]*(*theElementVector)[elm]->GetN();
     }
 
-  if(CLHEP::RandFlat::shoot()<NumberOfProtons/NumberOfNucleons)
-    {
+  if(CLHEP::RandFlat::shoot()<NumberOfProtons/NumberOfNucleons){
       theReactionMap = &pReactionMap;
       theTarget = theProton;
-    } else {
+  } else {
     theReactionMap = &nReactionMap;
     theTarget = theNeutron;
   }
@@ -432,7 +434,6 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
     } else {
       // 2 -> 3 processes require a phase space lookup
       if (PhaseSpace(theReactionProductList[i],aDynamicParticle)>CLHEP::RandFlat::shoot()) selected = true;
-      //selected = true;
     }
     //    double suppressionfactor=0.5;
     if(selected&&particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()!=aDynamicParticle->GetDefinition()->GetPDGCharge())
@@ -467,7 +468,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   return theReactionProductList[i];
 }
 
-G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const {
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
   //G4cout<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
@@ -487,27 +488,27 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,c
   return sqrts - M_after;
 }
 
-G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   if (ReactionProductMass(aReaction,aDynamicParticle)>0) return true;
   return false;
 }
 
-G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction){
+G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) const{
   for (ReactionProduct::const_iterator it = aReaction.begin();it!=aReaction.end();it++)
     if(CustomPDGParser::s_isSbaryon(*it)||CustomPDGParser::s_isRBaryon(*it)) return true;
   return false;
 }
 
-G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   G4double qValue = ReactionProductMass(aReaction,aDynamicParticle);
-
+  // Eq 4 of https://arxiv.org/pdf/hep-ex/0404001.pdf
   G4double phi = sqrt(1+qValue/(2*0.139*CLHEP::GeV))*pow(qValue/(1.1*CLHEP::GeV),3./2.);
   return (phi/(1+phi));
 }
 
 void G4ProcessHelper::ReadAndParse(const G4String& str,
                                    std::vector<G4String>& tokens,
-                                   const G4String& delimiters)
+                                   const G4String& delimiters) const
 {
   // Skip delimiters at beginning.
   G4String::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -535,8 +536,10 @@ void G4ProcessHelper::ReadAndParse(const G4String& str,
     }
 }
 
-double G4ProcessHelper::Regge(const double boost)
+double G4ProcessHelper::Regge(const double boost) const
 {
+  // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 1
+  // Originally from https://arxiv.org/pdf/0710.3930.pdf
   double a=2.165635078566177;
   double b=0.1467453738547229;
   double c=-0.9607903711871166;
@@ -544,8 +547,10 @@ double G4ProcessHelper::Regge(const double boost)
 }
 
 
-double G4ProcessHelper::Pom(const double boost)
+double G4ProcessHelper::Pom(const double boost) const
 {
+  // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 2
+  // Originally from https://arxiv.org/pdf/0710.3930.pdf
   double a=4.138224000651535;
   double b=1.50377557581421;
   double c=-0.05449742257808247;

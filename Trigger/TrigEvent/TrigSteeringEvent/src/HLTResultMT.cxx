@@ -235,6 +235,7 @@ std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
     for (const auto& detid : st.dets) printWord(detid,2);
     str << "]}" << std::endl;
   }
+  if (hltResult.getStreamTags().empty()) str << std::endl;
 
   // HLT bits
   std::vector<uint32_t> hltBitWords;

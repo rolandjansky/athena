@@ -23,7 +23,7 @@ namespace G4UA
 
   public:
 
-    SG_StepNtuple();
+    SG_StepNtuple(const std::vector<int>&);
 
     virtual void BeginOfRunAction(const G4Run*) override;
     virtual void BeginOfEventAction(const G4Event*) override;
@@ -42,7 +42,7 @@ namespace G4UA
     NTuple::Array<float>   m_dep, m_mass;
     NTuple::Array<float>   m_ke1, m_ke2;
     NTuple::Array<int>   m_rh, m_rhid, m_step;
-    std::set<int> rhs;//rhadron pdgid's
+    std::set<int> m_rhs;//rhadron pdgid's
     long m_nevents = 0;
     long m_rhadronIndex = 0;
 

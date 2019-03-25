@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
@@ -25,6 +25,10 @@ StatusCode TriggerBitsMakerTool::initialize() {
 
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
+  if (!chainsHandle.isValid()) {
+    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    return StatusCode::FAILURE;
+  }
 
   const TrigCompositeUtils::Decision* passRawChains = nullptr;
   for (const TrigCompositeUtils::Decision* d : *chainsHandle) {

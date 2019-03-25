@@ -79,6 +79,11 @@ def getCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs)
 def getGenEventValidityChecker(name="GenEventValidityChecker", **kwargs):
     return CfgMgr.Simulation__GenEventValidityChecker(name, **kwargs)
 
+def getZeroLifetimePositioner(name="ZeroLifetimePositioner", **kwargs):
+    kwargs.setdefault('ApplyPatch', True)
+    kwargs.setdefault('RemovePatch', True)
+    return CfgMgr.Simulation__ZeroLifetimePositioner(name, **kwargs)
+
 def getGenEventVertexPositioner(name="GenEventVertexPositioner", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     readVtxPosFromFile = simFlags.VertexOverrideFile.statusOn or simFlags.VertexOverrideEventFile.statusOn
@@ -107,7 +112,12 @@ def getGenEventRotator(name="GenEventRotator", **kwargs):
 #--------------------------------------------------------------------------------------------------
 ## Algorithms
 def getBeamEffectsAlg(name="BeamEffectsAlg", **kwargs):
-    kwargs.setdefault('InputMcEventCollection', 'GEN_EVENT')
+    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
+        kwargs.setdefault('InputMcEventCollection', 'OriginalEvent_SG+GEN_EVENT') # For Fast Chain
+    else:
+        kwargs.setdefault('InputMcEventCollection', 'GEN_EVENT')
     kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ISFRun", simFlags.ISFRun()) #FIXME Temporary property so that we don't change the output in the initial switch to this code.

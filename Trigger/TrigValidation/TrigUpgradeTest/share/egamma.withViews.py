@@ -116,11 +116,10 @@ def createFastCaloSequence(rerun=False):
 egammaCaloStep = createFastCaloSequence( rerun=False )
 
 
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-
+from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
 (viewAlgs, eventAlgs) = makeInDetAlgs()
-from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
 theFTF.isRoI_Seeded = True
 viewAlgs.append(theFTF)

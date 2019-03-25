@@ -86,9 +86,10 @@ if DetFlags.haveRIO.pixel_on():
                 conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
             else:
                 conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
+                
+        if not conddb.folderRequested("/PIXEL/PixReco"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
 
-    if not conddb.folderRequested("/PIXEL/PixReco"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg

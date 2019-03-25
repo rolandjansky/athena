@@ -22,6 +22,7 @@
 #include "TileMonitoring/TileTBBeamMonTool.h"
 #include "TileMonitoring/TileTBMonTool.h"
 #include "TileMonitoring/TileTBCellMonTool.h"
+#include "../TileJetMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -47,4 +48,5 @@ DECLARE_COMPONENT( TileRawChannelNoiseMonTool )
 DECLARE_COMPONENT( TileTBBeamMonTool )
 DECLARE_COMPONENT( TileTBMonTool )
 DECLARE_COMPONENT( TileTBCellMonTool )
+DECLARE_COMPONENT( TileJetMonitorAlgorithm )
 

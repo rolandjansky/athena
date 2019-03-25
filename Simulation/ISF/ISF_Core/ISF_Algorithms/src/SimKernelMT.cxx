@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,6 +25,7 @@ ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator
     m_inputEvgenKey(),
     m_outputTruthKey(),
     m_inputConverter("", name),
+    m_qspatcher("", name),
     m_simulationTools(), // FIXME make private
     m_particleKillerTool(""), // FIXME make private
     m_geoIDSvc("", name),
@@ -39,6 +40,8 @@ ISF::SimKernelMT::SimKernelMT( const std::string& name, ISvcLocator* pSvcLocator
     declareProperty("InputConverter",
                     m_inputConverter,
                     "Input McEventCollection->ISFParticleContainer conversion service.");
+    // Quasi-stable particle sim
+    declareProperty("QuasiStablePatcher", m_qspatcher);
 
     // routing tools
     declareProperty("BeamPipeSimulationSelectors", m_simSelectors[AtlasDetDescr::fAtlasForward] );
@@ -123,6 +126,10 @@ StatusCode ISF::SimKernelMT::initialize() {
 
   ATH_CHECK( m_inputConverter.retrieve() );
 
+  if(!m_qspatcher.empty()) {
+    ATH_CHECK(m_qspatcher.retrieve());
+  }
+
   ATH_CHECK( m_geoIDSvc.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -147,7 +154,14 @@ StatusCode ISF::SimKernelMT::execute() {
 
   // copy input Evgen collection to output Truth collection
   SG::WriteHandle<McEventCollection> outputTruth(m_outputTruthKey);
-  outputTruth = CxxUtils::make_unique<McEventCollection>(*inputEvgen);
+  outputTruth = std::make_unique<McEventCollection>(*inputEvgen);
+
+  // Apply QS patch if required
+  if(!m_qspatcher.empty()) {
+    for (const auto& currentGenEvent : *outputTruth ) {
+      ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
+    }
+  }
 
   // read and convert input
   ISFParticleContainer simParticles; // particles for ISF simulation
@@ -205,6 +219,13 @@ StatusCode ISF::SimKernelMT::execute() {
     if ( curSimTool ) {
       ATH_CHECK(curSimTool->releaseEvent());
       ATH_MSG_DEBUG( "releaseEvent() completed for " << curSimTool->name() );
+    }
+  }
+
+  // Remove QS patch if required
+  if(!m_qspatcher.empty()) {
+    for (const auto& currentGenEvent : *outputTruth ) {
+      ATH_CHECK(m_qspatcher->removeWorkaround(*currentGenEvent));
     }
   }
 

@@ -6,9 +6,7 @@
 #
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-#
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
+# art-output: config.txt
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -25,21 +23,20 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
-    --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' 
+    --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
+    --imf False
 
-echo "art-result: $? evgen step"
+echo "art-result: $? EVNTtoRDO step"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}  
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
-#add an additional payload from the job (corollary file).                                                           
-# art-output: InDetStandardPlots.root
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+#add an additional payload from the job (corollary file).
+# art-output: RDO_truth.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fastSim_fullDigi RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_TruthPlots_Refs/test_ttFC_fastSim_fullDigi.sh
 
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+
+# art-output: dcube/
 echo  "art-result: $? histcomp"
