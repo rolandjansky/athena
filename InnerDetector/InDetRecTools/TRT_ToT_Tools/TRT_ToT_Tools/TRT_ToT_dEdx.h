@@ -21,7 +21,9 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "TRT_ConditionsData/TRTDedxcorrection.h"
 
 
 /*
@@ -36,7 +38,7 @@
 
 class TRT_ID;
 class IChronoStatSvc;
-class ITRT_StrawSummarySvc;
+class ITRT_StrawSummaryTool;
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -313,13 +315,8 @@ public:
   EGasType gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const; 
       
 private:
-   
-  /** callbacks for calibration constants DB **/
-  StatusCode update(int&, std::list<std::string>&); 
-  void update_New(std::map<std::string,std::vector<float> > &result_dict);
-  void update_Old(std::map<std::string,std::vector<float> > &result_dict);
-  StatusCode update2(int&, std::list<std::string>&);
 
+  SG::ReadCondHandleKey<TRTDedxcorrection> m_ReadKey{this,"Dedxcorrection","Dedxcorrection","Dedx constants in-key"};   
 
   /**
    * @brief function to compute correction factor in endcap region
@@ -449,6 +446,7 @@ public:
 private:
   bool isData() const;
   mutable bool m_isDataSet;
+
   
 };
 

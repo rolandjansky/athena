@@ -18,15 +18,13 @@
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-
-class ITRT_CalDbSvc;
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 class TRT_ID;
 
 
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
 // AttributeList
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -99,9 +97,8 @@ public:
 private:
   
   /** Tool to fetch data from database */
-  ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc;
-  ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc2;
-
+  ToolHandle< ITRT_CalDbTool >   m_TRTCalDbTool;
+  ToolHandle< ITRT_CalDbTool >   m_TRTCalDbTool2;
 
   /** DetectorManager and helper */
   const InDetDD::TRT_DetectorManager* m_manager{};

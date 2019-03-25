@@ -107,26 +107,33 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
          
-            isMC = False
-            if globalflags.DataSource == "geant4" :
-                isMC = True
-            from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
-            InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name      = "InDetTRT_DriftFunctionTool",
-                                                               IsMC      = isMC)
-            ToolSvc += InDetTRT_DriftFunctionTool
-            
+
+            # Calibration DB Service
+            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+            InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
+                                          isGEANT4=(globalflags.DataSource == 'geant4'))
+            # Straw status DB Tool
+            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+            InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                                    isGEANT4=(globalflags.DataSource == 'geant4'))
+
    
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
             GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy",
-                                                                   TRTDriftFunctionTool = InDetTRT_DriftFunctionTool)
+                                                                   isTrigger			= False,
+                                                                   TRTCalDbTool = InDetTRTCalDbTool,
+                                                                   TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool )
+
             ToolSvc += GSFBuildTRT_LocalOccupancy
             
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
             GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "GSFBuildTRT_ElectronPidTool",
                                                                          TRT_LocalOccupancyTool = GSFBuildTRT_LocalOccupancy,
+                                                                         TRTStrawSummaryTool    = InDetTRTStrawStatusSummaryTool,
                                                                          isData = (globalflags.DataSource == 'data') )
             
             ToolSvc += GSFBuildTRT_ElectronPidTool
+
 
         #
         #  Configurable version of PixelToTPIDTOol

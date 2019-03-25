@@ -22,12 +22,9 @@
 
 #include "TF1.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "CoralBase/AttributeListSpecification.h"
-#include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // constructor
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p)
@@ -126,23 +123,9 @@ StatusCode TRT_ToT_dEdx::initialize()
     ATH_MSG_DEBUG ("Can not find ChronoStatSvc name="<<m_timingProfile );
   }
  
-  const DataHandle<CondAttrListVec> aptr;
-  std::string folderName = {"/TRT/Calib/ToT/ToTVectors"};
-  if (StatusCode::SUCCESS == detStore->regFcn(&TRT_ToT_dEdx::update,this,aptr,folderName)){
-    ATH_MSG_DEBUG ("Registered callback for ToT");
-  }else{
-    ATH_MSG_ERROR ("Callback registration failed for /TRT/Calib/ToT/ToTVectors ");
-  }
-
-  const DataHandle<CondAttrListCollection> affectedRegionH;
-  if (detStore->regFcn(&TRT_ToT_dEdx::update2,this,affectedRegionH,"/TRT/Calib/ToT/ToTValue").isSuccess()){
-    ATH_MSG_DEBUG ( "Registered callback for  /TRT/Calib/ToT/ToTValue " );
-  }else{
-    ATH_MSG_WARNING ( "Cannot register callback for /TRT/Calib/ToT/ToTValue " );
-  }
-
-  // Initialize ReadHandleKey
+  // Initialize ReadHandleKey and ReadCondHandleKey
   ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_ReadKey.initialize());
 
   //|-TRTStrawSummarySvc     = ServiceHandle('InDetTRTStrawStatusSummarySvc')
   sc = m_TRTStrawSummarySvc.retrieve();
@@ -195,488 +178,6 @@ StatusCode TRT_ToT_dEdx::finalize()
   return StatusCode::SUCCESS;
 }
 
-
-
-// callback for DB for arrays
-StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/) 
-{
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = service( "DetectorStore", detStore );
-
-  std::vector<std::string>  dict_names = {"para_end_corrRZLXe","para_end_corrRZ_Xe","para_end_mimicToXeXe","para_long_corrRZLXe","para_long_corrRZ_Xe","para_long_mimicToXeXe","para_short_corrRZLXe","para_short_corrRZ_Xe","para_short_mimicToXeXe","resolution_Xe","resolution_e_Xe","para_end_corrRZLAr","para_end_corrRZ_Ar","para_end_mimicToXeAr","para_long_corrRZLAr","para_long_corrRZ_Ar","para_long_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr","resolution_Ar","resolution_e_Ar","para_end_corrRZLKr","para_end_corrRZ_Kr","para_end_mimicToXeKr","para_long_corrRZLKr","para_long_corrRZ_Kr","para_long_mimicToXeKr","para_short_corrRZLKr","para_short_corrRZ_Kr","para_short_mimicToXeKr","resolution_Kr","resolution_e_Kr"};
-  std::map<std::string,std::vector<float> > result_dict;
-
-  const DataHandle<CondAttrListVec> channel_values;
-
-  if (StatusCode::SUCCESS == detStore->retrieve(channel_values, "/TRT/Calib/ToT/ToTVectors" ))
-    {
-      int dataBaseType = kNewDB;
-      ATH_MSG_DEBUG("update():: dict_names[]="<<dict_names.size()<<", channel_values[]="<<channel_values->size()<<"");
-      if(channel_values->size()<19695) 
-        dataBaseType = kOldDB; 
-
-      if(dataBaseType==kNewDB) 
-        {
-          CondAttrListVec::const_iterator first_channel = channel_values->begin();
-          CondAttrListVec::const_iterator last_channel  = channel_values->end();
-
-          unsigned int current_channel = 0;
-          std::vector<float> current_array_values = {};
-
-          for (; first_channel != last_channel; ++first_channel) {
-            if (current_channel != first_channel->first){
-              result_dict[dict_names[current_channel]] = current_array_values;
-              current_channel = first_channel->first;      
-              current_array_values.clear();
-            }
-            current_array_values.push_back(first_channel->second["array_value"].data<float>());             
-          }
-                        
-          result_dict[dict_names[current_channel]] = current_array_values;
-                        
-          update_New(result_dict);
-          ATH_MSG_DEBUG ("update():: Reading new database is done!");
-
-          return StatusCode::SUCCESS;
-                
-        } else 
-        if(dataBaseType==kOldDB) 
-          {
-            ATH_MSG_WARNING ("update():: Old COOL database tag!");
-
-            std::vector<std::string>  dict_names_old = {"resolution","resolution_e","para_long_corrRZ_MC","para_short_corrRZ_MC","para_end_corrRZ_MC","para_long_corrRZL_MC","para_short_corrRZL_MC","para_end_corrRZL_MC"};
-        
-            CondAttrListVec::const_iterator first_channel = channel_values->begin();
-            CondAttrListVec::const_iterator last_channel  = channel_values->end();
-
-            unsigned int current_channel = 0;
-            std::vector<float> current_array_values = {};
-
-            for (; first_channel != last_channel; ++first_channel) 
-              {
-                if (current_channel != first_channel->first)
-                  {
-                    result_dict[dict_names_old[current_channel]] = current_array_values;
-                    current_channel = first_channel->first;      
-                    current_array_values.clear();
-                  }
-                current_array_values.push_back(first_channel->second["array_value"].data<float>());             
-              }
-                        
-            result_dict[dict_names_old[current_channel]] = current_array_values;
-
-            update_Old(result_dict);
-            ATH_MSG_DEBUG ("update():: Reading old database is done!");
-
-            return StatusCode::SUCCESS;
-          }
-        else {
-          ATH_MSG_ERROR ("Problem reading condDB object. dataBaseType="<<dataBaseType<<"");
-          return StatusCode::FAILURE;
-        }
-    }
-  else {
-    ATH_MSG_ERROR ("Problem reading condDB object. -");
-    return StatusCode::FAILURE;
-  }
-}
-
-
-
-void TRT_ToT_dEdx::update_New(std::map<std::string,std::vector<float> > &result_dict) 
-{
-  //      fill Xenon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution[0][ind]=result_dict["resolution_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution_e[0][ind]=result_dict["resolution_e_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ_MC[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ_MC[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_MC[0][ind]=result_dict["para_long_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_MC[0][ind]=result_dict["para_short_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_MC[0][ind]=result_dict["para_end_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_DATA[0][ind]=result_dict["para_long_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_DATA[0][ind]=result_dict["para_short_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_DATA[0][ind]=result_dict["para_end_corrRZLXe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ_MC[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
-  }
-
-        
-                
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_DATA[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
-  }
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_MC[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_DATA[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_MC[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_DATA[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_MC[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
-  }
-
-  //      fill Argon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution[1][ind]=result_dict["resolution_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution_e[1][ind]=result_dict["resolution_e_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ_MC[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ_MC[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_MC[1][ind]=result_dict["para_long_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_MC[1][ind]=result_dict["para_short_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_MC[1][ind]=result_dict["para_end_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_DATA[1][ind]=result_dict["para_long_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_DATA[1][ind]=result_dict["para_short_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_DATA[1][ind]=result_dict["para_end_corrRZLAr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ_MC[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
-  }
-
-        
-                
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_DATA[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
-  }
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_MC[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_DATA[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_MC[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_DATA[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_MC[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
-  }
-
-  //      fill Krypton +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution[2][ind]=result_dict["resolution_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 4; ++ind) {
-    Dedxcorrection::resolution_e[2][ind]=result_dict["resolution_e_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ_MC[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ_MC[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_MC[2][ind]=result_dict["para_long_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_MC[2][ind]=result_dict["para_short_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_MC[2][ind]=result_dict["para_end_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection::para_long_corrRZ[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection::para_short_corrRZ[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection::para_long_corrRZL_DATA[2][ind]=result_dict["para_long_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection::para_short_corrRZL_DATA[2][ind]=result_dict["para_short_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection::para_end_corrRZL_DATA[2][ind]=result_dict["para_end_corrRZLKr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
-  }
-
-  for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection::para_end_corrRZ_MC[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
-  }
-
-        
-                
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_DATA[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
-  }
-  for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection::para_end_mimicToXe_MC[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_DATA[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
-  }
-  for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection::para_short_mimicToXe_MC[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_DATA[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
-  }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
-    Dedxcorrection::para_long_mimicToXe_MC[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
-  }
-}
-
-
-
-void TRT_ToT_dEdx::update_Old(std::map<std::string,std::vector<float> > &result_dict)
-{
-  for(int gasType = 0; gasType<3; gasType++) { // loop over gas types
-    for (unsigned int ind=0; ind < 4; ++ind) {
-      Dedxcorrection::resolution[gasType][ind]=result_dict["resolution"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 4; ++ind) {
-      Dedxcorrection::resolution_e[gasType][ind]=result_dict["resolution_e"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 3240; ++ind) {
-      Dedxcorrection::para_long_corrRZ_MC[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 216; ++ind) {
-      Dedxcorrection::para_short_corrRZ_MC[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 630; ++ind) {
-      Dedxcorrection::para_long_corrRZL_MC[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 63; ++ind) {
-      Dedxcorrection::para_short_corrRZL_MC[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 252; ++ind) {
-      Dedxcorrection::para_end_corrRZL_MC[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 3240; ++ind) {
-      Dedxcorrection::para_long_corrRZ[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 216; ++ind) {
-      Dedxcorrection::para_short_corrRZ[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 630; ++ind) {
-      Dedxcorrection::para_long_corrRZL_DATA[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 63; ++ind) {
-      Dedxcorrection::para_short_corrRZL_DATA[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 252; ++ind) {
-      Dedxcorrection::para_end_corrRZL_DATA[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 336; ++ind) {
-      Dedxcorrection::para_end_corrRZ[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
-    }
-
-    for (unsigned int ind=0; ind < 336; ++ind) {
-      Dedxcorrection::para_end_corrRZ_MC[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
-    }
-
-    // Setting aditional corrections
-    for (unsigned int ind=0; ind < 560; ++ind) {
-      Dedxcorrection::para_end_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection::para_end_mimicToXe_DATA[gasType][ind] = 1.;
-    }
-
-    for (unsigned int ind=0; ind < 180; ++ind) {
-      Dedxcorrection::para_short_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection::para_short_mimicToXe_DATA[gasType][ind] = 1.;
-    }
-
-    for (unsigned int ind=0; ind < 1800; ++ind) {
-      Dedxcorrection::para_long_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection::para_long_mimicToXe_DATA[gasType][ind] = 1.;
-    }
-  }
-}
-
-
-
-// callback for DB for scalar values
-StatusCode TRT_ToT_dEdx::update2(int& /*i*/, std::list<std::string>& /*l*/ )
-{
-  const CondAttrListCollection* attrListColl = 0;
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = service( "DetectorStore", detStore );
-
-  if (StatusCode::SUCCESS == detStore->retrieve(attrListColl, "/TRT/Calib/ToT/ToTValue" ))
-    {
-      int dataBaseType = kNewDB;
-      if(attrListColl->size() < 2) dataBaseType = kOldDB;
-
-      CondAttrListCollection::const_iterator first = attrListColl->begin();
-      CondAttrListCollection::const_iterator last  = attrListColl->end();
-
-      if(dataBaseType==kNewDB) 
-        {
-          for (int index=0; first != last; ++first,++index) 
-            {
-              const coral::AttributeList& attrList = (*first).second;
-              Dedxcorrection::paraL_dEdx_p1[index] = attrList["paraL_dEdx_p1"].data<float>();
-              Dedxcorrection::paraL_dEdx_p2[index] = attrList["paraL_dEdx_p2"].data<float>();
-              Dedxcorrection::paraL_dEdx_p3[index] = attrList["paraL_dEdx_p3"].data<float>();
-              Dedxcorrection::paraL_dEdx_p4[index] = attrList["paraL_dEdx_p4"].data<float>();
-              Dedxcorrection::paraL_dEdx_p5[index] = attrList["paraL_dEdx_p5"].data<float>();
-
-              Dedxcorrection::para_dEdx_p1[index] = attrList["para_dEdx_p1"].data<float>();
-              Dedxcorrection::para_dEdx_p2[index] = attrList["para_dEdx_p2"].data<float>();
-              Dedxcorrection::para_dEdx_p3[index] = attrList["para_dEdx_p3"].data<float>();
-              Dedxcorrection::para_dEdx_p4[index] = attrList["para_dEdx_p4"].data<float>();
-              Dedxcorrection::para_dEdx_p5[index] = attrList["para_dEdx_p5"].data<float>();
-                                  
-              Dedxcorrection::norm_offset_data[index] = attrList["norm_offset_data"].data<float>();
-              Dedxcorrection::norm_slope_tot[index] = attrList["norm_slope_tot"].data<float>();  
-              Dedxcorrection::norm_slope_totl[index] = attrList["norm_slope_totl"].data<float>(); 
-              Dedxcorrection::norm_offset_tot[index] = attrList["norm_offset_tot"].data<float>(); 
-              Dedxcorrection::norm_offset_totl[index] = attrList["norm_offset_totl"].data<float>();           
-              Dedxcorrection::norm_nzero[index]=attrList["norm_nzero"].data<int>();
-            }
-        } 
-      else 
-        {
-          ATH_MSG_WARNING ("update2():: Old COOL database tag!");
-          // return update2_Old();
-          for (; first != last; ++first) {  
-            const coral::AttributeList& attrList = (*first).second;
-            for(int gasType=0; gasType<3; gasType++)
-              {
-                Dedxcorrection::paraL_dEdx_p1[gasType] = attrList["paraL_dEdx_p1"].data<float>();
-                Dedxcorrection::paraL_dEdx_p2[gasType] = attrList["paraL_dEdx_p2"].data<float>();
-                Dedxcorrection::paraL_dEdx_p3[gasType] = attrList["paraL_dEdx_p3"].data<float>();
-                Dedxcorrection::paraL_dEdx_p4[gasType] = attrList["paraL_dEdx_p4"].data<float>();
-                Dedxcorrection::paraL_dEdx_p5[gasType] = attrList["paraL_dEdx_p5"].data<float>();
-
-                Dedxcorrection::para_dEdx_p1[gasType] = attrList["para_dEdx_p1"].data<float>();
-                Dedxcorrection::para_dEdx_p2[gasType] = attrList["para_dEdx_p2"].data<float>();
-                Dedxcorrection::para_dEdx_p3[gasType] = attrList["para_dEdx_p3"].data<float>();
-                Dedxcorrection::para_dEdx_p4[gasType] = attrList["para_dEdx_p4"].data<float>();
-                Dedxcorrection::para_dEdx_p5[gasType] = attrList["para_dEdx_p5"].data<float>();
-
-                Dedxcorrection::norm_offset_data[gasType] = attrList["norm_offset_data"].data<float>();
-                Dedxcorrection::norm_slope_tot[gasType] = attrList["norm_slope_tot"].data<float>();  
-                Dedxcorrection::norm_slope_totl[gasType] = attrList["norm_slope_totl"].data<float>(); 
-                Dedxcorrection::norm_offset_tot[gasType] = attrList["norm_offset_tot"].data<float>(); 
-                Dedxcorrection::norm_offset_totl[gasType] = attrList["norm_offset_totl"].data<float>();         
-                Dedxcorrection::norm_nzero[gasType]=attrList["norm_nzero"].data<int>(); 
-              }
-          }
-        }
-    } else {
-    ATH_MSG_ERROR ("Problem reading condDB object. -");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 
 
@@ -1057,6 +558,15 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
         
   ATH_MSG_DEBUG("getProb():: gasTypeInStraw = "<<gasType<<"");
 
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" getProb: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
+
   if(gasType==kUnset)
     {
       ATH_MSG_DEBUG("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
@@ -1073,9 +583,9 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
     dEdx_pred= dEdx_pred/correct;
   }
 
-  double Resolution = Dedxcorrection::resolution[gasType][0]+Dedxcorrection::resolution[gasType][1]*(nUsedHits+0.5)+Dedxcorrection::resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection::resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+  double Resolution = Dedxcorrection->resolution[gasType][0]+Dedxcorrection->resolution[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   if(hypothesis==Trk::electron){
-    Resolution = Dedxcorrection::resolution_e[gasType][0]+Dedxcorrection::resolution_e[gasType][1]*(nUsedHits+0.5)+Dedxcorrection::resolution_e[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection::resolution_e[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+    Resolution = Dedxcorrection->resolution_e[gasType][0]+Dedxcorrection->resolution_e[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolution_e[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolution_e[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   }
 
   double prob =exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
@@ -1129,6 +639,14 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
 
   ATH_MSG_DEBUG("predictdEdx(): gasTypeInStraw = "<<gasType<<"");
 
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" predictdEdx: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
   if(gasType==kUnset)
     {
       ATH_MSG_DEBUG("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
@@ -1145,15 +663,15 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   // do we want to throw an assertion here?
   if(pTrk<100)return 0; 
   if(divideByL){    
-    if(Dedxcorrection::paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection::paraL_dEdx_p5[gasType]))<=0) return 0;
-    return Dedxcorrection::paraL_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::paraL_dEdx_p4[gasType])  * 
-      (Dedxcorrection::paraL_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::paraL_dEdx_p4[gasType] ) 
-       - log(Dedxcorrection::paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection::paraL_dEdx_p5[gasType]) ) ) );
+    if(Dedxcorrection->paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraL_dEdx_p5[gasType]))<=0) return 0;
+    return Dedxcorrection->paraL_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraL_dEdx_p4[gasType])  * 
+      (Dedxcorrection->paraL_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraL_dEdx_p4[gasType] ) 
+       - log(Dedxcorrection->paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraL_dEdx_p5[gasType]) ) ) );
   }else {
-    if(Dedxcorrection::para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection::para_dEdx_p5[gasType]) )<=0)return 0; 
-    return Dedxcorrection::para_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::para_dEdx_p4[gasType])  * 
-      (Dedxcorrection::para_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::para_dEdx_p4[gasType] ) 
-       - log(Dedxcorrection::para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection::para_dEdx_p5[gasType]) ) ) );
+    if(Dedxcorrection->para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->para_dEdx_p5[gasType]) )<=0)return 0; 
+    return Dedxcorrection->para_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->para_dEdx_p4[gasType])  * 
+      (Dedxcorrection->para_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->para_dEdx_p4[gasType] ) 
+       - log(Dedxcorrection->para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->para_dEdx_p5[gasType]) ) ) );
   }
   //return 0;  
 }
@@ -1165,6 +683,14 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   EGasType gasType = gasTypeInStraw(itr);
 
   ATH_MSG_DEBUG("mass(): gasTypeInStraw = "<<gasType<<"");
+
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" mass: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
 
   if(gasType==kUnset)
     {
@@ -1183,8 +709,8 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   
   TF1 blumRolandi( "BR", blumRolandiFunction.c_str(), 0.7, 100000);
 
-  blumRolandi.SetParameters(Dedxcorrection::para_dEdx_p1[gasType],Dedxcorrection::para_dEdx_p2[gasType],Dedxcorrection::para_dEdx_p3[gasType],Dedxcorrection::para_dEdx_p4[gasType],Dedxcorrection::para_dEdx_p5[gasType], 1. ); 
-  //blumRolandi.SetParameters(&Dedxcorrection::para_dEdx_BB);
+  blumRolandi.SetParameters(Dedxcorrection->para_dEdx_p1[gasType],Dedxcorrection->para_dEdx_p2[gasType],Dedxcorrection->para_dEdx_p3[gasType],Dedxcorrection->para_dEdx_p4[gasType],Dedxcorrection->para_dEdx_p5[gasType], 1. ); 
+  //blumRolandi.SetParameters(&Dedxcorrection->para_dEdx_BB);
   double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max); 
   
   ATH_MSG_DEBUG("mass():: return "<<pTrk/betaGamma<<"");
@@ -1253,19 +779,28 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 
 double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, double nVtx) const
 {
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" correctNormalization: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
+
   EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
   if(m_useTrackPartWithGasType==kUnset)
     gasType=kXenon;
-  if(nVtx<=0)nVtx=Dedxcorrection::norm_nzero[gasType];
-  double slope = Dedxcorrection::norm_slope_tot[gasType];
-  double offset = Dedxcorrection::norm_offset_tot[gasType];
+  if(nVtx<=0)nVtx=Dedxcorrection->norm_nzero[gasType];
+  double slope = Dedxcorrection->norm_slope_tot[gasType];
+  double offset = Dedxcorrection->norm_offset_tot[gasType];
   if(divideLength){
-    slope = Dedxcorrection::norm_slope_tot[gasType];
-    offset = Dedxcorrection::norm_offset_tot[gasType];
+    slope = Dedxcorrection->norm_slope_tot[gasType];
+    offset = Dedxcorrection->norm_offset_tot[gasType];
   } 
-  double shift = Dedxcorrection::norm_offset_data[gasType];
+  double shift = Dedxcorrection->norm_offset_data[gasType];
   if(!scaledata)shift = 0;
-  return (slope*Dedxcorrection::norm_nzero[gasType]+offset)/(slope*nVtx+offset+shift);
+  return (slope*Dedxcorrection->norm_nzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
 
@@ -1569,6 +1104,14 @@ double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRad
 
 double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double driftRadius, int Layer, int Strawlayer, int sign, int set) const
 {
+
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" fitFuncPol_corrRZ: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
   
   double a = 0;
   double b = 0;
@@ -1584,55 +1127,55 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       //int parId=0;
       //parId=0;
       //if(sign>0)parId=1620;  // FIXME: parId is not used
-      a = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection::para_long_corrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
      
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection::para_short_corrRZ[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection::para_end_corrRZ[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+5)*28+Layer];
     }
   }else{
     if(set==0){ // long straws in barrel
       if(sign > 0) offset=1620;
-      a = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection::para_long_corrRZ_MC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection::para_short_corrRZ_MC[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection::para_end_corrRZ_MC[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+5)*28+Layer];
     }    
   }
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1645,29 +1188,37 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
    * T(r,R) = T0(r)+ a(r)*R
    */
 
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
   double r = fabs(driftRadius);
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
   if(isData()){
-    a = Dedxcorrection::para_end_corrRZL_DATA[gasType][(0)*28+Layer];
-    b = Dedxcorrection::para_end_corrRZL_DATA[gasType][(1)*28+Layer];
-    c = Dedxcorrection::para_end_corrRZL_DATA[gasType][(2)*28+Layer];
-    d = Dedxcorrection::para_end_corrRZL_DATA[gasType][(3)*28+Layer];
-    e = Dedxcorrection::para_end_corrRZL_DATA[gasType][(4)*28+Layer];
-    f = Dedxcorrection::para_end_corrRZL_DATA[gasType][(5)*28+Layer];  
-    g = Dedxcorrection::para_end_corrRZL_DATA[gasType][(6)*28+Layer];  
-    h = Dedxcorrection::para_end_corrRZL_DATA[gasType][(7)*28+Layer];  
-    i = Dedxcorrection::para_end_corrRZL_DATA[gasType][(8)*28+Layer];  
+    a = Dedxcorrection->para_end_corrRZL_DATA[gasType][(0)*28+Layer];
+    b = Dedxcorrection->para_end_corrRZL_DATA[gasType][(1)*28+Layer];
+    c = Dedxcorrection->para_end_corrRZL_DATA[gasType][(2)*28+Layer];
+    d = Dedxcorrection->para_end_corrRZL_DATA[gasType][(3)*28+Layer];
+    e = Dedxcorrection->para_end_corrRZL_DATA[gasType][(4)*28+Layer];
+    f = Dedxcorrection->para_end_corrRZL_DATA[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->para_end_corrRZL_DATA[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->para_end_corrRZL_DATA[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->para_end_corrRZL_DATA[gasType][(8)*28+Layer];  
   }else{
-    a = Dedxcorrection::para_end_corrRZL_MC[gasType][(0)*28+Layer];
-    b = Dedxcorrection::para_end_corrRZL_MC[gasType][(1)*28+Layer];
-    c = Dedxcorrection::para_end_corrRZL_MC[gasType][(2)*28+Layer];
-    d = Dedxcorrection::para_end_corrRZL_MC[gasType][(3)*28+Layer];
-    e = Dedxcorrection::para_end_corrRZL_MC[gasType][(4)*28+Layer];
-    f = Dedxcorrection::para_end_corrRZL_MC[gasType][(5)*28+Layer];  
-    g = Dedxcorrection::para_end_corrRZL_MC[gasType][(6)*28+Layer];  
-    h = Dedxcorrection::para_end_corrRZL_MC[gasType][(7)*28+Layer];  
-    i = Dedxcorrection::para_end_corrRZL_MC[gasType][(8)*28+Layer]; 
+    a = Dedxcorrection->para_end_corrRZL_MC[gasType][(0)*28+Layer];
+    b = Dedxcorrection->para_end_corrRZL_MC[gasType][(1)*28+Layer];
+    c = Dedxcorrection->para_end_corrRZL_MC[gasType][(2)*28+Layer];
+    d = Dedxcorrection->para_end_corrRZL_MC[gasType][(3)*28+Layer];
+    e = Dedxcorrection->para_end_corrRZL_MC[gasType][(4)*28+Layer];
+    f = Dedxcorrection->para_end_corrRZL_MC[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->para_end_corrRZL_MC[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->para_end_corrRZL_MC[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->para_end_corrRZL_MC[gasType][(8)*28+Layer]; 
   } 
 
   double T1    = b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1683,45 +1234,52 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
   /*
    * T(r,z) = T0(r)+ b(r)*z*z 
    */
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
 
   double a,b,c,d,e,f,g;  
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(isData()){
-      a = Dedxcorrection::para_short_corrRZL_DATA[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection::para_short_corrRZL_DATA[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection::para_short_corrRZL_DATA[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection::para_short_corrRZL_DATA[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection::para_short_corrRZL_DATA[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection::para_short_corrRZL_DATA[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection::para_short_corrRZL_DATA[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->para_short_corrRZL_DATA[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->para_short_corrRZL_DATA[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->para_short_corrRZL_DATA[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->para_short_corrRZL_DATA[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->para_short_corrRZL_DATA[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->para_short_corrRZL_DATA[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->para_short_corrRZL_DATA[gasType][(6)*9+Strawlayer];
     }else{
-      a = Dedxcorrection::para_short_corrRZL_MC[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection::para_short_corrRZL_MC[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection::para_short_corrRZL_MC[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection::para_short_corrRZL_MC[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection::para_short_corrRZL_MC[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection::para_short_corrRZL_MC[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection::para_short_corrRZL_MC[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->para_short_corrRZL_MC[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->para_short_corrRZL_MC[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->para_short_corrRZL_MC[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->para_short_corrRZL_MC[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->para_short_corrRZL_MC[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->para_short_corrRZL_MC[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->para_short_corrRZL_MC[gasType][(6)*9+Strawlayer];
     }
     
   }else{
     if(isData()){
-      a = Dedxcorrection::para_long_corrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection::para_long_corrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection::para_long_corrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection::para_long_corrRZL_DATA[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection::para_long_corrRZL_DATA[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection::para_long_corrRZL_DATA[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection::para_long_corrRZL_DATA[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->para_long_corrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->para_long_corrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->para_long_corrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->para_long_corrRZL_DATA[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->para_long_corrRZL_DATA[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->para_long_corrRZL_DATA[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->para_long_corrRZL_DATA[gasType][(6)*30*3+Layer*30+Strawlayer];
     }else{
-      a = Dedxcorrection::para_long_corrRZL_MC[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection::para_long_corrRZL_MC[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection::para_long_corrRZL_MC[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection::para_long_corrRZL_MC[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection::para_long_corrRZL_MC[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection::para_long_corrRZL_MC[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection::para_long_corrRZL_MC[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->para_long_corrRZL_MC[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->para_long_corrRZL_MC[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->para_long_corrRZL_MC[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->para_long_corrRZL_MC[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->para_long_corrRZL_MC[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->para_long_corrRZL_MC[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->para_long_corrRZL_MC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
   double z = fabs(zPosition);
@@ -1979,6 +1537,15 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
  
 double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, int Layer, int sign) const
 {
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" mimicToXeHit_Endcap: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
+
   double r = fabs(driftRadius); 
   double a; 
 
@@ -1994,9 +1561,9 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
   int side = 0; // A side
   if(sign <0) side =1; // C side
   if(isData())
-    a = Dedxcorrection::para_end_mimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->para_end_mimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
   else
-    a = Dedxcorrection::para_end_mimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->para_end_mimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
 
   ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << isData() << " gasTypeInStraw = " << gasType
                 << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
@@ -2007,6 +1574,15 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
 
 double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, int Layer, int Strawlayer) const 
 {
+
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  if(Dedxcorrection==nullptr)
+    {
+      ATH_MSG_ERROR(" mimicToXeHit_Barrel: Could not find any Dedxcorrection in CondStore. Return zero.");
+      return 0;
+    }
+
   double r = fabs(driftRadius); 
   double a;  
 
@@ -2021,14 +1597,14 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(isData())
-      a = Dedxcorrection::para_short_mimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_short_mimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection::para_short_mimicToXe_MC[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_short_mimicToXe_MC[gasType][Strawlayer*20+(rBin)];
   }else{
     if(isData())
-      a = Dedxcorrection::para_long_mimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_long_mimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection::para_long_mimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_long_mimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
   }
 
   ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << isData() << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
