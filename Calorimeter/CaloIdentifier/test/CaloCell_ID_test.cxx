@@ -41,11 +41,7 @@ void test_neighbours (const CaloCell_ID& calo_id)
     std::vector<IdentifierHash> neighbourList;
     assert (calo_id.get_neighbours(iCell, LArNeighbours::all3D, neighbourList)
             == 0);
-    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-    for (;last!=first; first++){
-	  
-      IdentifierHash neighbourHash=(*first);
+    for (IdentifierHash neighbourHash : neighbourList) {
       assert (hash_min <= neighbourHash && neighbourHash <= hash_max);
     }
   }

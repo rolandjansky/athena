@@ -16,7 +16,7 @@ step1=ChainStep("Step1_jet", [jetSeq1])
 
 testChains  = [
     Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
-    Chain(name='HLT_j100', Seed="L1_J20",  ChainSteps=[step1]  )
+    Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step1]  )
     ]
     
 

@@ -4,18 +4,19 @@
 #ifndef TRIGL2CALORINGERHYPO_H
 #define TRIGL2CALORINGERHYPO_H
 
-///std include(s)
+// std include(s)
 #include <string>
 #include <vector>
 
-#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
-#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
+// ringer libs
+#include "TrigMultiVarHypo/tools/common/RingerReader.h"
+#include "TrigMultiVarHypo/tools/procedures/IThresholds.h"
 
-///Base from trigger
+// Base from trigger
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 
-///xAOD include(s)
+// xAOD include(s)
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -34,7 +35,7 @@ class TrigL2CaloRingerHypo: public HLT::HypoAlgo {
 
   private:
     bool      m_acceptAll;
-    bool      m_useNoActivationFunctionInTheLastLayer;
+    bool      m_removeOutputTansigTF;
     bool      m_doPileupCorrection; 
     double    m_emEtCut;
     int       m_lumiCut;
@@ -46,13 +47,14 @@ class TrigL2CaloRingerHypo: public HLT::HypoAlgo {
     std::string m_feature;
     std::string m_key;
 
+    TrigTimer* m_totalTimer;
 
-    TrigL2CaloRingerReader m_reader;
+    Ringer::RingerReader m_reader;
  
     /* Helper functions for feature extraction */
     const xAOD::TrigRNNOutput* get_rnnOutput(const HLT::TriggerElement* te);
 
-    std::vector<TrigCaloRingsHelper::CutDefsHelper*>  m_cutDefs; 
+    std::vector<std::shared_ptr<Ringer::IThresholds>>  m_cutDefs; 
 };
 //!===============================================================================================
 /// get the cluster inside of container

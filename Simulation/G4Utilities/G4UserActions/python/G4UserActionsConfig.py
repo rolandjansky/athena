@@ -115,3 +115,6 @@ def getLooperThresholdSetTool(name="G4UA::LooperThresholdSetTool", **kwargs):
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__LooperThresholdSetTool(name, **kwargs)
+
+def getVolumeDumperTool(name="G4UA::VolumeDumperTool", **kwargs):
+    return CfgMgr.G4UA__VolumeDumperTool(name, **kwargs)

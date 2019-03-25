@@ -7,11 +7,8 @@ from LArMonTools.LArMonToolsConf import LArHVCorrectionMonTool
 theLArHVCorrectionMonTool = LArHVCorrectionMonTool(name="LArHVCorrectionMonTool",
                                                    NumberOfLBs = 1000
                                                    )
-# include LAr HV Correction tool
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-theLArHVCorrTool=LArHVCorrToolDefault()
-ToolSvc+=theLArHVCorrTool
-theLArHVCorrectionMonTool.HVCorrTool = theLArHVCorrTool
+# include LAr HV Correction cond alg
+from LArConditionsCommon import LArHVDB
 
 #ToolSvc += theLArHVCorrectionMonTool
 LArMon.AthenaMonTools+=[ theLArHVCorrectionMonTool ]

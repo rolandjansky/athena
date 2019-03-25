@@ -30,8 +30,8 @@ AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-    from TrigUpgradeTest.electronMenuDefs import electronMenuSequence,  inDetSetup
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
 
     inDetSetup()
     fastCaloStep= fastCaloMenuSequence("Ele")

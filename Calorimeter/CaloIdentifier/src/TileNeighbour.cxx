@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,7 +40,7 @@ typedef struct
 {
   Identifier id;
   IdentifierHash hash_id;
-  short int index;
+  short int index = 0;
 
   std::string name;
   std::vector<std::string> neighbours[4];

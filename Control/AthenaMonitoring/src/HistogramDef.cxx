@@ -52,7 +52,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   itr = histProperty.erase(itr);
 
 
-  if (histPar.type.find("TH2") == 0 || histPar.type == "TProfile") {
+  if (histPar.type.find("TH2") == 0 || histPar.type == "TProfile" || histPar.type == "TEfficiency") {
     histPar.name.push_back(*itr);
     itr = histProperty.erase(itr);
   }

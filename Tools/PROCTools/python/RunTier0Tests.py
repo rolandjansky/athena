@@ -12,7 +12,9 @@ import time
 import uuid
 import logging
 import glob
-from PROCTools.RunTier0TestsTools import ciRefFileMap
+
+from PROCTools.RunTier0TestsTools import ciRefFileMap, \
+    SimInput, OverlayInputHits, OverlayInputBkg
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -709,9 +711,8 @@ def main():
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
-        sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
-        overlay_hit_f  = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.424000.ParticleGun_single_mu_Pt100.simul.HITS.e3580_s3126/HITS.11330296._000376.pool.root.1" # For overlay test
-        overlay_bkg_f  = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/RDO.merged-pileup.100events.pool.root" # For overlay test
+        release = os.environ['AtlasVersion'][0:4]
+        OverlayInputBkgFormatted = OverlayInputBkg.format(release, ciRefFileMap['overlay-bkg-' + release])
 
         if RunFast:
             for qtest in qTestsToRun:
@@ -719,18 +720,18 @@ def main():
 
                 def mycleanqtest(q=q):
                     if RunSim:
-                        RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        RunCleanSTest(q,SimInput,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     elif RunOverlay:
-                        RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
 
                 def mypatchedqtest(q=q):
                     if RunSim:
-                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                        RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg)
                     elif RunOverlay:
-                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg)
+                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
@@ -750,9 +751,9 @@ def main():
 
                 def mypatchedqtest(q=q):
                     if RunSim:
-                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+                        RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     elif RunOverlay:
-                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
                     pass
@@ -771,18 +772,18 @@ def main():
 
                 def mycleanqtest(q=q):
                     if RunSim:
-                        RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        RunCleanSTest(q,SimInput,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     elif RunOverlay:
-                        RunCleanOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
                 
                 def mypatchedqtest(q=q):
                     if RunSim:
-                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                        RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg)
                     elif RunOverlay:
-                        RunPatchedOTest(q,overlay_hit_f,overlay_bkg_f,mypwd,cleanSetup,extraArg)
+                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:   
                         RunPatchedQTest(q,mypwd,mysetup,extraArg,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass

@@ -29,6 +29,7 @@ const std::string TrigT1CaloDefs::AtlfastCellContainerLocation="/Event/AtlfastCe
 
 const std::string TrigT1CaloDefs::TriggerTowerLocation="TriggerTowers";
 const std::string TrigT1CaloDefs::xAODTriggerTowerLocation="xAODTriggerTowers";
+const std::string TrigT1CaloDefs::xAODTriggerTowerRerunLocation="xAODTriggerTowers_rerun";
 const std::string TrigT1CaloDefs::JetElementLocation="JetElements";
 const std::string TrigT1CaloDefs::CPMTowerLocation="CPMTowers";
 

@@ -20,9 +20,8 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloMBAverageTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "StoreGate/DataHandle.h"  
+#include "StoreGate/ReadCondHandleKey.h"  
 
 #include "LArCabling/LArOnOffIdMapping.h"
 
@@ -57,10 +56,11 @@ class CaloRescaleNoise : public AthAlgorithm {
   const CaloCell_ID*       m_calo_id;
 
   ToolHandle<ICaloNoiseTool> m_noiseTool;
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-  std::string m_keyHVScaleCorr;
-  const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
 
   int m_iCool;
   int m_SubHash;

@@ -13,11 +13,10 @@
  * Description:
  *      Inherits from TrigEgammaAnalysisBaseTool.
  **********************************************************************/
-#include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "PATCore/AcceptData.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 #include "string"
 #include <algorithm>
 #include "boost/algorithm/string.hpp"
@@ -138,6 +137,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     //Calculate number of vertex 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
 
+
     return true; 
 }
 
@@ -218,10 +218,10 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
       if(m_forcePidSelection){///default is true
         if(!ApplyElectronPid(eg,pidname)){
-	    ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
-	    continue;
-	}
-	ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
+	        ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
+	        continue;
+	      }
+	      ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
       }
 
       if (m_forceProbeIsolation) {///default is false
@@ -239,15 +239,20 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
-      
 
-      if (match()->match(el, trigItem, te)){
-         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
-         m_objTEList.push_back(pair);
-      }
-      else {
-          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
-          m_objTEList.push_back(pair);
+      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      if(isEmulation && getEmulation()){
+        emulation()->match(el,te);
+        std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+        m_objTEList.push_back(pair);
+      }else{
+        if (match()->match(el, trigItem, te)){
+           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+           m_objTEList.push_back(pair);
+        }else {
+            std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
+            m_objTEList.push_back(pair);
+        }
       }
 
   }
@@ -269,7 +274,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
           ATH_MSG_DEBUG("No caloCluster");
           continue;
       } 
-      if( !(getCluster_et(eg) > (etthr-5.)*1.e3)) continue; //Take 2GeV above threshold
+      if( !(getCluster_et(eg) > (etthr-5.)*Gaudi::Units::GeV)) continue; //Take 2GeV above threshold
       if(!eg->passSelection(m_photonPid)) continue;
       if(m_doUnconverted){
           if (eg->vertex()){
@@ -279,13 +284,19 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
       }
       xAOD::Photon *ph = new xAOD::Photon(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      if ( match()->match(ph, trigItem, te)){
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
-          m_objTEList.push_back(pair);
-      }
-      else {
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
-          m_objTEList.push_back(pair);
+      bool isEmulation = getTrigInfo(trigItem).trigIsEmulation;
+      if(isEmulation && getEmulation()){
+        emulation()->match(ph,te);
+        std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+        m_objTEList.push_back(pair);
+      }else{
+        if (match()->match(ph, trigItem, te)){
+           std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+           m_objTEList.push_back(pair);
+        }else {
+            std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
+            m_objTEList.push_back(pair);
+        }
       }
 
   }
@@ -295,6 +306,9 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
 }
 
 void TrigEgammaNavBaseTool::clearList(){
+    for( auto paitIt : m_objTEList )
+      delete paitIt.first;
+
     m_objTEList.clear();
 }
 

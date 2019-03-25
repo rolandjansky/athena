@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,8 +21,6 @@
 // Truth
 #include "TrkTruthData/TrackTruth.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
@@ -80,6 +78,8 @@ Trk::TruthNtupleTool::~TruthNtupleTool() {}
 
 // initialize
 StatusCode Trk::TruthNtupleTool::initialize() {
+
+  ATH_CHECK( m_evt.initialize() );
 
     if (m_etaBins.size()<2) {
       ATH_MSG_ERROR ("Vector of eta bins too small");
@@ -254,20 +254,17 @@ StatusCode Trk::TruthNtupleTool::finalize() {
 StatusCode Trk::TruthNtupleTool::writeTruthData (
                const std::vector< Trk::ValidationTrackTruthData >& truthData) const {
 
-    StatusCode sc;
-
     ATH_MSG_DEBUG ("in writeTruthData(...) with ValTrackTruthData size = "<<truthData.size());
     // ---------------------------------------
     // fill event data
-    const EventInfo* eventInfo = nullptr;
-    sc = evtStore()->retrieve(eventInfo);
-    if (sc.isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+    if (!evt.isValid()) {
       ATH_MSG_WARNING ("Could not retrieve event info");
+      return StatusCode::FAILURE;
     }
-    const EventID* myEventID=eventInfo->event_ID();
 
-    m_runNumber=myEventID->run_number();
-    m_eventNumber=myEventID->event_number();
+    m_runNumber=evt->runNumber();
+    m_eventNumber=evt->eventNumber();
 
     const HepMC::GenParticle*   genParticle = 0;
     const Trk::TrackParameters* truePerigee = 0;

@@ -12,8 +12,8 @@
 // CaloCondPhysAlgs includes
 #include "FCAL_HV_Energy_Rescale.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
-//#include "LArElecCalib/ILArHVCorrTool.h"
 
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -25,10 +25,8 @@
 
 FCAL_HV_Energy_Rescale::FCAL_HV_Energy_Rescale( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_hvCorrTool("LArHVCorrTool")
+  AthAlgorithm( name, pSvcLocator )
 {
-  declareProperty("HVCorrTool",m_hvCorrTool);
   declareProperty("Folder",m_folder="/LAR/CellCorrOfl/EnergyCorr");
 }
 
@@ -39,8 +37,9 @@ FCAL_HV_Energy_Rescale::~FCAL_HV_Energy_Rescale()
 
 StatusCode FCAL_HV_Energy_Rescale::initialize()
 {
-  CHECK(m_hvCorrTool.retrieve());
   ATH_CHECK( m_cablingKey.initialize());
+  ATH_CHECK( m_scaleCorrKey.initialize());
+  ATH_CHECK( m_onlineScaleCorrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -56,9 +55,9 @@ StatusCode FCAL_HV_Energy_Rescale::execute()
 
 StatusCode FCAL_HV_Energy_Rescale::stop()
 {  
-
-  const ILArHVScaleCorr* upd1HVScaleCorr=0;
-  CHECK(detStore()->retrieve(upd1HVScaleCorr));
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
 
   const CaloCell_ID*    calocell_id;	
   CHECK(detStore()->retrieve(calocell_id,"CaloCell_ID"));
@@ -84,7 +83,7 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
   // cppcheck-suppress memleak
   spec = nullptr;
 
-  //Blob Defintion Vector
+  //Blob Definition Vector
   std::vector<std::vector<float> > defVec;
   defVec.push_back(std::vector<float>(1,1));
   flt->init(defVec,hashMax,1);
@@ -99,8 +98,8 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
       ++nFCAL;
       Identifier id=calocell_id->cell_id(h);
       HWIdentifier hwid=cabling->createSignalChannelID(id);
-      const float corrNew=m_hvCorrTool->Scale(id);
-      const float upd1corr=upd1HVScaleCorr->HVScaleCorr(hwid);
+      const float corrNew=scaleCorr->HVScaleCorr(hwid);
+      const float upd1corr=onlineScaleCorr->HVScaleCorr(hwid);
       
       const float corr=corrNew/upd1corr;
 

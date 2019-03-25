@@ -90,6 +90,7 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
 
     result,iovDbSvc=IOVDbSvcCfg(configFlags)
 
+
     #Add class-name to CondInputLoader (if reqired)
     if className is not None:
         loadFolders=[]

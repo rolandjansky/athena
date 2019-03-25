@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -29,8 +29,6 @@
 #include "TrkTrack/Track.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 // constructor
 Trk::TrackDiff::TrackDiff(
@@ -105,6 +103,8 @@ Trk::TrackDiff::~TrackDiff() {}
 
 // initialize
 StatusCode Trk::TrackDiff::initialize() {
+
+  ATH_CHECK( m_evt.initialize() );
 
     StatusCode sc;
     if (m_writeNtuple) {
@@ -232,22 +232,18 @@ StatusCode Trk::TrackDiff::diff (
         const Trk::Track& referenceTrack,
         const Trk::Track& comparedTrack ) const {
 
-    StatusCode sc;
-
     ATH_MSG_VERBOSE ( "in diff(trk, trk)" );
     resetVariables();
 
     // ---------------------------------------
     // fill event data
-    const EventInfo* eventInfo;
-    sc = evtStore()->retrieve(eventInfo);
-    if (sc.isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+    if (!evt.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve event info");
+      return StatusCode::FAILURE;
     }
-    const EventID* myEventID=eventInfo->event_ID();
 
-
-    m_eventNumber = myEventID->event_number();
+    m_eventNumber = evt->eventNumber();
     if (referenceTrack.perigeeParameters()) {
         m_trackPhi = referenceTrack.perigeeParameters()->parameters()[Trk::phi0];
         m_trackEta = referenceTrack.perigeeParameters()->eta();

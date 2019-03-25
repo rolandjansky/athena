@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,6 +23,7 @@
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
+#include "HepMC_Interfaces/IZeroLifetimePatcher.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -85,6 +86,9 @@ private:
 
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter;
+
+  /// Quasi-Stable Particle Simulation Patcher
+  ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher;
 
   /// Simulation Tools
   ToolHandleArray<ISimulatorTool> m_simulationTools;

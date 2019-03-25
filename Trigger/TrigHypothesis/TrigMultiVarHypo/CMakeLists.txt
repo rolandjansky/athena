@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 # Package: TrigMultiVarHypo
@@ -20,26 +20,33 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/DecisionHandling
                           LumiBlock/LumiBlockComps
                           Tools/PathResolver
-                          GaudiKernel
-                          Control/AthViews )
+                          PRIVATE
+                          GaudiKernel 
+                          Control/AthViews
+                          Control/AthContainers
+                          Control/AthenaMonitoring
+                          )
 
 # Component(s) in the package:
 atlas_add_library( TrigMultiVarHypoLib
                    src/*.cxx
                    src/tools/*.cxx
-                   src/preproc/*.cxx
+                   src/tools/procedures/*.cxx
+                   src/tools/common/*.cxx
                    PUBLIC_HEADERS TrigMultiVarHypo
-                   LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent
-                   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
-                   LumiBlockCompsLib PathResolver DecisionHandlingLib
+                   LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
+                   TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib 
+                   DecisionHandlingLib LumiBlockCompsLib PathResolver 
+                   AthenaMonitoringLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
-atlas_add_component( TrigMultiVarHypo
-                     src/components/*.cxx
-                     LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent
-                     TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
-                     GaudiKernel TrigMultiVarHypoLib PathResolver
-                     LumiBlockCompsLib DecisionHandlingLib)
+
+atlas_add_component(  TrigMultiVarHypo
+                      src/components/*.cxx
+                      LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
+                      TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel 
+                      TrigMultiVarHypoLib DecisionHandlingLib LumiBlockCompsLib 
+                      PathResolver AthenaMonitoringLib) 
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

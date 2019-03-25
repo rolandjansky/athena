@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          CoordinateRange.cxx  -  description
@@ -21,9 +21,6 @@ CoordinateRange::CoordinateRange(double phiMin, double phiMax, double etaMin,
 
 CoordinateRange::CoordinateRange()
     : m_phiRange(0.0, 0.0), m_etaRange(0.0, 0.0) {}
-
-// Destructor
-CoordinateRange::~CoordinateRange() {}
 
 /** change coords of an existing CoordinateRange object*/
 void CoordinateRange::setRanges(double phiMin, double phiMax, double etaMin,

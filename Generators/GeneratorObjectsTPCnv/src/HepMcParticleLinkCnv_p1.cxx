@@ -9,6 +9,7 @@
 
 // GeneratorObjectsAthenaPool includes
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 ///////////////////////////////////////////////////////////////////
 /// Public methods:
@@ -24,7 +25,13 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            MsgStream &/*msg*/ )
 {
   EBC_EVCOLL evColl = EBC_MAINEVCOLL;
-  if (persObj->m_mcEvtIndex>0) evColl = EBC_FIRSTPUEVCOLL; // HACK
+  if (persObj->m_mcEvtIndex>0) {
+    // HACK
+    const CLID clid = ClassID_traits<McEventCollection>::ID();
+    if (SG::CurrentEventStore::store()->proxy (clid, "TruthEvent_PU") != nullptr) {
+      evColl = EBC_FIRSTPUEVCOLL;
+    }
+  }
   transObj->setExtendedBarCode
     ( HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
                                           persObj->m_mcEvtIndex,

@@ -22,6 +22,9 @@ job = AlgSequence()
 include('TrigT1CaloCalibConditions/L1CaloCalibConditionsMC_jobOptions.py')
 from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker25ns, Run2TriggerTowerMaker50ns
 
+from SGComps.AddressRemappingSvc import addInputRename
+addInputRename ( 'xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers')
+
 # try to determine wheter running with 25ns/50ns bunchspacing
 _bunchSpacing = None
 _doPC = True # do pedestal correction?

@@ -9,31 +9,32 @@ from LArG4SD.LArG4SDConf import LArG4__FCALSDTool
 from LArG4SD.LArG4SDConf import LArG4__HECSDTool
 from LArG4SD.LArG4SDConf import LArG4__MiniFCALSDTool
 from LArG4SD.LArG4SDConf import LArG4__DeadSDTool
+from LArG4SD.LArG4SDConf import LArG4__ActiveSDTool
+from LArG4SD.LArG4SDConf import LArG4__InactiveSDTool
 
-def getLArActiveSensitiveDetector(name="LArActiveSensitiveDetector", **kwargs):
+def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetector", **kwargs):
     ## Main configuration
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.SimLayout.get_Value() not in ["tb_LArH6_2003","tb_LArH6_2002"]:
+    if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
         kwargs.setdefault("StacVolumes",["LArMgr::LAr::EMB::STAC"])
         kwargs.setdefault("PresamplerVolumes",["LArMgr::LAr::Barrel::Presampler::Module"])
         kwargs.setdefault("NegIWVolumes",["LArMgr::LAr::EMEC::Neg::InnerWheel"])
         kwargs.setdefault("NegOWVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel"])
         kwargs.setdefault("BOBarretteVolumes",["LArMgr::LAr::EMEC::BackOuterBarrette::Module::Phidiv"])
         kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])
-    if simFlags.SimLayout.get_Value()!="tb_LArH6_2003":
+    if ConfigFlags.GeoModel.AtlasVersion!="tb_LArH6_2003":
         kwargs.setdefault("PosIWVolumes",["LArMgr::LAr::EMEC::Pos::InnerWheel"])
         kwargs.setdefault("PosOWVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel"])
         kwargs.setdefault("PresVolumes", ["LArMgr::LAr::Endcap::Presampler::LiquidArgon"])
         kwargs.setdefault("SliceVolumes",["LArMgr::LAr::HEC::Module::Depth::Slice"])
-    if simFlags.SimLayout.get_Value() not in ["tb_LArH6_2002"]:
+    if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2002"]:
         kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
         kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::Gap"])
-        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])
+        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])    
     # Running PID calibration hits?
-    kwargs.setdefault("ParticleID",simFlags.ParticleID())
+    kwargs.setdefault("ParticleID",ConfigFlags.Sim.ParticleID)
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitActive"])
-    return CfgMgr.LArG4__ActiveSDTool(name, **kwargs)
+    return LArG4__ActiveSDTool(name, **kwargs)
 
 def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector", **kwargs):
     ## Main configuration
@@ -218,10 +219,9 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     result.merge(acc)
     return result, LArG4__HECSDTool(name, **kwargs)
 
-def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwargs):
+def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveDetector", **kwargs):
     ## Main configuration
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.SimLayout.get_Value() not in ["tb_LArH6_2003","tb_LArH6_2002"]:
+    if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
         kwargs.setdefault("BarrelPreVolumes",["LArMgr::LAr::Barrel::Presampler::Cathode*",
                                               "LArMgr::LAr::Barrel::Presampler::Anode*",
                                               "LArMgr::LAr::Barrel::Presampler::Prep*"])
@@ -254,7 +254,7 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
         kwargs.setdefault("MiniMomVolumes",["LArMgr::MiniFCALMother"])
         kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL"])
         kwargs.setdefault("MiniLayVolumes",["LArMgr::MiniFCAL::Layer"])
-    if simFlags.SimLayout.get_Value()=="tb_LArH6_2002":
+    if ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2002":
         kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber",
                                              "LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode"])
         kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode",
@@ -263,7 +263,7 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
                                              "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode",
                                              "LArMgr::LAr::HEC::Module::Depth::Slice::Electrode::Copper",
                                              "LArMgr::LAr::HEC::Module::Depth::Slice::TieRod"])
-    if simFlags.SimLayout.get_Value()!="tb_LArH6_2002":
+    if ConfigFlags.GeoModel.AtlasVersion!="tb_LArH6_2002":
         kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::CableTrough",
                                           "LArMgr::LAr::FCAL::Module1::Absorber"])
         kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::CableTrough",
@@ -273,11 +273,10 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
                                           "LArMgr::LAr::FCAL::Module3::Absorber",
                                           "LArMgr::LAr::FCAL::Module3::Rod"])
     # Running PID calibration hits?
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault("ParticleID",simFlags.ParticleID())
+    kwargs.setdefault("ParticleID",ConfigFlags.Sim.ParticleID)
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitInactive"])
-    return CfgMgr.LArG4__InactiveSDTool(name, **kwargs)
+    return LArG4__InactiveSDTool(name, **kwargs)
 
 def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveDetector", **kwargs):
     kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])

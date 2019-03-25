@@ -66,6 +66,10 @@ namespace G4UA{
       BookHistograms(report.histoMapMap_vol_stepEnergyDeposit, "stepEnergyDeposit/", "volumes/");
       BookHistograms(report.histoMapMap_vol_stepEnergyNonIonDeposit, "stepEnergyNonIonDeposit/", "volumes/");
       BookHistograms(report.histoMapMap_vol_stepSecondaryKinetic, "stepSecondaryKinetic/", "volumes/");
+      BookHistograms(report.histoMapMap_vol_trackLengthPerInitialE, "trackLengthPerInitialE/", "volumes/");
+      BookHistograms(report.histoMapMap_vol_InitialE, "InitialE/", "volumes/");
+      BookHistograms(report.histoMapMap_vol_numberOfSteps, "numberOfSteps/", "volumes/");
+      BookHistograms(report.histoMapMap_vol_numberOfStepsPerInitialE, "numberOfStepsPerInitialE/", "volumes/");
 
       BookHistograms(report.histoMapMap_mat_stepSize, "stepLength/", "materials/");
       BookHistograms(report.histoMapMap_mat_stepKineticEnergy, "stepKineticEnergy/", "materials/");
@@ -74,6 +78,10 @@ namespace G4UA{
       BookHistograms(report.histoMapMap_mat_stepEnergyDeposit, "stepEnergyDeposit/", "materials/");
       BookHistograms(report.histoMapMap_mat_stepEnergyNonIonDeposit, "stepEnergyNonIonDeposit/", "materials/");
       BookHistograms(report.histoMapMap_mat_stepSecondaryKinetic, "stepSecondaryKinetic/", "materials/");
+      BookHistograms(report.histoMapMap_mat_trackLengthPerInitialE, "trackLengthPerInitialE/", "materials/");
+      BookHistograms(report.histoMapMap_mat_InitialE, "InitialE/", "materials/");
+      BookHistograms(report.histoMapMap_mat_numberOfSteps, "numberOfSteps/", "materials/");
+      BookHistograms(report.histoMapMap_mat_numberOfStepsPerInitialE, "numberOfStepsPerInitialE/", "materials/");
 
       BookHistograms(report.histoMapMap_prc_stepSize, "stepLength/", "processes/");
       BookHistograms(report.histoMapMap_prc_stepKineticEnergy, "stepKineticEnergy/", "processes/");
@@ -82,10 +90,15 @@ namespace G4UA{
       BookHistograms(report.histoMapMap_prc_stepEnergyDeposit, "stepEnergyDeposit/", "processes/");
       BookHistograms(report.histoMapMap_prc_stepEnergyNonIonDeposit, "stepEnergyNonIonDeposit/", "processes/");
       BookHistograms(report.histoMapMap_prc_stepSecondaryKinetic, "stepSecondaryKinetic/", "processes/");
+      BookHistograms(report.histoMapMap_prc_trackLengthPerInitialE, "trackLengthPerInitialE/", "processes/");
+      BookHistograms(report.histoMapMap_prc_InitialE, "InitialE/", "processes/");
+      BookHistograms(report.histoMapMap_prc_numberOfSteps, "numberOfSteps/", "processes/");
+      BookHistograms(report.histoMapMap_prc_numberOfStepsPerInitialE, "numberOfStepsPerInitialE/", "processes/");
 
       if (m_config.doGeneralHistograms) {
         BookHistograms(report.histoMapMap_numberOfSteps, "numberOfSteps/", "nSteps/");
         BookHistograms(report.histoMapMap_numberOfStepsPerInitialE, "numberOfStepsPerInitialE/", "nSteps/");
+        BookHistograms(report.histoMapMap_trackLengthPerInitialE, "trackLengthPerInitialE/", "nSteps/");
         BookHistograms(report.histoMapMap_InitialE, "InitialE/", "nSteps/");
         BookHistograms(report.histoMapMap_stepKinetic, "stepKineticEnergy/", "nSteps/");
         BookHistograms(report.histoMapMap_postStepKinetic, "postStepKineticEnergy/", "nSteps/");

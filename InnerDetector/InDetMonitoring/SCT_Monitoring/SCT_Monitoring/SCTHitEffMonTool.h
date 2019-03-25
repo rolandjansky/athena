@@ -117,12 +117,12 @@ private:
                                                 Int_t nbinx, Double_t* xbins,
                                                 Int_t nbiny, Double_t* ybins);
 
-  SG::ReadHandle<TrackCollection> m_TrackName;
+  SG::ReadHandleKey<TrackCollection> m_TrackName{this, "TrackName", "CombinedInDetTracks"};
   IChronoStatSvc* m_chrono;
 
   const std::map < Identifier, unsigned int >* m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool", "Trig::BunchCrossingTool/BunchCrossingTool"};
 
 
   Int_t m_DetectorMode;
@@ -141,7 +141,7 @@ private:
   UInt_t m_maxTracks;
 
   std::string m_path;
-  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctContainerName;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctContainerName{this, "SCT_ClusterContainer", "SCT_Clusters"};
 
 
   Bool_t m_insideOutOnly;
@@ -159,11 +159,11 @@ private:
   Bool_t m_chronotime;
   Bool_t m_useIDGlobal;
 
-  ToolHandle < Trk::IResidualPullCalculator >   m_residualPullCalculator;
-  ToolHandle < Trk::IRIO_OnTrackCreator > m_rotcreator; 
-  ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;  
+  ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
+  ToolHandle<Trk::IRIO_OnTrackCreator> m_rotcreator{this, "ROTCreator", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};
+  ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{this, "HoleSearch", "InDet::InDetTrackHoleSearchTool"};
 
-  ToolHandle < ISCT_ConfigurationConditionsTool > m_configConditions{this, "ConfigConditions",
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_configConditions{this, "ConfigConditions",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
 
   typedef std::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
@@ -285,8 +285,8 @@ private:
   const SCT_ID* m_sctId;
   const TRT_ID* m_trtId;
 
-  SG::ReadHandleKey<ComTime> m_comTimeName;
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer

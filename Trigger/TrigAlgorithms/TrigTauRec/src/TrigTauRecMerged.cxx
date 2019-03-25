@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -44,11 +44,12 @@
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
+// needs migration to master of RNN tools in tauRecTools
+//#include "tauRecTools/TauJetRNN.h"
+
 #include "TrigTauRec/TrigTauRecMerged.h"
 
-
 using namespace std;
-
 
 // Invokes base class constructor.
 TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLocator):
@@ -60,7 +61,8 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
 		  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
 		  m_maxeta( 2.5 ),
 		  m_minpt( 10000 ),
-		  m_trkcone( 0.2 )
+		  m_trkcone( 0.2 ) //,
+		  //m_rnn_evaluator(0)
 {
   
   // The following properties can be specified at run-time
@@ -193,14 +195,34 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** Errors */
   declareMonitoredStdContainer("EF_track_errors",m_track_errors);
   
-  /** Author */
-  declareMonitoredStdContainer("EF_author",m_author);
-  
-  /** deltaZ0 core Trks*/
-  declareMonitoredStdContainer("EF_deltaZ0coreTrks",m_deltaZ0coreTrks);
-  
-  /** deltaZ0 wide Trks*/
-  declareMonitoredStdContainer("EF_deltaZ0wideTrks",m_deltaZ0wideTrks);
+  // RNN inputs
+  // scalar
+  declareMonitoredVariable("EF_RNN_scalar_ptRatioEflowApprox", m_RNN_scalar_ptRatioEflowApprox);
+  declareMonitoredVariable("EF_RNN_scalar_mEflowApprox", m_RNN_scalar_mEflowApprox);
+  declareMonitoredVariable("EF_RNN_scalar_pt_jetseed_log", m_RNN_scalar_pt_jetseed_log);
+
+  // clusters
+  declareMonitoredVariable("EF_RNN_Nclusters", m_RNN_Nclusters);
+  declareMonitoredStdContainer("EF_RNN_cluster_et_log", m_RNN_cluster_et_log);
+  declareMonitoredStdContainer("EF_RNN_cluster_dEta", m_RNN_cluster_dEta);
+  declareMonitoredStdContainer("EF_RNN_cluster_dPhi", m_RNN_cluster_dPhi);
+  declareMonitoredStdContainer("EF_RNN_cluster_CENTER_LAMBDA", m_RNN_cluster_CENTER_LAMBDA);
+  declareMonitoredStdContainer("EF_RNN_cluster_SECOND_LAMBDA", m_RNN_cluster_SECOND_LAMBDA);
+  declareMonitoredStdContainer("EF_RNN_cluster_SECOND_R", m_RNN_cluster_SECOND_R);
+
+  // tracks
+  declareMonitoredVariable("EF_RNN_Ntracks", m_RNN_Ntracks);
+  declareMonitoredStdContainer("EF_RNN_track_pt_log", m_RNN_track_pt_log);
+  declareMonitoredStdContainer("EF_RNN_track_dEta", m_RNN_track_dEta);
+  declareMonitoredStdContainer("EF_RNN_track_dPhi", m_RNN_track_dPhi);
+  declareMonitoredStdContainer("EF_RNN_track_d0_abs_log", m_RNN_track_d0_abs_log);
+  declareMonitoredStdContainer("EF_RNN_track_z0sinThetaTJVA_abs_log", m_RNN_track_z0sinThetaTJVA_abs_log);
+  declareMonitoredStdContainer("EF_RNN_track_nInnermostPixelHits", m_RNN_track_nInnermostPixelHits);
+  declareMonitoredStdContainer("EF_RNN_track_nPixelHits", m_RNN_track_nPixelHits);
+  declareMonitoredStdContainer("EF_RNN_track_nSCTHits", m_RNN_track_nSCTHits);
+  // output
+  declareMonitoredVariable("EF_RNNJetScore", m_RNNJetScore);
+  declareMonitoredVariable("EF_RNNJetScoreSigTrans", m_RNNJetScoreSigTrans);
 
 }
 
@@ -210,7 +232,7 @@ TrigTauRecMerged::~TrigTauRecMerged()
 
 HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 {
-	msg() << MSG::INFO << "TrigTauRecMerged::initialize()" << endmsg;
+	ATH_MSG_INFO( "TrigTauRecMerged::initialize()" );
 
 	m_tauEventData.setInTrigger(true);
 	////////////////////
@@ -218,7 +240,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	////////////////////
 	// check tool names
 	if ( m_tools.begin() == m_tools.end() ) {
-		msg() << MSG::ERROR << " no tools given for this algorithm." << endmsg;
+	        ATH_MSG_ERROR( "No tools given for this algorithm." );
 		return HLT::BAD_JOB_SETUP;
 	}
 
@@ -226,43 +248,52 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	//-------------------------------------------------------------------------
 	ToolHandleArray<ITauToolBase> ::iterator p_itT = m_tools.begin();
 	ToolHandleArray<ITauToolBase> ::iterator p_itTE = m_tools.end();
-	msg() << MSG::INFO << "List of tools in execution sequence:" << endmsg;
-	msg() << MSG::INFO << "------------------------------------" << endmsg;
+	ATH_MSG_INFO( "List of tools in execution sequence:" );
+	ATH_MSG_INFO( "------------------------------------" );
 
 	for(; p_itT != p_itTE; ++p_itT ) {
 		StatusCode p_sc = p_itT->retrieve();
 		if( p_sc.isFailure() ) {
-			msg() << MSG::WARNING << "Cannot find tool named <";
-			msg() << *p_itT << ">" << endmsg;
+		        ATH_MSG_WARNING( "Cannot find tool named <" << *p_itT << ">" );
 			return HLT::BAD_JOB_SETUP;
 		}
 		else {
-			msg() << MSG::INFO << "REGTEST ";
-			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endmsg;
+		        ATH_MSG_INFO( "REGTEST " );
+			ATH_MSG_INFO( "Add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() );
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
 			(*p_itT)->setTauEventData(&m_tauEventData);
+
+			/*
+			// monitoring of RNN input variables
+			ToolHandle<ITauToolBase> handle = *p_itT;
+			TauJetRNNEvaluator* RNN_evaluator = dynamic_cast<TauJetRNNEvaluator*>(&(*handle));
+			if(RNN_evaluator) {
+			  ATH_MSG_INFO( "Retrieved TauJetRNNEvaluator for RNN inputs monitoring" );
+			  m_rnn_evaluator = RNN_evaluator;
+			}
+			*/
 		}
 	}
 
-	msg() << MSG::INFO << " " << endmsg;
-	msg() << MSG::INFO << "------------------------------------" << endmsg;
+	ATH_MSG_INFO( " " );
+	ATH_MSG_INFO( "------------------------------------" );
+
 
 	ToolHandleArray<ITauToolBase> ::iterator p_itTe = m_endtools.begin();
 	ToolHandleArray<ITauToolBase> ::iterator p_itTEe = m_endtools.end();
 
-	msg() << MSG::INFO << "List of end tools in execution sequence:" << endmsg;
-	msg() << MSG::INFO << "------------------------------------" << endmsg;
+	ATH_MSG_INFO( "List of end tools in execution sequence:" );
+	ATH_MSG_INFO( "------------------------------------" );
 
 	for(; p_itTe != p_itTEe; ++p_itTe ) {
 		StatusCode p_sc = p_itTe->retrieve();
 		if( p_sc.isFailure() ) {
-			msg() << MSG::WARNING << "Cannot find tool named <";
-			msg() << *p_itTe << ">" << endmsg;
+		        ATH_MSG_WARNING( "Cannot find tool named <" << *p_itTe << ">" );
 			return HLT::BAD_JOB_SETUP;
 		}
 		else {
-			msg() << MSG::INFO << "REGTEST ";
-			msg() <<" add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() << endmsg;
+	  	        ATH_MSG_INFO( "REGTEST " );
+			ATH_MSG_INFO( "Add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() );
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itTe)->name())) ;
 			( *p_itTe )->setTauEventData(&m_tauEventData);
 		}
@@ -277,20 +308,20 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	// }                                                                            
 
 	if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
-	  msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endmsg;     
+	  ATH_MSG_WARNING( "Unable to retrieve LumiBlockMuTool" );
 	} else {                                                                     
-	  msg() << MSG::DEBUG << "Successfully retrieved LumiBlockMuTool" << endmsg; 
+	  ATH_MSG_DEBUG( "Successfully retrieved LumiBlockMuTool" ); 
 	}                                                                            
 
 	// Retrieve beam conditions
 	if(m_beamSpotKey.initialize().isFailure()) {
-	  msg() << MSG::WARNING << "Unable to retrieve Beamspot key" << endmsg;
+	  ATH_MSG_WARNING( "Unable to retrieve Beamspot key" );
         } else {
-          msg() << MSG::DEBUG << "Successfully retrieved Beamspot key" << endmsg;
+          ATH_MSG_DEBUG( "Successfully retrieved Beamspot key" );
 	}
 	
-	msg() << MSG::INFO << " " << endmsg;
-	msg() << MSG::INFO << "------------------------------------" << endmsg;
+	ATH_MSG_INFO( " " );
+	ATH_MSG_INFO( "------------------------------------" );
 	
 	return HLT::OK;
 }
@@ -298,7 +329,6 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 /////////////////////////////////////////////////////////////////
 HLT::ErrorCode TrigTauRecMerged::hltFinalize()
 {
-	//msg() << MSG::DEBUG << "Finalizing TrigTauRecMerged" << endmsg;
 	return HLT::OK;
 }
 
@@ -344,7 +374,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_innerTrkAvgDist=-999;
 	m_SumPtTrkFrac=-999;
 
-	m_author.clear();
 	m_calo_errors.clear();
 	m_track_errors.clear();
 	m_EtEm =-10.;
@@ -356,19 +385,30 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_EtaEF = -99;
 	m_PhiEF = -99;
 
+	// RNN variables monitoring
+	m_RNN_scalar_ptRatioEflowApprox = 0.; m_RNN_scalar_mEflowApprox = 0.; m_RNN_scalar_pt_jetseed_log = 0.;
+	m_RNN_Nclusters = -1;
+	m_RNN_cluster_et_log.clear(); m_RNN_cluster_dEta.clear(); m_RNN_cluster_dPhi.clear();
+	m_RNN_cluster_CENTER_LAMBDA.clear(); m_RNN_cluster_SECOND_LAMBDA.clear(); m_RNN_cluster_SECOND_R.clear();
+	m_RNN_Ntracks = -1;
+	m_RNN_track_pt_log.clear(); m_RNN_track_dEta.clear(); m_RNN_track_dPhi.clear();
+	m_RNN_track_d0_abs_log.clear(); m_RNN_track_z0sinThetaTJVA_abs_log.clear();
+	m_RNN_track_nInnermostPixelHits.clear(); m_RNN_track_nPixelHits.clear(); m_RNN_track_nSCTHits.clear();
+	m_RNNJetScore = -999; m_RNNJetScoreSigTrans = -999.;
+
 	// Retrieve store.
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Executing TrigTauRecMerged" << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Executing TrigTauRecMerged" );
 
 	// Get RoiDescriptor
 	const TrigRoiDescriptor* roiDescriptor = 0;
 	HLT::ErrorCode hltStatus = getFeature(inputTE, roiDescriptor);
 
-	if ( hltStatus==HLT::OK && roiDescriptor!= NULL ) {
+	if ( hltStatus==HLT::OK && roiDescriptor!= nullptr ) {
 		if( msgLvl() <= MSG::DEBUG )
-			msg() << MSG::DEBUG << "REGTEST: RoI " << *roiDescriptor<< endmsg;
+		    ATH_MSG_DEBUG( "REGTEST: RoI " << *roiDescriptor );
 	}
 	else {
-		msg() <<  MSG::ERROR << "Failed to find RoiDescriptor " << endmsg;
+	        ATH_MSG_ERROR( "Failed to find RoiDescriptor " );
 		m_calo_errors.push_back(NoROIDescr);
 		return hltStatus;
 	}
@@ -379,40 +419,30 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getFeatures(inputTE, vectorCaloCellContainer);
 
 	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << " No CaloCellContainers retrieved for the trigger element" << endmsg;
+	        ATH_MSG_ERROR( " No CaloCellContainers retrieved for the trigger element" );
 		m_calo_errors.push_back(NoCellCont);
 		return hltStatus;
 	}
 
 	if (vectorCaloCellContainer.size() < 1) {
-		msg() << MSG::ERROR
-				<< "Size of vector CaloCell container is not 1. Is"
-				<< vectorCaloCellContainer.size()
-				<< endmsg;
+	        ATH_MSG_ERROR( "Size of vector CaloCell container is not 1. Is " << vectorCaloCellContainer.size() );
 		m_calo_errors.push_back(NoCellCont);
 		return HLT::ERROR;
 	}
 
 	const CaloCellContainer* RoICaloCellContainer = vectorCaloCellContainer.back();
 
-	if(RoICaloCellContainer != NULL) {
+	if(RoICaloCellContainer != nullptr) {
 		m_nCells = RoICaloCellContainer->size();
-
-		msg() << MSG::DEBUG
-				<< "REGTEST: Size of vector CaloCell container is "
-				<< RoICaloCellContainer->size()
-				<< endmsg;
+		ATH_MSG_DEBUG("REGTEST: Size of vector CaloCell container is " << RoICaloCellContainer->size() );
 		if(RoICaloCellContainer->size()==0) {
-			msg() << MSG::INFO
-					<< "Cannot proceed, size of vector CaloCell container is "
-					<< RoICaloCellContainer->size()
-					<< endmsg;
+		        ATH_MSG_INFO( "Cannot proceed, size of vector CaloCell container is " << RoICaloCellContainer->size() );
 			m_calo_errors.push_back(EmptyCellCont);
 			return HLT::OK;
 		}
 	}
 	else {
-		msg() << MSG::ERROR << "no CaloCell container found "<< endmsg;
+	        ATH_MSG_ERROR( "No CaloCell container found" );
 		m_calo_errors.push_back(NoCellCont);
 		return HLT::ERROR;
 	}
@@ -422,21 +452,19 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getFeatures(inputTE, vectorCaloClusterContainer);
   
 	if(hltStatus!=HLT::OK ) {
-	  msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endmsg;
+	  ATH_MSG_ERROR( "No CaloClusterContainers retrieved for the trigger element" );
 	  m_calo_errors.push_back(NoClustCont);
 	  return hltStatus;
 	}
 
 	if (vectorCaloClusterContainer.size() < 1) {
-	  msg() << MSG::ERROR
-		<< "  CaloCluster container is empty"
-		<< endmsg;
+	  ATH_MSG_ERROR( "CaloCluster container is empty" );
 	  m_calo_errors.push_back(NoClustCont);
 	  return HLT::ERROR;
 	}
   
 	if( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endmsg;
+	  ATH_MSG_DEBUG( "CaloCluster container size is " << vectorCaloClusterContainer.size() );
   
 	// Grab the last cluster collection attached
 	const xAOD::CaloClusterContainer* RoICaloClusterContainer = vectorCaloClusterContainer.back();
@@ -445,13 +473,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus = getStoreGateKey( RoICaloClusterContainer, collKey );
 
 	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << "Cluster has no key " << endmsg;
+	        ATH_MSG_ERROR( "Cluster has no key" );
 		m_calo_errors.push_back(NoClustKey);
 		return HLT::ERROR;
 	}
 
 	if( msgLvl() <= MSG::DEBUG )
-		msg() << MSG::DEBUG << " cluster key for back cluster is " << collKey << endmsg;
+	  ATH_MSG_DEBUG( "Cluster key for back cluster is " << collKey );
 
 	
 	// Not necessary anymore
@@ -491,45 +519,45 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	vector<const xAOD::TrackParticleContainer*> vectorTrackContainer;
 	hltStatus = getFeatures(inputTE,vectorTrackContainer);
 
-	const xAOD::TrackParticleContainer*  RoITrackContainer=NULL;
+	const xAOD::TrackParticleContainer* RoITrackContainer = nullptr;
 
 	if (hltStatus!=HLT::OK) {
-		msg() << MSG::INFO << "REGTEST: No Track container found." << endmsg;
+	        ATH_MSG_INFO( "REGTEST: No Track container found." );
 		m_track_errors.push_back(NoTrkCont);
 	}
 	else {
 		if (vectorTrackContainer.size()<1) {
-			msg() << MSG::DEBUG << "Size of vector Track container is not 1. Is " << vectorTrackContainer.size() << endmsg;
+		        ATH_MSG_DEBUG( "Size of vector Track container is not 1. Is " << vectorTrackContainer.size() );
 			m_track_errors.push_back(NoTrkCont);
 		}
 
 		if(vectorTrackContainer.size()>0) {
 			RoITrackContainer = vectorTrackContainer.back();
 			if( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG << "REGTEST: Size of vector Track container is " << RoITrackContainer->size() << endmsg;
+			  ATH_MSG_DEBUG( "REGTEST: Size of vector Track container is " << RoITrackContainer->size() );
 		}
-		if(RoITrackContainer != NULL) m_nTracks = RoITrackContainer->size();
+		if(RoITrackContainer != nullptr) m_nTracks = RoITrackContainer->size();
 	}
 
 	// get Vertex Container
 	vector<const xAOD::VertexContainer*> vectorVxContainer;
 	hltStatus = getFeatures(inputTE,vectorVxContainer);
-	const xAOD::VertexContainer* RoIVxContainer = NULL;
+	const xAOD::VertexContainer* RoIVxContainer = nullptr;
 
 	if(hltStatus!=HLT::OK) {
-		msg() << MSG::INFO << "No VxContainers retrieved for the trigger element" << endmsg;
+	        ATH_MSG_INFO( "No VxContainers retrieved for the trigger element" );
 		m_track_errors.push_back(NoVtxCont);
 	}
 	else {
 		if (vectorVxContainer.size() < 1) {
-			msg() << MSG::DEBUG << "Size of vector Vertex  container is not 1. Is " << vectorVxContainer.size() << endmsg;
+		        ATH_MSG_DEBUG( "Size of vector Vertex  container is not 1. Is " << vectorVxContainer.size() );
 			m_track_errors.push_back(NoVtxCont);
 		}
 
 		if(vectorVxContainer.size() >0) {
 			RoIVxContainer = vectorVxContainer.back();
 			if( msgLvl() <= MSG::DEBUG )
-				msg() << MSG::DEBUG << "REGTEST: Size of vector Vertex  container " << RoIVxContainer->size() << endmsg;
+			  ATH_MSG_DEBUG( "REGTEST: Size of vector Vertex  container " << RoIVxContainer->size() );
 		}
 	}
 
@@ -553,8 +581,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
           m_ActualInteractions = mu;
           m_AvgInteractions = avg_mu;
-	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endmsg;
-	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endmsg;
+	  ATH_MSG_DEBUG( "REGTEST: Retrieved Mu Value : " << mu );
+	  ATH_MSG_DEBUG( "REGTEST: Average Mu Value   : " << avg_mu );
 	}
 	
 
@@ -622,12 +650,12 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::CaloClusterContainer::const_iterator clusterIt;
 	for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
 	  if( msgLvl() <= MSG::DEBUG )
-	    msg()<< MSG::DEBUG <<" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" << endmsg;
+	    ATH_MSG_DEBUG( "Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )" );
     
 	  if((*clusterIt)->e() < 0)
 	    {
 	      if( msgLvl() <= MSG::DEBUG )
-		msg()<< MSG::DEBUG <<" Negative energy cluster is rejected" << endmsg;
+		ATH_MSG_DEBUG( "Negative energy cluster is rejected" );
 	      continue;
 	    }
     
@@ -639,17 +667,17 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	
 	aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG :: DEBUG << "jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Jet formed "<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() );
 	
 	hltStatus=attachFeature(outputTE, theJetCollection, "TrigTauJet");
 	
 	if (hltStatus!=HLT::OK ) {
-	  msg() << MSG::ERROR << "Unable to record JetCollection  in TDS" << endmsg;
+	  ATH_MSG_ERROR( "Unable to record JetCollection  in TDS" );
 	  m_calo_errors.push_back(NoJetAttach);
 	  return hltStatus;
 	}
 	else {
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" << endmsg;
+	  if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" );
 	}
 
 
@@ -700,11 +728,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		processStatus = (*firstTool)->eventInitialize();
 
 		if( processStatus != StatusCode :: SUCCESS ) {
-			msg() << MSG :: ERROR << "tool "<<(*firstTool)->name()<< "failed in eventInitialize" << endmsg;
+		        ATH_MSG_ERROR( "Tool "<<(*firstTool)->name()<< "failed in eventInitialize" );
 			return HLT :: TOOL_FAILURE;
 		}
 	}
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG << " initialize all good " << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "initialize all good" );
 
 	//-------------------------------------------------------------------------
 	// using Jet collection
@@ -719,18 +747,17 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_tauEventData.seedContainer = theJetCollection;
 
 	// This sets one track and link. Need to have at least 1 track linked to retrieve track container
+	// can't we instead implement in the EDM a function to retrieve the track container of a tau?
 	setEmptyTauTrack(p_tau, pTrackContainer);
 
 	if(p_seed->e()<=0) {
-		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endmsg;
+                ATH_MSG_DEBUG( "Roi: changing eta due to energy " << p_seed->e() );
 		p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
 		
-		msg() << MSG::DEBUG << "Roi: " << roiDescriptor->roiId()
-        		  << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
-        		  << endmsg;
+		ATH_MSG_DEBUG( "Roi: " << roiDescriptor->roiId() << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi() );
 	}
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG <<" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() );
 
 	m_tauEventData.setObject("JetCollection", theJetCollection );
 
@@ -741,13 +768,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	firstTool = m_tools.begin();
 	lastTool  = m_tools.end();
 	processStatus    = StatusCode::SUCCESS;
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Starting tool loop with seed jet" << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Starting tool loop with seed jet" );
 	std::vector<TrigTimer* >::iterator itimer =  m_mytimers.begin();
 	while ( ! processStatus.isFailure() && firstTool != lastTool ) {
 	        // loop stops only when Failure indicated by one of the tools
 	        if( msgLvl() <= MSG::DEBUG ) {
-			msg() << MSG::DEBUG << "Starting Tool: " << endmsg;
-			msg() << MSG::DEBUG <<  (*firstTool)->name() << endmsg;
+		        ATH_MSG_DEBUG( "Starting Tool:");
+			ATH_MSG_DEBUG( (*firstTool)->name() );
 		}
 		// time in the various tools
 		++toolnum;
@@ -762,14 +789,14 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
-				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endmsg;
-				msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
-            						<< " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
-            						<< " Tau pT : "<< p_tau->pt()<< endmsg;
+			  ATH_MSG_DEBUG( "REGTEST: "<< (*firstTool)->name() << " executed successfully ");
+			  ATH_MSG_DEBUG( "REGTEST: Roi: " << roiDescriptor->roiId()
+					 << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
+					 << " Tau pT : "<< p_tau->pt() );
 			}
 		}
 		else {
-			if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<"REGTEST: "<< (*firstTool)->name() << " execution failed " << endmsg;
+		  if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "REGTEST: "<< (*firstTool)->name() << " execution failed" );
 		}
 		++firstTool;
 		++itimer;
@@ -778,7 +805,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	//check status
 	if ( !processStatus.isSuccess() )  {   // some problem
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has NOT been registered in the tau container" << endmsg;
+	        if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "The tau object has NOT been registered in the tau container" );
 		// ToolHandleArray<ITauToolBase> ::iterator tool = m_tools.begin();
 		// for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
 		// (*tool)->cleanup( &m_tauEventData );
@@ -789,34 +816,33 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 		pContainer->pop_back();
 
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endmsg;
+		if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Clean up done after jet seed" );
 	}
 	else if( processStatus.isSuccess()) {
 
 	  float fJetEnergy = (*p_tau->jetLink())->e();
-	  msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endmsg;
+	  ATH_MSG_DEBUG( "Roi: jet e "<< fJetEnergy );
 	  
 	  if( fJetEnergy < 0.00001 ) {
-	    msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endmsg;
-	    msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endmsg;
+	    ATH_MSG_DEBUG( "Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)" );
+	    ATH_MSG_DEBUG( "Roi: this is probably not needed anymore, method PxPyPzE has been corrected" );
 	    
 	    //p_tau->setEta(roiDescriptor->eta0());
 	    //p_tau->setPhi(roiDescriptor->phi0());
 	    // Direct accessors not available anymore
 	    p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
 	    
-	    msg() << MSG::DEBUG << " Roi: " << roiDescriptor->roiId()
-		  << " Tau eta: " << p_tau->eta()
-		  << " Tau phi: " << p_tau->phi()
-		  << " Tau pT : "<< p_tau->pt()<< endmsg;
+	    ATH_MSG_DEBUG( " Roi: " << roiDescriptor->roiId()
+			   << " Tau eta: " << p_tau->eta()
+			   << " Tau phi: " << p_tau->phi()
+			   << " Tau pT : "<< p_tau->pt() );
 	  }
 	  
 	  // loop over end tools
 	  ToolHandleArray<ITauToolBase> ::iterator p_itET = m_endtools.begin();
 	  ToolHandleArray<ITauToolBase> ::iterator p_itETE = m_endtools.end();
 	  for (; p_itET != p_itETE; ++p_itET ) {
-	    msg() << MSG::VERBOSE << "Invoking endTool ";
-	    msg() << ( *p_itET )->name() << endmsg;
+	    ATH_MSG_VERBOSE( "Invoking endTool " << ( *p_itET )->name() );
 	    
 	    processStatus = ( *p_itET )->execute( *p_tau);
 	    if( processStatus.isFailure() ) break;
@@ -868,26 +894,53 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  if(m_dPhi<-M_PI) m_dPhi += 2.0*M_PI;
 	  if(m_dPhi>M_PI)  m_dPhi -= 2.0*M_PI;
 	  
-	  // author variable removed. There are no different tau reco algs anymor
 	  
-	  // write out delta Z0
+	  // uncomment when RNN tools migrated to master
 	  /*
-	   * FF, March 2014: deactivated.
-	   * If the output of these variables is still needed, drop me a line.
-	   * We can either print them here as done before or put them into tauEDM to have them available globally
-	   if (m_useTauPVTool) {
-	   m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endmsg;
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endmsg;
-	   }
-	  */
+	  // RNN monitoring
+	  if(m_rnn_evaluator) {
 
+	    TauJetRNN* rnn = 0;
+	    if(m_numTrack==0) rnn = m_rnn_evaluator->get_rnn_0p();
+	    else if(m_numTrack==1) rnn = m_rnn_evaluator->get_rnn_1p();
+	    else rnn = m_rnn_evaluator->get_rnn_3p();
+	    
+	    const std::map<std::string, std::map<std::string, double> >* rnn_scalar = rnn->getScalarInputs();
+	    const std::map<std::string, std::map<std::string, std::vector<double>> >* rnn_vector = rnn->getVectorInputs();
+
+	    m_RNN_scalar_ptRatioEflowApprox = rnn_scalar->at("scalar").at("ptRatioEflowApprox");
+	    m_RNN_scalar_mEflowApprox = rnn_scalar->at("scalar").at("mEflowApprox");
+	    // this is obviously a scalar, but is stored in tracks and clusters
+	    if(rnn_vector->at("tracks").at("pt_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector->at("tracks").at("pt_jetseed_log")[0];
+	    else if(rnn_vector->at("clusters").at("et_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector->at("clusters").at("pt_jetseed_log")[0];
+
+	    m_RNN_Nclusters = rnn_vector->at("clusters").at("et_log").size();
+	    m_RNN_cluster_et_log = rnn_vector->at("clusters").at("et_log");
+	    m_RNN_cluster_dEta = rnn_vector->at("clusters").at("dEta");
+	    m_RNN_cluster_dPhi = rnn_vector->at("clusters").at("dPhi");	    
+	    m_RNN_cluster_CENTER_LAMBDA = rnn_vector->at("clusters").at("CENTER_LAMBDA");
+	    m_RNN_cluster_SECOND_LAMBDA = rnn_vector->at("clusters").at("SECOND_LAMBDA"); 
+	    m_RNN_cluster_SECOND_R = rnn_vector->at("clusters").at("SECOND_R");
+
+	    m_RNN_Ntracks = rnn_vector->at("tracks").at("pt_log").size();
+	    m_RNN_track_pt_log = rnn_vector->at("tracks").at("pt_log");
+	    m_RNN_track_dEta = rnn_vector->at("tracks").at("dEta");
+	    m_RNN_track_dPhi = rnn_vector->at("tracks").at("dPhi");
+	    m_RNN_track_d0_abs_log = rnn_vector->at("tracks").at("d0_abs_log");
+	    m_RNN_track_z0sinThetaTJVA_abs_log = rnn_vector->at("tracks").at("z0sinThetaTJVA_abs_log");
+	    m_RNN_track_nInnermostPixelHits = rnn_vector->at("tracks").at("nIBLHitsAndExp");
+	    m_RNN_track_nPixelHits = rnn_vector->at("tracks").at("nPixelHitsPlusDeadSensors");
+	    m_RNN_track_nSCTHits = rnn_vector->at("tracks").at("nSCTHitsPlusDeadSensors");
+
+	    if( !p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) || !p_tau->isAvailable<float>("RNNJetScore") )
+	      ATH_MSG_WARNING( "RNNJetScore not available. Should not happen when TauJetRNNEvaluator is run!" );
+	    else m_RNNJetScore = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+	    if( !p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) || !p_tau->isAvailable<float>("RNNJetScoreSigTrans") )
+	      ATH_MSG_WARNING( "RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run!" );
+	    else m_RNNJetScoreSigTrans = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+	  }
+	  */  
+	
 	  //
 	  // copy CaloOnly four vector, if present
 	  //
@@ -897,11 +950,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	  if( tmpCaloOnlyStatus != HLT::OK){ 
 
-	    msg() << MSG::DEBUG << "Can't get container TrigTauRecCaloOnly to copy four-vector" << endmsg;
+	    ATH_MSG_DEBUG( "Can't get container TrigTauRecCaloOnly to copy four-vector" );
 
 	  } else {
 
-	    msg() << MSG::DEBUG << "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() << endmsg;
+	    ATH_MSG_DEBUG( "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() );
 	     
 	    if ( tempCaloOnlyContVec.size() != 0 ) {
 
@@ -912,7 +965,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	      for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyContVec.back()->begin(); tauIt != tempCaloOnlyContVec.back()->end(); tauIt++){ 
 
-	   	msg() << MSG::DEBUG << "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() << endmsg;
+	   	ATH_MSG_DEBUG( "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() );
 	  	
 	   	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, (*tauIt)->ptTrigCaloOnly(), (*tauIt)->etaTrigCaloOnly(), (*tauIt)->phiTrigCaloOnly(), (*tauIt)->mTrigCaloOnly());
 
@@ -932,10 +985,10 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 
 
-	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
-		<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
-		<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
-		<< " Tau Et (GeV): "<< m_EtFinal << endmsg;
+	  ATH_MSG_DEBUG( "REGTEST: Roi: " << roiDescriptor->roiId()
+			 << " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
+			 << " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
+			 << " Tau Et (GeV): "<< m_EtFinal );
 	  
 	  ++m_Ncand;
 	}
@@ -945,18 +998,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  pTrackContainer->erase(pTrackContainer->end()-bad_tau->nAllTracks(), pTrackContainer->end());
 	  pContainer->pop_back();
 	  
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endmsg;
+	  if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Deleted tau done after jet seed" );
 	}
 	
 	// call eventFinalize on the booked tau tools
 	for ( firstTool = m_tools.begin(); firstTool != lastTool; firstTool++ ) {
 	  processStatus = (*firstTool)->eventFinalize();
 	  if( processStatus != StatusCode :: SUCCESS ) {
-	    msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endmsg;
+	    ATH_MSG_INFO( "Tool "<<(*firstTool)->name()<< "failed in eventFinalize" );
 	    return HLT :: TOOL_FAILURE;
 	  }
 	}
-	msg() << MSG :: DEBUG << "tools succeed in eventFinalize" << endmsg;
+	ATH_MSG_DEBUG( "Tools succeed in eventFinalize" );
 	
 	
 	//-------------------------------------------------------------------------
@@ -966,15 +1019,61 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	hltStatus=attachFeature(outputTE, pContainer, m_outputName);
 	hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");
 	if (hltStatus!=HLT::OK )  {
-		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endmsg;
+	        ATH_MSG_ERROR( "Unable to record tau Container in TDS" );
 		m_calo_errors.push_back(NoHLTtauAttach);
 		return hltStatus;
 	}
 	else {
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" << endmsg;
+	  if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" );
 	}
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endmsg;
+	if( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG( "The tau object has been registered in the tau container" );
+
+
+	// workaround to "fix" broken element links in data
+
+	// skip bad taus which have been discarded
+	if(pContainer->size()==0)
+	  return HLT::OK;
+
+	static const SG::AuxElement::Accessor< xAOD::TauJet::JetLink_t > jetAcc( "jetLink" );
+	jetAcc( *p_tau ).toPersistent();
+
+	static const SG::AuxElement::Accessor< xAOD::TauJet::VertexLink_t > vertexAcc( "vertexLink" );
+	vertexAcc( *p_tau ).toPersistent();
+
+	xAOD::TauJet::TauTrackLinks_t new_tauTrackLinks;
+	static const SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
+	static const SG::AuxElement::Accessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
+
+	for( ElementLink< xAOD::TauTrackContainer > tautrack_link : tauTrackAcc( *p_tau ) ) {
+
+	  xAOD::TauTrack::TrackParticleLinks_t new_trackLinks;
+
+	  for( ElementLink< xAOD::TrackParticleContainer > track_link : trackAcc( *(*tautrack_link) ) ) {
+	    track_link.toPersistent();
+
+	    ElementLink< xAOD::TrackParticleContainer > newTrackLink;
+	    newTrackLink.toPersistent();
+	    newTrackLink.resetWithKeyAndIndex( track_link.persKey(), track_link.persIndex() );
+	    new_trackLinks.push_back(newTrackLink);	    
+	  }
+
+	  pTrackContainer->at(tautrack_link.index())->clearTrackLinks();
+	  pTrackContainer->at(tautrack_link.index())->setTrackLinks(new_trackLinks);
+
+	  tautrack_link.toPersistent();
+
+	  ElementLink< xAOD::TauTrackContainer > newTauTrackLink;
+	  newTauTrackLink.toPersistent();
+	  newTauTrackLink.resetWithKeyAndIndex( tautrack_link.persKey(), tautrack_link.persIndex() );
+	  new_tauTrackLinks.push_back(newTauTrackLink);
+	}
+
+	p_tau->clearTauTrackLinks();
+	p_tau->setAllTauTrackLinks(new_tauTrackLinks);
+
+	// no action needs to be taken for tau -> clusters links
 	
 	// set status of TE to always true for FE algorithms
 	return HLT::OK;

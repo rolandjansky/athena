@@ -4,8 +4,8 @@ HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterConta
 HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
 HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
 HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1116 bytes
-HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 1616 bytes from 14x DynAux : 2732
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :1024 bytes
+HLTRMakerAlg.MKTool.Serialiser          0   0     DEBUG    Fragment size including 1560 bytes from 14x DynAux : 2584
 HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
 HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :740 bytes
 HLTRMakerAlg.MKTool.Serialiser          1   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
@@ -52,8 +52,8 @@ HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterConta
 HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :804 bytes
 HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 88 bytes from 1x DynAux : 892
 HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :840 bytes
-HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 1448 bytes from 14x DynAux : 2288
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :748 bytes
+HLTRMakerAlg.MKTool.Serialiser          6   0     DEBUG    Fragment size including 1392 bytes from 14x DynAux : 2140
 HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
 HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :620 bytes
 HLTRMakerAlg.MKTool.Serialiser          7   0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
@@ -98,8 +98,8 @@ HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterConta
 HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. Fragment size :3044 bytes
 HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 116 bytes from 1x DynAux : 3160
 HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex Fragment size :196 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :5440 bytes
-HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 4248 bytes from 14x DynAux : 9688
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. Fragment size :5532 bytes
+HLTRMakerAlg.MKTool.Serialiser          12  0     DEBUG    Fragment size including 4304 bytes from 14x DynAux : 9836
 HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeContainer#remap_EgammaCaloDecisions Fragment size :180 bytes
 HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigCompositeAuxContainer#remap_EgammaCaloDecisionsAux. Fragment size :528 bytes
 HLTRMakerAlg.MKTool.Serialiser          13  0     DEBUG xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters Fragment size :204 bytes
@@ -156,10 +156,10 @@ HLTRMakerAlg.MKTool.Serialiser          19  0     DEBUG    Fragment size includi
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut                 20        10        6         5         5         
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut decisions                           16        100       
 TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut               20        20        12        11        11        
-TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut decisions                         46        279       
+TrigSignatureMoniMT                                INFO HLT_e3_e5_etcut decisions                         46        280       
 TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        9         8         8         8         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        140       
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        141       
 TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        17        17        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            52        333       
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            52        334       
 TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        11        11        11        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            17        173       
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            17        174       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1CPMTools.cxx,  
@@ -58,7 +58,7 @@ StatusCode L1CPMTools::finalize()
 
 void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                 DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
-                                std::vector<unsigned int>& tauCMXData, int slice) {
+                                std::vector<unsigned int>& tauCMXData, int slice) const {
 
   /** This tool appends to an existing DataVector of results, so do not clear that.
    *  But reset & resize the module results vectors, to be safe */
@@ -209,7 +209,7 @@ void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, in
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) {
+void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) const {
 
   /** Need a map of CPMTowers as input */
   xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
@@ -228,7 +228,7 @@ void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::C
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice) {
+void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice) const {
 
   /** Clear results vector to be safe */
   rois->clear();
@@ -276,7 +276,7 @@ void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobR
 
 
 /** Find list of TOBs from user-supplied vector of CPMTowers */
-void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice){
+void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
 
   /** Need a map of CPMTowers as input */
   xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
@@ -294,7 +294,7 @@ void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CP
  
 
 /** Find list of TOBs from user-supplied map of CPMTowers */
-void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice){
+void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
 
   /** Clear results vector to be safe */
   tobs->clear();
@@ -330,7 +330,7 @@ void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAl
 }
 
 /** CPMTower map from user-supplied vector of CPMTowers */
-void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers){
+void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTowerMap_t* towers) const {
 
   // Clear map before filling
   towers->clear();
@@ -366,7 +366,7 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTow
 
 /** Return RoI for given coordinates */
 
-CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) {
+CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
 
   // Performs all processing for this location
   CPMTobAlgorithm roi(RoIeta, RoIphi, towers, m_configSvc, slice);

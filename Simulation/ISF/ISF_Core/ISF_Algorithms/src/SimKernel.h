@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_ALGS_SIMKERNEL_H
@@ -25,6 +25,7 @@
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
+#include "HepMC_Interfaces/IZeroLifetimePatcher.h"
 
 // forward declarations
 namespace PMonUtils {
@@ -102,6 +103,9 @@ namespace ISF {
 
     /** The Simulation Selector Chains */
     ToolHandleArray<ISimulationSelector> m_simSelectors[AtlasDetDescr::fNumAtlasRegions];
+
+    /** Quasi-Stable Particle Simulation Patcher */
+    ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher;
 
     /** The Event Filters */
     ToolHandleArray<IEventFilterTool>    m_eventFilters;

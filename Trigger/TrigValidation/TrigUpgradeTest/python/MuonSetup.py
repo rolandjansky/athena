@@ -363,7 +363,7 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
-  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   (viewAlgs, eventAlgs) = makeInDetAlgs()
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon

@@ -1,8 +1,9 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGL2CALORINGERTOOL_H
-#define TRIGL2CALORINGERTOOL_H 1
+
+#ifndef TRIGL2CALORINGERHYPOTOOLMT_H
+#define TRIGL2CALORINGERHYPOTOOLMT_H 1
 
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -10,75 +11,45 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-
-#include "xAODTrigRinger/TrigRNNOutput.h"
-
-
-
-
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 
 class TrigL2CaloRingerHypoToolMT : virtual public ::AthAlgTool
 { 
- public: 
-  TrigL2CaloRingerHypoToolMT( const std::string& type, 
-                            const std::string& name, 
-                            const IInterface* parent );
+  public: 
+    TrigL2CaloRingerHypoToolMT( const std::string& type, 
+                                const std::string& name, 
+                                const IInterface* parent );
 
-  virtual ~TrigL2CaloRingerHypoToolMT();
-  virtual StatusCode initialize() override;
-
-
-
-  struct RNNOutInfo {
-    TrigCompositeUtils::Decision* decision;
-    const xAOD::TrigRNNOutput* rnnOut;
-  };
-
-  StatusCode decide( std::vector<RNNOutInfo>& decisions )  const;
-  bool decideOnSingleObject( const xAOD::TrigRNNOutput* rnnOut ) const;
-
-  
-      ///Helper class
-  class CutDefsHelper{
-      private:
-        double m_etamin;
-        double m_etamax;
-        double m_etmin;
-        double m_etmax;
-        double m_threshold;
-
-      public:
-        CutDefsHelper(double th, double etamin, double etamax,
-                      double etmin, double etmax):m_etamin(etamin),
-                      m_etamax(etamax),m_etmin(etmin),m_etmax(etmax),
-                      m_threshold(th)
-        {;}
-
-        ~CutDefsHelper()
-        {;}
-        double threshold(){return m_threshold;};
-        double etamin(){return m_etamin;};
-        double etamax(){return m_etamax;};
-        double etmin(){return m_etmin;};
-        double etmax(){return m_etmax;};
-
-    };///end of configuration
-
-    std::vector<TrigL2CaloRingerHypoToolMT::CutDefsHelper*>  m_cutDefs; 
+    virtual ~TrigL2CaloRingerHypoToolMT();
+    
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
 
+    
+    bool decideOnSingleObject( const xAOD::TrigRingerRings* ringerShape ) const;
 
- private:
-  HLT::Identifier m_decisionId;
-  Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property<std::vector<double>>                                m_thresholds;
-  Gaudi::Property<std::vector<std::vector<double>>>                   m_etaBins;
-  Gaudi::Property<std::vector<std::vector<double>>>                   m_etBins;
-  Gaudi::Property<double>                                             m_nThresholds;
-  Gaudi::Property<double>                                             m_emEtCut;
 
-  
-  //ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
+    struct RingerInfo {
+      TrigCompositeUtils::Decision* decision;
+      const xAOD::TrigRingerRings* ringerShape;
+    };
+
+    StatusCode decide( std::vector<RingerInfo>& decisions )  const;
+
+  private:
+    
+    Ringer::RingerSelectorTool        m_selectorTool;
+    ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
+    ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
+    HLT::Identifier                   m_decisionId;
+    Gaudi::Property<bool>             m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
+    Gaudi::Property<double>           m_emEtCut{this,"EtCut", 0.0, "Et threshold"};
+    Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Constants Calib Path"};
+    Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Thresholds Calib Path"};
+
 }; 
 
 //:DECLARE_TOOL_FACTORY( TrigL2CaloRingerHypoToolMT )

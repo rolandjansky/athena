@@ -109,9 +109,7 @@ theCaloNoiseTool = CaloNoiseToolDefault()
 theCaloNoiseTool.RescaleForHV=False #Turn automatic rescaling off
 ToolSvc += theCaloNoiseTool
 
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-theLArHVCorrTool=LArHVCorrToolDefault()
-ToolSvc += theLArHVCorrTool
+from LArConditionsCommon import LArHVDB
 
 #--------------------------------------------------------------
 # Private Application Configuration options
@@ -119,7 +117,6 @@ ToolSvc += theLArHVCorrTool
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloRescaleNoise
 theCaloRescaleNoise = CaloRescaleNoise("CaloRescaleNoise")
 theCaloRescaleNoise.noiseTool = theCaloNoiseTool
-theCaloRescaleNoise.HVCorrTool=theLArHVCorrTool
 
 topSequence += theCaloRescaleNoise
 

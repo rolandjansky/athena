@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 # import flags
@@ -10,8 +10,8 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
-from TrigUpgradeTest.CaloMenuDefs import fastCaloMenuSequence
-from TrigUpgradeTest.electronMenuDefs import electronMenuSequence,  inDetSetup
+from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
 
 inDetSetup()
 

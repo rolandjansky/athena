@@ -54,9 +54,25 @@ bool SCT_ReadCalibDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
 bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   // Status of the compId
   bool status{true};
-  // Extract the moduleId from the comp identifier
-  Identifier moduleId{m_id_sct->module_id(elementId)};
   switch (h) {
+  case InDetConditions::SCT_STRIP:
+    {
+      // Retrieve isGood Wafer data
+      const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
+      if (condDataInfo==nullptr) {
+        ATH_MSG_ERROR("In isGood, SCT_AllGoodStripInfo cannot be retrieved");
+        return false;
+      }
+      // Extract the wafer identifier from the strip identifier
+      Identifier waferId{m_id_sct->wafer_id(elementId)};
+      // Get hashId
+      IdentifierHash waferHash{m_id_sct->wafer_hash(waferId)};
+      // Get strip on wafer to check
+      int strip{m_id_sct->strip(elementId)};
+      // Set value
+      status = (*condDataInfo)[waferHash.value()][strip];
+      break;
+    }
   case InDetConditions::SCT_MODULE:
     {
       // Not applicable for Calibration data
@@ -75,30 +91,8 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventConte
       ATH_MSG_WARNING("summary(): Chip good/bad is not applicable for Calibration data");
       break;
     }
-  case InDetConditions::SCT_STRIP:
-    {
-      // Get hashId
-      IdentifierHash hashIdx{m_id_sct->wafer_hash(moduleId)};
-      int side{m_id_sct->side(elementId)};
-      if (side==1) m_id_sct->get_other_side(hashIdx, hashIdx);
-      unsigned int waferIdx{hashIdx};
-      //unsigned int waferIdx=hashIdx+side; //uhm
-      // Get strip on wafer to check
-      int strip{m_id_sct->strip(elementId)};
-      // Retrieve isGood Wafer data
-
-      const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
-      if (condDataInfo==nullptr) {
-        ATH_MSG_ERROR("In isGood, SCT_AllGoodStripInfo cannot be retrieved");
-        return false;
-      }
-      // Set value
-      status = (*condDataInfo)[waferIdx][strip];
-      break;
-    }
   default:
     {
-      status = true ;
       ATH_MSG_INFO("Unknown component has been asked for, should be Module/Wafer/Chip or Strip; returning 'good' and continuing");
     }    
   } //end of switch structure

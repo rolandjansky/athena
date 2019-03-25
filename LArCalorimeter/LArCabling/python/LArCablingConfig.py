@@ -25,7 +25,8 @@ def _larCablingCfg(configFlags,algo,folder):
 
     result.addCondAlgo(algo(ReadKey=folder))
     result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
-    return result,None
+    #print result
+    return result
 
 
 def LArOnOffIdMappingCfg(configFlags):
@@ -51,8 +52,8 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc = LArOnOffIdMappingCfg( ConfigFlags )[0]
-    acc.merge(LArFebRodMappingCfg(ConfigFlags)[0])
-    acc.merge(LArCalibIdMappingCfg(ConfigFlags)[0])
+    acc = LArOnOffIdMappingCfg( ConfigFlags )
+    acc.merge(LArFebRodMappingCfg(ConfigFlags))
+    acc.merge(LArCalibIdMappingCfg(ConfigFlags))
     acc.store( file( "test.pkl", "w" ) )
     print "All OK"

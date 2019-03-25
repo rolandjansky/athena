@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMTRACKMATCHBUILDER_H
@@ -19,7 +19,6 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "TrackMatchSorter.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "GaudiKernel/EventContext.h"
 
@@ -53,6 +52,25 @@ class EMTrackMatchBuilder : public AthAlgTool, virtual public IEMTrackMatchBuild
   virtual StatusCode trackExecute(const EventContext& ctx, egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const override final;
 
 private:
+
+  /** @brief A structure for keeping track match information */
+  struct TrackMatch
+  {
+  public:
+    int trackNumber;
+    double dR;
+    double seconddR;
+    bool isTRT;
+    int score;
+    int hitsScore;
+    double deltaPhiLast;
+    double deltaEta[4];
+    double deltaPhi[4];
+    double deltaPhiRescaled[4];
+  };
+
+  /** @brief function to sort track matches based on quality */
+  static bool TrackMatchSorter(const TrackMatch& match1, const TrackMatch& match2);
 
   /** @brief Compute for tracks passing the loose matching
    the distance between track extrapolated to 2nd sampling and cluster */

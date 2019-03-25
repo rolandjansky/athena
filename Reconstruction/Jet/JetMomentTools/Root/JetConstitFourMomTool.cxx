@@ -119,13 +119,15 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
 	 citer != constituents.end(constscale); ++citer) {
       for (size_t iScale=0; iScale<nScales; ++iScale) {
 	// If altJetScales is set, do nothing in the constituent loop.
-	if(m_altJetScales.empty()) {
+	if(m_altJetScales[iScale].empty()) {
 	  if(altCollections[iScale]) { // get the index-parallel alternative constituent
 	    const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>((*altCollections[iScale])[(*citer)->rawConstituent()->index()]);
-      xAOD::CaloCluster::State currentState= static_cast<xAOD::CaloCluster::State> (m_altConstitScales[iScale]);
-      constitFourVecs[iScale] += xAOD::JetFourMom_t( cluster->pt(currentState), cluster->eta(currentState), 
-                                                     cluster->phi(currentState), cluster->m(currentState) );
+	    xAOD::CaloCluster::State currentState= static_cast<xAOD::CaloCluster::State> (m_altConstitScales[iScale]);
+	    constitFourVecs[iScale] += xAOD::JetFourMom_t( cluster->pt(currentState), cluster->eta(currentState), 
+							   cluster->phi(currentState), cluster->m(currentState) );
+	    ATH_MSG_VERBOSE("Add cluster with pt " << cluster->pt() << " to constit fourvec for scale " << m_jetScaleNames[iScale] );
 	  } else { // add the constituent 4-mom
+	    ATH_MSG_VERBOSE("Add raw constituent with pt " << (*citer)->pt() << " to constit fourvec for scale " << m_jetScaleNames[iScale] );
 	    constitFourVecs[iScale] += **citer;
 	  }
 	}
@@ -133,16 +135,26 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
     } // loop over clusters
 
     // Now we can set the scales from the various four-vecs we have calculated
+    ATH_MSG_VERBOSE("Jet has "
+		 << " pt: " << jet->pt()
+		 << ", eta: " << jet->eta()
+		 << ", phi: " << jet->phi());
     for (size_t iScale=0; iScale<nScales; ++iScale) {
-      if(m_altJetScales.empty()) {
+      if(!m_altJetScales[iScale].empty()) {
 	// Easy case first -- just copy the momentum state
 	constitFourVecs[iScale] = jet->jetP4(m_altJetScales[iScale]);
       }
+      ATH_MSG_VERBOSE("Scale " << m_jetScaleNames[iScale] << " has "
+		   << " pt: " << constitFourVecs[iScale].Pt()
+		   << ", eta: " << constitFourVecs[iScale].Eta()
+		   << ", phi: " << constitFourVecs[iScale].Phi());
       if(m_isDetectorEtaPhi[iScale]) {
 	const static SG::AuxElement::Accessor<float> acc_modEta("DetectorEta");
 	const static SG::AuxElement::Accessor<float> acc_modPhi("DetectorPhi");
 	acc_modEta(*jet) = constitFourVecs[iScale].Eta();
 	acc_modPhi(*jet) = constitFourVecs[iScale].Phi();
+      ATH_MSG_VERBOSE("Detector eta: " << constitFourVecs[iScale].Eta()
+		   << ", phi: " << constitFourVecs[iScale].Phi());
       } else {
 	jet->setJetP4(m_jetScaleNames[iScale], constitFourVecs[iScale]);
       }

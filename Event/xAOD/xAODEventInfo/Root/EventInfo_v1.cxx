@@ -350,6 +350,37 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, float,
                                          averageInteractionsPerCrossing,
                                          setAverageInteractionsPerCrossing )
+   
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, unsigned long long,
+                                         pileUpMixtureIDLowBits,
+                                         setPileUpMixtureIDLowBits )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, unsigned long long,
+                                         pileUpMixtureIDHighBits,
+                                         setPileUpMixtureIDHighBits )
+
+   EventInfo_v1::PileUpMixtureID EventInfo_v1::pileUpMixtureID() const {
+
+      static const Accessor< unsigned long long > accLow( "pileUpMixtureIDLowBits" );
+      static const Accessor< unsigned long long > accHigh( "pileUpMixtureIDHighBits" );
+
+      PileUpMixtureID id{};
+
+      // We need to check if the values are actually stored
+      if ( accLow.isAvailable( *this ) && accHigh.isAvailable( *this ) ) {
+         id.lowBits = pileUpMixtureIDLowBits();
+         id.highBits = pileUpMixtureIDHighBits();
+      }
+
+      return id;
+
+   }
+
+   void EventInfo_v1::setPileUpMixtureID( const PileUpMixtureID& value ) {
+
+      setPileUpMixtureIDLowBits( value.lowBits );
+      setPileUpMixtureIDHighBits( value.highBits );
+
+   }
 
    EventInfo_v1::SubEvent::
    SubEvent( int16_t time, uint16_t index, PileUpType type,
@@ -964,6 +995,50 @@ namespace xAOD {
 
       // Return the stream:
       return out;
+   }
+
+   /// This operator is provided to make it convenient to print debug messages
+   /// including information about the PileUpMixtureID in hex.
+   ///
+   /// @param out The output stream to write PileUpMixtureID information to
+   /// @param id The PileUpMixtureID object to print information about
+   /// @returns The same output stream that the operator received
+   ///
+   std::ostream& operator<<( std::ostream &out,
+                             const xAOD::EventInfo_v1::PileUpMixtureID& id ) {
+
+       // Get the current state of the stream:
+       const char fillChar = out.fill();
+       const std::ios_base::fmtflags flags = out.flags();
+       const std::streamsize width = out.width();
+
+       // Do the printout:
+       out << std::hex << std::setw( 16 ) << std::setfill( '0' );
+       out << id.lowBits;
+       out << id.highBits;
+
+       // Restore the original state of the stream:
+       out.fill( fillChar );
+       out.flags( flags );
+       out.width( width );
+
+
+       // Return the stream:
+       return out;  
+   }
+
+   /// This operator is provided to make it convenient to compare two
+   /// instances of PileUpMixtureID directly.
+   ///
+   /// @param a The PileUpMixtureID object to compare
+   /// @param b The PileUpMixtureID object to compare
+   /// @returns Comparison result
+   ///
+   bool operator== ( const xAOD::EventInfo_v1::PileUpMixtureID& a,
+                     const xAOD::EventInfo_v1::PileUpMixtureID& b ) {
+
+       return a.lowBits == b.lowBits && a.highBits == b.highBits;
+
    }
 
 } // namespace xAOD

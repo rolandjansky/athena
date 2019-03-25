@@ -39,10 +39,11 @@
 
 //###############################################################################
 
-CaloNeighbourRegion::CaloNeighbourRegion(const std::string name,
+CaloNeighbourRegion::CaloNeighbourRegion(const std::string& name,
                                          const CaloCell_Base_ID *theCaloId) :
+  m_name(name),
   m_type(nextInCalo),
-  m_calo_id(0),
+  m_calo_id(theCaloId),
   m_hasPhi(false),
   m_iPhiSource(0),
   m_iPhiTarget(0),
@@ -52,30 +53,12 @@ CaloNeighbourRegion::CaloNeighbourRegion(const std::string name,
   m_isValidMinus(false),
   m_isValidPlus(false)
 {
-  m_name = name;
-  m_calo_id = theCaloId;
 }
 
 //###############################################################################
 
 CaloNeighbourRegion::~CaloNeighbourRegion()
 {
-  std::vector< std::vector<IdentifierHash>* >::iterator nIter = m_neighbours_plus.begin();
-  std::vector< std::vector<IdentifierHash>* >::iterator nIterEnd = m_neighbours_plus.end();
-  for(; nIter != nIterEnd; nIter++ ) {
-    if ( (*nIter) ) {
-      delete (*nIter);
-      (*nIter) = 0;
-    }
-  }
-  nIter = m_neighbours_minus.begin();
-  nIterEnd = m_neighbours_minus.end();
-  for(; nIter != nIterEnd; nIter++ ) {
-    if ( (*nIter) ) {
-      delete (*nIter);
-      (*nIter) = 0;
-    }
-  }
 }
 
 //###############################################################################
@@ -231,12 +214,10 @@ int CaloNeighbourRegion::setNeighbours(ExpandedIdentifier& id1,
       // get hash ID's for the source 
       IdentifierHash myHash = m_calo_id->calo_cell_hash (myId);
       // get ID's and hash ID's for the target
-      std::vector<ExpandedIdentifier>::const_iterator idIter    = id2.begin();
-      std::vector<ExpandedIdentifier>::const_iterator idIterEnd = id2.end();
       std::vector<IdentifierHash> theTargetHashIDs;
-      for ( ; idIter != idIterEnd; idIter++ ) {
+      for (const ExpandedIdentifier& eid : id2) {
 	Identifier myTargetId;
-	ExpandedIdentifier myNExpID(*idIter);
+	ExpandedIdentifier myNExpID(eid);
 	if ( getId(myNExpID,myTargetId,m_targetRange,side,dphi2) ) {
 	  return 1;
 	}
@@ -260,25 +241,19 @@ int CaloNeighbourRegion::setNeighbours(ExpandedIdentifier& id1,
 void  CaloNeighbourRegion::initializeVectors(std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>& neighbourMapPlus, std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>& neighbourMapMinus)
 {
   if ( m_isValidMinus ) {
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_iterator first = neighbourMapMinus.begin();
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_iterator end = neighbourMapMinus.end();
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_reverse_iterator last = neighbourMapMinus.rbegin();
-    m_minHashMinus = (*first).first;
-    m_maxHashMinus = (*last).first;
-    m_neighbours_minus.resize((unsigned int)(m_maxHashMinus-m_minHashMinus+1),0);
-    for(;first != end;first++) {
-      m_neighbours_minus[(unsigned int)((*first).first-m_minHashMinus)] = new std::vector<IdentifierHash>((*first).second);
+    m_minHashMinus = neighbourMapMinus.begin()->first;
+    m_maxHashMinus = neighbourMapMinus.rbegin()->first;
+    m_neighbours_minus.resize((unsigned int)(m_maxHashMinus-m_minHashMinus+1));
+    for (const auto& p : neighbourMapMinus) {
+      m_neighbours_minus[(unsigned int)(p.first-m_minHashMinus)] = std::make_unique<std::vector<IdentifierHash> >(p.second);
     }
   }
   if ( m_isValidPlus ) {
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_iterator first = neighbourMapPlus.begin();
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_iterator end = neighbourMapPlus.end();
-    std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash>::const_reverse_iterator last = neighbourMapPlus.rbegin();
-    m_minHashPlus = (*first).first;
-    m_maxHashPlus = (*last).first;
-    m_neighbours_plus.resize((unsigned int)(m_maxHashPlus-m_minHashPlus+1),0);
-    for(;first != end;first++) {
-      m_neighbours_plus[(unsigned int)((*first).first-m_minHashPlus)] = new std::vector<IdentifierHash>((*first).second);
+    m_minHashPlus = neighbourMapPlus.begin()->first;
+    m_maxHashPlus = neighbourMapPlus.rbegin()->first;
+    m_neighbours_plus.resize((unsigned int)(m_maxHashPlus-m_minHashPlus+1));
+    for (const auto& p : neighbourMapPlus) {
+      m_neighbours_plus[(unsigned int)(p.first-m_minHashPlus)] = std::make_unique<std::vector<IdentifierHash> >(p.second);
     }
   }
 
@@ -315,23 +290,6 @@ CaloNeighbours::CaloNeighbours() :
 
 CaloNeighbours::~CaloNeighbours()
 {
-  std::vector<CaloNeighbourRegion*>::iterator rIter    = m_next_regions.begin();
-  std::vector<CaloNeighbourRegion*>::iterator rIterEnd = m_next_regions.end();
-  for(; rIter != rIterEnd; rIter++ ) {
-    if ((*rIter)) {
-      delete (*rIter);
-      (*rIter) = 0;
-    }
-  }
-
-  rIter    = m_prev_regions.begin();
-  rIterEnd = m_prev_regions.end();
-  for(; rIter != rIterEnd; rIter++ ) {
-    if ((*rIter)) {
-      delete (*rIter);
-      (*rIter) = 0;
-    }
-  }
 }
 
 //###############################################################################
@@ -430,7 +388,7 @@ int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
 //	}
 //	std::cout << std::endl;
 	// create new CaloNeighbourRegion
-	CaloNeighbourRegion * myRegion = new CaloNeighbourRegion(cName,m_calo_id);
+	auto myRegion = std::make_unique<CaloNeighbourRegion>(cName,m_calo_id);
 	if ( isNext )
 	  myRegion->setType(nextInCalo);
 	else
@@ -473,9 +431,9 @@ int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
 	} while (!fin.eof() && !endOfBlock);
 	myRegion->initializeVectors(neighbourMapPlus,neighbourMapMinus);
 	if (isNext) 
-	  m_next_regions.push_back(myRegion);
+	  m_next_regions.push_back(std::move(myRegion));
 	else
-	  m_prev_regions.push_back(myRegion);
+	  m_prev_regions.push_back(std::move(myRegion));
       }
       else {
 	std::cout << "CaloNeighbours::initialize ERROR Invalid neighbour dat file, exiting ... " << std::endl;
@@ -504,13 +462,13 @@ int CaloNeighbours::get_prevInCalo(const IdentifierHash &id,std::vector<Identifi
 
 //###############################################################################
 
-int CaloNeighbours::get_neighbours(const IdentifierHash &id, const std::vector<CaloNeighbourRegion*> &regions, std::vector<IdentifierHash>& neighbourList) const
+int CaloNeighbours::get_neighbours(const IdentifierHash &id,
+                                   const std::vector<std::unique_ptr<CaloNeighbourRegion> > &regions,
+                                   std::vector<IdentifierHash>& neighbourList) const
 {
   int result = 0;
-  std::vector<CaloNeighbourRegion*>::const_iterator rIter    = regions.begin();
-  std::vector<CaloNeighbourRegion*>::const_iterator rIterEnd = regions.end();
-  for(; rIter != rIterEnd; rIter++ ) {
-    result = (*rIter)->getNeighbours(id,neighbourList);
+  for (const std::unique_ptr<CaloNeighbourRegion>& p : regions) {
+    result = p->getNeighbours(id,neighbourList);
     if ( result != 0 )
       return result;
   }

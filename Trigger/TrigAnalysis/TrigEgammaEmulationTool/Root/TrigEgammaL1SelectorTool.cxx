@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 /**********************************************************************
  * AsgTool: TrigEgammaL1SelectorTool
@@ -26,15 +26,14 @@ TrigEgammaL1SelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
   // L1 configuration parameters
-  declareProperty( "WPNames"      ,  m_wpNames         ); // must be: ["T","M","L"] (Tight,Medium and Loose)
-  declareProperty( "HadCoreCutMin",  m_hadCoreCutMin   ); // must be a list with for values: (default,tight,medium and loose)
-  declareProperty( "HadCoreCutOff",  m_hadCoreCutOff   );
-  declareProperty( "HadCoreSlope" ,  m_hadCoreSlope    );
-  declareProperty( "EmIsolCutMin" ,  m_emIsolCutMin    );
-  declareProperty( "EmIsolCutOff" ,  m_emIsolCutOff    );
-  declareProperty( "EmIsolSlope"  ,  m_emIsolCutSlope  );
-  declareProperty( "IsolCutMax"   ,  m_isolMaxCut = 50 );
-
+  declareProperty( "WPNames"      ,  m_wpNames            ); // must be: ["T","M","L"] (Tight,Medium and Loose)
+  declareProperty( "HadCoreCutMin",  m_hadCoreCutMin      ); // must be a list with for values: (default,tight,medium and loose)
+  declareProperty( "HadCoreCutOff",  m_hadCoreCutOff      );
+  declareProperty( "HadCoreSlope" ,  m_hadCoreSlope       );
+  declareProperty( "EmIsolCutMin" ,  m_emIsolCutMin       );
+  declareProperty( "EmIsolCutOff" ,  m_emIsolCutOff       );
+  declareProperty( "EmIsolSlope"  ,  m_emIsolCutSlope     );
+  declareProperty( "IsolCutMax"   ,  m_isolMaxCut = 50    );
 }
 //**********************************************************************
 StatusCode TrigEgammaL1SelectorTool::initialize() {
@@ -61,6 +60,8 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
     return false;
   }
 
+
+
   //Retrieve L1 informations
   std::string l1type = info.L1Type;
   std::string L1Item = info.L1Item;
@@ -70,6 +71,8 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   ATH_MSG_DEBUG("L1 type        = " << l1type);
   ATH_MSG_DEBUG("L1 Item        = " << L1Item);
   
+
+ 
   unsigned c=0;
   if(boost::contains(l1type,m_wpNames[0]))  c=1; // Tight
   if(boost::contains(l1type,m_wpNames[1]))  c=2; // Medium

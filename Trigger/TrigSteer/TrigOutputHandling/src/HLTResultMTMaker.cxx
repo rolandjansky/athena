@@ -5,6 +5,7 @@
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "AthenaMonitoring/Monitored.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include <sstream>
 
 // Local helpers
 namespace {
@@ -32,15 +33,17 @@ namespace {
     return removedIds;
   }
   /// Print helper for set<uint32_t>
-  std::ostream& operator<<(std::ostream& str, const std::set<uint32_t>& set) {
+  std::string format(const std::set<uint32_t>& set) {
+    std::ostringstream ss;
     for (const uint32_t id : set)
-      str << "0x" << std::hex << std::setfill('0') << std::setw(8) << id << std::dec << " ";
-    return str;
+      ss << "0x" << std::hex << std::setfill('0') << std::setw(8) << id << std::dec << " ";
+    return ss.str();
   }
   /// Print helper for set<eformat::SubDetector>
-  std::ostream& operator<<(std::ostream& str, const std::set<eformat::SubDetector>& set) {
-    for (const eformat::SubDetector id : set) str << eformat::helper::SubDetectorDictionary.string(id) << " ";
-    return str;
+  std::string format(const std::set<eformat::SubDetector>& set) {
+    std::ostringstream ss;
+    for (const eformat::SubDetector id : set) ss << eformat::helper::SubDetectorDictionary.string(id) << " ";
+    return ss.str();
   }
 }
 
@@ -131,8 +134,12 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   // Fill the object using the result maker tools
   auto time =  Monitored::Timer("TIME_build" );
+  StatusCode finalStatus = StatusCode::SUCCESS;
   for (auto& maker: m_makerTools) {
-    ATH_CHECK(maker->fill(*hltResult));
+    if (StatusCode sc = maker->fill(*hltResult); sc.isFailure()) {
+      ATH_MSG_ERROR(maker->name() << " failed");
+      finalStatus = sc;
+    }
   }
   time.stop();
 
@@ -151,7 +158,7 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   Monitored::Group(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
 
-  return StatusCode::SUCCESS;
+  return finalStatus;
 }
 
 // =============================================================================
@@ -161,14 +168,14 @@ void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
   for (eformat::helper::StreamTag& st : hltResult.getStreamTagsNonConst()) {
     std::set<uint32_t> removedROBs = removeDisabled(st.robs,m_enabledROBs);
     if (!removedROBs.empty())
-      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled ROBs: " << removedROBs
+      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled ROBs: " << format(removedROBs)
                       << " - these ROBs were removed from the StreamTag by " << name());
     else
       ATH_MSG_VERBOSE("No disabled ROBs were requested by StreamTag " << st.type << "_" << st.name);
 
     std::set<eformat::SubDetector> removedSubDets = removeDisabled(st.dets,m_enabledSubDets);
     if (!removedSubDets.empty())
-      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled SubDets: " << removedSubDets
+      ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled SubDets: " << format(removedSubDets)
                       << " - these SubDets were removed from the StreamTag by " << name());
     else
       ATH_MSG_VERBOSE("No disabled SubDets were requested by StreamTag " << st.type << "_" << st.name);

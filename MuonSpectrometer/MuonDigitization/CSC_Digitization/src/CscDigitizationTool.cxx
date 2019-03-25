@@ -21,8 +21,6 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 using namespace MuonGM;
 
 static constexpr unsigned int crazyParticleBarcode(
@@ -196,14 +194,6 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
 
 StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine) {
 
-  // get the iterator pairs for this DetEl
-  //iterate over hits
-  const xAOD::EventInfo* pevt = nullptr;
-  ATH_CHECK( evtStore()->retrieve(pevt) );
-  m_evt = pevt->eventNumber();
-  m_run = pevt->runNumber();
-
-
   std::map <IdentifierHash,deposits> myDeposits;
   csc_map    data_map;
   csc_newmap data_SampleMap, data_SampleMapOddPhase;
@@ -216,6 +206,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
     return StatusCode::FAILURE;
   }
 
+  // get the iterator pairs for this DetEl
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
 
     // Loop over the hits:
@@ -393,7 +384,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     //    CscDigit * newDigitOddPhase  = new CscDigit(digitId, samplesOddPhase);
 
     ATH_MSG_DEBUG ( "NEWDigit sec:measphi:wlay:istr:chg:t(w/latency) "
-                    << m_run << " " << m_evt << " " << m_cscIdHelper->show_to_string(digitId,&context)
+                    << m_cscIdHelper->show_to_string(digitId,&context)
                     << " hash:eleId = " << hashId << " " << elementId << " " << prevId << "   "
                     << sector << " " << measphi << " " <<  wlay << " " << istrip << "   "
                     << int(stripCharge+1) << " " << float(driftTime)
@@ -519,7 +510,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     Identifier elementId = m_cscIdHelper->parentID(digitId);
 
     ATH_MSG_DEBUG ( "CSC Digit sector:measphi:wlay:istrip:charge "
-                    << m_run << " " << m_evt << " " << sector << " "
+                    << sector << " "
                     << measphi << " " <<  wlay << " " << istrip
                     << " " << int(stripCharge+1) << " " << float(driftTime) << " " << (newDigit->sampleCharges()).size());
 

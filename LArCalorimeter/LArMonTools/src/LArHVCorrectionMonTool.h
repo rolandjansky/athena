@@ -21,6 +21,7 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -28,7 +29,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
 #include "LArCabling/LArCablingLegacyService.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 
 #include <string>
@@ -83,9 +83,11 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
   ToolHandle<LArCablingLegacyService> m_larCablingService;  
-  /** Handle to hv tools */
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
-  const DataHandle<ILArHVScaleCorr>  m_dd_HVScaleCorr;
+
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
 
  private:
 
@@ -98,7 +100,6 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
 
   // Properties
   std::string m_channelKey;
-  std::string m_keyHVScaleCorr;
   float m_threshold;
   float m_delta_eta;
   float m_delta_phi;

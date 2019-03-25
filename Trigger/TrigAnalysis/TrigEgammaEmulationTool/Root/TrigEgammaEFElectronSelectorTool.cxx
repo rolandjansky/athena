@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 /**********************************************************************
@@ -13,12 +13,11 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
-#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
 #include <boost/dynamic_bitset.hpp>
-
+#include "PATCore/AcceptData.h"
 using namespace std;
 using namespace Trig;
 //**********************************************************************
@@ -85,11 +84,13 @@ bool TrigEgammaEFElectronSelectorTool::emulation(const xAOD::IParticleContainer 
   boost::dynamic_bitset<> bitAccept(elContainer->size());
   unsigned bit = 0;
   float etthr  = info.thrHLT;
-  // auto avgmu = getAverageMu();
   auto avgmu = getOnlAverageMu();
 
   for(const auto& el : *elContainer){
     bit++;
+    ATH_MSG_INFO("Size = " << el->trackParticle()->numberOfParameters());
+    //auto maxParameters = el->trackParticle()->numberOfParameters();
+
     //emulate electron cuts
     if (info.idperf  || info.etcut || info.perf ) {
       //ATH_MSG_DEBUG("Apply Et cut " << etthr << " cluster Et " << el->caloCluster()->et());
@@ -130,28 +131,28 @@ bool TrigEgammaEFElectronSelectorTool::ApplyElectronPid(const xAOD::Electron *eg
   const EventContext ctx = Gaudi::Hive::currentContext();
 
   if (pidname == "Tight") {
-    passTool = (bool) m_electronOnlIsEMTool[0]->accept(ctx, eg);
+    passTool = (bool)m_electronOnlIsEMTool[0]->accept(ctx,eg);
   }
   else if (pidname == "Medium") {
-    passTool = (bool) m_electronOnlIsEMTool[1]->accept(ctx, eg);
+    passTool = (bool)m_electronOnlIsEMTool[1]->accept(ctx,eg);
   }
   else if (pidname == "Loose") {
-    passTool = (bool) m_electronOnlIsEMTool[2]->accept(ctx, eg);
+    passTool = (bool)m_electronOnlIsEMTool[2]->accept(ctx,eg);
   }
   else if (pidname == "VLoose") {
-    passTool = (bool) m_electronOnlIsEMTool[3]->accept(ctx, eg);
+    passTool = (bool)m_electronOnlIsEMTool[3]->accept(ctx,eg);
   }
   else if (pidname == "LHTight") {
-    passTool = (bool) m_electronOnlLHTool[0]->accept(ctx, eg,avgmu);
+    passTool = (bool)m_electronOnlLHTool[0]->accept(ctx,eg,avgmu);
   }// Tight
   else if (pidname == "LHMedium") {
-    passTool = (bool) m_electronOnlLHTool[1]->accept(ctx, eg,avgmu);
+    passTool = (bool)m_electronOnlLHTool[1]->accept(ctx,eg,avgmu);
   }// Medium
   else if (pidname == "LHLoose") {
-    passTool = (bool) m_electronOnlLHTool[2]->accept(ctx, eg,avgmu);
+    passTool = (bool)m_electronOnlLHTool[2]->accept(ctx,eg,avgmu);
   }// Loose
   else if (pidname == "LHVLoose") {
-    passTool = (bool) m_electronOnlLHTool[3]->accept(ctx, eg,avgmu);
+    passTool = (bool)m_electronOnlLHTool[3]->accept(ctx,eg,avgmu);
   }// VeryLoose
   else {
     ATH_MSG_DEBUG("No Pid tool, continue without PID");
@@ -189,7 +190,6 @@ bool TrigEgammaEFElectronSelectorTool::ApplyIsolation(const xAOD::Electron *el, 
     ATH_MSG_DEBUG("No Isolation tool, continue without ISO");
     return true;
   }
-  
 
   if (!status)
     ATH_MSG_WARNING("Problem to emulate the isolation selector.");

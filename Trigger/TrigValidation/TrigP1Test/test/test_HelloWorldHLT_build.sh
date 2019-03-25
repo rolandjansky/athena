@@ -2,22 +2,11 @@
 
 # art-description: HelloWorld in athenaHLT
 # art-type: build
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-include: 21.0/AthenaP1
-# art-include: 21.0-TrigMC/AthenaP1
- 
- 
-
-if [ -z ${TEST} ]; then
-  export TEST="TrigP1Test"
-fi
+# art-include: master/Athena
 
 export NAME=HelloWorldHLT
-export JOB_LOG="${NAME}.log"
+# use export ART_FILE_NAME=... to set the INPUT_FILE value 
+export ART_CMD="athenaHLT.py -n 10 -f INPUT_FILE AthExHelloWorld/HelloWorldOptions.py"
 
-timeout 5m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
-
-ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${NAME}"
+exec_art_trigp1test.sh -c "${ART_CMD}" -t "20m"
 

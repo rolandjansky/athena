@@ -19,6 +19,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDEtaMassCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDPhiCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetMTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
@@ -103,6 +104,30 @@ Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
   }
   return conditions;
 }
+
+
+Conditions conditionsFactoryDijetMT(const std::vector<double>& massMins,
+                                    const std::vector<double>& massMaxs,
+                                    const std::vector<double>& detaMins,
+                                    const std::vector<double>& detaMaxs,
+                                    const std::vector<double>& dphiMins,
+                                    const std::vector<double>& dphiMaxs){  
+  Conditions conditions;
+  
+  for(std::size_t i = 0; i < massMins.size(); ++i){
+    std::shared_ptr<ICondition>
+      pCondition(new DijetMTCondition(massMins[i],
+                                      massMaxs[i],
+                                      detaMins[i],
+                                      detaMaxs[i],
+                                      dphiMins[i],
+                                      dphiMaxs[i]));
+    
+    conditions.push_back(ConditionBridge(pCondition));
+  }
+  return conditions;
+}
+
 
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etaMins,
                                          const std::vector<double>& etaMaxs,

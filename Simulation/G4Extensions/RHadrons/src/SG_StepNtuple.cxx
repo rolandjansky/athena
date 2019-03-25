@@ -23,10 +23,15 @@
 namespace G4UA
 {
 
-  SG_StepNtuple::SG_StepNtuple()
+  SG_StepNtuple::SG_StepNtuple(const std::vector<int>& pdgids)
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
                    "SG_StepNtuple")
-  {}
+  {
+    // Load up the PDG IDs
+    for (int i : pdgids ){
+      m_rhs.insert(i);
+    }
+  }
 
   void SG_StepNtuple::BeginOfRunAction(const G4Run*)
   {
@@ -81,58 +86,6 @@ namespace G4UA
     //set initial values
     m_nevents=0;
 
-    //These are the RHadron pdg_id
-
-    //newest codes for intermediate states
-    rhs.insert(1000991);
-    rhs.insert(1009211);
-    rhs.insert(1009111);
-    rhs.insert(1009311);
-    rhs.insert(1009321);
-    rhs.insert(1093122);
-    rhs.insert(1092212);
-    rhs.insert(1092112);
-    //All other Rhadron codes
-    rhs.insert(1000993);
-    rhs.insert(1009213);
-    rhs.insert(1009313);
-    rhs.insert(1009323);
-    rhs.insert(1009113);
-    rhs.insert(1009223);
-    rhs.insert(1009333);
-    rhs.insert(1091114);
-    rhs.insert(1092114);
-    rhs.insert(1092214);
-    rhs.insert(1092224);
-    rhs.insert(1093114);
-    rhs.insert(1093214);
-    rhs.insert(1093224);
-    rhs.insert(1093314);
-    rhs.insert(1093324);
-    rhs.insert(1093334);
-    //adding to stop rhadron values by pdg_id
-    rhs.insert(1000612);
-    rhs.insert(1000622);
-    rhs.insert(1000632);
-    rhs.insert(1000642);
-    rhs.insert(1000652);
-    rhs.insert(1006113);
-    rhs.insert(1006211);
-    rhs.insert(1006213);
-    rhs.insert(1006223);
-    rhs.insert(1006311);
-    rhs.insert(1006313);
-    rhs.insert(1006321);
-    rhs.insert(1006323);
-    rhs.insert(1006333);
-    //adding to sbottom rhadron values by pdg_id
-    rhs.insert(1000512);
-    rhs.insert(1000522);
-    rhs.insert(1005211);
-    //adding the stau by pdg_id
-    rhs.insert(1000015);
-    assert(rhs.size()==43);
-
   }
 
   void SG_StepNtuple::BeginOfEventAction(const G4Event*)
@@ -157,7 +110,7 @@ namespace G4UA
     if(m_nsteps<50000){
       int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       bool rhad=false;
-      if (std::find(rhs.begin(),rhs.end(),std::abs(pdg))!=rhs.end()) {
+      if (std::find(m_rhs.begin(),m_rhs.end(),std::abs(pdg))!=m_rhs.end()) {
         rhad=true;
       }
 

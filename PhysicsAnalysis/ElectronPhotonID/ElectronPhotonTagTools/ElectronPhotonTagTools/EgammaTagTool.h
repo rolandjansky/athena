@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATAGTOOL_H 
@@ -14,17 +14,13 @@ Purpose : build the Egamma Tag objects - AnalysisTag.h.
 	  The Egamma Analysis Tag fragment is built here
 *****************************************************************************/
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/EventID.h"
-//#include "egammaEvent/ElectronContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
-//#include "egammaEvent/PhotonContainer.h"
-//#include "MissingETEvent/MissingET.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include <vector>
@@ -51,12 +47,12 @@ public:
 
 private:
   bool ZeeSelection (const xAOD::ElectronContainer* eleColl,
-                     const DataHandle<EventInfo>& eventInfo);
+                     SG::ReadHandle<xAOD::EventInfo> eventInfo);
   bool WenuSelection (const xAOD::ElectronContainer* eleColl,
                       const xAOD::MissingETContainer* metTopo,
-                      const DataHandle<EventInfo>& eventInfo);
+                      SG::ReadHandle<xAOD::EventInfo> eventInfo);
   void dumpEventDetails(const xAOD::Electron*,
-                        const DataHandle<EventInfo>& eventInfo);
+                        SG::ReadHandle<xAOD::EventInfo> eventInfo);
 
 
 private:
@@ -78,6 +74,8 @@ private:
   double m_welectronPtCut; 
   
   double m_invMass;
+
+  SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
  };
 
 #endif // ELECTRONTAGTOOL_H

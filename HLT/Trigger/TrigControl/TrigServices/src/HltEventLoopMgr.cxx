@@ -10,6 +10,7 @@
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
+#include "AthenaKernel/AthStatusCode.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -102,7 +103,10 @@ StatusCode HltEventLoopMgr::initialize()
   // Setup properties
   //----------------------------------------------------------------------------
 
-  // read DataFlow configuration properties
+  // Set the timeout value (cast float to int)
+  m_softTimeoutValue = static_cast<int>(m_hardTimeout.value() * m_softTimeoutFraction.value());
+
+  // Read DataFlow configuration properties
   updateDFProps();
 
   // JobOptions type
@@ -124,9 +128,11 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
   ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout.value());
   ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutValue        = " << m_softTimeoutValue);
   ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors.value());
   ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> TimeoutDebugStreamName  = " << m_timeoutDebugStreamName.value());
   ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
   ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
 
@@ -943,7 +949,8 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr) const
 // =============================================================================
 StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const EventContext& eventContext)
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " with errorCode = " << hltonl::PrintPscErrorCode(errorCode)
+                  << ", context = " << eventContext << " eventID = " << eventContext.eventID());
 
   // Used by MsgSvc (and possibly others but not relevant here)
   Gaudi::Hive::setCurrentContext(eventContext);
@@ -1014,15 +1021,8 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   }
 
   //----------------------------------------------------------------------------
-  // Try to retrieve event info for printouts
+  // Handle SCHEDULING_FAILURE
   //----------------------------------------------------------------------------
-  auto eventInfo = SG::makeHandle(m_eventInfoRHKey,eventContext);
-  std::ostringstream ss;
-  if (eventInfo.isValid()) {
-    ss << *eventInfo->event_ID();
-  }
-  std::string eventInfoString = ss.str();
-
   if (errorCode==hltonl::PSCErrorCode::SCHEDULING_FAILURE) {
     // Here we cannot be certain if the scheduler started processing the event or not, so we can only try to drain
     // the scheduler and continue. Trying to create a debug stream result for this event and clear the event slot may
@@ -1030,7 +1030,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "Failure occurred with PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << ". Cannot determine if the"
       << " event processing started or not. Current local event number is " << eventContext.evt()
-      << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1057,7 +1057,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "Failed to record the HLT Result in event store while handling a failed event. Likely an issue with the store."
       << " PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << ", local event number " << eventContext.evt()
-      << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1066,9 +1066,17 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   // Set error code and make sure the debug stream tag is added
   //----------------------------------------------------------------------------
   hltResultWH->addErrorCode( static_cast<uint32_t>(errorCode) );
-  std::string debugStreamName = (errorCode==hltonl::PSCErrorCode::PROCESSING_FAILURE) ?
-                                m_algErrorDebugStreamName.value() : m_fwkErrorDebugStreamName.value();
-  hltResultWH->addStreamTag({debugStreamName,eformat::DEBUG_TAG,true});
+  switch (errorCode) {
+    case hltonl::PSCErrorCode::PROCESSING_FAILURE:
+      hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      break;
+    case hltonl::PSCErrorCode::TIMEOUT:
+      hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      break;
+    default:
+      hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      break;
+  }
 
   //----------------------------------------------------------------------------
   // Try to build and send the output
@@ -1077,7 +1085,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "The output conversion service failed in connectOutput() while handling a failed event. No HLT result can be"
       << " recorded for this event. PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << ", local event number "
-      << eventContext.evt() << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << eventContext.evt() << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1087,7 +1095,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "Failed to retrieve DataObject for the HLT result object while handling a failed event. No HLT result"
       << " can be recorded for this event. PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode)
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1097,7 +1105,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "Conversion of HLT result object to the output format failed while handling a failed event. No HLT result"
       << " can be recorded for this event. PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode)
-      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << ", local event number " << eventContext.evt() << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1106,7 +1114,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     ATH_REPORT_MESSAGE(MSG::ERROR)
       << "The output conversion service failed in commitOutput() while handling a failed event. No HLT result can be"
       << " recorded for this event. PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << ", local event number "
-      << eventContext.evt() << ", slot " << eventContext.slot() << ". " << eventInfoString
+      << eventContext.evt() << ", slot " << eventContext.slot() << ", eventID = " << eventContext.eventID()
       << " All slots of this HltEventLoopMgr instance will be drained before proceeding.";
     return drainAllAndProceed();
   }
@@ -1123,14 +1131,14 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   // Finish handling the failed event
   //----------------------------------------------------------------------------
 
-  // Unless this is a processing (i.e. algorithm) failure, increment the number of framework failures
-  if (errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
+  // Unless this is a timeout or processing (i.e. algorithm) failure, increment the number of framework failures
+  if (errorCode != hltonl::PSCErrorCode::TIMEOUT && errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
     if ( (++m_nFrameworkErrors)>m_maxFrameworkErrors.value() ) {
       ATH_REPORT_MESSAGE(MSG::ERROR)
         << "Failure with PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << " was successfully handled, but the"
         << " number of tolerable framework errors for this HltEventLoopMgr instance, which is "
         << m_maxFrameworkErrors.value() << ", was exceeded. Current local event number is " << eventContextCopy.evt()
-        << ", slot " << eventContextCopy.slot() << ". " << eventInfoString
+        << ", slot " << eventContextCopy.slot() << ", eventID = " << eventContextCopy.eventID()
         << " All slots of this HltEventLoopMgr instance will be drained and the loop will exit.";
       ATH_CHECK(drainAllSlots());
       return StatusCode::FAILURE;
@@ -1140,7 +1148,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   // Even if handling the failed event succeeded, print an error message with failed event details
   ATH_REPORT_MESSAGE(MSG::ERROR)
     << "Failed event with PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode) << " Current local event number is "
-    << eventContextCopy.evt() << ", slot " << eventContextCopy.slot() << ". " << eventInfoString;
+    << eventContextCopy.evt() << ", slot " << eventContextCopy.slot() << ", eventID = " << eventContextCopy.eventID();
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS; // continue the event loop
@@ -1172,6 +1180,17 @@ void HltEventLoopMgr::runEventTimer()
     }
   }
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+}
+
+// =============================================================================
+bool HltEventLoopMgr::isTimedOut(const EventContext& eventContext) const {
+  for (const auto& [key, state] : m_aess->algExecStates(eventContext)) {
+    if (state.execStatus() == Athena::Status::TIMEOUT) {
+      ATH_MSG_DEBUG("Algorithm " << key << " returned Athena::Status::TIMEOUT in event " << eventContext.eventID());
+      return true;
+    }
+  }
+  return false;
 }
 
 // =============================================================================
@@ -1229,9 +1248,11 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 
     // Check the event processing status
     if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) markFailed();
+    hltonl::PSCErrorCode errCode = isTimedOut(*thisFinishedEvtContext) ?
+                                   hltonl::PSCErrorCode::TIMEOUT : hltonl::PSCErrorCode::PROCESSING_FAILURE;
     HLT_DRAINSCHED_CHECK(sc, "Processing event with context " << *thisFinishedEvtContext
                          << " failed with status " << m_aess->eventStatus(*thisFinishedEvtContext),
-                         hltonl::PSCErrorCode::PROCESSING_FAILURE, *thisFinishedEvtContext);
+                         errCode, *thisFinishedEvtContext);
 
     // Select the whiteboard slot
     sc = m_whiteboard->selectStore(thisFinishedEvtContext->slot());

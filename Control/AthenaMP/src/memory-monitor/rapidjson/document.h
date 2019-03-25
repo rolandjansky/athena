@@ -325,6 +325,8 @@ struct GenericStringRef {
     GenericStringRef(const CharType* str, SizeType len)
         : s(str), length(len) { RAPIDJSON_ASSERT(s != NULL); }
 
+    GenericStringRef( const GenericStringRef& ) = default;
+
     //! implicit conversion to plain CharType pointer
     operator const Ch *() const { return s; }
 

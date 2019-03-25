@@ -495,7 +495,8 @@ def CaloTopoClusterCfg(configFlags):
     result.merge(tileCondCfg(configFlags))
 
     #Get CaloNoiseTool
-    acc,theCaloNoiseTool=CaloNoiseToolCfg(configFlags)
+    acc=CaloNoiseToolCfg(configFlags)
+    theCaloNoiseTool=acc.getPublicTool("CaloNoiseTool")
     result.merge(acc)
     
     theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
@@ -599,11 +600,9 @@ if __name__=="__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     #log.setLevel(DEBUG)
-
-    ConfigFlags.Input.Files = ["myESD-data.pool.root"]
-#    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     nThreads=1
     ConfigFlags.Concurrency.NumThreads = nThreads
@@ -613,10 +612,14 @@ if __name__=="__main__":
         ConfigFlags.Scheduler.ShowControlFlow = True
         ConfigFlags.Concurrency.NumConcurrentEvents = nThreads
 
+    #ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Files = ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Output.ESDFileName= "esdOut.pool.root"
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+
     cfg=MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     

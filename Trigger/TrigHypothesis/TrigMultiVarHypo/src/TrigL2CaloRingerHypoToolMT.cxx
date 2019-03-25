@@ -8,64 +8,88 @@
 #include "AthenaMonitoring/Monitored.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrigL2CaloRingerHypoToolMT.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/Monitored.h"
 
+using namespace Monitored;
 using namespace TrigCompositeUtils;
+using namespace Ringer;
 
 TrigL2CaloRingerHypoToolMT::TrigL2CaloRingerHypoToolMT( const std::string& type, 
-                        const std::string& name, 
-                        const IInterface* parent ) 
+                                                        const std::string& name, 
+                                                        const IInterface* parent ) 
+
   : AthAlgTool( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
+    m_selectorTool(),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
+    m_decisionId( HLT::Identifier::fromToolName( name ) )
+{
+  declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
+}
+
+
 
 StatusCode TrigL2CaloRingerHypoToolMT::initialize()  {
 
-    	///What is the number of discriminators?
-  m_nThresholds = m_thresholds.size();
+  m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
+  m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
 
-  if((m_etaBins.size() != m_nThresholds) && (m_etBins.size() != m_nThresholds)){
-    ATH_MSG_ERROR("Eta/Et list dont match with the number of thesholds found");
+  if(m_selectorTool.initialize().isFailure())
     return StatusCode::FAILURE;
-  }
-
-  ///Initialize all discriminators
-  for(unsigned i=0; i<m_nThresholds; ++i)
-  {
-    ///Hold the pointer configuration
-    try{
-      m_cutDefs.push_back(new TrigL2CaloRingerHypoToolMT::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],
-                                                                  m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
-    }catch(const std::bad_alloc& xa){
-      ATH_MSG_ERROR("Can not alloc cutDefs on memory.");
-      return StatusCode::FAILURE;
-    }
-  }///Loop over discriminators
+  
+  if (m_lumiBlockMuTool.retrieve().isFailure())
+    return StatusCode::FAILURE;
   
   ATH_MSG_INFO("TrigL2CaloRingerHypo initialization completed successfully.");
-
-
   return StatusCode::SUCCESS;
 }
 
 
+StatusCode TrigL2CaloRingerHypoToolMT::finalize()  {
+ 
+  if (!m_monTool.empty()){
+    ATH_MSG_DEBUG("Retrieving monTool");
+    ATH_CHECK(m_monTool.retrieve());
+  }else{
+    ATH_MSG_INFO("No monTool configured. NO MONITORING");
+  }
+
+ 
+  if(m_selectorTool.finalize().isFailure())
+    return StatusCode::FAILURE;
+  ATH_MSG_INFO("TrigL2CaloRingerHypo finalization completed successfully.");
+  return StatusCode::SUCCESS;
+}
+
 TrigL2CaloRingerHypoToolMT::~TrigL2CaloRingerHypoToolMT() {}
 
 
-bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRNNOutput* rnnOutput) const {
+bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRingerRings* ringerShape) const {
   
-  
+ 
+  auto etMon      =  Monitored::Scalar("Et",-100);
+  auto etaMon     =  Monitored::Scalar("Eta",-100);
+  auto phiMon     =  Monitored::Scalar("Phi",-100);
+  auto rnnOutMon  =  Monitored::Scalar("RnnOut",-100);
+
+ 
+  auto total_time     = Monitored::Timer("TIME_total");
+  auto propagate_time = Monitored::Timer("TIME_propagate");
+  auto preproc_time   = Monitored::Timer("TIME_preproc");
+  auto decide_time    = Monitored::Timer("TIME_decide");
+  auto mon = Monitored::Group(m_monTool,etMon,etaMon,phiMon,rnnOutMon,total_time,propagate_time,preproc_time,decide_time);
+
+  total_time.start();
+
+ 
 
   if(m_acceptAll){
     ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
     return true;
   }
 
-  if(!rnnOutput){
-    ATH_MSG_WARNING("There is no xAO::TrigRNNOutput into the TriggerElement.");
-    return false;
-  }
 
   const xAOD::TrigEMCluster *emCluster = 0;
-  const xAOD::TrigRingerRings *ringerShape = rnnOutput->ringer();
   if(ringerShape){
     emCluster = ringerShape->emCluster();
     if(!emCluster){
@@ -79,51 +103,47 @@ bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRNNOutput
 
   float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et() / Gaudi::Units::GeV;
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
-  float output  = rnnOutput->rnnDecision().at(0);
+  float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+  
+  etaMon =  emCluster->eta();
+  etMon  = emCluster->et();
+  phiMon = emCluster->phi();
 
+  if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
   ///Et threshold
-  if(et < m_emEtCut){
-    ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut);
+  if(et < m_emEtCut/Gaudi::Units::GeV){
+    ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
     return false;
   }
 
+  const std::vector<float> rings = ringerShape->rings();
+  std::vector<float> refRings(rings.size());
+  refRings.assign(rings.begin(), rings.end());
   
-  if(m_nThresholds > 0){
-    ///Select the correct threshold for each eta/Et region
-    for(unsigned i=0; i<m_nThresholds;++i){
-      if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
-        if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
-          if(output >= m_cutDefs[i]->threshold()){
-              ATH_MSG_DEBUG( "Event information:" );
-              //ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() );
-              //ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() );
-              //ATH_MSG_DEBUG( "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold());      
-              return true;
-	  }else{
-              ATH_MSG_DEBUG( "Event reproved by discriminator threshold" );
-          }///Threshold condition
-          break;
-        }///Loop over eta
-      }///Loop over et
-    }///Loop over cutDefs
-  }else{
-    ATH_MSG_DEBUG( "There is no discriminator. Event approved by Et threshold.");   
-    return true;
-  }///protection
-  return false;
+  ATH_MSG_DEBUG("Et = "<< et << " Eta = "<<eta << " mu = " << avgmu << "rsize = "<< refRings.size()); 
+
+  auto output = m_selectorTool.calculate( refRings, et, eta, avgmu, propagate_time, preproc_time );
+  rnnOutMon = output;
+  ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
+  
+  decide_time.start();
+  bool accept = m_selectorTool.accept(output, et,eta,avgmu);
+  decide_time.stop();
+
+  total_time.stop();
+  return accept;
+
 }
 
 
-StatusCode TrigL2CaloRingerHypoToolMT::decide(  std::vector<RNNOutInfo>& input )  const {
-
+StatusCode TrigL2CaloRingerHypoToolMT::decide(  std::vector<RingerInfo>& input )  const {
 
     for ( auto i: input ) {
-        auto objDecision = decideOnSingleObject( i.rnnOut );
-      if ( objDecision == true ) {
-        addDecisionID( m_decisionId.numeric(), i.decision );
-      }
+        auto objDecision = decideOnSingleObject( i.ringerShape );
+        if ( objDecision == true ) {
+          addDecisionID( m_decisionId.numeric(), i.decision );
+        }
     }
     return StatusCode::SUCCESS;
 }

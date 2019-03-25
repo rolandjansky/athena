@@ -91,16 +91,13 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 #theCaloNoiseTool = CaloNoiseToolDefault()
 #ToolSvc += theCaloNoiseTool
 
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-theLArHVCorrTool=LArHVCorrToolDefault()
-ToolSvc += theLArHVCorrTool
+from LArConditionsCommon import LArHVDB
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import FCAL_HV_Energy_Rescale
 theRescaler=FCAL_HV_Energy_Rescale("FCALHVRescaler")
-theRescaler.HVCorrTool=theLArHVCorrTool
 
 topSequence += theRescaler
 

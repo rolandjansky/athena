@@ -54,11 +54,7 @@ void test_neighbors (const LArHEC_ID& idhelper)
   for (unsigned int iCell = 0 ; iCell < idhelper.channel_hash_max(); ++iCell){
     idhelper.get_neighbours(iCell, LArNeighbours::all3D, neighbourList);
 
-    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-    for (;last!=first; first++){
-      
-      IdentifierHash neighbourHash=(*first);
+    for (IdentifierHash neighbourHash : neighbourList) {
       if(neighbourHash < hash_min ) {
         hash_min = neighbourHash;
       }

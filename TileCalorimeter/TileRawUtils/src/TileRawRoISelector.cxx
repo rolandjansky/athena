@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileRawUtils/TileRawRoISelector.h" 
@@ -37,23 +37,6 @@ TileRawRoISelector::const_iterator::const_iterator
 {
 	m_vec_itpair = NULL ; 
  	return; 
-}
-
-
-// = operator 
-TileRawRoISelector::const_iterator& 
-TileRawRoISelector::const_iterator:: operator = 
-	( const TileRawRoISelector::const_iterator & it ) 
-{
-    if (this != (&it) ) {
-        
-	  m_vec_itpair  = it.m_vec_itpair      ; 
-	  m_pair_it     = it.m_pair_it         ;
-	  m_obj_it      = it.m_obj_it          ;
-	  m_obj_it_end  = it.m_obj_it_end      ;
-    }
-    
-    return *this; 
 }
 
 
