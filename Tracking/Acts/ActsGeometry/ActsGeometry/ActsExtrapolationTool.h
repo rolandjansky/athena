@@ -143,7 +143,7 @@ private:
 
   Gaudi::Property<double> m_ptLoopers{this, "PtLoopers", 300, "PT loop protection threshold. Will be converted to Acts MeV unit"};
 
-  Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 1, "Max step size in Acts mm unit"};
+  Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10, "Max step size in Acts m unit"};
 };
 
 
