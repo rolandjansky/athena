@@ -21,7 +21,10 @@ class TriggerMatchingTestAlg: public ::AthAlgorithm {
 
   std::map<xAOD::Type::ObjectType, std::string> m_inputColls;
 
-  ToolHandle<Trig::IMatchingTool> m_matchTool{"Trig::MatchingTool/TrigMatchingTool", this};
+  ToolHandle<Trig::IMatchingTool> m_oldMatchTool{
+    "Trig::MatchingTool/TrigMatchingTool", this};
+  ToolHandle<Trig::IMatchingTool> m_newMatchTool{
+    "Trig::MatchFromCompositeTool/TrigMatchFromCompositeTool", this};
 
   std::map<xAOD::Type::ObjectType, std::size_t> m_legs;
   bool m_usesClusters = false;

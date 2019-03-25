@@ -42,7 +42,8 @@ TriggerMatchingTestAlg::TriggerMatchingTestAlg( const std::string& name, ISvcLoc
   declareProperty("InputPhotons", m_inputColls[xAOD::Type::Photon] = "Photons");
   declareProperty("InputMuons", m_inputColls[xAOD::Type::Muon] = "Muons");
   declareProperty("InputTaus", m_inputColls[xAOD::Type::Tau] = "TauJets");
-  declareProperty("MatchingTool", m_matchTool);
+  declareProperty("OldMatchingTool", m_oldMatchTool);
+  declareProperty("NewMatchingTool", m_newMatchTool);
 }
 
 
@@ -119,8 +120,15 @@ StatusCode TriggerMatchingTestAlg::execute() {
   // going to pretty huge...
   std::vector<std::vector<const xAOD::IParticle*>> testCombinations = DerivationFramework::TriggerMatchingUtils::getAllDistinctCombinations<const xAOD::IParticle*>(legInputs);
 
-  // Now go through and remove any that doesn't pass the matching tool
-   for (auto itr = testCombinations.begin(); itr != testCombinations.end();) {
+  // Store the combinations only passing the old tool
+  std::vector<std::vector<const xAOD::IParticle*>> oldToolCombinations;
+  // Store the combinations only passing the new tool
+  std::vector<std::vector<const xAOD::IParticle*>> newToolCombinations;
+  // Store the combinations only passing both tools
+  std::vector<std::vector<const xAOD::IParticle*>> commonCombinations;
+
+  for (auto itr = testCombinations.begin(); itr != testCombinations.end(); ++itr) {
+    bool oldToolMatch = false;
      if (m_usesClusters) {
        std::vector<const xAOD::IParticle*> newCombination;
        for (const xAOD::IParticle* part : *itr) {
@@ -129,59 +137,23 @@ StatusCode TriggerMatchingTestAlg::execute() {
          else
            newCombination.push_back(part);
        }
-       if (!m_matchTool->match(newCombination, m_chainName) )
-         itr = testCombinations.erase(itr);
-       else
-         ++itr;
+       oldToolMatch = m_oldMatchTool->match(newCombination, m_chainName);
      }
-     else {
-       if (!m_matchTool->match(*itr, m_chainName) )
-         itr = testCombinations.erase(itr);
-       else
-         ++itr;
-     }
+     else
+       oldToolMatch = m_oldMatchTool->match(*itr, m_chainName);
+     bool newToolMatch = m_newMatchTool->match(*itr, m_chainName);
+     if (newToolMatch && oldToolMatch)
+       commonCombinations.push_back(*itr);
+     else if (newToolMatch)
+       newToolCombinations.push_back(*itr);
+     else if (oldToolMatch)
+       oldToolCombinations.push_back(*itr);
   }
 
-  std::size_t nTest = testCombinations.size();
-
-  // Now get the matchings that were obtained through the new tool. Note that
-  // we're actually only going to put ones in here that *weren't* in the
-  // previous vector. After this loop is done, the only ones remaining in the
-  // previous vector will be the ones that weren't obtained through the new
-  // tool!
-  std::vector<std::vector<const xAOD::IParticle*>> newToolCombinations;
-
-  // This holds the common combinations
-  std::vector<std::vector<const xAOD::IParticle*>> commonCombinations;
-
-  const xAOD::TrigCompositeContainer* cont(nullptr);
-  ATH_CHECK( evtStore()->retrieve(cont, m_chainName) );
-
-  std::size_t nNewTool = cont->size();
-  static SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer>>> acc_links("TrigMatchedObjects");
-  for (const xAOD::TrigComposite* comp : *cont) {
-    std::vector<const xAOD::IParticle*> combination;
-    for (const auto& link : acc_links(*comp) )
-      combination.emplace_back(*link);
-    // See if this was in the other list (allow any permutation)
-    auto itr = std::find_if(
-        testCombinations.begin(),
-        testCombinations.end(),
-        [newItr = combination.begin()] (const std::vector<const xAOD::IParticle*>& testCombo) 
-        { return std::is_permutation(testCombo.begin(), testCombo.end(), newItr); });
-    if (itr !=testCombinations.end() ) {
-      // If it was, remove it from that list
-      testCombinations.erase(itr);
-      commonCombinations.push_back(std::move(combination) );
-    }
-    else {
-      // otherwise add it to the newToolCombinations list
-      newToolCombinations.push_back(std::move(combination) );
-    }
-  }
-  // See if we had any mismatches
-  if (newToolCombinations.size() || testCombinations.size() ) {
-    ATH_MSG_INFO("Mismatch for chain " << m_chainName << ", tool found " << nNewTool << " combinations, test found " << nTest << ".");
+  if (newToolCombinations.size() || oldToolCombinations.size() ) {
+    ATH_MSG_INFO("Mismatch for chain " << m_chainName 
+        << ", new tool found " << commonCombinations.size() + newToolCombinations.size() 
+        << " combinations, old tool found " << commonCombinations.size() + oldToolCombinations.size() << ".");
     if (commonCombinations.size() ) {
       ATH_MSG_INFO(commonCombinations.size() << " common combinations were found:");
       for (const auto& combo : commonCombinations) {
@@ -191,16 +163,16 @@ StatusCode TriggerMatchingTestAlg::execute() {
       }
     }
     if (newToolCombinations.size() ) {
-      ATH_MSG_INFO("New tool produced " << newToolCombinations.size() << " combinations not found through the matching: ");
+      ATH_MSG_INFO("New tool produced " << newToolCombinations.size() << " combinations not found through the old tool: ");
       for (const auto& combo : newToolCombinations) {
         ATH_MSG_INFO("------");
         for (const xAOD::IParticle* part : combo)
           ATH_MSG_INFO(*part);
       }
     }
-    if (testCombinations.size() ) {
-      ATH_MSG_INFO("Matching produced " << testCombinations.size() << " combinations not found through the new tool: ");
-      for (const auto& combo : testCombinations) {
+    if (oldToolCombinations.size() ) {
+      ATH_MSG_INFO("Old tool produced " << oldToolCombinations.size() << " combinations not found through the new tool: ");
+      for (const auto& combo : oldToolCombinations) {
         ATH_MSG_INFO("++++++");
         for (const xAOD::IParticle* part : combo)
           ATH_MSG_INFO(*part);
