@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPDATA_H
@@ -7,6 +7,7 @@
 
 
 // local includes
+#include <stdint.h>
 #include <ostream>
 
 
@@ -41,6 +42,7 @@ namespace NSWL1 {
     virtual int strip_charge_10bit() const = 0; //!< get the strip charge in 10 bit
     virtual int bandId()         const = 0; //!< get the band id
     virtual void setBandId(int band_id)= 0; //!< get the band id
+    virtual void setPhiId(int band_id)= 0; //!< get the band id
     virtual int phiId()          const = 0; //!< get the phi id
     virtual bool readStrip()   const = 0;
     virtual void set_readStrip(bool readStrip) = 0;

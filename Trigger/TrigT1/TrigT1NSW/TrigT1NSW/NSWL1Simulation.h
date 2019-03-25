@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1NSW_NSWL1SIMULATION_H
@@ -15,6 +15,8 @@
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
 
+
+
 // NSWL1SimTools includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "TrigT1NSWSimTools/IStripTdsTool.h"
@@ -23,12 +25,6 @@
 #include "TrigT1NSWSimTools/IMMStripTdsTool.h"
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
-
-//#include "TrigConfigSvc/ITrigConfigSvc.h"  need the TriggerConfigSvc? maybe not
-
-// local includes
-
-
 
 // Forward includes
 class StoreGateSvc;
@@ -103,6 +99,10 @@ namespace NSWL1 {
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doPadTrigger;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    
+    
+    protected:
+    
 
   };  // end of NSWL1Simulation class
 

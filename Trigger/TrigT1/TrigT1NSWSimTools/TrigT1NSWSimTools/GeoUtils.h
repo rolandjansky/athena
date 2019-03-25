@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOUTILS_H
@@ -7,14 +7,10 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include "TrkSurfaces/PlaneSurface.h"
 #include <vector>
-
-
-/*
- author :   Serhat Istin / S.I
- */ 
  
-namespace NSWL1{ 
+namespace NSWL1{
     using Vertex=boost::geometry::model::d2::point_xy<double>;
     using Polygon=boost::geometry::model::polygon<Vertex>;
     using Vertices=std::vector<Vertex>;
@@ -31,7 +27,7 @@ namespace NSWL1{
         
         
     //Print something on the screen in a well defined format
-     Polygon buildPolygon(const Vertices);
+     Polygon buildPolygon(const Vertices&);//hm
      
     template <class T>
      void print(const T& t){std::cout<<boost::geometry::wkt(t)<<std::endl;}
@@ -65,7 +61,6 @@ namespace NSWL1{
     //given a polygon, return the number of vertices... (keep in mind that a polygon is a closed loop in our sense so first and the last vertices are the same)
      int nVertices(const Polygon&);
         
-    //write a function : given a polygon, return the nth vertex...
      Vertex getVertex(const Polygon&,unsigned int);
         
     //Given a polygon get minimum and maximum bounds of a vertical or horizontal coordinate
@@ -80,7 +75,10 @@ namespace NSWL1{
         return std::make_pair(values[0],values.back());
    }
         
-        
+    
+    Polygon globalToLocal(const Polygon& ,float z,const Trk::PlaneSurface & );//use Z-depth of the given polygon in 3D
+    
+    
     //Absorbing  Element : a closed loop made up of 4 points (0,0)
      Polygon NilPolygon();
         

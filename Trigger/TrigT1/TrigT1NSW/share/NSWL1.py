@@ -9,12 +9,23 @@
 # AthenaCommon configuration
 #--------------------------------------------------------------
 
-#from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-#GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
 
+import glob
+import os
 
-MessageSvc.defaultLimit=500
+if 'customInput' not in locals() or 'customInput' not in globals():
+    print("customInput not defined yet setting the default as input.rdo.pool.root")
+    customInput='input.rdo.pool.root'
+
+if(not os.path.isdir(customInput) and not os.path.isfile(customInput) ):
+    checklist=glob.glob(customInput)
+    if len(checklist)==0:
+        print("Invalid INPUT : "+customInput)
+        os.sys.exit()
+if(os.path.isdir(customInput)):
+    customInput+="/*.root"
+
+MessageSvc.defaultLimit=100
 MessageSvc.useColors = True
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 
@@ -34,8 +45,15 @@ athenaCommonFlags.EvtMax = -1
 athenaCommonFlags.SkipEvents = 0
 
 
+
+
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = [ "input.rdo.pool.root" ]
+
+
+svcMgr.EventSelector.InputCollections=glob.glob(customInput)
+
+
+#svcMgr.EventSelector.InputCollections = [ "input.rdo.pool.root" ]
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -81,6 +99,12 @@ ServiceMgr += Agdd2GeoSvc
 #-----------------------------------------------------------------------------
 # Algorithms:  NSW L1 simulation
 #-----------------------------------------------------------------------------
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+from AthenaCommon.AppMgr import ServiceMgr
+theRegSelSvc = RegSelSvcDefault()
+ServiceMgr += theRegSelSvc
+
+
 
 include ('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
@@ -90,20 +114,27 @@ topSequence.NSWL1Simulation.DoPadTrigger=True
 topSequence.NSWL1Simulation.DoMM=False
 
 
-#Select ntuples to be created
+
 topSequence.NSWL1Simulation.DoNtuple=True
 topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
+
+topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
+topSequence.NSWL1Simulation.StripSegmentTool.NSWTrigRDOContainerName="NSWTRGRDO"
+
+
+
 
 
 #Tools' Messaging Levels
-topSequence.NSWL1Simulation.OutputLevel=WARNING
-topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=WARNING
-topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
-topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=WARNING
-topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=WARNING
-topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.OutputLevel=INFO
+topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=INFO
+topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
 
 # Simulation parameters
 #topSequence.NSWL1Simulation.PadTdsTool.VMM_DeadTime=3

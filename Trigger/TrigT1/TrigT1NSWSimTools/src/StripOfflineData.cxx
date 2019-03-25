@@ -1,16 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 //Local includes
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
+#include <string>
+
+
 namespace NSWL1 {
 
   StripOfflineData::StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit) : 
     StripData(),
-    m_id(id), m_helper(helper),m_trig_bcid(0),m_band_id(-1)
+    m_id(id), m_helper(helper),m_trig_bcid(0),m_band_id(-1),m_phi_id(-1)
     {
       m_strip_charge_6bit=digit-> charge_6bit(); 
       m_strip_charge_10bit= digit-> charge_10bit();
@@ -25,7 +28,9 @@ namespace NSWL1 {
     void StripOfflineData::setTrigBCID(int bcid) {
         m_trig_bcid = bcid;
     }
-
+    void StripOfflineData::setTrigIndex(int idx){
+        m_padTrigIndex=idx;
+    }
     void StripOfflineData::setStripCharge_6bit(int charge) {
         m_strip_charge_6bit = charge;
     }
@@ -54,6 +59,8 @@ namespace NSWL1 {
     float StripOfflineData::time()     const { return m_strip_time; }
     Identifier StripOfflineData::Identity()     const { return m_id; }
     int StripOfflineData::trig_BCID()        const { return m_trig_bcid; }
+    int StripOfflineData:: trigIndex() const { return m_padTrigIndex;}
+    
     float StripOfflineData::strip_charge()    const {return  m_strip_charge;} 
     int StripOfflineData::strip_charge_6bit()    const {return  m_strip_charge_6bit;} 
     int StripOfflineData::strip_charge_10bit()    const {return  m_strip_charge_10bit;} 
@@ -74,7 +81,7 @@ namespace NSWL1 {
 
     int StripOfflineData::sectorId()    const {
       if (m_helper) {
-	return  m_helper->stationPhi(m_id);
+        return  m_helper->stationPhi(m_id);
       }
       return -1;
     }
@@ -100,11 +107,11 @@ namespace NSWL1 {
 
   int StripOfflineData::isSmall() const {
     if (m_helper) {
-      std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
-      bool isSmall = stName[2]=='S';
-      return isSmall;
-        }
-    return -1;
+        std::string stName = m_helper->stationNameString(m_helper->stationName(m_id));
+        bool isSmall = stName[2]=='S';
+        return isSmall;
+    }
+    return 0;
   }
 
 
@@ -158,20 +165,20 @@ namespace NSWL1 {
     return  m_read_strip;
   }
 
-  void StripOfflineData::set_readStrip(bool readStrip)    {
-      m_read_strip=readStrip;  
-      }
+  void StripOfflineData::set_readStrip(bool readStrip){
+      m_read_strip=readStrip;
+  }
 
  
   void StripOfflineData::set_locX(float pos)    {
       m_lx=pos; 
-      }
+  }
   void StripOfflineData::set_locY(float pos)    {
      m_ly=pos; 
-      }
+  }
   void StripOfflineData::set_locZ(float pos)    {
       m_lz=pos; 
-      }
+  }
 
 
 

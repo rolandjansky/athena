@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -13,9 +13,10 @@
 
 // root includes
 #include "TTree.h"
-
 // Local includes
 #include "TrigT1NSW/NSWL1Simulation.h"
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
+
 
 #include <vector>
 
@@ -53,9 +54,10 @@ namespace NSWL1 {
     declareProperty( "PadTriggerTool",  m_pad_trigger, "Tool that simulates the pad trigger logic");
     declareProperty( "StripTdsTool",    m_strip_tds,  "Tool that simulates the functionalities of the Strip TDS");
     declareProperty( "StripClusterTool",m_strip_cluster,  "Tool that simulates the Strip Clustering");
-    declareProperty( "StripSegmentTool",m_strip_cluster,  "Tool that simulates the Segment finding");
+    declareProperty( "StripSegmentTool",m_strip_segment,  "Tool that simulates the Segment finding");
     declareProperty( "MMStripTdsTool",  m_mmstrip_tds,  "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",   m_mmtrigger,    "Tool that simulates the MM Trigger");
+
 
     // declare monitoring variables
     declareMonitoredStdContainer("COUNTERS", m_counters); // custom monitoring: number of processed events    
@@ -68,8 +70,9 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::initialize() {
     ATH_MSG_INFO( "initialize " << name() );
-
     StatusCode sc;
+
+    
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -99,7 +102,6 @@ namespace NSWL1 {
         return sc;
       }
     }
-
 
     // retrieving the private tools implementing the simulation
     
@@ -197,28 +199,19 @@ namespace NSWL1 {
     ATH_MSG_INFO( "execute" << name() );
     m_counters.clear();
 
-    // retrieve the current run number and event number
     const EventInfo* pevt = 0;
     ATH_CHECK( evtStore()->retrieve(pevt) );
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();
 
 
-    m_counters.push_back(1.);  // a new event is being processed
-    //S.I those could be members ...
+    m_counters.push_back(1.);
     std::vector<std::shared_ptr<PadData>> pads;  
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
-    //S.I
     
-    // retrieve the PAD hit and compute pad trigger
     if(m_dosTGC){
-        // DG-2015-10-02
-        // Currently storing pads from all sectors in one vector<>.
-        // Perhaps we could do here for(sector) instead of inside
-        // PadTriggerLogicOfflineTool (since all the pad and
-        // pad-trigger info is per-sector...)
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
       
       if(m_doPadTrigger){
@@ -233,23 +226,16 @@ namespace NSWL1 {
       strips.clear();
       ATH_CHECK( m_strip_segment->find_segments(clusters) );
       clusters.clear();
+      
+      
     } // if(dosTGC)
 
 
     //retrive the MM Strip hit data
-    
     if(m_doMM){
- //      std::vector<MMStripData*> mmstrips;
- //      sc = m_mmstrip_tds->gather_mmstrip_data(mmstrips);
- //      if ( sc.isFailure() ) {
-	// ATH_MSG_ERROR( "Could not gather the MM Strip hit data" );
-	// return sc;
- //      }
       ATH_CHECK( m_mmtrigger->runTrigger() );
     }
-    //
-    // do monitoring
-    //
+
     ToolHandleArray<IMonitorToolBase>::iterator it;
     for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
       (*it)->fillHists().ignore();
@@ -263,18 +249,12 @@ namespace NSWL1 {
 
   StatusCode NSWL1Simulation::finalize() {
     ATH_MSG_INFO( "finalize" << name() );
-
-    //
-    // monitoring
-    //
     ToolHandleArray<IMonitorToolBase>::iterator it;
     for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
       (*it)->finalHists().ignore();
     }
-
     return StatusCode::SUCCESS;
   }
-
 
   int NSWL1Simulation::resultBuilder() const {
     return 0;
