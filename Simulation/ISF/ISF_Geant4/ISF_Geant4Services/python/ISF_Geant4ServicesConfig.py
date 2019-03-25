@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -62,4 +62,8 @@ def getPassBackGeant4SimSvc(name="ISF_PassBackGeant4SimSvc", **kwargs):
 
 def getAFIIGeant4SimSvc(name="ISF_AFIIGeant4SimSvc", **kwargs):
     kwargs.setdefault('SimulationTool'       , 'AFII_G4TransportTool')
+    return getPassBackGeant4SimSvc(name, **kwargs)
+
+def getAFII_QS_Geant4SimSvc(name="ISF_AFII_QS_Geant4SimSvc", **kwargs):
+    kwargs.setdefault('SimulationTool'       , 'AFII_QS_G4TransportTool')
     return getPassBackGeant4SimSvc(name, **kwargs)
