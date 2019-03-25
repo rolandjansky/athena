@@ -18,7 +18,7 @@ from SCT_Digitization.SCT_DigitizationConfigNew import (
     SCT_FrontEndCfg, SCT_FrontEndPileupCfg, SCT_DigitizationCommonCfg, SCT_DigitizationToolCfg,
     SCT_DigitizationToolGeantinoTruthCfg, SCT_DigitizationToolHSCfg, SCT_DigitizationToolPUCfg,
     SCT_DigitizationToolSplitNoMergePUCfg, SCT_DigitizationToolOverlayCfg, SCT_DigitizationHSCfg,
-    SCT_DigitizationPUCfg, SCT_DigitizationOverlayCfg, SiliconRangeCfg,
+    SCT_DigitizationPUCfg, SCT_DigitizationOverlayCfg, SCT_RangeCfg,
 )
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
@@ -35,28 +35,26 @@ ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.lock()
 # Function tests
-acc1, tool = SCT_DigitizationCommonCfg(ConfigFlags)
-acc2, tool = SCT_DigitizationToolCfg(ConfigFlags)
-acc3, tool = SCT_DigitizationToolHSCfg(ConfigFlags)
-acc4, tool = SCT_DigitizationToolPUCfg(ConfigFlags)
-acc5, tool = SCT_DigitizationToolOverlayCfg(ConfigFlags)
-acc6, tool = SCT_DigitizationToolSplitNoMergePUCfg(ConfigFlags)
-acc7, tool = SCT_DigitizationToolGeantinoTruthCfg(ConfigFlags)
+tacc = SCT_DigitizationCommonCfg(ConfigFlags)
+tacc.merge(SCT_DigitizationToolCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationToolHSCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationToolPUCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationToolOverlayCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationToolSplitNoMergePUCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationToolGeantinoTruthCfg(ConfigFlags))
 tool = SCT_RandomDisabledCellGeneratorCfg(ConfigFlags)
 tool = SCT_AmpCfg(ConfigFlags)
-acc8, tool = SCT_SurfaceChargesGeneratorCfg(ConfigFlags)
-acc9, tool = SCT_FrontEndCfg(ConfigFlags)
-accA, tool = SCT_FrontEndPileupCfg(ConfigFlags)
-tool = SiliconRangeCfg(ConfigFlags)
-accB = SCT_DigitizationHSCfg(ConfigFlags)
-accC = SCT_DigitizationPUCfg(ConfigFlags)
-accD = SCT_DigitizationOverlayCfg(ConfigFlags)
-acc1.mergeAll([acc2, acc3, acc4, acc5, acc6, acc7, acc8, acc9, accA, accB, accC, accD])
-acc1.wasMerged()
+tacc.merge(SCT_SurfaceChargesGeneratorCfg(ConfigFlags))
+tacc.merge(SCT_FrontEndCfg(ConfigFlags))
+tacc.merge(SCT_FrontEndPileupCfg(ConfigFlags))
+tool = SCT_RangeCfg(ConfigFlags)
+tacc.merge(SCT_DigitizationHSCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationPUCfg(ConfigFlags))
+tacc.merge(SCT_DigitizationOverlayCfg(ConfigFlags))
+# reset to prevent errors on deletion
+tacc.__init__()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
-from StoreGate.StoreGateConf import StoreGateSvc # FIXME remove this once athena is fixed
-acc.addService(StoreGateSvc("ConditionStore"))
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(SCT_DigitizationHSCfg(ConfigFlags))
 # Add configuration to write HITS pool file

@@ -39,19 +39,20 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
             DCSkwargs["hvFolder"] = dcs_folder + "/HV"
             DCSkwargs["tempFolder"] = dcs_folder + "/MODTEMP"
             DCSkwargs["stateFolder"] = dcs_folder + "/CHANSTAT"
-        DCSAcc, DCSTool = SCT_DCSConditionsCfg(flags, **DCSkwargs)
+        DCSAcc = SCT_DCSConditionsCfg(flags, **DCSkwargs)
         acc.merge(DCSAcc)
-        SCAcc, SCTool = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSTool)
+        SCAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSAcc.popPrivateTools())
     else:
         SCTool = SCT_SiliconConditionsToolCfg(flags, UseDB=False, ForceUseGeoModel=True)
-        SCAcc, SCTool = SCT_SiliconConditionsCfg(flags, SiliconConditionsTool=SCTool)
+        SCAcc = SCT_SiliconConditionsCfg(flags, SiliconConditionsTool=SCTool)
+    SCAcc.popPrivateTools()
     acc.merge(SCAcc)
     # set up SCTSiLorentzAngleCondAlg
     kwargs.setdefault("UseMagFieldSvc", tool.UseMagFieldSvc)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
     kwargs.setdefault("UseGeoModel", forceUseGeoModel)
     kwargs.setdefault("useSctDefaults", False)
-    alg = SCTSiLorentzAngleCondAlg(name, **kwargs)
-    acc.addCondAlgo(alg)
-    return acc, tool
+    acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 

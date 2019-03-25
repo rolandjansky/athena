@@ -48,16 +48,17 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
         kwargs.setdefault("LastXing", SCT_LastXing() )
     tool = SCT_DigitizationTool(name, **kwargs)
     # attach ToolHandles
-    frontAcc, frontTool = SCT_FrontEndCfg(flags)
-    tool.FrontEnd = frontTool
-    surfAcc, surfTool = SCT_SurfaceChargesGeneratorCfg(flags)
-    tool.SurfaceChargesGenerator = surfTool
+    frontAcc = SCT_FrontEndCfg(flags)
+    tool.FrontEnd = frontAcc.popPrivateTools()
+    surfAcc = SCT_SurfaceChargesGeneratorCfg(flags)
+    tool.SurfaceChargesGenerator = surfAcc.popPrivateTools()
     tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
     acc.mergeAll([frontAcc, surfAcc])
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
-    """Return configured digitization tool"""
+    """Return a ComponentAccumulator with configured SCT digitization tool"""
     if flags.Digitization.PileUpPremixingForMT:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
@@ -68,21 +69,21 @@ def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolHSCfg(flags, name="SCT_DigitizationToolHS", **kwargs):
-    """Return hard scatter configured digitization tool"""
+    """Return a ComponentAccumulator with hard scatter configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
-    """Return pileup configured digitization tool"""
+    """Return a ComponentAccumulator with pileup configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
-    """Return overlay configured digitization tool"""
+    """Return a ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     if flags.Overlay.Legacy.MT:
         kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
@@ -93,12 +94,11 @@ def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**k
         kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    CommonAcc, tool = SCT_DigitizationCommonCfg(flags, name, **kwargs)
-    acc.merge(CommonAcc)
-    return acc, tool
+    acc.merge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    return acc
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
-    """Return no merged pileup configured digitization tool"""
+    """Return a ComponentAccumulator with merged pileup configured SCT digitization tool"""
     kwargs.setdefault("InputObjectName", "PileupSCT_Hits")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
@@ -128,7 +128,7 @@ def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     return SCT_Amp(name, **kwargs)
 
 def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **kwargs):
-    """Return configured (detailed) surface charges tool, conditioned on flags"""
+    """Return a ComponentAccumulator with configured surface charges tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -142,19 +142,21 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     # experimental SCT_DetailedSurfaceChargesGenerator config dropped here
     tool = SCT_SurfaceChargesGenerator(name, **kwargs)
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
-    DCSCondAcc, DCSCondTool = SCT_DCSConditionsCfg(flags)
-    SiliCondAcc, SiliCondTool = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSCondTool)
-    SiliPropsAcc, SiliPropsTool = SCT_SiPropertiesCfg(flags, SiConditionsTool=SiliCondTool)
-    LorentzAcc, LorentzTool = SCT_LorentzAngleCfg(flags)
+    DCSCondAcc = SCT_DCSConditionsCfg(flags)
+    DCSCondTool = DCSCondAcc.popPrivateTools()
+    SiliCondAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSCondTool)
+    SiliCondTool = SiliCondAcc.popPrivateTools()
+    SiliPropsAcc = SCT_SiPropertiesCfg(flags, SiConditionsTool=SiliCondTool)
+    LorentzAcc = SCT_LorentzAngleCfg(flags)
     tool.SiConditionsTool = SiliCondTool
-    tool.SiPropertiesTool = SiliPropsTool
-    tool.LorentzAngleTool = LorentzTool
+    tool.SiPropertiesTool = SiliPropsAcc.popPrivateTools()
+    tool.LorentzAngleTool = LorentzAcc.popPrivateTools()
     acc.mergeAll([DCSCondAcc, SiliCondAcc, SiliPropsAcc, LorentzAcc])
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
-    """Return configured ComponentAccumulator with front-end electronics tool"""
-    acc = ComponentAccumulator()
+    """Return a ComponentAccumulator with configured front-end electronics tool"""
     # Setup noise treament in SCT_FrontEnd
     # To set the mean noise values for the different module types
     # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
@@ -185,9 +187,8 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
     # Setup the ReadCalibChip folders and Svc
-    readAcc, readTool = SCT_ReadCalibChipDataCfg(flags)
-    kwargs.setdefault("SCT_ReadCalibChipDataTool", readTool)
-    acc.merge(readAcc)
+    acc = SCT_ReadCalibChipDataCfg(flags)
+    kwargs.setdefault("SCT_ReadCalibChipDataTool", acc.popPrivateTools())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
@@ -202,10 +203,11 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataReadOutMode", 0)
     else:
         kwargs.setdefault("DataReadOutMode", 1)
-    return acc, SCT_FrontEnd(name, **kwargs)
+    acc.setPrivateTools(SCT_FrontEnd(name, **kwargs))
+    return acc
 
 def SCT_FrontEndPileupCfg(flags, name="PileupSCT_FrontEnd", **kwargs):
-    """Return pileup-configured ComponentAccumulator with front-end electronics tool"""
+    """Return a ComponentAccumulator with pileup-configured front-end electronics tool"""
     kwargs.setdefault("NoiseBarrel", 0.0)
     kwargs.setdefault("NoiseBarrel3", 0.0)
     kwargs.setdefault("NoiseInners", 0.0)
@@ -221,8 +223,8 @@ def SCT_FrontEndPileupCfg(flags, name="PileupSCT_FrontEnd", **kwargs):
     kwargs.setdefault("NoiseOn", False)
     return SCT_FrontEndCfg(flags, name, **kwargs)
 
-def SiliconRangeCfg(flags, name="SiliconRange", **kwargs):
-    """Return a configured PileUpXingFolder tool"""
+def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
+    """Return an SCT configured PileUpXingFolder tool"""
     kwargs.setdefault("FirstXing", SCT_FirstXing())
     kwargs.setdefault("LastXing", SCT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
@@ -233,8 +235,8 @@ def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
     """Return a ComponentAccumulator with toolCfg type SCT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
-        toolAcc, tool = toolCfg(flags)
-        kwargs["DigitizationTool"] = tool
+        toolAcc = toolCfg(flags)
+        kwargs["DigitizationTool"] = toolAcc.popPrivateTools()
         acc.merge(toolAcc)
     alg = SCT_Digitization(name, **kwargs)
     acc.addEventAlgo(alg)
