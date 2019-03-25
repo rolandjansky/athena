@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,6 +9,7 @@
 #define LARCABLING_LARCABLINGLEGACYSERVICE_H
 
 #include "LArCabling/LArCablingBase.h"
+#include "CxxUtils/checker_macros.h"
 
 /** 
    @class LArCablingService 
@@ -24,7 +25,7 @@
 
 static const InterfaceID IID_LArCablingLegacyService("LArCablingLegacyService", 1 , 0); 
 
-class LArCablingLegacyService : public LArCablingBase {
+class ATLAS_NOT_THREAD_SAFE LArCablingLegacyService : public LArCablingBase {
 
 public:
   
