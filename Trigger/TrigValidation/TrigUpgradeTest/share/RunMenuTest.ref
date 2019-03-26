@@ -1,8 +1,8 @@
 TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
-TrigSignatureMoniMT                                INFO All                           20        20        0         0         17        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        17        17        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        343       
+TrigSignatureMoniMT                                INFO All                           20        20        0         0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        17        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        343       
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        16        16        
