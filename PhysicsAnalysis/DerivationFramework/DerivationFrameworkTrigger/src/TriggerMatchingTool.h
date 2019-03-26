@@ -67,6 +67,9 @@ namespace DerivationFramework {
       /// Whether to match in rerun mode or not.
       bool m_rerun;
 
+      /// The prefix to place at the beginning of the output containers
+      std::string m_outputPrefix;
+
       // Internal functions
       /**
        * @brief Create an output container for the named chain

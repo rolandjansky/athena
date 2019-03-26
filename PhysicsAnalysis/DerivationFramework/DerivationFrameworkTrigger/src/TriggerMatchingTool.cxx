@@ -51,6 +51,8 @@ namespace DerivationFramework {
         "a match between them.");
     declareProperty("Rerun", m_rerun = false,
         "Whether to match triggers in rerun mode.");
+    declareProperty("OutputContainerPrefix", m_outputPrefix="TrigMatch_",
+        "The prefix to add to the output containers.");
   }
 
   StatusCode TriggerMatchingTool::initialize()
@@ -168,8 +170,8 @@ namespace DerivationFramework {
     auto aux = std::make_unique<xAOD::AuxContainerBase>();
     uniqueContainer->setStore(aux.get() );
     container = uniqueContainer.get();
-    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), chain) );
-    ATH_CHECK( evtStore()->record(std::move(aux), chain+"Aux.") );
+    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), m_outputPrefix+chain) );
+    ATH_CHECK( evtStore()->record(std::move(aux), m_outputPrefix+chain+"Aux.") );
     return StatusCode::SUCCESS;
   }
 

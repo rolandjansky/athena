@@ -15,6 +15,9 @@ namespace Trig {
     declareProperty("DRThreshold", m_drThreshold,
         "If greater than 0 then use the DR between two objects to check if "
         "they are the same object.");
+    declareProperty("InputPrefix", m_inputPrefix="TrigMatch_",
+        "The input prefix to expect at the beginning of the TrigComposite "
+        "container names.");
   }
 
   MatchFromCompositeTool::~MatchFromCompositeTool() {}
@@ -38,7 +41,7 @@ namespace Trig {
       double, bool)
   {
     const xAOD::TrigCompositeContainer* composites(nullptr);
-    if (evtStore()->retrieve(composites, chain).isFailure() )
+    if (evtStore()->retrieve(composites, m_inputPrefix+chain).isFailure() )
       throw std::runtime_error(
           "Failed to retrieve composite corresponding to chain " + chain);
     for (const xAOD::TrigComposite* composite : *composites) {

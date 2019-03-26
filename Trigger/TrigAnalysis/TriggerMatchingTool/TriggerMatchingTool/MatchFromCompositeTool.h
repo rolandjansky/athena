@@ -83,6 +83,9 @@ namespace Trig {
       /// DR between the two particles is less than this value. 
       float m_drThreshold = -1;
 
+      /// The prefix to expect at the front of the trig composite container name
+      std::string m_inputPrefix;
+
       // Internal functions
       /// Inherited from the interface but does nothing
       virtual MatchingImplementation* impl() override { return nullptr; }
