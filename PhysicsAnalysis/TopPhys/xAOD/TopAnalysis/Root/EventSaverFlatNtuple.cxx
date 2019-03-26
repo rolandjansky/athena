@@ -759,7 +759,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_jet_ip3dsv1, "jet_ip3dsv1");
         systematicTree->makeOutputVariable(m_jet_jvt,     "jet_jvt");
         systematicTree->makeOutputVariable(m_jet_passfjvt,"jet_passfjvt");
-        if (m_config->isMC()) {
+        if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
           systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
           systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");

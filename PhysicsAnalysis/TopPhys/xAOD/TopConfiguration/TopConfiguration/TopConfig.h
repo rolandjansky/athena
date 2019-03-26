@@ -568,6 +568,9 @@ class TopConfig final {
   inline virtual void jetCalibSequence( const std::string& s ){if(!m_configFixed){m_jetCalibSequence = s;}}
   inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
 
+  inline virtual void jetStoreTruthLabels( bool b ){if(!m_configFixed){m_jetStoreTruthLabels = b;}}
+  inline virtual bool jetStoreTruthLabels() const {return m_jetStoreTruthLabels;}
+
   inline virtual void doJVTinMET( const bool& doJVT ){if(!m_configFixed){m_doJVTInMETCalculation = doJVT;}}
   inline virtual bool doJVTinMET() const {return m_doJVTInMETCalculation;}
 
@@ -1164,6 +1167,7 @@ class TopConfig final {
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple
   std::string m_jetCalibSequence; // GCC or JMS
+  bool m_jetStoreTruthLabels; // True or False
   bool m_doJVTInMETCalculation;
 
   // Large R jet configuration
