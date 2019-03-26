@@ -21,6 +21,7 @@ doMuon   = True
 doJet    = True
 doMET    = True
 doBJet   = False
+doTau    = False
 doCombo  = True
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
@@ -127,7 +128,7 @@ if (doJet):
 
 
 ##################################################################
-# jet chains
+# bjet chains
 ##################################################################
 if (doBJet):
     from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
@@ -142,6 +143,16 @@ if (doBJet):
         ]
     testChains += bjetChains
     
+if (doTau):
+  from TrigUpgradeTest.tauMenuDefs import tauCaloSequence
+  #, tauCaloRecSequence
+  step1=ChainStep("Step1_tau", [tauCaloSequence()])
+  #step2=ChainStep("Step2_taucalorec", [tauCaloRecSequence()])
+  tauChains = [
+      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1] ),
+      Chain(name='HLT_tau25_medium1_tracktwo', Seed="L1_TAU12IM",  ChainSteps=[step1] ),
+      ]
+  testChains += tauChains
 
 ##################################################################
 # MET chains
