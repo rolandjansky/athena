@@ -86,7 +86,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     int strip = m_mmIdHelper->channel(id_prd);
     int gasGap  = m_mmIdHelper->gasGap(id_prd);
     int layer   = m_mmIdHelper->multilayer(id_prd);
-    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
+    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
+		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
     for (unsigned int j=i+1; j<MMprds.size(); ++j){
       Identifier id_prdN = MMprds[j].identify();
       int stripN = m_mmIdHelper->channel(id_prdN);
@@ -136,7 +137,10 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       if(k>=nmergeStrips) break;
     }
     ATH_MSG_VERBOSE(" add merged MMprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
-    
+
+    // get the
+
+
     // start off from strip in the middle
     int stripSum = 0;
     for (unsigned int k =0; k<mergeStrips.size(); ++k) {
@@ -150,6 +154,26 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
     }
     ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
+
+    ///
+    /// get the local position from the cluster centroid
+    ///
+    double weightedPosX = 0.0;
+    double posY = 0.0;
+    double totalCharge = 0.0;
+    if ( mergeStrips.size() > 0 ) { 
+      /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
+      posY = MMprds[mergeIndices[0]].localPosition().y();
+      for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
+	double posX = MMprds[mergeIndices[k]].localPosition().x();
+	double charge = MMprds[mergeIndices[k]].charge();
+	weightedPosX += posX*charge;
+	totalCharge += charge;
+      } 
+      weightedPosX = weightedPosX/totalCharge;
+    }
+
+    Amg::Vector2D clusterLocalPosition(weightedPosX,posY);
     
     double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
 
@@ -165,7 +189,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
+    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement());
     clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements
