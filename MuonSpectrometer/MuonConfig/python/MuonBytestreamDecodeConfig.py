@@ -155,7 +155,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
         from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
         MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                   ProviderTool = MuonMdtRawDataProviderTool )
-        acc.addEventAlgo(MdtRawDataProvider)#,primary=True)
+        acc.addEventAlgo(MdtRawDataProvider,primary=True)
 
     return acc
 

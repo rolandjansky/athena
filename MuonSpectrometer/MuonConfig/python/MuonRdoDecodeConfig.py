@@ -202,14 +202,14 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
+    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags )
     # Put into a verbose logging mode to check the caching
-    #if forTrigger:
-    #    mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
+    if forTrigger:
+        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
+    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags) 
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
