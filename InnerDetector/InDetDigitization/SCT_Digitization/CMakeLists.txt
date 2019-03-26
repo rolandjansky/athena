@@ -45,6 +45,10 @@ atlas_add_component( SCT_Digitization
 atlas_add_test( SCT_DigitizationConfigNew_test
                 SCRIPT test/SCT_DigitizationConfigNew_test.py
                 PROPERTIES TIMEOUT 300 )
+atlas_add_test( SCT_DigitizationMT_test
+                SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 --conditionsTag default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1 170 --digiSeedOffset2 170 --geometryVersion ATLAS-R2-2015-03-01-00 --DataRunNumber 222525 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --preInclude HITtoRDO:SimulationJobOptions/preInclude.SCTOnlyConfig.py,Digitization/ForceUseOfAlgorithms.py --postInclude Digitization/FixDataDependenciesForMT.py --skipEvents 0  --maxEvents 100 --athenaopts '--threads 10'
+                PROPERTIES TIMEOUT 600
+                ENVIRONMENT THREADS=10 )
 
 # Install files from the package:
 atlas_install_headers( SCT_Digitization )
