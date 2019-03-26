@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
-#include "TrkGlobalChi2Fitter/GXFLUDecomp.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -291,7 +290,7 @@ namespace Trk {
       int,
       Amg::SymMatrixX &,
       Amg::VectorX &,
-      GXFLUDecomp &,
+      Amg::SymMatrixX &,
       bool &
     ) const;
 
@@ -306,14 +305,14 @@ namespace Trk {
       int,
       Amg::SymMatrixX &,
       Amg::VectorX &,
-      GXFLUDecomp &,
+      Amg::SymMatrixX &,
       bool &
     ) const;
 
     FitterStatusCode updateFitParameters(
       GXFTrajectory &,
       Amg::VectorX &,
-      GXFLUDecomp &
+      const Amg::SymMatrixX &
     ) const;
 
     GXFTrajectory *runTrackCleanerSilicon(
@@ -330,7 +329,7 @@ namespace Trk {
       GXFTrajectory &,
       Amg::SymMatrixX &,
       Amg::VectorX &,
-      GXFLUDecomp &,
+      Amg::SymMatrixX &,
       bool, bool, int
     ) const;
 

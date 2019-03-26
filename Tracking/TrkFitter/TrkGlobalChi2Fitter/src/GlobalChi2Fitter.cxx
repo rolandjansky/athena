@@ -4916,6 +4916,8 @@ namespace Trk {
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
     cache.m_lastiter = 0;
 
+    Amg::SymMatrixX lu;
+
     if (trajectory.numberOfPerigeeParameters() == -1) {
       m_nfits++;
       if (trajectory.m_straightline) {
@@ -5243,7 +5245,7 @@ namespace Trk {
     gErrorIgnoreLevel = 10000;
 
     cache.m_a.resize(nfitpar, nfitpar);
-    GXFLUDecomp lu;
+    
     Amg::VectorX b(nfitpar);
 
     Amg::MatrixX derivPool(5, nfitpar);
@@ -5465,9 +5467,9 @@ namespace Trk {
     Cache & cache,
     GXFTrajectory & trajectory, 
     int it,
-    Amg::SymMatrixX & a, 
+    Amg::SymMatrixX & a,
     Amg::VectorX & b,
-    GXFLUDecomp & lu, 
+    Amg::SymMatrixX & lu_m, 
     bool &doderiv
   ) const {
     ATH_MSG_DEBUG("fillResiduals");
@@ -5724,9 +5726,8 @@ namespace Trk {
         "res[" << measno << "]: " << res[measno] << " error[" << measno << "]: " << 
         error[measno] << " res/err: " << res[measno] / error[measno]);
     }
-    
     if (!doderiv && (scatwasupdated)) {
-      lu.SetMatrix(a);
+      lu_m = a;
     }
 
     double oldchi2 = trajectory.chi2();
@@ -5791,8 +5792,7 @@ namespace Trk {
         
         weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *= olderror / newerror;
       }
-      
-      lu.SetMatrix(a);
+      lu_m = a;
       trajectory.setChi2(1e15);
       doderiv = true;
     }
@@ -5992,7 +5992,7 @@ namespace Trk {
     int it,
     Amg::SymMatrixX & a, 
     Amg::VectorX & b,
-    GXFLUDecomp & lu, 
+    Amg::SymMatrixX & lu, 
     bool &doderiv
   ) const {
     int measno = 0;
@@ -6016,6 +6016,7 @@ namespace Trk {
     }
     
     b.setZero();
+
     fillResiduals(cache, trajectory, it, a, b, lu, doderiv);
 
     double newredchi2 = (trajectory.nDOF() > 0) ? trajectory.chi2() / trajectory.nDOF() : 0;
@@ -6238,7 +6239,7 @@ namespace Trk {
     }
 
     if (doderiv || weightchanged) {
-      lu.SetMatrix(a);
+      lu = a;
     }
 
     if (m_printderivs) {
@@ -6285,8 +6286,7 @@ namespace Trk {
             }
           }
         }
-        
-        lu.SetMatrix(a);
+        lu = a;
       }
       return FitterStatusCode::Success;
     }
@@ -6306,7 +6306,7 @@ namespace Trk {
   FitterStatusCode GlobalChi2Fitter::updateFitParameters(
     GXFTrajectory & trajectory,
     Amg::VectorX & b,
-    GXFLUDecomp & lu
+    const Amg::SymMatrixX & lu_m
   ) const {
     ATH_MSG_DEBUG("UpdateFitParameters");
 
@@ -6320,8 +6320,14 @@ namespace Trk {
     int nbrem = trajectory.numberOfBrems();
     int nperparams = trajectory.numberOfPerigeeParameters();
 
-    bool ok = true;
-    Amg::VectorX result = lu.Solve(b, ok);
+    Eigen::LLT<Eigen::MatrixXd> llt(lu_m);
+    Amg::VectorX result;
+
+    if (llt.info() == Eigen::Success) {
+      result = llt.solve(b);
+    } else {
+      result = Eigen::VectorXd::Zero(b.size());
+    }
 
     if (trajectory.numberOfPerigeeParameters() > 0) {
       d0 += result[0];
@@ -6405,7 +6411,7 @@ namespace Trk {
     GXFTrajectory & trajectory,
     Amg::SymMatrixX & a,
     Amg::VectorX & b, 
-    GXFLUDecomp & lu,
+    Amg::SymMatrixX & lu_m,
     bool runOutlier, 
     bool trtrecal,
     int it
@@ -6562,7 +6568,7 @@ namespace Trk {
     }
     
     if (outlierremoved || hitrecalibrated) {
-      lu.SetMatrix(a);
+      lu_m = a;
       trajectory.setConverged(false);
 
       cache.m_miniter = it + 2;
@@ -6690,7 +6696,6 @@ namespace Trk {
       Amg::VectorX * newbp = &b;
       Amg::SymMatrixX newa(nfitpars, nfitpars);
       Amg::VectorX newb(nfitpars);
-      GXFLUDecomp newlu;
 
       if (
         maxpull > 2 && 
@@ -6942,11 +6947,10 @@ namespace Trk {
       }
       
       if (!trackok) {
+        Amg::SymMatrixX lu_m = *newap;
         newtrajectory->setConverged(false);
         bool doderiv = m_redoderivs;
-        newlu.SetMatrix(*newap);
-        cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, newlu);
-        
+        cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, lu_m);
         if (cache.m_fittercode != FitterStatusCode::Success) {
           m_notenoughmeas++;
           return 0;
@@ -6961,15 +6965,15 @@ namespace Trk {
           }
           
           if (!newtrajectory->converged()) {
-            cache.m_fittercode = runIteration(cache, *newtrajectory, it, *newap, *newbp, newlu, doderiv);
-            
+            cache.m_fittercode = runIteration(cache, *newtrajectory, it, *newap, *newbp, lu_m, doderiv);
+
             if (cache.m_fittercode != FitterStatusCode::Success) {
               m_notenoughmeas++;
               return 0;
             }
             
             if (!newtrajectory->converged()) {
-              cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, newlu);
+              cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, lu_m);
               if (cache.m_fittercode != FitterStatusCode::Success) {
                 m_notenoughmeas++;
 
