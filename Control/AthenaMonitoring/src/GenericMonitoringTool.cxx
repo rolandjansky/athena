@@ -21,6 +21,12 @@ GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std
   : AthAlgTool(type, name, parent) {
 }
 
+GenericMonitoringTool::~GenericMonitoringTool() {
+  for (auto filler : m_fillers) {
+    delete filler;
+  }
+}
+
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
   if ( not m_explicitBooking ) {
@@ -29,7 +35,6 @@ StatusCode GenericMonitoringTool::initialize() {
   }
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode GenericMonitoringTool::book() {
 

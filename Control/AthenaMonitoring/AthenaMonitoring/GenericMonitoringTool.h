@@ -68,6 +68,7 @@ class GenericMonitoringTool : public AthAlgTool {
 public:
 
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
+  virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
 
   /// Retrieve the histogram fillers
