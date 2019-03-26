@@ -215,12 +215,28 @@ atlas_add_test( bJetMenuALLTE
    )
 
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone )
-atlas_add_test( met_standalone
-    SCRIPT test/test_met_standalone.sh
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromCells )
+atlas_add_test( met_fromCells
+    SCRIPT test/test_met_fromCells.sh
     PROPERTIES TIMEOUT 1000
    	EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
-    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromCells
+    )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromClusters )
+atlas_add_test( met_fromClusters
+    SCRIPT test/test_met_fromClusters.sh
+    PROPERTIES TIMEOUT 1000
+   	EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromClusters
+    )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromJets )
+atlas_add_test( met_fromJets
+    SCRIPT test/test_met_fromJets.sh
+    PROPERTIES TIMEOUT 1000
+    EXTRA_PATTERNS "-s METHypoAlg.*MET.*value"     
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromJets
     )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu )

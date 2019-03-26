@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -174,7 +174,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   met->setFlag( metHelper->GetStatus() );
 
-  uint comp = met->getNumberOfComponents(); // final no. of aux. compon.
+  uint nMetComp = met->getNumberOfComponents(); // final no. of aux. compon.
   uint nHelperComp = metHelper->GetElements(); // no. of transient aux. compon.
   if (nHelperComp != static_cast<unsigned char>(TrigEFMissingEtComponent::ComponentSize)) {
     ATH_MSG_WARNING( "Found " << nHelperComp << " aux components in the transient helper class.  Not supported!" );
@@ -187,7 +187,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   bool save3comp=false;
   bool save2comp=false;
   bool save1comp=false;
-  switch (comp) {
+  switch (nMetComp) {
     case 25: // default: do nothing
       break;
     case 9:
@@ -209,10 +209,10 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       save1comp=true;
       break;
     default:
-      ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
+      ATH_MSG_WARNING( "Found " << nMetComp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
       skipAuxInfo=true;
   }
-      ATH_MSG_DEBUG( "Found " << comp << " aux components in TrigMissingET." );
+      ATH_MSG_DEBUG( "Found " << nMetComp << " aux components in TrigMissingET." );
 
   // Initialize EDM by setting all components to zero
   met->setEx(0.); met->setEy(0.); met->setEz(0.);
@@ -245,10 +245,10 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     if (skipAuxInfo) continue;
 
     // auxiliary info - uncorrected
-    if (comp == unsigned(nHelperComp-17) && helper_i < 24) { 
+    if (nMetComp == unsigned(nHelperComp-17) && helper_i < 24) { 
       ATH_MSG_DEBUG( "finest granularity");
       copier.setMETCompFromHelper(helper_i, helper_i);
-    } else if(comp == unsigned(nHelperComp-17) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
+    } else if(nMetComp == unsigned(nHelperComp-17) && helper_i == static_cast<uint>(TrigEFMissingEtComponent::Muons)) { 
       ATH_MSG_DEBUG( "save muons");
       copier.setMETCompFromHelper(helper_i-17, helper_i);
     } else if (save6comp) {
@@ -379,9 +379,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     ATH_MSG_DEBUG( message );
   }
 
-  if(msgLvl(MSG::DEBUG)){
-    unsigned int nMetComp = met->getNumberOfComponents();
-
+  if(msgLvl(MSG::DEBUG) && nMetComp > 0){
     s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
       s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
     ATH_MSG_DEBUG( s );
