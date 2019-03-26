@@ -1,17 +1,6 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-
-/*
- *  MuonTriggerScaleFactors.h
- *
- *  Created on: Oct 22, 2014
- *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- *
- *  Updates for 2016: Jun 20, 2016
- *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
- */
-
 #ifndef MUONTRIGGERSCALEFACTORS_H_
 #define MUONTRIGGERSCALEFACTORS_H_
 
@@ -77,6 +66,9 @@ namespace CP {
             virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
             virtual int getReplica_index(std::string sysBaseName, const std::string trigStr) const;
+      
+            /// Returns whether the trigger is supported by the tool or not. The decision depends on the present (random)RunNumber 
+            virtual bool isTriggerSupported(const std::string& trigger) const;
         private:
 
             virtual CorrectionCode getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic) const;
