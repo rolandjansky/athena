@@ -3,7 +3,6 @@
 */
 
 #include "ExtParameterisedVolumeBuilder.h"
-#include "Geo2G4AssemblyFactory.h"
 #include "Geo2G4AssemblyVolume.h"
 #include "Geo2G4LVFactory.h"
 #include "Geo2G4STParameterisation.h"
@@ -30,14 +29,17 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n):
+ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n, Geo2G4AssemblyFactory* G4AssemblyFactory):
   VolumeBuilder(n),
   m_getMatEther(true),
-  m_matEther(0),m_matHypUr(0),m_msg(n)
+  m_matEther(0),
+  m_matHypUr(0),
+  m_msg(n),
+  m_G4AssemblyFactory(G4AssemblyFactory)
 {
 }
 
-G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes) const
+G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes)
 {
   PVConstLink theGeoPhysChild;
   const GeoSerialTransformer* serialTransformerChild=0;
@@ -181,7 +183,7 @@ G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPh
   return theG4LogVolume;
 }
 
-Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink pv) const
+Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink pv)
 {
   PVConstLink theGeoPhysChild;
   G4LogicalVolume* theG4LogChild = 0;
@@ -190,9 +192,7 @@ Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink p
 
   if(m_getMatEther) getMatEther();
 
-  static Geo2G4AssemblyFactory AssemblyFactory;
-
-  Geo2G4AssemblyVolume* assemblyVolume = AssemblyFactory.Build(pv,descend);
+  Geo2G4AssemblyVolume* assemblyVolume = m_G4AssemblyFactory->Build(pv,descend);
 
   if(!descend) return assemblyVolume;
 

@@ -3,8 +3,10 @@
 */
 
 #include "ExtParameterisedVolumeBuilder.h"
+#include "Geo2G4AssemblyFactory.h"
 
-void InitializeBuilders()
+void InitializeBuilders(Geo2G4AssemblyFactory* assemblyFactory)
 {
-  ExtParameterisedVolumeBuilder *epb __attribute__ ((unused)) = new ExtParameterisedVolumeBuilder("Extended_Parameterised_Volume_Builder");
+  ExtParameterisedVolumeBuilder *epb __attribute__ ((unused)) =
+    new ExtParameterisedVolumeBuilder("Extended_Parameterised_Volume_Builder", assemblyFactory);
 }
