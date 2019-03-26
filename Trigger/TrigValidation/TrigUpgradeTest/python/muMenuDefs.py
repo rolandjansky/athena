@@ -52,7 +52,7 @@ muonCombinedRecFlags.doCaloTrkMuId = False
 muonCombinedRecFlags.printSummary = False
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, EventViewCreatorAlgorithmWithMuons
 
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
@@ -202,7 +202,7 @@ def muEFCBStep():
 
     ### get EF reco sequence ###    
     from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
-    muEFCBRecoSequence, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFCBRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI", OutputLevel=DEBUG )
  
     efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
     
@@ -251,6 +251,39 @@ def muEFSAFSStep():
                          Maker       = efsafsInputMaker,
                          Hypo        = trigMuonEFSAFSHypo,
                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
+
+### EF CB full scan ###
+def muEFCBFSStep():
+
+    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker")
+    efcbfsInputMaker.ViewFallThrough = True
+    efcbfsInputMaker.ViewPerRoI = True
+    efcbfsInputMaker.Views = "MUCBFSViews"
+    efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
+    efcbfsInputMaker.RoIsLink = "roi"
+    efcbfsInputMaker.InViewMuons = "InViewMuons"
+    efcbfsInputMaker.MuonsLink = "feature"
+
+    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    muEFCBFSRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS", OutputLevel=DEBUG )
+ 
+    efcbfsInputMaker.ViewNodeName = muEFCBFSRecoSequence.name()
+    
+    
+    # setup EFCB hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
+    trigMuonEFCBFSHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
+    trigMuonEFCBFSHypo.OutputLevel = DEBUG
+    trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
+    
+    muonEFCBFSSequence = seqAND( "muonEFFSCBSequence", eventAlgs + [efcbfsInputMaker, muEFCBFSRecoSequence] )
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFCBFSSequence,
+                         Maker       = efcbfsInputMaker,
+                         Hypo        = trigMuonEFCBFSHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 
 ### l2Muiso step ###

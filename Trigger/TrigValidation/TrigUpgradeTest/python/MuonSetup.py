@@ -564,7 +564,7 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
 
 
 
-def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
+def muEFCBRecoSequence( RoIs, name, OutputLevel=INFO ):
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.DetFlags import DetFlags
@@ -578,10 +578,34 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
   efAlgs = [] 
-  muEFCBRecoSequence = parOR("efcbViewNode")
+  muEFCBRecoSequence = parOR("efcbViewNode_"+name)
   #Need ID tracking related objects and MS tracks from previous steps
   ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
-  ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ),( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
+  ViewVerifyTrk.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
+  eventAlgs=[]
+  if "FS" in name:
+    #Need to run tracking for full scan chains
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS")
+
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonFS
+    theFTF_Muon = TrigFastTrackFinder_MuonFS()
+    theFTF_Muon.OutputLevel = OutputLevel
+    theFTF_Muon.isRoI_Seeded = True
+    viewAlgs.append(theFTF_Muon)
+
+     #TrackParticlesName = ""
+    for viewAlg in viewAlgs:
+      muEFCBRecoSequence += viewAlg
+      viewAlg.OutputLevel = OutputLevel
+      if viewAlg.properties().has_key("RoIs"):
+        viewAlg.RoIs = RoIs
+      if viewAlg.properties().has_key("roiCollectionName"):
+        viewAlg.roiCollectionName = RoIs
+      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+        TrackParticlesName = viewAlg.TrackParticlesName
+  else:
+    ViewVerifyTrk.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
   muEFCBRecoSequence += ViewVerifyTrk
 
 
@@ -594,7 +618,10 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk ) 
+  if 'FS' in name:  
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS" ) 
+  else:
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk ) 
 
   #Get last tracks from the list as input for other alg
 
@@ -609,46 +636,46 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   trackParticles = PTTrackParticles[-1] 
 
   #Make InDetCandidates
-  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg",TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [ trackParticles ],ForwardParticleLocation=trackParticles,OutputLevel=DEBUG)
+  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles,OutputLevel=DEBUG)
 
   #MuonCombinedCandidates
-  theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool", "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
-  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool", "MuidCaloEnergyTool", CaloMeasTool = theCaloMeasTool, EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
+  theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool_"+name, "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
+  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool_"+name, "MuidCaloEnergyTool", CaloMeasTool = theCaloMeasTool, EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
 
   from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
   TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
   ToolSvc += TrigMuonPropagator
 
-  theCaloTSOS = getPublicToolClone("TrigCaloTrackStateOnSurface", "MuidCaloTrackStateOnSurface", CaloEnergyDeposit=theCaloEnergyTool, CaloEnergyParam=theCaloEnergyTool, Propagator =TrigMuonPropagator, MinRemainingEnergy= 200, ParamPtCut= 3000)
+  theCaloTSOS = getPublicToolClone("TrigCaloTrackStateOnSurface_"+name, "MuidCaloTrackStateOnSurface", CaloEnergyDeposit=theCaloEnergyTool, CaloEnergyParam=theCaloEnergyTool, Propagator =TrigMuonPropagator, MinRemainingEnergy= 200, ParamPtCut= 3000)
   from MuidCaloScatteringTools.MuidCaloScatteringToolsConf import Rec__MuidMaterialEffectsOnTrackProvider
   Rec__MuidMaterialEffectsOnTrackProvider.TSOSTool=theCaloTSOS
 
-  theErrorOptimiser = getPublicToolClone("TrigMuonErrorOptimiser", "MuonErrorOptimisationTool", PrepareForFit=False, RecreateStartingParameters=False,RefitTool=getPublicToolClone("TrigMuidRefitTool", "MuonRefitTool", AlignmentErrors = False, Fitter = CfgGetter.getPublicTool("iPatFitter")))
+  theErrorOptimiser = getPublicToolClone("TrigMuonErrorOptimiser_"+name, "MuonErrorOptimisationTool", PrepareForFit=False, RecreateStartingParameters=False,RefitTool=getPublicToolClone("TrigMuidRefitTool_"+name, "MuonRefitTool", AlignmentErrors = False, Fitter = CfgGetter.getPublicTool("iPatFitter")))
 
-  theTrackCleaner = getPublicToolClone("TrigMuonTrackCleaner", "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
+  theTrackCleaner = getPublicToolClone("TrigMuonTrackCleaner_"+name, "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
 
 
-  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",OutputLevel=DEBUG,CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=getPublicTool("CombinedMuonTrackSummary"), Cleaner=theTrackCleaner)
-  theTrackQuery = getPublicToolClone("TrigMuonTrackQuery", "MuonTrackQuery", Fitter=theTrackBuilderTool)
+  theTrackBuilderTool = getPublicToolClone("TrigCombinedMuonTrackBuilder_"+name,"CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",OutputLevel=DEBUG,CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer=theErrorOptimiser, Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator=TrigMuonPropagator, LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=True, ReallocateMaterial=False, TrackSummaryTool=getPublicTool("CombinedMuonTrackSummary"), Cleaner=theTrackCleaner)
+  theTrackQuery = getPublicToolClone("TrigMuonTrackQuery_"+name, "MuonTrackQuery", Fitter=theTrackBuilderTool)
 
-  theCandidateToolCB = getPublicToolClone("TrigMuonCandidateTool_CB", "MuonCandidateTool", TrackBuilder=theTrackBuilderTool,OutputLevel=DEBUG)
-  theMuonCombinedCandidateAlg = CfgMgr.MuonCombinedMuonCandidateAlg("TrigMuonCombinedMuonCandidateAlg",MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="CombinedMuonCandidates", OutputLevel=DEBUG)
+  theCandidateToolCB = getPublicToolClone("TrigMuonCandidateTool_CB_"+name, "MuonCandidateTool", TrackBuilder=theTrackBuilderTool,OutputLevel=DEBUG)
+  theMuonCombinedCandidateAlg = CfgMgr.MuonCombinedMuonCandidateAlg("TrigMuonCombinedMuonCandidateAlg_"+name,MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="CombinedMuonCandidates", OutputLevel=DEBUG)
 
   #MS ID combination
-  theMuonCombinedFitTagTool = getPublicToolClone("TrigMuonCombinedFitTagTool", "MuonCombinedFitTagTool",TrackBuilder=theTrackBuilderTool,MuonRecovery=getPublicToolClone("TrigMuonRecovery","MuidMuonRecovery", TrackBuilder=theTrackBuilderTool),OutputLevel=DEBUG, TrackQuery=theTrackQuery, MatchQuality = getPublicToolClone("TrigMuonMatchQuality", "MuonMatchQuality", TrackQuery=theTrackQuery))
+  theMuonCombinedFitTagTool = getPublicToolClone("TrigMuonCombinedFitTagTool_"+name, "MuonCombinedFitTagTool",TrackBuilder=theTrackBuilderTool,MuonRecovery=getPublicToolClone("TrigMuonRecovery_"+name,"MuidMuonRecovery", TrackBuilder=theTrackBuilderTool),OutputLevel=DEBUG, TrackQuery=theTrackQuery, MatchQuality = getPublicToolClone("TrigMuonMatchQuality_"+name, "MuonMatchQuality", TrackQuery=theTrackQuery))
   tools=[]
   tools.append(theMuonCombinedFitTagTool)
-  theMuonCombinedTool = getPublicToolClone("TrigMuonCombinedToolCB", "MuonCombinedTool", MuonCombinedTagTools=tools, OutputLevel=DEBUG)
-  theMuonCombinedAlg = CfgMgr.MuonCombinedAlg("TrigMuonCombinedAlg", MuonCandidateLocation="CombinedMuonCandidates", MuonCombinedTool=theMuonCombinedTool, CombinedTagMaps=["muidcoTagMap"], OutputLevel=DEBUG)
+  theMuonCombinedTool = getPublicToolClone("TrigMuonCombinedToolCB_"+name, "MuonCombinedTool", MuonCombinedTagTools=tools, OutputLevel=DEBUG)
+  theMuonCombinedAlg = CfgMgr.MuonCombinedAlg("TrigMuonCombinedAlg_"+name, MuonCandidateLocation="CombinedMuonCandidates", MuonCombinedTool=theMuonCombinedTool, CombinedTagMaps=["muidcoTagMap"], OutputLevel=DEBUG)
 
   #Build muon candidates
-  theCandidateToolCB = getPublicToolClone("MuonCandidateTool_CB", "MuonCandidateTool", TrackBuilder=theTrackBuilderTool)
-  theMuonCandidateAlgCB=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlgCB",MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="MuonCandidates", MSOnlyExtrapolatedTrackLocation="MSOnlyMuonTracksForCB")
+  theCandidateToolCB = getPublicToolClone("MuonCandidateTool_CB_"+name, "MuonCandidateTool", TrackBuilder=theTrackBuilderTool)
+  theMuonCandidateAlgCB=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlgCB_"+name,MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="MuonCandidates", MSOnlyExtrapolatedTrackLocation="MSOnlyMuonTracksForCB")
 
   #Create xAOD Muons
-  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG, DoCaloNoiseCut=False, UseCaloCells=False)
+  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB_"+name, "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG, DoCaloNoiseCut=False, UseCaloCells=False)
 
-  themuoncbcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgCB", OutputLevel=DEBUG, MuonCandidateLocation="CombinedMuonCandidates")
+  themuoncbcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgCB_"+name, OutputLevel=DEBUG, MuonCandidateLocation="CombinedMuonCandidates")
   themuoncbcreatoralg.MuonCreatorTool=thecreatortoolCB
   themuoncbcreatoralg.MakeClusters=False
   themuoncbcreatoralg.ClusterContainerName=""
@@ -672,6 +699,6 @@ def muEFCBRecoSequence( RoIs, OutputLevel=INFO ):
   sequenceOut = themuoncbcreatoralg.MuonContainerLocation
 
   
-  return muEFCBRecoSequence, sequenceOut
+  return muEFCBRecoSequence, eventAlgs, sequenceOut
 
 
