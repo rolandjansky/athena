@@ -22,14 +22,14 @@ class TFitter;
 class ZDCPulseAnalyzer
 {
 public:
-  enum {PulseBit = 0, LowGainBit = 1, FailBit = 2, HGOverflowBit = 3, 
+  enum {PulseBit = 0, LowGainBit = 1, FailBit = 2, HGOverflowBit = 3,
 	HGUnderflowBit = 4, PSHGOverUnderflowBit = 5, LGOverflowBit = 6, LGUnderflowBit = 7,
 	PrePulseBit = 8, PostPulseBit = 9, FitFailedBit = 10, BadChisqBit = 11, BadT0Bit = 12};
 
 private:
   typedef std::vector<float>::const_iterator SampleCIter;
 
-  //  Static data 
+  //  Static data
   //
   static std::string s_fitOptions;
   static bool s_quietFits;
@@ -93,7 +93,7 @@ private:
   // Default fit values and cuts that can be set via modifier methods
   //
 
-  int m_fitTMax;
+  float m_fitTMax;
   int m_HGOverflowADC;
   int m_HGUnderflowADC;
   int m_LGOverflowADC;
@@ -199,17 +199,17 @@ private:
   std::vector<float> m_samplesSub;
   std::vector<float> m_samplesDeriv;
   std::vector<float> m_samplesDeriv2nd;
-  
+
   // Private methods
   //
   void Reset();
   void SetDefaults();
   void SetupFitFunctions();
 
-  bool AnalyzeData(size_t nSamples, size_t preSample, 
+  bool AnalyzeData(size_t nSamples, size_t preSample,
 		   const std::vector<float>& samples,        // The samples used for this event
 		   const std::vector<float>& samplesSig,     // The "resolution" on the ADC value
-		   const std::vector<float>& toCorrParams,   // The parameters used to correct the t0               
+		   const std::vector<float>& toCorrParams,   // The parameters used to correct the t0
 		   float maxChisqDivAmp,                     // The maximum chisq / amplitude ratio
 		   float minT0Corr, float maxT0Corr,          // The minimum and maximum corrected T0 values
 		   float peak2ndDerivMinThresh
@@ -222,18 +222,19 @@ private:
       // Set the data and errors in the histogram object
       //
       for (size_t isample = 0; isample < m_Nsample; isample++) {
-	m_fitHist->SetBinContent(isample + 1, samples[isample]);
-	m_fitHist->SetBinError(isample + 1, samplesSig[isample]);
+	       m_fitHist->SetBinContent(isample + 1, samples[isample]);
+	       m_fitHist->SetBinError(isample + 1, samplesSig[isample]);
       }
     }
     else {
       // Set the data and errors in the histogram object
       //
       for (size_t isample = 0; isample < m_Nsample; isample++) {
-	m_fitHist->SetBinContent(isample + 1, samples[isample*2]);
-	m_delayedHist->SetBinContent(isample + 1, samples[isample*2 + 1]);
+	      m_fitHist->SetBinContent(isample + 1, samples[isample*2]);
+	      m_delayedHist->SetBinContent(isample + 1, samples[isample*2 + 1]);
 
-	m_fitHist->SetBinError(isample + 1, samplesSig[isample]); // ***** horrible hack: fix ASAP
+	      m_fitHist->SetBinError(isample + 1, samplesSig[isample]); // ***** horrible hack: fix ASAP
+        m_delayedHist->SetBinError(isample + 1, samplesSig[isample]);
       }
 
     }
@@ -267,7 +268,7 @@ public:
   bool ForceLG() const {return m_forceLG;}
 
   void SetCutValues(float chisqDivAmpCutHG, float chisqDivAmpCutLG,
-		    float deltaT0MinHG, float deltaT0MaxHG, 
+		    float deltaT0MinHG, float deltaT0MaxHG,
 		    float deltaT0MinLG, float deltaT0MaxLG) ;
 
   void SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, float tau2, float t0HG, float t0LG);
@@ -286,13 +287,13 @@ public:
 
   void SetFitTimeMax(float tmax);
 
-  void SetNonlinCorrParams(const std::vector<float>& params) 
+  void SetNonlinCorrParams(const std::vector<float>& params)
   {
     //  Check for valid length
     //
     if (params.size() != 2) throw;
 
-    ANA_MSG_INFO ("Setting non-linear parameters for module: " << m_tag << ", vlues = " 
+    ANA_MSG_INFO ("Setting non-linear parameters for module: " << m_tag << ", vlues = "
                   << params[0] << ", " << params[1]);
 
     m_nonLinCorrParams = params;
@@ -314,7 +315,7 @@ public:
   bool UseLowGain() const {return m_useLowGain;}
 
   bool HGOverflow() const {return m_HGOverflow;}
-  bool HGUnderflow() const {return m_HGOverflow;}
+  bool HGUnderflow() const {return m_HGUnderflow;}
   bool LGOverflow() const {return m_LGOverflow;}
   bool LGUnderflow() const {return m_LGUnderflow;}
 
@@ -354,7 +355,7 @@ public:
   const TH1* GetHistogramPtr() const {
     //
     // We defer filling the histogram if we don't have a pulse until the histogram is requested
-    // 
+    //
     if (!m_havePulse) {
       if (UseLowGain()) FillHistogram(m_samplesSub, m_ADCSSampSigLG);
       else FillHistogram(m_samplesSub, m_ADCSSampSigHG);
@@ -366,7 +367,7 @@ public:
   TGraph* GetCombinedGraph() const {
     //
     // We defer filling the histogram if we don't have a pulse until the histogram is requested
-    // 
+    //
     GetHistogramPtr();
 
     TGraph* theGraph = new TGraph(2*m_Nsample);

@@ -108,6 +108,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   bool m_lowGainOnly;
   bool m_combineDelay;
   bool m_doCalib;
+  bool m_doTrigEff;
   int m_forceCalibRun;
   int m_forceCalibLB;
 
