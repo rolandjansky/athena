@@ -23,7 +23,6 @@
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IAdjustableT0Tool.h"
 
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -64,7 +63,6 @@ namespace Muon {
     m_muonChamberHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
     m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_errorOptimisationTool(""),
-    m_tofTool(""),
     m_magFieldSvc("AtlasFieldSvc",n),
     m_magFieldProperties(Trk::FullField),
     m_ncalls(0),
@@ -83,7 +81,6 @@ namespace Muon {
     declareProperty("MdtRotCreator",m_mdtRotCreator,"Tool to recalibrate MdtDriftCircleOnTrack objects");
     declareProperty("CompetingClustersCreator",m_compRotCreator,"Tool to create CompetingMuonClustersOnTrack objects");
     declareProperty("Propagator",m_propagator,"propagator");
-    declareProperty("TofTool",     m_tofTool);
     declareProperty("MagFieldSvc",    m_magFieldSvc );
     declareProperty("IdHelper",m_idHelper);
     declareProperty("HitRecoveryTool",m_hitRecoverTool);
@@ -108,7 +105,6 @@ namespace Muon {
 
     ATH_CHECK( m_fitter.retrieve() );
     ATH_CHECK( m_slFitter.retrieve() );
-    if( !m_tofTool.empty() ) ATH_CHECK( m_tofTool.retrieve() );
     ATH_CHECK(m_magFieldSvc.retrieve() );
     if( !m_errorOptimisationTool.empty() ) ATH_CHECK( m_errorOptimisationTool.retrieve() );
     ATH_CHECK( m_candidateHandler.retrieve() );
@@ -145,36 +141,6 @@ namespace Muon {
     // if not refit tool specified do a pure refit 
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
     return m_errorOptimisationTool->optimiseErrors(track);
-  }
-
-  Trk::Track* MooTrackBuilder::refit( const MuPatTrack& trkCan ) const {
-
-    if( !trkCan.hasMomentum() || !m_magFieldSvc->toroidOn() ) return m_slFitter->refit(trkCan);
- 
-    // if configured to use t0s check whether there are any segments with fitted T0
-    if( !m_tofTool.empty() ){
-      m_tofTool->ResetSetTShift( 0. );
-      std::vector<MuPatSegment*>::const_iterator sit = trkCan.segments().begin();
-      std::vector<MuPatSegment*>::const_iterator sit_end = trkCan.segments().end();
-      for( ;sit!=sit_end;++sit ){
-        
-        // sanity checks
-        if( !*sit || !(*sit)->segment ) continue;
-        
-        // check whether segment has T0
-        if( !(*sit)->segment->hasFittedT0() ) continue;
-        std::set<Identifier> chIds = m_helper->chamberIds(*(*sit)->segment);
-        for( std::set<Identifier>::iterator chit = chIds.begin();chit!=chIds.end();++chit ){
-          const Identifier& id = *chit;
-          int ieta = m_idHelper->mdtIdHelper().stationEta(id);
-          int iphi = m_idHelper->mdtIdHelper().stationPhi(id);
-          m_tofTool->SetStatTShift(m_idHelper->chamberNameString(id),ieta,iphi,-(*sit)->segment->time());
-          ATH_MSG_DEBUG(" Adding t0 swift: " << m_idHelper->toStringChamber(id) << "  --- " << (*sit)->segment->time() );
-        }
-      }
-    }
-
-    return refit(trkCan.track());
   }
 
   MuPatTrack* MooTrackBuilder::refine( MuPatTrack& track ) const {

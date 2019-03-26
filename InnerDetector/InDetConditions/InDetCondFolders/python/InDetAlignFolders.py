@@ -14,12 +14,12 @@ topSequence = AlgSequence()
 conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX")
 
 # Dead/Noisy Straw Lists
-if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"): # revert to old style CondHandle in case of simulation or streaming to POOL
+if hasattr(topSequence,"OutputConditionsAlg"): # revert to old style CondHandle in case streaming to POOL
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
 else:
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
 
-if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
+if hasattr(topSequence,"OutputConditionsAlg"):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
 else:
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
@@ -79,8 +79,6 @@ if DetFlags.TRT_on() and ((not DetFlags.simulate.TRT_on()) or DetFlags.overlay.T
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
             condSeq += TRTAlignCondAlg
-
-
 if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
 
     if not hasattr(condSeq, "SCT_AlignCondAlg"):

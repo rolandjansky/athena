@@ -12,24 +12,36 @@ from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
-from TrigUpgradeTest.InDetConfig import InDetGMConfig # FIXME This module would ideally be located somewhere else
+from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from BCM_Digitization.BCM_DigitizationConfigNew import (
+    BCM_RangeCfg, BCM_DigitizationToolCfg, BCM_DigitizationCfg,
+    BCM_OverlayDigitizationToolCfg, BCM_OverlayDigitizationCfg,
+)
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS
-ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.join(createDigitizationCfgFlags())
 ConfigFlags.join(createOverlayCfgFlags())
+ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
+ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.lock()
+# Function tests
+tool = BCM_RangeCfg(ConfigFlags)
+tacc = BCM_DigitizationToolCfg(ConfigFlags)
+tacc.merge(BCM_OverlayDigitizationToolCfg(ConfigFlags))
+tacc.merge(BCM_DigitizationToolCfg(ConfigFlags))
+tacc.merge(BCM_OverlayDigitizationCfg(ConfigFlags))
+# reset to prevent errors on deletion
+tacc.__init__()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
-acc.merge(InDetGMConfig(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required for BCM
+acc.merge(PixelGeometryCfg(ConfigFlags))
 # Add configuration to write HITS pool file
 outConfig = OutputStreamCfg(ConfigFlags, "RDO",
     ItemList=["InDetSimDataCollection#*", "BCM_RDO_Container#*"])

@@ -49,10 +49,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-namespace AdjT0 {
-  class IAdjustableT0Tool;
-}
-
 namespace Muon {
   class IMuonCompetingClustersOnTrackCreator;
   class IMdtDriftCircleOnTrackCreator;
@@ -408,7 +404,6 @@ class MdtDriftCircleOnTrack;
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
     ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
     ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool
-    mutable ToolHandle<AdjT0::IAdjustableT0Tool>      m_tofTool;         //<! tof tool
     ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
     ToolHandle<IDCSLFitProvider>              m_dcslFitProvider;

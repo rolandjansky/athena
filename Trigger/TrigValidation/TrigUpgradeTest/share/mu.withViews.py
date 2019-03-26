@@ -304,7 +304,7 @@ if TriggerFlags.doMuon:
 
     ### get EF reco sequence ###
     from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
-    muEFCBRecoSequence, muEFCBSequenceOut = muEFCBRecoSequence( efCBMuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
+    muEFCBRecoSequence, eventAlgs, muEFCBSequenceOut = muEFCBRecoSequence( efCBMuViewsMaker.InViewRoIs, "RoI", OutputLevel=DEBUG )
  
     efCBMuViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
 
@@ -323,7 +323,7 @@ if TriggerFlags.doMuon:
     muonEFCBDecisionsDumper = DumpDecisions("muonEFCBDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFCBHypo.HypoOutputDecisions )
 
     ### make sequence ### 
-    muEFCBSequence = seqAND("muEFCBSequence", [efCBMuViewsMaker, muEFCBRecoSequence, trigMuonEFCBHypo])
+    muEFCBSequence = seqAND("muEFCBSequence", eventAlgs+[efCBMuViewsMaker, muEFCBRecoSequence, trigMuonEFCBHypo])
 
     ### make step ### 
     muonEFCBStep = stepSeq("muonEFCBStep", filterEFCBAlg, [muEFCBSequence, muonEFCBDecisionsDumper])

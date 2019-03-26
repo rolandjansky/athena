@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,8 +22,6 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetReadoutGeometry/Version.h"
-#include "StoreGate/ReadCondHandle.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -38,8 +36,8 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_TRTCalDbSvc("TRT_CalDbSvc",name),
-    m_TRTCalDbSvc2("",name),
+    m_TRTCalDbTool("TRT_CalDbTool",this),
+    m_TRTCalDbTool2("",this),
     m_drifttimeperbin(3.125 * CLHEP::ns),
     m_error(0.17),
     m_drifttimeperhalfbin(0.), // set later
@@ -81,8 +79,8 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   declareProperty("UniversalError",m_uni_error);
   declareProperty("DummyMode",m_dummy);
   declareProperty("ErrorFudgeFactor",m_err_fudge);
-  declareProperty("TRTCalDbTool", m_TRTCalDbSvc);
-  declareProperty("TRTCalDbTool2", m_TRTCalDbSvc2);
+  declareProperty("TRTCalDbTool", m_TRTCalDbTool);
+  declareProperty("TRTCalDbTool2", m_TRTCalDbTool2);
   declareProperty("DriftFunctionFile", m_inputfile);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
   declareProperty("ToTCorrectionsBarrelXe",m_tot_corrections_barrel_Xe);
@@ -315,19 +313,19 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
     {
       double radius = 0.; 
       if (!m_isoverlay){ //standard case
-	radius = m_TRTCalDbSvc->driftRadius(crawtime,ft0,cid,isOK);
+	radius = m_TRTCalDbTool->driftRadius(crawtime,ft0,cid,isOK);
 	t0=ft0 + m_t0_shift;
       }
       else{ //overlay case
-	radius = m_TRTCalDbSvc->driftRadius(rawtime,ft0,cid,isOK);// no m_t0_shift in rawtime, and use data TRTCalDbSvc
+	radius = m_TRTCalDbTool->driftRadius(rawtime,ft0,cid,isOK);// no m_t0_shift in rawtime, and use data TRTCalDbSvc
 	t0=ft0;
 	bool mcdigit = word & (1<<31);
 	if (mcdigit ){
 	  //check if it's a MC digit, and if so apply other calibration
-	  ATH_MSG_DEBUG ("Overlay TRTCalDbSvc  gave  radius: "<<radius<<", t0: "<<t0);
-	  radius = m_TRTCalDbSvc2->driftRadius(crawtime,ft0,cid,isOK);//t0_shift in crawtime, and use MC TRTCalDbSvc(2)
+	  ATH_MSG_DEBUG ("Overlay TRTCalDbTool  gave  radius: "<<radius<<", t0: "<<t0);
+	  radius = m_TRTCalDbTool2->driftRadius(crawtime,ft0,cid,isOK);//t0_shift in crawtime, and use MC TRTCalDbSvc(2)
 	  t0=ft0 + m_t0_shift;
-	  ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives radius: "<<radius<<", t0: "<<t0);                                                                
+	  ATH_MSG_DEBUG ("Overlay TRTCalDbTool2 gives radius: "<<radius<<", t0: "<<t0);                                                                
 	}   
       }
       double drifttime = rawtime-t0;
@@ -391,17 +389,17 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
   if(m_force_universal_errors && m_uni_error!=0) return m_uni_error;
   bool founderr=true;
   bool foundslope=true;
-  double error = m_TRTCalDbSvc->driftError(drifttime,id,founderr);
-  double slope = m_TRTCalDbSvc->driftSlope(drifttime,id,foundslope);
+  double error = m_TRTCalDbTool->driftError(drifttime,id,founderr);
+  double slope = m_TRTCalDbTool->driftSlope(drifttime,id,foundslope);
   bool mcdigit = word & (1<<31);
   if (m_isoverlay && mcdigit ){
     //check if it's a MC digit, and if so apply other calibration
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc gave error: "<<error<<", found="<<founderr);
-    error = m_TRTCalDbSvc2->driftError(drifttime,id,founderr);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives error: "<<error<<", found="<<founderr);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc gave slope: "<<slope<<", found="<<foundslope);
-    slope = m_TRTCalDbSvc2->driftSlope(drifttime,id,foundslope);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives slope: "<<slope<<", found="<<foundslope);
+    ATH_MSG_DEBUG ("Overlay TRTCalDbTool gave error: "<<error<<", found="<<founderr);
+    error = m_TRTCalDbTool2->driftError(drifttime,id,founderr);
+    ATH_MSG_DEBUG ("Overlay TRTCalDbTool2 gives error: "<<error<<", found="<<founderr);
+    ATH_MSG_DEBUG ("Overlay TRTCalDbTool gave slope: "<<slope<<", found="<<foundslope);
+    slope = m_TRTCalDbTool2->driftSlope(drifttime,id,foundslope);
+    ATH_MSG_DEBUG ("Overlay TRTCalDbTool2 gives slope: "<<slope<<", found="<<foundslope);
   }
 
   if(founderr && foundslope) {
@@ -459,21 +457,21 @@ void TRT_DriftFunctionTool::setupRtRelationData()
   //Setting up for data
   ATH_MSG_DEBUG(" Setting up for data ");
 
-  ATH_MSG_DEBUG(" Using TRTCalDbSvc ");
-  if ( m_TRTCalDbSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL(m_TRTCalDbSvc.propertyName() <<
-		  ": Failed to retrieve service " << m_TRTCalDbSvc.type());
+  ATH_MSG_DEBUG(" Using TRTCalDbTool ");
+  if ( m_TRTCalDbTool.retrieve().isFailure() ) {
+    ATH_MSG_FATAL(m_TRTCalDbTool.propertyName() <<
+		  ": Failed to retrieve service " << m_TRTCalDbTool.type());
     return;
     
   } else {
-    ATH_MSG_DEBUG(m_TRTCalDbSvc.propertyName() <<
-		  ": Retrieved service " << m_TRTCalDbSvc.type());
+    ATH_MSG_DEBUG(m_TRTCalDbTool.propertyName() <<
+		  ": Retrieved service " << m_TRTCalDbTool.type());
   }
 
   if (m_isoverlay){
-    ATH_MSG_INFO("Using TRTCalDbSvc2 for overlay ! ");
-    if ( m_TRTCalDbSvc2.retrieve().isFailure() ) {
-      ATH_MSG_FATAL(m_TRTCalDbSvc2.propertyName() <<": Failed to retrieveservice " << m_TRTCalDbSvc2.type());
+    ATH_MSG_INFO("Using TRTCalDbTool2 for overlay ! ");
+    if ( m_TRTCalDbTool2.retrieve().isFailure() ) {
+      ATH_MSG_FATAL(m_TRTCalDbTool2.propertyName() <<": Failed to retrieveservice " << m_TRTCalDbTool2.type());
       return;
     }
   }

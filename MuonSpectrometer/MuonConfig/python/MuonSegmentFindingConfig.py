@@ -244,7 +244,6 @@ def MdtDriftCircleOnTrackCreatorAdjustableT0(flags,**kwargs):
     kwargs.setdefault("TimingMode", 3)
     kwargs.setdefault("DoTofCorrection", True)
     kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))
-    kwargs.setdefault("MuonTofTool", AdjustableT0Tool(flags))
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 def AdjustableT0Tool(flags,**kwargs):
@@ -374,7 +373,6 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     # ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
     # ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
     # ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool MdtSegmentFinder
-    # mutable ToolHandle<AdjT0::IAdjustableT0Tool>      m_tofTool;         //<! tof tool
     # ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     # ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
     # ToolHandle<IDCSLFitProvider>              m_dcslFitProvider;
@@ -409,12 +407,10 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
         kwargs.setdefault("RecoverBadRpcCabling", True)
 
     if doSegmentT0Fit:
-        tof_tool = AdjustableT0Tool(flags)
         result.merge(MuonConfig.MuonRIO_OnTrackCreatorConfig.MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
-                   DoTofCorrection=True, TimeWindowSetting=mdtCalibWindowNumber('Collision_data'), MuonTofTool=tof_tool))
+                   DoTofCorrection=True, TimeWindowSetting=mdtCalibWindowNumber('Collision_data')))
 
         kwargs.setdefault("MdtCreatorT0", mdt_creator) # TODO - is this correct? 
-        kwargs.setdefault("TofTool", tof_tool(flags))
         mdt_math_segment_finder = MdtMathSegmentFinder(flags, doSegmentT0Fit=True)
     else:
         mdt_math_segment_finder = MdtMathSegmentFinder(flags)

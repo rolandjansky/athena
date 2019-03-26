@@ -1,6 +1,21 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/********************************************************************
+
+NAME:     EFMissingETFromJetsMT.cxx
+PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
+AUTHOR:   Gabriel Gallardo
+CREATED:  Feb 19, 2018
+
+BASED ON: EFMissingETFromJets.cxx
+AUTHORS:  Florian U. Bernlochner, Doug Schaefer, Justin Chiu
+
+
+PURPOSE:  Updates TrigMissingETHelper using info from jets
+ ********************************************************************/
+
 #include <cmath>
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 #include "TrigEFMissingET/EFMissingETHelper.h"
@@ -57,8 +72,8 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   
   loopTimer.start();
   for ( auto& t: m_metTools ) {
-    ATH_MSG_DEBUG( "Invoking tool " << t->name() << " to update the MET obejct" );
-    t->update( met, &metHelper );
+    ATH_MSG_DEBUG( "Invoking tool " << t->name() << " to update the MET object" );
+    t->update( met, &metHelper, context );
   }
   loopTimer.stop();
 

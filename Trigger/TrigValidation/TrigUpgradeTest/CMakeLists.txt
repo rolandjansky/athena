@@ -6,45 +6,32 @@
 atlas_subdir( TrigUpgradeTest )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          TestPolicy
-                          AtlasPolicy
+atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
-                          PRIVATE
                           Control/AthenaBaseComps
                           Trigger/TrigSteer/DecisionHandling
                           Trigger/TrigEvent/TrigSteeringEvent
-                          Control/AthViews
                           )
 
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-atlas_add_library( TrigUpgradeTestLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigUpgradeTest
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-                   GaudiKernel AthenaBaseComps TrigSteeringEvent DecisionHandlingLib )
-
 atlas_add_component( TrigUpgradeTest
+                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES}
-                     ${ROOT_LIBRARIES} GaudiKernel
-                     AthenaBaseComps TrigUpgradeTestLib AthViews )
+                     LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib
+                     )
 
+# Install files from the package:
+atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.ref share/*.conf )
+atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/exec*.sh test/test*.sh )
 
+# Unit tests:
 atlas_add_test( ViewSchedule1 SCRIPT test/test_view_schedule.sh
                 ENVIRONMENT THREADS=1 )
 atlas_add_test( ViewSchedule2 SCRIPT test/test_view_schedule.sh
                 ENVIRONMENT THREADS=2 )
 atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh
                 ENVIRONMENT THREADS=64 )
-
-# out until we find a way to properly invoke tests from other packages
-# atlas_add_test( creatingEVTest SCRIPT forward.sh ViewAlgsTest/test/creatingEVTest.sh )
-
 
 atlas_add_test( merge
    SCRIPT test/test_merge.sh
@@ -172,6 +159,14 @@ atlas_add_test( EmuStepProcessing
    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing
    )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_newjo )
+atlas_add_test( EmuNewJO
+    SCRIPT test_emu_newjo.sh
+    EXTRA_PATTERNS "-s TrigSignatureMo.*INFO HLT_.*"
+    PROPERTIES TIMEOUT 1000
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_newjo
+    )
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
    SCRIPT test/test_newJO_build.sh
@@ -228,12 +223,28 @@ atlas_add_test( bJetMenuALLTE
    )
 
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone )
-atlas_add_test( met_standalone
-    SCRIPT test/test_met_standalone.sh
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromCells )
+atlas_add_test( met_fromCells
+    SCRIPT test/test_met_fromCells.sh
     PROPERTIES TIMEOUT 1000
    	EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
-    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_standalone
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromCells
+    )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromClusters )
+atlas_add_test( met_fromClusters
+    SCRIPT test/test_met_fromClusters.sh
+    PROPERTIES TIMEOUT 1000
+   	EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" 	   
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromClusters
+    )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromJets )
+atlas_add_test( met_fromJets
+    SCRIPT test/test_met_fromJets.sh
+    PROPERTIES TIMEOUT 1000
+    EXTRA_PATTERNS "-s METHypoAlg.*MET.*value"     
+    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_fromJets
     )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu )
@@ -243,8 +254,3 @@ atlas_add_test( met_menu
    	EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" 	   
     PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_met_menu 
     )
-
-atlas_install_joboptions( share/*.py )
-atlas_install_data( share/*.ref share/*.conf )
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh )

@@ -2,9 +2,6 @@
 # art-type: build
 # art-ci: master
 
-STARDATE=`date +%g%m%d.%H%M`
-RUN_LOG="run_${STARDATE}.log"
-
 
 ## READ OPTIONS
 OPT_FOLLOW=0
@@ -20,41 +17,69 @@ OPT_INTERACTIVE=0
 while [ ! $# -eq 0 ]
 do
 	case "$1" in
+		# Set '-d' debug flag for athena
 		-d )
 			OPT_DEBUG="-d"
 			;;
-		--debug)
+
+		# Set '--debug' flag for athena, follow with one of ('conf', 'init', 'exec', 'fini')
+		# See `athena --help`
+		--debug) 
 			shift
 			OPT_DEBUG="--debug ${1}"
 			;;
+
+		# Follow the output of the job with `less +F`
 		--follow | -f)
 			OPT_FOLLOW=1
 			;;
+
+		# Maximum number of events to run on
+		# Sets the --evtMax option of athena
 		--evtMax)
 			shift
 			OPT_EVT="$1"
 			;;
+
+		# Number of threads to run on
+		# Set to >1 for multi-threaded
 		--threads)
 			shift
 			OPT_THREADS="$1"
 			;;
+
+		# Path to job option
 		--jobo | -j)
 			shift
 			OPT_JOBO="$1"
 			;;
+
+		# Print the command to be executed, then exit
 		-n)
 			OPT_DRY_RUN=1
 			;;
+
+		# Set --loglevel option of athena
 		-l | --loglevel)
 			shift
 			OPT_LOG_LEVEL="--loglevel $1"
 			;;
+
+		# Interactive athena, equivalent to `athena -i`
 		-i )
 			OPT_INTERACTIVE=1
 			;;
+
+		# Comma separated list of files to run over\
+		# Sets --filesInput option of athena
 		--filesInput )
 			shift
 			OPT_FILES_INPUT=$1
+			;;
+
+		# Clear current directory before execution
+		-o)
+			rm ./*
 			;;
 	esac
 	shift
@@ -79,6 +104,9 @@ elif [ $OPT_INTERACTIVE -eq 1 ]; then
 elif [ $OPT_DRY_RUN -eq 1 ];then
 	exit
 fi
+
+STARDATE=`date +%g%m%d.%H%M`
+RUN_LOG="${OPT_JOBO##*/}_${STARDATE}.log"
 
 athena $ATH_OPT &> ${RUN_LOG} &
 if [ ${OPT_FOLLOW} -eq 0 ]; then

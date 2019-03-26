@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -29,7 +30,7 @@ class MenuUtils:
                 for chain in v.get():
                     hlt = chain[0]
                     l1 = chain[1]
-                    seeding[hlt] = l1
+                    seeding[hlt] = l1[0] # this is the item name
         return seeding
 
 import unittest

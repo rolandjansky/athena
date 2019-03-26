@@ -59,8 +59,36 @@ TriggerHLTList = [
 
 EDMDetails = {}
 
-EDMDetails[ "TrigRoiDescriptorCollection" ]         = {'persistent':"TrigRoiDescriptorCollection_p3",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
+EDMDetails[ "TrigRoiDescriptorCollection" ]     = {'persistent':"TrigRoiDescriptorCollection_p3"}
 
+EDMDetails[ "xAOD::TrigCompositeAuxContainer" ] = {'persistent':"xAOD::TrigCompositeAuxContainer_v2"}
+
+EDMDetails[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClusterAuxContainer_v2"}
+
+
+
+def persistent( transient ):
+    """
+    Persistent EDM claass, for xAOD it is the actual class version
+    
+    Uses list defined above. If absent assumes v1
+    """
+    if transient in EDMDetails:
+        return EDMDetails[transient]['persistent']
+    return transient+"_v1"
+
+
+def tpMap():
+    """
+    List 
+    """
+    l = {}
+    for tr in EDMDetails.keys():
+        if "xAOD" in tr:
+            continue
+        l[tr] = persistent(tr)
+    return l
+        
 
 
         

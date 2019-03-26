@@ -13,7 +13,9 @@
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
 #include "TrigEFMissingET/EFMissingETAlgMT.h"
-#include "TrigEFMissingET/EFMissingETFromCellsMT.h"
+#include "../EFMissingETFromCellsMT.h"
+#include "../EFMissingETFromClustersMT.h"
+#include "../EFMissingETFromJetsMT.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )
@@ -31,4 +33,6 @@ DECLARE_COMPONENT( EFMissingETFlags )
 DECLARE_COMPONENT( EFMissingETFromHelper )
 DECLARE_COMPONENT( EFMissingETAlgMT )
 DECLARE_COMPONENT( EFMissingETFromCellsMT )
+DECLARE_COMPONENT( EFMissingETFromClustersMT )
+DECLARE_COMPONENT( EFMissingETFromJetsMT )
 

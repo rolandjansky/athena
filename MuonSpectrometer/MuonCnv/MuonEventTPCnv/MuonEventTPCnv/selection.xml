@@ -87,7 +87,7 @@
 
     <!-- MuonChamberT0s -->
     <class name="Muon::ChamberT0s_p1" id="67E3F1AE-6254-4B29-8D61-5F17D0C19BB2"/>
-    <class name="std::pair< unsigned int, float>"/>
+    <class pattern="std::*pair*<unsigned int*float>"/>
     <class name="std::vector< std::pair< unsigned int, float> >"/>
     
     <!-- MuonDigitContainer -->
@@ -103,9 +103,9 @@
 
     <class name="Muon::MuonSimData_p1" />
     <class name="Muon::MuonMCData_p1" />
-    <class name="std::pair<HepMcParticleLink_p1, Muon::MuonMCData_p1>" />
+    <class pattern="std::*pair*<HepMcParticleLink_p1, Muon::MuonMCData_p1>" />
     <class name="std::vector<std::pair<HepMcParticleLink_p1, Muon::MuonMCData_p1> >" />
-    <class name="std::pair<unsigned int, Muon::MuonSimData_p1>" />
+    <class pattern="std::*pair*<unsigned int, Muon::MuonSimData_p1>" />
     <class name="std::vector< std::pair<unsigned int, Muon::MuonSimData_p1> >" />
     <class name="Muon::MuonSimDataCollection_p1" id="0605B4A3-3744-4486-B39D-F9C9E809D868"/>
 
@@ -118,9 +118,9 @@
 
     <class name="Muon::CscSimData_p1" />
     <class name="Muon::CscMcData_p1" />
-    <class name="std::pair<HepMcParticleLink_p1, Muon::CscMcData_p1>" />
+    <class pattern="std::*pair*<HepMcParticleLink_p1, Muon::CscMcData_p1>" />
     <class name="std::vector<std::pair<HepMcParticleLink_p1, Muon::CscMcData_p1> >" />
-    <class name="std::pair<unsigned int, Muon::CscSimData_p1>" />
+    <class pattern="std::*pair*<unsigned int, Muon::CscSimData_p1>" />
     <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p1> >" />
     <class name="Muon::CscSimDataCollection_p1" id="DD2A8397-4435-4DA2-AD14-ADD7294694B2"/>
     

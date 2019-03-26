@@ -49,7 +49,7 @@ namespace {
   }
   /// Print helper for a container with ROB/SubDet IDs
   template<typename Container>
-  std::string idsToString(const Container& ids) {
+  const std::string idsToString(const Container& ids) {
     std::ostringstream str;
     for (const uint32_t id : ids)
       str << "0x" << std::hex << id << std::dec << " ";
@@ -128,6 +128,22 @@ StatusCode MTCalibPebHypoTool::initialize() {
                  [](const auto& p){return p.first;});
   ATH_CHECK(m_randomDataWHK.initialize());
 
+  // Parse and print the ROB request dictionary
+  for (const auto& [instrString,robVec] : m_robAccessDictProp.value()) {
+    m_robAccessDict.emplace_back(ROBRequestInstruction(instrString),robVec);
+    if (m_robAccessDict.back().first.type==ROBRequestInstruction::Type::INVALID) {
+      ATH_MSG_ERROR("Invalid instruction " << instrString);
+      return StatusCode::FAILURE;
+    }
+  }
+  if (msgLvl(MSG::DEBUG) && !m_robAccessDict.empty()) {
+    ATH_MSG_DEBUG(name() << " will execute the following ROB request instructions:");
+    for (const auto& [instr,robVec] : m_robAccessDict) {
+      ATH_MSG_DEBUG("---> Instruction : " << instr.toString());
+      ATH_MSG_DEBUG("     ROB list    : " << idsToString(robVec));
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -162,35 +178,57 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
   // ---------------------------------------------------------------------------
   // Prefetch or retrieve ROBs
   // ---------------------------------------------------------------------------
-  for (const auto& p : m_robAccessDict) {
+  for (const auto& [instr,robVec] : m_robAccessDict) {
     // Check for timeout
     if (Athena::Timeout::instance(input.eventContext).reached()) {
       ATH_MSG_ERROR("Timeout reached in ROB retrieval loop");
       return Athena::Status::TIMEOUT;
     }
-    const std::string& instruction = p.first;
-    const std::vector<uint32_t>& robs = p.second;
-    if (instruction.find(":ADD:")!=std::string::npos) {
-      // Prefetch ROBs
-      ATH_MSG_DEBUG("Preloading ROBs: " << idsToString(robs));
-      m_robDataProviderSvc->addROBData(input.eventContext, robs, name()+"-ADD");
+
+    // Select a random sample of ROBs from the list, if needed
+    ATH_MSG_DEBUG("Processing instruction " << instr.toString());
+    std::vector<uint32_t> robs;
+    if (instr.isRandom && instr.nRandom < robVec.size()) {
+      std::sample(robVec.begin(),robVec.end(),
+                  std::back_inserter(robs),
+                  instr.nRandom,
+                  threadLocalGenerator());
     }
-    if (instruction.find(":GET:")!=std::string::npos) {
-      // Retrieve ROBs
-      ATH_MSG_DEBUG("Retrieving ROBs: " << idsToString(robs));
-      // VROBFRAG = std::vector<const eformat::ROBFragment<const uint32_t*>* >
-      IROBDataProviderSvc::VROBFRAG robFragments;
-      m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
-      ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
-      if (!robFragments.empty())
-        ATH_MSG_DEBUG("List of ROBs found: " << std::endl << robFragments);
+    else robs = robVec;
+
+    // Execute the ROB requests
+    switch (instr.type) {
+      case ROBRequestInstruction::Type::ADD: {
+        // Prefetch ROBs
+        ATH_MSG_DEBUG("Preloading ROBs: " << idsToString(robs));
+        m_robDataProviderSvc->addROBData(input.eventContext, robs, name()+"-ADD");
+        break;
+      }
+      case ROBRequestInstruction::Type::GET: {
+        // Retrieve ROBs
+        ATH_MSG_DEBUG("Retrieving ROBs: " << idsToString(robs));
+        // VROBFRAG is a typedef for std::vector<const eformat::ROBFragment<const uint32_t*>*>
+        IROBDataProviderSvc::VROBFRAG robFragments;
+        m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
+        ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
+        if (!robFragments.empty())
+          ATH_MSG_DEBUG("List of ROBs found: " << std::endl << robFragments);
+        break;
+      }
+      case ROBRequestInstruction::Type::COL: {
+        // Event building
+        ATH_MSG_DEBUG("Requesting full event ROBs");
+        int nrobs = m_robDataProviderSvc->collectCompleteEventData(input.eventContext, name()+"-COL");
+        ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
+        break;
+      }
+      default: {
+        ATH_MSG_ERROR("Invalid ROB request instruction " << instr.toString());
+        return StatusCode::FAILURE;
+      }
     }
-    if (instruction.find(":COL:")!=std::string::npos) {
-      // Event building
-      ATH_MSG_DEBUG("Requesting full event ROBs");
-      int nrobs = m_robDataProviderSvc->collectCompleteEventData(input.eventContext, name()+"-COL");
-      ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
-    }
+
+    // Sleep between ROB requests
     std::this_thread::sleep_for(std::chrono::milliseconds(m_timeBetweenRobReqMillisec));
   }
 
@@ -237,4 +275,33 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
   }
 
   return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+MTCalibPebHypoTool::ROBRequestInstruction::ROBRequestInstruction(std::string_view str) {
+  if (str.find(":ADD:")!=std::string_view::npos) type = ROBRequestInstruction::ADD;
+  else if (str.find(":GET:")!=std::string_view::npos) type = ROBRequestInstruction::GET;
+  else if (str.find(":COL:")!=std::string_view::npos) type = ROBRequestInstruction::COL;
+  if (size_t pos=str.find(":RND"); pos!=std::string_view::npos) {
+    size_t firstDigit=pos+4;
+    size_t lastDigit=str.find_first_of(":",firstDigit);
+    size_t num = std::stoul(str.substr(firstDigit,lastDigit).data());
+    isRandom = true;
+    nRandom = num;
+  }
+}
+
+// =============================================================================
+const std::string MTCalibPebHypoTool::ROBRequestInstruction::toString() const {
+  std::string s;
+  s += "type=";
+  if (type==INVALID) s+="INVALID";
+  else if (type==ADD) s+="ADD";
+  else if (type==GET) s+="GET";
+  else if (type==COL) s+="COL";
+  s += ", isRandom=";
+  s += isRandom ? "true" : "false";
+  s += ", nRandom=";
+  s += std::to_string(nRandom);
+  return s;
 }

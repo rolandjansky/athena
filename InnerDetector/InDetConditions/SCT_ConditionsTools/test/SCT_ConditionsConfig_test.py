@@ -16,14 +16,10 @@ from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDat
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
-# DCS
-DCSAcc, DCSTool = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
-# Silicon
-SiliconAcc, SiliconTool = SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest")
-# ReadCalibChipData
-ReadAcc, ReadTool = SCT_ReadCalibChipDataCfg(ConfigFlags, name="ReadTest")
-# prevent raise on __del__
-DCSAcc.wasMerged()
-SiliconAcc.wasMerged()
-ReadAcc.wasMerged()
+# call tests
+tacc = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
+tacc.merge(SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest"))
+tacc.merge(SCT_ReadCalibChipDataCfg(ConfigFlags, name="ReadTest"))
+# reset to prevent errors on deletion
+tacc.__init__()
 

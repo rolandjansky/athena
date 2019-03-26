@@ -15,21 +15,20 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkTrack/Track.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "SGTools/CLASS_DEF.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-
+#include "TRT_ConditionsData/AliveStraws.h"
 #include <vector>
 
 class AtlasDetectorID;
-class ITRT_StrawStatusSummarySvc ;
 class TRT_ID;
-class ITRT_DriftFunctionTool;
 
 namespace Trk{
 	class Track;
@@ -115,10 +114,11 @@ namespace InDet
 
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
+   ToolHandle< ITRT_CalDbTool > m_CalDbTool; //!< CalDbTool
+   ToolHandle< ITRT_StrawStatusSummaryTool > m_StrawStatusSummaryTool; //!< StrawStatusSummaryTool   
    SG::ReadHandleKey<TRT_RDO_Container> m_trt_rdo_location{ this, "TRT_RDOContainerName", "TRT_RDOs", "m_trt_rdo_location" };
    SG::ReadHandleKey<TRT_DriftCircleContainer> m_trt_driftcircles{ this, "TRT_DriftCircleCollection", "TRT_DriftCircles", "m_trt_driftcircles" };
-   ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
-   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
+   SG::ReadCondHandleKey<TRTCond::AliveStraws> m_strawReadKey{this,"AliveStraws","AliveStraws","AliveStraws in-key"};
 
    bool m_isTrigger;
    bool m_T0Shift; // choice to use T0shift or not

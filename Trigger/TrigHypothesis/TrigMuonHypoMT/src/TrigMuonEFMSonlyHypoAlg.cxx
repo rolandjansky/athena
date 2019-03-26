@@ -73,7 +73,6 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
   
   std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo> toolInput;
   size_t counter = 0;  // view counter
-
   // loop over previous decisions
   for (const auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
@@ -95,29 +94,30 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
     // It is posisble that no muons are found, in this case we go to the next decision
     if(muonHandle->size()==0) continue;
 
-    // this code only gets muon 0. The EF algorithms can potentially make more than 1 muon, so may need to revisit this
-    auto muonEL = ViewHelper::makeLink( *viewEL, muonHandle, 0 );
-    ATH_CHECK( muonEL.isValid() );
+    //loop over muons (more than one muon can be found by EF algos)
+    for(uint i=0; i<muonHandle->size(); i++){
+      auto muonEL = ViewHelper::makeLink( *viewEL, muonHandle, i );
+      ATH_CHECK( muonEL.isValid() );
 
-    const xAOD::Muon* muon = *muonEL;
+      const xAOD::Muon* muon = *muonEL;
 
-    // create new decisions
-    auto newd = newDecisionIn( decisions );
+      // create new decisions
+      auto newd = newDecisionIn( decisions );
 
-    // pussh_back to toolInput
-    toolInput.emplace_back( newd, roi, muon, previousDecision );
+      // pussh_back to toolInput
+      toolInput.emplace_back( newd, roi, muon, previousDecision );
+      newd -> setObjectLink( "feature", muonEL );
+      newd -> setObjectLink( "roi",     roiEL  );
+      newd -> setObjectLink( "view",    viewEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision );
 
-    newd -> setObjectLink( "feature", muonEL );
-    newd -> setObjectLink( "roi",     roiEL  );
-    newd -> setObjectLink( "view",    viewEL );
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision );
-
-    ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
-
-    counter++;
+      ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
+      ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
+      ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+    }
+      counter++;
+    
   }
 
   ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");

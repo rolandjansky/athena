@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
 			  Event/xAOD/xAODJet
+			  Event/xAOD/xAODMuon
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate
@@ -27,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( ViewAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
-                   LINK_LIBRARIES xAODTrigger GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma xAODJet
+                   LINK_LIBRARIES xAODTrigger GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma xAODJet xAODMuon
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent DecisionHandlingLib )
 
 atlas_add_component( ViewAlgs

@@ -65,7 +65,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
-#include "MuonRecToolInterfaces/IAdjustableT0Tool.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
@@ -89,7 +88,6 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder"),
-    m_tofTool(""),
     m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"),
     m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
     m_dcslFitProvider(""),
@@ -108,7 +106,6 @@ namespace Muon {
     declareProperty("EDMPrinter", m_printer);
     declareProperty("EDMHelper", m_helper);    
     declareProperty("MdtSegmentFinder",     m_segmentFinder);
-    declareProperty("TofTool",     m_tofTool);
     declareProperty("SegmentFitter", m_segmentFitter);
     declareProperty("SegmentSelector", m_segmentSelectionTool);
     declareProperty("DCFitProvider", m_dcslFitProvider );
@@ -162,10 +159,6 @@ namespace Muon {
     ATH_CHECK( m_segmentFinder.retrieve() );
     ATH_CHECK( m_segmentSelectionTool.retrieve() );
     
-    if( !m_tofTool.empty() ){
-      ATH_CHECK( m_tofTool.retrieve() );
-    }
-
     if( m_refitParameters ){
       ATH_CHECK( m_segmentFitter.retrieve() );
     }
@@ -1772,14 +1765,13 @@ namespace Muon {
       Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 	  
       const MdtDriftCircleOnTrack* constDC = 0;
-      bool hasT0 = segment.hasT0Shift() && !m_tofTool.empty();
+      bool hasT0 = segment.hasT0Shift();
       if( !hasT0 ){
 	//ATH_MSG_VERBOSE(" recalibrate MDT hit");
 	constDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
       }else{
 	ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());
-	m_tofTool->ResetSetTShift( segment.t0Shift() );
-	constDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
+	constDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir,segment.t0Shift());
       }
       
       if( !constDC ){
