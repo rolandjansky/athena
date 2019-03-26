@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: KLFitterTool.h 788027 2016-12-04 18:30:45Z aknue $
@@ -99,6 +99,7 @@ namespace top{
       std::shared_ptr<top::TopConfig> m_config;
       float m_massTop;   
       float m_bTagCutValue;
+      bool m_isWorkingPoint;
       bool findOption(std::vector<std::string> full_options, std::string option, std::string& op_value);
 
       // Tools and functions for btagging                                                                                                                                               
