@@ -69,6 +69,8 @@ elif not HIDerivationFlags.isPP():
         topSequence.EGammaCommonKernel.AugmentationTools.remove(tool)
 else:
     triggers += ['HLT_e15_lhloose_L1EM13VH']
+    triggers += ['HLT_e15_lhloose_L1EM12']
+    triggers += ['HLT_e15_lhloose_nod0_L1EM12']
     triggers += ['HLT_mu14']
     triggers += ['HLT_g30_loose']    
     triggers += ['HLT_g35_loose_L1EM15']    
