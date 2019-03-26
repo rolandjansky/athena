@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
+//          Copyright Nils Krumnack 2011.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -17,7 +17,7 @@
 
 #include <EventLoop/Global.h>
 
-#include <EventLoop/LocalDriver.h>
+#include <EventLoop/DirectDriver.h>
 #include <EventLoopTest/UnitTest.h>
 
 //
@@ -28,9 +28,10 @@ using namespace EL;
 
 int main ()
 {
-  LocalDriver driver;
-  UnitTest ut ("local");
-  ut.scanNEvents = true;
-  ut.cleanup = false;
+  DirectDriver driver;
+  UnitTest ut ("direct_gridinput");
+  ut.gridInput = true;
+  // ut.cleanup = false;
+  // ut.location = "$HOME/unit-test.$$";
   return ut.run (driver);
 }
