@@ -4,22 +4,18 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller1D.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerEfficiency.h"
-#include "AthenaMonitoring/HistogramFiller/CumulativeHistogramFiller1D.h"
-#include "AthenaMonitoring/HistogramFiller/VecHistogramFiller1D.h"
-#include "AthenaMonitoring/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerProfile.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller2D.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller2DProfile.h"
+#include "HistogramFiller1D.h"
+#include "HistogramFillerEfficiency.h"
+#include "CumulativeHistogramFiller1D.h"
+#include "VecHistogramFiller1D.h"
+#include "VecHistogramFiller1DWithOverflows.h"
+#include "HistogramFillerProfile.h"
+#include "HistogramFiller2D.h"
+#include "HistogramFiller2DProfile.h"
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
 
 using namespace Monitored;
-
-HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc,
-                                               std::string groupName)
-    : m_factory(new HistogramFactory(histSvc, std::move(groupName))) {}
 
 HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   TNamed* const histogram = m_factory->create(def);

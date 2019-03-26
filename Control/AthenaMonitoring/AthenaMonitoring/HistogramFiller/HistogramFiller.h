@@ -16,8 +16,6 @@
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
-
 namespace Monitored {
   /**
    * @brief base class for fillers 

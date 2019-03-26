@@ -12,6 +12,7 @@
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
+#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
 
 using namespace Monitored;
 

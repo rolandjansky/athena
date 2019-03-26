@@ -12,7 +12,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "AthenaMonitoring/HistogramDef.h"
-
 #include "AthenaMonitoring/HistogramFiller/HistogramException.h"
 
 namespace Monitored {

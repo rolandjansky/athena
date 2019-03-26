@@ -10,14 +10,15 @@
 
 #include "AthenaMonitoring/HistogramDef.h"
 
+#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
 
 namespace Monitored {
-  class HistogramFiller;
-
   class HistogramFillerFactory {
   public:
-    HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName);
+    HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName)
+      : m_factory(new HistogramFactory(histSvc, std::move(groupName))) {}
+      
     virtual ~HistogramFillerFactory() {}
 
     HistogramFiller* create(const HistogramDef& def); //!< creates filler
