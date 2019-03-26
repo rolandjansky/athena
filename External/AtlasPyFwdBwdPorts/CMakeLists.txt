@@ -26,7 +26,7 @@ function( _setup_python_package name file md5 )
    endif()
 
    if ( ARG_PATCH )
-     set( _patchCmd PATCH_COMMAND patch -p0 -N < ${ARG_PATCH} )
+     set( _patchCmd PATCH_COMMAND patch -p1 < ${ARG_PATCH} )
    endif()
 
    # Build the package with the help of python's distutils:
@@ -101,7 +101,6 @@ _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.6.0.tar.gz
    178485aed0799655d0cbf2e3bdcfaddc
    DEPENDS pyflakes pycodestyle mccabe
-   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8.patch
    SINGLE_VERSION )
 
 # Install mccabe:
@@ -114,7 +113,6 @@ _setup_python_package( mccabe
 _setup_python_package( pycodestyle 
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.4.0.tar.gz
    85bbebd2c90d2f833c1db467d4d0e9a3
-   PATCH ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle.patch
    SINGLE_VERSION )
 
 # Install pyyaml:
