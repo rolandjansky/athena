@@ -49,7 +49,7 @@ StatusCode GenericMonitoringTool::book() {
 
   ATH_MSG_DEBUG("Booking histograms in path: " << m_histoPath.value());
 
-  HistogramFillerFactory factory(m_histSvc, m_histoPath);
+  HistogramFillerFactory factory(this, m_histoPath);
 
   m_fillers.reserve(m_histograms.size());
   for (const std::string& item : m_histograms) {
@@ -109,8 +109,4 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
   }
 
   return result;
-}
-
-void GenericMonitoringTool::setPath( const std::string& newPath ) {
-  m_histoPath = newPath;
 }

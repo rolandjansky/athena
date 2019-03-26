@@ -76,8 +76,12 @@ public:
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path
-  void setPath( const std::string& newPath );
+  void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
+  ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
+  uint32_t lumiBlock() { /* TODO: implementation needed */ return 0; }
+  uint32_t runNumber() { /* TODO: implementation needed */ return 0; }
+  unsigned long long eventNumber() { /* TODO: implementation needed */ return 0; }
 private:   
   ServiceHandle<ITHistSvc> m_histSvc       { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };

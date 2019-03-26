@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
@@ -22,11 +23,12 @@ namespace Monitored {
     /**
      * @brief Default constructor
      * 
-     * @param histSvc ROOT framework histogramming service
+     * @param gmTool An instance of GenericMonitoringTool
      * @param groupName Name of the group to which produced histograms will belong
      */
-    HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName)
-      : m_factory(new HistogramFactory(histSvc, std::move(groupName))) {}
+    HistogramFillerFactory(GenericMonitoringTool * const gmTool, std::string groupName)
+      : m_gmTool(std::move(gmTool)), 
+        m_factory(new HistogramFactory(gmTool->histogramService(), std::move(groupName))) {}
       
     /**
      * @brief Virtual destructor
@@ -43,6 +45,7 @@ namespace Monitored {
      */
     HistogramFiller* create(const HistogramDef& def);
   private:
+    GenericMonitoringTool *m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
   };
 }
