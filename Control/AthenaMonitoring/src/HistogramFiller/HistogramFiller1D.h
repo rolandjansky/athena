@@ -11,7 +11,7 @@
 
 namespace Monitored {
   /**
-   * @brief filler for plain 1D histograms
+   * @brief Filler for plain 1D histograms
    */
   class HistogramFiller1D : public HistogramFiller {
   public: 

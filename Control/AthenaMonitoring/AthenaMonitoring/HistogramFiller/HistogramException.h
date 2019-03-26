@@ -8,7 +8,15 @@
 #include <stdexcept>
 
 namespace Monitored {
+  /**
+   * @brief Represents error occurred during accessing histograms objects.
+   */
   struct HistogramException: public std::runtime_error {
+    /**
+     * @brief Default constructor
+     * 
+     * @param message Contains reason of the exception
+     */
     HistogramException(std::string const& message)
       : std::runtime_error(message) {}
   };

@@ -9,7 +9,7 @@
 
 namespace Monitored {
   /**
-   * @brief filler for 1D histograms filled in cummulative mode
+   * @brief Filler for 1D histograms filled in cummulative mode
    */
   class CumulativeHistogramFiller1D : public HistogramFiller1D {
   public:

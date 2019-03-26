@@ -14,14 +14,34 @@
 #include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
 
 namespace Monitored {
+  /**
+   * @brief Factory of the histogram fillers 
+   */
   class HistogramFillerFactory {
   public:
+    /**
+     * @brief Default constructor
+     * 
+     * @param histSvc ROOT framework histogramming service
+     * @param groupName Name of the group to which produced histograms will belong
+     */
     HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName)
       : m_factory(new HistogramFactory(histSvc, std::move(groupName))) {}
       
+    /**
+     * @brief Virtual destructor
+     */
     virtual ~HistogramFillerFactory() {}
 
-    HistogramFiller* create(const HistogramDef& def); //!< creates filler
+    /**
+     * @brief Creates HistogramFiller instance for given definition
+     * 
+     * Based on the histogram type and opts, method will return proper kind of the HistogramFiller
+     * 
+     * @param def Histogram definition 
+     * @return HistogramFiller handler
+     */
+    HistogramFiller* create(const HistogramDef& def);
   private:
     std::shared_ptr<HistogramFactory> m_factory;
   };

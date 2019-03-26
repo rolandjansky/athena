@@ -11,7 +11,7 @@
 
 namespace Monitored {
   /**
-   * @brief filler for TEfficiency histograms
+   * @brief Filler for TEfficiency graphs
    */
   class HistogramFillerEfficiency : public HistogramFiller {
   public:

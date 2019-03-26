@@ -103,14 +103,6 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   return e;
 }
 
-/**
- * Create and register histogram
- * 
- * If histogram already exists under that name, re-use it
- * H      : actual type of histogram to be created
- * HBASE  : histogram base class (TH[1,2,3])
- * Args   : remaining arguments to TH constructor (except name, title)
- */
 template<class H, class HBASE, typename... Types> 
 HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {    
   std::string fullName = getFullName(def);
@@ -164,14 +156,6 @@ void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labe
   }
 }
 
-/**
-  * Invent path name
-  *
-  * If def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online 
-  * convention this becomes the first element of the path followed by the group name.
-  * Else if the def.path is DEFAULT then only the group name is used if the path yet 
-  * different is concatenated with the group name.
- */
 std::string HistogramFactory::getFullName(const HistogramDef& def) {
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   

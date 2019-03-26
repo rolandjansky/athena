@@ -11,7 +11,7 @@
 
 namespace Monitored {
   /**
-   * @brief filler for profile 2D histogram
+   * @brief Filler for profile 2D histogram
    */
   class HistogramFiller2DProfile : public HistogramFiller {
   public:
