@@ -73,8 +73,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
         RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
-
-    acc.addEventAlgo(RpcRawDataProvider, primary=True)
+    else:
+        acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc
 
 def TgcBytestreamDecodeCfg(flags, forTrigger=False):
@@ -103,11 +103,12 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
                                                                Decoder = TGCRodDecoder )
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
+        TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                   ProviderTool = MuonTgcRawDataProviderTool )
-    acc.addEventAlgo(TgcRawDataProvider,primary=True)
+        acc.addEventAlgo(TgcRawDataProvider,primary=True)
 
     return acc
 
@@ -147,12 +148,14 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+
     
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
+        MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                   ProviderTool = MuonMdtRawDataProviderTool )
-    acc.addEventAlgo(MdtRawDataProvider,primary=True)
+        acc.addEventAlgo(MdtRawDataProvider)#,primary=True)
 
     return acc
 
@@ -189,11 +192,12 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+        CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                   ProviderTool = MuonCscRawDataProviderTool )
-    acc.addEventAlgo(CscRawDataProvider,primary=True)
+        acc.addEventAlgo(CscRawDataProvider,primary=True)
 
     return acc
 

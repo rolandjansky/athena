@@ -35,7 +35,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         RpcRdoToRpcPrepData.RoIs = "MURoIs"
 
-    acc.addEventAlgo(RpcRdoToRpcPrepData)
+    else:
+        acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
 
 def TgcRDODecodeCfg(flags, forTrigger=False):
@@ -64,8 +65,8 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
         TgcRdoToTgcPrepData.RoIs = "MURoIs"
-
-    acc.addEventAlgo(TgcRdoToTgcPrepData)
+    else:
+        acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
 
 def MdtRDODecodeCfg(flags, forTrigger=False):
@@ -97,8 +98,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
         MdtRdoToMdtPrepData.RoIs = "MURoIs"
-
-    acc.addEventAlgo(MdtRdoToMdtPrepData)
+    else:
+        acc.addEventAlgo(MdtRdoToMdtPrepData)
     return acc
 
 def CscRDODecodeCfg(flags, forTrigger=False):
@@ -130,8 +131,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
         CscRdoToCscPrepData.RoIs = "MURoIs"
-
-    acc.addEventAlgo(CscRdoToCscPrepData)
+    else:
+        acc.addEventAlgo(CscRdoToCscPrepData)
     return acc
 
 def CscClusterBuildCfg(flags, forTrigger=False):
@@ -143,10 +144,11 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
-    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
+    if not forTrigger:
+        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+        CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
                                                    cluster_builder = CscClusterBuilderTool ) 
-    acc.addEventAlgo(CscClusterBuilder)
+        acc.addEventAlgo(CscClusterBuilder)
     return acc
 
 
@@ -202,8 +204,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
     # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
+    #if forTrigger:
+    #    mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg

@@ -16,13 +16,13 @@ def RpcDataPreparatorCfg( flags, roisKey ):
     # Get BS decoder 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcAcc = RpcBytestreamDecodeCfg( flags, forTrigger=True )
-    rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = roisKey
+    #rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = roisKey
     acc.merge( rpcAcc )
 
     # Get BS->RDO convertor
     from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg    
     rpcAcc = RpcRDODecodeCfg( flags, forTrigger=True )
-    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = roisKey
+    #rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = roisKey
     acc.merge( rpcAcc )
 
     # Set Rpc data preparator for MuFast data preparator
@@ -49,7 +49,7 @@ def TgcDataPreparatorCfg( flags, roisKey ):
     # Get BS->RDO convertor
     from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg    
     tgcAcc = TgcRDODecodeCfg( flags, forTrigger=True )
-    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = roisKey
+    #tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = roisKey
     acc.merge( tgcAcc )
 
     # Set Tgc data preparator for MuFast data preparator
@@ -74,7 +74,7 @@ def MdtDataPreparatorCfg( flags, roisKey ):
     # Get BS->RDO convertor
     from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg    
     mdtAcc = MdtRDODecodeCfg( flags, forTrigger=True )
-    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = roisKey
+    #mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = roisKey
     acc.merge( mdtAcc )
 
     # Set Mdt data preparator for MuFast data preparator
@@ -101,7 +101,7 @@ def CscDataPreparatorCfg( flags, roisKey ):
     # Get BS->RDO convertor
     from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg    
     cscAcc = CscRDODecodeCfg( flags, forTrigger=True )
-    cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = roisKey
+    #cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = roisKey
     acc.merge( cscAcc )
 
     # Get cluster builder
