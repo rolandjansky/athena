@@ -25,8 +25,10 @@
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/MetaObject.h>
+#include <SampleHandler/SampleGrid.h>
 #include <SampleHandler/SampleLocal.h>
 #include <SampleHandler/SamplePtr.h>
+#include <SampleHandler/ToolsSplit.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TSystem.h>
@@ -42,15 +44,21 @@
 namespace EL
 {
   UnitTest ::
-  UnitTest (const std::string& val_name, std::string base_path)
-    : name (val_name), cleanup (true), testOutput (true), outputDisk (0),
+  UnitTest (const std::string& val_name, std::string val_base_path)
+    : name (val_name), base_path (val_base_path), cleanup (true), testOutput (true), outputDisk (0),
       testFileExecute (true)
+  {
+    if (base_path.empty())
+      base_path = "$ROOTCOREBIN/data/EventLoop/";
+  }
+
+
+
+  int UnitTest ::
+  run (const Driver& driver) const
   {
     std::vector<std::string> files;
     std::vector<TH1*> histos;
-
-    if (base_path.empty())
-      base_path = "$ROOTCOREBIN/data/EventLoop/";
 
     for (unsigned iter = 0, end = 3; iter != end; ++ iter)
     {
@@ -59,7 +67,7 @@ namespace EL
       TString input = path.str();
       gSystem->ExpandPathName (input);
       files.push_back (input.Data());
-      std::auto_ptr<TFile> file (TFile::Open (input.Data(), "READ"));
+      std::unique_ptr<TFile> file (TFile::Open (input.Data(), "READ"));
       RCU_ASSERT_SOFT (file.get() != 0);
       TH1 *hist = dynamic_cast<TH1*>(file->Get ("hist_n"));
       RCU_ASSERT_SOFT (hist != 0);
@@ -68,33 +76,53 @@ namespace EL
     };
     std::string tree ("physics");
 
-    std::auto_ptr<SH::SampleLocal> mysample;
-    TH1 *hist = 0;
-    mysample.reset (new SH::SampleLocal ("dataset0"));
-    mysample->add (files[0]);
-    hist = dynamic_cast<TH1*>(histos[0]->Clone ("hist"));
-    mysample->meta()->addReplace (hist);
-    samples.add (mysample.release());
-    mysample.reset (new SH::SampleLocal ("dataset1"));
-    mysample->add (files[1]);
-    mysample->add (files[2]);
-    hist = dynamic_cast<TH1*>(histos[1]->Clone ("hist"));
-    hist->Add (histos[2]);
-    mysample->meta()->addReplace (hist);
-    samples.add (mysample.release());
+
+    SH::SampleHandler samples;
+
+    std::vector<std::unique_ptr<SH::Sample> > mysamples;
+    if (gridInput)
+    {
+      std::unique_ptr<SH::SampleGrid> mysample;
+      mysample.reset (new SH::SampleGrid ("dataset0"));
+      mysample->meta()->setString (SH::MetaFields::gridName, "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset0");
+      mysample->meta()->setString (SH::MetaFields::gridFilter, SH::MetaFields::gridFilter_default);
+      mysamples.push_back (std::move (mysample));
+      mysample.reset (new SH::SampleGrid ("dataset1"));
+      mysample->meta()->setString (SH::MetaFields::gridName, "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset1");
+      mysample->meta()->setString (SH::MetaFields::gridFilter, SH::MetaFields::gridFilter_default);
+      mysamples.push_back (std::move (mysample));
+    } else
+    {
+      std::unique_ptr<SH::SampleLocal> mysample;
+      mysample.reset (new SH::SampleLocal ("dataset0"));
+      mysample->add (files[0]);
+      mysamples.push_back (std::move (mysample));
+      mysample.reset (new SH::SampleLocal ("dataset1"));
+      mysample->add (files[1]);
+      mysample->add (files[2]);
+      mysamples.push_back (std::move (mysample));
+    }
+    {
+      TH1 *hist = 0;
+      hist = dynamic_cast<TH1*>(histos[0]->Clone ("hist"));
+      mysamples[0]->meta()->addReplace (hist);
+
+      hist = dynamic_cast<TH1*>(histos[1]->Clone ("hist"));
+      hist->Add (histos[2]);
+      mysamples[1]->meta()->addReplace (hist);
+    }
+    for (auto& mysample : mysamples)
+      samples.add (mysample.release());
 
     samples.setMetaString (SH::MetaFields::treeName, tree);
 
     for (unsigned iter = 0, end = histos.size(); iter != end; ++ iter)
       delete histos[iter];
-  }
 
+    RCU_ASSERT (samples.size() > 0);
 
-
-  int UnitTest ::
-  run (const Driver& driver) const
-  {
-    RCU_REQUIRE (samples.size() > 0);
+    if (scanNEvents)
+      SH::scanNEvents (samples);
 
     TString output = "/tmp";
     if (location.empty())

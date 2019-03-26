@@ -34,8 +34,14 @@ namespace EL
     /// description: the name of the unit test
     std::string name;
 
-    /// description: the samples we are using
-    SH::SampleHandler samples;
+    /// description: the base path for the data files
+    std::string base_path;
+
+    /// \brief whether to scan for number of events
+    bool scanNEvents {false};
+
+    /// \brief whether to use the inputs from the grid dataset
+    bool gridInput {false};
 
     /// description: whether we clean up the submit directory
     ///   afterwards
