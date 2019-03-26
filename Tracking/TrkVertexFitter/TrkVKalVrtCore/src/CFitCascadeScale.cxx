@@ -17,8 +17,8 @@
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
-extern vkalMagFld      myMagFld;
+extern const vkalPropagator  myPropagator;
+extern const vkalMagFld      myMagFld;
 
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
@@ -44,7 +44,7 @@ void rescaleVrtErrForPointing( double Div, CascadeEvent & cascadeEvent_ )
    if(Div<1.)Div=1.;
    cascadeEvent_.setSCALE(cascadeEvent_.getSCALE()/Div);
    for(int iv=0; iv<cascadeEvent_.cascadeNV-1; iv++){        // Last vertex must not be touched
-     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      for(int i=0; i<6; i++) vk->FVC.covvrt[i] /=Div;
    }
 }
@@ -153,7 +153,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
 //
   double iv_dstToVrt=0., sum_dstToVrt=0., old_dstToVrt; 
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk = cascadeEvent_.cascadeVertexList[iv];
+     vk = cascadeEvent_.cascadeVertexList[iv].get();
      vk->passNearVertex=false;
      vk->passWithTrkCov=false;
      IERR = fitVertexCascadeScale( vk, iv_dstToVrt );    if(IERR)return IERR;   //fit 
@@ -181,7 +181,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
       Chi2Cur=0.;
       sum_dstToVrt=0.;
       for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-        vk = cascadeEvent_.cascadeVertexList[iv];
+        vk = cascadeEvent_.cascadeVertexList[iv].get();
 //
 //Calculate derivatives for "passing near" cnst. Initial vertex position is used for derivatives.
         if(vk->passNearVertex){   
@@ -212,7 +212,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
   }
   double cnstRemnants=0. ;
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk = cascadeEvent_.cascadeVertexList[iv];
+     vk = cascadeEvent_.cascadeVertexList[iv].get();
      for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
         for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
            cnstRemnants +=  fabs( vk->ConstraintList[ii]->aa[ic] ); 
@@ -223,17 +223,16 @@ std::cout<<"================================================="<<sum_dstToVrt<<'\
 //  if(sum_dstToVrt>limDstToVrt*(cascadeEvent_.cascadeNV-1) )return -2;        //Pointing is not resolved
 
   long int fullNPar = getCascadeNPar(cascadeEvent_);
-  cascadeEvent_.fullCovMatrix = new double[fullNPar*fullNPar]; 
+  cascadeEvent_.fullCovMatrix = std::make_unique< double[] >(fullNPar*fullNPar);
   for(int im=0; im<fullNPar*fullNPar; im++)cascadeEvent_.fullCovMatrix[im]=0.;
   for(int im=0; im<fullNPar; im++)cascadeEvent_.fullCovMatrix[im*fullNPar + im]=1.;
   int NStart=0;
   cascadeEvent_.matrixPnt.resize(cascadeEvent_.cascadeNV);
-  double * tmpLSide   = new double[fullNPar];
+  auto tmpLSide   = std::make_unique<double[]>(fullNPar);
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
     cascadeEvent_.matrixPnt[iv]=NStart;
-    NStart  += FullMCNSTfill( vk, vk->ader, tmpLSide);
+    NStart  += FullMCNSTfill( vk, vk->ader, tmpLSide.get());
   }
-  delete[] tmpLSide; 
 
   return 0;
 }

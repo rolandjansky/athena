@@ -67,7 +67,7 @@ namespace Trk{
   
 
 //------------------------------------------------------------------------
-
+  //Tool should not be used reentrantly or used publically
   class TrkVKalVrtFitter : public AthAlgTool, virtual public IVertexFitter,
                                               virtual public ITrkVKalVrtFitter,
 					      virtual public IVertexCascadeFitter
@@ -391,7 +391,8 @@ namespace Trk{
         void VKalVrtConfigureFitterCore(int NTRK);
         void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& );
 
-        int VKalVrtFit3(  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
+        //This is safe as long as the tool is not called from multiple threads or reentrantly
+        int VKalVrtFit3 (  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
 	                   long int& Charge, dvect& ErrorMatrix, dvect& Chi2PerTrk, 
                            std::vector< std::vector<double> >& TrkAtVrt, double& Chi2 );
 

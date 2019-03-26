@@ -15,7 +15,7 @@
 #include<iostream>
 
 namespace Trk {
-    extern int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+    extern int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    const std::vector< std::vector<int> > &vertexDefinition,
                    const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
@@ -103,7 +103,7 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
       tmpMcnst.Mass     =  massConstraint;
       tmpMcnst.VRT      =  new_vID;
       for(it=0; it<NTRK; it++)tmpMcnst.trkInVrt.push_back(it);
-      m_partMassCnstForCascade.push_back(tmpMcnst);
+      m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
     }
 //
 //
@@ -114,7 +114,7 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
     for(it=0; it<NTRK; it++){
        newV.trkInVrt.push_back(it);
     }
-    m_cascadeVList.push_back(newV);
+    m_cascadeVList.push_back(std::move(newV));
 //--------------------------------------------------------------  
     return new_vID;
 }
@@ -165,7 +165,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
       tmpMcnst.Mass     =  massConstraint;
       tmpMcnst.VRT      =   new_vID;
       for(int it=0; it<NTRK; it++)tmpMcnst.trkInVrt.push_back(it+presentNT);
-      m_partMassCnstForCascade.push_back(tmpMcnst);
+      m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
     }
 //
 //
@@ -174,7 +174,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
     for(int it=0; it<NTRK; it++){
        newV.trkInVrt.push_back(it+presentNT);
     }
-    m_cascadeVList.push_back(newV);
+    m_cascadeVList.push_back(std::move(newV));
 //--------------------------------------------------------------  
     return new_vID;
 }
@@ -761,8 +761,8 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
         for( jt=0; jt<=it; jt++){
            COV(it,jt) = COV(jt,it) = fittedCovariance[iv][it*(it+1)/2+jt];
       } }
-      particleMoms.push_back( tmpMoms );
-      particleCovs.push_back( COV );
+      particleMoms.push_back( std::move(tmpMoms) );
+      particleCovs.push_back( std::move(COV) );
       allFitPrt += NTrkF;
     }
 //
@@ -786,7 +786,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //
 //
 //    VxCascadeInfo * recCascade= new VxCascadeInfo(vxVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
-    VxCascadeInfo * recCascade= new VxCascadeInfo(xaodVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
+    VxCascadeInfo * recCascade= new VxCascadeInfo(std::move(xaodVrtList),std::move(particleMoms),std::move(particleCovs), NDOF ,fullChi2);
     recCascade->setFullCascadeCovariance(FULL);
     CLEANCASCADE();
     return recCascade;
@@ -840,7 +840,7 @@ StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
        tmpMcnst.pseudoInVrt.push_back( pseudotracksInConstraint[ivc] );
     }
 
-    m_partMassCnstForCascade.push_back(tmpMcnst);
+    m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
   
     return StatusCode::SUCCESS;
 }
