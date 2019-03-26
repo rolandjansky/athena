@@ -84,8 +84,8 @@ def setupMenu():
         ['mu20_ivarmedium_mu2noL1_20invm80',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['mu20_ivarmedium', 'mu2noL1_20invm80']]],
         
         #ATR-19579
-        ['mu14_L12MU11',           'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
-        ['mu14_L1MU11_2MU10',      'L1_MU11_2MU10',     ['L1_MU11', ''], [PhysicsStream], ['RATE:MultiMuon',  'BW:Muon'], -1],
+        ['2mu14_L12MU11',           'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu14_L1MU11_2MU10',      'L1_MU11_2MU10',     ['L1_MU11', ''], [PhysicsStream], ['RATE:MultiMuon',  'BW:Muon'], -1],
 
 
         
