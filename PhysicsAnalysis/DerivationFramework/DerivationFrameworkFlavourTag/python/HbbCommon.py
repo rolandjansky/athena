@@ -217,7 +217,7 @@ def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_op
     VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger)
     linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
 
-def buildVRJets(sequence, do_ghost, logger, doFlipTagger):
+def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     from JetRec.JetRecStandard import jtm
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
