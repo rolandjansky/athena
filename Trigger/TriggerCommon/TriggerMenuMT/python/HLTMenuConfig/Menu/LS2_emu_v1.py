@@ -6,21 +6,17 @@ def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
+    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_emu_v1.py' )
 
-    #from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1 as tcl1
-    #if tcl1.current:
-    #    log.info("L1 items: %s " % tcl1.current.menu.items.itemNames())
-    #else:
-    #    log.info("ERROR L1 menu has not yet been defined")
 
-    PhysicsStream="Main"
+    # IMPORTANT: Needs to be commented in again!
+    #PhysicsStream = "Main"
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
-    # ['chainName', [L1 thresholds for chainParts], [stream], [groups]], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
+    # ['chainName', [L1 thresholds for chainParts], [stream], [groups]], 
+    # OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
     #---------------------------------------------------------------------
-
     #---------------------------------------------------------------------
     # if it's needed to temporary remove almost all the chains from the menu
     # be aware that it is necessary to leave at least one chain in the muon slice
@@ -32,19 +28,15 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        #['mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
-        #['mu8_L1MU6',     [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
-
-     ]
+        #['HLT_mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+    ]
     TriggerFlags.EgammaSlice.signatures = [
-        ['HLT_e3_etcut1step_L1EM3', []                 ,  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
-        ['HLT_e3_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
-        ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
-        ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
-        ]
+        #['HLT_e7_etcut_L1EM3',      ['L1_EM3', ['EM3']],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
+        
+    ]
     TriggerFlags.CombinedSlice.signatures = [
         #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
-        ]
+    ]
     TriggerFlags.JetSlice.signatures = [ ]
     TriggerFlags.BjetSlice.signatures = [] 
     TriggerFlags.METSlice.signatures = []

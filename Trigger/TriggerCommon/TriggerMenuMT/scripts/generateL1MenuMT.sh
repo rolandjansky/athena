@@ -47,6 +47,8 @@ fi
 
 # Temporary run directroy and cleanup traps in case of termination
 rundir=`mktemp -t -d tmxml.${menu}.XXXXXXXXXX`
+echo "Rundirectory is $rundir"
+
 TRAPINT() {
     rm -rf $rundir
     return 130 # 128+SIGINT
@@ -59,24 +61,27 @@ TRAPTERM() {
 
 ## menu generation starts here
 echo "generateL1MenuMT: Building menu: ${menu} for ${release}"
-logfiletopo=topo${menu}.log
-logfilelvl1=lvl1${menu}.log
+
+logfiletopo=topo_${menu}.log
+logfilelvl1=lvl1_${menu}.log
+
 cd $rundir
 
-generateLVL1MenuMT.py $menu >&! logfiletopo 
-generateL1TopoMenuMT.py $menu >&! logfilelvl1 
+generateLVL1MenuMT.py   $menu 2>&1 | tee $logfilelvl1 
+generateL1TopoMenuMT.py $menu 2>&1 | tee $logfiletopo 
 
 cp L1Topoconfig_*.xml ${dest}
 cp LVL1config_*.xml ${dest}
-#cp $logfilelvl1 $logfiletopo ${dest}
+cp $logfilelvl1 ${dest}
+cp $logfiletopo ${dest}
 
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml
 fi
 
 #this gives some more sensitivity to hidden problems
-grep --colour ERROR ${dest}/$logfile
-grep --colour -A 100 "Shortened traceback" ${dest}/$logfile
+grep --colour ERROR ${dest}/$logfile/*.log
+grep --colour -A 100 "Shortened traceback" ${dest}/$logfile/*.log
 
 rm -rf $rundir
 
