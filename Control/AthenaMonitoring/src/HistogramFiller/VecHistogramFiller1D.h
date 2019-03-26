@@ -16,25 +16,20 @@ namespace Monitored {
     virtual VecHistogramFiller1D* clone() override { return new VecHistogramFiller1D(*this); };
 
     virtual unsigned fill() override {
-      using namespace std;
-
       if (m_monVariables.size() != 1) {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      for (auto value : valuesVector) {
-        hist->AddBinContent(i+1, value);
-        hist->SetEntries(hist->GetEntries() + value);
-
-        ++i;
+      for (unsigned i = 0; i < std::size(valuesVector); ++i) {
+        auto value = valuesVector[i];
+        m_histogram->AddBinContent(i+1, value);
+        m_histogram->SetEntries(m_histogram->GetEntries() + value);
       }
 
-      return i;
+      return std::size(valuesVector);  
     }
   };
 }

@@ -13,34 +13,28 @@ namespace Monitored {
    */
   class CumulativeHistogramFiller1D : public HistogramFiller1D {
   public:
-    CumulativeHistogramFiller1D(TH1* hist, const HistogramDef& histDef) 
+    CumulativeHistogramFiller1D(TH1* const hist, const HistogramDef& histDef) 
       : HistogramFiller1D(hist, histDef) {}
     
     virtual CumulativeHistogramFiller1D* clone() override { return new CumulativeHistogramFiller1D(*this); };
 
     virtual unsigned fill() override {
-      using namespace std;
-
       if (m_monVariables.size() != 1) {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       for (auto value : valuesVector) {
-        unsigned bin = hist->FindBin(value);
+        unsigned bin = m_histogram->FindBin(value);
 
         for (unsigned j = bin; j > 0; --j) {
-          hist->AddBinContent(j);
+          m_histogram->AddBinContent(j);
         }
-
-        ++i;
       }
 
-      return i;  
+      return std::size(valuesVector);  
     }
   };
 }

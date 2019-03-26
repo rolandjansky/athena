@@ -15,48 +15,59 @@ namespace Monitored {
    */
   class HistogramFiller2D : public HistogramFiller {
   public:
-    HistogramFiller2D(TH2* hist, const HistogramDef& histDef)
-      : HistogramFiller(hist, histDef) {};
+    HistogramFiller2D(TH2* const hist, const HistogramDef& histDef)
+      : HistogramFiller(histDef), m_histogram(hist) {};
 
+    HistogramFiller2D(const HistogramFiller2D& hf) 
+      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
+    
     virtual HistogramFiller2D* clone() override { return new HistogramFiller2D(*this); };
 
     virtual unsigned fill() override {
-      using namespace std;
-
       if (m_monVariables.size() != 2) {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
-      auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-      auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      unsigned result = 0;
+      const auto vector1 = m_monVariables[0].get().getVectorRepresentation();
+      const auto vector2 = m_monVariables[1].get().getVectorRepresentation();
+      const unsigned size1 = std::size(vector1);
+      const unsigned size2 = std::size(vector2);
+      const bool isAnyVectorEmpty = size1 == 0 || size2 == 0;
+      const bool isAnyVectorScalar = size1 == 1 || size2 == 1;
+      const bool areVectorsSameSize = size1 == size2;
+      const bool areVectorsValid = !isAnyVectorEmpty && (areVectorsSameSize || isAnyVectorScalar);
 
-      if (valuesVector1.size() != valuesVector2.size()) {
-        if (valuesVector1.size() == 1) {
-          // first variable is scalar -- loop over second
-          for (auto value2 : valuesVector2) {
-            hist->Fill(valuesVector1[0], value2);
-            ++i;
-          }
-        } else if (valuesVector2.size() == 1)  {
-          // second varaible is scalar -- loop over first
-          for (auto value1 : valuesVector1) {
-            hist->Fill(value1, valuesVector2[0]); 
-            ++i;
-          } 
-        }
-      } else {
-        for (i = 0; i < valuesVector1.size(); ++i) {
-          hist->Fill(valuesVector1[i], valuesVector2[i]);
-        }
+      if (!areVectorsValid) {
+        return 0;
       }
-      
-      return i;
+
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+      if (areVectorsSameSize) {
+        for (unsigned i = 0; i < size1; ++i) {
+          m_histogram->Fill(vector1[i], vector2[i]);
+        }
+
+        result = size1;
+      } else if (size1 == 1) {
+        for (auto value : vector2) {
+          m_histogram->Fill(vector1[0], value);
+        }
+
+        result = size2;
+      } else {
+        for (auto value : vector1) {
+          m_histogram->Fill(value, vector2[0]);
+        }
+
+        result = size1;
+      }
+
+      return result;
     }
   protected:
-    virtual TH2* histogram() override { return static_cast<TH2*>(m_hist); }
+    TH2 * const m_histogram;
   };
 }
 

@@ -15,8 +15,11 @@ namespace Monitored {
    */
   class HistogramFillerProfile : public HistogramFiller {
   public:
-    HistogramFillerProfile(TProfile* hist, const HistogramDef& histDef)
-      : HistogramFiller(hist, histDef) {};
+    HistogramFillerProfile(TProfile* const hist, const HistogramDef& histDef)
+      : HistogramFiller(histDef), m_histogram(hist) {};
+
+    HistogramFillerProfile(const HistogramFillerProfile& hf) 
+      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
 
     virtual HistogramFillerProfile* clone() override { return new HistogramFillerProfile(*this); };
 
@@ -28,7 +31,6 @@ namespace Monitored {
       }
 
       unsigned i(0);
-      auto hist = histogram();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
       lock_guard<mutex> lock(*(this->m_mutex));
@@ -37,26 +39,26 @@ namespace Monitored {
         if (valuesVector1.size() == 1) {
           // first variable is scalar -- loop over second
           for (auto value2 : valuesVector2) {
-            hist->Fill(valuesVector1[0], value2);
+            m_histogram->Fill(valuesVector1[0], value2);
             ++i;
           }
         } else if (valuesVector2.size() == 1)  {
           // second variable is scalar -- loop over first
           for (auto value1 : valuesVector1) {
-            hist->Fill(value1, valuesVector2[0]); 
+            m_histogram->Fill(value1, valuesVector2[0]); 
             ++i;
           } 
         }
       } else {
-        for (i = 0; i < valuesVector1.size(); ++i) {
-          hist->Fill(valuesVector1[i], valuesVector2[i]);
+        for (i = 0; i < std::size(valuesVector1); ++i) {
+          m_histogram->Fill(valuesVector1[i], valuesVector2[i]);
         }
       }
       
       return i;
     }
   protected:
-    virtual TProfile* histogram() override { return static_cast<TProfile*>(m_hist); }
+    TProfile* const m_histogram;
   };
 }
 

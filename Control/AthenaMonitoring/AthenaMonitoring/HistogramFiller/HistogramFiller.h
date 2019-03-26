@@ -10,9 +10,6 @@
 #include <memory>
 #include <vector>
 
-#include "TNamed.h"
-#include "TEfficiency.h"
-
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
@@ -25,12 +22,10 @@ namespace Monitored {
     /**
      * @brief Default constructor
      * 
-     * @param hist ROOT object to fill
      * @param histDef Histogram definition of ROOT object
      */
-    HistogramFiller(TNamed* hist, const HistogramDef& histDef) 
-      : m_hist(hist), 
-        m_mutex(std::make_shared<std::mutex>()), 
+    HistogramFiller(const HistogramDef& histDef) 
+      : m_mutex(std::make_shared<std::mutex>()), 
         m_histDef(new HistogramDef(histDef)) {}
     /**
      * @brief Copy constructor
@@ -38,8 +33,7 @@ namespace Monitored {
      * @param hf Other HistogramFiller
      */
     HistogramFiller(const HistogramFiller& hf) 
-      : m_hist(hf.m_hist)
-      , m_mutex(hf.m_mutex)
+      : m_mutex(hf.m_mutex)
       , m_histDef(hf.m_histDef) {}
     /**
      * @brief Move constructor
@@ -70,14 +64,6 @@ namespace Monitored {
     }
     
   protected:
-    /**
-     * @brief Getter for associated ROOT object
-     * 
-     * @return Instance of ROOT object
-     */
-    virtual TNamed* histogram() = 0;
-  
-    TNamed* m_hist;
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;

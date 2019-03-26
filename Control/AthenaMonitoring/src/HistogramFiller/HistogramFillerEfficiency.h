@@ -15,8 +15,11 @@ namespace Monitored {
    */
   class HistogramFillerEfficiency : public HistogramFiller {
   public:
-    HistogramFillerEfficiency(TEfficiency* eff, const HistogramDef& histDef)
-      : HistogramFiller(eff, histDef) {};
+    HistogramFillerEfficiency(TEfficiency* const eff, const HistogramDef& histDef)
+      : HistogramFiller(histDef), m_histogram(eff) {};
+
+    HistogramFillerEfficiency(const HistogramFillerEfficiency& hf) 
+      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
 
     virtual HistogramFillerEfficiency* clone() override { return new HistogramFillerEfficiency(*this); };
 
@@ -25,20 +28,18 @@ namespace Monitored {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      for (i = 0; i < valuesVector1.size(); ++i) {
-        hist->Fill(valuesVector1[i],valuesVector2[i]);
+      for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+        m_histogram->Fill(valuesVector1[i],valuesVector2[i]);
       }
       
-      return i;
+      return std::size(valuesVector1);
     }
   protected:
-    virtual TEfficiency* histogram() override { return static_cast<TEfficiency*>(m_hist); }
+    TEfficiency* const m_histogram;
   };
 }
 
