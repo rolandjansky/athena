@@ -108,14 +108,7 @@ const Token* DataHeaderElement::getToken() const {
 }
 //_____________________________________________________________________________
 long DataHeaderElement::getStorageType() const {
-   const long technology = m_token->technology();
-   if (technology == POOL_StorageType
-	   || technology == POOL_ROOT_StorageType
-	   || technology == POOL_ROOTKEY_StorageType
-	   || technology == POOL_ROOTTREE_StorageType) {
-      return(POOL_StorageType);
-   }
-   return(TEST_StorageType);
+   return(POOL_StorageType);
 }
 //_____________________________________________________________________________
 const std::vector<unsigned int>& DataHeaderElement::getHashes() const {

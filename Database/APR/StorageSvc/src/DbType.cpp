@@ -20,6 +20,8 @@ DbType DbType::getType(const std::string& name)  {
     return ROOTKEY_StorageType;
   else if ( "ROOT_Tree" == name )
     return ROOTTREE_StorageType;
+  else if ( "ROOT_TreeIndex" == name )
+    return ROOTTREEINDEX_StorageType;
   else if ( "ROOT_All" == name )
     return ROOT_StorageType;
   else if ( "POOL_RDBMS" == name )
@@ -61,6 +63,8 @@ const std::string DbType::storageName()  const {
     return "ROOT_Key";
   else if ( match(ROOTTREE_StorageType)   )
     return "ROOT_Tree";
+  else if ( match(ROOTTREEINDEX_StorageType)   )
+    return "ROOT_TreeIndex";
   else if ( *this == ROOT_StorageType     )
     return "ROOT_All";
   else if ( match( POOL_RDBMS_HOMOGENEOUS_StorageType ) )

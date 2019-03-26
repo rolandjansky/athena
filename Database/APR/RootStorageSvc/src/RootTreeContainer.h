@@ -104,6 +104,8 @@ namespace pool  {
     /// Definition of the branch container
     typedef std::vector<BranchDesc> Branches;
     
+  protected:
+
     /// Reference to the root tree object
     TTree*             m_tree;
     /// reference to exact type description
