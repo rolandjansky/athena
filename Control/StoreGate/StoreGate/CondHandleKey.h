@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_CONDHANDLEKEY_H
@@ -25,7 +25,8 @@ namespace SG {
 
 //    CondHandleKey& operator= (const std::string& sgkey);
 
-    StatusCode initialize();
+    StatusCode initialize(bool used = true);
+    StatusCode initialize (AllowEmptyEnum);
 
     const std::string& dbKey() const { return m_dbKey; }
     void setDbKey(const std::string& dbKey) { m_dbKey = dbKey; }
