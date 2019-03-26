@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -44,7 +44,11 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
-        if 'etcut' in self.chainName:            
+        if 'etcut1step' in self.chainPart['addInfo']:            
+            myStepNames += ["Step1_etcut"]
+            for step in myStepNames:
+                chainSteps += [self.getEtCutStep(step)]
+        elif 'etcut' in self.chainPart['addInfo']:            
             myStepNames += ["Step1_etcut"]
             myStepNames += ["Step2_etcut"]            
             for step in myStepNames:

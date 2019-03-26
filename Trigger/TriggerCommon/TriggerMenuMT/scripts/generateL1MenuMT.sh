@@ -47,7 +47,6 @@ fi
 
 # Temporary run directroy and cleanup traps in case of termination
 rundir=`mktemp -t -d tmxml.${menu}.XXXXXXXXXX`
-echo "Rundirectory is $rundir"
 
 TRAPINT() {
     rm -rf $rundir
@@ -67,8 +66,8 @@ logfilelvl1=lvl1_${menu}.log
 
 cd $rundir
 
-generateLVL1MenuMT.py   $menu 2>&1 | tee $logfilelvl1 
-generateL1TopoMenuMT.py $menu 2>&1 | tee $logfiletopo 
+generateLVL1MenuMT.py   $menu 2>&1 >> $logfilelvl1 
+generateL1TopoMenuMT.py $menu 2>&1 >> $logfiletopo 
 
 cp L1Topoconfig_*.xml ${dest}
 cp LVL1config_*.xml ${dest}
