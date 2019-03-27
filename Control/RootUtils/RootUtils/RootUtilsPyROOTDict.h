@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: RootUtilsPyROOTDict.h,v 1.5 2008-04-23 19:48:34 ssnyder Exp $
@@ -19,6 +19,8 @@
 #include "RootUtils/PyROOTPickle.h"
 #include "RootUtils/PyROOTTFilePythonize.h"
 #include "RootUtils/PyROOTInspector.h"
+#include "RootUtils/PyROOTTypePatch.h"
+
 
 
 // Work around a problem sometimes seen with cling in which `struct timespec'

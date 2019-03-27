@@ -13,6 +13,7 @@
     <class name="RootUtils::PyLogger" />
     <class name="RootUtils::PyBytes" />
     <class name="RootUtils::PyROOTInspector" />
+    <class name="RootUtils::PyROOTTypePatch" />
     <function name="RootUtils::_pythonize_tell_root_file" />
     <function name="RootUtils::_pythonize_read_root_file" />
 </lcgdict>
