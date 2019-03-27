@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGATIONDEFAULTS_H
@@ -52,7 +52,6 @@ namespace NavigationDefaults
   struct DefaultWeight {
     public:
     DefaultWeight() {}
-    DefaultWeight& operator=(const DefaultWeight&) {return *this;}
     const DefaultWeight& operator+(const DefaultWeight&) const {return *this;}
     const DefaultWeight& operator*(const DefaultWeight&) const {return *this;}
     bool operator==(DefaultWeight&) const {return true;}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INAVIGABLE_H
@@ -19,8 +19,8 @@ class INavigationToken;
 class INavigable
 {
  public:
-  
-  virtual ~INavigable();
+
+  virtual ~INavigable() = default;
 
   // enforce fillToken(,) method in derived classes!
   virtual void fillToken( INavigationToken & thisToken ) const = 0;
