@@ -45,6 +45,9 @@ namespace Monitored {
      */
     HistogramFiller* create(const HistogramDef& def);
   private:
+    HistogramFiller* createStaticFiller(const HistogramDef& def);
+    HistogramFiller* createDynamicFiller(const HistogramDef& def);
+
     GenericMonitoringTool *m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
   };

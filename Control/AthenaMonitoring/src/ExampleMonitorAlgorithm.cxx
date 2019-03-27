@@ -38,9 +38,9 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     
     TRandom3 r(ctx.eventID().event_number());
     // Example of using flags
-    if (m_doRandom) {
+    // if (m_doRandom) {
         random = r.Rndm();
-    }
+    // }
 
     // Fake efficiency calculator
     pT = r.Landau(15);
