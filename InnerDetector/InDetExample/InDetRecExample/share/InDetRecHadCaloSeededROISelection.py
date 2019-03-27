@@ -4,7 +4,6 @@
 #
 # ------------------------------------------------------------
 
-
 #
 # --- load the isolation tool
 #
@@ -26,6 +25,7 @@ InDetHadROICheckEnergyDepositTool = egammaCheckEnergyDepositTool(name       = "I
                                                               ThrF2max   = 0.98,
                                                               ThrF3max   = 0.8)
 ToolSvc+=InDetHadROICheckEnergyDepositTool
+
 if (InDetFlags.doPrintConfigurables()):
     print InDetHadROICheckEnergyDepositTool
 
@@ -39,10 +39,12 @@ ToolSvc+=InDetCaloClusterROIBuilder
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROIBuilder
 
+
 #
 # --- now load the algorithm
 #
 from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__CaloClusterROI_Selector
+
 InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetHadCaloClusterROISelector",
                                                               InputClusterContainerName    = InDetKeys.HadCaloClusterContainer(),    # "LArClusterEM"
                                                               CellsName                    = InDetKeys.HadCaloCellContainer(),       # "AllCalo"
@@ -54,7 +56,26 @@ InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector (name           
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
                                                               egammaCheckEnergyDepositTool = InDetHadROICheckEnergyDepositTool,
                                                               EMCaloIsolationTool          = InDetHadROIegammaIsoTool)
+
+
 topSequence += InDetHadCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
     print InDetHadCaloClusterROISelector
+
+InDetHadCaloClusterROISelectorBjet = InDet__CaloClusterROI_Selector ( name                         = "InDetHadCaloClusterROISelectorBjet",
+                                                                  InputClusterContainerName    = InDetKeys.HadCaloClusterContainer(),    # "LArClusterEM"
+                                                                  CellsName                    = InDetKeys.HadCaloCellContainer(),       # "AllCalo"
+                                                                  OutputClusterContainerName   = InDetKeys.HadCaloClusterROIContainer()+"Bjet", # "InDetCaloClusterROIs"
+                                                                  CheckHadronicEnergy          = False,
+                                                                  CheckReta                    = False,
+                                                                  CheckEMSamples               = False, 
+                                                                  ClusterEtCut                 = 150e3,
+                                                                  CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
+                                                                  egammaCheckEnergyDepositTool = InDetHadROICheckEnergyDepositTool,
+                                                                  EMCaloIsolationTool          = InDetHadROIegammaIsoTool) 
+                                                                                                                       
+
+topSequence += InDetHadCaloClusterROISelectorBjet
+if (InDetFlags.doPrintConfigurables()):
+      print InDetHadCaloClusterROISelectorBjet
 
