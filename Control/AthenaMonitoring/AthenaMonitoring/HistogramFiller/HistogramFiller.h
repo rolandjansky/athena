@@ -13,6 +13,8 @@
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
+#include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
+
 namespace Monitored {
   /**
    * @brief Base class for all histogram fillers 
@@ -24,17 +26,19 @@ namespace Monitored {
      * 
      * @param histDef Histogram definition of ROOT object
      */
-    HistogramFiller(const HistogramDef& histDef) 
+    HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider) 
       : m_mutex(std::make_shared<std::mutex>()), 
-        m_histDef(new HistogramDef(histDef)) {}
+        m_histDef(new HistogramDef(histDef)),
+        m_histogramProvider(histogramProvider) {}
     /**
      * @brief Copy constructor
      * 
      * @param hf Other HistogramFiller
      */
     HistogramFiller(const HistogramFiller& hf) 
-      : m_mutex(hf.m_mutex)
-      , m_histDef(hf.m_histDef) {}
+      : m_mutex(hf.m_mutex), 
+        m_histDef(hf.m_histDef),
+        m_histogramProvider(hf.m_histogramProvider) {}
     /**
      * @brief Move constructor
      */
@@ -64,8 +68,14 @@ namespace Monitored {
     }
     
   protected:
+    template <class H>
+    H* histogram() {
+      return static_cast<H*>(m_histogramProvider->histogram());
+    }
+
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
+    std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
     
   private:

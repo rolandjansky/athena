@@ -15,11 +15,8 @@ namespace Monitored {
    */
   class HistogramFiller2D : public HistogramFiller {
   public:
-    HistogramFiller2D(TH2* const hist, const HistogramDef& histDef)
-      : HistogramFiller(histDef), m_histogram(hist) {};
-
-    HistogramFiller2D(const HistogramFiller2D& hf) 
-      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
+    HistogramFiller2D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller(definition, provider) {}
     
     virtual HistogramFiller2D* clone() override { return new HistogramFiller2D(*this); };
 
@@ -42,23 +39,24 @@ namespace Monitored {
         return 0;
       }
 
+      auto histogram = this->histogram<TH2>();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       if (areVectorsSameSize) {
         for (unsigned i = 0; i < size1; ++i) {
-          m_histogram->Fill(vector1[i], vector2[i]);
+          histogram->Fill(vector1[i], vector2[i]);
         }
 
         result = size1;
       } else if (size1 == 1) {
         for (auto value : vector2) {
-          m_histogram->Fill(vector1[0], value);
+          histogram->Fill(vector1[0], value);
         }
 
         result = size2;
       } else {
         for (auto value : vector1) {
-          m_histogram->Fill(value, vector2[0]);
+          histogram->Fill(value, vector2[0]);
         }
 
         result = size1;
@@ -66,8 +64,6 @@ namespace Monitored {
 
       return result;
     }
-  protected:
-    TH2 * const m_histogram;
   };
 }
 

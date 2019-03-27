@@ -5,6 +5,8 @@
 #ifndef AthenaMonitoring_HistogramFiller_HistogramFiller1D_h
 #define AthenaMonitoring_HistogramFiller_HistogramFiller1D_h
 
+#include <memory>
+
 #include "TH1.h"
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
@@ -15,12 +17,9 @@ namespace Monitored {
    */
   class HistogramFiller1D : public HistogramFiller {
   public: 
-    HistogramFiller1D(TH1* const hist, const HistogramDef& histDef)
-      : HistogramFiller(histDef), m_histogram(hist) {}
+    HistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller(definition, provider) {}
 
-    HistogramFiller1D(const HistogramFiller1D& hf) 
-      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
-    
     HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
 
     virtual unsigned fill() override {
@@ -28,17 +27,16 @@ namespace Monitored {
         return 0;
       }
 
+      auto histogram = this->histogram<TH1>();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       for (auto value : valuesVector) {
-        m_histogram->Fill(value);
+        histogram->Fill(value);
       }
 
       return std::size(valuesVector);
     } 
-  protected:
-    TH1* const m_histogram;
   };
 }
 

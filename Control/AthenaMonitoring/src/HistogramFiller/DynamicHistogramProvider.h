@@ -2,54 +2,25 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */  
   
-#ifndef AthenaMonitoring_HistogramFiller_DynamicHistogramFiller1D_h
-#define AthenaMonitoring_HistogramFiller_DynamicHistogramFiller1D_h
+#ifndef AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h
+#define AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h
 
 #include <memory>
 
-#include "TH1.h"
-
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/HistogramDef.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
 
 namespace Monitored {
-  /**
-   * @brief Filler for dynamic 1D histograms
-   */
-  class DynamicHistogramFiller1D : public HistogramFiller {
-  public: 
-    DynamicHistogramFiller1D(GenericMonitoringTool* const gmTool, 
+  class DynamicHistogramProvider : public IHistogramProvider {
+  public:
+    DynamicHistogramProvider(GenericMonitoringTool* const gmTool, 
         std::shared_ptr<HistogramFactory> factory, 
         const HistogramDef& histDef)
-      : HistogramFiller(histDef), m_gmTool(gmTool), m_factory(factory), m_dynamicSize(parseDynamicSize(histDef)) {}
+      : IHistogramProvider(), m_gmTool(gmTool), m_factory(factory), m_histDef(new HistogramDef(histDef)), m_dynamicSize(parseDynamicSize(histDef)) {}
 
-    DynamicHistogramFiller1D(const DynamicHistogramFiller1D& hf) 
-      : HistogramFiller(hf), m_gmTool(hf.m_gmTool), m_factory(hf.m_factory), m_dynamicSize(hf.m_dynamicSize) {}
-    
-    DynamicHistogramFiller1D* clone() override { return new DynamicHistogramFiller1D(*this); }
-
-    virtual unsigned fill() override {
-      if (m_monVariables.size() != 1) {
-        return 0;
-      }
-
-      auto hist = histogram();
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
-
-      if (!hist) {
-        return 0;
-      }
-
-      for (auto value : valuesVector) {
-        hist->Fill(value);
-      }
-
-      return std::size(valuesVector);
-    } 
-  protected:
-    TH1* histogram() {
+    TNamed* histogram() override {
       const unsigned lumiBlock = m_gmTool->lumiBlock();
       const unsigned lumiPage = lumiBlock/m_dynamicSize;
       const unsigned minLumi = lumiPage * m_dynamicSize;
@@ -59,7 +30,7 @@ namespace Monitored {
       
       def.alias = def.alias + "(" + std::to_string(minLumi) + "-" + std::to_string(maxLumi) + ")";
 
-      return static_cast<TH1*>(m_factory->create(def));
+      return m_factory->create(def);
     }
 
     static unsigned parseDynamicSize(const HistogramDef& histDef) {
@@ -82,11 +53,12 @@ namespace Monitored {
 
       return std::stoul(sizeStrValue);
     }
-
+  private:
     GenericMonitoringTool* const m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
+    std::shared_ptr<HistogramDef> m_histDef;
     unsigned m_dynamicSize;
   };
 }
 
-#endif /* AthenaMonitoring_HistogramFiller_DynamicHistogramFiller1D_h */
+#endif /* AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h */

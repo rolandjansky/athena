@@ -15,11 +15,8 @@ namespace Monitored {
    */
   class HistogramFiller2DProfile : public HistogramFiller {
   public:
-    HistogramFiller2DProfile(TProfile2D* const hist, const HistogramDef& histDef)
-      : HistogramFiller(histDef), m_histogram(hist) {};
-
-    HistogramFiller2DProfile(const HistogramFiller2DProfile& hf) 
-      : HistogramFiller(hf), m_histogram(hf.m_histogram) {}
+    HistogramFiller2DProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller(definition, provider) {}
 
     virtual HistogramFiller2DProfile* clone() override { return new HistogramFiller2DProfile(*this); };
     
@@ -28,6 +25,7 @@ namespace Monitored {
         return 0;
       }
 
+      auto histogram = this->histogram<TProfile2D>();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
       auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
@@ -40,13 +38,11 @@ namespace Monitored {
 
       //For now lets just consider the case in which all variables are of the same length
       for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
-        m_histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+        histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
       }
       
       return std::size(valuesVector1);
     }
-  protected:
-    TProfile2D* const m_histogram;
   };
 }
 

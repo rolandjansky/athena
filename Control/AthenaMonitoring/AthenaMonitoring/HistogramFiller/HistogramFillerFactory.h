@@ -13,6 +13,7 @@
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
+#include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
 
 namespace Monitored {
   /**
@@ -45,8 +46,7 @@ namespace Monitored {
      */
     HistogramFiller* create(const HistogramDef& def);
   private:
-    HistogramFiller* createStaticFiller(const HistogramDef& def);
-    HistogramFiller* createDynamicFiller(const HistogramDef& def);
+    std::shared_ptr<IHistogramProvider> createHistogramProvider(const HistogramDef& def);
 
     GenericMonitoringTool *m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
