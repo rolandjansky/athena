@@ -711,8 +711,10 @@ def main():
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
-        release = os.environ['AtlasVersion'][0:4]
-        OverlayInputBkgFormatted = OverlayInputBkg.format(release, ciRefFileMap['overlay-bkg-' + release])
+        OverlayInputBkgFormatted = None
+        if RunOverlay:
+            release = os.environ['AtlasVersion'][0:4]
+            OverlayInputBkgFormatted = OverlayInputBkg.format(release, ciRefFileMap['overlay-bkg-' + release])
 
         if RunFast:
             for qtest in qTestsToRun:
