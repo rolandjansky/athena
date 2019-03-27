@@ -437,16 +437,11 @@ def defineMenu():
 	"L1_2EM20VH",  "L1_EM20VH_3EM10VH", 
         "L1_EM7_MU10",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY",  "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4", "L1_2MU11", "L1_MU11_2MU10",
-
-<<<<<<< HEAD
           "L1_2EM8VH_MU10", "L1_EM15VH_MU10",  "L1_EM7_MU20", "L1_EM8VH_MU20",
           'L1_2eEM15VHI', 'L1_2eEM20VH', 'L1_2eEM8VH_MU10',
           'L1_eEM15VH_MU10',
           'L1_eEM20VH_3eEM10VH',
           'L1_eEM7_MU20',
-=======
-        "L1_2EM8VH_MU10", "L1_EM15VH_MU10",  "L1_EM7_MU20", "L1_EM8VH_MU20",
->>>>>>> 3a69ed184420f20eae8e587ad86d318d243880ca
 
         # single tau
         "L1_TAU5", "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
@@ -533,13 +528,10 @@ def defineMenu():
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
         'L1_MU20_J40',
         'L1_MU20_XE30',
-<<<<<<< HEAD
         'L1_MU10_2jJ15_jJ20',
         'L1_MU10_2jJ20',
         'L1_MU20_jJ40',
         'L1_MU20_gXERHO30',
-=======
->>>>>>> 3a69ed184420f20eae8e587ad86d318d243880ca
         'L1_MU20_J50',
 
         # single jet
@@ -943,11 +935,7 @@ def defineMenu():
         'L1_2MU11' : 183,
         'L1_2MU20_OVERLAY' : 35,
         'L1_MU11_2MU6' : 37,
-<<<<<<< HEAD
         'L1_MU11_2MU10' : 185,
-=======
-        'L1_MU11_2MU10' : 179,
->>>>>>> 3a69ed184420f20eae8e587ad86d318d243880ca
         'L1_3MU4' : 38,
         'L1_MU6_2MU4' : 39,
         'L1_3MU6' : 40,
