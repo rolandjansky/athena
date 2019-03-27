@@ -111,7 +111,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
     unsigned int nmergeStrips = 1;
-    unsigned int nmergeStripsMax = 25;
+    unsigned int nmergeStripsMax = 50;
     for (unsigned int k=0; k < nmergeStripsMax; ++k) {
       for (unsigned int j=jmerge; j<MMprds.size(); ++j){
 	if(MMflag[j] == 1) continue;
@@ -169,10 +169,12 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	double charge = MMprds[mergeIndices[k]].charge();
 	weightedPosX += posX*charge;
 	totalCharge += charge;
+	ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
       } 
       weightedPosX = weightedPosX/totalCharge;
     }
 
+    
     Amg::Vector2D clusterLocalPosition(weightedPosX,posY);
     
     double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
