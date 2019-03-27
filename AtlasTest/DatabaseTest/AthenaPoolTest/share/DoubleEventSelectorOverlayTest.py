@@ -101,6 +101,7 @@ svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
 AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout
