@@ -230,6 +230,18 @@ StatusCode CPCMX::execute( )
                 itTh != thresholds.end(); ++itTh ) {
             // Right type?
             if ( (*itTh)->type() != triggerTypes[cmx] ) continue;
+
+            // Is Run-2 threshold ? (can only be done by name)
+            //    This for running Run-3 trigger menu where we have a mix 
+            //    of Run-2 and Run-3 thresholds for a while and the Run-3 
+            //    thresholds need to be ignored
+            bool isRun2 = ((*itTh)->name().find("EM") == 0) || ((*itTh)->name().find("HA") == 0); // Run-2 thresholds start with "EM" or "HA"
+            if ( ! isRun2 )
+               continue;
+            int num = (*itTh)->thresholdNumber();
+            if (num >= 16) { // Run-2 EM and TAU thresholds were 16 maximum (this is fix)
+               ATH_MSG_WARNING("Invalid threshold number " << num << " from threshold " << (*itTh)->name());
+            }
             // Does TOB satisfy this threshold?
             TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
             ClusterThresholdValue* ctv = dynamic_cast< ClusterThresholdValue* >( ttv );
@@ -247,7 +259,6 @@ StatusCode CPCMX::execute( )
                   if (crateHits[crate][cmx][num] < 7) crateHits[crate][cmx][num]++;
                   if (Hits[cmx][num] < 7)             Hits[cmx][num]++;
                 }
-                else ATH_MSG_WARNING("Invalid threshold number " << num );
               } // passes cuts
 		    
             } // ClusterThresholdValue pointer valid

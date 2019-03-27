@@ -217,6 +217,11 @@ def main():
             menu.printCabling()
         return 0
 
+    if sys.argv[1].lower().startswith("mc8"):
+        menu = generateL1Menu(menu="MC_pp_v8",doFTK=FTKFlag)
+        if printCabling:
+            menu.printCabling()
+        return 0
 
     if sys.argv[1].lower().startswith("mc4"):
         generateL1Menu(menu="MC_pp_v4",doFTK=FTKFlag)

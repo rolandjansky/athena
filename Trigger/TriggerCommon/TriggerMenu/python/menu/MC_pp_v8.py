@@ -348,7 +348,6 @@ def setupMenu():
 
                            ]
 
-
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
 
         #ATR-19268

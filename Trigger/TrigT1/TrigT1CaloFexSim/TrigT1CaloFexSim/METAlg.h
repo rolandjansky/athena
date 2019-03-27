@@ -69,7 +69,7 @@ class METAlg{
   /**
    *@brief Calculates MET in bins of eta(and phi) depending on jFEX/gFEX geometry
    */
-  static StatusCode MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFEX, bool useRhoSub, bool usePUfit);
+  static StatusCode MET_etaBins(const xAOD::JGTowerContainer* towers, TString metName,bool usegFEX, bool useRhoSub, bool usePUfit);
 };
 
 #endif

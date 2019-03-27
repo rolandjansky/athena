@@ -293,7 +293,7 @@ class TriggerConfigLVL1:
                 self.menu.addThreshold( threshold )
         if undefined_thr:
             raise RuntimeError("Found undefined threshold in menu %s, please add these thresholds to l1menu/ThresholdDef.py: %s" % (self.menu.menuName, ', '.join(list_of_undefined_thresholds)) )
-                
+
         # threshold mapping
         self.mapThresholds()
 
@@ -329,7 +329,7 @@ class TriggerConfigLVL1:
                 existingMappings[thr.ttype] = set()
             if thr.mapping<0: continue
             existingMappings[thr.ttype].add(thr.mapping)
-                
+
         nextFreeMapping = {}
         for k in  existingMappings:
             nextFreeMapping[k] = 0
@@ -342,7 +342,8 @@ class TriggerConfigLVL1:
                 thr.mapping = nextFreeMapping[thr.ttype]
                 nextFreeMapping[thr.ttype] += 1
 
-            thr.setCableInput()
+            if ord(thr.name[0])>=ord('A') and ord(thr.name[0])<=ord('Z'): # at the moment we don't have cabling for the new thresholds yet
+                thr.setCableInput()
 
 
     def assignZeroBiasConnectors(self):

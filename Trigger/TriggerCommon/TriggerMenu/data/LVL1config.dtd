@@ -52,7 +52,7 @@
 
 <!ELEMENT TriggerThresholdList (TriggerThreshold*)>
 
-<!ELEMENT TriggerThreshold (TriggerThresholdValue*, Cable)>
+<!ELEMENT TriggerThreshold (TriggerThresholdValue*, Cable?)>
 <!ATTLIST TriggerThreshold
      id                 CDATA           #IMPLIED
      name               CDATA           #REQUIRED
