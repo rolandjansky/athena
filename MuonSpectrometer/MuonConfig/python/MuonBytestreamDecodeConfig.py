@@ -24,7 +24,6 @@ def MuonCacheCfg():
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
     acc.addEventAlgo( cacheCreator, primary=True )
-    acc.addEventAlgo( cacheCreator )
     return acc
 
 
@@ -140,7 +139,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
 
-    if forTrigger:
+    if True: #forTrigger:
         # Trigger the creation of cache containers
         cacheAcc = MuonCacheCfg()
         acc.merge( cacheAcc )
@@ -183,7 +182,7 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
-    if forTrigger:
+    if True:#forTrigger:
         # Trigger the creation of cache containers
         cacheAcc = MuonCacheCfg()
         acc.merge( cacheAcc )
