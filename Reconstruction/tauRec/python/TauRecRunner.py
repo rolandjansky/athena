@@ -110,6 +110,11 @@ class TauRecRunner ( TauRecRunConfigured ) :
                 tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
                 tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
                 tools.append(taualgs.getTauWPDecoratorJetBDT())
+                tools.append(taualgs.getTauJetRNNEvaluator("TauJetRNN",
+                                                           NetworkFile1P="rnnid_mc16d_config_1p.json",
+                                                           NetworkFile3P="rnnid_mc16d_config_3p.json",
+                                                           OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
+                tools.append(taualgs.getTauWPDecoratorJetRNN())
                 tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
                 tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_bar", 
                                                            weightsFile="EleBDT1PBar.root", minNTracks=1, maxAbsTrackEta=1.37, 

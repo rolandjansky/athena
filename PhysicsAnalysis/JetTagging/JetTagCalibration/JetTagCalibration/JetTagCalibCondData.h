@@ -13,10 +13,10 @@
 #include <vector>
 #include <map>
 #include "AthenaKernel/CLASS_DEF.h"
-#include "JetTagCalibration/parse_json.h"
-#include "JetTagCalibration/NNLayerConfig.h"
-#include "JetTagCalibration/LightweightNeuralNetwork.h"
-#include "JetTagCalibration/Exceptions.h"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/NNLayerConfig.hh"
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/Exceptions.hh"
 
 class TObject;
 class TH1;
