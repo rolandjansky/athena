@@ -9,6 +9,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TriggerMatchingTool/IIParticleRetrievalTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -52,7 +53,11 @@ namespace DerivationFramework {
     private:
       // Properties
       /// The list of chain names to match
-      std::vector<std::string> m_chainNames;
+      mutable std::vector<std::string> m_chainNames;
+      // This being mutable isn't exactly the greatest thing but we can't check
+      // whether the chains actually exist before the first event. A better
+      // solution would be to filter the chains by what is available in the
+      // input file but I don't know if that's possible.
 
       /// The tool to retrieve the online candidates
       ToolHandle<Trig::IIParticleRetrievalTool> m_trigParticleTool
@@ -69,6 +74,17 @@ namespace DerivationFramework {
 
       /// The prefix to place at the beginning of the output containers
       std::string m_outputPrefix;
+
+      /// If set, discard any triggers with empty chain groups (break the job
+      /// otherwise).
+      bool m_checkEmptyChainGroups;
+
+      /// The trig decision tool
+      ToolHandle<Trig::TrigDecisionTool> m_tdt
+      {"Trig::TrigDecisionTool/TrigDecisionTool"};
+
+      // Internal values
+      mutable bool m_firstEvent{true};
 
       // Internal functions
       /**

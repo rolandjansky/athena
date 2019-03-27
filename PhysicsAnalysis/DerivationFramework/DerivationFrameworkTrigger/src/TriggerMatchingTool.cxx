@@ -53,6 +53,9 @@ namespace DerivationFramework {
         "Whether to match triggers in rerun mode.");
     declareProperty("OutputContainerPrefix", m_outputPrefix="TrigMatch_",
         "The prefix to add to the output containers.");
+    declareProperty("CheckEmptyChainGroups", m_checkEmptyChainGroups = true,
+        "If set, discard any empty chain groups. Otherwise these will cause "
+        "a job failure.");
   }
 
   StatusCode TriggerMatchingTool::initialize()
@@ -64,6 +67,17 @@ namespace DerivationFramework {
 
   StatusCode TriggerMatchingTool::addBranches() const
   {
+    if (m_firstEvent) {
+      m_firstEvent = false;
+      auto itr = m_chainNames.begin();
+      while (itr != m_chainNames.end() ) {
+        const Trig::ChainGroup* cg = m_tdt->getChainGroup(*itr);
+        if (cg->getListOfTriggers().size() == 0)
+          itr = m_chainNames.erase(itr);
+        else
+          ++itr;
+      }
+    }
 
     // Now, get all the possible offline candidates
     std::map<xAOD::Type::ObjectType, particleVec_t> offlineCandidates;
