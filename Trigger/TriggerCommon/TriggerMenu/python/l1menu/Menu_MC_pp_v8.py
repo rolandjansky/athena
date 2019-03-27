@@ -936,7 +936,7 @@ def defineMenu():
         'L1_2MU11' : 183,
         'L1_2MU20_OVERLAY' : 35,
         'L1_MU11_2MU6' : 37,
-        'L1_MU11_2MU10' : 179,
+        'L1_MU11_2MU10' : 185,
         'L1_3MU4' : 38,
         'L1_MU6_2MU4' : 39,
         'L1_3MU6' : 40,
