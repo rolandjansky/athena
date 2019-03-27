@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,13 +13,6 @@
 // constructor
 template <typename CONT, typename RPAR, typename COLL>
 Navigable<CONT,RPAR,COLL>::Navigable() { }
-
-// destructor
-template <typename CONT, typename RPAR, typename COLL>
-Navigable<CONT,RPAR,COLL>::~Navigable() 
-{
-  m_constituents.clear();
-}
 
 	    //////////////////////////////////////////////
 	    // Navigation query handling w/o parameters //
