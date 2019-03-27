@@ -123,10 +123,11 @@ float Rho_med(const xAOD::JGTowerContainer* towers, const bool useNegTowers){
   return rho;
 }
 
-std::vector<float>* rhoSub(std::vector<const xAOD::JGTower*> towers, bool useNegTowers){
+const std::vector<float> rhoSub(std::vector<const xAOD::JGTower*> towers, bool useNegTowers){
   float EtMiss = 0;
   float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
   float threshold  = 0;
+  std::vector<float> met;
 
   //can calculate rho as either the average or median gTower energy in the barrel                                                            
   float rho = Rho_bar(towers, false);
@@ -142,37 +143,38 @@ std::vector<float>* rhoSub(std::vector<const xAOD::JGTower*> towers, bool useNeg
     h_Et->Fill(Et);
   }
   threshold = 3*h_Et->GetRMS();
-
+  
   for(unsigned int t = 0; t < size; t++){
     const xAOD::JGTower* tower = towers[t];
     float Et = tower->et();
     float phi = tower->phi();
     float eta = TMath::Abs(tower->eta());
-
+    
     float Et_sub = 0;
     if(eta < 2.4) Et_sub = TMath::Abs(Et) - rho;
     else Et_sub = TMath::Abs(Et) - 4*rho;
-
+    
     if(Et_sub < threshold) continue;
-
+    
     //if tower originally had negative Et, keep Et_sub negative                                                                              
     if(useNegTowers && Et < 0) Et_sub = -Et_sub;
-
+    
     Ex_ = Et_sub*TMath::Cos(phi);
     Ey_ = Et_sub*TMath::Sin(phi);
-
+    
     Ex += Ex_;
     Ey += Ey_;
   }
-
+  
   EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
   float phi_met = 0;
   if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
   if (Ey<0) phi_met = -phi_met;
   
-  std::vector<float>* met;
-  met->push_back(EtMiss);
-  met->push_back(phi_met);
+  met.push_back(EtMiss);
+  met.push_back(phi_met);
+  
+  delete h_Et;
 
   return met;
 }

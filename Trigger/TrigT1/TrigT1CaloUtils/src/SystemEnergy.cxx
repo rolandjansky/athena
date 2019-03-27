@@ -290,7 +290,9 @@ void SystemEnergy::etMissTrigger()
   L1DataDef def;
   for (it = thresholds.begin(); it != thresholds.end(); ++it)
   {
-    if ((*it)->type() == def.xeType())
+    if ((*it)->type() == def.xeType() &&
+        (*it)->name().find("XE") == 0  // must be a Run-2 threshold
+        )
     {
       TriggerThresholdValue *tv = (*it)->triggerThresholdValue(0, 0);
       int thresholdValue = (*tv).thresholdValueCount();
@@ -335,7 +337,9 @@ void SystemEnergy::etSumTrigger()
   L1DataDef def;
   for (it = thresholds.begin(); it != thresholds.end(); ++it)
   {
-    if ((*it)->type() == def.teType())
+    if ((*it)->type() == def.teType() &&
+        (*it)->name().find("TE") == 0  // must be a Run-2 threshold
+        )
     {
       int threshNumber = (*it)->thresholdNumber();
       int thresholdValue = m_maxEtSumThr;
@@ -406,7 +410,9 @@ void SystemEnergy::metSigTrigger()
   L1DataDef def;
   for (it = thresholds.begin(); it != thresholds.end(); ++it)
   {
-    if ((*it)->type() == def.xsType())
+    if ( (*it)->type() == def.xsType() &&
+         (*it)->name().find("XS") == 0  // must be a Run-2 threshold
+         )
     {
       TriggerThresholdValue *tv = (*it)->triggerThresholdValue(0, 0);
 

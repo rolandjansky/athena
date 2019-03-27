@@ -41,6 +41,7 @@ def enableEfexAlgorithms(SuperCellContainer='SCell', useTDR=False, doLArFex=Fals
     if doTau:
         algseq += CfgMgr.TrigT1CaloRun3TauFex(name="TrigT1CaloEFexTau",
                                               CleanCellContainer=False,#Not currently properly enabled for Tau's
+                                              CleanCellContainerSkim=True,#Should work with new implementation
                                               #EnableMonitoring=True,
                                               SuperCellContainer=SuperCellContainer,
                                               OutputClusterName="SClusterTau"

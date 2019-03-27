@@ -678,11 +678,6 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
 
    if( confThr->name().find("J") == 0 ) {
       // Run-2 threshold
-
-
-
-      //LVL1::TrigT1CaloDefs::RoIType jettype = JetRoIWordType;
-
       for ( const HLT::JetEnergyRoI & jetROI : m_lvl1Tool->getJetEnergyRoIs() ) {
 
 	 LVL1::TrigT1CaloDefs::RoIType jettype = m_jetDecoder->roiType( jetROI.lvl1RoI().roIWord() );
@@ -1087,4 +1082,3 @@ LVL1CTP::CTPEmulation::finalize() {
 
    return StatusCode::SUCCESS;
 }
-

@@ -18,7 +18,7 @@
  std::map<TString, std::shared_ptr<METAlg::MET>> METAlg::m_METMap;
 
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFEX, bool useRhoSub, bool usePUfit){
+StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, TString metName, bool usegFEX, bool useRhoSub, bool usePUfit){
   float met_x = 0;
   float met_y = 0;
   std::shared_ptr<MET> met  = std::make_shared<MET>();
@@ -44,18 +44,18 @@ StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFE
     }
     
     if(useRhoSub){
-      std::vector<float>* met_a = rhoSub(fpga_a, false);
-      std::vector<float>* met_b = rhoSub(fpga_b, false);
-      std::vector<float>* met_c = rhoSub(fpga_c, false);
+      std::vector<float> met_a = rhoSub(fpga_a, false);
+      std::vector<float> met_b = rhoSub(fpga_b, false);
+      std::vector<float> met_c = rhoSub(fpga_c, false);
       
-      float met_ax = met_a->at(0)*TMath::Cos(met_a->at(1));
-      float met_ay = met_a->at(0)*TMath::Sin(met_a->at(1));
+      float met_ax = met_a.at(0)*TMath::Cos(met_a.at(1));
+      float met_ay = met_a.at(0)*TMath::Sin(met_a.at(1));
       
-      float met_bx = met_b->at(0)*TMath::Cos(met_b->at(1));
-      float met_by = met_b->at(0)*TMath::Sin(met_b->at(1));
+      float met_bx = met_b.at(0)*TMath::Cos(met_b.at(1));
+      float met_by = met_b.at(0)*TMath::Sin(met_b.at(1));
       
-      float met_cx = met_c->at(0)*TMath::Cos(met_c->at(1));
-      float met_cy = met_c->at(0)*TMath::Sin(met_c->at(1));
+      float met_cx = met_c.at(0)*TMath::Cos(met_c.at(1));
+      float met_cy = met_c.at(0)*TMath::Sin(met_c.at(1));
       
       met_x = met_ax + met_bx + met_cx;
       met_y = met_ay + met_by + met_cy;
@@ -66,7 +66,9 @@ StatusCode METAlg::MET_etaBins(const xAOD::JGTowerContainer* towers, bool usegFE
       met->phi = phi;
     }    
   }
-   return StatusCode::SUCCESS;
+
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
+  return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------------------------
 StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
