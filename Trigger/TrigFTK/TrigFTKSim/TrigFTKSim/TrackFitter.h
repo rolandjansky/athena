@@ -123,9 +123,10 @@ protected:
   virtual void processor(const FTKRoad &);
   virtual void processor_end(int);
   virtual void compute_truth(const unsigned int&,const FTKRoad &,FTKTrack&) const;
-  int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&);
+  int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&,bool isfirst=false);
   int doAuxDoctor(FTKTrack&,std::list<FTKTrack>&);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
+  std::list<FTKTrack>::iterator removeTrackStage1(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
 public:
   TrackFitter();
