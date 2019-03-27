@@ -418,6 +418,7 @@ def defineMenu():
         #'L1_EM15_BGRP7',
         'L1_eEM22',
         'L1_eEM22VHI',
+        'L1_eEM20VH',
         'L1_eEM20VHI',
 
         # see savannah https://savannah.cern.ch/bugs/?103935
@@ -908,6 +909,7 @@ def defineMenu():
         'L1_eEM20VH_3eEM10VH' : 91,
         'L1_eEM22VHI' : 107,
         'L1_eEM20VHI' : 178, 
+        'L1_eEM20VH' : 180, 
         'L1_eEM7_MU20' : 110,
         'L1_MU4' : 14,
         'L1_MU6' : 15,
