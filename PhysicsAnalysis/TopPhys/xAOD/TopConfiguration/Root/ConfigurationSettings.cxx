@@ -313,7 +313,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
-    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
+    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
