@@ -64,8 +64,13 @@ namespace Trig {
     std::vector<const xAOD::IParticle*> online;
     online.reserve(onlineLinks.size() );
     for (const ElementLink<xAOD::IParticleContainer>& link : onlineLinks)
-      // This line could throw an exception if the link is invalid!
-      online.push_back(*link);
+      // Skip invalid links - these are usually objects that have been removed
+      // by derivation framework level thinning. Going by the logic that we just
+      // need a match for all the offline particles provided rather than for the
+      // trigger particles implies that we should allow a combination that has
+      // had some of its members removed.
+      if (link.isValid() )
+        online.push_back(*link);
     // I will follow the way the current tool works and match even if there are
     // fewer reco objects than trigger objects
     for (const xAOD::IParticle* offlinePart : offline) {
