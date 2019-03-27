@@ -82,8 +82,6 @@ public:
 
   ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
   uint32_t lumiBlock();
-  uint32_t runNumber();
-  unsigned long long eventNumber();
 private:
   const EventInfo* retrieveEventInfo();
 

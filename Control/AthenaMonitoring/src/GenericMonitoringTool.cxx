@@ -121,18 +121,6 @@ uint32_t GenericMonitoringTool::lumiBlock() {
   return eventInfo ? eventInfo->event_ID()->lumi_block() : 0;
 }
 
-uint32_t GenericMonitoringTool::runNumber() { 
-  const EventInfo* eventInfo = retrieveEventInfo();
-  
-  return eventInfo ? eventInfo->event_ID()->run_number() : 0;
-}
-
-unsigned long long GenericMonitoringTool::eventNumber() { 
-  const EventInfo* eventInfo = retrieveEventInfo();
-  
-  return eventInfo ? eventInfo->event_ID()->event_number() : 0;
-}
-
 const EventInfo* GenericMonitoringTool::retrieveEventInfo() {
   const EventInfo* eventInfo;
   StatusCode sc = evtStore()->retrieve(eventInfo);
