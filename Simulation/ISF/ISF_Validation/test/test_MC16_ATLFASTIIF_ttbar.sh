@@ -1,10 +1,12 @@
 #!/bin/sh
 #
 # art-description: MC16-style simulation using ATLFASTIIF
-# art-type: build
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
+# art-type: grid
+# art-output: test.HITS.pool.root
+# art-output: truth.root
 
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
