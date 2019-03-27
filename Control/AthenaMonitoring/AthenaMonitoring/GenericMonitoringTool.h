@@ -64,6 +64,8 @@
  * @author Piotr Sarna
  */
 
+class EventInfo;
+
 class GenericMonitoringTool : public AthAlgTool {
 public:
 
@@ -79,17 +81,18 @@ public:
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
   ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
-  uint32_t lumiBlock() { /* TODO: implementation needed */ return m_lumiBlock++; }
-  uint32_t runNumber() { /* TODO: implementation needed */ return 0; }
-  unsigned long long eventNumber() { /* TODO: implementation needed */ return 0; }
-private:   
+  uint32_t lumiBlock();
+  uint32_t runNumber();
+  unsigned long long eventNumber();
+private:
+  const EventInfo* retrieveEventInfo();
+
   ServiceHandle<ITHistSvc> m_histSvc       { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
   Gaudi::Property<std::vector<std::string> > m_histograms    { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking  { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
   std::vector<Monitored::HistogramFiller*> m_fillers;      //!< list of fillers
-  uint32_t m_lumiBlock {0};
 };
 
 

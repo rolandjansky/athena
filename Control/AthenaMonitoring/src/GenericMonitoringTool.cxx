@@ -5,10 +5,14 @@
 #include <map>
 #include <mutex>
 #include <algorithm>
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
+
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
@@ -109,4 +113,34 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
   }
 
   return result;
+}
+
+uint32_t GenericMonitoringTool::lumiBlock() { 
+  const EventInfo* eventInfo = retrieveEventInfo();
+  
+  return eventInfo ? eventInfo->event_ID()->lumi_block() : 0;
+}
+
+uint32_t GenericMonitoringTool::runNumber() { 
+  const EventInfo* eventInfo = retrieveEventInfo();
+  
+  return eventInfo ? eventInfo->event_ID()->run_number() : 0;
+}
+
+unsigned long long GenericMonitoringTool::eventNumber() { 
+  const EventInfo* eventInfo = retrieveEventInfo();
+  
+  return eventInfo ? eventInfo->event_ID()->event_number() : 0;
+}
+
+const EventInfo* GenericMonitoringTool::retrieveEventInfo() {
+  const EventInfo* eventInfo;
+  StatusCode sc = evtStore()->retrieve(eventInfo);
+
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING("Cannot access event info");
+    return nullptr;
+  }
+
+  return eventInfo;
 }
