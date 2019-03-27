@@ -343,7 +343,7 @@ def setupMenu():
         ['tau0_perf_ptonly_L1TAU12IM', 'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau0_perf_ptonly_L1TAU8', 'L1_TAU8', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         # ATR-19554
-        #['tau0_idperf_tracktwoMVA_L1eTAU12', 'L1_eTAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau0_idperf_tracktwoMVA_L1eTAU12', 'L1_eTAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         #['tau0_idperf_tracktwoMVA_L1eTAU5', 'L1_eTAU5', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
 			 ]
 
