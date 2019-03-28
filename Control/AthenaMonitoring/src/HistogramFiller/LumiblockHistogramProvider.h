@@ -53,7 +53,7 @@ namespace Monitored {
 
       return m_factory->create(def);
     }
-
+  private:
     /**
      * @brief Parser for kLBNHistoryDepth option
      * 
@@ -82,7 +82,7 @@ namespace Monitored {
 
       return std::stoul(sizeStrValue);
     }
-  private:
+
     GenericMonitoringTool* const m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
     std::shared_ptr<HistogramDef> m_histDef;
