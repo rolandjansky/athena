@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -72,7 +72,7 @@ public:
 		int DAC, 
 		unsigned flag=0);
 
-    virtual ~LArCaliWave();
+    virtual ~LArCaliWave() = default;
     //@}
 
     /// \name accumulation  accessors
@@ -136,10 +136,6 @@ LArCaliWave::LArCaliWave(const std::vector<double>& vAmpl,
 	m_DAC(DAC)
 {}
  
-inline
-LArCaliWave::~LArCaliWave() 
-{}
-
 /*old one*/
 //inline
 //int 

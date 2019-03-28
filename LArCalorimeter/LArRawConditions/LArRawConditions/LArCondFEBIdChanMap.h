@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -84,7 +84,7 @@ public:
 			unsigned int nGain);
 
     /// destructor
-    virtual ~LArCondFEBIdChanMap();
+    virtual ~LArCondFEBIdChanMap() = default;
 
 
     /// Access to a FEB ID vector for a given gain and  COOL channel
@@ -192,10 +192,6 @@ LArCondFEBIdChanMap::LArCondFEBIdChanMap(unsigned int chansPerGain,
 
 {}
     
-inline
-LArCondFEBIdChanMap::~LArCondFEBIdChanMap()
-{}
-
 inline
 void
 LArCondFEBIdChanMap::fillMap(unsigned int channel, const FEBIdVector& febIdVec)
