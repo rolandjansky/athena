@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -40,6 +40,7 @@ def configureFlagsBase():
         # Short-cut: if G4 is in the simulator name, then it's a pretty
         # safe assumption that the configuration uses Geant4.
         ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_ParticleBrokerSvc"
     return
 
 ## methods for Geant4 only simulators
@@ -48,6 +49,7 @@ def configureFlagsFullG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4"
     ISF_Flags.HITSMergingRequired = False
+    ISF_Flags.ParticleBroker = "ISF_ParticleBrokerSvcNoOrdering"
     return
 
 def configureFlagsFullG4_LongLived():
@@ -111,13 +113,33 @@ def configureFlagsATLFASTII():
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
+    return
+
+def configureFlagsATLFASTII_QS():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII_QS"
     return
 
 def configureFlagsATLFASTII_PileUp():
+    configureFlagsATLFASTII()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTII_PileUp"
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    ISF_Flags.UsingGeant4 = True
+    return
+
+## methods for simulators which use G4 + FastCaloSim V2
+
+def configureFlagsG4FastCalo():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo"
+    return
+
+def configureFlagsG4FastCaloDNN():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCaloDNN"
     return
 
 ## methods for simulators which use Fatras + FastCaloSim

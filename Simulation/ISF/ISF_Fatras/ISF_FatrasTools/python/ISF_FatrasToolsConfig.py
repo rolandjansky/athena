@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
@@ -27,7 +27,7 @@ def getFatrasParametricHadIntProcessor(name="ISF_FatrasParametricHadIntProcessor
     #   hadronic interaction creator
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ParticleBroker"      , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'      , ISF_Flags.ParticleBroker())
     kwargs.setdefault("TruthRecordSvc"      , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("HadronicInteractionScaleFactor"  , FatrasTuningFlags.HadronicInteractionProbabilityScalor())
     kwargs.setdefault("MinimumHadronicInitialEnergy"    , FatrasTuningFlags.MomCutOffSec())
@@ -49,7 +49,7 @@ def getFatrasConversionCreator(name="ISF_FatrasConversionCreator", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ParticleBroker"  , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'  , ISF_Flags.ParticleBroker())
     kwargs.setdefault("TruthRecordSvc"  , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PhysicsValidationTool"       , 'ISF_FatrasPhysicsValidationTool')
     kwargs.setdefault("PhysicsProcessCode"              , 14) # TODO: to be taken from central definition
@@ -144,7 +144,7 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ParticleBroker"              , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'              , ISF_Flags.ParticleBroker())
     kwargs.setdefault("TruthRecordSvc"              , simFlags.TruthStrategy.TruthServiceName())
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction"         , True)
@@ -181,7 +181,7 @@ def getFatrasMaterialEffectsEngine(name="ISF_FatrasMaterialEffectsEngine", **kwa
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService"         , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"            , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ParticleBroker"              , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'              , ISF_Flags.ParticleBroker())
     kwargs.setdefault("TruthRecordSvc"              , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("ProcessSamplingTool"         , 'ISF_FatrasProcessSamplingTool')
     kwargs.setdefault("ParticleDecayHelper"         , 'ISF_FatrasParticleDecayHelper')
