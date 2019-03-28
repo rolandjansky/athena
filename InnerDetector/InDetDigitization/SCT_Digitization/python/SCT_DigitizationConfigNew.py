@@ -94,7 +94,9 @@ def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**k
         kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    acc.merge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    tacc=SCT_DigitizationCommonCfg(flags, name, **kwargs)
+    acc.setPrivateTools(tacc.popPrivateTools())
+    acc.merge(tacc)
     return acc
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):

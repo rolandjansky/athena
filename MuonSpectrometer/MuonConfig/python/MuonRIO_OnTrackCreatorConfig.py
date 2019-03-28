@@ -31,18 +31,18 @@ def CscClusterOnTrackCreatorCfg(flags,**kwargs):
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
     csc_cluster_creator = Muon__CscClusterOnTrackCreator(**kwargs)
-    
-    return result, csc_cluster_creator
+    result.addPublicTool(csc_cluster_creator, primary=True)
+    return result
 
 
 def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
     result=ComponentAccumulator()
     
     # setup dependencies missing in C++. TODO: fix in C++
-    acc, mdt_calib_svc  = MdtCalibrationSvcCfg(flags)
+    acc  = MdtCalibrationSvcCfg(flags)
     result.merge(acc)
     
-    acc,mdt_calib_db_svc = MdtCalibrationDbSvcCfg(flags)
+    acc = MdtCalibrationDbSvcCfg(flags)
     result.merge(acc)
 
     kwargs.setdefault("DoMagneticFieldCorrection", flags.Muon.Calib.correctMdtRtForBField)
@@ -68,8 +68,9 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
             kwargs.setdefault("UseLooseErrors", flags.Muon.useLooseErrorTuning)  # LooseErrors on data                          
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
-                  
-    return result,Muon__MdtDriftCircleOnTrackCreator(**kwargs)
+                 
+    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(**kwargs),primary=True)
+    return result
     
 def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
     result=ComponentAccumulator()
@@ -81,7 +82,8 @@ def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
     # TODO Fixme - the cxx class retrieves public MuonIdHelperTool ... should be private / service.
     
     muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(**kwargs)
-    return result, muon_cluster_rot_creator
+    result.addPublicTool(muon_cluster_rot_creator, primary=True)
+    return result
 
     
 # default RIO_OnTrackCreator for muons
@@ -99,12 +101,13 @@ def MuonClusterOnTrackCreatorCfg(flags,**kwargs):
 
 def MuonRotCreatorCfg(flags, **kwargs):
     result=ComponentAccumulator()
-    acc, mdt_rot_creator = MdtDriftCircleOnTrackCreatorCfg(flags)
-    acc.addPublicTool(mdt_rot_creator) # TODO remove
-    result.merge(acc)
     
-    acc, cluster_rot_creator = MuonClusterOnTrackCreatorCfg(flags)
-    acc.addPublicTool(cluster_rot_creator) # TODO remove
+    acc=MdtDriftCircleOnTrackCreatorCfg(flags)
+    mdt_rot_creator=acc.getPrimary()
+    result.merge(acc)
+
+    acc = MuonClusterOnTrackCreatorCfg(flags)
+    cluster_rot_creator=acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("ToolMuonDriftCircle", mdt_rot_creator)
     kwargs.setdefault("ToolMuonCluster", cluster_rot_creator)
@@ -114,5 +117,6 @@ def MuonRotCreatorCfg(flags, **kwargs):
     kwargs.setdefault("Mode", 'muon' )
     
     muon_rot_creator = Trk__RIO_OnTrackCreator(**kwargs)
-    return result, muon_rot_creator
+    result.addPublicTool(muon_rot_creator,primary=True)
+    return result
     

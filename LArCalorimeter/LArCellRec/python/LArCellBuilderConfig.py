@@ -29,7 +29,7 @@ def LArCellCorrectorCfg(configFlags):
         theNoiseMasker=LArCellNoiseMaskingTool()
         if configFlags.LAr.doCellNoiseMasking:
             acc= LArBadChannelMaskerCfg(configFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="CellNoiseMask")
-            theNoiseMasker.MaskingTool=acc.popPrivateTools()
+            theNoiseMasker.MaskingTool=acc()
             result.merge(acc)
 
             pass
