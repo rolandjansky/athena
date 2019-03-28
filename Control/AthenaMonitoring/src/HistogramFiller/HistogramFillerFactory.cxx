@@ -48,10 +48,9 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
 }
 
 shared_ptr<IHistogramProvider> HistogramFillerFactory::createHistogramProvider(const HistogramDef& def) {
-  const bool isDynamicHistogram = def.opt.find("kDynamic") != string::npos;
   shared_ptr<IHistogramProvider> result;
 
-  if (isDynamicHistogram) {
+  if (def.opt.find("kLBNHistoryDepth") != string::npos) {
     result.reset(new LumiblockHistogramProvider(m_gmTool, m_factory, def));
   } else {
     result.reset(new StaticHistogramProvider(m_factory, def));
