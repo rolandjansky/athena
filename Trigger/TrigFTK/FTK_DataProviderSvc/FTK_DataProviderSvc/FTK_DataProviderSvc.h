@@ -47,6 +47,8 @@ class IRoiDescriptor;
 class PRD_MultiTruthCollection;
 class McEventCollection;
 
+class IBeamCondSvc;
+
 namespace Trk {
   class Track;
   class ITrackFitter;
@@ -160,11 +162,13 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  private:
 
  float dphi(const float phi1, const float phi2) const;
+ bool makeDummyVertex(bool withRefit);
 
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+  ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
