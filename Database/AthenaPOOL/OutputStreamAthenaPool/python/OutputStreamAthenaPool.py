@@ -31,8 +31,6 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
 
    doTag = not noTag
    if doTag:
-      outputStream.ItemList += [ "AthenaAttributeList#SimpleTag" ]
-
       if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
          key = "SimpleTag"
          # Tell tool to pick it up
