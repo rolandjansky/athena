@@ -21,7 +21,7 @@ def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
     kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_CaloCellContainerFCSFinalizerTool',
                                                              'ISF_FastHitConvertTool' ])
     kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
     # register the FastCaloSim random number streams
@@ -48,7 +48,7 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
     kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_CaloCellContainerFCSFinalizerTool',
                                                              'ISF_FastHitConvertTool' ])
     kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
     # register the FastCaloSim random number streams
@@ -74,7 +74,7 @@ def getLegacyAFIIFastCaloSimSvc(name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
 def getFastHitConvAlgFastCaloSimSvc(name="ISF_FastHitConvAlgFastCaloSimSvc",**kwargs):
     kwargs.setdefault("CaloCellMakerTools_release", [
                                                            #'ISF_AddNoiseCellBuilderTool',
-                                                            'ISF_CaloCellContainerFinalizerTool'
+                                                            'ISF_CaloCellContainerFCSFinalizerTool'
                                                     ] )
     # setup FastCaloSim hit converter and add it to the alg sequence:
     # -> creates HITS from reco cells
@@ -94,7 +94,7 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
 
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()   )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
-    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFinalizerTool',
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
     kwargs.setdefault("ParamsInputObject"                , 'SelPDGID')

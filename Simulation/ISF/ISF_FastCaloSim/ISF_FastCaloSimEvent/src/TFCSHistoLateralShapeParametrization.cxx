@@ -55,10 +55,12 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
   const double  charge   = HepPDT::ParticleID(pdgId).charge();
 
   const int cs=calosample();
-  const double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
+  const double center_eta = hit.center_eta(); 
+  const double center_phi = hit.center_phi();
+  const double center_r   = hit.center_r();
+  const double center_z   = hit.center_z();
+  
+  
 
   if (TMath::IsNaN(center_r) or TMath::IsNaN(center_z) or TMath::IsNaN(center_eta) or TMath::IsNaN(center_phi)) { //Check if extrapolation fails
     return FCSFatal;
