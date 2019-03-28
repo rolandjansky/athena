@@ -19,6 +19,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
 #include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
@@ -63,12 +66,8 @@
  * @author Tomasz Bold
  * @author Piotr Sarna
  */
-
-class EventInfo;
-
 class GenericMonitoringTool : public AthAlgTool {
 public:
-
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
@@ -83,16 +82,15 @@ public:
   ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
   uint32_t lumiBlock();
 private:
-  const EventInfo* retrieveEventInfo();
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "EventInfo name" };
+  ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
 
-  ServiceHandle<ITHistSvc> m_histSvc       { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
-  Gaudi::Property<std::vector<std::string> > m_histograms    { this, "Histograms", {},  "Definitions of histograms"};
-  Gaudi::Property<bool> m_explicitBooking  { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
+  Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
+  Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
-  std::vector<Monitored::HistogramFiller*> m_fillers;      //!< list of fillers
+  std::vector<Monitored::HistogramFiller*> m_fillers; //!< list of fillers
 };
-
 
 /**
  * Helper class to declare an empty monitoring ToolHandle

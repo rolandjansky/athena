@@ -32,7 +32,9 @@ GenericMonitoringTool::~GenericMonitoringTool() {
 }
 
 StatusCode GenericMonitoringTool::initialize() {
+  ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_histSvc.retrieve());
+
   if ( not m_explicitBooking ) {
     ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();
@@ -115,20 +117,8 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
   return result;
 }
 
-uint32_t GenericMonitoringTool::lumiBlock() { 
-  const EventInfo* eventInfo = retrieveEventInfo();
+uint32_t GenericMonitoringTool::lumiBlock() {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
   
-  return eventInfo ? eventInfo->event_ID()->lumi_block() : 0;
-}
-
-const EventInfo* GenericMonitoringTool::retrieveEventInfo() {
-  const EventInfo* eventInfo;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("Cannot access event info");
-    return nullptr;
-  }
-
-  return eventInfo;
+  return eventInfo.isValid() ? eventInfo->lumiBlock() : 0;
 }
