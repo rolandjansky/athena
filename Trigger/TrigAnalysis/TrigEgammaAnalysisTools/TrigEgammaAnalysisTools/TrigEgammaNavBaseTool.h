@@ -102,6 +102,8 @@ private:
   ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
+
+  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Event Wise offline PhotonContainer Access and end iterator */
@@ -136,6 +138,9 @@ protected:/// Protect type is used here becouse this can be access by inheritanc
   bool m_forceEtThr;
    /*! Remove crack region for Probe default True */
   bool m_rmCrack; 
+  /* force experimentalSelection selection*/  
+  bool m_forceVetoVeryLoose;
+
 
 
 };

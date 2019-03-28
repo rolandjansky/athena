@@ -43,7 +43,8 @@ TrigEgammaNavBaseTool( const std::string& myname )
   declareProperty("ForceProbeIsolation"       , m_forceProbeIsolation=false   );
   declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
   declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); 
-  declareProperty("ForceMCEnhancedBias"       , m_forceMCEnhancedBias=false   ); //new
+  declareProperty("ForceVetoVeryLoose"        , m_forceVetoVeryLoose=false    ); 
+  declareProperty("ElectronLHVLooseTool"      , m_electronLHVLooseTool        );
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
@@ -81,6 +82,10 @@ TrigEgammaNavBaseTool::childInitialize() {
     if ( (m_electronLHTool.retrieve()).isFailure() ){
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
+    }
+    if ( (m_electronLHVLooseTool.retrieve()).isFailure() ){
+      ATH_MSG_ERROR( "Could not retrieve VeryLoose LH Selector Tool! Can't work");
+      return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -227,14 +232,10 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
       if (m_forceProbeIsolation) {///default is false
         if (!isIsolated(eg, m_offProbeIsolation))  continue;///default is Loose
       }
-      
-      if(m_forceMCEnhancedBias){///default is false
-        if(m_truthContainer){//Monte Carlo
-          const xAOD::TruthParticle *mc=nullptr;
-          if( pdgid(eg,m_truthContainer,mc) != MonteCarlo::PDGID::EnhancedBias)  continue;
-        }else{//Data: if reproved by loose, its possible to be a background (not electron)
-          if(ApplyElectronPid(eg,"LHLoose"))  continue;
-        }
+
+      if(m_forceVetoVeryLoose){///default is false
+        bool veto = (bool)m_electronLHVLooseTool->accept(eg);
+        if(veto)  continue;
       }
 
       xAOD::Electron *el = new xAOD::Electron(*eg);
@@ -250,8 +251,8 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
            std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
            m_objTEList.push_back(pair);
         }else {
-            std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
-            m_objTEList.push_back(pair);
+           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
+           m_objTEList.push_back(pair);
         }
       }
 
