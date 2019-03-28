@@ -114,17 +114,17 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
 		       std::back_inserter(prescaledChains) );
 
   ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    
-  ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded", ctx ) );
-  ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled", ctx ) );
-  ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled", ctx ) );
+  ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded" ) );
+  ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled" ) );
+  ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled" ) );
   //Note: 'prescaled' can be deduced from 'l1seeded' and 'unprescaled'. This non-persistent collection is provided for convenience.
 
   // for now all the chains that were pre-scaled out are set to re-run in the second pass
   HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
-  ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun", ctx ) );
+  ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
   {
     SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
-    ATH_CHECK( saveChainsInfo( activeChains, handleFSDecisions.ptr(), "unprescaled", ctx) );    
+    ATH_CHECK( saveChainsInfo( activeChains, handleFSDecisions.ptr(), "unprescaled") );    
     handleFSDecisions.ptr()->at(0)->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
   }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
@@ -155,9 +155,9 @@ StatusCode L1Decoder::finalize() {
 }
 
 
-StatusCode L1Decoder::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type, const EventContext& ctx) const {
+StatusCode L1Decoder::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type) const {
   using namespace TrigCompositeUtils;
-  Decision* d = newDecisionIn( storage, type, ctx );
+  Decision* d = newDecisionIn( storage, type );
   for ( auto c: chains)
     addDecisionID(c.numeric(), d);
   return StatusCode::SUCCESS;
