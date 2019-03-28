@@ -13,13 +13,34 @@
 #include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
 
 namespace Monitored {
+  /**
+   * @brief Implementation of IHistogramProvider for lumi block based histograms
+   * 
+   * This provider produces histograms that groups data based on current lumi block and defined histogry depth. 
+   * Note: kLBNHistoryDepth must be defined in histogram definition options
+   */
   class LumiblockHistogramProvider : public IHistogramProvider {
   public:
+    /**
+     * @brief Constructor
+     * 
+     * @param gmTool Source of the lumi block info
+     * @param factory ROOT object factory 
+     * @param def General definition of a histogram
+     */
     LumiblockHistogramProvider(GenericMonitoringTool* const gmTool, 
         std::shared_ptr<HistogramFactory> factory, 
         const HistogramDef& histDef)
       : IHistogramProvider(), m_gmTool(gmTool), m_factory(factory), m_histDef(new HistogramDef(histDef)), m_historyDepth(parseHistoryDepth(histDef)) {}
 
+    /**
+     * @brief Getter of ROOT object 
+     * 
+     * Each time the method is called, factory produces ROOT object based on the current lumi block.
+     * Note: ROOT objects are cached at the factory. Nevertheless, it is recommended to call this method as rarely as possible.
+     * 
+     * @return ROOT object
+     */
     TNamed* histogram() override {
       const unsigned lumiBlock = m_gmTool->lumiBlock();
       const unsigned lumiPage = lumiBlock/m_historyDepth;
@@ -33,6 +54,14 @@ namespace Monitored {
       return m_factory->create(def);
     }
 
+    /**
+     * @brief Parser for kLBNHistoryDepth option
+     * 
+     * kLBNHistoryDepth should be defined as unsigned integer eg. kLBNHistoryDepth=10
+     * 
+     * @return User defined LBN history depth
+     * @throws HistogramException if kLBNHistoryDepth cannot be properly parsed
+     */
     static unsigned parseHistoryDepth(const HistogramDef& histDef) {
       const std::string sizeKey = "kLBNHistoryDepth=";
       const std::size_t sizeKeyPosition = histDef.opt.find(sizeKey);

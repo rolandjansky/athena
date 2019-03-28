@@ -8,8 +8,16 @@
 #include "TNamed.h"
 
 namespace Monitored {
+  /**
+   * @brief Interface of the source of ROOT objects for HistogramFillers
+   */
   class IHistogramProvider {
-  public: 
+  public:
+    /**
+     * @brief Getter of ROOT object 
+     * 
+     * @return ROOT object
+     */
     virtual TNamed* histogram() = 0;
   };
 }
