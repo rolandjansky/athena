@@ -9,7 +9,7 @@
   <class name="InDetSimData_p2" />
   <class name="std::pair<unsigned int, InDetSimData_p2>" />
   <class name="std::vector<std::pair<unsigned int, InDetSimData_p2> >" />
-  <class name="std::pair<unsigned long long, InDetSimData_p2>" />
+  <class pattern="std::*pair*<unsigned long long, InDetSimData_p2>" />
   <class name="std::vector<std::pair<unsigned long long, InDetSimData_p2> >" />
   <class name="InDetSimDataCollection_p1" id="333EF996-1672-4AB8-917D-187F908F1EDE" />
   <class name="InDetSimDataCollection_p2" id="C648CA66-013D-44AC-B0D9-99BFB0060E84" />
