@@ -142,6 +142,7 @@ string SCT_DetectorFactory::getBlob() {
     msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
+    accessSvc->connect();
     const IRDBRecordset *recordSetSct = accessSvc->getRecordset("ITKXDD", versionTag, versionNode);
     if (!recordSetSct || recordSetSct->size() == 0) {
         msg(MSG::FATAL) << "getBlob: Unable to obtain SCT recordSet" << endmsg;
@@ -149,7 +150,7 @@ string SCT_DetectorFactory::getBlob() {
     }
     const IRDBRecord *recordSct =  (*recordSetSct)[0];
     string sctString = recordSct->getString("XMLCLOB");
-    accessSvc->shutdown();
+    accessSvc->disconnect();
 
     return sctString;
 }
