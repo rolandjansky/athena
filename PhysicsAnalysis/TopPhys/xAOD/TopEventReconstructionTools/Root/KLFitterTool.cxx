@@ -161,6 +161,8 @@ namespace top{
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSix;
     else if (JetSelectionMode == "kLeadingSeven")
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSeven;
+    else if (JetSelectionMode == "kLeadingEight")
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingEight;
     else if (JetSelectionMode == "kBtagPriorityThreeJets")
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityThreeJets;
     else if (JetSelectionMode == "kBtagPriorityFourJets")
@@ -171,16 +173,23 @@ namespace top{
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySixJets;
     else if (JetSelectionMode == "kBtagPrioritySevenJets")
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySevenJets;
+    else if (JetSelectionMode == "kBtagPriorityEightJets")
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityEightJets;
     else {
-      ATH_MSG_ERROR("Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets" );
+      ATH_MSG_ERROR("Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets" );
       return StatusCode::FAILURE;
     }
 
-    if(m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSix && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySixJets && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSeven && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySevenJets){
+    if(m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSix &&
+      m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySixJets &&
+      m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSeven &&
+      m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySevenJets &&
+      m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingEight &&
+      m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPriorityEightJets){
       if(m_LHType == "ttH" || m_LHType == "ttbar_AllHadronic"){
 
-	ATH_MSG_ERROR("You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix , kBtagPrioritySixJets , kLeadingSeven , kBtagPrioritySevenJets" );
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix , kBtagPrioritySixJets , kLeadingSeven , kBtagPrioritySevenJets , kLeadingEight , kBtagPriorityEightJets" );
+        return StatusCode::FAILURE;
 
       }
     }
@@ -823,6 +832,8 @@ namespace top{
       return setJetskLeadingSix( event , inputParticles );
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven)
       return setJetskLeadingSeven( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingEight)
+      return setJetskLeadingEight( event , inputParticles );
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets)
       return setJetskBtagPriorityThreeJets( event , inputParticles );
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets)
@@ -833,6 +844,8 @@ namespace top{
       return setJetskBtagPrioritySixJets( event , inputParticles );
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets)
       return setJetskBtagPrioritySevenJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityEightJets)
+      return setJetskBtagPriorityEightJets( event , inputParticles );
     return false;
   }
 
@@ -859,6 +872,11 @@ namespace top{
   bool KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
   {
     return setJetskLeadingX(event, inputParticles, 7);
+  }
+
+  bool KLFitterTool::setJetskLeadingEight(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    return setJetskLeadingX(event, inputParticles, 8);
   }
 
   bool KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int njets)
@@ -919,6 +937,11 @@ namespace top{
   bool KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
     return setJetskBtagPriority( event , inputParticles , 7 );
+  }
+
+  bool KLFitterTool::setJetskBtagPriorityEightJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    return setJetskBtagPriority( event , inputParticles , 8 );
   }
 
   bool KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)
