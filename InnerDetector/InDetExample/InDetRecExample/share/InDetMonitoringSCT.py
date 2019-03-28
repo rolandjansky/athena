@@ -107,8 +107,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTRatioNoiseMonTool
 InDetSCTRatioNoiseMonTool = SCTRatioNoiseMonTool ( name        = "InDetSCTRatioNoiseMonTool",
-                                                   OutputLevel = 4,
-                                                   doTrigger   = doTriggger )
+                                                   OutputLevel = 4 )
 
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTRatioNoiseMonTool

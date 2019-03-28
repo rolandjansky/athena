@@ -18,13 +18,13 @@
 #ifndef SCTRATIONOISEMONTOOL_H
 #define SCTRATIONOISEMONTOOL_H
 
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
+#include "SCT_MonitoringNumbers.h"
 
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkToolInterfaces/IUpdator.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -46,14 +46,7 @@ class TH2F_LW;
 class StatusCode;
 class SCT_ID;
 
-#define DEBUG(x) ATH_MSG_DEBUG(x)
-#define INFO(x) ATH_MSG_INFO(x)
-#define WARNING(x) ATH_MSG_WARNING(x)
-#define ERROR(x) ATH_MSG_ERROR(x)
-#define VERBOSE(x) ATH_MSG_VERBOSE(x)
-
-///Concrete monitoring tool derived from SCTMotherTrigMonTool
-class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
+class SCTRatioNoiseMonTool : public ManagedMonitorToolBase {
  public:
   SCTRatioNoiseMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTRatioNoiseMonTool() = default;
@@ -88,7 +81,6 @@ private:
   typedef std::vector<H2_t> VecH2_t;
   typedef std::vector<H1I_t> VecH1I_t;
   //@}
-  int m_eventID;
   int m_numberOfEvents;
   
   
@@ -147,7 +139,7 @@ private:
   int m_nPhi[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
   int m_nNonGoodModule[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
 
-  int m_checkrecent;
+  IntegerProperty m_checkrecent{this, "CheckRecent", 1};
   int m_current_lb;
   int m_last_reset_lb;
   
@@ -157,8 +149,6 @@ private:
   float m_ratio;
   float m_ratioside0;
   float m_ratioside1;
-  
-  //static const long NBINS_LBs = 2000;
   
   int m_nNoSides_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
   int m_nOneSide_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
@@ -225,20 +215,20 @@ private:
 
   std::string m_path;
   //@}
-  std::string m_NOTrigger;
 
   //@name Service members
   //@{
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
   /// Data object name: for the SCT this is "SCT_RDOs"
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
-  bool                                     m_checkBadModules;
-  bool                                     m_ignore_RDO_cut_online;
+  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
+  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
   /// For online monitoring
-  int m_checkrate;
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
   //@}
   //@name  Histograms related methods
   //@{

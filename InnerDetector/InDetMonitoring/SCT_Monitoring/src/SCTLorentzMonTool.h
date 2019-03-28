@@ -18,18 +18,17 @@
 #ifndef SCTLORENTZMONTOOL_H
 #define SCTLORENTZMONTOOL_H
 
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
+#include "SCT_MonitoringNumbers.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkToolInterfaces/IUpdator.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
@@ -45,8 +44,7 @@ class TProfile;
 class StatusCode;
 class SCT_ID;
 
-///Concrete monitoring tool derived from SCTMotherTrigMonTool
-class SCTLorentzMonTool : public SCTMotherTrigMonTool{
+class SCTLorentzMonTool : public ManagedMonitorToolBase {
  public:
   SCTLorentzMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTLorentzMonTool() = default;
@@ -83,13 +81,13 @@ private:
   ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
-  Prof_t m_phiVsNstrips[4];
-  Prof_t m_phiVsNstrips_100[4];
-  Prof_t m_phiVsNstrips_111[4];
+  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS];
+  Prof_t m_phiVsNstrips_100[SCT_Monitoring::N_BARRELS];
+  Prof_t m_phiVsNstrips_111[SCT_Monitoring::N_BARRELS];
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
-  Prof_t m_phiVsNstrips_Side[4][2];
-  Prof_t m_phiVsNstrips_Side_100[4][2];
-  Prof_t m_phiVsNstrips_Side_111[4][2];
+  Prof_t m_phiVsNstrips_Side[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
+  Prof_t m_phiVsNstrips_Side_100[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
+  Prof_t m_phiVsNstrips_Side_111[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
 
   std::string m_path;
   //@}

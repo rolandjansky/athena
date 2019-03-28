@@ -18,18 +18,21 @@
 #ifndef SCTHITSNOISEMONTOOL_H
 #define SCTHITSNOISEMONTOOL_H
 
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
+#include "SCT_MonitoringNumbers.h"
 
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "xAODEventInfo/EventInfo.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 #include <string>
 #include <vector>
@@ -55,8 +58,7 @@ class ISCT_ConfigurationConditionsTool;
 
 class PairBuilder;
 
-///Concrete monitoring tool derived from SCTMotherTrigMonTool
-class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
+class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
  public:
   typedef unsigned int  ChipNumberType;
   SCTHitsNoiseMonTool(const std::string& type, const std::string& name,const IInterface* parent); 
@@ -197,11 +199,13 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   /// Pointers to histogram of hits as a function of L1ID.
   H1_t m_hitsvsL1ID;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
+
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
 
   /// Name of the L1 Type to use for filling the extra NO histograms
-  std::string m_NOTrigger;
+  StringProperty m_NOTrigger{this, "NOTrigger", "L1_RD0_EMPTY"};
  
   /// Pointers to vector of histograms of SCT cluster width; 1 histo per layer and side.
   VecH1_t m_clusizeHistoVector;
@@ -226,6 +230,8 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   /// stream stem for the ROOT histograms
   std::string m_stream;
 
+  BooleanProperty m_doTrigger{this, "doTrigger", false};
+
   //Count number of events
   int m_numberOfEvents;
   //Count number of events in the selected stream
@@ -235,37 +241,35 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   //CAM adds skip events counter
   int m_skipEvents;
   /// Switch on or off the hitmaps histograms
-  bool m_boolhitmaps;
+  BooleanProperty m_boolhitmaps{this, "doHitmapHistos", false};
 
   /// Set bin width to increase exponentially (fixed width on a Log-X plot) 
-  bool m_doLogXNoise;
+  BooleanProperty m_doLogXNoise{this, "doLogXNoise", true};
 
   /// Switch on or off the endcaps
-  bool m_doPositiveEndcap;
-  bool m_doNegativeEndcap;
+  BooleanProperty m_doPositiveEndcap{this, "doPositiveEndcap", true};
+  BooleanProperty m_doNegativeEndcap{this, "doNegativeEndcap", true};
 
   ///Select the noise algorithm
-  bool m_doTrackBasedNoise;
-  bool m_doSpacePointBasedNoise;
+  BooleanProperty m_doTrackBasedNoise{this, "doTrackBasedNoise", false};
+  BooleanProperty m_doSpacePointBasedNoise{this, "doSpacePointBasedNoise", true};
   /// Add time-bin filtering to space point NO algorithm
-  bool m_doTimeBinFilteringForNoise;
+  BooleanProperty m_doTimeBinFilteringForNoise{this, "doTimeBinFilteringForNoise", true};
 
   /// Switch on or off the hits histos as a function of TriggerType and L1ID for TX scan
-  bool m_booltxscan;
+  BooleanProperty m_booltxscan{this, "doTXScan", false};
 
   /// CheckHists() frequency
-  int m_checkrate;
-  int m_checkrecent;
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
+  IntegerProperty m_checkrecent{this, "CheckRecent", 30};
   int m_current_lb;
   int m_last_reset_lb;
   /// ChechHists() frequency
-  int m_evtsbins;
-  /// Number of sigma for noise checking
-  int m_numSigma;
+  IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
 
   //Things for doing time bin distributions for track hits
-  bool m_doTrackHits;
-  unsigned int m_maxTracks;
+  BooleanProperty m_doTrackHits{this, "doTrackHits", true};
+  UnsignedIntegerProperty m_maxTracks{this, "MaxTracks", 1000};
   std::vector<Identifier> m_RDOsOnTracks;
   StatusCode makeVectorOfTrackRDOIdentifiers();
   VecH2_t m_ptrackhitsHistoVector;
@@ -290,12 +294,12 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   H1_t m_tbinHistoRecent;
   H1_t m_tbinHistoRecentECp;
   H1_t m_tbinHistoRecentECm;
-  Prof2_t m_tbinfrac[8];
-  Prof2_t m_tbinfracECp[18];
-  Prof2_t m_tbinfracECm[18];
-  Prof2_t m_clusizedist[8];
-  Prof2_t m_clusizedistECp[18];
-  Prof2_t m_clusizedistECm[18];
+  Prof2_t m_tbinfrac[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_BARRELS];
+  Prof2_t m_tbinfracECp[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_DISKS];
+  Prof2_t m_tbinfracECm[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_DISKS];
+  Prof2_t m_clusizedist[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_BARRELS];
+  Prof2_t m_clusizedistECp[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_DISKS];
+  Prof2_t m_clusizedistECm[SCT_Monitoring::N_SIDES*SCT_Monitoring::N_DISKS];
   Prof_t m_tbinfracall;
   Prof_t m_tbinfracVsLB;
   Prof_t m_tbinfracVsLBECp;
@@ -477,7 +481,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   const SCT_ID* m_pSCTHelper;
 
   ///Determines whether a local summary is written
-  int m_localSummary;
+  IntegerProperty m_localSummary{this, "localSummary", 0};
   H1_t
     h1Factory(const std::string& name, const std::string& title, MonGroup& registry, VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins);
   H1_t

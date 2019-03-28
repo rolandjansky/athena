@@ -29,7 +29,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 
 // SCT
-#include "SCT_Monitoring/SCTHitEffMonTool.h"
+#include "SCTHitEffMonTool.h"
 #include "SCT_NameFormatter.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
@@ -76,7 +76,7 @@ namespace {// anonymous namespace for functions at file scope
     return result;
   }
 
-  constexpr Double_t radianDegrees(180. / M_PI);
+  constexpr double radianDegrees(180. / M_PI);
 
   float
   amgPseudoRapidity(const Amg::Vector3D& position) {
@@ -106,7 +106,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const
   ManagedMonitorToolBase(type, name, parent),
   m_chrono(nullptr),
   m_badChips(nullptr),
-  m_fieldServiceHandle("AtlasFieldSvc", name),
   m_Eff_Total(nullptr),
   m_Eff_TotalBCID(nullptr),
   m_Eff_hashCodeHisto(nullptr),
@@ -136,36 +135,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const
   m_pixelId(nullptr),
   m_sctId(nullptr),
   m_trtId(nullptr) {
-  declareProperty("IsCosmic", m_isCosmic=false);
-  declareProperty("IsSim", m_isSim=false);
-  declareProperty("UseMasks", m_usemasks=false);
-  declareProperty("Detailed", m_detailed=false);
-  declareProperty("SuperDetailed", m_superDetailed=false);
-  declareProperty("UseTRTPhase", m_useTRTPhase=false);
-  declareProperty("MaxPhiAngle", m_maxPhiAngle=40., "Degrees, 100 implies no cut.");
-  declareProperty("MinTRTHits", m_minTRTHits=-1);
-  declareProperty("MinSCTHits", m_minSCTHits=-1, "If all 3 of these -1, defaults depend on cosmic/not");
-  declareProperty("MinPixelHits", m_minPixelHits=-1);
-  declareProperty("UseSCTorTRT", m_useSCTorTRT=false);
-  declareProperty("MinOtherHits", m_minOtherHits=6);
-  declareProperty("InsideOutOnly", m_insideOutOnly=false);
-  declareProperty("MaxChi2", m_maxChi2=3.);
-  declareProperty("Maxd0", m_maxD0=10., "mm of D0");
-  declareProperty("MaxZ0sinTheta", m_maxZ0sinTheta=0.);
-  declareProperty("MaxTracks", m_maxTracks=500.);
-  declareProperty("MinPt", m_minPt=1000., "minimu pt in MeV/c");
-  declareProperty("RequireEnclosingHits", m_requireEnclosingHits=false);
-  declareProperty("RequireOtherFace", m_requireOtherFace=false);
-  declareProperty("RequireGuardRing", m_requireGuardRing=false, "should be returned to true");
-  declareProperty("VetoBadChips", m_vetoBadChips=true);
-  declareProperty("LookAtDatabase", m_usedatabase=false);
-  declareProperty("DetectorMode", m_DetectorMode=3, "Barrel = 1, endcap =2, both =3");
-  declareProperty("RunningMode", m_RunningMode=2);
-  declareProperty("effDistanceCut", m_effdistcut=2.);
-  declareProperty("ChronoTime", m_chronotime=false);
-  declareProperty("useIDGlobal", m_useIDGlobal=false);
-  declareProperty("MagFieldSvc", m_fieldServiceHandle);
-
   m_Eff_summaryHisto.fill(0);
   m_Eff_summaryHistoFirstBCID.fill(0);
   m_Eff_summaryHisto_old.fill(0);
@@ -237,31 +206,31 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const
   m_Eff_nTrk.fill(0);
   m_Eff_nGoodTrk.fill(0);
   // assume zero inefficiency
-  for (unsigned int i(0); i != m_ineffMap.size(); ++i) {
+  for (unsigned int i(0); i < m_ineffMap.size(); ++i) {
     m_ineffMap[i].fill(0);
   }
-  for (unsigned int i(0); i != m_effMap.size(); ++i) {
+  for (unsigned int i(0); i < m_effMap.size(); ++i) {
     m_effMap[i].fill(0);
   }
-  for (unsigned int i(0); i != m_effMapFirstBCID.size(); ++i) {
+  for (unsigned int i(0); i < m_effMapFirstBCID.size(); ++i) {
     m_effMapFirstBCID[i].fill(0);
   }
-  for (unsigned int i(0); i != m_effLumiBlock.size(); ++i) {
+  for (unsigned int i(0); i < m_effLumiBlock.size(); ++i) {
     m_effLumiBlock[i].fill(0);
   }
-  for (unsigned int i(0); i != m_layerResidualHistos.size(); ++i) {
+  for (unsigned int i(0); i < m_layerResidualHistos.size(); ++i) {
     m_layerResidualHistos[i].fill(0);
   }
-  for (unsigned int i(0); i != m_xlResidualHisto.size(); ++i) {
+  for (unsigned int i(0); i < m_xlResidualHisto.size(); ++i) {
     m_xlResidualHisto[i].fill(0);
   }
-  for (unsigned int i(0); i != m_xlResidualE0Histo.size(); ++i) {
+  for (unsigned int i(0); i < m_xlResidualE0Histo.size(); ++i) {
     m_xlResidualE0Histo[i].fill(0);
   }
-  for (unsigned int i(0); i != m_xlResidualE1Histo.size(); ++i) {
+  for (unsigned int i(0); i < m_xlResidualE1Histo.size(); ++i) {
     m_xlResidualE1Histo[i].fill(0);
   }
-  for (unsigned int i(0); i != m_xlResidualUnasHisto.size(); ++i) {
+  for (unsigned int i(0); i < m_xlResidualUnasHisto.size(); ++i) {
     m_xlResidualUnasHisto[i].fill(0);
   }
 }
@@ -288,6 +257,7 @@ SCTHitEffMonTool::initialize() {
   ATH_CHECK(m_fieldServiceHandle.retrieve());
   ATH_CHECK(m_bunchCrossingTool.retrieve());
   ATH_MSG_INFO("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+  ATH_CHECK(m_configConditions.retrieve());
 
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
 
@@ -295,7 +265,7 @@ SCTHitEffMonTool::initialize() {
     m_detailed = true;
   }
 
-  if ((m_minSCTHits == -1)and(m_minTRTHits == -1) and(m_minOtherHits == -1)) {
+  if ((m_minSCTHits == -1) and (m_minTRTHits == -1) and (m_minOtherHits == -1)) {
     if (m_isCosmic) {
       m_minTRTHits = 45;
       m_minSCTHits = 7;
@@ -358,12 +328,12 @@ SCTHitEffMonTool::bookHistograms() {
 
     ATH_CHECK(bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0,
                        N_REGIONS));
-    for (Int_t i(0); i != 3; ++i) {
+    for (int i(0); i < N_REGIONS; ++i) {
       m_Eff_Total->GetXaxis()->SetBinLabel(i + 1, subDetName[i]);
     }
     ATH_CHECK(bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID",
                        "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
-    for (Int_t i(0); i != 3; ++i) {
+    for (int i(0); i < N_REGIONS; ++i) {
       m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i + 1, subDetName[i]);
     }
     ATH_CHECK(bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code",
@@ -435,25 +405,25 @@ SCTHitEffMonTool::bookHistograms() {
     std::array < TString, N_REGIONS > sumeff_old = {{
       "summaryeffm_old", "summaryeff_old", "summaryeffp_old"
     }};
-    TString sumefftitle[3] = {
+    TString sumefftitle[N_REGIONS] = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
     };
-    TString sumefftitleBCID[3] = {
+    TString sumefftitleBCID[N_REGIONS] = {
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
     };
     std::array < TString, 12 > selecName = {{
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
     }};
-    for (Int_t isub(0); isub != N_REGIONS; ++isub) {
-      for (Long_t i(0); i != n_layers[isub]; ++i) {
+    for (int isub(0); isub < N_REGIONS; ++isub) {
+      for (long i(0); i < n_layers[isub]; ++i) {
         const int detIndex = becIdxLayer2Index(isub, i);
         if (detIndex == -1) {
           ATH_MSG_WARNING("Subdetector region (barrel, endcap A, endcap C) could not be determined");
           continue;
         }
-        for (Long_t j(0); j != 2; ++j) {
+        for (long j(0); j < 2; ++j) {
           // book inefficiency histogram
           ATH_CHECK(bookEffHisto(m_ineffMap[detIndex][j], histGroupE[isub],
                              ineffMapName[isub] + i + "_" + j,
@@ -521,10 +491,10 @@ SCTHitEffMonTool::bookHistograms() {
                          sumefftitleBCID[isub], 2 * n_layers[isub], 0., n_layers[isub]));
       ATH_CHECK(bookEffHisto(m_Eff_summaryHisto_old[isub], histGroupShift[isub], sumeff_old[isub], sumefftitle[isub],
                          2 * n_layers[isub], 0., n_layers[isub]));
-      unsigned int limit[3] = {
+      unsigned int limit[N_REGIONS] = {
         N_DISKSx2, N_BARRELSx2, N_DISKSx2
       };
-      for (unsigned int i(0); i != limit[isub]; i++) {
+      for (unsigned int i(0); i < limit[isub]; i++) {
         LayerSideFormatter layerSide(i, isub);
         // use dedicated title for the bin labels (from 0_1 to 3_0)
         m_Eff_summaryHisto[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
@@ -551,7 +521,7 @@ SCTHitEffMonTool::bookHistograms() {
                            11.5));
         ATH_CHECK(bookEffHisto(m_Eff_SelectionHisto[isub], histGroupE[isub], "effSelectionCuts",
                            "Efficiency v Selection Cuts", 12, -0.5, 11.5));
-        for (Int_t bin(0); bin != 12; ++bin) {
+        for (int bin(0); bin < 12; ++bin) {
           m_SelectionHisto[isub]->GetXaxis()->SetBinLabel(bin + 1, selecName[bin]);
           m_Eff_SelectionHisto[isub]->GetXaxis()->SetBinLabel(bin + 1, selecName[bin]);
         }
@@ -714,12 +684,12 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
 
     ATH_CHECK(bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0,
                        N_REGIONS));
-    for (Int_t i(0); i != 3; ++i) {
+    for (int i(0); i < N_REGIONS; ++i) {
       m_Eff_Total->GetXaxis()->SetBinLabel(i + 1, subDetName[i]);
     }
     ATH_CHECK(bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID",
                        "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
-    for (Int_t i(0); i != 3; ++i) {
+    for (int i(0); i < N_REGIONS; ++i) {
       m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i + 1, subDetName[i]);
     }
     ATH_CHECK(bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code",
@@ -786,25 +756,25 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
     std::array < TString, N_REGIONS > sumeff_old = {{
       "summaryeffm_old", "summaryeff_old", "summaryeffp_old"
     }};
-    TString sumefftitle[3] = {
+    TString sumefftitle[N_REGIONS] = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
     };
-    TString sumefftitleBCID[3] = {
+    TString sumefftitleBCID[N_REGIONS] = {
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
     };
     std::array < TString, 12 > selecName = {{
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
     }};
-    for (Int_t isub(0); isub != N_REGIONS; ++isub) {
-      for (Long_t i(0); i != n_layers[isub]; ++i) {
+    for (int isub(0); isub < N_REGIONS; ++isub) {
+      for (long i(0); i < n_layers[isub]; ++i) {
         const int detIndex(becIdxLayer2Index(isub, i));
         if (detIndex == -1) {
           ATH_MSG_WARNING("Detector region (barrel, endcap A, endcap C) could not be determined");
           continue;
         }
-        for (Long_t j(0); j != 2; ++j) {
+        for (long j(0); j < 2; ++j) {
           // book inefficiency histogram
           ATH_CHECK(bookEffHisto(m_ineffMap[detIndex][j], histGroupE[isub],
                              ineffMapName[isub] + i + "_" + j,
@@ -871,10 +841,10 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
                          sumefftitleBCID[isub], 2 * n_layers[isub], 0., n_layers[isub]));
       ATH_CHECK(bookEffHisto(m_Eff_summaryHisto_old[isub], histGroupShift[isub], sumeff_old[isub], sumefftitle[isub],
                          2 * n_layers[isub], 0., n_layers[isub]));
-      unsigned int limit[3] = {
+      unsigned int limit[N_REGIONS] = {
         N_DISKSx2, N_BARRELSx2, N_DISKSx2
       };
-      for (unsigned int i(0); i != limit[isub]; i++) {
+      for (unsigned int i(0); i < limit[isub]; i++) {
         LayerSideFormatter layerSide(i, isub);
         m_Eff_summaryHisto[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
         m_Eff_summaryHistoFirstBCID[isub]->GetXaxis()->SetBinLabel(i + 1, layerSide.dedicated_title().c_str());
@@ -899,7 +869,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
                            11.5));
         ATH_CHECK(bookEffHisto(m_Eff_SelectionHisto[isub], histGroupE[isub], "effSelectionCuts",
                            "Efficiency v Selection Cuts", 12, -0.5, 11.5));
-        for (Int_t bin(0); bin != 12; ++bin) {
+        for (int bin(0); bin < 12; ++bin) {
           m_SelectionHisto[isub]->GetXaxis()->SetBinLabel(bin + 1, selecName[bin]);
           m_Eff_SelectionHisto[isub]->GetXaxis()->SetBinLabel(bin + 1, selecName[bin]);
         }
@@ -1029,7 +999,7 @@ SCTHitEffMonTool::fillHistograms() {
   errorcheck::ReportMessage::hideErrorLocus(true);
 
   ATH_MSG_VERBOSE("SCTHitEffMonTool::fillHistograms()");
-  Double_t timecor(-20.);
+  double timecor(-20.);
   if (m_useTRTPhase or m_isCosmic) {
     SG::ReadHandle<ComTime> theComTime(m_comTimeName);
     if (theComTime.isValid()) {
@@ -1091,7 +1061,7 @@ SCTHitEffMonTool::fillHistograms() {
     return StatusCode::FAILURE;
   }
 
-  Int_t nTrk(0), nTrkPars(0), nTrkGood(0);
+  int nTrk(0), nTrkPars(0), nTrkGood(0);
 
   // Loop over track collection to count tracks
   for (const Trk::Track* pthisTrack: *tracks) {
@@ -1173,7 +1143,7 @@ SCTHitEffMonTool::fillHistograms() {
     };
     const Trk::TrackSummary* summary = pthisTrack->trackSummary();
 
-    if (summary and summary->get(Trk::numberOfSCTHits) < 1) {
+    if (summary and (summary->get(Trk::numberOfSCTHits) < 1)) {
       continue;
     }
 
@@ -1184,25 +1154,25 @@ SCTHitEffMonTool::fillHistograms() {
     }
     ATH_MSG_VERBOSE("Found " << trackWithHoles->trackStateOnSurfaces()->size() << " states on track");
 
-    Int_t NHits[3] = {
+    int NHits[N_REGIONS] = {
       0, 0, 0
     };
-    Int_t pixelNHits(0);
-    Int_t trtNHits(0);
-    std::map < Identifier, Double_t > mapOfTrackHitResiduals;
-    Double_t zmin = std::numeric_limits<float>::max();
-    Double_t zmax = -std::numeric_limits<float>::max();
-    Double_t zpos(0.);
-    Float_t layerSide(-1);
-    Float_t min_layerSide(999);
-    Float_t max_layerSide(-1);
+    int pixelNHits(0);
+    int trtNHits(0);
+    std::map < Identifier, double > mapOfTrackHitResiduals;
+    double zmin = std::numeric_limits<float>::max();
+    double zmax = -std::numeric_limits<float>::max();
+    double zpos(0.);
+    float layerSide(-1);
+    float min_layerSide(999);
+    float max_layerSide(-1);
     Identifier surfaceID;
 
     // loop over all hits on track
     for (const Trk::TrackStateOnSurface* tsos: *(trackWithHoles->trackStateOnSurfaces())) {
       surfaceID = surfaceOnTrackIdentifier(tsos);
 
-      if (!surfaceID.is_valid()) {
+      if (not surfaceID.is_valid()) {
         continue;
       }
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier))
@@ -1226,29 +1196,29 @@ SCTHitEffMonTool::fillHistograms() {
             zpos = tsos->trackParameters()->position().z();
             zmax = std::max(zpos, zmax);
             zmin = std::min(zpos, zmin);
-          }else {
+          } else {
             ATH_MSG_WARNING("No track parameter found. Zmin and Zmax not recalculated.");
           }
-        }else { // else use layer/side number : better but does not work for cosmics
+        } else { // else use layer/side number : better but does not work for cosmics
           if (m_sctId->is_sct(surfaceID)) {
             layerSide = (m_sctId->barrel_ec(surfaceID) != 0) * N_BARRELS +
               static_cast<float>(m_sctId->layer_disk(surfaceID)) + (static_cast<float>(m_sctId->side(surfaceID)) == 0) * 0.5;
             min_layerSide = std::min(min_layerSide, layerSide);
             max_layerSide = std::max(max_layerSide, layerSide);
-          }else if (m_pixelId->is_pixel(surfaceID)) {
+          } else if (m_pixelId->is_pixel(surfaceID)) {
             min_layerSide = -1;
-          }else if (m_trtId->is_trt(surfaceID)) {
+          } else if (m_trtId->is_trt(surfaceID)) {
             max_layerSide = N_BARRELS + N_ENDCAPS + 1;
           }
         }
       }
     }
 
-    Int_t sctNHits(NHits[ENDCAP_C_INDEX] + NHits[BARREL_INDEX] + NHits[ENDCAP_A_INDEX]);
-    std::vector<Bool_t> layersCrossedByTrack[N_REGIONS];
-    std::vector<Int_t> nHolesOnLayer[N_REGIONS];
-    std::vector<Int_t> nHolesDistOnLayer[N_REGIONS];
-    for (Int_t i(0); i != N_REGIONS; ++i) {
+    int sctNHits(NHits[ENDCAP_C_INDEX] + NHits[BARREL_INDEX] + NHits[ENDCAP_A_INDEX]);
+    std::vector<bool> layersCrossedByTrack[N_REGIONS];
+    std::vector<int> nHolesOnLayer[N_REGIONS];
+    std::vector<int> nHolesDistOnLayer[N_REGIONS];
+    for (int i(0); i < N_REGIONS; ++i) {
       nHolesDistOnLayer[i].resize(n_layers[i] * 2, 0);
       nHolesOnLayer[i].resize(n_layers[i] * 2, 0);
       layersCrossedByTrack[i].resize(n_layers[i] * 2, false);
@@ -1262,35 +1232,35 @@ SCTHitEffMonTool::fillHistograms() {
         continue;
       }
 
-      Int_t isub(bec2Index(m_sctId->barrel_ec(surfaceID)));
+      int isub(bec2Index(m_sctId->barrel_ec(surfaceID)));
       if (failCut(not (isub == INVALID_INDEX), "hit cut: valid sub-detector")) {
         continue;
       }
       ATH_MSG_VERBOSE("New SCT candidate: " << m_sctId->print_to_string(surfaceID));
 
-      Int_t side(m_sctId->side(surfaceID));
-      Int_t layer(m_sctId->layer_disk(surfaceID));
+      int side(m_sctId->side(surfaceID));
+      int layer(m_sctId->layer_disk(surfaceID));
       const int detIndex = becIdxLayer2Index(isub, layer);
       if (detIndex == -1) {
         ATH_MSG_WARNING("The detector region (barrel, endcap A, endcap C) could not be determined");
         continue;
       }
-      Int_t histnumber(detIndex);
-      Int_t eff(0), unas(0);
+      int histnumber(detIndex);
+      int eff(0), unas(0);
       IdentifierHash sideHash(m_sctId->wafer_hash(surfaceID));
       Identifier module_id(m_sctId->module_id(surfaceID));
-      Float_t layerPlusHalfSide(static_cast<float>(layer) + static_cast<float>(side) * 0.5);
-      Float_t dedicated_layerPlusHalfSide(static_cast<float>(layer) + static_cast<float>((side + 1) % 2) * 0.5);
+      float layerPlusHalfSide(static_cast<float>(layer) + static_cast<float>(side) * 0.5);
+      float dedicated_layerPlusHalfSide(static_cast<float>(layer) + static_cast<float>((side + 1) % 2) * 0.5);
       const Trk::TrackParameters* trkParamOnSurface(tsos->trackParameters());
-      Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, &*p_sctclcontainer));
+      double trackHitResidual(getResidual(surfaceID, trkParamOnSurface, &*p_sctclcontainer));
 
 
-      Float_t distCut(m_effdistcut);
+      float distCut(m_effdistcut);
 
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier))
       {
         eff = 1;
-      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and fabs(trackHitResidual) < distCut) {
+      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (fabs(trackHitResidual) < distCut)) {
         eff = 1;
         unas = 1;
       }
@@ -1310,16 +1280,16 @@ SCTHitEffMonTool::fillHistograms() {
       m_sctId->get_id(otherSideHash, otherSideSurfaceID, &context);
       otherFaceFound = mapOfTrackHitResiduals.find(otherSideSurfaceID) != mapOfTrackHitResiduals.end();
 
-      Int_t nOther(sctNHits);
+      int nOther(sctNHits);
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier))
       {
         --nOther;
       }
 
       // Get the track phi; we may cut on it.
-      Double_t phiUp(90.);
-      Double_t theta(90.);
-      if (trkParamOnSurface and not findAnglesToWaferSurface(trkParamOnSurface->momentum(), surfaceID, elements, theta, phiUp)) {
+      double phiUp(90.);
+      double theta(90.);
+      if (trkParamOnSurface and (not findAnglesToWaferSurface(trkParamOnSurface->momentum(), surfaceID, elements, theta, phiUp))) {
         ATH_MSG_WARNING("Error from findAngles");
       }
 
@@ -1366,8 +1336,8 @@ SCTHitEffMonTool::fillHistograms() {
         if (timecor == 0) {
           continue;
         }
-        Double_t tmin(1.);
-        Double_t tmax(40.);
+        double tmin(1.);
+        double tmax(40.);
         if (pEvent->runNumber() > 96000) {
           /// Guess that all this set are the same timing.
           tmin = -5;
@@ -1411,7 +1381,7 @@ SCTHitEffMonTool::fillHistograms() {
           tmax = 99;
           break; // MC
         }
-        if (failCut(timecor >= tmin and timecor <= tmax, "track cut: timing cut")) {
+        if (failCut((timecor >= tmin) and (timecor <= tmax), "track cut: timing cut")) {
           continue;
         }
         ATH_MSG_DEBUG(timecor << " " << tmin << " " << tmax);
@@ -1421,28 +1391,30 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_SelectionHisto[isub]->Fill(3., eff); // Past TRT time/Hits selection
       }
 
-      Bool_t enclosingHits(true);
+      bool enclosingHits(true);
       if (m_isCosmic) {
         if (tsos->trackParameters()) {
           zpos = tsos->trackParameters()->position().z();
-          enclosingHits = (zpos > zmin)and(zpos < zmax);
-        }else {
+          enclosingHits = ((zpos > zmin) and (zpos < zmax));
+        } else {
           ATH_MSG_WARNING("No track parameters found. Cannot determine whether it is an enclosed hit.");
           enclosingHits = false;
         }
-      }else {
-        layerSide =
-          (m_sctId->barrel_ec(surfaceID) !=
-           0) * N_BARRELS + static_cast<float>(m_sctId->layer_disk(surfaceID)) + (static_cast<float>(m_sctId->side(surfaceID)) == 0) * 0.5;
-        enclosingHits = layerSide > min_layerSide and layerSide < max_layerSide;
+      } else {
+        layerSide = (m_sctId->barrel_ec(surfaceID) != 0) * N_BARRELS
+          + static_cast<float>(m_sctId->layer_disk(surfaceID))
+          + (static_cast<float>(m_sctId->side(surfaceID)) == 0) * 0.5;
+        enclosingHits = ((layerSide > min_layerSide) and (layerSide < max_layerSide));
       }
 
       if (m_detailed) {
-        m_probEnclosedHisto[isub]->Fill(layerPlusHalfSide, static_cast<Int_t>(enclosingHits));
+        m_probEnclosedHisto[isub]->Fill(layerPlusHalfSide, static_cast<int>(enclosingHits));
       }
 
-      if (m_requireEnclosingHits and not (layerPlusHalfSide == .5)and not (isub == 1 and layerPlusHalfSide ==
-                                                                           3)and not (layerPlusHalfSide == 8)) {
+      if (m_requireEnclosingHits and
+          (not (layerPlusHalfSide == 0.5)) and
+          (not ((isub == 1) and (layerPlusHalfSide == 3))) and
+          (not (layerPlusHalfSide == 8))) {
         if (failCut(enclosingHits, "hit cut: enclosing hits")) {
           continue;
         }
@@ -1454,13 +1426,13 @@ SCTHitEffMonTool::fillHistograms() {
       }
 
       // Now fill with the local z
-      Double_t chi2 = trackWithHoles->fitQuality()->chiSquared();
-      Double_t ndf = trackWithHoles->fitQuality()->numberDoF();
-      Double_t chi2_div_ndf = ndf > 0 ? chi2 / ndf : -1;
+      double chi2 = trackWithHoles->fitQuality()->chiSquared();
+      double ndf = trackWithHoles->fitQuality()->numberDoF();
+      double chi2_div_ndf = ndf > 0 ? chi2 / ndf : -1;
 
       if (m_detailed) {
         m_Eff_phiHisto[isub]->Fill(phiUp, eff);
-        if (ndf > 0 and chi2_div_ndf <= m_maxChi2 and otherFaceFound) {
+        if ((ndf > 0) and (chi2_div_ndf <= m_maxChi2) and otherFaceFound) {
           m_Eff_phiHistoFinal[isub]->Fill(phiUp, eff);
         }
         m_Unas_phiHisto[isub]->Fill(phiUp, unas);
@@ -1491,7 +1463,7 @@ SCTHitEffMonTool::fillHistograms() {
         }
       }
 
-      if (failCut(ndf > 0 and chi2_div_ndf <= m_maxChi2, "track cut: chi2 cut")) {
+      if (failCut((ndf > 0) and (chi2_div_ndf <= m_maxChi2), "track cut: chi2 cut")) {
         continue;
       }
 
@@ -1514,8 +1486,8 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_SelectionHisto[isub]->Fill(7., eff); // Past other face selection
       }
       if (not trkParamOnSurface) continue;
-      Double_t xl(trkParamOnSurface->localPosition()[0]);
-      Double_t yl(trkParamOnSurface->localPosition()[1]);
+      double xl(trkParamOnSurface->localPosition()[0]);
+      double yl(trkParamOnSurface->localPosition()[1]);
 
       if (m_superDetailed) {
         const int layer(m_sctId->layer_disk(surfaceID));
@@ -1533,10 +1505,10 @@ SCTHitEffMonTool::fillHistograms() {
       }
       
       // Check guard ring
-      Bool_t insideGuardRing(true);
+      bool insideGuardRing(true);
       if (isub == BARREL_INDEX) {
-        float_t xGuard(m_effdistcut);
-        float_t yGuard(3.);
+        float xGuard(m_effdistcut);
+        float yGuard(3.);
         if (xl < -30.7 + xGuard) {
           insideGuardRing = false;
         }
@@ -1544,15 +1516,15 @@ SCTHitEffMonTool::fillHistograms() {
           insideGuardRing = false;
         }
 
-        Double_t yend(63.960 + 0.03 - 1.);  // The far sensitive end
-        Double_t ydead(2.06 / 2.); // the near sensitive end
+        double yend(63.960 + 0.03 - 1.);  // The far sensitive end
+        double ydead(2.06 / 2.); // the near sensitive end
         if (yl > yend - yGuard) {
           insideGuardRing = false;
         }
         if (yl < -yend + yGuard) {
           insideGuardRing = false;
         }
-        if (yl < ydead + yGuard and yl > -ydead - yGuard) {
+        if ((yl < ydead + yGuard) and (yl > -ydead - yGuard)) {
           insideGuardRing = false;
         }
       } else {
@@ -1583,7 +1555,7 @@ SCTHitEffMonTool::fillHistograms() {
         continue;
       }
 
-      if (eff == 1 and m_superDetailed) {
+      if ((eff == 1) and m_superDetailed) {
         m_localHitGHisto[isub]->Fill(xl, yl);
       }
 
@@ -1593,11 +1565,11 @@ SCTHitEffMonTool::fillHistograms() {
       }
 
       // Check bad chips
-      Bool_t nearBadChip(false);
+      bool nearBadChip(false);
       IdentifierHash waferHash = m_sctId->wafer_hash(surfaceID);
       const InDetDD::SiDetectorElement* pElement = elements->getDetectorElement(waferHash);
       bool swap = (pElement->swapPhiReadoutDirection()) ? true : false;
-      Int_t chipPos(previousChip(xl, side, swap));
+      int chipPos(previousChip(xl, side, swap));
       unsigned int status(0);
       std::map<Identifier, unsigned int>::const_iterator badChip(m_badChips->find(module_id));
       if (badChip != m_badChips->end()) {
@@ -1605,12 +1577,12 @@ SCTHitEffMonTool::fillHistograms() {
         // Veto if either of closest two chips is dead
         const bool nearBadChipDead = (status & (1 << chipPos)) != 0;
         const bool nextBadChipDead = (status & (1 << (chipPos + 1))) != 0;
-        const bool isNotEndChip = (chipPos != 5)and(chipPos != 11); // cant have a 'next' if its the end chip on that
+        const bool isNotEndChip = (chipPos != 5) and (chipPos != 11); // cant have a 'next' if its the end chip on that
                                                                     // side
         // nearBadChip = status & (1 << chipPos) or
         //  (chipPos != 5 and chipPos != 11 and status & (1 << (chipPos + 1)));
         // clarify logic:
-        nearBadChip = nearBadChipDead or(isNotEndChip and nextBadChipDead);
+        nearBadChip = nearBadChipDead or (isNotEndChip and nextBadChipDead);
       }
       if (m_vetoBadChips and failCut(not nearBadChip, "hit cut: not near bad chip")) {
         continue;
@@ -1618,7 +1590,7 @@ SCTHitEffMonTool::fillHistograms() {
       ATH_MSG_VERBOSE("Candidate passed all cuts");
       m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, eff); // in order to calculate m_EffsummaryIncBadMod
       m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
-      m_Eff_hashCodeHisto->Fill(Double_t(sideHash), eff);
+      m_Eff_hashCodeHisto->Fill(static_cast<double>(sideHash), eff);
       m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);
       m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), eff);
       if (BCIDpos <= 0) {
@@ -1629,7 +1601,7 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_SelectionHisto[isub]->Fill(9., eff); // Past bad chip
         m_EventHisto[isub]->Fill(pEvent->eventNumber());
         m_Eff_EventHisto[isub]->Fill(pEvent->eventNumber(), eff);
-        m_hashCodeHisto->Fill(Double_t(sideHash));
+        m_hashCodeHisto->Fill(static_cast<double>(sideHash));
         m_Unas_summaryHisto[isub]->Fill(layerPlusHalfSide, unas);
         m_Eff_etaHisto[isub]->Fill(eta, eff);
         m_Eff_ptiHisto[isub]->Fill(perigeeCharge / pT, eff);
@@ -1653,13 +1625,13 @@ SCTHitEffMonTool::fillHistograms() {
         m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., static_cast<int>(eff == 0));
         // Find the opposite side of this module,
         if (side == 0) {
-          Double_t trackHitResidual2(999);
-          std::map < Identifier, Double_t >::const_iterator otherItr(mapOfTrackHitResiduals.find(otherSideSurfaceID));
+          double trackHitResidual2(999);
+          std::map < Identifier, double >::const_iterator otherItr(mapOfTrackHitResiduals.find(otherSideSurfaceID));
           if (otherItr != mapOfTrackHitResiduals.end()) {
             trackHitResidual2 = otherItr->second;
           }
           m_TwoSidesResiduals[isub]->Fill(trackHitResidual, trackHitResidual2);
-          if (eff == 0 or unas == 1) {
+          if ((eff == 0) or (unas == 1)) {
             m_TwoSidesResidualsIneff[isub]->Fill(trackHitResidual, trackHitResidual2);
           }
         }
@@ -1672,9 +1644,9 @@ SCTHitEffMonTool::fillHistograms() {
                                                             m_sctId->phi_module(surfaceID), trackHitResidual);
         }
       }
-      m_Eff_Total->Fill(Double_t(isub), eff);
+      m_Eff_Total->Fill(static_cast<double>(isub), eff);
       if (BCIDpos <= 0) {
-        m_Eff_TotalBCID->Fill(Double_t(isub), eff);
+        m_Eff_TotalBCID->Fill(static_cast<double>(isub), eff);
       }
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
@@ -1687,7 +1659,7 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (testOffline) {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, 1); // dummyfill for testing
-      }else {
+      } else {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, (eff == 0));
       }
       if (testOffline) {
@@ -1705,7 +1677,7 @@ SCTHitEffMonTool::fillHistograms() {
       m_SCTNHitHisto->Fill(sctNHits);
       m_pixelNHitHisto->Fill(pixelNHits);
       m_trtNHitHisto->Fill(trtNHits);
-      for (Int_t thisRegion(0); thisRegion != N_REGIONS; ++thisRegion) {
+      for (int thisRegion(0); thisRegion < N_REGIONS; ++thisRegion) {
         if (useDetector[thisRegion]) {
           m_etaTkUsedHisto[thisRegion]->Fill(eta);
           m_d0TkUsedHisto[thisRegion]->Fill(d0);
@@ -1718,8 +1690,8 @@ SCTHitEffMonTool::fillHistograms() {
     }
 
     if (m_superDetailed) {
-      for (Int_t isub(0); isub != N_REGIONS; ++isub) {
-        for (Int_t i(0); i != n_layers[isub] * 2; ++i) {
+      for (int isub(0); isub < N_REGIONS; ++isub) {
+        for (int i(0); i < n_layers[isub] * 2; ++i) {
           if (layersCrossedByTrack[isub][i]) {
             m_holesPerTrackHisto[isub]->Fill(static_cast<float>(i) / 2, nHolesOnLayer[isub][i]);
             m_holesDistPerTrackHisto[isub]->Fill(static_cast<float>(i) / 2, nHolesOnLayer[isub][i]);
@@ -1765,15 +1737,15 @@ SCTHitEffMonTool::procHistograms() {
     std::array < std::array < std::vector<double>, N_ENDCAPS >, N_REGIONS > etabins;
     std::array < std::array < std::vector<double>, N_ENDCAPS >, N_REGIONS > phibins;
     double etaMin(0.), etaMax(0.), phiMin(0.), phiMax(0.), rz(0.);
-    std::map < Identifier, Float_t > mapOfInEff;
-    for (std::vector<Identifier>::const_iterator wafItr(m_sctId->wafer_begin()); wafItr != m_sctId->wafer_end();
-         ++wafItr) {
-      Int_t side(m_sctId->side(*wafItr));
+    std::map < Identifier, float > mapOfInEff;
+    for (std::vector<Identifier>::const_iterator wafItr(m_sctId->wafer_begin());
+         wafItr != m_sctId->wafer_end(); ++wafItr) {
+      int side(m_sctId->side(*wafItr));
       if (side == 1) {
         continue;
       }
-      Int_t isub(bec2Index(m_sctId->barrel_ec(*wafItr)));
-      Int_t layer(m_sctId->layer_disk(*wafItr));
+      int isub(bec2Index(m_sctId->barrel_ec(*wafItr)));
+      int layer(m_sctId->layer_disk(*wafItr));
       IdentifierHash waferHash = m_sctId->wafer_hash(*wafItr);
       const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
       const Amg::Vector3D position = element->center();
@@ -1788,45 +1760,45 @@ SCTHitEffMonTool::procHistograms() {
       }
       float dEta(fabs(etaMax - etaMin));
       std::set< Identifier >::const_iterator bMItr(badModules->find(*wafItr));
-      Float_t eff(Float_t(bMItr == badModules->end()));
-      Float_t accSide[2] = {
+      float eff(static_cast<float>(bMItr == badModules->end()));
+      float accSide[N_SIDES] = {
         eff, eff
       };
       if (eff == 1) {
         std::map< Identifier, unsigned int >::const_iterator badChip(m_badChips->find(*wafItr));
         if (badChip != m_badChips->end()) {
           unsigned int status((*badChip).second);
-          for (Int_t i(0); i < 2 * N_CHIPS; ++i) {
+          for (int i(0); i < N_SIDES * N_CHIPS; ++i) {
             if ((status & (1 << i)) != 0) {
               accSide[static_cast<int>(i >= N_CHIPS)] -= 1. / N_CHIPS;
             }
           }
           eff = (accSide[0] + accSide[1]) / 2;
         }
-      }else {
+      } else {
         ATH_MSG_VERBOSE("Bad module : " << *wafItr << " " << m_sctId->wafer_hash(*wafItr));
         m_badModMap->SetPoint(m_badModMap->GetN(), amgPseudoRapidity(position), position.phi());
         m_badModMap->SetPointError(m_badModMap->GetN() - 1, dEta / 2, dPhi / 2);
         m_badModMap->GetXaxis()->SetRangeUser(-3, 3);
         m_badModMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
         for (int i(1); i <= m_badModFineMap->GetNbinsX(); ++i) {
-          Float_t binx(m_badModFineMap->GetXaxis()->GetBinCenter(i));
+          float binx(m_badModFineMap->GetXaxis()->GetBinCenter(i));
           for (int j(1); j <= m_badModFineMap->GetNbinsY(); ++j) {
-            Float_t biny(m_badModFineMap->GetYaxis()->GetBinCenter(j));
-            if ((binx > etaMin)and(binx < etaMax) and(biny > phiMin) and(biny < phiMax)) {
+            float biny(m_badModFineMap->GetYaxis()->GetBinCenter(j));
+            if ((binx > etaMin) and (binx < etaMax) and (biny > phiMin) and (biny < phiMax)) {
               m_badModFineMap->Fill(binx, biny);
             }
           }
         }
       }
-      for (int i(0); i != 2; ++i) {
+      for (int i(0); i < 2; ++i) {
         m_badModPerSide[isub]->Fill(layer + i * 0.5, accSide[i]);
       }
       if (eff == 1) {
         continue;
       }
       mapOfInEff[*wafItr] = eff;
-      Int_t histnumber(becIdxLayer2Index(isub, layer));
+      int histnumber(becIdxLayer2Index(isub, layer));
       if (histnumber == -1) {
         ATH_MSG_WARNING("Barrel-or-endcap index is invalid");
         return StatusCode::FAILURE;
@@ -1845,13 +1817,13 @@ SCTHitEffMonTool::procHistograms() {
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
     }};
 
-    for (Int_t isub(0); isub != N_REGIONS; ++isub) {
-      for (Long_t i(0); i != n_layers[isub]; ++i) {
+    for (int isub(0); isub < N_REGIONS; ++isub) {
+      for (long i(0); i < n_layers[isub]; ++i) {
         etabins[isub][i].push_back(MaxEta[isub][i]);
         phibins[isub][i].push_back(MaxPhi[isub][i]);
         std::sort(etabins[isub][i].begin(), etabins[isub][i].end());
         std::sort(phibins[isub][i].begin(), phibins[isub][i].end());
-        Int_t histnumber(becIdxLayer2Index(isub, i));
+        int histnumber(becIdxLayer2Index(isub, i));
         if (histnumber < 0) {
           ATH_MSG_WARNING("Barrel-or-endcap index is invalid");
           return StatusCode::FAILURE;
@@ -1866,21 +1838,21 @@ SCTHitEffMonTool::procHistograms() {
         m_accMap[histnumber]->GetZaxis()->SetRangeUser(1, N_CHIPS * 2 + 1);
         m_accMap[histnumber]->GetZaxis()->SetNdivisions(N_CHIPS * 2, false);
         m_accMap[histnumber]->SetContour(N_CHIPS * 2);
-        for (float j(0); j != 2; ++j) {
+        for (float j(0); j < 2; ++j) {
           const int binNumber(1 + 2 * i + j);
           const int numberOfBins(m_Eff_summaryHisto_old[isub]->GetBinEntries(binNumber));
           const int summaryBinIndex(i + j / 2);
           const float summaryBinContent(m_badModPerSide[isub]->GetBinContent(
                                           binNumber) * m_Eff_summaryHisto_old[isub]->GetBinContent(binNumber));
-          for (int e(0); e != numberOfBins; ++e) {
+          for (int e(0); e < numberOfBins; ++e) {
             m_Eff_summaryIncBadMod[isub]->Fill(summaryBinIndex, summaryBinContent);
           }
         }
       }
     }
-    for (const std::pair<Identifier, Float_t> bMod: mapOfInEff) {
+    for (const std::pair<Identifier, float> bMod: mapOfInEff) {
       Identifier surfaceID(bMod.first);
-      Int_t histnumber(becIdxLayer2Index(bec2Index(m_sctId->barrel_ec(surfaceID)), m_sctId->layer_disk(surfaceID)));
+      int histnumber(becIdxLayer2Index(bec2Index(m_sctId->barrel_ec(surfaceID)), m_sctId->layer_disk(surfaceID)));
       if (histnumber < 0) {
         ATH_MSG_WARNING("Barrel-or-endcap index is invalid");
         return StatusCode::FAILURE;
@@ -1893,11 +1865,11 @@ SCTHitEffMonTool::procHistograms() {
   }
 
   m_effdistribution->Reset();
-  for (Int_t isub(0); isub != N_REGIONS; ++isub) {
-    for (Long_t i(0); i != n_layers[isub]; ++i) {
+  for (int isub(0); isub < N_REGIONS; ++isub) {
+    for (long i(0); i < n_layers[isub]; ++i) {
       const int detIndex(becIdxLayer2Index(isub, i));
       if (detIndex != -1) {
-        for (Long_t j(0); j != 2; ++j) {
+        for (long j(0); j < 2; ++j) {
           for (int xbin = 1; xbin < m_effMap[detIndex][j]->GetNbinsX() + 1; xbin++) {
             for (int ybin = 1; ybin < m_effMap[detIndex][j]->GetNbinsY() + 1; ybin++) {
               if (m_effMap[detIndex][j]->GetBinEntries(m_effMap[detIndex][j]->GetBin(xbin, ybin)) == 0) {
@@ -1914,7 +1886,7 @@ SCTHitEffMonTool::procHistograms() {
 }
 
 StatusCode
-SCTHitEffMonTool::failCut(Bool_t value, std::string name) {
+SCTHitEffMonTool::failCut(bool value, std::string name) {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
@@ -1923,13 +1895,13 @@ SCTHitEffMonTool::failCut(Bool_t value, std::string name) {
   return StatusCode::SUCCESS;
 }
 
-Int_t
-SCTHitEffMonTool::previousChip(Double_t xl, Int_t side, bool swap) {
-  Float_t nStrips(768.);
-  Float_t stripWidth(79.95e-3);
-  Float_t nChips(6.);
-  Float_t xLeftEdge(xl + nStrips / 2. * stripWidth); // xl defined wrt center of module, convert to edge of module
-  Int_t chipPos(static_cast<int>(xLeftEdge / (stripWidth * nStrips) * nChips));
+int
+SCTHitEffMonTool::previousChip(double xl, int side, bool swap) {
+  float nStrips(768.);
+  float stripWidth(79.95e-3);
+  float nChips(6.);
+  float xLeftEdge(xl + nStrips / 2. * stripWidth); // xl defined wrt center of module, convert to edge of module
+  int chipPos(static_cast<int>(xLeftEdge / (stripWidth * nStrips) * nChips));
 
   if (side == 0) {
     chipPos = swap ? 5 - chipPos : chipPos;
@@ -1942,7 +1914,7 @@ SCTHitEffMonTool::previousChip(Double_t xl, Int_t side, bool swap) {
 StatusCode
 SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D& mom, const Identifier id, 
                                            const InDetDD::SiDetectorElementCollection* elements,
-                                           Double_t& theta, Double_t& phi) {
+                                           double& theta, double& phi) {
   phi = 90.;
   theta = 90.;
 
@@ -1953,9 +1925,9 @@ SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D& mom, const Ident
     ATH_MSG_VERBOSE("findAnglesToWaferSurface: failed to find detector element for id = " << m_sctId->print_to_string(id));
     return StatusCode::FAILURE;
   }
-  Double_t pNormal(mom.dot(element->normal()));
-  Double_t pEta(mom.dot(element->etaAxis()));
-  Double_t pPhi(mom.dot(element->phiAxis()));
+  double pNormal(mom.dot(element->normal()));
+  double pEta(mom.dot(element->etaAxis()));
+  double pPhi(mom.dot(element->phiAxis()));
   if (pPhi < 0.) {
     phi = -90.;
   }
@@ -1970,8 +1942,8 @@ SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D& mom, const Ident
 }
 
 template <class T> StatusCode
-SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title, Int_t nbin, Double_t x1,
-                               Double_t x2) {
+SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title, int nbin, double x1,
+                               double x2) {
   histo = new T(name, title, nbin, x1, x2);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1980,8 +1952,8 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 
 template <class T> StatusCode
 SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title,
-                               Int_t nbinx, Double_t x1, Double_t x2,
-                               Int_t nbiny, Double_t y1, Double_t y2) {
+                               int nbinx, double x1, double x2,
+                               int nbiny, double y1, double y2) {
   histo = new T(name, title, nbinx, x1, x2, nbiny, y1, y2);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1990,7 +1962,7 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 
 template <class T> StatusCode
 SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title,
-                               Int_t nbinx, Double_t* xbins, Int_t nbiny, Double_t* ybins) {
+                               int nbinx, double* xbins, int nbiny, double* ybins) {
   histo = new T(name, title, nbinx, xbins, nbiny, ybins);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1998,10 +1970,10 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 }
 
 // Find the residual to track.
-Double_t
+double
 SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParameters* trkParam,
                               const InDet::SCT_ClusterContainer* p_sctclcontainer) {
-  Double_t trackHitResidual(-999.);
+  double trackHitResidual(-999.);
 
   if (not trkParam) {
     ATH_MSG_WARNING("Not track parameters found. Returning default residual value.");
@@ -2019,7 +1991,7 @@ SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParam
       if (m_sctId->wafer_id(surfaceID) == m_sctId->wafer_id(cluster->detectorElement()->identify())) {
         const Trk::PrepRawData* rioo(dynamic_cast<const Trk::PrepRawData *>(cluster));
         std::unique_ptr<const Trk::RIO_OnTrack> rio(m_rotcreator->correct(*rioo, *trkParam));
-        if (!m_residualPullCalculator.empty()) {
+        if (not m_residualPullCalculator.empty()) {
           std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(rio.get(), trkParam,
                                                                                                        Trk::ResidualPull::Unbiased));
           if (not residualPull) continue;

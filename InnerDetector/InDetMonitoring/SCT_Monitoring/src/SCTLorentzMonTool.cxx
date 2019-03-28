@@ -8,7 +8,7 @@
  *    Shaun Roe, Manuel Diaz, Rob McPherson & Richard Batley
  *    Modified by Yuta
  */
-#include "SCT_Monitoring/SCTLorentzMonTool.h"
+#include "SCTLorentzMonTool.h"
 
 #include "SCT_NameFormatter.h"
 
@@ -45,7 +45,7 @@ using namespace SCT_Monitoring;
  */
 // ====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name,
-                                     const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent),
+                                     const IInterface* parent) : ManagedMonitorToolBase(type, name, parent),
   m_numberOfEvents{0},
   m_phiVsNstrips{},
   m_phiVsNstrips_100{},
@@ -60,16 +60,14 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name,
 // ====================================================================================================
 // ====================================================================================================
 StatusCode SCTLorentzMonTool::initialize() {
-  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
-
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
-  ATH_CHECK( m_tracksName.initialize() );
+  ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_CHECK(m_trackToVertexTool.retrieve());
 
-  return StatusCode::SUCCESS;
+  return ManagedMonitorToolBase::initialize();
 }
 
 // ====================================================================================================
@@ -97,8 +95,6 @@ SCTLorentzMonTool::bookHistograms( ) {
   m_path = "";
   m_numberOfEvents = 0;
   ATH_MSG_DEBUG("initialize being called");
-  /* Retrieve TrackToVertex extrapolator tool */
-  ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
     ATH_MSG_WARNING("Error in bookLorentzHistos()");
@@ -132,7 +128,7 @@ SCTLorentzMonTool::fillHistograms() {
   constexpr unsigned int layer100_n = sizeof(layer100) / sizeof(*layer100);
   constexpr unsigned int phi100_n = sizeof(phi100) / sizeof(*phi100);
   constexpr unsigned int eta100_n = sizeof(eta100) / sizeof(*eta100);
-  constexpr bool theseArraysAreEqualInLength = ((layer100_n == phi100_n)and(phi100_n == eta100_n));
+  constexpr bool theseArraysAreEqualInLength = ((layer100_n == phi100_n) and (phi100_n == eta100_n));
 
   static_assert(theseArraysAreEqualInLength, "Coordinate arrays for <100> wafers are not of equal length");
 
@@ -193,7 +189,7 @@ SCTLorentzMonTool::fillHistograms() {
             }
             // wtf is this?
             for (unsigned int i = 0; i < layer100_n; i++) {
-              if (layer100[i] == layer && eta100[i] == eta && phi100[i] == phi) {
+              if ((layer100[i] == layer) and (eta100[i] == eta) and (phi100[i] == phi)) {
                 in100 = true;
                 break;
               }
@@ -213,7 +209,7 @@ SCTLorentzMonTool::fillHistograms() {
               // Get angle to wafer surface
               float phiToWafer(90.), thetaToWafer(90.);
               float sinAlpha = 0.; // for barrel, which is the only thing considered here
-              float pTrack[3];
+              float pTrack[3]; // 3 is for x, y, z.
               pTrack[0] = trkp->momentum().x();
               pTrack[1] = trkp->momentum().y();
               pTrack[2] = trkp->momentum().z();
@@ -225,21 +221,21 @@ SCTLorentzMonTool::fillHistograms() {
 
               bool passesCuts = true;
 
-              if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
-                  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                  (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
+              if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) and
+                  (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                  (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                   ) {
                 passesCuts = true;
               }
-              else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                       (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-                       (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) && // d0 <
+              else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
+                       (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
+                       (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 <
                                                                                                                // 1mm
-                       (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                       (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
+                       (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                       (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                        ) {
                 passesCuts = true;
-              }else {
+              } else {
                 passesCuts = false;
               }
 
@@ -252,7 +248,7 @@ SCTLorentzMonTool::fillHistograms() {
                   // cout << "This event is going to 100" << endl;
                   m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
                   m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                }else {
+                } else {
                   m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
                   m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
                 }
@@ -295,22 +291,20 @@ SCTLorentzMonTool::checkHists(bool /*fromFinalize*/) {
 // ====================================================================================================
 StatusCode
 SCTLorentzMonTool::bookLorentzHistos() {
-  const int nLayers(4);
-  const int nSides(2);
   string stem = m_path + "/SCT/GENERAL/lorentz/";
   MonGroup Lorentz(this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED);
 
-  string hNum[nLayers] = {
+  string hNum[N_BARRELS] = {
     "0", "1", "2", "3"
   };
-  string hNumS[nSides] = {
+  string hNumS[N_SIDES] = {
     "0", "1"
   };
   int nProfileBins = 360;
 
   int success = 1;
 
-  for (int l = 0; l != nLayers; ++l) {
+  for (int l = 0; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
     int iflag = 0;
     m_phiVsNstrips_100[l] = pFactory("h_phiVsNstrips_100" + hNum[l], "100 - Inc. Angle vs nStrips for Layer " + hNum[l],
@@ -329,7 +323,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
     m_phiVsNstrips_111[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips_111[l]->GetYaxis()->SetTitle("Num of Strips");
 
-    for (int side = 0; side < nSides; ++side) {
+    for (int side = 0; side < N_SIDES; ++side) {
       m_phiVsNstrips_Side_100[l][side] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side],
                                                   "100 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
                                                   nProfileBins, -90., 90., Lorentz, iflag);
@@ -366,7 +360,7 @@ SCTLorentzMonTool::pFactory(const std::string& name, const std::string& title, i
   if (not success) {
     ATH_MSG_ERROR("Cannot book SCT histogram: " << name);
     iflag = 0;
-  }else {
+  } else {
     iflag = 1;
   }
 
@@ -389,7 +383,8 @@ SCTLorentzMonTool::h1Factory(const std::string& name, const std::string& title, 
 }
 
 int
-SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float& sinAlpha, const Identifier& id,
+SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], // 3 is for x, y, z.
+                                            const float& sinAlpha, const Identifier& id,
                                             const InDetDD::SiDetectorElementCollection* elements,
                                             float& theta, float& phi) {
   int iflag(-1);
@@ -400,7 +395,7 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float& 
   const Identifier waferId = m_pSCTHelper->wafer_id(id);
   const IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
   const InDetDD::SiDetectorElement* element = elements->getDetectorElement(waferHash);
-  if (!element) {
+  if (element==nullptr) {
     ATH_MSG_ERROR("findAnglesToWaferSurface:  failed to find detector element for id=" <<
                   m_pSCTHelper->show_to_string(id));
     return iflag;

@@ -52,7 +52,7 @@ public:
     title() const {
       if (m_region == 1) {
         return std::string("Layer ") + m_layerStr + std::string(" Side ") + m_sideStr;
-      }else {
+      } else {
         return std::string("Disk ") + m_layerStr + std::string(" Side ") + m_sideStr;
       }
     }
@@ -61,7 +61,7 @@ public:
     dedicated_title() const {
       if (m_region == 1) {
         return std::string("Layer ") + m_layerStr + std::string(" Side ") + std::to_string((m_element % 2 + 1) % 2);
-      }else {
+      } else {
         return std::string("Disk ") + m_layerStr + std::string(" Side ") + std::to_string((m_element % 2 + 1) % 2);
       }
     }

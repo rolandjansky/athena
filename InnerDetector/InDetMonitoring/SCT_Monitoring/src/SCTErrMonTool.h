@@ -14,12 +14,13 @@
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
+#include "SCT_MonitoringNumbers.h"
+
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -155,31 +156,29 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   /// "Magic numbers" for an SCT module
   enum { Confbins = 6, ConfbinsDetailed = 5 };
-  // NOTE: The following is not the usual index order, which goes C, Barrel, A
-  enum {iECm=0, iBARREL=1, iECp=2, iGEN=3 }; //iECp==EA, iECm==EC
 
   std::string m_path;
   /// CheckHists() frequency
-  int m_checkrate;
-  int m_checkrecent;
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
+  IntegerProperty m_checkrecent{this, "CheckRecent", 20};
   int m_current_lb;
   int m_last_reset_lb;
 
   bool m_sctflag;
 
   /// flag to run online
-  bool m_runOnline;
+  BooleanProperty m_runOnline{this, "runOnline", false};
 
-  int m_evtsbins;
-  bool m_doPositiveEndcap;
-  bool m_doNegativeEndcap;
+  IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
+  BooleanProperty m_doPositiveEndcap{this, "doPositiveEndcap", true};
+  BooleanProperty m_doNegativeEndcap{this, "doNegativeEndcap", true};
   // Use Summary database
-  bool m_makeConfHisto;
+  BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   // Do lumi block 2D error histos
-  bool m_doPerLumiErrors;
-  bool m_doErr2DPerLumiHists;
+  BooleanProperty m_doPerLumiErrors{this, "DoPerLumiErrors", true};
+  BooleanProperty m_doErr2DPerLumiHists{this, "DoErr2DPerLumiHists", false};
   // Min stats per layer to use for number of inefficient modules
-  float m_min_stat_ineff_mod;
+  FloatProperty m_min_stat_ineff_mod{this, "MinStatsForInEffModules", 500.0};
 
   /// ---------------------------------------
   //@name Service members
@@ -233,14 +232,15 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
-  bool                                     m_checkBadModules;
-  bool                                     m_ignore_RDO_cut_online;
-  bool                                     m_CoverageCheck;
-  bool                                     m_useDCS;
+  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
+  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
+  BooleanProperty m_CoverageCheck{this, "CoverageCheck", true};
+  BooleanProperty m_useDCS{this, "UseDCS", true};
 
-  float m_errThreshold;
-  float m_effThreshold;
-  int m_noiseThreshold;
+  // Thresholds for the SCTConf histogram
+  FloatProperty m_errThreshold{this, "error_threshold", 0.7};
+  FloatProperty m_effThreshold{this, "efficiency_threshold", 0.9};
+  IntegerProperty m_noiseThreshold{this, "noise_threshold", 150};
   bool getHisto(const int lyr, const int reg, const int type, TH2* histo[2]);
   bool getHistoRecent(const int lyr, const int reg, const int type, TH2* histo[2]);
   /* float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide); */
