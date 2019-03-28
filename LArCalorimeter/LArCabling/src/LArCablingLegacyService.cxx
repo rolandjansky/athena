@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCabling/LArCablingLegacyService.h"
@@ -121,12 +121,13 @@ bool LArCablingLegacyService::readCalibMap() {
   msg(MSG::DEBUG) << "Start reading calibration line mapping" << endmsg;
   m_calibValid=false;
   m_onlHashToCalibLines.clear();
-  StatusCode sc=detStore()->retrieve(m_attrCalib,m_calibIdKey);
+  const AthenaAttributeList* attrCalib = nullptr;
+  StatusCode sc=detStore()->retrieve(attrCalib,m_calibIdKey);
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Failed to read AthenaAttributeList with key " << m_calibIdKey << endmsg;
     return false;
   }
-  const coral::Blob& blobCalib=(*m_attrCalib)["OnlineHashToCalibIds"].data<coral::Blob>();
+  const coral::Blob& blobCalib=(*attrCalib)["OnlineHashToCalibIds"].data<coral::Blob>();
   const unsigned nEntries=blobCalib.size()/sizeof(uint32_t);
   const uint32_t* pBlobCalib=static_cast<const uint32_t*>(blobCalib.startingAddress());
 
@@ -162,12 +163,13 @@ bool LArCablingLegacyService::readFebRodMap() {
   m_febRodValid=false;
   m_pFebHashtoROD=NULL;
   m_readoutModuleIDVec.clear();
-  StatusCode sc=detStore()->retrieve(m_attrFebRod,m_febRodMapKey);
+  const AthenaAttributeList* attrFebRod = nullptr;
+  StatusCode sc=detStore()->retrieve(attrFebRod,m_febRodMapKey);
   if (sc.isFailure()) {
     msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_febRodMapKey << endmsg;
     return false;
   }
-  const coral::Blob& blobFebRod=(*m_attrFebRod)["FebHashToRODs"].data<coral::Blob>();
+  const coral::Blob& blobFebRod=(*attrFebRod)["FebHashToRODs"].data<coral::Blob>();
   unsigned nFebRod=blobFebRod.size()/sizeof(uint32_t);
   m_pFebHashtoROD=static_cast<const uint32_t*>(blobFebRod.startingAddress());
 
