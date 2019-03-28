@@ -47,7 +47,6 @@
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 // Lar HV
-#include "LArElecCalib/ILArHVTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
