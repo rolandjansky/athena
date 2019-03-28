@@ -272,7 +272,7 @@ if DetFlags.haveRIO.SCT_on():
 
     forceUseDB = False
     forceUseGeoModel = False
-    if InDetFlags.useSctDCS():
+    if InDetFlags.useSctDCS() or athenaCommonFlags.isOnline():
         # Force Lorentz angle calculation to use DCS for data
         # (Not actually using DCS yet but rather temperature and voltage from joboptions.)
         if (globalflags.DataSource() == 'data'):
