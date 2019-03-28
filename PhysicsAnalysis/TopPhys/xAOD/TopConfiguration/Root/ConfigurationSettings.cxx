@@ -96,6 +96,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "False");
     registerParameter("JetJERSmearingModel","All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)","Simple");
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
+    registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
     
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");

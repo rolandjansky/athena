@@ -197,6 +197,7 @@ namespace top{
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
+    m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
 
     m_largeRJetPtcut(25000.),
@@ -785,6 +786,15 @@ namespace top{
       this->m_useVarRCJetAdditionalSubstructure = true;
     else
       this->m_useVarRCJetAdditionalSubstructure = false;
+
+    if (settings->value("StoreJetTruthLabels") == "False") {
+      this->jetStoreTruthLabels( false );
+    } else if (settings->value("StoreJetTruthLabels") == "True") {
+      this->jetStoreTruthLabels( true );
+    } else {
+      std::cout << "WARNING TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True" << std::endl;
+      this->jetStoreTruthLabels( true );
+    }
 
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
