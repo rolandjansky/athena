@@ -57,7 +57,7 @@ StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
   DecisionContainer* decisions = outputHandle.ptr();
 
   // Create new decision (DecisionContainer* decisions owns the new object)
-  Decision* newd = newDecisionIn(decisions, "", eventContext);
+  Decision* newd = newDecisionIn(decisions, "");
 
   // Prepare input for hypo tools
   MTCalibPebHypoTool::Input toolInput(newd, eventContext);

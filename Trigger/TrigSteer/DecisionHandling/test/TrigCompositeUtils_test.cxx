@@ -164,7 +164,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   // Make a new decision, with name and context
   std::cout << std::endl;
   std::cout << "New decision d3b with name & context " << std::endl;
-  auto d3b = newDecisionIn( dc, "d3b", ctx );
+  auto d3b = newDecisionIn( dc, "d3b" );
   // Make, store and retrieve a "testLink" link, with context
   ElementLink<DecisionContainer> el2( *dc, 1, ctx );
   assert ( d3b->setObjectLink( "testlink", el2 ) );
@@ -194,7 +194,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   assert( d5->setObjectLink( "feature", el ) );
   std::cout << "d5: " << *d5 << std::endl;
   std::cout << "create d6 " << std::endl;
-  auto d6 = newDecisionIn ( dc, d5, "d6" );
+  auto d6 = newDecisionIn ( dc, d5, "d6", ctx );
   std::cout << "d6: " << *d6 << std::endl;
   std::cout << "get d5 feature link " << std::endl;
   ElementLink<DecisionContainer > d5feature = d5->objectLink<DecisionContainer>("feature");
@@ -207,7 +207,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   VALUE ( d5feature.index() ) EXPECTED ( d6feature.index() );
   VALUE ( d5feature.key() ) EXPECTED ( d6feature.key() );
   std::cout << "get self and seed links " << std::endl;
-  auto d5self = d5->objectLink<DecisionContainer>("self");
+  auto d5self = ElementLink<DecisionContainer>(*(dynamic_cast<const DecisionContainer*>(d5->container())), d5->index());
   auto d6seedVector = getLinkToPrevious(d6);
   auto d6seed = d6seedVector.front();
   VALUE ( d5self.index() ) EXPECTED ( d6seed.index() );

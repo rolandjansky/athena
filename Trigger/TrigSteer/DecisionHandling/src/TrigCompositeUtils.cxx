@@ -31,16 +31,9 @@ namespace TrigCompositeUtils {
     handle.record( std::move( data ), std::move( aux )  ).ignore();
   }
 
-  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name, const EventContext& ctx ) {
+  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name) {
     Decision * x = new Decision;
     dc->push_back( x );
-    size_t index = dc->size() - 1;
-    // make self link, useful to copy for seed link in a successor, but requires that DecisionContainer is already recorded in SG.
-    ElementLink<DecisionContainer> el(*dc, index, ctx);
-    if ( ! x->setObjectLink( "self", el ) ){ 
-      std::cerr << "TrigCompositeUtils::newDecisionIn ERROR failed to set self EL with key, maybe the DecisionContainer is not yet recorded in the event store? " << el.key() << std::endl;
-      throw GaudiException(" failed to set self EL ", "TrigCompositeUtils::newDecisionIn", StatusCode::FAILURE);
-    }
     if ( ! name.empty() ) {
       x->setName( name );
     }
@@ -48,8 +41,8 @@ namespace TrigCompositeUtils {
   }
 
   Decision* newDecisionIn ( DecisionContainer* dc, const Decision* dOld, const std::string& name, const EventContext& ctx ) {
-    Decision* dNew =  newDecisionIn( dc, name, ctx); // Sets up 'self' link of dNew
-    linkToPrevious(dNew, dOld); // Sets up link to 'seed' collection, points to 'self' link of dOld
+    Decision* dNew =  newDecisionIn( dc, name );
+    linkToPrevious(dNew, dOld, ctx); // Sets up link to 'seed' collection, points to dOld
     return dNew;
   }
 
@@ -122,14 +115,16 @@ namespace TrigCompositeUtils {
     }
   }
 
-  void linkToPrevious( Decision* d, const Decision* dOld) {
-    if ( dOld && dOld->hasObjectLink("self") ) {
-      // Internally de-dupes the "seed" collection of links
-      d->addObjectCollectionLink("seed", dOld->objectLink<DecisionContainer>("self"));  
-    } else {
-      throw GaudiException("Using linkToPrevious with a previous decision requires that decision to have its 'self' link set",
+  void linkToPrevious( Decision* d, const Decision* dOld, const EventContext& ctx ) {
+
+    const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( dOld->container() );
+    if( ! container ) {
+      throw GaudiException("Using linkToPrevious with a previous decision requires that dOld is already in a container",
         "TrigCompositeUtils::linkToPrevious", StatusCode::FAILURE);
     }    
+
+    const ElementLink<DecisionContainer> seedLink = ElementLink<DecisionContainer>(*container, dOld->index(), ctx);
+    d->addObjectCollectionLink("seed", seedLink);
   }
 
   bool hasLinkToPrevious( const Decision* d ) {

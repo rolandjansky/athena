@@ -68,7 +68,7 @@ namespace TrigCompositeUtils {
    * Note that the supplied DecisionContainer must have been recorded in the event store.
    * If possible provide the context that comes via an argument to execute otherwise it will default to looking it up which is slower.
    **/  
-  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
+  Decision* newDecisionIn ( DecisionContainer* dc, const std::string& name = "" );
 
   /**
    * @brief Helper method to create a Decision object, place it in the container and return a pointer to it. RoI, view and feature links will be copied from the previous to the new decision and a "seed" link made between them
@@ -77,7 +77,7 @@ namespace TrigCompositeUtils {
    * If provided, the name is assigned to the TC object
    * Note that the supplied DecisionContainer must have been recorded in the event store.
    **/ 
-Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
+  Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std::string& name = "", const EventContext& ctx = Gaudi::Hive::currentContext() );
 
   /**
    * @brief Appends the decision (given as ID) to the decision object
@@ -150,7 +150,7 @@ Decision* newDecisionIn( DecisionContainer* dc, const Decision* dOld, const std:
   /**
    * @brief Links to the previous object, 'seed' decision provided explicitly.
    **/
-  void linkToPrevious(Decision* d, const Decision* dOld);
+  void linkToPrevious(Decision* d, const Decision* dOld, const EventContext& ctx = Gaudi::Hive::currentContext());
 
   /**
    * @brief checks if there is at least one 'seed' link to previous object

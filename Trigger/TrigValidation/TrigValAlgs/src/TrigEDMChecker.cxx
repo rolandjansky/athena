@@ -4164,9 +4164,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       // Output all the things I link to
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
-        if (link == "self") {
-          continue; // Ignore the "self" link
-        } else if (link == "seed" || link == "seed__COLL") {
+        if (link == "seed" || link == "seed__COLL") {
           const xAOD::TrigComposite* seed = tc->object<xAOD::TrigComposite>(link);
           ss << "    \"" << tc << "\" -> \"" << seed << "\" [label=\"seed\"]" << std::endl; // Print ptr address
         } else {
