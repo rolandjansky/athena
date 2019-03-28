@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -21,7 +21,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
     m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
+    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL), InsituCombMassCorr(NULL)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -49,7 +49,7 @@ JetCalibrationTool::~JetCalibrationTool() {
   if (m_insituDataCorr) delete m_insituDataCorr;
   if (m_jetMassCorr) delete m_jetMassCorr;
   if (m_jetSmearCorr) delete m_jetSmearCorr;
-
+  if (m_timeDependentCalib) delete InsituCombMassCorr;
 }
 
 
@@ -187,18 +187,21 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   // Combined Mass Calibration
   m_insituCombMassCalib = m_globalConfig->GetValue("InsituCombinedMassCorrection",false);
   if(m_insituCombMassCalib && calibSeq.Contains("InsituCombinedMass")){ // Read Combination Config
-    m_insituCombMassConfig = m_globalConfig->GetValue("InsituCombinedMassCorrectionFile","");
-    if(m_insituCombMassConfig=="") ATH_MSG_ERROR("Please check there is a combination config");
+    m_insituCombMassConfig = JetCalibUtils::Vectorize( m_globalConfig->GetValue("InsituCombinedMassCorrectionFile","") );
+    if(m_insituCombMassConfig.size()==0) ATH_MSG_ERROR("Please check there is a combination config");
+    for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
 
-      std::string configPath_comb = dir+m_insituCombMassConfig.Data(); // Full path
+      std::string configPath_comb = dir+m_insituCombMassConfig.at(i).Data(); // Full path
       TString fn_comb =  PathResolverFindCalibFile(configPath_comb);
 
-      ATH_MSG_INFO("Reading combination settings from: " << m_insituCombMassConfig);
+      ATH_MSG_INFO("Reading combination settings from: " << m_insituCombMassConfig.at(i));
       ATH_MSG_INFO("resolved in: " << fn_comb);
 
-      m_globalInsituCombMassConfig = new TEnv();
-      int status = m_globalInsituCombMassConfig->ReadFile(fn_comb ,EEnvLevel(0));
+      TEnv *globalInsituCombMass = new TEnv();
+      int status = globalInsituCombMass->ReadFile(fn_comb ,EEnvLevel(0));
       if (status!=0) { ATH_MSG_FATAL("Cannot read config file " << fn_comb ); return StatusCode::FAILURE; }
+      m_globalInsituCombMassConfig.push_back(globalInsituCombMass);
+    }
   }
 
   //Loop over the request calib sequence
@@ -289,18 +292,20 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       return StatusCode::SUCCESS;
     }
    } else if ( calibration.EqualTo("InsituCombinedMass") ){
-        ATH_MSG_INFO("Initializing Combined Mass Correction");
-        suffix="_InsituCombinedMass";
+      ATH_MSG_INFO("Initializing Combined Mass Correction"); 
+      for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
+        suffix="_InsituCombinedMass"; suffix += "_"; suffix += std::to_string(i);
         if(m_devMode) suffix+="_DEV";
-        JMSCorrection *InsituCombMassCorr = new JMSCorrection(name+suffix,m_globalInsituCombMassConfig,jetAlgo,calibPath,m_devMode);
+        InsituCombMassCorr = new JMSCorrection(name+suffix,m_globalInsituCombMassConfig.at(i),jetAlgo,calibPath,m_devMode);
         InsituCombMassCorr->msg().setLevel( this->msg().level() );
         if ( InsituCombMassCorr->initializeTool(name+suffix).isFailure() ) {
           ATH_MSG_FATAL("Couldn't initialize the Combined Mass correction. Aborting");
           return StatusCode::FAILURE;
         } else {
-          m_calibClasses.push_back(InsituCombMassCorr);
+          m_insituCombMassCorr.push_back(InsituCombMassCorr);
           return StatusCode::SUCCESS;
         }
+      }
   } else if ( calibration.EqualTo("Insitu") ) {
     if(!m_timeDependentCalib){
       ATH_MSG_INFO("Initializing Insitu correction.");
@@ -618,6 +623,16 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
       double runNumber = eventInfo->runNumber();
       if(runNumber>m_runBins.at(i) && runNumber<=m_runBins.at(i+1)){ ATH_CHECK ( m_insituTimeDependentCorr.at(i)->calibrateImpl(jet,jetEventInfo) );}
     }
+  }
+  if(CalibSeq.Contains("InsituCombinedMass") && m_insituCombMassCalib){
+   for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
+      //Retrive EventInfo container
+      const xAOD::EventInfo* eventInfo(nullptr);
+      if( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
+       ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
+      }
+      ATH_CHECK ( m_insituCombMassCorr.at(i)->calibrateImpl(jet,jetEventInfo) );
+   }
   }
   return StatusCode::SUCCESS; 
 }
