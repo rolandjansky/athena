@@ -60,6 +60,8 @@ public:
   Identifier channelId_phi (void) const {return m_channelId_phi;}
   Identifier channelId_eta (void) const {return m_channelId_eta;}
 
+  void dumpRoiMap(const std::string& filename);
+
 private:
   enum EdgeType {NonEdge=-1,
                  LowerREdge,
