@@ -13,17 +13,20 @@
 #ifndef SCTTRACKSMONTOOL_H
 #define SCTTRACKSMONTOOL_H
 
-#include "SCT_Monitoring/SCTMotherTrigMonTool.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
+#include "SCT_MonitoringNumbers.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkTrack/TrackCollection.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+//Standard C++
+#include <bitset>
 #include <string>
 #include <vector>
 
@@ -37,8 +40,7 @@ class TProfile;
 class StatusCode;
 class SCT_ID;
 
-///Concrete monitoring tool derived from SCTMotherTrigMonTool
-class SCTTracksMonTool : public SCTMotherTrigMonTool{
+class SCTTracksMonTool : public ManagedMonitorToolBase {
  public:
   SCTTracksMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
   virtual ~SCTTracksMonTool() = default;
@@ -68,6 +70,9 @@ private:
   typedef std::vector<H1_t> VecH1_t;
   typedef std::vector<H2_t> VecH2_t;
   //@}
+  ///enumerated constant for the types of level 1 triggers, corresponds to the string m_triggerNames
+  enum TriggerTypes {RNDM=0, BPTX, L1CAL, TGC, RPC, MBTS, COSM, CALIB, N_TRIGGER_TYPES };
+
   TH1I* m_nTracks;
   std::vector<int> m_nTracks_buf;
   int m_nTracks_pos;
@@ -141,28 +146,33 @@ private:
   VecH1_t m_psctpulls_summaryHistoVectorECm;
   std::string m_stream;
   std::string m_path;
-  bool m_useIDGlobal;
+  BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
+  BooleanProperty m_doTrigger{this, "doTrigger", false};
+
   //@}
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   /// Cut on number of SCT hits on track
-  int m_trackHitCut;
+  IntegerProperty m_trackHitCut{this, "trackHitCut", 3};
   /// CheckHists() frequency
-  int m_checkrate;
- /// Tracks vs evt
-  int m_evtsbins;
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
+  /// Tracks vs evt
+  IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
 
-  bool m_doPositiveEndcap;
-  bool m_doNegativeEndcap;
+  BooleanProperty m_doPositiveEndcap{this, "doPositiveEndcap", true};
+  BooleanProperty m_doNegativeEndcap{this, "doNegativeEndcap", true};
   ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
-  bool   m_doUnbiasedCalc;
+  BooleanProperty m_doUnbiasedCalc{this, "doUnbiasedCalc", true};
 
+  ///Abbreviations for level 1 trigger types
+  static const std::string s_triggerNames[8];
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
+  std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
   //@name Service members
   //@{
   /// Kalman Updator for SCT Unbiased states in Residual calculation
-  PublicToolHandle<Trk::IUpdator> m_updator
-     {this,"KalmanUpdator","Trk::KalmanUpdator/TrkKalmanUpdator",""};
+  ToolHandle<Trk::IUpdator> m_updator{this, "KalmanUpdator", "Trk::KalmanUpdator/TrkKalmanUpdator", ""};
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -175,6 +185,14 @@ private:
   StatusCode bookGeneralHistos();
   StatusCode bookPositiveEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_A);}
   StatusCode bookNegativeEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_C);}
+  //@}
+
+  //@name  Trigger related methods
+  //{
+  ///Fill the m_firedTriggers bitset according to event information
+  StatusCode checkTriggers();
+  ///Get the status of a particular trigger bit (trigger bit 0-7)
+  bool hasTriggerFired(const unsigned int trigger) const;
   //@}
   
   //@name Service methods

@@ -41,7 +41,8 @@ namespace SCT_Monitoring{
     N_ENDCAPS     =   9, FIRST_ENDCAP     =    0, LAST_ENDCAP     = N_ENDCAPS-FIRST_ENDCAP-1, N_ENDCAPSx2 = N_ENDCAPS*2,
     N_ETA_BINS_EC =   3, FIRST_ETA_BIN_EC =    0, LAST_ETA_BIN_EC = N_ETA_BINS_EC-FIRST_ETA_BIN_EC-1,
     N_PHI_BINS_EC =  52, FIRST_PHI_BIN_EC =    0, LAST_PHI_BIN_EC = N_PHI_BINS_EC-FIRST_PHI_BIN_EC-1,
-    N_MOD_ENDCAPS = 988, N_MOD_BARREL = 2112, FIRST_MOD_EC =  0, FIRST_MOD_B = 988, FIRST_MOD_EA = 3100
+    N_MOD_ENDCAPS = 988, N_MOD_BARREL = 2112, FIRST_MOD_EC =  0, FIRST_MOD_B = 988, FIRST_MOD_EA = 3100,
+    N_SIDES = 2
   };
   
   const int n_layers[] = {N_DISKS, N_BARRELS, N_DISKS, 2 * N_DISKS + N_BARRELS};
@@ -63,17 +64,17 @@ namespace SCT_Monitoring{
   //                          SCTErrMonTool :: getNumModules, Daniel Damiani 16/8/2010
   //====================================================================================================
   inline int getNumModules(const int reg,const int layer) {
-    if(reg==0) {
-      if(layer<2) return 384;
-      else if(layer<4) return 480;
-      else if(layer<6) return 576;
-      else if(layer<8) return 672;
+    if (reg==0) {
+      if (layer<2) return 384;
+      else if (layer<4) return 480;
+      else if (layer<6) return 576;
+      else if (layer<8) return 672;
       else return 0;
     } else {
-      if(layer<2) return 92;
-      else if(layer<12) return 132;
-      else if(layer<16) return 92;
-      else if(layer<18) return 52;
+      if (layer<2) return 92;
+      else if (layer<12) return 132;
+      else if (layer<16) return 92;
+      else if (layer<18) return 52;
       else return 0;
     }
     return 0;
