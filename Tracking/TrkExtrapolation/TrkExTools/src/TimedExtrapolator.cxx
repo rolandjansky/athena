@@ -1257,7 +1257,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
   if (detParameters) {
     // retrive compatible subsurfaces
     std::vector<Trk::SurfaceIntersection> cSurfaces;
-    size_t ncSurfaces = lay.compatibleSurfaces(cSurfaces, *detParameters, Trk::anyDirection, bcheck);
+    size_t ncSurfaces = lay.compatibleSurfaces(cSurfaces, *detParameters, Trk::anyDirection, bcheck, false);
 
     // import from StaticEngine.icc
     if (ncSurfaces) {
@@ -1284,7 +1284,7 @@ Trk::TimedExtrapolator::overlapSearch(const IPropagator &prop,
                        ((overlapParameters->position() - parsOnLayer.position()).dot(dir *
                                                                                      parsOnLayer.momentum().normalized())
                         < 0) : surfaceHit;
-          if (surfaceHit) {
+          if (surfaceHit && csf.object!=detSurface) { //skipping the initial surface on which a hit has already been created
             ATH_MSG_VERBOSE("  [H] Hit with detector surface recorded !");
             // count the overlap Surfaces hit
             ++m_overlapSurfaceHit;

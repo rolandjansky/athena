@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -39,8 +39,8 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h" // 15/06/2015 T.Saito
 
 #include "HitManagement/TimedHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/MMSimHit.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
 
@@ -139,7 +139,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		StatusCode getNextEvent();
 		StatusCode doDigitization();
 
-		bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const;
+		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
@@ -163,13 +163,13 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		const MmIdHelper*       m_idHelper;
 		MicromegasHitIdHelper*  m_muonHelper;
 		const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
-		std::list<GenericMuonSimHitCollection*> m_MMHitCollList;
+		std::list<MMSimHitCollection*> m_MMHitCollList;
 
 		// Settings
 		double m_energyThreshold;
 		int m_maskMultiplet;
 		bool m_writeOutputFile;
-		TimedHitCollection<GenericMuonSimHit>* m_timedHitCollection_MM; // the pileup hits
+		TimedHitCollection<MMSimHit>* m_timedHitCollection_MM; // the pileup hits
 
 		std::string m_inputObjectName; // name of the input objects
 		std::string m_outputObjectName; // name of the output digits

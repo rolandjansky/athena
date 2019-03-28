@@ -663,9 +663,20 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="87" partition="1" name="L1_W-05RO-XEHT-0" complex_deadtime="0" definition="(05RATIO-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="87" partition="1" name="L1_ALFA_ELAST1" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;!(ALFA3_B7L1L[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1U[x1]|ALFA3_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="05RATIO-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="05RATIO-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
+        <NOT>
+          <OR>
+            <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
+            <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
+            <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
+            <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
+          </OR>
+        </NOT>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1209,18 +1220,18 @@
         <InternalTrigger name="BGRP5"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="162" partition="1" name="L1_ALFA_ELAST1" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;!(ALFA3_B7L1L[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1U[x1]|ALFA3_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="162" partition="1" name="L1_ALFA_ELAST2" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;!(ALFA3_B7L1U[x1]|ALFA3_A7L1U[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
+        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
         <NOT>
           <OR>
-            <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
-            <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
-            <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
-            <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
+            <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
+            <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
+            <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
+            <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
           </OR>
         </NOT>
         <InternalTrigger name="BGRP0"/>
@@ -1369,30 +1380,22 @@
         <InternalTrigger name="BGRP5"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="179" partition="1" name="L1_ALFA_ELAST2" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;!(ALFA3_B7L1U[x1]|ALFA3_A7L1U[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
-        <NOT>
-          <OR>
-            <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
-            <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
-            <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
-            <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
-          </OR>
-        </NOT>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="180" partition="1" name="L1_ALFA_ELAST11" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="179" partition="1" name="L1_ALFA_ELAST11" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
         <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
         <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
         <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="180" partition="1" name="L1_ALFA_ELAST12" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1656,12 +1659,14 @@
         <InternalTrigger name="BGRP3"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="209" partition="1" name="L1_ALFA_ELAST12" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="209" partition="1" name="L1_ALFA_ELAST13" complex_deadtime="0" definition="((ALFA2_A7L1U[x1]|ALFA2_B7L1U[x1])&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
+        <OR>
+          <TriggerCondition multi="1" name="ALFA2_A7L1U_x1" triggerthreshold="ALFA2_A7L1U"/>
+          <TriggerCondition multi="1" name="ALFA2_B7L1U_x1" triggerthreshold="ALFA2_B7L1U"/>
+        </OR>
+        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1710,14 +1715,14 @@
         <InternalTrigger name="BGRP4"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="215" partition="1" name="L1_ALFA_ELAST13" complex_deadtime="0" definition="((ALFA2_A7L1U[x1]|ALFA2_B7L1U[x1])&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="215" partition="1" name="L1_ALFA_ELAST14" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;(ALFA2_A7R1L[x1]|ALFA2_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
         <OR>
-          <TriggerCondition multi="1" name="ALFA2_A7L1U_x1" triggerthreshold="ALFA2_A7L1U"/>
-          <TriggerCondition multi="1" name="ALFA2_B7L1U_x1" triggerthreshold="ALFA2_B7L1U"/>
+          <TriggerCondition multi="1" name="ALFA2_A7R1L_x1" triggerthreshold="ALFA2_A7R1L"/>
+          <TriggerCondition multi="1" name="ALFA2_B7R1L_x1" triggerthreshold="ALFA2_B7R1L"/>
         </OR>
-        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1729,16 +1734,18 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="217" partition="1" name="L1_ALFA_ELAST14" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;(ALFA2_A7R1L[x1]|ALFA2_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="217" partition="1" name="L1_ALFA_ELAST15_Calib" complex_deadtime="0" definition="((ALFA2_A7L1U[x1]|ALFA2_B7L1U[x1])&amp;(ALFA2_A7R1L[x1]|ALFA2_B7R1L[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
+        <OR>
+          <TriggerCondition multi="1" name="ALFA2_A7L1U_x1" triggerthreshold="ALFA2_A7L1U"/>
+          <TriggerCondition multi="1" name="ALFA2_B7L1U_x1" triggerthreshold="ALFA2_B7L1U"/>
+        </OR>
         <OR>
           <TriggerCondition multi="1" name="ALFA2_A7R1L_x1" triggerthreshold="ALFA2_A7R1L"/>
           <TriggerCondition multi="1" name="ALFA2_B7R1L_x1" triggerthreshold="ALFA2_B7R1L"/>
         </OR>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
+        <InternalTrigger name="BGRP10"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="218" partition="1" name="L1_TRT_FILLED" complex_deadtime="0" definition="(NIMTRT[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
@@ -1768,18 +1775,16 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="222" partition="1" name="L1_ALFA_ELAST15_Calib" complex_deadtime="0" definition="((ALFA2_A7L1U[x1]|ALFA2_B7L1U[x1])&amp;(ALFA2_A7R1L[x1]|ALFA2_B7R1L[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="222" partition="1" name="L1_ALFA_ELAST16" complex_deadtime="0" definition="((ALFA2_B7L1L[x1]|ALFA2_A7L1L[x1])&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <OR>
-          <TriggerCondition multi="1" name="ALFA2_A7L1U_x1" triggerthreshold="ALFA2_A7L1U"/>
-          <TriggerCondition multi="1" name="ALFA2_B7L1U_x1" triggerthreshold="ALFA2_B7L1U"/>
+          <TriggerCondition multi="1" name="ALFA2_B7L1L_x1" triggerthreshold="ALFA2_B7L1L"/>
+          <TriggerCondition multi="1" name="ALFA2_A7L1L_x1" triggerthreshold="ALFA2_A7L1L"/>
         </OR>
-        <OR>
-          <TriggerCondition multi="1" name="ALFA2_A7R1L_x1" triggerthreshold="ALFA2_A7R1L"/>
-          <TriggerCondition multi="1" name="ALFA2_B7R1L_x1" triggerthreshold="ALFA2_B7R1L"/>
-        </OR>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP10"/>
+        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="223" partition="1" name="L1_BCM_AC_CA_BGRP0" complex_deadtime="0" definition="((BCM_AtoC[x1]|BCM_CtoA[x1])&amp;BGRP0)" trigger_type="10100000" monitor="LF:000|HF:000">
@@ -1909,26 +1914,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="239" partition="1" name="L1_ALFA_ELAST16" complex_deadtime="0" definition="((ALFA2_B7L1L[x1]|ALFA2_A7L1L[x1])&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
-      <AND>
-        <OR>
-          <TriggerCondition multi="1" name="ALFA2_B7L1L_x1" triggerthreshold="ALFA2_B7L1L"/>
-          <TriggerCondition multi="1" name="ALFA2_A7L1L_x1" triggerthreshold="ALFA2_A7L1L"/>
-        </OR>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="240" partition="1" name="L1_ZB" complex_deadtime="0" definition="(ZB_EM15[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000010" monitor="LF:111|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ZB_EM15_x1" triggerthreshold="ZB_EM15"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="241" partition="1" name="L1_ALFA_ELAST17" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;(ALFA2_A7R1U[x1]|ALFA2_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="239" partition="1" name="L1_ALFA_ELAST17" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;(ALFA2_A7R1U[x1]|ALFA2_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
         <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
@@ -1940,7 +1926,14 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="242" partition="1" name="L1_ALFA_ELAST18_Calib" complex_deadtime="0" definition="((ALFA2_B7L1L[x1]|ALFA2_A7L1L[x1])&amp;(ALFA2_A7R1U[x1]|ALFA2_B7R1U[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="240" partition="1" name="L1_ZB" complex_deadtime="0" definition="(ZB_EM15[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000010" monitor="LF:111|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="ZB_EM15_x1" triggerthreshold="ZB_EM15"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="241" partition="1" name="L1_ALFA_ELAST18_Calib" complex_deadtime="0" definition="((ALFA2_B7L1L[x1]|ALFA2_A7L1L[x1])&amp;(ALFA2_A7R1U[x1]|ALFA2_B7R1U[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <OR>
           <TriggerCondition multi="1" name="ALFA2_B7L1L_x1" triggerthreshold="ALFA2_B7L1L"/>
@@ -1954,6 +1947,13 @@
         <InternalTrigger name="BGRP10"/>
       </AND>
     </TriggerItem>
+    <TriggerItem ctpid="242" partition="1" name="L1_ALFA_BGT_BGRP4" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP4)" trigger_type="11000000" monitor="LF:000|HF:000">
+      <AND>
+        <InternalTrigger name="RNDM3"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP4"/>
+      </AND>
+    </TriggerItem>
     <TriggerItem ctpid="243" partition="1" name="L1_BTAG-MU6J20" complex_deadtime="0" definition="(0DR04-MU6ab-CJ20ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR04-MU6ab-CJ20ab_x1" triggerthreshold="0DR04-MU6ab-CJ20ab"/>
@@ -1962,11 +1962,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="244" partition="1" name="L1_ALFA_BGT_BGRP4" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP4)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="244" partition="1" name="L1_ALFA_BGT_BGRP10" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <InternalTrigger name="RNDM3"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP4"/>
+        <InternalTrigger name="BGRP10"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="245" partition="1" name="L1_J40_XE50_DPHI-J20s2XE50" complex_deadtime="0" definition="(J40[x1]&amp;XE50[x1]&amp;10MINDPHI-J20s2-XE50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
@@ -2070,11 +2070,22 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="257" partition="1" name="L1_ALFA_BGT_BGRP10" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="257" partition="1" name="L1_ALFA_SHOWSYST5" complex_deadtime="0" definition="((ALFA_B7L1U[x1]|ALFA_B7L1L[x1]|ALFA_A7L1U[x1]|ALFA_A7L1L[x1])&amp;(ALFA_A7R1U[x1]|ALFA_A7R1L[x1]|ALFA_B7R1U[x1]|ALFA_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <InternalTrigger name="RNDM3"/>
+        <OR>
+          <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+          <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
+          <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
+          <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
+        </OR>
+        <OR>
+          <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+          <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
+          <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
+          <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
+        </OR>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP10"/>
+        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="258" partition="1" name="L1_HT190-J15.ETA21" complex_deadtime="0" definition="(HT190-AJ15all.ETA21[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
@@ -2126,20 +2137,20 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="265" partition="1" name="L1_ALFA_SHOWSYST5" complex_deadtime="0" definition="((ALFA_B7L1U[x1]|ALFA_B7L1L[x1]|ALFA_A7L1U[x1]|ALFA_A7L1L[x1])&amp;(ALFA_A7R1U[x1]|ALFA_A7R1L[x1]|ALFA_B7R1U[x1]|ALFA_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="265" partition="1" name="L1_ALFA_SYST9" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;!(ALFA3_B7L1L[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <OR>
-          <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
-          <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
-          <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
-          <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
-        </OR>
-        <OR>
-          <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-          <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
-          <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
-          <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
-        </OR>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
+        <NOT>
+          <OR>
+            <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
+            <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
+            <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
+            <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
+          </OR>
+        </NOT>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2205,18 +2216,18 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="274" partition="1" name="L1_ALFA_SYST9" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;!(ALFA3_B7L1L[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="274" partition="1" name="L1_ALFA_SYST10" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;!(ALFA3_B7L1U[x1]|ALFA3_A7L1U[x1]|ALFA3_A7R1U[x1]|ALFA3_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
         <NOT>
           <OR>
-            <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
-            <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
-            <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
-            <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
+            <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
+            <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
+            <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
+            <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
           </OR>
         </NOT>
         <InternalTrigger name="BGRP0"/>
@@ -2247,20 +2258,12 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="277" partition="1" name="L1_ALFA_SYST10" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;!(ALFA3_B7L1U[x1]|ALFA3_A7L1U[x1]|ALFA3_A7R1U[x1]|ALFA3_B7R1U[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="277" partition="1" name="L1_ALFA_SYST11" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
-        <NOT>
-          <OR>
-            <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
-            <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
-            <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
-            <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
-          </OR>
-        </NOT>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2302,17 +2305,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="283" partition="1" name="L1_ALFA_SYST11" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;ALFA_A7L1U[x1]&amp;ALFA_A7R1U[x1]&amp;ALFA_B7R1U[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
-        <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="284" partition="1" name="L1_ALFA_SYST12" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="283" partition="1" name="L1_ALFA_SYST12" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;ALFA_A7L1L[x1]&amp;ALFA_A7R1L[x1]&amp;ALFA_B7R1L[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
         <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
@@ -2320,6 +2313,22 @@
         <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="284" partition="1" name="L1_ALFA_ANY_BGRP10" complex_deadtime="0" definition="((ALFA3_B7L1U[x1]|ALFA3_B7L1L[x1]|ALFA3_A7L1U[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1U[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1U[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
+      <AND>
+        <OR>
+          <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
+          <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
+          <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
+          <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
+          <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
+          <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
+          <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
+          <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
+        </OR>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP10"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="285" partition="1" name="L1_LAR-ZEE_LAR-EM" complex_deadtime="0" definition="(ZEE-EM20shi2[x1]&amp;LAR-EM20shi1[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10010000" monitor="LF:000|HF:000">
@@ -2338,20 +2347,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="287" partition="1" name="L1_ALFA_ANY_BGRP10" complex_deadtime="0" definition="((ALFA3_B7L1U[x1]|ALFA3_B7L1L[x1]|ALFA3_A7L1U[x1]|ALFA3_A7L1L[x1]|ALFA3_A7R1U[x1]|ALFA3_A7R1L[x1]|ALFA3_B7R1U[x1]|ALFA3_B7R1L[x1])&amp;BGRP0&amp;BGRP10)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="287" partition="1" name="L1_ALFA_B7L1U" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
-        <OR>
-          <TriggerCondition multi="1" name="ALFA3_B7L1U_x1" triggerthreshold="ALFA3_B7L1U"/>
-          <TriggerCondition multi="1" name="ALFA3_B7L1L_x1" triggerthreshold="ALFA3_B7L1L"/>
-          <TriggerCondition multi="1" name="ALFA3_A7L1U_x1" triggerthreshold="ALFA3_A7L1U"/>
-          <TriggerCondition multi="1" name="ALFA3_A7L1L_x1" triggerthreshold="ALFA3_A7L1L"/>
-          <TriggerCondition multi="1" name="ALFA3_A7R1U_x1" triggerthreshold="ALFA3_A7R1U"/>
-          <TriggerCondition multi="1" name="ALFA3_A7R1L_x1" triggerthreshold="ALFA3_A7R1L"/>
-          <TriggerCondition multi="1" name="ALFA3_B7R1U_x1" triggerthreshold="ALFA3_B7R1U"/>
-          <TriggerCondition multi="1" name="ALFA3_B7R1L_x1" triggerthreshold="ALFA3_B7R1L"/>
-        </OR>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP10"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="288" partition="1" name="L1_DPHI-2EM3" complex_deadtime="0" definition="(27DPHI32-EMs1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
@@ -2361,9 +2360,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="289" partition="1" name="L1_ALFA_B7L1U" complex_deadtime="0" definition="(ALFA_B7L1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="289" partition="1" name="L1_ALFA_B7L1L" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_x1" triggerthreshold="ALFA_B7L1U"/>
+        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
@@ -2419,21 +2418,21 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="296" partition="1" name="L1_ALFA_B7L1L" complex_deadtime="0" definition="(ALFA_B7L1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1L_x1" triggerthreshold="ALFA_B7L1L"/>
-        <InternalTrigger name="BGRP0"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="297" partition="1" name="L1_ALFA_A7L1U" complex_deadtime="0" definition="(ALFA_A7L1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="296" partition="1" name="L1_ALFA_A7L1U" complex_deadtime="0" definition="(ALFA_A7L1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_A7L1U_x1" triggerthreshold="ALFA_A7L1U"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="298" partition="1" name="L1_ALFA_A7L1L" complex_deadtime="0" definition="(ALFA_A7L1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="297" partition="1" name="L1_ALFA_A7L1L" complex_deadtime="0" definition="(ALFA_A7L1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_A7L1L_x1" triggerthreshold="ALFA_A7L1L"/>
+        <InternalTrigger name="BGRP0"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="298" partition="1" name="L1_ALFA_A7R1U" complex_deadtime="0" definition="(ALFA_A7R1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
@@ -2480,9 +2479,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="304" partition="1" name="L1_ALFA_A7R1U" complex_deadtime="0" definition="(ALFA_A7R1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="304" partition="1" name="L1_ALFA_A7R1L" complex_deadtime="0" definition="(ALFA_A7R1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="ALFA_A7R1U_x1" triggerthreshold="ALFA_A7R1U"/>
+        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
@@ -2494,21 +2493,21 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="306" partition="1" name="L1_ALFA_A7R1L" complex_deadtime="0" definition="(ALFA_A7R1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_A7R1L_x1" triggerthreshold="ALFA_A7R1L"/>
-        <InternalTrigger name="BGRP0"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="307" partition="1" name="L1_ALFA_B7R1U" complex_deadtime="0" definition="(ALFA_B7R1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="306" partition="1" name="L1_ALFA_B7R1U" complex_deadtime="0" definition="(ALFA_B7R1U[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7R1U_x1" triggerthreshold="ALFA_B7R1U"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="308" partition="1" name="L1_ALFA_B7R1L" complex_deadtime="0" definition="(ALFA_B7R1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="307" partition="1" name="L1_ALFA_B7R1L" complex_deadtime="0" definition="(ALFA_B7R1L[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7R1L_x1" triggerthreshold="ALFA_B7R1L"/>
+        <InternalTrigger name="BGRP0"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="308" partition="1" name="L1_ALFA_B7L1U_OD" complex_deadtime="0" definition="(ALFA_B7L1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="ALFA_B7L1U_OD_x1" triggerthreshold="ALFA_B7L1U_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
@@ -2532,21 +2531,21 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="310" partition="1" name="L1_ALFA_B7L1U_OD" complex_deadtime="0" definition="(ALFA_B7L1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_B7L1U_OD_x1" triggerthreshold="ALFA_B7L1U_OD"/>
-        <InternalTrigger name="BGRP0"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="311" partition="1" name="L1_ALFA_B7L1L_OD" complex_deadtime="0" definition="(ALFA_B7L1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="310" partition="1" name="L1_ALFA_B7L1L_OD" complex_deadtime="0" definition="(ALFA_B7L1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7L1L_OD_x1" triggerthreshold="ALFA_B7L1L_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="312" partition="1" name="L1_ALFA_A7L1U_OD" complex_deadtime="0" definition="(ALFA_A7L1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="311" partition="1" name="L1_ALFA_A7L1U_OD" complex_deadtime="0" definition="(ALFA_A7L1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_A7L1U_OD_x1" triggerthreshold="ALFA_A7L1U_OD"/>
+        <InternalTrigger name="BGRP0"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="312" partition="1" name="L1_ALFA_A7L1L_OD" complex_deadtime="0" definition="(ALFA_A7L1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="ALFA_A7L1L_OD_x1" triggerthreshold="ALFA_A7L1L_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
@@ -2927,34 +2926,35 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="359" partition="1" name="L1_ALFA_A7L1L_OD" complex_deadtime="0" definition="(ALFA_A7L1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="ALFA_A7L1L_OD_x1" triggerthreshold="ALFA_A7L1L_OD"/>
-        <InternalTrigger name="BGRP0"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="360" partition="1" name="L1_ALFA_A7R1U_OD" complex_deadtime="0" definition="(ALFA_A7R1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="359" partition="1" name="L1_ALFA_A7R1U_OD" complex_deadtime="0" definition="(ALFA_A7R1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_A7R1U_OD_x1" triggerthreshold="ALFA_A7R1U_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="361" partition="1" name="L1_ALFA_A7R1L_OD" complex_deadtime="0" definition="(ALFA_A7R1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="360" partition="1" name="L1_ALFA_A7R1L_OD" complex_deadtime="0" definition="(ALFA_A7R1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_A7R1L_OD_x1" triggerthreshold="ALFA_A7R1L_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="362" partition="1" name="L1_ALFA_B7R1U_OD" complex_deadtime="0" definition="(ALFA_B7R1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="361" partition="1" name="L1_ALFA_B7R1U_OD" complex_deadtime="0" definition="(ALFA_B7R1U_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7R1U_OD_x1" triggerthreshold="ALFA_B7R1U_OD"/>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="363" partition="1" name="L1_ALFA_B7R1L_OD" complex_deadtime="0" definition="(ALFA_B7R1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="362" partition="1" name="L1_ALFA_B7R1L_OD" complex_deadtime="0" definition="(ALFA_B7R1L_OD[x1]&amp;BGRP0)" trigger_type="11000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ALFA_B7R1L_OD_x1" triggerthreshold="ALFA_B7R1L_OD"/>
         <InternalTrigger name="BGRP0"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="363" partition="1" name="L1_W-05RO-XEHT-0" complex_deadtime="0" definition="(05RATIO-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="05RATIO-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="05RATIO-XE0-HT0-AJj15all.ETA49"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="364" partition="1" name="L1_LFV-MU11" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;MU11[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
@@ -8349,7 +8349,7 @@
       <Parametrization isobit="5" offset="30" slope="100" mincut="0" upperlimit="60" etamin="-49" etamax="49" priority="0"/>
     </Isolation>
     <MinimumTOBPt thrtype="EM" ptmin="3" etamin="-49" etamax="49" priority="0"/>
-    <MinimumTOBPt thrtype="TAU" ptmin="8" etamin="-49" etamax="49" priority="0"/>
+    <MinimumTOBPt thrtype="TAU" ptmin="5" etamin="-49" etamax="49" priority="0"/>
     <MinimumTOBPt thrtype="JETS" window="4" ptmin="12" etamin="-49" etamax="49" priority="0"/>
     <MinimumTOBPt thrtype="JETL" window="8" ptmin="12" etamin="-49" etamax="49" priority="0"/>
   </CaloInfo>

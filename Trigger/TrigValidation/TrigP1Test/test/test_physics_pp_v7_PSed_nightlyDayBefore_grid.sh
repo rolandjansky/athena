@@ -14,11 +14,11 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: *.regtest
+# art-output: *.regtest.new
 # art-output: *stdout*
 
 export NAME="athenaHLT_prescaled_PhysicsV7"
-export JOB_LOG="${NAME}.log"
+export JOB_LOG="atn_test.log"
 
 #source /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt | tee ${JOB_LOG} 
 #for testing:

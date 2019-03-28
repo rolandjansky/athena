@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
@@ -14,10 +14,6 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
@@ -43,10 +39,8 @@ RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("TempBkgStore", m_storeGateTempBkg, "help");
   declareProperty("mainInputRPC_Name", m_mainInputRPC_Name="rpc_digits");
   declareProperty("overlayInputRPC_Name", m_overlayInputRPC_Name="rpc_digits");
-  declareProperty("CopySDO", m_copySDO=true);
   declareProperty("DigitizationTool", m_digTool);
   declareProperty("ConvertRDOToDigitTool", m_rdoTool);
-  declareProperty("RPC_SDO", m_sdo = "RPC_SDO");
   declareProperty("CopyObject", m_copyObjects=false);
 }
 
@@ -153,26 +147,12 @@ StatusCode RpcOverlay::overlayExecute() {
      }*/
 
   SG::WriteHandle<RpcDigitContainer> outputContainer(m_mainInputRPC_Name, m_storeGateOutput->name());
-  outputContainer = CxxUtils::make_unique<RpcDigitContainer>(dataContainer->size());
+  outputContainer = std::make_unique<RpcDigitContainer>(dataContainer->size());
   //Do the actual overlay
   if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) { 
     this->overlayContainer(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
   }
   ATH_MSG_INFO("RPC Result   = "<<shortPrint(outputContainer.cptr()));
-
-  //----------------------------------------------------------------
-  msg( MSG::DEBUG ) <<"Processing MC truth data"<<endmsg;
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just RPC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy RPC-specific MC truth objects to the output.
-  if ( m_copySDO )
-      this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   msg( MSG::DEBUG ) << "RpcOverlay::execute() end"<< endmsg;
@@ -181,4 +161,3 @@ StatusCode RpcOverlay::overlayExecute() {
 }
 
 // EOF
-

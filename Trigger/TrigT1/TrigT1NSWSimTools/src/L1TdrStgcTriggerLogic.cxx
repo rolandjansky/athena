@@ -1,18 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
-#include "TrigT1NSWSimTools/PadWithHits.h"
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
-#include "TrigT1NSWSimTools/vector_utils.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
-
+#include "TrigT1NSWSimTools/PadOfflineData.h"
 #include <fstream>
 #include <functional>
-#include <numeric>//iota
+#include <numeric>
 
 using std::distance;
 using std::set_intersection;
@@ -24,28 +22,21 @@ namespace {
 namespace NSWL1{
     
     
-  L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
-    m_msg("L1TdrStgcTriggerLogic"), m_writePickle(false), m_picklePrefix("./"){
+    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
+         m_msg("L1TdrStgcTriggerLogic"){
     }
     //-------------------------------------
     L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::hitPattern(const Pad &firstPad, const Pad &otherPad,
+    bool L1TdrStgcTriggerLogic::hitPattern(const std::shared_ptr<PadOfflineData> &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
                         std::string &pattern) {
-        return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
-                                otherPad.iphi, pattern);
+        return L1TdrStgcTriggerLogic::hitPattern(firstPad->padEtaId(), firstPad->padPhiId(), otherPad->padEtaId(),
+                                otherPad->padPhiId(), pattern);
     }
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
                         const int &iPhi1, std::string &pattern) {
-        // A la ATL-MUON-INT-2014-003 =>>
         pattern = "33";
-        //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
-        //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
-        //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
-        //  else               pattern = (iEta0==iEta1 ? "12" : "22");
-        // <<== A la ATL-MUON-INT-2014-003
-        // New Logic - DeltaEtaDeltaPhi
         if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
             return false;
         if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)
@@ -70,7 +61,7 @@ namespace NSWL1{
     //-------------------------------------
     //S.I : a method should not have so many arguments..
     std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::buildSingleWedgeTriggers(
-        const std::vector< PadWithHits > &pads, const std::vector< size_t > &padIndicesLayer0,
+        const std::vector< std::shared_ptr<PadOfflineData> > &pads, const std::vector< size_t > &padIndicesLayer0,
         const std::vector< size_t > &padIndicesLayer1, const std::vector< size_t > &padIndicesLayer2,
         const std::vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
         bool isLayer3, bool isLayer4) {
@@ -98,7 +89,7 @@ namespace NSWL1{
     const std::vector<std::string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
     const std::vector<std::string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
 
-    int iL1st = -1; // first layer index
+    int iL1st = -1;
     for (size_t il1 = 0; il1 < nHL1; il1++) {
         int l1Idx = -1;
         std::string sl1("33");
@@ -106,188 +97,64 @@ namespace NSWL1{
             l1Idx = padIndicesLayer0.at(il1);
             sl1 = "11";
             iL1st = l1Idx;
-        } // if l1 is considered  its indices are always 11
+        }
         for (size_t il2 = 0; il2 < nHL2; il2++) {
-        int l2Idx = -1;
-        std::string sl2("33");
-        if (isLayer2) {
-            l2Idx = padIndicesLayer1.at(il2);
-            if (iL1st == -1) {
-                sl2 = "11";
-                iL1st = l2Idx;
-            } // l1 was not considered, l2 gets the first indices
-            else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
-            continue;
-        } // end if(isLayer2)
-        for (size_t il3 = 0; il3 < nHL3; il3++) {
-            int l3Idx = -1;
-            std::string sl3("33");
-            if (isLayer3) {
-                l3Idx = padIndicesLayer2.at(il3);
-            if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
-                continue;
-            }
-            for (size_t il4 = 0; il4 < nHL4; il4++) {
-            int l4Idx = -1;
-            std::string sl4("33");
-            if (isLayer4) {
-                l4Idx = padIndicesLayer3.at(il4);
-                if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
-                continue;
-            }
-            // checked all layers, now store the trigger if it's a valid pattern
-
-            std::string pattern(sl4 + sl3 + sl2 + sl1);
-            // the above line is replaced by a normal order l1,l2,l3,l4 and
-            // separated in phi and eta but it remains the same for later usage in
-            // the trigger selection
-            // Hence the following is only for internal ease of calculation. The
-            // pattern to be passed is the "pattern" not "patternPhi" or
-            // "patternEta"
-            std::string patternPhi;
-            patternPhi.push_back(sl1.at(1));
-            patternPhi.push_back(sl2.at(1));
-            patternPhi.push_back(sl3.at(1));
-            patternPhi.push_back(sl4.at(1));
-
-            std::string patternEta;
-            patternEta.push_back(sl1.at(0));
-            patternEta.push_back(sl2.at(0));
-            patternEta.push_back(sl3.at(0));
-            patternEta.push_back(sl4.at(0));
-
-            int    multipletid=-1 ;
-            int    moduleid=-1 ;
-            int    sectortype=-1 ;
-
-//Please mind the indentation
-            if (sl1 == "11") {
-                multipletid = pads.at(l1Idx).multiplet;
-                    moduleid = pads.at(l1Idx).module;
-                    sectortype = pads.at(l1Idx).sectortype;
-
-            } else if (sl2 == "11") {
-                multipletid = pads.at(l2Idx).multiplet;
-                    moduleid = pads.at(l2Idx).module;
-                    sectortype = pads.at(l2Idx).sectortype;
-
-                }
-
-            std::string etamove, phimove;
-            if (sectortype == 1) {
-                if (multipletid == 1) {
-
-                    etamove = "D";
-                    phimove = "U";
-
-                if (moduleid == 2) {
-                    etamove = "U";
-                    phimove = "U";
-                }
-
-                } else { // multiplet = 2   15-7-18 YR - Confirm   new geometry
-
-                    etamove = "U";
-                    phimove = "DU";
-                }
-
-
-            }
- 
-            if (sectortype == 0) {
-                if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
-                if (moduleid == 1) {
-                    etamove = "U";
-                    phimove = "DU";
-                }
-                if (moduleid == 2) {
-                    etamove = "D";
-                    phimove = "UD";
-                }
-                if (moduleid == 3) {
-                    etamove = "U";
-                    phimove = "UD";
-                }
-                } else { // multiplet = 2
-                if (moduleid == 1) {
-                    etamove = "U";
-                    phimove = "D";
-                }
-                else
-                {
-                    etamove = "U";
-                    phimove = "U";
-                }
-                }
-            }
-
-            if (etamove == "D") {
-                if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
-                            patternEta) == PatternsEtaDown.end()) {
-                continue;
-                }
-            }
-
-            if (etamove == "U") {
-                if (find(PatternsEtaUp.begin(), PatternsEtaUp.end(),
-                            patternEta) == PatternsEtaUp.end()) {
-                continue;
-                }
-            }
-
-            if (phimove == "U") {
-                if (find(PatternsPhiUp.begin(), PatternsPhiUp.end(),
-                            patternPhi) == PatternsPhiUp.end()) {
-                continue;
-                }
-            }
-            if (phimove == "D") {
-                if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
-                            patternPhi) == PatternsPhiDown.end()) {
-                continue;
-                }
-            }
-            if (phimove == "UD") {
-                if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
-                            patternPhi) == PatternsPhiUpDown.end()) {
-                continue;
-                }
-            }
-            if (phimove == "DU") {
-                if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
-                            patternPhi) == PatternsPhiDownUp.end()) {
-                continue;
-                }
-            }
-
-            std::vector< size_t > padIndices;
-
-            if (isLayer1) {
-                assert(l1Idx > -1);
-                padIndices.push_back(l1Idx);
-            }
+            int l2Idx = -1;
+            std::string sl2("33");
             if (isLayer2) {
-                assert(l2Idx > -1);
-                padIndices.push_back(l2Idx);
+                l2Idx = padIndicesLayer1.at(il2);
+                if (iL1st == -1) {
+                    sl2 = "11";
+                    iL1st = l2Idx;
+                } // l1 was not considered, l2 gets the first indices
+                else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
+                continue;
             }
-            if (isLayer3) {
-                assert(l3Idx > -1);
-                padIndices.push_back(l3Idx);
-            }
-            if (isLayer4) {
-                assert(l4Idx > -1);
-                padIndices.push_back(l4Idx);
-            }
-            triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+            for (size_t il3 = 0; il3 < nHL3; il3++) {
+                int l3Idx = -1;
+                std::string sl3("33");
+                if (isLayer3) {
+                    l3Idx = padIndicesLayer2.at(il3);
+                if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
+                    continue;
+                }
+                for (size_t il4 = 0; il4 < nHL4; il4++) {
+                    int l4Idx = -1;
+                    std::string sl4("33");
+                    if (isLayer4) {
+                        l4Idx = padIndicesLayer3.at(il4);
+                        if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
+                        continue;
+                    }
+                    
+                    std::string pattern(sl4 + sl3 + sl2 + sl1);
+                    std::vector< size_t > padIndices;
 
-            if (triggers.size() > 4) {
-                return triggers;
+                    if (isLayer1) {
+                        assert(l1Idx > -1);
+                        padIndices.push_back(l1Idx);
+                    }
+                    if (isLayer2) {
+                        assert(l2Idx > -1);
+                        padIndices.push_back(l2Idx);
+                    }
+                    if (isLayer3) {
+                        assert(l3Idx > -1);
+                        padIndices.push_back(l3Idx);
+                    }
+                    if (isLayer4) {
+                        assert(l4Idx > -1);
+                        padIndices.push_back(l4Idx);
+                    }
+                    triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+
+                    if (triggers.size() > 4) {
+                        return triggers;
+                    }
+                }
             }
-            //////////////////////////////////////////////////
-            } // end for(il4)
-        }   // end for(il3)
-        }     // end for(il2)
-    }       // end for(il1)
+        }
+    }
 
     return triggers;
     }
@@ -295,15 +162,16 @@ namespace NSWL1{
     //-------------------------------------
     std::vector< size_t > L1TdrStgcTriggerLogic::removeRandomPadIndices(const std::vector< size_t > &padIndices) {
         std::vector< size_t > out;
+        TRandom rand;
         out.reserve(padIndices.size());
         for (size_t i = 0; i < padIndices.size(); ++i) {
-            if (m_rand.Uniform(1) < padTimingEfficiency)
+            if (rand.Uniform(1) < padTimingEfficiency)
             out.push_back(padIndices.at(i));
         }
         return out;
     }
     //-------------------------------------Inner:
-    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build34swt(const std::vector< PadWithHits > &pads,
+    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build34swt(const std::vector< std::shared_ptr<PadOfflineData> > &pads,
                                                                            const std::vector< size_t > &iL0,
                                                                            const std::vector< size_t > &iL1,
                                                                            const std::vector< size_t > &iL2,
@@ -320,7 +188,7 @@ namespace NSWL1{
         triggers.insert(triggers.end(), trigNoL3.begin(), trigNoL3.end());
         return triggers;
     }
-    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build44swt(const std::vector< PadWithHits > &pads,
+    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build44swt(const std::vector< std::shared_ptr<PadOfflineData> > &pads,
                                                                       const std::vector< size_t > &iL0,
                                                                       const std::vector< size_t > &iL1,
                                                                       const std::vector< size_t > &iL2,
@@ -350,13 +218,13 @@ namespace NSWL1{
        }
     };
     
-    void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){
+    void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){//haha :)
       for (std::vector< SingleWedgePadTrigger >::const_iterator t4 = trigs4of4.begin(); t4 != trigs4of4.end();++t4) {
          trigs3of4.erase(remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
       }
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< PadWithHits > &pads) {
+    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< std::shared_ptr<PadOfflineData> > &pads) {
        
         m_secTrigCand.clear();
         std::vector< size_t > indicesSecN(pads.size());
@@ -381,10 +249,10 @@ namespace NSWL1{
         remove3of4Redundant4of4(o4of4trig, o3of4trig);
         
         ATH_MSG_DEBUG("SingleWedge triggers :"
-		      << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
-		      << "(4/4)"
-		      << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
-		      << "(4/4)");
+                << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
+                << "(4/4)"
+                << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
+                << "(4/4)" );
         
         std::vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
         innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
@@ -410,13 +278,15 @@ namespace NSWL1{
                     Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it.pads());
                     Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot.pads());
                     
-                    float Z1=ot.pads().at(0).m_cornerXyz[1][2];
-                    float Z0=it.pads().at(0).m_cornerXyz[1][2];
+                    float Z1=ot.pads().at(0)->m_cornerXyz[1][2];
+                    float Z0=it.pads().at(0)->m_cornerXyz[1][2];
                     
                     Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
+
                     float overlap=area(inoutovl);
-		    ATH_MSG_DEBUG("OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea));
+                     
                     if (overlap >0) {
+                       ATH_MSG_DEBUG("OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea));                        
                         m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
                     }
                 } // end for(ot)
@@ -427,7 +297,7 @@ namespace NSWL1{
             if (acceptSingleWedgeInTransition) {
                 for ( auto& it : innerTrigs){
                     if (it.alreadyCombined()){
-		      ATH_MSG_DEBUG("Inner SingleWedge trigger already combined, skipping");
+                         ATH_MSG_DEBUG("Inner SingleWedge trigger already combined, skipping");
                         continue;
                     }
                     else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
@@ -436,7 +306,7 @@ namespace NSWL1{
                 }
                 for ( auto& ot : outerTrigs) {
                     if (ot.alreadyCombined()){
-		      ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");
+                         ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");                        
                         continue;
                     }
                     else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
@@ -447,26 +317,10 @@ namespace NSWL1{
         }   // if(not skipInnerOuterMatchHack)
         //m_secTrigCand = trigCandidates;
         
-	ATH_MSG_DEBUG("found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
+         ATH_MSG_DEBUG("found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
         for (const auto& tc : m_secTrigCand) {
-	  ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
+                ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
         }
-
-        if (m_writePickle) {
-            if (m_secTrigCand.size() > 0) {
-                int sector = m_secTrigCand.at(0).wedgeTrigs().at(0).pads().at(0).sector;
-                char buf[1024] = "";
-                sprintf(buf, "%s/sector%02d.txt", m_picklePrefix.c_str(), sector);
-                std::ofstream fileDump;
-                fileDump.open(buf);
-                fileDump << "[";
-                for (size_t i = 0; i < m_secTrigCand.size(); ++i){
-                    fileDump << "{" << m_secTrigCand.at(i).pickle() << "},\n";
-                }
-                fileDump << "]";
-                fileDump.close();
-            }
-        } // if(m_writePickle)
         return (m_secTrigCand.size() > 0);
     }
 
@@ -579,5 +433,34 @@ namespace NSWL1{
         return patterns;
     }
 
+    //orphant functions .. mut be members TrigT1NSWSimTools or move into a separate file. 
+  //-------------------------------------
+  std::vector<size_t> L1TdrStgcTriggerLogic::filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+                                         const std::vector<size_t> &padSelectedIndices,
+                                         int layer)
+  {
+    std::vector<size_t> indices;
+    for(size_t i=0; i<padSelectedIndices.size(); i++){
+      const size_t &idx=padSelectedIndices[i];
+      if(layer==pads[idx]->gasGapId()) indices.push_back(idx);
+    }
+    return indices;
+  }
+
+  std::vector<size_t> L1TdrStgcTriggerLogic::filterByMultiplet(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
+                                             const std::vector<size_t> &padSelectedIndices,
+                                             int multiplet)
+  {
+    std::vector<size_t> indices;
+    for(size_t i=0; i<padSelectedIndices.size(); i++){
+      const size_t &idx=padSelectedIndices[i];
+      if(multiplet==pads[idx]->multipletId()) indices.push_back(idx);
+    }
+    return indices;
+  }
+  //-------------------------------------    
+    
+    
+    
 }
 

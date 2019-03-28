@@ -5,7 +5,7 @@ echo  $(date "+%FT%H:%M %Z")"     Execute TrigP1Test post processing"
 ### DEFAULTS
 
 if [ -z ${JOB_LOG} ]; then
-  export JOB_LOG="athena.log"
+  export JOB_LOG="atn_test.log"
 fi
 
 if [ -z ${TEST} ]; then
@@ -34,7 +34,8 @@ timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
-export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
+#export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
+export JOB_LOG_TAIL="atn_tail.log"
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
 grep REGTEST ${JOB_LOG} > athena.regtest
@@ -44,7 +45,10 @@ if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
+  echo "art-result: 999 RegTest"
 fi
+
+mv athena.regtest athena.regtest.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
@@ -55,6 +59,8 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo "art-result: ${PIPESTATUS[0]} CheckCounts"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+  echo "art-result:  999 RootComp"
+  echo "art-result:  999 CheckCounts"
 fi
 
 if [ -f trig_cost.root ]; then 

@@ -49,6 +49,16 @@ hlt_jetemfracbins = [ 52]
 hlt_jetemfracbinlo = [ -0.02]
 hlt_jetemfracbinhi = [ 1.02 ]
 
+# Binning for JVT
+hlt_jetJVTbins = [ 62]
+hlt_jetJVTbinlo = [ -0.12]
+hlt_jetJVTbinhi = [ 1.02 ]
+
+# Binning for SumPtTrk500
+hlt_jetSumPtTrk500bins = [ 100 ]
+hlt_jetSumPtTrk500binlo = [ 0. ]
+hlt_jetSumPtTrk500binhi = [ 500 ]
+
 # Binning for DEt
 hlt_jetDEtbins = [ 42 ]
 hlt_jetDEtbinlo = [ -70. ]
@@ -119,7 +129,9 @@ if (pp) or (mc):
                   "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
                   #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
                   "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
-                  "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS"
+                  "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS",
+                  "a4tcemsubjesISFSftk"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFSftk",
+                  "a4tcemsubjesISFSftkrefit"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFSftkrefit",
                   }
   
   hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets",   
@@ -153,7 +165,13 @@ if (pp) or (mc):
                                      'L1_J400':4.9}
     
 # HLT items
-  hlt_hltEtThresholds            = { 'j35':20.,
+  hlt_hltEtThresholds            = { 'j0_perf_L1RD0FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+                                     'j35':20.,
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
                                      'j35_sub':20.,
@@ -180,9 +198,19 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     '10j40_L14J20':0.}
+                                     '10j40_L14J20':0.,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':20.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':20.}
     
-  hlt_hltEtaHighThresholds       = { 'j35':3.2,
+  hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
+                                     'j0_perf_ftk_L1RD0FILLED': 2.5,
+                                     'j0_perf_ftkrefit_L1RD0FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 2.5,
+                                     'j35':3.2,
                                      'j35_jes':3.2,
                                      'j35_lcw':3.2,
                                      'j35_sub':3.2,
@@ -208,9 +236,20 @@ if (pp) or (mc):
                                      '4j45':3.2,
                                      '6j45':3.2,
                                      '6j45_0eta240':2.4,
-                                     '10j40_L14J20':3.2}
+                                     '10j40_L14J20':3.2,
+				     'j0_ftk_jvt015et15':3.2,
+				     'j0_ftk_jvt015et45':3.2,
+				     'j0_ftk_4jvt015et15':3.2,
+				     'j0_ftk_4jvt015et45':3.2}
+
   
-  hlt_hltEtaLowThresholds        = { 'j35':0.0,
+  hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+                                     'j35':0.0,
                                      'j35_jes':0.0,
                                      'j35_lcw':0.0,
                                      'j35_sub':0.0,
@@ -236,10 +275,20 @@ if (pp) or (mc):
                                      '4j45':0.0,
                                      '6j45':0.0,
                                      '6j45_0eta240':0.0,
-                                     '10j40_L14J20':0.0}
+                                     '10j40_L14J20':0.0,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':0.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':0.}
   
   
-  hlt_hltJetn                    = { 'j35':1,
+  hlt_hltJetn                    = { 'j0_perf_L1RD0FILLED': 1,
+                                     'j0_perf_ftk_L1RD0FILLED': 1,
+                                     'j0_perf_ftkrefit_L1RD0FILLED': 1,
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 1,
+                                     'j35':1,
                                      'j35_jes':1,
                                      'j35_lcw':1,
                                      'j35_sub':1,
@@ -265,10 +314,20 @@ if (pp) or (mc):
                                      '4j45':4,
                                      '6j45':6,
                                      '6j45_0eta240':6,
-                                     '10j40_L14J20':10}
+                                     '10j40_L14J20':10,
+				     'j0_ftk_jvt015et15':1,
+				     'j0_ftk_jvt015et45':1,
+				     'j0_ftk_4jvt015et15':4,
+				     'j0_ftk_4jvt015et45':4}
+
   
-  
-  hlt_hltContainers              = { 'j35':'a4tcemsubjesISFS',
+  hlt_hltContainers              = { 'j0_perf_L1RD0FILLED':'a4tcemsubjesISFS',
+                                     'j0_perf_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_perf_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED':'a4tcemsubjesISFS',
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
+                                     'j35':'a4tcemsubjesISFS',
                                      'j35_sub':'a4tcemsubFS',
                                      'j35_jes':'a4tcemjesFS',
                                      'j35_subjes':'a4tcemsubjesFS',
@@ -295,10 +354,20 @@ if (pp) or (mc):
                                      '4j45':'a4tcemsubjesISFS',
                                      '6j45':'a4tcemsubjesISFS',
                                      '6j45_0eta240':'a4tcemsubjesISFS',
-                                     '10j40_L14J20':'a4tcemsubjesISFS'}
+                                     '10j40_L14J20':'a4tcemsubjesISFS',
+				     'j0_ftk_jvt015et15':'a4tcemsubjesISFSftk',
+				     'j0_ftk_jvt015et45':'a4tcemsubjesISFSftk',
+				     'j0_ftk_4jvt015et15':'a4tcemsubjesISFSftk',
+				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk'}
                 
 # Offline 
-  hlt_offlineEtThresholds        = { 'L1_J15':0., 
+  hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+                                     'L1_J15':0., 
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
                                      'j35_sub':20.,
@@ -325,7 +394,12 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     '10j40_L14J20':0.}
+                                     '10j40_L14J20':0.,
+				     'j0_ftk_jvt015et15':0.,
+				     'j0_ftk_jvt015et45':20.,
+				     'j0_ftk_4jvt015et15':0.,
+				     'j0_ftk_4jvt015et45':20.}
+
 
 ############################################# HI Config #########################################################
   
@@ -574,6 +648,16 @@ def TrigJetMonitoringTool():
             JetemfracBinLo            = hlt_jetemfracbinlo,
             JetemfracBinHi            = hlt_jetemfracbinhi,
 
+            # Binning for emfrac
+            JetJVTNBins               = hlt_jetJVTbins,
+            JetJVTBinLo               = hlt_jetJVTbinlo,
+            JetJVTBinHi               = hlt_jetJVTbinhi,
+
+            # Binning for emfrac
+            JetSumPtTrk500NBins       = hlt_jetSumPtTrk500bins,
+            JetSumPtTrk500BinLo       = hlt_jetSumPtTrk500binlo,
+            JetSumPtTrk500BinHi       = hlt_jetSumPtTrk500binhi,
+
             # Binning for DEt
             JetDEtNBins               = hlt_jetDEtbins,
             JetDEtBinLo               = hlt_jetDEtbinlo,
@@ -681,7 +765,6 @@ def TrigJetMonitoringTool():
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)
 
-  
   ToolSvc += HLTJetMon;
 
   # Set up the trigger configuration tool:

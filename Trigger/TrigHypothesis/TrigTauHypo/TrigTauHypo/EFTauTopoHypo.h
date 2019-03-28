@@ -27,6 +27,7 @@ class EFTauTopoHypo : public HLT::HypoAlgo
 	HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, bool& pass);
 
  private:
+        float m_monDRall; 
 	float m_monDR;
 	float m_dR;
 	float m_dRmax;

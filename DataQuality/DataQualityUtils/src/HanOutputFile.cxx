@@ -1442,7 +1442,9 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       displayExtra(myC,display);
       myC->RedrawAxis();
 
-      ratioplot(myC ,h,hRef,display);      //RatioPad
+      if (hRef) {
+	ratioplot(myC ,h,hRef,display);      //RatioPad
+      }
       myC->cd();//might be unnecessary
       polynomial(myC,display,h); //draw polynome for TH1
 
@@ -2244,13 +2246,16 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     TProfile* ph    = dynamic_cast<TProfile*>( h );
     TH1F *clonehist   ;
     TH1F *clonehistref;
-    if( ph != 0 ) {//profile
-      std::cout<<"it is a TProfile\n";
+    //transform if profiles
+    if( ph != 0 ) {
       clonehist=(TH1F*)ph->ProjectionX();
-      clonehistref=(TH1F*)phRef->ProjectionX();
-    }else{
+    } else {
       clonehist=(TH1F*)h->Clone();
       clonehist->Sumw2();
+    }
+    if ( phRef != 0 ) {
+      clonehistref=(TH1F*)phRef->ProjectionX();
+    }else{
       clonehistref=(TH1F*)hRef->Clone();
       clonehistref->Sumw2();
     }

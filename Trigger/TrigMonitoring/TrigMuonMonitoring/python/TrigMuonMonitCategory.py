@@ -6,9 +6,9 @@ monitoring_muonNonIso_HI = ['HLT_mu8','HLT_mu3', 'HLT_mu4']#8TeV
 monitoring_muonNonIso_pp = ['HLT_mu50']
 
 
-monitoring_muonIso = ['HLT_mu26_ivarmedium']
+monitoring_muonIso = ['HLT_mu26_ivarmedium','HLT_mu26_ivarmedium_FTK']
 monitoring_muonIso_HI = ['']
-monitoring_muonIso_pp = ['HLT_mu26_ivarmedium']
+monitoring_muonIso_pp = ['HLT_mu26_ivarmedium', 'HLT_mu26_ivarmedium_FTK']
 
 monitoring_MSonly = ['HLT_mu60_0eta105_msonly']
 monitoring_MSonly_HI = ['HLT_mu15_msonly']
@@ -34,9 +34,9 @@ monitoring_muonNonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 monitoring_muonNonIso_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU6','L2_mu_SAhyp_Muon3GeV_v15a_MU4','L2_mu_SAhyp_Muon4GeV_v15a_MU4']#8TeV
 monitoring_muonNonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
-monitoring_muonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
+monitoring_muonIso_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20', 'L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 monitoring_muonIso_HI_L2SAHypo = ['']
-monitoring_muonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
+monitoring_muonIso_pp_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20', 'L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 
 monitoring_MSonly_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU20']
 monitoring_MSonly_HI_L2SAHypo = ['L2_mu_SAhyp_Muon6GeV_v15a_MU11']
@@ -59,9 +59,9 @@ monitoring_muonNonIso_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
 monitoring_muonNonIso_HI_L2CBHypo = ['L2_mucombhyp_mu8_MU6', 'L2_mucombhyp_mu3_MU4', 'L2_mucombhyp_mu4_MU4']#8TeV
 monitoring_muonNonIso_pp_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
 
-monitoring_muonIso_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
+monitoring_muonIso_L2CBHypo = ['L2_mucombhyp_mu22_MU20','L2_mucombhyp_mu22_MU20']
 monitoring_muonIso_HI_L2CBHypo = ['']
-monitoring_muonIso_pp_L2CBHypo = ['L2_mucombhyp_mu22_MU20']
+monitoring_muonIso_pp_L2CBHypo = ['L2_mucombhyp_mu22_MU20', 'L2_mucombhyp_mu22_MU20']
 
 monitoring_MSonly_L2CBHypo = ['']
 monitoring_MSonly_HI_L2CBHypo = ['']

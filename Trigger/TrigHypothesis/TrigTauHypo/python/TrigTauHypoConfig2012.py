@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools, setEFTauTopoMonTools
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
@@ -83,13 +83,24 @@ class EFTauTopoHypoBase (EFTauTopoHypo):
     __slots__ = []
     def __init__(self, name):
         super(EFTauTopoHypoBase, self).__init__(name)
-        setL2TauTopoMonTools(self)
+        setEFTauTopoMonTools(self)
 
 class EFTauTopoHypo (EFTauTopoHypoBase):
     __slots__ = []
     def __init__(self, name = "EFTauTopoHypo", var = [], val = []):
         super(EFTauTopoHypo, self).__init__(name)
         setVarCut(self, var, val)
+
+class EFTauTopoFexBase (EFTauTopoFex):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFTauTopoFexBase, self).__init__(name)
+        
+class EFTauTopoFex (EFTauTopoFexBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauTopoFex", chain_type="ditau"):
+        super(EFTauTopoFex, self).__init__(name)
+        self.comb    = chain_type
 
 ## HLTVertexPreSelHypo
 class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):

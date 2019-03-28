@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -151,10 +151,6 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     #kwargs.setdefault("OnlyPhiEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
     #kwargs.setdefault("OnlyEtaEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
 
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
-    
     return CfgMgr.RpcDigitizationTool(name, **kwargs)
 
 def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):

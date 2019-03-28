@@ -36,7 +36,7 @@ echo  "art-result: $? diff-pool"
 #
 #
 #
-art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root
+art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root --mode=summary
 echo  "art-result: $? diff-root"
 #
 checkFile ./$DigiOutFileName
@@ -47,5 +47,5 @@ ArtPackage=$1
 ArtJobName=$2
 #
 #
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
 echo  "art-result: $? art-compare"

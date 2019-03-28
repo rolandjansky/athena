@@ -20,11 +20,8 @@ namespace xAOD {
     AUX_VARIABLE( dphi );
     AUX_VARIABLE( Id );
     AUX_VARIABLE( et );
-    AUX_VARIABLE( LAr_et );
-    AUX_VARIABLE( Tile_et );
     AUX_VARIABLE( SCIndex );
     AUX_VARIABLE( TileIndex );
-    AUX_VARIABLE( tileFrac );
     AUX_VARIABLE( sampling);
   }
 

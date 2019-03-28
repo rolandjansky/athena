@@ -45,6 +45,8 @@ TriggerFlags.triggerMenuSetup = 'default'
 if 'TriggerMenuSetup' in dir():
    if TriggerMenuSetup in TriggerFlags.triggerMenuSetup.allowedValues:
       TriggerFlags.triggerMenuSetup = TriggerMenuSetup
+      if "v8" in TriggerMenuSetup:
+         TriggerFlags.doFTK = True
       log.info('Overwriting menu: %s' % TriggerFlags.triggerMenuSetup())
    else:
       # The "> Warning:" string is important to recognize this as build warning in NICOS

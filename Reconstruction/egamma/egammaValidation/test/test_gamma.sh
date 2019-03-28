@@ -3,7 +3,7 @@
 # art-description: ART Monitoring Tool for gamma Validation
 #
 # art-type: grid
-# art-input: mc16_13TeV.423001.ParticleGun_single_photon_egammaET.recon.RDO.e3566_s3113_r9388
+# art-input: user.artprod.mc16_13TeV.423001.ParticleGun_single_photon_egammaET.recon.RDO.e3566_s3113_r9388
 # art-input-nfiles: 30
 # art-cores: 4
 # art-include: 21.0/Athena

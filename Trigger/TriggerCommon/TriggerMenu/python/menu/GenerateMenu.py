@@ -633,9 +633,12 @@ class GenerateMenu:
 
         #Do TOPO on Combined chains
         if self.doCombinedChains:
+            log.info('doTopo for combined chain = %s' % str(doTopo))
+            log.info(theChainDef)
             if doTopo:
+                log.info('run generateCombinedChainDefs')
                 theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
-                
+                log.info(theChainDef)        
         return theChainDef
 
     
@@ -705,7 +708,6 @@ class GenerateMenu:
             if len(listOfSequenceInputs)<2: 
                 listOfSequenceInputs = [listOfSequenceInputs] 
             for thisSequenceInputs in listOfSequenceInputs: 
-                print thisSequenceInputs
                 if thisSequenceInputs == [""] or thisSequenceInputs[0].isupper() or inputsAreTEs(thisSequenceInputs): 
                     return True 
 
@@ -903,8 +905,6 @@ class GenerateMenu:
             # generate HLTChains and associated sequences
             if  not self.chainDefIsConsistent(chainDef):
                 log.error('ChainDef consistency checks failing for chain %s' % chain) 
-
-                        
 
             theHLTChain = self.generateHLTChain(chainDef, str(chainDicts['chainCounter']), streamTag, groups, EBstep)
             theHLTSequences = self.generateHLTSequences(chainDef) #replace this function and make separate constructor in HLTSequence

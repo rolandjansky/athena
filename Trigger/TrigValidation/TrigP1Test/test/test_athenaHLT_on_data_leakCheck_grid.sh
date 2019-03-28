@@ -20,11 +20,11 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: *.regtest
+# art-output: *.regtest.new
 # art-output: LeakCheck.txt
 
 export NAME="athenaHLT_on_data_leakCheck_grid"
-export JOB_LOG="${NAME}.log"
+export JOB_LOG="atn_test.log"
 
 export LD_PRELOAD=/cvmfs/sft.cern.ch/lcg/releases/libunwind/5c2cade-76996/$CMTCONFIG/lib/libunwind.so
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 monitoring_bphys = [
                     'HLT_mu11_mu6_bDimu', 
@@ -23,6 +23,7 @@ monitoring_bphys = [
                     'HLT_2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                     'HLT_mu6_bJpsi_Trkloose',
                     'HLT_mu4_mu4_idperf_bJpsimumu_noid',
+                    'HLT_2mu4_bBmumuxv2_Ftk',
                     ]
 
 
@@ -36,6 +37,7 @@ primary_bphys = [
                  'HLT_mu11_mu6_bTau', 
                  'HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
                  'HLT_mu11_mu6_bDimu_novtx_noos', 
+                 'HLT_2mu4_bBmumuxv2_Ftk',
                  ]
 
 primary_bphys_pp = primary_bphys

@@ -25,6 +25,7 @@
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
+
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXJetHits_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXJetTob_ClassDEF.h"
@@ -214,23 +215,32 @@ StatusCode JetCMX::execute( )
                 itTh != thresholds.end(); ++itTh ) {
 	    // Right type?
 	    if ( (*itTh)->type() != L1DataDef::jetType() ) continue;
+            // Right name (this is to check if it is a Run-2 threshold)
+            //    This for running Run-3 trigger menu where we have a mix 
+            //    of Run-2 and Run-3 thresholds for a while and the Run-3 
+            //    thresholds need to be ignored
+            bool isRun2 = (*itTh)->name().find('J') == 0; // Run-2 thresholds start with 'J'
+            if ( ! isRun2 )
+               continue;
+            int num = (*itTh)->thresholdNumber();
+            if (num >= 25) { // Run-2 JET thresholds were 25 maximum (this is fix)
+              ATH_MSG_WARNING("Invalid threshold number " << num << " from threshold " << (*itTh)->name());
+            }
             // Does TOB satisfy this threshold?
             TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
             JetThresholdValue* jtv = dynamic_cast< JetThresholdValue* >( ttv );
+
 	    if (jtv) {
               int etCut              = jtv->ptcut()*jepScale;
               std::string windowSize = jtv->windowSizeAsString();
-                              
               if ( (windowSize == "LARGE" && etLarge > etCut) ||
 		   (windowSize == "SMALL" && etSmall > etCut) ) {
-                int num = ( *itTh )->thresholdNumber();
 		if (num < 25) {
 		  if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
 	          else if ( num >= 10 && crateHits[crate][num] < 3 ) crateHits[crate][num]++;
 		  if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
 		  else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
 		}
-		else ATH_MSG_WARNING("Invalid threshold number " << num );
               } // passes cuts
 		    
             } // JetThresholdValue pointer valid

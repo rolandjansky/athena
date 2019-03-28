@@ -22,6 +22,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TRandom3.h>
 #include "TMath.h"
 
@@ -146,6 +147,7 @@ class HLTMuonMonTool : public IHLTMonTool
   float getPtThresTrigMuonEFCB(const int thres, const float eta);
   HLTMuonMonTool::ptThresEtaRegion getEtaRegion(const float eta);
   const HLT::TriggerElement* getDirectSuccessorHypoTEForL2(const HLT::TriggerElement *te, std::string step, std::string chainname);
+  bool fillProfile(TProfile* effi, TH1* numer, TH1* denom);
 
   //private parameters/functions for common
 
@@ -387,6 +389,7 @@ class HLTMuonMonTool : public IHLTMonTool
 
   ToolHandle< Trig::IBunchCrossingTool > m_bunchTool;
 
+  bool m_do_profile;
   // YY added: for MuonCominedSelectorTool
   //  ToolHandle<Rec::IMuonCombinedSelectorTool> m_muonSelectorTool;  // removed for the moment
 

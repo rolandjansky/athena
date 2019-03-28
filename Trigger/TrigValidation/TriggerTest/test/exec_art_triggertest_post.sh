@@ -2,6 +2,15 @@
 
 echo  $(date "+%FT%H:%M %Z")"     Execute TriggerTest post processing for test ${NAME}"
 
+### Find the branch name
+if [ -n "${AtlasBuildBranch}" ]; then
+  export BRANCH=${AtlasBuildBranch} # available after asetup
+elif [ -n "${gitlabTargetBranch}" ]; then
+  export BRANCH=${gitlabTargetBranch} # available in CI
+else
+  echo "WARNING Cannot determine the branch name, both variables AtlasBuildBranch and gitlabTargetBranch are empty"
+fi
+
 ### DEFAULTS
 
 if [ -z ${JOB_LOG} ]; then
@@ -13,7 +22,7 @@ if [ -z ${TEST} ]; then
 fi
 
 if [ -z ${REF_FOLDER} ]; then
-  export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+  export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${BRANCH}/test_${NAME}"
 fi
 
 ###

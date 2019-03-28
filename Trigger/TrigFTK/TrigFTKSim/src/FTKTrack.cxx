@@ -19,7 +19,7 @@ FTKTrack::FTKTrack() :
    m_invpt(0), m_d0(0), m_rawd0(0) , m_phi(0), m_rawphi(0), m_z0(0), m_rawz0(0),
    m_ctheta(0), m_chi2(0), m_origchi2(0), 
    m_invptfw(0), m_d0fw(0), m_phifw(0), m_z0fw(0), m_cthetafw(0), m_chi2fw(0),
-   m_nmissing(0), 
+   m_nmissing(0),
    m_typemask(0), m_bitmask(0), m_ncoords(0), m_coord(0),
    m_nplanes(0), m_hits(0x0),
    m_nplanes_ignored(0), m_ssid(0),
@@ -94,7 +94,7 @@ FTKTrack::FTKTrack(const int &ncoords, const int &nplanes) :
    m_invpt(0), m_d0(0), m_rawd0(0), m_phi(0), m_rawphi(0), m_z0(0), m_rawz0(0),
    m_ctheta(0), m_chi2(0), m_origchi2(0), 
    m_invptfw(0), m_d0fw(0), m_phifw(0), m_z0fw(0), m_cthetafw(0), m_chi2fw(0),
-   m_nmissing(0), 
+   m_nmissing(0),
    m_typemask(0), m_bitmask(0),   m_ncoords(ncoords),
    m_nplanes(nplanes), m_nplanes_ignored(0), m_ssid(0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
@@ -242,6 +242,44 @@ void  FTKTrack::setParameter(int ipar, float val, bool useraw)
   }
 }
 
+/** return the number of the common hits for the first stage (AUX).
+The current formatting has coordinates instead of hits, so pixel x and y are checked separately.
+However, we only consider a hit matched if all coordinates in the hit match.
+*/
+unsigned int FTKTrack::getNCommonHitsFirstStage(const FTKTrack &track, const float *HWdev) const
+{
+  unsigned int ncommon_hits(0);
+
+  // match over the hits list
+  int hit_ready=0;//Hit_ready is 0 if we still need two coords to match, 1 if we only need one more
+  //This loop is over coordinates, which includes pixel x, pixel y, and sct
+  for (int ix=0;ix!=m_ncoords;++ix) {
+    //Only want it to count as match if pixel x and y both match
+    if (ix>(m_ncoords == 11 ? 5 : 7)) { //SCT hit (3 pixel hits when 11 coord, 4 when 16 coord)
+        hit_ready=1; //If we're on an SCT hit, we only need one coordinate match to say the hit matches
+    } else if (ix==0 || ix==2 || ix==4) {//Beginning of pixel hit
+        hit_ready=0; //Pixel hits require two coordinates to match
+    }
+
+    if ( !((m_bitmask & track.m_bitmask) & (1<<ix)) ) {
+      // majority hits are never counted as matched
+      continue;
+    }
+
+    double dist = TMath::Abs(getCoord(ix)-track.getCoord(ix));
+    if ( dist < HWdev[ix] ) {
+      if ( hit_ready == 1) { //Either this is SCT, or we already found that pixel x matches
+        ++ncommon_hits; // a common hit
+      } else {
+        //The pixel x matches, y checked on next iteration of loop
+        hit_ready=1;
+      }
+    }
+  } // end loop over coordinates
+
+  return ncommon_hits;
+}
+
 /** return the number of the common hits */
 unsigned int FTKTrack::getNCommonHits(const FTKTrack &track, const float *HWdev) const
 {
@@ -264,13 +302,8 @@ unsigned int FTKTrack::getNCommonHits(const FTKTrack &track, const float *HWdev)
   return ncommon_hits;
 }
 
-
-/** this function compare this track with a different tracks and returns:
-     0 if according HW setup the two tracks are different
-     1 are similar and the other has a worse quality parameter
-     -1 are similar and the other has a better quality parameter */
 int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
-		       const unsigned int HW_ndiff, int HW_level)
+               const unsigned int HW_ndiff, int HW_level)
 {
   int accepted(0);
 
@@ -288,18 +321,65 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
   if ( m_ncoords-ncommon_hits<=HW_ndiff) { 
     // the track matches
     if ( ( getHWRejected() && !other.getHWRejected()) ||
-	 (!getHWRejected() &&  other.getHWRejected()) ) {
-	    
+     (!getHWRejected() &&  other.getHWRejected()) ) {
+        
       // keep the track in the accepted road
       if (getHWRejected()) {
-	accepted = -1;
+    accepted = -1;
       }
       else {
-	accepted = 1;
+    accepted = 1;
       }
-	    
+        
     }
     else if (other.getNMissing()==getNMissing()) {
+      // keep the track with the best chi2
+      if (other.getChi2() > getChi2()) {
+    accepted = 1;
+      }
+      else {
+    accepted = -1;
+      }
+    }
+    else if (other.getNMissing() < getNMissing()) {
+      // keep the track using more real points
+      accepted = -1;
+    }
+    else if (other.getNMissing() > getNMissing()) {
+      accepted = 1;
+    }
+  }
+
+  return accepted;
+}
+
+
+/** this function compare this track with a different tracks for the AUX
+     (First stage) and returns:
+     0 if according HW setup the two tracks are different
+     1 are similar and the other has a worse quality parameter
+     -1 are similar and the other has a better quality parameter */
+int FTKTrack::HWChoiceFirstStage(const FTKTrack &other, const float *HW_dev,
+		       const unsigned int HW_ndiff, int HW_level)
+{
+  int accepted(0);
+
+  // Choose hitwarrior severity level: 1=in-road, 2=global
+  //The parent function is run at road-level, so severity has to be 1 for now
+  if(HW_level<2) {
+    if(getBankID()!=other.getBankID()) return accepted;
+    if(getRoadID()!=other.getRoadID()) return accepted;
+  }
+
+  unsigned int ncommon_hits = getNCommonHitsFirstStage(other,HW_dev);
+  // FlagAK - simplistic hitwarrior. Makes no distinction between 1D and 2D
+  // If this doesn't work, we'll need to come up with something smarter
+  // check the criteria for considering two tracks the same
+  if (ncommon_hits>=HW_ndiff) {//Simple comparison to threshold number of matched hits
+    // the track matches
+
+    //We should never have more than 1 missing hit in the AUX HW. Necessary because NMissing double-counts pixel hits
+    if ((other.getNMissing()==0 && getNMissing()==0) || (other.getNMissing()>0 && getNMissing()>0)) {
       // keep the track with the best chi2
       if (other.getChi2() > getChi2()) {
 	accepted = 1;
@@ -308,11 +388,12 @@ int FTKTrack::HWChoice(const FTKTrack &other, const float *HW_dev,
 	accepted = -1;
       }
     }
-    else if (other.getNMissing() < getNMissing()) {
+    //If first stage, then the track with fewer missing hits must have 0 missing
+    else if (other.getNMissing() == 0) {
       // keep the track using more real points
       accepted = -1;
     }
-    else if (other.getNMissing() > getNMissing()) {
+    else if (getNMissing()==0) {
       accepted = 1;
     }
   }

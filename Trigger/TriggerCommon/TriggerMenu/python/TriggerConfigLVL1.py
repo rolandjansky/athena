@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import re
 
@@ -268,9 +268,7 @@ class TriggerConfigLVL1:
                 item.setTriggerType( item.trigger_type | TT.phys )
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
-                the_id = available_ctpids.pop()
-                log.warning('LVL1 item %s is being assigned ctpid=%d' % (item.name,  the_id ))
-                item.setCtpid( the_id )
+                log.error('CTPID is not assigned for LVL1 item %s , please assign it in %s' % (item.name,self.menu.menuName))
             # add the items into the menu
             self.menu.addItem( item )
 
@@ -295,7 +293,7 @@ class TriggerConfigLVL1:
                 self.menu.addThreshold( threshold )
         if undefined_thr:
             raise RuntimeError("Found undefined threshold in menu %s, please add these thresholds to l1menu/ThresholdDef.py: %s" % (self.menu.menuName, ', '.join(list_of_undefined_thresholds)) )
-                
+
         # threshold mapping
         self.mapThresholds()
 
@@ -331,7 +329,7 @@ class TriggerConfigLVL1:
                 existingMappings[thr.ttype] = set()
             if thr.mapping<0: continue
             existingMappings[thr.ttype].add(thr.mapping)
-                
+
         nextFreeMapping = {}
         for k in  existingMappings:
             nextFreeMapping[k] = 0
@@ -344,7 +342,8 @@ class TriggerConfigLVL1:
                 thr.mapping = nextFreeMapping[thr.ttype]
                 nextFreeMapping[thr.ttype] += 1
 
-            thr.setCableInput()
+            if ord(thr.name[0])>=ord('A') and ord(thr.name[0])<=ord('Z'): # at the moment we don't have cabling for the new thresholds yet
+                thr.setCableInput()
 
 
     def assignZeroBiasConnectors(self):

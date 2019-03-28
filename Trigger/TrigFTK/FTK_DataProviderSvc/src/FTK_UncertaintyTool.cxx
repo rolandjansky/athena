@@ -23,7 +23,144 @@
 #include "FTK_DataProviderSvc/FTK_UncertaintyTool.h"
 
 using std::map; using std::string;
-using std::cout; using std::endl; 
+using std::cout; using std::endl;
+
+namespace {
+  struct FastSimParameters
+  {
+    double amplCore;
+    double meanCore;
+    double aCore;
+    double bCore;
+    double amplTail;
+    double meanTail;
+    double aTail;
+    double bTail;
+  };
+
+  // Parameters in 2 IBL bins (hit/no hit) and 5 eta bins (0, 0.5, 1.0, 1.5, 2.0, 2.5)
+  using FastSimParameterSet = const FastSimParameters[2][5];
+
+  inline int EtaBin(double eta)
+  {
+    const double abseta = abs(eta);
+
+    if (abseta > 2.5)
+      return 4;
+
+    return static_cast<int>(abseta * 2);
+  }
+
+  inline int IBLBin(bool hasIBLHit)
+  {
+    return hasIBLHit ? 0 : 1;
+  }
+
+  inline double sigma(double a, double b, double invPt2)
+  {
+    return sqrt(a + b * (invPt2*invPt2));
+  }
+
+  double GetError(bool hasIBLHit, double eta, double invPt, FastSimParameterSet& parameters)
+  {
+    const int etabin = EtaBin(eta);
+    const int iblbin = IBLBin(hasIBLHit);
+
+    auto& params = parameters[iblbin][etabin];
+
+    const double invPt2 = 0.5 * invPt;
+
+    const double sigmaCore = sigma(params.aCore, params.bCore, invPt2);
+    const double sigmaTail = sigma(params.aTail, params.bTail, invPt2);
+
+    return (params.amplCore * sigmaCore + params.amplTail * sigmaTail) / (params.amplCore + params.amplTail);
+  }
+
+  const FastSimParameterSet FastSimParameters_d0 = {
+    {
+      {1.000000e+00, 0.000000e+00, 5.700200e-04, 5.437944e+04, 1.100000e-01, 0.000000e+00, 1.666591e-03, 3.586450e+05},
+      {1.000000e+00, 0.000000e+00, 4.844049e-04, 7.070505e+04, 1.100000e-01, 0.000000e+00, 2.693387e-03, 4.568432e+05},
+      {1.000000e+00, 0.000000e+00, 5.435634e-04, 1.064718e+05, 1.100000e-01, 0.000000e+00, 3.731382e-03, 6.174656e+05},
+      {1.000000e+00, 0.000000e+00, 9.325689e-04, 1.803775e+05, 1.100000e-01, 0.000000e+00, 6.702443e-03, 1.330276e+06},
+      {1.000000e+00, 0.000000e+00, 1.525671e-03, 3.459623e+05, 1.100000e-01, 0.000000e+00, 1.674857e-02, 3.133805e+06},
+    },
+    {
+      {1.000000e+00, 0.000000e+00, 3.365111e-04, 1.846811e+04, 1.100000e-01, 0.000000e+00, 1.164449e-03, 5.983721e+04},
+      {1.000000e+00, 0.000000e+00, 3.186037e-04, 2.331183e+04, 1.100000e-01, 0.000000e+00, 1.282122e-03, 7.966916e+04},
+      {1.000000e+00, 0.000000e+00, 4.012198e-04, 3.172024e+04, 1.100000e-01, 0.000000e+00, 1.644470e-03, 1.205381e+05},
+      {1.000000e+00, 0.000000e+00, 5.482587e-04, 4.827720e+04, 1.100000e-01, 0.000000e+00, 2.607949e-03, 1.921344e+05},
+      {1.000000e+00, 0.000000e+00, 8.326011e-04, 7.892970e+04, 1.100000e-01, 0.000000e+00, 6.407767e-03, 3.508604e+05},
+    },
+  };
+
+  const FastSimParameterSet FastSimParameters_z0 = {
+    {
+      {1.000000e+00, 0.000000e+00, 1.962677e-02, 9.086464e+04, 1.100000e-01, 0.000000e+00, 4.075973e-02, 1.726567e+06 },
+      {1.000000e+00, 0.000000e+00, 1.562178e-02, 2.516894e+05, 1.100000e-01, 0.000000e+00, 4.164214e-02, 1.302287e+06 },
+      {1.000000e+00, 0.000000e+00, 1.815425e-02, 5.192081e+05, 1.100000e-01, 0.000000e+00, 6.684842e-02, 2.826332e+06 },
+      {1.000000e+00, 0.000000e+00, 4.166662e-02, 1.631462e+06, 1.100000e-01, 0.000000e+00, 2.141205e-01, 1.240381e+07 },
+      {1.000000e+00, 0.000000e+00, 1.013725e-01, 8.650727e+06, 1.100000e-01, 0.000000e+00, 8.230914e-01, 8.169051e+07 },
+    },
+    {
+      {1.000000e+00, 0.000000e+00, 6.253207e-03, 5.240011e+04, 1.100000e-01, 0.000000e+00, 7.939942e-03, 1.517791e+05 },
+      {1.000000e+00, 0.000000e+00, 3.936087e-03, 7.066114e+04, 1.100000e-01, 0.000000e+00, 8.974887e-03, 2.283212e+05 },
+      {1.000000e+00, 0.000000e+00, 8.602167e-03, 1.869958e+05, 1.100000e-01, 0.000000e+00, 2.367743e-02, 6.415471e+05 },
+      {1.000000e+00, 0.000000e+00, 1.694396e-02, 5.427136e+05, 1.100000e-01, 0.000000e+00, 6.771001e-02, 1.933855e+06 },
+      {1.000000e+00, 0.000000e+00, 5.482604e-02, 1.907271e+06, 1.100000e-01, 0.000000e+00, 2.969994e-01, 8.139293e+06 },
+    },
+  };
+
+  const FastSimParameterSet FastSimParameters_eta = {
+    {
+      {1.000000e+00, 0.000000e+00, 1.204840e-06, 4.668120e+01, 1.100000e-01, 0.000000e+00, 2.043563e-06, 2.295754e+02 },
+      {1.000000e+00, 0.000000e+00, 6.419600e-07, 5.133359e+01, 1.100000e-01, 0.000000e+00, 1.496217e-06, 2.521133e+02 },
+      {1.000000e+00, 0.000000e+00, 5.447665e-07, 6.166226e+01, 1.100000e-01, 0.000000e+00, 1.546516e-06, 2.755418e+02 },
+      {1.000000e+00, 0.000000e+00, 5.665617e-07, 9.508760e+01, 1.100000e-01, 0.000000e+00, 3.171946e-06, 4.840149e+02 },
+      {1.000000e+00, 0.000000e+00, 9.373726e-07, 1.919797e+02, 1.100000e-01, 0.000000e+00, 6.897586e-06, 1.026491e+03 },
+    },
+    {
+      {1.000000e+00, 0.000000e+00, 7.496859e-07, 3.301107e+01, 1.100000e-01, 0.000000e+00, 1.642214e-06, 1.016009e+02 },
+      {1.000000e+00, 0.000000e+00, 4.564739e-07, 3.304368e+01, 1.100000e-01, 0.000000e+00, 1.254484e-06, 9.852592e+01 },
+      {1.000000e+00, 0.000000e+00, 4.366910e-07, 4.449627e+01, 1.100000e-01, 0.000000e+00, 1.937983e-06, 1.249774e+02 },
+      {1.000000e+00, 0.000000e+00, 5.777798e-07, 5.663534e+01, 1.100000e-01, 0.000000e+00, 2.589830e-06, 1.762125e+02 },
+      {1.000000e+00, 0.000000e+00, 9.363907e-07, 7.985674e+01, 1.100000e-01, 0.000000e+00, 5.036494e-06, 2.844372e+02 },
+    },
+  };
+
+  const FastSimParameterSet FastSimParameters_phi = {
+    {
+      {1.000000e+00, 0.000000e+00, 8.130652e-08, 3.158970e+01, 1.100000e-01, 0.000000e+00, 5.350961e-07, 1.538612e+02 },
+      {1.000000e+00, 0.000000e+00, 1.083964e-07, 4.038393e+01, 1.100000e-01, 0.000000e+00, 4.313475e-07, 2.150540e+02 },
+      {1.000000e+00, 0.000000e+00, 1.285549e-07, 6.095933e+01, 1.100000e-01, 0.000000e+00, 7.242223e-07, 2.976441e+02 },
+      {1.000000e+00, 0.000000e+00, 3.031775e-07, 1.054400e+02, 1.100000e-01, 0.000000e+00, 2.989829e-06, 6.108252e+02 },
+      {1.000000e+00, 0.000000e+00, 5.462634e-07, 1.970348e+02, 1.100000e-01, 0.000000e+00, 8.746469e-06, 1.054684e+03 },
+    },
+    {
+      {1.000000e+00, 0.000000e+00, 1.429275e-07, 1.833850e+01, 1.100000e-01, 0.000000e+00, 6.376208e-07, 5.786213e+01 },
+      {1.000000e+00, 0.000000e+00, 1.498748e-07, 2.295547e+01, 1.100000e-01, 0.000000e+00, 7.434808e-07, 7.394416e+01 },
+      {1.000000e+00, 0.000000e+00, 2.110908e-07, 3.174038e+01, 1.100000e-01, 0.000000e+00, 9.643213e-07, 1.106054e+02 },
+      {1.000000e+00, 0.000000e+00, 3.251302e-07, 4.917401e+01, 1.100000e-01, 0.000000e+00, 2.177912e-06, 1.753651e+02 },
+      {1.000000e+00, 0.000000e+00, 5.438376e-07, 7.807236e+01, 1.100000e-01, 0.000000e+00, 3.982290e-06, 3.344589e+02 },
+    },
+  };
+
+  const FastSimParameterSet FastSimParameters_Ipt = {
+    {
+      {1.000000e+00, 0.000000e+00, 2.176247e-12, 3.372455e-04, 1.100000e-01, 0.000000e+00, 1.619578e-11, 1.297069e-03 },
+      {1.000000e+00, 0.000000e+00, 2.515409e-12, 4.173315e-04, 1.100000e-01, 0.000000e+00, 1.640457e-11, 1.934070e-03 },
+      {1.000000e+00, 0.000000e+00, 2.969128e-12, 8.230829e-04, 1.100000e-01, 0.000000e+00, 3.165478e-11, 3.211156e-03 },
+      {1.000000e+00, 0.000000e+00, 1.241242e-11, 1.492929e-03, 1.100000e-01, 0.000000e+00, 1.667900e-10, 5.584656e-03 },
+      {1.000000e+00, 0.000000e+00, 1.853669e-11, 2.362025e-03, 1.100000e-01, 0.000000e+00, 2.258558e-10, 9.794419e-03 },
+    },
+    {
+      {1.000000e+00, 0.000000e+00, 1.826416e-12, 3.552206e-04, 1.100000e-01, 0.000000e+00, 8.161897e-12, 1.196878e-03 },
+      {1.000000e+00, 0.000000e+00, 1.934396e-12, 4.709845e-04, 1.100000e-01, 0.000000e+00, 8.623748e-12, 1.524293e-03 },
+      {1.000000e+00, 0.000000e+00, 3.033192e-12, 8.394077e-04, 1.100000e-01, 0.000000e+00, 1.796648e-11, 2.951569e-03 },
+      {1.000000e+00, 0.000000e+00, 9.374058e-12, 1.578456e-03, 1.100000e-01, 0.000000e+00, 9.828657e-11, 4.168337e-03 },
+      {1.000000e+00, 0.000000e+00, 1.328649e-11, 2.343957e-03, 1.100000e-01, 0.000000e+00, 1.007092e-10, 8.286561e-03 },
+    },
+  };
+}
 
 
 FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t, 
@@ -31,7 +168,8 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
   m_noIBL(false),
-  m_ftkparversion("DEC2017_V1")
+  m_ftkparversion("FEB2019"),
+  m_compatMode(false)
 {
   declareInterface< IFTK_UncertaintyTool >( this );
   declareProperty( "NoIBL",  m_noIBL);
@@ -46,18 +184,24 @@ StatusCode FTK_UncertaintyTool::initialize() {
   //   Load Constants
   //
   if(m_noIBL){
+    m_compatMode = true;
     LoadConstants_NoIBL();
   }
   else{
-    if(m_ftkparversion == "LEGACY"){
+    if(m_ftkparversion == "LEGACY") {
+      m_compatMode = true;
       LoadConstants();
     }
-    else if(m_ftkparversion == "DEC2017_V1"){
+    else if(m_ftkparversion == "DEC2017_V1") {
+      m_compatMode = true;
       LoadConstants_DEC2017_V1();
     }
-    else{
-      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default DEC2017_V1 parameters");
-      LoadConstants_DEC2017_V1();
+    else if (m_ftkparversion == "FEB2019") {
+      m_compatMode = false;
+    }
+    else {
+      m_compatMode = false;
+      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default FEB2019 parameters");
     }
   }
 
@@ -74,9 +218,9 @@ StatusCode FTK_UncertaintyTool::finalize() {
 //
 // Covariance Matrix if there is a BLayer Hit
 //
-double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
+double FTK_UncertaintyTool::getParamCovMtx_old(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
 {
-  ATH_MSG_VERBOSE("In getParamCovMtx: id0: " << id0 << " id1: " << id1); 
+  ATH_MSG_VERBOSE("In getParamCovMtx (old parametrization): id0: " << id0 << " id1: " << id1); 
 
 
   //
@@ -167,6 +311,94 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   return sigmaTP*sigmaTP;
 
 }
+
+double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
+{
+  if (m_compatMode) {
+    return getParamCovMtx_old(trk, hasIBL, id0, id1);
+  }
+
+  //
+  // Use diagonal Maxtrix for now
+  //
+  if (id0 != id1) {
+    return 0.;
+  }
+
+  ATH_MSG_VERBOSE("Using new parametrization");
+
+  double trkIpt = trk.getInvPt();
+  double trkTheta = atan2(1.0,trk.getCotTh());
+  double trkEta = -log(tan(trkTheta/2));
+
+  FastSimParameterSet *paramSet = nullptr;
+  switch (id0) {
+  case FTKTrackParam::d0:
+    paramSet = &FastSimParameters_d0;
+    break;
+
+  case FTKTrackParam::z0:
+    paramSet = &FastSimParameters_z0;
+    break;
+
+  case FTKTrackParam::phi:
+    paramSet = &FastSimParameters_phi;
+    break;
+
+  case FTKTrackParam::eta:
+    paramSet = &FastSimParameters_eta;
+    break;
+
+  case FTKTrackParam::Ipt:
+    paramSet = &FastSimParameters_Ipt;
+    break;
+
+  case FTKTrackParam::qOp:
+    // derive from 1/pt errors
+    paramSet = &FastSimParameters_Ipt;
+    break;
+
+  case FTKTrackParam::theta:
+    // derive from eta errors
+    paramSet = &FastSimParameters_eta;
+    break;
+
+  case FTKTrackParam::pt:
+    // derive from 1/pt errors
+    paramSet = &FastSimParameters_Ipt;
+    break;
+  }
+
+  if (!paramSet) {
+    ATH_MSG_ERROR("Unknown track parameter ID: " << id0);
+    return 0.;
+  }
+
+  double sigmaTP = GetError(hasIBL, trkEta, trkIpt, *paramSet);
+
+  // handle derived uncertainties
+  switch (id0) {
+  case FTKTrackParam::qOp: {
+    // derive from 1/pt errors
+    const double sigmaEta = GetError(hasIBL, trkEta, trkIpt, FastSimParameters_eta);
+    sigmaTP= getSigmaQoverP(trkIpt, sigmaTP, trkEta, sigmaEta);
+  } break;
+
+  case FTKTrackParam::theta:
+    // derive from eta errors
+    sigmaTP = getSigmaTheta(trkEta, sigmaTP);
+    break;
+
+  case FTKTrackParam::pt:
+    // derive from 1/pt errors
+    sigmaTP = getSigmaPt(trkIpt, sigmaTP);
+    break;
+  }
+  
+  return sigmaTP*sigmaTP;
+}
+
+
 
 
 
