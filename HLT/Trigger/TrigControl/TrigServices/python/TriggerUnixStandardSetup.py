@@ -80,7 +80,6 @@ def setupCommonServices():
         log.debug("Using offline histogramming service (THistSvc)")
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
-    theApp.CreateSvc += [ svcMgr.THistSvc.getFullName() ]
 
     # StoreGateSvc
     svcMgr.StoreGateSvc.ActivateHistory = False
