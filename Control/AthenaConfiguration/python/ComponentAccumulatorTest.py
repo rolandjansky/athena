@@ -5,7 +5,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, isSequence, findAllAlgorithms
+from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG, INFO
@@ -422,7 +422,7 @@ class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
                 return True
 
             def __ne__(self,rhs):
-                return (not self.__eq__(rhs))
+                return not self.__eq__(rhs)
 
         ca = ComponentAccumulator()
 
