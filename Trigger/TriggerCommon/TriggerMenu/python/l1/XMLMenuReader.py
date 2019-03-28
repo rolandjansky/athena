@@ -100,7 +100,7 @@ def readMenuFromXML(l1menu, filename):
                                  seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
 
 
-        if hasattr(x, 'Cable'):
+        if hasattr(x,'Cable'):
             ca = x.Cable
             thr.setCableInput()
             #print "x[bitnum]", x['bitnum']
