@@ -92,7 +92,7 @@ DbStatus DbObjectAccessor::open(void**                    ptr,
                                 ShapeH                    shape,
                                 const DbContainer&        cntH, 
                                 const Token&              tokenH, 
-                                DbAccessMode              mode )
+                                DbAccessMode )
 {
-  return cntH.load(ptr, shape, tokenH.oid(), mode);
+  return cntH.load(ptr, shape, tokenH.oid());
 }
