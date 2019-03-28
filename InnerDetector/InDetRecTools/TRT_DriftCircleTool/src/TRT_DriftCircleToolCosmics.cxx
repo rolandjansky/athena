@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
 						const IInterface*  p ):
   AthAlgTool(t,n,p),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
-  m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
+  m_ConditionsSummary("TRT_StrawStatusSummaryTool",this),
   m_useConditionsStatus(false),
   m_trt_mgr_location("TRT"),
   m_trt_mgr(0),
