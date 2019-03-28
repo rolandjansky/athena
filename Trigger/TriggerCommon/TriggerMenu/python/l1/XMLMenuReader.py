@@ -100,21 +100,22 @@ def readMenuFromXML(l1menu, filename):
                                  seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
 
 
-        ca = x.Cable
-        thr.setCableInput()
-        #print "x[bitnum]", x['bitnum']
-        #print "type x[bitnum]", type(x['bitnum'])
-        #print "x['type']", x['type']
+        if hasattr(x,'Cable'):
+            ca = x.Cable
+            thr.setCableInput()
+            #print "x[bitnum]", x['bitnum']
+            #print "type x[bitnum]", type(x['bitnum'])
+            #print "x['type']", x['type']
 
 
-        # overwrite cable info with data from xml file
-        si = ca.Signal
-        thr.cableinfo.bitnum      = int(x['bitnum'])
-        thr.cableinfo.name        = ca['name']
-        thr.cableinfo.slot        = ca['input'] if 'input' in ca else ca['ctpin']
-        thr.cableinfo.connector   = ca['connector']
-        thr.cableinfo.range_begin = int( si['range_begin'] )
-        thr.cableinfo.range_end   = int( si['range_end'] )
+            # overwrite cable info with data from xml file
+            si = ca.Signal
+            thr.cableinfo.bitnum      = int(x['bitnum'])
+            thr.cableinfo.name        = ca['name']
+            thr.cableinfo.slot        = ca['input'] if 'input' in ca else ca['ctpin']
+            thr.cableinfo.connector   = ca['connector']
+            thr.cableinfo.range_begin = int( si['range_begin'] )
+            thr.cableinfo.range_end   = int( si['range_end'] )
 
         if hasattr(x,'TriggerThresholdValues'):
             for xV in x.TriggerThresholdValues:
