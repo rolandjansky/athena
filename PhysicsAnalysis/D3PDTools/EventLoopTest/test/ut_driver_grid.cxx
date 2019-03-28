@@ -9,8 +9,10 @@
 
 #include <EventLoop/Global.h>
 
-#include <EventLoop/DirectDriver.h>
+#include <EventLoopGrid/PrunDriver.h>
 #include <EventLoopTest/UnitTest.h>
+#include <sstream>
+#include <time.h>
 
 //
 // main program
@@ -20,8 +22,12 @@ using namespace EL;
 
 int main ()
 {
-  DirectDriver driver;
-  UnitTest ut ("direct_gridinput");
+  PrunDriver driver;
+  std::ostringstream output;
+  output << "user.krumnack.EventLoopTest.output." << time(nullptr) << ".%in:name[6]%";
+  driver.options()->setString("nc_outputSampleName", output.str());
+
+  UnitTest ut ("grid");
   ut.gridInput = true;
   // ut.cleanup = false;
   // ut.location = "$HOME/unit-test.$$";

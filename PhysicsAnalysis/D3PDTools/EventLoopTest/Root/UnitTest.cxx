@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -83,11 +77,11 @@ namespace EL
     if (gridInput)
     {
       std::unique_ptr<SH::SampleGrid> mysample;
-      mysample.reset (new SH::SampleGrid ("dataset0"));
+      mysample.reset (new SH::SampleGrid ("user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset0"));
       mysample->meta()->setString (SH::MetaFields::gridName, "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset0");
       mysample->meta()->setString (SH::MetaFields::gridFilter, SH::MetaFields::gridFilter_default);
       mysamples.push_back (std::move (mysample));
-      mysample.reset (new SH::SampleGrid ("dataset1"));
+      mysample.reset (new SH::SampleGrid ("user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset1"));
       mysample->meta()->setString (SH::MetaFields::gridName, "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset1");
       mysample->meta()->setString (SH::MetaFields::gridFilter, SH::MetaFields::gridFilter_default);
       mysamples.push_back (std::move (mysample));
@@ -115,6 +109,8 @@ namespace EL
       samples.add (mysample.release());
 
     samples.setMetaString (SH::MetaFields::treeName, tree);
+
+    samples.print ();
 
     for (unsigned iter = 0, end = histos.size(); iter != end; ++ iter)
       delete histos[iter];
@@ -184,7 +180,7 @@ namespace EL
 	  {
 	    TH1 *file_executes = dynamic_cast<TH1*>(sample->readHist ("file_executes"));
 	    RCU_ASSERT_SOFT (file_executes != 0);
-	    RCU_ASSERT_SOFT (file_executes->GetEntries() == samples[iter]->numFiles());
+	    RCU_ASSERT_SOFT (file_executes->GetEntries() == samples[iter]->makeFileList().size());
 	  }
 
 	  TH1 *hist = dynamic_cast<TH1*>(sample->readHist ("el_n"));
