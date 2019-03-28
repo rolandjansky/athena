@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */  
   
-#ifndef AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h
-#define AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h
+#ifndef AthenaMonitoring_HistogramFiller_LumiblockHistogramProvider_h
+#define AthenaMonitoring_HistogramFiller_LumiblockHistogramProvider_h
 
 #include <memory>
 
@@ -13,9 +13,9 @@
 #include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
 
 namespace Monitored {
-  class DynamicHistogramProvider : public IHistogramProvider {
+  class LumiblockHistogramProvider : public IHistogramProvider {
   public:
-    DynamicHistogramProvider(GenericMonitoringTool* const gmTool, 
+    LumiblockHistogramProvider(GenericMonitoringTool* const gmTool, 
         std::shared_ptr<HistogramFactory> factory, 
         const HistogramDef& histDef)
       : IHistogramProvider(), m_gmTool(gmTool), m_factory(factory), m_histDef(new HistogramDef(histDef)), m_dynamicSize(parseDynamicSize(histDef)) {}
@@ -38,7 +38,7 @@ namespace Monitored {
       const std::size_t sizeKeyPosition = histDef.opt.find(sizeKey);
 
       if (sizeKeyPosition == std::string::npos) {
-        throw HistogramException("Dynamic histogram >"+ histDef.path + "< NOT define kDynamicSize");
+        throw HistogramException("Lumiblock histogram >"+ histDef.path + "< NOT define kDynamicSize");
       }
 
       const std::size_t sizeStartPosition = sizeKeyPosition + sizeKey.length();
@@ -46,7 +46,7 @@ namespace Monitored {
       const std::size_t sizeLength = sizeStopPosition - sizeStartPosition;
 
       if (sizeLength == 0) {
-        throw HistogramException("Dynamic histogram >"+ histDef.path + "< NOT define valid kDynamicSize");
+        throw HistogramException("Lumiblock histogram >"+ histDef.path + "< NOT define valid kDynamicSize");
       }
 
       const std::string sizeStrValue = histDef.opt.substr(sizeStartPosition, sizeLength);
@@ -61,4 +61,4 @@ namespace Monitored {
   };
 }
 
-#endif /* AthenaMonitoring_HistogramFiller_DynamicHistogramProvider_h */
+#endif /* AthenaMonitoring_HistogramFiller_LumiblockHistogramProvider_h */

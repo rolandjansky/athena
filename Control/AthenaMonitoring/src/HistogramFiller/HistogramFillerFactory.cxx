@@ -5,7 +5,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "StaticHistogramProvider.h"
-#include "DynamicHistogramProvider.h"
+#include "LumiblockHistogramProvider.h"
 
 #include "HistogramFiller1D.h"
 #include "HistogramFillerEfficiency.h"
@@ -52,7 +52,7 @@ shared_ptr<IHistogramProvider> HistogramFillerFactory::createHistogramProvider(c
   shared_ptr<IHistogramProvider> result;
 
   if (isDynamicHistogram) {
-    result.reset(new DynamicHistogramProvider(m_gmTool, m_factory, def));
+    result.reset(new LumiblockHistogramProvider(m_gmTool, m_factory, def));
   } else {
     result.reset(new StaticHistogramProvider(m_factory, def));
   }
