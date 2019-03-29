@@ -16,6 +16,7 @@
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -59,6 +60,7 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
     ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
+    ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );
 
