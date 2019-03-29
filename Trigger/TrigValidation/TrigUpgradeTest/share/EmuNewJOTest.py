@@ -39,8 +39,8 @@ l1DecoderAlg, HLTChains = generateL1DecoderAndChains()
 setupL1DecoderFromMenu( flags, l1DecoderAlg )
 
 l1DecoderAcc = ComponentAccumulator()
-l1DecoderAcc.mergeAll( TGCCablingConfigCfg( flags ) )
-l1DecoderAcc.mergeAll( RPCCablingConfigCfg( flags ) )
+l1DecoderAcc.merge( TGCCablingConfigCfg( flags ) )
+l1DecoderAcc.merge( RPCCablingConfigCfg( flags ) )
 l1DecoderAcc.merge( TrigConfigSvcCfg( flags ) )
 acc.merge(l1DecoderAcc)
 
