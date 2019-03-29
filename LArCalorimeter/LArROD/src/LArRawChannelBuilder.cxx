@@ -18,6 +18,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 #include <math.h>
@@ -31,7 +32,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
   AthAlgorithm(name, pSvcLocator),
   m_OFCTool("LArOFCTool"),
   m_adc2mevTool("LArADC2MeVTool/LArADC2MeVToolDefault"),
-  m_hvCorrTool("LArHVCorrTool"),
   m_onlineHelper(NULL),
   //m_roiMap("LArRoI_Map"),
   m_useTDC(false),
@@ -113,10 +113,7 @@ StatusCode LArRawChannelBuilder::initialize()
   }
   
   ATH_CHECK( m_cablingKey.initialize() );
-
-  if (m_hvcorr) {
-    ATH_CHECK( m_hvCorrTool.retrieve() );
-  }
+  ATH_CHECK( m_scaleCorrKey.initialize(m_hvcorr) );
 
 
   //Set counters for errors and warnings to zero
@@ -244,6 +241,12 @@ StatusCode LArRawChannelBuilder::execute()
 
   // Now all data is available, start loop over Digit Container
   int ntot_raw=0;
+
+  const ILArHVScaleCorr* scaleCorr = nullptr;
+  if (m_hvcorr) {
+    SG::ReadCondHandle<ILArHVScaleCorr> scaleCorrH (m_scaleCorrKey, ctx);
+    scaleCorr = scaleCorrH.retrieve();
+  }
 
   for (const LArDigit* digit : *digitContainer) {
 
@@ -472,9 +475,9 @@ StatusCode LArRawChannelBuilder::execute()
 
 // HV correction
 
-    if (m_hvcorr) {
+    if (scaleCorr) {
 // HV tool
-       float hvCorr = m_hvCorrTool->Scale(chid);
+       float hvCorr = scaleCorr->HVScaleCorr(chid);
        energy = energy*hvCorr;
     }
   
