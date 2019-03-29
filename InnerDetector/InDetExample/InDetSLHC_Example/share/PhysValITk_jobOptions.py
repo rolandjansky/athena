@@ -95,9 +95,10 @@ xmlTags = [ ["ATLAS-P2-SFCAL-01-05-01","ExtBrl_32",""],
             # step 2
             ["ATLAS-P2-ITK-13-00-02","InclBrl_4_OptRing",""],
             ["ATLAS-P2-ITK-19-00-00","InclBrl_4","InclinedQuads"],
-            ["ATLAS-P2-ITK-20-00-00","InclBrl_4","InclinedDuals"],
-            # step 3
-            ["ATLAS-P2-ITK-17-00-00","InclBrl_4","InclinedAlternative"]
+            # several versions of step 2.2, depending on e.g. whether using CLOB
+            ["ATLAS-P2-ITK-20","InclBrl_4","InclinedDuals"],
+            # several versions of step 3.0, depending on e.g. whether using CLOB
+            ["ATLAS-P2-ITK-17","InclBrl_4","InclinedAlternative"]
             ]
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
