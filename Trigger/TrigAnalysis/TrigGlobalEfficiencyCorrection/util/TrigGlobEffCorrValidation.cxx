@@ -108,6 +108,7 @@ public:
 	virtual CP::SystematicSet affectingSystematics() const override { return CP::SystematicSet(); }
 	virtual CP::SystematicSet recommendedSystematics() const override { return CP::SystematicSet(); }
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet&) override { return CP::SystematicCode::Ok; }
+	virtual bool isTriggerSupported(const std::string& ) const override {return false;}
 };
 
 struct Config

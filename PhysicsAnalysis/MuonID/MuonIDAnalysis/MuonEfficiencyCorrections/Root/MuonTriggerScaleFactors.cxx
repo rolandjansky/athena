@@ -29,9 +29,7 @@ namespace CP {
     }
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
       asg::AsgTool(name),
-
       m_systFilter(),
-
       m_appliedSystematics(nullptr),
       m_fileName(),
       m_efficiencyMap(),
@@ -201,7 +199,6 @@ namespace CP {
         origDir->cd();
         return StatusCode::SUCCESS;
     }
-
     // ==================================================================================
     // == MuonTriggerScaleFactors::initialize()
     // ==================================================================================
@@ -212,8 +209,8 @@ namespace CP {
         ATH_MSG_INFO("CalibrationRelease = '" << m_calibration_version << "'");
         ATH_MSG_INFO("CustomInputFolder = '" << m_custom_dir << "'");
         ATH_MSG_INFO("AllowZeroSF = " << m_allowZeroSF);
-	ATH_MSG_INFO("experimental = " << m_experimental);
-	ATH_MSG_INFO("useRel27 = " << m_useRel207);
+	    ATH_MSG_INFO("experimental = " << m_experimental);
+    	ATH_MSG_INFO("useRel27 = " << m_useRel207);
 
         if (registerSystematics() != CP::SystematicCode::Ok) {
             return StatusCode::FAILURE;
@@ -371,6 +368,11 @@ namespace CP {
         return replica_v;
     }
 
+   bool MuonTriggerScaleFactors::isTriggerSupported(const std::string& trigger) const{
+       TH1_Ptr H1 = getEfficiencyHistogram(trigger, true, "nominal");
+       return H1.get() != nullptr;
+    }
+    
   int MuonTriggerScaleFactors::getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const{
     if(!m_experimental){
       ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");

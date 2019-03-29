@@ -1,17 +1,6 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
-
-/*
- *  IMuonTriggerScaleFactors.h
- *
- *  Created on: Oct. 22, 2014
- *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- *
- *  Updates for 2016: Jun 20, 2016
- *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
- */
-
 
 #ifndef IMUONTRIGGERSCALEFACTORS_H_
 #define IMUONTRIGGERSCALEFACTORS_H_
@@ -71,6 +60,8 @@ namespace CP {
                             Bool_t dataType) const = 0;
       
             virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const = 0;
+            /// Returns whether the trigger is supported in the current data-period
+            virtual bool isTriggerSupported(const std::string& trigger) const = 0;
 
           
     };
