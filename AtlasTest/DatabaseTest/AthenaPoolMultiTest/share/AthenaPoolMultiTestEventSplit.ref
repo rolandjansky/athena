@@ -295,23 +295,23 @@ Splitter3            INFO in finalize()
 Triggered            INFO in finalize()
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
-ItemListSvc         DEBUG STREAM Others has (7) items
+ItemListSvc         DEBUG STREAM Others has (6) items
 ItemListSvc         DEBUG    - EventStreamInfo_Others
-ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (5) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (5) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (5) items
+ItemListSvc         DEBUG STREAM Stream1 has (7) items
+ItemListSvc         DEBUG    - EventStreamInfo_Stream1
+ItemListSvc         DEBUG  --> Overlap with Others (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
-ItemListSvc         DEBUG STREAM Stream1 has (8) items
-ItemListSvc         DEBUG    - EventStreamInfo_Stream1
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG STREAM Stream2 has (8) items
+ItemListSvc         DEBUG STREAM Stream2 has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream2
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream3 (7) items
-ItemListSvc         DEBUG STREAM Stream3 has (8) items
+ItemListSvc         DEBUG  --> Overlap with Others (5) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
+ItemListSvc         DEBUG STREAM Stream3 has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream3
-ItemListSvc         DEBUG  --> Overlap with Others (6) items
-ItemListSvc         DEBUG  --> Overlap with Stream1 (7) items
-ItemListSvc         DEBUG  --> Overlap with Stream2 (7) items
+ItemListSvc         DEBUG  --> Overlap with Others (5) items
+ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
+ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
