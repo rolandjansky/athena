@@ -21,23 +21,23 @@ test1
 ClassIDSvc           INFO  getRegistryEntries: read 952 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: BazSvc
 test2
 test3
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foox
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foox
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foox
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foox
-VarHandle(Store...  ERROR FILE:LINE (const void*SG::VarHandleBase::get_impl(const EventContext*, bool) const): code 0: Cannot find proxy for 293847295/foox
+VarHandle(Store...  ERROR FILE:LINE (const void*SG::VarHandleBase::get_impl(const EventContext*, bool) const): code FAILURE: Cannot find proxy for 293847295/foox
 test4
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: BazSvc
 test5
 test6
