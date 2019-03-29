@@ -473,8 +473,11 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
 
         if (other._privateTools is not None):
-            raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s" % \
-                               (other._priversTools.getType(),other._privateTools.getName()))
+            if isinstance(other._privateTools,ConfigurableAlgTool):
+                raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s" % \
+                                   (other._privateTools.getType(),other._privateTools.getName()))
+            else:
+                raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
         if not other._isMergable:
             raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")

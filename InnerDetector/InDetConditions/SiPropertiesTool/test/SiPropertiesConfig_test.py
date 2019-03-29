@@ -17,8 +17,12 @@ log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 # test
-tacc = SCT_SiPropertiesCfg(ConfigFlags, name="SCT_SiPropertiesConfigTest")
-tacc.merge(PixelSiPropertiesCfg(ConfigFlags, name="PixelSiPropertiesConfigTest"))
-# reset to prevent errors on deletion
-tacc.__init__()
+sct_acc = SCT_SiPropertiesCfg(ConfigFlags, name="SCT_SiPropertiesConfigTest")
+sct_acc.popPrivateTools()
+pix_acc = PixelSiPropertiesCfg(ConfigFlags, name="PixelSiPropertiesConfigTest")
+pix_acc.popPrivateTools()
+
+sct_acc.wasMerged()
+pix_acc.wasMerged()
+
 
