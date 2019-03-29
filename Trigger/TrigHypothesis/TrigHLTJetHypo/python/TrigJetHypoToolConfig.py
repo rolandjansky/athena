@@ -21,19 +21,24 @@ def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
     print 'trigJetHypoToolFromDict starts'
-    chain_label = ''    
-    if 'vbenf' in chain_dict['chainParts'][0]['hypoScenario']:
+    chain_label = ''
+
+    hypo_scenario_0 = chain_dict['chainParts'][0]['hypoScenario']
+    if 'vbenf' in hypo_scenario_0:
         assert len(chain_dict['chainParts']) == 1
-        chain_label = make_vbenf_label(chain_dict)
+        chain_label = make_vbenf_label(hypo_scenario_0)
     else:
         chain_label = make_simple_label(chain_dict)
     parser = ChainLabelParser(chain_label)
     tree = parser.parse()
-
+    
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
-    visitor.report()
+    print visitor.report()
+
+    # tell the child nodes who their parent is.
+    tree.set_ids(node_id=0, parent_id=0)
 
     # create - possibly nested - tools
 
@@ -45,14 +50,22 @@ def  trigJetHypoToolFromDict(chain_dict):
         chain_name = 'HLT_' + chain_name
 
     print 'trigJetHypoToolFromDict chain_name', chain_name
-    visitor = ToolSetter(chain_name)
+
+    # debug flag to be relayed to C++ objects
+    debug = False
+    visitor = ToolSetter(chain_name, debug)
     tree.accept(visitor)
-    visitor.report()
+    print visitor.report()
 
     print 'Dumping jet config for', chain_name
-    print tree.dump()
-    tool = tree.tool
+    tool = TrigJetHypoToolMT(name=chain_name)
+    tool.helper_tool = tree.tool
+
+    # controls whether debuf visitor is sent to helper tool
+    tool.visit_debug = debug
+    
     tool.OutputLevel = DEBUG
+    print tool
     return tool
 
 

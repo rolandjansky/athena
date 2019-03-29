@@ -36,10 +36,12 @@ TrigHLTJetHypo_EtaEt::~TrigHLTJetHypo_EtaEt(){
 
 
 Conditions TrigHLTJetHypo_EtaEt::getConditions() const {
+  bool debug{false}; // not used in this obsolete code
    auto conditions = conditionsFactoryEtaEt(m_etaMins,
                                             m_etaMaxs,
                                             m_EtThresholds,
-                                            m_asymmetricEtas);
+                                            m_asymmetricEtas,
+                                            debug);
    std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
    
    return conditions;

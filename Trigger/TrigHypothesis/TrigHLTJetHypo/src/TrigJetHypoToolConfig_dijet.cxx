@@ -17,8 +17,10 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-
+#include "ArgStrToDouble.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+
+#include <algorithm>
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
@@ -37,6 +39,47 @@ TrigJetHypoToolConfig_dijet::~TrigJetHypoToolConfig_dijet(){
 
 StatusCode TrigJetHypoToolConfig_dijet::initialize() {
   CHECK(checkVals());
+
+  ArgStrToDouble a2d;
+  
+  std::transform(m_massMins_str.begin(),
+                 m_massMins_str.end(),
+                 std::back_inserter(m_massMins),
+                 a2d
+                 );
+
+    
+  std::transform(m_massMaxs_str.begin(),
+                 m_massMaxs_str.end(),
+                 std::back_inserter(m_massMaxs),
+                 a2d
+                 );
+
+    
+  std::transform(m_dEtaMins_str.begin(),
+                 m_dEtaMins_str.end(),
+                 std::back_inserter(m_dEtaMins),
+                 a2d
+                 );
+  
+  std::transform(m_dEtaMaxs_str.begin(),
+                 m_dEtaMaxs_str.end(),
+                 std::back_inserter(m_dEtaMaxs),
+                 a2d
+                 );
+
+  std::transform(m_dPhiMins_str.begin(),
+                 m_dPhiMins_str.end(),
+                 std::back_inserter(m_dPhiMins),
+                 a2d
+                 );
+  
+  std::transform(m_dPhiMaxs_str.begin(),
+                 m_dPhiMaxs_str.end(),
+                 std::back_inserter(m_dPhiMaxs),
+                 a2d
+                 );
+
   return StatusCode::SUCCESS;
 }
 
@@ -49,7 +92,8 @@ Conditions TrigJetHypoToolConfig_dijet::getConditions() const {
                                              m_dEtaMins,
                                              m_dEtaMaxs,
                                              m_dPhiMins,
-                                             m_dPhiMaxs);
+                                             m_dPhiMaxs,
+                                             m_debug);
  
   std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
   

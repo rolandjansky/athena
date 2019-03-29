@@ -23,7 +23,12 @@
 
 class SingleJetMassCondition: public EtaEtCondition{
  public:
-  SingleJetMassCondition(double etaMin, double etaMax, double threshold, double massMin, double massMax);
+  SingleJetMassCondition(double etaMin,
+                         double etaMax,
+                         double threshold,
+                         double massMin,
+                         double massMax,
+                         bool debug);
   ~SingleJetMassCondition() override {}
 
   bool isSatisfied(const HypoJetVector&) const override;
@@ -37,6 +42,7 @@ class SingleJetMassCondition: public EtaEtCondition{
 
   double m_massMin;
   double m_massMax;
+  bool m_debug;
 };
 
 #endif
