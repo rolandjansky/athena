@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "eflowRec/PFTrackSelector.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 
 
@@ -20,6 +21,7 @@ StatusCode PFTrackSelector::initialize(){
   ATH_CHECK(m_electronsReadHandleKey.initialize());
   ATH_CHECK(m_muonsReadHandleKey.initialize());
   ATH_CHECK(m_vertexKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_CHECK(m_eflowRecTracksWriteHandleKey.initialize());
   

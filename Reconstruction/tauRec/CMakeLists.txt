@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           Reconstruction/tauRecTools
                           PRIVATE
@@ -23,7 +24,7 @@ atlas_add_library( tauRecLib
                    src/*.cxx
                    PUBLIC_HEADERS tauRec
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ParticleEvent tauRecToolsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry ParticleEvent tauRecToolsLib
                    PRIVATE_LINK_LIBRARIES tauEvent )
 
 atlas_add_component( tauRec
