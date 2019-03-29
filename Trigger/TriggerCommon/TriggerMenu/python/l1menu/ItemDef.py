@@ -91,6 +91,7 @@ class ItemDef:
            LVL1MenuItem('L1_EM22VH'   ).setLogic( EM22VH      & physcond).setTriggerType( TT.calo )    # noqa: F821
            LVL1MenuItem('L1_eEM22'   ).setLogic( eEM22      & physcond).setTriggerType( TT.calo )    # noqa: F821
            LVL1MenuItem('L1_eEM22VHI'   ).setLogic( eEM22VHI      & physcond).setTriggerType( TT.calo )    # noqa: F821
+           LVL1MenuItem('L1_eEM20VH'   ).setLogic( eEM20VHI      & physcond).setTriggerType( TT.calo )    # noqa: F821
            LVL1MenuItem('L1_eEM20VHI'   ).setLogic( eEM20VHI      & physcond).setTriggerType( TT.calo )    # noqa: F821
            LVL1MenuItem('L1_EM24VHIM'   ).setLogic( EM24VHIM      & physcond).setTriggerType( TT.calo )    # noqa: F821
         else:
