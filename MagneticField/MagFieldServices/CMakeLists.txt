@@ -31,5 +31,7 @@ atlas_install_headers( MagFieldServices )
 atlas_install_python_modules( python/*.py )
 
 if( NOT SIMULATIONBASE )
-  atlas_add_test( MagFieldServicesConfig    SCRIPT python -m MagFieldServices.MagFieldServicesConfig POST_EXEC_SCRIPT nopost.sh )
+  atlas_add_test( MagFieldServicesConfig    SCRIPT python -m MagFieldServices.MagFieldServicesConfig
+                  PROPERTIES TIMEOUT 300
+                  POST_EXEC_SCRIPT nopost.sh )
 endif()
