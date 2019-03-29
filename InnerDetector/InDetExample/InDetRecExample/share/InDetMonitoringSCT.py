@@ -93,7 +93,6 @@ options.setdefault('Extrapolator', atlasExtrapolator)
 from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
 trackToVertex = Reco__TrackToVertex(**options)
 InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
-                                             TrackToVertexTool = trackToVertex,
                                              OutputLevel      = 4,
                                              tracksName       = tracksName )
 

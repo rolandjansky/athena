@@ -23,23 +23,16 @@
 #include "SCT_MonitoringNumbers.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkTrack/TrackCollection.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
-#include <vector>
 
 // Forward declarations
 class IInterface;
-class TH1I;
-class TH1F;
-class TH2F;
-class TProfile2D;
 class TProfile;
 class StatusCode;
 class SCT_ID;
@@ -50,8 +43,8 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   virtual ~SCTLorentzMonTool() = default;
   //initialize
   virtual StatusCode initialize() final;
-   /**    @name Book, fill & check (reimplemented from baseclass) */
-//@{
+  /**    @name Book, fill & check (reimplemented from baseclass) */
+  //@{
   ///Book histograms in initialization
   virtual StatusCode bookHistograms();
   virtual StatusCode bookHistogramsRecurrent();
@@ -61,33 +54,23 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
-//@}
+  //@}
 
-private:
+ private:
   //@name typedefs centralised to enable easy changing of types
   //@{
   typedef TProfile* Prof_t;
-  typedef TH1F* H1_t;
-  typedef TH2F* H2_t;
-  typedef std::vector<Prof_t> VecProf_t;
-  typedef std::vector<H1_t> VecH1_t;
-  typedef std::vector<H2_t> VecH2_t;
   //@}
+
+  enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
+  enum Sides { side0, side1, bothSides, nSidesInclBoth };
+
   int m_numberOfEvents;
   //@name Histograms related members
   //@{
 
-  //for Vertex and perigee
-  ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
-
-  /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
-  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS];
-  Prof_t m_phiVsNstrips_100[SCT_Monitoring::N_BARRELS];
-  Prof_t m_phiVsNstrips_111[SCT_Monitoring::N_BARRELS];
-  /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
-  Prof_t m_phiVsNstrips_Side[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
-  Prof_t m_phiVsNstrips_Side_100[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
-  Prof_t m_phiVsNstrips_Side_111[SCT_Monitoring::N_BARRELS][SCT_Monitoring::N_SIDES];
+  /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips
+  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces];
 
   std::string m_path;
   //@}
@@ -112,9 +95,7 @@ private:
   int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, const InDetDD::SiDetectorElementCollection* elements, float& theta, float& phi );
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t  pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag);
-  ///Factory + register for the 1D histograms, returns whether successfully registered
-  bool h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector);
+  Prof_t pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag);
   //@}
 };
 

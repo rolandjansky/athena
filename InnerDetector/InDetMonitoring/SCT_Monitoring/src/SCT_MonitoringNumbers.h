@@ -18,11 +18,11 @@ namespace SCT_Monitoring{
   ///Array for conversion of an array index to a Bec
   const Bec index2BecArray[]={ENDCAP_C, BARREL, ENDCAP_A, GENERAL};
   ///Conversion  bec->index
-  inline unsigned int bec2Index(const int becVal){
+  inline unsigned int bec2Index(const int becVal) {
     return (becVal/2) + 1;
   }
   ///Conversion index->bec
-  inline Bec index2Bec(const unsigned int i){
+  inline Bec index2Bec(const unsigned int i) {
     return (i < 4) ? (index2BecArray[i]) : INVALID_SYSTEM;
   }
   

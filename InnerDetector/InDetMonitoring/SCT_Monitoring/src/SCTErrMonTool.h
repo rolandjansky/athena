@@ -50,8 +50,7 @@ class SCT_ModuleStatistics;
 class TString;
 
 ///Concrete monitoring tool derived from MonitorToolBase
-class SCTErrMonTool : public ManagedMonitorToolBase
-{
+class SCTErrMonTool : public ManagedMonitorToolBase {
   //Define pair for FillModule
   //First pair is eta and second pair is phi.
   //First element of pair is minimum second is maximum.
@@ -103,28 +102,28 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TString errorsString(int errtype); // transfer [enum ErrorTypes] -> [TString ErrorName]
 
   ///rate of errors
-  TProfile2D_LW* m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///rate of errors per lumi-block
-  TProfile2D_LW* m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors
   TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors per lumi-block
   TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
 
   ///rate of errors
-  TProfile2D_LW* m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///rate of errors per lumi-block
-  TProfile2D_LW* m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors
   TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   ///total number of errors per lumi-block
   TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
 
   /// Recent error rate histograms
-  TProfile2D_LW* m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
   /// Default histos to print per lumi block
   TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL];
-  TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
+  Prof2_t m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
 
   TH1I* m_nErrors;
   TH1I* m_nLinksWithErrors;
@@ -132,7 +131,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   std::vector<int> m_nLinksWithErrors_buf;
   int m_nErrors_pos;
 
-  TH1I* m_MaskedAllLinks; // maskedLinks||maskedRODs
+  TH1I* m_MaskedAllLinks; // maskedLinks or maskedRODs
 
   //Count number of events
   int m_numberOfEventsLumi;
@@ -146,11 +145,14 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode bookConfMapsGen();
   StatusCode bookConfMaps(int iregion);
 
-  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2], bool lumi2DHist, int err_type);
+  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors,
+                                 TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2],
+                                 bool lumi2DHist, int err_type);
   void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc);
-  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap, TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel=true);
-
-  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TProfile2D_LW*& tprof, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
+                                 Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel=true);
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,
+                                 Prof2_t& tprof, const int layer, const bool barrel=true);
 
   std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
 
