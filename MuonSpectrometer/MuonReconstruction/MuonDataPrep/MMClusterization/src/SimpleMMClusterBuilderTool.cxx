@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -137,9 +137,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       if(k>=nmergeStrips) break;
     }
     ATH_MSG_VERBOSE(" add merged MMprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
-
-    // get the
-
 
     // start off from strip in the middle
     int stripSum = 0;
