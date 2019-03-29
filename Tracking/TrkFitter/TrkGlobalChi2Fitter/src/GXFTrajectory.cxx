@@ -77,7 +77,6 @@ namespace Trk {
     m_brems = rhs.m_brems;
     m_res = rhs.m_res;
     m_errors = rhs.m_errors;
-    m_resderiv = rhs.m_resderiv;
     m_weightresderiv = rhs.m_weightresderiv;
     m_totx0 = rhs.m_totx0;
     m_toteloss = rhs.m_toteloss;
@@ -154,7 +153,6 @@ namespace Trk {
       m_brems = rhs.m_brems;
       m_res = rhs.m_res;
       m_errors = rhs.m_errors;
-      m_resderiv = rhs.m_resderiv;
       m_weightresderiv = rhs.m_weightresderiv;
       m_totx0 = rhs.m_totx0;
       m_toteloss = rhs.m_toteloss;
@@ -437,7 +435,6 @@ namespace Trk {
 
   void GXFTrajectory::reset() {
     m_res.clear();
-    m_resderiv.clear();
     m_weightresderiv.clear();
     m_errors.clear();
     m_scatteringangles.clear();

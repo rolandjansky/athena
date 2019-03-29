@@ -4182,10 +4182,7 @@ namespace Trk {
             }
           }
         }
-        cache.m_matvecidupstream =
-          m_extrapolator->extrapolateM(*startmatpar1, *destsurf,
-                                       oppositeMomentum, false, matEffects);
-        matvec = cache.m_matvecidupstream;
+        matvec = m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects);
         if (tmppar) {
           delete tmppar;
         }
@@ -4291,10 +4288,7 @@ namespace Trk {
             destsurf = calosurf;
           }
         }
-        cache.m_matveciddownstream =
-          m_extrapolator->extrapolateM(*startmatpar2, *destsurf,
-                                       alongMomentum, false, matEffects);
-        matvec = cache.m_matveciddownstream;
+        matvec = m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects);
         if (tmppar) {
           delete tmppar;
         }
@@ -4588,15 +4582,7 @@ namespace Trk {
             endmsg;
         }
 
-        cache.m_matvecmuondownstream = m_extrapolator->extrapolateM(*prevtp,
-                                                                    *states.
-                                                                    back()->
-                                                                    surface(),
-                                                                    alongMomentum,
-                                                                    false,
-                                                                    Trk::
-                                                                    nonInteractingMuon);
-        matvec = cache.m_matvecmuondownstream;
+        matvec = m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon);
         if (matvec->size() > 1000 && m_rejectLargeNScat) {
           ATH_MSG_DEBUG("too many scatterers: " << matvec->size());
           return;
@@ -4702,14 +4688,7 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1;
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
 
-        cache.m_matvecmuonupstream = m_extrapolator->extrapolateM(*prevtp,
-                                                                  *states[0]->
-                                                                  surface(),
-                                                                  oppositeMomentum,
-                                                                  false,
-                                                                  Trk::
-                                                                  nonInteractingMuon);
-        matvec = cache.m_matvecmuonupstream;
+        matvec = m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon);
         if (matvec && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
           for (int j = 0; j < (int) matvec->size(); j++) {
@@ -5244,7 +5223,8 @@ namespace Trk {
     int originalErrorLevel = gErrorIgnoreLevel;
     gErrorIgnoreLevel = 10000;
 
-    cache.m_a.resize(nfitpar, nfitpar);
+    Eigen::MatrixXd a, a_inv;
+    a.resize(nfitpar, nfitpar);
     
     Amg::VectorX b(nfitpar);
 
@@ -5275,8 +5255,7 @@ namespace Trk {
       }
       
       if (!trajectory.converged()) {
-        cache.m_fittercode = runIteration(cache, trajectory, it, cache.m_a, b, lu, doderiv);
-        
+        cache.m_fittercode = runIteration(cache, trajectory, it, a, b, lu, doderiv);
         if (cache.m_fittercode != FitterStatusCode::Success) {
           if (cache.m_fittercode == FitterStatusCode::ExtrapolationFailure) {
             m_propfailed++;
@@ -5309,8 +5288,7 @@ namespace Trk {
         ) {
           if (!(it == 1 && nsihits == 0 && trajectory.nDOF() > 0 && trajectory.chi2() / trajectory.nDOF() > 3)) {
             ATH_MSG_DEBUG("Running TRT cleaner");
-            runTrackCleanerTRT(cache, trajectory, cache.m_a, b, lu, runOutlier, m_trtrecal, it);
-            
+            runTrackCleanerTRT(cache, trajectory, a, b, lu, runOutlier, m_trtrecal, it);
             if (cache.m_fittercode != FitterStatusCode::Success) {
               ATH_MSG_DEBUG("TRT cleaner failed, returning null...");
               gErrorIgnoreLevel = originalErrorLevel;
@@ -5341,14 +5319,14 @@ namespace Trk {
       // Solve assuming the matrix is SPD.
       // Cholesky Decomposition is used --  could use LDLT
 
-      Eigen::LLT < Eigen::MatrixXd > lltOfW(cache.m_a);
+      Eigen::LLT < Eigen::MatrixXd > lltOfW(a);
       if (lltOfW.info() == Eigen::Success) {
         // Solve for x  where Wx = I
         // this is cheaper than invert as invert makes no assumptions about the
         // matrix being symmetric
-        int ncols = cache.m_a.cols();
+        int ncols = a.cols();
         Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols, ncols);
-        cache.m_ainv = lltOfW.solve(weightInvAMG);
+        a_inv = lltOfW.solve(weightInvAMG);
       } else {
         ATH_MSG_DEBUG("matrix inversion failed!");
         m_matrixinvfailed++;
@@ -5359,12 +5337,12 @@ namespace Trk {
     }
     
     GXFTrajectory *finaltrajectory = &trajectory;
-    
-    if ((runOutlier || cache.m_sirecal) && trajectory.numberOfSiliconHits() == trajectory.numberOfHits()) {
-      calculateTrackErrors(trajectory, cache.m_ainv, true);
-      finaltrajectory = runTrackCleanerSilicon(
-        cache, trajectory, cache.m_a, cache.m_ainv, b, runOutlier
-      );
+    if (
+      (runOutlier || cache.m_sirecal) && 
+      trajectory.numberOfSiliconHits() == trajectory.numberOfHits()
+    ) {
+      calculateTrackErrors(trajectory, a_inv, true);
+      finaltrajectory = runTrackCleanerSilicon(cache, trajectory, a, a_inv, b, runOutlier);
     }
 
     // We're done with the ROOT stuff, so we can reset the error level
@@ -5379,22 +5357,22 @@ namespace Trk {
     }
     
     if (m_domeastrackpar && !finaltrajectory->prefit()) {
-      calculateTrackErrors(*finaltrajectory, cache.m_ainv, false);
+      calculateTrackErrors(*finaltrajectory, a_inv, false);
     }
     
     if (!cache.m_acceleration && !finaltrajectory->prefit()) {
       if (nperpars == 5) {
-        for (int i = 0; i < cache.m_a.cols(); i++) {
-          cache.m_ainv(4, i) *= .001;
-          cache.m_ainv(i, 4) *= .001;
+        for (int i = 0; i < a.cols(); i++) {
+          a_inv(4, i) *= .001;
+          a_inv(i, 4) *= .001;
         }
       }
       
       int scatterPos = nperpars + 2 * nscat;
       for (int bremno = 0; bremno < nbrem; bremno++, scatterPos++) {
-        for (int i = 0; i < cache.m_a.cols(); i++) {
-          cache.m_ainv(scatterPos, i) *= .001;
-          cache.m_ainv(i, scatterPos) *= .001;
+        for (int i = 0; i < a.cols(); i++) {
+          a_inv(scatterPos, i) *= .001;
+          a_inv(i, scatterPos) *= .001;
         }
       }
 
@@ -5403,7 +5381,7 @@ namespace Trk {
       int nperparams = finaltrajectory->numberOfPerigeeParameters();
       for (int i = 0; i < nperparams; i++) {
         for (int j = 0; j < nperparams; j++) {
-          (*errmat) (j, i) = cache.m_ainv(j, i);
+          (*errmat) (j, i) = a_inv(j, i);
         }
       }
       
@@ -5419,7 +5397,7 @@ namespace Trk {
       finaltrajectory->setReferenceParameters(measper);
       if (m_fillderivmatrix) {
         delete cache.m_fullcovmat;
-        cache.m_fullcovmat = new Amg::MatrixX(cache.m_ainv);
+        cache.m_fullcovmat = new Amg::MatrixX(a_inv);
       }
     }
     
@@ -7019,7 +6997,7 @@ namespace Trk {
               // Solve for x  where Wx = I
               // this is cheaper than invert as invert makes no assumptions about the
               // matrix being symmetric
-              int ncols = cache.m_a.cols();
+              int ncols = a.cols();
               Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols, ncols);
               fullcov = lltOfW.solve(weightInvAMG);
             } else {
@@ -8616,34 +8594,6 @@ namespace Trk {
 
     if (!m_calomeots.empty()) {
       m_calomeots.clear();
-    }
-    if (m_matvecmuonupstream) {
-      for (int i = 0; i < (int) m_matvecmuonupstream->size(); i++) {
-        delete(*m_matvecmuonupstream)[i];
-      }
-      delete m_matvecmuonupstream;
-      m_matvecmuonupstream = 0;
-    }
-    if (m_matvecmuondownstream) {
-      for (int i = 0; i < (int) m_matvecmuondownstream->size(); i++) {
-        delete(*m_matvecmuondownstream)[i];
-      }
-      delete m_matvecmuondownstream;
-      m_matvecmuondownstream = 0;
-    }
-    if (m_matvecidupstream) {
-      for (int i = 0; i < (int) m_matvecidupstream->size(); i++) {
-        delete(*m_matvecidupstream)[i];
-      }
-      delete m_matvecidupstream;
-      m_matvecidupstream = 0;
-    }
-    if (m_matveciddownstream) {
-      for (int i = 0; i < (int) m_matveciddownstream->size(); i++) {
-        delete(*m_matveciddownstream)[i];
-      }
-      delete m_matveciddownstream;
-      m_matveciddownstream = 0;
     }
     if (!m_matvec.empty()) {
       for (int j = 0; j < (int) m_matvec.size(); j++) {

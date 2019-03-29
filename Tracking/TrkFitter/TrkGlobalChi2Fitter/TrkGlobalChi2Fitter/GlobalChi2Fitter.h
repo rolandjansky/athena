@@ -70,18 +70,12 @@ namespace Trk {
       bool m_acceleration;
       bool m_fiteloss;
       bool m_asymeloss;
-      Amg::SymMatrixX m_a, m_ainv;    //  Only used in MyFit (does this called more than once?)
       bool m_updatescat;        // Need to look at how this should be intialised
 
       std::vector<double> m_phiweight;
       std::vector<int> m_firstmeasurement;
       std::vector<int> m_lastmeasurement;
       std::vector<MaterialEffectsOnTrack> m_calomeots;
-      
-      const std::vector<const TrackStateOnSurface *> *m_matvecidupstream = nullptr;
-      const std::vector<const TrackStateOnSurface *> *m_matveciddownstream = nullptr;
-      const std::vector<const TrackStateOnSurface *> *m_matvecmuonupstream = nullptr;
-      const std::vector<const TrackStateOnSurface *> *m_matvecmuondownstream = nullptr;
       
       std::vector < const TrackStateOnSurface *>m_matvec;
       std::vector < const Trk::Layer * >m_negdiscs;

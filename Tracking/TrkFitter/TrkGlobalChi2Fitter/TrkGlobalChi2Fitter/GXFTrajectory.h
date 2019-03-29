@@ -118,7 +118,6 @@ namespace Trk {
     std::vector < double >m_brems;
     std::vector < double >m_res;
     std::vector < double >m_errors;
-    std::vector < std::vector < double >>m_resderiv;
     std::vector < std::vector < double >>m_weightresderiv;
     double m_totx0;
     double m_toteloss;
