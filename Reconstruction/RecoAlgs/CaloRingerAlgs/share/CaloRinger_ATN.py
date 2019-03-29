@@ -57,8 +57,9 @@ athenaCommonFlags.EvtMax = numEvt
 athenaCommonFlags.PoolAODOutput = 'AOD.pool.root'
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
-from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
+
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
 #########################################################################
 
 ########################### PRE-EXEC ####################################

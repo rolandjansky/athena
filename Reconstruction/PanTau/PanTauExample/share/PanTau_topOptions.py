@@ -4,7 +4,6 @@ athenaCommonFlags.FilesInput=["/tmp/limbach/mc12_8TeV.147916.Pythia8_AU2CT10_jet
 athenaCommonFlags.EvtMax=20
 
 
-
 from RecExConfig.RecFlags import rec#,Rec
 rec.doCBNT.set_Value_and_Lock(False)
 rec.doWriteESD.set_Value_and_Lock(False)
@@ -12,14 +11,10 @@ rec.doWriteAOD.set_Value_and_Lock(True)
 rec.doESD.set_Value_and_Lock(True)
 rec.doAOD.set_Value_and_Lock(True)
 
-
-
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 #don't need to set Geometry tags anymore. They are read from the file itself.
 from RecExConfig.RecFlags import rec
-# get inputFileSummary - will use it to extract info for MC/DATA
-from RecExConfig.InputFilePeeker import inputFileSummary
 # import the data types
 import EventKernel.ParticleDataType
 include ("RecExCond/RecExCommon_flags.py")

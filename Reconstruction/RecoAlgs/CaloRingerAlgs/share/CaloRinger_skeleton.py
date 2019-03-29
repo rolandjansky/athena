@@ -58,11 +58,13 @@ if localRunOnFolder:
   athenaCommonFlags.PoolAODOutput = 'AOD.pool.root'
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
-#here is an example of the inputFilePeeker to autoconfigure the flags
-from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
+
+# here is an example of the MetaReader to autoconfigure the flags
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
+
 if not ManualDetDescrVersion:
-  globalflags.DetDescrVersion.set_Value_and_Lock(inputFileSummary['geometry'])
+  globalflags.DetDescrVersion.set_Value_and_Lock(metadata['GeoAtlas'])
 else:
   globalflags.DetDescrVersion.set_Value_and_Lock(ManualDetDescrVersion)
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)

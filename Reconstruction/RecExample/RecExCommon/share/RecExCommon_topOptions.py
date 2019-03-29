@@ -166,15 +166,15 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameFor
 
 # Build amitag list
 amitag = ""
-from RecExConfig.InputFilePeeker import inputFileSummary
+from PyUtils.MetaReaderPeeker import metadata
 try:
-  amitag = inputFileSummary['metadata']['/TagInfo']['AMITag']
+    amitag = metadata['AMITag']
 except:
-  logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
+    logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
 # append new if previous exists otherwise take the new alone 
 if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", inputFileSummary['metadata']['/TagInfo']['AMITag'] + "_" + rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", metadata['AMITag'] + "_" + rec.AMITag() ]
 else:
   svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
 
@@ -373,8 +373,9 @@ cfgRecExPers=CfgKeyStore("recexpers")
 if globalflags.InputFormat.is_pool():
     logRecExCommon_topOptions.info("Pool file : storing in objKeyStore the list of input object directly from file")
     try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+
     except:
         logRecExCommon_topOptions.error("no input file defined in flags. If using RTT please use tag <athenaCommonFlags/>. Now continuing at own riske")
 # for BS file this cannot be done already, see later
@@ -1310,9 +1311,9 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
             CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
 
-            from RecExConfig.InputFilePeeker import inputFileSummary
+            from PyUtils.MetaReaderPeeker import convert_metadata_items
             #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
+            MSMgr.AddMetaDataItemToAllStreams(convert_metadata_items(layout='#join'))
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass

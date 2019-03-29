@@ -12,11 +12,13 @@ from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
 def getSimBarcodeOffset():
-  "Return the simulation barcode offset for G4 particles from metadata"
-  from RecExConfig.InputFilePeeker import inputFileSummary
+  # "Return the simulation barcode offset for G4 particles from metadata"
+  from PyUtils.MetaReaderPeeker import metadata
+
   offset = 200e3
   try:
-    return int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+    return int(metadata['SimBarcodeOffset'])
+
   except:
     print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
   return int(offset)
