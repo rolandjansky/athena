@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -140,9 +140,9 @@ private:
   InsituDataCorrection * m_insituDataCorr;
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
+  JetSmearingCorrection* m_jetSmearCorr;
   JMSCorrection *InsituCombMassCorr;
   std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
-  JetSmearingCorrection* m_jetSmearCorr;
 
 }; 
 
