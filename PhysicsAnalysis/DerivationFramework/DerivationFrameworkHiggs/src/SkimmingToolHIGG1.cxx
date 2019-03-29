@@ -18,7 +18,6 @@
 #include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 
-
 // Constructor
 DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
 							    const std::string& n,
@@ -38,6 +37,7 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   n_passSinglePhotonDoubleElectronPreselect(0),
   n_passSinglePhotonMergedElectronPreselect(0),
   n_passHighPtPhotonMergedElectronPreselect(0),
+  n_passSingleMergedElectronPreselect(0),
   n_passKinematic(0),
   n_passQuality(0),
   n_passIsolation(0),
@@ -86,12 +86,13 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   declareProperty("ReqireLArError",        m_reqLArError      = true);
   declareProperty("RequireTrigger",        m_reqTrigger       = true);
   declareProperty("RequirePreselection",   m_reqPreselection  = true);
+  declareProperty("IncludeSingleMergedElectronPreselection", m_incMergedElectron = false);
   declareProperty("IncludeSingleElectronPreselection",   m_incSingleElectron  = true);
   declareProperty("IncludeDoubleElectronPreselection",   m_incDoubleElectron  = false);
   declareProperty("IncludeSingleMuonPreselection",       m_incSingleMuon  = true);
   declareProperty("IncludeDoubleMuonPreselection",       m_incDoubleMuon  = false);
-  declareProperty("IncludePhotonDoubleElectronPreselection", m_incDoubleElectronPhoton  = false);
-  declareProperty("IncludePhotonMergedElectronPreselection", m_incMergedElectron = false);
+  declareProperty("IncludePhotonDoubleElectronPreselection", m_incDoubleElectronPhoton = false);
+  declareProperty("IncludePhotonMergedElectronPreselection", m_incMergedElectronPhoton = false);
   declareProperty("IncludeHighPtPhotonElectronPreselection", m_incHighPtElectronPhoton = false);
   declareProperty("IncludeDoublePhotonPreselection",     m_incTwoPhotons  = true);
 
@@ -143,7 +144,7 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::initialize()
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
   ////////////////////////////
   //
-  if(m_incMergedElectron){
+  if(m_incMergedElectronPhoton){
     if( m_mergedCutTools.retrieve().isFailure() )
     {
       ATH_MSG_FATAL("Failed to retrieve tool: ElectronPhotonSelectorTools");
@@ -174,10 +175,12 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::finalize()
     ATH_MSG_INFO("1y2mu     :: " << n_passSinglePhotonDoubleMuonPreselect);
   if(m_incDoubleElectronPhoton)
     ATH_MSG_INFO("1y2e      :: " << n_passSinglePhotonDoubleElectronPreselect);
-  if(m_incMergedElectron)
+  if(m_incMergedElectronPhoton)
     ATH_MSG_INFO("1y1eMerge :: " << n_passSinglePhotonMergedElectronPreselect);
   if(m_incHighPtElectronPhoton)
     ATH_MSG_INFO("1y1e HiPt :: " << n_passHighPtPhotonMergedElectronPreselect);
+  if(m_incMergedElectron)
+    ATH_MSG_INFO("1eMerge   :: " << n_passSingleMergedElectronPreselect);
 
   if(m_incTwoPhotons){
     ATH_MSG_INFO("2y        :: " << n_passPreselect);
@@ -218,11 +221,12 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
   if (m_incSingleMuon     && SubcutOnePhotonOneMuon()     ) writeEvent = true;
   
   // eey, mumuy events
-  if (m_incMergedElectron       && SubcutOnePhotonMergedElectrons()) writeEvent = true;               
+  if (m_incMergedElectronPhoton && SubcutOnePhotonMergedElectrons()) writeEvent = true;               
   if (m_incDoubleMuon           && SubcutOnePhotonTwoMuons()       ) writeEvent = true;
   if (m_incDoubleElectronPhoton && SubcutOnePhotonTwoElectrons()   ) writeEvent = true;
   if (m_incHighPtElectronPhoton && SubcutHighPtOnePhotonOneElectron() ) writeEvent = true;
 
+  if (m_incMergedElectron && SubcutOneMergedElectron() ) writeEvent = true;
   // There *must* be two photons for the remaining 
   // pieces, but you can still save the event...
   if (m_incTwoPhotons && e_passPreselect) {
@@ -546,6 +550,45 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneElectron() const 
 
   if(e_passSingleElectronPreselect) n_passSingleElectronPreselect++;
   return e_passSingleElectronPreselect;
+}
+
+
+bool DerivationFramework::SkimmingToolHIGG1::SubcutOneMergedElectron() const {
+  const xAOD::ElectronContainer *electrons(0);
+  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  
+  int nEle(0);
+  for(const auto el: *electrons){
+    if( el->pt() < m_minElectronPt)
+      continue;
+    //Count the number of Si tracks matching the electron
+    int nSiTrack(0);
+    for( unsigned int trk_i(0); trk_i < el->nTrackParticles(); ++trk_i){
+      auto ele_tp =  el->trackParticle(trk_i);
+      if(!ele_tp){
+        continue;
+      }
+      uint8_t nPixHits(0), nPixDead(0), nSCTHits(0), nSCTDead(0);
+      bool allFound = true;
+      allFound = allFound && ele_tp->summaryValue(nPixHits, xAOD::numberOfPixelHits);
+      allFound = allFound && ele_tp->summaryValue(nPixDead, xAOD::numberOfPixelDeadSensors);
+      allFound = allFound && ele_tp->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
+      allFound = allFound && ele_tp->summaryValue(nSCTDead, xAOD::numberOfSCTDeadSensors);
+
+      
+      int nSiHitsPlusDeadSensors = nPixHits + nPixDead + nSCTHits + nSCTDead;
+      if(nSiHitsPlusDeadSensors >= 7)
+        ++nSiTrack;
+    }
+    //If 2 or more the electron is selected
+    if(nSiTrack>1)
+      ++nEle;
+  }
+  if(nEle>0){
+    ++n_passSingleMergedElectronPreselect;
+    return true;
+  }
+  return false;
 }
 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutTwoElectrons() const {
