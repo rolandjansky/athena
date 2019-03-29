@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -32,7 +32,7 @@ class TrigTauTracksInfo_p1
     m_charge(0),   m_leadingTrackPt(0),   m_scalarPtSumCore(0),   
     m_scalarPtSumIso(0),   m_ptBalance(0)
     {}
-  virtual ~TrigTauTracksInfo_p1(){}
+  virtual ~TrigTauTracksInfo_p1() = default;
   
   //private:
 
