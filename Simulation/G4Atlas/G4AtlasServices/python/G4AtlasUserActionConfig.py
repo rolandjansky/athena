@@ -118,7 +118,10 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
 
 def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     TrackProcessorUserAction = kwargs.pop('TrackProcessorUserAction',[])
-    PhysicsValidationUserAction = kwargs.pop('PhysicsValidationUserAction',[])
+    PhysicsValidationUserAction = []
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode.get_Value():
+        PhysicsValidationUserAction = ['ISFG4PhysicsValidationUserActionTool']
     MCTruthUserAction = kwargs.pop('MCTruthUserAction',['ISFMCTruthUserActionTool'])
 
     from G4AtlasApps.SimFlags import simFlags
@@ -143,39 +146,22 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
 
 def getISFFullUserActionSvc(name="G4UA::ISFFullUserActionSvc", **kwargs):
-    # this configuration needs ISFMCTruthUserAction,
-    # G4OnlyPhysicsValidationUserAction, and FullG4TrackProcessorUserAction
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.ValidationMode.get_Value():
-        kwargs.setdefault('PhysicsValidationUserAction',['G4OnlyPhysicsValidationUserActionTool'])
+    # this configuration needs ISFMCTruthUserAction
+    # and FullG4TrackProcessorUserAction
     kwargs.setdefault('TrackProcessorUserAction', ['FullG4TrackProcessorUserActionTool'])
     return getISFUserActionSvc(name, **kwargs)
 
 def getISFPassBackUserActionSvc(name="G4UA::ISFPassBackUserActionSvc", **kwargs):
-    # this configuration needs ISFMCTruthUserAction,
-    # G4OnlyPhysicsValidationUserAction, and PassBackG4TrackProcessorUserAction
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.ValidationMode.get_Value():
-        kwargs.setdefault('PhysicsValidationUserAction', ['G4OnlyPhysicsValidationUserActionTool'])
+    # this configuration needs ISFMCTruthUserAction and
+    # PassBackG4TrackProcessorUserAction
     kwargs.setdefault('TrackProcessorUserAction', ['PassBackG4TrackProcessorUserActionTool'])
     return getISFUserActionSvc(name, **kwargs)
 
 def getISF_AFIIUserActionSvc(name="G4UA::ISF_AFIIUserActionSvc", **kwargs):
-    # this configuration needs ISFMCTruthUserAction,
-    # AFII_G4PhysicsValidationUserAction, and AFII_G4TrackProcessorUserAction
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.ValidationMode.get_Value():
-        kwargs.setdefault('PhysicsValidationUserAction', ['AFII_G4PhysicsValidationUserActionTool'])
+    # this configuration needs ISFMCTruthUserAction and
+    # AFII_G4TrackProcessorUserAction
     kwargs.setdefault('TrackProcessorUserAction', ['AFII_G4TrackProcessorUserActionTool'])
     return getISFUserActionSvc(name, **kwargs)
-
-def getISFQuasiStableUserActionSvc(name="G4UA::ISFQuasiStableUserActionSvc", **kwargs):
-    # this configuration needs ISFMCTruthUserAction,
-    # QuasiStableG4PhysicsValidationUserAction, and FullG4TrackProcessorUserAction
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.ValidationMode.get_Value():
-        kwargs.setdefault('PhysicsValidationUserAction', ['QuasiStableG4PhysicsValidationUserActionTool'])
-    return getISFFullUserActionSvc(name, **kwargs)
 
 
 def addAction(actionTool, roles, systemAction=False):
