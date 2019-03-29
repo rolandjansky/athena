@@ -260,7 +260,7 @@ class FailedMerging( unittest.TestCase ):
         def badMerge():
             someCA = ComponentAccumulator()
             topCA.merge(  (someCA, 1, "hello")  )
-        self.assertRaises(RuntimeError, badMerge )
+        self.assertRaises(TypeError, badMerge )
         topCA.wasMerged()
 
 

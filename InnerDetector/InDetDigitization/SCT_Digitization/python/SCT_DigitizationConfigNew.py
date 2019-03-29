@@ -53,8 +53,9 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     surfAcc = SCT_SurfaceChargesGeneratorCfg(flags)
     tool.SurfaceChargesGenerator = surfAcc.popPrivateTools()
     tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
-    acc.mergeAll([frontAcc, surfAcc])
     acc.setPrivateTools(tool)
+    acc.merge(frontAcc) 
+    acc.merge(surfAcc)
     return acc
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
@@ -153,8 +154,11 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     tool.SiConditionsTool = SiliCondTool
     tool.SiPropertiesTool = SiliPropsAcc.popPrivateTools()
     tool.LorentzAngleTool = LorentzAcc.popPrivateTools()
-    acc.mergeAll([DCSCondAcc, SiliCondAcc, SiliPropsAcc, LorentzAcc])
     acc.setPrivateTools(tool)
+    acc.merge(DCSCondAcc)
+    acc.merge(SiliCondAcc)
+    acc.merge(SiliPropsAcc)
+    acc.merge(LorentzAcc)
     return acc
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):

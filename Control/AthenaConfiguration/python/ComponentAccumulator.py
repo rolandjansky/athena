@@ -464,42 +464,10 @@ class ComponentAccumulator(object):
 
         pass
 
-
-    def mergeAll(self,others, sequenceName=None):
-        if isinstance(others,ComponentAccumulator):
-            return self.merge(others)
-
-        elif isinstance(others,collections.Sequence):
-            for other in others:
-                if isinstance (other,ComponentAccumulator):
-                    self.merge(other)
-                elif isinstance (other,ConfigurableService):
-                    self.addService(other)
-                elif isinstance(other,ConfigurableAlgorithm):
-                    self.addEventAlgorithm(other, sequenceName=sequenceName)
-                    #FIXME: At this point we can't distingush event algos from conditions algos.
-                    #Might become possible with new Gaudi configurables
-                elif isinstance(other,ConfigurableAlgTool):
-                    self.addPublicTool(other)
-                else:
-                    raise RuntimeError("mergeAll called with unexpected parameter of type %s" % type(other))
-
-        else:
-            raise RuntimeError("mergeAll called with unexpected parameter")
-
     def merge(self,other, sequenceName=None):
         """ Merging in the other accumulator """
         if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
-
-        if isinstance(other,collections.Sequence):
-            self._msg.error("Merge called with a: %s "  % str(type(other)) + " of length: %d " % len(other))
-            self._msg.error("where elements are of type : " + ", ".join([ str(type(x).__name__) for x in other]) )
-            if len(other) > 1 and isinstance(other[0], ComponentAccumulator):
-                self._msg.error("Try calling mergeAll")
-                raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +", call mergeAll instead" )
-            else:
-                raise RuntimeError("Merge can not handle a sequence: " + ", ".join([ str(type(x).__name__) for x in other]) +"" )
 
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)

@@ -186,7 +186,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
         cfg.merge( MuonCacheCfg() )
 
-    # Schedule Rpc bytestream data decoding - once mergeAll is working can simplify these lines
+    # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
 
     rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
@@ -272,7 +272,7 @@ def muonRdoDecodeTestMC():
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    # Schedule RDO conversion - can replace this with cfg.mergeAll once that is working
+    # Schedule RDO conversion 
     # RPC decoding
     rpcdecodingAcc = RpcRDODecodeCfg( ConfigFlags )
     cfg.merge(rpcdecodingAcc)

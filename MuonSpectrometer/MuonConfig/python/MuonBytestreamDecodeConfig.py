@@ -229,20 +229,20 @@ if __name__=="__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
-    # Schedule Rpc data decoding - once mergeAll is working can simplify these lines
+    # Schedule Rpc data decoding
     rpcdecodingAcc = RpcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( rpcdecodingAcc )
 
-    # Schedule Tgc data decoding - once mergeAll is working can simplify these lines
+    # Schedule Tgc data decoding
     tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( tgcdecodingAcc )
 
-    # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
+    # Schedule Mdt data decoding
 
     mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags , True)
     cfg.merge( mdtdecodingAcc )
 
-    # Schedule Csc data decoding - once mergeAll is working can simplify these lines
+    # Schedule Csc data decoding
     cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags , True) 
     cfg.merge( cscdecodingAcc )
 

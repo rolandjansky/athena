@@ -8,12 +8,6 @@ def PFCfg(inputFlags,**kwargs):
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
 
-    from StoreGate.StoreGateConf import StoreGateSvc
-    result.addService(StoreGateSvc("DetectorStore"))
-    
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.mergeAll(GeoModelCfg(inputFlags))
-
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
