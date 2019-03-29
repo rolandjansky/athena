@@ -158,7 +158,7 @@ if (doTau):
 # MET chains
 ##################################################################
 if (doMET):
-    from TrigUpgradeTest.metMenuDefs import metCellMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.metMenuDefs import metCellMenuSequence
 
     metCellSeq = metCellMenuSequence()
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
