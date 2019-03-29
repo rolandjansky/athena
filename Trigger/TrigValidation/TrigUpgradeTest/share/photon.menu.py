@@ -4,7 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-
 ##########################################
 # menu
 ##########################################
@@ -40,6 +39,7 @@ makeHLTTree(testChains)
 ##########################################  
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+
 
 
 
