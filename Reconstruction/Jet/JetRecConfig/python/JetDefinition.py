@@ -10,9 +10,6 @@
 
 __all__ =  ["JetConstit", "JetGhost", "JetDefinition","xAODType"]
 
-# Code from JetRecUtils
-# define the convention that we write R truncating the decimal point
-# if R>=1, then we write R*10
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
@@ -25,6 +22,9 @@ except:
 from ROOT import xAODType
 xAODType.ObjectType
 
+# Code from JetRecUtils
+# define the convention that we write R truncating the decimal point
+# if R>=1, then we write R*10
 def formatRvalue(parameter):
     # impose precision limits where there could be ambiguity
     if int(10*parameter)>=1 and int(100*parameter % 10):
