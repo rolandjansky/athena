@@ -418,8 +418,8 @@ namespace G4UA{
 	  // TID & EION
 	  if ( goodMaterial && vBinZoom >=0 ) {
 	    if ( pdgid == 999 ) {
-	      m_maps.m_rz_tid [vBinZoom] += 1;
-	      m_maps.m_rz_eion[vBinZoom] += rho;
+	      m_maps.m_rz_tid [vBinZoom] += dl;
+	      m_maps.m_rz_eion[vBinZoom] += rho*dl;
 	    }
 	    else {
 	      m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
@@ -428,8 +428,8 @@ namespace G4UA{
 	  }
 	  if ( goodMaterial && vBinFull >=0 ) {
 	    if ( pdgid == 999 ) {
-	      m_maps.m_full_rz_tid [vBinFull] += 1;
-	      m_maps.m_full_rz_eion[vBinFull] += rho;
+	      m_maps.m_full_rz_tid [vBinFull] += dl;
+	      m_maps.m_full_rz_eion[vBinFull] += rho*dl;
 	    }
 	    else {
 	      m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
@@ -438,8 +438,8 @@ namespace G4UA{
 	  }
 	  if ( goodMaterial && vBin3d >=0 ) {
 	    if ( pdgid == 999 ) {
-	      m_maps.m_3d_tid [vBin3d] += 1;
-	      m_maps.m_3d_eion[vBin3d] += rho;
+	      m_maps.m_3d_tid [vBin3d] += dl;
+	      m_maps.m_3d_eion[vBin3d] += rho*dl;
 	    }
 	    else {
 	      m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
