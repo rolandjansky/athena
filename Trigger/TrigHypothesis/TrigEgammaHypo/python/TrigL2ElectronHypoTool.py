@@ -10,7 +10,6 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
     
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
     tool = TrigL2ElectronHypoTool(name)
-    tool.RespectPreviousDecision = True
     tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
