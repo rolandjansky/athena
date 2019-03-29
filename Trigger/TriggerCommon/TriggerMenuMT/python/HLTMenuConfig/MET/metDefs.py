@@ -6,16 +6,11 @@
     #################################################
     # Useful imports
     #################################################
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING
-
-from math import pi 
+from AthenaCommon.Constants import WARNING
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+from AthenaCommon.CFElements import seqAND 
 
 
 def metCellAthSequence(ConfigFlags):
@@ -36,7 +31,7 @@ def metCellRecoSequence():
     #################################################
     # Add EFMissingETAlg and associated tools
     #################################################
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT, EFMissingETFromHelper
+    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
     metAlg = EFMissingETAlgMT( name="EFMET" )
     metAlg.OutputLevel=WARNING
     helperTool = EFMissingETFromHelper("theHelperTool") 
@@ -98,7 +93,7 @@ def metClusterRecoSequence():
     #################################################
     # Add EFMissingETAlg and associated tools
     #################################################
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromClustersMT, EFMissingETFromHelper
+    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
     metAlg = EFMissingETAlgMT( name="EFMET" )
     metAlg.OutputLevel=WARNING
     helperTool = EFMissingETFromHelper("theHelperTool") 
