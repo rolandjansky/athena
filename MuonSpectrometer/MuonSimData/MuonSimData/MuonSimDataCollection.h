@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,7 +21,7 @@
 class MuonSimDataCollection : public std::map<Identifier,MuonSimData> {
  public:
   MuonSimDataCollection();
-  virtual ~MuonSimDataCollection();
+  virtual ~MuonSimDataCollection() = default;
 
   // Helpers for easy access from python / debugger.
   Identifier id (size_t i) const;
