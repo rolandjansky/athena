@@ -25,8 +25,10 @@ def metaDataInputAvailable(inputType, inputKey):
   # Check if it is on metadata:
   # FIXME How can I do that using objKeyStore??
   flag = False
-  from RecExConfig.InputFilePeeker import inputFileSummary
-  metaItemList=inputFileSummary.get('metadata_itemsList')
+
+  from PyUtils.MetaReaderPeeker import convert_metadata_items
+  metaItemList = convert_metadata_items(layout='#join')
+
   if metaItemList and ( '%s#%s' % (inputType, inputKey) ) in metaItemList:
     flag = True
     mlog.verbose(("metaItemList does have ContainerType input %s with "

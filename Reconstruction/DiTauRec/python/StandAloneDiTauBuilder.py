@@ -62,14 +62,11 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.SkipEvents=4
 athenaCommonFlags.EvtMax = 100
 
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DetDescrVersion = metadata['GeoAtlas']
 
-
-from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DetDescrVersion = inputFileSummary['geometry']
 include("RecExCond/AllDet_detDescr.py")
 include("RecExCommon/RecExCommon_topOptions.py")
-
-
 
 # ----------------------------------------------------------------------------
 # Athena algorithm sequence

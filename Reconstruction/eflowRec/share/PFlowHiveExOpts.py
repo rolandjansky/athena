@@ -96,9 +96,7 @@ rec.AutoConfiguration = ['everything']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
-from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-from RecExConfig.InputFilePeeker import inputFileSummary
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+from RecExConfig.  import objKeyStore, CfgKeyStore
 
 #---------------------------------------------------------------------------------#
 # Detector Description

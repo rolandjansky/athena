@@ -3,11 +3,11 @@
 from AthenaCommon.KeyStore import CfgItemList
 
 # for the FileMetaData for MC
-from RecExConfig.InputFilePeeker import inputFileSummary
-if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION' and
-    inputFileSummary['metadata'] and
-    '/Simulation/Parameters' in inputFileSummary['metadata']):
-  svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+from PyUtils.MetaReaderPeeker import metadata
+if metadata['eventTypes'][0] == 'IS_SIMULATION' \
+    and len(metadata) > 0 \
+    and '/Simulation/Parameters' in metadata:
+    svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
 
 # ESD
 recoMetadataItemList = CfgItemList("RecoMetadata",

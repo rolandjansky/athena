@@ -21,14 +21,9 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-print inputFileSummary
-if inputFileSummary['evt_type'][0] == 'IS_DATA':
-    globalflags.DataSource = 'data'
-else:
-    globalflags.DataSource = 'geant4'
-
-globalflags.DetDescrVersion = inputFileSummary['geometry']
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
+globalflags.DetDescrVersion = metadata['GeoAtlas']
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()

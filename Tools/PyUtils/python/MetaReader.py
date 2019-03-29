@@ -1,8 +1,17 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 import os, re
-import logging
+from AthenaCommon.Logging import logging
+
 msg = logging.getLogger('MetaReader')
 
-def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
+regexEventStreamInfo      			=  re.compile(r'^EventStreamInfo(_p\d+)?$')
+regexIOVMetaDataContainer 			=  re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
+regexByteStreamMetadataContainer 	=  re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
+regexXAODEventFormat      			=  re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+
+
+def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key_filter= []):
 	"""
 	This tool is independent of Athena framework and returns the metadata from a given file.
 	:param filenames: the input file from which metadata needs to be extracted.
@@ -19,13 +28,13 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 	# Check if file_type is an allowed value
 	if file_type is not None:
 		if file_type not in ('POOL', 'BS'):
-			raise NameError('Allowed values for \'file_type\' parameter are: \'POOL\' or \'BS\': you provided "' + file_type + '"' )
+			raise NameError('Allowed values for \'file_type\' parameter are: "POOL" or "BS": you provided "' + file_type + '"')
 		else:
 			msg.info('Forced file_type: {0}'.format(file_type))
 
 	# Check the value of mode parameter
-	if mode not in ('tiny', 'lite', 'full'):
-		raise NameError('Allowed values for \'mode\' parameter are: \'tiny\', \'lite\' or \'full\'')
+	if mode not in ('tiny', 'lite', 'full', 'peeker'):
+		raise NameError('Allowed values for "mode" parameter are: "tiny", "lite", "peeker" or "full"')
 	msg.info('Current mode used: {0}'.format(mode))
 
 	if mode != 'full' and len(meta_key_filter) > 0:
@@ -86,12 +95,29 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 				meta_dict[filename]['metadata_items'] = {}
 
 				# create a container for the list of filters used for the lite version
-				meta_filter = []
+				meta_filter = {}
+
 				# set the filters for name
 				if mode == 'lite':
-					meta_filter = ['StreamAOD', 'EventStreamInfo_p3_StreamRDO', '_TagInfo']
+					meta_filter = {
+						'/TagInfo': 'IOVMetaDataContainer_p1',
+						'IOVMetaDataContainer_p1__TagInfo': 'IOVMetaDataContainer_p1',
+						'*': 'EventStreamInfo_p3'
+					}
+
+				# set the filters for name
+				if mode == 'peeker':
+					meta_filter = {
+						'/TagInfo': 'IOVMetaDataContainer_p1',
+						'IOVMetaDataContainer_p1__TagInfo': 'IOVMetaDataContainer_p1',
+						'/Simulation/Parameters': 'IOVMetaDataContainer_p1',
+						'/Digitization/Parameters': 'IOVMetaDataContainer_p1',
+						'/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
+						'*': 'EventStreamInfo_p3'
+					}
+
 				if mode == 'full' and len(meta_key_filter) > 0:
-					meta_filter = [f.replace('/', '_') for f in meta_key_filter]
+					meta_filter = {f: '*' for f in meta_key_filter}
 				# store all persistent classes for metadata container existing in a POOL/ROOT file.
 				persistent_instances = {}
 
@@ -101,21 +127,35 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 
 					class_name = branch.GetClassName()
 
-					# fill the meta_dict with the name and the class_name of the object with metadata.
-					# If the class name is IOVMetaDataContainer, replace the name of metadata container with
-					# the name from 'folderName". All of this is done for consistency. ex. '_TagInfo' becomes '/TagInfo'
-					meta_dict[filename]['metadata_items'][name.replace('_', '/')] = class_name
-
+					if regexIOVMetaDataContainer.match(class_name):
+						name = name.replace('IOVMetaDataContainer_p1_','').replace('_','/')
+						
+						
+					if regexIOVMetaDataContainer.match(class_name):
+						meta_dict[filename]['metadata_items'][name] = 'IOVMetaDataContainer'
+					elif regexByteStreamMetadataContainer.match(class_name):
+						meta_dict[filename]['metadata_items'][name] = 'ByteStreamMetadataContainer'
+					elif regexEventStreamInfo.match(class_name):
+						meta_dict[filename]['metadata_items'][name] = 'EventStreamInfo'
+					else:
+						meta_dict[filename]['metadata_items'][name] = class_name
+				
 					if len(meta_filter) > 0:
-						if name not in meta_filter:
+						keep = False
+						for filter_key, filter_class in meta_filter.items():
+							if (filter_key.replace('/', '_') == name.replace('/', '_') or filter_key == '*') and (filter_class == class_name or filter_class == '*'):
+								keep = True
+								break
+
+						if not keep:
 							continue
 
 					# assign the corresponding persistent class based of the name of the metadata container
-					if class_name == 'EventStreamInfo_p3':
+					if   regexEventStreamInfo.match(class_name):
 						persistent_instances[name] = ROOT.EventStreamInfo_p3()
-					elif class_name == 'IOVMetaDataContainer_p1':
+					elif regexIOVMetaDataContainer.match(class_name):
 						persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
-					elif class_name == 'xAOD::EventFormat_v1':
+					elif regexXAODEventFormat.match(class_name):
 						persistent_instances[name] = ROOT.xAOD.EventFormat_v1()
 
 					if name in persistent_instances:
@@ -136,10 +176,19 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 
 					meta_dict[filename][key] = _convert_value(content)
 
+			if promote is None:
+				promote = mode == 'lite' or mode == 'peeker'
 
 			# Filter the data and create a prettier output for the 'lite' mode
 			if mode == 'lite':
 				meta_dict = make_lite(meta_dict)
+
+			if mode == 'peeker':
+				meta_dict = make_peeker(meta_dict)
+
+			if promote:
+				meta_dict = promote_keys(meta_dict)
+
 
 		# ----- retrieves metadata from bytestream (BS) files (RAW, DRAW) ------------------------------------------#
 		elif current_file_type == 'BS':
@@ -163,7 +212,7 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 
 				for md in data_reader.freeMetaDataStrings():
 					if md.startswith('Event type:'):
-						k = 'evt_type'
+						k = 'eventTypes'
 						v = []
 						if 'is sim' in md:
 							v.append('IS_SIMULATION')
@@ -196,38 +245,40 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 						k, v = md.split('=')
 						bs_metadata[k] = v
 
-				bs_metadata['runNumber'] = getattr(data_reader, 'runNumber')()
-				bs_metadata['lumiblockNumber'] = getattr(data_reader, 'lumiblockNumber')()
+				bs_metadata['runNumbers'] = getattr(data_reader, 'runNumber')()
+				bs_metadata['lumiBlockNumbers'] = getattr(data_reader, 'lumiblockNumber')()
 				bs_metadata['projectTag'] = getattr(data_reader, 'projectTag')()
 				bs_metadata['stream'] = getattr(data_reader, 'stream')()
 				bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
 				bs_metadata['beamEnergy'] = getattr(data_reader, 'beamEnergy')()
 
-				meta_dict[filename]['evt_type'] = bs_metadata.get('evt_type', [])
-				meta_dict[filename]['geometry'] = bs_metadata.get('geometry', None)
+				meta_dict[filename]['eventTypes'] = bs_metadata.get('eventTypes', [])
+				meta_dict[filename]['GeoAtlas'] = bs_metadata.get('geometry', None)
 				meta_dict[filename]['conditions_tag'] = bs_metadata.get('conditions_tag', None)
 
 				# Promote up one level
-				meta_dict[filename]['run_number'] = [bs_metadata.get('runNumber', None)]
-				meta_dict[filename]['lumi_block'] = [bs_metadata.get('lumiblockNumber', None)]
+				meta_dict[filename]['runNumbers'] = [bs_metadata.get('runNumbers', None)]
+				meta_dict[filename]['lumiBlockNumbers'] = [bs_metadata.get('lumiBlockNumbers', None)]
 				meta_dict[filename]['beam_type'] = [bs_metadata.get('beamType', None)]
-				meta_dict[filename]['beam_energy'] = [bs_metadata.get('beamEnergy', None)]
+				meta_dict[filename]['beam_energy'] = bs_metadata.get('beamEnergy', None)
+				meta_dict[filename]['stream'] = bs_metadata.get('stream', None)
 
 				if not data_reader.good():
 					# event-less file...
-					meta_dict[filename]['run_number'].append(bs_metadata.get('run_number', 0))
-					meta_dict[filename]['lumi_block'].append(bs_metadata.get('LumiBlock', 0))
+					meta_dict[filename]['runNumbers'].append(bs_metadata.get('run_number', 0))
+					meta_dict[filename]['lumiBlockNumbers'].append(bs_metadata.get('LumiBlock', 0))
 
 				ievt = iter(bs)
 				evt = ievt.next()
 				evt.check()  # may raise a RuntimeError
-				stream_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
-				meta_dict[filename]['stream_tags'] = stream_tags
+				processing_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
+				meta_dict[filename]['processingTags'] = [x['stream_name'] for x in processing_tags]
 				meta_dict[filename]['evt_number'] = [evt.global_id()]
 				meta_dict[filename]['run_type'] = [eformat.helper.run_type2string(evt.run_type())]
 
+
 				# fix for ATEAM-122
-				if len(bs_metadata.get('evt_type', '')) == 0:  # see: ATMETADATA-6
+				if len(bs_metadata.get('eventTypes', '')) == 0:  # see: ATMETADATA-6
 					evt_type = ['IS_DATA', 'IS_ATLAS']
 					if bs_metadata.get('stream', '').startswith('physics_'):
 						evt_type.append('IS_PHYSICS')
@@ -238,7 +289,7 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 					else:
 						evt_type.append('Unknown')
 
-					meta_dict[filename]['evt_type'] = evt_type
+					meta_dict[filename]['eventTypes'] = evt_type
 
 				if mode == 'full':
 					meta_dict[filename]['bs_metadata'] = bs_metadata
@@ -309,7 +360,9 @@ def _extract_fields(obj):
 
 # compile the regex needed in _convert_value() outside it to optimize the code.
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
-regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
+# regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
+regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
+
 
 
 def _convert_value(value):
@@ -340,6 +393,9 @@ def _convert_value(value):
 
 			elif value.__cppname__ == 'xAOD::EventFormat_v1':
 				return _extract_fields_ef(value)
+
+			elif value.__cppname__ == 'EventStreamInfo_p3':
+				return _extract_fields_esi(value)
 
 			elif value.__cppname__ == 'EventType_p3':
 				return _convert_event_type_bitmask( _extract_fields(value))
@@ -396,6 +452,12 @@ def _extract_fields_iovpc(value):
 			pass
 		elif type_idx == 14:
 			attr_value = str(value.m_string[obj_idx])
+		    # Cleaning class name from value
+			if attr_value.startswith('IOVMetaDataContainer_p1_'):
+				attr_value = attr_value.replace('IOVMetaDataContainer_p1_','')
+			if attr_value.startswith('_'):
+				attr_value = attr_value.replace('_','/')
+			# Now it is clean
 		elif type_idx == 15:
 			attr_value = long(value.m_date[obj_idx])
 		elif type_idx == 16:
@@ -405,6 +467,7 @@ def _extract_fields_iovpc(value):
 
 		if attr_name not in result:
 			result[attr_name] = []
+			
 		result[attr_name].append(attr_value)
 
 	max_element_count = 0
@@ -418,6 +481,28 @@ def _extract_fields_iovpc(value):
 				result[name] = content[0]
 			else:
 				result[name] = None
+
+	return result
+
+
+def _extract_fields_esi(value):
+	result = {}
+
+	result['eventTypes'] = []
+	for eventType in value.m_eventTypes:
+		result['eventTypes'].append(_convert_value(eventType))
+	
+	result['numberOfEvents'] = value.m_numberOfEvents
+	result['runNumbers'] = list(value.m_runNumbers)
+	result['lumiBlockNumbers'] = list(value.m_lumiBlockNumbers)
+	result['processingTags'] = list(value.m_processingTags)
+	result['itemList'] = []
+
+	# Get the class name in the repository with CLID <clid>
+	from CLIDComps.clidGenerator import clidGenerator
+	cgen = clidGenerator("")
+	for clid, sgkey in value.m_itemList:
+		result['itemList'].append((cgen.getNameFromClid(clid), sgkey))
 
 	return result
 
@@ -460,27 +545,113 @@ def _convert_event_type_bitmask(value):
 			]
 
 	value['type'] = types
-
 	return value
 
 
 def make_lite(meta_dict):
 	for filename, file_content in meta_dict.items():
-		key_list = ['StreamAOD', 'EventStreamInfo_p3_StreamRDO']
-		for key in key_list:
-			if key in file_content and len(meta_dict[filename][key]) > 0:
-				meta_dict[filename]['lumi_block'] = meta_dict[filename][key]['lumiBlockNumbers']
-				meta_dict[filename]['run_number'] = meta_dict[filename][key]['runNumbers']
-				meta_dict[filename]['mc_event_number'] = meta_dict[filename][key]['eventTypes'][0]['mc_event_number']
-				meta_dict[filename]['mc_channel_number'] = meta_dict[filename][key]['eventTypes'][0]['mc_channel_number']
-				meta_dict[filename]['event_types'] = meta_dict[filename][key]['eventTypes'][0]['type']
-				meta_dict[filename].pop(key)
+		for key in file_content:
+			if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
+				keys_to_keep = ['lumiBlockNumbers', 'runNumbers', 'mc_event_number', 'mc_channel_number', 'eventTypes', 'processingTags']
+
+				for item in list(meta_dict[filename][key]):
+					if item not in keys_to_keep:
+						meta_dict[filename][key].pop(item)
 
 		if '/TagInfo' in file_content:
-			meta_dict[filename]['beam_energy'] = float(meta_dict[filename]['/TagInfo']['beam_energy'])
-			meta_dict[filename]['beam_type'] = meta_dict[filename]['/TagInfo']['beam_type']
-			meta_dict[filename]['geometry'] = meta_dict[filename]['/TagInfo']['GeoAtlas']
-			meta_dict[filename]['conditions_tag'] = meta_dict[filename]['/TagInfo']['IOVDbGlobalTag']
-			meta_dict[filename].pop('/TagInfo')
+			keys_to_keep = ['beam_energy', 'beam_type', 'GeoAtlas', 'IOVDbGlobalTag', 'AODFixVersion']
+
+			for item in list(meta_dict[filename]['/TagInfo']):
+				if item not in keys_to_keep:
+					meta_dict[filename]['/TagInfo'].pop(item)
+	return meta_dict
+
+
+def make_peeker(meta_dict):
+	for filename, file_content in meta_dict.items():
+		for key in file_content:
+			if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
+				keys_to_keep = [
+					'lumiBlockNumbers',
+					'runNumbers',
+					'mc_event_number',
+					'mc_channel_number',
+					'eventTypes',
+					'processingTags',
+					'itemList'
+				]
+				for item in list(meta_dict[filename][key]):
+					if item not in keys_to_keep:
+						meta_dict[filename][key].pop(item)
+
+		if '/TagInfo' in file_content:
+			keys_to_keep = [
+				'beam_energy',
+				'beam_type',
+				'GeoAtlas',
+				'IOVDbGlobalTag',
+				'AODFixVersion',
+				'AMITag',
+				'project_name',
+				'triggerStreamOfFile',
+				'AtlasRelease'
+			]
+			for item in list(meta_dict[filename]['/TagInfo']):
+				if item not in keys_to_keep:
+					meta_dict[filename]['/TagInfo'].pop(item)
+
+		if '/Simulation/Parameters' in file_content:
+			keys_to_keep = [
+				'TruthStrategy',
+				'SimBarcodeOffset',
+			]
+			for item in list(meta_dict[filename]['/Simulation/Parameters']):
+				if item not in keys_to_keep:
+					meta_dict[filename]['/Simulation/Parameters'].pop(item)
+
+		if '/Digitization/Parameters' in file_content:
+			keys_to_keep = [
+				'numberOfCollisions',
+				'intraTrainBunchSpacing',
+				'BeamIntensityPattern'
+			]
+			for item in list(meta_dict[filename]['/Digitization/Parameters']):
+				if item not in keys_to_keep:
+					meta_dict[filename]['/Digitization/Parameters'].pop(item)
 
 	return meta_dict
+
+
+def promote_keys(meta_dict):
+	for filename, file_content in meta_dict.items():
+		for key in file_content:
+			if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
+				meta_dict[filename].update(meta_dict[filename][key])
+				meta_dict[filename]['mc_event_number'] = meta_dict[filename]['eventTypes'][0]['mc_event_number']
+				meta_dict[filename]['mc_channel_number'] = meta_dict[filename]['eventTypes'][0]['mc_channel_number']
+				meta_dict[filename]['eventTypes'] = meta_dict[filename]['eventTypes'][0]['type']
+				meta_dict[filename]['lumiBlockNumbers'] = meta_dict[filename]['lumiBlockNumbers']
+				meta_dict[filename]['processingTags'] = meta_dict[filename][key]['processingTags']
+
+				meta_dict[filename].pop(key)
+				break
+
+		if '/TagInfo' in file_content:
+			meta_dict[filename].update(meta_dict[filename]['/TagInfo'])
+			meta_dict[filename].pop('/TagInfo')
+
+		if '/Simulation/Parameters' in file_content:
+			meta_dict[filename].update(meta_dict[filename]['/Simulation/Parameters'])
+			meta_dict[filename].pop('/Simulation/Parameters')
+
+		if '/Digitization/Parameters' in file_content:
+			meta_dict[filename].update(meta_dict[filename]['/Digitization/Parameters'])
+			meta_dict[filename].pop('/Digitization/Parameters')
+
+	return meta_dict
+	
+	
+
+	
+
+	

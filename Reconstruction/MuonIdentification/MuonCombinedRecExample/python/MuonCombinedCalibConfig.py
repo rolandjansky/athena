@@ -26,22 +26,22 @@ topSequence = AlgSequence()
 
 #
 # Move MuonCalibExtraTree to end of topSequence and configure for combined
-#
-from RecExConfig.InputFilePeeker import inputFileSummary
-def checkContainerInInputFile(container_type, container_name):
-	if container_type in inputFileSummary['eventdata_itemsDic']:
-		if container_name in inputFileSummary['eventdata_itemsDic'][container_type]:
-			return True
-	return False
+#s
 
+from PyUtils.MetaReaderPeeker import metadata, convert_itemList
+def checkContainerInInputFile(container_type, container_name):
+    if container_type in convert_itemList(layout='dict'):
+        if container_name in convert_itemList(layout='dict')[container_type]:
+            return True
+    return False
 
 
 def StacoMuonCollectionAvailable():
 	return False
-	
+
 def MuidMuonCollectionAvailable():
 	return False
-	
+
 def MuonsMuonCollectionAvailable():
         if rec.readESD() and checkContainerInInputFile("Analysis::MuonContainer", "Muons"):
            return True
@@ -50,7 +50,7 @@ def MuonsMuonCollectionAvailable():
         if  hasattr(topSequence, 'BuildMuonCollection'):
            return True
         return False
-	
+
 
 try:
     MuonCalibExtraTreeAlg = topSequence.MuonCalibExtraTreeAlg
@@ -60,7 +60,7 @@ except AttributeError:
 else:
     log.info('Adding MuonCombined tracks to MuonCalibExtraTreeAlg')
     # configure alg for combined reco
-    
+
     from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__ExtraTreeMuonFillerTool
     if MuidMuonCollectionAvailable():
         muidFillerTool=MuonCalib__ExtraTreeMuonFillerTool("MuidFillerTool")
@@ -85,7 +85,7 @@ else:
         muonsFillerTool.SegmentAuthors=[5]
         ToolSvc+=muonsFillerTool
         MuonCalibExtraTreeAlg.TrackFillerTools.append(muonsFillerTool)
-    
+
 
 #
 # move MuonCalibExtraTreeTriggerAlg to the end of topSequence

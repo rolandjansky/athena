@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # This script reads metadata from a given file
 
 import sys
@@ -8,6 +8,11 @@ import json
 import argparse
 import time
 import logging
+import os
+
+# escape sequence [?1034h which aprear on several runs due to smm capability (Meta Mode On) for xterm. 
+if 'TERM' in os.envirn:
+	del os.environ['TERM']
 
 msg = logging.getLogger('MetaReader')
 
@@ -68,7 +73,10 @@ def _tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=Non
 
 			last = i == items_count - 1
 
-			s += ('├' if not last else '└') + '─' * indent + ' ' + str(value) + '\n'
+			if not ascii:
+				s += ('├' if not last else '└') + '─' * indent + ' ' + str(value) + '\n'
+			else:
+				s += ('|' if not last else '`') + '-' * indent + ' ' + str(value) + '\n'
 	else:
 		s += str(content)
 
@@ -103,7 +111,7 @@ def _main():
 						default= 'lite',
 						metavar='MODE',
 						type=str,
-						choices=['tiny', 'lite', 'full'],
+						choices=['tiny', 'lite', 'full', 'peeker'],
 						help="This flag provides the user capability to select the amount of metadata retrieved. There three options: "
 							 "tiny (only those values used in PyJobTransforms), "
 							 "lite (same output as dump-athfile) "
@@ -122,6 +130,10 @@ def _main():
 	                    nargs = '+',
 						type=str,
 						help="The metadata keys to filter. ")
+	parser.add_argument('--promote',
+						default=None,
+						type=bool,
+						help="Force promotion or not of the metadata keys ")
 	args = parser.parse_args()
 
 	verbose = args.verbose
@@ -147,13 +159,13 @@ def _main():
 	msg.info('Imported headers in: {0} miliseconds'.format((time.time() - startTime) * 1e3))
 	msg.info('The output file is: {0}'.format(output))
 
-	metadata = read_metadata(filenames, file_type, mode= mode, meta_key_filter= meta_key_filter)
+	metadata = read_metadata(filenames, file_type, mode= mode, meta_key_filter= meta_key_filter, promote=args.promote)
 
 	if output is None:
 		if is_json:
 			print(json.dumps(metadata, indent= indent))
 		else:
-			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8))
+			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = not sys.stdout.isatty()))
 
 	else:
 		if is_json:
