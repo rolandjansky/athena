@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHLTHYPO_CONDITIONSFACTORY2_H
@@ -21,14 +21,16 @@
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etasMin,
                                   const std::vector<double>& etasMax,
                                   const std::vector<double>& thresholds,
-                                  const std::vector<int>& asymmetricEtas);
+                                  const std::vector<int>& asymmetricEtas,
+                                  bool debug=false);
 
 
 Conditions conditionsFactorysinglemass(const std::vector<double>& etasMin,
-                                  const std::vector<double>& etasMax,
-                                  const std::vector<double>& thresholds,
-                                  const std::vector<double>& jetMassMin,
-                                  const std::vector<double>& jetMassMax);
+                                       const std::vector<double>& etasMax,
+                                       const std::vector<double>& thresholds,
+                                       const std::vector<double>& jetMassMin,
+                                       const std::vector<double>& jetMassMax,
+                                       bool debug=false);
 
 
 Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
@@ -49,7 +51,8 @@ Conditions conditionsFactoryDijetMT(const std::vector<double>& massMins,
                                     const std::vector<double>& detaMins,
                                     const std::vector<double>& detaMaxs,
                                     const std::vector<double>& dphiMins,
-                                    const std::vector<double>& dphiMaxs);
+                                    const std::vector<double>& dphiMaxs,
+                                    bool debug=false);
 
 
 

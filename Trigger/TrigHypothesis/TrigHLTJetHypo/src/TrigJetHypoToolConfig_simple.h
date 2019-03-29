@@ -55,8 +55,11 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   Gaudi::Property<std::vector<int>>
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
 
+  Gaudi::Property<bool>
+    m_debug{this, "debug", false, "passed to Conditions, ..."};
+    
 
   virtual StatusCode checkVals()  const override;
-
+ 
 };
 #endif

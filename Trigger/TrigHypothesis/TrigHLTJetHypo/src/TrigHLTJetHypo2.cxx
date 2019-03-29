@@ -666,10 +666,13 @@ bool TrigHLTJetHypo2::setConditions(HypoStrategy s){
 
   
 bool TrigHLTJetHypo2::setEtaEtConditions(){
+  //debug not used in this obsolete code
+  constexpr bool debug{false};
   m_conditions = conditionsFactoryEtaEt(m_etaMins,
                                         m_etaMaxs,
                                         m_EtThresholds,
-                                        m_asymmetricEtas);
+                                        m_asymmetricEtas,
+                                        debug);
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
 }
@@ -680,11 +683,15 @@ bool TrigHLTJetHypo2::setsinglemassConditions(){
   std::vector<double> JetMassMin_d = getStringBoundaries(m_JetMassMin);
   std::vector<double> JetMassMax_d = getStringBoundaries(m_JetMassMax);
 
+  //debug not used in this obsolete code
+  bool debug{false};
   m_conditions = conditionsFactorysinglemass(m_etaMins,
-                                        m_etaMaxs,
-                                        m_EtThresholds,
-                                        JetMassMin_d,
-                                        JetMassMax_d);
+                                             m_etaMaxs,
+                                             m_EtThresholds,
+                                             JetMassMin_d,
+                                             JetMassMax_d,
+                                             debug);
+
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
 }

@@ -76,8 +76,10 @@ class TreeParameterExpander_simple(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
-    defaults = {'etalo': 0.0,
-                'etahi': 3.2,
+    defaults = {'eta_mins': 0.0,
+                'eta_maxs': 3.2,
+                'EtThresholds': 0.,
+                'asymmetricEtas': 0,
     }
 
     scale_factors = {'eta': 0.01,
@@ -114,16 +116,19 @@ class TreeParameterExpander_simple(object):
 
         conditions = get_conditions(node.parameters)
 
-        
-        node.conf_attrs['EtThresholds'] = []
-        node.conf_attrs['eta_mins'] = []
-        node.conf_attrs['eta_maxs'] = []
-        node.conf_attrs['asymmetricEtas'] = []
+
+        attributes = ['EtThresholds',
+                      'eta_mins',
+                      'eta_maxs',
+                      'asymmetricEtas',]
+
+        for a in attributes: node.conf_attrs[a] = []
 
         for c in conditions:
             toks = c.split(',')
             toks = [t.strip() for t in toks]
 
+            attributes2 = attributes[:]  # copy...
 
             for t in toks:
                 m = self.window_re.match(t)
@@ -142,47 +147,55 @@ class TreeParameterExpander_simple(object):
                 sf = self.scale_factors[attr]
                 if lo:
                     if attr == 'eta':
-                        node.conf_attrs['eta_mins'].append(sf * float(lo))
+                        attr = 'eta_mins'
+                        node.conf_attrs[attr].append(sf * float(lo))
+                        attributes2.remove(attr)
                     elif attr == 'et':
-                        node.conf_attrs['EtThresholds'].append(sf * float(lo))
+                        attr = 'EtThresholds'
+                        node.conf_attrs[attr].append(sf * float(lo))
+                        attributes2.remove(attr)
                 if hi:
                     if attr == 'eta':
-                        node.conf_attrs['eta_maxs'].append(sf * float(hi))
-                
-        #01/01/2019 PS  KLUDGE !! FIX ME!!!  asymmetric eta hardwired to 0.
+                        attr = 'eta_maxs'
+                        node.conf_attrs[attr].append(sf * float(hi))
+                        attributes2.remove(attr)
 
-        [node.conf_attrs['asymmetricEtas'].append(0) for i in range(
-                len(conditions))]
+            # fill in unmentioned attributes with defaults: 
+            for a in attributes2:
+                node.conf_attrs[a].append(self.defaults[a])
+
         self.msgs = ['All OK']
 
         
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
-    
-
 
 class TreeParameterExpander_dijet(object):
-    """Convert parameter string into duction holding low, high window
+    """Convert parameter string into tuples holding low, high window
     cut vals. Specialistaion for the dijet scenario
 
     parameter strings look like '40m,100deta200, 50dphi300'
+
+    outputs values are strings which are passed to the C++ components
+    which will convert numeric values, and symbolic values such as 'inf'
     """
     
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
-    defaults = {'mass_mins': 0.0,
-                'mass_maxs': 100000.,
-                'deta_mins': 0.,
-                'deta_maxs': 20.,
-                'dphi_mins': 0.,
-                'dphi_maxs': math.pi,
+    
+    scale_factors = {'deta': 0.11,
+                     'mass': 1000.,
+                     'dphi': 0.1,
     }
 
-    scale_factors = {'deta': 0.01,
-                     'mass': 1000.,
-                     'dphi': 0.01,
+    defaults = {'mass_mins': '0.0',
+                'mass_maxs': 'inf',
+                'deta_mins': '0.',
+                'deta_maxs': 'inf',
+                'dphi_mins': '0.',
+                'dphi_maxs': 'inf',
     }
 
     def __init__(self):
@@ -245,20 +258,20 @@ class TreeParameterExpander_dijet(object):
                 sf = self.scale_factors[attr]
                 if lo:
                     if attr == 'mass':
-                        node.conf_attrs['mass_mins'].append(sf * float(lo))
+                        node.conf_attrs['mass_mins'].append(str(sf*float(lo)))
                     elif attr == 'deta':
-                        node.conf_attrs['deta_mins'].append(sf * float(lo))
+                        node.conf_attrs['deta_mins'].append(str(sf*float(lo)))
                     elif attr == 'dphi':
-                        node.conf_attrs['dphi_mins'].append(sf * float(lo))
+                        node.conf_attrs['dphi_mins'].append(str(sf*float(lo)))
 
                     processed_attrs.append(attr+'_mins')
                 if hi:
                     if attr == 'mass':
-                        node.conf_attrs['mass_maxs'].append(sf * float(lo))
+                        node.conf_attrs['mass_maxs'].append(str(sf*float(lo)))
                     elif attr == 'deta':
-                        node.conf_attrs['deta_maxs'].append(sf * float(lo))
+                        node.conf_attrs['deta_maxs'].append(str(sf*float(lo)))
                     elif attr == 'dphi':
-                        node.conf_attrs['dphi_maxs'].append(sf * float(lo))
+                        node.conf_attrs['dphi_maxs'].append(str(sf*float(lo)))
 
                     processed_attrs.append(attr+'_maxs')
 
@@ -282,7 +295,41 @@ class TreeParameterExpander_dijet(object):
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
+
+
+class TreeParameterExpander_combgen(object):
+    """Convert parameter string into duction holding low, high window
+    cut vals. Specialistaion for the dijet scenario
+
+    parameter strings look like '40m,100deta200, 50dphi300'
+    """
     
+    size_re = re.compile(r'^\((\d+)\)$')
+
+    def __init__(self):
+        self.msgs = []
+
+    def mod(self, node):
+
+        ok = True # status flag
+        size_re = re.compile(r'^\((\d+)\)$')
+        m = size_re.match(node.parameters)
+        if m is None:
+            self.msgs.append('Error')
+            return
+
+        node.conf_attrs = {'groupSize':int(m.groups()[0])}
+
+        if ok:
+            self.msgs = ['All OK']
+        else:
+            self.msgs.append('Error')
+
+        
+    def report(self):
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+
+
 class TreeParameterExpander_null(object):
     """Does nothing except check the parameter string is empty"""
 
@@ -307,6 +354,7 @@ class TreeParameterExpander(object):
         'not': TreeParameterExpander_null,
         'and': TreeParameterExpander_null,
         'or': TreeParameterExpander_null,
+        'combgen': TreeParameterExpander_combgen,
     }
 
     def __init__(self):
@@ -320,28 +368,13 @@ class TreeParameterExpander(object):
         return self.expander.report()
         
 
-
-class TreeToCascade(object):
-    def __init__(self):
-        self.stack = []
-
-    def mod(self, node):
-        
-        self.stack.append(
-            '(%s < (%s))' %(node.tool.name(), 
-                            ' '.join([c.tool.name  for c in node.children])))
-
-    def report(self):
-        s = ''
-        while self.stack:
-            s += self.stack.pop()
-        return s.strip()
-
-
 def _test(s):
 
     from ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s)
+
+    parser.debug = True
+
     tree = parser.parse()
     print tree.dump()
     # exapnd the window cuts (strings) obtained from the chain label
@@ -349,28 +382,27 @@ def _test(s):
     # for unspecified vallues
     visitor = TreeParameterExpander()
     tree.accept(visitor)
+
+    tree.set_ids(0, 0)
+    tree.accept(visitor)
     print visitor.report()
     print tree.dump()
 
-
     # set the node attribute node.tool to be the hypo  Al\gTool.
     print 'sending in the ToolSetter visitor'
-    ts_visitor = ToolSetter(s)
+    ts_visitor = ToolSetter(s, debug=True)
     tree.accept_cf(ts_visitor)
     print ts_visitor.report()
 
 
-    print tree.dump()
+    # print tree.dump()
+    print tree.tool  # printing a Gaudi tool prints its nested tools
 
 
 def test(index):
     from test_cases import test_strings
     import sys
-    c = sys.argv[1]
-    index = -1
-    try:
-        index = int(c)
-    except:
+    if index not in range(len(test_strings)):
         print 'expected int in [1,%d] ]on comand line, got %s' % (
             len(test_strings), c)
         sys.exit()
@@ -384,7 +416,8 @@ def test(index):
 
 if __name__ == '__main__':
     import sys
-    c = sys.argv[1]
+
+    c = ''.join(sys.argv[1:])
     ic = -1
     try:
         ic = int(c)

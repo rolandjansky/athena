@@ -42,11 +42,14 @@ Conditions TrigHLTJetHypo_SMC::getConditions() const {
     std::vector<double> JetMassMin_d = getStringBoundaries(m_JetMassMin);
     std::vector<double> JetMassMax_d = getStringBoundaries(m_JetMassMax);
 
+    // debug not used in this obsolete code
+    bool  debug{false};
     auto conditions = conditionsFactorysinglemass(m_etaMins,
-            m_etaMaxs,
-            m_EtThresholds,
-            JetMassMin_d,
-            JetMassMax_d);
+                                                  m_etaMaxs,
+                                                  m_EtThresholds,
+                                                  JetMassMin_d,
+                                                  JetMassMax_d,
+                                                  debug);
     std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
 
     return conditions;

@@ -6,7 +6,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGen.h"
 
 #include <sstream>
-
 CombinationsGrouper::CombinationsGrouper(unsigned int groupSize):
   m_groupSize(groupSize){
 }
@@ -37,10 +36,13 @@ std::string CombinationsGrouper::getName() const {
 }
 
 std::string CombinationsGrouper::toString() const {
+
   std::stringstream ss;
+
   ss << "CombinationsGrouper - create all combinations of ";
   ss << "jets of length " ;
   ss << m_groupSize << '\n';
+
   return ss.str();
 }
 
