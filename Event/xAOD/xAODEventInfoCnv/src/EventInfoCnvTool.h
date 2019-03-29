@@ -14,11 +14,13 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
 // Beam condition include(s):
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Luminosity include(s):
 #include "LumiBlockComps/ILuminosityTool.h"
+#endif
 #endif
 
 // xAOD include(s):
@@ -56,10 +58,12 @@ namespace xAODMaker {
 
    private:
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
       /// Connection to the beam spot service
       ServiceHandle< IBeamCondSvc > m_beamCondSvc;
       /// Connection to the luminosity tool
       ToolHandle< ILuminosityTool > m_lumiTool;
+#endif
 #endif
 
       /// Internal flag for the availability of the beam conditions service

@@ -58,8 +58,10 @@ namespace xAODMaker {
                                        const IInterface* parent )
       : AthAlgTool( type, name, parent ),
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
         m_beamCondSvc( "BeamCondSvc", name ),
         m_lumiTool( "LuminosityTool" ),
+#endif
 #endif
         m_beamCondSvcAvailable( false ),
         m_lumiToolAvailable( false ),
@@ -68,10 +70,12 @@ namespace xAODMaker {
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
       // Declare the tool's properties:
       declareProperty( "BeamCondSvc", m_beamCondSvc );
       declareProperty( "LuminosityTool", m_lumiTool );
       declareProperty( "DisableBeamSpot", m_disableBeamSpot );
+#endif
 #endif
    }
 
@@ -81,6 +85,7 @@ namespace xAODMaker {
       ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
       // Check if the beam position will be available or not:
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
          m_beamCondSvcAvailable = true;
@@ -121,6 +126,7 @@ namespace xAODMaker {
 #else
       //do nothing, lumi and beam conditions not available
 
+#endif
 #endif
 
       // Return gracefully:
@@ -215,6 +221,7 @@ namespace xAODMaker {
       if( ! pileUpInfo ) {
          if( m_lumiToolAvailable ) {
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
             float actualMu = 0.0;
             const float muToLumi = m_lumiTool->muToLumi();
             if( std::abs( muToLumi ) > 0.00001 ) {
@@ -223,6 +230,7 @@ namespace xAODMaker {
             xaod->setActualInteractionsPerCrossing( actualMu );
             xaod->setAverageInteractionsPerCrossing(
                m_lumiTool->lbAverageInteractionsPerCrossing() );
+#endif
 #endif
          } else {
             xaod->setActualInteractionsPerCrossing(
@@ -318,6 +326,7 @@ namespace xAODMaker {
       }
 
 #ifndef XAOD_ANALYSIS
+#ifndef SIMULATIONBASE
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
          xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
@@ -331,6 +340,7 @@ namespace xAODMaker {
          xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
          xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
       }
+#endif
 #endif
 
       // Finish with some printout:

@@ -138,11 +138,13 @@
 + Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
++ Event/xAOD/xAODCnvInterfaces
 + Event/xAOD/xAODCore
 + Event/xAOD/xAODCoreAthenaPool
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
 + Event/xAOD/xAODPrimitives
