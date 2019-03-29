@@ -28,7 +28,7 @@ StatusCode TrigL2ElectronHypoAlgMT::initialize() {
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_electronsKey.initialize() );
-  if (  m_runInView)   renounce( m_electronsKey );// clusters are made in views, so they are not in the EvtStore: hide them
+  if (  m_runInView)   renounce( m_electronsKey );// electrons are made in views, so they are not in the EvtStore: hide them
 
   return StatusCode::SUCCESS;
 }
