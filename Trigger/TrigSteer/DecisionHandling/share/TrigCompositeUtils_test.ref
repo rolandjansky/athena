@@ -9,8 +9,8 @@ Current context: s: 0  e: 0
 initialize SG::WriteHandleKey<DecisionContainer> whkT
 call createAndStore( whkT ) with default context, twice
 StoreGateSvc WARNING  setupProxy:: error setting up proxy for key arbitrary and clid 1333228823
-VarHandle(Store...  ERROR ../VarHandleBase.cxx (FUNC): code 0: recordObject failed
-                    FATAL ../WriteHandle.icc (FUNC): code 0: this->record(std::move(data))
+VarHandle(Store...  ERROR ../VarHandleBase.cxx (FUNC): code FAILURE: recordObject failed
+                    ERROR ../WriteHandle.icc (FUNC): code FAILURE: this->record(std::move(data))
 handle name "arbitrary" isPresent 1 isValid 1
 handle name "arbitrary" isPresent 1 isValid 0
 

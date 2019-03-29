@@ -21,33 +21,33 @@ test1
 ClassIDSvc           INFO  getRegistryEntries: read 902 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (FUNC): code FAILURE: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (FUNC): code FAILURE: Cannot locate store: BazSvc
 test2
 test3
 test4
-VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
+VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
 test5
-VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
-                    FATAL FILE:LINE (FUNC): code 0: this->record(std::move(data))
-                    ERROR FILE:LINE (FUNC): code 0: recordObject of aux store failed
+VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
+                    ERROR FILE:LINE (FUNC): code FAILURE: this->record(std::move(data))
+                    ERROR FILE:LINE (FUNC): code FAILURE: recordObject of aux store failed
 test6
-VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
+VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
 test8
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (FUNC): code FAILURE: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
+                    ERROR FILE:LINE (FUNC): code FAILURE: Cannot locate store: BazSvc
 test9
-VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
+VarHandle(FooSv...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
 test10
-VarHandle(Store...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
-                    ERROR FILE:LINE (FUNC): code 0: recordObject of aux store failed
+VarHandle(Store...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
+                    ERROR FILE:LINE (FUNC): code FAILURE: recordObject of aux store failed
 test11
-VarHandle(Store...  ERROR FILE:LINE (FUNC): code 0: recordObject failed
+VarHandle(Store...  ERROR FILE:LINE (FUNC): code FAILURE: recordObject failed
 test12
-                    ERROR FILE:LINE (FUNC): code 0: symLink: SG keys do not match: foo3 vs foo1
+                    ERROR FILE:LINE (FUNC): code FAILURE: symLink: SG keys do not match: foo3 vs foo1

@@ -62,4 +62,4 @@ obj 293847295 StoreGateSvc+tee
 obj 293847295 StoreGateSvc+thh.rrr
 test2
 arrtool2            ERROR Explicit circular data dependency found for id  ( 'AthenaBaseCompsTest::MyObj' , 'StoreGateSvc+aaa' ) 
-arrtool2            FATAL ../AthenaBaseComps/AthCommonDataStore.icc:43 (FUNC): code 0: PBASE::sysInitialize()
+arrtool2            ERROR ../AthenaBaseComps/AthCommonDataStore.icc:43 (FUNC): code FAILURE: PBASE::sysInitialize()

@@ -60,4 +60,4 @@ ClassIDSvc           INFO  getRegistryEntries: read 1226 CLIDRegistry entries fo
 ClassIDSvc           INFO  getRegistryEntries: read 485 CLIDRegistry entries for module ALL
 test2
 arralg2             ERROR Explicit circular data dependency detected for id  ( 'AthenaBaseCompsTest::MyObj' , 'StoreGateSvc+aaa' ) 
-arralg2             FATAL ../AthenaBaseComps/AthCommonDataStore.icc:43 (FUNC): code 0: PBASE::sysInitialize()
+arralg2             ERROR ../AthenaBaseComps/AthCommonDataStore.icc:43 (FUNC): code FAILURE: PBASE::sysInitialize()

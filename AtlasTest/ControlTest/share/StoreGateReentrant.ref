@@ -59,7 +59,7 @@ WriteDataReentrant   INFO in execute()[m
  Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
 [93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba254170
  recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba22b740[m
-[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
+[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code FAILURE: recordObject failed[m
 [93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 
@@ -138,7 +138,7 @@ WriteDataReentrant   INFO in execute()[m
  Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
 [93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba25b520
  recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba26baf0[m
-[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
+[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code FAILURE: recordObject failed[m
 [93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 
@@ -217,7 +217,7 @@ WriteDataReentrant   INFO in execute()[m
  Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
 [93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba240c60
  recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba26bb90[m
-[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
+[97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code FAILURE: recordObject failed[m
 [93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 

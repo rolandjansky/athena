@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: errorcheck.cxx,v 1.5 2009-04-09 15:11:17 ssnyder Exp $
 /**
  * @file  errorcheck.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -153,7 +152,10 @@ ReportMessage::ReportMessage (MSG::Level level,
   format_common (level, line, file, func);
 
   // The status code.
-  *this << ": code " << sc.getCode();
+  *this << ": code " << sc;
+
+  // "Check" our copy of the StatusCode.
+  sc.setChecked();
 
   // Remember the end of the header.
   m_pos = stream().str().size();
