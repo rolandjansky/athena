@@ -16,6 +16,12 @@ met_triggers_hlt_shifter = [
     "HLT_xe110_pufit_xe70_L1XE50",
     "HLT_xe110_pufit_xe65_L1XE55",
     "HLT_xe110_pufit_xe65_L1XE60",
+    "HLT_xe110_pufit_xe65_L1gXERHO50",
+    "HLT_xe110_pufit_xe65_L1gXEPUFIT50",
+    "HLT_xe0noL1_l2fsperf_L1gXERHO50",
+    "HLT_xe0noL1_l2fsperf_L1gXEPUFIT50",
+    "HLT_xe0noL1_l2fsperf_pufit_L1gXERHO50",
+    "HLT_xe0noL1_l2fsperf_pufit_L1gXEPUFIT50",
 ] 
 
 met_triggers_hlt_expert = [
