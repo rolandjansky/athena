@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // The Cell Identifier for the EM Barrel readout cells
@@ -42,9 +42,7 @@
 #include "LArHV/LArHVManager.h"
 #include "LArHV/EMBHVManager.h"
 #include "LArHV/EMBHVModule.h"
-#include "LArHV/EMBHVModuleConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 
 namespace Units = Athena::Units;
 
@@ -701,19 +699,19 @@ void LArBarrelCalculator::InitHV()
     // get EMBHV Manager
     const LArHVManager *manager = nullptr;
     if (pDetStore->retrieve(manager)==StatusCode::SUCCESS) {
-      const EMBHVManager* hvManager=manager->getEMBHVManager();
+      const EMBHVManager& hvManager=manager->getEMBHVManager();
       ATH_MSG_INFO(" got HV Manager ");
       // loop over HV modules
       for (unsigned int iSide=0;iSide<2;iSide++) {
         for (unsigned int iPhi=0;iPhi<16;iPhi++) {
           for (unsigned int iSector=0;iSector<2;iSector++) {
             for (unsigned int iEta=0;iEta<7;iEta++) {
-              EMBHVModuleConstLink hvMod = hvManager->getHVModule(iSide,iEta+1,iPhi,iSector);
+              const EMBHVModule& hvMod = hvManager.getHVModule(iSide,iEta+1,iPhi,iSector);
               for (unsigned int ielec=0;ielec<32;ielec++) {
-                EMBHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+                const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
                 unsigned jElec = ielec+32*iSector+64*iPhi;
                 for (unsigned int iGap=0;iGap<2;iGap++) {
-                  double hv = electrode->voltage(iGap);
+                  double hv = electrode.voltage(iGap);
                   ATH_MSG_DEBUG(" iSide,jElec,iEta,iGap,hv " << iSide << " " << jElec << " " << iEta << " " << iGap << " " << hv);
                   if (hv>-999.) m_hv[iSide][jElec][iEta][iGap] = hv;
                 }

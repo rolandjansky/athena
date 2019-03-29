@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file LArDetectorFactory.h
  *
- * @brief Declaration of LArDetectorFactory class
+ * @class LArGeo::LArDetectorFactory
+ * 
+ * @brief LArDetectorFactory builds GeoModel description of LAr calorimeter by calling
+ * relevant 'Construction' classes (Barrel, Endcap). It also builds readout geometry
+ * description using LArReadoutGeometry objects.
  *
  * $Id: LArDetectorFactory.h,v 1.4 2009-02-10 16:43:17 tsulaia Exp $
  */
@@ -15,19 +19,16 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 
+class LArHVManager;
+
 namespace LArGeo {
 
-  /** @class LArGeo::LArDetectorFactory
-      @brief LArDetectorFactory builds GeoModel description of LAr calorimeter by calling
-      relevant 'Construction' classes (Barrel, Endcap). It also builds readout geometry
-      description using LArReadoutGeometry objects.
-   */
   class LArDetectorFactory : public GeoVDetectorFactory  {
 
   public:
   
     // Constructor:
-    LArDetectorFactory(int testbeam, bool fullGeo);
+    LArDetectorFactory(int testbeam, bool fullGeo, const LArHVManager* hvManager);
   
     // Destructor:
     virtual ~LArDetectorFactory();
@@ -56,6 +57,7 @@ namespace LArGeo {
   
     // The manager:
     LArDetectorManager*       m_detectorManager;
+    const LArHVManager*       m_hvManager;
     bool                      m_barrelSagging;
     int                       m_barrelVisLimit;
     int                       m_fcalVisLimit;

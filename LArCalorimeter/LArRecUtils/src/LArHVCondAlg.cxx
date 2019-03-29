@@ -19,7 +19,6 @@
 #include "LArHV/EMBHVManager.h"
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMECHVModuleConstLink.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
@@ -391,14 +390,14 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          double wt = 1./ngap;
          v.clear(); ihv.clear();
          for (unsigned int i=0;i<nelec;i++) {
-             const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+             const EMBHVElectrode& electrode = cell->getElectrode(i);
              //std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
              //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(igap));
+                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap));
                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                    ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(igap)<<" in LArHVData mapping !!!");
+                    ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap)<<" in LArHVData mapping !!!");
                     return StatusCode::FAILURE;
                  }
                  unsigned idx = itrLine - hvlineidx.begin(); 
@@ -788,16 +787,16 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
     
     // accordion calorimeter
     float HVnominal = HV_nominal("EMB",0.);
-    const EMBHVManager* hvManager_EMB=manager->getEMBHVManager();
+    const EMBHVManager& hvManager_EMB=manager->getEMBHVManager();
     
-    for (unsigned int iSide=hvManager_EMB->beginSideIndex();iSide<hvManager_EMB->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMB->beginPhiIndex();iPhi<hvManager_EMB->endPhiIndex();iPhi++) {
-	for (unsigned int iSector=hvManager_EMB->beginSectorIndex();iSector<hvManager_EMB->endSectorIndex();iSector++) {
-	  for (unsigned int iEta=hvManager_EMB->beginEtaIndex();iEta<hvManager_EMB->endEtaIndex();iEta++) { //0 to 7
-	    EMBHVModuleConstLink hvMod = hvManager_EMB->getHVModule(iSide,iEta,iPhi,iSector);
+    for (unsigned int iSide=hvManager_EMB.beginSideIndex();iSide<hvManager_EMB.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMB.beginPhiIndex();iPhi<hvManager_EMB.endPhiIndex();iPhi++) {
+	for (unsigned int iSector=hvManager_EMB.beginSectorIndex();iSector<hvManager_EMB.endSectorIndex();iSector++) {
+	  for (unsigned int iEta=hvManager_EMB.beginEtaIndex();iEta<hvManager_EMB.endEtaIndex();iEta++) { //0 to 7
+	    const EMBHVModule& hvMod = hvManager_EMB.getHVModule(iSide,iEta,iPhi,iSector);
 
-            float eta_min=hvMod->getEtaMin();
-            float eta_max=hvMod->getEtaMax();
+            float eta_min=hvMod.getEtaMin();
+            float eta_max=hvMod.getEtaMax();
 
             ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " << iEta);
 	    float phi_min=+30.,phi_max=-30.;
@@ -805,20 +804,20 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 	    bool are_previous_HV_affected=false;
             bool are_previous_HV_dead=false;
 	    for (unsigned int ielec=0;ielec<32;ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-	      EMBHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+	      const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(iGap));
+                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
                 //unsigned idx = itrLine - hvlineidx.begin(); 
 		hv[iGap]=voltage[itrLine - hvlineidx.begin()];
 	      } //end for iGap
 
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode->getPhi() << " "<< hv[0] << " " << hv[1] );
+              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " "<< hv[0] << " " << hv[1] );
 
 	      //take decisions according to all the gaps HV :
               bool isDead=false;
@@ -845,26 +844,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   ATH_MSG_DEBUG(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_dead = true;
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG(" extend dead region " << phi_min << " " << phi_max);
                  }
               }
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   ATH_MSG_DEBUG(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_affected = true;
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG(" extend affected region " << phi_min << " " << phi_max);
                  }
               }

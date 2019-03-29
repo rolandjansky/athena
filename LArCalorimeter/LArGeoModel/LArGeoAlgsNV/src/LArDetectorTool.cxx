@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -28,7 +28,6 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "LArHV/LArHVManager.h"
-#include "LArHV/EMBHVManager.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/HECHVManager.h"
 #include "LArHV/FCALHVManager.h"
@@ -74,7 +73,6 @@ LArDetectorToolNV::~LArDetectorToolNV()
 StatusCode LArDetectorToolNV::create()
 { 
   // Initialize the HV System:
-  const EMBHVManager *embHV=new EMBHVManager();
   const EMECHVManager *emecHVI= new EMECHVManager(EMECHVModule::INNER);
   const EMECHVManager *emecHVO= new EMECHVManager(EMECHVModule::OUTER);
   const HECHVManager *hecHV   = new HECHVManager();
@@ -82,7 +80,7 @@ StatusCode LArDetectorToolNV::create()
   const EMBPresamplerHVManager *embPSHV = new EMBPresamplerHVManager();
   const EMECPresamplerHVManager *emecPSHV = new EMECPresamplerHVManager();
 
-  LArHVManager *hvManager= new LArHVManager(embHV,emecHVI, emecHVO, hecHV, fcalHV,embPSHV, emecPSHV);
+  LArHVManager *hvManager= new LArHVManager(emecHVI, emecHVO, hecHV, fcalHV,embPSHV, emecPSHV);
 
   ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));  
 
@@ -158,7 +156,7 @@ StatusCode LArDetectorToolNV::create()
     geometryLayout = "G3";
   }
 
-  LArGeo::LArDetectorFactory theLArFactory(testbeam,m_geometryConfig=="FULL");
+  LArGeo::LArDetectorFactory theLArFactory(testbeam,m_geometryConfig=="FULL",hvManager);
 
   theLArFactory.setBarrelSagging       (m_barrelSaggingOn);
   theLArFactory.setBarrelCellVisLimit  (m_barrelVisLimit);

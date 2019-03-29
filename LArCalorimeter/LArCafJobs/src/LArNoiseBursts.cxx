@@ -50,7 +50,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
@@ -1389,8 +1388,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       nelec = cell->getNumElectrodes();
       //ngap = 2*nelec;
       for(i=0;i<nelec;i++) {
-	      const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
-	      for(igap=0;igap<2;igap++) tmplines.push_back(electrode->hvLineNo(igap));
+	      const EMBHVElectrode& electrode = cell->getElectrode(i);
+	      for(igap=0;igap<2;igap++) tmplines.push_back(electrode.hvLineNo(igap));
       }        
     } else { // LAr EMEC
       ATH_MSG_DEBUG ( "LAr EMEC");

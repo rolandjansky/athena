@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactory.h"
@@ -53,15 +53,18 @@
 #include "LArReadoutGeometry/EMBDetectorRegion.h"
 #include "LArReadoutGeometry/EMBDetDescr.h"
 
-LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo)
-  : m_detectorManager(),
-    m_barrelSagging(false),
-    m_barrelVisLimit(-1),
-    m_fcalVisLimit(-1),
-    m_buildBarrel(true),
-    m_buildEndcap(true),
-    m_testbeam(testbeam),
-    m_fullGeo(fullGeo)
+#include "LArHV/LArHVManager.h"
+
+LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo, const LArHVManager* hvManager)
+  : m_detectorManager(nullptr)
+  , m_hvManager(hvManager)
+  , m_barrelSagging(false)
+  , m_barrelVisLimit(-1)
+  , m_fcalVisLimit(-1)
+  , m_buildBarrel(true)
+  , m_buildEndcap(true)
+  , m_testbeam(testbeam)
+  , m_fullGeo(fullGeo)
 {}
 
 
@@ -535,7 +538,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
   try
   { 
-    embDetectorManager  = new EMBDetectorManager();
+    embDetectorManager  = new EMBDetectorManager(m_hvManager->getEMBHVManager());
     int firstEndcap=m_testbeam==0 ? 0:1, endEndcap=2;
     for (int e= firstEndcap ;e<endEndcap;e++) {
 
