@@ -34,11 +34,13 @@ atlas_add_test( merge SCRIPT test/test_merge.sh PROPERTIES TIMEOUT 1000 )
 # Helper to define unit tests running in a separate directory
 # The test name is derived from the test script name: test/test_${name}.sh
 function( _add_test name )
-   file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${name} )
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${name} )
+   file( REMOVE_RECURSE ${rundir} )   # cleanup to avoid interference with previous run
+   file( MAKE_DIRECTORY ${rundir} )
    atlas_add_test( ${name}
       SCRIPT test/test_${name}.sh
       PROPERTIES TIMEOUT 1000
-      PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${name}
+      PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${rundir}
       ${ARGN} )
 endfunction( _add_test )
 
