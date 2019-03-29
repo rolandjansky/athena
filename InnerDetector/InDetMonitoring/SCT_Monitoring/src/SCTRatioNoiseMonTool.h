@@ -25,7 +25,6 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -218,7 +217,6 @@ private:
 
   //@name Service members
   //@{
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
   /// Data object name: for the SCT this is "SCT_RDOs"
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
   ///SCT Helper class

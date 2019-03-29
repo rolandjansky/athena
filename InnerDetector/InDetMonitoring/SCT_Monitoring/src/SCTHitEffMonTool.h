@@ -7,7 +7,7 @@
     measure the intrinsic single hit efficiency in the SCT using
     the holes-on-tracks method.
     @author SCT Monitoring group hn-atlas-sct-monitoring@cern.ch
- */
+*/
 
 #ifndef SCTEFFICIENCYTOOL_H
 #define SCTEFFICIENCYTOOL_H
@@ -28,7 +28,6 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkTrack/Track.h" 
 #include "TrkTrack/TrackCollection.h"
-#include "xAODEventInfo/EventInfo.h"
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
@@ -58,10 +57,6 @@ class TGraphErrors;
 class IChronoStatSvc;
 class StatusCode;
 
-//using namespace SCT_Monitoring;
-//using boost::array;
-
-
 /**
    @class SCTHitEffMonTool
    The tool itself
@@ -83,7 +78,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   virtual StatusCode fillHistograms ();
   virtual StatusCode procHistograms ();
 
-private:
+ private:
 
   StatusCode initialize();
 
@@ -100,8 +95,8 @@ private:
 
   /** Computes residual of a hit to a track */
   double getResidual (const Identifier& surfaceID,
-   const Trk::TrackParameters* trkParam,
-   const InDet::SCT_ClusterContainer* p_sctclcontainer);
+                      const Trk::TrackParameters* trkParam,
+                      const InDet::SCT_ClusterContainer* p_sctclcontainer);
 
   /** Single histogram booking method */
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
@@ -291,14 +286,13 @@ private:
   const TRT_ID* m_trtId;
 
   SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B
    * I have re-ordered this!!!! so now its C,B,A
    **/ 
-  SCT_Monitoring::BecIndex layerIndex2becIndex(const int index){
+  SCT_Monitoring::BecIndex layerIndex2becIndex(const int index) {
     if ((index< 0) or (index>21)) return SCT_Monitoring::INVALID_INDEX;
     if (index< 9) return SCT_Monitoring::ENDCAP_C_INDEX;
     if (index< 13) return SCT_Monitoring::BARREL_INDEX;
@@ -306,7 +300,7 @@ private:
     return SCT_Monitoring::INVALID_INDEX;
   }
   ///Convert a layer/disk number (0-21) to a layer number (0-8 for endcaps, 0-3 for barrel)
-  int layerIndex2layer(const int index){
+  int layerIndex2layer(const int index) {
     if ((index < 0) or (index > 21)) return SCT_Monitoring::INVALID_INDEX;
     if (index < 9) return index;
     if (index < 13) return index-9;
@@ -314,7 +308,7 @@ private:
     return SCT_Monitoring::INVALID_INDEX;
   }
   
-  int becIdxLayer2Index(const int becIdx, const int layer){
+  int becIdxLayer2Index(const int becIdx, const int layer) {
     switch( becIdx ) {
     case SCT_Monitoring::ENDCAP_C_INDEX:
       return layer;
@@ -330,4 +324,3 @@ private:
 };
 
 #endif //SCTEFFICIENCYTOOL_H
-

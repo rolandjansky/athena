@@ -46,8 +46,8 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   virtual ~SCTTracksMonTool() = default;
   //initialize
   virtual StatusCode initialize() final;
-   /**    @name Book, fill & check (reimplemented from baseclass) */
-//@{
+  /**    @name Book, fill & check (reimplemented from baseclass) */
+  //@{
   ///Book histograms in initialization
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode bookHistograms();
@@ -57,9 +57,9 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
-//@} 
+  //@} 
   
-private:
+ private:
   //@name typedefs centralised to enable easy changing of types
   //@{
   typedef TProfile2D* Prof2_t;
@@ -78,12 +78,8 @@ private:
   int m_nTracks_pos;
   TH1I* m_trackTrigger;
   TProfile* m_trackTriggerRate;
-  TH1F* m_totalBarrelResidual;
-  TH1F* m_totalEndCapAResidual;
-  TH1F* m_totalEndCapCResidual;
-  TH1F* m_totalBarrelPull;
-  TH1F* m_totalEndCapAPull;
-  TH1F* m_totalEndCapCPull;
+  TH1F* m_totalResidual[SCT_Monitoring::N_REGIONS];
+  TH1F* m_totalPull[SCT_Monitoring::N_REGIONS];
 
   int m_numberOfEvents;
   //@name Histograms related members
@@ -105,45 +101,33 @@ private:
   
   H1_t m_trk_N;
 
- /// Pointer to 1D histogram of Track chi2
+  /// Pointer to 1D histogram of Track pt
   H1_t m_trk_pt;
 
- /// Pointer to 1D histogram of Track chi2
+  /// Pointer to 1D histogram of Track d0
   H1_t m_trk_d0;
 
- /// Pointer to 1D histogram of Track chi2
+  /// Pointer to 1D histogram of Track z0
   H1_t m_trk_z0;
 
   /// Pointer to 1D histogram of Track eta
   H1_t m_trk_eta;
   
-  /// Pointer to 1D histogram of Track chi2
+  /// Pointer to 1D histogram of Track phi
   H1_t m_trk_phi;
 
   /// Vector of pointers to profile histogram of residuals; 1 histo per layer and side
-  VecProf2_t m_psctresidualsHistoVector;
-  VecProf2_t m_psctresidualsHistoVectorECp;
-  VecProf2_t m_psctresidualsHistoVectorECm;
+  VecProf2_t m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS];
   /// Vector of pointers to  histogram of residuals RMS; 1 histo per layer and side
-  VecH2_t m_psctresidualsRMSHistoVector;
-  VecH2_t m_psctresidualsRMSHistoVectorECp;
-  VecH2_t m_psctresidualsRMSHistoVectorECm;
+  VecH2_t m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS];
   /// Vector of pointers to summary histogram of residuals; 1 histo per layer and side
-  VecH1_t m_psctresiduals_summaryHistoVector;
-  VecH1_t m_psctresiduals_summaryHistoVectorECp;
-  VecH1_t m_psctresiduals_summaryHistoVectorECm;
+  VecH1_t m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS];
   /// Vector of pointers to profile histogram of pulls; 1 histo per layer and side
-  VecProf2_t m_psctpullsHistoVector;
-  VecProf2_t m_psctpullsHistoVectorECp;
-  VecProf2_t m_psctpullsHistoVectorECm;
+  VecProf2_t m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS];
   /// Vector of pointers to  histogram of pulls RMS; 1 histo per layer and side
-  VecH2_t m_psctpullsRMSHistoVector;
-  VecH2_t m_psctpullsRMSHistoVectorECp;
-  VecH2_t m_psctpullsRMSHistoVectorECm;
+  VecH2_t m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS];
   /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
-  VecH1_t m_psctpulls_summaryHistoVector;
-  VecH1_t m_psctpulls_summaryHistoVectorECp;
-  VecH1_t m_psctpulls_summaryHistoVectorECm;
+  VecH1_t m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS];
   std::string m_stream;
   std::string m_path;
   BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
@@ -165,7 +149,7 @@ private:
   BooleanProperty m_doUnbiasedCalc{this, "doUnbiasedCalc", true};
 
   ///Abbreviations for level 1 trigger types
-  static const std::string s_triggerNames[8];
+  static const std::string s_triggerNames[N_TRIGGER_TYPES];
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
 
@@ -183,8 +167,8 @@ private:
   // Book Track related  Histograms
   StatusCode bookTrackHistos(const SCT_Monitoring::Bec becVal);
   StatusCode bookGeneralHistos();
-  StatusCode bookPositiveEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_A);}
-  StatusCode bookNegativeEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_C);}
+  StatusCode bookPositiveEndCapTrackHistos() { return bookTrackHistos(SCT_Monitoring::ENDCAP_A); }
+  StatusCode bookNegativeEndCapTrackHistos() { return bookTrackHistos(SCT_Monitoring::ENDCAP_C); }
   //@}
 
   //@name  Trigger related methods
