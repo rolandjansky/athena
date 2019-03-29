@@ -1,25 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_UNIT_TEST_HH
 #define EVENT_LOOP_UNIT_TEST_HH
-
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines functions for running unit test for different
-/// architectures.  The interface provided in this module is intended
-/// for experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-
 
 #include <EventLoopTest/Global.h>
 
