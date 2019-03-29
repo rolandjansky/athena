@@ -13,6 +13,8 @@
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 
+#include <fstream>
+
 using namespace LVL1TGC;
 
 inline void SWAP(double &a, double &b) 
@@ -255,6 +257,55 @@ void TGCRecRoiSvc::print(const unsigned int & roIWord)
   }
 }
 
+void TGCRecRoiSvc::dumpRoiMap(const std::string& filename)
+{
+  std::ofstream roi_map;
+  roi_map.open(filename.c_str(), std::ios::out);
+  if(!roi_map) {
+    ATH_MSG_WARNING("Unable to open RoI Mapping file!");
+    return;
+  } else {
+    roi_map << "# side region sector roi   etaMin   etaMax   phiMin   phiMax" << std::endl;
+    roi_map << "------------------------------------------------------------" << std::endl;
+    for(unsigned int side = TGCIdBase::Aside; side < TGCIdBase::MaxSideType; side++) {
+
+      unsigned int sideAddress = (side==TGCIdBase::Aside) ? 0x1 : 0x0;
+
+      for(unsigned int region = TGCIdBase::Endcap; region < TGCIdBase::MaxRegionType; region++) {
+
+        unsigned int regionAddress = sideAddress + ((region==TGCIdBase::Endcap) ? 0x80 : 0x40);
+
+        unsigned int maxSector = (region==TGCIdBase::Endcap) ? 48 : 24;
+        unsigned int maxRoiNum = (region==TGCIdBase::Endcap) ? 148 : 64;
+
+        for(unsigned int sector = 0; sector < maxSector; sector++) {
+
+          unsigned int sectorAddress = regionAddress + (sector<<1);
+
+          for(unsigned int roi = 0; roi < maxRoiNum; roi++) {
+
+            unsigned int roiWord = (sectorAddress<<14) + (roi<<2);
+            double etaMin(0), etaMax(0), phiMin(0), phiMax(0);
+
+            RoIsize(roiWord, etaMin, etaMax, phiMin, phiMax);
+
+            roi_map << std::setw(6) << side << " "
+                    << std::setw(6) << region << " "
+                    << std::setw(6) << sector << " "
+                    << std::setw(3) << roi << " "
+                    << std::setw(8) << std::setiosflags(std::ios::fixed) << std::setprecision(5) << etaMin << " "
+                    << std::setw(8) << etaMax << " "
+                    << std::setw(8) << phiMin << " "
+                    << std::setw(8) << phiMax << " "
+                    << std::endl;
+          }
+        }
+      }
+    }
+    roi_map.close();
+  }
+}
+
 bool TGCRecRoiSvc::getSLBparameters(const unsigned int & roIWord,
 				    TGCIdBase::SideType & sideType,
 				    TGCIdBase::RegionType & regionType,
@@ -274,7 +325,7 @@ bool TGCRecRoiSvc::getSLBparameters(const unsigned int & roIWord,
   // sectorAddress, sectorRoiOvl
   unsigned int sectorAddress = (roIWord & 0x003FC000) >> 14;
   unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
-  
+
   // sysID, subSysID
   unsigned int sysID    =  (sectorAddress & 0x000000C0) >> 6;
   unsigned int subSysID =  sectorAddress & 0x00000001;
