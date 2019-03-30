@@ -26,13 +26,12 @@
 using namespace std;
 using namespace Monitored;
 
-#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&HistogramFactory::TEST_CASE_NAME, #TEST_CASE_NAME)
+#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&HistogramFactoryTestSuite::TEST_CASE_NAME, #TEST_CASE_NAME)
 
-namespace test {
-class HistogramFactory {
-  // ==================== All test cases ====================
+class HistogramFactoryTestSuite {
+  // ==================== All registered test cases ====================
   private:
-    list<function<void(void)>> allTestCases() {
+    list<function<void(void)>> registeredTestCases() {
       return {
         REGISTER_TEST_CASE(test_shouldReturnTH1FHistogram),
         REGISTER_TEST_CASE(test_shouldReturnTH1DHistogram),
@@ -50,7 +49,7 @@ class HistogramFactory {
   // ==================== Test code ====================
   private:
     void beforeEach() {
-      m_testObj.reset(new Monitored::HistogramFactory(m_histSvc, "HistogramFactory"));
+      m_testObj.reset(new HistogramFactory(m_histSvc, "HistogramFactoryTestSuite"));
     }
 
     void afterEach() {
@@ -146,21 +145,21 @@ class HistogramFactory {
 
   // ==================== Initialization & run ====================
   public:
-    HistogramFactory() 
+    HistogramFactoryTestSuite() 
       : m_histSvc("THistSvc", "TestGroup"), 
-        m_log(Athena::getMessageSvc(), "HistogramFactory") {
+        m_log(Athena::getMessageSvc(), "HistogramFactoryTestSuite") {
       assert(m_histSvc.retrieve() == StatusCode::SUCCESS);
     }
 
-    void runTests() {
-      for (function<void(void)> testCase : allTestCases()) {
+    void run() {
+      for (function<void(void)> testCase : registeredTestCases()) {
         testCase();
       }
     }
 
   // ==================== Test case registration ====================
   private:
-    typedef void (HistogramFactory::*TestCase)(void);
+    typedef void (HistogramFactoryTestSuite::*TestCase)(void);
 
     function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
       return [this, testCase, testCaseName]() {
@@ -176,9 +175,8 @@ class HistogramFactory {
     ServiceHandle<ITHistSvc> m_histSvc;
     MsgStream m_log;
 
-    shared_ptr<Monitored::HistogramFactory> m_testObj;
+    shared_ptr<HistogramFactory> m_testObj;
 };
-}
 
 int main() {
   ISvcLocator* pSvcLoc;
@@ -187,7 +185,7 @@ int main() {
     throw runtime_error("This test can not be run: GenericMon.txt is missing");
   }
 
-  test::HistogramFactory().runTests();
+  HistogramFactoryTestSuite().run();
 
   return 0;
 }
