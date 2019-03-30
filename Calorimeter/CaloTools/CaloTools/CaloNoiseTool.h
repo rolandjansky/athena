@@ -117,8 +117,6 @@ private:
 //Identifiers
   const AtlasDetectorID* m_atlas_id; 
 
-  const CaloIdManager* m_calo_id_man;
-
   //  const LArDetDescrManager* m_lar_dd_man; 
   const LArEM_ID*    m_lar_em_id; 
   const LArHEC_ID*   m_lar_hec_id;
@@ -127,7 +125,6 @@ private:
   //const TileDetDescrManager* m_tile_dd_man; 
   const TileID*      m_tile_id;
 
-  const CaloDetDescrManager* m_calo_dd_man; 
   const CaloCell_ID* m_calocell_id;
 
   IdentifierHash m_LArHashMax;
@@ -455,10 +452,6 @@ public:
   float adc2mev(const CaloDetDescrElement* caloDDE,
 		const CaloGain::CaloGain gain);
     //Returns adc2mev factor for the given caloDDE and gain
-
-  float adc2mev(const Identifier& id,const CaloGain::CaloGain gain);
-    //Returns adc2mev factor for the given ID and gain
-    //SHOULD NOT BE USED ANYMORE, prefer the one above with caloDDE
 
 
   /** 
