@@ -61,7 +61,6 @@
 // constructor 
 LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthReentrantAlgorithm(name,pSvcLocator),
-    m_calodetdescrmgr(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),
@@ -87,8 +86,6 @@ StatusCode LArHVCondAlg::initialize(){
   m_larem_id   = idHelper->em_idHelper();
   m_larhec_id   = idHelper->hec_idHelper();
   m_larfcal_id   = idHelper->fcal_idHelper();
-
-  ATH_CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
   ATH_CHECK(detStore()->retrieve(m_electrodeID));
 
@@ -359,6 +356,9 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
   LArHVData::currMap &currmap = hvdata->m_current;
   std::set<Identifier> &updatedCells = hvdata->m_updatedCells;
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   std::vector<unsigned int> listElec;
 
   updatedCells.clear();
@@ -381,7 +381,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
            listElec = getElecList(id,pathologies);
           }
          }
-         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
          unsigned int nelec = cell->getNumElectrodes();
@@ -425,7 +425,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          currmap.insert(std::make_pair(id,ihv));
       } else if (abs(m_larem_id->barrel_ec(id))==1 && m_larem_id->sampling(id) == 0) { // EMBPS
 
-         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
  
@@ -456,7 +456,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
           }
          }
  
-         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
          unsigned int nelec = cell->getNumElectrodes();
@@ -495,7 +495,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
  
       } else if (abs(m_larem_id->barrel_ec(id))>1 &&  m_larem_id->sampling(id)==0) { // EMECPS
 
-         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
  
@@ -557,7 +557,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
       listElec = getElecList(id, pathologies);
      }
     }
-    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(calodetdescrmgr->get_element(id));
     if (!hecElement) std::abort();
     const HECCellConstLink cell = hecElement->getHECCell();
     unsigned int nsubgaps = cell->getNumSubgaps();
@@ -623,7 +623,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
         listElec = getElecList(id, pathologies);
        }
       }
-      const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(calodetdescrmgr->get_element(id));
       if (!fcalElement) std::abort();
       const FCALTile* tile = fcalElement->getFCALTile();
       //std::cout << " --- in FCAL cell id " << m_larfcal_id->show_to_string(id) << std::endl;
@@ -1364,6 +1364,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
 StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, const LArBadFebCont* bfCont, const LArOnOffIdMapping* cabling) const { //store informations on the missing Febs w/ range of eta, phi, layer
   ATH_MSG_INFO ( "updateMethod()" );
   
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   std::vector<HWIdentifier>::const_iterator febid_it=m_onlineID->feb_begin();
   std::vector<HWIdentifier>::const_iterator febid_end_it=m_onlineID->feb_end();
 
@@ -1390,7 +1393,7 @@ StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, cons
 
 	if (cabling->isOnlineConnected(channelId)) {
 	  Identifier offlineId=cabling->cnvToIdentifier(channelId);
-	  const CaloDetDescrElement* caloddElement=m_calodetdescrmgr->get_element(offlineId);
+	  const CaloDetDescrElement* caloddElement=calodetdescrmgr->get_element(offlineId);
 	  
 	  CaloCell_ID::CaloSample current_layer=caloddElement->getSampling(); // calo layer
 	  float current_eta=caloddElement->eta();

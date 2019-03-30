@@ -30,7 +30,6 @@ LArFCalTowerBuilderTool::LArFCalTowerBuilderTool(const std::string& name,
     , m_minEt(0.)
     , m_cellIdHelper(nullptr)
     , m_larFCalId(nullptr)
-    , m_theManager(nullptr)
 {
   // Et cut for minicells
   declareProperty("MinimumEt",m_minEt);
@@ -46,8 +45,6 @@ LArFCalTowerBuilderTool::~LArFCalTowerBuilderTool(){
 StatusCode LArFCalTowerBuilderTool::initializeTool(){
   ATH_CHECK( detStore()->retrieve (m_cellIdHelper, "CaloCell_ID") );
   m_larFCalId = m_cellIdHelper->fcal_idHelper();
-
-  ATH_CHECK( detStore()->retrieve (m_theManager, "CaloMgr") );
 
   // ignore other input!
   ATH_MSG_INFO( "CaloTowerBuilder for the FCal initiated"  );
@@ -188,6 +185,9 @@ StatusCode LArFCalTowerBuilderTool::execute (CaloTowerContainer* theContainer)
 void  LArFCalTowerBuilderTool::handle(const Incident&) 
 {
   ATH_MSG_DEBUG( "In Incident-handle"  );
+  if (m_cellStore.size() == 0) {
+    rebuildLookup().ignore();
+  }
 }
 
 
@@ -196,9 +196,11 @@ void  LArFCalTowerBuilderTool::handle(const Incident&)
  */
 StatusCode LArFCalTowerBuilderTool::rebuildLookup()
 {
+  const CaloDetDescrManager* theManager = nullptr;
+  ATH_CHECK( detStore()->retrieve (theManager, "CaloMgr") );
   CaloTowerContainer theTowers (towerSeg());
   if ( m_cellStore.buildLookUp(*m_cellIdHelper,
-                               *m_theManager,
+                               *theManager,
                                &theTowers) )
   {
     return StatusCode::SUCCESS;
