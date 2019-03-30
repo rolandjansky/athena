@@ -46,10 +46,12 @@ atlas_add_component( AthenaMonitoring
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
-# Units tests:
-foreach ( name GenericMonParsing_test GenericMonFilling_test )
+# Units tests C++:
+file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )
+foreach ( test_file ${CXX_TEST_FILES} )
+   get_filename_component( name ${test_file} NAME_WE)
 	atlas_add_test( ${name}
-			SOURCES test/${name}.cxx
+			SOURCES ${test_file}
 			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
 			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
 			POST_EXEC_SCRIPT "true"
@@ -57,7 +59,13 @@ foreach ( name GenericMonParsing_test GenericMonFilling_test )
 	)
 endforeach()
 
-atlas_add_test( defineHistogram
-   SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/test_defineHistogram.py
-   POST_EXEC_SCRIPT "true"
-)
+# Units tests Python:
+
+file( GLOB PYTHON_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py )
+foreach ( test_file ${PYTHON_TEST_FILES} )
+   get_filename_component( name ${test_file} NAME_WE)
+	atlas_add_test( ${name}
+      SCRIPT python ${test_file}
+      POST_EXEC_SCRIPT "true"
+	)
+endforeach()
