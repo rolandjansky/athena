@@ -51,6 +51,7 @@ LArHVToolDB::LArHVToolDB(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : AthAlgTool(type,name,parent),
+    m_calodetdescrmgr(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),
@@ -73,6 +74,8 @@ LArHVToolDB::~LArHVToolDB()
 { }
 
 StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
+
+  CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
   std::set<size_t> DCSfolderIndices;
   bool doPathology=false;
@@ -195,15 +198,13 @@ StatusCode LArHVToolDB::finalize() {
 
 // intialize 
 StatusCode LArHVToolDB::initialize(){
-// retrieve LArEM id helpers
-  CHECK(detStore()->retrieve(m_caloIdMgr));
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* cellID = nullptr;
+  ATH_CHECK( detStore()->retrieve (cellID, "CaloCell_ID") );
 
-//  retrieve CaloDetDescrMgr 
-  CHECK(detStore()->retrieve(m_calodetdescrmgr));
+  m_larem_id   = cellID->em_idHelper();
+  m_larhec_id   = cellID->hec_idHelper();
+  m_larfcal_id   = cellID->fcal_idHelper();
 
   // retrieve the LArElectrodeID helper
   CHECK(detStore()->retrieve(m_electrodeID));
