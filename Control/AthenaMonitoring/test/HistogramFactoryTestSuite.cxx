@@ -33,15 +33,15 @@ class HistogramFactoryTestSuite {
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_shouldReturnTH1FHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTH1DHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTH1IHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTH2FHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTH2DHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTH2IHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTProfileHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTProfile2DHistogram),
-        REGISTER_TEST_CASE(test_shouldReturnTEfficiencyHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH1FHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH1DHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH1IHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH2FHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH2DHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTH2IHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTProfileHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTProfile2DHistogram),
+        REGISTER_TEST_CASE(test_shouldRegisterAndReturnTEfficiencyHistogram),
         REGISTER_TEST_CASE(test_shouldThrowExceptionForUnknownHistogramType),
       };
     }
@@ -56,55 +56,65 @@ class HistogramFactoryTestSuite {
       clearHistogramService();
     }
 
-    void test_shouldReturnTH1FHistogram() {
+    void test_shouldRegisterAndReturnTH1FHistogram() {
       TH1F* const histogram = createHistogram<TH1F>("TH1F");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH1F")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH1F*)nullptr);
     }
 
-    void test_shouldReturnTH1DHistogram() {
+    void test_shouldRegisterAndReturnTH1DHistogram() {
       TH1D* const histogram = createHistogram<TH1D>("TH1D");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH1D")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH1D*)nullptr);
     }
 
-    void test_shouldReturnTH1IHistogram() {
+    void test_shouldRegisterAndReturnTH1IHistogram() {
       TH1I* const histogram = createHistogram<TH1I>("TH1I");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH1I")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH1I*)nullptr);
     }
 
-    void test_shouldReturnTH2FHistogram() {
+    void test_shouldRegisterAndReturnTH2FHistogram() {
       TH2F* const histogram = createHistogram<TH2F>("TH2F");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH2F")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH2F*)nullptr);
     }
 
-    void test_shouldReturnTH2DHistogram() {
+    void test_shouldRegisterAndReturnTH2DHistogram() {
       TH2D* const histogram = createHistogram<TH2D>("TH2D");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH2D")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH2D*)nullptr);
     }
 
-    void test_shouldReturnTH2IHistogram() {
+    void test_shouldRegisterAndReturnTH2IHistogram() {
       TH2I* const histogram = createHistogram<TH2I>("TH2I");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TH2I")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TH2I*)nullptr);
     }
 
-    void test_shouldReturnTProfileHistogram() {
+    void test_shouldRegisterAndReturnTProfileHistogram() {
       TProfile* const histogram = createHistogram<TProfile>("TProfile");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TProfile")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TProfile*)nullptr);
     }
 
-    void test_shouldReturnTProfile2DHistogram() {
+    void test_shouldRegisterAndReturnTProfile2DHistogram() {
       TProfile2D* const histogram = createHistogram<TProfile2D>("TProfile2D");
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TProfile2D")) EXPECTED(true);
       VALUE(histogram) NOT_EXPECTED((TProfile2D*)nullptr);
     }
 
-    void test_shouldReturnTEfficiencyHistogram() {
-      TEfficiency* const histogram = createHistogram<TEfficiency>("TEfficiency");
-      VALUE(histogram) NOT_EXPECTED((TEfficiency*)nullptr);
+    void test_shouldRegisterAndReturnTEfficiencyHistogram() {
+      TEfficiency* const graph = createHistogram<TEfficiency>("TEfficiency");
+      // VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
+      VALUE(graph) NOT_EXPECTED((TEfficiency*)nullptr);
     }
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
       try {
-        createHistogram<TNamed>("UnknownType");
-      } catch (const HistogramException& e) {
+        createHistogram("UnknownType");
+      } catch (const HistogramException&) {
+        VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/UnknownType")) EXPECTED(false);
         return;
       }
       
@@ -115,6 +125,8 @@ class HistogramFactoryTestSuite {
   private:
     TNamed* createHistogram(const string& histogramType) {
       HistogramDef histogramDef;
+
+      histogramDef.path = "DEFAULT";
       histogramDef.type = histogramType;
       histogramDef.alias = histogramType;
       histogramDef.title = histogramType;
@@ -146,7 +158,7 @@ class HistogramFactoryTestSuite {
   // ==================== Initialization & run ====================
   public:
     HistogramFactoryTestSuite() 
-      : m_histSvc("THistSvc", "TestGroup"), 
+      : m_histSvc("THistSvc", "HistogramFactoryTestSuite"), 
         m_log(Athena::getMessageSvc(), "HistogramFactoryTestSuite") {
       assert(m_histSvc.retrieve() == StatusCode::SUCCESS);
     }
