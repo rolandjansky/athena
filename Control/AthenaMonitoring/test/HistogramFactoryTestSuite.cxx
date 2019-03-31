@@ -43,6 +43,9 @@ class HistogramFactoryTestSuite {
         REGISTER_TEST_CASE(test_shouldRegisterAndReturnTProfile2DHistogram),
         REGISTER_TEST_CASE(test_shouldRegisterAndReturnTEfficiencyHistogram),
         REGISTER_TEST_CASE(test_shouldThrowExceptionForUnknownHistogramType),
+        REGISTER_TEST_CASE(test_shouldProperlyFormatPathForOnlineHistograms),
+        REGISTER_TEST_CASE(test_shouldProperlyFormatPathForDefaultHistograms),
+        REGISTER_TEST_CASE(test_shouldProperlyFormatPathForCustomHistograms),
       };
     }
 
@@ -112,7 +115,7 @@ class HistogramFactoryTestSuite {
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
       try {
-        createHistogram("UnknownType");
+        createHistogram<TH1F>("UnknownType");
       } catch (const HistogramException&) {
         VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/UnknownType")) EXPECTED(false);
         return;
@@ -121,24 +124,62 @@ class HistogramFactoryTestSuite {
       assert(false);
     }
 
+    void test_shouldProperlyFormatPathForOnlineHistograms() {
+      auto possibleCases = {
+        make_tuple("EXPERT", "/EXPERT/HistogramFactoryTestSuite/onlineHistAlias"), 
+        make_tuple("SHIFT", "/SHIFT/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("DEBUG", "/DEBUG/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("RUNSTAT", "/RUNSTAT/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("EXPRES", "/EXPRES/HistogramFactoryTestSuite/onlineHistAlias"),
+      };
+  
+      for (auto possibleCase : possibleCases) {
+        const string onlinePath = get<0>(possibleCase);
+        const string expectedPath = get<1>(possibleCase);
+
+        HistogramDef histogramDef = defaultHistogramDef("TH1F");
+        histogramDef.path = onlinePath;
+        histogramDef.alias = "onlineHistAlias";
+        m_testObj->create(histogramDef);
+        VALUE(m_histSvc->exists(expectedPath)) EXPECTED(true);
+      }
+    }
+
+    void test_shouldProperlyFormatPathForDefaultHistograms() {
+      HistogramDef histogramDef = defaultHistogramDef("TH1F");
+      histogramDef.path = "DEFAULT";
+      histogramDef.alias = "/defaultAlias";
+      m_testObj->create(histogramDef);
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/defaultAlias")) EXPECTED(true);
+    }
+
+    void test_shouldProperlyFormatPathForCustomHistograms() {
+      HistogramDef histogramDef = defaultHistogramDef("TH1F");
+      histogramDef.path = "/custom/path/for/histogram";
+      histogramDef.alias = "customAlias";
+      m_testObj->create(histogramDef);
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/custom/path/for/histogram/customAlias")) EXPECTED(true);
+    }
+
   // ==================== Helper methods ====================
   private:
-    TNamed* createHistogram(const string& histogramType) {
-      HistogramDef histogramDef;
+    HistogramDef defaultHistogramDef(const string& histogramType) {
+      HistogramDef result;
 
-      histogramDef.path = "DEFAULT";
-      histogramDef.type = histogramType;
-      histogramDef.alias = histogramType;
-      histogramDef.title = histogramType;
-      histogramDef.xbins = 1;
-      histogramDef.ybins = 1;
+      result.path = "DEFAULT";
+      result.type = histogramType;
+      result.alias = histogramType;
+      result.title = histogramType;
+      result.xbins = 1;
+      result.ybins = 1;
 
-      return m_testObj->create(histogramDef);
+      return result;
     }
 
     template <class HistogramType> 
     HistogramType* createHistogram(const string& histogramType) {
-      return dynamic_cast<HistogramType*>(createHistogram(histogramType));
+      HistogramDef histogramDef = defaultHistogramDef(histogramType);
+      return dynamic_cast<HistogramType*>(m_testObj->create(histogramDef));
     }
 
     void clearHistogramService() {
