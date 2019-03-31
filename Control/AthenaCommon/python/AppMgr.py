@@ -260,12 +260,12 @@ class AthAppMgr( AppMgr ):
          Logging.log.debug ("building master sequence...")
          athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True)
          athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
-         athCondSeq   = _as.AthSequencer ("AthCondSeq")
-         athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True)
+         athCondSeq   = _as.AthSequencer ("AthCondSeq", StopOverride=True)
+         athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True, StopOverride=True)
          athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
-         athOutSeq    = _as.AthSequencer ("AthOutSeq")
-         athRegSeq    = _as.AthSequencer ("AthRegSeq")
-         athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq")
+         athOutSeq    = _as.AthSequencer ("AthOutSeq", StopOverride=True)
+         athRegSeq    = _as.AthSequencer ("AthRegSeq", StopOverride=True)
+         athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq", StopOverride=True)
          athAlgEvtSeq = _as.AthSequencer ("AthAlgEvtSeq",Sequential = True, StopOverride=True)
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
@@ -990,11 +990,3 @@ athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
 athRegSeq    = AlgSequence.AthSequencer( "AthRegSeq" )
 
 topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibility
-
-
-# we set the override to True so algorithms
-# setting the filterPassed to False won't stop the
-# execution of the AthAlgSeq sequence
-# this is mainly for backward compatibility reasons
-athAlgSeq.StopOverride=True
-athOutSeq.StopOverride=True
