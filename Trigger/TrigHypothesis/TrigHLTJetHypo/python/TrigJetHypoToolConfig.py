@@ -52,7 +52,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     print 'trigJetHypoToolFromDict chain_name', chain_name
 
     # debug flag to be relayed to C++ objects
-    debug = False
+    debug = True
     visitor = ToolSetter(chain_name, debug)
     tree.accept(visitor)
     print visitor.report()

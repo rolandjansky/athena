@@ -147,9 +147,9 @@ class TreeParameterExpander_simple(object):
                 sf = self.scale_factors[attr]
                 if lo:
                     if attr == 'eta':
-                        attr = 'eta_mins'
-                        node.conf_attrs[attr].append(sf * float(lo))
-                        attributes2.remove(attr)
+                        attr_lo = 'eta_mins'
+                        node.conf_attrs[attr_lo].append(sf * float(lo))
+                        attributes2.remove(attr_lo)
                     elif attr == 'et':
                         attr = 'EtThresholds'
                         node.conf_attrs[attr].append(sf * float(lo))
@@ -157,10 +157,12 @@ class TreeParameterExpander_simple(object):
                 if hi:
                     if attr == 'eta':
                         attr = 'eta_maxs'
-                        node.conf_attrs[attr].append(sf * float(hi))
-                        attributes2.remove(attr)
 
-            # fill in unmentioned attributes with defaults: 
+                        attr_hi = 'eta_maxs'
+                        node.conf_attrs[attr_hi].append(sf * float(hi))
+                        attributes2.remove(attr_hi)
+
+            # fill in unmentioned attributes with defaults:
             for a in attributes2:
                 node.conf_attrs[a].append(self.defaults[a])
 
