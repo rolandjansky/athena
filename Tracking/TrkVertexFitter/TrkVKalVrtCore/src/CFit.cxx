@@ -23,9 +23,6 @@ vkalMagFld      myMagFld;
 vkalPropagator  myPropagator;
 
 
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-
 void printT(double p[], double e[], std::string name){
   std::cout<<name<<p[0]<<", "<<p[1]<<", "<<p[2]<<", "<<p[3]<<", "<<p[4]<<'\n';
   std::cout<<e[0]<<'\n';
@@ -152,7 +149,7 @@ bool checkPosition(VKVertex * vk, double vertex[3]){
 extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = 0);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
 extern void cfmasserr(VKVertex* , int*, double, double*, double*);
-extern std::vector<double> getFitParticleMom( VKTrack *, double);
+extern std::array<double, 4> getFitParticleMom( VKTrack *, double);
 
 int fitVertex(VKVertex * vk) 
 {
@@ -381,7 +378,7 @@ int fitVertex(VKVertex * vk)
 /*  Test of convergence */
 	chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
-        double PrecLimit = min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
+        double PrecLimit = std::min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
 //std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
 	if ((chi2df < PrecLimit) && (vShift < 0.001) && it>1 && (cnstRemnants<ConstraintAccuracy)){
 	   double dstFromExtrapPnt=sqrt(vk->fitV[0]*vk->fitV[0] + vk->fitV[1]*vk->fitV[1]+ vk->fitV[2]*vk->fitV[2]);
@@ -391,8 +388,8 @@ int fitVertex(VKVertex * vk)
            }
 	   break;
         }
-	chi2min = min(chi2min,chi22s);
-	if ((chi2min*100. < chi22s) && (chi22s>max( (2*NTRK-3)*10., 100.)) && (it>5)){
+	chi2min = std::min(chi2min,chi22s);
+	if ((chi2min*100. < chi22s) && (chi22s>std::max( (2*NTRK-3)*10., 100.)) && (it>5)){
 	   //std::cout<<" DIVERGENCE="<<chi22s<<" Ratio="<<chi22s/chi2min<<'\n';
            IERR = -5; return IERR;           /* Divergence. Stop fit */
         }
@@ -476,7 +473,7 @@ int fitVertex(VKVertex * vk)
 	chi2   += trk->Chi2;
 	chi2tr[tk] = trk->Chi2;
         cfdcopy( trk->fitP, &parfs[tk][0], 3);
-        std::vector<double> pp = getFitParticleMom( trk, MainVRT->vk_fitterControl->vk_forcft.localbmag );
+        std::array<double, 4> pp = getFitParticleMom( trk, MainVRT->vk_fitterControl->vk_forcft.localbmag );
         ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
     cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance

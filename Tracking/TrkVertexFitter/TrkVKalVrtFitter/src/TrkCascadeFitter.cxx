@@ -16,8 +16,8 @@
 
 namespace Trk {
     extern int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
-                   std::vector< std::vector<int> > vertexDefinition,
-                   std::vector< std::vector<int> > cascadeDefinition,
+                   const std::vector< std::vector<int> > &vertexDefinition,
+                   const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
     extern int processCascade(CascadeEvent &);
     extern int processCascade(CascadeEvent &, double *);
@@ -152,7 +152,6 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
     int NTRK = list.size();
     int presentNT = m_partListForCascade.size();
 //----
-    std::vector<int> tmpi;
 
     double totMass=0;
     for(int it=0; it<NTRK; it++){
@@ -186,7 +185,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
 //
 VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                       const  std::vector<double>& particleMass,
-		                      const  std::vector<VertexID> precedingVertices,
+		                      const  std::vector<VertexID> &precedingVertices,
 	  		              const  double massConstraint)
 {
     VertexID vID=nextVertex( list, particleMass, massConstraint);
@@ -609,12 +608,12 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
       VrtCovMtx(2,1) = VrtCovMtx(1,2);
       double Chi2=0; int NTrInV=0;
       for(it=0; it<(int)m_vertexDefinition[iv].size(); it++) { Chi2 += particleChi2[m_vertexDefinition[iv][it]]; NTrInV++ ;};
-      Trk::RecVertex * tmpRecV = new Trk::RecVertex(FitVertex, VrtCovMtx, NDOF, Chi2); 
+//      Trk::RecVertex * tmpRecV = new Trk::RecVertex(FitVertex, VrtCovMtx, NDOF, Chi2); 
       fullChi2+=Chi2;
 
       int NRealT=m_vertexDefinition[iv].size();
     //std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
-      std::vector<Trk::VxTrackAtVertex> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex>();
+      std::vector<Trk::VxTrackAtVertex> tmpVTAV;
       //VK CLHEP::HepSymMatrix genCOV( m_vertexDefinition[iv].size()*3+3, 0 );   //Migration                       // Fill cov. matrix for vertex
       Amg::MatrixX genCOV( NRealT*3+3, NRealT*3+3 );     // Fill cov. matrix for vertex
       for( it=0; it<NRealT*3+3; it++){                                 // (X,Y,Z,px1,py1,....pxn,pyn,pzn)
@@ -693,7 +692,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //         tmpPointer->setWeight(1.);
 //         tmpVTAV->push_back( tmpPointer );
 //--xAOD::Vertex--- save VxTrackAtVertex directly 
-         tmpVTAV->push_back( VxTrackAtVertex( m_ich[m_vertexDefinition[iv][it]], measPerigee ) );  
+         tmpVTAV.emplace_back(  m_ich[m_vertexDefinition[iv][it]], measPerigee ) ;
        }
 //-------------------------------------------------------------- Trk::VxCandidate creation
 //       Trk::VxCandidate* tmpVx;
@@ -727,7 +726,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        }
        tmpXAODVertex->setCovariance(floatErrMtx);
        std::vector<VxTrackAtVertex> & xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
-       xaodVTAV.swap(*tmpVTAV);
+       xaodVTAV.swap(tmpVTAV);
        for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;
 	  if(itvk < (int)m_cascadeVList[iv].trkInVrt.size()){
@@ -740,7 +739,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
-       delete tmpVTAV;delete tmpRecV; delete fullDeriv;   //Mandatory cleaning
+       delete fullDeriv;   //Mandatory cleaning
     }
 //
 //  Save momenta of all particles including combined at vertex positions
@@ -798,7 +797,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
  
 StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
                                  const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
-                                 const std::vector<VertexID> pseudotracksInConstraint, 
+                                 const std::vector<VertexID> &pseudotracksInConstraint, 
 				 double massConstraint )
 {
     int ivc, it, itc;
