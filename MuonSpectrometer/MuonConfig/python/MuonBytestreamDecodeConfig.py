@@ -72,8 +72,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
         RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
-    else:
-        acc.addEventAlgo(RpcRawDataProvider, primary=True)
+    acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc
 
 def TgcBytestreamDecodeCfg(flags, forTrigger=False):
@@ -107,12 +106,12 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-        TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
+    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                   ProviderTool = MuonTgcRawDataProviderTool )
-        acc.addEventAlgo(TgcRawDataProvider,primary=True)
+    
+    acc.addEventAlgo(TgcRawDataProvider,primary=True)
 
     return acc
 
@@ -144,22 +143,17 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
 
-    if True: #forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc = MuonCacheCfg()
-        acc.merge( cacheAcc )
-        # tell the raw data provider tool to use the cache
+    if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
 
-    
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-        MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
+    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                   ProviderTool = MuonMdtRawDataProviderTool )
-        acc.addEventAlgo(MdtRawDataProvider,primary=True)
+
+    acc.addEventAlgo(MdtRawDataProvider,primary=True)
 
     return acc
 
@@ -187,21 +181,17 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
-    if True:#forTrigger:
-        # Trigger the creation of cache containers
-        cacheAcc = MuonCacheCfg()
-        acc.merge( cacheAcc )
-        # tell the raw data provider tool to use the cache
+    if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    if not forTrigger:
-        # Setup the RAW data provider algorithm
-        from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-        CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+    # Setup the RAW data provider algorithm
+    from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                   ProviderTool = MuonCscRawDataProviderTool )
-        acc.addEventAlgo(CscRawDataProvider,primary=True)
+
+    acc.addEventAlgo(CscRawDataProvider,primary=True)
 
     return acc
 
