@@ -388,11 +388,6 @@ namespace EL
 
     for (auto& module : m_modules)
       ANA_CHECK (module->preInitialize (*this));
-
-    for (auto& module : m_modules)
-      ANA_CHECK (module->onInitialize (*this));
-    for (auto& module : m_modules)
-      ANA_CHECK (module->postInitialize (*this));
     
     return ::StatusCode::SUCCESS;
   }
@@ -405,6 +400,12 @@ namespace EL
     using namespace msgEventLoop;
 
     RCU_CHANGE_INVARIANT (this);
+
+    if (m_algorithmsInitialized == false)
+    {
+      ANA_MSG_ERROR ("algorithms never got initialized");
+      return StatusCode::FAILURE;
+    }
 
     ANA_CHECK (openInputFile (""));
     for (auto& module : m_modules)
@@ -469,6 +470,14 @@ namespace EL
     }
 
     m_inputTreeEntry = eventRange.m_beginEvent;
+
+    if (m_algorithmsInitialized == false)
+    {
+      for (auto& module : m_modules)
+        ANA_CHECK (module->onInitialize (*this));
+      m_algorithmsInitialized = true;
+    }
+
     if (m_newInputFile)
     {
       m_newInputFile = false;

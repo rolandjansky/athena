@@ -61,15 +61,6 @@ namespace EL
       virtual ::StatusCode onInitialize (ModuleData& data);
 
 
-      /// \brief action after initializing algorithms
-      ///
-      /// This is mostly meant to allow setting up any benchmarks that
-      /// need to run after initialize has been called on the
-      /// algorithms, e.g. the leak checker.
-    public:
-      virtual ::StatusCode postInitialize (ModuleData& data);
-
-
       /// \brief action after processing first event
       ///
       /// This is mostly meant to set up benchmarks that record

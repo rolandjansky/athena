@@ -75,16 +75,6 @@ namespace EL
   SH::SamplePtr UnitTestFixture ::
   getSample (const std::string& sampleName)
   {
-    if (sampleName == "null")
-    {
-      static SH::SamplePtr result;
-      if (result.empty())
-      {
-	std::unique_ptr<SH::SampleLocal> myresult (new SH::SampleLocal ("null"));
-	result = myresult.release();
-      }
-      return result;
-    }
     if (sampleName == "empty")
     {
       static SH::SamplePtr result;
@@ -136,7 +126,6 @@ namespace EL
   getSH ()
   {
     SH::SampleHandler sh;
-    sh.add (getSample ("null"));
     sh.add (getSample ("empty"));
     sh.add (getSample ("single"));
     sh.add (getSample ("multi"));
@@ -273,42 +262,6 @@ namespace EL
       file->close ();
     }
     return file->path();
-  }
-
-
-
-  TEST_P (UnitTestFixture, null_eventCount)
-  {
-    ASSERT_EQ (eventCount ("null"), 0u);
-  }
-
-
-
-  TEST_P (UnitTestFixture, null_callbacks)
-  {
-    TH1 *callbacks = getCallbacks ("null");
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
-  }
-
-
-
-  TEST_P (UnitTestFixture, null_fileExecuted)
-  {
-    checkFileExecuted ("null");
-  }
-
-
-
-  TEST_P (UnitTestFixture, null_property)
-  {
-    ASSERT_EQ (getHist<TH1> ("null", "test_property", true)->GetBinContent(1), 42);
   }
 
 

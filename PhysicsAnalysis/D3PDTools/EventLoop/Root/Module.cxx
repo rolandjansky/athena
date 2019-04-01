@@ -47,12 +47,6 @@ namespace EL
     }
 
     ::StatusCode Module ::
-    postInitialize (ModuleData& /*data*/)
-    {
-      return ::StatusCode::SUCCESS;
-    }
-
-    ::StatusCode Module ::
     postFirstEvent (ModuleData& /*data*/)
     {
       return ::StatusCode::SUCCESS;
