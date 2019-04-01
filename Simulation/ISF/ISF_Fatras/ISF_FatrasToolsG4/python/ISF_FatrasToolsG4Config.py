@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
@@ -19,7 +19,7 @@ def getFatrasParticleDecayHelper(name="ISF_FatrasParticleDecayHelper", **kwargs)
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("G4RandomStreamName"    , "FatrasG4") # TODO: read stream name "FatrasG4" from Fatras jobProperties
-    kwargs.setdefault("ParticleBroker"  , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'  , ISF_Flags.ParticleBroker())
     kwargs.setdefault("ParticleTruthSvc", simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PDGToG4ParticleConverter", 'ISF_FatrasPdgG4Particle')
     # the validation output
@@ -44,7 +44,7 @@ def getFatrasG4HadIntProcessor(name="ISF_FatrasG4HadIntProcessor", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ParticleBroker"      , 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('ParticleBroker'      , ISF_Flags.ParticleBroker())
     kwargs.setdefault("TruthRecordSvc"      , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PhysicsValidationTool"       , 'ISF_FatrasPhysicsValidationTool')
     kwargs.setdefault('ValidationMode'      , ISF_Flags.ValidationMode())

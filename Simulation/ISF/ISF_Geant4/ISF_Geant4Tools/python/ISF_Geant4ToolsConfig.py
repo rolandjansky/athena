@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -23,7 +23,8 @@ def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionToo
 ### Base Version
 
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('ParticleBroker'     , ISF_Flags.ParticleBroker())
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
     return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
 
@@ -41,12 +42,10 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
     return getTrackProcessorUserActionTool(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
     from AthenaCommon.SystemOfUnits import MeV
-    kwargs.setdefault('ParticleBroker'                     , 'ISF_AFIIParticleBrokerSvc')
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
     kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
