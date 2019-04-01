@@ -36,6 +36,7 @@ atlas_add_component( TrigMissingETHypo
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent TrigMissingETHypoLib DecisionHandling  )
 
 atlas_add_test( TrigMissingETHypoConfigMT SCRIPT python -m TrigMissingETHypo.TrigMissingETHypoConfigMT
+                PROPERTIES TIMEOUT 300
 		POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
