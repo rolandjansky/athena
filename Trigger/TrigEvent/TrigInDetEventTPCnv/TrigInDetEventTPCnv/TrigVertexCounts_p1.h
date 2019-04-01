@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,7 +22,7 @@ class TrigVertexCounts_p1 {
 
  public:
   TrigVertexCounts_p1 () {}
-  virtual ~TrigVertexCounts_p1 () {}
+  virtual ~TrigVertexCounts_p1 () = default;
 
  private:
   std::vector<unsigned int> m_vtxNtrks;
