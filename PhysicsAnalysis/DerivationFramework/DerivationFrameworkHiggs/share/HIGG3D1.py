@@ -148,7 +148,8 @@ if( generic_bool):
   HIGG3D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D1TruthThinningTool",
                                                                        ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
                                                                        ParticleSelectionString = truth_expression,
-                                                                       PreserveDescendants     = False,
+                                                                       #PreserveDescendants     = False,
+                                                                       PreserveGeneratorDescendants = True,
                                                                        PreserveAncestors      = True,
                                                                        SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
 else:
