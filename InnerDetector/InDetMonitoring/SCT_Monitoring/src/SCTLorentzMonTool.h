@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -65,14 +67,14 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
   enum Sides { side0, side1, bothSides, nSidesInclBoth };
 
-  int m_numberOfEvents;
+  int m_numberOfEvents{0};
   //@name Histograms related members
   //@{
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips
-  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces];
+  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces]{};
 
-  std::string m_path;
+  std::string m_path{""};
   //@}
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
@@ -81,7 +83,7 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   //@name Service members
   //@{
   ///SCT Helper class
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
   //@}
   //@name  Histograms related methods
   //@{

@@ -40,11 +40,7 @@ using namespace SCT_Monitoring;
  */
 // ====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name, const IInterface* parent):
-  ManagedMonitorToolBase(type, name, parent),
-  m_numberOfEvents{0},
-  m_phiVsNstrips{},
-  m_path{""},
-  m_pSCTHelper{nullptr} {
+  ManagedMonitorToolBase(type, name, parent) {
 }
 
 // ====================================================================================================
