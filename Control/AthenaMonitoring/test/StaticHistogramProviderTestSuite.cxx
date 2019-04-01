@@ -52,7 +52,7 @@ class StaticHistogramProviderTestSuite {
     void test_shouldCreateAndReturnJustOneHistogram() {
       TNamed histogram;
       HistogramDef histogramDef;
-      m_histogramFactory->mock_create = [&histogram, &histogramDef](const HistogramDef& def) {
+      m_histogramFactory->mock_create = [&histogram, &histogramDef](const HistogramDef& def) mutable {
         VALUE(&def) EXPECTED(&histogramDef);
         return &histogram;
       };

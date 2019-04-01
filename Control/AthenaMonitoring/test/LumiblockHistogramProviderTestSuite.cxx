@@ -37,7 +37,10 @@ class LumiblockHistogramProviderTestSuite {
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_shouldRetriveLumiBlockNumberFromGMTool),
+        REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNotDefined),
+        REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isDefinedAs_NaN),
+        REGISTER_TEST_CASE(test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber),
+        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
       };
     }
 
@@ -51,20 +54,67 @@ class LumiblockHistogramProviderTestSuite {
     void afterEach() {
     }
 
-    void test_shouldRetriveLumiBlockNumberFromGMTool() {
-      HistogramDef histogramDef;
-      histogramDef.opt = "kLBNHistoryDepth=10";
-      bool invoked = false;
+    void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNotDefined() {
+      try {
+        HistogramDef histogramDef;
+        LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+      } catch (HistogramException&) {
+        return;
+      }
+      assert(false);
+    }
 
-      m_gmTool->mock_lumiBlock = [&invoked]() {
-        invoked = true;
-        return 0;
+    void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isDefinedAs_NaN() {
+      try {
+        HistogramDef histogramDef;
+        histogramDef.opt = "kLBNHistoryDepth=abc";
+        LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+      } catch (HistogramException&) {
+        return;
+      }
+      assert(false);
+    }
+
+    void test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber() {
+      HistogramDef histogramDef;
+      histogramDef.opt = "kLBNHistoryDepth=12345";
+      LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+    }
+
+    void test_shouldCreateNewHistogramWithUpdatedAlias() {
+      auto expectedFlow = {
+        make_tuple(0, "test alias(0-2)"), 
+        make_tuple(1, "test alias(0-2)"),
+        make_tuple(2, "test alias(0-2)"),
+        make_tuple(3, "test alias(3-5)"),
+        make_tuple(4, "test alias(3-5)"),
+        make_tuple(5, "test alias(3-5)"),
+        make_tuple(6, "test alias(6-8)"),
+        make_tuple(7, "test alias(6-8)"),
+        make_tuple(8, "test alias(6-8)"),
+        make_tuple(9, "test alias(9-11)"),
       };
 
-      LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
-      testObj.histogram();
+      TNamed histogram;
+      HistogramDef histogramDef;
+      histogramDef.alias = "test alias";
+      histogramDef.opt = "kLBNHistoryDepth=3";
 
-      VALUE(invoked) EXPECTED(true);
+      LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+
+      for (auto input : expectedFlow) {
+        const unsigned lumiBlock = get<0>(input);
+        const string expectedAlias = get<1>(input);
+
+        m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
+        m_histogramFactory->mock_create = [&histogram, expectedAlias](const HistogramDef& def) mutable {
+          VALUE(def.alias) EXPECTED(expectedAlias);
+          return &histogram;
+        };
+
+        TNamed* const result = testObj.histogram();
+        VALUE(result) EXPECTED(&histogram);
+      }
     }
 
   // ==================== Helper methods ====================
