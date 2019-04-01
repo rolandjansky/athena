@@ -21,7 +21,13 @@ t5 = RNG("dSFMT", name="RNGdSFMT2")
 t6 = RNG("Ranlux64", name="RNGRanlux64")
 t7 = RNG("Ranecu", name="RNGRanecu")
 # Merge
-t1.mergeAll((dSFMT("test_seed7"), t2, t3, t4, t5, t6, t7,))
+t1.merge(dSFMT("test_seed7"))
+t1.merge(t2)
+t1.merge(t3)
+t1.merge(t4)
+t1.merge(t5)
+t1.merge(t6)
+t1.merge(t7)
 # Flag as merged to prevent error on destruction
 t1._wasMerged = True
 

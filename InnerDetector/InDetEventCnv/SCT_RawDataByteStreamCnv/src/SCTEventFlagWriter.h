@@ -37,6 +37,9 @@ class SCTEventFlagWriter : public AthReentrantAlgorithm
   /** Execute */
   virtual StatusCode execute(const EventContext& ctx) const override;
 
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
 
   /** Tool that keeps track of modules that give rise to errors in the bytestream. */

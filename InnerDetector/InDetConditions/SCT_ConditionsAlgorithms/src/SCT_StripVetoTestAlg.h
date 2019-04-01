@@ -26,10 +26,12 @@ class SCT_StripVetoTestAlg : public AthReentrantAlgorithm {
   SCT_StripVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_StripVetoTestAlg() = default;
 
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
-   
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   ToolHandle<ISCT_ConditionsTool> m_stripVetoTool{this, "StripVetoTool", "SCT_StripVetoTool", "Tool to retrieve vetoed strips"};
 };

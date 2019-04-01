@@ -43,9 +43,9 @@
 TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_driftFunctionTool("TRT_DriftFunctionTool", this),
-  m_trtcaldbSvc("TRT_CalDbSvc", name),
+  m_trtcaldbSvc("TRT_CalDbTool", this),
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
-  m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+  m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_TRTHelper(0),
   m_trtman(0),
   m_firstEventWarnings(true)
@@ -55,7 +55,7 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   declareProperty("TRTDriftFunctionTool",  m_driftFunctionTool);
   declareProperty("TRTCalDbSvc",           m_trtcaldbSvc);
   declareProperty("NeighbourSvc",          m_neighbourSvc);
-  declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
+  declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
 
 }
 
@@ -84,7 +84,7 @@ StatusCode TRT_PrepDataToxAOD::initialize()
 
   CHECK ( m_trtcaldbSvc.retrieve() );
 
-  CHECK ( m_TRTStrawSummarySvc.retrieve() );
+  CHECK ( m_TRTStrawSummaryTool.retrieve() );
 
   CHECK( m_driftFunctionTool.retrieve() );
 
@@ -276,8 +276,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
       AUXDATA(xprd, unsigned int, bitPattern) = word;
       
       char gas_type = kUnset;
-      if (!m_TRTStrawSummarySvc.empty()) {
-        int stat = m_TRTStrawSummarySvc->getStatusHT(surfaceID);
+      if (!m_TRTStrawSummaryTool.empty()) {
+        int stat = m_TRTStrawSummaryTool->getStatusHT(surfaceID);
         
         if       ( stat==1 || stat==4 ) { gas_type = kArgon; }
         else if  ( stat==5 )            { gas_type = kKrypton; }

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -49,6 +51,8 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode execute(const EventContext& ctx) const;
   virtual StatusCode finalize();
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
 private:
 

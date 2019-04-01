@@ -28,27 +28,6 @@ namespace Trk {
   }
 
 
-  const std::vector< std::vector<TLorentzVector> >   & VxCascadeInfo::getParticleMoms() const 
-  {     
-/*        std::vector< std::vector<TLorentzVector> >  result;
-        for(int iv=0; iv<(int)m_particleMomAtVertex.size(); iv++){
-	   std::vector<TLorentzVector> tmpMoms =  m_particleMomAtVertex[iv];
-	   result.push_back( tmpMoms );}
-        return  result; */
-	
-	return m_particleMomAtVertex;
-
-  }
-
-  const std::vector< Amg::MatrixX >   & VxCascadeInfo::getCovariance() const 
-  {     return m_covarianceAtVertex; }
-
-  int VxCascadeInfo::nDoF() const 
-  {     return m_nDoF; }
-
-  double VxCascadeInfo::fitChi2() const 
-  {     return m_fullChi2; }
-
 
   void VxCascadeInfo::setFullCascadeCovariance(const Amg::MatrixX & COV) 
   {

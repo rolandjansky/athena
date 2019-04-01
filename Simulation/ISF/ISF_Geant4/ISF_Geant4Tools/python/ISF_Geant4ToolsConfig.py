@@ -93,7 +93,6 @@ def getAFIIGeant4Tool(name="ISF_AFIIGeant4Tool", **kwargs):
     return getPassBackGeant4Tool(name, **kwargs)
 
 def getLongLivedGeant4Tool(name="ISF_LongLivedGeant4Tool", **kwargs):
-    kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
     kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
     return getFullGeant4Tool(name, **kwargs)
 

@@ -31,9 +31,11 @@ class SCT_ConditionsSummaryTestAlg : public AthReentrantAlgorithm {
   SCT_ConditionsSummaryTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
   virtual ~SCT_ConditionsSummaryTestAlg() = default;
 
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
    
  private:
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool", "ConditionsSummaryTool for SCT"};

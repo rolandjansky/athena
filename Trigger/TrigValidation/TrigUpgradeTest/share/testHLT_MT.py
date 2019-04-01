@@ -479,7 +479,6 @@ else:
     svcMgr.MessageSvc.Format = "%t  " + svcMgr.MessageSvc.Format   # add time stamp
     if hasattr(svcMgr.MessageSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
         svcMgr.MessageSvc.useErsError = ['*']
-        svcMgr.MessageSvc.alwaysUseMsgStream = True
 
 #-------------------------------------------------------------
 # Apply modifiers

@@ -1,18 +1,38 @@
 # 
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
 # 
 #  OutputLevel: INFO < DEBUG < VERBOSE 
 #
 
 from AthenaCommon.Include import include
-from AthenaCommon.Constants import VERBOSE,DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE,DEBUG
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.DetFlags import DetFlags
-import AthenaCommon.CfgMgr as CfgMgr
-import AthenaCommon.CfgGetter as CfgGetter
 
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from AthenaCommon.CFElements import parOR, seqAND
+
+#-----------------------------------------------------#
+### Used the algorithms as Step1 "muFast step" ###
+### Load data from Muon detectors ###
+#-----------------------------------------------------#
+#import MuonRecExample.MuonRecStandaloneOnlySetup
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
+muonRecFlags.doTrackPerformance    = True
+muonRecFlags.TrackPerfSummaryLevel = 2
+muonRecFlags.TrackPerfDebugLevel   = 5
+muonRecFlags.doNSWNewThirdChain    = False
+muonCombinedRecFlags.doCaloTrkMuId = False
+muonCombinedRecFlags.printSummary = False
+
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+
+ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+
+#-----------------------------------------------------#
 # Set InDet Flags
+#-----------------------------------------------------#
 def inDetSetup():
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doCaloSeededBrem = False
@@ -29,37 +49,11 @@ def inDetSetup():
     ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
-from InDetRecExample.InDetKeys import InDetKeys
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags
 
-
-# menu components   
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-### for Control Flow ###
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-
-### Used the algorithms as Step1 "muFast step" ###
-### Load data from Muon detectors ###
-#import MuonRecExample.MuonRecStandaloneOnlySetup
-from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-muonRecFlags.doTrackPerformance    = True
-muonRecFlags.TrackPerfSummaryLevel = 2
-muonRecFlags.TrackPerfDebugLevel   = 5
-muonRecFlags.doNSWNewThirdChain    = False
-muonCombinedRecFlags.doCaloTrkMuId = False
-muonCombinedRecFlags.printSummary = False
-from RecExConfig.RecFlags import rec
-from AthenaCommon.AlgSequence import AthSequencer
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, EventViewCreatorAlgorithmWithMuons
-
-ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-
+#-----------------------------------------------------#
 ### ************* Step1  ************* ###
-
-def muFastStep():
+#-----------------------------------------------------#
+def muFastSequence():
 
     ### set the EVCreator ###
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
@@ -69,7 +63,7 @@ def muFastStep():
     l2MuViewsMaker.Views = "MUViewRoIs"
 
     ### get muFast reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muFastRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence
     muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
     
     l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name() 
@@ -92,9 +86,10 @@ def muFastStep():
                          HypoToolGen = TrigMufastHypoToolFromDict )
 
 
+#-----------------------------------------------------#
 ### ************* Step2  ************* ###
-
-def muCombStep():
+#-----------------------------------------------------#
+def muCombSequence():
 
     ### set the EVCreator ###
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
@@ -104,7 +99,7 @@ def muCombStep():
     l2muCombViewsMaker.Views = "EMCombViewRoIs"
     
     ### get muComb reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muCombRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence
     muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
     l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
@@ -126,10 +121,13 @@ def muCombStep():
                          HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
+#-----------------------------------------------------#
 ### ************* Step3  ************* ###
-
+#-----------------------------------------------------#
+######################
 ###  EFMSonly step ###
-def muEFMSStep():
+######################
+def muEFMSSequence():
 
     efmsViewsMaker = EventViewCreatorAlgorithm("efmsViewsMaker", OutputLevel=DEBUG)
     efmsViewsMaker.ViewFallThrough = True
@@ -138,7 +136,7 @@ def muEFMSStep():
     efmsViewsMaker.Views = "MUEFMSViewRoIs"
 
     ### get EF reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muEFSARecoSequence
     muEFMSRecoSequence, sequenceOut = muEFSARecoSequence( efmsViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efmsViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
@@ -158,8 +156,10 @@ def muEFMSStep():
                          Hypo        = trigMuonEFMSHypo,
                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
+######################
 ###  EFSA step ###
-def muEFSAStep():
+######################
+def muEFSASequence():
 
     efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker", OutputLevel=DEBUG)
     efsaViewsMaker.ViewFallThrough = True
@@ -168,7 +168,7 @@ def muEFSAStep():
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
    
     ### get EF reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
     muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
@@ -188,8 +188,11 @@ def muEFSAStep():
                          Hypo        = trigMuonEFSAHypo,
                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
-def muEFCBStep():
 
+######################
+###  EFCB seq ###
+######################
+def muEFCBSequence():
     efcbViewNode = parOR("efcbViewNode")
     
     efcbViewsMaker = EventViewCreatorAlgorithm("efcbViewsMaker", OutputLevel=DEBUG)
@@ -201,11 +204,10 @@ def muEFCBStep():
    
 
     ### get EF reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI", OutputLevel=DEBUG )
  
-    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
-    
+    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()    
     
     # setup EFCB hypo
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
@@ -222,8 +224,10 @@ def muEFCBStep():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
+######################
 ### EF SA full scan ###
-def muEFSAFSStep():
+######################
+def muEFSAFSSequence():
 
     efsafsInputMaker = EventViewCreatorAlgorithm("MuonFSInputMaker", RoIsLink="initialRoI",OutputLevel=VERBOSE)
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
@@ -232,7 +236,7 @@ def muEFSAFSStep():
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
     muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS', OutputLevel=DEBUG )
  
     efsafsInputMaker.ViewNodeName = muEFSAFSRecoSequence.name()
@@ -252,9 +256,11 @@ def muEFSAFSStep():
                          Hypo        = trigMuonEFSAFSHypo,
                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
 
+######################
 ### EF CB full scan ###
-def muEFCBFSStep():
-
+######################
+def muEFCBFSSequence():
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
     efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker")
     efcbfsInputMaker.ViewFallThrough = True
     efcbfsInputMaker.ViewPerRoI = True
@@ -264,11 +270,10 @@ def muEFCBFSStep():
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.MuonsLink = "feature"
 
-    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBFSRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS", OutputLevel=DEBUG )
  
     efcbfsInputMaker.ViewNodeName = muEFCBFSRecoSequence.name()
-    
     
     # setup EFCB hypo
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
@@ -286,8 +291,10 @@ def muEFCBFSStep():
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 
+######################
 ### l2Muiso step ###
-def muIsoStep():
+######################
+def muIsoSequence():
 
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker", OutputLevel=DEBUG)
     l2muIsoViewsMaker.ViewFallThrough = True
@@ -296,7 +303,7 @@ def muIsoStep():
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
 
     ### get EF reco sequence ###    
-    from TrigUpgradeTest.MuonSetup import l2muisoRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import l2muisoRecoSequence
     l2muisoRecoSequence, sequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs, OutputLevel=DEBUG )
  
     l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
@@ -318,6 +325,9 @@ def muIsoStep():
                          HypoToolGen = TrigMuisoHypoToolFromDict )
   
   
+######################
+### TrkMaterialProvider ###
+######################
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)

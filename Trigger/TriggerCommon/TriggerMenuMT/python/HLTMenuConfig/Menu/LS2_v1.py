@@ -32,8 +32,15 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        #['mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
-        #['mu8_L1MU6',     [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_mu6fast_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_mu6Comb_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_mu6_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+
+        ['HLT_mu20_ivar_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_2mu6Comb_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_2mu6_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+
+        ['HLT_mu6noL1_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
 
      ]
     TriggerFlags.EgammaSlice.signatures = [
@@ -43,6 +50,7 @@ def setupMenu():
         ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
         ]
     TriggerFlags.CombinedSlice.signatures = [
+        
         #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
         ]
     TriggerFlags.JetSlice.signatures = [ ]

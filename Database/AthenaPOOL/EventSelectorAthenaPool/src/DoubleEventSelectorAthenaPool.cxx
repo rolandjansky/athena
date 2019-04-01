@@ -62,8 +62,7 @@ DoubleEventSelectorAthenaPool::DoubleEventSelectorAthenaPool(const std::string& 
   declareProperty("CollectionTree",      m_collectionTree = "POOLContainer");
   declareProperty("Connection",          m_connection);
   declareProperty("RefName",             m_refName);
-  declareProperty("PrimaryAttributeListKey",    m_primaryAttrListKey = "Input1");
-  declareProperty("SecondaryAttributeListKey",    m_secondaryAttrListKey = "Input2");
+  declareProperty("AttributeListKey",    m_attrListKey = "Input");
   declareProperty("PrimaryInputCollections",    m_primaryInputCollectionsProp);
   declareProperty("SecondaryaryInputCollections",    m_secondaryInputCollectionsProp);
   declareProperty("Query",               m_query = "");
@@ -598,25 +597,37 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
   std::lock_guard<CallMutex> lockGuard(m_callLock);
   if (!m_primaryEventStreamingTool.empty() && m_primaryEventStreamingTool->isClient()) {
     void* tokenStr = nullptr;
+    void* tokenStr_secondary = nullptr;
     unsigned int status = 0;
     if (!m_primaryEventStreamingTool->getLockedEvent(&tokenStr, status).isSuccess()) {
-      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool");
+      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool for primaryEventStreamingTool");
+      delete (char*)tokenStr; tokenStr = nullptr;
+      return(StatusCode::FAILURE);
+    }
+    if (!m_secondaryEventStreamingTool->getLockedEvent(&tokenStr_secondary, status).isSuccess()) {
+      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool for secondaryEventStreamingTool");
       delete (char*)tokenStr; tokenStr = nullptr;
       return(StatusCode::FAILURE);
     }
     AthenaAttributeList* athAttrList = new AthenaAttributeList();
-    ATH_MSG_DEBUG("Try to record m_primaryAttrListKey to StoreGate.");
-    if (!eventStore()->record(athAttrList, m_primaryAttrListKey.value()).isSuccess()) {
+    ATH_MSG_DEBUG("Try to record m_attrListKey to StoreGate.");
+    if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
       ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
       delete (char*)tokenStr; tokenStr = nullptr;
+      delete (char*)tokenStr_secondary; tokenStr_secondary = nullptr;
       delete athAttrList; athAttrList = nullptr;
       return(StatusCode::FAILURE);
     }
     athAttrList->extend("eventRef", "string");
+    athAttrList->extend("eventRef_secondary", "string");
     (*athAttrList)["eventRef"].data<std::string>() = std::string((char*)tokenStr);
+    (*athAttrList)["eventRef_secondary"].data<std::string>() = std::string((char*)tokenStr_secondary);
     Token token;
+    Token token_secondary;
     token.fromString(std::string((char*)tokenStr));
+    token_secondary.fromString(std::string((char*)tokenStr_secondary));
     delete (char*)tokenStr; tokenStr = nullptr;
+    delete (char*)tokenStr_secondary; tokenStr_secondary = nullptr;
     Guid guid = token.dbID();
     if (guid != m_primaryGuid && m_processPrimaryMetadata.value()) {
       if (m_evtCount >= 0 && m_primaryGuid != Guid::null()) {
@@ -630,40 +641,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
     }
     return(StatusCode::SUCCESS);
   }
-  if (!m_secondaryEventStreamingTool.empty() && m_secondaryEventStreamingTool->isClient()) {
-    void* tokenStr = nullptr;
-    unsigned int status = 0;
-    if (!m_secondaryEventStreamingTool->getLockedEvent(&tokenStr, status).isSuccess()) {
-      ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool");
-      delete (char*)tokenStr; tokenStr = nullptr;
-      return(StatusCode::FAILURE);
-    }
-    AthenaAttributeList* athAttrList = new AthenaAttributeList();
-    ATH_MSG_DEBUG("Try to record m_secondaryAttrListKey to StoreGate.");
-    if (!eventStore()->record(athAttrList, m_secondaryAttrListKey.value()).isSuccess()) {
-      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-      delete (char*)tokenStr; tokenStr = nullptr;
-      delete athAttrList; athAttrList = nullptr;
-      return(StatusCode::FAILURE);
-    }
-    athAttrList->extend("eventRef", "string");
-    (*athAttrList)["eventRef"].data<std::string>() = std::string((char*)tokenStr);
-    Token token;
-    token.fromString(std::string((char*)tokenStr));
-    delete (char*)tokenStr; tokenStr = nullptr;
-    Guid guid = token.dbID();
-    if (guid != m_secondaryGuid && m_processSecondaryMetadata.value()) {
-      if (m_evtCount >= 0 && m_secondaryGuid != Guid::null()) {
-        // Fire EndInputFile incident
-        FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_secondaryGuid.toString());
-        m_incidentSvc->fireIncident(endInputFileIncident);
-      }
-      m_secondaryGuid = guid;
-      FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_secondaryGuid.toString());
-      m_incidentSvc->fireIncident(beginInputFileIncident);
-    }
-    return(StatusCode::SUCCESS);
-  }
+
   for (const auto& tool : m_helperTools) {
     if (!tool->preNext().isSuccess()) {
       ATH_MSG_WARNING("Failed to preNext() " << tool->name());
@@ -854,8 +832,9 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
           return(StatusCode::FAILURE);
         }
       } else {
-        if (!recordAttributeList(m_primaryHeaderIterator, m_primaryAttrListKey).isSuccess()) {
-          ATH_MSG_ERROR("Failed to record Primary AttributeList.");
+        ATH_MSG_DEBUG("Try recording AttributeList");
+        if (!recordAttributeList(m_primaryHeaderIterator, m_attrListKey).isSuccess()) {
+          ATH_MSG_ERROR("Failed to record AttributeList.");
           return(StatusCode::FAILURE);
         }
       }
@@ -874,8 +853,9 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
           return(StatusCode::FAILURE);
         }
       } else {
-        if (!recordAttributeList(m_secondaryHeaderIterator, m_secondaryAttrListKey).isSuccess()) {
-          ATH_MSG_ERROR("Failed to record SecondaryAttributeList.");
+        ATH_MSG_DEBUG("Try appending to AttributeList");
+        if (!recordAttributeList(m_secondaryHeaderIterator, m_attrListKey, "secondary").isSuccess()) {
+          ATH_MSG_ERROR("Failed to append to AttributeList.");
           return(StatusCode::FAILURE);
         }
       }
@@ -903,15 +883,8 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
         break;
       }
       const DataHandle<AthenaAttributeList> primaryOldAttrList;
-      if (eventStore()->retrieve(primaryOldAttrList, m_primaryAttrListKey.value()).isSuccess()) {
+      if (eventStore()->retrieve(primaryOldAttrList, m_attrListKey.value()).isSuccess()) {
         if (!eventStore()->removeDataAndProxy(primaryOldAttrList.cptr()).isSuccess()) {
-          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-          return(StatusCode::FAILURE);
-        }
-      }
-      const DataHandle<AthenaAttributeList> secondaryOldAttrList;
-      if (eventStore()->retrieve(secondaryOldAttrList, m_secondaryAttrListKey.value()).isSuccess()) {
-        if (!eventStore()->removeDataAndProxy(secondaryOldAttrList.cptr()).isSuccess()) {
           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
           return(StatusCode::FAILURE);
         }
@@ -972,7 +945,7 @@ StatusCode DoubleEventSelectorAthenaPool::createAddress(const IEvtSelector::Cont
                                                               IOpaqueAddress*& iop) const {
   std::string tokenStr;
   const DataHandle<AthenaAttributeList> attrList;
-  if (eventStore()->retrieve(attrList, m_primaryAttrListKey.value()).isSuccess()) {
+  if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
     try {
       if (m_refName.value().empty()) {
         tokenStr = (*attrList)["eventRef"].data<std::string>();
@@ -986,7 +959,7 @@ StatusCode DoubleEventSelectorAthenaPool::createAddress(const IEvtSelector::Cont
       return(StatusCode::FAILURE);
     }
   } else {
-    ATH_MSG_WARNING("Cannot find PrimaryAthenaAttribute, key = " << m_primaryAttrListKey.value());
+    ATH_MSG_WARNING("Cannot find PrimaryAthenaAttribute, key = " << m_attrListKey.value());
     tokenStr = m_primaryPoolCollectionConverter->retrieveToken(m_primaryHeaderIterator, m_refName.value());
   }
   iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "EventSelector");
@@ -1322,27 +1295,53 @@ PoolCollectionConverter* DoubleEventSelectorAthenaPool::getCollectionCnv(std::ve
   return(nullptr);
 }
 //__________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::recordAttributeList(pool::ICollectionCursor* HeaderIterator, Gaudi::Property<std::string> attrListKey) const {
+StatusCode DoubleEventSelectorAthenaPool::recordAttributeList(pool::ICollectionCursor* HeaderIterator,
+                                                              Gaudi::Property<std::string> attrListKey,
+                                                              std::string suffix) const {
+  AthenaAttributeList* athAttrList = nullptr;
+  // Retrive AttributeList and extend it with suffix
+  if (!suffix.empty()) {
+    suffix = "_" + suffix;
+    if (!eventStore()->retrieve(athAttrList, attrListKey.value()).isSuccess()) {
+      ATH_MSG_ERROR("Cannot retrieve AttributeList from StoreGate.");
+      return(StatusCode::FAILURE);
+    }
+  }
   // Get access to AttributeList
-  ATH_MSG_DEBUG("Get AttributeList from the collection");
-  // MN: accessing only attribute list, ignoring token list
-  const coral::AttributeList& attrList = HeaderIterator->currentRow().attributeList();
-  ATH_MSG_DEBUG("AttributeList size " << attrList.size());
-  AthenaAttributeList* athAttrList = new AthenaAttributeList(attrList);
-  if (!eventStore()->record(athAttrList, attrListKey.value()).isSuccess()) {
-    ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-    delete athAttrList; athAttrList = nullptr;
-    return(StatusCode::FAILURE);
+  else {
+    ATH_MSG_DEBUG("Get AttributeList from the collection");
+    // MN: accessing only attribute list, ignoring token list
+    const coral::AttributeList& attrList = HeaderIterator->currentRow().attributeList();
+    ATH_MSG_DEBUG("AttributeList size " << attrList.size());
+    athAttrList = new AthenaAttributeList(attrList);
+    if (!eventStore()->record(athAttrList, attrListKey.value()).isSuccess()) {
+      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
+      delete athAttrList; athAttrList = nullptr;
+      return(StatusCode::FAILURE);
+    }
   }
   const pool::TokenList& tokenList = HeaderIterator->currentRow().tokenList();
   for (pool::TokenList::const_iterator iter = tokenList.begin(), last = tokenList.end(); iter != last; ++iter) {
-    athAttrList->extend(iter.tokenName(), "string");
-    (*athAttrList)[iter.tokenName()].data<std::string>() = iter->toString();
-    ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() << " = " << iter->toString() << ".");
+    athAttrList->extend(iter.tokenName() + suffix, "string");
+    (*athAttrList)[iter.tokenName() + suffix].data<std::string>() = iter->toString();
+    ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() + suffix << " = " << iter->toString() << ".");
   }
-  athAttrList->extend("eventRef", "string");
-  (*athAttrList)["eventRef"].data<std::string>() = HeaderIterator->eventRef().toString();
-  ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << HeaderIterator->eventRef().toString() << ".");
+  athAttrList->extend("eventRef" + suffix, "string");
+  (*athAttrList)["eventRef" + suffix].data<std::string>() = HeaderIterator->eventRef().toString();
+  ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef" + suffix + " = " << HeaderIterator->eventRef().toString() << ".");
+  
+  // copy all atributes from extra attribute list
+  // to the primary attribute list with a suffix 
+  if (!suffix.empty()) {
+    athAttrList->extend("hasSecondaryInput", "bool");
+    (*athAttrList)["hasSecondaryInput"].data<bool>() = true;
+    const coral::AttributeList& extraAttrList = HeaderIterator->currentRow().attributeList();
+    for (const auto &attr : extraAttrList) {
+      athAttrList->extend(attr.specification().name() + suffix, attr.specification().type());
+      (*athAttrList)[attr.specification().name() + suffix] = attr;
+    }
+  }
+    
   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

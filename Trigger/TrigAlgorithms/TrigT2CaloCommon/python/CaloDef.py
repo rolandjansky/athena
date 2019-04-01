@@ -34,6 +34,13 @@ def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
    algo.OutputLevel=OutputLevel
    return algo
 
+def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR) :
+   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+   algo = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=True, cells=inputEDM)
+   algo.CaloClusters="caloclusters"
+   algo.OutputLevel=OutputLevel
+   return algo
+
 def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
     setMinimalCaloSetup();
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
@@ -112,4 +119,13 @@ def HLTFSTopoRecoSequence(RoIs='FSJETRoI'):
     for tool in topoClusterMaker.ClusterMakerTools:
         print tool
 
+    return (RecoSequence, topoClusterMaker.CaloClusters)
+
+def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
+    cellMake = HLTCellMaker(RoIs)
+    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMake.CellsName)
+    RecoSequence = parOR("LCTopoClusterRecoSequence",[cellMake,topoClusterMaker])
+    print topoClusterMaker
+    for tool in topoClusterMaker.ClusterMakerTools:
+        print tool
     return (RecoSequence, topoClusterMaker.CaloClusters)

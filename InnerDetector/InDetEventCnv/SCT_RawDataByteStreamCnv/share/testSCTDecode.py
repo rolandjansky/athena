@@ -13,7 +13,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -99,10 +100,12 @@ include("InDetRecExample/InDetReadBS_jobOptions.py")
 topSequence.InDetSCTRawDataProvider.OutputLevel = DEBUG
 topSequence.InDetSCTRawDataProvider.ProviderTool.Decoder.OutputLevel = INFO
 topSequence.InDetSCTEventFlagWriter.OutputLevel = DEBUG
+if numThreads >= 2:
+    topSequence.InDetSCTRawDataProvider.Cardinality = numThreads
+    topSequence.InDetSCTEventFlagWriter.Cardinality = numThreads
 
 # Set up SCT clsutering
 from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
@@ -110,18 +113,32 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
                                                 UsePixelCalibCondDB  = False,
                                                 PixelLorentzAngleTool = None,
                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
+# SCT conditions setups
+from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+sct_ConfigurationConditionsToolSetup.setup()
+from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName()]
+
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetSCT_ClusteringTool",
                                                     OutputLevel = DEBUG,
                                                     globalPosAlg = InDetClusterMakerTool,
-                                                    timeBins = "01X")
+                                                    timeBins = "01X",
+                                                    conditionsTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool())
 from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
 InDetSCT_Clusterization = InDet__SCT_Clusterization(name = "InDetSCT_Clusterization",
                                                     OutputLevel = DEBUG,
                                                     clusteringTool = InDetSCT_ClusteringTool,
+                                                    conditionsTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool(),
                                                     DataObjectName = "SCT_RDOs",
                                                     ClustersName = "SCT_Clusters",
                                                     maxFiredStrips = 384)
+if numThreads >= 2:
+    InDetSCT_Clusterization.Cardinality = numThreads
+
 topSequence += InDetSCT_Clusterization
 
 # Set up SCT AxAOD converters
@@ -135,26 +152,24 @@ xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD(name = "SCTxAOD_SCT_PrepDataToxAOD"
                                              UseTruthInfo = False,
                                              WriteSDOs = False)
 topSequence += xAOD_SCT_PrepDataToxAOD
+if numThreads >= 2:
+    xAOD_SCT_RawDataToxAOD.Cardinality = numThreads
+    xAOD_SCT_PrepDataToxAOD.Cardinality = numThreads
 
 # Set up SCT_ConditionsSummaryTestAlg with SCT_FlaggedConditionTool
 from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
 sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
 sct_FlaggedConditionToolSetup.setup()
-from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
 sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
 sct_ConditionsSummaryToolSetup.setup()
 SCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-SCT_ConditionsSummaryTool.ConditionsTools=[sct_FlaggedConditionToolSetup.getTool().getFullName()]
+SCT_ConditionsSummaryTool.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                           sct_FlaggedConditionToolSetup.getTool().getFullName()]
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 topSequence += SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)
 
 # Print algorithms
 print topSequence
-
-# SCT conditions setup
-from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
-sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-sct_ConfigurationConditionsToolSetup.setup()
 
 # Set the number of events to be processed
 theApp.EvtMax = 20
@@ -163,3 +178,8 @@ theApp.EvtMax = 20
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+

@@ -228,5 +228,5 @@ StreamAll2           INFO Records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
-ItemListSvc         DEBUG STREAM StreamAll2 has (8) items
+ItemListSvc         DEBUG STREAM StreamAll2 has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_StreamAll2

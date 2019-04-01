@@ -9,12 +9,12 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
 class AtlasDetectorID;
@@ -68,9 +68,9 @@ private:
   const RpcIdHelper* m_rpcId;
   const TgcIdHelper* m_tgcId;
 
-  ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc;
+  ToolHandle<ITRT_CalDbTool> m_trtcaldbSvc;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; 
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; 
   ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;
   ToolHandle < ITRT_DriftFunctionTool > 	m_driftFunctionTool; 
 

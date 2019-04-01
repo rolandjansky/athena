@@ -55,6 +55,9 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
   /** Execute */
   virtual StatusCode execute(const EventContext& ctx) const override;
 
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
 
   /** Region Selector service for Athena. */

@@ -33,7 +33,7 @@ AthenaPoolAddressProviderSvc::AthenaPoolAddressProviderSvc(const std::string& na
 	m_guid() {
    declareProperty("DataHeaderKey",       m_dataHeaderKey = "EventSelector");
    declareProperty("DataHeaderIterator",  m_dataHeaderIterator = true);
-   declareProperty("SecondaryAttrListKey",    m_secondaryAttrListKey = "");
+   declareProperty("AttributeListKey",    m_attrListKey = "");
 }
 //________________________________________________________________________________
 AthenaPoolAddressProviderSvc::~AthenaPoolAddressProviderSvc() {
@@ -158,19 +158,19 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
       }
    }
    // second data header
-   if (m_secondaryAttrListKey.value() != "") {
+   if (m_attrListKey.value() != "") {
       const DataHandle<AthenaAttributeList> attrList;
       std::string tokenStr;
-      if (eventStore()->retrieve(attrList, m_secondaryAttrListKey.value()).isSuccess()) {
+      if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
          try {
-            tokenStr = (*attrList)["eventRef"].data<std::string>();
-            ATH_MSG_DEBUG("found SecondaryAthenaAttribute, name = eventRef = " << tokenStr);
+            tokenStr = (*attrList)["eventRef_secondary"].data<std::string>();
+            ATH_MSG_DEBUG("found AthenaAttribute, name = eventRef_secondary = " << tokenStr);
          } catch (std::exception &e) {
             ATH_MSG_ERROR(e.what());
             return (StatusCode::FAILURE);
          }
       } else {
-         ATH_MSG_ERROR("Cannot find AthenaAttribute, key = " << m_secondaryAttrListKey.value());
+         ATH_MSG_ERROR("Cannot find AthenaAttribute, key = " << m_attrListKey.value());
          return (StatusCode::FAILURE);
       }
       IOpaqueAddress* iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "SecondaryEventSelector");
