@@ -353,7 +353,7 @@ def getKernel_ATLFASTII_QS(name="ISF_Kernel_ATLFASTII_QS", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonAFII_QS_Geant4Selector',
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
-                                                       'ISF_DefaultLegacyAFII_QS_FastCaloSimSelector' ] )
+                                                       'ISF_DefaultLegacyAFIIFastCaloSimSelector' ] )
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector'  ]           )
     kwargs.setdefault("InputConverter"             , 'ISF_LongLivedInputConverter'                      )
