@@ -79,7 +79,7 @@ public:
   /// Overrride configured booking path
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
-  ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
+  virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t lumiBlock();
 private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "EventInfo name" };

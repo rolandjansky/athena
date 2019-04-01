@@ -1,3 +1,6 @@
+#ifndef AthenaMonitoring_test_mocks_MockHistogramFactory_h
+#define AthenaMonitoring_test_mocks_MockHistogramFactory_h
+
 #include <functional>
 
 #include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
@@ -12,3 +15,5 @@ class MockHistogramFactory : public Monitored::HistogramFactory {
       return mock_create ? mock_create(def) : nullptr;
     }
 };
+
+#endif /* AthenaMonitoring_test_mocks_MockHistogramFactory_h */
