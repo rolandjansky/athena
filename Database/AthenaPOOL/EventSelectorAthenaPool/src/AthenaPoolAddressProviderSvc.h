@@ -73,7 +73,7 @@ private: // properties
 
    /// Attribute list key of a secondary input file. If non-zero,
    /// creates a new IOpaqueAddress for that file and records it.
-   Gaudi::Property<std::string> m_secondaryAttrListKey;
+   Gaudi::Property<std::string> m_attrListKey;
 
 private: // internal helper functions
    /// Return pointer to active event SG

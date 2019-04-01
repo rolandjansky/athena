@@ -57,7 +57,7 @@ def _configureReadAthenaPoolDouble():
         svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvcPrimary")
     svcMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc/AthenaPoolAddressProviderSvcPrimary" ]
     svcMgr.AthenaPoolAddressProviderSvcPrimary.DataHeaderKey = "EventSelector"
-    svcMgr.AthenaPoolAddressProviderSvcPrimary.SecondaryAttrListKey = "Input2"
+    svcMgr.AthenaPoolAddressProviderSvcPrimary.AttributeListKey = "Input"
     if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvcSecondary'):
         svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvcSecondary")
     svcMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc/AthenaPoolAddressProviderSvcSecondary" ]
