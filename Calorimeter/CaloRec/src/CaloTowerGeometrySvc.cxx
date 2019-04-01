@@ -25,12 +25,12 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_towerPhiBins(64)                          
   , m_towerPhiMin(-_pi)                         //----------------------------------------//
   , m_towerPhiMax(_pi)                          // FCal vertical and horizontal cell      //
-  , m_fcal1Xslice(4.)                           // slicing creates "mini-cells" which are //
-  , m_fcal1Yslice(4.)                           // then projected onto towers. The mini-  //
-  , m_fcal2Xslice(4.)                           // cell signal is 1/(Nx x Ny) x Ecell,    //
-  , m_fcal2Yslice(6.)                           // where Nx(y) are the number of x(y)     //
-  , m_fcal3Xslice(6.)                           // slices.                                //
-  , m_fcal3Yslice(6.)                           //----------------------------------------//
+  , m_fcal1Xslice(8.)                           // slicing creates "mini-cells" which are //
+  , m_fcal1Yslice(8.)                           // then projected onto towers. The mini-  //
+  , m_fcal2Xslice(8.)                           // cell signal is 1/(Nx x Ny) x Ecell,    //
+  , m_fcal2Yslice(12.)                          // where Nx(y) are the number of x(y)     //
+  , m_fcal3Xslice(12.)                          // slices.                                //
+  , m_fcal3Yslice(12.)                          //----------------------------------------//
 {
   // Properties                                               
   declareProperty("TowerEtaBins",               m_towerEtaBins, "Number of pseudorapidity bins in tower grid");

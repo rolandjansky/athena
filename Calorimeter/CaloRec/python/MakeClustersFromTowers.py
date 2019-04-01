@@ -17,6 +17,7 @@ def ClustersFromTowersDict(clusterBuilderName='TowerFromClusterTool',
                            cellClusterWeightKey='CaloCellClusterWeightKey',
                            orderClusterByPt=False,
                            applyCellEnergyThreshold=False,
+                           doCellIndexCheck=False,
                            cellEnergyThreshold=0.,
                            applyLCW=False):
     ''' Configuration dictionary for tower-to-cluster converter 
@@ -30,7 +31,8 @@ def ClustersFromTowersDict(clusterBuilderName='TowerFromClusterTool',
                    'OrderClusterByPt'            : orderClusterByPt,           ### (control) order final clusters by Pt
                    'ApplyCellEnergyThreshold'    : applyCellEnergyThreshold,   ### (control) apply energy thresholds to cells
                    'CellEnergyThreshold'         : cellEnergyThreshold,        ### (control) value of energy threshold
-                   'PrepareLCW'                  : applyLCW                    ### (control) prepare (and apply) LCW
+                   'PrepareLCW'                  : applyLCW,                   ### (control) prepare (and apply) LCW
+                   'DoCellIndexCheck'            : doCellIndexCheck            ### (control) check cell hash indices     
                    }
     return configDict
 
@@ -81,12 +83,11 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
         towerConverter.CaloTopoClusterContainerKey = topoclusterkey 
         towerConverter.CellClusterWeightKey        = cellweightkey
         towerConverter.PrepareLCW                  = True
-
     else:
         mlog.info('###############################################')
         mlog.info('## Produce EM calibrated topo-tower clusters ##')
         mlog.info('###############################################')
-        towerConverter                      = CaloTopoClusterFromTowerMaker(toolname,CaloCellContainerKey=cellkey,OrderClusterByPt=ptorder)
+        towerConverter                      = CaloTopoClusterFromTowerMaker(toolname,CaloCellContainerKey=cellkey,OrderClusterByPt=ptordered)
         towerConverter.CaloTowerGeometrySvc = towergeosvc
         towerConverter.PrepareLCW           = False
  
@@ -98,6 +99,8 @@ def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 #
 
     if debugOn:
         towerConverter.OutputLevel  = Lvl.DEBUG
+
+    towerConverter.DoCellIndexCheck = configDict['DoCellIndexCheck']
 
     # setting up the moments: external tools
     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault

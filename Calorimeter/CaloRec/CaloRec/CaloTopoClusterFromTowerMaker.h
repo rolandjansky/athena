@@ -14,6 +14,7 @@
 #include "CaloRec/CaloTowerGeometrySvc.h"
 #include "CaloRec/CaloProtoCluster.h"
 
+#include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "CaloEvent/CaloCellClusterWeights.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -26,10 +27,6 @@
 #include <vector>
 #include <bitset>
 #include <map>
-
-class CaloCell;
-class CaloCellClusterWeights;
-class CaloClusterCellLink;
 
 #ifndef _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE
 #define _CALOTOPOCLUSTERFROMTOWERMAKER_BITSET_SIZE 28
@@ -67,9 +64,8 @@ private:
   bool                                          m_prepareLCW;               ///< Prepare LCW calibration, default is @c false
   bool                                          m_useCellsFromClusters;     ///< Use cells from topo-clusters if @c true, else use all cells, default is @c true
   bool                                          m_applyCellEnergyThreshold; ///< Apply cell energy threshold, default is @c false 
+  bool                                          m_doCellIndexCheck;         ///< Check cell hash index consistency if @c true (default @c false)
   double                                        m_energyThreshold;          ///< Cell energy threshold, default is set in @c m_energyThresholdDef
-  //  bool                                          m_collectMonitorData;       ///< Collect monitor data if @c true (default is @c false)
-  //  std::string                                   m_monitorDataFile;          ///< File to dump for monitor data
   /// @}
 
   /// @name Constants and parameters
@@ -114,7 +110,7 @@ private:
   ///@name Helpers
   ///@{
   bool        filterProtoCluster(const CaloClusterCellLink& clnk)  const;
-  void        checkCellIndices(const CaloCellContainer* pCellCont) const;
+  bool        checkCellIndices(const CaloCellContainer* pCellCont) const;
   ///@}
 
   ///@name Excluded samplings

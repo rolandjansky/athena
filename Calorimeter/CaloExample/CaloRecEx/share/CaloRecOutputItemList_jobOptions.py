@@ -7,10 +7,6 @@ CaloESDList = []
 
 CaloESDList += [ "CaloCellContainer#AllCalo" ]
 
-# compactify calo cell
-from CaloTools.CaloToolsConf import CaloCompactCellTool
-svcMgr.ToolSvc += CaloCompactCellTool()
-
 # add explicitly E4', MBTS cells and trigger output to ESD
 CaloESDList += [ "TileCellContainer#E4prContainer" ]
 CaloESDList += [ "TileCellContainer#MBTSContainer" ]
@@ -21,6 +17,7 @@ CaloClusterItemList=[]
 CaloClusterKeys=[]
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
+CaloClusterKeys+=["CaloCalTopoTowers"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -84,9 +81,9 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 
 #List of AOD moments: (copied from CaloClusterTopoGetter)
 
-AODMoments=[#"LATERAL"
-            #,"LONGITUDINAL"
-            "SECOND_R" 
+AODMoments=["LATERAL"
+            ,"LONGITUDINAL"
+            ,"SECOND_R" 
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
             ,"CENTER_LAMBDA"
@@ -96,18 +93,18 @@ AODMoments=[#"LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
-            #,"ENG_BAD_HV_CELLS"
-            #,"N_BAD_HV_CELLS"
+            ,"ENG_BAD_HV_CELLS"
+            ,"N_BAD_HV_CELLS"
             ,"ENG_POS"
-            #,"SIGNIFICANCE"
-            #,"CELL_SIGNIFICANCE"
-            #,"CELL_SIG_SAMPLING"
+            ,"SIGNIFICANCE"
+            ,"CELL_SIGNIFICANCE"
+            ,"CELL_SIG_SAMPLING"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
-            #,"PTD"
+            ,"PTD"
             ,"BadChannelList"
-            ,#"LATERAL"
+            ,"MASS"
             ]
 try:
     from Digitization.DigitizationFlags import digitizationFlags
@@ -153,6 +150,7 @@ CaloClusterKeys=[]
 
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
+CaloClusterKeys+=["CaloCalTopoTowers"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]

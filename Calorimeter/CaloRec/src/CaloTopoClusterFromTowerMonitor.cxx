@@ -175,9 +175,20 @@ StatusCode CaloTopoClusterFromTowerMonitor::book()
   // composition, multiplicity, kinematics (event by event) //
   ////////////////////////////////////////////////////////////
 
-  int    detaBins(100); int    dphiBins(128);
-  double detaMin(-1.0); double dphiMin(-Gaudi::Units::pi/2.);
-  double detaMax(1.0);  double dphiMax(Gaudi::Units::pi/2.);
+  int    detaBins(105);  int    dphiBins(128);
+  double detaMin(-1.05); double dphiMin(-Gaudi::Units::pi/2.);
+  double detaMax(1.05);  double dphiMax(Gaudi::Units::pi/2.);
+
+  // re-center delta phi
+  double dphi((dphiMax-dphiMin)/(1.*dphiBins)); double dphiMinOld(dphiMin); double dphiMaxOld(dphiMax); //int dphiBinsOld(dphiBins);
+  int dphiBinsOld = (dphiMax-dphiMin)/dphi;
+  dphiMin  -= (dphi/2.); dphiMax  += (dphi/2.);
+  double dphim(dphi);
+  dphiBins  = (dphiMax-dphiMin)/dphim;
+
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("re-center delta_phi distributions, old/new binning [%6.3f,%6.3f]/[%6.3f,%6.3f] with %3i/%3i bins %5.3f/%5.3f rad wide",
+					 dphiMinOld,dphiMaxOld,dphiMin,dphiMax,dphiBinsOld,dphiBins,dphi,dphim) );
+  
 
   h_n    = bookAny<TH1D>("TowerMultiplicity",    "N_{tower}",          m_nBins, m_nMin, m_nMax);
   h_pt   = bookAny<TH1D>("TowerPt",              "p_{T}^{tower} [GeV]",m_ptBins,m_ptMin,m_ptMax);

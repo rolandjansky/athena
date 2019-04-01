@@ -30,12 +30,15 @@
 #include <cmath>
 #include <memory>
 #include <vector>
+#include <atomic>
 
 namespace {
   MsgStream& operator<<(MsgStream& mstr,const SG::ReadHandleKey<CaloCellContainer>&          ckey) { mstr << ckey.key(); return mstr; }
   MsgStream& operator<<(MsgStream& mstr,const SG::ReadHandleKey<xAOD::CaloClusterContainer>& ckey) { mstr << ckey.key(); return mstr; }
   MsgStream& operator<<(MsgStream& mstr,const SG::WriteHandleKey<CaloCellClusterWeights>&    ckey) { mstr << ckey.key(); return mstr; }
 }
+
+std::atomic<bool> CaloTopoClusterFromTowerMaker_checkCellIndices(false);
 
 ///////////////////////////////////
 // CaloTopoClusterFromTowerMaker //
@@ -56,9 +59,8 @@ CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& 
   , m_prepareLCW(false)
   , m_useCellsFromClusters(true)
   , m_applyCellEnergyThreshold(false)
+  , m_doCellIndexCheck(false)
   , m_energyThreshold(m_energyThresholdDef-1.)
-    //  , m_collectMonitorData(false)
-    //  , m_monitorDataFile("")
   , m_numberOfCells(0)
   , m_maxCellHash(0)
   , m_numberOfSamplings(static_cast<uint_t>(CaloSampling::Unknown))
@@ -75,6 +77,7 @@ CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& 
   declareProperty("CellEnergyThreshold",         m_energyThreshold,                                                                   "Energy threshold for cells filled in clusters");
   declareProperty("PrepareLCW",                  m_prepareLCW,                                                                        "Prepare data structure to apply LCW");
   declareProperty("ExcludedSamplings",           m_excludedSamplingsName,                                                             "Excluded samplings by name");
+  declareProperty("DoCellIndexCheck",            m_doCellIndexCheck,                                                                  "Check cell hash indices for consistency");
   // the extensions below are not thread safe! -> Gaudi accumulators?
   //  declareProperty("CollectMonitorData",          m_collectMonitorData,                                                                "Turn on/off monitor data collection");
   //  declareProperty("MonitorDataFile",             m_monitorDataFile,                                                                   "File to dump monitor data");
@@ -174,6 +177,16 @@ StatusCode CaloTopoClusterFromTowerMaker::initialize()
 					      m_excludedSamplingsName.at(i).c_str(),(size_t)m_excludedSamplings.at(i),CaloRec::Lookup::getSamplingName(m_excludedSamplings.at(i)).c_str()) );
     }
   }
+
+  ATH_MSG_INFO("Other properties:");
+  std::map<bool,std::string> blu { { true, "true" }, { false, "false" } };
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("PrepareLCW ................. %s",             blu[m_prepareLCW].c_str())               ); 
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("BuildTopoTowers ............ %s",             blu[m_useCellsFromClusters].c_str())     );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ApplyCellEnergyThreshold ... %s",             blu[m_applyCellEnergyThreshold].c_str()) );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("OrderClusterByPt ........... %s",             blu[m_orderByPt].c_str())                );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("DoCellIndexCheck ........... %s",             blu[m_doCellIndexCheck].c_str())         );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ExcludedSamplings .......... %zu (number of)",m_excludedSamplingsName.size())          );
+
   return StatusCode::SUCCESS;
 }
 
@@ -193,12 +206,12 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
     return StatusCode::FAILURE;
   }
 
-
-  if ( msgLvl(MSG::DEBUG) && pCellCont->size() < m_towerGeometrySvc->totalNumberCells() ) { 
+  if ( msgLvl(MSG::DEBUG) && m_numberOfCells != pCellCont->size() ) { 
     ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("[mismatch] number of cells in CaloCellContainer %6zu, total number of cell descriptors %6zu",
 					      pCellCont->size(),m_towerGeometrySvc->totalNumberCells()) );
-    this->checkCellIndices(pCellCont.cptr());
   }
+
+  if ( m_doCellIndexCheck ) { this->checkCellIndices(pCellCont.cptr()); }
 
   /////////////////////////
   // Set up ProtoCluster //
@@ -456,15 +469,48 @@ int CaloTopoClusterFromTowerMaker::cleanupCells(CaloClusterCellLink* clk,uint_t 
 }
 
 bool CaloTopoClusterFromTowerMaker::filterProtoCluster(const CaloClusterCellLink& clnk) const
-{
-  return clnk.size() > 0;
-}
+{ return clnk.size() > 0; }
 
-void CaloTopoClusterFromTowerMaker::checkCellIndices(const CaloCellContainer* pCellCont) const
+bool CaloTopoClusterFromTowerMaker::checkCellIndices(const CaloCellContainer* pCellCont) const
 {
-  std::ofstream ofile(this->name()+"_cell_index_check.dat");
-  size_t ifc(0);
-  std::bitset<200000> chkflg; chkflg.reset();
+  ////////////////////////////
+  // input and setup checks //
+  ////////////////////////////
+
+  // check argument
+  if ( pCellCont == 0 ) { 
+    ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("Invalid pointer to CaloCellContainer (%p)",(void*)pCellCont) ); return false;
+  } else if ( pCellCont->empty() ) { 
+    ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("CaloCellContainer at %p is empty (size %zu)",(void*)pCellCont,pCellCont->size()) ); return false; 
+  }
+  // check the atomic state
+  if ( CaloTopoClusterFromTowerMaker_checkCellIndices ) { return true; }
+  // set the atomic flag
+  ATH_MSG_INFO( "Cell hash index check requested" ); 
+  CaloTopoClusterFromTowerMaker_checkCellIndices = true;
+  // assign output file
+  std::string algname(this->name());
+  if ( algname.find_last_of('.') != std::string::npos ) { algname = algname.substr(algname.find_last_of('.')+1); }
+  std::string logname(CaloRec::Helpers::fmtMsg("%s.cellhash_index_check.dat",this->name().c_str())); 
+  std::ofstream logstream; logstream.open(logname);
+  if ( !logstream.is_open() ) { 
+    ATH_MSG_WARNING( CaloRec::Helpers::fmtMsg("Cannot open log file \042%s\042 - no hash index checking",logname.c_str()) ); 
+    return false;
+  }
+  logstream << "##########################################################################" << std::endl;
+  logstream << "### This file contains a list of CaloCell indices in CaloCellContainer ###" << std::endl;
+  logstream << "### for which this index is not the same as the calorimeter cell hash  ###" << std::endl;
+  logstream << "### identifier. An empty list indicates full consistency between this  ###" << std::endl;
+  logstream << "### index and the hash identifier for all cells.                       ###" << std::endl;
+  logstream << "##########################################################################" << std::endl;
+  logstream << "<begin list>--------------------------------------------------------------" << std::endl;
+
+  /////////////////////////
+  // loop cell container //
+  /////////////////////////
+
+  // prepare tag store
+  size_t ifc(0); std::bitset<200000> chkflg; chkflg.reset();
   for ( size_t i(0); i<pCellCont->size(); ++i ) { 
     if ( pCellCont->at(i) != 0 ) { 
       size_t chash((size_t)pCellCont->at(i)->caloDDE()->calo_hash());
@@ -486,19 +532,30 @@ void CaloTopoClusterFromTowerMaker::checkCellIndices(const CaloCellContainer* pC
 	  phic = cel->phi_raw();
 	}
 	size_t cidx(pCellCont->findIndex(chash));
-	ofile << CaloRec::Helpers::fmtMsg("[%06zu] Cell %6zu [%12.12s %5.3f %5.3f] non-matching id %6zu [%12.12s %5.3f %5.3f] (findCell index = %6zu)",
-					  ++ifc,i,cni.c_str(),etai,phii,chash,cnc.c_str(),etac,phic,cidx) << std::endl; 
+	logstream << CaloRec::Helpers::fmtMsg("[%06zu] Cell %6zu [%12.12s %5.3f %5.3f] non-matching id %6zu [%12.12s %5.3f %5.3f] findCell() index %6zu",
+					      ++ifc,i,cni.c_str(),etai,phii,chash,cnc.c_str(),etac,phic,cidx) << std::endl; 
       }
-      chkflg.set(i);
+      chkflg.set(chash);
     }
   }
-  ofile.close();
-  std::vector<size_t> chl; chl.reserve(m_towerGeometrySvc->totalNumberCells());
-  for ( size_t i(0); i<chl.size(); ++i ) { if ( !chkflg.test(i) ) { chl.push_back(i); } }
+  logstream << "<end list>----------------------------------------------------------------" << std::endl;
+  logstream.close();
+
+  /////////////////////////
+  // check missed hashes //
+  /////////////////////////
+
+  // number of non-matched hashes
   if ( ifc > 0 ) { 
     ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("Found %zu non-matching cell hashes",ifc) );
   }
+  // list of non-matched hashes
+  std::vector<size_t> chl; chl.reserve(m_towerGeometrySvc->totalNumberCells());
+  for ( size_t i(0); i<chl.size(); ++i ) { if ( !chkflg.test(i) ) { chl.push_back(i); } }
   if ( !chl.empty() ) { 
     for ( auto h : chl ) { ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("Cell hash %6zu not in CaloCellContainer",h) ); }
   }
+
+  return true;
 }
+
