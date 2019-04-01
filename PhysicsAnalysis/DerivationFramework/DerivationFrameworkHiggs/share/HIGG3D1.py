@@ -141,7 +141,7 @@ truth_cond4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 5*GeV)
 truth_cond5 = "((abs(TruthParticles.pdgId) >= 35) && (abs(TruthParticles.pdgId) <= 37))" # BSM Higgs
 
 truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+truth_cond4 +' || '+truth_cond5
-generic_bool = True;
+generic_bool = False;
 
 if( generic_bool):
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -156,7 +156,7 @@ else:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   HIGG3D1TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG3D1TruthThinningTool",
                                                                     ThinningService              = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                    WritePartons                 = False,
+                                                                    WritePartons                 = True,
                                                                     WriteHadrons                 = True,
                                                                     WriteBHadrons                = True,
                                                                     WriteGeant                   = False,
