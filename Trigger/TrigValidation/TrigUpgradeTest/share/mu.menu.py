@@ -1,5 +1,5 @@
 # 
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
 # 
 #  OutputLevel: INFO < DEBUG < VERBOSE 
 # 
@@ -38,26 +38,25 @@ if  TriggerFlags.doMuon==True:
     # menu
     ##########################################
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFMSStep, muEFSAStep, muIsoStep, muEFCBStep, muEFSAFSStep, muEFCBFSStep, inDetSetup
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
 
     inDetSetup()
 
     MenuChains  = []
 
     # step1
-    step1mufast=ChainStep("Step1_mufast", [ muFastStep() ])
+    step1mufast=ChainStep("Step1_muFast", [ muFastSequence() ])
     # step2
-    step2muComb=ChainStep("Step2_muComb", [ muCombStep() ])
-    step2muEFMS=ChainStep("Step2_muEFMS", [ muEFMSStep() ])
+    step2muComb=ChainStep("Step2_muComb", [ muCombSequence() ])
+    step2muEFMS=ChainStep("Step2_muEFMS", [ muEFMSSequence() ])
     # step3
-    step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSAStep() ])
-    step3muIso =ChainStep("Step3_muIso",  [ muIsoStep() ])
+    step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSASequence() ])
+    step3muIso =ChainStep("Step3_muIso",  [ muIsoSequence() ])
     # step4
-    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBStep() ])
+    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBSequence() ])
     # Full scan MS tracking step
-    stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSStep()])
-    stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSStep()])
+    stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
+    stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
 
 
     ## single muon trigger  

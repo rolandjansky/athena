@@ -154,7 +154,7 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.Views = "MUViewRoIs"
 
     ### get muFast reco sequence ###
-    from TrigUpgradeTest.MuonSetup import muFastRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence
     muFastRecoSequence, muFastSequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
     l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name()
@@ -201,7 +201,7 @@ if TriggerFlags.doMuon:
     l2muCombViewsMaker.Views = "MUTrkViewRoIs"
 
     ### get muComb reco sequence ###
-    from TrigUpgradeTest.MuonSetup import muCombRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muCombRecoSequence
     muCombRecoSequence, eventAlgs, muCombSequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
     l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
@@ -258,7 +258,7 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.Views = "EFMUViewRoIs"
 
     ### get EF reco sequence ###
-    from TrigUpgradeTest.MuonSetup import muEFSARecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
     muEFMSRecoSequence, muEFSASequenceOut = muEFSARecoSequence( efMuViewsMaker.InViewRoIs, 'RoI', OutputLevel=DEBUG )
  
     efMuViewsMaker.ViewNodeName = muEFMSRecoSequence.name()
@@ -303,7 +303,7 @@ if TriggerFlags.doMuon:
     efCBMuViewsMaker.Views = "EFMUCBViewRoIs"
 
     ### get EF reco sequence ###
-    from TrigUpgradeTest.MuonSetup import muEFCBRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBRecoSequence, eventAlgs, muEFCBSequenceOut = muEFCBRecoSequence( efCBMuViewsMaker.InViewRoIs, "RoI", OutputLevel=DEBUG )
  
     efCBMuViewsMaker.ViewNodeName = muEFCBRecoSequence.name()
@@ -348,7 +348,7 @@ if TriggerFlags.doMuon:
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
 
     ### get EF reco sequence ###
-    from TrigUpgradeTest.MuonSetup import l2muisoRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import l2muisoRecoSequence
     l2muisoRecoSequence, l2muIsoSequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs, OutputLevel=DEBUG )
 
     l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()

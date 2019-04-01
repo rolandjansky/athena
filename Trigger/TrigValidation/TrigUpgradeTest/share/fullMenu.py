@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 # import flags
@@ -89,15 +89,15 @@ if (doPhoton):
 # muon chains
 ##################################################################
 if (doMuon):
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFSAStep, muEFMSStep, muIsoStep
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFMSSequence, muIsoSequence
     MuonChains  = []
-    muFastStep1 = muFastStep()
-    muCombStep2 = muCombStep()
+    muFastSequence = muFastSequence()
+    muCombSequence = muCombSequence()
 
     # step1
-    step1mufast=ChainStep("Step1_mufast", [ muFastStep1 ])
+    step1mufast=ChainStep("Step1_muFast", [ muFastSequence ])
     # step2
-    step2muComb=ChainStep("Step2_muComb", [ muCombStep2 ])
+    step2muComb=ChainStep("Step2_muComb", [ muCombSequence ])
     # step3
     
     MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
@@ -174,7 +174,7 @@ if (doMET):
 ##################################################################
 if (doCombo):
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep1])
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence])
 
     comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains
