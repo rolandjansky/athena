@@ -285,5 +285,5 @@ Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
 Triggered            INFO in finalize()
-ItemListSvc         DEBUG STREAM StreamAll has (8) items
+ItemListSvc         DEBUG STREAM StreamAll has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_StreamAll
