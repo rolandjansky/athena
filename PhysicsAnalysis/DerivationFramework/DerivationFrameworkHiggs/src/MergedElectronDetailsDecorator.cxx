@@ -305,6 +305,8 @@ namespace DerivationFramework {
           
           vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) ); 
           vtxdEta -= caloCluster->etaBE(2);
+        
+          delete myVertex;
         } else {
           vtxChi2 = 0;
           vtxNdof = 0;
