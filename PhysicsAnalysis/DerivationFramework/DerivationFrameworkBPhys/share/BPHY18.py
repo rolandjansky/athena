@@ -162,7 +162,7 @@ BPHY18DiElectronFinder = Analysis__JpsiFinder_ee(
     TrackSelectorTool           = BPHY18_VertexTools.InDetTrackSelectorTool,
 #OI    ConversionFinderHelperTool  = BPHY18_VertexTools.InDetConversionHelper,
     VertexPointEstimator        = BPHY18_VertexTools.VtxPointEstimator,
-   # ElectronSelection 			= "d0_or_nod0"
+    ElectronSelection 			= "d0_or_nod0"
     )
 
 ToolSvc += BPHY18DiElectronFinder
@@ -450,7 +450,8 @@ print thinningCollection
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY18Kernel",
-    AugmentationTools = [ElectronPassLHvloosenod0,BPHY18DiElectronSelectAndWrite,  BPHY18_Select_DiElectrons,
+    AugmentationTools = [ElectronPassLHvloosenod0,BPHY18DiElectronSelectAndWrite,  
+                         BPHY18_Select_DiElectrons,
                          BPHY18BeeKstSelectAndWrite, BPHY18_Select_BeeKst, BPHY18_Select_BeeKstbar ],
     #Only skim if not MC
     SkimmingTools     = [BPHY18SkimmingOR] if skimTruth or not isSimulation else [],
