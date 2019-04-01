@@ -23,6 +23,9 @@ namespace EL {
       // Make sure that @c beginInputFile() gets called.
       ATH_CHECK( requestBeginInputFile() );
 
+      // Read the file metadata.
+      //ATH_CHECK( readFileMetaData() );
+
       // Return gracefully.
       return ::StatusCode::SUCCESS;
    }
@@ -49,6 +52,15 @@ namespace EL {
 
       // Increment the internal counter.
       m_callCount++;
+
+      // Read the file metadata.
+      ATH_CHECK( readFileMetaData() );
+
+      // Return gracefully.
+      return ::StatusCode::SUCCESS;
+   }
+
+   ::StatusCode UnitTestAlg4::readFileMetaData() {
 
       // Access the file metadata object.
       ATH_MSG_INFO( "Reading the file metadata..." );

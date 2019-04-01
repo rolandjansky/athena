@@ -41,6 +41,9 @@ namespace EL {
       /// @}
 
    private:
+      /// Function reading some in-file metadata
+      StatusCode readFileMetaData();
+
       /// Internal status flag
       int m_callCount = 0;
 
