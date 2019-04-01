@@ -35,6 +35,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_CosmicsG4",           "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII",           "ISF_Kernel_ATLFASTII")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_QS",        "ISF_Kernel_ATLFASTII_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF",          "ISF_Kernel_ATLFASTIIF")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_G4MS",     "ISF_Kernel_ATLFASTIIF_G4MS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_PileUp",   "ISF_Kernel_ATLFASTIIF_PileUp")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_PileUp",   "ISF_Kernel_ATLFASTII_PileUp")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4HS_FastPileup",     "ISF_Kernel_G4HS_FastPileup")
