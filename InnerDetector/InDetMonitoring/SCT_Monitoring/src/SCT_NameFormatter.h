@@ -16,58 +16,58 @@ namespace SCT_Monitoring {
   ///format an element index (e.g. in looping through barrels, this goes from 0->(2*(nbarrels)) - 1 into layer and side
   ///for use in both the histogram title and its name
   class LayerSideFormatter {
-private:
+  private:
     const unsigned int m_element;
     const std::string m_layerStr;
     const std::string m_sideStr;
     unsigned int m_region;
-public:
-    LayerSideFormatter(const unsigned int i) : m_element(i), m_layerStr(std::to_string(i / 2)), m_sideStr(std::to_string(
-                                                                                                            i % 2)),
+  public:
+  LayerSideFormatter(const unsigned int i) : m_element(i), m_layerStr(std::to_string(i / 2)), m_sideStr(std::to_string(
+                                                                                                                       i % 2)),
       m_region(1) {
       // nop
     }
 
-    LayerSideFormatter(const unsigned int i, const unsigned int m) : m_element(i), m_layerStr(std::to_string(i / 2)),
+  LayerSideFormatter(const unsigned int i, const unsigned int m) : m_element(i), m_layerStr(std::to_string(i / 2)),
       m_sideStr(std::to_string(i % 2)), m_region(m) {
       // nop
     }
 
     std::string
-    layer() const {
+      layer() const {
       return m_layerStr;
     }
 
     std::string
-    side() const {
+      side() const {
       return m_sideStr;
     }
 
     std::string
-    layerPlus1() const {
+      layerPlus1() const {
       return std::to_string((m_element / 2) + 1);
     }
 
     std::string
-    title() const {
+      title() const {
       if (m_region == 1) {
         return std::string("Layer ") + m_layerStr + std::string(" Side ") + m_sideStr;
-      }else {
+      } else {
         return std::string("Disk ") + m_layerStr + std::string(" Side ") + m_sideStr;
       }
     }
 
     std::string
-    dedicated_title() const {
+      dedicated_title() const {
       if (m_region == 1) {
         return std::string("Layer ") + m_layerStr + std::string(" Side ") + std::to_string((m_element % 2 + 1) % 2);
-      }else {
+      } else {
         return std::string("Disk ") + m_layerStr + std::string(" Side ") + std::to_string((m_element % 2 + 1) % 2);
       }
     }
 
     std::string
-    name(const std::string &delimiter = "_") const {
+      name(const std::string &delimiter = "_") const {
       return m_layerStr + delimiter + m_sideStr;
     }
   };

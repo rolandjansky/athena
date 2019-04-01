@@ -24,9 +24,9 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 				      const InDetDD::TRT_DetectorManager* detmgr,
 				      const TRT_ID* trt_id,
 				      int UseGasMix,
-				      ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+				      ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 				    )
-  : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumSvc)
+  : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
 {
   m_average_noiselevel = m_settings->averageNoiseLevel();
 }

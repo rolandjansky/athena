@@ -235,7 +235,6 @@ else:
     MessageSvc.Format = "%t  " + MessageSvc.Format   # add time stamp
     if hasattr(MessageSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
         MessageSvc.useErsError = ['*']
-        MessageSvc.alwaysUseMsgStream = True
 
 # ----------------------------------------------------------------
 # Setting individual OutputLevel 

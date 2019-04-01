@@ -157,7 +157,7 @@ private: // internal member functions
                                             long& curCollection, std::vector<int>& numEvt, std::vector<int>& firstEvt,
                                             bool processMetadata, bool throwIncidents = false) const;
   /// Record AttributeList in StoreGate
-  StatusCode recordAttributeList(pool::ICollectionCursor* HeaderIterator, Gaudi::Property<std::string>) const;
+  StatusCode recordAttributeList(pool::ICollectionCursor* HeaderIterator, Gaudi::Property<std::string> attrListKey, std::string suffix = "") const;
   /// Search for event number evtNum.
   int findEvent(int evtNum, std::vector<int>& numEvt, std::vector<int>& firstEvt, const std::vector<std::string>& inputCollections) const;
 
@@ -200,7 +200,7 @@ private: // properties
   Gaudi::Property<std::string> m_refName;
   Gaudi::Property<std::string> m_derRefName;
   /// AttributeList SG key
-  Gaudi::Property<std::string> m_primaryAttrListKey;
+  Gaudi::Property<std::string> m_attrListKey;
   Gaudi::Property<std::string> m_secondaryAttrListKey;
   /// InputCollections, vector with names of the input collections.
   Gaudi::Property<std::vector<std::string>> m_primaryInputCollectionsProp;

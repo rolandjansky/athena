@@ -29,10 +29,12 @@ class SCT_TdaqEnabledTestAlg : public AthReentrantAlgorithm {
   SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLocator *pSvcLocator);
   virtual ~SCT_TdaqEnabledTestAlg() = default;
 
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
-   
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   ToolHandle<ISCT_ConditionsTool> m_pTdaqEnabledTool{this, "SCT_TdaqEnabledTool", "SCT_TdaqEnabledTool", "Tool to retrieve active/inactive SCT ROD information"};
 }; //end of class

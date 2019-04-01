@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTIONPASSBACK_H
@@ -11,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "ISF_Interfaces/IGeoIDSvc.h"
+#include "ISF_Interfaces/IParticleBroker.h"
 
 #include <string>
 
@@ -21,7 +22,6 @@ class G4LogicalVolume;
 
 namespace ISF {
   class ISFParticle;
-  class IParticleBroker;
   class ITruthBinding;
 }
 

@@ -78,16 +78,17 @@ hypoTool2.RandomAcceptRate = 0.25
 hypoTool2.BurnTimePerCycleMillisec = 20
 hypoTool2.NumBurnCycles = 10
 hypoTool2.TimeBetweenROBReqMillisec = 50
+exampleROBList = [0x420024, 0x420025, 0x420026, 0x420027, 0x420034, 0x420035, 0x420036, 0x420037,
+                  0x42005c, 0x42005d, 0x42005e, 0x42005f, 0x42006c, 0x42006d, 0x42006e, 0x42006f] # ROS-LAR-EMBC-02
 hypoTool2.ROBAccessDict = {
- "01 :ADD: Preload  ": [ 0x42002a, 0x42002b ],    # robs for 1st preload
- "02 :ADD: Preload  ": [ 0x42002e, 0x42002f ],    # robs for 2nd preload
- "03 :GET: Retrieve ": [ 0x42002e, 0x420060 ],    # robs for 1st retrieval
- "04 :ADD: Preload  ": [ 0x420060 ],              # robs for 3rd preload
- "05 :ADD: Preload  ": [ 0x420064 ],              # robs for 4th preload
- "06 :ADD: Preload  ": [ 0x42002e, 0x420060 ],    # robs for 5th preload
- "07 :GET: Retrieve ": [ 0x420060 ],              # robs for 2nd retrieval
- "08 :GET: Retrieve ": [ 0x420064 ],              # robs for 3rd retrieval
- "09 :COL: Ev.Build ": [ 0x0 ]                    # event building
+ "01 :ADD:       Preload ":  [ 0x420024, 0x420025 ], # robs for 1st preload
+ "02 :ADD:       Preload ":  [ 0x420026, 0x420027 ], # robs for 2nd preload
+ "03 :GET:       Retrieve ": [ 0x420025, 0x420026 ], # robs for 1st retrieval (prefetched)
+ "04 :GET:       Retrieve ": [ 0x420034 ],           # robs for 2nd retrieval (not prefetched)
+ "05 :ADD:       Preload ":  exampleROBList,         # robs for 3rd preload (the full list)
+ "05 :GET:RND5:  Retrieve ": exampleROBList,         # robs for 3rd retrieval (5 random from the list)
+ "06 :GET:RND10: Retrieve ": exampleROBList,         # robs for 4th retrieval (10 random from the list)
+ "07 :COL:       Ev.Build ": []                      # event building
 } # This is just an example with a few ROBs (LAr in this case) for testing the ROBDataProvider
 
 # Chain 3 - medium rate, produces random data, writes PEB info for data scouting
@@ -115,7 +116,7 @@ from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserTool
 serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
 serialiser.addCollectionListToMainResult([
   "xAOD::TrigCompositeContainer_v1#"+hypo.HypoOutputDecisions,
-  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.decisions",
+  "xAOD::TrigCompositeAuxContainer_v2#"+hypo.HypoOutputDecisions+"Aux.",
 ])
 # Data scouting example
 resultList = [serialiser.fullResultID(), 1]

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbIter.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbIter definition
 //--------------------------------------------------------------------
@@ -19,10 +18,10 @@
 // Framework include files
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbContainer.h"
+#include "StorageSvc/DbTypeInfo.h"
 
 // STL include files
 #include <memory>
-
 /*
  *  POOL namespace declaration
  */
@@ -69,9 +68,9 @@ namespace pool  {
     }
   public:
     /// Constructor with initializing arguments
-    DbIter(DbAccessMode mode=pool::READ) : m_token(), m_type(0), m_mode(mode) {        }
-    /// Standard destructor
-    virtual ~DbIter()                   {                                     }
+    DbIter(DbAccessMode mode=pool::READ) : m_token(), m_type(0), m_mode(mode) { }
+    /// Destructor
+    virtual ~DbIter() { }
     /// Access to container handler
     const DbContainer& container() const{    return m_cnt;                    }
     /// Check validity
@@ -109,16 +108,17 @@ pool::DbStatus pool::DbIter<T>::scan(const DbContainer& cntH,
     m_cnt    = cntH;
   }
   m_obj = DbHandle<T>(cntH.type());
-  return (cntH.isValid()) ? Success : Error;
-}
 
+  return cntH.isValid()? Success : Error;
+}
+      
 /// Retrieve next element of iteration
 template <class T> inline pool::DbStatus pool::DbIter<T>::next()
 {
   DbObjectHandle<DbObject> objH(m_obj.ptr());
   objH._setType(m_obj.type());
-  m_token.oid().second++;
-  if ( m_cnt.loadNext(objH, m_token.oid(), m_type, m_mode).isSuccess() ) {
+  m_token.oid().second++;     // MN: assuming first OID=1?
+  if ( m_cnt.loadNext(objH, m_token.oid(), m_type).isSuccess() ) {
     m_obj._setObject(static_cast<T*>(objH.ptr()));
     return Success;
   }

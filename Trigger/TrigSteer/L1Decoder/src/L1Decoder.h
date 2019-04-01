@@ -40,8 +40,7 @@ protected: // protected to support unit testing
 
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
                             xAOD::TrigCompositeContainer* storage,
-                            const std::string& type,
-                            const EventContext& ctx) const;
+                            const std::string& type) const;
 
 private:
 

@@ -12,8 +12,9 @@
 #include "TRTDigit.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 class TRTDigCondBase;
 class TRTElectronicsProcessing;
@@ -50,7 +51,7 @@ public:
 	    TRTElectronicsNoise * electronicsnoise,
 	    const TRT_ID* trt_id,
 	    int UseGasMix,
-	    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+	    ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 	  );
 
   /**
@@ -213,7 +214,7 @@ public:
 
   unsigned int getRegion(int hitID,const TRT_ID* trt_id);
   int m_UseGasMix;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // need for Argon
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // need for Argon
 
 };
 

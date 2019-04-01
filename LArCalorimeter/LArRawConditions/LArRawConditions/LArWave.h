@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -37,9 +37,8 @@ class LArWave {
     LArWave();
     LArWave(const unsigned nSamples, const double dt, const unsigned flag=0);
     LArWave(const std::vector<double>& theVector, const double dt, const unsigned flag=0);
-    virtual ~LArWave();
+    virtual ~LArWave() = default;
 
-    LArWave& operator= (const LArWave&);
     //@}
     
     /// \name accumulation  accessors
@@ -161,10 +160,6 @@ LArWave::LArWave(const std::vector<double>& theVector,const double dt, const uns
 	m_dt(dt) , m_amplitudes(theVector) , m_flag(flag)
 {} 
 
-
-inline
-LArWave::~LArWave() 
-{} 
 
 inline
 const std::vector<double>& 

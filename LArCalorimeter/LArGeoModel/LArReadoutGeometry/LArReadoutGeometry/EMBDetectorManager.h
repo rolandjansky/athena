@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBDETECTORMANAGER_H
@@ -8,21 +8,22 @@
 #include <vector>
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
+#include "LArHV/EMBHVManager.h"
 class EMBDetDescr;
 class EMBDetectorRegion;
 class EMBBasicReadoutNumbers;
-class EMBHVManager;
 class EMBPresamplerHVManager;
-/**
- *     @brief A manager class providing access to readout geometry information
- *     for the electromagnetic barrel calorimeter.
- */
 
 /**
- *	The EMBDetectorManager provides access to EMB Regions,
- *	to Descriptors for EMB regions, to the physical volumes
- *	(tree tops) within the EMB, and to a number of important
- *	engineering numbers within the EMB.
+ * @class EMBDetectorManager
+ *
+ * @brief A manager class providing access to readout geometry information
+ * for the electromagnetic barrel calorimeter.
+ *
+ * The EMBDetectorManager provides access to EMB Regions,
+ * to Descriptors for EMB regions, to the physical volumes
+ * (tree tops) within the EMB, and to a number of important
+ * engineering numbers within the EMB.
  */
 
 class EMBDetectorManager : public GeoVDetectorManager  
@@ -37,7 +38,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief Constructor
    */
-  EMBDetectorManager();
+  EMBDetectorManager(const EMBHVManager& hvManager);
   
   /**
    * @brief Destructor
@@ -99,7 +100,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief       Get the HV Manager
    */
-  const EMBHVManager *getHVManager () const;
+  const EMBHVManager& getHVManager () const;
   
   /**
    * @brief       Get the HV Manager (Presampler)
@@ -129,7 +130,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   EMBDetRegionArray m_DetRegionsRandom;
   const EMBBasicReadoutNumbers *m_basicReadoutNumbers;
   mutable EMBAccordionDetails *m_accordionDetails;
-  mutable const EMBHVManager           *m_hvManager;
+  const EMBHVManager&         m_hvManager;
   mutable const EMBPresamplerHVManager *m_presamplerHVManager;
 };
 

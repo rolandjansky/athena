@@ -35,10 +35,12 @@ class SCT_ReadCalibChipDataTestAlg : public AthReentrantAlgorithm
   virtual ~SCT_ReadCalibChipDataTestAlg() = default; //!< Destructor
   
   // Standard Gaudi functions
-  StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
-  StatusCode finalize() override;   //!< Gaudi finaliser
-  
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
+  virtual StatusCode finalize() override;   //!< Gaudi finaliser
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   //----------Private Member Functions----------//
   StatusCode processProperties();             //!< Process jobOpt properties

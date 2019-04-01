@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBCELL_H
@@ -9,17 +9,15 @@
 #include "LArReadoutGeometry/EMBHVPathologies.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include <cmath>
 #include "GeoModelKernel/RCBase.h"
 #include <vector>
-/**
- * @brief A cell of the electromagnetic barrel calorimeter readout
- * geometry
- */
 
-/** 
+/**
+ * @class EMBCell
+ *
+ * @brief A cell of the electromagnetic barrel calorimeter readout geometry
  *  This class gives dimensions and positions, and indices of an 
  *  electromagnetic barrel calorimeter readout cell.  Positions are
  *  in local coordinates (local to a "big piece", or in this case the
@@ -141,7 +139,7 @@ class EMBCell : public RCBase
       /**
        * @Get electrode
        */
-      const EMBHVElectrodeConstLink & getElectrode (unsigned int i) const;
+      const EMBHVElectrode & getElectrode (unsigned int i) const;
 
       /**
        * @Get num HVPathologies
@@ -175,7 +173,7 @@ class EMBCell : public RCBase
 
       const EMBDetDescr *m_embDetDescr;
 
-      mutable std::vector<EMBHVElectrodeConstLink> m_electrode;
+      mutable std::vector<const EMBHVElectrode*> m_electrode;
 
       mutable EMBPresamplerHVModuleConstLink m_presamplerModule;
 

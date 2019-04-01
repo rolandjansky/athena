@@ -31,8 +31,6 @@
 
 using namespace std;
 
-int numTokenInstances();
-
 bool  test_nodict = false;
 
 static const std::string file = "pool_test.root";
@@ -58,7 +56,7 @@ TestDriver::TestDriver()
 
 TestDriver::~TestDriver()
 {
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+   std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 

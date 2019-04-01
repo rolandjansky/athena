@@ -1632,10 +1632,6 @@ int main(int argc, char** argv)
 
 	/// get objects if requested
 
-	//	tom = true;
-
-	ETovPTmin = ETmin;
-
 	if ( chains[ic].rois()[0].objects().size()>0 ) { 
 	  tom = TrigObjectMatcher( &refTracks, chains[ic].rois()[0].objects(), SelectObjectETovPT );
 	}

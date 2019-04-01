@@ -70,8 +70,7 @@ TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic = Muon__MdtDriftCircleOnTrac
                                                                                          TimingMode = 3,
                                                                                          DoFixedError = True,
                                                                                          FixedError = 2.0,
-                                                                                         DoTofCorrection = True,
-                                                                                         MuonTofTool = TMEF_AdjustableT0Tool,
+                                                                                         DoTofCorrection = True
                                                                                          )
 ToolSvc += TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic
 
@@ -122,7 +121,6 @@ TMEF_DCMathSegmentMakerCosmic = Muon__DCMathSegmentMaker("TMEF_DCMathSegmentMake
 if doT0Fit:
     if muonRecFlags.doSegmentT0Fit():
         TMEF_DCMathSegmentMakerCosmic.MdtCreator = TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic
-        TMEF_DCMathSegmentMakerCosmic.TofTool = TMEF_AdjustableT0Tool
         
 ToolSvc += TMEF_DCMathSegmentMakerCosmic
 

@@ -21,5 +21,6 @@ def PixelSiPropertiesCfg(flags, name="PixelSiPropertiesCondAlg", **kwargs):
     acc = PixelDCSConditionsCfg(flags)
     tool = kwargs.get("SiPropertiesTool", PixelSiPropertiesToolCfg(flags))
     acc.addCondAlgo(PixelSiPropertiesCondAlg(name, **kwargs))
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 

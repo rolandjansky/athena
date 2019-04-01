@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbDomain.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbDomainObj handle implementation
 //--------------------------------------------------------------------
@@ -56,21 +55,20 @@ DbStatus DbDomain::close()   const    {
 
 /// Assign transient object properly (including reference counting)
 void DbDomain::switchPtr(const DbDomainObj* obj) const {
-  if (   obj ) obj->addRef();
-  if ( isValid() ) {
-    if (ptr()->release() == 0) {
+   if( obj ) obj->addRef();
+   if( isValid() ) {
+      if (ptr()->release() == 0) {
+         setPtr(0);
+         setType(DbType(0));
+      }
+   }
+   if( obj )  {
+      setPtr(const_cast<DbDomainObj*>(obj));
+      setType(obj->type());
+   } else {
       setPtr(0);
       setType(DbType(0));
-    }
-  }
-  //m_ptr = const_cast<DbDomainObj*>(obj);
-  if (   obj )  {
-    setPtr(const_cast<DbDomainObj*>(obj));
-    setType(obj->type());
-  } else {
-    setPtr(0);
-    setType(DbType(0));
-  }
+   }
 }
 
 /// Add domain to session

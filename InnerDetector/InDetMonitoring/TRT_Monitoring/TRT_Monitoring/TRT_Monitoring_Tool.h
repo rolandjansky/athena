@@ -52,8 +52,8 @@ class TRT_ID;
 class Identifier;
 class ComTime;
 class IInDetConditionsSvc;
-class ITRT_CalDbSvc;
-class ITRT_StrawStatusSummarySvc;
+class ITRT_CalDbTool;
+class ITRT_StrawStatusSummaryTool;
 class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
 class ITRT_ByteStream_ConditionsSvc;
@@ -145,12 +145,12 @@ private:
 
 	// Services
 	ServiceHandle<IToolSvc> p_toolSvc;
-	ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc;
+	ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
 	ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
 	ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 	ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
-	ServiceHandle<ITRT_CalDbSvc> m_TRTCalDbSvc;
+	ToolHandle<ITRT_CalDbTool> m_TRTCalDbTool;
 
 	// Data handles
 	SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};

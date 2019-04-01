@@ -263,7 +263,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   }
   time_clusMaker.stop();
   
-  
+  ATH_MSG_VERBOSE("......pCaloClusterContainer size: " << pCaloClusterContainer->size());
   //save raw state (uncalibrated)
   for (xAOD::CaloCluster* cl : *pCaloClusterContainer)
     {

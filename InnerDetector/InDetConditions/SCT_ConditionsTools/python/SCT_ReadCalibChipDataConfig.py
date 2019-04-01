@@ -13,7 +13,7 @@ def SCT_ReadCalibChipDataToolCfg(flags, name="InDetSCT_ReadCalibChipDataTool", *
     return SCT_ReadCalibChipDataTool(name, **kwargs)
 
 def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
-    """Return configured ComponentAccumulator and tool for SCT_ReadCalibChipDataCfg
+    """Return configured ComponentAccumulator with SCT_ReadCalibChipDataCfg tool
 
     Accepts optional noiseFolder and gainFolder keyword arguments
     """
@@ -29,5 +29,6 @@ def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
     gainAlg = SCT_ReadCalibChipGainCondAlg(name=name + "GainCondAlg", ReadKey=gainFolder)
     acc.addCondAlgo(gainAlg)
     tool = kwargs.get("ReadCalibChipDataTool", SCT_ReadCalibChipDataToolCfg(flags))
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 

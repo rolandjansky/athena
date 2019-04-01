@@ -22,6 +22,8 @@ flags.Detector.GeometryMDT   = True
 flags.Detector.GeometryTGC   = True
 flags.Detector.GeometryCSC   = True     
 flags.Detector.GeometryRPC   = True     
+flags.Trigger.writeBS=True # switches on HLTResultMT creation
+
 
 flags.needFlagsCategory('Trigger')
 setupMenu(flags)
@@ -76,12 +78,9 @@ acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING #
 acc.printConfig()
 
 
+
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p, nEvents=10, useBootStrapFile=False, threaded=True )
     p.close()
-
-
-
-

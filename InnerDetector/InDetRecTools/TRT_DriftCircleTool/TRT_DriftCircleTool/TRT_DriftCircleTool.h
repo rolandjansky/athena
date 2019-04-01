@@ -22,11 +22,11 @@
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-class ITRT_StrawSummarySvc;
+class ITRT_StrawSummaryTool;
 class ITRT_DriftFunctionTool;
 class IInDetConditionsSvc;
 class TRT_ID;
@@ -77,7 +77,7 @@ public:
   ///////////////////////////////////////////////////////////////////
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"xAODEventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo" }; //!< key to retrieve eventinfo
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 //  ServiceHandle<ITRT_ConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
 //  ServiceHandle< IInDetConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
   bool                                 m_useConditionsStatus;     //!< Shall the ConditionsSummaryTool be used?

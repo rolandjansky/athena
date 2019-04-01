@@ -188,7 +188,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550', ],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb'],
+    'extra'          : ['noL1', 'Comb', 'fast'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar',],
     'reccalibInfo'   : [],

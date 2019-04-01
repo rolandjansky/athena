@@ -18,7 +18,7 @@ def setupMenu():
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
-    # ['chainName', [L1 thresholds for chainParts], [stream], [groups], EBstep], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
+    # ['chainName', [L1 thresholds for chainParts], [stream], [groups]], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
     #---------------------------------------------------------------------
 
     #---------------------------------------------------------------------
@@ -32,18 +32,26 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        #['mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        #['mu8_L1MU6',     [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['HLT_mu6fast_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_mu6Comb_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_mu6_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+
+        ['HLT_mu20_ivar_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_2mu6Comb_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+        ['HLT_2mu6_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
+
+        ['HLT_mu6noL1_L1MU6',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
 
      ]
     TriggerFlags.EgammaSlice.signatures = [
-        ['HLT_e3_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
-        #['e20_L1EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
+        ['HLT_e3_etcut1step_L1EM3', []                 ,  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
+        ['HLT_e3_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
+        ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
+        ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
         ]
     TriggerFlags.CombinedSlice.signatures = [
-        #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        
+        #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
         ]
     TriggerFlags.JetSlice.signatures = [ ]
     TriggerFlags.BjetSlice.signatures = [] 

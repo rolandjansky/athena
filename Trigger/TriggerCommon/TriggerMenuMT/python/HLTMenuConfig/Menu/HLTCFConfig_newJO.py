@@ -1,7 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from collections import defaultdict
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
+    stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE
@@ -10,27 +15,17 @@ log = logging.getLogger('HLTCFConfig_newJO')
 log.setLevel( VERBOSE )
 
 
-def connectStepToFilter(chainStep, filterNode):
-    filter_output = filterNode.getOutputList()
-    if len(filter_output) == 0:
-        raise ValueError('ERROR: no filter outputs are set')
-
-    if len(filter_output) != len(chainStep.sequences):
-        msg = 'ERROR: found {} filter outputs and {} MenuSequences in step {}'.format(len(filter_output),
-            len(chainStep.sequences), chainStep.name)
-        raise ValueError(msg)
-
-    for nseq, sequence in enumerate(chainStep.sequences):
-        output = filter_output[nseq]
-        log.debug("Found input %s to sequence::%s from Filter::%s (from seed %s)", output,
-                  sequence.name, filterNode.Alg.name(), sequence.seed)
-        sequence.connectToFilter(output)
+def printStepsMatrix(matrix):
+    print('----- Steps matrix ------')
+    for nstep in matrix:
+        print('step {}:'.format(nstep))
+        for chainName in matrix[nstep]:
+            namesInCell = map(lambda el: el.name, matrix[nstep][chainName])
+            print('---- {}: {}'.format(chainName, namesInCell))
+    print('-------------------------')
 
 
-def generateDecisionTree(chains, allChainDicts):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from collections import defaultdict
-
+def generateDecisionTree(chains):
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     acc.addSequence( seqAND(mainSequenceName) )
@@ -40,24 +35,30 @@ def generateDecisionTree(chains, allChainDicts):
     chainStepsMatrix = defaultdict(lambda: defaultdict(list))
 
     ## Fill chain steps matrix
-    for chain in chains:
+    for index, chain in enumerate(chains):
         for stepNumber, chainStep in enumerate(chain.steps):
-            chainName = chainStep.name.split('_')[0]
-            chainStepsMatrix[stepNumber][chainName].append(chain)
+            chainStepsMatrix[stepNumber][chainStep.name].append(chain)
+
+    printStepsMatrix(chainStepsMatrix)
+
+    allCFSequences = []
 
     ## Matrix with steps lists generated. Creating filters for each cell
-    for nstep in chainStepsMatrix:
+    for nstep in sorted(chainStepsMatrix.keys()):
         stepDecisions = []
 
-        stepName = 'Step{}'.format(nstep)
+        stepName = CFNaming.stepName(nstep)
 
         stepFilterNodeName = '{}{}'.format(stepName, CFNaming.FILTER_POSTFIX)
         filterAcc = ComponentAccumulator()
         filterAcc.addSequence( parOR(stepFilterNodeName) )
 
-        stepRecoNodeName = '{}_{}'.format(mainSequenceName, stepName)
+        stepRecoNodeName = CFNaming.stepRecoNodeName(mainSequenceName, stepName)
+        stepRecoNode = parOR(stepRecoNodeName)
         recoAcc = ComponentAccumulator()
-        recoAcc.addSequence( parOR(stepRecoNodeName) )
+        recoAcc.addSequence(stepRecoNode)
+
+        CFSequences = []
 
         for chainName in chainStepsMatrix[nstep]:
             chainsInCell = chainStepsMatrix[nstep][chainName]
@@ -72,12 +73,13 @@ def generateDecisionTree(chains, allChainDicts):
             else:
                 filter_input = [output for sequence in firstChain.steps[nstep - 1].sequences for output in sequence.outputs]
 
+            chainStep = firstChain.steps[nstep]
+
             # One aggregated filter per chain (one per column in matrix)
-            filterName = 'Filter_{}'.format( firstChain.steps[nstep].name )
+            filterName = CFNaming.filterName(chainStep.name)
             sfilter = buildFilter(filterName, filter_input)
             filterAcc.addEventAlgo(sfilter.Alg, sequenceName = stepFilterNodeName)
 
-            chainStep = firstChain.steps[nstep]
             stepReco = parOR('{}{}'.format(chainStep.name, CFNaming.RECO_POSTFIX))
             stepView = seqAND('{}{}'.format(chainStep.name, CFNaming.VIEW_POSTFIX), [stepReco])
             viewWithFilter = seqAND(chainStep.name, [sfilter.Alg, stepView])
@@ -85,17 +87,24 @@ def generateDecisionTree(chains, allChainDicts):
 
             stepsAcc = ComponentAccumulator()
 
+            CFSequenceAdded = False
+
             for chain in chainsInCell:
-                for seq in chain.steps[nstep].sequences:
+                step = chain.steps[nstep]
+                CFSeq = CFSequence(step, sfilter)
+                if not CFSequenceAdded:
+                    CFSequences.append(CFSeq)
+                    CFSequenceAdded = True
+                for seq in step.sequences:
                     if seq.ca is None:
                         raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
                     stepsAcc.merge( seq.ca )
-                    recoAcc.addEventAlgo( seq.hypo.Alg, sequenceName = stepView.getName() )
+                    recoAcc.addEventAlgo(seq.hypo.Alg, sequenceName = stepView.getName())
+                if step.isCombo:
+                    recoAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
                 sfilter.setChains(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = stepReco.getName())
-
-            connectStepToFilter(chainStep, sfilter)
 
             for sequence in chainStep.sequences:
                 stepDecisions += sequence.outputs
@@ -105,5 +114,14 @@ def generateDecisionTree(chains, allChainDicts):
 
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
         acc.addSequence(summary, parentName = mainSequenceName)
+
+        allCFSequences.append(CFSequences)
+
+        stepCF_DataFlow_to_dot(stepRecoNodeName, CFSequences)
+        stepCF_ControlFlow_to_dot(stepRecoNode)
+
+    acc.printConfig()
+
+    all_DataFlow_to_dot(mainSequenceName, allCFSequences)
 
     return acc

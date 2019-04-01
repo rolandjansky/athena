@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -92,6 +93,11 @@ SCT_StripVetoTool.OutputLevel=DEBUG
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_StripVetoTestAlg
 job+= SCT_StripVetoTestAlg(StripVetoTool=SCT_StripVetoTool)
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCT_StripVetoTestAlg.Cardinality = numThreads
 
 import AthenaCommon.AtlasUnixGeneratorJob
 

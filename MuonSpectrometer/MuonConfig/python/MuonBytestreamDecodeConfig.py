@@ -23,7 +23,7 @@ def MuonCacheCfg():
                                     CscCacheKey    = MuonCacheNames.CscCache,
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
-    acc.addEventAlgo( cacheCreator )
+    acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 
 
@@ -36,7 +36,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-    acc.merge( RPCCablingConfigCfg(flags)[0] )
+    acc.merge( RPCCablingConfigCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -72,15 +72,16 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
         RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
-
-    return acc, RpcRawDataProvider
+    else:
+        acc.addEventAlgo(RpcRawDataProvider, primary=True)
+    return acc
 
 def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the TGC cabling to be setup
     from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
-    acc.merge( TGCCablingConfigCfg(flags)[0] )
+    acc.merge( TGCCablingConfigCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -106,22 +107,24 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
+        TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                   ProviderTool = MuonTgcRawDataProviderTool )
+        acc.addEventAlgo(TgcRawDataProvider,primary=True)
 
-    return acc, TgcRawDataProvider
+    return acc
 
 def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the MDT cabling to be setup
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    acc.merge( MDTCablingConfigCfg(flags)[0] )
+    acc.merge( MDTCablingConfigCfg(flags) )
 
     from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)[0]  )
+    acc.merge( MdtCalibrationSvcCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -141,25 +144,31 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name    = "MDT_RawDataProviderTool",
                                                                Decoder = MDTRodDecoder)
 
-    if forTrigger:
+    if True: #forTrigger:
+        # Trigger the creation of cache containers
+        cacheAcc = MuonCacheCfg()
+        acc.merge( cacheAcc )
         # tell the raw data provider tool to use the cache
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
-    
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
-                                                  ProviderTool = MuonMdtRawDataProviderTool )
 
-    return acc, MdtRawDataProvider
+    
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
+        MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+                                                  ProviderTool = MuonMdtRawDataProviderTool )
+        acc.addEventAlgo(MdtRawDataProvider,primary=True)
+
+    return acc
 
 def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # We need the CSC cabling to be setup
     from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
-    acc.merge( CSCCablingConfigCfg(flags)[0] )
+    acc.merge( CSCCablingConfigCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -178,18 +187,23 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
                                                                Decoder = CSCRodDecoder)
-    if forTrigger:
+    if True:#forTrigger:
+        # Trigger the creation of cache containers
+        cacheAcc = MuonCacheCfg()
+        acc.merge( cacheAcc )
         # tell the raw data provider tool to use the cache
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
-    # Setup the RAW data provider algorithm
-    from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+    if not forTrigger:
+        # Setup the RAW data provider algorithm
+        from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+        CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                   ProviderTool = MuonCscRawDataProviderTool )
+        acc.addEventAlgo(CscRawDataProvider,primary=True)
 
-    return acc, CscRawDataProvider
+    return acc
 
 if __name__=="__main__":
     # To run this, do e.g. 
@@ -220,25 +234,22 @@ if __name__=="__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg.merge(TrigBSReadCfg(ConfigFlags ))
 
-    # Schedule Rpc data decoding - once mergeAll is working can simplify these lines
-    rpcdecodingAcc, rpcdecodingAlg = RpcBytestreamDecodeCfg( ConfigFlags ) 
+    # Schedule Rpc data decoding
+    rpcdecodingAcc = RpcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( rpcdecodingAcc )
-    cfg.addEventAlgo( rpcdecodingAlg )
 
-    # Schedule Tgc data decoding - once mergeAll is working can simplify these lines
-    tgcdecodingAcc, tgcdecodingAlg = TgcBytestreamDecodeCfg( ConfigFlags ) 
+    # Schedule Tgc data decoding
+    tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( tgcdecodingAcc )
-    cfg.addEventAlgo( tgcdecodingAlg )
 
-    # Schedule Mdt data decoding - once mergeAll is working can simplify these lines
-    mdtdecodingAcc, mdtdecodingAlg = MdtBytestreamDecodeCfg( ConfigFlags )
+    # Schedule Mdt data decoding
+
+    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags , True)
     cfg.merge( mdtdecodingAcc )
-    cfg.addEventAlgo( mdtdecodingAlg )
 
-    # Schedule Csc data decoding - once mergeAll is working can simplify these lines
-    cscdecodingAcc, cscdecodingAlg = CscBytestreamDecodeCfg( ConfigFlags ) 
+    # Schedule Csc data decoding
+    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags , True) 
     cfg.merge( cscdecodingAcc )
-    cfg.addEventAlgo( cscdecodingAlg )
 
     # Need to add POOL converter  - may be a better way of doing this?
     from AthenaCommon import CfgMgr

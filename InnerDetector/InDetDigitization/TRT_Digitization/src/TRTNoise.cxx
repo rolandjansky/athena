@@ -11,6 +11,7 @@
 #include "TRTDigSettings.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -41,7 +42,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
 		    TRTElectronicsNoise * electronicsnoise,
 		    const TRT_ID* trt_id,
 		    int UseGasMix,
-		    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+		    ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 		  )
   : m_settings(digset),
     m_detmgr(detmgr),
@@ -53,7 +54,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
     m_digitPoolLength_nextaccessindex(0),
     m_msg("TRTNoise"),
     m_UseGasMix(UseGasMix),
-    m_sumSvc(sumSvc)
+    m_sumTool(sumTool)
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
   InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine);
@@ -674,7 +675,7 @@ int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
   int strawGasType=99;
 
   if (m_UseGasMix==0) { // use StatusHT
-    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar

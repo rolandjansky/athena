@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOTOOL_H 1
@@ -71,8 +71,6 @@ class TrigL2ElectronHypoTool : virtual public ::AthAlgTool
  private:
   HLT::Identifier m_decisionId;
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to electrons ( false ) or RoIs/clusters with electrons ( false ), relevant only in when multiplicity > 1" };
-
-  Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, ( do not even check ), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  { float( 5.0*CLHEP::GeV ) }, "Track pT requirement ( separate threshold for each electron )" };
   Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", {0}, "Delta Eta between the track and cluster"      }; //loose cut

@@ -30,7 +30,7 @@
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetSimEvent/TRTUncompressedHit.h"
 #include "InDetSimEvent/TRTHitIdHelper.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 // CLHEP
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -50,7 +50,7 @@ iFatras::HitCreatorTRT::HitCreatorTRT(const std::string& t,
   m_randomEngine(0),
   m_trtIdHelperName("TRT_ID"),
   m_trtIdHelper(0),
-  m_trtStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
+  m_trtStatusSummaryTool("TRT_StrawStatusSummaryTool", this),
   m_useConditionsSvc(false)
 {
     // The Hit Collection Name
@@ -61,7 +61,7 @@ iFatras::HitCreatorTRT::HitCreatorTRT(const std::string& t,
     // The TRT ID helper
     declareProperty("TRT_IdHelperName",             m_trtIdHelperName);
     // Tools & Services
-    declareProperty("StrawStatusSummarySvc",        m_trtStatusSummarySvc);
+    declareProperty("StrawStatusSummaryTool",        m_trtStatusSummaryTool);
     // general setup
     declareProperty("IncidentService",              m_incidentSvc);      
        
@@ -89,11 +89,11 @@ StatusCode iFatras::HitCreatorTRT::initialize()
         return StatusCode::FAILURE;
     }
     // Tools & Services        
-    if ( m_useConditionsSvc && m_trtStatusSummarySvc.retrieve().isFailure()){
-        ATH_MSG_ERROR( "[ --- ] Could not Retrieve '" << m_trtStatusSummarySvc << "'" );
+    if ( m_useConditionsSvc && m_trtStatusSummaryTool.retrieve().isFailure()){
+        ATH_MSG_ERROR( "[ --- ] Could not Retrieve '" << m_trtStatusSummaryTool << "'" );
         return StatusCode::FAILURE;        
     } else 
-        ATH_MSG_VERBOSE( "[ trthit ] Successfully retireved " << m_trtStatusSummarySvc );
+        ATH_MSG_VERBOSE( "[ trthit ] Successfully retireved " << m_trtStatusSummaryTool );
     // Get the TRT Identifier-helper:
     if (detStore()->retrieve(m_trtIdHelper, m_trtIdHelperName).isFailure()) {
       ATH_MSG_ERROR( "[ --- ] Could not get TRT ID helper");
@@ -153,8 +153,8 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
        // get the real identifier
        Identifier hitId = hitSurface.associatedDetectorElementIdentifier();
        // check conditions of the straw
-       if (m_useConditionsSvc &&  !m_trtStatusSummarySvc->get_status(hitId) ){
-           ATH_MSG_VERBOSE("[ trthit ] Straw is not active ( says ConditionsSvc). Ignore. ");
+       if (m_useConditionsSvc &&  !m_trtStatusSummaryTool->get_status(hitId) ){
+           ATH_MSG_VERBOSE("[ trthit ] Straw is not active ( says ConditionsTool). Ignore. ");
            return; 
        }
        // create entry/exit point

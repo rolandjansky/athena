@@ -98,7 +98,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_HardScatterSplittingSkipper(false),
     m_UseGasMix(0),
     m_cosmicEventPhase(0.0),
-    m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc")
+    m_sumTool("TRT_StrawStatusSummaryTool",this)
 
 {
 
@@ -114,7 +114,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   m_settings = new TRTDigSettings();
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
   declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
-  declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
+  declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
   declareProperty("UseGasMix",                     m_UseGasMix);
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
   declareProperty("ParticleBarcodeVeto",           m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
@@ -347,7 +347,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 					   m_manager,
 					   m_trt_id,
 					   m_UseGasMix,
-					   m_sumSvc);
+					   m_sumTool);
 
   m_pDigConditions->initialize(fakeCondRndmEngine);
 
@@ -368,7 +368,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 			     electronicsNoise,
 			     m_trt_id,
 			     m_UseGasMix,
-			     m_sumSvc);
+			     m_sumTool);
 
     ATH_MSG_DEBUG ( "Average straw noise level is " << m_pDigConditions->strawAverageNoiseLevel() );
 
@@ -499,8 +499,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //}
 
     // if StatusHT == 6 thats emulate argon, ==7 that's emulate krypton
-    bool emulateArFlag = m_sumSvc->getStatusHT(idStraw) == 6;
-    bool emulateKrFlag = m_sumSvc->getStatusHT(idStraw) == 7;
+    bool emulateArFlag = m_sumTool->getStatusHT(idStraw) == 6;
+    bool emulateKrFlag = m_sumTool->getStatusHT(idStraw) == 7;
 
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
@@ -922,7 +922,7 @@ int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
   int strawGasType=99;
 
   if (m_UseGasMix==0) { // use StatusHT
-    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar

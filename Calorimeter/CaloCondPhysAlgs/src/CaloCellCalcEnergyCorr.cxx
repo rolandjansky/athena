@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloCellCalcEnergyCorr.cxx 
@@ -16,7 +16,6 @@
 
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
@@ -205,8 +204,8 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       const EMBCellConstLink cell = embElement->getEMBCell();
       unsigned int nelec = cell->getNumElectrodes();
       for (unsigned int i=0;i<nelec;i++) {
-        const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+        const EMBHVElectrode& electrode = cell->getElectrode(i);
+        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
       }
     } else { // LAr EMEC
       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));

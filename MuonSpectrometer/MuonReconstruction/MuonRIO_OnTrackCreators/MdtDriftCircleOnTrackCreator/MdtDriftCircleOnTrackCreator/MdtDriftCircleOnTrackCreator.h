@@ -102,6 +102,7 @@ namespace Muon {
       virtual const MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& prd,
                                                               const Amg::Vector3D& globalPos,
                                                               const Amg::Vector3D* gdir = 0,
+							      float t0Shift = 0,
                                                               const MuonDriftCircleErrorStrategy* strategy = 0 ) const;
 
       /** @brief Update of the sign of the drift radius. The method creates a new MdtDriftCircleOnTrack, the old input MdtDriftCircleOnTrack is 
@@ -172,10 +173,11 @@ namespace Muon {
       
       /** preform the mdt calibration */
       CalibrationOutput getLocalMeasurement( const MdtPrepData& DC, 
-                                            const Amg::Vector3D& gpos,
-                                            const Amg::Vector3D* gdir,
-                                            MdtCalibrationSvcInput& inputData,
-                                            const MuonDriftCircleErrorStrategy* strategy = 0 ) const;
+					     const Amg::Vector3D& gpos,
+					     const Amg::Vector3D* gdir,
+					     MdtCalibrationSvcInput& inputData,
+					     const MuonDriftCircleErrorStrategy* strategy = 0,
+					     float t0Shift = 0) const;
       
       /** currently returns 0. */
       double getTriggerTime() const { return 0.; }

@@ -353,7 +353,7 @@ def CscCoolStrSvcCfg( flags ):
             CscCoolStrSvc.ParFolders.append('/CSC/' + t0phaseFolder)
 
 
-    return acc, CscCoolStrSvc
+    return acc
 
 ################################################################################
 # MDT calibration
@@ -408,25 +408,22 @@ def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
     kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-    return result, MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs)
+    result.addPublicTool(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
+    return result
 
 def MdtCalibrationDbSvcCfg(flags, **kwargs):
-    result=ComponentAccumulator()
-
     kwargs.setdefault( "CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField )
     kwargs.setdefault( "CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag )
     kwargs.setdefault( "CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault( "DBTool", "MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool")
- 
-    acc, mdt_calib_db_tool = MdtCalibDbToolCfg(flags)
-    acc.addPublicTool(mdt_calib_db_tool)
-    result.merge(acc)
+    result = MdtCalibDbToolCfg(flags)
+
     # kwargs.setdefault( "DBTool", mdt_calib_db_tool )
     
     mdt_calib_db_svc = MdtCalibrationDbSvc(**kwargs)
-    result.addService(mdt_calib_db_svc)
+    result.addService(mdt_calib_db_svc,primary=True)
     
-    return result, mdt_calib_db_svc
+    return result
 
 def MdtCalibrationSvcCfg(flags, **kwargs):
     result=ComponentAccumulator()
@@ -434,10 +431,10 @@ def MdtCalibrationSvcCfg(flags, **kwargs):
     # call dependent tools. TODO: fix in C++ (move to ServiceHandle + declareProperty)
     # C++ code is missing Property declaration of MagFieldSvc, but it does depend on it.
     
-    acc, mag_field_svc = MagneticFieldSvcCfg(flags)
+    acc = MagneticFieldSvcCfg(flags)
     result.merge( acc )
     
-    acc, mdt_calibration_db_svc = MdtCalibrationDbSvcCfg(flags)
+    acc = MdtCalibrationDbSvcCfg(flags)
     result.merge(acc)
     
     kwargs.setdefault( "DoSlewingCorrection",  flags.Muon.Calib.correctMdtRtForTimeSlewing )
@@ -454,5 +451,5 @@ def MdtCalibrationSvcCfg(flags, **kwargs):
         kwargs.setdefault("DoTofCorrection",False)
 
     mdt_calib_svc = MdtCalibrationSvc(**kwargs)
-    result.addService(mdt_calib_svc)
-    return result, MdtCalibrationSvc(**kwargs)
+    result.addService(mdt_calib_svc,primary=True)
+    return result

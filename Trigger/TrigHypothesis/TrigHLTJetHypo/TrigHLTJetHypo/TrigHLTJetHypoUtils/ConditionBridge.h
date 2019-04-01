@@ -40,11 +40,17 @@ class ConditionBridge{
   std::string toString() const noexcept{
     return m_pCondition -> toString();
   }
+  
+  void resetHistory() noexcept{
+    return m_pCondition -> resetHistory();
+  }
+
 
   double orderingParameter() const noexcept{
     return m_pCondition -> orderingParameter();
   }
 
+  
  private:
   std::shared_ptr<ICondition> m_pCondition;
 };

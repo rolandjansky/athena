@@ -25,10 +25,6 @@
 
 class MsgStream;
 
-namespace AdjT0 {
-  class IAdjustableT0Tool;
-}
- 
 namespace Trk {
   class Track;
   class PrepRawData;
@@ -97,12 +93,6 @@ namespace Muon {
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MooTrackBuilder; }
-
-    /** @brief refit candidate
-        @param trkCan the candidate
-        @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
-    */
-    Trk::Track* refit( const MuPatTrack& trkCan ) const;
 
     /** @brief refit track 
         @param track the track
@@ -280,7 +270,6 @@ namespace Muon {
     ToolHandle<IMuonTrackExtrapolationTool> m_trackExtrapolationTool; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool> m_errorOptimisationTool;
-    mutable ToolHandle<AdjT0::IAdjustableT0Tool>   m_tofTool;   //<! tof tool
     ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc; 
     Trk::MagneticFieldProperties           m_magFieldProperties; //!< magnetic field properties
 

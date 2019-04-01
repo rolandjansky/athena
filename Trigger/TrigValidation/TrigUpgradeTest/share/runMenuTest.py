@@ -16,8 +16,8 @@ menu = GenerateMenuMT(DEBUG)
 
 # set some flags
 menu.doEgammaChains      = True
+menu.doMuonChains        = True
 menu.doJetChains         = False
-menu.doMuonChains        = False
 menu.doCombinedChains    = False
 
 # generate the Chains from the Menu Dictionary

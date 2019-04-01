@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCABLING_LARHVCABLINGTOOL_H
@@ -10,6 +10,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <map>
@@ -38,7 +39,7 @@ static const InterfaceID IID_LArHVCablingTool("LArHVCablingTool", 1 , 0);
 */
 
 
-class LArHVCablingTool : public AthAlgTool {
+class ATLAS_NOT_THREAD_SAFE LArHVCablingTool : public AthAlgTool {
   public:
   
   // Retrieve interface ID

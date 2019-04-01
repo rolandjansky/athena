@@ -30,5 +30,6 @@ def SCT_SiliconConditionsCfg(flags, name="SCT_Silicon", **kwargs):
         tempAlg = SCT_SiliconTempCondAlg(name=name + "TempCondAlg", **CondArgs)
         acc.addCondAlgo(hvAlg)
         acc.addCondAlgo(tempAlg)
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 

@@ -15,12 +15,12 @@ def makeInDetAlgs( whichSignature='' ):
   #Create IdentifiableCaches
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
   InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews" + signature,
-                                       Pixel_ClusterKey = "PixelTrigClustersCache",
-                                       SCT_ClusterKey   = "SCT_ClustersCache",
-                                       SpacePointCachePix = "PixelSpacePointCache",
-                                       SpacePointCacheSCT   = "SctSpacePointCache",
-                                       SCTRDOCacheKey       = "SctRDOCache",
-                                       PixRDOCacheKey = "PixRDOCache",)
+                                       Pixel_ClusterKey = "PixelTrigClustersCache" + signature,
+                                       SCT_ClusterKey   = "SCT_ClustersCache" + signature,
+                                       SpacePointCachePix = "PixelSpacePointCache" + signature,
+                                       SpacePointCacheSCT   = "SctSpacePointCache" + signature,
+                                       SCTRDOCacheKey       = "SctRDOCache" + signature,
+                                       PixRDOCacheKey = "PixRDOCache" + signature)
                                        #OutputLevel=DEBUG)
   eventAlgs.append(InDetCacheCreatorTrigViews)
 
@@ -245,7 +245,7 @@ def makeInDetAlgs( whichSignature='' ):
     if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
       # Setup alignment folders and conditions algorithms
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
-      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg" + signature)
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 

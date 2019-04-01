@@ -14,6 +14,7 @@
 //  @author      M.Frank
 //====================================================================
 
+#include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbObjectSet.h"
 #include "StorageSvc/DbTypeInfo.h"
@@ -30,7 +31,6 @@ namespace pool  {
   void delete_DbObjectSetBase(void*) {  
   }
 }
-int numTokenInstances();
 
 // Do not clutter global namespace
 namespace {
@@ -177,7 +177,7 @@ void DbInstanceCount::dump(int typ)  {
   }
   if ( need_footer )  {
     cout << "|" << setw(10) << "<Unknown>"
-              << "|" << setw(7)  << numTokenInstances()
+         << "|" << setw(7)  << Token::numInstances()
               << "|" << "Token" << endl;       
     cout << "+----------+-------+-------------------------------------------+" << endl;
   }

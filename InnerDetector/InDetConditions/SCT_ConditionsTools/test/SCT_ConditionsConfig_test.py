@@ -3,6 +3,7 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
@@ -16,14 +17,19 @@ from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDat
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
-# DCS
-DCSAcc, DCSTool = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
-# Silicon
-SiliconAcc, SiliconTool = SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest")
-# ReadCalibChipData
-ReadAcc, ReadTool = SCT_ReadCalibChipDataCfg(ConfigFlags, name="ReadTest")
-# prevent raise on __del__
-DCSAcc.wasMerged()
-SiliconAcc.wasMerged()
-ReadAcc.wasMerged()
+# call tests
+dcs_acc = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
+dcs_acc.popPrivateTools()
+acc1=SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest")
+print acc1.popPrivateTools()
+
+acc2=SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest")
+print acc2.popPrivateTools()
+acc3=SCT_ReadCalibChipDataCfg(ConfigFlags, name="ReadTest")
+print acc3.popPrivateTools()
+
+dcs_acc.wasMerged()
+acc1.wasMerged()
+acc2.wasMerged()
+acc3.wasMerged()
 

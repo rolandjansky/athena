@@ -83,7 +83,7 @@ svcMgr += CondSvc()
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
 # Input file
-dataFile="/afs/cern.ch/work/a/adbailey/public/ESD/mc16_13TeV.301046.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_1000M1250.recon.ESD.e3649_s3170_r9466/ESD.11318157._000005.pool.root.1"
+dataFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile]
@@ -95,8 +95,9 @@ import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-from RecExConfig.InputFilePeeker import inputFileSummary
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+
+from PyUtils.MetaReaderPeeker import convert_itemList
+objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
 
 # Detector Description
 from AtlasGeoModel import SetGeometryVersion

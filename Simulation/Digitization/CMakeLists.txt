@@ -16,5 +16,5 @@ atlas_install_runtime( data/*.ascii test/Digitization_TestConfiguration.xml )
 
 atlas_add_test(test_MC16a_Digi_tf_configuration
                SCRIPT test/test_MC16a_Digi_tf_configuration.py
-               PROPERTIES TIMEOUT 300
+               PROPERTIES TIMEOUT 600
                PROPERTIES RESOURCE_LOCK DigiTf)

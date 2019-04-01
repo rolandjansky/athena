@@ -124,8 +124,7 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
 
 StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<ElectronInfo>& input ) const {
     for ( auto i: input ) {
-      if ( m_respectPreviousDecision 
-	   and ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue; // the decision was negative or not even made in previous stage
+      if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
 
       auto objDecision = decideOnSingleObject( i.electron, 0 );
       if ( objDecision == true ) {

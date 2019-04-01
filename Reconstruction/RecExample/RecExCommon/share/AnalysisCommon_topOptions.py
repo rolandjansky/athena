@@ -209,8 +209,9 @@ cfgRecExPers=CfgKeyStore("recexpers")
 if globalflags.InputFormat.is_pool():
     logAnaCommon_topOptions.info("Pool file : storing in objKeyStore the list of input object directly from file")
     try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
+
         pass
     except:
         logAnaCommon_topOptions.error("no input file defined in flags. If using RTT please use tag <athenaCommonFlags/>. Now continuing at own riske")
@@ -467,14 +468,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     if rec.doFileMetaData():
 
         # # Determine current skimming cycle and input stream name
-        # from RecExConfig.InputFilePeeker import inputFileSummary
-        # from RecExConfig.RecoFunctions import GetSkimCycle
-        # inputCycle=GetSkimCycle(inputFileSummary)
-        # if inputCycle<0:
-        #     currentCycle=1
-        # else:
-        #     currentCycle=inputCycle+1
-        #     pass
         # svcMgr.CutFlowSvc.SkimmingCycle=currentCycle
         # svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
         # #svcMgr.CutFlowSvc.OutputLevel=DEBUG
@@ -494,7 +487,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
 
             #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
+
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )

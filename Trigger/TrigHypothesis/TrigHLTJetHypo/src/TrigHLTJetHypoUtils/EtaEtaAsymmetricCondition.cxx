@@ -12,8 +12,10 @@
 
 EtaEtAsymmetricCondition::EtaEtAsymmetricCondition(double etaMin, 
                                                    double etaMax, 
-                                                   double threshold): 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){}
+                                                   double threshold,
+                                                   bool debug): 
+  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold), m_debug(debug){
+}
 
 
 bool EtaEtAsymmetricCondition::isSatisfied(const pHypoJet& ip) const {

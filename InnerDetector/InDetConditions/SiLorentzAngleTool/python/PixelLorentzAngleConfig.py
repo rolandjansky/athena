@@ -21,14 +21,17 @@ def PixelLorentzAngleCfg(flags, name="PixelSiLorentzAngleCondAlg", **kwargs):
 
     SiLorentzAngleTool may be provided in kwargs
     """
-    acc, svc = MagneticFieldSvcCfg(flags)
+    acc  = MagneticFieldSvcCfg(flags)
     tool = kwargs.get("SiLorentzAngleTool", PixelLorentzAngleToolCfg(flags))
-    acc.merge(PixelDCSConditionsCfg(flags))
-    SiPropAcc, SiPropTool = PixelSiPropertiesCfg(flags)
+    DCSCondAcc = PixelDCSConditionsCfg(flags)
+    DCSCondAcc.popPrivateTools()
+    acc.merge(DCSCondAcc)
+    SiPropAcc = PixelSiPropertiesCfg(flags)
+    kwargs.setdefault("SiPropertiesTool", SiPropAcc.popPrivateTools())
     acc.merge(SiPropAcc)
-    kwargs.setdefault("SiPropertiesTool", SiPropTool)
     kwargs.setdefault("UseMagFieldSvc", tool.UseMagFieldSvc)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
     acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name, **kwargs))
-    return acc, tool
+    acc.setPrivateTools(tool)
+    return acc
 

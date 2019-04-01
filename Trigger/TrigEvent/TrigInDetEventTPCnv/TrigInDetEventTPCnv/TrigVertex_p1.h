@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -31,7 +31,7 @@ class TrigVertex_p1
  public:
   
   TrigVertex_p1() {}
-  virtual ~TrigVertex_p1(){}
+  virtual ~TrigVertex_p1() = default;
 
   enum AlgoId_p1{NULLID=0, SITRACKID=1, IDSCANID=2, HISTOPRMVTXSITRACKID=3, VKALSECVTXID=4, BPHYSSECID=5,
                  BSFULLSITRACKID=6, BSFULLIDSCANID=7, BSSPLITSITRACKID=8, BSSPLITIDSCANID=9, HISTOPRMVTXIDSCANID=10,

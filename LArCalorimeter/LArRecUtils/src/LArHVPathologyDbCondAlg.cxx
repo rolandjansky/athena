@@ -186,9 +186,9 @@ void LArHVPathologyDbCondAlg::fillElectMap(LArHVPathology* hvpath) const {
            list.clear();
            HVline = m_hvlineHelper->hv_line(hwid);
            for (unsigned int i=0;i<nelec;i++) {
-             const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+             const EMBHVElectrode& electrode = cell->getElectrode(i);
              for (unsigned int igap=0;igap<2;igap++) {
-               if ((unsigned)electrode->hvLineNo(igap)==HVline) {
+               if ((unsigned)electrode.hvLineNo(igap)==HVline) {
                   list.push_back(2*i+igap);
                }
              } 

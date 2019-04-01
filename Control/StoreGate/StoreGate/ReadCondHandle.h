@@ -50,7 +50,8 @@ namespace SG {
     const_pointer_type retrieve( const EventIDBase& t);
 
     const_pointer_type  operator->()  { return  retrieve(); }
-    const_pointer_type  operator*()   { return  retrieve(); }   
+    const_pointer_type  operator*()   { return  retrieve(); }
+    const_pointer_type  cptr()        { return  retrieve(); }
 
     
     bool isValid();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestDriver.h"
@@ -26,20 +26,14 @@
 
 using namespace std;
 
-int numTokenInstances();
-
-static const std::string file = "pool_test.root";
-static const std::string container = "container";
-static const int nObjects = 100;
-
 
 TestDriver::TestDriver()
-{
-}
+{ }
+
 
 TestDriver::~TestDriver()
 {
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+   std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 void
@@ -53,13 +47,13 @@ TestDriver::testWriting()
    storSvc->addRef();
    cout << "startSession" << endl;
    pool::Session* sessionHandle = 0;
-   if ( ! ( storSvc->startSession( pool::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+   if ( ! ( storSvc->startSession( pool::RECREATE, m_storageType.type(), sessionHandle ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a session." );
    }
 
    cout << "Session connect" << endl;
-   pool::FileDescriptor fd( file, file );
-   if ( ! ( storSvc->connect( sessionHandle, pool::CREATE, fd ).isSuccess() ) ) {
+   pool::FileDescriptor fd( m_filename, m_filename );
+   if ( ! ( storSvc->connect( sessionHandle, pool::RECREATE, fd ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a connection." );
    }
    pool::DatabaseConnection* connection = fd.dbc();
@@ -78,7 +72,7 @@ TestDriver::testWriting()
   //Guid guid(guid_nam);
 
   std::vector< SimpleTestClass* > myObjects;
-  for ( int i = 0; i < nObjects; ++i ) {
+  for ( int i = 0; i < m_nObjects; ++i ) {
     myObjects.push_back( new SimpleTestClass() );
     SimpleTestClass* myObject = myObjects.back();
     myObject->data = i;
@@ -87,7 +81,7 @@ TestDriver::testWriting()
     Guid guid = pool::DbReflex::guid(class_SimpleTestClass);
     const pool::Shape* shape = 0;
     if ( storSvc->getShape( fd, guid, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( fd, container, guid, shape );
+      storSvc->createShape( fd, m_containerName, guid, shape );
     }
     if ( ! shape ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -95,8 +89,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( fd,
-				container, pool::ROOTTREE_StorageType.type(),
+    if ( ! ( storSvc->allocate( fd, m_containerName, m_storageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
     }
@@ -141,11 +134,11 @@ TestDriver::testReading()
   }
 
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( pool::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::READ, m_storageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
-  pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
+  pool::FileDescriptor* fd = new pool::FileDescriptor( m_filename, m_filename );
   sc = storSvc->connect( sessionHandle, pool::READ, *fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
@@ -159,7 +152,7 @@ TestDriver::testReading()
   }
   const Token* containerToken = containerTokens.front();
   const std::string containerName = containerToken->contID();
-  if ( containerName != container ) {
+  if ( containerName != m_containerName ) {
     throw std::runtime_error( "Container name read is different from the container name written" );
   }
 
@@ -197,10 +190,9 @@ TestDriver::testReading()
       objectToken->release();
     }
   }
-  if ( iObject != nObjects ) {
+  if ( iObject != m_nObjects ) {
     throw std::runtime_error( "Objects read different from objects written" );
   }
-
 
   if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );

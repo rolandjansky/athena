@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -28,7 +28,8 @@ public:
 
 };
 
-EMBDetectorManager::EMBDetectorManager()
+EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager)
+  : m_hvManager(hvManager)
 {
   setName("LArEMB");
 
@@ -44,7 +45,6 @@ EMBDetectorManager::EMBDetectorManager()
 
   m_basicReadoutNumbers = new EMBBasicReadoutNumbers();
   m_accordionDetails    = NULL;
-  m_hvManager           = NULL;
   m_presamplerHVManager = NULL;
 }
 
@@ -107,16 +107,8 @@ void EMBDetectorManager::addTreeTop (PVLink treeTop)
   treeTop->ref();
 }
 
-const EMBHVManager * EMBDetectorManager::getHVManager () const
+const EMBHVManager& EMBDetectorManager::getHVManager () const
 {
-
-  if (!m_hvManager) {
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
-    if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_hvManager=manager->getEMBHVManager();
-    }
-  } 
   return m_hvManager;
 }
 

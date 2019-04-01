@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMBCell.h"
@@ -32,9 +32,9 @@ unsigned int EMBCell::getNumElectrodes() const {
   return m_electrode.size();
 }
 
-const EMBHVElectrodeConstLink & EMBCell::getElectrode (unsigned int i) const {
+const EMBHVElectrode & EMBCell::getElectrode (unsigned int i) const {
   if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  return m_electrode[i];
+  return *(m_electrode[i]);
 }
 
 const EMBPresamplerHVModuleConstLink & EMBCell::getPresamplerHVModule () const {
@@ -73,7 +73,7 @@ void EMBCell::initHV() const {
   else {
     // M_PI - phi for left side
     
-    const EMBHVManager *hvManager=getDescriptor()->getManager()->getHVManager();
+    const EMBHVManager& hvManager=getDescriptor()->getManager()->getHVManager();
     double phiUpper = getPhiMaxNominal();
     double phiLower = getPhiMinNominal();
     
@@ -81,8 +81,8 @@ void EMBCell::initHV() const {
     
     double eta=fabs(getEtaMax()+getEtaMin())/2.0;
     double phi=fabs(phiUpper+phiLower)/2.0;
-    const CellBinning & etaBinning=hvManager->getDescriptor()->getEtaBinning();
-    const CellBinning & phiBinning=hvManager->getDescriptor()->getPhiBinning();
+    const CellBinning & etaBinning=hvManager.getDescriptor().getEtaBinning();
+    const CellBinning & phiBinning=hvManager.getDescriptor().getPhiBinning();
     unsigned int iEta = int((eta - etaBinning.getStart())/etaBinning.getDelta()) + etaBinning.getFirstDivisionNumber();
     unsigned int iPhi = int((phi - phiBinning.getStart())/phiBinning.getDelta()) + phiBinning.getFirstDivisionNumber();
     unsigned int iSector = int(2.0*(phi - phiBinning.binLower(iPhi))/phiBinning.getDelta());
@@ -90,17 +90,17 @@ void EMBCell::initHV() const {
     
     if (iEta==8) iEta=7;
     
-    EMBHVModuleConstLink hvMod = hvManager->getHVModule(iSide,iEta,iPhi,iSector);
+    const EMBHVModule& hvMod = hvManager.getHVModule(iSide,iEta,iPhi,iSector);
     double dPhi = fabs((phiUpper-phiLower));
     double phi0 = (iSide==1) ? M_PI/1024 : -(M_PI)/1024;      // delta phi between first absorber and electrode at phi=0
-    double sPhi = phiLower-hvMod->getPhiMin() + phi0;    
+    double sPhi = phiLower-hvMod.getPhiMin() + phi0;    
     unsigned int iOffset=int(sPhi*(M_1_PI/2*1024.)+0.5);
     unsigned int N      =int(dPhi*(M_1_PI/2*1024.)+0.5);
     //  std::cout << " EMBCell   eta,phi1,phi2 cell, phiMinModule " << eta << " " << phiLower << " " << phiUpper << " " << hvMod->getPhiMin() << std::endl;
     
     for (unsigned int iElectrode=iOffset;iElectrode<iOffset+N;iElectrode++) {
-      EMBHVElectrodeConstLink hvElec = hvMod->getElectrode(iElectrode);
-      m_electrode.push_back(hvElec);
+      const EMBHVElectrode& hvElec = hvMod.getElectrode(iElectrode);
+      m_electrode.push_back(&hvElec);
     }
     
   }

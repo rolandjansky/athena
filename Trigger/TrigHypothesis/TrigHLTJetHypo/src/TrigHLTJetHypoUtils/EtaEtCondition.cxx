@@ -10,8 +10,12 @@
 #include <TLorentzVector.h>
 
 
-EtaEtCondition::EtaEtCondition(double etaMin, double etaMax, double threshold): 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){}
+EtaEtCondition::EtaEtCondition(double etaMin,
+                               double etaMax,
+                               double threshold,
+                               bool debug): 
+  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold), m_debug(debug){
+}
 
 
 bool EtaEtCondition::isSatisfied(const pHypoJet& ip) const {

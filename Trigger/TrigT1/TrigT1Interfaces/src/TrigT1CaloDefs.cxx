@@ -65,9 +65,9 @@ const std::string TrigT1CaloDefs::EnergyROILocation="EnergyROIs";
 const std::string TrigT1CaloDefs::EmTauROILocation="EmTauROIs";
 const std::string TrigT1CaloDefs::JetEtROILocation="JetEtROIs";
 
-const std::string TrigT1CaloDefs::EmTauCTPLocation="CaloTriggerDataLocation/EmTauCTP";
-const std::string TrigT1CaloDefs::JetCTPLocation="CaloTriggerDataLocation/JetCTP";
-const std::string TrigT1CaloDefs::EnergyCTPLocation="CaloTriggerDataLocation/EnergyCTP";
+const std::string TrigT1CaloDefs::EmTauCTPLocation="CaloTriggerDataLocation_EmTauCTP";
+const std::string TrigT1CaloDefs::JetCTPLocation="CaloTriggerDataLocation_JetCTP";
+const std::string TrigT1CaloDefs::EnergyCTPLocation="CaloTriggerDataLocation_EnergyCTP";
 
 const std::string TrigT1CaloDefs::EmTauSlinkLocation="CaloTriggerDataLocation_EmTauSlink";
 const std::string TrigT1CaloDefs::jepSlinkLocation="CaloTriggerDataLocation_JEPSlink";

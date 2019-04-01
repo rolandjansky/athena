@@ -37,6 +37,17 @@ class ConfiguredInDetPreProcessingTRT:
             collection = InDetKeys.TRT_DriftCirclesUncalibrated()
             if InDetFlags.doSplitReco() :
                collectionPU = InDetKeys.TRT_PU_DriftCirclesUncalibrated()
+         # Calibration DB Service
+         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+         InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
+
+         # --- set Data/MC flag
+         if globalflags.DataSource != 'geant4' :
+             InDetTRTCalDbTool.isGEANT4 = False
+         else :
+             InDetTRTCalDbTool.isGEANT4 = True
+
          #
          # --- TRT_DriftFunctionTool
          #
@@ -44,7 +55,7 @@ class ConfiguredInDetPreProcessingTRT:
 
          from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
          InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name                = prefix+"DriftFunctionTool",
-                                                            TRTCalDbTool        = InDetTRTCalDbSvc)
+                                                            TRTCalDbTool        = InDetTRTCalDbTool)
          # --- overwrite for uncalibrated DC production
          if (not useTimeInfo) or InDetFlags.noTRTTiming():
             InDetTRT_DriftFunctionTool.DummyMode      = True
@@ -55,6 +66,7 @@ class ConfiguredInDetPreProcessingTRT:
              InDetTRT_DriftFunctionTool.IsMC = False
          else :
              InDetTRT_DriftFunctionTool.IsMC = True
+
 
          # --- overwrite for calibration of MC
          if usePhase and jobproperties.Beam.beamType()=='cosmics' and globalflags.DataSource == "geant4":
@@ -76,10 +88,25 @@ class ConfiguredInDetPreProcessingTRT:
                                                               -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958]
          InDetTRT_DriftFunctionTool.ToTCorrectionsEndcapAr = [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
                                                               -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805]
+         # Second calibration DB Service in case pile-up and physics hits have different calibrations
+         if DetFlags.overlay.TRT_on() :
+             InDetTRTCalDbTool2 = TRT_CalDbTool(name = "TRT_CalDbTool2")
+             InDetTRTCalDbTool2.IsGEANT4 = True
+             InDetTRTCalDbTool2.RtFolderName = "/TRT/Calib/MC/RT"             
+             InDetTRTCalDbTool2.T0FolderName = "/TRT/Calib/MC/T0"             
+             InDetTRT_DriftFunctionTool.TRTCalDbTool2 = InDetTRTCalDbTool2
+             InDetTRT_DriftFunctionTool.IsOverlay = True
+             InDetTRT_DriftFunctionTool.IsMC = False
 
          ToolSvc += InDetTRT_DriftFunctionTool
          if (InDetFlags.doPrintConfigurables()):
             print InDetTRT_DriftFunctionTool
+
+         # Straw status DB Tool
+         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+         InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                                     isGEANT4=(globalflags.DataSource == 'geant4'))
+
          #
          # --- TRT_DriftCircleTool
          #
@@ -109,8 +136,7 @@ class ConfiguredInDetPreProcessingTRT:
          InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                            = prefix+"DriftCircleTool",
                                                                TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
                                                                TrtDescrManageLocation          = InDetKeys.TRT_Manager(),
-                                                               ConditionsSummaryTool           = InDetTRTStrawStatusSummarySvc,
-                                                               #used to be InDetTRTConditionsSummaryService,
+                                                               ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
                                                                UseConditionsStatus             = True,
                                                                UseConditionsHTStatus           = True,
                                                                SimpleOutOfTimePileupSupression = InDetFlags.doCosmics(),
@@ -180,8 +206,8 @@ class ConfiguredInDetPreProcessingTRT:
           from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
           InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(  name 		= "InDet_TRT_LocalOccupancy",
 								isTrigger	= False,
-                                                                TRTDriftFunctionTool = InDetTRT_DriftFunctionTool
-	  )
+                                                                TRTCalDbTool = InDetTRTCalDbTool,
+                                                                TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
 
           ToolSvc += InDetTRT_LocalOccupancy
           if (InDetFlags.doPrintConfigurables()):

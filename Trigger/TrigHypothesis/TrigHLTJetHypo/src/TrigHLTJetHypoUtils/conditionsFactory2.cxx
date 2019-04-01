@@ -27,7 +27,8 @@
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
                                   const std::vector<double>& etaMaxs,
                                   const std::vector<double>& thresholds,
-                                  const std::vector<int>& asymmetricEtas){
+                                  const std::vector<int>& asymmetricEtas,
+                                  bool debug){
 
   Conditions conditions;
   for (std::size_t i = 0; i != thresholds.size(); ++i){
@@ -35,9 +36,14 @@ Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
     std::shared_ptr<ICondition> pCondition(nullptr);
 
     if (asymmetricEtas[i] != 0){
-      pCondition.reset(new EtaEtAsymmetricCondition(etaMins[i], etaMaxs[i], thresholds[i]));
+      pCondition.reset(new EtaEtAsymmetricCondition(etaMins[i],
+                                                    etaMaxs[i],
+                                                    thresholds[i],
+                                                    debug));
     } else {
-      pCondition.reset(new EtaEtCondition(etaMins[i], etaMaxs[i], thresholds[i]));
+      pCondition.reset(new EtaEtCondition(etaMins[i],
+                                          etaMaxs[i],thresholds[i],
+                                          debug));
     }
 
     conditions.push_back(ConditionBridge(pCondition));      
@@ -47,11 +53,12 @@ Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
 
 
 Conditions conditionsFactorysinglemass(const std::vector<double>& etaMins,
-                                  const std::vector<double>& etaMaxs,
-                                  const std::vector<double>& thresholds,
-                                  const std::vector<double>& jetMassMin,
-                                  const std::vector<double>& jetMassMax){
-
+                                       const std::vector<double>& etaMaxs,
+                                       const std::vector<double>& thresholds,
+                                       const std::vector<double>& jetMassMin,
+                                       const std::vector<double>& jetMassMax,
+                                       bool debug){
+  
   Conditions conditions;
   for (std::size_t i = 0; i != thresholds.size(); ++i){
     
@@ -60,7 +67,12 @@ Conditions conditionsFactorysinglemass(const std::vector<double>& etaMins,
 //    if (asymmetricEtas[i] != 0){
 //      pCondition.reset(new EtaEtAsymmetricCondition(etaMins[i], etaMaxs[i], thresholds[i]));
 //    } else {
-      pCondition.reset(new SingleJetMassCondition(etaMins[i], etaMaxs[i], thresholds[i], jetMassMin[i], jetMassMax[i]));
+      pCondition.reset(new SingleJetMassCondition(etaMins[i],
+                                                  etaMaxs[i],
+                                                  thresholds[i],
+                                                  jetMassMin[i],
+                                                  jetMassMax[i],
+                                                  debug));
 //    }
 
     conditions.push_back(ConditionBridge(pCondition));      
@@ -111,7 +123,8 @@ Conditions conditionsFactoryDijetMT(const std::vector<double>& massMins,
                                     const std::vector<double>& detaMins,
                                     const std::vector<double>& detaMaxs,
                                     const std::vector<double>& dphiMins,
-                                    const std::vector<double>& dphiMaxs){  
+                                    const std::vector<double>& dphiMaxs,
+                                    bool debug){  
   Conditions conditions;
   
   for(std::size_t i = 0; i < massMins.size(); ++i){
@@ -121,7 +134,8 @@ Conditions conditionsFactoryDijetMT(const std::vector<double>& massMins,
                                       detaMins[i],
                                       detaMaxs[i],
                                       dphiMins[i],
-                                      dphiMaxs[i]));
+                                      dphiMaxs[i],
+                                      debug));
     
     conditions.push_back(ConditionBridge(pCondition));
   }

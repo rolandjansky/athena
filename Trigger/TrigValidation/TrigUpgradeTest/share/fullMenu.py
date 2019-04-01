@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 # import flags
@@ -21,6 +21,7 @@ doMuon   = True
 doJet    = True
 doMET    = True
 doBJet   = False
+doTau    = False
 doCombo  = True
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
@@ -88,15 +89,15 @@ if (doPhoton):
 # muon chains
 ##################################################################
 if (doMuon):
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFSAStep, muEFMSStep, muIsoStep
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFMSSequence, muIsoSequence
     MuonChains  = []
-    muFastStep1 = muFastStep()
-    muCombStep2 = muCombStep()
+    muFastSequence = muFastSequence()
+    muCombSequence = muCombSequence()
 
     # step1
-    step1mufast=ChainStep("Step1_mufast", [ muFastStep1 ])
+    step1mufast=ChainStep("Step1_muFast", [ muFastSequence ])
     # step2
-    step2muComb=ChainStep("Step2_muComb", [ muCombStep2 ])
+    step2muComb=ChainStep("Step2_muComb", [ muCombSequence ])
     # step3
     
     MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
@@ -127,7 +128,7 @@ if (doJet):
 
 
 ##################################################################
-# jet chains
+# bjet chains
 ##################################################################
 if (doBJet):
     from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
@@ -142,12 +143,22 @@ if (doBJet):
         ]
     testChains += bjetChains
     
+if (doTau):
+  from TrigUpgradeTest.tauMenuDefs import tauCaloSequence
+  #, tauCaloRecSequence
+  step1=ChainStep("Step1_tau", [tauCaloSequence()])
+  #step2=ChainStep("Step2_taucalorec", [tauCaloRecSequence()])
+  tauChains = [
+      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1] ),
+      Chain(name='HLT_tau25_medium1_tracktwo', Seed="L1_TAU12IM",  ChainSteps=[step1] ),
+      ]
+  testChains += tauChains
 
 ##################################################################
 # MET chains
 ##################################################################
 if (doMET):
-    from TrigUpgradeTest.metMenuDefs import metCellMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.metMenuDefs import metCellMenuSequence
 
     metCellSeq = metCellMenuSequence()
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
@@ -163,7 +174,7 @@ if (doMET):
 ##################################################################
 if (doCombo):
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep1])
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence])
 
     comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains

@@ -1859,7 +1859,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 
     float dr_min_l2 = 9999;
     int   id_min_l2 = -1;
-    std::string monalg = "_MuFast";
+    std::string monalg = "_L2MuonSA";
     std::string wrtalg = "_L1";
 
     for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {

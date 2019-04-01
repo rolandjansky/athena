@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBHVManager.h"
-#include "LArHV/EMBHVDescriptor.h"
+#include "LArHV/EMBHVModule.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "GeoModelKernel/CellBinning.h"
 #include <cmath>
@@ -29,62 +29,74 @@
 
 class EMBHVManager::Clockwork {
 public:
-  Clockwork() {};
+  Clockwork(const EMBHVManager* manager) {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<8; ++iEta) {
+	for(int iPhi=0; iPhi<16; ++iPhi) {
+	  for(int iSector=0; iSector<2; ++iSector) {
+	    moduleArray[iSide][iEta][iPhi][iSector] = new EMBHVModule(manager,iSide,iEta,iPhi,iSector);
+	  }
+	}
+      }
+    }
+  }
   Clockwork(const Clockwork&) = delete;
-  EMBHVDescriptor      *descriptor;
-  EMBHVModuleConstLink  linkArray[2][8][16][2];
+  ~Clockwork() {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<8; ++iEta) {
+	for(int iPhi=0; iPhi<16; ++iPhi) {
+	  for(int iSector=0; iSector<2; ++iSector) {
+	    delete moduleArray[iSide][iEta][iPhi][iSector];
+	  }
+	}
+      }
+    }
+  }
+  EMBHVDescriptor       descriptor{CellBinning(0.0, 1.4, 7, 1),CellBinning(0.0, 2*M_PI, 16)};
+  const EMBHVModule*    moduleArray[2][8][16][2];
   std::atomic<bool>     init{false};
   std::mutex            mtx;
   std::vector<EMBHVPayload> payloadArray;
 };
 
-
-
-
-
 EMBHVManager::EMBHVManager()
-:m_c(new Clockwork)
+  : m_c(new Clockwork(this))
 {
-  m_c->descriptor = new EMBHVDescriptor(CellBinning(0.0, 1.4, 7, 1),CellBinning(0.0, 2*M_PI, 16));	
-  m_c->init=false;
 }
-
 
 EMBHVManager::~EMBHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-const EMBHVDescriptor *EMBHVManager::getDescriptor() const
+const EMBHVDescriptor& EMBHVManager::getDescriptor() const
 {
   return m_c->descriptor;
 }
 
 unsigned int EMBHVManager::beginPhiIndex() const
 {
-  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_c->descriptor.getPhiBinning().getFirstDivisionNumber();
 }
 
 unsigned int EMBHVManager::endPhiIndex() const
 {
-  return m_c->descriptor->getPhiBinning().getFirstDivisionNumber() + m_c->descriptor->getPhiBinning().getNumDivisions();
+  return m_c->descriptor.getPhiBinning().getFirstDivisionNumber() + m_c->descriptor.getPhiBinning().getNumDivisions();
 }
 
 unsigned int EMBHVManager::beginEtaIndex() const
 {
-  return m_c->descriptor->getEtaBinning().getFirstDivisionNumber();
+  return m_c->descriptor.getEtaBinning().getFirstDivisionNumber();
 }
 
 unsigned int EMBHVManager::endEtaIndex() const
 {
-  return m_c->descriptor->getEtaBinning().getFirstDivisionNumber() + m_c->descriptor->getEtaBinning().getNumDivisions();
+  return m_c->descriptor.getEtaBinning().getFirstDivisionNumber() + m_c->descriptor.getEtaBinning().getNumDivisions();
 }
 
-EMBHVModuleConstLink EMBHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi, unsigned int iSector) const
+const EMBHVModule& EMBHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi, unsigned int iSector) const
 {
-  if (!m_c->linkArray[iSide][iEta][iPhi][iSector]) m_c->linkArray[iSide][iEta][iPhi][iSector] = EMBHVModuleConstLink(new EMBHVModule(this, iSide, iEta,iPhi,iSector));
-  return m_c->linkArray[iSide][iEta][iPhi][iSector];
+  return *(m_c->moduleArray[iSide][iEta][iPhi][iSector]);
 }
 
 unsigned int EMBHVManager::beginSectorIndex() const
@@ -254,12 +266,12 @@ void EMBHVManager::update() const {
 EMBHVPayload *EMBHVManager::getPayload(const EMBHVElectrode &electrode) const {
   update();
   unsigned int electrodeIndex    = electrode.getElectrodeIndex();
-  EMBHVModuleConstLink module = electrode.getModule();
-  unsigned int etaIndex          = module->getEtaIndex();
-  unsigned int phiIndex          = module->getPhiIndex();
-  unsigned int sectorIndex       = module->getSectorIndex();
-  unsigned int sideIndex         = module->getSideIndex();
-  unsigned int index             =  8192*sideIndex+1024*etaIndex+64*phiIndex+32*sectorIndex+electrodeIndex;
+  const EMBHVModule& module      = electrode.getModule();
+  unsigned int etaIndex          = module.getEtaIndex();
+  unsigned int phiIndex          = module.getPhiIndex();
+  unsigned int sectorIndex       = module.getSectorIndex();
+  unsigned int sideIndex         = module.getSideIndex();
+  unsigned int index             = 8192*sideIndex+1024*etaIndex+64*phiIndex+32*sectorIndex+electrodeIndex;
   return &m_c->payloadArray[index];
 }
 

@@ -13,12 +13,6 @@ from TriggerMenu.menu.MenuUtils import setupTopoStartFrom
 from AthenaCommon.SystemOfUnits import mm
 
 from TriggerMenu.tau.TauDef import L2EFChain_tau as L2EFChain_tau
-try:
-    from TriggerMenu.tau.TauDefIdTest import L2EFChain_tau as L2EFChain_tau_IdTest
-except:
-    log.error('generateTauChainDefs: Problems when importing TauDefIdTest.')
-    import traceback
-    log.info(traceback.print_exc())
 
 from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs
 

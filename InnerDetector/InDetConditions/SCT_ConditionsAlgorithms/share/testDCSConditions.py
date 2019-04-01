@@ -13,7 +13,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -82,6 +83,11 @@ topSequence = AlgSequence()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTestAlg
 topSequence+= SCT_DCSConditionsTestAlg(SCT_DCSConditionsTool=sct_DCSConditionsToolSetup.getTool())
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    topSequence.SCT_DCSConditionsTestAlg.Cardinality = numThreads
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
