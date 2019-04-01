@@ -563,6 +563,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOneMergedElectron() const {
       continue;
     //Count the number of Si tracks matching the electron
     int nSiTrack(0);
+    int z0_1 = 1;
     for( unsigned int trk_i(0); trk_i < el->nTrackParticles(); ++trk_i){
       auto ele_tp =  el->trackParticle(trk_i);
       if(!ele_tp){
@@ -575,10 +576,17 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOneMergedElectron() const {
       allFound = allFound && ele_tp->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
       allFound = allFound && ele_tp->summaryValue(nSCTDead, xAOD::numberOfSCTDeadSensors);
 
-      
+      // Require that the track be a reasonble silicon track
       int nSiHitsPlusDeadSensors = nPixHits + nPixDead + nSCTHits + nSCTDead;
       if(nSiHitsPlusDeadSensors >= 7)
+      {
+        //Ensure that the tracks come from roughly the same region of the detector
+        if(nSiTrack == 0)
+          z0_1 = ele_tp->z0();
+        else if( fabs(z0_1 - ele_tp->z0()) > 10 )
+          continue;
         ++nSiTrack;
+      }
     }
     //If 2 or more the electron is selected
     if(nSiTrack>1)
