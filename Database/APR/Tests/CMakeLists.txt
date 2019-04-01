@@ -55,6 +55,7 @@ function( _add_test name )
       StorageSvc AthContainers  FileCatalog
       PersistentDataModel TestTools
       ENVIRONMENT "ROOT_INCLUDE_PATH=$ENV{ROOT_INCLUDE_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/TestDictionary"
+      PROPERTIES TIMEOUT 300
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
       POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${name}_test"
       ${properties} )
