@@ -30,10 +30,12 @@ class SCT_SensorsTestAlg : public AthReentrantAlgorithm {
   virtual ~SCT_SensorsTestAlg() = default;
     
   // Standard Gaudi functions
-  StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
-  StatusCode finalize() override;   //!< Gaudi finaliser
-    
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
+  virtual StatusCode finalize() override;   //!< Gaudi finaliser
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   ToolHandle<ISCT_SensorsTool> m_SensorsTool{this, "SCT_SensorsTool", "SCT_SensorsTool", "Tool to retrieve SCT sensor information"};
 };

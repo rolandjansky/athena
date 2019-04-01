@@ -6,7 +6,8 @@
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -40,7 +41,7 @@ theApp.AuditAlgorithms=True
 #--------------------------------------------------------------
 # PerfMon Setup (crash in finalize of AthenaMT)
 #--------------------------------------------------------------
-if jobproperties.ConcurrencyFlags.NumThreads() == 0:
+if numThreads == 0:
     from PerfMonComps.PerfMonFlags import jobproperties
     jobproperties.PerfMonFlags.doMonitoring = True
     jobproperties.PerfMonFlags.OutputFile = "perfmon.root"
@@ -109,6 +110,11 @@ SCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataTestAlg
 topSequence+= SCT_ReadCalibDataTestAlg(SCT_ReadCalibDataTool=SCT_ReadCalibDataTool)
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    topSequence.SCT_ReadCalibDataTestAlg.Cardinality = numThreads
 
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
 SCT_ReadCalibDataCondAlg.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]

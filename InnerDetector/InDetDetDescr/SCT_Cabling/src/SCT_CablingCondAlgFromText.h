@@ -42,6 +42,8 @@ class SCT_CablingCondAlgFromText: public AthReentrantAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
   
 private:
 

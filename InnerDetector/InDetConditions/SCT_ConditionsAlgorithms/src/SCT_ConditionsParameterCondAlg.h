@@ -21,10 +21,11 @@ class SCT_ConditionsParameterCondAlg : public AthReentrantAlgorithm
  public:
   SCT_ConditionsParameterCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ConditionsParameterCondAlg() = default;
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
-
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
  private:
   SG::ReadCondHandleKey<CondAttrListVec> m_readKey{this, "ReadKey", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) chip conditions folder"};
   SG::WriteCondHandleKey<SCT_CondParameterData> m_writeKey{this, "WriteKey", "SCT_CondParameterData", "Key of output (derived) average threshold conditions data"};

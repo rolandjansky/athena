@@ -20,9 +20,11 @@ class SCT_DCSConditionsHVCondAlg : public AthReentrantAlgorithm
  public:
   SCT_DCSConditionsHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_DCSConditionsHVCondAlg() = default;
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DCS/HV", "Key of input (raw) HV conditions folder"};

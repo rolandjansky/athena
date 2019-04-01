@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -74,6 +75,11 @@ sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleTestAlg
 job += SCTSiLorentzAngleTestAlg(SCTLorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCTSiLorentzAngleTestAlg.Cardinality = numThreads
 
 # Prepare EventSelector
 import AthenaCommon.AtlasUnixGeneratorJob

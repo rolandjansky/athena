@@ -62,6 +62,8 @@ public:
   virtual StatusCode execute(const EventContext& ctx) const override;
   ///Clean up and release the collection containers
   virtual StatusCode finalize() override;
+  //Make this algorithm clonable.
+  virtual bool isClonable() const override { return true; };
   //@}
 
 private:
