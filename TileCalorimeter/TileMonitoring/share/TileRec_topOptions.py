@@ -401,7 +401,6 @@ if doPerfMon and not athenaCommonFlags.isOnline():
     theApp.AuditServices = True
     theApp.AuditTools = True  
 
-    theAuditorSvc += CfgMgr.AlgErrorAuditor()
     theAuditorSvc += CfgMgr.ChronoAuditor()
     theAuditorSvc += CfgMgr.NameAuditor()
     theAuditorSvc += CfgMgr.MemStatAuditor()

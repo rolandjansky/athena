@@ -390,7 +390,6 @@ if 'doPerfMon' in dir():
         theApp.AuditTools=True  
 
         from AthenaCommon import CfgMgr
-        theAuditorSvc += CfgMgr.AlgErrorAuditor()
         theAuditorSvc += CfgMgr.ChronoAuditor()
         theAuditorSvc += CfgMgr.NameAuditor()
         theAuditorSvc += CfgMgr.MemStatAuditor()

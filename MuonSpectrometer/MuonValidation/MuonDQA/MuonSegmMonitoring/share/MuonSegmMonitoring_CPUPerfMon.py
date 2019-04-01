@@ -29,7 +29,6 @@ if MuonDQAFlags.doFinalCPU:
 #---------------------------------------------------------------------------  
 # printout summary of messages
 #---------------------------------------------------------------------------  
-theAuditorSvc.Auditors += [ "AlgErrorAuditor" ]
 # show summary of WAR NING ER ROR and FATAL messages
 #---------------------------------------------------------------------------  
 svcMgr.MessageSvc.showStats=True
