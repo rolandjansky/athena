@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
   from AthenaCommon.AlgScheduler import AlgScheduler
   AlgScheduler.CheckDependencies( True )
   AlgScheduler.ShowControlFlow( True )
@@ -148,6 +149,11 @@ from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_Configurat
 MyConfigTestAlg = SCT_ConfigurationConditionsTestAlg("MyConfigTestAlg")
 MyConfigTestAlg.SCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
 job += MyConfigTestAlg
+
+if numThreads >= 2:
+  from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+  sctCondAlgCardinality.set(numThreads)
+  MyConfigTestAlg.Cardinality = numThreads
 
 import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.EventSelector.RunNumber =200805

@@ -29,10 +29,12 @@ class SCT_DCSConditionsTestAlg : public AthReentrantAlgorithm {
   virtual ~SCT_DCSConditionsTestAlg() = default;
     
   // Standard Gaudi functions
-  StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
-  StatusCode finalize() override;   //!< Gaudi finaliser
-    
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
+  virtual StatusCode finalize() override;   //!< Gaudi finaliser
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
 };

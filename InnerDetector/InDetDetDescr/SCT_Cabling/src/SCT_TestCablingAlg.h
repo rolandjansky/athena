@@ -34,9 +34,11 @@ class SCT_TestCablingAlg:public AthReentrantAlgorithm {
   SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_TestCablingAlg() = default;
   // Standard Gaudi functions
-  StatusCode initialize(); //!< Gaudi initialiser
-  StatusCode execute(const EventContext& ctx) const; //!< Gaudi executer
-  StatusCode finalize(); //!< Gaudi finaliser
+  virtual StatusCode initialize(); //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const; //!< Gaudi executer
+  virtual StatusCode finalize(); //!< Gaudi finaliser
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};

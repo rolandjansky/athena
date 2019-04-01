@@ -26,9 +26,11 @@ class SCT_ConditionsParameterTestAlg : public AthReentrantAlgorithm {
   virtual ~SCT_ConditionsParameterTestAlg() = default;
     
   // Standard Gaudi functions
-  StatusCode initialize() override; //!< Gaudi initialiser
-  StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
-  StatusCode finalize() override;   //!< Gaudi finaliser
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode execute(const EventContext& ctx) const override;    //!< Gaudi executer
+  virtual StatusCode finalize() override;   //!< Gaudi finaliser
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
     
  private:
   ToolHandle<ISCT_ConditionsParameterTool> m_conditionsParameterTool{this, "SCT_ConditionsParameterTool", "SCT_ConditionsParameterTool", "Tool to retrieve SCT conditions parameters"};

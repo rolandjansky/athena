@@ -51,6 +51,8 @@ namespace InDet {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
+    /** Make this algorithm clonable. */
+    virtual bool isClonable() const override { return true; };
 
   private:
       

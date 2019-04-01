@@ -32,6 +32,8 @@ class SCTSiLorentzAngleTestAlg: public AthReentrantAlgorithm
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
   ToolHandle<ISiLorentzAngleTool> m_tool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retrieve SCT Lorentz Angle Tool"};
