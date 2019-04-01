@@ -84,9 +84,9 @@ StatusCode MuonDetailedTrackTruthMaker::execute() {
   std::map<std::string,DetailedTrackTruthCollection*> dttcMap;
   for(SG::WriteHandle<DetailedTrackTruthCollection>& h_dttc : m_detailedTrackTruthNames.makeHandles()){
     ATH_CHECK(h_dttc.record(std::make_unique<DetailedTrackTruthCollection>()));
-    if(h_dttc.key().find("ExtrapolatedMuonTracks")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("METracks",h_dttc.ptr()));
+    if(h_dttc.key().find("MSOnlyExtrapolated")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("MSOnlyExtrapolated",h_dttc.ptr()));
+    else if(h_dttc.key().find("ExtrapolatedMuonTracks")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("METracks",h_dttc.ptr()));
     else if(h_dttc.key().find("CombinedMuonTracks")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("CombinedTracks",h_dttc.ptr()));
-    else if(h_dttc.key().find("MSOnlyExtrapolated")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("MSOnlyExtrapolated",h_dttc.ptr()));
     else{
       std::string cname=h_dttc.key();
       int pos=cname.find("DetailedTruth");
@@ -114,7 +114,7 @@ StatusCode MuonDetailedTrackTruthMaker::execute() {
       }
     }
     if(!dttc){
-      ATH_MSG_WARNING("no detailed track collection found!");
+      ATH_MSG_WARNING("no detailed track collection found for "<<tcol.key()<<"!");
       continue;
     }
     if(!dttc->trackCollectionLink().isValid()) dttc->setTrackCollection(tcol.cptr());
