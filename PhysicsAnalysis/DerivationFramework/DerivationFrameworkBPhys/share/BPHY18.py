@@ -116,6 +116,24 @@ BPHY18_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
    TrackContainer = "InDetTrackParticles" )
 ToolSvc += BPHY18_AugOriginalCounts
 
+#lhvloose_nod0
+from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronLikelihoodTool
+ElectronLHSelectorLHvloose_nod0 = AsgElectronLikelihoodTool("ElectronLHSelectorLHvloosenod0", 
+ConfigFile="dev/ElectronPhotonSelectorTools/offline/mc16_20190328_nod0/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth_nod0.conf")
+ElectronLHSelectorLHvloose_nod0.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorLHvloose_nod0
+print ElectronLHSelectorLHvloose_nod0
+
+# decorate electrons with the output of LH vloose nod0
+ElectronPassLHvloosenod0 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHvloosenod0",
+                                                                      EGammaSelectionTool = ElectronLHSelectorLHvloose_nod0,
+                                                                     EGammaFudgeMCTool = "",
+                                                                     CutType = "",
+                                                                     StoreGateEntryName = "DFCommonElectronsLHVeryLoosenod0",
+                                                                     ContainerName = "Electrons")
+ToolSvc += ElectronPassLHvloosenod0
+print ElectronPassLHvloosenod0
+
 #--------------------------------------------------------------------
 ## 2/ setup JpsiFinder tool
 ##    These are general tools independent of DerivationFramework that do the 
@@ -123,7 +141,7 @@ ToolSvc += BPHY18_AugOriginalCounts
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder_ee
 BPHY18DiElectronFinder = Analysis__JpsiFinder_ee(
     name                        = "BPHY18DiElectronFinder",
-    OutputLevel                 = DEBUG,
+    OutputLevel                 = INFO,
     elAndEl                     = True,
     elAndTrack                  = False,
     TrackAndTrack               = False,
@@ -132,18 +150,19 @@ BPHY18DiElectronFinder = Analysis__JpsiFinder_ee(
     invMassUpper                = 7000.0,
     invMassLower                = 1.0,
     Chi2Cut                     = 30.,
-    oppChargesOnly	            = False,
-    allChargeCombinations       = True,
+    oppChargesOnly	        = True,
+    allChargeCombinations       = False,
     useElectronTrackMeasurement = True, #
     electronCollectionKey       = "Electrons",
     TrackParticleCollection     = "GSFTrackParticles",
-    useEgammaCuts               = False, #Setting to True makes sure only lhloose electrons are vertexed
+    useEgammaCuts               = True, #Setting to True makes sure only lhloose electrons are vertexed
     V0VertexFitterTool          = BPHY18_VertexTools.TrkV0Fitter,             # V0 vertex fitter
     useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
     TrkVertexFitterTool         = BPHY18_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
     TrackSelectorTool           = BPHY18_VertexTools.InDetTrackSelectorTool,
 #OI    ConversionFinderHelperTool  = BPHY18_VertexTools.InDetConversionHelper,
-    VertexPointEstimator        = BPHY18_VertexTools.VtxPointEstimator
+    VertexPointEstimator        = BPHY18_VertexTools.VtxPointEstimator,
+   # ElectronSelection 			= "d0_or_nod0"
     )
 
 ToolSvc += BPHY18DiElectronFinder
@@ -214,7 +233,7 @@ print      BeeKstVertexFit
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
 BPHY18BeeKst = Analysis__JpsiPlus2Tracks(
     name                    = "BPHY18BeeKstFinder",
-    OutputLevel             = DEBUG, #can also be DEBUG, WARNING, VERBOSE
+    OutputLevel             = INFO, #can also be DEBUG, WARNING, VERBOSE
     kaonkaonHypothesis	    = False,
     pionpionHypothesis      = False,
     kaonpionHypothesis      = True,
@@ -321,7 +340,7 @@ if skimTruth or not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY18_SelectBeeKstEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY18_SelectBeeKstEvent",
-     expression = "(count(BeeKstCandidates.passed_Bd > 0) + count(BeeKstCandidates.passed_Bdbar > 0)  + count(BPHY18DiElectronCandidates.passed_Jpsi > 0) ) > 0") 
+     expression = "(count(BeeKstCandidates.passed_Bd > 0) + count(BeeKstCandidates.passed_Bdbar > 0)) > 0") 
      #just make sure there is at least one vertex in the event - either Bd/Bdbar or just a jpsi (of course every Bd has a Jpsi already...)
    ToolSvc += BPHY18_SelectBeeKstEvent
    print BPHY18_SelectBeeKstEvent
@@ -431,7 +450,7 @@ print thinningCollection
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY18Kernel",
-    AugmentationTools = [BPHY18DiElectronSelectAndWrite,  BPHY18_Select_DiElectrons,
+    AugmentationTools = [ElectronPassLHvloosenod0,BPHY18DiElectronSelectAndWrite,  BPHY18_Select_DiElectrons,
                          BPHY18BeeKstSelectAndWrite, BPHY18_Select_BeeKst, BPHY18_Select_BeeKstbar ],
     #Only skim if not MC
     SkimmingTools     = [BPHY18SkimmingOR] if skimTruth or not isSimulation else [],
@@ -490,7 +509,7 @@ ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hit
                    "Muons.numberOfTriggerEtaLayers.numberOfPhiLayers",
                    #"CombinedMuonTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits", 
                    "InDetTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits.vx.vy.vz",
-                   "PrimaryVertices.chiSquared.covariance", "Electrons.deltaEta1","egammaClusters.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME","HLT_xAOD__ElectronContainer_egamma_ElectronsAuxDyn.charge"]
+                   "PrimaryVertices.chiSquared.covariance", "Electrons.deltaEta1.DFCommonElectronsLHVeryLoosenod0","egammaClusters.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME","HLT_xAOD__ElectronContainer_egamma_ElectronsAuxDyn.charge"]
 
 ## Jpsi candidates 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY18DiElectronSelectAndWrite.OutputVtxContainerName]

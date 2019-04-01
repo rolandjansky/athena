@@ -37,7 +37,7 @@ namespace Analysis {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_iVertexFitter);
             return StatusCode::FAILURE;
         } else {
-            ATH_MSG_INFO("Retrieved tool " << m_iVertexFitter);
+            ATH_MSG_DEBUG("Retrieved tool " << m_iVertexFitter);
         }
         m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVertexFitter));
         
@@ -46,7 +46,7 @@ namespace Analysis {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSelector);
             return StatusCode::FAILURE;
         } else {
-            ATH_MSG_INFO("Retrieved tool " << m_trkSelector);
+            ATH_MSG_DEBUG("Retrieved tool " << m_trkSelector);
         }
 
         // Get the vertex point estimator tool from ToolSvc
@@ -54,7 +54,7 @@ namespace Analysis {
             ATH_MSG_FATAL("Failed to retrieve tool " << m_vertexEstimator);
             return StatusCode::FAILURE;
         } else {
-            ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
+            ATH_MSG_DEBUG("Retrieved tool " << m_vertexEstimator);
         }
 
         if(!m_manualMassHypo.empty() && m_manualMassHypo.size() !=4){
@@ -82,7 +82,7 @@ namespace Analysis {
         m_useGSFTrack.reset();
         for(int i : m_useGSFTrackIndices) m_useGSFTrack.set(i, true);
 
-        ATH_MSG_INFO("Initialize successful");
+        ATH_MSG_DEBUG("Initialize successful");
         
         return StatusCode::SUCCESS;
         
@@ -90,7 +90,7 @@ namespace Analysis {
     
     StatusCode JpsiPlus2Tracks::finalize() {
         
-        ATH_MSG_INFO("Finalize successful");
+        ATH_MSG_DEBUG("Finalize successful");
         return StatusCode::SUCCESS;
         
     }
@@ -328,7 +328,9 @@ namespace Analysis {
 
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
-                if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+//            std::cout<<"trkDeltaZ trkItr1_before "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+ 
+               if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
                 int linkedMuonTrk1 = 0;
                 if (m_excludeJpsiMuonsOnly) {
                   linkedMuonTrk1 = JpsiUpsilonCommon::isContainedIn(*trkItr1, muonTracks);
@@ -339,21 +341,21 @@ namespace Analysis {
                     continue; // remove tracks which were used to build J/psi
                   }
                 }
-        std::cout<<"trkDeltaZ trkItr1_before "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
-        std::cout<<"trkDeltaZ trkItr2_before "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;        
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
                    std::abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
-                    if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+  //                std::cout<<"trkDeltaZ trkItr2_before "<< abs((*trkItr2)->z0() + (*trkItr2)->vz() - (*jpsiItr)->z())<<std::endl;
+  
+                  if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                     if (m_excludeJpsiMuonsOnly) {
                       int linkedMuonTrk2 = JpsiUpsilonCommon::isContainedIn(*trkItr2, muonTracks);
                       if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
                       if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) {
-                        if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
+                         if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
                         continue; // remove tracks which were used to build J/psi
                       }
                       if( (linkedMuonTrk1+ linkedMuonTrk2) < m_requiredNMuons) {
@@ -455,12 +457,10 @@ namespace Analysis {
                     }
                     bHelper.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
                     bContainer->push_back(bVertex.release());//ptr is released preventing deletion
- std::cout<<"trkDeltaZ trkItr1_after_innerloop "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
-        std::cout<<"trkDeltaZ trkItr2_after_innerloop "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+      //  std::cout<<"trkDeltaZ trkItr2_after_innerloop "<< abs((*trkItr2)->z0() + (*trkItr2)->vz() - (*jpsiItr)->z())<<std::endl;
 
                 } // End of inner loop over tracks
- std::cout<<"trkDeltaZ trkItr1_after_outer "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
-        std::cout<<"trkDeltaZ trkItr2_after_outer "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
+     //   std::cout<<"trkDeltaZ trkItr1_after_outer "<< abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z())<<std::endl;
 
             } // End of outer loop over tracks
 
