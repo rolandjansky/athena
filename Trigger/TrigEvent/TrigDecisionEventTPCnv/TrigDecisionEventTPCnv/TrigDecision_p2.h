@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -47,13 +47,7 @@ namespace TrigDec {
     TrigDecision_p2() { 
     }
 
-    TrigDecision_p2(const TrigDecision_p2& other) : 
-      m_l1_result(other.getL1Result()), 
-      m_l2_result(other.m_l2_result), 
-      m_ef_result(other.m_ef_result) {
-    }
-
-    virtual ~TrigDecision_p2() { }
+    virtual ~TrigDecision_p2() = default;
 
     uint32_t configMasterKey() const { return m_configMasterKey; }
 
