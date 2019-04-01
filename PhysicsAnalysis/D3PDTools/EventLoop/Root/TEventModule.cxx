@@ -133,6 +133,11 @@ namespace EL
         return ::StatusCode::FAILURE;
       }
       ANA_CHECK (m_event->readFrom (data.m_inputFile.get()));
+      if (m_event->getEntry (0) < 0)
+      {
+        ANA_MSG_ERROR ("Failed to load first entry from file");
+        return ::StatusCode::FAILURE;
+      }
       m_store->clear ();
       return ::StatusCode::SUCCESS;
     }
