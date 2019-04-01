@@ -22,7 +22,7 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetPrepRawData/PixelCluster.h"
@@ -44,9 +44,9 @@ TrackStateOnSurfaceFillerTool::TrackStateOnSurfaceFillerTool (const std::string&
     m_pixId(0),
     m_sctId(0),
     m_trtId(0),
-    m_trtcaldbSvc("TRT_CalDbSvc",name),
+    m_trtcaldbSvc("TRT_CalDbTool",this),
     m_neighbourSvc("TRT_StrawNeighbourSvc",name), 
-    m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+    m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
     m_driftFunctionTool("TRT_DriftFunctionTool")
 {
   m_fillType["FillPixelHits"] = true;
@@ -74,7 +74,7 @@ TrackStateOnSurfaceFillerTool::TrackStateOnSurfaceFillerTool (const std::string&
   }
   declareProperty("ITRT_CalDbSvc",m_trtcaldbSvc);
   declareProperty("NeighbourSvc",m_neighbourSvc);
-  declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
+  declareProperty("TRTStrawSummaryTool",  m_TRTStrawSummaryTool);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
   declareProperty("ResidualPullCalculator", m_residualPullCalculator);
 }
@@ -132,7 +132,7 @@ StatusCode TrackStateOnSurfaceFillerTool::initialize(){
 
   CHECK(m_neighbourSvc.retrieve());
 
-  CHECK(m_TRTStrawSummarySvc.retrieve());
+  CHECK(m_TRTStrawSummaryTool.retrieve());
 
   CHECK(m_driftFunctionTool.retrieve());
 
@@ -360,8 +360,8 @@ StatusCode TrackStateOnSurfaceFillerTool::fill (const Trk::TrackStateOnSurface& 
           if(getFillVariable("board")) *m_board = board;
           if(getFillVariable("chip")) *m_chip = chip;
           if(getFillVariable("isArgonStraw")) {
-            if (!m_TRTStrawSummarySvc.empty()) {
-              if (m_TRTStrawSummarySvc->getStatusHT(id) != TRTCond::StrawStatus::Good) {
+            if (!m_TRTStrawSummaryTool.empty()) {
+              if (m_TRTStrawSummaryTool->getStatusHT(id) != TRTCond::StrawStatus::Good) {
                 *m_isArgonStraw = true;
               }
             }

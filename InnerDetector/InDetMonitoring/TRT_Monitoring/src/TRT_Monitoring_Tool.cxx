@@ -14,9 +14,9 @@
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
@@ -71,12 +71,12 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_passEventBurst(),
 	m_idHelper(0),
 	p_toolSvc("IToolSvc", name),
-	m_sumSvc("TRT_StrawStatusSummarySvc", name),
+	m_sumTool("TRT_StrawStatusSummaryTool", this),
 	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_BSSvc("TRT_ByteStream_ConditionsSvc", name),
 	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
-	m_TRTCalDbSvc("TRT_CalDbSvc", name),
+	m_TRTCalDbTool("TRT_CalDbTool", this),
 	m_drifttool("TRT_DriftFunctionTool"),
 	m_pTRTHelper(0),
 	m_mgr(0),
@@ -155,7 +155,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 // NOTE: check up on obsolete properties
 {
 	declareProperty("ToolSvc",                  p_toolSvc);
-	declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
+	declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
 	declareProperty("InDetTRT_DAQ_ConditionsSvc", m_DAQSvc);
 	declareProperty("TRT_ByteStream_ConditionsSvc", m_BSSvc);
 	declareProperty("TRT_StrawNeighbourSvc",   m_TRTStrawNeighbourSvc);
@@ -195,7 +195,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("NoiseSuppressionMap",      m_NoiseSuppressionMap = false);//obsolete
 	declareProperty("Debug",                    m_DEBUG);//obsolete
 	declareProperty("PrintEventInfo",           m_printEventInfo);//obsolete
-	declareProperty("ITRT_CalDbSvc",            m_TRTCalDbSvc);
+	declareProperty("ITRT_CalDbTool",           m_TRTCalDbTool);
 	declareProperty("LongToTCut",               m_longToTCut);
 	declareProperty("NPhiBins",                 m_nphi_bins           = 360);
 	declareProperty("EventBurstCut",            m_EventBurstCut       = 200);
@@ -416,10 +416,10 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 
 	if (m_doExpert) {
 		// Retrieve the TRT_Straw Status Service.
-		if (m_sumSvc.name().empty()) {
-			ATH_MSG_WARNING("TRT_StrawStatusSvc not given.");
+		if (m_sumTool.name().empty()) {
+			ATH_MSG_WARNING("TRT_StrawStatusTool not given.");
 		} else {
-			ATH_CHECK( m_sumSvc.retrieve() );
+			ATH_CHECK( m_sumTool.retrieve() );
 		}
 
 
@@ -451,9 +451,9 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		//Identifier ident = m_trtid->straw_id(1,1,1,1,1);
 		Identifier ident;
 
-		if (m_sumSvc.name() != "") {
-			ATH_MSG_VERBOSE("Trying " << m_sumSvc << " isGood");
-			ATH_MSG_VERBOSE("TRT_StrawStatusSvc reports status = " << m_sumSvc->getStatus(ident));
+		if (m_sumTool.name() != "") {
+			ATH_MSG_VERBOSE("Trying " << m_sumTool << " isGood");
+			ATH_MSG_VERBOSE("TRT_StrawStatusTool reports status = " << m_sumTool->getStatus(ident));
 		}
 	}//If do expert
 
@@ -473,11 +473,11 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		ATH_MSG_DEBUG("Retrieved succesfully the track summary tool" << m_TrackSummaryTool);
 
 	//Get TRTCalDbTool
-	if (m_TRTCalDbSvc.name().empty()) {
-		ATH_MSG_WARNING("TRT_CalDbSvc not given.");
+	if (m_TRTCalDbTool.name().empty()) {
+		ATH_MSG_WARNING("TRT_CalDbTool not given.");
 	} else {
-		if (m_TRTCalDbSvc.retrieve().isFailure()) {
-			ATH_MSG_ERROR("Cannot get TRTCalDBSvc.");
+		if (m_TRTCalDbTool.retrieve().isFailure()) {
+			ATH_MSG_ERROR("Cannot get TRTCalDBTool.");
 		}
 	}
 
@@ -1873,9 +1873,9 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 	}
 
 	// Test out the TRT_StrawStatusSummarySvc.
-	if (!m_sumSvc.name().empty() && m_doExpert) {
-		ATH_MSG_VERBOSE("Trying " << m_sumSvc << " isGood");
-		ATH_MSG_VERBOSE("TRT_StrawStatusSvc reports status = " << m_sumSvc->getStatus(TRT_Identifier));
+	if (!m_sumTool.name().empty() && m_doExpert) {
+		ATH_MSG_VERBOSE("Trying " << m_sumTool << " isGood");
+		ATH_MSG_VERBOSE("TRT_StrawStatusTool reports status = " << m_sumTool->getStatus(TRT_Identifier));
 	}
 
 	// ibe = 0 (Barrel), ibe = 1 (Endcap)
@@ -1970,7 +1970,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 			bool is_anybininVgate_high = (hitinvaliditygate != 0);
 			TRT_Identifier = (*p_rdo)->identify();
 
-			if (m_doMaskStraws && m_sumSvc->get_status(TRT_Identifier)) continue;
+			if (m_doMaskStraws && m_sumTool->get_status(TRT_Identifier)) continue;
 
 			int barrel_ec = m_pTRTHelper->barrel_ec(TRT_Identifier);
 			//ToDo: Check TRT_LoLumRawData object
@@ -1998,7 +1998,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 			// To get proper straw numbering
 			TRT_Identifier = p_lolum->identify();
 			//inline function checks m_ArgonXenonSplitter
-			const bool isArgonStraw = (Straw_Gastype( m_sumSvc->getStatusHT(TRT_Identifier) ) == GasType::Ar);
+			const bool isArgonStraw = (Straw_Gastype( m_sumTool->getStatusHT(TRT_Identifier) ) == GasType::Ar);
 			int phi_module     = m_pTRTHelper->phi_module(TRT_Identifier);
 			int layer_or_wheel = m_pTRTHelper->layer_or_wheel(TRT_Identifier);
 			int straw_layer    = m_pTRTHelper->straw_layer(TRT_Identifier);
@@ -2726,10 +2726,10 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			Identifier surfaceID;
 			const Trk::MeasurementBase *mesb = (*TSOSItBegin)->measurementOnTrack();
 			surfaceID = trtCircle->identify();
-			const bool isArgonStraw = ( Straw_Gastype( m_sumSvc->getStatusHT(surfaceID) ) == GasType::Ar );
+			const bool isArgonStraw = ( Straw_Gastype( m_sumTool->getStatusHT(surfaceID) ) == GasType::Ar );
 			// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
 			float temp_locr = aTrackParam->parameters()[Trk::driftRadius];
-			TRTCond::RtRelation const *rtr = m_TRTCalDbSvc->getRtRelation(surfaceID);
+			TRTCond::RtRelation const *rtr = m_TRTCalDbTool->getRtRelation(surfaceID);
 			int iphi_module = -9999;
 
 			if (iside == 0) iphi_module = phi_module;
@@ -2816,9 +2816,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 				bool is_middleHTbit_high = (middleHTbit != 0);
 				bool is_anybininVgate_high = (hitinvaliditygate != 0);
 				float timeOverThreshold = RawDriftCircle->timeOverThreshold();
-				double t0 = m_TRTCalDbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
-				//				auto rc = m_TRTCalDbSvc->getT0Container();
-				//				auto valWithContainer = rc->getWithContainer(ITRT_CalDbSvc::trtcondid(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
+				double t0 = m_TRTCalDbTool->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
+
 
 				if (m_doExpert && m_doStraws) {
 					m_hHitToTonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], timeOverThreshold);
@@ -2892,7 +2891,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 						((loc - locR) /
 						 sqrt((loc_err * loc_err * loc_err * loc_err) -
 						      (locR_err * locR_err * locR_err * locR_err)));
-					const double thist0 = m_TRTCalDbSvc->getT0(surfaceID);
+					const double thist0 = m_TRTCalDbTool->getT0(surfaceID);
 					const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(fabs(locR));
 					const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 
@@ -3671,7 +3670,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			int phi_module      = m_pTRTHelper->phi_module(id);
 			int straw_layer     = m_pTRTHelper->straw_layer(id);
 			int straw           = m_pTRTHelper->straw(id);
-			const bool isArgonStraw = (Straw_Gastype( m_sumSvc->getStatusHT(id) ) == GasType::Ar);
+			const bool isArgonStraw = (Straw_Gastype( m_sumTool->getStatusHT(id) ) == GasType::Ar);
 			// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
 			// ibe = 0 (Barrel), ibe = 1 (Endcap)
 			int ibe   = abs(barrel_ec) - 1;
@@ -3753,7 +3752,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 					int phi_module = m_pTRTHelper->phi_module(id);
 					int straw_layer = m_pTRTHelper->straw_layer(id);
 					int straw = m_pTRTHelper->straw(id);
-					const bool isArgonStraw = Straw_Gastype( m_sumSvc->getStatusHT(id) ) == GasType::Ar;
+					const bool isArgonStraw = Straw_Gastype( m_sumTool->getStatusHT(id) ) == GasType::Ar;
 					// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
 					// ibe = 0 (Barrel), ibe = 1 (Endcap)
 					int ibe = abs(barrel_ec) - 1;
@@ -4532,7 +4531,7 @@ int TRT_Monitoring_Tool::initScaleVectors() {
 			for (int j = 0; j < 32; j++ ) {
 				Identifier Dummy_Identifier;
 				Dummy_Identifier = m_pTRTHelper->straw_id(side, j, lN, sLN, sN);
-				bool isArgonStraw = (Straw_Gastype( m_sumSvc->getStatusHT(Dummy_Identifier) ) == GasType::Ar); 
+				bool isArgonStraw = (Straw_Gastype( m_sumTool->getStatusHT(Dummy_Identifier) ) == GasType::Ar); 
 
 				if (isArgonStraw)
 					countAr += 1.0;

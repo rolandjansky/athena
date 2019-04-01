@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTDIGCONDFAKEMAP_H
@@ -19,7 +19,7 @@ public:
 		     const InDetDD::TRT_DetectorManager*,
 		     const TRT_ID* trt_id,
 		     int UseGasMix,
-		     ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+		     ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
  		   );
 
 protected:

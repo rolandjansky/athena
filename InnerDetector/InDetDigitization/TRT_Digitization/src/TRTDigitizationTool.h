@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGITIZATIONTOOL_H
@@ -35,7 +35,7 @@ class TRTElectronicsProcessing;
 class TRTDigCondBase;
 class TRTNoise;
 class ITRT_StrawNeighbourSvc;
-class ITRT_StrawStatusSummarySvc;
+class ITRT_StrawStatusSummaryTool;
 
 namespace CLHEP{
   class HepRandomEngine;
@@ -168,7 +168,7 @@ private:
 
   int m_UseGasMix;
   double m_cosmicEventPhase;     // local replacement for the comTime service
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc;
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
   IntegerProperty m_vetoThisBarcode;
 
 };

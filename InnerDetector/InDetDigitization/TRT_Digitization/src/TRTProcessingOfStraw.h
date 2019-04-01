@@ -25,7 +25,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 class TRTDigit;
 class TRTTimeCorrection;

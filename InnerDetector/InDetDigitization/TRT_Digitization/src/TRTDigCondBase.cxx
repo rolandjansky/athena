@@ -27,7 +27,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
 				const InDetDD::TRT_DetectorManager* detmgr,
 				const TRT_ID* trt_id,
 				int UseGasMix,
-				ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+				ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 			      )
   : m_settings(digset), m_detmgr(detmgr), m_id_helper(trt_id),
     m_averageNoiseLevel(-1.0),
@@ -35,7 +35,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
     m_crosstalk_noiselevel_other_end(-1.0),
     m_msg ("TRTDigCondBase"),
     m_UseGasMix(UseGasMix),
-    m_sumSvc(sumSvc)
+    m_sumTool(sumTool)
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
   m_crosstalk_noiselevel_other_end = m_settings->crossTalkNoiseLevelOtherEnd();
@@ -237,7 +237,7 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
 
   if (m_UseGasMix==0) { // use StatusHT
 
-    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
@@ -245,7 +245,7 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
     else if  ( stat==7 )            { strawGasType = 0; } // Xe
     // stat==6 is emulate argon, make it xenon here,
     // and emulate argon later with reduced TR eff.
-    else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumSvc->getStatusHT(TRT_Identifier)
+    else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumTool->getStatusHT(TRT_Identifier)
                      << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'"
 		     << ", or 'EmulateArgon(6)' or 'EmulateKrypton(7)'" << std::endl;
     }
