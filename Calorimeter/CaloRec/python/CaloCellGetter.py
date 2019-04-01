@@ -444,9 +444,6 @@ class CaloCellGetter (Configured)  :
             #        theLArCellEmMiscalib.SigmaPerRegion = 0.005;
             #        theLArCellEmMiscalib.SigmaPerCell = 0.005;
 
-            ToolSvc += theLArCellEmMiscalib
-
-
             try:
                 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloIdentifier import SUBCALO
@@ -498,8 +495,6 @@ class CaloCellGetter (Configured)  :
         if doHVCorr:
             from LArCellRec.LArCellRecConf import LArCellHVCorrAlg
             theLArCellHVCorrAlg = LArCellHVCorrAlg()
-            svcMgr.ToolSvc += theLArCellHVCorrAlg
-            
             try:
                 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloIdentifier import SUBCALO 
@@ -535,7 +530,6 @@ class CaloCellGetter (Configured)  :
                 mlog.error("could not get handle to LArCellRecalibration Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArCellRecalibration
 
             # get new ADC2MeVTool
             try:
@@ -604,7 +598,6 @@ class CaloCellGetter (Configured)  :
                mlog.error("could not get handle to  CaloCellMBAverageCorr  Quit")
                print traceback.format_exc()
                return False
-           ToolSvc +=  theCaloCellMBAverageCorr
 
            try:
               from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
@@ -689,7 +682,6 @@ class CaloCellGetter (Configured)  :
                 from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
                 theLArTimeCorr = CaloCellTimeCorrTool()
                 theLArTimeCorr.Folder = "/LAR/TimeCorrectionOfl/CellTimeOffset"
-                ToolSvc += theLArTimeCorr
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/TimeCorrectionOfl/CellTimeOffset<tag>LARTimeCorrectionOflCellTimeOffset-empty</tag><db>sqlite://;schema=timecorr.db;dbname=COMP200</db>")
                 conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset")
