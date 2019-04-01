@@ -12,9 +12,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <bitset>
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
-class ITRT_StrawSummarySvc;
+class ITRT_StrawSummaryTool;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
@@ -107,7 +107,7 @@ namespace InDet {
     ToolHandle< Trk::IPixelToTPIDTool >      m_pixeldedxtool; // why in Trk namespace ?
     ToolHandle< Trk::ITrackHoleSearchTool >  m_holeSearchTool;
     ToolHandle< InDet::IInDetTestBLayerTool > m_testBLayerTool;
-    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; //!< The ConditionsSummaryTool
 
 
     bool m_doSharedHits;

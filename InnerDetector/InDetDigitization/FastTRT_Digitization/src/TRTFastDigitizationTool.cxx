@@ -59,7 +59,7 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trtDriftFunctionTool( "TRT_DriftFunctionTool/FatrasTrtDriftFunctionTool" ),
     m_useTrtElectronPidTool( true ),
     m_trtElectronPidTool( "InDet::TRT_ElectronPidToolRun2/InDetTRT_ElectronPidTool" ),
-    m_trtStrawStatusSummarySvc( "InDetTRTStrawStatusSummarySvc", name ),
+    m_trtStrawStatusSummaryTool( "InDetTRTStrawStatusSummaryTool", this ),
     m_mergeSvc( "PileUpMergeSvc", name ),
     m_atRndmGenSvc ( "AtRndmGenSvc", name ),
     m_randomEngine( nullptr ),
@@ -80,7 +80,7 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
   declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
   declareProperty( "TRT_ElectronPidTool",         m_trtElectronPidTool );
-  declareProperty( "TRT_StrawStatusSummarySvc",   m_trtStrawStatusSummarySvc );
+  declareProperty( "TRT_StrawStatusSummaryTool",   m_trtStrawStatusSummaryTool );
   declareProperty( "MergeSvc",                    m_mergeSvc );
   declareProperty( "RndmSvc",                     m_atRndmGenSvc );
   declareProperty( "RandomStreamName",            m_randomEngineName );
@@ -117,8 +117,8 @@ StatusCode TRTFastDigitizationTool::initialize()
   CHECK( m_mergeSvc.retrieve() );
 
   // Argon / Xenon
-  CHECK( m_trtStrawStatusSummarySvc.retrieve() );
-  ATH_MSG_DEBUG( "Retrieved TRT_StrawStatusSummarySvc " << m_trtStrawStatusSummarySvc );
+  CHECK( m_trtStrawStatusSummaryTool.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved TRT_StrawStatusSummaryTool " << m_trtStrawStatusSummaryTool );
 
   // Check data object name
   if ( m_trtHitCollectionKey == "" ) {
@@ -638,7 +638,7 @@ int TRTFastDigitizationTool::gasType( const Identifier &straw_id ) const
   // ​see InnerDetector/​InDetConditions/​TRT_ConditionsData/​TRT_ConditionsData/​StrawStatus.h
   // TRT representation of gasType = Xenon: 0, Argon: 1, Krypton: 2
 
-  int status = m_trtStrawStatusSummarySvc->getStatusHT( straw_id );
+  int status = m_trtStrawStatusSummaryTool->getStatusHT( straw_id );
 
   if ( status == 2 || status == 3 )
     return 0;

@@ -30,12 +30,12 @@
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p)
   :
   AthAlgTool(t,n,p),
-  m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n),
+  m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_isData(true),
   m_isDataSet(false)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
-  declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
+  declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
 
   SetDefaultConfiguration();
 
@@ -127,15 +127,14 @@ StatusCode TRT_ToT_dEdx::initialize()
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_ReadKey.initialize());
 
-  //|-TRTStrawSummarySvc     = ServiceHandle('InDetTRTStrawStatusSummarySvc')
-  sc = m_TRTStrawSummarySvc.retrieve();
+  sc = m_TRTStrawSummaryTool.retrieve();
   if (StatusCode::SUCCESS!= sc ){
-    ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+    ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
     ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     return sc;
   } else {
-    if ( !m_TRTStrawSummarySvc.empty() ) 
-      ATH_MSG_INFO ( "Retrieved tool " << m_TRTStrawSummarySvc );
+    if ( !m_TRTStrawSummaryTool.empty() ) 
+      ATH_MSG_INFO ( "Retrieved tool " << m_TRTStrawSummaryTool );
   }
 
   if (m_useTrackPartWithGasType > EGasType::kUnset || 
@@ -740,8 +739,8 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircl
   // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
   // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
   EGasType GasType=kUnset; // kUnset is default
-  if (!m_TRTStrawSummarySvc.empty()) {
-    int stat = m_TRTStrawSummarySvc->getStatusHT(DCid);
+  if (!m_TRTStrawSummaryTool.empty()) {
+    int stat = m_TRTStrawSummaryTool->getStatusHT(DCid);
     if       ( stat==2 || stat==3 ) { GasType = kXenon; } // Xe
     else if  ( stat==1 || stat==4 ) { GasType = kArgon; } // Ar
     else if  ( stat==5 )            { GasType = kKrypton; } // Kr

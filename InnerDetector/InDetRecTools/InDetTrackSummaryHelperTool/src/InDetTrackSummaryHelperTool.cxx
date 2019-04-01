@@ -40,7 +40,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    m_pixeldedxtool(""),
    m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
    m_testBLayerTool(""),
-   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n),
+   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
    m_doSharedHits(false),
    m_doSharedHitsTRT(false), 
    m_doSplitPixelHits(true),
@@ -51,7 +51,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    declareProperty("PixelToTPIDTool",     m_pixeldedxtool);
    declareProperty("HoleSearch",          m_holeSearchTool);
    declareProperty("TestBLayerTool",      m_testBLayerTool);
-   declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
+   declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummaryTool);
    declareProperty("DoSharedHits",        m_doSharedHits);
    declareProperty("DoSharedHitsTRT",     m_doSharedHitsTRT);
    declareProperty("DoSplitHits",         m_doSplitPixelHits);
@@ -128,12 +128,12 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
    }
 
 
-   if (m_useTRT && !m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+   if (m_useTRT && !m_TRTStrawSummaryTool.empty() && m_TRTStrawSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
+      if ( !m_TRTStrawSummaryTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummaryTool << endmsg;
    }
 
 
@@ -277,8 +277,8 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
      
      bool isArgonStraw   = false;
      bool isKryptonStraw = false;
-     if (!m_TRTStrawSummarySvc.empty()) {
-       int statusHT = m_TRTStrawSummarySvc->getStatusHT(id);
+     if (!m_TRTStrawSummaryTool.empty()) {
+       int statusHT = m_TRTStrawSummaryTool->getStatusHT(id);
        if ( statusHT == TRTCond::StrawStatus::Argon ||
             statusHT == TRTCond::StrawStatus::Dead  ||
             statusHT == TRTCond::StrawStatus::EmulateArgon ) {
