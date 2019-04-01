@@ -33,6 +33,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDCalo",       "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_PassBackG4",          "ISF_Kernel_PassBackG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_CosmicsG4",           "ISF_Kernel_CosmicsG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII",           "ISF_Kernel_ATLFASTII")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_QS",        "ISF_Kernel_ATLFASTII_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF",          "ISF_Kernel_ATLFASTIIF")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_PileUp",   "ISF_Kernel_ATLFASTIIF_PileUp")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_PileUp",   "ISF_Kernel_ATLFASTII_PileUp")
