@@ -1,8 +1,8 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Constants import VERBOSE,DEBUG, INFO
+from AthenaCommon.Constants import DEBUG, INFO
 
 ### Output data name ###
 muFastInfo = "MuonL2SAInfo"
@@ -17,7 +17,6 @@ def makeMuonPrepDataAlgs():
   eventAlgs_MuonPRD = [] # These algs should be prepared for configuring RoIs same as muon RoIs used in viewAlg.
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
 
-  from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.AppMgr import ToolSvc
 
   ### CSC RDO data ###
@@ -160,6 +159,8 @@ def makeMuonPrepDataAlgs():
   viewAlgs_MuonPRD.append( TgcRawDataProvider )
   viewAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
 
+  from MuonRecExample.MuonRecFlags import muonRecFlags
+
   if muonRecFlags.doCreateClusters():  
     #Run clustering
     from MuonClusterization.MuonClusterizationConf import MuonClusterizationTool
@@ -181,11 +182,9 @@ def makeMuonPrepDataAlgs():
 # We have not yet integrated muon decoding tool, so this def is used now.
 def muFastRecoSequence( RoIs, OutputLevel=INFO ):
    
-
-  from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.DetFlags import DetFlags
-  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  from AthenaCommon.CFElements import parOR
 
   muFastRecoSequence = parOR("l2MuViewNode")
 
@@ -352,11 +351,7 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
 
 def muCombRecoSequence( RoIs, OutputLevel=INFO ):
    
-
-  from MuonRecExample.MuonRecFlags import muonRecFlags
-  from AthenaCommon.AppMgr import ToolSvc
-  from AthenaCommon.DetFlags import DetFlags
-  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  from AthenaCommon.CFElements import parOR
   import AthenaCommon.CfgMgr as CfgMgr
 
   muCombRecoSequence = parOR("l2muCombViewNode")
@@ -382,9 +377,9 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
   for viewAlg in viewAlgs:
       muCombRecoSequence += viewAlg
       viewAlg.OutputLevel = OutputLevel
-      if viewAlg.properties().has_key("RoIs"):
+      if "RoIs" in viewAlg.properties():
           viewAlg.RoIs = RoIs
-      if viewAlg.properties().has_key("roiCollectionName"):
+      if "roiCollectionName" in viewAlg.properties():
           viewAlg.roiCollectionName = RoIs
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
           TrackParticlesName = viewAlg.TrackParticlesName
@@ -407,8 +402,7 @@ def muCombRecoSequence( RoIs, OutputLevel=INFO ):
 def l2muisoRecoSequence( RoIs, OutputLevel=INFO ):
 
   import AthenaCommon.CfgMgr as CfgMgr
-
-  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  from AthenaCommon.CFElements import parOR
 
   l2muisoRecoSequence = parOR("l2muIsoViewNode")
  
@@ -436,22 +430,19 @@ def l2muisoRecoSequence( RoIs, OutputLevel=INFO ):
 def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
-  from AthenaCommon.DetFlags import DetFlags
-  from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.AppMgr import ServiceMgr
-  import AthenaCommon.CfgMgr as CfgMgr
   import AthenaCommon.CfgGetter as CfgGetter
 
   from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
   from AthenaCommon import CfgMgr
-  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  from AthenaCommon.CFElements import parOR
 
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
  
   efAlgs = [] 
   
   ### Provide Muon_PrepDataAlgorithms ###
-  from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
+  from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import makeMuonPrepDataAlgs
   ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs()
 
   # setup RDO preparator algorithms 
@@ -479,28 +470,28 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
   
   
   
-  theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB_"+name,
-                                                     OutputLevel = OutputLevel,
-                                                     SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                                                        DoSummary=False,
-                                                                                        Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
-                                                                                                                               segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
-                                                                                                                                                                "CscSegmentUtilTool",
-                                                                                                                                                                TightenChi2 = False, 
-                                                                                                                                                                IPconstraint=False)),
-                                                                                        Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                                                               segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-                                                                                        DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
-                                                     MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
-                                                     MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                     UseCSC = muonRecFlags.doCSCs(),
-                                                     UseMDT = False,
-                                                     UseRPC = False,
-                                                     UseTGC = False,
-                                                     UseTGCPriorBC = False,
-                                                     UseTGCNextBC  = False,
-                                                     doTGCClust = False,
-                                                     doRPCClust = False)
+  #theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB_"+name,
+  #                                                   OutputLevel = OutputLevel,
+  #                                                   SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
+  #                                                                                      DoSummary=False,
+  #                                                                                      Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
+  #                                                                                                                             segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
+  #                                                                                                                                                              "CscSegmentUtilTool",
+  #                                                                                                                                                              TightenChi2 = False, 
+  #                                                                                                                                                              IPconstraint=False)),
+  #                                                                                      Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
+  #                                                                                                                             segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
+  #                                                                                      DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
+  #                                                   MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
+  #                                                   MuonSegmentOutputLocation = "NCB_MuonSegments", 
+  #                                                   UseCSC = muonRecFlags.doCSCs(),
+  #                                                   UseMDT = False,
+  #                                                   UseRPC = False,
+  #                                                   UseTGC = False,
+  #                                                   UseTGCPriorBC = False,
+  #                                                   UseTGCNextBC  = False,
+  #                                                   doTGCClust = False,
+  #                                                   doRPCClust = False)
   
   from MuonRecExample.MuonStandalone import MuonTrackSteering
   MuonTrackSteering.DoSummary=True
@@ -549,7 +540,7 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
 
   # setup muEFMsonly algs
   for efAlg in efAlgs:
-      if efAlg.properties().has_key("RoIs"):
+      if "RoIs" in efAlg.properties():
         if "FS" in RoIs:
           efAlg.RoIs = "FSRoI"
         else:
@@ -566,16 +557,12 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
 
 def muEFCBRecoSequence( RoIs, name, OutputLevel=INFO ):
 
-  from MuonRecExample.MuonRecFlags import muonRecFlags
-  from AthenaCommon.DetFlags import DetFlags
   from AthenaCommon.AppMgr import ToolSvc
-  from AthenaCommon.AppMgr import ServiceMgr
-  import AthenaCommon.CfgMgr as CfgMgr
   import AthenaCommon.CfgGetter as CfgGetter
 
   from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
   from AthenaCommon import CfgMgr
-  from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+  from AthenaCommon.CFElements import parOR, seqAND
 
   efAlgs = [] 
   muEFCBRecoSequence = parOR("efcbViewNode_"+name)
@@ -598,12 +585,12 @@ def muEFCBRecoSequence( RoIs, name, OutputLevel=INFO ):
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
       viewAlg.OutputLevel = OutputLevel
-      if viewAlg.properties().has_key("RoIs"):
+      if "RoIs" in viewAlg.properties():
         viewAlg.RoIs = RoIs
-      if viewAlg.properties().has_key("roiCollectionName"):
+      if "roiCollectionName" in viewAlg.properties():
         viewAlg.roiCollectionName = RoIs
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-        TrackParticlesName = viewAlg.TrackParticlesName
+        TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
   else:
     ViewVerifyTrk.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
   muEFCBRecoSequence += ViewVerifyTrk

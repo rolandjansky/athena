@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool, getChainStepName
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigUpgradeTest.MuonMenuConfig import l2MuFastRecoCfg, l2MuFastHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuConfig import l2MuFastRecoCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 
@@ -31,7 +31,6 @@ def generateChains( flags, chainDict ):
 
     ### Set muon step2 ###
     # Please set up L2muComb step here 
-
 
     import pprint
     pprint.pprint(chainDict)

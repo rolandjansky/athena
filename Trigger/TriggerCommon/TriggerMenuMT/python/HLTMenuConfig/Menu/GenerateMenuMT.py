@@ -65,6 +65,13 @@ class GenerateMenuMT:
                 log.exception('Problems when importing generateElectronChainDefs, disabling Egamma chains.')
                 self.doEgammaChains = False
 
+        if self.doMuonChains:
+            try:
+                import TriggerMenuMT.HLTMenuConfig.Muon.generateMuonChainDefs                
+            except ImportError:
+                log.exception('Problems when importing generateMuonChainDefs, disabling Muon chains.')
+                self.doMuonChains = False
+
         if self.doTestChains:
             try:
                 import TriggerMenuMT.HLTMenuConfig.Test.generateTestChainDefs  
@@ -88,11 +95,20 @@ class GenerateMenuMT:
             
             if chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
-                    log.debug("Try to get chain config")
+                    log.debug("Try to get chain config for electrons")
                     chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)                    
                 except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
                     continue
+
+            elif chainDict["signature"] == "Muon" and self.doMuonChains:
+                try:
+                    log.debug("Try to get chain config for muons")
+                    chainConfigs = TriggerMenuMT.HLTMenuConfig.Muon.generateMuonChainDefs.generateChainConfigs(chainDict)                    
+                except RuntimeError:
+                    log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
+                    continue
+
 
             elif chainDict["signature"] == "Test" and self.doTestChains:
                 try:
@@ -151,6 +167,11 @@ class GenerateMenuMT:
             #log.debug("egamma chains "+str(ConfigFlags.Trigger.menu.egamma))
         else:
             self.doEgammaChains   = False
+
+        if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.MuonSlice.signatures()) and self.doMuonChains:
+            chains += TriggerFlags.MuonSlice.signatures() 
+        else:
+            self.doMuonChains = False
 
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")
