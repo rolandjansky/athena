@@ -189,7 +189,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
 
-    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags ) 
+    rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
@@ -204,14 +204,14 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags )
+    mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags) 
+    cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
     # Put into a verbose logging mode to check the caching
     if forTrigger:
         cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
