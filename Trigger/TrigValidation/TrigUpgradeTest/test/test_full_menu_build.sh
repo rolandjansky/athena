@@ -15,7 +15,7 @@ export JOBOPTION="TrigUpgradeTest/fullMenu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 
 # Find the regtest reference installed with the release
-export REGTESTREF=`find_data.py TrigUpgradeTest/fullMenu.ref`
+export REGTESTREF=`find_data.py TrigUpgradeTest/full_menu_build.ref`
 
 source exec_TrigUpgradeTest_art_athenaMT.sh
 source exec_TrigUpgradeTest_art_post.sh
