@@ -9,7 +9,7 @@
 
 #include <EventLoop/Global.h>
 
-#include <EventLoop/LocalDriver.h>
+#include <EventLoop/DirectDriver.h>
 #include <EventLoopTest/UnitTest.h>
 
 //
@@ -20,9 +20,9 @@ using namespace EL;
 
 int main ()
 {
-  LocalDriver driver;
-  UnitTest ut ("local");
-  ut.scanNEvents = true;
-  ut.cleanup = false;
+  DirectDriver driver;
+  UnitTest ut ("direct_gridinput");
+  ut.gridInput = true;
+  // ut.cleanup = false;
   return ut.run (driver);
 }
