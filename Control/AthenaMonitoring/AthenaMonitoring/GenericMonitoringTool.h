@@ -80,7 +80,7 @@ public:
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
   ServiceHandle<ITHistSvc> histogramService() { return m_histSvc; }
-  uint32_t lumiBlock();
+  virtual uint32_t lumiBlock();
 private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "EventInfo name" };
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  

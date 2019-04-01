@@ -22,47 +22,49 @@
 
 #include "AthenaMonitoring/HistogramDef.h"
 
+#include "mocks/MockGenericMonitoringTool.h"
 #include "mocks/MockHistogramFactory.h"
 
-#include "../src/HistogramFiller/StaticHistogramProvider.h"
+#include "../src/HistogramFiller/LumiblockHistogramProvider.h"
 
 using namespace std;
 using namespace Monitored;
 
-#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&StaticHistogramProviderTestSuite::TEST_CASE_NAME, #TEST_CASE_NAME)
+#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&LumiblockHistogramProviderTestSuite::TEST_CASE_NAME, #TEST_CASE_NAME)
 
-class StaticHistogramProviderTestSuite {
+class LumiblockHistogramProviderTestSuite {
   // ==================== All registered test cases ====================
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_shouldCreateAndReturnJustOneHistogram),
+        REGISTER_TEST_CASE(test_shouldRetriveLumiBlockNumberFromGMTool),
       };
     }
 
   // ==================== Test code ====================
   private:
     void beforeEach() {
+      m_gmTool.reset(new MockGenericMonitoringTool());
       m_histogramFactory.reset(new MockHistogramFactory());
     }
 
     void afterEach() {
     }
 
-    void test_shouldCreateAndReturnJustOneHistogram() {
-      TNamed histogram;
+    void test_shouldRetriveLumiBlockNumberFromGMTool() {
       HistogramDef histogramDef;
-      m_histogramFactory->mock_create = [&histogram, &histogramDef](const HistogramDef& def) {
-        VALUE(&def) EXPECTED(&histogramDef);
-        return &histogram;
+      histogramDef.opt = "kLBNHistoryDepth=10";
+      bool invoked = false;
+
+      m_gmTool->mock_lumiBlock = [&invoked]() {
+        invoked = true;
+        return 0;
       };
 
-      StaticHistogramProvider testObj(m_histogramFactory, histogramDef);
-      TNamed* firstResult = testObj.histogram();
-      TNamed* secondResult = testObj.histogram();
+      LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+      testObj.histogram();
 
-      VALUE(firstResult) EXPECTED(&histogram);
-      VALUE(secondResult) EXPECTED(&histogram);
+      VALUE(invoked) EXPECTED(true);
     }
 
   // ==================== Helper methods ====================
@@ -70,8 +72,8 @@ class StaticHistogramProviderTestSuite {
 
   // ==================== Initialization & run ====================
   public:
-    StaticHistogramProviderTestSuite() 
-      : m_log(Athena::getMessageSvc(), "StaticHistogramProviderTestSuite") {
+    LumiblockHistogramProviderTestSuite() 
+      : m_log(Athena::getMessageSvc(), "LumiblockHistogramProviderTestSuite") {
     }
 
     void run() {
@@ -82,7 +84,7 @@ class StaticHistogramProviderTestSuite {
 
   // ==================== Test case registration ====================
   private:
-    typedef void (StaticHistogramProviderTestSuite::*TestCase)(void);
+    typedef void (LumiblockHistogramProviderTestSuite::*TestCase)(void);
 
     function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
       return [this, testCase, testCaseName]() {
@@ -97,6 +99,7 @@ class StaticHistogramProviderTestSuite {
   private:
     MsgStream m_log;
 
+    shared_ptr<MockGenericMonitoringTool> m_gmTool;
     shared_ptr<MockHistogramFactory> m_histogramFactory;
 };
 
@@ -107,7 +110,7 @@ int main() {
     throw runtime_error("This test can not be run: GenericMon.txt is missing");
   }
 
-  StaticHistogramProviderTestSuite().run();
+  LumiblockHistogramProviderTestSuite().run();
 
   return 0;
 }
