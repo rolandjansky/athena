@@ -42,7 +42,7 @@ namespace Monitored {
      * @param def Histogram definition 
      * @return ROOT object handler
      */
-    TNamed* create(const HistogramDef& def);
+    virtual TNamed* create(const HistogramDef& def);
   private:
     /**
      * @brief Create and register histogram

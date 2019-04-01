@@ -277,7 +277,7 @@ class HistogramFactoryTestSuite {
     HistogramFactoryTestSuite() 
       : m_histSvc("THistSvc", "HistogramFactoryTestSuite"), 
         m_log(Athena::getMessageSvc(), "HistogramFactoryTestSuite") {
-      assert(m_histSvc.retrieve() == StatusCode::SUCCESS);
+      VALUE(m_histSvc.retrieve()) EXPECTED(StatusCode::SUCCESS);
     }
 
     void run() {

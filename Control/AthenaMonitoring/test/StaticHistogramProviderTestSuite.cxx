@@ -21,31 +21,48 @@
 #include "TProfile2D.h"
 
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
+
+#include "mocks/MockHistogramFactory.h"
+
+#include "../src/HistogramFiller/StaticHistogramProvider.h"
 
 using namespace std;
 using namespace Monitored;
 
-#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&HistogramFillerFactoryTestSuite::TEST_CASE_NAME, #TEST_CASE_NAME)
+#define REGISTER_TEST_CASE(TEST_CASE_NAME) registerTestCase(&StaticHistogramProviderTestSuite::TEST_CASE_NAME, #TEST_CASE_NAME)
 
-class HistogramFillerFactoryTestSuite {
+class StaticHistogramProviderTestSuite {
   // ==================== All registered test cases ====================
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_dummy),
+        REGISTER_TEST_CASE(test_shouldCreateAndReturnJustOneHistogram),
       };
     }
 
   // ==================== Test code ====================
   private:
     void beforeEach() {
+      m_histogramFactory.reset(new MockHistogramFactory());
     }
 
     void afterEach() {
     }
 
-    void test_dummy() {
+    void test_shouldCreateAndReturnJustOneHistogram() {
+      TNamed histogram;
+      HistogramDef histogramDef;
+      m_histogramFactory->mock_create = [&histogram, &histogramDef](const HistogramDef& def) {
+        VALUE(&def) EXPECTED(&histogramDef);
+        return &histogram;
+      };
+
+      StaticHistogramProvider testObj(m_histogramFactory, histogramDef);
+      TNamed* firstResult = testObj.histogram();
+      TNamed* secondResult = testObj.histogram();
+
+      VALUE(firstResult) EXPECTED(&histogram);
+      VALUE(secondResult) EXPECTED(&histogram);
     }
 
   // ==================== Helper methods ====================
@@ -53,8 +70,8 @@ class HistogramFillerFactoryTestSuite {
 
   // ==================== Initialization & run ====================
   public:
-    HistogramFillerFactoryTestSuite() 
-      : m_log(Athena::getMessageSvc(), "HistogramFillerFactoryTestSuite") {
+    StaticHistogramProviderTestSuite() 
+      : m_log(Athena::getMessageSvc(), "StaticHistogramProviderTestSuite") {
     }
 
     void run() {
@@ -65,7 +82,7 @@ class HistogramFillerFactoryTestSuite {
 
   // ==================== Test case registration ====================
   private:
-    typedef void (HistogramFillerFactoryTestSuite::*TestCase)(void);
+    typedef void (StaticHistogramProviderTestSuite::*TestCase)(void);
 
     function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
       return [this, testCase, testCaseName]() {
@@ -80,7 +97,8 @@ class HistogramFillerFactoryTestSuite {
   private:
     MsgStream m_log;
 
-    shared_ptr<HistogramFillerFactory> m_testObj;
+    shared_ptr<MockHistogramFactory> m_histogramFactory;
+    shared_ptr<StaticHistogramProvider> m_testObj;
 };
 
 int main() {
@@ -90,7 +108,7 @@ int main() {
     throw runtime_error("This test can not be run: GenericMon.txt is missing");
   }
 
-  HistogramFillerFactoryTestSuite().run();
+  StaticHistogramProviderTestSuite().run();
 
   return 0;
 }

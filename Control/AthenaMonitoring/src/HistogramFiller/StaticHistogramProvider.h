@@ -29,7 +29,7 @@ namespace Monitored {
      * @param def Definition of a histogram to create
      */
     StaticHistogramProvider(std::shared_ptr<HistogramFactory> factory, const HistogramDef& def)
-      : IHistogramProvider(), m_histogram(factory->create(def)) {}
+      : m_histogram(factory->create(def)) {}
 
     /**
      * @brief Getter of ROOT object 
