@@ -74,15 +74,41 @@ class SLHC_Setup_XMLReader :
         dbGeomCursor = AtlasGeoDBInterface.AtlasGeoDBInterface(geoTagName,False)
         dbGeomCursor.ConnectAndBrowseGeoDB()
         dbId,dbXDD,dbParam = dbGeomCursor.GetCurrentLeafContent("PIXXDD")
-        if len(dbId)>0: readXMLfromDB_PIXXDD = True
+        if len(dbId)>0: 
+            readXMLfromDB_PIXXDD = True
+            # Create local XML file correspondng to the XML CLOB defined in the geometry DB
+            keywordIndex = dbParam.index("KEYWORD")
+            clobIndex = dbParam.index("XMLCLOB")
+            pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
+            print "PATHNAME : ",pathName
+            if not os.path.exists(pathName): os.mkdir( pathName, 0755 )
+            for key in dbXDD.keys():
+                v = dbXDD[key]
+                fileName = pathName+"/"+v[keywordIndex]+".xml"
+                f=open(fileName,"w")
+                f.write(v[clobIndex])
+                f.close()
+
+            pixBarrelLayout = pathName+"/"+str(PIXBARRELFILE)
+            pixEndcapLayout = pathName+"/"+str(PIXENDCAPFILE)
+            stripBarrelLayout = pathName+"/"+str(SCTBARRELFILE)
+            stripEndcapLayout = pathName+"/"+str(SCTENDCAPFILE)
+
+        else:
+
+            pixBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH')
+            pixEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH')
+            stripBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH')
+            stripEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH')
+        
 
         ###### Setup XMLreader flags
         print "**** FLAGS **************************************************"
-      
-        XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH'),
-                                           PixelEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH'),
-                                           SCTBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH'),
-                                           SCTEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH'),
+        # need to set these in the interface to use kwargs syntax
+        XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = pixBarrelLayout,
+                                           PixelEndcapLayout = pixEndcapLayout,
+                                           SCTBarrelLayout = stripBarrelLayout,
+                                           SCTEndcapLayout = stripEndcapLayout,
                                            doPix = kwargs["doPix"],
                                            doSCT = kwargs["doSCT"],
 					   isGMX = kwargs["isGMX"],
@@ -119,19 +145,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_SCTEndcapLayers = XMLReaderFlags.SCTEndcapLayout()
             
         else:
-
-           # Create local XML file correspondng to the XML CLOB defined in the geometry DB
-            keywordIndex = dbParam.index("KEYWORD")
-            clobIndex = dbParam.index("XMLCLOB")
-            pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
-            print "PATHNAME : ",pathName
-            if not os.path.exists(pathName): os.mkdir( pathName, 0755 )
-            for key in dbXDD.keys():
-                v = dbXDD[key]
-                fileName = pathName+"/"+v[keywordIndex]+".xml"
-                f=open(fileName,"w")
-                f.write(v[clobIndex])
-                f.close()
 
             ###### Setup XML files for Material ######
             xmlReader.XML_Materials         = pathName+"/Materials.xml"
