@@ -31,13 +31,13 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(fcols)):
-        topSequence += TrackTruthSelector(name= cols[i] + "Selector",
+        topSequence += TrackTruthSelector(name= fcols[i] + "Selector",
                                           DetailedTrackTruthName   = fcols[i] + "DetailedTruth",
                                           OutputName               = fcols[i] + "Truth" )
         topSequence += TrackParticleTruthAlg(name = fcols[i]+"TruthAlg",
                                              TrackTruthName=fcols[i]+"Truth",
                                              TrackParticleName = colsTP[i] )
-
+        
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
     topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg")
 
