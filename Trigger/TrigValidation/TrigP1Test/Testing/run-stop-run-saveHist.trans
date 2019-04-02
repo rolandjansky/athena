@@ -1,13 +1,11 @@
 f
 f
 f
+b
+x import os;os.system('oh_cp -p%s -s.+ -f run_1.root' % os.environ['TDAQ_PARTITION'])
 f
 b
-#x import os;os.system('oh_cp -p%s -s.+ -f run_1.root' % os.environ['TDAQ_PARTITION'])
-f
-f
-b
-#x import os;os.system('oh_cp -p%s -s.+ -f run_2.root' % os.environ['TDAQ_PARTITION'])
+x import os;os.system('oh_cp -p%s -s.+ -f run_2.root' % os.environ['TDAQ_PARTITION'])
 b
 b
 e
