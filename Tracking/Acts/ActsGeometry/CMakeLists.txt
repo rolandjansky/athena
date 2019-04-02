@@ -23,9 +23,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-if(NOT ATH_ACTS_BUILD_SUBDIR)
-  find_package( Acts REQUIRED COMPONENTS Core MaterialMappingPlugin )
-endif()
+find_package( Acts REQUIRED COMPONENTS Core MaterialMappingPlugin )
 
 # Component(s) in the package:
 
