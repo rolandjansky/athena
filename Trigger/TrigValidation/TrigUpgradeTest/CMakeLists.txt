@@ -40,7 +40,7 @@ function( _add_test name )
    atlas_add_test( ${name}
       SCRIPT test/test_${name}.sh
       PROPERTIES TIMEOUT 1000
-      PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${rundir}
+      PROPERTIES WORKING_DIRECTORY ${rundir}
       ${ARGN} )
 endfunction( _add_test )
 
