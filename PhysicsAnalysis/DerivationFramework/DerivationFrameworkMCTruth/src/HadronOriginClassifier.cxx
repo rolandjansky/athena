@@ -41,6 +41,7 @@ namespace DerivationFramework{
           || m_DSID == 410245 //aMC@NLO+H++ , ttbb
           || (m_DSID>=410557 && m_DSID<=410559) // new Powheg+H7, mc16
           || (m_DSID>=411082 && m_DSID<=411090) //Powheg+H7 HF-filtered
+          || (m_DSID>=407354 && m_DSID<=407356) //Powheg+H7 ttbar HT-filtered
           ){
       m_GenUsed=HerwigPP;
       if (m_DSID==410245){
@@ -66,6 +67,8 @@ namespace DerivationFramework{
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
           || (m_DSID>=411178 && m_DSID<=411180) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
+          || (m_DSID>=407342 && m_DSID<=407344) //Powheg+P8 ttbar HT-filtered
+          || (m_DSID>=407348 && m_DSID<=407350) //aMC@NLO+P8 ttbar HT-filtered
            ){
       m_GenUsed=Pythia8;
       if ( m_DSID==410244 //aMC@NLO+P8, ttbb (old)
