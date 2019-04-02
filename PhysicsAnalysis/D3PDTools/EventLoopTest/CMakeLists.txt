@@ -55,7 +55,7 @@ function( _add_gtest cxx_name )
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
       LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
-      SampleHandler EventLoopTestLib EventLoopGrid xAODRootAccess ${EXTRA_ARGS})
+      SampleHandler EventLoopTestLib xAODRootAccess ${EXTRA_ARGS})
    set_tests_properties (EventLoopTest_${test_name}_ctest PROPERTIES LABELS "EventLoopTest;EventLoop;SampleHandler;AnaAlgorithm" )
 endfunction( _add_gtest )
 
@@ -71,7 +71,7 @@ foreach( source ${_tests} )
   list (FIND MANUAL_TESTS "${source}" _index)
   if (${_index} GREATER -1)
     add_executable ("EventLoopTestLib_${util}" ${source})
-    target_link_libraries ("EventLoopTestLib_${util}" EventLoopTestLib)
+    target_link_libraries ("EventLoopTestLib_${util}" EventLoopTestLib EventLoopGrid)
   else (${_index} GREATER -1)
     _add_gtest( test/${util}.cxx)
   endif (${_index} GREATER -1)
