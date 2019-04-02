@@ -6,6 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -443,6 +444,13 @@ skimmingTools += [HIGG3D3TrigSkimmingTool,HIGG3D3SkimmingTool]
 
 higg3d3Seq = CfgMgr.AthSequencer("HIGG3d3Sequence")
 higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+# needed for non-prompt lepton tagging below
+reducedJetList = ["AntiKt4PV0TrackJets"]
+replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 
 #===================================================================
 # B-TAGGING
