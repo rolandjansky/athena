@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWUTILS_LARTT_SELECTOR_H
@@ -60,8 +60,6 @@ class LArTT_Selector
         friend class LArTT_Selector<CONTAINER> ; 
 	public:
 	const_iterator() ; 
-
-	const_iterator& operator = ( const const_iterator & it ) ; 
 
 	const_iterator& operator ++ () ; 
 
