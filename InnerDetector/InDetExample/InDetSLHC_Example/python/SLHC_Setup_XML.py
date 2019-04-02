@@ -76,11 +76,15 @@ class SLHC_Setup_XMLReader :
         dbId,dbXDD,dbParam = dbGeomCursor.GetCurrentLeafContent("PIXXDD")
         if len(dbId)>0: 
             readXMLfromDB_PIXXDD = True
+            #For reference
+            #*********************** pixDbId
+            #[37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+            #*********************** pixDbParam
+            #['PIXXDD_DATA_ID', 'GEOTYPE', 'VERSION', 'KEYWORD', 'XMLCLOB']
             # Create local XML file correspondng to the XML CLOB defined in the geometry DB
             keywordIndex = dbParam.index("KEYWORD")
             clobIndex = dbParam.index("XMLCLOB")
             pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
-            print "PATHNAME : ",pathName
             if not os.path.exists(pathName): os.mkdir( pathName, 0755 )
             for key in dbXDD.keys():
                 v = dbXDD[key]
@@ -170,10 +174,46 @@ class SLHC_Setup_XMLReader :
         
         from AthenaCommon.AppMgr import theApp
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        ReadStripXMLFromDB = False
+        pathToGMX = ""
+        stripDbId,stripDbXDD,stripDbParam = dbGeomCursor.GetCurrentLeafContent("ITKXDD")
+        if len(stripDbId)>0:
+            ReadStripXMLFromDB = True
+            print "*********************** stripDbId"
+            print stripDbId
+            print '\n'
+            print "*********************** stripDbParam"
+            print stripDbParam
+            print '\n'
+            print "***********************"
+            clobIndex = stripDbParam.index("XMLCLOB")
+            pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
+            gmxFileName = "ITkStrip.gmx"
+            if not os.path.exists(pathName): os.mkdir( pathName, 0755 )
+            for key in stripDbXDD.keys():
+                #For reference
+                #*********************** stripDbId
+                #[6]
+                #*********************** stripDbParam
+                #['ITKXDD_DATA_ID', 'GEOTYPE', 'VERSION', 'XMLCLOB']
+                v = stripDbXDD[key]
+                pathToGMX = pathName+"/"+gmxFileName
+                f=open(pathToGMX,"w")
+                f.write(v[clobIndex])
+                f.close()
+            from shutil import copyfile
+            dtdFileName = "geomodel.dtd"
+            #dtd file is part of release, not CLOB, so need to find it
+            #from InstallArea and copy it to expected location
+            #which is specified in GMX file (not ideal... to be looked into)
+            dtdFilePath = find_file_env(str(dtdFileName),'DATAPATH')
+            dtdFileCopyPath = pathName+"/"+dtdFileName
+            copyfile(dtdFilePath,dtdFileCopyPath)
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__GMXReaderSvc
         gmxReader = InDet__GMXReaderSvc(name='InDetGMXReaderSvc')
         gmxReader.dictionaryFileName=xmlReader.dictionaryFileName
         gmxReader.addBCL= XMLReaderFlags.addBCL()
+        gmxReader.readGMXfromDB = ReadStripXMLFromDB
+        gmxReader.pathToGMXFile = pathToGMX
         svcMgr += gmxReader
-        gmxReader.OutputLevel=1
         theApp.CreateSvc.insert(1,"InDet::GMXReaderSvc/InDetGMXReaderSvc")
