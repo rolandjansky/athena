@@ -30,7 +30,11 @@ namespace CP {
     bool IsolationConditionCombined::accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* c) {
         getCutValue(x.pt);
         if (c) (*c)[type()] = m_cutValue;
-        return x.isolationValues[type()] <= m_cutValue;
+        float isoValue = 0;
+        std::vector<double> isoVars;
+        for (unsigned int itype = 0; itype < num_types(); ++itype) isoVars.push_back( x.isolationValues[type(itype)] );
+        isoValue = m_isoFunction->EvalPar(&isoVars[0]);
+        return isoValue <= m_cutValue;
     }
 
     void IsolationConditionCombined::getCutValue(const float pt) {
