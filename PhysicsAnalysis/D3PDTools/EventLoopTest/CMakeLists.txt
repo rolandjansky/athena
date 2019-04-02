@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/RootCoreUtils
    PhysicsAnalysis/D3PDTools/SampleHandler
    PhysicsAnalysis/D3PDTools/EventLoop
+   PhysicsAnalysis/D3PDTools/EventLoopGrid
    PRIVATE
    Control/AthToolSupport/AsgTools
    Control/xAODRootAccess
@@ -54,11 +55,11 @@ function( _add_gtest cxx_name )
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
       LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
-      SampleHandler EventLoopTestLib xAODRootAccess ${EXTRA_ARGS})
+      SampleHandler EventLoopTestLib EventLoopGrid xAODRootAccess ${EXTRA_ARGS})
    set_tests_properties (EventLoopTest_${test_name}_ctest PROPERTIES LABELS "EventLoopTest;EventLoop;SampleHandler;AnaAlgorithm" )
 endfunction( _add_gtest )
 
-set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
+set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_direct_gridinput.cxx test/ut_driver_grid.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
 
 set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx
    test/gt_LeakChecks.cxx test/gt_UnitTestAlgXAOD.cxx)
