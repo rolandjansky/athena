@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from AthenaCommon.GlobalFlags import globalflags
 
 #====================================================================
@@ -17,7 +18,7 @@ from AthenaCommon.GlobalFlags import globalflags
 streamName = derivationFlags.WriteDAOD_HIGG3D3Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG3D3Stream )
 HIGG3D3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG3D3Stream.AcceptAlgs(["HIGG3D3Kernel"])
+HIGG3D3Stream.AcceptAlgs(["HIGG3D3Kernel_skimming"])
 
 ## Prepare thinning service and add trigger chains for TrigNavigation thinning
 TriggerChains = ["HLT_mu24_L1MU15",
@@ -446,8 +447,6 @@ higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
 #===================================================================
 # B-TAGGING
 #===================================================================
-from BTagging.BTaggingFlags import BTaggingFlags
-
 # Add flavor tagging to the PFlow Jet collections
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
 
