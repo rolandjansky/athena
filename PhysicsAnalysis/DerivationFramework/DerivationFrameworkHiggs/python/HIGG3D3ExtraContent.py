@@ -19,7 +19,6 @@ HIGG3D3ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLin
 HIGG3D3ExtraContainers = [ ]
 
 HIGG3D3ExtraTruthContainers = [ "TruthEvents",
-                                "TruthParticles",
                                 "TruthVertices",
-                                "AntiKt4TruthJets",
+                                "TruthParticles",
                                 "MuonTruthParticles" ]

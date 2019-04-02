@@ -469,6 +469,9 @@ HIGG3D3SlimmingHelper.ExtraVariables = list(HIGG3D3ExtraVariables)
 HIGG3D3SlimmingHelper.AllVariables = list(HIGG3D3ExtraContainers)
 
 if globalflags.DataSource()=='geant4':
+    HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                               "AntiKt4TruthWZJets"]
+
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
 
