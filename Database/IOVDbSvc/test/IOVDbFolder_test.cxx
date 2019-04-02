@@ -112,7 +112,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       const std::string tag("");
       auto addr=iovDbFolder.preLoadFolder(detStore.get(),0,600);
       BOOST_TEST(iovDbFolder.loadCache(cool::ValidityKey(50),600, tag, true) == true);
-      BOOST_TEST_CHECKPOINT("After loadCache method call");
+      BOOST_TEST_MESSAGE("After loadCache method call...");
       BOOST_TEST(iovDbFolder.timeStamp() == isEpochTimestamp);//after looking
       BOOST_TEST(iovDbFolder.retrieved() == false);//only changed by getAddress method
       BOOST_TEST(iovDbFolder.bytesRead() == 8);
@@ -121,14 +121,17 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       auto theValidityKey=iovDbFolder.iovTime(cool::ValidityKey(600));
       BOOST_TEST(theValidityKey == cool::ValidityKey(600));
       IOVRange zeroRange{0,0};
+      IOVRange returnRange{zeroRange};
       BOOST_TEST(iovDbFolder.currentRange() ==  zeroRange);//why?
       BOOST_TEST(iovDbFolder.cacheValid(cool::ValidityKey(600)) );
       IOpaqueAddress * returnedAddress{};
       ServiceHandle<IAddressCreator> persistencySvc("EventPersistencySvc", "test");
       bool poolRequested{};
-      BOOST_TEST( iovDbFolder.getAddress(cool::ValidityKey(600), &(*persistencySvc),0,returnedAddress,zeroRange, poolRequested));
+      BOOST_TEST( iovDbFolder.getAddress(cool::ValidityKey(600), &(*persistencySvc),0,returnedAddress,returnRange, poolRequested));
       BOOST_TEST_CHECKPOINT("After getAddress method call");
       BOOST_TEST(iovDbFolder.retrieved() == true);
+      IOVRange actualRange{100,cool::ValidityKeyMax};
+      BOOST_TEST(returnRange == actualRange);
     }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
