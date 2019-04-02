@@ -443,6 +443,21 @@ skimmingTools += [HIGG3D3TrigSkimmingTool,HIGG3D3SkimmingTool]
 higg3d3Seq = CfgMgr.AthSequencer("HIGG3d3Sequence")
 higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
 
+#===================================================================
+# B-TAGGING
+#===================================================================
+from BTagging.BTaggingFlags import BTaggingFlags
+
+# Add flavor tagging to the PFlow Jet collections
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
+
+#====================================================================
+# Add non-prompt lepton tagging
+#====================================================================
+# import the JetTagNonPromptLepton config and add to the private sequence
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+higg3d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+
 #========================================
 # CREATE THE DERIVATION KERNEL ALGORITHMS
 #========================================
@@ -479,6 +494,11 @@ HIGG3D3SlimmingHelper.SmartCollections = [ "Electrons",
 
 HIGG3D3SlimmingHelper.ExtraVariables = list(HIGG3D3ExtraVariables)
 HIGG3D3SlimmingHelper.AllVariables = list(HIGG3D3ExtraContainers)
+
+HIGG3D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG3D3SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
+                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'
+                                           }
 
 if globalflags.DataSource()=='geant4':
     HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
