@@ -65,6 +65,10 @@ namespace G4UA
 	std::vector<double> m_rz_niel;
         /// vector of >20 MeV hadron flux seen by thread in zoomed area
 	std::vector<double> m_rz_h20;
+        /// vector of >100 keV hadron flux seen by thread in zoomed area
+	std::vector<double> m_rz_neut;
+        /// vector of charged hadron flux seen by thread in zoomed area
+	std::vector<double> m_rz_chad;
 
 	///  next two vectors are used only in case maps are needed for a particular material instead of all
 
@@ -81,6 +85,10 @@ namespace G4UA
 	std::vector<double> m_full_rz_niel;
         /// vector of >20 MeV hadron flux seen by thread in full area
 	std::vector<double> m_full_rz_h20;
+        /// vector of >100 keV hadron flux seen by thread in full area
+	std::vector<double> m_full_rz_neut;
+        /// vector of charged hadron flux seen by thread in full area
+	std::vector<double> m_full_rz_chad;
 
 	///  next two vectors are used only in case maps are needed for a particular material instead of all
 
@@ -97,6 +105,10 @@ namespace G4UA
 	std::vector<double> m_3d_niel;
         /// vector of >20 MeV hadron flux seen by thread in 3d
 	std::vector<double> m_3d_h20;
+        /// vector of >100 keV hadron flux seen by thread in 3d
+	std::vector<double> m_3d_neut;
+        /// vector of charged hadron flux seen by thread in 3d
+	std::vector<double> m_3d_chad;
 
 	///  next two vectors are used only in case maps are needed for a particular material instead of all
 
