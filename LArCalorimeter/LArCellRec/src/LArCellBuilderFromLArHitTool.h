@@ -113,7 +113,8 @@ private:
     std::vector<std::pair<float, float> > m_parts;
   };
 
-  void MakeTheCell(CaloCellContainer* cellcoll, const Identifier& id,
+  void MakeTheCell(CaloCellContainer* cellcoll,
+		   const CaloDetDescrElement * caloDDE,
 		   const double e,const double t,const double q) const;
   void MakeTheCell(CaloCellContainer* cellcoll, 
 		   const CaloDetDescrElement * caloDDE,
@@ -126,10 +127,6 @@ private:
   int m_priority;
 
   CaloCell_ID::SUBCALO m_caloNum;
-  
-  
-   
-  const CaloDetDescrManager* m_calo_dd_man; 
 
   const CaloCell_ID*  m_caloCID;
   const AtlasDetectorID* m_atlas_id;
