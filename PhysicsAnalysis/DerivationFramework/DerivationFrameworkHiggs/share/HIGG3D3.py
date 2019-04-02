@@ -1,6 +1,6 @@
 #********************************************************************
-# HIGG3D3.py 
-# reductionConf flag HIGG3D3 in Reco_tf.py   
+# HIGG3D3.py
+# reductionConf flag HIGG3D3 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -349,11 +349,11 @@ thinningTools=[]
 
 # MET/Jet tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG3D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG3D3JetTPThinningTool",
-                                                                ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
-                                                                JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+HIGG3D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG3D3JetTPThinningTool",
+                                                                          ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
+                                                                          JetKey                  = "AntiKt4EMTopoJets",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                          ApplyAnd                = True)
 ToolSvc += HIGG3D3JetTPThinningTool
 thinningTools.append(HIGG3D3JetTPThinningTool)
 
@@ -385,12 +385,12 @@ truth_cond4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 5*GeV)
 truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+truth_cond4
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG3D3TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D3TruthThinningTool", 
+HIGG3D3TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D3TruthThinningTool",
                                                                      ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
                                                                      ParticleSelectionString = truth_expression,
                                                                      PreserveDescendants     = True,
-                                                                     PreserveAncestors      = True,
-                                                                     SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset )
+                                                                     PreserveAncestors       = True,
+                                                                     SimBarcodeOffset        = DerivationFrameworkSimBarcodeOffset )
 
 if globalflags.DataSource()=='geant4':
     ToolSvc += HIGG3D3TruthThinningTool
