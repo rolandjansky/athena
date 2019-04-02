@@ -397,7 +397,7 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG3D3TruthThinningTool)
 
 #====================================================================
-# SKIMMING TOOL
+# SKIMMING TOOLS
 #====================================================================
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
@@ -440,14 +440,24 @@ if globalflags.DataSource()=='geant4':
 
 skimmingTools += [HIGG3D3TrigSkimmingTool,HIGG3D3SkimmingTool]
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
+higg3d3Seq = CfgMgr.AthSequencer("HIGG3d3Sequence")
+higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
+
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel",
-                                                                       AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool],
-                                                                       SkimmingTools = skimmingTools,
-                                                                       ThinningTools = thinningTools )
+higg3d3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_skimming",
+                                                              SkimmingTools     = skimmingTools,
+                                                              AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool] # needed by skimming
+                                                              )
+
+DerivationFrameworkJob += higg3d3PreSeq
+higg3d3PreSeq += higg3d3Seq
+
+higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_thinning",
+                                                           ThinningTools = thinningTools
+                                                           )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -460,8 +470,10 @@ HIGG3D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "Photons",
                                            "AntiKt4EMTopoJets",
+                                           "AntiKt4EMPFlowJets",
                                            "InDetTrackParticles",
                                            "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt4EMPFlow",
                                            "PrimaryVertices",
                                            "MET_Reference_AntiKt4EMTopo" ]
 
@@ -495,6 +507,9 @@ HIGG3D3SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG3D3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add MET to output stream
-addMETOutputs(HIGG3D3SlimmingHelper, ["Track"])
+addMETOutputs(HIGG3D3SlimmingHelper, ["AntiKt4EMPFlow", "Track"],
+                                     ["AntiKt4EMPFlow",
+                                      "AntiKt4EMTopo"] # smart collections list
+                                     )
 
 HIGG3D3SlimmingHelper.AppendContentToStream(HIGG3D3Stream)
