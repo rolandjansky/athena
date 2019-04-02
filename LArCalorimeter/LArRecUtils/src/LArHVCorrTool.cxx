@@ -34,7 +34,6 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),	
     m_electrodeID(nullptr),
-    m_calodetdescrmgr(nullptr),
     m_cablingService("LArCablingLegacyService"),
     m_hvtool("LArHVToolMC",this)
 {
@@ -82,7 +81,6 @@ StatusCode LArHVCorrTool::initialize() {
   m_larfcal_id   = m_calocell_id->fcal_idHelper();
 
   ATH_CHECK( m_cablingService.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
   ATH_CHECK( detStore()->retrieve(m_electrodeID) );
   ATH_CHECK( m_hvtool.retrieve() );
 
@@ -213,6 +211,9 @@ StatusCode LArHVCorrTool::finalize()
 // *** compute global ADC2MeV factor from subfactors *** 
 StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
   
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   if (m_doTdrift && m_Tdrift==nullptr) {
     m_Tdrift = new LArTdriftComplete();
     if( (m_Tdrift->setGroupingType("ExtendedSubDetector",msg())).isFailure()) {
@@ -248,7 +249,7 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
 
       unsigned int subdet=99;
       unsigned int layer=99;
-      const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(oflHash);
+      const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(oflHash);
       if (!calodde) {
 	msg(MSG::WARNING) << "No DDE found for cell " << oflHash << endmsg;
         continue;
