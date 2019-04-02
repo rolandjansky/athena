@@ -4,6 +4,7 @@
 
 // EDM include(s).
 #include "xAODMetaData/FileMetaData.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Local include(s).
 #include "EventLoopTest/UnitTestAlg4.h"
@@ -24,13 +25,24 @@ namespace EL {
       ATH_CHECK( requestBeginInputFile() );
 
       // Read the file metadata.
-      //ATH_CHECK( readFileMetaData() );
+      ATH_CHECK( readFileMetaData() );
+
+      // Make sure that event data can *not* be accessed yet.
+      const xAOD::EventInfo* ei = nullptr;
+      if( evtStore()->retrieve( ei, "EventInfo" ).isSuccess() == true ) {
+         ATH_MSG_FATAL( "Event information should not be available yet!" );
+         return ::StatusCode::FAILURE;
+      }
 
       // Return gracefully.
       return ::StatusCode::SUCCESS;
    }
 
    ::StatusCode UnitTestAlg4::execute() {
+
+      // Check that event data access is working by now.
+      const xAOD::EventInfo* ei = nullptr;
+      ATH_CHECK( evtStore()->retrieve( ei, "EventInfo" ) );
 
       // Return gracefully.
       return ::StatusCode::SUCCESS;

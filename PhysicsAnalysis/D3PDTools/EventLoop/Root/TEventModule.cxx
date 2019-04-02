@@ -97,6 +97,18 @@ namespace EL
       data.m_tevent = m_event.get();
       data.m_tstore = m_store.get();
 
+      // Perform a sanity check.
+      if (!data.m_inputFile)
+      {
+        ANA_MSG_ERROR ("File is not available during initialization?!?");
+        return ::StatusCode::FAILURE;
+      }
+      // Set up the reading from the first input file, which should be
+      // open already. But note that no event is loaded with getEntry(...)
+      // yet, as we don't want to allow users to access the first event
+      // during initialisation. Only the in-file metadata...
+      ANA_CHECK (m_event->readFrom (data.m_inputFile.get()));
+
       return StatusCode::SUCCESS;
     }
 
@@ -133,7 +145,7 @@ namespace EL
         return ::StatusCode::FAILURE;
       }
       ANA_CHECK (m_event->readFrom (data.m_inputFile.get()));
-      if (m_event->getEntry (0) < 0)
+      if ((m_event->getEntries() > 0) && (m_event->getEntry (0) < 0))
       {
         ANA_MSG_ERROR ("Failed to load first entry from file");
         return ::StatusCode::FAILURE;
