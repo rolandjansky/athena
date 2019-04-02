@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_TRANSIENTADDRESS_H
@@ -10,6 +10,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <atomic>
 
 
 ///< Gaudi includes:
@@ -153,10 +154,10 @@ namespace SG {
 
 
     ///< clid of the concrete class (persistent clid)
-    CLID m_clid;
+    std::atomic<CLID> m_clid;
 
     ///< (hashed) SG key for primary clid / key.
-    sgkey_t m_sgkey;
+    std::atomic<sgkey_t> m_sgkey;
 
     ///< Store type, needed by updateAddress
     StoreID::type m_storeID;

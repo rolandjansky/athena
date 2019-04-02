@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -71,7 +71,7 @@ IDataProviderSvc* SG::DataProxy::dataSvc() const
 inline
 SG::sgkey_t SG::DataProxy::sgkey() const
 {
-  lock_t lock (m_mutex);
+  // No lock; underlying member is atomic.
   return m_tAddress.sgkey();
 }
 
@@ -200,7 +200,7 @@ SG::DataProxy::ErrNo SG::DataProxy::errNo() const
 inline
 CLID SG::DataProxy::clID() const
 {
-  lock_t lock (m_mutex);
+  // No lock; underlying member is atomic.
   return m_tAddress.clID();
 }
 
