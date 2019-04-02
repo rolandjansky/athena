@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -92,8 +94,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   //@name Histograms related members
   //@{
   // Pointers to hit error histograms
-  TH1F_LW* m_firstHit[NREGIONS_INC_GENERAL];
-  TH1F_LW* m_secondHit[NREGIONS_INC_GENERAL];
+  TH1F_LW* m_firstHit[NREGIONS_INC_GENERAL]{};
+  TH1F_LW* m_secondHit[NREGIONS_INC_GENERAL]{};
   //@}
 
   enum CategoryErrors { MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
@@ -102,44 +104,44 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   TString errorsString(int errtype); // transfer [enum ErrorTypes] -> [TString ErrorName]
 
   ///rate of errors
-  Prof2_t m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///rate of errors per lumi-block
-  Prof2_t m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors
-  TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors per lumi-block
-  TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
 
   ///rate of errors
-  Prof2_t m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///rate of errors per lumi-block
-  Prof2_t m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors
-  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors per lumi-block
-  TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
 
   /// Recent error rate histograms
-  Prof2_t m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
+  Prof2_t m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   /// Default histos to print per lumi block
-  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL];
-  Prof2_t m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
+  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL]{};
+  Prof2_t m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{};
 
-  TH1I* m_nErrors;
-  TH1I* m_nLinksWithErrors;
-  std::vector<int> m_nErrors_buf;
-  std::vector<int> m_nLinksWithErrors_buf;
-  int m_nErrors_pos;
+  TH1I* m_nErrors{};
+  TH1I* m_nLinksWithErrors{};
+  std::vector<int> m_nErrors_buf{};
+  std::vector<int> m_nLinksWithErrors_buf{};
+  int m_nErrors_pos{0};
 
-  TH1I* m_MaskedAllLinks; // maskedLinks or maskedRODs
+  TH1I* m_MaskedAllLinks{}; // maskedLinks or maskedRODs
 
   //Count number of events
-  int m_numberOfEventsLumi;
-  int m_numberOfEvents;
+  int m_numberOfEventsLumi{0};
+  int m_numberOfEvents{0};
 
-  bool m_initialize;
+  bool m_initialize{false};
   //max number of errors in lbs
-  unsigned int m_previous_lb;
+  unsigned int m_previous_lb{0};
 
   // Book noise map histograms
   StatusCode bookConfMapsGen();
@@ -154,19 +156,19 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,
                                  Prof2_t& tprof, const int layer, const bool barrel=true);
 
-  std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
+  std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL]{};
 
   /// "Magic numbers" for an SCT module
   enum { Confbins = 6, ConfbinsDetailed = 5 };
 
-  std::string m_path;
+  std::string m_path{};
   /// CheckHists() frequency
   IntegerProperty m_checkrate{this, "CheckRate", 1000};
   IntegerProperty m_checkrecent{this, "CheckRecent", 20};
-  int m_current_lb;
-  int m_last_reset_lb;
+  int m_current_lb{0};
+  int m_last_reset_lb{0};
 
-  bool m_sctflag;
+  bool m_sctflag{false};
 
   /// flag to run online
   BooleanProperty m_runOnline{this, "runOnline", false};
@@ -190,7 +192,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
 
   ///SCT Helper class
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
 
   //@}
 
@@ -206,31 +208,31 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   StatusCode resetConfigurationDetails();
 
   /// Pointer to 1D histogram of Number of SCT Clusters per LBs
-  TProfile_LW* m_Conf[NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ConfRN[NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ConfNew[NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ConfOutModules[NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ConfOnline[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_Conf[NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ConfRN[NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ConfNew[NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ConfOutModules[NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ConfOnline[NREGIONS_INC_GENERAL]{};
 
-  TProfile_LW* m_ByteStreamVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ByteStreamWithSctFlagVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL];
-  TProfile_LW* m_ByteStreamCategorisedVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  TProfile_LW* m_LinksWithCategorisedErrorsVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  TProfile_LW* m_LinksWithCategorisedErrorsVsLBLayer[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL][SCT_Monitoring::N_DISKSx2];
+  TProfile_LW* m_ByteStreamVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ByteStreamWithSctFlagVsLB[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_ByteStreamCategorisedVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_LinksWithCategorisedErrorsVsLB[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL]{};
+  TProfile_LW* m_LinksWithCategorisedErrorsVsLBLayer[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL][SCT_Monitoring::N_DISKSx2]{};
 
-  TProfile_LW* m_LinksWithRODErrorsVsLB_check[NREGIONS_INC_GENERAL];
+  TProfile_LW* m_LinksWithRODErrorsVsLB_check[NREGIONS_INC_GENERAL]{};
 
-  TH1F_LW* m_NumberOfSCTFlagErrorsVsLB;
-  TH1F_LW* m_NumberOfEventsVsLB;
-  TProfile_LW* m_FractionOfSCTFlagErrorsPerLB;
+  TH1F_LW* m_NumberOfSCTFlagErrorsVsLB{};
+  TH1F_LW* m_NumberOfEventsVsLB{};
+  TProfile_LW* m_FractionOfSCTFlagErrorsPerLB{};
 
-  TProfile* m_ConfEffOnline;
-  TProfile_LW* m_ConfNoiseOnline;
-  TProfile_LW* m_ConfNoiseOnlineRecent;
-  TProfile_LW* m_DetailedConfiguration;
+  TProfile* m_ConfEffOnline{};
+  TProfile_LW* m_ConfNoiseOnline{};
+  TProfile_LW* m_ConfNoiseOnlineRecent{};
+  TProfile_LW* m_DetailedConfiguration{};
 
   /** a handle on the Hist/TTree registration service */
-  ServiceHandle<ITHistSvc> m_thistSvc;
+  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
   ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
@@ -276,19 +278,19 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
     numberOfProblemForCoverage
   };
 
-  std::vector<moduleGeo_t> m_geo;
-  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage];
-  TH2F* m_mapSCT[numberOfProblemForCoverage];
+  std::vector<moduleGeo_t> m_geo{};
+  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage]{{}};
+  TH2F* m_mapSCT[numberOfProblemForCoverage]{nullptr};
 
-  const unsigned int m_nBinsEta;
-  const double m_rangeEta;
-  const unsigned int m_nBinsPhi;
-  const double m_WafersThreshold;
+  const unsigned int m_nBinsEta{100};
+  const double m_rangeEta{2.5};
+  const unsigned int m_nBinsPhi{100};
+  const double m_WafersThreshold{3.0};
 
-  TProfile* m_detectorCoverageVsLbs[numberOfProblemForCoverage];
-  TProfile* m_PSTripModulesVsLbs;
+  TProfile* m_detectorCoverageVsLbs[numberOfProblemForCoverage]{nullptr};
+  TProfile* m_PSTripModulesVsLbs{};
 
-  float m_PSTripModules;
+  float m_PSTripModules{0.};
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
 };

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -72,42 +74,7 @@ const string SCTTracksMonTool::s_triggerNames[] = {
 SCTTracksMonTool::SCTTracksMonTool(const string& type,
                                    const string& name,
                                    const IInterface* parent)
-  : ManagedMonitorToolBase(type, name, parent),
-  m_nTracks{nullptr},
-  m_nTracks_buf{},
-  m_nTracks_pos{0},
-  m_trackTrigger{nullptr},
-  m_trackTriggerRate{nullptr},
-  m_totalResidual{},
-  m_totalPull{},
-  //
-  m_numberOfEvents{0},
-  m_trk_nclu_totHisto{nullptr},
-  m_tracksPerRegion{nullptr},
-  m_trackRate{nullptr},
-  m_trk_ncluHisto{nullptr},
-  m_trk_chi2{nullptr},
-  m_trk_N{nullptr},
-  m_trk_pt{nullptr},
-  m_trk_d0{nullptr},
-  m_trk_z0{nullptr},
-  m_trk_eta{nullptr},
-  m_trk_phi{nullptr},
-  m_psctresidualsHistoVector{},
-  /// Vector of pointers to  histogram of residuals RMS; 1 histo per layer and side
-  m_psctresidualsRMSHistoVector{},
-  /// Vector of pointers to summary histogram of residuals; 1 histo per layer and side
-  m_psctresiduals_summaryHistoVector{},
-  /// Vector of pointers to profile histogram of pulls; 1 histo per layer and side
-  m_psctpullsHistoVector{},
-  /// Vector of pointers to  histogram of pulls RMS; 1 histo per layer and side
-  m_psctpullsRMSHistoVector{},
-  /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
-  m_psctpulls_summaryHistoVector{},
-  m_stream{"/stat"},
-  m_path{""},
-  m_firedTriggers{0},
-  m_pSCTHelper{nullptr} {
+  : ManagedMonitorToolBase(type, name, parent) {
 }
 
 // ====================================================================================================

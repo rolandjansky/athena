@@ -104,38 +104,7 @@ using std::string;
 
 // Constructor with parameters:
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
-  ManagedMonitorToolBase(type, name, parent),
-  m_chrono{nullptr},
-  m_badChips{nullptr},
-  m_Eff_Total{nullptr},
-  m_Eff_TotalBCID{nullptr},
-  m_Eff_hashCodeHisto{nullptr},
-  m_Eff_LumiBlockHisto_Total{nullptr},
-  m_effdistribution{nullptr},
-  m_effHashLumiB{nullptr},
-  m_mNHitHisto{nullptr},
-  m_barrelNHitHisto{nullptr},
-  m_pNHitHisto{nullptr},
-  m_SCTNHitHisto{nullptr},
-  m_trtNHitHisto{nullptr},
-  m_pixelNHitHisto{nullptr},
-  m_PtTkHisto{nullptr},
-  m_etaTkHisto{nullptr},
-  m_d0TkHisto{nullptr},
-  m_d0PrecTkHisto{nullptr},
-  m_nTrkHisto{nullptr},
-  m_nTrkParsHisto{nullptr},
-  m_nTrkGoodHisto{nullptr},
-  m_LumiBlock{nullptr},
-  m_z0TkHisto{nullptr},
-  m_hashCodeHisto{nullptr},
-  m_badModFineMap{nullptr},
-  m_badModMap{nullptr},
-  m_badChipMap{nullptr},
-  m_countEvent{0},
-  m_pixelId{nullptr},
-  m_sctId{nullptr},
-  m_trtId{nullptr} {
+  ManagedMonitorToolBase(type, name, parent) {
   m_Eff_summaryHisto.fill(0);
   m_Eff_summaryHistoFirstBCID.fill(0);
   m_Eff_summaryHisto_old.fill(0);

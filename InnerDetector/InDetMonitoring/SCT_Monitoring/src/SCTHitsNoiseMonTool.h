@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -107,60 +109,60 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   VecProf2_t m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS];
   VecProf2_t m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS];
   
-  TH1F* m_nSP;
-  std::vector<int> m_nSP_buf;
-  int m_nSP_pos;
-  TH1F* m_nHits;
-  std::vector<int> m_nHits_buf;
-  int m_nHits_pos;
-  TH1F* m_nmaxHits;
-  std::vector<int> m_nmaxHits_buf;
-  std::vector<Identifier> m_nmaxModule_buf;
-  TH1F* m_nminHits;
-  std::vector<int> m_nminHits_buf;
-  std::vector<Identifier> m_nminModule_buf;
+  TH1F* m_nSP{nullptr};
+  std::vector<int> m_nSP_buf{};
+  int m_nSP_pos{0};
+  TH1F* m_nHits{nullptr};
+  std::vector<int> m_nHits_buf{};
+  int m_nHits_pos{0};
+  TH1F* m_nmaxHits{nullptr};
+  std::vector<int> m_nmaxHits_buf{};
+  std::vector<Identifier> m_nmaxModule_buf{};
+  TH1F* m_nminHits{nullptr};
+  std::vector<int> m_nminHits_buf{};
+  std::vector<Identifier> m_nminModule_buf{};
 
   //Histograms with hits per luminosity block
-  H1_t m_numHitsPerLumiBlock[SCT_Monitoring::N_REGIONS];
+  H1_t m_numHitsPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
 
   //Histograms with SPs per luminsity block
-  H1_t m_numSPPerLumiBlock[SCT_Monitoring::N_REGIONS];
+  H1_t m_numSPPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
 
-  H2_t m_rioMap;
+  H2_t m_rioMap{nullptr};
   //@}
   //Histograms with NO distribution
-  TH1F* m_NO[SCT_Monitoring::N_REGIONS+1];
-  TH1F* m_NOTrigger[SCT_Monitoring::N_REGIONS+1];
+  TH1F* m_NO[SCT_Monitoring::N_REGIONS+1]{};
+  TH1F* m_NOTrigger[SCT_Monitoring::N_REGIONS+1]{};
 
   //---- results required no triggers
   // # of hits vs LBs
-  Prof_t m_NallHits_vsLB[SCT_Monitoring::N_REGIONS];
-  Prof_t m_NSPHits_vsLB[SCT_Monitoring::N_REGIONS];
+  Prof_t m_NallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  Prof_t m_NSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
   // NO with hits subtracted by SP
-  Prof_t m_NO_vsLB[SCT_Monitoring::N_REGIONS+1];
-  Prof_t m_NoisyModules_vsLB[nThreshes];
+  Prof_t m_NO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  Prof_t m_NoisyModules_vsLB[nThreshes]{};
   
   //---- results required trigger
   // # of hits vs LBs
-  Prof_t m_NallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS];
-  Prof_t m_NSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS];
+  Prof_t m_NallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  Prof_t m_NSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
   // NO with hits subtracted by SP
-  Prof_t m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1];
-  Prof_t m_NoisyModulesTrigger_vsLB[nThreshes];
+  Prof_t m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  Prof_t m_NoisyModulesTrigger_vsLB[nThreshes]{};
 
   //Online code- template vector
-  VecH1_t m_pstripmapTemplateVector;
-  H1_t m_MaxOccupancyStripHist;
-  H1_t m_MinOccupancyStripHist;
+  VecH1_t m_pstripmapTemplateVector{};
+  H1_t m_MaxOccupancyStripHist{nullptr};
+  H1_t m_MinOccupancyStripHist{nullptr};
   /// Pointers to histogram of SCT cluster width.
-  H1_t m_clusize;
-  H1_t m_clusizeRecent;
+  H1_t m_clusize{nullptr};
+  H1_t m_clusizeRecent{nullptr};
 
   /// Pointers to histogram of hits as a function of TriggerType.
-  H1_t m_hitsvstrigger;
+  H1_t m_hitsvstrigger{nullptr};
 
   /// Pointers to histogram of hits as a function of L1ID.
-  H1_t m_hitsvsL1ID;
+  H1_t m_hitsvsL1ID{nullptr};
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
@@ -169,31 +171,31 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   StringProperty m_NOTriggerItem{this, "NOTrigger", "L1_RD0_EMPTY"};
  
   /// Pointers to vector of histograms of SCT cluster width; 1 histo per layer and side.
-  VecH1_t m_clusizeHistoVector[SCT_Monitoring::N_REGIONS];
-  VecH1_t m_clusizeHistoVectorRecent[SCT_Monitoring::N_REGIONS];
+  VecH1_t m_clusizeHistoVector[SCT_Monitoring::N_REGIONS]{};
+  VecH1_t m_clusizeHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Event
-  TH1F* m_ncluHisto;
+  TH1F* m_ncluHisto{nullptr};
 
   /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
-  VecH1_t m_ncluHistoVector[SCT_Monitoring::N_REGIONS];
+  VecH1_t m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{};
 
   //Pointer to histogram of time bin coincidences
-  H2I_t m_coincidenceHist; 
+  H2I_t m_coincidenceHist{nullptr};
 
   /// stream stem for the ROOT histograms
-  std::string m_stream;
+  std::string m_stream{"/stat"};
 
   BooleanProperty m_doTrigger{this, "doTrigger", false};
 
   //Count number of events
-  int m_numberOfEvents;
+  int m_numberOfEvents{0};
   //Count number of events in the selected stream
-  int m_numberOfEventsTrigger;
+  int m_numberOfEventsTrigger{0};
   //Count number of events since last reset
-  int m_numberOfEventsRecent;
+  int m_numberOfEventsRecent{0};
   //CAM adds skip events counter
-  int m_skipEvents;
+  int m_skipEvents{0};
   /// Switch on or off the hitmaps histograms
   BooleanProperty m_boolhitmaps{this, "doHitmapHistos", false};
 
@@ -216,8 +218,8 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   /// CheckHists() frequency
   IntegerProperty m_checkrate{this, "CheckRate", 1000};
   IntegerProperty m_checkrecent{this, "CheckRecent", 30};
-  int m_current_lb;
-  int m_last_reset_lb;
+  int m_current_lb{0};
+  int m_last_reset_lb{0};
   /// ChechHists() frequency
   IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
 
@@ -230,15 +232,15 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   VecH2_t m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
   StatusCode bookGeneralTrackHits(const unsigned int systemIndex);
   StatusCode bookGeneralTrackTimeHistos( const unsigned int systemIndex);
-  VecH1_t m_tbinHistoVector[SCT_Monitoring::N_REGIONS];
-  VecH1_t m_tbinHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  H1_t m_tbinHisto[SCT_Monitoring::N_REGIONS];
-  H1_t m_tbinHistoRecent[SCT_Monitoring::N_REGIONS];
+  VecH1_t m_tbinHistoVector[SCT_Monitoring::N_REGIONS]{};
+  VecH1_t m_tbinHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  H1_t m_tbinHisto[SCT_Monitoring::N_REGIONS]{};
+  H1_t m_tbinHistoRecent[SCT_Monitoring::N_REGIONS]{};
   static constexpr int s_commonSize{std::max(SCT_Monitoring::N_BARRELSx2, SCT_Monitoring::N_DISKSx2)};
-  Prof2_t m_tbinfrac[SCT_Monitoring::N_REGIONS][s_commonSize];
-  Prof2_t m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize];
-  Prof_t m_tbinfracall;
-  Prof_t m_tbinfracVsLB[SCT_Monitoring::N_REGIONS];
+  Prof2_t m_tbinfrac[SCT_Monitoring::N_REGIONS][s_commonSize]{};
+  Prof2_t m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{};
+  Prof_t m_tbinfracall{nullptr};
+  Prof_t m_tbinfracVsLB[SCT_Monitoring::N_REGIONS]{};
  
   //@name Histograms related methods
   //@{
@@ -282,48 +284,48 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   std::map<Identifier, float> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
   std::map<Identifier, float> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
    
-  int m_noisyM[nThreshes][SCT_Monitoring::NBINS_LBs+1];
-  int m_occ_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1];
-  int m_events_lb;
-  int m_noisyMTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1];
-  int m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1];
-  int m_eventsTrigger_lb;
+  int m_noisyM[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_occ_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_events_lb{0};
+  int m_noisyMTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_eventsTrigger_lb{0};
   
-  VecProf2_t m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS];
-  VecProf2_t m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  VecProf2_t m_phitoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS];
+  VecProf2_t m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{};
+  VecProf2_t m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  VecProf2_t m_phitoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]{};
 
   //Histograms with HO distribution
-  TH1F* m_HO[SCT_Monitoring::N_REGIONS+1];
-  TH1F* m_HOTrigger[SCT_Monitoring::N_REGIONS+1];
+  TH1F* m_HO[SCT_Monitoring::N_REGIONS+1]{};
+  TH1F* m_HOTrigger[SCT_Monitoring::N_REGIONS+1]{};
 
   //---- results required no triggers
   // # of hits vs LBs
-  Prof_t m_HallHits_vsLB[SCT_Monitoring::N_REGIONS];
-  Prof_t m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS];
+  Prof_t m_HallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  Prof_t m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
   // HO with hits subtracted by SP
-  Prof_t m_HO_vsLB[SCT_Monitoring::N_REGIONS+1];
-  Prof_t m_NoisyModulesWithHO_vsLB[nThreshes];
+  Prof_t m_HO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  Prof_t m_NoisyModulesWithHO_vsLB[nThreshes]{};
 
   //---- results required trigger
   // # of hits vs LBs
-  Prof_t m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS];
-  Prof_t m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS];
+  Prof_t m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  Prof_t m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
   // HO with hits
-  Prof_t m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1];
-  Prof_t m_NoisyModulesWithHOTrigger_vsLB[nThreshes];
+  Prof_t m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  Prof_t m_NoisyModulesWithHOTrigger_vsLB[nThreshes]{};
 
-  std::map<Identifier, float> m_hitoccSumUnbiased;
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger;
-  std::map<Identifier, float> m_hitoccSumUnbiasedRecent;
+  std::map<Identifier, float> m_hitoccSumUnbiased{};
+  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger{};
+  std::map<Identifier, float> m_hitoccSumUnbiasedRecent{};
 
-  std::map<Identifier, float> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
+  std::map<Identifier, float> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1]{};
+  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1]{};
 
-  int m_noisyMWithHO[nThreshes][SCT_Monitoring::NBINS_LBs+1];
-  int m_hitocc_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1];
-  int m_noisyMWithHOTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1];
-  int m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1];
+  int m_noisyMWithHO[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_hitocc_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_noisyMWithHOTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
+  int m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
 
   StatusCode initializeNoiseMaps();
 
@@ -348,7 +350,7 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
 
   ///SCT Helper class
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
 
   ///Determines whether a local summary is written
   IntegerProperty m_localSummary{this, "localSummary", 0};

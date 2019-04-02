@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -73,63 +75,63 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   ///enumerated constant for the types of level 1 triggers, corresponds to the string m_triggerNames
   enum TriggerTypes {RNDM=0, BPTX, L1CAL, TGC, RPC, MBTS, COSM, CALIB, N_TRIGGER_TYPES };
 
-  TH1I* m_nTracks;
-  std::vector<int> m_nTracks_buf;
-  int m_nTracks_pos;
-  TH1I* m_trackTrigger;
-  TProfile* m_trackTriggerRate;
-  TH1F* m_totalResidual[SCT_Monitoring::N_REGIONS];
-  TH1F* m_totalPull[SCT_Monitoring::N_REGIONS];
+  TH1I* m_nTracks{nullptr};
+  std::vector<int> m_nTracks_buf{};
+  int m_nTracks_pos{9};
+  TH1I* m_trackTrigger{nullptr};
+  TProfile* m_trackTriggerRate{nullptr};
+  TH1F* m_totalResidual[SCT_Monitoring::N_REGIONS]{};
+  TH1F* m_totalPull[SCT_Monitoring::N_REGIONS]{};
 
-  int m_numberOfEvents;
+  int m_numberOfEvents{0};
   //@name Histograms related members
   //@{
   /// Pointer to 1D histogram of Number of SCT Clusters associated to any Track per Event
-  H1_t m_trk_nclu_totHisto;
+  H1_t m_trk_nclu_totHisto{nullptr};
 
   // Pointer to 1D histogram of number of tracks in each LB
-  H1_t m_tracksPerRegion;
+  H1_t m_tracksPerRegion{nullptr};
 
   //Pointer to profile histogram of track rates
-  Prof_t m_trackRate;
+  Prof_t m_trackRate{nullptr};
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Track
-  H1_t m_trk_ncluHisto;
+  H1_t m_trk_ncluHisto{nullptr};
 
   /// Pointer to 1D histogram of Track chi2
-  H1_t m_trk_chi2;
+  H1_t m_trk_chi2{nullptr};
   
-  H1_t m_trk_N;
+  H1_t m_trk_N{nullptr};
 
   /// Pointer to 1D histogram of Track pt
-  H1_t m_trk_pt;
+  H1_t m_trk_pt{nullptr};
 
   /// Pointer to 1D histogram of Track d0
-  H1_t m_trk_d0;
+  H1_t m_trk_d0{nullptr};
 
   /// Pointer to 1D histogram of Track z0
-  H1_t m_trk_z0;
+  H1_t m_trk_z0{nullptr};
 
   /// Pointer to 1D histogram of Track eta
-  H1_t m_trk_eta;
+  H1_t m_trk_eta{nullptr};
   
   /// Pointer to 1D histogram of Track phi
-  H1_t m_trk_phi;
+  H1_t m_trk_phi{nullptr};
 
   /// Vector of pointers to profile histogram of residuals; 1 histo per layer and side
-  VecProf2_t m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS];
+  VecProf2_t m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to  histogram of residuals RMS; 1 histo per layer and side
-  VecH2_t m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS];
+  VecH2_t m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to summary histogram of residuals; 1 histo per layer and side
-  VecH1_t m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS];
+  VecH1_t m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to profile histogram of pulls; 1 histo per layer and side
-  VecProf2_t m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS];
+  VecProf2_t m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to  histogram of pulls RMS; 1 histo per layer and side
-  VecH2_t m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS];
+  VecH2_t m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
-  VecH1_t m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS];
-  std::string m_stream;
-  std::string m_path;
+  VecH1_t m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::string m_stream{"/stat"};
+  std::string m_path{""};
   BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
   BooleanProperty m_doTrigger{this, "doTrigger", false};
 
@@ -151,7 +153,7 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   ///Abbreviations for level 1 trigger types
   static const std::string s_triggerNames[N_TRIGGER_TYPES];
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
-  std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
+  std::bitset<N_TRIGGER_TYPES> m_firedTriggers{0};
 
   //@name Service members
   //@{
@@ -159,7 +161,7 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   ToolHandle<Trk::IUpdator> m_updator{this, "KalmanUpdator", "Trk::KalmanUpdator/TrkKalmanUpdator", ""};
 
   ///SCT Helper class
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
   
   //@}
   //@name  Histograms related methods
