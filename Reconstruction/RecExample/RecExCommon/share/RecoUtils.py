@@ -24,15 +24,6 @@ theApp.AuditTools=True
 
 from AthenaCommon import CfgMgr
 
-# change to true to abort on ER ROR
-theAuditorSvc += CfgMgr.AlgErrorAuditor(Throw=False)
-try:
-    if rec.abortOnErrorMessage():
-        CfgMgr.AlgErrorAuditor(Throw=True)
-except Exception:
-    logRecoUtils.warning('Could not set abort on Error Message')
-    pass
-
 theAuditorSvc += CfgMgr.ChronoAuditor()
 
 
