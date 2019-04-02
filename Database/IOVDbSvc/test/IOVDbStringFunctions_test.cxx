@@ -33,6 +33,9 @@ BOOST_AUTO_TEST_SUITE(IOVDbStringFunctionsTest)
     const std::string stringWithSpaces(" string to strip ");
     const std::string trimmedString=IOVDbNamespace::spaceStrip(stringWithSpaces);
     BOOST_TEST(trimmedString == "string to strip");
+    const std::string stringOnlySpaces("   ");
+    const std::string trimmedSpaceString=IOVDbNamespace::spaceStrip(stringOnlySpaces);
+    BOOST_TEST(trimmedSpaceString.empty());
   }
   BOOST_AUTO_TEST_CASE(makeChannel){
     const int defaultValue=999;
@@ -114,10 +117,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbStringFunctionsTest)
     BOOST_TEST(IOVDbNamespace::sanitiseXml(inputXml) == expectedResult);
   }
   
-  BOOST_AUTO_TEST_CASE(tagIsMagic){
-    std::string inputTag="TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas";
-    BOOST_TEST(IOVDbNamespace::tagIsMagic(inputTag));
-  }
+  
   BOOST_AUTO_TEST_CASE(parseMagicTag){
     std::string inputTag="TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas";
     const auto parsedTag=IOVDbNamespace::parseMagicTag(inputTag);

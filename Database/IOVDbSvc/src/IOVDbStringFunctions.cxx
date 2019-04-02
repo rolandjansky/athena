@@ -10,8 +10,8 @@ namespace IOVDbNamespace{
   std::string 
   spaceStrip(const std::string& input){
     // return the input string stripped of leading/trailing spaces
-    std::string::size_type idx1=input.find_first_not_of(" ");
-    std::string::size_type idx2=input.find_last_not_of(" ");
+    std::string::size_type idx1=input.find_first_not_of(" \n\r\t");
+    std::string::size_type idx2=input.find_last_not_of(" \n\r\t");
     if (idx1==std::string::npos || idx2==std::string::npos) {
       return "";
     } else {
@@ -29,18 +29,21 @@ namespace IOVDbNamespace{
   
   unsigned long long
   iovFromTimeString(const std::string & iovString){
+    if (iovString.empty()) return 0LL;
     unsigned long long time=std::stoi(iovString);
     return time*1000000000LL;
   }
   
   unsigned long long
   iovFromRunString(const std::string & runString){
+    if (runString.empty()) return 0LL;
     unsigned long long run=std::stoi(runString);
     return run<<32LL;
   }
   
   unsigned long long
   iovFromLumiBlockString(const std::string & lbString){
+    if (lbString.empty()) return 0LL; 
     unsigned long long lb=std::stoll(lbString.c_str());
     return lb;
   }
@@ -116,6 +119,12 @@ namespace IOVDbNamespace{
   }
   
   bool
+  looksLikeMagicTag(const std::string & candidateTag){
+    return (candidateTag.substr(0,7)=="TagInfo" and 
+      candidateTag.find('/')!=std::string::npos);
+  }
+  
+  bool
   tagIsMagic(const std::string & candidateTag){
     const std::string regex=R"delim(TagInfo(Major|Minor)/.*)delim";
     const std::regex magicx(regex);
@@ -137,8 +146,9 @@ namespace IOVDbNamespace{
   }
   
   std::vector<std::string>
-  parseLinkNames(const std::string linktext){
+  parseLinkNames(const std::string &linktext){
     std::vector<std::string> v{};
+    if (linktext.empty()) return v;
     //regex: 
     //(anything except colon, multiple times) then _possibly_ (two colons and string of anything except colons)
     // anything except colon) then (colon or end-of-line)

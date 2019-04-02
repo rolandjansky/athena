@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //@file IOVDbStringFunctions.h
 //@brief Helper functions for string manipulation and parsing
@@ -11,6 +11,11 @@
 #include <vector>
 #include <utility>
 #include <limits>
+
+namespace Gaudi{
+  class StoreGateSvc;
+}
+class MsgStream;
 
 namespace IOVDbNamespace{
 
@@ -105,7 +110,12 @@ namespace IOVDbNamespace{
   std::string
   sanitiseXml(const std::string & pseudoXmlString);
   
-  ///Is this tag a 'magic tag'?
+  
+  ///Looks like it should be magic
+  bool
+  looksLikeMagicTag(const std::string & candidateTag);
+  
+  ///Resolve magic tag
   bool
   tagIsMagic(const std::string & candidateTag);
   
@@ -121,7 +131,7 @@ namespace IOVDbNamespace{
   
   //! Parse string of format "A:X::B:C" to "A" , "X::B", "C"
   std::vector<std::string>
-  parseLinkNames(const std::string linktext);
+  parseLinkNames(const std::string &linktext);
   
   
 }

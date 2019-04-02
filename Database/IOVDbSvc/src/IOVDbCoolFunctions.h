@@ -8,13 +8,17 @@
 #define IOVDbCoolFunctions_h
 #include "CoolKernel/ChannelId.h"
 #include "CoolKernel/ValidityKey.h"
+
 #include "AthenaKernel/IOVTime.h"
 //
 #include <utility>
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <string>
 
+
+class IOVRange;
 
 namespace coral{
   class AttributeListSpecification;
@@ -27,6 +31,8 @@ namespace cool{
 }
 
 namespace IOVDbNamespace{
+  ///All the lumi blocks in one run
+  constexpr unsigned long long ALL_LUMI_BLOCKS{0xFFFFFFFF};
 
   //!Function to check whether a number is in the inclusive range, given as a pair.
   //!Typically used with Channel ranges for COOL
@@ -43,24 +49,51 @@ namespace IOVDbNamespace{
     return std::any_of(ranges.begin(), ranges.end(), valueInRange);
   }
   
+  ///return the AttributeListSpecification of an AttributeList
   const coral::AttributeListSpecification &
   attrList2Spec(const coral::AttributeList& atrlist);
   
+  ///return the size (in bytes) of an Attribute
   unsigned int
   attributeSize(const coral::Attribute & attribute);
   
+  ///Return a bool indicating whether the size of a given Attribute can be determined
   bool
   typeSizeIsKnown(const coral::Attribute & attribute);
   
+  ///return the size (in bytes) of an AttributeList
   unsigned int
   attributeListSize(const coral::AttributeList& atrlist);
   
+  ///Count the number of selected channels in a vector of channels according to cool::Channel selection
   int
   countSelectedChannels(const std::vector<cool::ChannelId> & channels, const cool::ChannelSelection & selected);
   
+  ///Create an IOVTime in ns of epoch or run-lumi (determined by the bool) from a ValidityKey
   IOVTime
   makeEpochOrRunLumi(const cool::ValidityKey key, const bool timeIsEpoch);
-
+  
+  ///Create a long long time in ns from s
+  unsigned long long 
+  iovTimeFromSeconds(const unsigned long long seconds);
+  
+  ///Create a long long representing the IOV from run, lumi
+  unsigned long long
+  iovTimeFromRunLumi(const unsigned long long run, const unsigned long long lumi=0);
+  
+  ///Return a [run,lumi] pair from an IOV time
+  std::pair<unsigned long long, unsigned long long>
+  runLumiFromIovTime(const unsigned long long iovTime);
+  
+  ///Make an IOVRange from two validity keys
+  IOVRange 
+  makeRange(const cool::ValidityKey since,const cool::ValidityKey until,const bool timeIsEpoch);
+  
+  ///Create a ChannelId from a string; if string is empty, return the default channel number given
+  cool::ChannelId 
+  makeChannel(const std::string& strval, const cool::ChannelId defchan);
+  
+  ///
 }
 
 #endif

@@ -11,7 +11,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 //
 #include "CoolKernel/ChannelSelection.h"
-
+#include "AthenaKernel/IOVRange.h"
 //
 #include <unordered_map>
 #include <typeinfo>
@@ -90,4 +90,45 @@ namespace IOVDbNamespace{
     }
     return time;
   }
+  
+  unsigned long long 
+  iovTimeFromSeconds(const unsigned long long seconds){
+    return seconds*1000000000LL;
+  }
+  
+  unsigned long long
+  iovTimeFromRunLumi(const unsigned long long run, const unsigned long long lumi){
+    return (run<<32) + lumi;
+  }
+  
+  std::pair<unsigned long long, unsigned long long>
+  runLumiFromIovTime(const unsigned long long iovTime){
+    return std::pair<unsigned long long, unsigned long long>{iovTime>>32, iovTime&0xFFFFFFFF};
+  }
+  
+  IOVRange 
+  makeRange(const cool::ValidityKey since,const cool::ValidityKey until,const bool timeIsEpoch) {
+    // make an IOVRange object corresponding to given interval
+    // dealing with timestamp/RunLB differences
+    IOVTime itsince,ituntil;
+    if (timeIsEpoch) {
+      itsince.setTimestamp(since);
+      ituntil.setTimestamp(until);
+    } else {
+      itsince.setRETime(since);
+      ituntil.setRETime(until);
+    }
+    return IOVRange(itsince,ituntil);
+  }
+
+  cool::ChannelId 
+  makeChannel(const std::string& strval, const cool::ChannelId defchan) {
+    // construct a cool channelId from the string value (numeric)
+    // if empty, use the default value
+    if (not strval.empty()) return std::stol(strval);
+    return defchan;
+  }
+  
+ 
 }
+
