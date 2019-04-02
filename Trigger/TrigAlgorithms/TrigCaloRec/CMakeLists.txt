@@ -46,7 +46,7 @@ atlas_add_library( TrigCaloRecLib
 
 atlas_add_component( TrigCaloRec
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel AthenaMonitoringLib IRegionSelector xAODCaloEvent GaudiKernel TrigT2CaloCommonLib TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloGeoHelpers CaloIdentifier CaloRecLib CaloUtilsLib EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier LArCablingLib TrigT1Interfaces TrigCaloRecLib )
+                     LINK_LIBRARIES TrigCaloRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
