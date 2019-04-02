@@ -12,7 +12,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" // added by Sasha for Argon
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" // added by Sasha for Argon
 
 class TRT_ID;
 
@@ -33,7 +33,7 @@ public:
 		  const InDetDD::TRT_DetectorManager*,
 		  const TRT_ID*,
 		  int UseGasMix,
-		  ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+		  ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 		);
 
   /** Destructor */
@@ -190,7 +190,7 @@ private:
   mutable Athena::MsgStreamMember m_msg;
 
   int m_UseGasMix;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added by Sasha for Argon
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // added by Sasha for Argon
 
 };
 

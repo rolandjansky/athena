@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGABLEVECTOR_H
@@ -36,10 +36,7 @@ public:
   NavigableVector() 
   { }
 
-  virtual ~NavigableVector() 
-  { 
-    m_store.clear();
-  };
+  virtual ~NavigableVector() = default;
 
   // add elements
   void addElement(const CONT* aContainer, const OBJCT* anObject)

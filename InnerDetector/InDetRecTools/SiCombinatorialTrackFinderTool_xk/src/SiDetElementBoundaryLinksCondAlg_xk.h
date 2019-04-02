@@ -24,6 +24,8 @@ namespace InDet {
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
+    /** Make this algorithm clonable. */
+    virtual bool isClonable() const override { return true; };
 
   private:
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection for SCT"};

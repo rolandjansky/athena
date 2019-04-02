@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGABLETERMINALNODE_H
@@ -25,7 +25,7 @@ class NavigableTerminalNode : virtual public INavigable
   // typedef NavigationDefaults::DefaultType constituent_const_iter;
 
   NavigableTerminalNode() { };
-  virtual ~NavigableTerminalNode() { };
+  virtual ~NavigableTerminalNode() = default;
 
   // implement INavigable::fillToken(...) as "do-nothing"
   virtual void fillToken( INavigationToken & ) const { };

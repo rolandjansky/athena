@@ -34,14 +34,18 @@ struct GaudiKernelFixture:public GaudiKernelFixtureBase{
 
 struct IOVDbParserFixture{
   ServiceHandle<IMessageSvc> msgSvc;
-  const std::string descriptionString;
+  const std::string descriptionString1;
+  const std::string descriptionString2;
   MsgStream log;
-  IOVDbParser parser;
+  IOVDbParser parser1;
+  IOVDbParser parser2;
   IOVDbParserFixture():msgSvc("msgSvc","test"),
-   descriptionString{"extraText<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName><key>/PIXEL/CablingMap</key>"},
+   descriptionString1{"extraText<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName><key>/PIXEL/CablingMap</key>"},
+   descriptionString2{"extraText<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>"},
    log(msgSvc.get(), "IOVDbParser_test"),
-   parser(descriptionString, log){
-  }
+   parser1(descriptionString1, log),
+   parser2(descriptionString2, log){
+   }
 };
 
 //Basic tests that the service can be retrieved
@@ -53,29 +57,49 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbParserTest , GaudiKernelFixture)
   //tests parsing of folder description
   BOOST_FIXTURE_TEST_SUITE(IOVDbParserMethods, IOVDbParserFixture)
     BOOST_AUTO_TEST_CASE(publicMethods){
-      BOOST_TEST(parser.isValid());//parser was created ok
+      BOOST_TEST(parser1.isValid());//parser was created ok
       const std::string defaultValue{"time"};
       std::string returnValue{};
-      BOOST_TEST(parser.getKey("timeStamp", defaultValue, returnValue));
+      BOOST_TEST(parser1.getKey("timeStamp", defaultValue, returnValue));
       BOOST_TEST(returnValue == "run-lumi");
-      BOOST_TEST(!parser.getKey("nonsense", defaultValue, returnValue));
+      BOOST_TEST(parser2.getKey("timeStamp", "", returnValue));
+      BOOST_TEST(returnValue == "time");
+      BOOST_TEST(!parser1.getKey("nonsense", defaultValue, returnValue));
       BOOST_TEST(returnValue == defaultValue);
-      BOOST_TEST(parser.spaceStrip(" a spaced string ") == "a spaced string");
-      BOOST_TEST(parser.folderName() == "extraText");//I dont think this is satisfactory!
+      //IOVDbParser::spaceStrip method was removed in master (cf. rel. 21.X)
+      BOOST_TEST(parser1.folderName() == "extraText");//I dont think this is satisfactory!
+      BOOST_TEST(parser1.hasKey());
+      BOOST_TEST(parser1.key() == "/PIXEL/CablingMap");//key exists
+      BOOST_TEST(!parser2.hasKey());
+      BOOST_TEST(parser2.key() == "extraText");//key does not exist, should return foldername
       std::string overridingDescription="extraText2<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName><key>/PIXEL/CablingMap</key>";
       IOVDbParser parserOverride(overridingDescription, log);
-      BOOST_TEST(parser.applyOverrides(parserOverride, log) == 4);
+      BOOST_TEST(parser1.applyOverrides(parserOverride, log) == 4);
       std::string equivalentDescription="extraText2<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName><key>/PIXEL/CablingMap</key>";
-      IOVDbParser parser1(overridingDescription, log);
+      IOVDbParser parser3(overridingDescription, log);
       IOVDbParser equivalentParser(equivalentDescription, log);
-      if ( (not parser1.isValid()) or (not equivalentParser.isValid()) ){
+      if ( (not parser3.isValid()) or (not equivalentParser.isValid()) ){
         throw std::runtime_error("Invalid parser creation");
       }
-      bool testEqualityOperator = (parser1 == equivalentParser);
-      bool testEqualityFalse = (parser == parser1);
+      bool testEqualityOperator = (parser3 == equivalentParser);
+      bool testEqualityFalse = (parser1 == parser3);
       BOOST_TEST(testEqualityOperator);
       BOOST_TEST(!testEqualityFalse);
-      BOOST_TEST(parser.toString() == "Folder:extraText, Attributes: [addrHeader:<address_header service_type=\"71\" clid=\"40774348\" />] [key:/PIXEL/CablingMap] [timeStamp:time] [typeName:AthenaAttributeList] ");
+      BOOST_TEST(parser1.toString() == "Folder:extraText, Attributes: [addrHeader:<address_header service_type=\"71\" clid=\"40774348\" />] [key:/PIXEL/CablingMap] [timeStamp:time] [typeName:AthenaAttributeList] ");
+      BOOST_TEST(parser1.tag()=="");
+      BOOST_TEST(parser1.eventStoreName()=="StoreGateSvc");
+      BOOST_TEST(parser1.timebaseIs_nsOfEpoch());
+      BOOST_TEST(parser1.cache()=="");
+      BOOST_TEST(parser1.cachehint()==0);
+      BOOST_TEST(!parser1.named());
+      BOOST_TEST(parser1.addressHeader()=="<address_header service_type=\"71\" clid=\"40774348\" />");
+      BOOST_TEST(parser1.symLinks().empty());
+      BOOST_TEST(!parser1.noTagOverride());
+      BOOST_TEST(parser1.classId()==40774348);
+      BOOST_TEST(!parser1.onlyReadMetadata());
+      BOOST_TEST(!parser1.extensible());
+      BOOST_TEST(!parser1.overridesIov());
+      BOOST_TEST(parser1.iovOverrideValue()==0);
     }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

@@ -18,7 +18,7 @@
 #include "TrkTrack/Track.h"
 
 //gas type selection
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -51,7 +51,7 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
 {
 public:
   IChronoStatSvc  *m_timingProfile;                                     // Timing measurements
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; 
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; 
 
 public:
   //////////////////////////////////////////////////////////////////////////

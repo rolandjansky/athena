@@ -25,12 +25,8 @@ AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
 
 include('RecExCond/AllDet_detDescr.py')
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-#print inputFileSummary
-if inputFileSummary['evt_type'][0] == 'IS_DATA':
-    globalflags.DataSource = 'data'
-else:
-    globalflags.DataSource = 'geant4'
+from PyUtils.MetaReaderPeeker import metadata
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == "IS_DATA" else 'geant4'
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

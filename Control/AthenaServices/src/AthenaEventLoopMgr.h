@@ -129,6 +129,9 @@ protected:
   tool_stats m_toolReject; ///< tool returns StatusCode::FAILURE counter
   tool_stats m_toolAccept; ///< tool returns StatusCode::SUCCESS counter
   tool_store m_tools;         ///< internal tool store
+  
+  /// read event number from secondary input
+  bool m_useSecondaryEventNumber;
 
   /// property update handler:sets up the Pre-selection tools
   void setupPreSelectTools(Property&);

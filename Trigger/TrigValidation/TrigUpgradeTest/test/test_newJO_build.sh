@@ -16,7 +16,7 @@ export FROMPICKLE=1
 export REGTESTEXP=".*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|.*newJOtest.pkl.*|TrigSignatureMo.*INFO.*"
 
 # Find the regtest reference installed with the release
-export REGTESTREF=`find_data.py TrigUpgradeTest/NewJO.ref`
+export REGTESTREF=`find_data.py TrigUpgradeTest/newJO_build.ref`
 
 get_files -remove -jo TrigUpgradeTest/newJOtest.py
 

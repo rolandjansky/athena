@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
 
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 
@@ -272,7 +273,8 @@ private:
 
   bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
 
-  SG::ReadHandleKey<TrackCollection> m_trackKey{this,"TrackInputLocation","MuonSpectrometerTracks","input tracks"};            //!< Location of the track input container
+  SG::ReadHandleKey<TrackCollection> m_trackKey{this,"TrackInputLocation","MuonSpectrometerTracks","input tracks"};  //!< Location of the input tracks
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muons{this,"MuonLocation","Muons","input muons"}; //muons for cases other than MS tracks
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","EventInfo key"};
   const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
@@ -295,6 +297,7 @@ private:
   bool m_doSegments;
   bool m_writeToFile;
   bool m_doNSW;
+  bool m_doStau;
 
   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
@@ -375,6 +378,10 @@ private:
 
   IntegerArrayProperty m_pdgsToBeConsidered;
   std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
+
+  //type of track (based on enum defined in Muon_v1.h)
+  int m_trackType;
+  std::string m_trackTypeString;
 
 };
   

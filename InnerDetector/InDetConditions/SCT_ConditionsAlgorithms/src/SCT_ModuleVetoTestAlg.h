@@ -31,10 +31,12 @@ class SCT_ModuleVetoTestAlg : public AthReentrantAlgorithm {
   SCT_ModuleVetoTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
   virtual ~SCT_ModuleVetoTestAlg() = default;
 
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
-   
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
   ToolHandle<ISCT_ConditionsTool> m_pModuleVetoTool{this, "ModuleVetoTool", "SCT_ModuleVetoTool", "Tool to retrieve vetoed modules"};
 }; //end of class

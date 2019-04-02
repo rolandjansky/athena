@@ -418,6 +418,25 @@ def getKernel_ATLFASTIIMT(name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     simFlags.SimulationFlavour = "ATLFASTII"
     return getKernel_GenericSimulatorMT(name, **kwargs)
 
+
+############## Simulator: ATLFASTII_QS ###############
+def getKernel_ATLFASTII_QS(name="ISF_Kernel_ATLFASTII_QS", **kwargs):
+    kwargs.setdefault("ParticleBroker"             , 'ISF_AFIIParticleBrokerSvc'                        )
+
+    kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonAFII_QS_Geant4Selector',
+                                                       'ISF_EtaGreater5ParticleKillerSimSelector',
+                                                       'ISF_DefaultLegacyAFIIFastCaloSimSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector'  ]           )
+    kwargs.setdefault("InputConverter"             , 'ISF_LongLivedInputConverter'                      )
+    kwargs.setdefault("QuasiStablePatcher"         , 'ZeroLifetimePositioner'                           )
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII_QS"
+    return getKernel_GenericSimulator(name, **kwargs)
+
+
 ############## Simulator: ATLFASTIIF ###############
 def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ]       )

@@ -59,9 +59,9 @@ def GetRunNumber():
     runNb=None
     from RecExConfig.RecFlags import rec
     if rec.RunNumber.isDefault():
-        from RecExConfig.InputFilePeeker import inputFileSummary
+        from PyUtils.MetaReaderPeeker import metadata
         try:
-            runNb=inputFileSummary['run_number'][0]
+            runNb = metadata['runNumbers'][0]
         except Exception:
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if not athenaCommonFlags.isOnline(): logAutoConfiguration.error("No RunNumber stored in InputFile!")
@@ -73,14 +73,14 @@ def GetRunNumber():
 
 def GetLBNumber():
     # empty files do not have any lumi blocks!!
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['nentries']==0:
+    from PyUtils.MetaReaderPeeker import metadata
+    if metadata['nentries'] == 0:
         return None
 
-    
     lbs=[0,]
     try:
-        lbs=inputFileSummary['lumi_block']
+        lbs = metadata['lumiBlockNumbers']
+
     except Exception:
         logAutoConfiguration.error("No LumiBlock number stored in InputFile! Use 0")
         
@@ -103,18 +103,27 @@ def GetFieldFromCool():
 
 def GetFieldFromInputFile():
     logAutoConfiguration.info("Reading magnetic field status from input file metadata.")
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
+
     solenoidCurrent=None
     toroidCurrent=None
-    if inputFileSummary['metadata'].has_key('/EXT/DCS/MAGNETS/SENSORDATA'):
+
+    if '/EXT/DCS/MAGNETS/SENSORDATA' in metadata:
+        # where index in ['/EXT/DCS/MAGNETS/SENSORDATA']['value'][index] or
+        #                ['/EXT/DCS/MAGNETS/SENSORDATA']['quality_invalid'][index] is:
+        # 0 = CentralSol_Current
+        # 1 = CentralSol_SCurrent
+        # 2 = Toroids_Current
+        # 3 = Toroids_SCurrent
         try:
-            solenoidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['CentralSol_Current']['value']
-            toroidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['Toroids_Current']['value']
+            solenoidCurrent = metadata['/EXT/DCS/MAGNETS/SENSORDATA']['value'][0]  # CentralSol_Current
+            toroidCurrent = metadata['/EXT/DCS/MAGNETS/SENSORDATA']['value'][2]  # Toroids_Current
         except:
             logAutoConfiguration.warning("Unable to find solenoid and toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
+
         # consistency check of GEO and b field values in case of simulated data
-        if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+        if metadata['eventTypes'][0] == 'IS_SIMULATION':
             from AthenaCommon.GlobalFlags import globalflags
             if globalflags.DetDescrVersion().startswith('ATLAS-') and (solenoidCurrent,toroidCurrent)!= (GetApproximateFieldFromGeo()):
                 # if the values differ, the Field is configured due to GEO
@@ -187,8 +196,10 @@ def ConfigureField():
 
     solenoidCurrent=None
     toroidCurrent=None
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type']=='bs' and inputFileSummary['evt_type'][0]!='IS_SIMULATION':
+
+    from PyUtils.MetaReaderPeeker import metadata
+
+    if metadata['file_type'] == 'BS' and metadata['eventTypes'][0] != 'IS_SIMULATION':
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         # online running -> getting field from IS
         if athenaCommonFlags.isOnline():
@@ -199,7 +210,8 @@ def ConfigureField():
         # offline running -> getting field from COOL    
         else:
             solenoidCurrent,toroidCurrent=GetFieldFromCool()
-    elif inputFileSummary['file_type']=='bs' and inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+
+    elif metadata['file_type'] == 'BS' and metadata['eventTypes'][0] == 'IS_SIMULATION':
         logAutoConfiguration.info("Field info is not stored in MC BS values are set via conditions tag:")
         if solenoidCurrent==None or toroidCurrent==None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromConditions()
@@ -207,14 +219,15 @@ def ConfigureField():
             logAutoConfiguration.warning("BField of MC BS cannot be autoconfigured!! BField is turned ON")
             solenoidCurrent=fullSolenoidCurrent
             toroidCurrent=fullToroidCurrent
-    elif inputFileSummary['file_type']=='pool':
+
+    elif metadata['file_type'] == 'POOL':
         solenoidCurrent,toroidCurrent=GetFieldFromInputFile()
         if solenoidCurrent==None or toroidCurrent==None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromConditions()             
         if solenoidCurrent==None or toroidCurrent==None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromGeo() 
     else:
-        raise RuntimeError("Don't know how to interpret file_type '%s'"%inputFileSummary['file_type'])
+        raise RuntimeError("Don't know how to interpret file_type '%s'"%metadata['file_type'])
 
     if solenoidCurrent==None or toroidCurrent==None:
         raise RuntimeError("Unable to determine field status for this file.")
@@ -244,8 +257,8 @@ def ConfigureGeo():
         logAutoConfiguration.info("Geometry was locked to: %s ",globalflags.DetDescrVersion() )
         return
 
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type']=='bs':
+    from PyUtils.MetaReaderPeeker import metadata
+    if metadata['file_type'] == 'BS':
         geo="ATLAS-R2-2015-03-01-00" #geo='ATLAS-GEO-20-00-01'
         project=GetProjectName()
         if "data12" in project:
@@ -254,33 +267,33 @@ def ConfigureGeo():
             geo="ATLAS-R1-2011-02-00-00"  #'ATLAS-GEO-18-01-01'
         if "data10" in project or "data09" in project or "data08" in project:
             geo="ATLAS-R1-2010-02-00-00" #geo='ATLAS-GEO-16-00-01'
-        if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
-            try: geo = inputFileSummary['geometry']
+        if metadata['eventTypes'][0] == 'IS_SIMULATION':
+            try: geo = metadata['GeoAtlas']
             except: logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with geometry. Probably an old file.")
             pass
         globalflags.DetDescrVersion.set_Value_and_Lock(geo)
         logAutoConfiguration.info("Set GeometryVersion to '%s'"%geo)
-            
-    elif inputFileSummary['file_type']=='pool':
+
+    elif metadata['file_type'] == 'POOL':
         # configure Geometry from input file
-        globalflags.DetDescrVersion.set_Value_and_Lock(inputFileSummary['geometry'])
+        globalflags.DetDescrVersion.set_Value_and_Lock(metadata['GeoAtlas'])
         logAutoConfiguration.info("Configured geometry from input file: %s ",globalflags.DetDescrVersion() )
     else:
-        raise RuntimeError("Don't know how to interpret file_type '%s'"%inputFileSummary['file_type'])
-
+        raise RuntimeError("Don't know how to interpret file_type {}".format(metadata['file_type']))
     return
    
 
 def ConfigureFieldAndGeo():
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type']=='bs':        
+    from PyUtils.MetaReaderPeeker import metadata
+
+    if metadata['file_type'] == 'BS':
         ConfigureField()
         ConfigureGeo()
-    elif inputFileSummary['file_type']=='pool':
+    elif metadata['file_type'] == 'POOL':
         ConfigureGeo()
         ConfigureField()
     else:
-        raise RuntimeError("Don't know how to interpret file_type '%s'"%inputFileSummary['file_type'])
+        raise RuntimeError("Don't know how to interpret file_type '%s'"%metadata['file_type'])
     return
 
 def GetProjectName():
@@ -291,17 +304,17 @@ def GetProjectName():
         rec.projectName=GetRunType()[2]
     # continue with options for offline running
     if rec.projectName()=="":
-        from RecExConfig.InputFilePeeker import inputFileSummary
+        from PyUtils.MetaReaderPeeker import metadata
         whatIsIt=None
         try:
-            whatIsIt=inputFileSummary['evt_type'][0]
+            whatIsIt = metadata['eventTypes'][0]
         except:
             pass
         if whatIsIt=='IS_SIMULATION':
             project='IS_SIMULATION'
         else:
             try:
-                project = inputFileSummary['tag_info']['project_name']
+                project = metadata['project_name']
             except:
                 from RecExConfig.GetCool import cool
                 project = cool.fileNameTag()
@@ -327,11 +340,12 @@ def ConfigureBeamType():
     # special option for online running
     # some code removed here due to (o.b.o. A.Vogel)
     # Run Control sets a beam type, but that is not suitable here - better use the project name instead
-    from RecExConfig.InputFilePeeker import inputFileSummary
+
+    from PyUtils.MetaReaderPeeker import metadata
     try:
         listOfKnownBeamTypes=['cosmics' ,'singlebeam','collisions']
-        if inputFileSummary['beam_type'][0] in listOfKnownBeamTypes:
-            BeamType=inputFileSummary['beam_type'][0]
+        if metadata['beam_type'] in listOfKnownBeamTypes:
+            BeamType = metadata['beam_type']
     except:
         logAutoConfiguration.info("beam type not stored in input file, set beam type according to project name...")
         
@@ -380,9 +394,10 @@ def ConfigureBeamType():
 
 
 def ConfigureNumberOfCollisions():
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
+
     from AthenaCommon.BeamFlags import jobproperties
-    if inputFileSummary['evt_type'][0]=='IS_DATA':
+    if metadata['eventTypes'][0] == 'IS_DATA':
         # Make sure that beamType is set:
         if not jobproperties.Beam.beamType.is_locked():
             ConfigureBeamType()
@@ -394,7 +409,7 @@ def ConfigureNumberOfCollisions():
     else:
         # auto configure number of collissions
         try:
-            jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(inputFileSummary['metadata']['/Digitization/Parameters']['numberOfCollisions'])
+            jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(metadata['numberOfCollisions'])
         except:
             logAutoConfiguration.warning("numberOfCollisions could not be auto configured, no info available using default value: %s "
                                          ,jobproperties.Beam.numberOfCollisions() )
@@ -404,21 +419,22 @@ def ConfigureNumberOfCollisions():
     return
 
 def ConfigureBeamEnergy():
-    from RecExConfig.InputFilePeeker import inputFileSummary
     from AthenaCommon.BeamFlags import jobproperties
 
+    from PyUtils.MetaReaderPeeker import metadata
+
     # pool files
-    if inputFileSummary['file_type']=='pool':
-        if type(inputFileSummary['beam_energy'][0])!=float:
+    if metadata['file_type'] == 'POOL':
+        if 'beam_energy' not in metadata:
             logAutoConfiguration.warning("beam energy is not storted in input file, setting default DATA options!!")
         else:
-            jobproperties.Beam.energy.set_Value_and_Lock( float(inputFileSummary['beam_energy'][0]))
-            logAutoConfiguration.info("Auto-configured beam energy : %s MeV" , jobproperties.Beam.energy()) 
+            jobproperties.Beam.energy.set_Value_and_Lock( float(metadata['beam_energy']))
+            logAutoConfiguration.info("Auto-configured beam energy : %s MeV" , jobproperties.Beam.energy())
             return
     # BS files    
     else:
-        if inputFileSummary['evt_type'][0]=='IS_DATA':
-            
+        if metadata['eventTypes'][0] == 'IS_DATA':
+
             # Make sure that beamType is set:
             if not jobproperties.Beam.beamType.is_locked():
                 ConfigureBeamType()
@@ -472,10 +488,9 @@ def ConfigureBeamEnergy():
                     return
                 if beamEnergy!=None:
                     jobproperties.Beam.energy.set_Value_and_Lock(beamEnergy)
-                
-        elif inputFileSummary['evt_type'][0]=='IS_SIMULATION':
-            if inputFileSummary['beam_energy'][0]!='N/A' and inputFileSummary['beam_energy'][0]!='' :
-                jobproperties.Beam.energy.set_Value_and_Lock(float(inputFileSummary['beam_energy'][0]))
+        elif metadata['eventTypes'][0] == 'IS_SIMULATION':
+            if metadata['beam_energy'] != 'N/A' and metadata['beam_energy'] != '':
+                jobproperties.Beam.energy.set_Value_and_Lock(float(metadata['beam_energy']))
             else:
                 logAutoConfiguration.warning("beam energy is not storted in input file!!") 
                 return
@@ -486,16 +501,19 @@ def ConfigureBeamEnergy():
 
 def ConfigureBeamBunchSpacing():
     from AthenaCommon.BeamFlags import jobproperties
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
+
     # auto configure bunch spacing not yet possible for DATA 
     # ---> this is still missing
-    if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+
+    if metadata['eventTypes'][0] == 'IS_SIMULATION':
         try:
-            jobproperties.Beam.bunchSpacing.set_Value_and_Lock(inputFileSummary['metadata']['/Digitization/Parameters']['intraTrainBunchSpacing'])
+            jobproperties.Beam.bunchSpacing.set_Value_and_Lock(int(metadata['intraTrainBunchSpacing']))
             logAutoConfiguration.info("Auto configured bunchSpacing: %s ", jobproperties.Beam.bunchSpacing())
         except:
             logAutoConfiguration.warning("bunchSpacing could not be auto configured, no info available using default value: %s ",jobproperties.Beam.bunchSpacing() )
-    else: 
+
+    else:
         #real data
         if not jobproperties.Beam.beamType.is_locked():
             ConfigureBeamType()
@@ -601,10 +619,12 @@ def GetDefaultTagRefStream(streams):
 
 
 def ConfigureInputType():
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
+
     from AthenaCommon.GlobalFlags  import globalflags
-    streamsName=[]        
-    if inputFileSummary['file_type']=='bs':
+    streamsName=[]
+
+    if metadata['file_type'] == 'BS':
         #byte stream
         logAutoConfiguration.info("Input BS detected")   
         globalflags.InputFormat='bytestream'
@@ -622,9 +642,9 @@ def ConfigureInputType():
     else:        
         globalflags.InputFormat='pool'
         #Get streamsName
-        streamsName=[]        
-        if inputFileSummary.has_key('stream_names'):
-            streamsName=inputFileSummary['stream_names']
+        streamsName=[]
+        if 'processingTags' in metadata:
+            streamsName = metadata['processingTags']
         if streamsName==None:
             streamsName=[]
         logAutoConfiguration.info("Extracted streams %s from input file " % streamsName )   
@@ -652,10 +672,9 @@ def ConfigureInputType():
         listAODtoDPD.extend(listBackwardCompatibleAODtoDPD)
     except:
         logAutoConfiguration.warning("Primary DPDMake does not support the old naming convention!!")   
-    ##
-      
-    if inputFileSummary['TagStreamsRef']!=None:
-        logAutoConfiguration.info("Input TAG detected")   
+
+    if 'TagStreamsRef' in metadata and metadata['TagStreamsRef']!=None:
+        logAutoConfiguration.info("Input TAG detected")
         rec.readTAG=True
         logAutoConfiguration.info ("Auto configured rec.readTAG=%s "%rec.readTAG() )
 
@@ -695,40 +714,41 @@ def ConfigureInputType():
         rec.doESD=False
         logAutoConfiguration.info ("setting all unlocked rec.readXXX and rec.doXXX to False")
     elif ItemInListStartsWith ("StreamHITS", streamsName):
-        logAutoConfiguration.info("Input StreamHITS detected")
-    elif inputFileSummary['file_type']!='bs':
+        logAutoConfiguration.info("Input StreamEVGEN detected")
+
+    elif metadata['file_type'] != 'BS':
         raise RuntimeError("ConfigureInputType cannot handle streamsName==%s"%streamsName)
     return
 
 def ConfigureTriggerStream():
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    streamName=''
+    from PyUtils.MetaReaderPeeker import metadata
 
-    if inputFileSummary['file_type'] == 'bs':
+    streamName=''
+    if metadata['file_type'] == 'BS':
         try:
-            streamName=inputFileSummary['bs_metadata']['Stream'].split('_')[1]
+            streamName = metadata['stream'].split('_')[1]
         except:
             logAutoConfiguration.warning("Input file does not contain bs_metadata! Trying to specify otherwise!")
-    elif inputFileSummary['file_type'] == 'pool':    
+    elif metadata['file_type'] == 'POOL':
         try:
-            streamName=inputFileSummary['tag_info']['triggerStreamOfFile']
+            streamName = metadata['triggerStreamOfFile']
         except:
             logAutoConfiguration.warning("Input file does not contain triggerStreamOfFile! Trying to specify otherwise!")
 
     if streamName=='':
         try:
-            if len(inputFileSummary['stream_tags'])==1:
-                streamName=inputFileSummary['stream_tags'][0]['stream_name']
+            if len(metadata['processingTags'])==1:
+                streamName = metadata['processingTags'][0]
         except:
             logAutoConfiguration.warning("No trigger stream found in input file!!! ") 
 
 
     if streamName=='':
-        logAutoConfiguration.info("Failed to find triggerStream from inputFileSummary. OK for MC but can be problematic for data.")
+        logAutoConfiguration.info("Failed to find triggerStream from MetaReaderPeeker. OK for MC but can be problematic for data.")
         logAutoConfiguration.info("Keeping input value untouched: rec.triggerStream='%s'"%rec.triggerStream())
         return
     
-    logAutoConfiguration.info("Set rec.triggerStream='%s' from inputFileSummary."%streamName)
+    logAutoConfiguration.info("Set rec.triggerStream='%s' from MetaReaderPeeker."%streamName)
     rec.triggerStream=streamName
     return
 
@@ -737,14 +757,14 @@ def ConfigureConditionsTag():
     if globalflags.ConditionsTag.is_locked():
         logAutoConfiguration.info("conditionsTag is locked to value: '%s'."%globalflags.ConditionsTag())
         return
-    
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type'] == 'pool' or inputFileSummary['file_type'] == 'bs' and inputFileSummary['evt_type'][0]=='IS_SIMULATION':
-        try: 
-            globalflags.ConditionsTag.set_Value_and_Lock(inputFileSummary['conditions_tag'])
-            logAutoConfiguration.info("Auto-configured ConditionsTag '%s' from inputFileSummary ",globalflags.ConditionsTag())
+
+    from PyUtils.MetaReaderPeeker import metadata
+    if metadata['file_type'] == 'POOL' or metadata['file_type'] == 'BS' and metadata['eventTypes'][0] == 'IS_SIMULATION':
+        try:
+            globalflags.ConditionsTag.set_Value_and_Lock(metadata['IOVDbGlobalTag'])
+            logAutoConfiguration.info("Auto-configured ConditionsTag '%s' from MetaReaderPeeker ",globalflags.ConditionsTag())
         except:
-            logAutoConfiguration.error("ConditionsTag could not be auto-configured no info stored in inputFileSummary!!!")
+            logAutoConfiguration.error("ConditionsTag could not be auto-configured no info stored in MetaReaderPeeker!!!")
             #logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with conditions_tag !")
 
 
@@ -768,15 +788,15 @@ def ConfigureConditionsTag():
 
 
 def ConfigureFieldAndGeoESDtoESD():
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type']=='pool':
+    from PyUtils.MetaReaderPeeker import metadata
+    if metadata['file_type'] == 'POOL':
         logAutoConfiguration.info("InputFile is pool format. Configuring B-Field based on Geometry.")
             
         # configure Geometry for pool input
         if globalflags.DetDescrVersion.is_locked():
             logAutoConfiguration.error("Geometry was locked to '%s'. This is not expected.",globalflags.DetDescrVersion())
 
-        inGeo=inputFileSummary['geometry']
+        inGeo = metadata['GeoAtlas']
         if inGeo=='ATLAS-GEO-03-00-00': newGeo='ATLAS-GEO-16-00-00'
         elif inGeo=='ATLAS-GEO-04-00-00': newGeo='ATLAS-GEO-16-00-00'
         elif inGeo=='ATLAS-GEONF-04-00-00': newGeo='ATLAS-GEO-16-00-00'
@@ -789,7 +809,7 @@ def ConfigureFieldAndGeoESDtoESD():
         #configure B-Field
         ConfigureField()
     else:
-        raise RuntimeError("file_type is %s but ConfigureFieldAndGeoESDtoESD is only defined for pool inputs"%inputFileSummary['file_type'])
+        raise RuntimeError("file_type is %s but ConfigureFieldAndGeoESDtoESD is only defined for pool inputs"%metadata['file_type'])
 
     logAutoConfiguration.info("Auto configured Geometry: %s ",globalflags.DetDescrVersion() )
     from AthenaCommon.BFieldFlags import jobproperties
@@ -803,15 +823,14 @@ def ConfigureDoTruth():
     if rec.doTruth.is_locked():
         logAutoConfiguration.info ("rec.doTruth=%s is locked. Auto-config will not attempt to change it."%rec.doTruth())
         return
-    
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type'] == 'bs'and inputFileSummary['evt_type'][0]!='IS_SIMULATION':
+
+    from PyUtils.MetaReaderPeeker import metadata, convert_itemList
+    if metadata['file_type'] == 'BS' and metadata['eventTypes'][0] != 'IS_SIMULATION':
         rec.doTruth.set_Value_and_Lock(False)
         logAutoConfiguration.info("Input is bytestream. Auto-configuring doTruth=%s"%rec.doTruth())
 
-    if inputFileSummary['file_type'] == 'pool':
-        itemsList=inputFileSummary['eventdata_itemsList']
-        # if no truth in input file, switch doTruth to False
+    if metadata['file_type'] == 'POOL':
+        itemsList = convert_itemList(layout='#join')
         itemsHaveTruth=False
         for item in itemsList:
             if item.startswith('McEventCollection#') or item.startswith("xAOD::TruthEventContainer#"):
@@ -828,10 +847,10 @@ def ConfigureDoTruth():
 def IsInInputFile(collectionname,key=None):
     logAutoConfiguration.info("in IsInInputFile...")
     try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        if inputFileSummary['file_type'] == 'pool':
+        from PyUtils.MetaReaderPeeker import metadata, convert_itemList
+        if metadata['file_type'] == 'POOL':
             try:
-                ItemDic=inputFileSummary['eventdata_itemsDic']
+                ItemDic = convert_itemList(layout='dict')
                 if ItemDic.has_key(collectionname):
                     logAutoConfiguration.info("found collection with name %s in input file." % collectionname)
                     print ItemDic[collectionname]
@@ -847,7 +866,7 @@ def IsInInputFile(collectionname,key=None):
                     logAutoConfiguration.info("Shouldn't be here !")
                     return False
             except Exception:
-                logAutoConfiguration.warning("IsInInputFile: Something's wrong. Wrong file:%s ", inputFileSummary['file_name'])
+                logAutoConfiguration.warning("IsInInputFile: Something's wrong. Wrong file:%s ", metadata['file_name'])
     except Exception:
         logAutoConfiguration.warning("Could not run IsInInputFile. input file maybe not specified at this point")#
 
@@ -855,12 +874,12 @@ def IsInInputFile(collectionname,key=None):
     return False
 
 def ConfigureSimulationOrRealData():
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
     whatIsIt="N/A"
     try:
-        whatIsIt=inputFileSummary['evt_type'][0]
+        whatIsIt = metadata['eventTypes'][0]
     except:
-        if inputFileSummary['nentries']==0:
+        if metadata['nentries'] == 0:
             logAutoConfiguration.error("Input file has no events: unable to configure SimulationOrRealData.")
             return
         pass

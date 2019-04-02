@@ -15,8 +15,12 @@ SingleJetMassCondition::SingleJetMassCondition(
         double etaMax, 
         double threshold,
         double massMin,
-        double massMax) : EtaEtCondition(etaMin, etaMax, threshold),
-m_massMin(massMin),m_massMax(massMax){}
+        double massMax,
+        bool debug) : EtaEtCondition(etaMin, etaMax, threshold, debug),
+                      m_massMin(massMin),
+                      m_massMax(massMax),
+                      m_debug(debug){
+                      }
 
 
 bool SingleJetMassCondition::isSatisfied(const pHypoJet& ip) const {

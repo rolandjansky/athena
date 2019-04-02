@@ -64,7 +64,8 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
     m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
     m_pITK(nullptr), 
-    m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
+    m_currentRun(0), m_firstRun(true), m_tools(this), m_useSecondaryEventNumber(false),
+	m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false), 
     m_chronoStatSvc( "ChronoStatSvc", nam ),
     m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
@@ -98,7 +99,10 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(default as it is makes things easier for memory management"
 		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
-declareUpdateHandler( &AthenaEventLoopMgr::setupPreSelectTools, this ); ;
+declareUpdateHandler( &AthenaEventLoopMgr::setupPreSelectTools, this );
+  declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
+                  "In case of DoubleEventSelector use event number from secondary input");
+
   
 
 }
@@ -630,7 +634,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   if ( m_evtSelCtxt )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
-    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
+    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>("Input");
     if ( pAttrList != nullptr && pAttrList->size() > 6 ) { // Try making EventID-only EventInfo object from in-file TAG
       try {
         unsigned int runNumber = (*pAttrList)["RunNumber"].data<unsigned int>();
@@ -639,6 +643,30 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         unsigned int eventTimeNS = (*pAttrList)["EventTimeNanoSec"].data<unsigned int>();
         unsigned int lumiBlock = (*pAttrList)["LumiBlockN"].data<unsigned int>();
         unsigned int bunchId = (*pAttrList)["BunchId"].data<unsigned int>();
+    
+        // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
+        if ( m_useSecondaryEventNumber ) {
+            if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
+                fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
+                return StatusCode::FAILURE;
+            }
+            if ( pAttrList->exists("EventNumber_secondary") ) {
+                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+            }
+            else {
+                // try legacy EventInfo if secondary input did not have attribute list
+                // primary input should not have this EventInfo type
+                const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
+                if (pEventSecondary) {
+                    eventNumber = pEventSecondary->event_ID()->event_number();
+                }
+                else {
+                    fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    
         pEventPtr = CxxUtils::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();

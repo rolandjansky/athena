@@ -28,9 +28,11 @@ class SCT_RawDataToxAOD : public AthReentrantAlgorithm {
 public:
   SCT_RawDataToxAOD(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode execute(const EventContext& ctx) const;
-  StatusCode finalize();
+  virtual StatusCode initialize();
+  virtual StatusCode execute(const EventContext& ctx) const;
+  virtual StatusCode finalize();
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
 private:
   const SCT_ID* m_SCTHelper;

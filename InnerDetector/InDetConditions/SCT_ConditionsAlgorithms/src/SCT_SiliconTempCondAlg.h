@@ -22,9 +22,11 @@ class SCT_SiliconTempCondAlg : public AthReentrantAlgorithm
  public:
   SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_SiliconTempCondAlg() = default;
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
   BooleanProperty m_useState{this, "UseState", true, "Flag to use state conditions folder"};

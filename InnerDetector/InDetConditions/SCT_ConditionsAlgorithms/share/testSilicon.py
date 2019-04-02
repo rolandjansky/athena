@@ -6,7 +6,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -76,7 +77,7 @@ if useDB:
     sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
     sct_DCSConditionsToolSetup.setup()
 
-# For SCT_SiliconConditionsSvc
+# For SCT_SiliconConditionsTool
 from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
 sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
 sct_SiliconConditionsToolSetup.setUseDB(useDB)
@@ -85,6 +86,11 @@ sct_SiliconConditionsToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconConditionsTestAlg
 job+= SCT_SiliconConditionsTestAlg(SCT_SiliconConditionsTool=sct_SiliconConditionsToolSetup.getTool())
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCT_SiliconConditionsTestAlg.Cardinality = numThreads
 
 import AthenaCommon.AtlasUnixGeneratorJob
 

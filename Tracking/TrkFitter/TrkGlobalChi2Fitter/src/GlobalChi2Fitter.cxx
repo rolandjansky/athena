@@ -2301,7 +2301,7 @@ namespace Trk {
   }
 
   Track *
-  GlobalChi2Fitter::fit(const MeasurementSet &rots,
+  GlobalChi2Fitter::fit(const MeasurementSet &rots_in,
                         const TrackParameters &param,
                         const RunOutlierRemoval runOutlier,
                         const ParticleHypothesis matEffects) const {
@@ -2332,64 +2332,68 @@ namespace Trk {
     }
 #endif
 
-    MeasurementSet::const_iterator itSet = rots.begin();
-    MeasurementSet::const_iterator itSetEnd = rots.end();
+    MeasurementSet rots;
 
-    if (cache.m_MMCorrectionStatus==0) {
-      for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
-        if ((*itSet)) {
-      	  if((*itSet)->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
-      	    if (m_DetID->is_mm((*itSet)->associatedSurface().associatedDetectorElementIdentifier())) {
-      	      cache.m_MMCorrectionStatus = 1;
-      	      break;
-            }
-          }
+    bool need_to_correct = false;
+
+    for (auto itSet : rots_in) {
+      if (
+        itSet &&
+        itSet->associatedSurface().associatedDetectorElementIdentifier().is_valid() &&
+        m_DetID->is_mm(itSet->associatedSurface().associatedDetectorElementIdentifier())
+      ) {
+        need_to_correct = true;
+        break;
+      }
+    }
+
+    if (need_to_correct) {
+      MeasurementSet rots_new;
+
+      for (auto itSet : rots_in) {
+        if (!itSet) {
+          ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
+          continue;
+        }
+          
+        const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(itSet);
+        
+        if (
+          rot && 
+          m_DetID->is_mm(rot->identify()) &&
+          rot->associatedSurface().type() == Trk::Surface::Plane
+        ) {
+          const PlaneSurface* surf = static_cast<const PlaneSurface *>(&rot->associatedSurface());
+            
+          AtaPlane atapl(
+            surf->center(),
+            param.parameters()[Trk::phi],
+            param.parameters()[Trk::theta],
+            param.parameters()[Trk::qOverP], 
+            *surf
+          );
+
+          const RIO_OnTrack *new_rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
+
+          rots_new.push_back(new_rot);
+        } else {
+          rots_new.push_back(itSet); 
         }
       }
+
+      rots = rots_new;
+    } else {
+      rots = rots_in;
     }
 
-    if (cache.m_MMCorrectionStatus==1) {
-      itSet = rots.begin();
-      MeasurementSet rots_new;
-      MeasurementSet rots_tbd;
-      for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
-          if (!(*itSet)) {
-            ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
-          } else {
-            const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(*itSet);
-            if (rot && m_DetID->is_mm(rot->identify())) {
-              //const PlaneSurface* surf = dynamic_cast<const PlaneSurface *>(&rot->associatedSurface());
-              //if (not surf) throw std::runtime_error("dynamic cast to PlaneSurface failed in GlobalChi2Fitter::fit");
-              if( rot->associatedSurface().type() != Trk::Surface::Plane ){
-                rots_new.push_back(*itSet);
-                continue;
-              }
-              const PlaneSurface* surf = static_cast<const PlaneSurface *>(&rot->associatedSurface());
-              AtaPlane atapl(surf->center(), param.parameters()[Trk::phi], param.parameters()[Trk::theta], param.parameters()[Trk::qOverP], *surf);
-              rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
-              rots_tbd.push_back(rot);
-              rots_new.push_back(rot);
-            } else {
-              rots_new.push_back(*itSet);
-            }
-          }
-      }
-      cache.m_MMCorrectionStatus = -1;
-      Track *track = fit(rots_new, param, runOutlier, matEffects);
-      cache.m_MMCorrectionStatus = 0;
-      for (MeasurementSet::const_iterator it = rots_tbd.begin(); it != rots_tbd.end(); it++) {
-        delete *it;
-      }
-      return track;
-    }
-
-    for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
-      if (!(*itSet)) {
+    for (auto itSet : rots) {
+      if (!itSet) {
         msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
-      }else {
-        makeProtoStateFromMeasurement(cache, trajectory, *itSet);
+      } else {
+        makeProtoStateFromMeasurement(cache, trajectory, itSet);
       }
-    }
+    } 
+    
     const TrackParameters *startpar = &param;
     bool deletestartpar = false;
     if (matEffects == muon && trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == 0) {

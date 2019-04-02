@@ -43,7 +43,7 @@ namespace pool {
       *
       * @return Number of bytes written to file. 0 or negative on failure.
       */
-    virtual int  write(TClass* cl, const char* knam, void* obj, int opt, int siz=0) const;
+    virtual int  write(TClass* cl, const char* knam, const void* obj, int opt, int siz=0) const;
 
     /// Write object by key: Specification of the object class can considerably speed-up
     /** Write object using ROOT Key mode
@@ -56,7 +56,7 @@ namespace pool {
       *
       * @return Number of bytes written to file. 0 or negative on failure.
       */
-    virtual int  write(TClass* cl, const char* knam, const char* title, void* obj, int opt, int siz=0) const;
+    virtual int  write(TClass* cl, const char* knam, const char* title, const void* obj, int opt, int siz=0) const;
 
     /// Read object with key.
     /** Read object using ROOT Key mode

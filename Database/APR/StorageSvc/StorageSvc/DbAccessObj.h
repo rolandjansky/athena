@@ -22,6 +22,11 @@
 #include <map>
 #include <utility>
 
+// #define DEBUG_REFCOUNTS
+#ifdef DEBUG_REFCOUNTS
+#  include<iostream>
+#endif
+
 /* 
  *  POOL namespace declaration
  */
@@ -82,7 +87,7 @@ namespace pool    {
     int refCount()   const            {      return m_refCount;       }
     /// Add reference count
     int addRef() const  {
-#ifdef _DEBUG_REFCOUNTS
+#ifdef DEBUG_REFCOUNTS
       std::cout << typeid(*this).name() 
                 << "  " 
                 << m_name 
@@ -95,7 +100,7 @@ namespace pool    {
     /// Remove reference count
     int release()  const   {
       int count = --m_refCount;
-#ifdef _DEBUG_REFCOUNTS
+#ifdef DEBUG_REFCOUNTS
       std::cout << typeid(*this).name() 
                 << "  " 
                 << m_name 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVToolDB.h" 
@@ -14,7 +14,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArReadoutGeometry/EMBCell.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
@@ -52,6 +51,7 @@ LArHVToolDB::LArHVToolDB(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : AthAlgTool(type,name,parent),
+    m_calodetdescrmgr(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),
@@ -74,6 +74,8 @@ LArHVToolDB::~LArHVToolDB()
 { }
 
 StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
+
+  CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
   std::set<size_t> DCSfolderIndices;
   bool doPathology=false;
@@ -196,15 +198,13 @@ StatusCode LArHVToolDB::finalize() {
 
 // intialize 
 StatusCode LArHVToolDB::initialize(){
-// retrieve LArEM id helpers
-  CHECK(detStore()->retrieve(m_caloIdMgr));
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  const CaloCell_ID* cellID = nullptr;
+  ATH_CHECK( detStore()->retrieve (cellID, "CaloCell_ID") );
 
-//  retrieve CaloDetDescrMgr 
-  CHECK(detStore()->retrieve(m_calodetdescrmgr));
+  m_larem_id   = cellID->em_idHelper();
+  m_larhec_id   = cellID->hec_idHelper();
+  m_larfcal_id   = cellID->fcal_idHelper();
 
   // retrieve the LArElectrodeID helper
   CHECK(detStore()->retrieve(m_electrodeID));
@@ -322,14 +322,14 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
         unsigned int ngap = 2*nelec;
         double wt = 1./ngap;
         for (unsigned int i=0;i<nelec;i++) {
-            const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+            const EMBHVElectrode&  electrode = cell->getElectrode(i);
             //std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
             //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
             //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
             for (unsigned int igap=0;igap<2;igap++) {
                 double hv;
                 double curr;
-                electrode->voltage_current(igap,hv,curr);
+                electrode.voltage_current(igap,hv,curr);
                 if (hasPathology) {
                    msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
                    msg(MSG::DEBUG) << "Original hv: "<<hv<<" ";

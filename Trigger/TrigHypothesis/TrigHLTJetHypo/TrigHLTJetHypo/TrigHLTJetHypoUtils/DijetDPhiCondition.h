@@ -32,6 +32,7 @@ class DijetDPhiCondition: public ICondition{
   double orderingParameter() const noexcept override;
   
   std::string toString() const noexcept override;
+  void resetHistory() noexcept {}
 
  private:
 

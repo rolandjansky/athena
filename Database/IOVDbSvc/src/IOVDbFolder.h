@@ -25,7 +25,9 @@
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
 #include <memory>
+#include <algorithm>
 #include "FolderTypes.h"
+#include "IovStore.h"
 
 class MsgStream;
 class IOVDbConn;
@@ -121,14 +123,6 @@ public:
                             const ServiceHandle<IIOVSvc>& iovSvc);
         
 private:
-  // convert COOL ValidityKey to IOVTime, taking into account m_timestamp
-  IOVTime makeTime(const cool::ValidityKey key);
-  // convert two ValidityKeys into IOVRange, taking into account m_timestamp
-  IOVRange makeRange(const cool::ValidityKey since, 
-                     const cool::ValidityKey until);
-  // make a channel ID from its string representation, use defchan if empty
-  cool::ChannelId makeChannel(const std::string& strval,
-                              const cool::ChannelId defchan);
   // clear cache vectors
   void clearCache();
   // resolve tag in given folder, using global tag if needed
@@ -147,19 +141,57 @@ private:
   
   // add this IOV to cache, including channel counting if over edge of cache
   void addIOVtoCache(cool::ValidityKey since, cool::ValidityKey until);
+  
+  //
+  
+  template<class T>
+  unsigned int 
+  cacheUpdateImplementation(T & obj, const ServiceHandle<IIOVSvc>& iovSvc){
+    const auto & objSince = obj.since();
+    const auto & objUntil = obj.until();
+    const auto & objChannel = obj.channelId();
+    ATH_MSG_DEBUG("from DB \t chID: "<<objChannel<<"\tobjstart:\t"<<objSince<<"\t objstop: \t"
+                   << objUntil );
+    // The covered flag is used to check whether the
+    // requested IOV time is inside the range covered
+    // by the current cache. If not, a cache reset
+    // will be done.
+    unsigned int counter{};
+    bool covered{false};
+    //find the iterator distance into the channel array which gives the sought ChannelId
+    const auto pCacheChannel = std::find(m_cachechan.begin(), m_cachechan.end(), objChannel);
+    if (pCacheChannel != m_cachechan.end()){
+      //find corresponding iov, which we shall modify
+      const auto iovIdx = std::distance(m_cachechan.begin(), pCacheChannel);
+      const auto & iov = m_iovs.at(iovIdx);
+      if ((iov.first < objSince) and (objSince < iov.second)){ 
+        // obj time is larger than cache start (and less than cache stop)
+        //   ==> update cache
+        ++counter;
+        ATH_MSG_DEBUG("special reload needed on THIS ONE !!!!!!!!!!!");
+        // just change existing IOVRange
+        ATH_MSG_DEBUG("changing "<<iov.second<<"  to "<<objSince-1);
+        m_iovs.extendIov(iovIdx, objSince-1);
+        specialCacheUpdate(obj, iovSvc); //  reset proxy, add to cache, addIOV 
+        covered = true;
+      }
+      if ( (objSince>=iov.first and objSince<iov.second) or (objUntil>iov.first and objUntil<=iov.second) ) covered=true;
+    }
+    if (!covered) {
+      // cache range has not been covered, so update the cache
+      ++counter;
+      specialCacheUpdate(obj, iovSvc);
+    }
+    return counter;    
+  }
 
   // cache update for online mode
-  void specialCacheUpdate(CoraCoolObjectPtr obj,
+  void specialCacheUpdate(CoraCoolObject & obj,
                           const ServiceHandle<IIOVSvc>& iovSvc);
 
   void specialCacheUpdate(const cool::IObject& obj,
                           const ServiceHandle<IIOVSvc>& iovSvc);
-  //override IOV with run, lumi specified
-  void overrideWithRunLumi(const unsigned long long run, const unsigned long long lb=0);
-
-  //override IOV with timestamp sepcified
-  void overrideWithTimestamp(const unsigned long long timestamp);
-
+ 
   
   StoreGateSvc*        p_detStore;     // pointer to detector store
   IClassIDSvc*         p_clidSvc;      // pointer to CLID service
@@ -185,8 +217,6 @@ private:
   const IOVMetaDataContainer* m_metacon; // metadata container (=0 if not FLMD)
 
   cool::ValidityKey m_cachelength; // length of cache
-  cool::ValidityKey m_cachestart;  // lowest time valid in cache
-  cool::ValidityKey m_cachestop;   // 1+highest time valid in cache
   int m_cachehint; // cachehint value (set initial size to Nxchan)
   int m_cacheinc;  // number of cache increments performed
 
@@ -220,16 +250,11 @@ private:
 
   // COOL data cache and limits
   coral::AttributeListSpecification* m_cachespec;
-  cool::ValidityKey m_boundmin;
-  cool::ValidityKey m_boundmax;
-  int m_nboundmin;   // Number of chans NOT in cache for min
-  int m_nboundmax;   // Number of chans NOT in cache for max
-  std::vector<cool::ValidityKey> m_cachesince;
-  std::vector<cool::ValidityKey> m_cacheuntil;
   std::vector<cool::ChannelId> m_cachechan;
   std::vector<coral::AttributeList> m_cacheattr;
   std::vector<unsigned int> m_cacheccstart;
   std::vector<unsigned int> m_cacheccend;
+  IOVDbNamespace::IovStore m_iovs;
   
   protected:
    /// Log a message using the Athena controlled logging system
@@ -295,7 +320,8 @@ inline float IOVDbFolder::readTime() const
 inline IOVRange IOVDbFolder::currentRange() const { return m_currange; }
 
 inline bool IOVDbFolder::cacheValid(const cool::ValidityKey reftime) const {
-  return (reftime>=m_cachestart && reftime<m_cachestop);
+  const auto & [cacheStart, cacheStop]=m_iovs.getCacheBounds();
+  return ((reftime>cacheStart) and (reftime<cacheStop));
 }
 
 inline void IOVDbFolder::setDropped(const bool dropped) { m_dropped=dropped; }

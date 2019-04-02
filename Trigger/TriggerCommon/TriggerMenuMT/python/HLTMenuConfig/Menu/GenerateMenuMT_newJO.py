@@ -84,7 +84,7 @@ def generateMenu( flags ):
     useReworked = True
 
     if useReworked:
-        menuAcc = generateDecisionTree(menuChains, allChainDicts)
+        menuAcc = generateDecisionTree(menuChains)
     else:
         menuAcc = ComponentAccumulator()
         mainSequenceName = 'HLTAllSteps'

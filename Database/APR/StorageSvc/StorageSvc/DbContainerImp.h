@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -43,32 +43,28 @@ namespace pool    {
   class DbContainerImp : virtual public IDbContainer
   {
   protected:
-    /// Transaction Fifo definition
-    class _Transaction {
-    public:
-      mutable DbObject*        objH;
-      DataCallBack*            call;
-      Token::OID_t             link;
-      AccessMode               action;
-      _Transaction()
-        : objH(0), call(0), action(NONE) {}
-      _Transaction(DbObject* o, 
-                   DataCallBack* c,
-                   const Token::OID_t& l,
-                   AccessMode    a) 
-      : objH(o), call(c), link(l), action(a) {}
-      _Transaction(const _Transaction& c)
-      : objH(c.objH), call(c.call), link(c.link), action(c.action) { c.objH = 0; }
-      _Transaction& operator= (const _Transaction& c) = delete;
-      ~_Transaction() {}
-      void assign(DbObject* o, DataCallBack* c, const Token::OID_t& l, AccessMode a) {
-        objH = o; call = c; link = l; action = a;
+
+    /// List of actions to execute at commit
+    struct DbAction {
+      const void*         object;
+      const Shape*        shape;
+      Token::OID_t        link;
+      AccessMode          action;
+
+      DbAction() : object(nullptr), shape(nullptr), action(NONE)   { }
+      DbAction(const void* obj, const Shape* s, const Token::OID_t&  l, AccessMode a)
+            : object(obj), shape(s), link(l), action(a)   { }
+
+      const void*       dataAtOffset(size_t offset) {
+         return static_cast<const char*>(object) + offset;
       }
     };
-    typedef std::vector < _Transaction > TransactionStack;
+    
+    typedef std::vector< DbAction > ActionList;
+    
   private:
     /// Transaction fifo storage for writing
-    TransactionStack      m_stack;
+    ActionList            m_stack;
     /// Current size of the transaction stack
     size_t                m_size;
     /// Number of objects to be written out during open transaction
@@ -97,16 +93,16 @@ namespace pool    {
     virtual bool updatesPending() const 
     { return m_size > 0;                                                      }
     /// Internal: get access to stack entry
-    TransactionStack::value_type* stackEntry(size_t which) 
+    ActionList::value_type* stackEntry(size_t which) 
     { return (which <= m_size) ? &(*(m_stack.begin()+which)) : 0;             }
     /// Destroy persistent object in the container; does not touch transient!
-    virtual DbStatus destroyObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus destroyObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Update persistent object in the container
-    virtual DbStatus updateObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus updateObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Commit single entry to container
-    virtual DbStatus writeObject(TransactionStack::value_type& /* entry */)  
+    virtual DbStatus writeObject(ActionList::value_type& /* entry */)  
     { return Error;                                                   }
     /// Execute object modification requests during a transaction
     virtual DbStatus commitTransaction();
@@ -200,34 +196,32 @@ namespace pool    {
                           Token::OID_t& linkH);
 
     /// Find object within the container and load it into memory
-    /** @param  call      [IN]   Callback to load data
+    /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
+      * @param  shape     [IN]   Object type
       * @param  linkH     [IN]   Preferred object OID
       * @param  oid      [OUT]   Actual object OID
-      * @param  mode      [IN]   Object access mode
       * @param  any_next  [IN]   On selection, objects may be skipped.
       *                          If objects are skipped, the actual oid
       *                          will differ from the preferred oid.
       * @return Status code indicating success or failure.
       */
-    virtual DbStatus load(DataCallBack* call,
-                          const Token::OID_t& lnkH, 
-                          Token::OID_t&       oid,
-                          DbAccessMode        mod,
-                          bool                any_next);
+    virtual DbStatus load( void** ptr, ShapeH shape, 
+                           const Token::OID_t& lnkH, 
+                           Token::OID_t&       oid,
+                           bool                any_next);
     /// Clear Transaction stack containing transaction requests
     virtual DbStatus clearStack();
     /// Fetch refined object address. Default implementation returns identity
     virtual DbStatus fetch(const Token::OID_t& linkH, Token::OID_t& stmt);
     /// Find object by object identifier and load it into memory
-    /** @param  call      [IN]   Callback to load data
+    /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
+      * @param  shape     [IN]   Object type
       * @param  oid      [OUT]   Object OID
-      * @param  mode      [IN]   Object access mode
       *
       * @return Status code indicating success or failure.
       */
-    virtual DbStatus loadObject(DataCallBack* call,
-                                Token::OID_t& oid,
-                                DbAccessMode  mode);
+    virtual DbStatus loadObject( void** ptr, ShapeH shape, 
+                                 Token::OID_t& oid);
 
   };
 }       // End namespace pool

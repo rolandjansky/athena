@@ -99,7 +99,7 @@ namespace xAOD {
       setY( position( 1 ) );
       setZ( position( 2 ) );
       // Reset the cache
-      m_position.reset();
+      m_position.store(position);
       return;
    }
 
@@ -124,7 +124,7 @@ namespace xAOD {
 
      // Set the persistent variable:
      setCovariance( vec );
-     m_covariance.reset();
+     m_covariance.store(cov);
      return;
    }
 

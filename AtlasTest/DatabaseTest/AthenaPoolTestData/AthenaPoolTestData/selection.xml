@@ -24,7 +24,7 @@
    <field name="m_particle" transient="true" />
   </class>
   <class name="AthenaPoolTestMapDataLink::ExtendedBarCode" />
-  <class name="std::pair<AthenaPoolTestMapDataLink, float>" /> 
+  <class pattern="std::*pair*<AthenaPoolTestMapDataLink, float>" /> 
   <class name="std::vector<std::pair< AthenaPoolTestMapDataLink , float> >" />
   <class name="std::map<unsigned int,AthenaPoolTestMapData>" />
 

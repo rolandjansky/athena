@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
 // Local implementation files
@@ -27,6 +27,7 @@ RootTreeIndexContainer::~RootTreeIndexContainer() {
    delete m_index; m_index = nullptr;
 }
 
+
 long long int RootTreeIndexContainer::nextRecordId()    {
    long long int s = m_index_multi;
    s = s << 32;
@@ -45,7 +46,8 @@ long long int RootTreeIndexContainer::nextRecordId()    {
    return s;
 }
 
-DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) {
+
+DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action) {
    long long int s = 0;
    if( isBranchContainer() ) {
       TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
@@ -66,10 +68,11 @@ DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) 
       if( isBranchContainer() && !m_treeFillMode ) m_index_ref->Fill();
    }
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
-   DbStatus status = RootTreeContainer::writeObject(ent);
+   DbStatus status = RootTreeContainer::writeObject(action);
    if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s + 1);
    return status;
 }
+
 
 DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    DbStatus status = RootTreeContainer::transAct(action);
@@ -82,7 +85,7 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    return status;
 }
 
-DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode mode) {
+DbStatus RootTreeIndexContainer::loadObject(void** ptr, ShapeH shape, Token::OID_t& oid) {
    if ((oid.second >> 32) > 0) {
       long long int evt_id = m_tree->GetEntryNumberWithIndex(oid.second);
       if (evt_id == -1) {
@@ -93,5 +96,5 @@ DbStatus RootTreeIndexContainer::loadObject(DataCallBack* call, Token::OID_t& oi
          oid.second = evt_id;
       }
    }
-   return RootTreeContainer::loadObject(call, oid, mode);
+   return RootTreeContainer::loadObject(ptr, shape, oid);
 }

@@ -52,7 +52,8 @@ Conditions TrigJetHypoToolConfig_EtaEt::getConditions() const {
   auto conditions = conditionsFactoryEtaEt(m_etaMins,
                                            m_etaMaxs,
                                            m_EtThresholds,
-                                           m_asymmetricEtas);
+                                           m_asymmetricEtas,
+                                           m_debug);
   std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
   
   return conditions;

@@ -20,12 +20,6 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import ToolSvc
 
 import MagFieldServices.SetupField
-#--------------------------------------------------------------
-# Abort on ERROR if set by RecFlags
-#--------------------------------------------------------------
-
-from RecExConfig.RecFlags import rec
-if rec.abortOnErrorMessage(): CfgMgr.AlgErrorAuditor(Throw=True)
 
 #--------------------------------------------------------------
 # activate (memory/cpu) performance monitoring 

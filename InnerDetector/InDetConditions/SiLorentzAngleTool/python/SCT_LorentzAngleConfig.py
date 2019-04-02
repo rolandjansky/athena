@@ -28,7 +28,7 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
         msg = Logging.logging.getLogger("SCT_LorentzAngleCfg")
         msg.error("Setting is wrong: both forceUseDB and forceUseGeoModel cannot be True at the same time")
     # construct with field services
-    acc, svc = MagneticFieldSvcCfg(flags)
+    acc = MagneticFieldSvcCfg(flags)
     tool = kwargs.get("SiLorentzAngleTool", SCT_LorentzAngleToolCfg(flags))
     if not forceUseGeoModel:
         DCSkwargs = {}
@@ -40,8 +40,8 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
             DCSkwargs["tempFolder"] = dcs_folder + "/MODTEMP"
             DCSkwargs["stateFolder"] = dcs_folder + "/CHANSTAT"
         DCSAcc = SCT_DCSConditionsCfg(flags, **DCSkwargs)
-        acc.merge(DCSAcc)
         SCAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSAcc.popPrivateTools())
+        acc.merge(DCSAcc)
     else:
         SCTool = SCT_SiliconConditionsToolCfg(flags, UseDB=False, ForceUseGeoModel=True)
         SCAcc = SCT_SiliconConditionsCfg(flags, SiliconConditionsTool=SCTool)

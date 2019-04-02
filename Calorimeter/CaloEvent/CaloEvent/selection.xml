@@ -54,7 +54,7 @@
 
   <class name="CaloClusterCellLink" />
   <class name="std::vector<std::pair<unsigned int,double> >" />
-  <class name="std::pair<unsigned int,double>" />
+  <class pattern="std::*pair*<unsigned int*double>" />
   <class name="DataVector<CaloClusterCellLink>" />
   <class name="CaloClusterCellLinkContainer"
 	 id="545AC204-2749-4AAC-9783-B1E5A7A0030F" />

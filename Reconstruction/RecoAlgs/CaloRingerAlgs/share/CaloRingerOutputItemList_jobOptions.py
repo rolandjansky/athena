@@ -39,16 +39,20 @@ def addOutputToList(streamList, localCType, localCKey, auxOption):
 
 def addRingerInputMetaToList(streamList, containerType):
   # NOTE: Keys defined at: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/RecExample/RecExConfig/python/InputFilePeeker.py
-  __addRingerInputToList(streamList, containerType, 'metadata_itemsDic') # beware the absence of the 't'
+  __addRingerInputToList(streamList, containerType, 'metadata_itemsDic')  # beware the absence of the 't'
 
 def addRingerInputEventToList(streamList, containerType):
   __addRingerInputToList(streamList, containerType, 'eventdata_itemsDic')  # beware the absence of the 't'
 
 def __addRingerInputToList(streamList, containerType, storeTypeStr):
-  from RecExConfig.InputFilePeeker import inputFileSummary
-  itemDict = inputFileSummary.get( storeTypeStr )
+  from PyUtils.MetaReaderPeeker import convert_itemList, convert_metadata_items
+  if storeTypeStr == 'metadata_itemsDic':
+      itemDict = convert_metadata_items(layout='dict')
+  if storeTypeStr == 'eventdata_itemsDic':
+      itemDict = convert_itemList(layout='dict')
+
   try:
-    keys = itemDict.get( containerType )
+    keys = itemDict[containerType]
     #keys = [ itemDict[dkey] for dkey in itemDict if containerType in dkey ]
     if keys:
       for key in keys:
@@ -69,15 +73,18 @@ def __addRingerInputToList(streamList, containerType, storeTypeStr):
   except KeyError:
     pass
 
+
 def getInputMetaData( l ):
   " Retrieve the input metadata information"
   # NOTE: Old way to retrieve configuration:
   #addRingerInputMetaToList( l, outputRingSetConfType() )
   #addRingerInputMetaToList( l, outputRingSetConfAuxType() )
   # NOTE: New way
-  from RecExConfig.InputFilePeeker import inputFileSummary
-  metaItemDict = inputFileSummary.get( 'metadata_itemsDic' )
-  if any( ['RingSetConf' in key for key in metaItemDict ] ):
+
+  from PyUtils.MetaReaderPeeker import convert_metadata_items, metadata
+  metaItemDict = convert_metadata_items(layout='dict')
+
+  if any(['RingSetConf' in key for key in metaItemDict]):
     l.append('%s#*' % outputRingSetConfType() )
     l.append('%s#*' % outputRingSetConfAuxType() )
 

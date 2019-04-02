@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArWave.h"
@@ -133,18 +133,6 @@ LArWave LArWave::operator*(const double& aScale) const{
   return result ;
 }
 
-
-
-// Need to write this explicitly to avoid coverity warning.
-LArWave& LArWave::operator= (const LArWave& other)
-{
-  if (this != &other) {
-    m_dt = other.m_dt;
-    m_amplitudes = other.m_amplitudes;
-    m_flag = other.m_flag;
-  }
-  return *this;
-}
 
 
 unsigned LArWave::getIndex(const double aTime)  const 

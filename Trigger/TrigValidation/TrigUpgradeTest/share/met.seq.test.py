@@ -22,7 +22,7 @@ InputMakerAlg.InputMakerInputDecisions=["L1MET"]
 InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
 topSequence += InputMakerAlg
 
-from TrigUpgradeTest.metDefs import metCellRecoSequence
+from TriggerMenuMT.HLTMenuConfig.MET.metDefs import metCellRecoSequence
 cellRecoSeq, METkey = metCellRecoSequence(InputMakerAlg.RoIs)
 topSequence += cellRecoSeq
 

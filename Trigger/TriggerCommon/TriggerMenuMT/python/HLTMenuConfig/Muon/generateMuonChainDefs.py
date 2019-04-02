@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as M
 
 
 
-def generateChainDefs(chainDict):
+def generateChainConfigs(chainDict):
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs=[]

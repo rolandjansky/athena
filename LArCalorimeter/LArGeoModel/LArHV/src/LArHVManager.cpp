@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/LArHVManager.h"
-#include "LArHV/EMBHVManager.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/HECHVManager.h"
 #include "LArHV/FCALHVManager.h"
@@ -11,10 +10,20 @@
 #include "LArHV/EMECPresamplerHVManager.h"
 #include "LArHV/LArHVManager.h"
 
-LArHVManager::LArHVManager(const EMBHVManager  *embHV, const EMECHVManager *emecHVInner, const EMECHVManager *emecHVOuter, const HECHVManager *hecHV, const FCALHVManager *fcalHV, const EMBPresamplerHVManager *embPreHV, const EMECPresamplerHVManager *emecPreHV): 
-  m_embHV(embHV),m_emecHVInner(emecHVInner),m_emecHVOuter(emecHVOuter),m_hecHV(hecHV),m_fcalHV(fcalHV),m_embPreHV(embPreHV), m_emecPreHV(emecPreHV)
+LArHVManager::LArHVManager(const EMECHVManager *emecHVInner
+			   , const EMECHVManager *emecHVOuter
+			   , const HECHVManager *hecHV
+			   , const FCALHVManager *fcalHV
+			   , const EMBPresamplerHVManager *embPreHV
+			   , const EMECPresamplerHVManager *emecPreHV)
+  : m_embHV()
+  , m_emecHVInner(emecHVInner)
+  , m_emecHVOuter(emecHVOuter)
+  , m_hecHV(hecHV)
+  , m_fcalHV(fcalHV)
+  , m_embPreHV(embPreHV)
+  , m_emecPreHV(emecPreHV)
 {
-  if (m_embHV)  m_embHV->ref();
   if (m_emecHVInner) m_emecHVInner->ref();
   if (m_emecHVOuter) m_emecHVOuter->ref();
   if (m_hecHV)  m_hecHV->ref();
@@ -26,7 +35,7 @@ LArHVManager::LArHVManager(const EMBHVManager  *embHV, const EMECHVManager *emec
 
 void LArHVManager::reset() const
 {
-  if (m_embHV) m_embHV->reset();
+  m_embHV.reset();
   if (m_emecHVInner) m_emecHVInner->reset();
   if (m_emecHVOuter) m_emecHVOuter->reset();
   if (m_hecHV)  m_hecHV->reset();
@@ -39,7 +48,6 @@ void LArHVManager::reset() const
 
 LArHVManager::~LArHVManager()
 {
-  if (m_embHV)  m_embHV->unref();
   if (m_emecHVInner) m_emecHVInner->unref();
   if (m_emecHVOuter) m_emecHVOuter->unref();
   if (m_hecHV)  m_hecHV->unref();
@@ -49,7 +57,7 @@ LArHVManager::~LArHVManager()
 
 }
 
-const EMBHVManager *LArHVManager::getEMBHVManager() const
+const EMBHVManager& LArHVManager::getEMBHVManager() const
 {
   return m_embHV;
 }

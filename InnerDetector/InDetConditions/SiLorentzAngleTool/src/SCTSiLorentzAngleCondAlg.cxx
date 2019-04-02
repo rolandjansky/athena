@@ -107,6 +107,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
+  bool validSCT{false};
   if ((not m_sctDefaults.value()) and (not m_useGeoModel.value())) {
     // Read Cond Handle (temperature)
     SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp, ctx};
@@ -142,8 +143,10 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
       ATH_MSG_FATAL("Invalid intersection rangeSCT: " << rangeSCT);
       return StatusCode::FAILURE;
     }
+    validSCT = true;
   }
-  
+
+  bool validBField{false};
   if (m_useMagFieldSvc.value()) {
     if (m_useMagFieldDcs.value()) {
       // Read Cond Handle (B field sensor)
@@ -166,11 +169,16 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
         ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
         return StatusCode::FAILURE;
       }
+      validBField = true;
     }
   }
 
   // Combined the validity ranges of temp and HV
-  EventIDRange rangeW{EventIDRange::intersect(rangeSCT, rangeBField)};
+  EventIDRange rangeW{rangeBField};
+  if (validSCT) {
+    if (validBField) rangeW = EventIDRange::intersect(rangeSCT, rangeBField);
+    else rangeW = rangeSCT;
+  }
   if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
     return StatusCode::FAILURE;

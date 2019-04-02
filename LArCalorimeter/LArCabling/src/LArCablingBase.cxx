@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCabling/LArCablingBase.h"
@@ -38,12 +38,13 @@ bool LArCablingBase::readOnlOffMap() {
   m_onlHashToOffline.clear();
   m_oflHashToOnline.clear();
 
-  StatusCode sc=detStore()->retrieve(m_attrOnOff,m_onOffIdKey);
+  const AthenaAttributeList* attrOnOff = nullptr;
+  StatusCode sc=detStore()->retrieve(attrOnOff,m_onOffIdKey);
   if (sc.isFailure()) {
     msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_onOffIdKey << endmsg;
     return false;
   }
-  const coral::Blob& blobOnOff=(*m_attrOnOff)["OnlineHashToOfflineId"].data<coral::Blob>();
+  const coral::Blob& blobOnOff=(*attrOnOff)["OnlineHashToOfflineId"].data<coral::Blob>();
   unsigned nChan=blobOnOff.size()/sizeof(uint32_t);
   const uint32_t* pBlobOnOff=static_cast<const uint32_t*>(blobOnOff.startingAddress());
   

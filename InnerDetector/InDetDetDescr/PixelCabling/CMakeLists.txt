@@ -42,7 +42,7 @@ atlas_add_component( PixelCabling
 
 atlas_add_test( PixelCablingConfigNew_test
                 SCRIPT test/PixelCablingConfigNew_test.py
-                PROPERTIES TIMEOUT 30 )
+                PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -711,6 +711,13 @@ if InDetTrigFlags.loadSummaryTool():
   #
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
+  from AthenaCommon.GlobalFlags import globalflags
+  # Straw status DB Tool
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+  InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
+
+
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
@@ -719,7 +726,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                        TestBLayerTool = None,
                                                                        PixelToTPIDTool= InDetTrigPixelToTPIDTool,
                                                                        DoSharedHits  = False,
-                                                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                        useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                        useTRT        = DetFlags.haveRIO.TRT_on())
@@ -747,7 +754,7 @@ if InDetTrigFlags.loadSummaryTool():
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
-  from AthenaCommon.GlobalFlags import globalflags
+
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
@@ -755,23 +762,19 @@ if InDetTrigFlags.loadSummaryTool():
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
                                     isGEANT4=(globalflags.DataSource == 'geant4'))
-  # Straw status DB Tool
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-  InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
   InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
                                                           isTrigger = True,
                                                           TRT_RDOContainerName="TRT_RDOs_EF",
                                                           TRTCalDbTool = InDetTRTCalDbTool,
-                                                          TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+                                                          TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
-                                                                TRTStrawSummaryTool= InDetTRTStrawStatusSummaryTool,
+                                                                TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
                                                                 OccupancyUsedInPID = True,
                                                                 isData = (globalflags.DataSource == 'data'))
 
@@ -811,8 +814,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
                                                                                    TestBLayerTool=InDetTrigTestBLayerTool,
                                                                                    PixelToTPIDTool=InDetTrigPixelToTPIDTool,
-                                                                                   TRTStrawSummarySvc = TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
-                                                                                   )
+                                                                                   TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):

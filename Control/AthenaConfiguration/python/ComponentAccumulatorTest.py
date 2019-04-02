@@ -260,7 +260,7 @@ class FailedMerging( unittest.TestCase ):
         def badMerge():
             someCA = ComponentAccumulator()
             topCA.merge(  (someCA, 1, "hello")  )
-        self.assertRaises(RuntimeError, badMerge )
+        self.assertRaises(TypeError, badMerge )
         topCA.wasMerged()
 
 
@@ -314,6 +314,61 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         self.assertIsNotNone( ca.getPublicTool(), "Found single tool")
         ca.addPublicTool( Tool(name="tool2") )
 #        self.assertRaises(ConfigurationError, ca.getPublicTool(), "Found single tool")
+
+class TestDeduplication( unittest.TestCase ):
+    def runTest( self ):
+        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc #Test de-duplicating folder-list
+        result1=ComponentAccumulator()
+        result1.addService(IOVDbSvc(Folders=["/foo"]))
+
+        result2=ComponentAccumulator()
+        result2.addService(IOVDbSvc(Folders=["/bar"]))
+        result2.merge(result1)
+
+        self.assertIn("/bar",result2.getService("IOVDbSvc").Folders)
+        self.assertIn("/foo",result2.getService("IOVDbSvc").Folders)
+
+
+        #Trickier case: Recursive de-duplication of properties of tools in a Tool-handle array
+        from AthenaConfiguration.TestDriveDummies import dummyService, dummyTool
+        result3=ComponentAccumulator()
+        result3.addService(dummyService(AString="bla",
+                                        AList=["l1","l2"],
+                                        SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
+                                    )
+                       )
+
+        #Exactly the same again:
+        result3.addService(dummyService(AString="bla",
+                                        AList=["l1","l2"],
+                                        SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
+                                    )
+                       )
+    
+        self.assertEqual(len(result3._services),1) #Verify that we have only one service
+
+
+        #Add a service with a different name
+        result3.addService(dummyService("NewService", AString="blabla",
+                                        AList=["new1","new2"],
+                                        SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
+                                    )
+                       )
+        
+        self.assertEqual(len(result3._services),2)
+        
+        
+        #Add the same service again, with a sightly differently configured private tool:
+        result3.addService(dummyService(AString="bla",
+                                        AList=["l1","l3"],
+                                        SomeTools=[dummyTool("tool1",BList=["lt3","lt4"]),],
+                                    )
+                       )
+
+        self.assertEqual(len(result3.getService("dummyService").SomeTools),1)
+        self.assertEqual(set(result3.getService("dummyService").SomeTools[0].BList),set(["lt1","lt2","lt3","lt4"]))
+        self.assertEqual(set(result3.getService("dummyService").AList),set(["l1","l2","l3"]))
+        
 
 
 if __name__ == "__main__":

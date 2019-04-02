@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestDriver.h"
@@ -18,16 +18,13 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DatabaseConnection.h"
 #include "StorageSvc/FileDescriptor.h"
-#include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbType.h"
-#include "StorageSvc/DbObjectCallBack.h"
 
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <memory>
 
-int numTokenInstances();
 
 static const std::string file1 = "pool_test1.root";
 static const std::string file2 = "pool_test2.root";
@@ -41,7 +38,7 @@ TestDriver::TestDriver()
 
 TestDriver::~TestDriver()
 {
-  std::cout << "[OVAL] Number of floating tokens : " << numTokenInstances() << std::endl;
+   std::cout << "[OVAL] Number of floating tokens : " << Token::numInstances() << std::endl;
 }
 
 

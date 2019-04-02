@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,12 +22,11 @@
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "CommissionEvent/ComTime.h"
 #include "StoreGate/ReadHandleKey.h"
 
-class ITRT_StrawSummarySvc;
 class IInDetConditionsSvc;
 class ITRT_DriftFunctionTool;
 class TRT_ID;
@@ -80,7 +79,7 @@ public:
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;  //!< DriftFunctionTool
 //  ServiceHandle< IInDetConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 
   bool                                 m_useConditionsStatus;     //!< SHall the ConditionsSummaryTool be used?
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 

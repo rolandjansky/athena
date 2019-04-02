@@ -2,6 +2,17 @@
 # Job options file to test the Cabling
 ################################################################################
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#-------------------------------------------------------------- 
+from AthenaCommon.ConcurrencyFlags import jobproperties
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
+  AlgScheduler.ShowControlFlow( True )
+  AlgScheduler.ShowDataDependencies( True )
+
 from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = 20
 theApp.AuditAlgorithms = True
@@ -94,4 +105,9 @@ topSequence = AlgSequence()
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
 topSequence += SCT_TestCablingAlg(SCT_CablingTool=SCT_CablingTool,
                                   OutputLevel = INFO)
+
+if numThreads >= 2:
+  from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+  sctCondAlgCardinality.set(numThreads)
+  topSequence.SCT_TestCablingAlg = numThreads
 

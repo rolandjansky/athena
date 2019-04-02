@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainer.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbContainerObj handle implementation
 //--------------------------------------------------------------------
@@ -17,11 +16,10 @@
 // Framework include files
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbObject.h"
-#include "StorageSvc/DbCallBack.h"
-#include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
 #include "StorageSvc/DbToken.h"
+#include "StorageSvc/DbReflex.h"
 #include "DbContainerObj.h"
 
 #include <memory>
@@ -189,16 +187,13 @@ DbStatus DbContainer::destroy(const Token::OID_t& linkH)    {
 }
 
 /// Load object in the container identified by its handle
-DbStatus DbContainer::load(void** ptr, ShapeH shape,
-                           const Token::OID_t& linkH,
-                           DbAccessMode mod)  const {
-  DbObjectCallBack call;
-  call.setObject(*ptr);
-  call.setShape(shape);
+DbStatus DbContainer::load( void** ptr,
+                            ShapeH shape,
+                            const Token::OID_t& linkH ) const
+{
   if ( isValid() )  {
     Token::OID_t oid;
-    DbStatus sc = m_ptr->load(&call, linkH, oid, mod, false);
-    *ptr = const_cast<void*>(call.object());
+    DbStatus sc = m_ptr->load(ptr, shape, linkH, oid, false);
     return sc;
   }
   return Error;
@@ -255,34 +250,37 @@ DbStatus DbContainer::_destroy(DbObjectHandle<DbObject>& objH)    {
 DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
                             const Token::OID_t& linkH,
                             const DbTypeInfo* typ,
-                            DbAccessMode  mod) const
+                            bool any_next)
 {
-  if ( isValid() && typ )  {
-    Token::OID_t oid;
-    DbCallBack call(this, &objH, typ);
-    if ( m_ptr->load(&call, linkH, oid, mod, false).isSuccess() )  {
-      objH._setObject(call.object());
-      objH.oid() = oid;
-      return Success;
-    }
-  }
-  return Error;
+   if( typ ) {
+      TypeH cl = typ->clazz();
+      if( cl ) {
+         DbObject* ptr = DbHeap::allocate( cl.SizeOf(), this, 0, 0 );
+         if( ptr ) {
+            ptr = cl.Construct(ptr);
+            Token::OID_t oid;
+            if ( m_ptr->load(&ptr, typ, linkH, oid, any_next).isSuccess() )  {
+               objH._setObject( ptr );
+               objH.oid() = oid;
+               return Success;
+            }
+            cl.Class()->Destructor(ptr, true);
+            this->free( ptr );
+            objH._setObject(0);
+         }
+      }
+   }
+   return Error;
 }
 
 /// Load object in the container identified by its link handle
 DbStatus DbContainer::_loadNext(DbObjectHandle<DbObject>& objH,
                                 Token::OID_t& linkH,
-                                const DbTypeInfo* typ,
-                                DbAccessMode  mod) const
+                                const DbTypeInfo* typ)
 {
-  if ( isValid() && typ )  {
-    Token::OID_t oid;
-    DbCallBack call(this, &objH, typ);
-    if ( m_ptr->load(&call, linkH, oid, mod, true).isSuccess() )  {
-      objH._setObject(call.object());
-      objH.oid() = linkH = oid;
+   if( _load( objH, linkH, typ, true ).isSuccess() ) {
+      linkH =  objH.oid();
       return Success;
-    }
-  }
-  return Error;
+   }
+   return Error;
 }

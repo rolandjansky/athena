@@ -26,7 +26,10 @@ namespace HypoJet{
 
 class EtaEtAsymmetricCondition: public ICondition{
  public:
-  EtaEtAsymmetricCondition(double etaMin, double etaMax, double threshold);
+  EtaEtAsymmetricCondition(double etaMin,
+                           double etaMax,
+                           double threshold,
+                           bool debug);
   ~EtaEtAsymmetricCondition() override {}
 
   bool isSatisfied(const HypoJetVector&) const override;
@@ -35,12 +38,14 @@ class EtaEtAsymmetricCondition: public ICondition{
   double orderingParameter() const noexcept override;
 
   std::string toString() const noexcept override;
+  void resetHistory() noexcept {}
 
  private:
 
   double m_etaMin;
   double m_etaMax;
   double m_threshold;
+  bool m_debug;
 };
 
 #endif

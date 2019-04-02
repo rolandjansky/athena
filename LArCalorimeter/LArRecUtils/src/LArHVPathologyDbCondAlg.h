@@ -34,13 +34,13 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
 
  private:
 
-  void fillElectMap(LArHVPathology* hvpath) const;
+  void fillElectMap(const CaloDetDescrManager* calodetdescrmgr,
+                    LArHVPathology* hvpath) const;
 
   SG::ReadCondHandleKey<AthenaAttributeList> m_pathologyFolderKey {this, "PathologyFolder", "/LAR/HVPathologiesOfl/Pathologies", "Cool folder for HV pathologies" };
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
   SG::WriteCondHandleKey<LArHVPathology> m_hvPAthologyKey {this, "HVPAthologyKey", "LArHVPathology", "Key for HV pathologies in Cond. store"};
 
-  const CaloDetDescrManager* m_calodetdescrmgr;
   const LArEM_ID*       m_larem_id;
   const LArHEC_ID*       m_larhec_id;
   const LArFCAL_ID*       m_larfcal_id;

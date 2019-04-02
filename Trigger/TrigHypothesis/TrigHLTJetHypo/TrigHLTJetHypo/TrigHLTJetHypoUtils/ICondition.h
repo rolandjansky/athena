@@ -27,6 +27,7 @@ class ICondition {
   virtual bool 
     isSatisfied(const HypoJetVector&) const = 0;
   virtual std::string toString() const noexcept = 0;
+  virtual void resetHistory() noexcept = 0;
   virtual double orderingParameter() const noexcept = 0;
 };
 

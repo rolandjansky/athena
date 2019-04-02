@@ -74,10 +74,10 @@ def AODFix_Init():
     isHI = rec.doHeavyIon()
     isHIP = rec.doHIP()
 
-    # is it better to do this or to look at GlobalFlags?
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeeker import metadata
     try:
-        isMC = (inputFileSummary['evt_type'][0] == "IS_SIMULATION")
+        isMC = (metadata['eventTypes'][0] == "IS_SIMULATION")
+
     except Exception:
         logAODFix.warning("Could not tell if the input file is data or MC; setting to data")
         isMC = False
@@ -85,7 +85,8 @@ def AODFix_Init():
     if not rec.readRDO():
 
         try:
-            AtlasReleaseVersionString=inputFileSummary['metadata']['/TagInfo']['AtlasRelease']
+            AtlasReleaseVersionString = metadata['AtlasRelease']
+
             rv = AtlasReleaseVersionString.split('-')
             if len(rv) > 1:
                 prevRelease = rv[1]
@@ -98,7 +99,8 @@ def AODFix_Init():
         # determine which is the previous verion of the AODFix
         ##################
         try:
-            prevAODFix=inputFileSummary['tag_info']['AODFixVersion']
+            prevAODFix = metadata['AODFixVersion']
+
             if prevAODFix.startswith("AODFix_"):
                 prevAODFix=prevAODFix[7:]
                 prevAODFix=prevAODFix.split("_")[0]
@@ -124,9 +126,12 @@ def AODFix_Init():
     if rec.readAOD():  # change in policy: no AODFix if reading ESD.
         doAODFix = True
         # check to see if it's a DAOD; do not run by default in DAODs
-        from RecExConfig.InputFilePeeker import inputFileSummary
+
+        from PyUtils.MetaReaderPeeker import metadata
+
         try:
-            streamNames = inputFileSummary['stream_names']
+            streamNames = metadata['processingTags']
+
             if any(map(lambda x: "StreamDAOD" in x, streamNames)) and not rec.doApplyAODFix.is_locked():
                 logAODFix.info("Running on a DAOD, so not scheduling AODFix")
                 doAODFix = False

@@ -6,13 +6,21 @@
 # Declare the package name:
 atlas_subdir( xAODEventInfoCnv )
 
+# Optional dependencies:
+set( extra_libs )
+set( extra_private_deps )
+
+if( NOT SIMULATIONBASE )
+   set( extra_private_deps InnerDetector/InDetConditions/InDetBeamSpotService LumiBlock/LumiBlockComps)
+   set( extra_libs GeoPrimitives LumiBlockCompsLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
    Event/xAOD/xAODCnvInterfaces
    PRIVATE
-   InnerDetector/InDetConditions/InDetBeamSpotService
-   LumiBlock/LumiBlockComps
+   ${extra_private_deps}
    Control/AthenaBaseComps
    Control/AthenaKernel
    Database/AthenaPOOL/AthenaPoolUtilities
@@ -27,9 +35,9 @@ atlas_depends_on_subdirs(
 # Component(s) in the package:
 atlas_add_component( xAODEventInfoCnv
    src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES xAODCnvInterfaces LumiBlockCompsLib AthenaBaseComps
+   LINK_LIBRARIES xAODCnvInterfaces  AthenaBaseComps
    AthenaKernel AthenaPoolUtilities EventInfo xAODEventInfo xAODTruth GaudiKernel
-   GeoPrimitives )
+   ${extra_libs} )
 
 # Install files from the package:
 atlas_install_headers( xAODEventInfoCnv )

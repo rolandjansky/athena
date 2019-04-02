@@ -78,9 +78,9 @@ else:
   # Otherwise we disable the main algorithm
   CRAlgBuilder = CaloRingerAlgorithmBuilder( disable = True )
 
-# Add metadata builder/reader
-from RecExConfig.InputFilePeeker import inputFileSummary
-metaItemDict = inputFileSummary.get( 'metadata_itemsDic' )
+from PyUtils.MetaReaderPeeker import convert_metadata_items, metadata
+metaItemDict = convert_metadata_items(layout='dict')
+
 if CRAlgBuilder.usable() or (metaItemDict and any( ['RingSetConf' in key for key in metaItemDict ] )):
   MetaDataBuilder = CaloRingerMetaDataBuilder()
 

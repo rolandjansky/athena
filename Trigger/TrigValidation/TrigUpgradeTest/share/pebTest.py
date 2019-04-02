@@ -47,10 +47,10 @@ if (doElectron):
 # muon chains
 ##################################################################
 if (doMuon):
-    from TrigUpgradeTest.muMenuDefs import muFastStep
-    muFastStep1 = muFastStep()
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence
+    muFastSequence = muFastSequence()
 
-    step1mufast=ChainStep("Step1_mufast", [ muFastStep1 ])
+    step1mufast=ChainStep("Step1_muFast", [ muFastSequence ])
     step2peb=ChainStep("Step2_pebtesttwo", [pebInfoWriterSequence("pebtesttwo")])
 
     muonChains = [

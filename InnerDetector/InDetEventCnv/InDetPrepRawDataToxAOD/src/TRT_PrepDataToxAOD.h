@@ -15,8 +15,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
@@ -34,7 +34,7 @@
 class TRT_ID;
 class ITRT_CalDbSvc ;
 class ITRT_DriftFunctionTool;
-class ITRT_StrawSummarySvc;
+class ITRT_StrawSummaryTool;
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -68,9 +68,9 @@ private:
 
   // --- Services and Tools
   ToolHandle< ITRT_DriftFunctionTool >      m_driftFunctionTool ; //!< DriftFunctionTool
-  ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc       ;
+  ToolHandle<ITRT_CalDbTool>              m_trtcaldbSvc       ;
   ServiceHandle<ITRT_StrawNeighbourSvc>     m_neighbourSvc      ;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; 
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; 
   const TRT_ID *m_TRTHelper;
   const InDetDD::TRT_DetectorManager* m_trtman;
 

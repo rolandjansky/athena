@@ -72,8 +72,9 @@ import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-from RecExConfig.InputFilePeeker import inputFileSummary
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+
+from PyUtils.MetaReaderPeeker import convert_itemList
+objKeyStore.addManyTypesInputFile(convert_itemList(format='#join'))
 
 #---------------------------------------------------------------------------------#
 # Detector Description

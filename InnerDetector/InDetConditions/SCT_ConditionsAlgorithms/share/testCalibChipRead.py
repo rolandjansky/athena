@@ -6,7 +6,8 @@
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -108,6 +109,11 @@ SCT_ReadCalibChipDataTool=sct_ReadCalibChipDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipDataTestAlg
 topSequence+= SCT_ReadCalibChipDataTestAlg(SCT_ReadCalibChipDataTool=SCT_ReadCalibChipDataTool)
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    topSequence.SCT_ReadCalibChipDataTestAlg.Cardinality = numThreads
 
 ##Modules to test:
 ##136523776, strips 0-255 BAD_OPE=good

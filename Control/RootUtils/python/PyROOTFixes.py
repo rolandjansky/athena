@@ -1,22 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Functions to work around PyROOT bugs for accessing DataVector.
 
 :author: scott snyder
 :contact: snyder@bnl.gov
 
-PyROOT (as of root 5.26.00) has a bug that bites us when accessing
-DataVector classes.
-
- - Attempts to use element access via [] on a class deriving from DataVector
-   will cause an infinite recursion.
-
-Importing this module will automatically apply this workarounds
-for all DataVector classes (and classes deriving from them).
-
-This module will also add comparison operators for iterator classes T
-that have a RootUtils::PyROOTIteratorFuncs<T> specialization
-generated.
+Importing this module will automatically apply workarounds
+for known PyROOT issues.
 
 There are also some fixes for performance problems with the pythonization
 of TTree.  These may be enabled by calling enable_tree_speedups().
@@ -28,11 +18,6 @@ __docformat__ = "restructuredtext en"
 import ROOT
 import cppyy
 ROOT.TClass.GetClass("TClass")
-
-def fix_dv_container (clname):
-    # Now only a stub.
-    return
-
 
 def fix_method (clname, methname):
     # Now only a stub.
@@ -64,38 +49,6 @@ def _getClassIfDictionaryExists (cname):
         if cl.HasDictionary(): return cl
     return None
 
-#
-# This function will be called for every new pyroot class created.
-#
-# We use this to fix up iterator comparison operators.
-# If the new class appears to be an iterator and the class
-# RootUtils::PyROOTIteratorFuncs<CLS> exists, then we install
-# the comparison functions from that template class in the new class.
-# 
-def _pyroot_class_hook (cls):
-    ll = cls.__name__.split ('<')
-    ll[0] = ll[0].split('.')[-1]
-    if ll[0].find ('iterator') >= 0:
-        name = '<'.join (ll)
-        ifuncsname = 'RootUtils::PyROOTIteratorFuncs<' + name
-        if ifuncsname[-1] == '>':
-            ifuncsname = ifuncsname + ' '
-        ifuncsname = ifuncsname + '>'
-        if _getClassIfDictionaryExists (ifuncsname):
-            ifuncs = getattr (ROOT, ifuncsname, None)
-            if hasattr (ifuncs, 'eq'):
-                # Note: To prevent Pythonize.cxx from changing these out from
-                # under us, __cpp_eq__/__cpp_ne__ must be pyroot MethodProxy's,
-                # and __eq__/__ne__ must _not_ be MethodProxy's.
-                cls.__eq__ = lambda a,b: ifuncs.eq(a,b)
-                cls.__ne__ = lambda a,b: ifuncs.ne(a,b)
-                cls.__cpp_eq__ = ifuncs.eq
-                cls.__cpp_ne__ = ifuncs.ne
-            if hasattr (ifuncs, 'lt'):
-                cls.__lt__ = lambda a,b: not not ifuncs.lt(a,b)
-                cls.__gt__ = lambda a,b: not not ifuncs.lt(b,a)
-                cls.__ge__ = lambda a,b: not ifuncs.lt(a,b)
-                cls.__le__ = lambda a,b: not ifuncs.lt(b,a)
-    return
 
-
+ROOT.RootUtils.PyLogger
+ROOT.RootUtils.PyROOTTypePatch.initialize()

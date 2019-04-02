@@ -74,14 +74,10 @@ InputCollection+=["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/p
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #athenaCommonFlags.FilesInput.set_Value_and_Lock(InputCollection)
 
-
-
-
-
-from RecExConfig.InputFilePeeker import inputFileSummary
+from PyUtils.MetaReaderPeeker import metadata
 
 DoTruth = False
-if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+if 'IS_SIMULATION' in metadata['eventTypes']:
     DoTruth = True
 
 if not DoTruth:

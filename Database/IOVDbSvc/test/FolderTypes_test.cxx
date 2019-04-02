@@ -77,6 +77,7 @@ struct TestFolderFixture{
       payload[0].setValue (2);
       folderPtr->storeObject ((10ull<<32) + 30, cool::ValidityKeyMax, payload, 0);
     }
+    //need to test for CoraCool and Cool vector payload types
     
   }
   ~TestFolderFixture(){

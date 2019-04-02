@@ -30,6 +30,7 @@ ToolSvc += ElectronIsEMSelectorTight
 
 ########### Electron Isolation options ################
 
+from RecExConfig.InputFilePeeker import inputFileSummary
 isSimulation = False
 if inputFileSummary.has_key("evt_type"):
 	eventTypeList = inputFileSummary.get("evt_type")

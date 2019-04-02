@@ -86,13 +86,13 @@ StatusCode TrackParticleTruthAlg::execute() {
   int partInd=0;
   for( const auto particle : *particlesLink ){
 
+    ATH_MSG_DEBUG("Looking up truth for pt " << particle->pt() << " eta " << particle->eta() << " phi " << particle->phi());
     if( !particle->trackLink().isValid() ){
       ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
       //add dummy truth link
       particlesLink(*particle)=ElementLink<xAOD::TruthParticleContainer>();
       continue;
     }
-    ATH_MSG_DEBUG("Looking up truth for pt " << particle->pt() << " eta " << particle->eta() << " phi " << particle->phi());
 
     MCTruthPartClassifier::ParticleType type = MCTruthPartClassifier::Unknown;
     MCTruthPartClassifier::ParticleOrigin origin = MCTruthPartClassifier::NonDefined;
