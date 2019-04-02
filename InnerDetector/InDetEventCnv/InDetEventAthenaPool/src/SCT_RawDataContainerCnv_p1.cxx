@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/SCT3_RawData.h"
@@ -12,6 +12,8 @@
 #include "SCT1_RawDataCnv_p1.h"
 #include "SCT3_RawDataCnv_p1.h"
 #include "SCT_RawDataContainerCnv_p1.h"
+
+#include <memory>
 
 void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont, SCT_RawDataContainer_p1* persCont, MsgStream& log) 
 {
@@ -57,7 +59,7 @@ void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont,
         chanEnd   += collection.size();
         InDetRawDataCollection_p1& pcollection = persCont->m_collections[collIndex];
         pcollection.m_id    = collection.identify().get_compact();
-        pcollection.m_hashId = (unsigned int) collection.identifyHash();
+        pcollection.m_hashId = static_cast<unsigned int>(collection.identifyHash());
         pcollection.m_begin = chanBegin;
         pcollection.m_end   = chanEnd;
 	//        MSG_VERBOSE(log,"Writing collection number " << collIndex << " with hash" << pcollection.m_hashId);
@@ -81,7 +83,7 @@ void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont,
     //  MSG_DEBUG(log," ***  Writing SCT_RDO_Container (SCT1/3_RawData concrete type)");
 }
 
-void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* persCont, SCT_RDO_Container* transCont, MsgStream &log) 
+void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* persCont, SCT_RDO_Container* transCont, MsgStream& log) 
 {
 
     // The transient model has a container holding collections and the
@@ -99,8 +101,6 @@ void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* per
     // from the vector.
 
 
-    SCT_RDO_Collection* coll = 0;
-
     SCT1_RawDataCnv_p1  chan1Cnv;
     SCT3_RawDataCnv_p1  chan3Cnv;
     // check for the type of the contained objects:
@@ -117,7 +117,7 @@ void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* per
         const InDetRawDataCollection_p1& pcoll = persCont->m_collections[icoll];        
         Identifier collID(pcoll.m_id);
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
-        coll = new SCT_RDO_Collection(collIDHash );
+        std::unique_ptr<SCT_RDO_Collection> coll = std::make_unique<SCT_RDO_Collection>(collIDHash);
         coll->setIdentifier(collID);
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
@@ -126,24 +126,24 @@ void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* per
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
           if(m_type == 1) { 
             const InDetRawData_p1* pchan = &(persCont->m_rawdata[ichan + pcoll.m_begin]);
-            SCT1_RawData* chan = new SCT1_RawData();
-            chan1Cnv.persToTrans(pchan, chan, log);
-            (*coll)[ichan] = chan;
+            std::unique_ptr<SCT1_RawData> chan = std::make_unique<SCT1_RawData>();
+            chan1Cnv.persToTrans(pchan, chan.get(), log);
+            (*coll)[ichan] = chan.release();
           } else if (m_type == 3) {  
             const SCT3_RawData_p1* pchan = &(persCont->m_sct3data[ichan + pcoll.m_begin]);
-            SCT3_RawData* chan = new SCT3_RawData();
-            chan3Cnv.persToTrans(pchan, chan, log);
-            (*coll)[ichan] = chan;
+            std::unique_ptr<SCT3_RawData> chan = std::make_unique<SCT3_RawData>();
+            chan3Cnv.persToTrans(pchan, chan.get(), log);
+            (*coll)[ichan] = chan.release();
           }
         }
         
         // register the rdo collection in IDC with hash - faster addCollection
-           StatusCode sc = transCont->addCollection(coll, collIDHash);
-           if (sc.isFailure()) {
-               throw std::runtime_error("Failed to add collection to ID Container");
-           }
-	   MSG_VERBOSE(log,"AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = "
-		       << (int) collIDHash << " / " << collID.get_compact() << ", added to Identifiable container.");
+        StatusCode sc = transCont->addCollection(coll.release(), collIDHash);
+        if (sc.isFailure()) {
+          throw std::runtime_error("Failed to add collection to ID Container");
+        }
+        MSG_VERBOSE(log,"AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = "
+                    << collIDHash.value() << " / " << collID.get_compact() << ", added to Identifiable container.");
     }
 
 //    MSG_DEBUG(log," ***  Reading SCT_RDO_Container (SCT1/3_RawData concrete type)");
@@ -151,8 +151,8 @@ void  SCT_RawDataContainerCnv_p1::persToTrans(const SCT_RawDataContainer_p1* per
 
 //================================================================
 SCT_RDO_Container* SCT_RawDataContainerCnv_p1::createTransient(const SCT_RawDataContainer_p1* persObj, MsgStream& log) {
-    std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+    std::unique_ptr<SCT_RDO_Container> trans(std::make_unique<SCT_RDO_Container>(m_sctId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
-    return(trans.release());
+    return trans.release();
 }
 

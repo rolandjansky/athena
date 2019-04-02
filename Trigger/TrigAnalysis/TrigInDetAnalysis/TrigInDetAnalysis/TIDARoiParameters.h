@@ -75,10 +75,10 @@ protected:
 
 };
 
-inline std::ostream& operator<<( std::ostream& s, const TIDARoiParameters& _t ) { 
-  return s << "\tP: eta: " << _t.eta() << " " << _t.etaMinus() << " - " << _t.etaPlus()
-	   <<    "\tphi: " << _t.phi() << " " << _t.phiMinus() << " - " << _t.phiPlus()
-	   <<      "\tz: " << _t.zed() << " " << _t.zedMinus() << " - " << _t.zedPlus();
+inline std::ostream& operator<<( std::ostream& s, const TIDARoiParameters& t ) { 
+  return s << "\tP: eta: " << t.eta() << " " << t.etaMinus() << " - " << t.etaPlus()
+	   <<    "\tphi: " << t.phi() << " " << t.phiMinus() << " - " << t.phiPlus()
+	   <<      "\tz: " << t.zed() << " " << t.zedMinus() << " - " << t.zedPlus();
 }
 
 

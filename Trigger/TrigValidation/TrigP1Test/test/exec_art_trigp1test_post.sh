@@ -45,7 +45,10 @@ if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
+  echo "art-result: 999 RegTest"
 fi
+
+mv athena.regtest athena.regtest.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
@@ -56,6 +59,8 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo "art-result: ${PIPESTATUS[0]} CheckCounts"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+  echo "art-result:  999 RootComp"
+  echo "art-result:  999 CheckCounts"
 fi
 
 if [ -f trig_cost.root ]; then 

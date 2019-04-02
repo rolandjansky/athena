@@ -46,6 +46,9 @@ void iGeant4::G4AtlasRunManager::Initialize()
   // Call the base class Initialize method. This will call
   // InitializeGeometry and InitializePhysics.
   G4RunManager::Initialize();
+  ATH_MSG_INFO("G4 Command: Trying at the end of Initialize()");
+  // Try to execute G4Commands (Should be in G4State_Idle at this point.)
+  AttemptG4Commands(m_g4commands);
 
   const std::string methodName = "iGeant4::G4AtlasRunManager::Initialize";
   // Now that the G4 geometry is available, setup the user actions.
@@ -98,6 +101,9 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
   else {
     ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
   }
+  ATH_MSG_INFO("G4 Command: Trying at the end of InitializeGeometry()");
+  // Try to execute G4Commands (Should be in G4State_PreInit at this point.)
+  AttemptG4Commands(m_g4commands);
 
   // Geometry has been initialized.  Now get services to add some stuff to the geometry.
   if (m_senDetTool.retrieve().isFailure()) {
@@ -165,36 +171,50 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::InitializeFluxRecording()
 {
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
-
+  std::vector<std::string> initFluxCommands;
+  initFluxCommands.push_back("/run/setCutForAGivenParticle proton 0 mm");
+  AttemptG4Commands(initFluxCommands);
+  if(initFluxCommands.size()) {
+    ATH_MSG_WARNING("The following commands failed to be executed via the G4UImanager:");
+    for (auto g4command : initFluxCommands) {
+      ATH_MSG_WARNING(g4command);
+    }
+  }
+  initFluxCommands.clear();
   G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
 
   if(!ScM) { return; }
 
-  ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
+  initFluxCommands.push_back("/score/create/cylinderMesh cylMesh_1");
   //                        R  Z(-24 to 24)
-  ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
+  initFluxCommands.push_back("/score/mesh/cylinderSize 12. 24. m");
   //                iR iZ
-  //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
-  ui->ApplyCommand("/score/mesh/nBin 120 480 1");
+  //initFluxCommands.push_back("/score/mesh/nBin 1 1 1");
+  initFluxCommands.push_back("/score/mesh/nBin 120 480 1");
 
-  ui->ApplyCommand("/score/quantity/energyDeposit eDep");
+  initFluxCommands.push_back("/score/quantity/energyDeposit eDep");
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
-  ui->ApplyCommand("/score/filter/particle photonFilter gamma");
+  initFluxCommands.push_back("/score/quantity/cellFlux CF_photon");
+  initFluxCommands.push_back("/score/filter/particle photonFilter gamma");
   // above 2 line crete tally for cell flux for gamma
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
-  ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
+  initFluxCommands.push_back("/score/quantity/cellFlux CF_neutron");
+  initFluxCommands.push_back("/score/filter/particle neutronFilter neutron");
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
-  ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
+  initFluxCommands.push_back("/score/quantity/cellFlux CF_HEneutron");
+  initFluxCommands.push_back("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
 
-  ui->ApplyCommand("/score/quantity/doseDeposit dose");
+  initFluxCommands.push_back("/score/quantity/doseDeposit dose");
 
-  ui->ApplyCommand("/score/close");
-  ui->ApplyCommand("/score/list");
+  initFluxCommands.push_back("/score/close");
+  initFluxCommands.push_back("/score/list");
+  AttemptG4Commands(initFluxCommands);
+  if(initFluxCommands.size()) {
+    ATH_MSG_WARNING("The following commands failed to be executed via the G4UImanager:");
+    for (auto g4command : initFluxCommands) {
+      ATH_MSG_WARNING(g4command);
+    }
+  }
 
   G4int nPar = ScM->GetNumberOfMesh();
 
@@ -322,11 +342,65 @@ void iGeant4::G4AtlasRunManager::RunTermination()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::WriteFluxInformation()
 {
-  G4UImanager *ui=G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  std::vector<std::string> writeFluxCommands;
+  writeFluxCommands.push_back("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
+  writeFluxCommands.push_back("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
+  writeFluxCommands.push_back("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
+  writeFluxCommands.push_back("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
+  writeFluxCommands.push_back("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  AttemptG4Commands(writeFluxCommands);
+  if(writeFluxCommands.size()) {
+    ATH_MSG_WARNING("The following commands failed to be executed via the G4UImanager:");
+    for (auto g4command : writeFluxCommands) {
+      ATH_MSG_WARNING(g4command);
+    }
+  }
   return;
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::AddG4Command(const std::string& g4Command)
+{
+  m_g4commands.push_back(g4Command);
+  return;
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::AttemptG4Commands(std::vector<std::string>& commands)
+{
+  // G4 user interface commands
+  G4UImanager *ui = G4UImanager::GetUIpointer();
+  std::vector<std::string> commandsToRetry;
+  // Send UI commands
+  for (auto g4command : commands) {
+    const int the_return = ui->ApplyCommand( g4command );
+    CommandLog(the_return, g4command);
+    // Tried to execute the command at the wrong point in the
+    // initialization - try again later
+    if(the_return==200) {
+      commandsToRetry.push_back(g4command);
+    }
+  }
+  commands.swap(commandsToRetry);
+  return;
+}
+
+//________________________________________________________________________
+void iGeant4::G4AtlasRunManager::CommandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_INFO("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }

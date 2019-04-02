@@ -47,11 +47,14 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif (myName.find("kaon") > -1 or myName.find("pion") > -1):
             cuts=['Input', 'tau cand' ,'E_{T} calib','tk. number','lead tr pt','massTrkSys','massTrkSysKaon','massTrkSysKaonPi','EMPOverTrkSysP', 'etOverPtLeadTrk', 'dRmax', ' ', ' ', ' ', ' ']
 
-        elif myName.find("ditau") > -1:
+        elif myName.find("ditauM") > -1 or myName.find("ditauL") > -1 or myName.find("ditauT") > -1:
             cuts=['Input','good vtx/trk', 'match', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif myName.find("tsf") > -1 or myName.find("dR") > -1:
+        elif myName.find("tsf") > -1:
             cuts=['Input','dR', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+
+        elif myName.find("EFTauTopo") > -1:
+            cuts=['Input','dR', 'passed', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("mVis") > -1:
             cuts=['Input','mVis', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
@@ -306,9 +309,22 @@ class L2TauTopoHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         
         self.Histograms += [defineHistogram('DROfAccepted',type='TH1F',title='dR Passed', xbins=50, xmin=0.,xmax=4.)]
 
+class EFTauTopoHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFTauTopoHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms += [defineHistogram('DROfProcessed',type='TH1F',title='dR Processed', xbins=100, xmin=0.,xmax=4.)]
+        self.Histograms += [defineHistogram('DROfAccepted',type='TH1F',title='dR Accepted', xbins=100, xmin=0.,xmax=4.)]
+
 class L2TauTopoHypoValidationMonitoring(L2TauTopoHypoOnlineMonitoring):
     def __init__ (self, name):
         super(L2TauTopoHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
+class EFTauTopoHypoValidationMonitoring(EFTauTopoHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFTauTopoHypoValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
 
 class EFTauInvHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
@@ -409,6 +425,20 @@ def setL2TauTopoMonTools( algoObject ):
     nameOnl = algoName+"_Onl"
     valTool = L2TauTopoHypoValidationMonitoring(nameVal)
     onlTool = L2TauTopoHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
+def setEFTauTopoMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = EFTauTopoHypoValidationMonitoring(nameVal)
+    onlTool = EFTauTopoHypoOnlineMonitoring(nameOnl)
 
     algoObject.AthenaMonTools = [ time, onlTool, valTool]
 

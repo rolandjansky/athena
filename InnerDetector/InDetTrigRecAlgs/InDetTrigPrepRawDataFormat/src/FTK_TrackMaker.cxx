@@ -73,7 +73,7 @@ namespace InDet{
     //retrieve rob data provider service
     if (m_robDataProvider.retrieve().isFailure()){
       ATH_MSG_FATAL( "Failed to retrieve " << m_robDataProvider );
-      return StatusCode::FAILURE;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else
       ATH_MSG_INFO( "Retrieved service " << m_robDataProvider << " in FTK_TrackMaker." );
@@ -95,7 +95,7 @@ namespace InDet{
 
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltExecute(const HLT::TriggerElement*,
-					      HLT::TriggerElement* outputTE){
+					      HLT::TriggerElement* ){
     
     //initialisation of monitored quantities
   
@@ -104,35 +104,19 @@ namespace InDet{
     //m_bsErrorSvc->resetCounts();
     StatusCode scdec = StatusCode::SUCCESS;
 
-    
-    // Get RoiDescriptor
-    const TrigRoiDescriptor* roi;
-    if ( HLT::OK !=  getFeature(outputTE, roi) ) {
-      ATH_MSG_WARNING( "Can't get RoI" );
-      return HLT::NAV_ERROR;
-    }
-    
-    if (!roi){
-      ATH_MSG_WARNING ( "Received NULL RoI" );
-      return HLT::NAV_ERROR;
-    }
-    
-
     if(doTiming()) m_timerDPS->start();
     
-    //    scdec = 
-    //m_ftkdatasvc->
-    TrackCollection* ftkTracks = m_ftkdatasvc->getTracksInRoi(*roi, false /* =ftkrefit */ );
-    if (ftkTracks)
-      ATH_MSG_DEBUG( "REGTEST: decoded " << ftkTracks->size() << " tracks "); 
+    unsigned int nFTKtracks = m_ftkdatasvc->nRawTracks();
+    ATH_MSG_DEBUG( "REGTEST: decoded " << nFTKtracks  << " tracks "); 
 
     if(doTiming()) m_timerDPS->stop();
 
 
     //initial debugging - can be removed later
+    const TrigRoiDescriptor fullScanRoi(true);
     std::vector<IdentifierHash> listOfIds;
-    m_regionSelector->DetHashIDList( FTK, *roi, listOfIds);
-    ATH_MSG_DEBUG( "REGTEST: FTK: Roi contains " 
+    m_regionSelector->DetHashIDList( FTK, fullScanRoi, listOfIds);
+    ATH_MSG_DEBUG( "REGTEST: FTK: FullScan Roi contains " 
 		   << listOfIds << " det. Elements" );
 
     
@@ -192,25 +176,15 @@ namespace InDet{
   }
 
   //---------------------------------------------------------------------------
-  HLT::ErrorCode FTK_TrackMaker::prepareRobRequests(const HLT::TriggerElement* inputTE){
+  HLT::ErrorCode FTK_TrackMaker::prepareRobRequests(const HLT::TriggerElement* ){
 
     ATH_MSG_DEBUG( "FTK_TrackMaker::prepareRobRequests()" );
 
     //Calculate ROBs needed - this code should be shared with hltExecute to avoid slightly different requests
-    const TrigRoiDescriptor* roi = nullptr;
-
-    if (getFeature(inputTE, roi) != HLT::OK || roi == nullptr){
-      ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor" );
-      return HLT::NAV_ERROR;
-    }
-
-    ATH_MSG_DEBUG( "REGTEST prepareROBs / event RoI ID " << roi->roiId()
-		   << " located at   phi = " << roi->phi()
-		   << ", eta = " << roi->eta() );
-
+    TrigRoiDescriptor fullScanRoi(true);
 
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( FTK, *roi, uIntListOfRobs );
+    m_regionSelector->DetROBIDListUint( FTK, fullScanRoi, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in FTK: ");
     for(auto i : uIntListOfRobs) {

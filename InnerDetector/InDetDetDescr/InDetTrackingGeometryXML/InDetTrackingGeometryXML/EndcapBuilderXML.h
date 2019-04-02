@@ -86,6 +86,7 @@ namespace InDet {
     bool  m_pixelCase; // flag for pixel/sct
     ServiceHandle<InDet::XMLReaderSvc>  m_xmlReader;
     ToolHandle<IModuleProvider> m_moduleProvider;
+
     
     size_t              m_endcapLayerBinsR;               //!< Endcap bins for the material in r
     size_t              m_endcapLayerBinsPhi;             //!< Endcap bins for the material in phi
@@ -96,4 +97,3 @@ namespace InDet {
 }
 
 #endif //ENDCAPBUILDERXML_H
-

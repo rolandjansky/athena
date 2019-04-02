@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -104,7 +104,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm1200j50'
                     ]
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
-AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99', 'bXemu']
+AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99', 'bXemu','03dRtt']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 
@@ -149,6 +149,8 @@ JetChainParts = {
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
+    'jetattrs'     : ['subj360Iktdr2I3width6IIsubj300Iwidth','subj360Iktdr3IIsubj300Iwidth2','subj360Iktdr3Iwidth2','subj360Iktdr','subj360I0ktdr5','subj360Iwidth','subj360I0width5','subj360IktdrI9width'],
+    'jvt'          : ['jvt011et15','jvt011et25','jvt011et35','jvt011et45','jvt015et15','jvt015et25','jvt015et35','jvt015et45','jvt059et15','jvt059et25','jvt059et35','jvt059et45','jvt091et15','jvt091et25','jvt091et35','jvt091et45','2jvt011et25','2jvt015et25','2jvt059et25','2jvt015et15','2jvt011et45','2jvt015et45','2jvt059et45','4jvt011et15','4jvt011et25','4jvt011et35','4jvt011et45','4jvt015et15','4jvt015et25','4jvt015et35','4jvt015et45','4jvt059et15','4jvt059et25','4jvt059et35','4jvt059et45','5jvt011et15','5jvt011et25','5jvt011et35','5jvt011et45','5jvt015et15','5jvt015et25','5jvt015et35','5jvt015et45','5jvt059et15','5jvt059et25','5jvt059et35','5jvt059et45','6jvt011et15','6jvt011et25','6jvt011et35','6jvt011et45','6jvt015et15','6jvt015et25','6jvt015et35','6jvt015et45','6jvt059et15','6jvt059et25','6jvt059et35','6jvt059et45','7jvt011et15','7jvt011et25','7jvt011et35','7jvt011et45','7jvt015et15','7jvt015et25','7jvt015et35','7jvt015et45','7jvt059et15','7jvt059et25','7jvt059et35','7jvt059et45'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
     # Et cut by the jet build tool (ptmin)
     'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],
@@ -184,6 +186,8 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
+    'jetattrs'     : 'nojetattrs',
+    'jvt'          : 'nojvt',
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
@@ -232,7 +236,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '0invm60', '20invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -291,8 +295,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA'],
-    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA','t2MVA'],
+    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'mRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],

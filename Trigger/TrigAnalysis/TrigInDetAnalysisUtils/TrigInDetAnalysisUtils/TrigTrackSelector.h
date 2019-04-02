@@ -9,8 +9,8 @@
  **/
 
 
-#ifndef TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
-#define TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
+#ifndef TIDAUTILS_TRIGTRACKSELECTOR_H
+#define TIDAUTILS_TRIGTRACKSELECTOR_H
 
 #include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
 
@@ -158,12 +158,10 @@ private:
   double m_yBeam;
   double m_zBeam;
 
-  //bool m_first;
-
   bool m_correctTrkTracks;
 
 };
 
 
 #endif //   TIDA_NEWTRACKING_H
-#endif // TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
+#endif // TIDAUTILS_TRIGTRACKSELECTOR_H

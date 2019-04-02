@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,7 +42,7 @@ StatusCode SCT_ClusterContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc* detStore(nullptr);
    if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -51,7 +51,7 @@ StatusCode SCT_ClusterContainerCnv::initialize() {
    }
    
    // Get the SCT helper from the detector store
-   const SCT_ID* idhelper(0);
+   const SCT_ID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "SCT_ID").isFailure()) {
      ATH_MSG_FATAL("Could not get SCT_ID helper !");
      return StatusCode::FAILURE;
@@ -79,7 +79,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
   static pool::Guid   p3_guid("623F5836-369F-4A94-9DD4-DAD728E93C13"); // with SCT_Cluster_p3
 
   //ATH_MSG_DEBUG("createTransient(): main converter");
-  InDet::SCT_ClusterContainer* p_collection(0);
+  InDet::SCT_ClusterContainer* p_collection(nullptr);
   if( compareClassGuid(p3_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
     std::unique_ptr< SCT_ClusterContainer_PERS >  p_coll( poolReadObject< SCT_ClusterContainer_PERS >() );
@@ -115,7 +115,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
 
 
 SCT_ClusterContainer_PERS*    SCT_ClusterContainerCnv::createPersistent (InDet::SCT_ClusterContainer* transCont) {
-   SCT_ClusterContainer_PERS *sctdc_p= m_TPConverter_p3.createPersistent( transCont, msg() );
+   SCT_ClusterContainer_PERS* sctdc_p= m_TPConverter_p3.createPersistent( transCont, msg() );
    return sctdc_p;
 }
 

@@ -427,6 +427,39 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [[['EF_mu_step2'],
                                [theTrigMuonEFCombinerDiMuonMassPtImpactsHiggsinoHypoConfig],
                                'EF_mu_step3']]
+
+    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+      dimuon_name = '0'
+      muon_name = 'mu'
+      mass_low = 0.
+      mass_high = 0.
+      if '20invm60' in self.chainPart['addInfo']:
+        mass_low = 20.
+        mass_high = 60.
+      elif '10invm60' in self.chainPart['addInfo']:
+        mass_low = 10.
+        mass_high = 60.
+      elif '0invm60' in self.chainPart['addInfo']:
+        mass_low = 0.
+        mass_high = 60.
+      elif '20invm80' in self.chainPart['addInfo']:
+        mass_low = 20.
+        mass_high = 80.
+      dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig = TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig("DimuonMass", dimuon_name)
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresLow = mass_low
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.massThresHigh = mass_high
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.pairptThresLow = -1
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.pairptThresHigh = -1
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.deltaZThres = -1
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.deltaPhiThresLow = -1
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.deltaPhiThresHigh = -1
+      theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig.AcceptAll = False
+
+      self.EFsequenceList += [[['EF_mu_step2'],
+                               [theTrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig],
+                               'EF_mu_step3invm']]
+
     if self.chainPart['isoInfo']:      
       if self.chainPart['isoInfo'] == "iloose":
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyMedium")
@@ -534,6 +567,8 @@ class L2EFChain_mu(L2EFChainDef):
 
     if '10invm30' in self.chainPart['addInfo'] and 'pt2' in self.chainPart['addInfo'] and 'z10' in self.chainPart['addInfo']:
       self.EFsignatureList += [ [['EF_mu_step3']] ]
+    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+      self.EFsignatureList += [ [['EF_mu_step3invm']] ]
 
     if 'invm1' in self.chainPart['addInfo']:
       self.EFsignatureList += [ [['EF_mu_step3']] ]
@@ -584,6 +619,10 @@ class L2EFChain_mu(L2EFChainDef):
       self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
                                   'EF_mu_step3': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS)})
+    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+      self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
+                                  'EF_mu_step3invm': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS)})
 
     if 'invm1' in self.chainPart['addInfo']:
       self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
@@ -662,6 +701,15 @@ class L2EFChain_mu(L2EFChainDef):
                                   'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS+'_wOvlpRm'),
                                   'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS+'_wOvlpRm'),
                                   'EF_mu_step3': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS+'_wOvlpRm')}) 
+    if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+      self.TErenamingDict.update({'L2_step1a_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
+                                  'L2_step1b_wOvlpRm'  : mergeRemovingOverlap('L2_muon_comb',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
+                                  'L2_step1c_wOvlpRm'  : mergeRemovingOverlap('L2_muon_combhyp',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
+                                  'L2_step2_wOvlpRm'   : mergeRemovingOverlap('L2_mu_combOvlpRm_',  L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm'),
+                                  'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS+'_wOvlpRm'),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS+'_wOvlpRm'),
+                                  'EF_mu_step3invm': mergeRemovingOverlap('EF_invm_',    chainPartNameNoMultNoDS+'_wOvlpRm')}) 
+
     if self.doOvlpRm and 'invm1' in self.chainPart['addInfo']:
       self.TErenamingDict.update({'L2_step1a_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step1b_wOvlpRm'  : mergeRemovingOverlap('L2_muon_comb',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
@@ -1256,6 +1304,38 @@ class L2EFChain_mu(L2EFChainDef):
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
 
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        dimuon_name = '0'
+        muon_name = 'mu'
+        mass_low = 0.
+        mass_high = 0.
+        hypocut = '0GeV_0GeV'
+        if '20invm60' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 60.
+          hypocut = '20GeV_60GeV'
+        elif '10invm60' in self.chainPart['addInfo']:
+          mass_low = 10.
+          mass_high = 60.
+          hypocut = '10GeV_60GeV'
+        elif '0invm60' in self.chainPart['addInfo']:
+          mass_low = 0.
+          mass_high = 60.
+          hypocut = '0GeV_60GeV'
+        elif '20invm80' in self.chainPart['addInfo']:
+          mass_low = 20.
+          mass_high = 80.
+          hypocut = '20GeV_80GeV'
+        dimuon_name = muon_name+'_'+str(int(mass_low))+'invm'+str(int(mass_high))
+        if  '0invm60' in self.chainPart['addInfo']: invm=  '0invm60'
+        if '10invm60' in self.chainPart['addInfo']: invm= '10invm60'
+        if '20invm60' in self.chainPart['addInfo']: invm= '20invm60'
+        if '20invm80' in self.chainPart['addInfo']: invm= '20invm80'
+        theTrigMuonEFCombinerDiMuonMassHypoConfig = TrigMuonEFCombinerDiMuonMassHypoConfig(invm,"OS")
+        self.EFsequenceList += [[['EF_CB_FS'],
+                                  [theTrigMuonEFCombinerDiMuonMassHypoConfig],
+                                  'EF_CB_FSINVM']]
+
       if 'TagandProbe' in self.chainPart['FSinfo']:
         TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
         self.EFsequenceList += [['EF_CB_FS',
@@ -1291,6 +1371,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
       if 'TagandProbe' in self.chainPart['FSinfo']:
         self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        self.EFsignatureList += [ [['EF_CB_FSINVM']] ]
 
       if run_isolation:
         self.EFsignatureList += [ [['EF_ID_FS']] ]
@@ -1317,7 +1399,22 @@ class L2EFChain_mu(L2EFChainDef):
       self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
       self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
 
+      if 'FTKFS' in self.chainPart['FSinfo']:
+        self.TErenamingDict.update({
+            'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+            'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+            'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
+            'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
+            'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+            'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+            'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+            'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+            'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
+            })
+
       if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      if '20invm60' in self.chainPart['addInfo'] or '10invm60' in self.chainPart['addInfo'] or '0invm60' in self.chainPart['addInfo'] or '20invm80' in self.chainPart['addInfo']:
+        self.TErenamingDict['EF_CB_FSINVM'] = mergeRemovingOverlap('EF_CB_FSINVM_', 'SAFSHypo'+hypocut+'_'+hypocutEF+'_'+dimuon_name)
 
       if run_isolation:
         self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
@@ -1438,17 +1535,17 @@ class L2EFChain_mu(L2EFChainDef):
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'+hypocut),
-      'EF_trk_ROIbFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'+hypocut),
-      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'+hypocut),
+      'EF_trk_trkFTK': mergeRemovingOverlap('EF_trk_trkFTK_','SAFSHypo'),
+      'EF_trk_ROIFTK': mergeRemovingOverlap('EF_trk_ROIFTK_','SAFSHypo'),
+      'EF_SA_FSFTK': mergeRemovingOverlap('EF_SA_FSFTK_','SAFSHypo'),
       'EF_SA_FSFTK2': mergeRemovingOverlap('EF_SA_FSFTK2_','SAFSHypo'+hypocut),
-      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'+hypocut),
-      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_', 'SAFSHypo'+hypocut),
-      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'+hypocut), 
-      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
+      'EF_SAR_FSFTK': mergeRemovingOverlap('EF_SAR_FSFTK_','SAFSHypo'),
+      'EF_FStracksMuonFTK': mergeRemovingOverlap('EF_FStracksMuonFTK_','SAFSHypo'),
+      'EF_CB_FS_singleFTK': mergeRemovingOverlap('EF_CB_FSFTK_single_','SAFSHypo'), 
+      'EF_CB_FSFTK': mergeRemovingOverlap('EF_CB_FSFTK_','SAFSHypo'),
+      'EF_CB_FSFTK2': mergeRemovingOverlap('EF_CB_FSFTK2_','SAFSHypo'+hypocut+'_'+hypocutEF),
       }
+    
 
   #################################################################################################
   #################################################################################################

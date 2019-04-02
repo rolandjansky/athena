@@ -174,11 +174,11 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
   /// create sequences if need be ...
 
-  static bool _first = true;
+  static bool tfirst = true;
 
-  if ( _first ) { 
+  if ( tfirst ) { 
 
-    _first = false;
+    tfirst = false;
 
     // track filters 
     // reference (offline) tracks...

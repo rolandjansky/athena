@@ -23,7 +23,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_trigedm_grid"
 export JOB_LOG="athena.log"

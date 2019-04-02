@@ -839,46 +839,6 @@ bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       
       if ( xbeam!=getBeamX() || ybeam!=getBeamY() || zbeam!=getBeamZ() ) setBeamline( xbeam, ybeam, zbeam );
 	
-     
-
-#if 0
-#ifndef XAOD_STANDALONE
-      // NB: this doesn't work yet
-
-      static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-
-      //      const Trk::Track*    _track =  track->track();
-      const Trk::Track*   _track =  track->track().getDataPtr();
-      if ( _track ) { 
-      
-	/// This is Soooo isHit, xAOD::TrackParticle::track() is supposed to produce a 
-	/// Trk::Track* in the new code, but an ElementLink<TrackContainer> in the old version
-	/// so to test with the old release use the ElementLink, but this just doesn't
-	/// compile, so give up on this ***REMOVED*** code.   
-	//   const Trk::TrackSummary*  summary = track->track()->trackSummary();
-	const Trk::TrackSummary*  summary = _track->trackSummary();
-	
-	if(summary==0){
-	  std::cerr << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
-	}
-	else{
-	  for ( int ih=0 ; ih<21 ; ih++ ) {
-	    if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] );
-	  }
-	}
-      }
-#endif
-#endif
-
-      /// Now some *ridiculous* code to get the author of the 
-      /// TrackParticle (offline) tracks
-      
-      //      std::cout << "fetching author info :" << track->info().trackFitter() << ":" 
-      //		<< track->info().dumpInfo() << ": bm 0x" << std::hex << bitmap << std::dec << std::endl;
-
-
-      //      int trackAuthor = -1; 
-
       int trackAuthor = 0;
 
       int fitter = track->trackFitter();

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2018 or the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 for the benefit of the ATLAS collaboration
 */
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"

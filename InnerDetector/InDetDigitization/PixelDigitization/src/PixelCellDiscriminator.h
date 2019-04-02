@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -84,6 +84,7 @@ private:
   std::string m_rndmEngineName;
   CLHEP::HepRandomEngine* m_rndmEngine;
   int m_timingTune;
+  bool m_disableTimeSim;
 };
 
 #endif

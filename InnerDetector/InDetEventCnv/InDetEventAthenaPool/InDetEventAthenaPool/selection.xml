@@ -19,16 +19,19 @@
   <class name="SCT3_RawData_p1" />
   <class name="SCT3_RawData_p2" />
   <class name="SCT3_RawData_p3" />
+  <class name="SCT3_RawData_p4" />
   <class name="InDetRawDataCollection_p1" />
   <class name="std::vector<InDetRawData_p1>" />
   <class name="std::vector<InDetRawData_p2>" />
   <class name="std::vector<SCT3_RawData_p1>" />
   <class name="std::vector<SCT3_RawData_p2>" />
   <class name="std::vector<SCT3_RawData_p3>" />
+  <class name="std::vector<SCT3_RawData_p4>" />
   <class name="InDetRawDataContainer_p1" id="DA76970C-E019-43D2-B2F9-25660DCECD9D" />
   <class name="InDetRawDataContainer_p2" id="7138342E-0A80-4A32-A387-2842A01C2539" />
   <class name="SCT_RawDataContainer_p1" id="8E13963E-13E5-4D10-AA8B-73F00AFF8FA8" />
   <class name="SCT_RawDataContainer_p2" id="D1258125-2CBA-476E-8578-E09D54F477E1" />
   <class name="SCT_RawDataContainer_p3" id="5FBC8D4D-7B4D-433A-8487-0EA0C870CBDB" />
+  <class name="SCT_RawDataContainer_p4" id="6C7540BE-E85C-4777-BC1C-A9FF11460F54" />
   <class name="std::vector<InDetRawDataCollection_p1>" />
 </lcgdict>

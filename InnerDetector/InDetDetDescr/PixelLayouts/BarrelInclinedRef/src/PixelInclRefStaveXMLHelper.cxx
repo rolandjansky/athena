@@ -191,7 +191,7 @@ double PixelInclRefStaveXMLHelper::getBarrelZMaxHighR(int shapeIndex) const
 {
   std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "BarrelZMaxHighR");
   if (vec.size() != 0) return vec.at(shapeIndex);
-  msg(MSG::INFO) << "BarrelZMaxHighR not found: going to use BarrelZMax instead..." << endreq;
+  msg(MSG::DEBUG) << "BarrelZMaxHighR not found: going to use BarrelZMax instead..." << endreq;
   return getBarrelZMax(shapeIndex);
 }
 

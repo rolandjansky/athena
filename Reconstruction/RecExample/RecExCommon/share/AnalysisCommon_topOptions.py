@@ -334,11 +334,15 @@ except Exception:
 
 
 #Temporary: Schedule conversion algorithm for EventInfo object:
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if not objKeyStore.isInInput( "xAOD::EventInfo"):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 
 

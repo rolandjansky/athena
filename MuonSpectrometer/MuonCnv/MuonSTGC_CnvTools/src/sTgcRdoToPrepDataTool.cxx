@@ -24,9 +24,13 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
+// tool for cluster building
+#include "STgcClusterization/ISTgcClusterBuilderTool.h"
+
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
+using namespace std;
 
 Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
 						   const std::string& n,
@@ -37,7 +41,8 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   m_stgcIdHelper(0),
   m_muonIdHelper(0),
   m_fullEventDone(false),
-  m_stgcPrepDataContainer(0)
+  m_stgcPrepDataContainer(0),
+  m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
   
@@ -47,7 +52,7 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("sTGCRDO"),
 		  "RDO container to read");
   declareProperty("Merge",  m_merge = true);
-  
+  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
 }
 
 
@@ -97,9 +102,10 @@ StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
 StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataCollection *rdoColl, 
 							  std::vector<IdentifierHash>& idWithDataVect)
 {
-  ATH_MSG_DEBUG(" ***************** Start of process STGC Collection");
 
   const IdentifierHash hash = rdoColl->identifyHash();
+
+  ATH_MSG_DEBUG(" ***************** Start of process STGC Collection with hash Id: " << hash);
 
   sTgcPrepDataCollection* prdColl = nullptr;
   
@@ -132,10 +138,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
   }
 
-  std::vector<sTgcPrepData> sTgcprds;
-  std::vector<int> sTgcflag;
-  std::vector<sTgcPrepData> sTgcWireprds;
-  std::vector<sTgcPrepData> sTgcPadprds;
+  std::vector<sTgcPrepData> sTgcStripPrds;
+  std::vector<sTgcPrepData> sTgcWirePrds;
+  std::vector<sTgcPrepData> sTgcPadPrds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -144,7 +149,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-//    const Identifier elementId = m_stgcIdHelper->elementID(rdoId);
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
@@ -163,6 +167,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     const int channel = m_stgcIdHelper->channel(rdoId);
 
     const int charge = (int) rdo->charge();
+    const int rdoTime = (int) rdo->time();
     const uint16_t bcTag = rdo->bcTag();
 
     // to be fixed: for now do not set the resolution, it will be added in the 
@@ -214,156 +219,93 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType << " resolution " << resolution );
 
     if(m_merge) {
-// eta strips 
-      if(channelType==1) {
-        sTgcflag.push_back(0);
-        sTgcprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
-      } else if (channelType==2) { 
-// wires
-        sTgcWireprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
-      } else if (channelType==0) { 
-// pads 
-        sTgcPadprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+      // eta strips 
+
+      if (channelType==0) {
+        //
+        // check if there is already a pad with smaller time
+        //
+        bool addPad = true;
+        for ( auto it : sTgcPadPrds ) { 
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addPad = false;
+          }
+        }
+        if (addPad) {
+          sTgcPadPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
+      } 
+      else if(channelType==1) {
+        //
+        // check if the same strip is already present, with a smaller time
+        //
+        bool addStrip = true;
+        for ( auto it : sTgcStripPrds ) {
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addStrip = false;
+          }
+        } 
+        if ( addStrip ) {  
+          sTgcStripPrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
+      } 
+      else if (channelType==2) { 
+        //
+        // check if the same strip is already present, with a smaller time
+        //
+        bool addWire = true;
+        for ( auto it : sTgcWirePrds ) {
+          if ( it.identify()==rdoId && it.time()<rdoTime ) {
+            addWire = false;
+          }
+        } 
+        // wires
+        if ( addWire ) { 
+          sTgcWirePrds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
+        }
+      } 
+      else {
+        ATH_MSG_ERROR("Unknown sTGC channel type");
+        return StatusCode::FAILURE;
       }
     } else {
-      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,bcTag));
+      // 
+      // if not merging just add the PRD to the collection
+      //
+      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl,charge,rdoTime,bcTag));
     } 
   } //end it = rdoColl
 
   if(m_merge) {
-
-// merge the eta and phi prds that fire closeby strips
-
-    for (unsigned int j=0; j<3; ++j){
-// j == 0 loop over eta strips prds
-// j == 1 loop over phi wire prds 
-// j == 2 loop over pad prds 
-      int stripDifference = 2;
-      if(j==1) {
-        sTgcprds.insert(sTgcprds.end(), sTgcWireprds.begin(), sTgcWireprds.end());
-        for (unsigned int i=0; i<sTgcWireprds.size(); ++i){
-          sTgcflag.push_back(0);
-        }
-      }
-      if(j==2) {
-        sTgcprds.insert(sTgcprds.end(), sTgcPadprds.begin(), sTgcPadprds.end());
-        for (unsigned int i=0; i<sTgcPadprds.size(); ++i){
-          sTgcflag.push_back(0);
-        }
-// merge only same channel/strip numbers
-        stripDifference = 1;
-      }
-      for (unsigned int i=0; i<sTgcprds.size(); ++i){
-         // skip the merged prds
-         if(sTgcflag[i]==1) continue;
- 
-         bool merge = false;
-         unsigned int jmerge = -1;
-         Identifier id_prd = sTgcprds[i].identify();
-         int strip = m_stgcIdHelper->channel(id_prd);
-         int gasGap  = m_stgcIdHelper->gasGap(id_prd);
-         int layer   = m_stgcIdHelper->multilayer(id_prd);
-         int channelType = m_stgcIdHelper->channelType(id_prd);
-         ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
-         for (unsigned int j=i+1; j<sTgcprds.size(); ++j){
-           Identifier id_prdN = sTgcprds[j].identify();
-           int stripN = m_stgcIdHelper->channel(id_prdN);
-           int gasGapN  = m_stgcIdHelper->gasGap(id_prdN);
-           int layerN   = m_stgcIdHelper->multilayer(id_prdN);
-           int channelTypeN = m_stgcIdHelper->channelType(id_prdN);
-           if( gasGapN==gasGap && layerN==layer && channelType == channelTypeN) {
-             ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-             if(abs(strip-stripN)<stripDifference) {
-               merge = true;
-               jmerge = j;
-               break;
-             }
-           }
-         }
- 
-         if(!merge) {
-           ATH_MSG_VERBOSE(" add isolated sTgcprds strip " << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
-           std::vector<Identifier> rdoList;
-           rdoList.push_back(id_prd);
-           double covX = sTgcprds[i].localCovariance()(Trk::locX,Trk::locX);
-           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-           covN->setIdentity();
-           (*covN)(0,0) = covX;
-           sTgcPrepData* prdN = new sTgcPrepData(id_prd, hash, sTgcprds[i].localPosition(), rdoList, covN, sTgcprds[i].detectorElement(), sTgcprds[i].charge(), sTgcprds[i].getBcBitMap());
-           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-           prdColl->push_back(prdN);
-         } else {
-           unsigned int nmerge = 0;
-           std::vector<Identifier> rdoList;
-           std::vector<unsigned int> mergeIndices;
-           std::vector<int> mergeStrips;
-           rdoList.push_back(id_prd);
-           sTgcflag[i] = 1;
-           mergeIndices.push_back(i);
-           mergeStrips.push_back(strip);
-           unsigned int nmergeStrips = 1;
-           unsigned int nmergeStripsMax = 25;
-           for (unsigned int k=0; k < nmergeStripsMax; ++k) {
-             for (unsigned int j=jmerge; j<sTgcprds.size(); ++j){
-               if(sTgcflag[j] == 1) continue;
-               Identifier id_prdN = sTgcprds[j].identify();
-               int stripN = m_stgcIdHelper->channel(id_prdN);
-               if( abs(mergeStrips[k]-stripN) <= 1 ) {
-                 int gasGapN  = m_stgcIdHelper->gasGap(id_prdN);
-                 int layerN   = m_stgcIdHelper->multilayer(id_prdN);
-                 int channelTypeN = m_stgcIdHelper->channelType(id_prdN);
-                 if( gasGapN==gasGap && layerN==layer && channelType==channelTypeN ) {
-                   if(mergeStrips[k]==stripN) {
-                     sTgcflag[j] = 1;
-                     continue;
-                   } 
-                   nmerge++;
-                   rdoList.push_back(id_prdN);
-                   sTgcflag[j] = 1;
-                   mergeIndices.push_back(j);
-                   mergeStrips.push_back(stripN);
-                   nmergeStrips++;
-                 }
-               }
-             }
-             if(k>=nmergeStrips) break;
-           }
-           ATH_MSG_VERBOSE(" add merged sTgcprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
- 
-           // start off from strip in the middle
-          int stripSum = 0;
-           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
-             stripSum += mergeStrips[k];
-           }
-           stripSum = stripSum/mergeStrips.size();
- 
-           unsigned int j = jmerge;
-           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
-             if(mergeStrips[k]==stripSum) j = mergeIndices[k];
-             ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
-           }
-           ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
- 
-           double covX = sTgcprds[j].localCovariance()(Trk::locX, Trk::locX);
-           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-           covN->setIdentity();
-           (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-           if(nmerge<=1 || stripDifference==1) (*covN)(0,0) = covX;
-           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j].identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
- 
-           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].charge(), sTgcprds[j].getBcBitMap());
-           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-           prdColl->push_back(prdN);
-         }
-       } // end loop sTgcprds[i]
-       // clear vector and delete elements
-       sTgcflag.clear();
-       sTgcprds.clear();
-     } // loop over eta and Wire prds
-     sTgcWireprds.clear();
-     sTgcPadprds.clear();
+    // merge the eta and phi prds that fire closeby strips or wires
+    vector<Muon::sTgcPrepData*> sTgcStripClusters;
+    vector<Muon::sTgcPrepData*> sTgcWireClusters;
+    //
+    // Clusterize strips
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcStripPrds,sTgcStripClusters));
+    //
+    // Clusterize wires
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
+    //
+    // Add the clusters to the event store ( do not clusterize wires for now )
+    //
+    for ( auto it : sTgcStripClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(it);
+    } 
+    for ( auto it : sTgcWireClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(it);
+    } 
   }
 
+
+  // clear vector and delete elements
+  sTgcStripPrds.clear();
+  sTgcWirePrds.clear();
+  sTgcPadPrds.clear();
 
   return StatusCode::SUCCESS;
 }

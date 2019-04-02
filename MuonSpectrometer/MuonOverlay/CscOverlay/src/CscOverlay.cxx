@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
@@ -8,9 +8,6 @@
 #include "StoreGate/DataHandle.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/CscSimDataCollection.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "CLHEP/Random/RandomEngine.h"
@@ -41,12 +38,10 @@ CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("TempStore", m_storeGateTemp, "help");
   declareProperty("mainInputCSC_Name", m_mainInputCSC_Name="CSCRDO");
   declareProperty("overlayInputCSC_Name", m_overlayInputCSC_Name="CSCRDO");
-  declareProperty("CopySDO", m_copySDO=true);
   declareProperty("DigitizationTool", m_digTool);
   declareProperty("MakeRDOTool2", m_rdoTool2);
   declareProperty("MakeRDOTool4", m_rdoTool4);
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
-  declareProperty("CSCSDO", m_sdo = "CSC_SDO");
   declareProperty("IsByteStream", m_isByteStream = false ); 
   declareProperty("RndmSvc", 	     m_rndmSvc, "Random Number Service used for CscDigitToCscRDOTool" );
   declareProperty("RndmEngine",      m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
@@ -226,20 +221,6 @@ StatusCode CscOverlay::overlayExecute() {
   // the same object over and other again.   So unlike any "normal" per-event object
   // this IDC is not a disposable one, and we should not delete it.
   cdata.release();
-
-  //----------------------------------------------------------------
-  msg<<MSG::DEBUG<<"Processing MC truth data"<<endmsg;
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just CSC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy CSC-specific MC truth objects to the output.
-  if ( m_copySDO )
-    this->copyMuonObjects<CscSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   msg<<MSG::DEBUG<<"CscOverlay::execute() end"<<endmsg;
@@ -773,4 +754,3 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
   msg << MSG::DEBUG << "overlay<>() end: CscRawDatas size="<<datas.size()<<endmsg;
   return datas;
 }
-

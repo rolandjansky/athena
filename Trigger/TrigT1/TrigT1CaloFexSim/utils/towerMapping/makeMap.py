@@ -38,7 +38,8 @@ def main():
     plotDir = 'plots'
     plotDir = 'plots_test'
     writeToTextFile = True
-    textFileName = 'jFexJet_towerMap_2019-01-08.txt'
+    # textFileName = 'jFexJet_towerMap_2019-01-08.txt'
+    textFileName = 'jFexJet_towerMap_2019-01-29.txt'
     # textFileName = 'jFexJet_towerMap_test.txt'
 
     # some parameters
@@ -48,8 +49,8 @@ def main():
     seedSize = [0.3,0.3]
     seedIncludeExact = False
     # local max
-    seed_localmax_dphi = 0.15
-    seed_localmax_deta = 0.15
+    seed_localmax_dphi = 0.39
+    seed_localmax_deta = 0.39
     # jets
     jetShape = 'circular'
     jetRadius = 0.39
@@ -191,7 +192,7 @@ def main():
         outfile.write('#     supercell layers\n')
         outfile.write('#\n')
         for t in range(len(towers)):
-            outfile.write('{} {} {}\n'.format(t, towers[t]['eta'], towers[t]['phi']))
+            outfile.write('{0} {1} {2}\n'.format(t, towers[t]['eta'], towers[t]['phi']))
             outfile.write('    ' + str(towers[t]['sampling'])+'\n')
             outfile.write('    ' + ' '.join([str(l) for l in towers[t]['layers']])+'\n')
         outfile.write('# === end towers ===\n')
@@ -204,7 +205,7 @@ def main():
         outfile.write('#     local max seeds\n')
         for i in range(len(seedList)):
             thisSeedList = seedList[i]
-            outfile.write('{} {} {}\n'.format(i, thisSeedList['eta'], thisSeedList['phi']))
+            outfile.write('{0} {1} {2}\n'.format(i, thisSeedList['eta'], thisSeedList['phi']))
             outfile.write('    ' + ' '.join([str(st) for st in thisSeedList['towers']]) + '\n')
             outfile.write('    ' + ' '.join([str(st) for st in thisSeedList['localMaxSeeds']]) + '\n')
         outfile.write('# === end seeds ===\n')
@@ -218,7 +219,7 @@ def main():
         outfile.write('#\n')
         for i in range(len(jetList)):
             thisJetList = jetList[i]
-            outfile.write('{} {} {}\n'.format(i, thisJetList['eta'], thisJetList['phi']))
+            outfile.write('{0} {1} {2}\n'.format(i, thisJetList['eta'], thisJetList['phi']))
             outfile.write('    '+str(thisJetList['seed'])+'\n')
             outfile.write('    ' + ' '.join([str(st) for st in thisJetList['towers']]) + '\n')
         outfile.write('# === end jets ===\n')

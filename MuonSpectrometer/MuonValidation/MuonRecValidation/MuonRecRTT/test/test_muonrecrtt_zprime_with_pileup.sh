@@ -7,7 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 #
-# art-input: user.zhidong.valid1.361405.Sherpa_CT10_Zmumu_Pt280_500_CVetoBVeto.recon.RDO_TRIG.e5112_s3195_r9723_tid12019967_00_subset01
+# art-input: user.artprod.user.zhidong.valid1.361405.Sherpa_CT10_Zmumu_Pt280_500_CVetoBVeto.recon.RDO_TRIG.e5112_s3195_r9723_tid12019967_00_subset01
 # art-input-nfiles: 6
 # art-output: art_core_*
 # art-cores: 4

@@ -36,6 +36,7 @@ if ( "streamAOD" in dir() ):
   StreamAOD.ItemList+=["JGTowerAuxContainer#JTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
   StreamAOD.ItemList+=["JGTowerContainer#GTower"] # This might need to be controlled later to avoid increase of AOD size
   StreamAOD.ItemList+=["JGTowerAuxContainer#GTowerAux.*"]         # This might need to be controlled later to avoid increase of AOD size
+
 #  StreamAOD.TakeItemsFromInput = True
   #topSequence.remove(streamAOD)
   topSequence += StreamAOD

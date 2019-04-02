@@ -91,7 +91,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[('medium1', 0)] # do not apply pt cut at EF
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-                    elif criteria=='verylooseRNN' or criteria=='looseRNN' or criteria=='mediumRNN' or criteria=='tightRNN':
+                    elif criteria=='verylooseRNN' or criteria=='looseRNN' or criteria=='mediumRNN' or criteria=='mRNN' or criteria=='tightRNN':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
@@ -105,7 +105,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'tracktwoEF' or strategy == 'tracktwoEFmvaTES' or strategy == 'tracktwoMVA' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'tracktwoEF' or strategy == 'tracktwoEFmvaTES' or strategy == 'tracktwoMVA' or strategy == 't2MVA' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -154,11 +154,11 @@ class TauHypoProvider:
                     theThresh = [0,3,1,0.*self.GeV,-1111,0]
                     currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
-                    if strategy != 'tracktwo' and strategy != 'tracktwoEF' and strategy != 'tracktwoEFmvaTES' and strategy != 'tracktwoMVA' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
+                    if strategy != 'tracktwo' and strategy != 'tracktwoEF' and strategy != 'tracktwoEFmvaTES' and strategy != 'tracktwoMVA' and strategy != 't2MVA' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
-                    elif strategy == 'tracktwoMVA':
+                    elif strategy == 'tracktwoMVA' or strategy == 't2MVA':
                         theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
                         theThresh = [0,3,1,0.*self.GeV,-1111,0]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
@@ -315,6 +315,21 @@ class TauHypoProvider:
         ('mediumRNN', 125): [3, 125.0*GeV, 2], 
         ('mediumRNN', 160): [3, 160.0*GeV, 2], 
         ('mediumRNN', 200): [3, 200.0*GeV, 2],
+        ('mRNN', 0): [3,  0.0*GeV, 2],
+        ('mRNN', 12): [3,  12.0*GeV, 2],
+        ('mRNN', 20): [3,  20.0*GeV, 2],
+        ('mRNN', 25): [3,  25.0*GeV, 2],
+        ('mRNN', 29): [3,  29.0*GeV, 2],
+        ('mRNN', 35): [3,  35.0*GeV, 2],
+        ('mRNN', 38): [3,  38.0*GeV, 2],
+        ('mRNN', 40): [3,  40.0*GeV, 2],
+        ('mRNN', 50): [3,  50.0*GeV, 2],
+        ('mRNN', 60): [3,  60.0*GeV, 2],
+        ('mRNN', 80): [3,  80.0*GeV, 2],
+        ('mRNN', 115): [3, 115.0*GeV, 2],
+        ('mRNN', 125): [3, 125.0*GeV, 2],
+        ('mRNN', 160): [3, 160.0*GeV, 2],
+        ('mRNN', 200): [3, 200.0*GeV, 2],
         ('tightRNN', 20): [3,  20.0*GeV, 3],
         ('tightRNN', 25): [3,  25.0*GeV, 3],
         ('tightRNN', 29): [3,  29.0*GeV, 3],

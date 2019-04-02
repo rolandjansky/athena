@@ -5,12 +5,13 @@
  **       generic track filter to filter on kinematics, si and 
  **       trt hit content
  **       NB: Should really make this up from sub filters, ie 
- **       with classes Filter_Param, Filter_Hits...
- **       Filter_Track : Filter_Param, Filter_Hits { 
- **       bool select(..) { 
- **       		       return Filter_Param::select(..) && Filter_Hits::select(..);
- **       }
- **       };                       
+ **           with classes Filter_Param, Filter_Hits...
+ **           
+ **           Filter_Track : Filter_Param, Filter_Hits { 
+ **             bool select(..) { 
+ **       	  return Filter_Param::select(..) && Filter_Hits::select(..);
+ **             }
+ **           };                       
  **
  **     @author  mark sutton
  **     @date    Wed 28 Oct 2009 02:47:05 CET 

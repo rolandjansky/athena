@@ -79,7 +79,7 @@ namespace InDet {
     std::ofstream m_dumpfileRZ;
     std::string m_identification;
     bool m_doPix, m_doSCT;
-    int m_startLayer, m_endLayer;
+    int m_startLayer, m_endLayer, m_startEndcap, m_endEndcap;
     ServiceHandle<InDet::XMLReaderSvc>  m_xmlReader;
     ToolHandle<BarrelBuilderXML> m_pixBarrelBuilder;
     ToolHandle<BarrelBuilderXML> m_sctBarrelBuilder;

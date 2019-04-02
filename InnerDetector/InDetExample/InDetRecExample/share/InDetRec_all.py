@@ -82,10 +82,16 @@ include("PartPropSvc/PartPropSvc.py")
 if InDetFlags.doTruth():
   include("GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py")
 
-from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-alg = xAODMaker__EventInfoCnvAlg()
-print alg
-topSequence += alg
+from RecExConfig.ObjKeyStore import objKeyStore
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 #------------------------------------------------------------
 # Event Data Model Monitor

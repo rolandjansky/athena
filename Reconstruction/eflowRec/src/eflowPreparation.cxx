@@ -77,7 +77,8 @@ eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLoc
   m_eflowElectronsName("eflowRec_selectedElectrons_EM"),
   m_eflowLeptonCellsName("eflowRec_leptonCellContainer_EM"),
   m_nMatches(0),
-  m_upperTrackPtCut(100.0)
+  m_upperTrackPtCut(100.0),
+  m_fixMuonLogic(false)
 {
 // The following properties can be specified at run-time
 // (declared in jobOptions file)
@@ -99,6 +100,7 @@ eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("eflowLeptonCellsName", m_eflowLeptonCellsName);
   declareProperty("TrackSelectionTool", m_selTool);
   declareProperty("UpperTrackPtCut",m_upperTrackPtCut);
+  declareProperty("FixMuonLogic",m_fixMuonLogic);
 }
 
 eflowPreparation::~eflowPreparation() { }
@@ -424,7 +426,7 @@ bool eflowPreparation::isMuon(const xAOD::TrackParticle* track){
 	  const xAOD::TrackParticle* ID_track = *theLink;
 	  if (ID_track){
 	    if (track == ID_track) return true;
-	    return false;
+	    if (false == m_fixMuonLogic) return false;
 	  }
 	  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "This muon has a NULL pointer to the track " << endmsg;
 	}

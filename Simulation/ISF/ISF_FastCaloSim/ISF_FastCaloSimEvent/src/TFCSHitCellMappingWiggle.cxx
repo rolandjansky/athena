@@ -14,7 +14,7 @@
 #include "TVector2.h"
 #include "TMath.h"
 
-#if defined(__FastCaloSimStandAlone__)
+#if 0 //defined(__FastCaloSimStandAlone__)
 #include "CaloGeometryFromFile.h"
 #endif
 
@@ -156,7 +156,7 @@ void TFCSHitCellMappingWiggle::unit_test(TFCSSimulationState* simulstate,TFCSTru
   wiggle_test.setLevel(MSG::DEBUG);
   wiggle_test.Print();
 
-#if defined(__FastCaloSimStandAlone__)
+#if 0 // defined(__FastCaloSimStandAlone__)
   CaloGeometryFromFile* geo = new CaloGeometryFromFile();
 
 // * load geometry files

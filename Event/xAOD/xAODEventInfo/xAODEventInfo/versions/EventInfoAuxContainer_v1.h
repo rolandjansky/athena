@@ -79,6 +79,12 @@ namespace xAOD {
       std::vector< std::vector< float > > mcEventWeights;
       /// @}
 
+      /// @name Pileup information
+      /// @{
+      std::vector< unsigned long long > pileUpMixtureIDLowBits;
+      std::vector< unsigned long long > pileUpMixtureIDHighBits;
+      /// @}
+
    }; // class EventInfoAuxContainer_v1
 
 } // namespace xAOD

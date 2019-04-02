@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Overlaying RDOs from two different events for InDet subdetectors.
@@ -91,7 +91,6 @@ private:
   // and written out with the original SG keys.
   std::string m_mainInputCSC_Name;
   std::string m_overlayInputCSC_Name;
-  std::string m_sdo;
 
   const CscIdHelper   * m_cscHelper;
   ToolHandle<ICscCalibTool> m_cscCalibTool;
@@ -99,7 +98,6 @@ private:
   ToolHandle<IMuonDigitizationTool> m_rdoTool2;
   ToolHandle<IMuonDigitizationTool> m_rdoTool4;
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-  bool m_copySDO;
   bool m_isByteStream;
 
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service

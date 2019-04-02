@@ -68,15 +68,15 @@ private:
 };
 
 
-inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& _t ) { 
+inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& t ) { 
   s << "Object [" 
-    << "\ttype=" << _t.type()
-    << ":\teta=" << _t.eta()
-    << "\tphi="  << _t.phi()
-    << "\tpt="   << _t.pt()*0.001 << " GeV"
+    << "\ttype=" << t.type()
+    << ":\teta=" << t.eta()
+    << "\tphi="  << t.phi()
+    << "\tpt="   << t.pt()*0.001 << " GeV"
     << " ] \t(";
   
-  for ( size_t i=0 ; i<_t.children().size() ; i++ ) s << "  0x" << std::hex << _t.children()[i] << std::dec;
+  for ( size_t i=0 ; i<t.children().size() ; i++ ) s << "  0x" << std::hex << t.children()[i] << std::dec;
   s << "  )" ;
 
   return s;

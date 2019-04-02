@@ -192,6 +192,8 @@ InDetTrackSelectorTool.OutputLevel = INFO
 ## ... in r20.20. This is not available in 21.9
 ## ... todo (LM): add reco-level selectors once we have sth in r21.9
 
+ToolSvc += InDetTrackSelectorTool
+
 print "Set Up InDetTrackSelectorTool"
 
 #-------------------------------------------------------------

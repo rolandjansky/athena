@@ -17,7 +17,7 @@
 MDT_RDOAnalysis::MDT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_inputKey("MDTCSM")
-  , m_inputTruthKey("TGC_SDO")
+  , m_inputTruthKey("MDT_SDO")
   , m_mdtID(0)
   , m_mdtIDhash(0)
   , m_subID(0)

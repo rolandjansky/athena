@@ -15,12 +15,12 @@ ciRefFileMap = {
                 # qTestsTier0_required-test
                 'q221-21.0'            : 'v1',
                 'q431-21.0'            : 'v1',
-                'q221-21.3'            : 'v1',
-                'q431-21.3'            : 'v1',
+                'q221-21.3'            : 'v4',
+                'q431-21.3'            : 'v3',
                 # SimulationTier0Test_required-test
                 's3126-21.0'           : 'v1',
                 's3126-21.3'           : 'v1',
-                's3126-21.9'           : 'v1',
+                's3126-21.9'           : 'v2',
                 's3126-22.0'           : 'v1',
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v1',

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -35,6 +35,10 @@ def getDefaultLongLivedGeant4Selector(name="ISF_DefaultLongLivedGeant4Selector",
     kwargs.setdefault("Simulator"   , 'ISF_LongLivedGeant4SimSvc')
     return getDefaultGeant4Selector(name, **kwargs )
 
+def getDefaultAFII_QS_Geant4Selector(name="ISF_DefaultAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault("Simulator"   , 'ISF_AFII_QS_Geant4SimSvc')
+    return getDefaultGeant4Selector(name, **kwargs )
+
 def getFullGeant4Selector(name="ISF_FullGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FullGeant4SimSvc')
     return getDefaultSimSelector(name, **kwargs )
@@ -53,6 +57,10 @@ def getDefaultLegacyAFIIFastCaloSimSelector(name="ISF_DefaultLegacyAFIIFastCaloS
 
 def getDefaultFastCaloSimV2Selector(name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvcV2')
+    return getDefaultSimSelector(name, **kwargs )
+
+def getDefaultDNNCaloSimSelector(name="ISF_DefaultDNNCaloSimSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , 'ISF_DNNCaloSimSvc')
     return getDefaultSimSelector(name, **kwargs )
 
 def getFastHitConvAlgFastCaloSimSelector(name="ISF_FastHitConvAlgFastCaloSimSelector", **kwargs):
@@ -133,6 +141,10 @@ def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
 
 def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return getMuonGeant4Selector(name, **kwargs)
+
+def getMuonAFII_QS_Geant4Selector(name="ISF_MuonAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
     return getMuonGeant4Selector(name, **kwargs)
 
 def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):

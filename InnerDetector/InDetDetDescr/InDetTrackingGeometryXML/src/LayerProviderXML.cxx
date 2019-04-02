@@ -25,6 +25,8 @@ InDet::LayerProviderXML::LayerProviderXML(const std::string& t, const std::strin
   m_doSCT(true),
   m_startLayer(0),
   m_endLayer(-1),
+  m_startEndcap(0),
+  m_endEndcap(-1),
   m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","InDetXMLReaderSvc"),
   m_pixBarrelBuilder("InDet::BarrelBuilderXML/PixelsBarrelBuilder"),
   m_sctBarrelBuilder("InDet::BarrelBuilderXML/SCTBarrelBuilder"),
@@ -45,6 +47,8 @@ InDet::LayerProviderXML::LayerProviderXML(const std::string& t, const std::strin
   declareProperty("doSCT",              m_doSCT);
   declareProperty("startLayer",         m_startLayer);
   declareProperty("endLayer",           m_endLayer);
+  declareProperty("startEndcap",        m_startEndcap);
+  declareProperty("endEndcap",          m_endEndcap);
   m_surfcoll = 0;
   m_SiSurface = 0;
   m_ndumpRZ = 0;
@@ -261,7 +265,8 @@ void InDet::LayerProviderXML::createPixelEndcap(std::vector< const Trk::Layer* >
 
   for(unsigned int itmp=0;itmp<nTemplates;itmp++){  
     std::vector< Trk::Layer* > layers;
-    m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startLayer,m_endLayer,layers);    
+    //m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startEndcap,m_endEndcap,layers);
+    m_pixEndcapBuilder->createActiveLayers(itmp,side,m_startLayer,m_endLayer,layers);
     if(layers.size()==0) {
       if(m_startLayer==0 && m_endLayer==-1) ATH_MSG_WARNING("PixelEndcap Disc for active layer: " <<  itmp << " was not created");
       continue;

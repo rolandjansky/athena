@@ -41,12 +41,11 @@ std::string DBXMLUtils::readXMLFromDB(std::string xmlName) const
   // Remove .xml suffix if it exists
   std::string prefix=""; 
   if(xmlName.size()>4)prefix=xmlName.substr(xmlName.size()-4,4);
-  //  std::cout<<"XML-CLOB : "<<xmlName<<" "<<prefix<<std::endl;
+ 
   if(prefix.size()>0) xmlName=xmlName.substr(0,xmlName.size()-4);
-  //  std::cout<<"XML-CLOB : "<<xmlName<<std::endl;
+ 
 
-  msgStream()<<"Read XML file from CLOB DB : "<<xmlName<<std::endl;
-  //  std::cout<<"DB XML utils : read CLOB  "<<xmlName<<std::endl;
+  msg(MSG::INFO)<<"Read XML file from CLOB DB : "<<xmlName<<endreq;
   std::string xmlNameGeo = xmlName+"Geo";
 
   int nbCLOB=0;
@@ -54,7 +53,7 @@ std::string DBXMLUtils::readXMLFromDB(std::string xmlName) const
     {
       std::string keyword = geoAccessor().getString(pixelXMLTable_ptr,"KEYWORD",i);
       if(keyword==xmlName||keyword==xmlNameGeo){
-	std::cout<<"CLOB : "<<i<<" "<<keyword<<" / "<<xmlName<<std::endl;
+	msg(MSG::DEBUG)<<"CLOB : "<<i<<" "<<keyword<<" / "<<xmlName<<endreq;
 	if(res.size()>0) res=res.substr(0,res.size()-1);
 	res = res + geoAccessor().getString(pixelXMLTable_ptr,"XMLCLOB",i);
 	nbCLOB++;

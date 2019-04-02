@@ -67,7 +67,8 @@ namespace InDet {
     inline unsigned int nbOfPixelEndcapLayers() const { return m_tmp_pixEndcapLayer.size(); }
     inline unsigned int nbOfSCTBarrelLayers() const   { return m_tmp_sctBarrelLayer.size(); }
     inline unsigned int nbOfSCTEndcapLayers() const   { return m_tmp_sctEndcapLayer.size(); }
-
+    inline std::string slhcVersion() const { return m_xml_SLHCVersion; }
+   
     // Stave building helpers
     double getHalfPlainLength(InDet::StaveTmp *staveTmp) const;
     double getZStep(InDet::StaveTmp *staveTmp) const;
@@ -94,6 +95,7 @@ namespace InDet {
     void openDictFile(std::ofstream& file,std::string filename) const;
     void closeDictFile(std::ofstream& file) const;
     void writePixBarrelDict(std::ofstream& file);
+    void writePixInnerEndcapDict(std::ofstream& file);
     void writePixEndcapDict(std::ofstream& file);
     void writeSctBarrelDict(std::ofstream& file);
     void writeSctEndcapDict(std::ofstream& file);
@@ -112,6 +114,7 @@ namespace InDet {
     std::string m_xml_sctStaves;
     std::string m_xml_sctBarrelLayers;
     std::string m_xml_sctEndcapLayers;
+    std::string m_xml_SLHCVersion;
 
     std::vector< MaterialTmp *>    m_tmp_material; 
     std::vector< ComponentTmp *>   m_tmp_component; 
@@ -124,9 +127,8 @@ namespace InDet {
     std::vector< BarrelLayerTmp *> m_tmp_sctBarrelLayer; 
     std::vector< EndcapLayerTmp *> m_tmp_sctEndcapLayer; 
 
-    bool m_doPix, m_doSCT, m_isGMX, m_createDict, m_readXMLfromDB;
+    bool m_doPix, m_doSCT, m_isGMX, m_createDict, m_readXMLfromDB;  
   };
 }
 
 #endif //INDETTRACKINGGEOMETRY_XMLREADERSVC
-

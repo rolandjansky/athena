@@ -20,7 +20,6 @@
 export NAME="mc_pp_v8_ftk_build"
 export MENU="MC_pp_v8"
 export INPUT="ftk"
-export JOBOPTIONS="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
 export EVENTS="5"
 export COST_MONITORING="False"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"

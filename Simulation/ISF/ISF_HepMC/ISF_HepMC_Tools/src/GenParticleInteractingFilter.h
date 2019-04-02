@@ -46,6 +46,9 @@ namespace ISF {
 
       /** Additional PDG codes to classify as interacting */
       std::vector<int> m_additionalInteractingParticleTypes;
+
+      /** Additional PDG codes to classify as non-interacting */
+      std::vector<int> m_additionalNonInteractingParticleTypes;
   };
 
 }

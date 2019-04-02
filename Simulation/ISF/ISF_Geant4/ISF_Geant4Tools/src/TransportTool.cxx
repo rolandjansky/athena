@@ -26,7 +26,6 @@
 #include "HepMC/GenParticle.h"
 
 // Geant4 classes
-#include "G4UImanager.hh"
 #include "G4LorentzVector.hh"
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
@@ -35,7 +34,6 @@
 #include "G4ChargedGeantino.hh"
 #include "G4ParticleTable.hh"
 #include "G4TransportationManager.hh"
-#include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
 
 // call_once mutexes
@@ -139,6 +137,33 @@ void iGeant4::G4TransportTool::initializeOnce()
   if(m_physListTool.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
   }
+
+  std::vector<std::string> localCommands;
+  // Load custom libraries
+  if (!m_libList.empty()) {
+    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ");
+    std::string g4command="/load "+m_libList;
+    localCommands.push_back(g4command);
+  }
+  // Load custom physics
+  if (!m_physList.empty()) {
+    ATH_MSG_INFO("requesting a specific physics list "<< m_physList);
+    std::string g4command="/Physics/GetPhysicsList "+m_physList;
+    localCommands.push_back(g4command);
+  }
+  // Load custom magnetic field
+  if (!m_fieldMap.empty()) {
+    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap);
+    ATH_MSG_INFO("the field is initialized straight away");
+    std::string g4command="/MagneticField/Select "+m_fieldMap;
+    localCommands.push_back(g4command);
+    g4command = "/MagneticField/Initialize";
+    localCommands.push_back(g4command);
+  }
+
+  localCommands.reserve(localCommands.size()+m_g4commands.size());
+  localCommands.insert(std::end(localCommands), std::begin(m_g4commands), std::end(m_g4commands));
+
   m_physListTool->SetPhysicsList();
 
   m_pRunMgr->SetRecordFlux( m_recordFlux );
@@ -149,26 +174,9 @@ void iGeant4::G4TransportTool::initializeOnce()
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
 
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-
-  if (!m_libList.empty()) {
-    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
-    std::string temp="/load "+m_libList;
-    ui->ApplyCommand(temp);
-  }
-
-  if (!m_physList.empty()) {
-    ATH_MSG_INFO("requesting a specific physics list "<< m_physList) ;
-    std::string temp="/Physics/GetPhysicsList "+m_physList;
-    ui->ApplyCommand(temp);
-  }
-
-  if (!m_fieldMap.empty()) {
-    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap) ;
-    ATH_MSG_INFO("the field is initialized straight away") ;
-    std::string temp="/MagneticField/Select "+m_fieldMap;
-    ui->ApplyCommand(temp);
-    ui->ApplyCommand("/MagneticField/Initialize");
+  // Send UI commands
+  for (auto g4command : localCommands) {
+    m_pRunMgr->AddG4Command(g4command);
   }
 
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
@@ -182,12 +190,6 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
   else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
-  }
-
-  // Send UI commands
-  for (auto g4command : m_g4commands){
-    int the_return = ui->ApplyCommand(g4command);
-    ATH_MSG_INFO("Returned " << the_return << " from G4 Command: " << g4command);
   }
 
   return;

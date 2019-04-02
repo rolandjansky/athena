@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -47,10 +47,8 @@ private:
   // and written out with the original SG keys.
   std::string m_mainInputRPC_Name;
   std::string m_overlayInputRPC_Name;
-  std::string m_sdo;
 
   const RpcIdHelper   * m_rpcHelper;
-  bool m_copySDO;
 
   ToolHandle<IMuonDigitizationTool> m_digTool;
   ToolHandle<IMuonDigitizationTool> m_rdoTool;

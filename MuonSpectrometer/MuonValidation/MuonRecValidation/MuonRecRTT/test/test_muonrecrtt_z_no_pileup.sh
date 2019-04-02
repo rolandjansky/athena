@@ -7,7 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 #
-# art-input: user.zhidong.valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.no_pileup.e5112_s3195_tid12019815_01_EXT0
+# art-input: user.artprod.user.zhidong.valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.no_pileup.e5112_s3195_tid12019815_01_EXT0
 # art-input-nfiles: 6
 # art-output: art_core_*
 # art-cores: 4
