@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -41,23 +41,6 @@ namespace Trk {
     m_fitQuality(Trk::FitQuality(chi2,ndf)) 
   {
     m_positionCovariance.setZero();
-  }
-
-  RecVertex::RecVertex(const RecVertex& rhs) : Vertex(rhs),
-    m_positionCovariance(rhs.m_positionCovariance),
-    m_fitQuality(rhs.m_fitQuality)
-  {}
-
-  RecVertex &RecVertex::operator= (const RecVertex& rhs)
-  {
-    if (this!=&rhs)
-    {
-// you need to call the base class assignment operator
-      Vertex::operator=(rhs);
-      m_positionCovariance = rhs.m_positionCovariance;
-      m_fitQuality = rhs.m_fitQuality;
-    }
-    return *this;
   }
 
   MsgStream& RecVertex::dump(MsgStream& sl) const {
