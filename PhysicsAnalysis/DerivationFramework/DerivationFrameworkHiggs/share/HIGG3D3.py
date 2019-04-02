@@ -472,6 +472,21 @@ if globalflags.DataSource()=='geant4':
     HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
                                                "AntiKt4TruthWZJets"]
 
+    # Add special truth containers
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBSMAndDownstreamParticles
+    addStandardTruthContents()
+    addBSMAndDownstreamParticles()
+
+    HIGG3D3SlimmingHelper.AppendToDictionary = {
+                                                'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                               }
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
 
