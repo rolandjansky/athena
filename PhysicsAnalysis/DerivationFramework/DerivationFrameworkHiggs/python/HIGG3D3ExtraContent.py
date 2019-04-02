@@ -8,11 +8,9 @@ HIGG3D3ExtraVariables = [ "GSFTrackParticles.z0.vz.numberOfNextToInnermostPixelL
                           "ExtrapolatedMuonTrackParticles.z0.vz",
                           "Muons.clusterLink.extrapolatedMuonSpectrometerTrackParticleLink",
                           "Electrons.author",
-                          "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
                           "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt" ]
 
 HIGG3D3ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLink",
-                               "AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                "AntiKt4TruthWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink" ]
 
