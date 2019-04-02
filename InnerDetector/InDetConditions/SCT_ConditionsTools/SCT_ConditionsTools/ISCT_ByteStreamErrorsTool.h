@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -41,11 +43,13 @@ class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
   
   virtual const std::set<IdentifierHash>* getErrorSet(int errorType) const =0;
   virtual const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const =0;
+  virtual const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const =0;
+  virtual const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const =0;
 
   virtual bool isRODSimulatedData() const =0;
   virtual bool isRODSimulatedData(const EventContext& ctx) const =0;
   virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const =0;
-  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const =0;
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx, const std::set<IdentifierHash>* errorSet=nullptr) const =0;
 
   virtual bool isCondensedReadout() const =0;
   virtual bool isCondensedReadout(const EventContext& ctx) const =0;
