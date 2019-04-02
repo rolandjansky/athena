@@ -17,7 +17,7 @@ if( NOT SIMULATIONBASE )
    atlas_add_test( MuonDataDecodeTest
                    PROPERTIES TIMEOUT 1000
                    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest
-                   EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from|DEBUG Reconciled configuration"
+                   EXTRA_PATTERNS "-s ^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
                    SCRIPT test/testMuonDataDecode.sh )
 
    # Adding an identical test for the ByteStream identifiable caches (and future RDO caches)
@@ -25,7 +25,7 @@ if( NOT SIMULATIONBASE )
    atlas_add_test( MuonDataDecodeTest_Cache
                    PROPERTIES TIMEOUT 1000
                    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest_Cache
-                   EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ=|Cache alignment|Range of input|recorded new|map from"
+                   EXTRA_PATTERNS "-s ^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
                    SCRIPT test/testMuonDataDecode_Cache.sh )
 
    atlas_add_test( MuonCablingConfigTest
