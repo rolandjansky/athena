@@ -792,7 +792,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IsoKey", triggerEleIso) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("CorrelationModel", m_EG_corrModel) );
       if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("ForceDataType", (int) data_type) );
+        ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("ForceDataType", (int) (data_type==PATCore::ParticleDataType::Fast)? PATCore::ParticleDataType::Full : data_type) );
       }
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.initialize() );
@@ -807,7 +807,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IsoKey", triggerEleIso) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("CorrelationModel", m_EG_corrModel) );
       if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("ForceDataType", (int) data_type) );
+        ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("ForceDataType", (int) (data_type==PATCore::ParticleDataType::Fast)? PATCore::ParticleDataType::Full : data_type) );
       }
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.initialize() );
@@ -862,7 +862,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( t_sf->setProperty("IsoKey", triggerMixedEleIso) );
       ATH_CHECK( t_sf->setProperty("CorrelationModel", m_EG_corrModel) );
       if (!isData()) {
-        ATH_CHECK( t_sf->setProperty("ForceDataType", (int) data_type) );
+        ATH_CHECK( t_sf->setProperty("ForceDataType", (int) (data_type==PATCore::ParticleDataType::Fast)? PATCore::ParticleDataType::Full : data_type) );
       }
       ATH_CHECK( t_sf->setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( t_sf->initialize() );
@@ -881,7 +881,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( t_eff->setProperty("IsoKey", triggerMixedEleIso) );
       ATH_CHECK( t_eff->setProperty("CorrelationModel", m_EG_corrModel) );
       if (!isData()) {
-        ATH_CHECK( t_eff->setProperty("ForceDataType", (int) data_type) );
+        ATH_CHECK( t_eff->setProperty("ForceDataType", (int) (data_type==PATCore::ParticleDataType::Fast)? PATCore::ParticleDataType::Full : data_type) );
       }
       ATH_CHECK( t_eff->setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( t_eff->initialize() );
