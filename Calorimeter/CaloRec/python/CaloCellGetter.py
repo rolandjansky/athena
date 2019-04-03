@@ -341,7 +341,7 @@ class CaloCellGetter (Configured)  :
                     return False
                 theLArSporadicNoiseMasker.DoMasking = True
                 theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
-                ToolSvc += theLArSporadicNoiseMasker
+                #ToolSvc += theLArSporadicNoiseMasker
                 theLArCellNoiseMaskingTool.MaskingSporadicTool = theLArSporadicNoiseMasker
 
             if doNoiseMask:
@@ -354,7 +354,7 @@ class CaloCellGetter (Configured)  :
                     return False
                 theLArNoiseMasker.DoMasking=True
                 theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
-                ToolSvc+=theLArNoiseMasker
+                #ToolSvc+=theLArNoiseMasker
                 theLArCellNoiseMaskingTool.MaskingTool = theLArNoiseMasker
 
             theLArCellNoiseMaskingTool.maskNoise = doNoiseMask
