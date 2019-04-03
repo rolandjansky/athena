@@ -9,10 +9,11 @@
 #include <string>
 #include <vector>
 
+#include "GaudiKernel/ToolHandle.h"
+
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramFiller.h"
 #include "AthenaMonitoring/IMonitoredVariable.h"
-#include "GaudiKernel/ToolHandle.h"
 
 namespace Monitored {
 
