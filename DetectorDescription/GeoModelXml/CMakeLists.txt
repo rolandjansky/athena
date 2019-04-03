@@ -28,4 +28,4 @@ atlas_add_library( GeoModelXml
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${ZLIB_LIBRARIES} GeoModelKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
-# Need to add equivalent of declare_runtime for geomodel.dtd
+atlas_install_runtime( data/*.dtd )
