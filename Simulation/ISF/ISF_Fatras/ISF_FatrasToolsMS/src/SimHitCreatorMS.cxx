@@ -413,16 +413,19 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
 
-     // local position from the mdt's 
-     const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
+
+     const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);
+     // local position from the mdts
+     const Amg::Vector3D  localPos = mdtROE->globalToLocalCoords(parm->position(),id);
+     const double innerTubeRadius = mdtROE->getInnerTubeRadius(); //was 15.075;
 
      // drift radius
      double driftRadius = sqrt(localPos.x()*localPos.x()+localPos.y()*localPos.y());
      
-     if (driftRadius<15.075) {
+     if (driftRadius<innerTubeRadius) {
 
-       double dlh = sqrt(15.075*15.075-driftRadius*driftRadius); 
-       double de = 0.02*dlh/15.075;
+       double dlh = sqrt(innerTubeRadius*innerTubeRadius-driftRadius*driftRadius); 
+       double de = 0.02*dlh/innerTubeRadius;
        double energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
        while (energyDeposit<0.)  energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
     
