@@ -30,8 +30,12 @@ def lumi(triggerPythonConfig):
         log.info('In physics pp v8 menu setup')
         from TriggerMenu.menu.Physics_pp_v8 import setupMenu, Prescales
         setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales
+        if 'unprescaled_only' in menu_name:
+            L1Prescales = Prescales.L1Prescales_unprescaled_only_physics_prescale
+            HLTPrescales = Prescales.HLTPrescales_unprescaled_only_physics_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
 
     elif menu_name.startswith('Physics_pp_v8_lowmu') :
         log.info('In physics pp v8 lowmu menu setup')

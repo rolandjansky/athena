@@ -54,7 +54,7 @@ def defineMenu():
         
         # 16 x EM
         'EM3', 'EM7', 'EM8VH',
-        'EM8I',
+        'EM10VHI',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
         'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM',
@@ -347,7 +347,7 @@ def defineMenu():
         '0DR28-TAU20abi-TAU12abi',
         '0DETA20-0DPHI20-TAU20abi-TAU12abi',
         '1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
-        '1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',
+        '2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',
         'DISAMB-30INVM-EM20his2-TAU12ab',
         '400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',
         'LAR-EM20shi1',
@@ -397,8 +397,20 @@ def defineMenu():
         'ALFA3_B7R1L', 'ALFA3_B7R1U', 'ALFA3_A7R1L', 'ALFA3_A7R1U', 'ALFA3_A7L1L', 'ALFA3_A7L1U', 'ALFA3_B7L1L', 'ALFA3_B7L1U',
         'ALFA4_B7R1L', 'ALFA4_B7R1U', 'ALFA4_A7R1L', 'ALFA4_A7R1U', 'ALFA4_A7L1L', 'ALFA4_A7L1U', 'ALFA4_B7L1L', 'ALFA4_B7L1U',
 #ATR-13743      
-       'ALFA_B7R1L_OD', 'ALFA_B7R1U_OD', 'ALFA_A7R1L_OD', 'ALFA_A7R1U_OD', 'ALFA_A7L1L_OD', 'ALFA_A7L1U_OD', 'ALFA_B7L1L_OD', 'ALFA_B7L1U_OD',
+        'ALFA_B7R1L_OD', 'ALFA_B7R1U_OD', 'ALFA_A7R1L_OD', 'ALFA_A7R1U_OD', 'ALFA_A7L1L_OD', 'ALFA_A7L1U_OD', 'ALFA_B7L1L_OD', 'ALFA_B7L1U_OD',
 
+        #ATR-19355
+        '0INVM10-3MU4ab',
+
+        #ATR-18815
+        '0INVM10-0DR15-EM8abi-MU10ab',
+        '0INVM10-0DR15-EM12abi-MU6ab',
+
+        #ATR-18824
+        '60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49',
+        '60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49',
+        #ATR-19302
+        #'0INVM70-27DPHI32-EM10his1-EM10his6',
 
         ]
 
@@ -411,6 +423,8 @@ def defineMenu():
         'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH',
 #        'L1_EM8I',
         'L1_EM10VH', 'L1_EM15',
+        #ATR-19302
+        'L1_2EM10VHI',
         'L1_EM15VHI',
         'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
@@ -637,7 +651,7 @@ def defineMenu():
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY',
         "L1_RD1_EMPTY",
 #        'L1_RD0_FIRSTEMPTY', 
-           'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD0_ABORTGAPNOTCALIB',
 
         #LUCID
 #        'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
@@ -709,7 +723,7 @@ def defineMenu():
         "L1_HT150-J20s5.ETA31_MJJ-400-CF",
         
         # Jpsi T&P
-         'L1_JPSI-1M5-EM7', 'L1_JPSI-1M5-EM12',    
+        'L1_JPSI-1M5-EM7', 'L1_JPSI-1M5-EM12',    
 #            
         
         # W T&P
@@ -869,7 +883,20 @@ def defineMenu():
 #        'L1_MU4_ALFA_EINE',
 
 
-        #item with FTK trigger type, for FTK commissioning - removed
+        #ATR-18815
+        'L1_LFV-EM8I-MU11',
+        'L1_LFV-EM12I-MU6',
+
+        #ATR-19355
+        'L1_BPH-0M10-3MU4',
+
+        #ATR-18824
+        'L1_ZAFB-04DPHI-EM15I',
+        'L1_ZAFB-25DPHI-EM15I',
+        'L1_ZAFB-25DPHI-EM18I',
+
+        #ATR-19302: giving compilation issues, add later. For 0INVM70_27DPHI32_EM10his1_EM10his6
+        #'L1_DPHI-M70-2EM10I',
         ]
     
 
@@ -1344,7 +1371,24 @@ def defineMenu():
 
         
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
+        
+        #ATR-19302
+        'L1_2EM10VHI' : 188,
 
+        #ATR-19355
+        'L1_BPH-0M10-3MU4' : 189,
+
+        #ATR-18815
+        'L1_LFV-EM8I-MU11' : 190,
+        'L1_LFV-EM12I-MU6' : 191,
+
+        #ATR-18824
+        'L1_ZAFB-04DPHI-EM15I' : 192,
+        'L1_ZAFB-25DPHI-EM15I' : 193,
+        'L1_ZAFB-25DPHI-EM18I' : 194,
+
+        #ATR-19302: giving compilation issues, add later. For 0INVM70_27DPHI32_EM10his1_EM10his6
+        #'L1_DPHI-M70-2EM10I' : 195,
 
 }
 
