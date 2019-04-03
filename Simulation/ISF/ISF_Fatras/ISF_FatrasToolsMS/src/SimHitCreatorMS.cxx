@@ -417,7 +417,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);
      // local position from the mdts
      const Amg::Vector3D  localPos = mdtROE->globalToLocalCoords(parm->position(),id);
-     const double innerTubeRadius = mdtROE->getInnerTubeRadius(); //was 15.075;
+     const double innerTubeRadius = mdtROE->innerTubeRadius(); //was 15.075;
 
      // drift radius
      double driftRadius = sqrt(localPos.x()*localPos.x()+localPos.y()*localPos.y());
