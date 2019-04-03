@@ -14,7 +14,7 @@ if DetFlags.readRDOBS.pixel_on():
   from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
   InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
                                                            Decoder = InDetPixelRodDecoder)
-  ToolSvc += InDetPixelRawDataProviderTool
+  #ToolSvc += InDetPixelRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
     print      InDetPixelRawDataProviderTool
   #InDetPixelRawDataProviderTool.OutputLevel = VERBOSE
@@ -76,7 +76,7 @@ if DetFlags.readRDOBS.TRT_on():
   from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
   InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
                                                       Decoder = InDetTRTRodDecoder)
-  ToolSvc += InDetTRTRawDataProviderTool
+  #ToolSvc += InDetTRTRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
     print      InDetTRTRawDataProviderTool
   #InDetTRTRawDataProviderTool.OutputLevel = VERBOSE

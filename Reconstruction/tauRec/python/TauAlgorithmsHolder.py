@@ -607,7 +607,7 @@ def setupTauJVFTool():
 
     """
     from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-    ToolSvc += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
+    jetTrackAlg.Tools  += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
                                      OutputContainer="JetSelectedTracks_forTaus", 
                                      Selector=InDetTrackSelectorToolForTJVA, 
                                      OutputLevel=2
@@ -616,17 +616,15 @@ def setupTauJVFTool():
     """
 
     from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-    ToolSvc += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
-                                          TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
-                                          VertexContainer= _DefaultVertexContainer,
-                                          MaxTransverseDistance = 2.5 *mm,
-                                          #MaxLongitudinalDistance = 2 *mm, 
-                                          MaxZ0SinTheta = 3.0 *mm,
-                                          #OutputLevel=2
-                                          )
-    #jetTrackAlg.Tools = [ToolSvc.JetTrackSelectionTool , ToolSvc.TrackVertexAssociationTool ]
-    jetTrackAlg.Tools = [ ToolSvc.TrackVertexAssociationTool ]
-    
+    jetTrackAlg.Tools += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
+                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
+                                                    VertexContainer= _DefaultVertexContainer,
+                                                    MaxTransverseDistance = 2.5 *mm,
+                                                    #MaxLongitudinalDistance = 2 *mm, 
+                                                    MaxZ0SinTheta = 3.0 *mm,
+                                                    #OutputLevel=2
+                                                )
+
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()    
     topSequence+=jetTrackAlg
