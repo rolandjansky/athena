@@ -41,8 +41,17 @@ DerivationFrameworkJob += SeqNANO
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY7TriggerList import * 
-NANOThinningHelper.TriggerChains = '|'.join(SUSY7ThinTriggers) #SingleLepton + DiLepton + Photon + Tau
+
+from TriggerMenu.api.TriggerAPI import TriggerAPI
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+
+run2 = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018
+
+run2active  = TriggerAPI.getActive(run2,TriggerType.ALL)
+run2primary = TriggerAPI.getLowestUnprescaledAnyPeriod(run2,TriggerType.ALL)
+
+#from DerivationFrameworkSUSY.SUSY7TriggerList import * 
+NANOThinningHelper.TriggerChains = '|'.join(run2active)
 NANOThinningHelper.AppendToStream( NANOStream )
 
 
@@ -200,11 +209,11 @@ ToolSvc += NANOMuonCCThinningTool
 thinningTools.append(NANOMuonCCThinningTool)
 
 #add AND with Trigger skimming criteria
-trigExpr = '('+' || '.join(SUSY7AllTriggers)+')'
+#trigExpr = '('+' || '.join(SUSY7AllTriggers)+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 NANOtrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "NANOtrigSkimmingTool",
-                                                                  TriggerListOR = SUSY7AllTriggers)
+                                                                  TriggerListOR = run2active)
    
 ToolSvc += NANOtrigSkimmingTool
    
@@ -328,6 +337,10 @@ jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 print( jetSequence ) # For debugging
 
 SeqNANO += jetSequence
+
+# Float compression
+
+SeqNANO += CfgMgr.DerivationFramework__FloatCompressionAlg("NANOFloatCompression", SGKeys=["TruthPhotonsAux.","AnalysisJets_NOSYSAux.","AnalysisElectrons_NOSYSAux.","TauTracksAux."])
 
 
 #==============================================================================
