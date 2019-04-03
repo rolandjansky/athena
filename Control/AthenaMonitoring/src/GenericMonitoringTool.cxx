@@ -19,17 +19,13 @@
 
 #include "HistogramFiller/HistogramFillerFactory.h"
 
+using namespace std;
 using namespace Monitored;
 
-GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent) {
-}
+GenericMonitoringTool::GenericMonitoringTool(const string & type, const string & name, const IInterface* parent)
+  : AthAlgTool(type, name, parent) { }
 
-GenericMonitoringTool::~GenericMonitoringTool() {
-  for (auto filler : m_fillers) {
-    delete filler;
-  }
-}
+GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
@@ -50,21 +46,21 @@ StatusCode GenericMonitoringTool::book() {
   }
 
   // Replace dot (e.g. MyAlg.MyTool) with slash to create sub-directory
-  std::replace( m_histoPath.begin(), m_histoPath.end(), '.', '/' );
+  replace( m_histoPath.begin(), m_histoPath.end(), '.', '/' );
 
   ATH_MSG_DEBUG("Booking histograms in path: " << m_histoPath.value());
 
   HistogramFillerFactory factory(this, m_histoPath);
 
   m_fillers.reserve(m_histograms.size());
-  for (const std::string& item : m_histograms) {
+  for (const string& item : m_histograms) {
     ATH_MSG_DEBUG( "Configuring monitoring for: " << item );
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
-        HistogramFiller* filler = factory.create(def);
+        shared_ptr<HistogramFiller> filler(factory.create(def));
         
-        if (filler != nullptr) {
+        if (filler) {
             m_fillers.push_back(filler);
         } else {
           ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
@@ -77,7 +73,7 @@ StatusCode GenericMonitoringTool::book() {
   }
 
   if ( m_fillers.empty() ) {
-    std::string hists;
+    string hists;
     for (const auto &h : m_histograms) hists += (h+",");
     ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<
                   "] Remove this monitoring tool or check its configuration.");
@@ -87,12 +83,12 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
-  std::vector<HistogramFiller*> result;
+vector<shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(vector<reference_wrapper<IMonitoredVariable>> monitoredVariables) {
+  vector<shared_ptr<HistogramFiller>> result;
 
   for (auto filler : m_fillers) {
     auto fillerVariables = filler->histogramVariablesNames();
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
+    vector<reference_wrapper<IMonitoredVariable>> variables;
 
     for (auto fillerVariable : fillerVariables) {
       for (auto monValue : monitoredVariables) {
@@ -108,7 +104,7 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
       continue;
     }
 
-    HistogramFiller* fillerCopy = filler->clone();
+    shared_ptr<HistogramFiller> fillerCopy(filler->clone());
     fillerCopy->setMonitoredVariables(variables);
     result.push_back(fillerCopy);
   }

@@ -73,7 +73,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// Retrieve the histogram fillers
-  std::vector<Monitored::HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path
@@ -87,7 +87,7 @@ private:
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
-  std::vector<Monitored::HistogramFiller*> m_fillers; //!< list of fillers
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< list of fillers
 };
 
 /**
