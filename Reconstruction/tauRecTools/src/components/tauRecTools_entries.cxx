@@ -39,7 +39,7 @@
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
-
+#include "tauRecTools/TauJetRNNEvaluator.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetSeedBuilder )
@@ -84,4 +84,4 @@ DECLARE_COMPONENT( tauRecTools::DiTauIDVarCalculator )
 DECLARE_COMPONENT( TauJetBDTEvaluator )
 DECLARE_COMPONENT( TauEleOLRDecorator )
 DECLARE_COMPONENT( TauIDVarCalculator )
-
+DECLARE_COMPONENT( TauJetRNNEvaluator )
