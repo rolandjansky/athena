@@ -179,13 +179,6 @@ class SLHC_Setup_XMLReader :
         stripDbId,stripDbXDD,stripDbParam = dbGeomCursor.GetCurrentLeafContent("ITKXDD")
         if len(stripDbId)>0:
             ReadStripXMLFromDB = True
-            print "*********************** stripDbId"
-            print stripDbId
-            print '\n'
-            print "*********************** stripDbParam"
-            print stripDbParam
-            print '\n'
-            print "***********************"
             clobIndex = stripDbParam.index("XMLCLOB")
             pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
             gmxFileName = "ITkStrip.gmx"
