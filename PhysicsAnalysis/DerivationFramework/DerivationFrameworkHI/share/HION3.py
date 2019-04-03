@@ -14,6 +14,7 @@
 # Set up common services and job object.
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 
@@ -213,7 +214,8 @@ if (HIDerivationFlags.isPPb() or HIDerivationFlags.isPP()):
 #--------------------------------------------------------------------
 # 8/ select the event. We only want to keep events that contain certain vertices which passed certain selection.
 if (HIDerivationFlags.isPPb() or HIDerivationFlags.isPP()): 
-    onia_cut = "count(HION3OniaCandidates.passed_Jpsi) > 0 || count(HION3OniaCandidates.passed_Psi) > 0 || count(HION3OniaCandidates.passed_Upsi) > 0 || count(HION3Psi2JpsiPiPiCandidates.passed_Psi2) > 0"
+    #onia_cut = "count(HION3OniaCandidates.passed_Jpsi) > 0 || count(HION3OniaCandidates.passed_Psi) > 0 || count(HION3OniaCandidates.passed_Upsi) > 0 || count(HION3Psi2JpsiPiPiCandidates.passed_Psi2) > 0"
+    onia_cut = "count(HION3OniaCandidates.passed_Jpsi) > 0"
     MBTriggers = [ 
     	"HLT_mb_mbts_L1MBTS_1"]
     MuonTriggers = [ 
@@ -268,6 +270,7 @@ print HION3_SelectEvent
 # 5.3/ HIEventSelectorTool Selection: Event selected based in MBTS, primaryvertex and tracks.
 #      Not clear when these tool should be implemented. Not applied and one should do it at later stage.
 #--------------------------------------------------------------------
+
 
 #====================================================================
 # SET UP STREAM   
@@ -372,4 +375,30 @@ if (HIDerivationFlags.isPPb() or HIDerivationFlags.isPP()):
 if isSimulation:
     HION3SlimmingHelper.AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
+# Jet related information
+CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets']
+for item in CollectionList :  
+    if not HION3SlimmingHelper.AppendToDictionary.has_key(item):
+        HION3SlimmingHelper.AppendToDictionary[item]='xAOD::JetContainer'
+        HION3SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::JetAuxContainer'
+
+AllVarContent=["AntiKt4HITrackJets"]
+AllVarContent+=HIGlobalVars
+HION3SlimmingHelper.AllVariables+=AllVarContent
+
+if HIDerivationFlags.isPP():
+    HION3SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets"]
+
+ExtraVars=[]
+for collection in CollectionList :  
+    for j in HIJetBranches: 
+        ExtraVars.append(collection+'.'+j)
+
+ExtraVars.append("InDetTrackParticles.truthMatchProbability")
+HION3SlimmingHelper.ExtraVariables=ExtraVars
+
 HION3SlimmingHelper.AppendContentToStream(HION3Stream)
+
+for es in ["EventShapeWeighted_iter0_Modulate","EventShapeWeighted_iter1_Modulate"] :
+    HION3Stream.AddItem("xAOD::HIEventShapeContainer#" + es);
+    HION3Stream.AddItem("xAOD::HIEventShapeAuxContainer#" + es + "Aux.");
