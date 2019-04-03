@@ -3,12 +3,12 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
-    checkSequenceConsistency, findAllAlgorithms, findAllAlgorithmsByName
+    checkSequenceConsistency, findAllAlgorithms
 from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
+from Deduplication import deduplicate, deduplicateComponent, deduplicateWithAll, DeduplicationFailed
 
 import ast
 import collections
@@ -211,7 +211,7 @@ class ComponentAccumulator(object):
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-            self._deduplicateWithAll([algo])
+            deduplicateWithAll(self.getSequence(), [algo])
             existingAlgInDest = findAlgorithm(seq, algo.getName())
             if not existingAlgInDest:
                 seq += algo
@@ -307,24 +307,8 @@ class ComponentAccumulator(object):
         else:
             return self.popPrivateTools()
 
-    
-    def _deduplicateWithAll(self, algorithms):
-        existingAlgsByName = findAllAlgorithmsByName(self.getSequence(), namesToLookFor=set(map(lambda alg: alg.name(), algorithms)))
-        for alg in algorithms:
-            existingAlgs = existingAlgsByName[alg.name()]
-            for idx, existingAlg in enumerate(existingAlgs):
-                if alg == existingAlg:
-                    continue
-                self._deduplicateComponent(alg, existingAlg)
-                if idx == len(existingAlgs) - 1:
-                    # Merge other way around with last algorithm
-                    self._deduplicateComponent(existingAlg, alg)
-
-
     def __call__(self):
         return self.getPrimary()
-        
-
 
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.getName() == name ]
@@ -412,11 +396,11 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
                         algorithms = findAllAlgorithms(c)
-                        self._deduplicateWithAll(algorithms)
+                        deduplicateWithAll(self.getSequence(), algorithms)
                         dest += c
 
                 else: # an algorithm
-                    self._deduplicateWithAll([c])
+                    deduplicateWithAll(self.getSequence(), [c])
                     existingAlgInDest = findAlgorithm( dest, c.name(), depth=1 )
                     if not existingAlgInDest:
                         self._msg.debug("Adding algorithm %s to a sequence %s", c.name(), dest.name() )
