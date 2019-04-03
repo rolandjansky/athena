@@ -104,10 +104,10 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   mutable Gaudi::Hive::ContextSpecificPtr<const RtRelationContainer> m_condSlope;
 
   ///  ReadHandle  keys
-  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","/TRT/Calib/RT","r-t relation in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","/TRT/Calib/errors2d","error on r in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","/TRT/Calib/slopes","slope of error in-key"};
-  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","/TRT/Calib/T0","t0 in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtFolderName","/TRT/Calib/RT","r-t relation in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorFolderName","/TRT/Calib/errors2d","error on r in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"ErrorSlopeFolderName","/TRT/Calib/slopes","slope of error in-key"};
+  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0FolderName","/TRT/Calib/T0","t0 in-key"};
 
   /// Used in simulation jobs
   bool m_isGEANT4;
