@@ -1091,8 +1091,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 4.0;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
-    if (overwrite || m_minPt < 0.) m_minPt = 400.0;    
-    if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 2;
+    if (overwrite || m_minPt < 0.) m_minPt = 400.0;  
     break;  
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");
