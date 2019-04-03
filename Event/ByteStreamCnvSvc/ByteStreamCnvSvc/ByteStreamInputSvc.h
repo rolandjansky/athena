@@ -38,7 +38,7 @@ public:
   virtual const RawEvent* currentEvent() const = 0;
   /// virtual method for accessing the current event status
   virtual unsigned int currentEventStatus() const;
-  virtual long getBlockIterator(const std::string /* file */);
+  virtual std::pair<long,std::string> getBlockIterator(const std::string /* file */);
   virtual void closeBlockIterator(bool);
   virtual bool ready();
   virtual StatusCode generateDataHeader(); 
@@ -57,7 +57,7 @@ inline unsigned int ByteStreamInputSvc::currentEventStatus() const {
 }
 
 // Virtual methods needed for file input
-inline long ByteStreamInputSvc::getBlockIterator(const std::string /* file */) {return -1;}
+inline std::pair<long,std::string> ByteStreamInputSvc::getBlockIterator(const std::string /* file */) {return std::make_pair(-1,"GUID");}
 inline void ByteStreamInputSvc::closeBlockIterator(bool) {}
 inline bool ByteStreamInputSvc::ready() {return false;}
 inline StatusCode ByteStreamInputSvc::generateDataHeader() {return StatusCode::SUCCESS;}
