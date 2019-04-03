@@ -14,14 +14,14 @@
 
 namespace AthViews {
 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 // Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // Constructors
 ////////////////
-ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
-                      ISvcLocator* pSvcLocator ) : 
+ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
+                                  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator )
 {
 }
@@ -40,6 +40,7 @@ StatusCode ViewSubgraphAlg::initialize()
   renounce( m_w_int ); // To test ViewDataVerifier
   CHECK( m_w_int.initialize() );
   CHECK( m_w_views.initialize() );
+  if ( m_r_views.key() != "" ) CHECK( m_r_views.initialize() );
   CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -53,7 +54,7 @@ StatusCode ViewSubgraphAlg::finalize()
 }
 
 StatusCode ViewSubgraphAlg::execute()
-{  
+{
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   const EventContext& ctx = getContext();
@@ -67,17 +68,31 @@ StatusCode ViewSubgraphAlg::execute()
   }
 
   //Create the views and populate them
-  CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,   //Base name for all views to use
-				      viewVector.get(),     //Vector to store views
-				      m_w_int,        //A writehandlekey to use to access the views
-				      ctx,            //The context of this algorithm
-				      viewData ) );   //Data to initialise each view - one view will be made per entry
+  CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,      //Base name for all views to use
+                                      viewVector.get(),    //Vector to store views
+                                      m_w_int,             //A writehandlekey to use to access the views
+                                      ctx,                 //The context of this algorithm
+                                      viewData ) );        //Data to initialise each view - one view will be made per entry
+
+  //Attach parent views to existing views
+  if ( m_r_views.key() != "" )
+  {
+    SG::ReadHandle< ViewContainer > parentViewHandle( m_r_views, ctx );
+    if ( parentViewHandle->size() == viewVector->size() )
+    {
+      for ( unsigned int viewIndex = 0; viewIndex < parentViewHandle->size(); ++viewIndex )
+      {
+        ATH_MSG_INFO( "Linking view " << viewVector->at( viewIndex )->name() << " to parent " << parentViewHandle->at( viewIndex )->name() );
+        viewVector->at( viewIndex )->linkParent( parentViewHandle->at( viewIndex ) );
+      }
+    }
+  }
 
   //Schedule the algorithms in views
-  CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
-				    m_viewNodeName,                         //Name of node to attach views to
-				    ctx,                                    //Context to attach the views to
-				    m_scheduler.get() ) );                  //ServiceHandle for the scheduler
+  CHECK( ViewHelper::ScheduleViews( viewVector.get(),       //View vector
+                                    m_viewNodeName,         //Name of node to attach views to
+                                    ctx,                    //Context to attach the views to
+                                    m_scheduler.get() ) );  //ServiceHandle for the scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
