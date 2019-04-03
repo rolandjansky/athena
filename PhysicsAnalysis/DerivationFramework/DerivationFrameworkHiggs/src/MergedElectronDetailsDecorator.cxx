@@ -285,26 +285,27 @@ namespace DerivationFramework {
         vtxTrkParticleIndex1 = trkIndex1;
         vtxTrkParticleIndex2 = trkIndex2;
 
-        xAOD::Vertex* myVertex = m_VertexFitter->fit( trksToFit, startingPoint );
+        std::unique_ptr<xAOD::Vertex> myVertex( m_VertexFitter->fit( trksToFit, startingPoint ) );
 
         if(myVertex){
 
-          vtxR    = m_V0Tools->rxy( myVertex );
-          vtxRerr = m_V0Tools->rxyError( myVertex );
+          vtxR    = m_V0Tools->rxy( myVertex.get() );
+          vtxRerr = m_V0Tools->rxyError( myVertex.get() );
           vtxZ    = myVertex->z();
           vtxZerr = sqrt( myVertex->covariancePosition()(2,2) );
 
           std::vector<double> masses = { 0.511e-3, 0.511e-3 };
-          vtxM    = m_V0Tools->invariantMass( myVertex, masses);
-          vtxMerr = m_V0Tools->invariantMassError( myVertex, masses);
+          vtxM    = m_V0Tools->invariantMass( myVertex.get(), masses);
+          vtxMerr = m_V0Tools->invariantMassError( myVertex.get(), masses);
 
           vtxChi2 = myVertex->chiSquared();
           vtxNdof = myVertex->numberDoF();
 
-          m_emExtrapolationTool->getEtaPhiAtCalo( myVertex, &vtxdEta, &vtxdPhi);
+          m_emExtrapolationTool->getEtaPhiAtCalo( myVertex.get(), &vtxdEta, &vtxdPhi);
           
           vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) ); 
           vtxdEta -= caloCluster->etaBE(2);
+        
         } else {
           vtxChi2 = 0;
           vtxNdof = 0;
