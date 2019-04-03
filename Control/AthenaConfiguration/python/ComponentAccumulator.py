@@ -181,7 +181,7 @@ class ComponentAccumulator(object):
         return
         
     def popPrivateTools(self):
-        """Get the (list of) private AlgTools from this CompoentAccumulator. 
+        """Get the (list of) private AlgTools from this ComponentAccumulator. 
         The CA will not keep any reference to the AlgTool.
         """
         tool=self._privateTools
