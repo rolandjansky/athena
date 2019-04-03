@@ -29,6 +29,7 @@ find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread Graf Graf3d Gp
 # Component(s) in the package:
 atlas_add_library( AthenaMonitoringLib
                    src/*.cxx
+                   src/HistogramFiller/*.cxx
                    PUBLIC_HEADERS AthenaMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
