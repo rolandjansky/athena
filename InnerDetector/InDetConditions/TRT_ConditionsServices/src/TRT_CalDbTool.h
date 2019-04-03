@@ -55,16 +55,16 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   // methods to access calibration data
 
   /// get T0 for an identifier
-  float getT0( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual float getT0( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get an rtrelation for an identifier
-  const TRTCond::RtRelation* getRtRelation( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getRtRelation( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get errors for an identifier
-  const TRTCond::RtRelation* getErrors( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getErrors( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get errors for an identifier
-  const TRTCond::RtRelation* getSlopes( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getSlopes( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
   
   /// get a drift radius for a given leading edge time
   virtual double driftRadius(const double& time, float& t0, const Identifier& ident, bool& found) const override;
@@ -76,7 +76,7 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   virtual double driftSlope(const double& time, const Identifier& ident, bool& found) const override;
 
   /// create an TRTCond::ExpandedIdentifier from a TRTID identifier
-  TRTCond::ExpandedIdentifier trtcondid( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW) const;
+  virtual TRTCond::ExpandedIdentifier trtcondid( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW) const override;
 
   
 
