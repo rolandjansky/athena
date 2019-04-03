@@ -399,7 +399,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   {
     
     
-    emecDetectorManager  = new EMECDetectorManager();
+    emecDetectorManager  = new EMECDetectorManager(&(m_hvManager->getEMECHVManager(EMECHVModule::INNER))
+						   ,&(m_hvManager->getEMECHVManager(EMECHVModule::OUTER)));
     
     // Here is a table of min and max eta for different sampling layers, radial part (i/o) and region.
     

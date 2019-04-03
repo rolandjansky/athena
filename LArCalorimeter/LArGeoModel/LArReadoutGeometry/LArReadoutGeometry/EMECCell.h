@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECCELL_H
@@ -11,24 +11,23 @@
 #include "GeoModelKernel/RCBase.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
-/**
- * @brief A Cell of the electromagnetic endcap calorimeter readout
- * geometry
- */
 
 /**
- *	This class represents a single EMEC Cell.  These cells
- *	are specified by phi and eta boundaries, the latter
- *	which corresponds to an inner and outer radius computed
- *	from and effective focal length.  Those numbers come
- *	from the database via the EMEC DetectorManager
+ * @class EMECCell
  *
- *	Use the EMEC Cells through EMEC Cell Links please!!!
- *	This will free the memory used by the cell when the last
- *	link to the cell disappears.
+ * @brief A Cell of the electromagnetic endcap calorimeter readout geometry
+ *  This class represents a single EMEC Cell.  These cells
+ *  are specified by phi and eta boundaries, the latter
+ *  which corresponds to an inner and outer radius computed
+ *  from and effective focal length.  Those numbers come
+ *  from the database via the EMEC DetectorManager
+ *
+ *  Use the EMEC Cells through EMEC Cell Links please!!!
+ *  This will free the memory used by the cell when the last
+ *  link to the cell disappears.
  */
+
 class EMECCell : public RCBase  
 {
   
@@ -134,7 +133,7 @@ class EMECCell : public RCBase
   /**
    * @Get electrode
    */
-  const EMECHVElectrodeConstLink & getElectrode (unsigned int i) const;
+  const EMECHVElectrode& getElectrode (unsigned int i) const;
 
 
   /**
@@ -155,7 +154,8 @@ class EMECCell : public RCBase
 
   const EMECDetDescr *m_emecDetDescr;
 
-  mutable std::vector<EMECHVElectrodeConstLink> m_electrode;
+  // The cell does NOT own the pointers to its electrodes
+  mutable std::vector<const EMECHVElectrode*> m_electrode;
 
   mutable EMECPresamplerHVModuleConstLink m_presamplerModule;
 

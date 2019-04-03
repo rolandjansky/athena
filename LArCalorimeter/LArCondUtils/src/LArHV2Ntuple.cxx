@@ -12,9 +12,7 @@
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVModule.h"
-#include "LArHV/EMECHVModuleConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/HECHVManager.h"
 #include "LArHV/HECHVModule.h"
 #include "LArHV/HECHVModuleConstLink.h"
@@ -242,19 +240,19 @@
 
 
 
-    const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::OUTER);
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-        for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-          for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-            EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
-            float eta=0.5*(hvMod->getEtaMin()+hvMod->getEtaMax());
-            for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-              EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+    const EMECHVManager& hvManager_EMEC_OUT=manager->getEMECHVManager(EMECHVModule::OUTER);
+    for (unsigned int iSide=hvManager_EMEC_OUT.beginSideIndex();iSide<hvManager_EMEC_OUT.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_OUT.beginPhiIndex();iPhi<hvManager_EMEC_OUT.endPhiIndex();iPhi++) {
+        for (unsigned int iSector=hvManager_EMEC_OUT.beginSectorIndex();iSector<hvManager_EMEC_OUT.endSectorIndex();iSector++) {
+          for (unsigned int iEta=hvManager_EMEC_OUT.beginEtaIndex();iEta<hvManager_EMEC_OUT.endEtaIndex();iEta++) {
+            const EMECHVModule& hvMod=hvManager_EMEC_OUT.getHVModule(iSide,iEta,iPhi,iSector);
+            float eta=0.5*(hvMod.getEtaMin()+hvMod.getEtaMax());
+            for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { //use hvMod.getNumElectrodes when bug is corrected
+              const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
               for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                float hv=electrode->voltage(iGap);
-                float current = electrode->current(iGap);
-                float phi = electrode->getPhi();
+                float hv=electrode.voltage(iGap);
+                float current = electrode.current(iGap);
+                float phi = electrode.getPhi();
 
                 m_bec=1;
                 m_isPresampler=0;
@@ -264,7 +262,7 @@
                 m_gap = iGap;
                 m_hv = hv;
                 m_current= current;
-                m_hvline = electrode->hvLineNo(iGap);
+                m_hvline = electrode.hvLineNo(iGap);
 
                 if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -284,19 +282,19 @@
       }
     }//EMEC Outer
 
-    hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::INNER);
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-        for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-          for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-            EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
-            float eta=0.5*(hvMod->getEtaMin()+hvMod->getEtaMax());
-            for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-              EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+    const EMECHVManager& hvManager_EMEC_IN=manager->getEMECHVManager(EMECHVModule::INNER);
+    for (unsigned int iSide=hvManager_EMEC_IN.beginSideIndex();iSide<hvManager_EMEC_IN.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_IN.beginPhiIndex();iPhi<hvManager_EMEC_IN.endPhiIndex();iPhi++) {
+        for (unsigned int iSector=hvManager_EMEC_IN.beginSectorIndex();iSector<hvManager_EMEC_IN.endSectorIndex();iSector++) {
+          for (unsigned int iEta=hvManager_EMEC_IN.beginEtaIndex();iEta<hvManager_EMEC_IN.endEtaIndex();iEta++) {
+            const EMECHVModule& hvMod=hvManager_EMEC_IN.getHVModule(iSide,iEta,iPhi,iSector);
+            float eta=0.5*(hvMod.getEtaMin()+hvMod.getEtaMax());
+            for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { //use hvMod.getNumElectrodes when bug is corrected
+              const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
               for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                float hv=electrode->voltage(iGap);
-                float current = electrode->current(iGap);
-                float phi = electrode->getPhi();
+                float hv=electrode.voltage(iGap);
+                float current = electrode.current(iGap);
+                float phi = electrode.getPhi();
             
                 m_bec=2;
                 m_isPresampler=0;
@@ -306,7 +304,7 @@
                 m_gap = iGap;
                 m_hv = hv;
                 m_current= current;
-                m_hvline = electrode->hvLineNo(iGap);
+                m_hvline = electrode.hvLineNo(iGap);
 
                 if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -449,8 +447,8 @@ std::vector<int> LArHV2Ntuple::GetHVLines(const Identifier& id) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
        unsigned int nelec = cell->getNumElectrodes();
        for (unsigned int i=0;i<nelec;i++) {
-         const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-         for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+         const EMECHVElectrode& electrode = cell->getElectrode(i);
+         for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
        }
      }
    } else if (m_caloId->is_hec(id)) { // LAr HEC

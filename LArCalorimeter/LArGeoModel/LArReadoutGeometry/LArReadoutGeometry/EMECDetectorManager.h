@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECDETECTORMANAGER_H
@@ -10,21 +10,21 @@
 #include "LArHV/EMECPresamplerHVManager.h"
 class EMECDetDescr;
 class EMECDetectorRegion;
-/**
- *     @brief A manager class providing access to readout geometry information
- *     for the electromagnetic endcap calorimeter.
- */
 
 /**
- *	The EMECDetectorManager provides access to EMEC Regions,
- *	to Descriptors for EMEC regions, to the physical volumes
- *	(tree tops) within the EMEC, and to a number of
- *	important engineering numbers (like the focal lengths)
- *	within the EMEC.
+ * @class EMECDetectorManager
+ *
+ * @brief A manager class providing access to readout geometry information
+ *  for the electromagnetic endcap calorimeter.
+ *
+ *  The EMECDetectorManager provides access to EMEC Regions,
+ *  to Descriptors for EMEC regions, to the physical volumes
+ *  (tree tops) within the EMEC, and to a number of
+ *  important engineering numbers (like the focal lengths)
+ *  within the EMEC.
  *  
+ * The ownership of EMECHVManager pointers NOT trasferred to EMECDetectorManager
  */
-
-
 
 class EMECDetectorManager : public GeoVDetectorManager  
 {
@@ -41,7 +41,8 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief  Constructor
    */
-  EMECDetectorManager();
+  EMECDetectorManager(const EMECHVManager* hvManagerInner=nullptr
+		      , const EMECHVManager* hvManagerOuter=nullptr);
 
   /**
    * @brief  Destructor
@@ -172,7 +173,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Get the HV Managers
    */
-  const EMECHVManager * getHVManager(EMECHVManager::IOType io) const;
+  const EMECHVManager& getHVManager(EMECHVManager::IOType io) const;
 
   /**
    * @brief 	Get the HV Manager (presampler)
