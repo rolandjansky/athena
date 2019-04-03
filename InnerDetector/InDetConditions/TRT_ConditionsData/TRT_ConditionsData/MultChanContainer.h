@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MultChanContainer.h 
@@ -44,7 +44,8 @@ namespace TRTCond
     /** constructor. cannot do anything because that would make CondMultChanCollection upset. */
     MultChanContainer() {}
 
-    /** assignment operator. not trivial. */
+    /** copy/assignment. not trivial. */
+    MultChanContainer(const MultChanContainer& rhs) ;
     MultChanContainer& operator=(const MultChanContainer& rhs) ;
     
     /** calculate the channel for a given TRT identifier */
@@ -120,6 +121,12 @@ namespace TRTCond
   }
   
   template <class DaughterContainer>
+  MultChanContainer<DaughterContainer>::MultChanContainer(const MultChanContainer<DaughterContainer>& rhs) 
+  {
+    *this = rhs;
+  }
+
+template <class DaughterContainer>
   MultChanContainer<DaughterContainer>& 
   MultChanContainer<DaughterContainer>::operator=(const MultChanContainer<DaughterContainer>& rhs) 
   {

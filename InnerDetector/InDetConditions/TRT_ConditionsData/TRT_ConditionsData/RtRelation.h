@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file RtRelation.h 
@@ -30,8 +30,8 @@ namespace TRTCond
     enum Status { Undefined, Calibrated } ;
     
     /** constructors, desctructors, cloners */
-    RtRelation() {}
-    virtual ~RtRelation() {}
+    RtRelation() = default;
+    virtual ~RtRelation() = default;
     virtual RtRelation* clone() const = 0 ;
     
     /** status flag of (calibrated) rtrelation */
