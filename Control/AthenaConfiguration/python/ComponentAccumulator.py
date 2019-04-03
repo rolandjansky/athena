@@ -6,15 +6,13 @@ from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,fla
 from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
-from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle, PrivateToolHandleArray
+
+from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
+
 import ast
 import collections
 
-from UnifyProperties import unifyProperty, unifySet, matchProperty
-
-
-class DeduplicationFailed(RuntimeError):
-    pass
+from UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
@@ -74,10 +72,10 @@ class ComponentAccumulator(object):
                     continue
 
                 propstr = str(propval)
-                if isinstance(propval,PublicToolHandleArray):
+                if isinstance(propval,GaudiHandles.PublicToolHandleArray):
                     ths = [th.getFullName() for th in propval]
                     propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif isinstance(propval,PrivateToolHandleArray):
+                elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
                     ths = [th.getFullName() for th in propval]
                     propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
                 elif isinstance(propval,ConfigurableAlgTool):
@@ -208,7 +206,7 @@ class ComponentAccumulator(object):
 
             existingAlg = findAlgorithm(seq, algo.getName())
             if existingAlg:
-                self._deduplicateComponent(algo, existingAlg)
+                deduplicateComponent(algo, existingAlg)
             else:
                 seq+=algo #TODO: Deduplication necessary?
             pass
@@ -253,7 +251,7 @@ class ComponentAccumulator(object):
         if not isinstance(algo, ConfigurableAlgorithm):
             raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % type( algo ).__name__)
             pass
-        self._deduplicate(algo,self._conditionsAlgs) #will raise on conflict
+        deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         if primary: 
             if self._primaryComp: 
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
@@ -273,7 +271,7 @@ class ComponentAccumulator(object):
         if not isinstance(newSvc,ConfigurableService):
             raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
             pass
-        self._deduplicate(newSvc,self._services)  #will raise on conflict
+        deduplicate(newSvc,self._services)  #will raise on conflict
         if primary: 
             if self._primaryComp: 
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
@@ -288,7 +286,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: %s as AlgTool" % type( newTool ).__name__)
         if newTool.getParent() != "ToolSvc":
             newTool.setParent("ToolSvc")
-        self._deduplicate(newTool,self._publicTools)
+        deduplicate(newTool,self._publicTools)
         if primary: 
             if self._primaryComp: 
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
@@ -308,108 +306,6 @@ class ComponentAccumulator(object):
         return self.getPrimary()
         
 
-    def _deduplicate(self,newComp,compList):
-        #Check for duplicates:
-        for comp in compList:
-            if comp.getType()==newComp.getType() and comp.getFullName()==newComp.getFullName():
-                #Found component of the same type and name
-                if isinstance(comp,PublicToolHandle) or isinstance(comp,ServiceHandle):
-                    continue # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
-                self._deduplicateComponent(newComp,comp)
-                #We found a service of the same type and name and could reconcile the two instances
-                self._msg.debug("Reconciled configuration of component %s", comp.getJobOptName())
-                return False #False means nothing got added
-            #end if same name & type
-        #end loop over existing components
-
-        #No component of the same type & name found, simply append
-        self._msg.debug("Adding component %s to the job", newComp.getFullName())
-
-        #The following is to work with internal list of service as well as gobal svcMgr as second parameter
-        try:
-            compList.append(newComp)
-        except Exception:
-            compList+=newComp
-            pass
-        return True #True means something got added
-
-
-
-    def _deduplicateComponent(self,newComp,comp):
-        #print "Checking ", comp, comp.getType(), comp.getJobOptName()
-        allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
-        for prop in allProps:
-            if not prop.startswith('_'):
-                try:
-                    oldprop=getattr(comp,prop)
-                except AttributeError:
-                    oldprop=None
-                try:
-                    newprop=getattr(newComp,prop)
-                except AttributeError:
-                    newprop=None
-                # both are defined but with distinct type
-                if type(oldprop) != type(newprop):
-                    raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
-                                                  (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
-
-                propid = "%s.%s" % (comp.getType(), str(prop))
-
-                #Note that getattr for a list property works, even if it's not in ValuedProperties
-                if (oldprop!=newprop):
-                    #found property mismatch
-                    if isinstance(oldprop,PublicToolHandle) or isinstance(oldprop,ServiceHandle):
-                        if oldprop.getFullName()==newprop.getFullName():
-                            # For public tools/services we check only their full name because they are already de-duplicated in addPublicTool/addSerivce
-                            continue
-                        else:
-                            raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
-                                                              (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
-                    elif isinstance(oldprop,PublicToolHandleArray):
-                        for newtool in newprop:
-                            if newtool not in oldprop:
-                                oldprop+=[newtool,]
-                        continue
-                    elif isinstance(oldprop,ConfigurableAlgTool):
-                        self._deduplicateComponent(oldprop,newprop)
-                        pass
-                    elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
-
-                        if matchProperty(propid):
-                            mergeprop = unifyProperty(propid, oldprop, newprop)
-                            setattr(comp, prop, mergeprop)
-                            continue
-
-                        for newTool in newprop:
-                            self._deduplicate(newTool,oldprop)
-                        pass
-                    elif isinstance(oldprop,list): #if properties are mergeable, do that!
-                        #Try merging this property. Will raise on failure
-                        mergeprop=unifyProperty(propid,oldprop,newprop)
-                        setattr(comp,prop,mergeprop)
-                    elif isinstance(oldprop,dict): #Dicts/maps can be unified
-                        #find conflicting keys
-                        doubleKeys= set(oldprop.keys()) & set(prop.keys())
-                        for k in doubleKeys():
-                            if oldprop[k]!= prop[k]:
-                                raise DeduplicationFailed("Map-property '%s.%s' defined multiple times with conflicting values for key %s" % \
-                                                              (comp.getJobOptName(),str(prop),k))
-                            pass
-                        mergeprop=oldprop
-                        mergeprop.update(prop)
-                        setattr(comp,prop,mergeprop)
-                    elif isinstance(oldprop,PrivateToolHandle):
-                        # This is because we get a PTH if the Property is set to None, and for some reason the equality doesn't work as expected here.
-                        continue
-                    else:
-                        #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
-                        raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
-                                                      (comp.getJobOptName(),str(prop)))
-                pass
-                #end if prop-mismatch
-            pass
-        #end if startswith("_")
-        pass
 
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.getName() == name ]
@@ -501,7 +397,7 @@ class ComponentAccumulator(object):
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
                         if existingAlg != c:
-                            self._deduplicate(c, existingAlg)
+                            deduplicate(c, existingAlg)
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
@@ -554,7 +450,7 @@ class ComponentAccumulator(object):
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
 
         for s in self._services:
-            self._deduplicate(s,ServiceMgr)
+            deduplicate(s,ServiceMgr)
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
@@ -563,11 +459,11 @@ class ComponentAccumulator(object):
 
 
         for t in self._publicTools:
-            self._deduplicate(t,ToolSvc)
+            deduplicate(t,ToolSvc)
 
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
-            self._deduplicate(c,condseq)
+            deduplicate(c,condseq)
 
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
             seq=AthSequencer(seqName)

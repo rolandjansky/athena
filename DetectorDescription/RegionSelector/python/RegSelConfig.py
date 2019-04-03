@@ -31,6 +31,7 @@ def regSelCfg( flags ):
 
         from TileGeoModel.TileGMConfig import TileGMCfg
         acc.merge( TileGMCfg( flags ) )
+        acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
         from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
         tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
