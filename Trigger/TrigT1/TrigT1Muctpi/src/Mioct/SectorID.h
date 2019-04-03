@@ -142,10 +142,6 @@ namespace LVL1MUCTPI {
        */
       bool operator== ( const SectorID& ) const;
       /**
-       * Provide a assignment operator
-       */
-      SectorID& operator= ( const SectorID& );
-      /**
        * This operator is used when the sector ID has to be stored as a single
        * integer number. (When reading the multiplicity handling from an XML
        * file.) Compare this with the constructor accepting a single integer.
@@ -158,7 +154,7 @@ namespace LVL1MUCTPI {
       /**
        * The destructor of class SectorID - nothing to destruct
        */
-      ~SectorID();
+      ~SectorID() = default;
 
    private:
       Detector      m_detectorType;

@@ -61,11 +61,9 @@ namespace LVL1MUCTPI {
        */
       int getMultiplicity( const unsigned int threshold ) const;
 
-      /// Assignment operator
-      PtMultiplicitySet& operator=( const PtMultiplicitySet& );
-      /// This operator clippes the multiplicities at a count of sevenn
+      /// This operator clips the multiplicities at a count of sevenn
       PtMultiplicitySet& operator+=( const PtMultiplicitySet& );
-      /// This operator clippes the multiplicities at a count of seven.
+      /// This operator clips the multiplicities at a count of seven.
       PtMultiplicitySet operator+( const PtMultiplicitySet& );
 
       /// Reset the object to 0 multiplicity

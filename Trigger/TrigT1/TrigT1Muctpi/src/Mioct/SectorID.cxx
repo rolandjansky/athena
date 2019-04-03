@@ -150,18 +150,6 @@ namespace LVL1MUCTPI {
 
    }
 
-   // assignment operator
-   SectorID& SectorID::operator=( const SectorID& original ) {
-
-     if (this != &original) {
-       this->m_detectorType = original.m_detectorType;
-       this->m_rapidityRegion = original.m_rapidityRegion;
-       this->m_sectorNumber = original.m_sectorNumber;
-     }
-     return *this;
-
-   }
-
    SectorID::operator int() const {
 
       int retval = 0;
@@ -185,11 +173,6 @@ namespace LVL1MUCTPI {
 
       return out << "System: " << right.m_detectorType << " Hemisphere: "
                  << right.m_rapidityRegion << " SectorNo: " << right.m_sectorNumber;
-
-   }
-
-   // destructor of class SectorID
-   SectorID::~SectorID() {
 
    }
 
