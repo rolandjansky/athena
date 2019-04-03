@@ -60,6 +60,8 @@ atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
 
 atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh )
 
+atlas_add_test( ViewInheritance SCRIPT test/test_view_inheritance.sh )
+
 atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed"
                 TIMEOUT 300 )
