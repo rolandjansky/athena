@@ -1088,10 +1088,12 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxChiSqperNdf >= LOCAL_MAX_DOUBLE) m_maxChiSqperNdf = 6.0;
     break;
   case CutLevel::ITkLoose:
-    setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
+    // reset all cuts
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    // ITk basic phase-space and loose SiHits selection
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 4.0;
+    if (overwrite || m_minPt < 0.) m_minPt = 400.0;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
-    if (overwrite || m_minPt < 0.) m_minPt = 400.0;  
     break;  
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");
