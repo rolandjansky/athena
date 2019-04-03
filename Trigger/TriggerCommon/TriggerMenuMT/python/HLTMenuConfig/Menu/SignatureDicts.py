@@ -102,7 +102,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320'],
+    'etaRange'     : ['0eta320', '320eta490', '0eta240'],
     'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : [],

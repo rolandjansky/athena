@@ -4,7 +4,7 @@ import re
 
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
-    'gsc',
+    #    'gsc',
     'ion',
     'dphi',
     'deta',
