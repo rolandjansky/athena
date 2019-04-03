@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_DECODER_H
@@ -562,7 +562,7 @@ namespace Muon
         }
         else{
           // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-          StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>(it.second) ) );
+          StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>(it.second) );
 
           if(status_lock != StatusCode::SUCCESS)
           {
@@ -609,7 +609,7 @@ namespace Muon
         
         // Here need to implement writing for all the other fill methods
         // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-        StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>( coll ) ) );
+        StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>( coll ) );
 
         // add collection into IDC
         if(status_lock != StatusCode::SUCCESS)
