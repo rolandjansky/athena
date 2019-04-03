@@ -73,8 +73,10 @@ def TrigTauMonitoringTool():
 	]
 
 	BDTRNN_chains = [
-			'tau25_idperf_tracktwoMVA',
-			'tau25_perf_tracktwoMVA',
+                'tau25_idperf_tracktwoMVA',
+                'tau25_perf_tracktwoMVA',
+                'tau0_idperf_tracktwoMVA_L1eTAU12',
+                'tau0_idperf_tracktwoMVA_L1eTAU5',
 	]
 
 	tau_topo_support_chains = [
