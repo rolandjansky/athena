@@ -21,7 +21,8 @@
 #include "TProfile2D.h"
 
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
+
+#include "../src/HistogramFiller/HistogramFactory.h"
 
 using namespace std;
 using namespace Monitored;

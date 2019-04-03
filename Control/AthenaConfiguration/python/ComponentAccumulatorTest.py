@@ -2,7 +2,8 @@
 
 # self test of ComponentAccumulator
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
+from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.CFElements import findSubSequence,findAlgorithm
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
@@ -328,6 +329,20 @@ class TestDeduplication( unittest.TestCase ):
         self.assertIn("/bar",result2.getService("IOVDbSvc").Folders)
         self.assertIn("/foo",result2.getService("IOVDbSvc").Folders)
 
+        #The merge should be also updated the result1
+        self.assertIn("/bar",result1.getService("IOVDbSvc").Folders)
+        self.assertIn("/foo",result1.getService("IOVDbSvc").Folders)
+        
+        svc3=IOVDbSvc(Folders=["/barrr"])
+        result2.addService(svc3)
+        self.assertIn("/foo",svc3.Folders)
+        self.assertIn("/barrr",result2.getService("IOVDbSvc").Folders)
+
+        #The IOVDbSvc in the componentAccumulator is the same instance than the one we have here
+        #Modifying svc3 touches also the ComponentAccumulator
+        svc3.Folders+=["/fooo"]
+        self.assertIn("/fooo",result2.getService("IOVDbSvc").Folders)
+
 
         #Trickier case: Recursive de-duplication of properties of tools in a Tool-handle array
         from AthenaConfiguration.TestDriveDummies import dummyService, dummyTool
@@ -351,6 +366,7 @@ class TestDeduplication( unittest.TestCase ):
         #Add a service with a different name
         result3.addService(dummyService("NewService", AString="blabla",
                                         AList=["new1","new2"],
+                                        OneTool=dummyTool("tool2"),
                                         SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
                                     )
                        )
@@ -369,6 +385,8 @@ class TestDeduplication( unittest.TestCase ):
         self.assertEqual(set(result3.getService("dummyService").SomeTools[0].BList),set(["lt1","lt2","lt3","lt4"]))
         self.assertEqual(set(result3.getService("dummyService").AList),set(["l1","l2","l3"]))
         
+        with  self.assertRaises(DeduplicationFailed):
+            result3.addService(dummyService(AString="blaOther"))
 
 
 if __name__ == "__main__":

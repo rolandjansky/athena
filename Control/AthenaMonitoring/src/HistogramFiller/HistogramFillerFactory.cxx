@@ -16,7 +16,7 @@
 #include "HistogramFiller2D.h"
 #include "HistogramFiller2DProfile.h"
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
+#include "HistogramFillerFactory.h"
 
 using namespace std;
 using namespace Monitored;

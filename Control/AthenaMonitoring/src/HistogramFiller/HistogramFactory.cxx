@@ -7,7 +7,8 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
+#include "HistogramException.h"
+#include "HistogramFactory.h"
 
 using namespace Monitored;
 

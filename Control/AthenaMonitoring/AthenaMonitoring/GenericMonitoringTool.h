@@ -24,7 +24,7 @@
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller.h"
 
 /**
  * @brief Generic monitoring tool for athena components

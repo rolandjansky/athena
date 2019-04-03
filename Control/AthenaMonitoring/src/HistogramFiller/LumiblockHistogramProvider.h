@@ -9,8 +9,9 @@
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
-#include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
+#include "AthenaMonitoring/IHistogramProvider.h"
+
+#include "HistogramFactory.h"
 
 namespace Monitored {
   /**

@@ -16,10 +16,10 @@
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
+
+#include "HistogramFiller/HistogramFillerFactory.h"
 
 using namespace Monitored;
-
 
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
   : AthAlgTool(type, name, parent) {

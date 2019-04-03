@@ -5,11 +5,9 @@
 #ifndef AthenaMonitoring_HistogramFiller_HistogramFiller1D_h
 #define AthenaMonitoring_HistogramFiller_HistogramFiller1D_h
 
-#include <memory>
-
 #include "TH1.h"
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller.h"
 
 namespace Monitored {
   /**

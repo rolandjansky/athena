@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -607,7 +607,7 @@ def setupTauJVFTool():
 
     """
     from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-    ToolSvc += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
+    jetTrackAlg.Tools  += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
                                      OutputContainer="JetSelectedTracks_forTaus", 
                                      Selector=InDetTrackSelectorToolForTJVA, 
                                      OutputLevel=2
@@ -616,17 +616,15 @@ def setupTauJVFTool():
     """
 
     from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-    ToolSvc += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
-                                          TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
-                                          VertexContainer= _DefaultVertexContainer,
-                                          MaxTransverseDistance = 2.5 *mm,
-                                          #MaxLongitudinalDistance = 2 *mm, 
-                                          MaxZ0SinTheta = 3.0 *mm,
-                                          #OutputLevel=2
-                                          )
-    #jetTrackAlg.Tools = [ToolSvc.JetTrackSelectionTool , ToolSvc.TrackVertexAssociationTool ]
-    jetTrackAlg.Tools = [ ToolSvc.TrackVertexAssociationTool ]
-    
+    jetTrackAlg.Tools += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
+                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
+                                                    VertexContainer= _DefaultVertexContainer,
+                                                    MaxTransverseDistance = 2.5 *mm,
+                                                    #MaxLongitudinalDistance = 2 *mm, 
+                                                    MaxZ0SinTheta = 3.0 *mm,
+                                                    #OutputLevel=2
+                                                )
+
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()    
     topSequence+=jetTrackAlg
@@ -812,6 +810,31 @@ def getTauTrackClassifier():
     return myTauTrackClassifier
 
 ########################################################################                                                                                                             
+#
+def getTauWPDecoratorJetRNN():
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    _name = sPrefix + 'TauWPDecoratorJetRNN'
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    myTauWPDecorator = TauWPDecorator( name=_name,
+                                       flatteningFile1Prong = "rnnid_mc16d_flat_1p.root",
+                                       flatteningFile3Prong = "rnnid_mc16d_flat_3p.root",
+                                       CutEnumVals =
+                                       [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
+                                         ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                       SigEff1P = [0.95, 0.85, 0.75, 0.60],
+                                       SigEff3P = [0.95, 0.75, 0.60, 0.45],
+                                       ScoreName = "RNNJetScore",
+                                       NewScoreName = "RNNJetScoreSigTrans",
+                                       DefineWPs = True,
+                                       )
+    cached_instances[_name] = myTauWPDecorator
+    return myTauWPDecorator
+
+
 #                                                                                                                                                                                  
 def getTauWPDecoratorJetBDT():
     import PyUtils.RootUtils as ru
@@ -819,7 +842,7 @@ def getTauWPDecoratorJetBDT():
     import cppyy
     cppyy.loadDictionary('xAODTau_cDict')
 
-    _name = sPrefix + 'TauWPDecorator'
+    _name = sPrefix + 'TauWPDecoratorJetBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
                                        flatteningFile1Prong = "FlatJetBDT1Pv2.root", #update
@@ -862,6 +885,28 @@ def getTauWPDecoratorEleBDT():
                                              ) 
     cached_instances[_name] = TauScoreFlatteningTool
     return TauScoreFlatteningTool
+
+
+#
+def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
+    _name = sPrefix + _n
+    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
+    myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
+                                              NetworkFile0P=NetworkFile0P,
+                                              NetworkFile1P=NetworkFile1P,
+                                              NetworkFile3P=NetworkFile3P,
+                                              OutputVarname=OutputVarname,
+                                              MaxTracks=MaxTracks,
+                                              MaxClusters=MaxClusters,
+                                              MaxClusterDR=MaxClusterDR,
+                                              InputLayerScalar=InputLayerScalar,
+                                              InputLayerTracks=InputLayerTracks,
+                                              InputLayerClusters=InputLayerClusters,
+                                              OutputLayer=OutputLayer,
+                                              OutputNode=OutputNode)
+    cached_instances[_name] = myTauJetRNNEvaluator
+    return myTauJetRNNEvaluator
+
 
 def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n

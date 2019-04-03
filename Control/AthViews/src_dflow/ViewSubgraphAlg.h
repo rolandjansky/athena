@@ -48,6 +48,7 @@ class ViewSubgraphAlg
   // vars
   ServiceHandle< IScheduler > m_scheduler { this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
   SG::WriteHandleKey< ViewContainer > m_w_views { this, "AllViews", "all_views", "All views" };
+  SG::ReadHandleKey< ViewContainer > m_r_views { this, "ParentViews", "", "Parent views" };
   SG::WriteHandleKey< int > m_w_int { this, "ViewStart", "view_start", "A number to start off the view" };
   Gaudi::Property< std::string > m_viewBaseName { this, "ViewBaseName", "", "Name to use for all views - number will be appended" };
   Gaudi::Property< std::string > m_viewNodeName { this, "ViewNodeName", "", "Name of CF node to attach views to" };

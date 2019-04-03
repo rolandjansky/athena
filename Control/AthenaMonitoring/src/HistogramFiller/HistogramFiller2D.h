@@ -7,7 +7,7 @@
 
 #include "TH2.h"
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFiller.h"
+#include "AthenaMonitoring/HistogramFiller.h"
 
 namespace Monitored {
   /**

@@ -2,18 +2,17 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AthenaMonitoring_HistogramFiller_HistogramFiller_h
-#define AthenaMonitoring_HistogramFiller_HistogramFiller_h
+#ifndef AthenaMonitoring_HistogramFiller_h
+#define AthenaMonitoring_HistogramFiller_h
 
 #include <functional>
 #include <mutex>
 #include <memory>
 #include <vector>
 
-#include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
-
-#include "AthenaMonitoring/HistogramFiller/IHistogramProvider.h"
+#include "AthenaMonitoring/IHistogramProvider.h"
+#include "AthenaMonitoring/IMonitoredVariable.h"
 
 namespace Monitored {
   /**

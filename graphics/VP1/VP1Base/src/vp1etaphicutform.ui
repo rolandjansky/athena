@@ -129,6 +129,9 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
+            <property name="decimals">
+             <number>3</number>
+            </property>
             <property name="minimum">
              <double>-99.989999999999995</double>
             </property>
@@ -157,6 +160,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="decimals">
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-99.000000000000000</double>

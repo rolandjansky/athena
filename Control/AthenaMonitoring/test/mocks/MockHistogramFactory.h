@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "AthenaMonitoring/HistogramFiller/HistogramFactory.h"
+#include "../../src/HistogramFiller/HistogramFactory.h"
 
 class MockHistogramFactory : public Monitored::HistogramFactory {
   public:

@@ -275,7 +275,6 @@ DbStatus RootKeyContainer::loadObject( void** ptr, ShapeH shape,
 }
 
 DbStatus RootKeyContainer::writeObject(ActionList::value_type& action)   {
-   DbStatus status = Error;
    if ( m_dir )  {
       char knam[64];
       ::sprintf(knam, "_pool_valid_%08d", int(action.link.second));

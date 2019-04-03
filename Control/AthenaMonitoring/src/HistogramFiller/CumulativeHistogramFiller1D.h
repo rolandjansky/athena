@@ -23,6 +23,7 @@ namespace Monitored {
         return 0;
       }
 
+      unsigned i(0);
       auto histogram = this->histogram<TH1>();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
@@ -33,9 +34,11 @@ namespace Monitored {
         for (unsigned j = bin; j > 0; --j) {
           histogram->AddBinContent(j);
         }
+
+        ++i;
       }
 
-      return std::size(valuesVector);  
+      return i;  
     }
   };
 }

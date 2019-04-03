@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -165,13 +165,14 @@ namespace TRTCond
     //       : m_daughters(0), m_default(Trait::initialvalue()) { *this = rhs ; }
 
    /** destructor    */
-    ~NestedContainerBase() { 
+    ~NestedContainerBase() = default;
+    //{ 
       //cannot delete the daughter here, because of copy constructors
       //std::cout << "in ~NestedContainerBase(): " << std::flush ;
       //Trait::print(m_default) ;
       //Trait::erase(m_default) ; 
       //std::cout << "done." << std::endl ;
-     }
+    //}
 
     //     NestedContainerBase& operator=(const NestedContainerBase& rhs) {
     //       std::cout << "operator=" << m_daughters.size() << " " << rhs.m_daughters.size() << std::endl ;

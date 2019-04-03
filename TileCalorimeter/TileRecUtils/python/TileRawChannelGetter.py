@@ -121,7 +121,7 @@ class TileRawChannelGetter ( Configured)  :
                 if globalflags.DataSource() == 'data':
 
                     # check if there are DSP thresholds in DB
-                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
+                    if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits():
                         jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits = False
 
                     if jobproperties.TileRecFlags.correctPedestalDifference():
@@ -129,8 +129,8 @@ class TileRawChannelGetter ( Configured)  :
                         toolOfcCoolOF1 = getTileCondToolOfcCool('COOL', TilePulse, 'OF1', 'TileCondToolOfcCoolOF1')
                         if athenaCommonFlags.isOnline() or not toolOfcCoolOF1:
                             jobproperties.TileRecFlags.correctPedestalDifference = False
-                        else:
-                            tileInfoConfigurator.setupCOOLTIME(online = True)
+                        #else:
+                        #    tileInfoConfigurator.setupCOOLTIME(online = True)
 
                     if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() or jobproperties.TileRecFlags.correctPedestalDifference():
                         from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector

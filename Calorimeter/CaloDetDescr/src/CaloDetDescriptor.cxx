@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -112,26 +112,31 @@ CaloDetDescriptor::~CaloDetDescriptor()
 
 void CaloDetDescriptor::print() const
 {
-  std::cout << " CaloDetDescriptor print: \n\n"; 
+  dump(std::cout);
+}
 
-  m_calo_helper->print(m_id);    
+void CaloDetDescriptor::dump(std::ostream& os) const
+{
+  os << " CaloDetDescriptor print: \n\n"; 
+
+  os << m_calo_helper->print_to_string(m_id);    
   
   if(m_calo_helper->is_em_endcap(m_id))
-    std::cout << " LAr EM ENDCAP: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
+    os << " LAr EM ENDCAP: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
   else if(m_calo_helper->is_em_barrel(m_id))
-    std::cout << " LAr EM BARREL: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
+    os << " LAr EM BARREL: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
   else if(m_calo_helper->is_lar_hec(m_id))
-    std::cout << " LAr HEC: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
+    os << " LAr HEC: " << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
   else if(m_calo_helper->is_lar_fcal(m_id))
-    std::cout << " LAr Fcal:  "  << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
+    os << " LAr Fcal:  "  << (int) m_calo_sampl << " " <<  (int) m_calo_num << "\n";
   else
   {
-    if(!m_is_tile) std::cout << " UNKNOW LAr decriptor !!!! \n";
+    if(!m_is_tile) os << " UNKNOW LAr decriptor !!!! \n";
   }
 
-  std::cout << "Ideal values before alignment :\n";
-  std::cout << "  eta_min   eta_max    deta    n_eta  phi_min   phi_max    dphi  n_phi    \n"; 
-  std::cout << std::setw(9) << std::setprecision(4) << calo_eta_min() << " " 
+  os << "Ideal values before alignment :\n";
+  os << "  eta_min   eta_max    deta    n_eta  phi_min   phi_max    dphi  n_phi    \n"; 
+  os << std::setw(9) << std::setprecision(4) << calo_eta_min() << " " 
 	    << std::setw(9) << std::setw(9) << std::setprecision(4) << calo_eta_max() << " "
             << std::setw(9) << std::setprecision(4) << deta()    << " " 
 	    << std::setw(9) << std::setprecision(4) << n_eta()    << " " 
@@ -140,9 +145,9 @@ void CaloDetDescriptor::print() const
 	    << std::setw(9) << std::setprecision(4) << dphi()    << " "
 	    << std::setw(9) << std::setprecision(4) << n_phi() << "\n";
  
-  std::cout << " r_min  z_min   r_max  z_max  sign\n";  
+  os << " r_min  z_min   r_max  z_max  sign\n";  
 
-  std::cout << std::setprecision(4) << calo_r_min() << " " 
+  os << std::setprecision(4) << calo_r_min() << " " 
 	    << std::setprecision(4) << calo_r_max() << " " 
 	    << std::setprecision(4) << calo_z_min() << " " 
 	    << std::setprecision(4) << calo_z_max() << " " 
@@ -168,12 +173,12 @@ void CaloDetDescriptor::print() const
       }
   }
 
-  std::cout << "\nEigenTransform phi,theta,psi,x,y,z: "
+  os << "\nEigenTransform phi,theta,psi,x,y,z: "
 	    << phi1 << " "  << theta1 << " "
 	    << psi1  << " "  << m_transform(0,3) << " "
 	    << m_transform(1,3) << " "  << m_transform(2,3) << "\n\n";
 
-    std::cout << std::setprecision(4) << "in real world (can be <0)" 
+    os << std::setprecision(4) << "in real world (can be <0)" 
 	      << m_lar_reg_min << " " << m_lar_reg_max << " " 
 	      << m_lar_phi_min << " " << m_lar_eta_min << "\n\n"; 
 }

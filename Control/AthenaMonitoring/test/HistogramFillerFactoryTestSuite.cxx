@@ -21,7 +21,6 @@
 #include "TProfile2D.h"
 
 #include "AthenaMonitoring/HistogramDef.h"
-#include "AthenaMonitoring/HistogramFiller/HistogramFillerFactory.h"
 
 #include "../src/HistogramFiller/StaticHistogramProvider.h"
 #include "../src/HistogramFiller/LumiblockHistogramProvider.h"
@@ -33,6 +32,8 @@
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
 #include "../src/HistogramFiller/HistogramFiller2DProfile.h"
+
+#include "../src/HistogramFiller/HistogramFillerFactory.h"
 
 #include "mocks/MockGenericMonitoringTool.h"
 #include "mocks/MockITHistSvc.h"

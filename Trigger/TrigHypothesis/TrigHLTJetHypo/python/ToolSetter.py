@@ -123,7 +123,7 @@ class ToolSetter(object):
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
         helper_tool.OutputLevel = DEBUG
-
+        helper_tool.debug = self.debug  # dumps every event
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
 
