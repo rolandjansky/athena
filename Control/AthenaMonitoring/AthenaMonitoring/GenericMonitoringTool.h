@@ -82,7 +82,6 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t lumiBlock();
 private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfoKey", "EventInfo", "EventInfo name" };
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};

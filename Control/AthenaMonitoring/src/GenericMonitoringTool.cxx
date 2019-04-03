@@ -32,7 +32,6 @@ GenericMonitoringTool::~GenericMonitoringTool() {
 }
 
 StatusCode GenericMonitoringTool::initialize() {
-  ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_histSvc.retrieve());
 
   if ( not m_explicitBooking ) {
@@ -118,7 +117,5 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
 }
 
 uint32_t GenericMonitoringTool::lumiBlock() {
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  
-  return eventInfo.isValid() ? eventInfo->lumiBlock() : 0;
+  return Gaudi::Hive::currentContext().eventID().lumi_block();
 }
