@@ -110,6 +110,7 @@ atlas_install_xmls( data/*.xml )
 
 atlas_build_trigger_menu( Physics_pp_v8 )
 atlas_build_trigger_menu( Physics_pp_v8_lowmu )
+atlas_build_trigger_menu( Physics_pp_v8_unprescaled_only_physics_prescale )
 atlas_build_trigger_menu( MC_pp_v8 )
 atlas_build_trigger_menu( MC_pp_v8_BulkMCProd_mc_prescale )
 

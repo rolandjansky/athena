@@ -1051,7 +1051,8 @@ class triggerMenuSetup(JobProperty):
 
         # -----------------------------------------------------------------
         # Run 3
-        'MC_pp_v8', 'MC_pp_v8_BulkMCProd_mc_prescale', 'Physics_pp_v8', 'Physics_pp_v8_lowmu', 'MC_pp_v8_no_prescale', 'MC_pp_v8_CPSampleProd_mc_prescale', 'MC_pp_v8_TriggerValidation_mc_prescale'
+        'MC_pp_v8', 'MC_pp_v8_BulkMCProd_mc_prescale', 'Physics_pp_v8', 'Physics_pp_v8_lowmu', 'MC_pp_v8_no_prescale', 'MC_pp_v8_CPSampleProd_mc_prescale', 'MC_pp_v8_TriggerValidation_mc_prescale',
+        'Physics_pp_v8_unprescaled_only_physics_prescale',
 
         # -----------------------------------------------------------------
         # Upgrade
