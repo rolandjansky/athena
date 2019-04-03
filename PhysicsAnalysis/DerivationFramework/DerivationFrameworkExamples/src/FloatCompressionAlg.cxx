@@ -43,7 +43,7 @@ namespace DerivationFramework {
 
   StatusCode FloatCompressionAlg::execute() {
 
-
+    /*
         std::cout << " Kerim In FloatCompressionAlg::execute " << std::endl;
 	
 	const SG::IConstAuxStore* store = nullptr;
@@ -60,7 +60,7 @@ namespace DerivationFramework {
 
 	  std::cout << " kerim auxid " << auxid << " name " << name << " tname " << tname << std::endl;
 	}
-
+    */
 
 
       // Collect all the container(s):
@@ -125,7 +125,7 @@ namespace DerivationFramework {
 	    const std::string tname =
 	      SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
 	    
-	    std::cout << "Kerim " << tname << std::endl;
+	    // std::cout << "Kerim " << tname << std::endl;
 
             static const std::string pat1 = "float";
             static const std::string pat2 = "std::vector<float>";
@@ -148,12 +148,12 @@ namespace DerivationFramework {
 	// continue;
 	
       
-	std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	// std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
 	std::string name = reg.getName( auxid );
 
-	if ( !(name=="NumTrkPt500" || name=="SumPtTrkPt500" || name=="NumTrkPt1000" || name=="TrackWidthPt1000") )
-	  continue;
+	// if ( !(name=="NumTrkPt500" || name=="SumPtTrkPt500" || name=="NumTrkPt1000" || name=="TrackWidthPt1000") )
+	// continue;
    
 	const size_t eltSize = reg.getEltSize( auxid );
 
@@ -173,9 +173,9 @@ namespace DerivationFramework {
 
 	      float val = *(float *) eltPtr;
 	    
-	      // val = m_floatCompressor->reduceFloatPrecision( val );
+	      val = m_floatCompressor->reduceFloatPrecision( val );
 	    
-	      // *(float *) eltPtr = val;
+	      *(float *) eltPtr = val;
 	    }
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
 
@@ -184,9 +184,8 @@ namespace DerivationFramework {
 	    const size_t sz_j = vals.size();
 
 	    for( size_t j = 0; j < sz_j; ++j )
-	      ;
-	    // vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j] );
-
+	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j] );
+	    
 	    // vals.erase( vals.begin()+2, vals.end() );
 	    
 	  }
