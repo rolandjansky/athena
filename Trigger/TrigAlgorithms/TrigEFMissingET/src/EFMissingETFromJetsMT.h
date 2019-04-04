@@ -25,8 +25,6 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
 #include "xAODJet/JetContainer.h"
 #include "TrigEFMissingET/IMissingETTool.h"
 
-using xAOD::JetContainer;
-
 /**
   @class EFMissingETFromJetsMT
   \brief Updates metHelper object with jets
@@ -62,7 +60,7 @@ class EFMissingETFromJetsMT : public extends<AthAlgTool, IMissingETTool>
     Gaudi::Property<float> m_etacut                 {this, "EtaSeparation", 2.2 , "Cut to split into forward and central jets -- needs to be positive"};
     Gaudi::Property<float> m_forward_ptcut          {this, "CentralpTCut", 0.0 , "pT Cut for central jets"};
     Gaudi::Property<float> m_central_ptcut          {this, "ForwardpTCut", 0.0 ," pT Cut for forward jets"};
-    SG::ReadHandleKey<JetContainer> m_jetsKey       {this, "JetsCollection", "jets", "Collection containing all jets" };
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetsKey {this, "JetsCollection", "jets", "Collection containing all jets" };
 
     // TileGap3Correction obsolete? Will remove in future MR if this is the case.
     // Commented out for the time being because the corresponding code is not thread-safe and is raising warnings. @ggallard
