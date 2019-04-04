@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -69,8 +69,15 @@ namespace Trk
   /**
    * Copy constructor and assignement operator
    */  
-    RecVertex(const RecVertex& ); 
-    RecVertex &operator= (const RecVertex &);  
+    RecVertex(const RecVertex& ) = default; 
+    RecVertex &operator= (const RecVertex &) = default;
+
+  /**
+   * Move constructor and assignment operator
+   */
+    RecVertex ( RecVertex && ) = default;	
+    RecVertex &operator = ( RecVertex && ) = default;
+
 
   /** 
    * Output Method for MsgStream, to be overloaded by child classes 
