@@ -48,7 +48,7 @@ namespace SoftBVrt {
     float m_PV_z;
     bool m_jetveto;
     bool m_trackjetveto;
-    bool m_overlap_frac;
+    float m_overlap_frac;
 
     // secondary vertices
     ToolHandle< InDet::ISecVertexInJetFinder > m_secVertexFinderTool; 
