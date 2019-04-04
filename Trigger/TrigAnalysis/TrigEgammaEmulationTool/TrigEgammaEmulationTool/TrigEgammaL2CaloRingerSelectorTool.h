@@ -39,12 +39,8 @@ class TrigEgammaL2CaloRingerSelectorTool:
     
     float       m_etCut;
     float       m_output;
-    float       m_lumiCut;
     bool        m_useEtaVar;
     bool        m_useLumiVar;
-    bool        m_doPileupCorrection;
-    bool        m_useNoActivationFunctionInTheLastLayer;
-    bool        m_useLumiTool;
 
 
     //Discriminator configuration
