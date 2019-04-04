@@ -55,7 +55,8 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         # ATR-19382
-        ['mu10_ivarmedium_mu10',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu10_ivarmedium','mu10']]],
+        ['mu10_ivarmedium_mu10',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['parallel',-1,[] ]],
+        ['2mu10_AND_mu10_ivarmedium',     'L1_2MU10', ['L1_2MU10','L1_MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['2mu10_AND', 'mu10_ivarmedium'],False]],
         
         ['mu10_ivarmedium_mu10_20invm60',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['mu10_ivarmedium', 'mu10_20invm60']]],
         ['mu20_ivarmedium_mu8noL1_20invm60',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['mu20_ivarmedium', 'mu8noL1_20invm60']]],

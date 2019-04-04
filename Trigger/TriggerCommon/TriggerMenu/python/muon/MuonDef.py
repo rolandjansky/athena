@@ -69,6 +69,7 @@ class L2EFChain_mu(L2EFChainDef):
     self.L2Name = 'L2_'+self.chainPart['chainPartName']
     self.EFName = 'EF_'+self.chainPart['chainPartName']
     self.mult = int(self.chainPart['multiplicity'])
+    if "AND" in self.chainPart['extra']: self.chainPart['extra'] = '' #Lots of checks later for empty extra
 
     self.chainPartName = self.chainPart['chainPartName']
     self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName
