@@ -72,6 +72,30 @@ timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf T
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
+export NAME=HLT_mcV8PhaseI_menu
+export JOB_LOG="${NAME}.log"
+
+timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
+export NAME=UploadMenuKeys_MCPhaseI
+export JOB_LOG="${NAME}.log"
+
+timeout 120m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
+export NAME=HLT_mcV8PhaseI_menu_rerundb
+export JOB_LOG="${NAME}.log"
+
+timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
 #export NAME=HLT_HIV5_menu
 #export JOB_LOG="${NAME}.log"
 
