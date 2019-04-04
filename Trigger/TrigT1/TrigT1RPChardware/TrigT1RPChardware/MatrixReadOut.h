@@ -23,6 +23,7 @@ MatrixReadOut(Matrix *p, ubit16 FEevent, DataVersion=MatrixReadOut::Atlas);
 MatrixReadOut(ubit16 FEevent=0, DataVersion=MatrixReadOut::Atlas);
 MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion=MatrixReadOut::Atlas);
 MatrixReadOut(const MatrixReadOut &MROOrig); // copy constructor
+MatrixReadOut& operator=(const MatrixReadOut &MROOrig) = delete;
 ~MatrixReadOut();
 MatrixReadOutStructure getCMAHit(int index);
 MatrixReadOutStructure getHeader();
