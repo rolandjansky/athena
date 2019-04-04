@@ -8,7 +8,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateComponent, deduplicateWithAll, DeduplicationFailed
+from Deduplication import deduplicate, deduplicateWithAll, DeduplicationFailed
 
 import ast
 import collections
