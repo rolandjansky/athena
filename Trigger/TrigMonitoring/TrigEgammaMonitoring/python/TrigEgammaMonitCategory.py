@@ -2,8 +2,8 @@
 
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
-primary_single_ele = ['HLT_e26_lhtight_nod0_ivarloose_L1eEM22', 'HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
-primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+primary_single_ele = [ 'HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
+primary_single_ele_iso =['HLT_e26_lhtight_nod0_ivarloose_L1eEM22','HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
 monitoring_Zee = ['HLT_e28_lhtight_nod0_e15_etcut_L1EM7_Zee','HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g140_tight','HLT_g200_loose']
