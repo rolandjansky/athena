@@ -19,7 +19,7 @@
 
 export NAME="data_mc_pp_v8_rerunLVL1PhaseI_grid"
 export MENU="MC_pp_v8"
-export EVENTS="500"
+export EVENTS="1000"
 export INPUT="data"
 export EXTRA="rerunLVL1PhaseI=True;"
 
