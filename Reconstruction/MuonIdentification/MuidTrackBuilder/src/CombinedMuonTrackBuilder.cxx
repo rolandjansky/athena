@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1897,10 +1897,24 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	}   
 
 //    countAEOTs(track," SA track before updateCaloTSOS ");
+    int improvementsFailed=0; //count the number of times the fit fails after improvements
 
     if(m_refineELossStandAloneTrackFit) {
       ATH_MSG_VERBOSE( "Refining Calorimeter TSOS in StandAlone Fit ..." );
+      std::unique_ptr<Trk::Track> oldTrack=std::make_unique<Trk::Track>(Trk::Track(*track));
       m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>( *track ));
+      Trk::Track* refinedTrack=fit(*track,false,Trk::muon);
+      if(refinedTrack){
+	ATH_MSG_VERBOSE("successfully refit after refining calo TSOS");
+	if(checkTrack("refineFit",refinedTrack,track)) ATH_MSG_VERBOSE("refined track checks out");
+	delete track;
+	track=refinedTrack;
+      }
+      else{
+	ATH_MSG_VERBOSE("refined track fit failed");
+	track=oldTrack.release();
+	improvementsFailed++;
+      }
     }
 
 //    countAEOTs(track," SA track before addIDMSerrors ");
@@ -1922,8 +1936,10 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	  track = refittedTrack;
         }else {
 	  if(refittedTrack) delete refittedTrack;
+	  improvementsFailed++;
         }
     }
+    else improvementsFailed++;
 
     // hole recovery, error optimization, attach TrackSummary
     finalTrackBuild(track);
@@ -1939,6 +1955,10 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	    ATH_MSG_DEBUG( "standaloneFit: fit quality degraded wrt spectrometer alone. "
 			   << " Chi2/DoF= " << fitChi2 );
 	    ++m_countDegradedStandaloneFit;
+	    if(improvementsFailed==2){
+	      ATH_MSG_WARNING("reject track, quality degraded and improvements failed");
+	      return 0;
+	    }
 	}
     }
     
