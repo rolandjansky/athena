@@ -1,9 +1,23 @@
 #!/bin/sh
+# art-description: athenaMT trigger test using the muon menu from TrigUpgradeTest job options
 # art-type: build
 # art-include: master/Athena
+# art-output: *.log
+# art-output: *.root
+# art-output: *.regtest.new
 
+export NAME="TrigUpgradeTest_mu_menu_build"
+export SKIPEVENTS=50
+export EVENTS=10
+export THREADS=1
+export SLOTS=1
+export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+export EXTRA="doEmptyMenu=True;doMuonSlice=True"
 
-### BSfile ###
-athena --threads=1 --skipEvents=50 --evtMax=10 --filesInput="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1" TrigUpgradeTest/mu.menu.py
-### RDOfile ###
-#athena --threads=1 -c 'EvtMax=50;FilesInput="/afs/cern.ch/user/s/shhayash/workspace/public/RDOfile/ttbar/RDO_TRIG.root"' TrigUpgradeTest/mu.withViews.py
+# Find the regtest reference installed with the release
+export REGTESTREF=`find_data.py TrigUpgradeTest/mu_menu.ref`
+
+source exec_TrigUpgradeTest_art_athenaMT.sh
+source exec_TrigUpgradeTest_art_post.sh
+

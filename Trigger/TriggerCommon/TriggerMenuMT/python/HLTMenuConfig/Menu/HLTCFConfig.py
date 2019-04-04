@@ -206,6 +206,10 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     HLTNodeName= HLTNode.name()
 
+    if len(chains) == 0:
+        log.info("Configuring empty decisionTree")
+        return []
+
     # find nsteps
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
     NSTEPS = len(chainWithMaxSteps.steps)

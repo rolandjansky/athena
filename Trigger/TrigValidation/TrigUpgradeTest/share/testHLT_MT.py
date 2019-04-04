@@ -33,6 +33,17 @@ class opt :
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
+    doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
+#Individual slice flags
+    doElectronSlice   = None
+    doPhotonSlice     = None
+    doMuonSlice       = None
+    doJetSlice        = None
+    doMETSlice        = None
+    doBJetSlice       = None
+    doTauSlice        = None
+    doComboSlice      = None
+    doBLSSlice        = None
 #
 ################################################################################
 
@@ -51,6 +62,25 @@ for option in defaultOptions:
         print(' %20s = %s' % (option, getattr(opt, option)))
     else:        
         print(' %20s = (Default) %s' % (option, getattr(opt, option)))
+
+
+import re
+sliceRe = re.compile("^do.*Slice")
+slices = [a for a in dir(opt) if sliceRe.match(a)]
+if opt.doEmptyMenu == True:
+    log.info("Disabling all slices")
+    for s in slices:
+        if s in globals():
+            log.info("re-enabling %s ", s)
+            setattr(opt, s, globals()[s])
+        else:
+            setattr(opt, s, False)
+else:
+    for s in slices:
+        setattr(opt, s, True)
+    opt.doBJetSlice=False #Wait for ATR-19439
+    opt.doTauSlice =False #Wait for ATR-17399
+
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -105,7 +135,6 @@ TriggerFlags.doHLT = bool(opt.doHLT)
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
 if opt.trigBase is not None:
     TriggerFlags.Online.doDBConfigBaseName = opt.trigBase
-
 
 # Setup list of modifiers
 # Common modifiers for MC and data
