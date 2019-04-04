@@ -67,12 +67,13 @@
 #===========================================================================================
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 #predefined menu setups accessible using 'test<NAME>[MC]=True' commandline
 menuMap={
          #2019 menus:       menu name                   L1 xml file
-         'PhysicsV8':       ('Physics_pp_v8',           'TriggerMenuXML/LVL1config_Physics_pp_v8.xml'),
-         'MCV8':            ('MC_pp_v8',                'TriggerMenuXML/LVL1config_MC_pp_v8.xml'),
+         'PhysicsV8':       ('Physics_pp_v8',           'TriggerMenuXML/LVL1config_Physics_pp_v8_' + TriggerFlags.menuVersion() + '.xml'),
+         'MCV8':            ('MC_pp_v8',                'TriggerMenuXML/LVL1config_MC_pp_v8_' + TriggerFlags.menuVersion() + '.xml'),
 
          #2018 menus:       menu name                   L1 xml file
          'HIV5':            ('Physics_HI_v5',           'TriggerMenuXML/LVL1config_Physics_HI_v5.xml'),
@@ -193,7 +194,6 @@ defaultOptions={
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # To turn off HLT for athena running
 TriggerFlags.doHLT = True
