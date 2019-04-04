@@ -47,17 +47,24 @@
  * The following histogram types are supported:
  * - TH1[F,D,I]
  * - TH2[F,D,I]
- * - TProfile[2D]
+ * - TProfile
+ * - TProfile2D
+ * - TEfficiency
  *
  * The following top-level paths are supported:
  * - EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRESS
  *
  * The following options are suppored:
- * - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
- * - `kCumulative` does fill of all bins left to the bin into which the value falls
- * - `kLBN` makes the histogram lumiblock aware
- * - `kVec` adds the content of the monitored variable to the histogram bins
- * - `kVecUO` same as kVec but treat 0th(last) element as underflow(overflow)
+ * - ROOT histogram settings group:
+ *    - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
+ *    - `Sumw2` activate the storage of the sum of squares of errors
+ * - Lumiblock awareness group:
+ *    - `kLBNHistoryDepth=value` makes the histogram lumiblock aware and groups incoming data based on lumiblock number,\n
+ *      'value' should be defined as positive integer
+ * - Data collection group (only for TH1):
+ *    - `kCumulative` does fill of all bins left to the bin into which the value falls
+ *    - `kVec` adds the content of the monitored variable to the histogram bins
+ *    - `kVecUO` same as kVec but treat 0th(last) element as underflow(overflow)
  *
  * Optionally, a colon-separated list of bin labels ("bin1:bin2:bin3:") can be provided (at least one
  * colon is required). In case of a 2D histogram the labels are assigned consecutively to the x-axis 
