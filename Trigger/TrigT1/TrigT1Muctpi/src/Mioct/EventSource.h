@@ -43,7 +43,7 @@ namespace LVL1MUCTPI {
    class EventSource {
 
    public:
-      virtual ~EventSource() {}
+      virtual ~EventSource() = default;
       virtual const char* printSource() const = 0;
 
    }; // class EventSource

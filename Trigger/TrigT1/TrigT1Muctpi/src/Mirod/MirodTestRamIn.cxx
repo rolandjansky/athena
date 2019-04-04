@@ -20,7 +20,3 @@ MirodTestRamIn::MirodTestRamIn() {
 
 }
 
-//destructor of class MirodTestRamIn
-MirodTestRamIn::~MirodTestRamIn() {
-
-}
