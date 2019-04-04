@@ -91,7 +91,7 @@ class ConfiguredInDetPreProcessingTRT:
          # Second calibration DB Service in case pile-up and physics hits have different calibrations
          if DetFlags.overlay.TRT_on() :
              InDetTRTCalDbTool2 = TRT_CalDbTool(name = "TRT_CalDbTool2")
-             InDetTRTCalDbTool2.IsGEANT4 = True
+             InDetTRTCalDbTool2.isGEANT4 = True
              InDetTRTCalDbTool2.RtFolderName = "/TRT/Calib/MC/RT"             
              InDetTRTCalDbTool2.T0FolderName = "/TRT/Calib/MC/T0"             
              InDetTRT_DriftFunctionTool.TRTCalDbTool2 = InDetTRTCalDbTool2

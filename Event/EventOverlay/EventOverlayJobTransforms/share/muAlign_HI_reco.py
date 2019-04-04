@@ -50,10 +50,10 @@ conddb.addMarkup("/TRT/Calib/MC/T0","<forceRunNumber>309000</forceRunNumber>")
 #conddb.addFolder("","<dbConnection>sqlite://;schema=mycool.db;dbname=OFLP200</dbConnection> /TRT/Calib/MCerrors2d" + "<tag> TrtCalibMCErrors2d-IOVdep-2Dfit-00-00 </tag>" , force=True)
 #conddb.blockFolder("/TRT/Calib/MCslopes")
 #conddb.addFolder("","<dbConnection>sqlite://;schema=mycool.db;dbname=OFLP200</dbConnection> /TRT/Calib/MCslopes" + "<tag> TrtCalibMCSlopes-mc_25ns-2Dfit-00-00 </tag>" , force=True)
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTMCCalibDBSvc=TRT_CalDbSvc(name="TRTMCCalibDBSvc",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",ErrorSlopeFolderName="/TRT/Calib/slopes",ErrorFolderName ="/TRT/Calib/errors2d")
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",isGEANT4=True)
 #TRTMCCalibDBSvc=TRT_CalDbSvc(name="TRTMCCalibDBSvc",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",ErrorFolderName="/TRT/Calib/MCerrors2d") #,ErrorSlopeFolderName="/TRT/Calib/MCslopes"
-ServiceMgr += TRTMCCalibDBSvc
+
 
 #This would add another trtdriftfuntiontool, using the new trtcaldb:
 #from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
@@ -61,7 +61,7 @@ ServiceMgr += TRTMCCalibDBSvc
 #ToolSvc += InDetTRT_MCDriftFunctionTool
 #but instead we'll just add the new trtcaldb to the existing trtdriftfunctiontool:
 ToolSvc.InDetTRT_DriftFunctionTool.IsOverlay=True
-ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBSvc
+ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBTool
 
 if "EOJT_noLorentz" in globals():
     print "EOJT_noLorentz found in globals(), so not doing Lorentz corrections"
