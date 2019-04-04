@@ -6,12 +6,12 @@
 # art-output: *.root
 # art-output: *.regtest.new
 
-export NAME="TrigUpgradeTest_fullMenu_build"
+export NAME="TrigUpgradeTest_full_menu_build"
 export SKIPEVENTS=10
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/fullMenu.py"
+export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 
 # Find the regtest reference installed with the release

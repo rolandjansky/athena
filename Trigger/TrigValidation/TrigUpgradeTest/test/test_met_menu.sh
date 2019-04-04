@@ -1,6 +1,22 @@
 #!/bin/sh
+# art-description: athenaMT trigger test using the MET menu from TrigUpgradeTest job options
 # art-type: build
-# art-ci: master
+# art-include: master/Athena
+# art-output: *.log
+# art-output: *.root
+# art-output: *.regtest.new
 
-athena --threads=1 --evtMax=50 --filesInput="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1" TrigUpgradeTest/met.menu.py 
+export NAME="TrigUpgradeTest_met_menu"
+export EVENTS=50
+export THREADS=1
+export SLOTS=1
+export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
+export EXTRA="doEmptyMenu=True;doMETSlice=True"
+
+# Find the regtest reference installed with the release
+export REGTESTREF=`find_data.py TrigUpgradeTest/met_menu.ref`
+
+source exec_TrigUpgradeTest_art_athenaMT.sh
+source exec_TrigUpgradeTest_art_post.sh
 

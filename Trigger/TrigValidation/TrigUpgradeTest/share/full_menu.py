@@ -15,14 +15,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
 
-doElectron = True
-doPhoton = True
-doMuon   = True
-doJet    = True
-doMET    = True
-doBJet   = False
-doTau    = False
-doCombo  = True
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
@@ -52,7 +44,7 @@ inDetSetup()
 ##################################################################
 # egamma chains
 ##################################################################
-if (doElectron):
+if opt.doElectronSlice == True:
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
     fastCaloStep=fastCaloMenuSequence("Ele")
@@ -72,7 +64,7 @@ if (doElectron):
 ##################################################################
 # photon chains
 ##################################################################
-if (doPhoton):
+if opt.doPhotonSlice == True:
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
     from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
 
@@ -88,23 +80,41 @@ if (doPhoton):
 ##################################################################
 # muon chains
 ##################################################################
-if (doMuon):
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFMSSequence, muIsoSequence
+if opt.doMuonSlice == True:
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
+
+    inDetSetup()
+
     MuonChains  = []
-    muFastSequence = muFastSequence()
-    muCombSequence = muCombSequence()
 
     # step1
-    step1mufast=ChainStep("Step1_muFast", [ muFastSequence ])
+    step1mufast=ChainStep("Step1_muFast", [ muFastSequence() ])
     # step2
-    step2muComb=ChainStep("Step2_muComb", [ muCombSequence ])
+    step2muComb=ChainStep("Step2_muComb", [ muCombSequence() ])
+    step2muEFMS=ChainStep("Step2_muEFMS", [ muEFMSSequence() ])
     # step3
-    
-    MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
-    MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
-    if TriggerFlags.doID==True:
-        MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
-        MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
+    step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSASequence() ])
+    step3muIso =ChainStep("Step3_muIso",  [ muIsoSequence() ])
+    # step4
+    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBSequence() ])
+    # Full scan MS tracking step
+    stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
+    stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
+
+
+    ## single muon trigger  
+    MuonChains += [Chain(name='HLT_mu6fast',   Seed="L1_MU6",  ChainSteps=[ step1mufast ])]
+    MuonChains += [Chain(name='HLT_mu6Comb',   Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb ])]
+    #MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muEFMS ])] # removed due to muEFSA isuue(?)
+    MuonChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
+    MuonChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
+
+    # multi muon trigger 
+    MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
+    MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]        
+
+    #FS Muon trigger
+    MuonChains += [Chain(name='HLT_mu6nol1', Seed="L1_MU6", ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 
@@ -112,16 +122,22 @@ if (doMuon):
 ##################################################################
 # jet chains
 ##################################################################
-if (doJet):
+if opt.doJetSlice == True:
     from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
     jetSeq1 = jetMenuSequence()
     jetstep1=ChainStep("Step1_jet", [jetSeq1])
     
     jetChains  = [
-        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[jetstep1] )  
-        ]
+      Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+      Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[jetstep1]  ),
+      Chain(name='HLT_j420', Seed='L1_J20', ChainSteps=[jetstep1] ),
+      Chain(name='HLT_j225_gsc420_boffperf_split', Seed='L1_J20', ChainSteps=[jetstep1] ),
+      Chain(name='HLT_j260_320eta490', Seed='L1_J20', ChainSteps=[jetstep1] ),
+
+      Chain(name='HLT_3j200', Seed='L1_J20', ChainSteps=[jetstep1] ),
+      Chain(name='HLT_5j70_0eta240_L14J15', Seed='L1_J20', ChainSteps=[jetstep1] ),
+    ]
     testChains += jetChains
 
 
@@ -130,34 +146,35 @@ if (doJet):
 ##################################################################
 # bjet chains
 ##################################################################
-if (doBJet):
+if opt.doBJetSlice == True:
     from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
 
     step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
     step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
 
     bjetChains  = [                                                                                                                                                                         
-        Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1] ),
-       # Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1,step2] ),
-       # Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step2] )
+          Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1,step2] ),
+          Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1,step2] ),
+          Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step2] )
         ]
     testChains += bjetChains
     
-if (doTau):
-  from TrigUpgradeTest.tauMenuDefs import tauCaloSequence
-  #, tauCaloRecSequence
-  step1=ChainStep("Step1_tau", [tauCaloSequence()])
-  #step2=ChainStep("Step2_taucalorec", [tauCaloRecSequence()])
-  tauChains = [
-      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1] ),
-      Chain(name='HLT_tau25_medium1_tracktwo', Seed="L1_TAU12IM",  ChainSteps=[step1] ),
+if opt.doTauSlice == True:
+  from TrigUpgradeTest.tauMenuDefs import getTauSequence
+  step1=ChainStep("Step1_tau", [getTauSequence('calo')])
+  step2=ChainStep("Step2_tau", [getTauSequence('track_core')])
+  
+  
+  tauChains  = [
+      Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1, step2] ),
+      Chain(name='HLT_tau25_medium1_tracktwo', Seed="L1_TAU12IM",  ChainSteps=[step1, step2] ),
       ]
   testChains += tauChains
 
 ##################################################################
 # MET chains
 ##################################################################
-if (doMET):
+if opt.doMETSlice == True:
     from TriggerMenuMT.HLTMenuConfig.MET.metMenuDefs import metCellMenuSequence
 
     metCellSeq = metCellMenuSequence()
@@ -170,14 +187,22 @@ if (doMET):
     testChains += metChains
 
 ##################################################################
+# B-physics and light states chains, placeholder for now
+##################################################################
+if opt.doBLSSlice == True:
+  pass
+  
+
+##################################################################
 # combined chains
 ##################################################################
-if (doCombo):
+if opt.doComboSlice == True:
     # combo chains
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence])
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastSequence()])
 
     comboChains =  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains
+
 
 
 ##########################################

@@ -1,47 +1,8 @@
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e15_etcut ID#4129888385
-TrigSignatureMoniMT                                INFO HLT_e15_etcut                 20        20        7         7         7         7         
-TrigSignatureMoniMT                                INFO HLT_e15_etcut decisions                           7         94        7         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        9         8         7         7         7         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            22        138       19        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut decisions                            54        342       
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step decisions                       54        0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut decisions                            50        329       
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        264       
