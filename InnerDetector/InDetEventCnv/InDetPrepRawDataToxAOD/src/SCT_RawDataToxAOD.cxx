@@ -15,10 +15,9 @@
 // xAOD container type
 #include "xAODTracking/SCTRawHitValidationAuxContainer.h"
 
-SCT_RawDataToxAOD::SCT_RawDataToxAOD(const std::string &name,
-                                     ISvcLocator *pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_SCTHelper{nullptr}
+SCT_RawDataToxAOD::SCT_RawDataToxAOD(const std::string& name,
+                                     ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -30,21 +29,27 @@ StatusCode SCT_RawDataToxAOD::initialize() {
 }
 
 StatusCode SCT_RawDataToxAOD::execute(const EventContext& ctx) const {
-  SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerName, ctx);
+  SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_rdoContainerName, ctx};
+  if (not rdoContainer.isValid()) return StatusCode::SUCCESS;
+  unsigned nRDOs{0};
+  for (const SCT_RDO_Collection* collection: *rdoContainer) {
+    nRDOs += collection->size();
+  }
 
   // Create the output xAOD container and its auxiliary store:
-  SG::WriteHandle<xAOD::SCTRawHitValidationContainer> xaod(m_xAodRawHitContainerName, ctx);
+  SG::WriteHandle<xAOD::SCTRawHitValidationContainer> xaod{m_xAodRawHitContainerName, ctx};
   ATH_CHECK(xaod.record(std::make_unique<xAOD::SCTRawHitValidationContainer>(),
                         std::make_unique<xAOD::SCTRawHitValidationAuxContainer>()));
+  xaod->reserve(nRDOs);
 
   /// loop over input RDOs
-  for (const SCT_RDO_Collection* collection : *rdoContainer) {
-    for (const SCT_RDORawData* rdo : *collection) {
+  for (const SCT_RDO_Collection* collection: *rdoContainer) {
+    for (const SCT_RDORawData* rdo: *collection) {
       // create and add xAOD object
-      xAOD::SCTRawHitValidation* xrdo = new xAOD::SCTRawHitValidation();
+      xAOD::SCTRawHitValidation* xrdo{new xAOD::SCTRawHitValidation()};
       xaod->push_back(xrdo);
       /// copy xrdo properties from input rdo
-      const Identifier& id = rdo->identify();
+      const Identifier id{rdo->identify()};
       xrdo->setIdentifier(id.get_compact());
       xrdo->setWord(rdo->getWord());
       // setting additional decorations based on identifier
