@@ -41,8 +41,8 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
   // tools will not cause a crash
   // The instances are renewd each event in pass() method provided this is
   // called.
-  m_matcher = std::move(groupsMatcherFactory(m_conditions));
-  m_grouper = std::move(m_config->getJetGrouper());  // attribute for debug
+  m_matcher = groupsMatcherFactory(m_conditions);
+  m_grouper = m_config->getJetGrouper();  // attribute for debug
 
   return StatusCode::SUCCESS;
 }
@@ -56,8 +56,8 @@ bool TrigJetHypoToolHelperMT::pass(HypoJetVector& jets) {
     return false;
   }
 
-  m_matcher = std::move(groupsMatcherFactory(m_conditions));
-  m_grouper = std::move(m_config->getJetGrouper());  // attribute for debug
+  m_matcher = groupsMatcherFactory(m_conditions);
+  m_grouper = m_config->getJetGrouper();  // attribute for debug
     
   HypoJetIter begin = jets.begin(); 
   HypoJetIter end = jets.end(); 
