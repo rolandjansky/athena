@@ -205,7 +205,7 @@ private:
   bool m_notagoverride;// tag must not be overridden from input file
   bool m_writemeta;    // is writing to metadata
   bool m_fromMetaDataOnly; // to be read from metadata only
-  bool m_extensible;   // xxx
+  bool m_extensible;   // is this an extensible folder?
   bool m_named;        // folder has named channels
   bool m_iovoverridden;// folder has IOV override
   bool m_jokey;        // folder has non-default key from joboptions
