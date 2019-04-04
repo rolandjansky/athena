@@ -68,7 +68,7 @@ private:
                              const std::vector<SiHit> & matchingHits ) const;
   
   std::vector<SiHit>  findAllHitsCompatibleWithCluster(const InDet::PixelCluster* prd,
-                                                       const SiHitCollection& collection,
+                                                       const std::vector<const SiHit*>* sihits,
 						       std::vector< std::vector< int > > & trkBCs) const;
 
 
