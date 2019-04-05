@@ -234,11 +234,11 @@ if __name__=="__main__":
 
     # Schedule Mdt data decoding
 
-    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags , True)
+    mdtdecodingAcc  = MdtBytestreamDecodeCfg( ConfigFlags )
     cfg.merge( mdtdecodingAcc )
 
     # Schedule Csc data decoding
-    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags , True) 
+    cscdecodingAcc = CscBytestreamDecodeCfg( ConfigFlags ) 
     cfg.merge( cscdecodingAcc )
 
     # Need to add POOL converter  - may be a better way of doing this?
