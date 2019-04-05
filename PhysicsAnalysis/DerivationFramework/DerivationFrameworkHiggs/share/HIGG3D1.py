@@ -164,7 +164,7 @@ skimmingTools=[]
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 4*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
 leadElectron = electronRequirements + ' && (Electrons.pt > 17*GeV)'
-muonsRequirements = '(Muons.pt > 2*GeV) && (Muons.DFCommonGoodMuon)'
+muonsRequirements = '(Muons.pt > 2*GeV) && (Muons.DFCommonGoodMuon) && (Muons.DFCommonMuonsPreselection)'
 leadMuon = muonsRequirements + ' && (Muons.pt > 14*GeV)'
 
 eeSelection = '((count('+electronRequirements+') >= 2) && (count('+leadElectron+') >= 1))'
