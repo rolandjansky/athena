@@ -59,16 +59,19 @@ StatusCode egammaForwardBuilder::initialize()
   ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
 
   // retrieve object quality tool 
-  if (m_objectQualityTool.name()!="") {
+  if (!m_objectQualityTool.empty()) {
     ATH_CHECK(m_objectQualityTool.retrieve());
   } else {
     ATH_MSG_DEBUG("egammaOQFlagsBuilder is disabled");
+    m_objectQualityTool.disable();
   }
 
   // retrieve 4-mom builder:
   if (!m_fourMomBuilder.empty()) {
     ATH_CHECK(m_fourMomBuilder.retrieve());
-  } 
+  } else {
+    m_fourMomBuilder.disable();
+  }
 
   ATH_CHECK(m_forwardElectronIsEMSelectors.retrieve());
   
