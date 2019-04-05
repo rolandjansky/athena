@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRT_PAITOOL_H
@@ -13,6 +13,10 @@
  *
  *  @author Davide Costanzo
  */
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class ITRT_PAITool : virtual public IAlgTool {
   public:
 
@@ -23,7 +27,7 @@ class ITRT_PAITool : virtual public IAlgTool {
                                  double squaredCharge) const =0;
 
    /// GetEnergyTransfer
-   virtual double GetEnergyTransfer(double scaledKineticEnergy) const =0;
+  virtual double GetEnergyTransfer(double scaledKineticEnergy, CLHEP::HepRandomEngine* rndmEngine) const =0;
 
  };
 

@@ -112,7 +112,8 @@ private:
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                           CLHEP::HepRandomEngine *elecNoiseRndmEngine);
+                           CLHEP::HepRandomEngine *elecNoiseRndmEngine,
+                           CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
   // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar

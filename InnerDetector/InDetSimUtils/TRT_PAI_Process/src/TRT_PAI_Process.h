@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_PAI_Process_h
@@ -7,9 +7,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
 #include "TRT_PAI_gasMixture.h"
@@ -22,8 +19,6 @@
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-class IAtRndmGenSvc;
 
 /**
  * @brief The Photon Absorption Ionisation model used for the ionisation
@@ -63,9 +58,9 @@ class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
    *    everything necessary for the current gas mixture to do the PAI
    *    simulation
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override final;
 
   /**
    * Get the mean free path in gas (CLHEP units)
@@ -75,8 +70,8 @@ class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
    * @param squaredCharge: Charge squared
    * @return Mean free path
    */
-  double GetMeanFreePath(double scaledKineticEnergy,
-			 double squaredCharge) const ;
+  virtual double GetMeanFreePath(double scaledKineticEnergy,
+                         double squaredCharge) const override final;
   /**
    * Get the energy transferred from the charged particle to the gas
    * (CLHEP units). The energy transfer is randomly generated according
@@ -87,20 +82,20 @@ class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
    *        question.
    * @return Random energy transfer consistent with PAI model calculation.
    */
-  double GetEnergyTransfer(double scaledKineticEnergy) const;
+  virtual double GetEnergyTransfer(double scaledKineticEnergy, CLHEP::HepRandomEngine *rndmEngine) const override final;
 
  private:
   // Constants that define the span and granularity of the tables:
-  const unsigned int m_nTabulatedGammaValues;
-  const double m_gamExpMin;    // Min Lorentz gamma: 1+10^(m_gamExpMin)
-  const double m_gamExpMax;    // Max Lorentz gamma: 1+10^(m_gamExpMax)
-  const double m_deltaGamExp;
+  const unsigned int m_nTabulatedGammaValues{56};
+  const double m_gamExpMin{-2.};    // Min Lorentz gamma: 1+10^(m_gamExpMin)
+  const double m_gamExpMax{5.};    // Max Lorentz gamma: 1+10^(m_gamExpMax)
+  const double m_deltaGamExp{};
 
   // Arrays to hold tables:
   std::vector<float>                m_en_array;
   std::vector< std::vector<float> > m_fn_array;
   std::vector<float>                m_dndx;
-  TRT_PAI_gasMixture *m_trtgas;
+  TRT_PAI_gasMixture *m_trtgas{};
 
 
   /**
@@ -108,17 +103,8 @@ class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
    */
   double ScaledEkin2GamVarTab(double scaledKineticEnergy) const;
 
-  std::string m_gasType;
+  std::string m_gasType{"Auto"};
 
-  CLHEP::HepRandomEngine* m_pHRengine;
-
-  //Services:
-  ServiceHandle <IAtRndmGenSvc> m_pAtRndmGenSvc;
-
-  // pointers to 'services'
-
-
- 
 };
 
 #endif
