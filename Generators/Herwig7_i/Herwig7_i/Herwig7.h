@@ -74,13 +74,6 @@ public:
   virtual unsigned int jobSize() const { return(m_jobsize); } /// The number of subprocesses to integrate per integratoin job
   virtual unsigned int maxJobs() const { return(m_maxjobs); } /// The maximum number of integration jobs
 
-  /// Bail out and print usage information
-  virtual void quitWithHelp() const {
-    ATH_MSG_ERROR("HERE I CAN PUT SOME ERROR MESSAGE")
-    ThePEG::Repository::cleanup();
-    exit( EXIT_FAILURE );
-  }
-
   /// Bail out and be quiet
   virtual void quit() const {
     ThePEG::Repository::cleanup();
