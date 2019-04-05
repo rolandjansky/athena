@@ -5,6 +5,11 @@
 # Declare the package name:
 atlas_subdir( TrigConfBase )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs(
+   PRIVATE
+   Control/AthenaBaseComps )
+
 # External dependencies:
 find_package( Boost COMPONENTS regex thread )
 
