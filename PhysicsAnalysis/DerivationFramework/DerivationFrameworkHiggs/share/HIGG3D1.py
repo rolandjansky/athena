@@ -200,10 +200,11 @@ OutputJets["HIGG3D1"] = ["AntiKt4EMPFlowJets",
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                   "AntiKt10LCTopoJets" # Needed for Ghost association
                  ]
 if jetFlags.useTruth:
-   reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+   reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]
 replaceAODReducedJets(reducedJetList, higg3d1Seq,"HIGG3D1")
 
 addDefaultTrimmedJets(higg3d1Seq,"HIGG3D1")
@@ -272,6 +273,7 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
+                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                           "BTagging_AntiKt4EMTopo",
                                           "BTagging_AntiKt4EMPFlow",
                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
@@ -288,7 +290,9 @@ HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTa
                                             'AntiKtVR30Rmax4Rmin02Track':'xAOD::JetContainer',
                                             'AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::JetAuxContainer',
                                             'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer',
-                                            'BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer'
+                                            'BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
+                                            'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer',
+                                            'AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                            }
 
 if globalflags.DataSource()=='geant4':
@@ -327,7 +331,6 @@ addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                       "AntiKt4TruthJets",
                                       "AntiKt4TruthWZJets",
                                       "AntiKt4EMPFlowJets",
-                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                       "AntiKt10LCTopoJets",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"] #veto list
                                      )
