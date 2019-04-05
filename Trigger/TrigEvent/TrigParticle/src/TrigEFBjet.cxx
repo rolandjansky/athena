@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -58,8 +58,6 @@ TrigEFBjet::TrigEFBjet(int roi, float eta, float phi, const Rec::TrackParticleCo
   m_xnvtx(xnvtx)
 {}
 
-
-TrigEFBjet::~TrigEFBjet() {}
 
 void  TrigEFBjet::validate(bool v) { m_valid = v; }
 
