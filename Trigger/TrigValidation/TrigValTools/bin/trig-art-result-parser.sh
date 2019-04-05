@@ -19,6 +19,11 @@
 # The log file to parse
 logfile=$1
 
+if [ ! -f $logfile ]; then
+  echo "ERROR: logfile $logfile not found"
+  exit 1
+fi
+
 # Step names to check (matching is done to the beginning of the name)
 stepsToCheck=($2)
 
