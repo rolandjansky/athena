@@ -709,11 +709,8 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
       }
     }
 
-    //  std::cout  << " m_bUseHGTD0: " << m_bUseHGTD0 << " m_bUseHGTD1: " << m_bUseHGTD1 << std::endl;
     // HGTD add-on two scenarios which surely could be done nicer
     if  (m_bUseHGTD0 || m_bUseHGTD1) {
-
-      //std::cout << "UpgradePerformanceFunctions::getTrackJetConfirmEff::Warning You are using an obsolete HGTD implementation, for correct one, initialise with layout=Step1p6" << std::endl;      
 
       float minHGTD = 0.;
       if (m_bUseHGTD0)
