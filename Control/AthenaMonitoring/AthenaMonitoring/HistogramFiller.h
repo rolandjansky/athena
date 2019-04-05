@@ -65,7 +65,7 @@ namespace Monitored {
       m_monVariables = monitoredVariables;
     }
   
-    std::vector<std::string> histogramVariablesNames() {
+    std::vector<std::string> histogramVariablesNames() const {
       return m_histDef->name;
     }
     
