@@ -1,10 +1,8 @@
 #!/bin/bash
 
-# art-description: Physics v7 TriggerTest on data
-# art-type: grid
-# art-include: 21.0/Athena
+# art-description: MC v8 TriggerTest on data
+# art-type: build
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt
@@ -19,9 +17,9 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="data_physics_pp_v7_grid"
-export MENU="Physics_pp_v7"
-export EVENTS="1000"
+export NAME="data_mc_pp_v8_build"
+export MENU="MC_pp_v8"
+export EVENTS="100"
 export INPUT="data"
 
 # The flag below skips HLTTE and L1 counts checks, but keeps the HLTChain counts check.
