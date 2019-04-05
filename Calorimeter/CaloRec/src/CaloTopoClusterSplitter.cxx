@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -50,7 +50,6 @@ CaloTopoClusterSplitter::CaloTopoClusterSplitter(const std::string& type,
 						 const IInterface* parent)
   
   : AthAlgTool(type, name, parent),
-    m_calo_dd_man(0),
     m_calo_id(0),
     m_neighborOption("super3D"),
     m_nOption(LArNeighbours::super3D),
@@ -98,10 +97,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
   msg(MSG::INFO) << "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false") << endmsg;
 
-  // pointer to detector manager:
-  m_calo_dd_man  = CaloDetDescrManager::instance(); 
-
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
+  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
 
   //--- set Neighbor Option
 

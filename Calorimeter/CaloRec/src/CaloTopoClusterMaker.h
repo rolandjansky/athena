@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -40,6 +40,8 @@
 #include "Identifier/IdentifierHash.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class Identifier; 
 class CaloDetDescrManager; 
@@ -61,8 +63,6 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
   void getClusterSize();
 
  private: 
-  
-  const CaloDetDescrManager* m_calo_dd_man; 
   
   const CaloCell_ID* m_calo_id;
   
@@ -174,6 +174,12 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
   bool m_usePileUpNoise;
   // FIXME: mutable
   mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+
+  // FIXME: Conditions dependencies required by CaloNoiseTool.
+  //        These can be removed once we change to using
+  //        the conditions algorithm instead of CaloNoiseTool.
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
 
   /**
    * @brief constant noise value in case the CaloNoiseTool is not used
