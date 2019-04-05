@@ -8,17 +8,16 @@
 
 #include "AthenaMonitoring/HistogramDef.h"
 
-using namespace std;
 using namespace Monitored;
 
 typedef boost::tokenizer<boost::char_separator<char>> tokenizer_t;
 
-const HistogramDef HistogramDef::parse(const string &histogramDefinition) {
+const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
   HistogramDef result;
 
   try {
-    vector<string> properties = splitWithSeparator(histogramDefinition, ",");
-    vector<string>::iterator propertiesIterator = properties.begin();
+    std::vector<std::string> properties = splitWithSeparator(histogramDefinition, ",");
+    std::vector<std::string>::iterator propertiesIterator = properties.begin();
 
     if (properties.size() < 5) {
       return result;
@@ -42,8 +41,8 @@ const HistogramDef HistogramDef::parse(const string &histogramDefinition) {
     resolveAxies(result, properties, propertiesIterator);
 
     // check if there are bin labels (e.g. str1:str2:str3:str4)
-    if (propertiesIterator != properties.end() && propertiesIterator->find(":") != string::npos) {
-      vector<string> splitResult = splitWithSeparator(nextProperty(propertiesIterator), ":");
+    if (propertiesIterator != properties.end() && propertiesIterator->find(":") != std::string::npos) {
+      std::vector<std::string> splitResult = splitWithSeparator(nextProperty(propertiesIterator), ":");
 
       result.labels.insert(result.labels.end(), splitResult.begin(), splitResult.end());
     }
@@ -60,13 +59,13 @@ const HistogramDef HistogramDef::parse(const string &histogramDefinition) {
   }
 }
 
-vector<string> HistogramDef::splitWithSeparator(const string &input, const char *separator) {
+std::vector<std::string> HistogramDef::splitWithSeparator(const std::string &input, const char *separator) {
   boost::char_separator<char> sep(separator);
   tokenizer_t tokens(input, sep);
-  vector<string> result;
+  std::vector<std::string> result;
 
   for (tokenizer_t::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-    string word = *itr;
+    std::string word = *itr;
     boost::trim(word);
     result.push_back(word);
   }
@@ -74,12 +73,12 @@ vector<string> HistogramDef::splitWithSeparator(const string &input, const char 
   return result;
 }
 
-string HistogramDef::nextProperty(vector<string>::iterator &propertiesIterator) {
+std::string HistogramDef::nextProperty(std::vector<std::string>::iterator &propertiesIterator) {
   return *(propertiesIterator++);
 }
 
 template<typename T>
-T HistogramDef::parseToken(const string &token, const string &errorDescription) {
+T HistogramDef::parseToken(const std::string &token, const std::string &errorDescription) {
     try {
       return boost::lexical_cast<T>(token);
     } catch (boost::bad_lexical_cast &) {
@@ -88,10 +87,10 @@ T HistogramDef::parseToken(const string &token, const string &errorDescription) 
 }
 
 void HistogramDef::resolveAlias(HistogramDef &histogramDefinition) {
-    string::size_type semicolon_pos = histogramDefinition.name.back().find(';');
+    std::string::size_type semicolon_pos = histogramDefinition.name.back().find(';');
 
-    if (semicolon_pos != string::npos) {
-      string actual_name = histogramDefinition.name.back().substr(0, semicolon_pos);
+    if (semicolon_pos != std::string::npos) {
+      std::string actual_name = histogramDefinition.name.back().substr(0, semicolon_pos);
       histogramDefinition.alias = histogramDefinition.name.back().substr(semicolon_pos + 1);
       histogramDefinition.name.back() = actual_name;
     } else {
@@ -107,7 +106,7 @@ void HistogramDef::resolveAlias(HistogramDef &histogramDefinition) {
     }
 }
 
-void HistogramDef::resolveAxies(HistogramDef &histogramDefinition, vector<string> &properties, vector<string>::iterator &propertiesIterator) {
+void HistogramDef::resolveAxies(HistogramDef &histogramDefinition, std::vector<std::string> &properties, std::vector<std::string>::iterator &propertiesIterator) {
   if (distance(propertiesIterator, properties.end()) < 3) {
     throw TokenException("NOT enough parameters for defining 1-D histogram");
   }
