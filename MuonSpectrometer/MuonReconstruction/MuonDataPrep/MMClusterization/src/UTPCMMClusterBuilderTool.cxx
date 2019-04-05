@@ -79,7 +79,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             stripsLocalPosX.push_back(MMprd.localPosition().x());
             stripsTime.push_back(MMprd.time());
 
-            ATH_MSG_INFO("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< MMprd.time() <<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
+            ATH_MSG_VERBOSE("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< MMprd.time() <<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
 
 
         }
@@ -91,10 +91,10 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             float localClusterPosition=-9999;
             sc=finalFit(stripsLocalPosX,stripsTime,idx_goodStrips,localClusterPosition);
             if(sc.isFailure()) break;
-            ATH_MSG_INFO("Did final fit");
+            ATH_MSG_VERBOSE("Did final fit");
             std::vector<Identifier> stripsOfCluster;
             int firstIdx=-1;
-            ATH_MSG_INFO("Found good Strips: "<< idx_goodStrips.size());
+            ATH_MSG_DEBUG("Found good Strips: "<< idx_goodStrips.size());
 
 
 
@@ -105,15 +105,14 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             Amg::MatrixX* covN = new Amg::MatrixX(1,1);
             covN->setIdentity();
             int idx = idx_goodStrips[0];
-            ATH_MSG_INFO("Idx: "<<idx);
+            ATH_MSG_VERBOSE("Idx: "<<idx);
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
 
-            ATH_MSG_INFO("Did set covN Matrix");
+            ATH_MSG_VERBOSE("Did set covN Matrix");
             MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),MMprdsOfLayer.at(idx).collectionHash(),
                                  localClusterPositionV,stripsOfCluster,covN,MMprdsOfLayer.at(idx).detectorElement());
-            ATH_MSG_INFO("created prdN");
             clustersVect.push_back(prdN);
-            ATH_MSG_INFO("pushedBack  prdN");
+            ATH_MSG_VERBOSE("pushedBack  prdN");
             int leftOverStrips=0;
             for(f:flag){if(f==0) leftOverStrips++;}
             if(leftOverStrips<3) return; 
@@ -139,22 +138,22 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,
     TH1F *h_houghFine=0;
     StatusCode sc = houghInitCummulator(h_hough,h_houghFine,maxX,minX,meanX);
 
-    ATH_MSG_INFO("h_hough "<< h_hough <<" h_houghFine "<<h_houghFine);
+    ATH_MSG_VERBOSE("h_hough "<< h_hough <<" h_houghFine "<<h_houghFine);
     if(sc.isFailure()) return sc;
     sc = fillHoughTrafo(h_hough,flag,xpos,time,meanX);
-    ATH_MSG_INFO("filled Hough");
+    ATH_MSG_VERBOSE("filled Hough");
     if(sc.isFailure()) return sc;
     float amean,dmean,dRMS;
     sc=findMaxAlpha(h_hough,amean);
-    ATH_MSG_INFO("found Alpha Max "<<amean);
+    ATH_MSG_DEBUG("found Alpha Max "<<amean);
     if(sc.isFailure()) return sc;
     sc=doFineScan(h_houghFine,flag,xpos,time,amean,meanX,dmean,dRMS);
-    ATH_MSG_INFO("did fine scan");
+    ATH_MSG_VERBOSE("did fine scan");
     if(sc.isFailure()) return sc;
     float slope,intercept,interceptRMS;
     sc=transformParameters(amean,dmean,dRMS,slope,intercept,interceptRMS);
 
-    ATH_MSG_INFO("transformed Parameter");
+    ATH_MSG_VERBOSE("transformed Parameter");
     if(sc.isFailure()) return sc;
     sc=selectPoints(flag,xpos,time,slope,intercept,interceptRMS,meanX,idx_selected);
     if(sc.isFailure()) return sc;
@@ -165,14 +164,14 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,
 }
 
 StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(TH2F*& h_hough,TH1F*& h_houghFine,float xmax,float xmin,float xmean){
-    ATH_MSG_INFO("xmax: "<< xmax <<" xmin: "<< xmin <<" xmean "<< xmean <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" m_toRad: "<< m_toRad <<" m_alphaResolution: "<<m_alphaResolution);
+    ATH_MSG_VERBOSE("xmax: "<< xmax <<" xmin: "<< xmin <<" xmean "<< xmean <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" m_toRad: "<< m_toRad <<" m_alphaResolution: "<<m_alphaResolution);
 
     float dmax=std::max(fabs(xmin-xmean),fabs(xmax-xmean));
     dmax=2*TMath::Sqrt(pow(dmax,2)+pow(6,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
     int nbinsd = static_cast<int>(1.0*dmax*2/m_dResolution);
     int nbinsa = static_cast<int>((1.0*m_alphaMax-m_alphaMin)/m_alphaResolution);
 
-    ATH_MSG_INFO("Hough Using nBinsA "<< nbinsa <<" nBinsd "<< nbinsd);
+    ATH_MSG_DEBUG("Hough Using nBinsA "<< nbinsa <<" nBinsd "<< nbinsd);
 
     h_hough = new TH2F("h_hough","h_hough",nbinsa,m_alphaMin*m_toRad,m_alphaMax*m_toRad,nbinsd,-dmax,dmax);
     h_houghFine = new TH1F("h_houghFine","h_houghFine",nbinsd*5,-dmax,dmax);
@@ -196,11 +195,11 @@ StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(TH2F* h_hough,std::vec
 
 StatusCode Muon::UTPCMMClusterBuilderTool::findMaxAlpha(TH2F* h_hough,float& amean){
     int cmax=h_hough->GetMaximum();
-    ATH_MSG_INFO("FindMaxAlpha: cmx= "<<cmax);
+    ATH_MSG_DEBUG("FindMaxAlpha: cmx= "<<cmax);
     for(int i_binX=0; i_binX<=h_hough->GetNbinsX();i_binX++){
         for(int i_binY=0; i_binY<=h_hough->GetNbinsY();i_binY++){
             if(h_hough->GetBinContent(i_binX,i_binY)>=5){
-            ATH_MSG_INFO("Find Max Alpha: BinX "<< i_binX <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
+            ATH_MSG_VERBOSE("Find Max Alpha: BinX "<< i_binX <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
             }
         }
     }
