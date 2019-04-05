@@ -728,7 +728,7 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
           float tceff1 = tceff;
           if (!bHS) {
             if (fabs(eta) > 2.4)
-              tceff = tceff1 * 0.5; //????
+              tceff = tceff1 * 0.5; //Rough estimation from old studies, may need updated
             else
               tceff = tceff1;
           }
