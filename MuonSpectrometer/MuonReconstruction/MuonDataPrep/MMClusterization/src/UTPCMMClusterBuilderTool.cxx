@@ -15,8 +15,10 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
     declareInterface<IMMClusterBuilderTool>(this);
     declareProperty("HoughAlphaMin",m_alphaMin=0); //
     declareProperty("HoughAlphaMax",m_alphaMax=90);
+    declareProperty("HoughAlphaResolution",m_alphaResolution=.5);
     declareProperty("HoughDMax",m_dMax=0);
     declareProperty("HoughDMin",m_dMin=0);
+    declareProperty("HoughDResolution",m_dResolution=1.0);
     declareProperty("HoughMinCounts",m_houghMinCounts=3);
     declareProperty("uTPCTimeOffset",m_timeOffset=0);
     declareProperty("uTPCDHalf",m_dHalf=2.5);
@@ -42,7 +44,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::initialize(){
         ATH_MSG_ERROR("DetectorStore not found");
         return sc;
     }
+
     m_mmIdHelper = m_muonMgr->mmIdHelper();
+    //ATH_CHECK(book(TH1F("test","test",100,0,100)));
 
     return StatusCode::SUCCESS;
 }
@@ -53,40 +57,72 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalize(){
 }
 
 StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVect){
-    ATH_MSG_FATAL("get cluster in uTPC");
+    //ATH_MSG_FATAL("get cluster in uTPC");
 
-    if(MMprds.size()<=3) return StatusCode::FAILURE;
+    //if(MMprds.size()<=3) return StatusCode::FAILURE;
 
-    std::vector<float> stripsTime,stripsLocalPosX;
-    std::vector<Identifier> strips_id;
-    std::vector<int> idx_goodStrips;
-    for( auto MMPrd: MMprds){
-        Identifier id_prd=MMPrd.identify();
-        strips_id.push_back(id_prd);
-        stripsLocalPosX.push_back(MMPrd.localPosition().x());
-        stripsTime.push_back(MMPrd.time());
-        }
-    while(stripsLocalPosX.size()>=3){    
-        StatusCode sc=runHoughTrafo(stripsLocalPosX,stripsTime,idx_goodStrips);
-        if(sc.isFailure()) break;
-        float localClusterPosition=-9999;
-        sc=finalFit(stripsLocalPosX,stripsTime,idx_goodStrips,localClusterPosition);
-        if(sc.isFailure()) break;
-        std::vector<Identifier> stripsOfCluster;
-        int firstIdx=-1;
-        for(int idx:idx_goodStrips){
-            strips_id.erase(strips_id.begin()+idx);
-            stripsLocalPosX.erase(stripsLocalPosX.begin()+idx);
-            stripsTime.erase(stripsTime.begin()+idx);
-            stripsOfCluster.push_back(MMprds.at(idx).identify());
-            if(firstIdx<0){firstIdx=idx;}   
-        }
-        Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-        covN->setIdentity();
-        //MMPrepData* prdN=new MMPrepData(MMprds.at(firstIdx).identify(),MMprds.at(firstIdx).collectionHash(),
-        //                     localClusterPosition,stripsOfCluster,covN,MMprds.at(firstIdx).detectorElement());
-        //clustersVect.push_back(prdN); 
+    std::vector<std::vector<Muon::MMPrepData>> MMprdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
+    for (auto MMprd:MMprds){
+        Identifier id = MMprd.identify();
+        int layer = 4*(m_mmIdHelper->multilayer(id)-1)+(m_mmIdHelper->gasGap(id)-1);
+        MMprdsPerLayer.at(layer).push_back(MMprd);
     }
+
+
+    for(auto MMprdsOfLayer:MMprdsPerLayer){
+        std::vector<float> stripsTime,stripsLocalPosX;
+        std::vector<Identifier> strips_id;
+        std::vector<int> flag=std::vector<int>(MMprdsOfLayer.size(),0); // vector of 0s and ones to indicate if strip was already used
+        for( auto MMprd: MMprdsOfLayer){
+            Identifier id_prd=MMprd.identify();
+            strips_id.push_back(id_prd);
+            stripsLocalPosX.push_back(MMprd.localPosition().x());
+            stripsTime.push_back(MMprd.time());
+
+            ATH_MSG_INFO("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< MMprd.time() <<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
+
+
+        }
+        while(true){    
+            std::vector<int> idx_goodStrips;
+            StatusCode sc=runHoughTrafo(flag,stripsLocalPosX,stripsTime,idx_goodStrips);
+            if(sc.isFailure()) break;
+            if(idx_goodStrips.size()<3) break; // should be already catched in runHough but for safety once more here
+            float localClusterPosition=-9999;
+            sc=finalFit(stripsLocalPosX,stripsTime,idx_goodStrips,localClusterPosition);
+            if(sc.isFailure()) break;
+            ATH_MSG_INFO("Did final fit");
+            std::vector<Identifier> stripsOfCluster;
+            int firstIdx=-1;
+            ATH_MSG_INFO("Found good Strips: "<< idx_goodStrips.size());
+
+
+
+            for(int idx:idx_goodStrips){
+                flag.at(idx)=1;
+                stripsOfCluster.push_back(strips_id.at(idx));
+            }
+            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+            covN->setIdentity();
+            int idx = idx_goodStrips[0];
+            ATH_MSG_INFO("Idx: "<<idx);
+            Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
+
+            ATH_MSG_INFO("Did set covN Matrix");
+            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),MMprdsOfLayer.at(idx).collectionHash(),
+                                 localClusterPositionV,stripsOfCluster,covN,MMprdsOfLayer.at(idx).detectorElement());
+            ATH_MSG_INFO("created prdN");
+            clustersVect.push_back(prdN);
+            ATH_MSG_INFO("pushedBack  prdN");
+            int leftOverStrips=0;
+            for(f:flag){if(f==0) leftOverStrips++;}
+            if(leftOverStrips<3) return; 
+        }
+    }
+    
+    
+    
+    //if(clustersVect)
 
 
     return StatusCode::SUCCESS;
@@ -94,40 +130,59 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected){
+StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected){
 
     float meanX = std::accumulate(xpos.begin(),xpos.end(),0.0)/xpos.size();
     float maxX =  *std::max_element(xpos.begin(),xpos.end());
     float minX =  *std::min_element(xpos.begin(),xpos.end());    
     TH2F *h_hough=0;
     TH1F *h_houghFine=0;
-    houghInitCummulator(h_hough,h_houghFine,maxX,minX,meanX);
-    fillHoughTrafo(h_hough,xpos,time,meanX);
-    float amean,dmean,dRMS;
-    findMaxAlpha(h_hough,amean);
-    doFineScan(h_houghFine,xpos,time,amean,meanX,dmean,dRMS);
-    float slope,intercept,interceptRMS;
-    transformParameters(amean,dmean,dRMS,slope,intercept,interceptRMS);
-    StatusCode sc=selectPoints(xpos,time,slope,intercept,interceptRMS,meanX,idx_selected);
-    if(sc.isFailure()) return sc;
+    StatusCode sc = houghInitCummulator(h_hough,h_houghFine,maxX,minX,meanX);
 
+    ATH_MSG_INFO("h_hough "<< h_hough <<" h_houghFine "<<h_houghFine);
+    if(sc.isFailure()) return sc;
+    sc = fillHoughTrafo(h_hough,flag,xpos,time,meanX);
+    ATH_MSG_INFO("filled Hough");
+    if(sc.isFailure()) return sc;
+    float amean,dmean,dRMS;
+    sc=findMaxAlpha(h_hough,amean);
+    ATH_MSG_INFO("found Alpha Max "<<amean);
+    if(sc.isFailure()) return sc;
+    sc=doFineScan(h_houghFine,flag,xpos,time,amean,meanX,dmean,dRMS);
+    ATH_MSG_INFO("did fine scan");
+    if(sc.isFailure()) return sc;
+    float slope,intercept,interceptRMS;
+    sc=transformParameters(amean,dmean,dRMS,slope,intercept,interceptRMS);
+
+    ATH_MSG_INFO("transformed Parameter");
+    if(sc.isFailure()) return sc;
+    sc=selectPoints(flag,xpos,time,slope,intercept,interceptRMS,meanX,idx_selected);
+    if(sc.isFailure()) return sc;
+    h_hough->Delete();
+    h_houghFine->Delete();
     return StatusCode::SUCCESS;
     
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(TH2F* h_hough,TH1F* h_houghFine,float xmax,float xmin,float xmean){
+StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(TH2F*& h_hough,TH1F*& h_houghFine,float xmax,float xmin,float xmean){
+    ATH_MSG_INFO("xmax: "<< xmax <<" xmin: "<< xmin <<" xmean "<< xmean <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" m_toRad: "<< m_toRad <<" m_alphaResolution: "<<m_alphaResolution);
+
     float dmax=std::max(fabs(xmin-xmean),fabs(xmax-xmean));
-    dmax=TMath::Sqrt(pow(dmax,2)+pow(6,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
-    int nbinsd = static_cast<int>(dmax*2/m_dResolution);
-    int nbinsa = static_cast<int>((m_alphaMax-m_alphaMin)/m_alphaResolution);
+    dmax=2*TMath::Sqrt(pow(dmax,2)+pow(6,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
+    int nbinsd = static_cast<int>(1.0*dmax*2/m_dResolution);
+    int nbinsa = static_cast<int>((1.0*m_alphaMax-m_alphaMin)/m_alphaResolution);
+
+    ATH_MSG_INFO("Hough Using nBinsA "<< nbinsa <<" nBinsd "<< nbinsd);
+
     h_hough = new TH2F("h_hough","h_hough",nbinsa,m_alphaMin*m_toRad,m_alphaMax*m_toRad,nbinsd,-dmax,dmax);
     h_houghFine = new TH1F("h_houghFine","h_houghFine",nbinsd*5,-dmax,dmax);
 
    return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(TH2F* h_hough,std::vector<float>& xpos, std::vector<float>& time, float meanX){
+StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(TH2F* h_hough,std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time, float meanX){
    for(size_t i_hit=0; i_hit<xpos.size(); i_hit++){
+    if(flag.at(i_hit)==1) continue; //skip hits which have been already used
     float x=xpos.at(i_hit)-meanX;
     float y=time.at(i_hit)*m_vDrift;
     for(int i_alpha=1;i_alpha<h_hough->GetNbinsX();i_alpha++){
@@ -141,6 +196,15 @@ StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(TH2F* h_hough,std::vec
 
 StatusCode Muon::UTPCMMClusterBuilderTool::findMaxAlpha(TH2F* h_hough,float& amean){
     int cmax=h_hough->GetMaximum();
+    ATH_MSG_INFO("FindMaxAlpha: cmx= "<<cmax);
+    for(int i_binX=0; i_binX<=h_hough->GetNbinsX();i_binX++){
+        for(int i_binY=0; i_binY<=h_hough->GetNbinsY();i_binY++){
+            if(h_hough->GetBinContent(i_binX,i_binY)>=5){
+            ATH_MSG_INFO("Find Max Alpha: BinX "<< i_binX <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
+            }
+        }
+    }
+
     if(cmax<m_houghMinCounts) return StatusCode::FAILURE;
 
     for(int i_bin=1;i_bin<=h_hough->GetSize();i_bin++){
@@ -151,9 +215,10 @@ StatusCode Muon::UTPCMMClusterBuilderTool::findMaxAlpha(TH2F* h_hough,float& ame
     return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::UTPCMMClusterBuilderTool::doFineScan(TH1F* h_houghFine,std::vector<float>& xpos,
+StatusCode Muon::UTPCMMClusterBuilderTool::doFineScan(TH1F* h_houghFine,std::vector<int>& flag ,std::vector<float>& xpos,
     std::vector<float>& time,float amean,float meanX,float& dmean, float& dRMS){
         for(size_t i_hit=0; i_hit<xpos.size(); i_hit++){
+            if(flag.at(i_hit)==1) continue;
             float x=xpos.at(i_hit)-meanX;
             float y=time.at(i_hit)*m_vDrift;
             float d=x*TMath::Cos(amean)+y*TMath::Sin(amean);
@@ -180,10 +245,11 @@ StatusCode Muon::UTPCMMClusterBuilderTool::transformParameters(float alpha, floa
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::selectPoints(std::vector<float>& xpos, std::vector<float>& time,
+StatusCode Muon::UTPCMMClusterBuilderTool::selectPoints(std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time,
          float& slope, float& intercept, float& interceptRMS,float& xmean,std::vector<int>& idxSelected){
             for (float sigmaFactor=1;sigmaFactor<=2;sigmaFactor++){
                 for(size_t i_hit=0; i_hit<xpos.size(); i_hit++){
+                    if(flag.at(i_hit)==1) continue;
                     if(fabs(time.at(i_hit)*m_vDrift-(slope*(xpos.at(i_hit)-xmean)+intercept))<interceptRMS*sigmaFactor){
                     idxSelected.push_back(i_hit);
                     }

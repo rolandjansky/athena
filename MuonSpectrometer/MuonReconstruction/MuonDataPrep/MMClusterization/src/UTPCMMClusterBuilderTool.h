@@ -60,17 +60,17 @@ namespace Muon
 
     float m_timeOffset,m_dHalf,m_vDrift;
 
-    //    float m_toRad=TMath::Pi()/180.;
-    float m_toRad;
+    float m_toRad=TMath::Pi()/180.;
+    //float m_toRad;
 
 
-    StatusCode runHoughTrafo(std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected);
-    StatusCode fillHoughTrafo(TH2F* cummulator,std::vector<float>& xpos, std::vector<float>& time, float meanX);
-    StatusCode houghInitCummulator(TH2F* cummulator,TH1F* fineCummulator,float xmax,float xmin,float xmean);
-    StatusCode doFineScan(TH1F* fineCummulator,std::vector<float>& xpos, std::vector<float>& time,float amean,float meanX,float& dmean, float& dRMS);
+    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected);
+    StatusCode fillHoughTrafo(TH2F* cummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time, float meanX);
+    StatusCode houghInitCummulator(TH2F*& cummulator,TH1F*& fineCummulator,float xmax,float xmin,float xmean);
+    StatusCode doFineScan(TH1F* fineCummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time,float amean,float meanX,float& dmean, float& dRMS);
     StatusCode transformParameters(float alpha, float d, float dRMS, float& slope,float& intercept, float& interceptRMS);
     StatusCode findMaxAlpha(TH2F* h_hough,float& amean);
-    StatusCode selectPoints(std::vector<float>& xpos, std::vector<float>& time, float& slope, float& intercept, float& interceptRMS,float& xmean, std::vector<int>& idxSelected );
+    StatusCode selectPoints(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time, float& slope, float& intercept, float& interceptRMS,float& xmean, std::vector<int>& idxSelected );
     StatusCode finalFit(std::vector<float>& xpos, std::vector<float>& time, std::vector<int>& idxSelected,float& x0);
 };
 
