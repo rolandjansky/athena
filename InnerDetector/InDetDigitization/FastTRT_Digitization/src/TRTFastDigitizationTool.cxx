@@ -139,7 +139,9 @@ StatusCode TRTFastDigitizationTool::initialize()
     CHECK( m_trtElectronPidTool.retrieve() );
   } 
 
-  return StatusCode::SUCCESS;
+  StatusCode sc = initializeNumericalConstants();
+
+  return sc;
 }
 
 
@@ -186,25 +188,72 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
 }
 
 
-StatusCode TRTFastDigitizationTool::produceDriftCircles() {
+// initialize constants which are the same for all events
+StatusCode TRTFastDigitizationTool::initializeNumericalConstants() {
 
-  // constants
-  const double trtTailFraction( 4.7e-4 );                   // part of the fraction in Tails ( default 2% )
-  const double trtSigmaDriftRadiusTail( 1.15470053838 );    // sigma of one TRT straw in R (Tail) [mm], 4./sqrt(12.)
+  m_trtTailFraction = 4.7e-4;               // part of the fraction in Tails 
+  m_trtSigmaDriftRadiusTail = 4./sqrt(12.);   //  sigma of one TRT straw in R (Tail) [mm]
 
-  // { correction coefficient for TRT efficiency,
+  return StatusCode::SUCCESS;
+
+}
+
+// set (pileup-dependent) numerical constants 
+StatusCode TRTFastDigitizationTool::setNumericalConstants() {
+
+ //   correction coefficient for TRT efficiency,
   //   correction coefficient for TRT sigma, adjust total/precise hits ratio
   //   narrow Gaus1 : wide Gaus2, Gaus1 sigma, Gaus2 sigma }
-  const double cFit[ 8 ][ 5 ] = { { 0.884, 0.997, 0.900, 1.030, 2.400 },  // Barrel A-side Xenon
-                                  { 0.921, 1.065, 0.900, 0.970, 2.400 },  // EndCap A-side Xenon
-                                  { 0.877, 0.997, 0.900, 1.030, 2.400 },  // Barrel C-side Xenon
-                                  { 0.941, 1.065, 0.900, 0.970, 2.400 },  // EndCap C-side Xenon
-                                  { 0.982, 1.020, 0.800, 0.995, 2.400 },  // Barrel A-side Argon
-                                  { 0.999, 1.040, 0.800, 0.935, 2.400 },  // EndCap A-side Argon
-                                  { 0.986, 1.020, 0.800, 0.995, 2.400 },  // Barrel C-side Argon
-                                  { 1.018, 1.040, 0.800, 0.935, 2.400 }   // EndCap C-side Argon
-                                };
-  
+  double ecorr = 1-0.001*(m_NCollPerEvent-20);  // pileup dependence of the efficiency
+  double rcorr1 =  1+0.01*(m_NCollPerEvent-20);  // pileup dependence of the resolution (gaus1)
+  double rcorr2 =  1+0.015*(m_NCollPerEvent-20);  // pileup dependence of the resolution (gaus2)
+  m_cFit[ 0 ][ 0 ] = ecorr*0.840;   // Barrel A-side Xenon
+  m_cFit[ 0 ][ 1 ] = 0.997;
+  m_cFit[ 0 ][ 2 ] = 0.900;
+  m_cFit[ 0 ][ 3 ] = rcorr1*1.545;
+  m_cFit[ 0 ][ 4 ] = rcorr2*3.600;
+  m_cFit[ 1 ][ 0 ] = ecorr*0.875;   // Endcap A-side Xenon
+  m_cFit[ 1 ][ 1 ] = 1.065;
+  m_cFit[ 1 ][ 2 ] = 0.900;
+  m_cFit[ 1 ][ 3 ] = rcorr1*1.455;
+  m_cFit[ 1 ][ 4 ] = rcorr2*3.600; 
+  m_cFit[ 2 ][ 0 ] = ecorr*0.833;   // Barrel C-side Xenon
+  m_cFit[ 2 ][ 1 ] = 0.997;
+  m_cFit[ 2 ][ 2 ] = 0.900;
+  m_cFit[ 2 ][ 3 ] = rcorr1*1.545;
+  m_cFit[ 2 ][ 4 ] = rcorr2*3.600;
+  m_cFit[ 3 ][ 0 ] = ecorr*0.894;   // Endcap C-side Xenon
+  m_cFit[ 3 ][ 1 ] = 1.065;
+  m_cFit[ 3 ][ 2 ] = 0.900;
+  m_cFit[ 3 ][ 3 ] = rcorr1*1.455;
+  m_cFit[ 3 ][ 4 ] = rcorr2*3.600; 
+  m_cFit[ 4 ][ 0 ] = ecorr*0.933;   // Barrel A-side Argon
+  m_cFit[ 4 ][ 1 ] = 1.020;
+  m_cFit[ 4 ][ 2 ] = 0.800;
+  m_cFit[ 4 ][ 3 ] = rcorr1*1.495;
+  m_cFit[ 4 ][ 4 ] = rcorr2*3.600; 
+  m_cFit[ 5 ][ 0 ] = ecorr*0.949;   // Endcap A-side Argon
+  m_cFit[ 5 ][ 1 ] = 1.040;
+  m_cFit[ 5 ][ 2 ] = 0.800;
+  m_cFit[ 5 ][ 3 ] = rcorr1*1.405;
+  m_cFit[ 5 ][ 4 ] = rcorr2*3.600;
+  m_cFit[ 6 ][ 0 ] = ecorr*0.937;   // Barrel C-side Argon
+  m_cFit[ 6 ][ 1 ] = 1.020;
+  m_cFit[ 6 ][ 2 ] = 0.800;
+  m_cFit[ 6 ][ 3 ] = rcorr1*1.495;
+  m_cFit[ 6 ][ 4 ] = rcorr2*3.600; 
+  m_cFit[ 7 ][ 0 ] = ecorr*0.977;   // Endcap C-side Argon
+  m_cFit[ 7 ][ 1 ] = 1.040;
+  m_cFit[ 7 ][ 2 ] = 0.800;
+  m_cFit[ 7 ][ 3 ] = rcorr1*1.405;
+  m_cFit[ 7 ][ 4 ] = rcorr2*3.600; 
+
+   return StatusCode::SUCCESS;
+}
+
+
+StatusCode TRTFastDigitizationTool::produceDriftCircles() {
+ 
   if(m_useEventInfo){
 
      SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey);
@@ -215,6 +264,9 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       ATH_MSG_INFO("Cannot retrieve event info");
      }
   }
+
+  StatusCode sc = setNumericalConstants(); 
+  if(sc != StatusCode::SUCCESS) return sc;    
 
   m_driftCircleMap.clear();
 
@@ -256,15 +308,16 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       double driftRadiusLoc = getDriftRadiusFromXYZ( hit );
 
       double efficiency = strawEfficiency( driftRadiusLoc, abs( BEC ) );
-      efficiency *= cFit[ idx ][ 0 ];
+      efficiency *= m_cFit[ idx ][ 0 ];
+
 
       // Decide wether to throw away this cluster or not
       if ( CLHEP::RandFlat::shoot( m_randomEngine ) < ( 1. - efficiency ) ) continue;
 
       // Decide core/tail fraction
-      bool isTail = ( CLHEP::RandFlat::shoot( m_randomEngine ) < trtTailFraction );
+      bool isTail = ( CLHEP::RandFlat::shoot( m_randomEngine ) < m_trtTailFraction );
 
-      double sigmaTrt = trtSigmaDriftRadiusTail;
+      double sigmaTrt = m_trtSigmaDriftRadiusTail;
       if ( !isTail ) {
         double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
         sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id, m_NCollPerEvent );
@@ -275,7 +328,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       int ii = 0;
       do {
         double tailSmearing = CLHEP::RandFlat::shoot( m_randomEngine );
-        dR = CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tailSmearing < cFit[ idx ][ 2 ] ? cFit[ idx ][ 3 ] : cFit[ idx ][ 4 ] ) ) * sigmaTrt;
+        dR = CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tailSmearing < m_cFit[ idx ][ 2 ] ? m_cFit[ idx ][ 3 ] : m_cFit[ idx ][ 4 ] ) ) * sigmaTrt;
         ++ii;
         if ( ii > 50 ) {  // should not appear in simulation
           dR = 2. - driftRadiusLoc;
@@ -289,7 +342,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       std::vector< Identifier > rdoList = { straw_id };
 
       Amg::MatrixX *hitErrorMatrix = new Amg::MatrixX( 1, 1 );
-      ( *hitErrorMatrix )( Trk::driftRadius, Trk::driftRadius ) = sigmaTrt * sigmaTrt * cFit[ idx ][ 1 ] * cFit[ idx ][ 1 ];
+      ( *hitErrorMatrix )( Trk::driftRadius, Trk::driftRadius ) = sigmaTrt * sigmaTrt * m_cFit[ idx ][ 1 ] * m_cFit[ idx ][ 1 ];
 
       // the TRT word simulate only TR information for the moment
       // consult TRTElectronicsProcessing::EncodeDigit() in TRT_Digitization/src/TRTElectronicsProcessing.cxx
@@ -461,7 +514,7 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
   // agreeement with full simulation as being 0.04 for mu=10 and 0.12 for mu=60;
   // I decided to use the functional form a*pow(mu,b) to describe the mu
   // dependence; solving the 2x2 system gives a=0.01 and b=0.61. 
-  float highTRMergeProb = 0.01*pow(m_NCollPerEvent,0.61);
+  float highTRMergeProb = 0.012*pow(m_NCollPerEvent,0.61);
 
   std::multimap< IdentifierHash, InDet::TRT_DriftCircle * > idHashMap;
   for ( DriftCircleMapItr itr = m_driftCircleMap.begin() ; itr != m_driftCircleMap.end(); itr = m_driftCircleMap.upper_bound( itr->first ) ) {
@@ -758,7 +811,11 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
   double Occupancy = 0.1+0.014*m_NCollPerEvent;
 
   double probHT = m_trtElectronPidTool->probHTRun2( pTrk, hypothesis, trtPart, gasType( straw_id ), strawLayer, hitGlobalPosition, rTrkWire, Occupancy );
-  if( probHT == 0.5 || probHT == 1. ) probHT = 0.;
+  if( probHT == 0.5 || probHT == 1. ){
+    //std::cout << "FIXME WARNING BAD probHT" << std::endl;
+    probHT = 0.;
+  }
+  if(hypothesis == Trk::electron) probHT *= 1.3;
 
   return probHT;
 }
