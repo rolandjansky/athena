@@ -17,7 +17,7 @@ class RXReadOutStructure : public RPCReadOut {
      
  RXReadOutStructure(DataVersion vers = Atlas);
  RXReadOutStructure(ubit16 inputData, DataVersion vers = Atlas);
- ~RXReadOutStructure();
+ ~RXReadOutStructure() = default;
  void setInit();
 //
 virtual ubit16 makeHeader(ubit16 *inputData);
