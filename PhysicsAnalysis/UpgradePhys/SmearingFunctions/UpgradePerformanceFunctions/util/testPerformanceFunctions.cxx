@@ -26,7 +26,6 @@ int main( int argc, char* argv[] ) {
   int testPhotons = -1;
   int testMuons = -1;
   int testJets = -1;
-  //int testTaus = -1; //To be implemented
   int testMET = -1;
   int testFlavourTagging = -1;
 
@@ -42,7 +41,6 @@ int main( int argc, char* argv[] ) {
     if (strcmp(key, "testPhotons") == 0) testPhotons = atoi(val);
     if (strcmp(key, "testMuons") == 0) testMuons = atoi(val);
     if (strcmp(key, "testJets") == 0) testJets = atoi(val);
-    //if (strcmp(key, "testTaus") == 0) testTaus = atoi(val);
     if (strcmp(key, "testMET") == 0) testMET = atoi(val);
     if (strcmp(key, "testFlavourTagging") == 0) testFlavourTagging = atoi(val);
     if (strcmp(key, "enableHGTD") == 0) enableHGTD = (atoi(val) == 0) ? false : true;
