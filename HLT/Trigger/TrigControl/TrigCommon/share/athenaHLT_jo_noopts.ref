@@ -22,9 +22,10 @@
         <fileOffset>-1</fileOffset>
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
+        <loopOverFiles>False</loopOverFiles>
         <skipEvents>0</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
-        <loopOverFiles>False</loopOverFiles>
+        <rosHitStatFileName>ros_hitstats</rosHitStatFileName>
         <fileList>
           <file>dummy.data</file>
         </fileList>
