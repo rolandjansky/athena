@@ -86,7 +86,7 @@ WTopLabel JSSTaggerBase::getWTopContainment(const xAOD::Jet& jet, const xAOD::Tr
     }
 
     if( isMatchTop && nMatchB>0 &&
-	mLowTop < jet.m()*0.001 && jet.m()*0.001 < mHighTop ) {
+	mLowTop < jet.m()*0.001 && (mHighTop<0 || jet.m()*0.001 < mHighTop) ) { // if mHighTop<0, we don't apply the upper cut on jet mass
       return WTopLabel::t; 
     }else if( isMatchW && nMatchB==0 &&
 	      mLowW < jet.m()*0.001 && jet.m()*0.001 < mHighW ){

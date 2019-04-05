@@ -75,7 +75,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
 			       const xAOD::JetContainer* truthJets,
 			       double dRmax,
 			       std::string decorName) const;
-  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName="WTopContainmentTruthLabel", double dR_truthJet=0.75, double dR_truthPart=0.75, double mLowTop=140, double mHighTop=200, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const;
+  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName="WTopContainmentTruthLabel", double dR_truthJet=0.75, double dR_truthPart=0.75, double mLowTop=140, double mHighTop=-1, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const;
   virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   bool getIsSherpa(const int DSID) const {
     if( (304307 <= DSID && DSID <=304309) || // Sherpa 2.2.1 W+jets
