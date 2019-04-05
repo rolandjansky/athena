@@ -159,7 +159,6 @@ int main( int argc, char* argv[] ) {
     printf("  JVT eff for pT=40 GeV, eta=3 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            upf->getJVTeff_HSjet(40e3, 3.0) * 100, upf->getJVTeff_PUjet(40e3, 3.0) * 100);
 
-    //upf->forceHGTD0(false);    
     printf("  JVT eff for pT=40 GeV, eta=4 is %.1f%% for a HS jet, %.1f%% for a PU jet\n",
            upf->getJVTeff_HSjet(40e3, 4.0) * 100, upf->getJVTeff_PUjet(40e3, 4.0) * 100);
     printf("  Note: outside tracking acceptance (|eta|>3.8) and jet pT 20-100 GeV, no JVT cut is applied.\n");
