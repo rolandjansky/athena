@@ -225,7 +225,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::doFineScan(TH1F* h_houghFine,std::vec
         }
         TF1* ffit=new TF1("ffit","gaus"); //
         ffit->SetParameters(h_houghFine->GetMaximum(),h_houghFine->GetMean(),h_houghFine->GetRMS()); 
-        int s=h_houghFine->Fit("ffit");
+        int s=h_houghFine->Fit("ffit","Q");
         if (s==0) ATH_MSG_DEBUG("Fine Scan Failed");
         dmean = ffit->GetParameter(1);
         dRMS  = ffit->GetParameter(2);
@@ -269,8 +269,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<float>& xpos, st
         fitGraph->SetPoint(fitGraph->GetN(),xpos.at(idx),time.at(idx)*m_vDrift);
         fitGraph->SetPointError(fitGraph->GetN()-1,0.425/3.464101615 /*sqrt(12)*/,10*m_vDrift);
     }
-    int s=fitGraph->Fit("ffit");
-    if(s!=0) s=fitGraph->Fit("ffit"); //redo fit if first one failed
+    int s=fitGraph->Fit("ffit","Q");
+    if(s!=0) s=fitGraph->Fit("ffit","Q"); //redo fit if first one failed
     if(s!=0) return StatusCode::FAILURE;
 
     x0=(ffit->GetParameter(0)-m_dHalf)/ffit->GetParameter(1);
