@@ -328,6 +328,7 @@ addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"],
 addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                      [], # smart collections list
                                      ["AntiKt2PV0TrackJets",
+                                      "AntiKt4PV0TrackJets",
                                       "AntiKt4TruthJets",
                                       "AntiKt4TruthWZJets",
                                       "AntiKt4EMPFlowJets",
