@@ -93,7 +93,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             if(sc.isFailure()) break;
             ATH_MSG_VERBOSE("Did final fit");
             std::vector<Identifier> stripsOfCluster;
-            int firstIdx=-1;
+            //int firstIdx=-1;
             ATH_MSG_DEBUG("Found good Strips: "<< idx_goodStrips.size());
 
 
@@ -114,8 +114,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             clustersVect.push_back(prdN);
             ATH_MSG_VERBOSE("pushedBack  prdN");
             int leftOverStrips=0;
-            for(f:flag){if(f==0) leftOverStrips++;}
-            if(leftOverStrips<3) return; 
+            for(auto f:flag){if(f==0) leftOverStrips++;}
+            if(leftOverStrips<3) break; 
         }
     }
     
