@@ -405,7 +405,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
                                               CLHEP::HepRandomEngine *rndmEngine,
                                               CLHEP::HepRandomEngine *strawRndmEngine,
                                               CLHEP::HepRandomEngine *elecProcRndmEngine,
-                                              CLHEP::HepRandomEngine *elecNoiseRndmEngine) {
+                                              CLHEP::HepRandomEngine *elecNoiseRndmEngine,
+                                              CLHEP::HepRandomEngine *paiRndmEngine) {
 
   // Create a map for the SDO
   SG::WriteHandle<InDetSimDataCollection> simDataMap(m_outputSDOCollName);
@@ -510,7 +511,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 				       emulateKrFlag,
                                        strawRndmEngine,
                                        elecProcRndmEngine,
-                                       elecNoiseRndmEngine);
+                                       elecNoiseRndmEngine,
+                                       paiRndmEngine);
 
     // Print out the digits etc (for debugging)
     //int          mstrw = digit_straw.GetStrawID();
@@ -540,6 +542,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
+  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
     if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
@@ -603,7 +606,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   m_thpctrt = &thpctrt;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine));
+  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   // no more hits
 
@@ -662,6 +665,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
+  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
     if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
@@ -690,7 +694,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw:
   //   get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine));
+  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   delete m_thpctrt;
   std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());
