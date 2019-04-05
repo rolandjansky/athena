@@ -19,7 +19,7 @@
 
 export NAME="data_physics_pp_v8_grid"
 export MENU="Physics_pp_v8"
-export EVENTS="500"
+export EVENTS="1000"
 export INPUT="data"
 
 # The flag below skips HLTTE and L1 counts checks, but keeps the HLTChain counts check.
