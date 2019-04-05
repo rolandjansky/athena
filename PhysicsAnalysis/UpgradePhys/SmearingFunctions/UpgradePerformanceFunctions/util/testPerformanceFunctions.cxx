@@ -55,11 +55,9 @@ int main( int argc, char* argv[] ) {
     std::cout << "Enabled HGTD." << std::endl;
   }
 
-  //HGTD local tests
-  ANA_CHECK( upf->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/flavor_tags_hgtd_v2.0.root") );  
-  //ANA_CHECK( upf->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/upgradeBtaggingROOTFile/output_ITK.root") );  
-  //ANA_CHECK( upf->setProperty("FlavourTaggingCalibrationFile", "/global/homes/s/spgriso/code/AtlasUPF/data/upgradeBtaggingROOTFile/output_HGTD_Initial.root") );
-  //end HGTD local tests configuration
+  //HGTD tests
+  if (enableHGTD)
+    ANA_CHECK( upf->setProperty("FlavourTaggingCalibrationFile", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.3.root") );  
   
   ANA_CHECK( upf->initialize() );
 
