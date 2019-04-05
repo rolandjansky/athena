@@ -19,7 +19,7 @@ athenaHLT \
 --threads 2 \
 --concurrent-events 2 \
 -o ${outputBaseName} \
--f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1 \
+-f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root  \
 TrigP1Test/testHLT_timeout.py \
 2>&1 > athena.log)
 
