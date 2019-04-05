@@ -16,6 +16,10 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon #add GenFiltMET
+if DerivationFrameworkIsMonteCarlo: 
+  MCTruthCommon.addStandardTruthContents()
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
