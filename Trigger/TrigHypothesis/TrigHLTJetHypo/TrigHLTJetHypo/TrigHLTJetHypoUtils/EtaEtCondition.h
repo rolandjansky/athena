@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_ETAETCONDITION_H
@@ -30,21 +30,20 @@ class EtaEtCondition: public ICondition{
                  double etaMax,
                  double threshold,
                  bool debug=false);
-  ~EtaEtCondition() override {}
+  virtual ~EtaEtCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   bool isSatisfied(const pHypoJet&) const;
 
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
 
-  std::string toString() const noexcept override;
-  void resetHistory() noexcept {}
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory() noexcept override {}
  private:
 
   double m_etaMin;
   double m_etaMax;
   double m_threshold;
-  bool m_debug;
 };
 
 #endif
