@@ -20,8 +20,8 @@ import datetime;
 # set defaults here so they are same for RTT and command line
 rfile = "expert-monitoring.root"
 # directories and histograms for chain acceptance and TEs
-dirs  = ["TrigSteer_HLT","CTPSimulation"]  
-hists = ["ChainAcceptance","NumberOfActiveTEs","L1ItemsAV"]
+dirs  = ["TrigSteer_HLT","CTPSimulation","CTPEmulation"]
+hists = ["ChainAcceptance","NumberOfActiveTEs","L1ItemsAV","output/TAVbyName"]
 #backup names
 #backupName = { "ChainAcceptance":"ChainAcceptance_runsummary",
 #               "NumberOfActiveTEs":"NumberOfActiveTEs_runsummary"}
@@ -35,7 +35,9 @@ histDict = { "TrigSteer_HLT":"HLT",
              "ChainAcceptance":"Chain",
              "NumberOfActiveTEs":"TE",
              "CTPSimulation":"L1",
-             "L1ItemsAV":"AV" }
+             "L1ItemsAV":"AV",
+             "CTPEmulation":"L1Emu",
+             "output/TAVbyName":"AV" }
 defFracTolerance  = "0.001"
 defSigmaTolerance = "0.0"
 defIntTolerance   = "2"
@@ -385,12 +387,11 @@ class chainDump:
                     for histName in self.checkHist:
                         #print "trying dir,histName",dir,histName
                         hist = 0
-                        if histName in gDirectory.GetListOfKeys():
+                        try:
                             hist = gDirectory.Get(histName)
-                            # else:
-                            #   print "trying backup",backupName[histName]
-                            #   hist = gDirectory.Get(backupName[histName])
-                        if  hist != 0:
+                        except:
+                            pass
+                        if  hist:
                             if  dir in histDict  and  histName in histDict:
                                 textFileName=histDict[dir]+histDict[histName]+".txt"
                             else:
@@ -404,7 +405,7 @@ class chainDump:
                             #print "WARNING:  missing L2 or EF resutls (normal if only HLT is run)"
                             #print "nope combination ain't working - but fine"
                             continue
-                    tfile.cd("..")
+                    tfile.cd("")
                 except:
                   print "ERROR: cound not cd to directory: ", dir
             else:
