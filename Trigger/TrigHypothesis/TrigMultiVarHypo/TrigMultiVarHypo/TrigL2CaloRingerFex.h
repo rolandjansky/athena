@@ -59,7 +59,6 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     std::string m_feature;
     std::string m_key;
 
-    float       m_lumiCut;
     float       m_output;
     bool        m_useLumiTool;
     
