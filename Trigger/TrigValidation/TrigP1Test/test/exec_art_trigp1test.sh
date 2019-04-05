@@ -29,7 +29,7 @@ if [ -z ${ART_TIMEOUT} ]; then
 fi
 
 if [ -z ${ART_FILE_NAME} ]; then
-  export ART_FILE_NAME="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00364485.physics_EnhancedBias.merge.RAW._lb0705._SFO-1._0001.1"
+  export ART_FILE_NAME="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root"
 fi
 
 ART_CMD="timeout ${ART_TIMEOUT} ${ART_CMD}"
