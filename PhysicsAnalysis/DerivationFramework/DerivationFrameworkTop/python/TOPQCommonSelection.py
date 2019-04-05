@@ -41,7 +41,7 @@
 #
 # TOPQ6 (single top)
 #   >=1 electron(pT>20 GeV) OR
-#   >=1 muon(pT>20 GeV) 
+#   >=1 muon(pT>20 GeV)
 # same as TOPQ1 but no thinning on tracks
 #================================
 # IMPORTS

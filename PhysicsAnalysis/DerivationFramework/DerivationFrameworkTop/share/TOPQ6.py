@@ -155,7 +155,7 @@ addMSVVariables("AntiKt4EMTopoJets", TOPQ6Sequence, ToolSvc)
 # add ExKtDoubleTagVariables (TOPQDERIV-62)
 addExKtDoubleTagVariables(TOPQ6Sequence, ToolSvc)
 
-# Then apply thinning 
+# Then apply thinning
 #AugmentationTool for TOPQDERIV-69
 TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ6_Reco_V0Finder])
 

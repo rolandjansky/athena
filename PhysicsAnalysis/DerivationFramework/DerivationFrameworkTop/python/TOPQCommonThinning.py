@@ -55,10 +55,22 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   #========================
   # Track Particle Thinning 
   #========================
-  # All tracks (only for TOPQ6)
+  # All tracks
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/TrackParticleThinning.cxx
+  thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+  TOPQTPThinningTool = DerivationFramework__TrackParticleThinning( name                    = TOPQname + "TPThinningTool",
+                                                                   ThinningService         = TOPQThinningSvc,
+                                                                   SelectionString         = thinning_expression,
+                                                                   InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                   ApplyAnd                = False )
+  #ToolSvc += TOPQTPThinningTool
+  #thinningTools.append(TOPQTPThinningTool)
+  #print TOPQname+".py", TOPQname+"TPThinningTool: ", TOPQTPThinningTool
+
+
+  # All tracks (for TOPQ6)
   if TOPQname == 'TOPQ6':
-    #thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
     thinning_expression = "(InDetTrackParticles.pt > 0.1*GeV)"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
     TOPQTPThinningTool = DerivationFramework__TrackParticleThinning( name                    = TOPQname + "TPThinningTool",
@@ -69,6 +81,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     ToolSvc += TOPQTPThinningTool
     thinningTools.append(TOPQTPThinningTool)
     print TOPQname+".py", TOPQname+"TPThinningTool: ", TOPQTPThinningTool
+
 
   # Tracks associated to Muons
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/MuonTrackParticleThinning.cxx
