@@ -16,7 +16,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
                                     DoSoftTruth=doTruth,
                                     JetSelection=jetSelection,
                                     );
-    ToolSvc += metMaker
+    #ToolSvc += metMaker
 
     muonSel = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool_METMakerAlg",
                                            MuQuality=1, # Medium

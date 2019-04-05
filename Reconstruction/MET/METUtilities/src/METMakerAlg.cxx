@@ -33,10 +33,12 @@ namespace met {
     : ::AthAlgorithm( name, pSvcLocator ),
     m_metKey(""),
     m_metMap("METAssoc"),
-    m_muonSelTool(""),
-    m_elecSelLHTool(""),
-    m_photonSelIsEMTool(""),
-    m_tauSelTool("")
+    m_metmaker(this),  
+    m_muonSelTool(this,""),
+    m_elecSelLHTool(this,""),
+    m_photonSelIsEMTool(this,""),
+    m_tauSelTool(this,"")
+
  {
     declareProperty( "Maker",          m_metmaker                        );
     declareProperty( "METCoreName",    m_CoreMetKey  = "MET_Core"        );

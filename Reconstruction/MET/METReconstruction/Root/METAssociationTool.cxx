@@ -43,7 +43,8 @@ namespace met {
   // Constructors
   ////////////////
   METAssociationTool::METAssociationTool(const std::string& name) : 
-    AsgTool(name)
+    AsgTool(name),
+    m_metassociators(this)
   {
     declareProperty( "METAssociators", m_metassociators              );
     declareProperty( "METSuffix",      m_metsuffix = "AntiKt4LCTopo" );
