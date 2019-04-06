@@ -426,7 +426,7 @@ if globalflags.DataSource()=='geant4':
 #====================================================================
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
-muonsRequirements = '(Muons.pt > 7*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonGoodMuon)'
+muonsRequirements = '(Muons.pt > 7*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonGoodMuon) && (Muons.DFCommonMuonsPreselection)'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
 HIGG3D3ElJDeltaRTool = DerivationFramework__DeltaRTool( name = "HIGG3D3ElJDeltaRTool",
