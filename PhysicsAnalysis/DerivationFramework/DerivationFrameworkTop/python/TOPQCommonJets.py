@@ -37,6 +37,24 @@ def addStandardJetsForTop(algseq, outputGroup):
   from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
   addDefaultTrimmedJets(algseq, outputGroup)
 
+
+def addNonLargeRJetsForTop(algseq, outputGroup):
+  from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+
+  # Before any custom jet reconstruction, it's good to set up the output list
+  OutputJets[outputGroup] = []
+
+  #=======================================
+  # RESTORE AOD-REDUCED JET COLLECTIONS
+  #=======================================
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+  # Only include those ones that you use. The order in the list is not significant
+  reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                    "AntiKt4PV0TrackJets",
+  ]
+  replaceAODReducedJets(reducedJetList, algseq, outputGroup)
+
+
 #==================
 # CamKt15LCTopoJets
 #==================

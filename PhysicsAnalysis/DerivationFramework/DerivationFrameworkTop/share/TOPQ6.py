@@ -113,18 +113,14 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
+from DerivationFrameworkTop.TOPQCommonJets import addNonLargeRJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 # add fat/trimmed jets
-addStandardJetsForTop(TOPQ6Sequence,'TOPQ6')
-# add VR jets
-addVRJetsForTop(TOPQ6Sequence)
+addNonLargeRJetsForTop(TOPQ6Sequence,'TOPQ6')
 # apply jet calibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ6Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
@@ -132,8 +128,6 @@ TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6SkimmingKern
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-# for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
