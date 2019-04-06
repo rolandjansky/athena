@@ -66,11 +66,11 @@ _add_test( met_fromJets EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 
 # ART-based tests:
 _add_test( full_menu_build POST_EXEC_SCRIPT "trig-art-result-parser.sh full_menu_build.log \"athena CheckLog RegTest\"" )
-_add_test( newJO_build POST_EXEC_SCRIPT "trig-art-result-parser.sh NewJO.log \"Configuration athena CheckLog RegTest\"" )
+_add_test( newJO_build POST_EXEC_SCRIPT "trig-art-result-parser.sh newJO_build.log \"Configuration athena CheckLog RegTest\"" )
 _add_test( bjet_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh bjet_menu.log \"athena CheckLog RegTest\"" )
 _add_test( electron_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh electron_menu.log \"athena CheckLog RegTest\"")
 _add_test( jet_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh jet_menu.log \"athena CheckLog RegTest\"")
-_add_test( met_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh tau_menu.log \"athena CheckLog RegTest\"" )
+_add_test( met_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh met_menu.log \"athena CheckLog RegTest\"" )
 _add_test( mu_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh mu_menu.log \"athena CheckLog RegTest\"")
 _add_test( photon_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh photon_menu.log \"athena CheckLog RegTest\"")
 _add_test( tau_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh tau_menu.log \"athena CheckLog RegTest\"")
