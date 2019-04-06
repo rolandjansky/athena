@@ -413,7 +413,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 HIGG3D3TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D3TruthThinningTool",
                                                                      ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
                                                                      ParticleSelectionString = truth_expression,
-                                                                     PreserveDescendants     = True,
+                                                                     PreserveDescendants     = False,
                                                                      PreserveAncestors       = True,
                                                                      SimBarcodeOffset        = DerivationFrameworkSimBarcodeOffset )
 
