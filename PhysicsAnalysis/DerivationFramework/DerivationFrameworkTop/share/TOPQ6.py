@@ -114,7 +114,6 @@ include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
@@ -122,8 +121,6 @@ from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 # add fat/trimmed jets
 addStandardJetsForTop(TOPQ6Sequence,'TOPQ6')
-# add SoftDrop jets
-addSoftDropJetsForTop(TOPQ6Sequence, "TOPQ6")
 # add TTC jets
 addTCCTrimmedJetsForTop(TOPQ6Sequence, "TOPQ6")
 # add VR jets
