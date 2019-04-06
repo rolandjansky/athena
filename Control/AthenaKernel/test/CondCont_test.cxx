@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -227,7 +227,7 @@ void fillit (CondCont<T>& cc_rl, CondCont<T>& cc_ts, std::vector<T*> & ptrs)
   cc_ts.list (ss4);
   std::ostringstream exp4;
   exp4 << "id:  ( 'UNKNOWN_CLASS:cls' , 'key' )   proxy: 0 [1] entries\n"
-       << "{[t:123] - [t:456]} " << ptrs[2] << "\n";
+       << "{[0,0,t:123] - [t:456]} " << ptrs[2] << "\n";
   //std::cout << "ss4: " << ss4.str() << "\nexp4: " << exp4.str() << "\n";
   assert (ss4.str() == exp4.str());
 
