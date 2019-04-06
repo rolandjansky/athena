@@ -391,7 +391,7 @@ namespace ZDC
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 0, "FermiExp", peak2ndDerivMinSamples, // presample index changed to zero 4/6/19
                                                                           peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -421,6 +421,7 @@ namespace ZDC
 							  {{-12.5, -12.5, -12.5, -12.5}}}};
 
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
+    zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
 
     //    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     //  }
