@@ -189,7 +189,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
     MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement());
-    //    clustersVect.push_back(prdN);
+    clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements
   MMflag.clear();
