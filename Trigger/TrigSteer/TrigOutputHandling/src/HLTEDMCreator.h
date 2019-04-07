@@ -13,7 +13,7 @@
 
 // OutputHandling includes
 #include "DecisionHandling/IHLTOutputTool.h"
-
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "AthViews/View.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -68,9 +68,10 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
  private: 
 
   HLTEDMCreator();
-  Gaudi::Property<std::string> m_remapKey{ this, "RemapKey", "remap_", "Prefix for remapped collections"};
-  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", true, "Fix links that may be pointing objects in views"};
-
+  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", false, "Fix links that may be pointing objects in views"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint32_t> > m_remapLinkCollKeys{ this, "DoNotSet_RemapLinkCollKeys", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint16_t> > m_remapLinkColIndices{ this, "DoNotSet_RemapLinkCollIndices", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+  
 #define DEF_VIEWS(__TYPE) \
   SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
 

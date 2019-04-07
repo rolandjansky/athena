@@ -247,29 +247,41 @@ summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
-egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
-egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
+egammaCaloViewsMerger = HLTEDMCreator("egammaCaloViewsMerger", FixLinks=True)
+egammaCaloViewsMerger.TrigCompositeContainer = ["EgammaCaloDecisions"]
 
-egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
-egammaViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
+egammaCaloViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
+egammaCaloViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
+egammaCaloViewsMerger.TrigEMClusterContainer = [ clustersKey ]
+egammaCaloViewsMerger.OutputLevel = VERBOSE
 
-# this merging directive causes the issue
-egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
-egammaViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
+#[ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
-egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
-egammaViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
-egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
+egammaElectronViewsMerger = HLTEDMCreator("egammaelectronViewsMerger", FixLinks=True)
+egammaElectronViewsMerger.TrigCompositeContainer = ["ElectronL2Decisions"]
+egammaElectronViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaElectronViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
+egammaElectronViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
+egammaElectronViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaElectronViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
+egammaElectronViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
 
-egammaViewsMerger.OutputLevel = VERBOSE
+
+egammaElectronViewsMerger.OutputLevel = VERBOSE
+
 
 svcMgr.StoreGateSvc.OutputLevel = INFO
 
+decisionsNotPointingtoViews = [ "filterCaloRoIsAlg",  "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ] 
+
+gapsFiller =  HLTEDMCreator("GapsFiller") # no links fixing
+gapsFiller.TrigCompositeContainer = decisionsNotPointingtoViews
+
 
 edmMakerAlg = HLTEDMCreatorAlg("EDMMaker")
-edmMakerAlg.OutputTools = [ egammaViewsMerger ]
+edmMakerAlg.OutputTools = [ egammaCaloViewsMerger, egammaElectronViewsMerger, gapsFiller ]
+
+
 
 
 step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
@@ -309,9 +321,12 @@ topSequence.remove( StreamESD )
 def addTC(name):   
    StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
 
-for tc in egammaViewsMerger.TrigCompositeContainer:
-   addTC( "remap_" + tc )
+     
+for tc in decisionsNotPointingtoViews + ["EgammaCaloDecisions", "ElectronL2Decisions"]:
+   addTC( tc )
 
+      
+   
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
                         "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
@@ -349,8 +364,10 @@ from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserTool
 serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
 serialiser.OutputLevel=VERBOSE
 serialiser.addCollectionListToMainResult([
-   "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-   "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.",
+   "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+   "xAOD::TrigCompositeAuxContainer_v2#EgammaCaloDecisionsAux.remap_linkCollKeys.remap_linkCollIndices",
+   "xAOD::TrigCompositeContainer_v1#ElectronL2Decisions",
+   "xAOD::TrigCompositeAuxContainer_v2#ElectronL2DecisionsAux.remap_linkCollKeys.remap_linkCollIndices",
    "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
    "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
    "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
@@ -402,9 +419,9 @@ deserialiser.OutputLevel=DEBUG
 
 # # add prefix + remove version to class name
 l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
-StreamESD.ItemList += l
+#StreamESD.ItemList += l
 
-
+StreamESD.OutputLevel=DEBUG
 
 
 

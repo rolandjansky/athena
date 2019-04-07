@@ -7,6 +7,7 @@
 //#include "GaudiKernel/IToolSvc.h"
 #include "AthViews/ViewHelper.h"
 #include "HLTEDMCreator.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 HLTEDMCreator::HLTEDMCreator( const std::string& type, 
 			      const std::string& name, 
@@ -59,6 +60,15 @@ StatusCode HLTEDMCreator::initialize()
 
 #undef INIT
 #undef INIT_XAOD
+
+  if ( m_fixLinks ) {
+    for ( auto writeHandleKey: m_TrigCompositeContainer ) {
+      m_remapLinkCollKeys.emplace_back( writeHandleKey.key()+".remap_linkCollKeys" );
+      m_remapLinkColIndices.emplace_back( writeHandleKey.key()+".remap_linkCollIndices" );
+    }
+    ATH_CHECK( m_remapLinkCollKeys.initialize() ) ;
+    ATH_CHECK( m_remapLinkColIndices.initialize() );
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -115,79 +125,71 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
 StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigCompositeContainer >& handles ) const {
 
   // Make a list of the collections we're going to mess with
-  std::set< std::string > remappedCollections;
-  for ( auto writeHandleKey : handles.out ) {
+  // std::set< std::string > remappedCollections;
+  // for ( auto writeHandleKey : handles.out ) {
+  //   remappedCollections.insert( writeHandleKey.key() );
+  // }
 
-    remappedCollections.insert( writeHandleKey.key() );
-  }
+  static const SG::AuxElement::ConstAccessor< std::vector< uint32_t > > keyAccessor( "linkColKeys" );
+  static const SG::AuxElement::ConstAccessor< std::vector< uint16_t > > offsetAccessor( "linkColIndices" );
+
+  ATH_MSG_DEBUG("Fixing links called" << handles.out.size() );
 
   // Do the remapping
+  int index = -1;
   for ( auto writeHandleKey : handles.out ) {
-
+    index++;
+    ATH_MSG_DEBUG("Fixing links: see if collection is there: " << writeHandleKey.key() << " index " << index);
     SG::ReadHandle<xAOD::TrigCompositeContainer> readHandle( writeHandleKey.key() );
-
-    if ( readHandle.isValid() ) {
-
-      // Create a container for the remapped TCs
-      xAODGenerator<xAOD::TrigCompositeContainer, xAOD::TrigCompositeAuxContainer> output;
-      output.create();
-
-      // Examine each input TC
-      for ( auto inputDecision : *( readHandle.cptr() ) ) {
-
-        // Clone the TC (xAOD-style copy)
-        xAOD::TrigComposite * outputDecision = new xAOD::TrigComposite();
-        output.data->push_back( outputDecision );
-        *outputDecision = *inputDecision;
-
-        // Retrieve the link information for remapping
-        SG::AuxElement::Accessor< std::vector< uint32_t > > keyAccessor( "linkColKeys" );
-        SG::AuxElement::Accessor< std::vector< uint16_t > > offsetAccessor( "linkColIndices" );
-        std::vector< uint32_t > remappedKeys = keyAccessor( *outputDecision );
-        std::vector< uint16_t > remappedOffsets = offsetAccessor( *outputDecision );
-
-        // Search the linked collections for remapping
-        unsigned int const collectionTotal = inputDecision->linkColNames().size();
-        for ( unsigned int collectionIndex = 0; collectionIndex < collectionTotal; ++collectionIndex ) {
-
-          // Load identifiers
-          std::string const collectionName = inputDecision->linkColNames()[ collectionIndex ];
-          uint32_t const collectionKey = inputDecision->linkColKeys()[ collectionIndex ];
-          std::string const keyString = *( evtStore()->keyToString( collectionKey ) );
-          uint32_t const collectionClid = inputDecision->linkColClids()[ collectionIndex ];
-          uint16_t const collectionOffset = inputDecision->linkColIndices()[ collectionIndex ];
-
-          // Check for remapping in a merge
-          uint32_t newKey = 0;
-          size_t newOffset = 0;
-          bool isRemapped = evtStore()->tryELRemap( collectionKey, collectionOffset, newKey, newOffset);
-          if ( isRemapped ) {
-
-            ATH_MSG_DEBUG( "Remap link from " << *( evtStore()->keyToString( collectionKey ) ) << " to " << *( evtStore()->keyToString( newKey ) ) );
-            remappedKeys[ collectionIndex ] = newKey;
-            remappedOffsets[ collectionIndex ] = newOffset;
-          }
-
-          // If the link is to a collection modified in this method, will also need to be remapped
-          // WARNING: untested
-          if ( remappedCollections.find( keyString ) != remappedCollections.end() ) {
-
-            ATH_MSG_DEBUG( "Remap link to collection: " << keyString << " -> remap_" << keyString );
-            remappedKeys[ collectionIndex ] = evtStore()->stringToKey( "remap_" + keyString, collectionClid );
-          }
-        }
-
-        // Save the remaps
-        keyAccessor( *outputDecision ) = remappedKeys;
-        offsetAccessor( *outputDecision ) = remappedOffsets;
-      }
-
-      // Store the remapped TCs
-      SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( m_remapKey + writeHandleKey.key() );
-      CHECK(output.record( writeHandle ));
+    if ( not readHandle.isValid() ) { // object missing, ok, may be early rejection
+      continue;
     }
-  }
 
+    ATH_MSG_DEBUG("Fixing links: collection is there: " << writeHandleKey.key() );
+    ATH_MSG_DEBUG("Adding decorations: " << m_remapLinkCollKeys.at( index ).key() << " and " << m_remapLinkColIndices.at( index ).key() );
+    
+    SG::WriteDecorHandle<xAOD::TrigCompositeContainer, std::vector<uint32_t> > keyDecor( m_remapLinkCollKeys.at( index ) );
+    SG::WriteDecorHandle<xAOD::TrigCompositeContainer, std::vector<uint16_t> > offsetDecor( m_remapLinkColIndices.at( index ) );
+
+    
+    // Examine each input TC
+    for ( auto inputDecision : *( readHandle.cptr() ) ) {
+
+      
+      // Retrieve the link information for remapping
+      std::vector< uint32_t > remappedKeys = keyAccessor( *inputDecision );
+      std::vector< uint16_t > remappedOffsets = offsetAccessor( *inputDecision );
+
+      // Search the linked collections for remapping
+      unsigned int const collectionTotal = inputDecision->linkColNames().size();
+      for ( unsigned int collectionIndex = 0; collectionIndex < collectionTotal; ++collectionIndex ) {
+
+  	// Load identifiers
+  	std::string const collectionName = inputDecision->linkColNames()[ collectionIndex ];
+  	uint32_t const collectionKey = inputDecision->linkColKeys()[ collectionIndex ];
+  	std::string const keyString = *( evtStore()->keyToString( collectionKey ) );
+  	uint16_t const collectionOffset = inputDecision->linkColIndices()[ collectionIndex ];
+	
+  	// Check for remapping in a merge
+  	uint32_t newKey = 0;
+  	size_t newOffset = 0;
+  	bool isRemapped = evtStore()->tryELRemap( collectionKey, collectionOffset, newKey, newOffset);
+  	if ( isRemapped ) {
+	  
+  	  ATH_MSG_DEBUG( "Remap link from " << *( evtStore()->keyToString( collectionKey ) ) << " to " << *( evtStore()->keyToString( newKey ) ) );
+  	  remappedKeys[ collectionIndex ] = newKey;
+  	  remappedOffsets[ collectionIndex ] = newOffset;
+  	}
+	
+      }
+      
+      // Save the remaps
+      keyDecor( *inputDecision ) = remappedKeys;
+      offsetDecor( *inputDecision ) = remappedOffsets;
+
+    }    
+  }  
+  
   return StatusCode::SUCCESS;
 }
 
@@ -266,9 +268,11 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( MuonContainer, MuonAuxContainer );
 
   // After view collections are merged, need to update collection links
-  if ( m_fixLinks )
+  if ( m_fixLinks ) {
     ATH_CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );
-
+    ATH_MSG_DEBUG( "SG dump " + evtStore()->dump() );
+  }
+  
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE
   return StatusCode::SUCCESS;
