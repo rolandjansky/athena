@@ -1,5 +1,3 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -7,21 +5,16 @@
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
 #define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
 
-// Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IRegistry.h"
-
-#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
-#include "ByteStreamCnvSvcBase/ByteStreamAddressL1R.h"
-#include "ByteStreamData/RawEvent.h"
-
-#include "SGTools/StorableConversions.h"
-
-// Trigger include(s):
+// Trigger includes
 #include "TrigT1Result/RoIBResult.h"
 
-// Local include(s):
-#include "TrigT1ResultByteStream/L1SrcIdMap.h"
+// Athena includes
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamData/RawEvent.h"
+#include "SGTools/StorableConversions.h"
+
+// Gaudi includes
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 /**
  * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the
@@ -30,8 +23,10 @@
 template< class ROBF >
 RoIBResultByteStreamCnv< ROBF >::RoIBResultByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
+    AthMessaging( msgSvc(), "RoIBResultByteStreamCnv" ),
     m_tool( "RoIBResultByteStreamTool" ),
-    m_ByteStreamCnvSvc( "ByteStreamCnvSvc", "RoIBResultByteStreamCnv" ) {
+    m_ByteStreamCnvSvc( "ByteStreamCnvSvc", "RoIBResultByteStreamCnv" ),
+    m_robDataProviderSvc( "ROBDataProviderSvc", "RoIBResultByteStreamCnv" ) {
 
 }
 
@@ -54,26 +49,36 @@ long RoIBResultByteStreamCnv< ROBF >::storageType() {
  */
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
-
   //
   // Initialise the base class:
   //
   ATH_CHECK( Converter::initialize() );
-
-  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "In initialize()" << endmsg;
+  ATH_MSG_DEBUG("In initialize()");
 
   //
   // Get ByteStreamCnvSvc:
   //
   ATH_CHECK( m_ByteStreamCnvSvc.retrieve() );
-  log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endmsg;
+  ATH_MSG_DEBUG("Connected to ByteStreamCnvSvc");
+
+  //
+  // Get ROBDataProviderSvc:
+  //
+  ATH_CHECK( m_robDataProviderSvc.retrieve() );
+  ATH_MSG_DEBUG("Connected to ROBDataProviderSvc");
 
   //
   // Get RoIBResultByteStreamTool:
   //
   ATH_CHECK( m_tool.retrieve() );
-  log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endmsg;
+  ATH_MSG_DEBUG("Connected to RoIBResultByteStreamTool");
+
+  //
+  // Flag if running in AthenaMT
+  //
+  m_isMT = (Gaudi::Concurrency::ConcurrencyFlags::numThreads() + Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) > 0;
+  if (m_isMT) ATH_MSG_DEBUG("Detected running in AthenaMT");
+  else ATH_MSG_DEBUG("Detected running in legacy Athena");
 
   return StatusCode::SUCCESS;
 }
@@ -84,26 +89,25 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
  * for conversion.
  */
 template< class ROBF >
-StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
+StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* /*pAddr*/, DataObject*& pObj ) {
+  ATH_MSG_DEBUG("createObj() called");
 
-  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "createObj() called" << endmsg;
-
-  ByteStreamAddressL1R *pAddrL1;
-  pAddrL1 = dynamic_cast< ByteStreamAddressL1R* >( pAddr );
-  if( ! pAddrL1 ) {
-    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endmsg ;
+  // This method is deprecated in AthenaMT
+  if (m_isMT) {
+    ATH_MSG_ERROR("Misconfiguration! The method " << __PRETTY_FUNCTION__ << " is deprecated in multi-threaded "
+                  << "mode. Please schedule RoIBResultByteStreamDecoderAlg to read RoIBResult from ByteStream.");
     return StatusCode::FAILURE;
   }
 
   ROIB::RoIBResult* result = new ROIB::RoIBResult;
 
-  const std::vector< ROBF >& robs = pAddrL1->getPointers();
+  IROBDataProviderSvc::VROBFRAG vrobf;
+  m_robDataProviderSvc->getROBData(m_tool->configuredROBIds(), vrobf, "RoIBResultByteStreamCnv");
 
   // Convert to Object
-  ATH_CHECK( m_tool->convert( robs, result ) );
+  ATH_CHECK( m_tool->convert( vrobf, *result ) );
 
-  log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) <<endmsg;
+  ATH_MSG_DEBUG("Conversion done");
 
   pObj = SG::asStorable( result ) ;
   return StatusCode::SUCCESS;
@@ -117,16 +121,14 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
  */
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
-
-  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "createRep() called" << endmsg;
+  ATH_MSG_DEBUG("createRep() called");
 
   RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();
 
   ROIB::RoIBResult* result;
 
   if( ! SG::fromStorable( pObj, result ) ) {
-    log << MSG::ERROR << " Cannot cast to RoIBResult" << endmsg ;
+    ATH_MSG_ERROR("Cannot cast to RoIBResult");
     return StatusCode::FAILURE;
   }
 
