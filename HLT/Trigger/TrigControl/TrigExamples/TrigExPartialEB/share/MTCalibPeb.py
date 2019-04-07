@@ -22,15 +22,14 @@ topSequence += xAODMaker__EventInfoCnvAlg()
 # L1 result decoding
 ################################################################################
 
-# Configure BS converter and address provider for RoIBResult decoding
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.ByteStreamCnvSvc.GetDetectorMask = True
-svcMgr.ByteStreamCnvSvc.InitCnvs += [ "ROIB::RoIBResult" ]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
+# Configure RoIBResult decoding (input to L1Decoder)
+from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
+topSequence += RoIBResultByteStreamDecoderAlg()
 
 # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
 # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
 from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += LVL1ConfigSvc()
 
 # Set the LVL1 menu (needed for initialising LVL1ConfigSvc)

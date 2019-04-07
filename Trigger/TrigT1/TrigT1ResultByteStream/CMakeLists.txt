@@ -38,5 +38,6 @@ atlas_add_component( TrigT1ResultByteStream
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

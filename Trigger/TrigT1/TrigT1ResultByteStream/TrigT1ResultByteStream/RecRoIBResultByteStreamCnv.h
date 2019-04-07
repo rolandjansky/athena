@@ -1,26 +1,29 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMCNV_H
 #define TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMCNV_H
 
-// Gaudi/Athena include(s):
+// Local includes
+#include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthMessaging.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// Local include(s):
-#include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
 
 /**
  *   @short ByteStream converter for the RecRoIBResult object
  *
  *          This converter takes care of creating the RecRoIBResult objects
  *          from BS data. It's kind of tricky as multiple ROB fragments are
- *          needed to create a single RecRoIBResult object, but the BS
- *          converter framework handles the RoIB result as a special case...
+ *          needed to create a single RecRoIBResult object.
  *
  *     @see RecRoIBResultByteStreamTool
  *
@@ -29,7 +32,7 @@
  *    @date $Date: 2009-02-23 21:23:03 $
  */
 template< class ROBF >
-class RecRoIBResultByteStreamCnv : public Converter {
+class RecRoIBResultByteStreamCnv : public Converter, public AthMessaging {
 
 public:
   /// Standard constructor
@@ -50,6 +53,8 @@ public:
 private:
   /// Tool doing the actual conversion
   ToolHandle< RecRoIBResultByteStreamTool > m_tool;
+  /// Service used when reading the BS data
+  ServiceHandle< IROBDataProviderSvc > m_robDataProviderSvc;
 
 }; // class RecRoIBResultByteStreamCnv
 
