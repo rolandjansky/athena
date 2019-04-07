@@ -95,7 +95,8 @@ TOPQSmartSlimmingCollections = ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingE
                                 "BTagging_AntiKt4EMPFlow",
                                 "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                 "AntiKt4TruthJets",
-                                "AntiKt4TruthWZJets"]
+                                "AntiKt4TruthWZJets",
+                                "AntiKt4TruthDressedWZJets"]
 
 #================================
 # EXTRA VARIABLES - Data & MC
