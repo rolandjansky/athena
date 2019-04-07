@@ -28,6 +28,15 @@ function( atlas_build_trigger_menu menu )
       return()
    endif()
 
+   #Prescale menus depend on the non-prescale version, fed via optional argument
+   set (menu_nops ${menu})
+   set (extra_args ${ARGN})
+   # Did we get any optional args?
+   list(LENGTH extra_args num_extra_args)
+   if (${num_extra_args} GREATER 0)
+       list(GET extra_args 0 optional_arg)
+       set (menu_nops ${optional_arg})
+   endif ()
    # Command to build trigger menu. The idea is that ${menu}.stamp gets
    # created as the last command, should the menu generation succeed. So
    # that after a successful menu generation it wouldn't be attempted
@@ -51,7 +60,8 @@ function( atlas_build_trigger_menu menu )
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
       COMMAND ${CMAKE_COMMAND} -E touch
       ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
-      DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
+      DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" 
+              ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/TriggerMenu/menu/${menu_nops}.py )
 
    # Create custom target and add it to package dependencies
    add_custom_target( build_menu_${menu} ALL SOURCES
@@ -110,26 +120,26 @@ atlas_install_xmls( data/*.xml )
 
 atlas_build_trigger_menu( Physics_pp_v8 )
 atlas_build_trigger_menu( Physics_pp_v8_lowmu )
-atlas_build_trigger_menu( Physics_pp_v8_unprescaled_only_physics_prescale )
+atlas_build_trigger_menu( Physics_pp_v8_unprescaled_only_physics_prescale Physics_pp_v8 )
 atlas_build_trigger_menu( MC_pp_v8 )
-atlas_build_trigger_menu( MC_pp_v8_BulkMCProd_mc_prescale )
+atlas_build_trigger_menu( MC_pp_v8_BulkMCProd_mc_prescale MC_pp_v8 )
 
 atlas_build_trigger_menu( Physics_pp_v7 )
-atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale )
-atlas_build_trigger_menu( Physics_pp_v7_unprescaled_only_physics_prescale )
+atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale Physics_pp_v7 )
+atlas_build_trigger_menu( Physics_pp_v7_unprescaled_only_physics_prescale Physics_pp_v7 )
 atlas_build_trigger_menu( Physics_pp_v7_primaries )
 atlas_build_trigger_menu( MC_pp_v7 )
-atlas_build_trigger_menu( MC_pp_v7_BulkMCProd_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v7_CPSampleProd_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v7_TriggerValidation_mc_prescale )
+atlas_build_trigger_menu( MC_pp_v7_BulkMCProd_mc_prescale MC_pp_v7 )
+atlas_build_trigger_menu( MC_pp_v7_CPSampleProd_mc_prescale MC_pp_v7 )
+atlas_build_trigger_menu( MC_pp_v7_TriggerValidation_mc_prescale MC_pp_v7 )
 
 atlas_build_trigger_menu( Physics_HI_v5 )
-atlas_build_trigger_menu( Physics_HI_v5_tight_physics_prescale )
+atlas_build_trigger_menu( Physics_HI_v5_tight_physics_prescale Physics_HI_v5 )
 atlas_build_trigger_menu( MC_HI_v5 )
-atlas_build_trigger_menu( MC_HI_v5_tight_mc_prescale )
+atlas_build_trigger_menu( MC_HI_v5_tight_mc_prescale MC_HI_v5 )
 
 atlas_build_trigger_menu( Physics_HI_v4 )
 atlas_build_trigger_menu( MC_HI_v4 )
-atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale )
+atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale MC_HI_v4 )
 
 #atlas_build_trigger_menu( MC_PhaseII )
