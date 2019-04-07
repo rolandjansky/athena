@@ -20,6 +20,11 @@ testChains = []
 ##################################################################
 from TrigUpgradeTest.pebMenuDefs import pebInfoWriterSequence
 
+##################################################################
+# SignatureDicts addition
+##################################################################
+from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import AllowedEventBuildingIdentifiers
+AllowedEventBuildingIdentifiers.extend(['pebtestfour','pebtestfive'])
 
 ##################################################################
 # egamma chains
@@ -34,11 +39,13 @@ if (doElectron):
 
     step1=ChainStep("Step1_etcut", [fastCaloStep])
     step2=ChainStep("Step2_etcut", [electronStep])
-    step3=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
+    step3_pebtestone=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
+    step3_pebtestfour=ChainStep("Step3_pebtestfour", [pebInfoWriterSequence("pebtestfour")])
 
     egammaChains = [
-        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
-        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  ),
+        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestfour',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestfour]  ),
         Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
     ]
     testChains += egammaChains
@@ -51,10 +58,12 @@ if (doMuon):
     muFastSequence = muFastSequence()
 
     step1mufast=ChainStep("Step1_muFast", [ muFastSequence ])
-    step2peb=ChainStep("Step2_pebtesttwo", [pebInfoWriterSequence("pebtesttwo")])
+    step2_pebtesttwo=ChainStep("Step2_pebtesttwo", [pebInfoWriterSequence("pebtesttwo")])
+    step2_pebtestfive=ChainStep("Step2_pebtestfive", [pebInfoWriterSequence("pebtestfive")])
 
     muonChains = [
-        Chain(name='HLT_mu6_pebtesttwo',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2peb]  ),
+        Chain(name='HLT_mu6_pebtesttwo',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtesttwo]  ),
+        Chain(name='HLT_mu6_pebtestfive',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtestfive]  ),
         Chain(name='HLT_2mu6',        Seed="L1_MU6",  ChainSteps=[step1mufast]  )
     ]
     testChains += muonChains
@@ -66,7 +75,6 @@ if (doMuon):
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
 
 ##########################################
 # CF construction
@@ -150,6 +158,8 @@ serialiser.addCollectionListToMainResult([
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhysicsPebtestone = ['pebtestone', 'physics', "True", "False"]
 streamCalibPebtesttwo = ['pebtesttwo', 'calibration', "True", "False"]
+streamPhysicsPebtestfour = ['pebtestfour', 'physics', "True", "False"]
+streamPhysicsPebtestfive = ['pebtestfive', 'physics', "True", "False"]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
@@ -158,7 +168,9 @@ stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
 stmaker.ChainToStream["HLT_e3_etcut_pebtestone"] = streamPhysicsPebtestone
 stmaker.ChainToStream["HLT_e5_etcut_pebtestone"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e5_etcut_pebtestfour"] = streamPhysicsPebtestfour
 stmaker.ChainToStream["HLT_mu6_pebtesttwo"] = streamCalibPebtesttwo
+stmaker.ChainToStream["HLT_mu6_pebtestfive"] = streamPhysicsPebtestfive
 
 ##### Result maker part 3 - HLT bits #####
 
