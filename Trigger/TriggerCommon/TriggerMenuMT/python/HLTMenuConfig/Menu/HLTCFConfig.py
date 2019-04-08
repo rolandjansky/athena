@@ -148,13 +148,14 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     hltTop += summary
 
     # add signature monitor
-    from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
+    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, triggerMonitoringCfg, triggerSummaryCfg
     hypos = collectHypos(steps)
+    filters = collectFilters(steps)
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
     summaryAcc.appendToGlobals()
     
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     monAcc.appendToGlobals()    
     hltTop += monAlg
     
