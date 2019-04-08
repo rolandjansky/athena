@@ -79,7 +79,7 @@ rec.doWriteTAG.set_Value_and_Lock(False)
 rec.doTruth.set_Value_and_Lock(False)
 rec.doWriteBS.set_Value_and_Lock(True)
 rec.doESD.set_Value_and_Lock(False)
-
+rec.doWriteESD.set_Value_and_Lock(False)
 ###
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrigger.set_Value_and_Lock(False)
@@ -97,6 +97,7 @@ jobproperties.LArRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+svcMgr.ByteStreamCnvSvc.IsSimulation = False
 StreamBSFileOutput.ItemList = ["FTK_RawTrackContainer#*"]
 
 # Merge with original bytestream
