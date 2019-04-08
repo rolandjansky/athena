@@ -96,7 +96,7 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 # Unfiltered stream
 StreamAll = AthenaPoolOutputStream( "StreamAll2", "AthenaPoolMultiTest_StreamAll2.root", False, noTag=False )
 StreamAll.CheckNumberOfWrites = False
-StreamAll.WritingTool.AttributeListKey="SimpleTagDecisions"
+StreamAll.WritingTool.SaveDecisions = True
 StreamAll.TakeItemsFromInput = True
 StreamAll.ForceRead=TRUE
 

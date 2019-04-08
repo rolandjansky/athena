@@ -38,7 +38,7 @@ PoolSvc = svcMgr.PoolSvc
 PoolSvc.ReadCatalog = ["xmlcatalog_file:EventSplit.xml"]
 
 EventSelector = svcMgr.EventSelector
-EventSelector.InputCollections  = [ "AthenaPoolMultiTest_StreamAll.root" ]; 
+EventSelector.InputCollections  = [ "AthenaPoolMultiTest_StreamAll2.root" ]; 
 
 # Include the StreamSelectorTool
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import StreamSelectorTool
