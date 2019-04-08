@@ -207,6 +207,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FirstEvent", "The number of events that you want to skip (for testing). If 0 then no events are skipped.", "0");
     registerParameter("PerfStats"," I/O Performance printouts. None, Summary or Full" , "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
+    registerParameter("FilterBranches", "Comma separated list of names of the branches that will be removed from the output", " ");
 
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
