@@ -188,7 +188,7 @@ public:
   std::map < SoNode *, EMBCellConstLink>   EMBMap;
 
   std::map < SoNode *, const EMBHVElectrode*>  EMBHVMap;
-  std::map < SoNode *, EMECHVElectrodeConstLink> EMECHVMap;
+  std::map < SoNode *, const EMECHVElectrode*> EMECHVMap;
   std::map < SoNode *, FCALHVLineConstLink>      FCALHVMap;
   std::map < SoNode *, HECHVSubgapConstLink>     HECHVMap;
 
@@ -904,18 +904,18 @@ void VP1CaloReadoutSystem::createHV() {
     EMECHVModule::IOType iotype=EMECHVModule::IOType(t);
     QSpinBox **spinBoxes = iotype==EMECHVModule::OUTER ? emecSpinBoxOuter : emecSpinBoxInner;
 
-    const EMECHVManager *  emecHVManager  = larHVManager->getEMECHVManager(iotype);
-    for (unsigned int e=emecHVManager->beginSideIndex();e!=emecHVManager->endSideIndex();e++) {
+    const EMECHVManager&  emecHVManager  = larHVManager->getEMECHVManager(iotype);
+    for (unsigned int e=emecHVManager.beginSideIndex();e!=emecHVManager.endSideIndex();e++) {
       double z =  e==0 ? -3740:3740;
-      for (unsigned int s=emecHVManager->beginSectorIndex();s!=emecHVManager->endSectorIndex();s++) {
-	for (unsigned int y=emecHVManager->beginEtaIndex();y!=emecHVManager->endEtaIndex();y++) {
-	  for (unsigned int p=emecHVManager->beginPhiIndex();p!=emecHVManager->endPhiIndex();p++) {
-	    EMECHVModuleConstLink emecMod=emecHVManager->getHVModule(e,y,p,s);
+      for (unsigned int s=emecHVManager.beginSectorIndex();s!=emecHVManager.endSectorIndex();s++) {
+	for (unsigned int y=emecHVManager.beginEtaIndex();y!=emecHVManager.endEtaIndex();y++) {
+	  for (unsigned int p=emecHVManager.beginPhiIndex();p!=emecHVManager.endPhiIndex();p++) {
+	    const EMECHVModule& emecMod=emecHVManager.getHVModule(e,y,p,s);
 
-	    double phiMin = emecMod->getPhiMin();
-	    double phiMax = emecMod->getPhiMax();
-	    double etaMin = emecMod->getEtaMin();
-	    double etaMax = emecMod->getEtaMax();
+	    double phiMin = emecMod.getPhiMin();
+	    double phiMax = emecMod.getPhiMax();
+	    double etaMin = emecMod.getEtaMin();
+	    double etaMax = emecMod.getEtaMax();
 	    double rMax=fabs(z/sinh(etaMin));
 	    double rMin=fabs(z/sinh(etaMax));
 
@@ -934,23 +934,23 @@ void VP1CaloReadoutSystem::createHV() {
 	    ls->vertexProperty=vtxProperty;
 	    m_clockwork->emecModsSeparator->addChild(ls);
 
-	    for (unsigned int i=0;i<emecMod->getNumElectrodes();i++) {
-	      EMECHVElectrodeConstLink electrode = emecMod->getElectrode(i);
-	      double voltage0 = electrode->voltage(0);
-	      double voltage1 = electrode->voltage(1);
+	    for (unsigned int i=0;i<emecMod.getNumElectrodes();i++) {
+	      const EMECHVElectrode& electrode = emecMod.getElectrode(i);
+	      double voltage0 = electrode.voltage(0);
+	      double voltage1 = electrode.voltage(1);
 	      double nominalVoltage = spinBoxes[y]->value();
 	      bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	      bool missing        = voltage0 == -99999 || voltage1 == -99999;
-	      double etaMax=electrode->getModule()->getEtaMax();
-	      double etaMin=electrode->getModule()->getEtaMin();
+	      double etaMax=electrode.getModule().getEtaMax();
+	      double etaMin=electrode.getModule().getEtaMin();
 	      double rMin=fabs(z/sinh(etaMin));
 	      double rMax=fabs(z/sinh(etaMax));
 
 	      {
 		int cc=0;
 		SoVertexProperty *vtxProperty = new SoVertexProperty();
-		vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(electrode->getPhi()),rMin*sin(electrode->getPhi())  ,z));
-		vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(electrode->getPhi()),rMax*sin(electrode->getPhi())  ,z));
+		vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(electrode.getPhi()),rMin*sin(electrode.getPhi())  ,z));
+		vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(electrode.getPhi()),rMax*sin(electrode.getPhi())  ,z));
 
 		SoLineSet *ls = new SoLineSet();
 		ls->numVertices=2;
@@ -965,7 +965,7 @@ void VP1CaloReadoutSystem::createHV() {
 		else {
 		  m_clockwork->emecNormalSep->addChild(ls);
 		}
-		m_clockwork->EMECHVMap[ls]=electrode;
+		m_clockwork->EMECHVMap[ls]=&electrode;
 	      }
 	    }
 	  }
@@ -1692,12 +1692,12 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
   }
   // EMEC HV
   {
-    std::map < SoNode *, EMECHVElectrodeConstLink>::const_iterator p = m_clockwork->EMECHVMap.find(mySelectedNode);
+    std::map < SoNode *, const EMECHVElectrode*>::const_iterator p = m_clockwork->EMECHVMap.find(mySelectedNode);
     if (p!=m_clockwork->EMECHVMap.end()) {
 
-      EMECHVElectrodeConstLink electrode  = (*p).second;
+      const EMECHVElectrode* electrode  = (*p).second;
       std::ostringstream outstream;
-      outstream << "Side: " << electrode->getModule()->getSideIndex() << " Wheel: " << electrode->getModule()->getWheelIndex() << " Eta: " << electrode->getModule()->getEtaIndex() << " Phi: " << electrode->getModule()->getPhiIndex() << " Sector: " << electrode->getModule()->getSectorIndex() << " Electrode: " << electrode->getElectrodeIndex() << "Voltages: " << electrode->voltage(0) << "/" << electrode->voltage(1) << "; currents: " << electrode->current(0) << "/" << electrode->current(1);
+      outstream << "Side: " << electrode->getModule().getSideIndex() << " Wheel: " << electrode->getModule().getWheelIndex() << " Eta: " << electrode->getModule().getEtaIndex() << " Phi: " << electrode->getModule().getPhiIndex() << " Sector: " << electrode->getModule().getSectorIndex() << " Electrode: " << electrode->getElectrodeIndex() << "Voltages: " << electrode->voltage(0) << "/" << electrode->voltage(1) << "; currents: " << electrode->current(0) << "/" << electrode->current(1);
       message (outstream.str().c_str());
     }
   }
@@ -2011,32 +2011,29 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  highVoltageStream << "There are " << element->getNumElectrodes() << " electrodes. Status: " << std::endl;
 	  message(highVoltageStream.str().c_str());
 	}
-	std::set<EMECHVModuleConstLink> modSet;
+	std::set<const EMECHVModule*> modSet;
 	for (unsigned int i=0;i<element->getNumElectrodes();i++) {
 	  if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	    {
 	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << ' ' << element->getElectrode(i)->getElectrodeIndex() << ") status: " << element->getElectrode(i)->hvOn(0) << ' ' << element->getElectrode(i)->hvOn(1) <<  std::endl;
+	      highVoltageStream << i << ' ' << element->getElectrode(i).getElectrodeIndex() << ") status: " << element->getElectrode(i).hvOn(0) << ' ' << element->getElectrode(i).hvOn(1) <<  std::endl;
 	      message(highVoltageStream.str().c_str());
 	    }
 	    {
 	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << '(' << element->getElectrode(i)->getElectrodeIndex() << ") voltage: "  << element->getElectrode(i)->voltage(0) << ' ' << element->getElectrode(i)->voltage(1) <<  std::endl;
+	      highVoltageStream << i << '(' << element->getElectrode(i).getElectrodeIndex() << ") voltage: "  << element->getElectrode(i).voltage(0) << ' ' << element->getElectrode(i).voltage(1) <<  std::endl;
 	      message(highVoltageStream.str().c_str());
 	    }
 	    {
 	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << '(' << element->getElectrode(i)->getElectrodeIndex() << ") currents: " << element->getElectrode(i)->current(0) << ' ' << element->getElectrode(i)->current(1) <<  std::endl;
+	      highVoltageStream << i << '(' << element->getElectrode(i).getElectrodeIndex() << ") currents: " << element->getElectrode(i).current(0) << ' ' << element->getElectrode(i).current(1) <<  std::endl;
 	      message(highVoltageStream.str().c_str());
 	    }
 	  }
 	  //
 	  // Now let's show the module, and where she is:
 	  //
-	  EMECHVModuleConstLink module = element->getElectrode(i)->getModule();
-	  
-	  if (!module) continue;
-	  
+	  const EMECHVModule& module = element->getElectrode(i).getModule();
 	  
 	  if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 	  
@@ -2061,10 +2058,10 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  double z      = (element->getZLocal(pos)+
 			   element->getDescriptor()->getManager()->getFocalToRef() +
 			   element->getDescriptor()->getManager()->getRefToActive())* (element->getEndcapIndex()==0 ? -1:1);
-	  double phiMin = module->getPhiMin();
-	  double phiMax = module->getPhiMax();
-	  double etaMin = module->getEtaMin();
-	  double etaMax = module->getEtaMax();
+	  double phiMin = module.getPhiMin();
+	  double phiMax = module.getPhiMax();
+	  double etaMin = module.getEtaMin();
+	  double etaMax = module.getEtaMax();
 	  
 	  
 	  double rMax=fabs(z/sinh(etaMin));
@@ -2073,8 +2070,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  sep->addChild(white);
 	  sep->addChild(drawStyle);
 	  sep->addChild(lm);
-	  if (modSet.find(module)==modSet.end()) {
-	    modSet.insert(module);
+	  if (modSet.find(&module)==modSet.end()) {
+	    modSet.insert(&module);
 	    int cc=0;
 	    SoVertexProperty *vtxProperty = new SoVertexProperty();
 	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
@@ -2093,8 +2090,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	    
 	    int cc=0;
 	    SoVertexProperty *vtxProperty = new SoVertexProperty();
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(element->getElectrode(i)->getPhi()),rMin*sin(element->getElectrode(i)->getPhi())  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(element->getElectrode(i)->getPhi()),rMax*sin(element->getElectrode(i)->getPhi())  ,z));
+	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(element->getElectrode(i).getPhi()),rMin*sin(element->getElectrode(i).getPhi())  ,z));
+	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(element->getElectrode(i).getPhi()),rMax*sin(element->getElectrode(i).getPhi())  ,z));
 	    SoLineSet *ls = new SoLineSet();
 	    ls->numVertices=2;
 	    ls->vertexProperty=vtxProperty;

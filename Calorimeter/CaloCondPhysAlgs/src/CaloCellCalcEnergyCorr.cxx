@@ -20,7 +20,6 @@
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
@@ -213,8 +212,8 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       const EMECCellConstLink cell = emecElement->getEMECCell();
       unsigned int nelec = cell->getNumElectrodes();
       for (unsigned int i=0;i<nelec;i++) {
-        const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+        const EMECHVElectrode& electrode = cell->getElectrode(i);
+        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
       }
     }
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC

@@ -1,63 +1,48 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMECHVELECTRODE_H_HEADER_INCLUDED_B41803D9
-#define EMECHVELECTRODE_H_HEADER_INCLUDED_B41803D9
-#include "GeoModelKernel/RCBase.h"
-#include "LArHV/EMECHVModuleConstLink.h"
-// This class represents a single EMEC electrode.
+#ifndef LARHV_EMECHVELECTRODE_H
+#define LARHV_EMECHVELECTRODE_H
 
-//##ModelId=478D253700B9
-class EMECHVElectrode : public RCBase
+class EMECHVModule;
+
+class EMECHVElectrode
 {
-  public:
+ public:
+  // The ownership of the EMBHVModule pointer NOT transferred to EMECHVElectrode
+  EMECHVElectrode(const EMECHVModule* module, unsigned int iElectrode);
 
-    //##ModelId=478D253700BB
-    EMECHVElectrode(EMECHVModuleConstLink module, unsigned int iElectrode);
+  unsigned int getElectrodeIndex() const;
 
-    //##ModelId=478D253700BD
-    unsigned int getElectrodeIndex() const;
+  // returns a pointer to the module that owns this electrode.
+  const EMECHVModule& getModule() const;
 
-    // returns a pointer to the module that owns this electrode.
-    //##ModelId=47AA6B8B03A4
-    EMECHVModuleConstLink getModule() const;
+  double getPhi() const;
 
-    //##ModelId=47AA6C980288
-    double getPhi() const;
-
-    // HV Status
-    bool hvOn(int iGap) const;
+  // HV Status
+  bool hvOn(int iGap) const;
     
-    // Voltage
-    double voltage(int iGap) const;
+  // Voltage
+  double voltage(int iGap) const;
+  
+  // Current
+  double current(int iGap) const;
+  
+  // Voltage and current at the same time
+  void voltage_current(int iGap, double& v, double& i) const;
 
-    // Current
-    double current(int iGap) const;
+  // HVLine no
+  int hvLineNo(int iGap) const;
 
-    // Voltage and current at the same time
-    void voltage_current(int iGap, double& v, double& i) const;
+ private:
+  ~EMECHVElectrode();
 
-    // HVLine no
-    int hvLineNo(int iGap) const;
+  EMECHVElectrode(const EMECHVElectrode& right);
+  EMECHVElectrode& operator=(const EMECHVElectrode& right);
 
-
-  private:
-
-    //##ModelId=478D253700BF
-    virtual ~EMECHVElectrode();
-
-    //##ModelId=478D253700C1
-    EMECHVElectrode(const EMECHVElectrode& right);
-
-    //##ModelId=478D253700C3
-    EMECHVElectrode& operator=(const EMECHVElectrode& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* EMECHVELECTRODE_H_HEADER_INCLUDED_B41803D9 */
+#endif

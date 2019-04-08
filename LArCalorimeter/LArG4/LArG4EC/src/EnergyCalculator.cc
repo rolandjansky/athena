@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnergyCalculator
@@ -64,9 +64,7 @@
 #include "LArHV/LArHVManager.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVModule.h"
-#include "LArHV/EMECHVModuleConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVDescriptor.h"
 
 //#include "EMECSupportCalibrationCalculator.h"
@@ -971,51 +969,49 @@ void EnergyCalculator::get_HV_map_from_DB(void) {
   // get EMECHV Manager
   const LArHVManager *manager = 0;
   if(pDetStore->retrieve(manager) == StatusCode::SUCCESS){
-    const EMECHVManager* hvManager =
+    const EMECHVManager& hvManager =
       manager->getEMECHVManager(lwc()->GetisInner()? EMECHVModule::INNER: EMECHVModule::OUTER);
     ATH_MSG_INFO("got HV Manager for " << (lwc()->GetisInner()? "inner": "outer") << " wheel");
-    const EMECHVDescriptor* dsc = hvManager->getDescriptor();
+    const EMECHVDescriptor& dsc = hvManager.getDescriptor();
     unsigned int counter = 0;
     // loop over HV modules
-    for(unsigned int iSide = hvManager->beginSideIndex();
-        iSide < hvManager->endSideIndex(); ++ iSide
+    for(unsigned int iSide = hvManager.beginSideIndex();
+        iSide < hvManager.endSideIndex(); ++ iSide
         ){
       unsigned short jSide = 1 - iSide; // local numbering is inverse
-      for(unsigned int iEta = hvManager->beginEtaIndex();
-          iEta < hvManager->endEtaIndex(); ++ iEta
+      for(unsigned int iEta = hvManager.beginEtaIndex();
+          iEta < hvManager.endEtaIndex(); ++ iEta
           ){
         unsigned int jEta = iEta;
         if(lwc()->GetisInner()) jEta += 7;
-        for(unsigned int iPhi = hvManager->beginPhiIndex();
-            iPhi < hvManager->endPhiIndex(); ++ iPhi
+        for(unsigned int iPhi = hvManager.beginPhiIndex();
+            iPhi < hvManager.endPhiIndex(); ++ iPhi
             ){
-          for(unsigned int iSector = hvManager->beginSectorIndex();
-              iSector < hvManager->endSectorIndex(); ++ iSector
+          for(unsigned int iSector = hvManager.beginSectorIndex();
+              iSector < hvManager.endSectorIndex(); ++ iSector
               ){
-            EMECHVModuleConstLink hvMod =
-              hvManager->getHVModule(iSide, iEta, iPhi, iSector);
-            unsigned int nElec = hvMod->getNumElectrodes();
+            const EMECHVModule& hvMod = hvManager.getHVModule(iSide, iEta, iPhi, iSector);
+            unsigned int nElec = hvMod.getNumElectrodes();
             for(unsigned int iElec = 0; iElec < nElec; ++ iElec){
-              EMECHVElectrodeConstLink electrode =
-                hvMod->getElectrode(iElec);
+              const EMECHVElectrode& electrode = hvMod.getElectrode(iElec);
               unsigned int jElec = iElec;
               jElec += iSector*nElec;
-              jElec += iPhi*nElec*dsc->getSectorBinning().getNumDivisions();
+              jElec += iPhi*nElec*dsc.getSectorBinning().getNumDivisions();
               if(jSide == 1){
                 jElec = lwc()->GetNumberOfFans() + lwc()->GetNumberOfFans() / 2 - jElec;
                 if(jElec >= (unsigned int)lwc()->GetNumberOfFans()) jElec -= lwc()->GetNumberOfFans();
               }
               for(unsigned int iGap = 0; iGap < 2; ++ iGap){
-                double hv = electrode->voltage(iGap);
+                double hv = electrode.voltage(iGap);
                 ATH_MSG_DEBUG("Side, Eta, Elec, Gap, hv "
                               << jSide << " " << jEta << " "
                               << jElec << " " << iGap << " "
                               << s_HV_Values[jSide][jEta][iGap][jElec]
                               << " -> " << hv);
                 if(fabs((s_HV_Values[jSide][jEta][iGap][jElec] - hv)/s_HV_Values[jSide][jEta][iGap][jElec]) > 0.05){
-                  ATH_MSG_INFO("eta: " << dsc->getEtaBinning().binCenter(iEta) * (jSide == 0? 1: -1) << " "
-                               << "phi: " << dsc->getPhiBinning().binCenter(iPhi) << " "
-                               << "ele phi: " << electrode->getPhi()
+                  ATH_MSG_INFO("eta: " << dsc.getEtaBinning().binCenter(iEta) * (jSide == 0? 1: -1) << " "
+                               << "phi: " << dsc.getPhiBinning().binCenter(iPhi) << " "
+                               << "ele phi: " << electrode.getPhi()
                                << " side " << iGap
                                << " change HV from "
                                << s_HV_Values[jSide][jEta][iGap][jElec]

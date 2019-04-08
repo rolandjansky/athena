@@ -19,7 +19,8 @@
 #include "LArHV/LArHVManager.h"
 // Class EMECDetectorManager 
 
-EMECDetectorManager::EMECDetectorManager()
+EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
+					 , const EMECHVManager* hvManagerOuter)
   :m_MagicNumbers(new EMECMagicNumbers())
 {
   setName("LArEMEC");
@@ -34,8 +35,8 @@ EMECDetectorManager::EMECDetectorManager()
     }
   }
 
-  m_HVManager[0]=NULL;
-  m_HVManager[1]=NULL;
+  m_HVManager[0]=hvManagerInner;
+  m_HVManager[1]=hvManagerOuter;
   m_presamplerHVManager=NULL;
 
   // The EMEC gets and managers certain arrays needed to build descriptors.  Here is that:
@@ -124,17 +125,17 @@ void EMECDetectorManager::addTreeTop (PVLink treeTop)
   treeTop->ref();
 }
 
-const EMECHVManager * EMECDetectorManager::getHVManager (EMECHVManager::IOType io) const
+const EMECHVManager& EMECDetectorManager::getHVManager (EMECHVManager::IOType io) const
 {
-
-  if (!m_HVManager[io]) {
+  if(!m_HVManager[io]) {
+    //Support lazy initialization for testbeams
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
+    const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_HVManager[io]=manager->getEMECHVManager(io);
+      m_HVManager[io]=&(manager->getEMECHVManager(io));
     }
-  } 
-  return m_HVManager[io];
+  }
+  return *(m_HVManager[io]);
 }
 
 const EMECPresamplerHVManager * EMECDetectorManager::getPresamplerHVManager () const
