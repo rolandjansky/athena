@@ -459,8 +459,9 @@ if globalflags.DataSource()=='geant4':
     HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthDressedWZJets"]
 
     # Add special truth containers
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBSMAndDownstreamParticles
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addBSMAndDownstreamParticles
     addStandardTruthContents()
+    addWbosonsAndDownstreamParticles()
     addBSMAndDownstreamParticles()
 
     HIGG3D3SlimmingHelper.AppendToDictionary = {
@@ -472,6 +473,8 @@ if globalflags.DataSource()=='geant4':
                                                 'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
                                                }
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
