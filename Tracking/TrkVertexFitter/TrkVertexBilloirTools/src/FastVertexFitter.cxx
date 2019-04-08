@@ -496,7 +496,7 @@ namespace Trk
  		    
  		   xAOD::Vertex* fittedVertex = fit( measuredPerigees, constraint ); 
  		 
- 		   if(fittedVertex =0) 
+ 		   if(fittedVertex == 0) 
  		   {
                      return fittedVertex;
  		   }
