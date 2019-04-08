@@ -51,6 +51,9 @@ class Lvl1ResultBuilderGetter(Configured):
         if recAlgs.doTrigger():
             if (rec.doESD() or rec.doAOD()) and (not(rec.readAOD() or \
                                                          rec.readESD())):
+                if jobproperties.Global.InputFormat() == 'bytestream':
+                    from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
+                    topSequence += RoIBResultByteStreamDecoderAlg()
                 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
                     RoIBResultToAOD
                 topSequence += RoIBResultToAOD("RoIBResultToxAOD")
