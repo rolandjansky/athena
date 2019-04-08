@@ -31,4 +31,6 @@ HIGG3D3ExtraTruthContainers = [ "TruthEvents",
                                 "TruthBoson",
                                 "TruthWbosonWithDecayParticles",
                                 "TruthWbosonWithDecayVertices",
+                                "TruthBSMWithDecayParticles",
+                                "TruthBSMWithDecayVertices",
                                 "MuonTruthParticles" ]
