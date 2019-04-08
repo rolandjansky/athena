@@ -1999,6 +1999,7 @@ def setupMenu():
             ]
      
     TriggerFlags.MonitorSlice.signatures = [
+        ['costmonitor', '', [], ['CostMonitoring'], ['RATE:Monitoring','BW:Other'],1]
         ]
 
     TriggerFlags.EnhancedBiasSlice.signatures = [
