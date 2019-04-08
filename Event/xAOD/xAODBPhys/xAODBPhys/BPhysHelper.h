@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file:   BPhysHelper.h
@@ -56,6 +56,7 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 
 #include "TVector3.h"
@@ -88,7 +89,9 @@ namespace xAOD {
         m_refTracksCached(false),
         m_cachedRefTracks(0),
         m_muonsCached(false),
+        m_electronsCached(false),
         m_cachedMuons(0),
+        m_cachedElectrons(0),
         m_precedingVerticesCached(false),
         m_cachedPrecedingVertices(0),
         m_cascadeVerticesCached(false),
@@ -240,7 +243,7 @@ namespace xAOD {
       
       bool setRefTrks(const std::vector<TVector3>& refTrks);
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
 
       /** @brief: Sets refitted track momenta
        *
@@ -260,7 +263,7 @@ namespace xAOD {
       bool setRefTrks();
 
 
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
+#endif // not XAOD_ANALYSIS
       
       /** @} */
       
@@ -322,6 +325,7 @@ namespace xAOD {
         */
       
       int nMuons();
+      int nElectrons();
       
       /** Returns pointer to the i-th linked muon
        *  @param[in] index  index of the linked muon 
@@ -329,12 +333,14 @@ namespace xAOD {
        */
       
       const xAOD::Muon* muon(const size_t index);
+      const xAOD::Electron* electron(const size_t index);
       
       /** Returns linked muons
        *  @returns:  linked muons, empty vector in case of an error 
        */
       
       const std::vector<const xAOD::Muon*>& muons();
+      const std::vector<const xAOD::Electron*>& electrons();
       
       /** Set links to muons
        *  @param[in] muons          std::vector of muons to be linked to this vertex
@@ -345,6 +351,8 @@ namespace xAOD {
       bool setMuons(const std::vector<const xAOD::Muon*>& muons, 
                     const xAOD::MuonContainer* muonContainer);
       
+      bool setElectrons(const std::vector<const xAOD::Electron*>& electrons, 
+                    const xAOD::ElectronContainer* electronContainer);
       /** @} */
       
       /************************************************************************/
@@ -459,9 +467,12 @@ namespace xAOD {
        *  \@value: PV_MIN_Z0       collision vertex closest in delta(z0) = pv_z - z0, where z0 
        *                          is the z coordinate of the intesection of the  particle's 
        *                          trajectory with the  beam axis in the Z-rho plane.
+       *  \@value: PV_MIN_Z0_BA    collision vertex closest in delta(z0) = pv_z - z0, where z0 
+       *                          is the z coordinate of the point of closest aproach (in 2D) to the  particle's 
+       *                          trajectory with the  beam axis in the Z-rho plane.
        */
       
-      enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0};
+      enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
       
       /************************************************************************/
       /** @{ 
@@ -544,7 +555,12 @@ namespace xAOD {
       
       bool setLxy   (const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
       bool setLxyErr(const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
-      
+
+      float lxyz   (const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
+      float lxyzErr(const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
+      bool setLxyz   (const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
+      bool setLxyzErr(const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
+
       /** @} */
       
       /************************************************************************/
@@ -582,6 +598,22 @@ namespace xAOD {
       /** @} */
       
       /************************************************************************/
+      /** @{
+       *  Return string names for vertex association types.
+       */
+      
+      static const std::string pv_type_str[];
+      /** @}  */
+      
+      /************************************************************************/
+      /** @{
+       *  Return number of vertex association types (useful for loops).
+       */
+      
+      static const unsigned int n_pv_types;
+      /** @}  */
+      
+      /************************************************************************/
       /************************************************************************/
     protected:
 
@@ -614,6 +646,7 @@ namespace xAOD {
        */
       
       bool cacheMuons();
+      bool cacheElectrons();
 
 
       /** @brief: Cache preceding vertices
@@ -666,7 +699,9 @@ namespace xAOD {
        */
       
       bool                           m_muonsCached;
+      bool                           m_electronsCached;
       std::vector<const xAOD::Muon*> m_cachedMuons;
+      std::vector<const xAOD::Electron*> m_cachedElectrons;
       
       /** @} */
 
@@ -689,6 +724,7 @@ namespace xAOD {
       
       static const std::vector<TVector3>            s_emptyVectorOfTVector3;
       static const std::vector<const xAOD::Muon*>   s_emptyVectorOfMuons;
+      static const std::vector<const xAOD::Electron*>   s_emptyVectorOfElectrons;
       static const TMatrixTSym<double>              s_emptyMatrix;
       static const std::vector<const xAOD::Vertex*> s_emptyVectorOfVertices;
       /** @}  */
