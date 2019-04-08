@@ -13,7 +13,7 @@ HIGG3D3ExtraVariables = [ "GSFTrackParticles.z0.vz.numberOfNextToInnermostPixelL
 
 HIGG3D3ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLink",
                                "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
-                               "AntiKt4TruthWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink",
+                               "AntiKt4TruthDressedWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink",
                                "AntiKt4EMPFlowJets.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID" ]
 
 HIGG3D3ExtraContainers = [ ]
