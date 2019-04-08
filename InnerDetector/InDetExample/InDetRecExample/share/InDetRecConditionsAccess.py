@@ -246,7 +246,8 @@ if DetFlags.haveRIO.SCT_on():
                                                           sct_FlaggedConditionToolSetup.getTool().getFullName(),
                                                           sct_MonitorConditionsToolSetup.getTool().getFullName(),
                                                           sct_ReadCalibDataToolSetup.getTool().getFullName()]
-
+        if InDetFlags.useSctDCS():
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
