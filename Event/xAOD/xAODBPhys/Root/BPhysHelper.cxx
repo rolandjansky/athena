@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file   BPhysHelper.cxx
@@ -20,8 +20,20 @@ typedef ElementLink<xAOD::VertexContainer> VertexLink;
 typedef std::vector<VertexLink> VertexLinkVector;
 typedef ElementLink<xAOD::MuonContainer> MuonLink;
 typedef std::vector<MuonLink> MuonLinkVector;
+typedef ElementLink<xAOD::ElectronContainer> ElectronLink;
+typedef std::vector<ElectronLink> ElectronLinkVector;
 
 /** @} */
+
+/*****************************************************************************/
+
+/** @{
+ *  Some useful static consts
+ */
+
+const unsigned int  xAOD::BPhysHelper::n_pv_types = 4;
+const std::string   xAOD::BPhysHelper::pv_type_str[] = 
+  {"PV_MAX_SUM_PT2", "PV_MIN_A0", "PV_MIN_Z0", "PV_MIN_Z0_BA"};
 
 /*****************************************************************************/
 
@@ -279,7 +291,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<float>& px,
   if(px.size()!=py.size() || px.size()!=pz.size())
     return false;
   
-  // erase refitted track cache to preserve cosistency
+  // erase refitted track cache to preserve consistency
   m_refTracksCached = false;
   m_cachedRefTracks.clear();
   
@@ -322,7 +334,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<TVector3>& refTrks)
 }
 
 /*****************************************************************************/
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
 
 bool xAOD::BPhysHelper::setRefTrks()
 {
@@ -351,8 +363,8 @@ bool xAOD::BPhysHelper::setRefTrks()
   return true;
   
 }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
 
+#endif // not XAOD_ANALYSIS
 /*****************************************************************************/
 TVector3 xAOD::BPhysHelper::totalP()
 {
@@ -365,7 +377,8 @@ TVector3 xAOD::BPhysHelper::totalP()
   
   // sum the momenta
   TVector3 sum(0,0,0);
-  for(int i=0; i<nRefTrks(); ++i) {
+  int n = nRefTrks();
+  for(int i=0; i<n; ++i) {
     sum += refTrk(i);
   }
   
@@ -394,14 +407,14 @@ TLorentzVector xAOD::BPhysHelper::totalP(const std::vector<double>& masses)
   // cache refitted tracks
   if( !cacheRefTracks() ) 
     return TLorentzVector(0,0,0,0);
-  
+  int n = nRefTrks();
   // input check
-  if(int(masses.size()) != nRefTrks())
+  if(int(masses.size()) != n)
     return TLorentzVector(0,0,0,0);
   
   // sum the 4-momenta
   TLorentzVector sum;
-  for(int i=0; i<nRefTrks(); ++i) {
+  for(int i=0; i<n; ++i) {
     sum += refTrk(i, masses[i]);
   }
   
@@ -494,6 +507,86 @@ bool xAOD::BPhysHelper::setMuons(const std::vector<const xAOD::Muon*>& muons,
   
   // all OK: store muon links in the aux store
   muonLinksDecor(*m_b) = muonLinks;
+  
+  return true;
+  
+}
+
+/*****************************************************************************/
+int xAOD::BPhysHelper::nElectrons()
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return -1;
+  
+  // all OK:
+  return m_cachedElectrons.size();
+}
+
+/*****************************************************************************/
+const xAOD::Electron* xAOD::BPhysHelper::electron(const size_t index)
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return 0;
+  
+  // range check
+  if(index>=m_cachedElectrons.size())
+    return 0;
+  
+  // all OK:
+  return m_cachedElectrons[index];
+  
+}
+
+/*****************************************************************************/
+const std::vector<const xAOD::Electron*>& xAOD::BPhysHelper::electrons()
+{
+  // cache linked electrons
+  if(!cacheElectrons())
+    return xAOD::BPhysHelper::s_emptyVectorOfElectrons;
+  
+  // all OK:
+  return m_cachedElectrons;  
+}
+
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setElectrons(const std::vector<const xAOD::Electron*>& electrons,
+                                     const xAOD::ElectronContainer* electronContainer)
+{
+  // erase electron cache to preserve cosistency
+  m_electronsCached = false;
+  m_cachedElectrons.clear();
+  
+  // Create electron links decorator 
+  static const SG::AuxElement::Decorator<ElectronLinkVector> electronLinksDecor("ElectronLinks"); 
+  
+  // create tmp vector of electron links
+  ElectronLinkVector electronLinks;
+
+  // loop over input electrons  
+  std::vector<const xAOD::Electron*>::const_iterator electronsItr = electrons.begin();
+  for(; electronsItr!=electrons.end(); ++electronsItr) {
+    // sanity check 1: protect against null pointers
+    if( !(*electronsItr) )
+      return false;
+    
+    // create element link
+    ElementLink<xAOD::ElectronContainer> elLink;
+    elLink.setElement(*electronsItr);
+    elLink.setStorableObject(*electronContainer);
+    
+    // sanity check 2: is the link valid?
+    if( !elLink.isValid() )
+      return false;
+    
+    // link is OK, store it in the tmp vector
+    electronLinks.push_back( elLink );
+    
+  } // end of loop over electrons
+  
+  // all OK: store electron links in the aux store
+  electronLinksDecor(*m_b) = electronLinks;
   
   return true;
   
@@ -701,6 +794,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::pv(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_PV("PvMaxSumPt2Link");
     case PV_MIN_A0      : GET_PV("PvMinA0Link");
     case PV_MIN_Z0      : GET_PV("PvMinZ0Link");
+    case PV_MIN_Z0_BA   : GET_PV("PvMinZ0BALink");
     default: return 0;
   }      
 }        
@@ -711,6 +805,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::origPv(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_PV("OrigPvMaxSumPt2Link");
     case PV_MIN_A0      : GET_PV("OrigPvMinA0Link");
     case PV_MIN_Z0      : GET_PV("OrigPvMinZ0Link");
+    case PV_MIN_Z0_BA   : GET_PV("OrigPvMinZ0BALink");
     default: return 0;
   } 
 }
@@ -721,8 +816,9 @@ bool xAOD::BPhysHelper::setOrigPv(const xAOD::Vertex* pv,
 {        
   switch(vertexType) {
     case PV_MAX_SUM_PT2 : SET_PV("OrigPvMaxSumPt2Link", pv, vertexContainer);
-    case PV_MIN_A0      : SET_PV("OrigPvMinA0Link", pv, vertexContainer);
-    case PV_MIN_Z0      : SET_PV("OrigPvMinZ0Link", pv, vertexContainer);
+    case PV_MIN_A0      : SET_PV("OrigPvMinA0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0      : SET_PV("OrigPvMinZ0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0_BA   : SET_PV("OrigPvMinZ0BALink"  , pv, vertexContainer);
     default: return 0;
   } 
 }
@@ -735,6 +831,7 @@ bool xAOD::BPhysHelper::setPv(const xAOD::Vertex* pv,
     case PV_MAX_SUM_PT2 : SET_PV("PvMaxSumPt2Link", pv, vertexContainer);
     case PV_MIN_A0      : SET_PV("PvMinA0Link"    , pv, vertexContainer);
     case PV_MIN_Z0      : SET_PV("PvMinZ0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0_BA   : SET_PV("PvMinZ0BALink"  , pv, vertexContainer);
     default: return false;
   }
 }
@@ -743,8 +840,9 @@ bool xAOD::BPhysHelper::setRefitPVStatus(int code, const pv_type vertexType)
 {        
   switch(vertexType) {
     case PV_MAX_SUM_PT2 : SET_INT("PvMaxSumPt2Status", code);
-    case PV_MIN_A0      : SET_INT("PvMinA0Status", code);
-    case PV_MIN_Z0      : SET_INT("PvMinZ0Status", code);
+    case PV_MIN_A0      : SET_INT("PvMinA0Status"    , code);
+    case PV_MIN_Z0      : SET_INT("PvMinZ0Status"    , code);
+    case PV_MIN_Z0_BA   : SET_INT("PvMinZ0BAStatus"  , code);
     default: return 0;
   } 
 }
@@ -755,6 +853,7 @@ int xAOD::BPhysHelper::RefitPVStatus(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_INT("PvMaxSumPt2Status");
     case PV_MIN_A0      : GET_INT("PvMinA0Status"    );
     case PV_MIN_Z0      : GET_INT("PvMinZ0Status"    );
+    case PV_MIN_Z0_BA   : GET_INT("PvMinZ0BAStatus"  );
     default: return -999999;
   }
 }
@@ -765,6 +864,7 @@ float xAOD::BPhysHelper::lxy(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("LxyMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("LxyMinA0");
     case PV_MIN_Z0      : GET_FLOAT("LxyMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -775,6 +875,7 @@ float xAOD::BPhysHelper::lxyErr(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("LxyErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("LxyErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("LxyErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -785,6 +886,7 @@ bool xAOD::BPhysHelper::setLxy(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("LxyMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("LxyMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("LxyMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyMinZ0BA"  , val);
     default: return false;
   }
 }
@@ -795,9 +897,57 @@ bool xAOD::BPhysHelper::setLxyErr(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("LxyErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("LxyErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("LxyErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyErrMinZ0BA"  , val);
     default: return false;
   }
 }
+
+//3dLxyz
+/*****************************************************************************/
+float xAOD::BPhysHelper::lxyz(const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : GET_FLOAT("LxyzMaxSumPt2");
+    case PV_MIN_A0      : GET_FLOAT("LxyzMinA0");
+    case PV_MIN_Z0      : GET_FLOAT("LxyzMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyzMinZ0BA");
+    default: return -9999999.;
+  }
+}
+/*****************************************************************************/
+float xAOD::BPhysHelper::lxyzErr(const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : GET_FLOAT("LxyzErrMaxSumPt2");
+    case PV_MIN_A0      : GET_FLOAT("LxyzErrMinA0");
+    case PV_MIN_Z0      : GET_FLOAT("LxyzErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyzErrMinZ0BA");
+    default: return -9999999.;
+  }
+}
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setLxyz(const float val, const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : SET_FLOAT("LxyzMaxSumPt2", val);
+    case PV_MIN_A0      : SET_FLOAT("LxyzMinA0"    , val);
+    case PV_MIN_Z0      : SET_FLOAT("LxyzMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyzMinZ0BA"  , val);
+    default: return false;
+  }
+}
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setLxyzErr(const float val, const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : SET_FLOAT("LxyzErrMaxSumPt2", val);
+    case PV_MIN_A0      : SET_FLOAT("LxyzErrMinA0"    , val);
+    case PV_MIN_Z0      : SET_FLOAT("LxyzErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyzErrMinZ0BA"  , val);
+    default: return false;
+  }
+}
+
 /*****************************************************************************/
 float xAOD::BPhysHelper::a0     (const pv_type vertexType)
 {
@@ -805,6 +955,7 @@ float xAOD::BPhysHelper::a0     (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0MaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0MinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0MinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0MinZ0BA");
     default: return -9999999.;
   }
 }
@@ -815,6 +966,7 @@ float xAOD::BPhysHelper::a0Err  (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0ErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0ErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0ErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0ErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -825,6 +977,7 @@ float xAOD::BPhysHelper::a0xy   (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0xyMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0xyMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0xyMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0xyMinZ0BA");
     default: return -9999999.;
   }  
 }
@@ -835,6 +988,7 @@ float xAOD::BPhysHelper::a0xyErr(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0xyErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0xyErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0xyErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0xyErrMinZ0BA");
     default: return -9999999.;
   }    
 }
@@ -845,6 +999,7 @@ float xAOD::BPhysHelper::z0     (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("Z0MaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("Z0MinA0");
     case PV_MIN_Z0      : GET_FLOAT("Z0MinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("Z0MinZ0BA");
     default: return -9999999.;
   }
 }
@@ -855,6 +1010,7 @@ float xAOD::BPhysHelper::z0Err  (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("Z0ErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("Z0ErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("Z0ErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("Z0ErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -865,6 +1021,7 @@ float xAOD::BPhysHelper::setA0     (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0MaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0MinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0MinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0MinZ0BA"  , val);
     default: return false;
   }  
 }
@@ -875,6 +1032,7 @@ float xAOD::BPhysHelper::setA0Err  (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0ErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0ErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0ErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0ErrMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -885,6 +1043,7 @@ float xAOD::BPhysHelper::setA0xy   (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0xyMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0xyMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0xyMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0xyMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -895,6 +1054,7 @@ float xAOD::BPhysHelper::setA0xyErr(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0xyErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0xyErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0xyErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0xyErrMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -905,6 +1065,7 @@ float xAOD::BPhysHelper::setZ0     (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("Z0MaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("Z0MinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("Z0MinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("Z0MinZ0BA"  , val);
     default: return false;
   }  
 }
@@ -915,6 +1076,7 @@ float xAOD::BPhysHelper::setZ0Err  (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("Z0ErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("Z0ErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("Z0ErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("Z0ErrMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -1056,6 +1218,51 @@ bool xAOD::BPhysHelper::cacheMuons()
 }
 
 /*****************************************************************************/
+bool xAOD::BPhysHelper::cacheElectrons()
+{
+  // if linked electrons are already cached do nothing and return true 
+  if(m_electronsCached && !m_cachedElectrons.empty())
+    return true;
+  
+  // if linked electrons are cached but the cache is empty, return false (error)
+  if(m_electronsCached && m_cachedElectrons.empty())
+    return false;
+  
+  // Linked electrons are not cached, yet. Retrieve them from the aux store:
+  m_electronsCached = true;
+  m_cachedElectrons.clear();
+  
+  // Create auxiliary branches accessors 
+  static const SG::AuxElement::Accessor<ElectronLinkVector> electronLinksAcc("ElectronLinks"); 
+  
+  // check if branch exists
+  if(!electronLinksAcc.isAvailable(*m_b)) {
+    return false;
+  }
+  
+  // retrieve the electron links...
+  const ElectronLinkVector& electronLinks = electronLinksAcc(*m_b);
+  
+  // ... and check if they are all valid
+  ElectronLinkVector::const_iterator electronLinksItr = electronLinks.begin();
+  for(; electronLinksItr!=electronLinks.end(); ++electronLinksItr) {
+    // check if links are valid
+    if(!(*electronLinksItr).isValid()) {
+      return false;
+    }
+  }
+  
+  // all OK, cache the electrons
+  electronLinksItr = electronLinks.begin();
+  for(; electronLinksItr!=electronLinks.end(); ++electronLinksItr) {
+    m_cachedElectrons.push_back(*(*electronLinksItr));
+  }
+  
+  return true;
+  
+}
+
+/*****************************************************************************/
 bool xAOD::BPhysHelper::cachePrecedingVertices()
 {
   // if linked preceding vertices are already cached do nothing and return true 
@@ -1148,6 +1355,7 @@ bool xAOD::BPhysHelper::cacheCascadeVertices()
 /*****************************************************************************/
 const std::vector<TVector3>            xAOD::BPhysHelper::s_emptyVectorOfTVector3(0);
 const std::vector<const xAOD::Muon*>   xAOD::BPhysHelper::s_emptyVectorOfMuons(0);
+const std::vector<const xAOD::Electron*>   xAOD::BPhysHelper::s_emptyVectorOfElectrons(0);
 const TMatrixTSym<double>              xAOD::BPhysHelper::s_emptyMatrix(0);
 const std::vector<const xAOD::Vertex*> xAOD::BPhysHelper::s_emptyVectorOfVertices(0);
 /*****************************************************************************/
