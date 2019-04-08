@@ -37,7 +37,7 @@ atlas_add_component( SCT_ConditionsAlgorithms
 
 atlas_add_test( TestCalibChipRead
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibChipRead.py
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 500
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestCalibRead
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibRead.py
@@ -45,7 +45,7 @@ atlas_add_test( TestCalibRead
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestConfig
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testConfig.py
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 500
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestDCSConditions
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testDCSConditions.py
