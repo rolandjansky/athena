@@ -88,15 +88,14 @@ endfunction (athenapooltest_run_test)
 
 # Write with DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
-                         "AthenaPoolTestReadDoubleSelector" )
+                         "'^..DoubleEvent|^..AthenaPoolTest'" )
 athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
-                         "AthenaPoolTestReadDoubleSelector"
-                          DEPENDS AthenaPoolTestWriteDoubleSelector )
+                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         DEPENDS AthenaPoolTestWriteDoubleSelector )
 
 # Write/read out some simple objects:
 athenapooltest_run_test( AthenaPoolTestWrite AthenaPoolTestWrite
-                         "^..AthenaPoolTestD"
-                         DEPENDS AthenaPoolTestReadDoubleSelector)
+                         "^..AthenaPoolTestD" )
 athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
                          "AthenaPoolTestD"
                          DEPENDS AthenaPoolTestWrite )
@@ -105,12 +104,12 @@ athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
 # AthenaPoolTestWrite - Step2 - rewrite part in another file
 # DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestStep2WriteDoubleSelector AthenaPoolTestStep2WriteDoubleSelector
-                         "AthenaPoolTestReadDoubleSelector"
-                         DEPENDS AthenaPoolTestRead )
+                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         DEPENDS AthenaPoolTestReadDoubleSelector )
 # normal EventSelector
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
                          "^..AthenaPoolTestD"
-                         DEPENDS AthenaPoolTestStep2WriteDoubleSelector )
+                         DEPENDS AthenaPoolTestRead )
 
 # Copy the Step2 file
 #athenapooltest_run_test( AthenaPoolTestCopy AthenaPoolTestCopy
@@ -136,33 +135,36 @@ athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
 
 # Test write/read of indet rdos:
 athenapooltest_run_test( InDetRawDataWriter InDetRawDataWriter_jobOptions
-                         "InDetRawDataFak"
-                         DEPENDS AthenaPoolTestStep2Write )
+                         "InDetRawDataFak" )
 athenapooltest_run_test( InDetRawDataRead InDetRawDataReader_jobOptions
                          "InDetRawDataFak"
                          DEPENDS InDetRawDataWriter )
 
 # Test write/read of LAr cell
 athenapooltest_run_test( LArCellContWriter LArCellContWriter_jobOptions
-                         "LArCellContFake"
-                         DEPENDS InDetRawDataRead )
+                         "LArCellContFake" )
 athenapooltest_run_test( LArCellContRead LArCellContReader_jobOptions
                          "LArCellContFake"
                          DEPENDS LArCellContWriter )
 
 # Read two RDOs with the DoubleEventSelector
 athenapooltest_run_test( ReadRDODoubleSelector ReadRDODoubleSelector
-                         "ReadRDODoubleSelector"
+                         "'^..DoubleEvent|^..RDOReader'"
                          DEPENDS LArCellContRead )
 athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
-                         "ReadCombinedRDO"
+                         "'^..DoubleEvent|^..LArCellContFake|^..InDetRawDataFak'"
                          DEPENDS ReadRDODoubleSelector )
 
-# Test overlay with DoubleEventSelector
-# TODO: need some upstream changes
-# athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-#                          "DoubleEventSelectorOverlayTest"
-#                          DEPENDS ReadCombinedRDO )
+# Test basic overlay algorithms with DoubleEventSelector
+athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
+                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'" )
+
+# AthenaMT test for DoubleEventSelector
+atlas_add_test( DoubleEventSelectorOverlayTestMT
+                SCRIPT athena.py AthenaPoolTest/DoubleEventSelectorOverlayTest.py --threads=4
+                PROPERTIES TIMEOUT 900
+                POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh \
+                                  DoubleEventSelectorOverlayTestMT '^..DoubleEvent.*WARNING|ERROR'")
 
 # Test of explicit collection write/read
 #athenapooltest_run_test( LArCellContWriteReg LArCellContWriter_jobOptionsReg

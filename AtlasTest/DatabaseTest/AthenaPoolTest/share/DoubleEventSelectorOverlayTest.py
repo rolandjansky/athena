@@ -43,16 +43,11 @@ rec.doTrigger   = False
 rec.doWriteTAG  = False
 DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
-# the correct tag should be specified
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
-
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-# TODO: both files need to be on cvmfs to make this a real test
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "/afs/cern.ch/work/t/tadej/public/overlay/PremixedRenamedRDO.pool" ]
+svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root" ]
+svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" ]
 svcMgr.DoubleEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
@@ -68,9 +63,6 @@ svcMgr.AddressRemappingSvc.OutputLevel = DEBUG
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 10
-svcMgr.ProxyProviderSvc.OutputLevel = DEBUG
-svcMgr.AthenaPoolAddressProviderSvcPrimary.OutputLevel = DEBUG
-svcMgr.AthenaPoolAddressProviderSvcSecondary.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
 # Algorithms
@@ -80,19 +72,33 @@ topSequence += CfgGetter.getAlgorithm("CopyMcEventCollection")
 topSequence += CfgGetter.getAlgorithm("CopyTimings")
 
 #--------------------------------------------------------------
+# Athena EventLoop Manager
+#--------------------------------------------------------------
+AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
+AthenaEventLoopMgr.OutputLevel = INFO
+
+#--------------------------------------------------------------
+# DEBUG messaging
+#--------------------------------------------------------------
+svcMgr.ProxyProviderSvc.OutputLevel = DEBUG
+svcMgr.AthenaPoolAddressProviderSvcPrimary.OutputLevel = DEBUG
+svcMgr.AthenaPoolAddressProviderSvcSecondary.OutputLevel = DEBUG
+svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+
+#--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1", asAlg=True )
-Stream1.OutputLevel = DEBUG
+# TODO: noTag=True to avoid warning, needs EventInfo overlay implemented
+Stream1 = AthenaPoolOutputStream( "Stream1", asAlg=True, noTag=True )
+Stream1.OutputLevel = INFO
 
 Stream1.OutputFile  = "OutputRDO.root"
 # List of DO's to write out
 Stream1.ItemList =  []
 Stream1.ItemList += ["McEventCollection#TruthEvent"]
 Stream1.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
-# Stream1.TransientItems += ["McEventCollection#TruthEvent"]
-# Stream1.TransientItems += ["RecoTimingObj#EVNTtoHITS_timings"]
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
@@ -100,19 +106,9 @@ Stream1.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
 svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
-AthenaEventLoopMgr.UseSecondaryEventNumber = True
-AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
-
-# Service Manager
-print svcMgr
-
-# Master sequence
-from AthenaCommon.AlgSequence import dumpMasterSequence
-dumpMasterSequence()
 
 #==============================================================
 #
