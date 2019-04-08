@@ -75,21 +75,21 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
     ETA=0, PHI
   };
   // ... and the corresponding names
-  const string coordinateNames[] = {
+  static const string coordinateNames[] = {
     "ETA", "PHI"
   };
   // possible histogram species
 
   // string names for the detector parts
-  const string names[N_REGIONS] = {
+  static const string names[N_REGIONS] = {
     "Endcap C", "Barrel", "Endcap A"
   };
   // abbreviations for detector parts
-  const string abbreviations[N_REGIONS] = {
+  static const string abbreviations[N_REGIONS] = {
     "ECm", "", "ECp"
   };
-  const string streamDelimiter{"_"};
-  const string pathDelimiter{"/"};
+  static const string streamDelimiter{"_"};
+  static const string pathDelimiter{"/"};
 
 
   // is the timebin in the desired pattern?
@@ -902,15 +902,15 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
-  const string paths[N_REGIONS] = {
+  static const string paths[N_REGIONS] = {
     "SCT/SCTEC/hits", "SCT/SCTB/hits", "SCT/SCTEA/hits"
   };
-  const unsigned int limits[N_REGIONS] = {
+  static const unsigned int limits[N_REGIONS] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
-  const string hitHistNames[N_REGIONS]{"numHitsPerLBECm", "numBarrelHitsPerLB", "numHitsPerLBECp"};
-  const string spHistNames[N_REGIONS]{"numSPPerLBECm", "numBarrelSPPerLB", "numSPPerLBECp"};
-  const string titles[N_REGIONS]{"Endcap C", "barrel", "Endcap A"};
+  static const string hitHistNames[N_REGIONS]{"numHitsPerLBECm", "numBarrelHitsPerLB", "numHitsPerLBECp"};
+  static const string spHistNames[N_REGIONS]{"numSPPerLBECm", "numBarrelSPPerLB", "numSPPerLBECp"};
+  static const string titles[N_REGIONS]{"Endcap C", "barrel", "Endcap A"};
   //
   if (newLumiBlockFlag()) {
     MonGroup lumiHits{this, paths[systemIndex], lumiBlock, ATTRIB_UNMANAGED};
@@ -1013,10 +1013,10 @@ StatusCode
 SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
   const Bec bec{index2Bec(systemIndex)};
 
-  const string paths[N_REGIONS] = {
+  static const string paths[N_REGIONS] = {
     "SCT/SCTEC/hits", "SCT/SCTB/hits", "SCT/SCTEA/hits"
   };
-  const unsigned int limits[N_REGIONS] = {
+  static const unsigned int limits[N_REGIONS] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
 
@@ -1047,21 +1047,21 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
 }
 
 StatusCode
-SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemIndex) {
-  const Bec bec{index2Bec(systemIndex)};
+SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemIndex) { 
+  static const string paths[N_REGIONS] = {
+    "SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"
+  };
+  static const unsigned int limits[N_REGIONS] = {
+    N_DISKSx2, N_BARRELSx2, N_DISKSx2
+  };
+
+ const Bec bec{index2Bec(systemIndex)};
 
   if (bec == INVALID_SYSTEM) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
   if (newRunFlag()) {
-    const string paths[N_REGIONS] = {
-      "SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"
-    };
-    const unsigned int limits[N_REGIONS] = {
-      N_DISKSx2, N_BARRELSx2, N_DISKSx2
-    };
-
     MonGroup noiseOccMaps{this, paths[systemIndex], run, ATTRIB_UNMANAGED};
     m_pnoiseoccupancymapHistoVector[systemIndex].clear();
     m_pnoiseoccupancymapHistoVectorTrigger[systemIndex].clear();
@@ -1146,6 +1146,13 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
 
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex) {
+  static const string paths[N_REGIONS]{"SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"};
+  static const unsigned int limits[N_REGIONS]{N_DISKSx2, N_BARRELSx2, N_DISKSx2};
+  static const string profileNames[N_REGIONS]{"ECm", "BAR", "ECp"};
+  static const string profileTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
+  static const string profileNames2[N_REGIONS]{"ECC", "BAR", "ECA"};
+  static const string profileTitles2[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
+
   const Bec bec{index2Bec(systemIndex)};
 
   if (bec == INVALID_SYSTEM) {
@@ -1153,9 +1160,6 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
     return StatusCode::FAILURE;
   }
   if (newRunFlag()) {
-    const string paths[N_REGIONS]{"SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"};
-    const unsigned int limits[N_REGIONS]{N_DISKSx2, N_BARRELSx2, N_DISKSx2};
-
     MonGroup hitOccMaps{this, paths[systemIndex], run, ATTRIB_UNMANAGED};
 
     m_phitoccupancymapHistoVector[systemIndex].clear();
@@ -1178,8 +1182,6 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       }
     }
 
-    const string profileNames[N_REGIONS]{"ECm", "BAR", "ECp"};
-    const string profileTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
     m_HallHits_vsLB[systemIndex] = TProfile_LW::create(("h_HallHits"+profileNames[systemIndex]+"_vsLB").c_str(),
                                                        ("Average num of all Hits in "+profileNames[systemIndex]+" vs LB").c_str(),
                                                        NBINS_LBs, 0.5, NBINS_LBs + 0.5);
@@ -1216,8 +1218,6 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
       ATH_MSG_WARNING("Couldn't book " << m_HSPHitsTrigger_vsLB[systemIndex]->GetName());
     }
 
-    const string profileNames2[N_REGIONS]{"ECC", "BAR", "ECA"};
-    const string profileTitles2[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
     m_HO_vsLB[systemIndex] = TProfile_LW::create((profileNames2[systemIndex]+"HO_vsLB").c_str(),
                                                  ("HO vs LB for the "+profileTitles2[systemIndex]+" (SP noise)").c_str(),
                                                  NBINS_LBs, 0.5, NBINS_LBs + 0.5);
@@ -1679,15 +1679,17 @@ SCTHitsNoiseMonTool::resetVecH1(VecH1_t hists) {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::bookNoiseDistributions() {
+  static const int bins{8000};
+  static const double xmin{1e-1};
+  static const double xmax{20000};
+  static const double logxmin{log10(xmin)};
+  static const double logxmax{log10(xmax)};
+  static const double binwidth{(logxmax - logxmin) / bins};
+  static const string histNames[N_REGIONS+1]{"ECC", "barrel", "ECA", "SCT"};
+  static const string histTitles[N_REGIONS+1]{"EndCap C", "Barrel", "EndCap A", "SCT"};
 
   if (newRunFlag()) {
     MonGroup NoiseDistributions{this, "SCT/GENERAL/noise", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-    const int bins{8000};
-    double xmin{1e-1};
-    double xmax{20000};
-    double logxmin{log10(xmin)};
-    double logxmax{log10(xmax)};
-    double binwidth{(logxmax - logxmin) / bins};
     double xbins[bins + 1];
     xbins[0] = xmin;
     if (m_doLogXNoise) {
@@ -1696,8 +1698,6 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
       }
     }
 
-    const string histNames[N_REGIONS+1]{"ECC", "barrel", "ECA", "SCT"};
-    const string histTitles[N_REGIONS+1]{"EndCap C", "Barrel", "EndCap A", "SCT"};
     for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
       m_NO[jReg] = new TH1F((histNames[jReg]+"NOdistribution").c_str(), ("NO Distribution for the "+histTitles[jReg]).c_str(), bins, xmin, xmax);
       m_NO[jReg]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
@@ -1995,18 +1995,19 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
 // StatusCode SCTHitsNoiseMonTool::bookGeneralTrackHits(bool isNewRun, const unsigned int systemIndex) {
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
+  static const string paths[N_REGIONS] = {
+    "SCT/SCTEC/hits/", "SCT/SCTB/hits/", "SCT/SCTEA/hits/"
+  };
+  static const unsigned int limits[N_REGIONS] = {
+    N_DISKSx2, N_BARRELSx2, N_DISKSx2
+  };
+
   const Bec bec{index2Bec(systemIndex)};
 
   if (bec == INVALID_SYSTEM) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
-  const string paths[N_REGIONS] = {
-    "SCT/SCTEC/hits/", "SCT/SCTB/hits/", "SCT/SCTEA/hits/"
-  };
-  const unsigned int limits[N_REGIONS] = {
-    N_DISKSx2, N_BARRELSx2, N_DISKSx2
-  };
   string stem{m_stream + "/" + paths[systemIndex] + "mapsOfHitsOnTracks"};
   MonGroup tracksMon{this, paths[systemIndex] + "mapsOfHitsOnTracks", run, ATTRIB_UNMANAGED};
   if (newRunFlag()) {
@@ -2034,13 +2035,25 @@ SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
 
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) {
+  static const string path[N_REGIONS] = {
+    "SCT/SCTEC/tbin/tracks/", "SCT/SCTB/tbin/tracks/", "SCT/SCTEA/tbin/tracks/"
+  };
+  static const unsigned int limits[N_REGIONS] = {
+    N_DISKS, N_BARRELS, N_DISKS
+  };
+  static const unsigned int nBins{8};
+  static const string tbinsNames[nBins] = {
+    "000", "001", "010", "011", "100", "101", "110", "111"
+  };
+  static const string disksidenameEC[N_DISKSx2] = {
+    "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1",
+    "5_0", "5_1", "6_0", "6_1", "7_0", "7_1", "8_0", "8_1"
+  };
+  static const string layersidenameB[N_BARRELSx2] = {
+    "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1"
+  };
+
   if (newRunFlag()) {
-    const string path[N_REGIONS] = {
-      "SCT/SCTEC/tbin/tracks/", "SCT/SCTB/tbin/tracks/", "SCT/SCTEA/tbin/tracks/"
-    };
-    const unsigned int limits[N_REGIONS] = {
-      N_DISKS, N_BARRELS, N_DISKS
-    };
     //
     vector<H1_t>& tbinHistoVector{m_tbinHistoVector[systemIndex]};
     vector<H1_t>& tbinHistoVectorRecent{m_tbinHistoVectorRecent[systemIndex]};
@@ -2049,10 +2062,6 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     MonGroup timeGroup{this, path[systemIndex], run, ATTRIB_UNMANAGED};
     MonGroup tbinGroup{this, "SCT/GENERAL/tbin", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
     string stem{m_stream + pathDelimiter + path[systemIndex]};
-    const unsigned int nBins{8};
-    string tbinsNames[nBins] = {
-      "000", "001", "010", "011", "100", "101", "110", "111"
-    };
     string histoName{"TrackTimeBin" + abbreviations[systemIndex]};
     string histoTitle{"RDO Track TimeBin for " + names[systemIndex]};
     string histoNameRecent{"TrackTimeBinRecent" + abbreviations[systemIndex]};
@@ -2060,14 +2069,6 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     m_tbinfracall = profFactory("TBinFracAll", "fraction of 01X for each region", tbinGroup);
 
     m_tbinHisto[systemIndex] = h1Factory(histoName, histoTitle, timeGroup, -0.5, 7.5, nBins);
-
-    const string disksidenameEC[N_DISKSx2] = {
-      "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1",
-      "5_0", "5_1", "6_0", "6_1", "7_0", "7_1", "8_0", "8_1"
-    };
-    const string layersidenameB[N_BARRELSx2] = {
-      "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1"
-    };
 
     if (systemIndex==ENDCAP_C_INDEX) {
       for (int i{0}; i < N_DISKSx2; i++) {

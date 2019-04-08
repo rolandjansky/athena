@@ -47,7 +47,7 @@ namespace {
   float
   etaRegion(const float eta) {
     // eta cut when segregating the tracks per region histogram
-    const float etaBoundary(1.0);
+    static const float etaBoundary(1.0);
 
     if (eta < -etaBoundary) {
       return 0.0; // EC C
@@ -610,24 +610,24 @@ SCTTracksMonTool::bookTrackHistos(const Bec becVal) {
   if (not newRunFlag()) {
     return StatusCode::SUCCESS;
   }
-  const string pathDelimiter{"/"};
-  const string streamDelimiter{"_"};
-  const string regionNames[N_REGIONS] = {
+  static const string pathDelimiter{"/"};
+  static const string streamDelimiter{"_"};
+  static const string regionNames[N_REGIONS] = {
     "Negative Endcap", "Barrel", "Positive Endcap"
   };
-  const string abbreviations[N_REGIONS] = {
+  static const string abbreviations[N_REGIONS] = {
     "ECm", "", "ECp"
   };
-  const string localPaths[N_REGIONS] = {
+  static const string localPaths[N_REGIONS] = {
     "SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"
   };
-  const string localPathsResi[N_REGIONS] = {
+  static const string localPathsResi[N_REGIONS] = {
     "SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"
   };
-  const string localPathsPull[N_REGIONS] = {
+  static const string localPathsPull[N_REGIONS] = {
     "SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"
   };
-  const unsigned int limits[N_REGIONS] = {
+  static const unsigned int limits[N_REGIONS] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
   const unsigned int systemIndex{bec2Index(becVal)};
@@ -747,7 +747,7 @@ SCTTracksMonTool::p2Factory(const string& name, const string& title,
 StatusCode
 SCTTracksMonTool::h1Factory(const string& name, const string& title, const float extent, MonGroup& registry,
                             VecH1_t& storageVector) {
-  const unsigned int nbins{100};
+  static const unsigned int nbins{100};
   const float lo{-extent};
   const float hi{extent};
   H1_t tmp{new TH1F{name.c_str(), title.c_str(), nbins, lo, hi}};
