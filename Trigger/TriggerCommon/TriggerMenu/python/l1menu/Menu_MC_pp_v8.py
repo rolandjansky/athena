@@ -896,8 +896,8 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM15I',
         'L1_ZAFB-25DPHI-EM18I',
 
-        #ATR-19302: giving compilation issues, add later. For 0INVM70_27DPHI32_EM10his1_EM10his6
-        #'L1_DPHI-M70-2EM10I',
+        #ATR-19302: 
+        'L1_DPHI-M70-2EM10I',
         ]
     
 
@@ -1375,7 +1375,6 @@ def defineMenu():
         
         #ATR-19302
         'L1_2EM10VHI' : 188,
-
         #ATR-19355
         'L1_BPH-0M10-3MU4' : 189,
 
@@ -1388,8 +1387,8 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM15I' : 193,
         'L1_ZAFB-25DPHI-EM18I' : 194,
 
-        #ATR-19302: giving compilation issues, add later. For 0INVM70_27DPHI32_EM10his1_EM10his6
-        #'L1_DPHI-M70-2EM10I' : 195,
+        #ATR-19302: 
+        'L1_DPHI-M70-2EM10I' : 195,
 
 }
 
