@@ -34,6 +34,8 @@ atlas_add_component( DecisionHandling
                      src/components/*.cxx
                      LINK_LIBRARIES DecisionHandlingLib )
 
+atlas_install_python_modules( python/*.py )
+
 # Unit tests:
 atlas_add_test( TrigCompositeUtils_test
                 SOURCES test/TrigCompositeUtils_test.cxx
