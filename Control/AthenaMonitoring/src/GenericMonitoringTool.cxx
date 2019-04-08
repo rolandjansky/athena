@@ -77,7 +77,7 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const {
   std::vector<HistogramFiller*> result;
 
   for (auto filler : m_fillers) {
