@@ -400,6 +400,10 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
 
+    if not muonRecFlags.doNSWNewThirdChain():
+        kwargs.setdefault("sTgcPrepDataContainer","")
+        kwargs.setdefault("MMPrepDataContainer","")
+
     return CfgMgr.Muon__MuonChamberHoleRecoveryTool(name,**kwargs)
 # end of factory function MuonChamberHoleRecoveryTool
 

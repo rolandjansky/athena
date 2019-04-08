@@ -46,7 +46,7 @@ using namespace SCT_Monitoring;
 namespace {
   // anon. namespace for file-scoped functions
   // test offline the online code
-  const bool testOffline{false};
+  static const bool testOffline{false};
 
   int
   numberOfInefficientSides(TH2* pHistogramArray[], const int xbin, const int ybin, const float threshold) {
@@ -242,6 +242,13 @@ SCTErrMonTool::copyHistograms() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::copyHistograms_book() {
+  //RODLevelErrors histograms
+  static const TString regLabel[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", ""
+  };
+  static const TString regTitle[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", "All Region"
+  };
 
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
@@ -251,14 +258,6 @@ SCTErrMonTool::copyHistograms_book() {
       MonGroup{this, "SCT/GENERAL/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED}
     };
 
-    //RODLevelErrors histograms
-    TString regLabel[NREGIONS_INC_GENERAL] = {
-      "EndcapC", "Barrel", "EndcapA", ""
-    };
-    TString regTitle[NREGIONS_INC_GENERAL] = {
-      "EndcapC", "Barrel", "EndcapA", "All Region"
-    };
-    
     for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
       m_LinksWithRODErrorsVsLB_check[reg] =
         TProfile_LW::create("SCTModulesWithRODLevelErrorsCheck" + regLabel[reg],
@@ -369,7 +368,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
       m_mapSCT[iProblem]->SetStats(0);
     }
 
-    string profNames[numberOfProblemForCoverage] = {
+    static const string profNames[numberOfProblemForCoverage] = {
       "", // All
       "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
       "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
@@ -378,7 +377,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
       "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
       "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
     };
-    string profTitles[numberOfProblemForCoverage] = {
+    static const string profTitles[numberOfProblemForCoverage] = {
       "", // All
       "Ave. Coverage of Enabled Links per LB", // All - Disabled
       "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
@@ -1230,16 +1229,16 @@ SCTErrMonTool::bookConfMapsGen() {
     m_path = streamName.substr(0, streamName.rfind("SCT/GENERAL/Conf"));
     ATH_MSG_INFO("Global Path :" << m_path);
 
-    const int ConfbinsSummary{6};
-    const string SummaryBinNames[ConfbinsSummary] = {
+    static const int ConfbinsSummary{6};
+    static const string SummaryBinNames[ConfbinsSummary] = {
       "Mod Out", "Flagged Links", "Masked Links", "Errors", "Inefficient", "Noisy"
     };
-    const int ConfbinsDetailed{5};
-    const string DetailedBinNames[ConfbinsDetailed] = {
+    static const int ConfbinsDetailed{5};
+    static const string DetailedBinNames[ConfbinsDetailed] = {
       "Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"
     };
-    const int ConfbinsOnline{4};
-    const string OnlineBinNames[ConfbinsOnline] = {
+    static const int ConfbinsOnline{4};
+    static const string OnlineBinNames[ConfbinsOnline] = {
       "Mod Out", "Flagged Links", "Masked Links", "Errors"
     };
 
@@ -1250,10 +1249,10 @@ SCTErrMonTool::bookConfMapsGen() {
         m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin + 1, DetailedBinNames[bin].c_str());
       }
 
-      const TString regLabel[NREGIONS_INC_GENERAL] = {
+      static const TString regLabel[NREGIONS_INC_GENERAL] = {
         "EndcapC", "Barrel", "EndcapA", ""
       };
-      const TString regTitle[NREGIONS_INC_GENERAL] = {
+      static const TString regTitle[NREGIONS_INC_GENERAL] = {
         "EndcapC", "Barrel", "EndcapA", "All Region"
       };
 
@@ -1727,12 +1726,12 @@ SCTErrMonTool::resetConfigurationDetails() {
 // ====================================================================================================
 bool
 SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) {
-  const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
     {"SCT/SCTEC/Noise/noiseoccupancymapECm_","SCT/SCTB/Noise/noiseoccupancymap_", "SCT/SCTEA/Noise/noiseoccupancymapECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
     {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
   };
-  const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
     {"SCT/SCTEC/Noise/noiseoccupancymaptriggerECm_", "SCT/SCTB/Noise/noiseoccupancymaptrigger_", "SCT/SCTEA/Noise/noiseoccupancymaptriggerECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
     {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
@@ -1769,7 +1768,7 @@ SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* his
 // ====================================================================================================
 bool
 SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH2* histo[2]) {
-  const string trm[1][N_REGIONS] = {
+  static const string trm[1][N_REGIONS] = {
     {"SCT/SCTEC/Noise/noiseoccupancymaprecentECm_", "SCT/SCTB/Noise/noiseoccupancymaprecent_", "SCT/SCTEA/Noise/noiseoccupancymaprecentECp_"}
   };
   string shname1{m_path + trm[type][reg] + to_string(layer) + "_0"};

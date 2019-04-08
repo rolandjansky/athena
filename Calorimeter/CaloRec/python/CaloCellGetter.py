@@ -643,7 +643,8 @@ class CaloCellGetter (Configured)  :
                if rec.doTrigger():
                    doLArDeadOTXCorr=True
                else:
-                   mlog.warning("Trigger is switched off. Can't run deadOTX correction.")
+                   if globalflags.DataSource.get_Value() != 'geant4': #warning only if not MC
+                      mlog.warning("Trigger is switched off. Can't run deadOTX correction.")
 
         if doLArDeadOTXCorr:
 

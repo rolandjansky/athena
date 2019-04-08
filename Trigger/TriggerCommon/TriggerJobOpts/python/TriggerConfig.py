@@ -125,7 +125,7 @@ def triggerSummaryCfg(flags, hypos):
 
 
 
-def triggerMonitoringCfg(flags, hypos, l1Decoder):
+def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     """
     Configures components needed for monitoring chains
     """
@@ -155,6 +155,11 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
     allChains.update( l1Decoder.ChainToCTPMapping.keys() )
     mon.ChainsList = list( allChains )
+    
+    from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
+    [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
+
+    
     return acc, mon
 
 def triggerOutputStreamCfg( flags, decObj, outputType ):
@@ -311,7 +316,7 @@ def triggerRunCfg( flags, menu=None ):
 
     #once menu is included we should configure monitoring here as below
 
-    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
+    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )

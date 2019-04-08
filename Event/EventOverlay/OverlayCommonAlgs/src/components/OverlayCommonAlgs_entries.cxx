@@ -1,8 +1,12 @@
+#include "../EventInfoOverlay.h"
+
 #include "../CopyCaloCalibrationHitContainer.h"
 #include "../CopyJetTruthInfo.h"
 #include "../CopyMcEventCollection.h"
 #include "../CopyTimings.h"
 #include "../CopyTrackRecordCollection.h"
+
+DECLARE_COMPONENT( EventInfoOverlay )
 
 DECLARE_COMPONENT( CopyCaloCalibrationHitContainer )
 DECLARE_COMPONENT( CopyJetTruthInfo )

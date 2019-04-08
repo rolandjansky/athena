@@ -20,6 +20,18 @@ def hitColls2SimulatedDetectors(inputlist):
                 simulatedDetectors += [simulatedDictionary[entry[1]]]
     return simulatedDetectors
 
+def checkLegacyEventInfo(inputlist):
+    """ Check for legacy EventInfo """
+    present = False
+    for entry in inputlist:
+        if entry[0] != 'EventInfo':
+            continue
+
+        print(entry)
+        present = True
+
+    return present
+
 def checkTileCalibrationHitFormat(inputlist):
     """Check the Tile CaloCalibrationHit format"""
     oldnames = ["TileCalibrationCellHitCnt","TileCalibrationDMHitCnt"]
@@ -231,6 +243,12 @@ def buildDict(inputtype, inputfile):
         else:
             metadatadict['OptionalContainers'] = {}
 
+        ## Check for legacy EventInfo
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['LegacyEventInfo'] = checkLegacyEventInfo(f.infos['eventdata_items'])
+        else:
+            metadatadict['LegacyEventInfo'] = False
+
         ##End of Patch for older hit files
         logOverlayReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logOverlayReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
@@ -343,6 +361,11 @@ def signalMetaDataCheck(metadatadict):
     if not skipCheck('OptionalContainers'):
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         overlayFlags.optionalContainerMap.set_Value_and_Lock(metadatadict['OptionalContainers'])
+
+    # Check for legacy EventInfo presence
+    if not skipCheck('LegacyEventInfo'):
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        overlayFlags.processLegacyEventInfo.set_Value_and_Lock(metadatadict['LegacyEventInfo'])
 
     ## Any other checks here
     logOverlayReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")

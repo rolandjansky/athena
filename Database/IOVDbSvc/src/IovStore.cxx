@@ -53,6 +53,13 @@ namespace IOVDbNamespace{
   IovStore::numberOfIovsOnBoundaries() const{
     return m_countStraddling;
   }
+
+  ///clear the store
+  void IovStore::clear()
+  {
+    m_iovs.clear();
+    m_countStraddling = std::make_pair(0,0);
+  }
   
   ///Return the internal vector store
   std::vector<IovStore::Iov_t> &

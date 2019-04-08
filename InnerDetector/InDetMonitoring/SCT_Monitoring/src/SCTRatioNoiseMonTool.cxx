@@ -60,10 +60,10 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
     }
   }
 
-  const string names[N_REGIONS] = {
+  static const string names[N_REGIONS] = {
     "Endcap C", "Barrel", "Endcap A"
   };
-  const string abbreviations[N_REGIONS] = {
+  static const string abbreviations[N_REGIONS] = {
     "ECC", "Bar", "ECA"
   };
 } // end of anonymous namespace
@@ -324,10 +324,10 @@ SCTRatioNoiseMonTool::fillHistograms() {
         }
       }
 
-      const int NumModBarrelLayer[N_BARRELS] = {
+      static const int NumModBarrelLayer[N_BARRELS] = {
         384, 480, 576, 672
       };
-      const int NumModEndcapDisk[N_DISKS] = {
+      static const int NumModEndcapDisk[N_DISKS] = {
         92, 132, 132, 132, 132, 132, 92, 92, 52
       };
 
@@ -709,13 +709,13 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
     m_N11_vs_modnum = h1Factory("h_N11_vs_modnum", "Num of OneSide hits vs module number", RatioNoise, 0, 4088, 4088);
     m_N11_vs_modnum->SetTitle("ModuleNumber vs Num of OneSide Hits; Module Number; Num of OneSide Hits");
 
-    const string paths[N_REGIONS] = {
+    static const string paths[N_REGIONS] = {
       "SCT/SCTEC/RatioNoise", "SCT/SCTB/RatioNoise", "SCT/SCTEA/RatioNoise"
     };
-    const string paths_hits[N_REGIONS] = {
+    static const string paths_hits[N_REGIONS] = {
       "SCT/SCTEC/RatioNoise/numOfHits", "SCT/SCTB/RatioNoise/numOfHits", "SCT/SCTEA/RatioNoise/numOfHits"
     };
-    const unsigned int limits[N_REGIONS] = {
+    static const unsigned int limits[N_REGIONS] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
     VecProf2_t* storageVectors[N_REGIONS] = {
@@ -729,7 +729,7 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
       &m_pnoiseoccupancymapHistoVectorECCSide1, &m_pnoiseoccupancymapHistoVectorBARSide1,
       &m_pnoiseoccupancymapHistoVectorECASide1
     };
-    const int bec[N_REGIONS] = {
+    static const int bec[N_REGIONS] = {
       -2, 0, 2
     };
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "./Timer.h"
+#include "./JetTrigTimer.h"
 #include <cassert>
 
 #include <sstream>
@@ -32,12 +32,18 @@ void JetTrigTimer::reset() noexcept {
   m_delta = 0.;
 }
   
-std::string JetTrigTimer::readAndReset(){    
+std::string JetTrigTimer::read(){    
  
   assert (m_isRunning == false);
   std::stringstream ss;
   double avTime  =  m_nCalls == 0 ? 0. : m_delta / m_nCalls;
-  ss << "time(ns): " << m_delta << " nCalls: " << m_nCalls << " tav: " << avTime << '\n';
-  reset();
+  ss << "time(ns): " << m_delta << " nCalls: " << m_nCalls << " tav: "
+     << avTime << '\n';
   return ss.str();
+}
+  
+std::string JetTrigTimer::readAndReset(){    
+  auto s = read();
+  reset();
+  return s;
 }

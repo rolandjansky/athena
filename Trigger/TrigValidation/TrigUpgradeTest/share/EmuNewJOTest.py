@@ -79,7 +79,7 @@ filters = collectFilters(HLTSteps)
 summaryAcc, summaryAlg = triggerSummaryCfg(flags, hypos)
 acc.merge(summaryAcc)
 
-monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
+monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
 acc.merge( monitoringAcc )
 
 topSequenceName = "HLTTop"

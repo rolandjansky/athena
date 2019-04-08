@@ -10,8 +10,7 @@ import sys
 ##############
 # Input files
 ##############
-InputFiles = ['/hep300/data/khamano/data17/data17_13TeV.00339590.physics_Main.merge.AOD.f889_m1831_r9949_r10241_r10242_p3313/AOD.13015916._000011.pool.root.1','/hep300/data/khamano/data17/data17_13TeV.00339590.physics_Main.merge.AOD.f889_m1831_r9949_r10241_r10242_p3313/AOD.13015916._000182.pool.root.1','/hep300/data/khamano/data17/data17_13TeV.00339590.physics_Main.merge.AOD.f889_m1831_r9949_r10241_r10242_p3313/AOD.13015916._000326.pool.root.1','/hep300/data/khamano/data17/data17_13TeV.00339590.physics_Main.merge.AOD.f889_m1831_r9949_r10241_r10242_p3313/AOD.13015916._000341.pool.root.1','/hep300/data/khamano/data17/data17_13TeV.00339590.physics_Main.merge.AOD.f889_m1831_r9949_r10241_r10242_p3313/AOD.13015916._000368.pool.root.1']
-
+InputFiles = ['/hep300/data/khamano/data18/data18_13TeV.00363738.physics_Main.merge.AOD.f1006_m2037/data18_13TeV.00363738.physics_Main.merge.AOD.f1006_m2037._lb0163._0005.1']
 
 
 ############################
@@ -132,5 +131,4 @@ print HLTmetMonMan
 # Events to run over; "-1" for all events.
 #############################################
 theApp.EvtMax = -1
-#theApp.EvtMax = 10
 

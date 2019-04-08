@@ -18,8 +18,6 @@
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-#include "./Timer.h"
-
 class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
  public:
@@ -28,10 +26,12 @@ class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                const std::string& name,
                const IInterface* parent);
   
-  bool pass(HypoJetVector&) override;
-  virtual void accept(ITrigJetHypoHelperVisitor&) override;
-  std::string toStringAndResetHistory();
+  bool pass(HypoJetVector&,
+            ITrigJetHypoInfoCollector*) const override;
 
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
+
+  
  private:
 
   ToolHandle<ITrigJetHypoToolHelperMT> m_lhs {
@@ -45,15 +45,8 @@ class OrHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
-  
-  bool m_pass;
-  std::size_t m_nCalls{0};
 
   std::string toString() const;
-  void resetHistory();
-
- std::unique_ptr<JetTrigTimer> m_timer;
- double passTime();
 
 };
 

@@ -8,32 +8,78 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "CoralBase/Attribute.h"
 
+const std::string LArFebConfig::s_lower = "lower";
+const std::string LArFebConfig::s_upper = "upper";
+
 LArFebConfig::LArFebConfig(const LArOnlineID* onlineId) : 
   AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"LArFebConfig"),
   m_onlineID(onlineId)
 
 { }
 
-short LArFebConfig::getThreshold(const char* MedLow, const HWIdentifier& chid) const {
 
-  if (m_attrPerFeb.size()==0) {
-    ATH_MSG_WARNING("FEB treshold cache is empty. Callback not fired?");
-    return ERRORCODE;
+void LArFebConfig::add (HWIdentifier febid,
+                        const coral::AttributeList* attrList)
+{
+  m_attrPerFeb[febid.get_compact()] = attrList;
+}
+
+
+void LArFebConfig::thresholds (const HWIdentifier& chid,
+                               short& lower,
+                               short& upper) const
+{
+  int channel = 0;
+  const coral::AttributeList* attrList = getAttrList (chid, channel);
+  if (attrList == nullptr) {
+    lower = ERRORCODE;
+    upper = ERRORCODE;
+    return;
+  }
+  std::string chanstr = std::to_string(channel+1);
+  lower =  getThresholdFromAttrList (s_lower, attrList, chanstr);
+  upper =  getThresholdFromAttrList (s_upper, attrList, chanstr);
+}
+
+
+const coral::AttributeList*
+LArFebConfig::getAttrList (const HWIdentifier& chid,
+                           int& channel) const
+{
+  if (m_attrPerFeb.empty()) {
+    ATH_MSG_WARNING("FEB threshold cache is empty");
+    return nullptr;
   }
 
-  std::lock_guard<std::mutex> lock(m_itMtx); //Makes sure the following isn't executed concurently
-
   const HWIdentifier fid=m_onlineID->feb_Id(chid);
-  const int channel=m_onlineID->channel(chid); 
-  if (m_lastIt==m_attrPerFeb.end() || m_lastIt->first!=fid)
-    m_lastIt=m_attrPerFeb.find(fid);
-
-  if (m_lastIt==m_attrPerFeb.end()) { 
+  channel = m_onlineID->channel(chid); 
+  auto it = m_attrPerFeb.find(fid.get_compact());
+  if (it == m_attrPerFeb.end()) { 
     ATH_MSG_DEBUG("Such FEB was not found !");
+    return nullptr;
+  }
+  return it->second;
+}
+
+
+short
+LArFebConfig::getThresholdFromAttrList(const std::string& MedLow,
+                                       const coral::AttributeList* attrList,
+                                       const std::string& chanstr) const
+{
+  std::string channame = MedLow + chanstr;
+  return (short)(*attrList)[channame].data<int32_t>(); //Will throw and exception if channel does not exist
+}
+
+
+short LArFebConfig::getThreshold(const std::string& MedLow,
+                                 const HWIdentifier& chid) const
+{
+  int channel = 0;
+  const coral::AttributeList* attrList = getAttrList (chid, channel);
+  if (attrList == nullptr) {
     return ERRORCODE;
-  }else {
-     std::string channame(MedLow,5);
-     channame += std::to_string(channel+1);
-    return (short)(*(m_lastIt->second))[channame].data<int32_t>(); //Will throw and exception if channel does not exist
-  } 
+  }
+  std::string chanstr = std::to_string(channel+1);
+  return getThresholdFromAttrList (MedLow, attrList, chanstr);
 }

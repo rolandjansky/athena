@@ -16,7 +16,9 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "./TrigJetHypoPrinterVisitor.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
+#include "./DebugInfoCollector.h"
+#include "./HypoTreeInfoCollector.h"
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -39,6 +41,17 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 
 StatusCode TrigJetHypoToolMT::initialize(){
   CHECK(m_evt.initialize());
+  HypoTreeInfoCollector collector;
+  m_helper->getDescription(collector);
+  auto s = collector.toString();
+  
+  for(const auto& l : lineSplitter(s)){
+    ATH_MSG_INFO(l);
+  }
+  
+  if (m_visitDebug){
+    collector.write(name());
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -64,13 +77,18 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                 << "...");
 
   // steady_clock::time_point t =  steady_clock::now();
+  auto infocollector = m_visitDebug? new DebugInfoCollector : nullptr;
 
   try{
-    pass = m_helper->pass(hypoJets);
+    pass = m_helper->pass(hypoJets, infocollector);
   } catch(std::exception& e){
     ATH_MSG_ERROR("Exception raised by the TrigJetHypoToolHelperMT: " 
                   << e.what());
     return StatusCode::FAILURE;
+  }
+  
+  if (infocollector){
+    infocollector->write(name(), m_eventSN->getSN());
   }
 
   // accumulateTime(steady_clock::now() - t);
@@ -78,26 +96,8 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   ATH_MSG_DEBUG("hypo testing done chain  "
                 << " no of input jets " << jets->size()
                 << " pass " << pass );
-
-  if(m_visitDebug){
-
-    TrigJetHypoPrinterVisitor visitor;
-    m_helper->accept(visitor);
-
-    SG::ReadHandle<xAOD::EventInfo> evt (m_evt);
-    if (!evt.isValid()) {
-      ATH_MSG_WARNING( "Could not get event info from TDS."  );
-      visitor.write(name(), m_eventSN->getSN());      
-    } else {
-      visitor.write(name(), evt->runNumber(), evt->eventNumber());
-    }
-  }
-  // delete the xAOD::Jet wrappers
-  for(auto i : hypoJets){delete i;}
-
   return StatusCode::SUCCESS;
 }
-
 
 const HLT::Identifier& TrigJetHypoToolMT::getId() const{
   return m_decisionId;

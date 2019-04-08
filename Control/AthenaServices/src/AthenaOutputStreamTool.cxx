@@ -13,9 +13,11 @@
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
 #include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/IDecisionSvc.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
@@ -44,6 +46,7 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
 	m_store("DetectorStore", name),
 	m_conversionSvc("AthenaPoolCnvSvc", name),
 	m_clidSvc("ClassIDSvc", name),
+	m_decSvc("DecisionSvc/DecisionSvc", name),
 	m_dataHeader(0),
 	m_dataHeaderKey(name),
 	m_connectionOpen(false),
@@ -65,6 +68,7 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
       }
    }
    m_processTag = m_dataHeaderKey;
+   declareProperty("SaveDecisions",         m_extend = false, "Set to true to add streaming decisions to an attributeList");
 }
 //__________________________________________________________________________
 AthenaOutputStreamTool::~AthenaOutputStreamTool() {
@@ -94,7 +98,10 @@ StatusCode AthenaOutputStreamTool::initialize() {
    }
    if ( ! m_attrListKey.key().empty() ) {
      ATH_CHECK(m_attrListKey.initialize());
+     m_attrListWrite = m_attrListKey.key() + "Decisions";
+     //ATH_CHECK(m_attrListWrite.initialize());
    }
+   if (m_extend) ATH_CHECK(m_decSvc.retrieve());
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -244,14 +251,57 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       }
    }
 
+   // Attach the attribute list to the DataHeader if requested
    if (!m_attrListKey.key().empty() && m_store->storeID() == StoreID::EVENT_STORE) {
       auto attrListHandle = SG::makeHandle(m_attrListKey);
       if (!attrListHandle.isValid()) {
-         ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey.key());
+         ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << m_attrListKey);
       } else {
          m_dataHeader->setAttributeList(attrListHandle.cptr());
-      }
-   }
+         if (m_extend) {  // Add streaming decisions
+            ATH_MSG_DEBUG("Adding stream decisions to " << m_attrListWrite);
+            // Look for attribute list created for mini-EventInfo
+            const AthenaAttributeList* attlist(attrListHandle.cptr());
+
+            // Build new attribute list for modification
+            AthenaAttributeList* newone = new AthenaAttributeList(attlist->specification());
+            newone->copyData(*attlist);
+
+            // Now loop over stream definitions and add decisions
+            auto streams = m_decSvc->getStreams();
+            for (auto it  = streams.begin();
+                      it != streams.end(); ++it) {
+               newone->extend(*it,"bool");
+               (*newone)[*it].data<bool>() = m_decSvc->isEventAccepted(*it,Gaudi::Hive::currentContext());
+               ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << m_attrListKey);
+            }
+            // record new attribute list with old key + suffix
+            const DataHandle<AthenaAttributeList> attrList2;
+            if (!m_store->contains<AthenaAttributeList>(m_attrListWrite)) {
+               if (m_store->record(newone,m_attrListWrite).isFailure()) {
+                  ATH_MSG_ERROR("Unable to record att list " << m_attrListWrite);
+               }
+            } else {
+               ATH_MSG_DEBUG("Decisions already added by a different stream");
+            }
+            if (m_store->retrieve(attrList2,m_attrListWrite).isFailure()) {
+               ATH_MSG_ERROR("Unable to record att list " << m_attrListWrite);
+            } else {
+               m_dataHeader->setAttributeList(attrList2);
+            }
+/*
+            SG::WriteHandle<AthenaAttributeList> attrWrite(m_attrListWrite);
+            std::unique_ptr<AthenaAttributeList> uptr = std::make_unique<AthenaAttributeList>(*newone);
+            if ( attrWrite.record(std::move(uptr)).isFailure() ) {
+               ATH_MSG_ERROR("Unable to record att list " << m_attrListWrite);
+            } else {
+               ATH_MSG_DEBUG("Decisions already added by a different stream");
+            }
+*/
+            //m_dataHeader->setAttributeList(newone);
+         }    // list extend check
+      }       // list retrieve check
+   }          // list property check
 
    // Record DataHeader in StoreGate
    if (m_store->record(m_dataHeader, m_dataHeaderKey).isFailure()) {

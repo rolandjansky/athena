@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFEBConfigCondAlg.h"
@@ -89,10 +89,9 @@ StatusCode LArFEBConfigCondAlg::execute(const EventContext& ctx) const {
       const HWIdentifier fid(chanit->first); //COOL channel number == FEB identifier
       //const coral::AttributeList& attr = chanit->second;
       ATH_MSG_DEBUG("Working on FEB 0x" << std::hex << fid.get_compact() << std::dec << "  " << m_onlineID->channel_name(fid));
-      p_febConfig->m_attrPerFeb[fid]=std::move(&(chanit->second));
+      p_febConfig->add (fid, &chanit->second);
       ++nFebs;
     }//End loop over COOL channels
-    p_febConfig->m_lastIt = p_febConfig->m_attrPerFeb.end();
   }
   ATH_MSG_INFO("Read gain thresholds for " << nFebs << " Febs from " << m_listOfFolders.size() << " database folders.");
 

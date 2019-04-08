@@ -53,12 +53,12 @@
 using namespace SCT_Monitoring;
 
 namespace {// anonymous namespace for functions at file scope
-  const bool testOffline(false);
+  static const bool testOffline(false);
 
-  const std::string histogramPath[N_REGIONS+1] = {
+  static const std::string histogramPath[N_REGIONS+1] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  const std::string histogramPathRe[N_REGIONS] = {
+  static const std::string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -95,7 +95,7 @@ namespace {// anonymous namespace for functions at file scope
     return pseudo;
   }
 
-  const double stripWidth{79.95e-3}; // in mm
+  static const double stripWidth{79.95e-3}; // in mm
 }// namespace end
 
 using namespace SCT_Monitoring;
@@ -700,35 +700,35 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
                              3.2));
     }
     // Booking efficiency maps
-    std::array < TString, N_REGIONS > mapName = {
+    static const std::array < TString, 3 > mapName = {
       "m_eff_", "eff_", "p_eff_"
     };
-    std::array < TString, N_REGIONS > effLumiName = {
+    static const std::array < TString, 3 > effLumiName = {
       "m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"
     };
     // inefficiency plots, i.e. 1 - efficiency
-    std::array < TString, N_REGIONS > ineffMapName = {
+    static const std::array < TString, N_REGIONS > ineffMapName = {
       "ineffm_", "ineff_", "ineffp_"
     };
     //
-    std::array < TString, N_REGIONS > sumeff = {
+    static const std::array < TString, N_REGIONS > sumeff = {
       "summaryeffm", "summaryeff", "summaryeffp"
     };
-    std::array < TString, N_REGIONS > sumeffBCID = {
+    static const std::array < TString, N_REGIONS > sumeffBCID = {
       "summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"
     };
-    std::array < TString, N_REGIONS > sumeff_old = {
+    static const std::array < TString, N_REGIONS > sumeff_old = {
       "summaryeffm_old", "summaryeff_old", "summaryeffp_old"
     };
-    std::array < TString, N_REGIONS > sumefftitle = {
+    static const std::array < TString, N_REGIONS > sumefftitle = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
     };
-    std::array < TString, N_REGIONS > sumefftitleBCID = {
+    static const std::array < TString, N_REGIONS > sumefftitleBCID = {
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
     };
-    std::array < TString, 12 > selecName = {
+    static const std::array < TString, 12 > selecName = {
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
     };
     for (unsigned int isub{0}; isub < N_REGIONS; ++isub) {

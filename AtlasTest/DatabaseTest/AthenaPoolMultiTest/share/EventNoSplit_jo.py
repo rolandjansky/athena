@@ -93,7 +93,7 @@ Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_NoSplit2.root"
 Stream2.CheckNumberOfWrites = False
 # Filtered stream 1
 Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_NoSplit1.root", False, noTag=False )
-Stream1.WritingTool.AttributeListKey="SimpleTagDecisions"
+Stream1.WritingTool.SaveDecisions = True
 Stream1.CheckNumberOfWrites = False
 # Filtered stream 3
 Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_NoSplit3.root", False, noTag=False )
@@ -101,7 +101,7 @@ Stream3.CheckNumberOfWrites = False
 # Unfiltered stream
 StreamAll = AthenaPoolOutputStream( "StreamAll", "AthenaPoolMultiTest_StreamAll.root", False, noTag=False )
 StreamAll.CheckNumberOfWrites = False
-StreamAll.WritingTool.AttributeListKey="SimpleTagDecisions"
+StreamAll.WritingTool.SaveDecisions = True
 
 # Configure them using filter methods and itemlist
 # Must make sure that no OutStream's have been declared

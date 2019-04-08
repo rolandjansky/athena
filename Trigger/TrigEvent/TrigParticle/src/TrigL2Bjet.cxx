@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -59,8 +59,6 @@ TrigL2Bjet::TrigL2Bjet(int roi, float eta, float phi, const TrigInDetTrackCollec
   m_xnvtx(xnvtx)
 {}
 
-
-TrigL2Bjet::~TrigL2Bjet() {}
 
 void  TrigL2Bjet::validate(bool v) { m_valid = v; }
 

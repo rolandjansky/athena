@@ -19,7 +19,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 0 run: 0
@@ -112,7 +112,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 6 run: 0
@@ -169,7 +169,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 9 run: 0
@@ -226,7 +226,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 12 run: 0
@@ -283,7 +283,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 15 run: 0
@@ -316,7 +316,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 16 run: 0
@@ -361,7 +361,7 @@ ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 38853911, key = EventInfoAux.
 ReadData             INFO CLID = 45903698, key = EventInfo
-ReadData             INFO CLID = 222376821, key = StreamAll
+ReadData             INFO CLID = 222376821, key = StreamAll2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 18 run: 0
@@ -389,5 +389,5 @@ EventSelector.S...   INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>>
 EventSelector.S...  DEBUG Found attribute list
 EventSelector.S...  ERROR Stream decision for StreamX does not exist in input
 EventSelector        INFO skipping event 20
-EventSelector        INFO Disconnecting input sourceID: 091DF466-FBF6-E645-A72E-7C6C5CDE6F9D
+EventSelector        INFO Disconnecting input sourceID: 70C581E0-295B-004F-8594-C83660C8EC60
 ReadData             INFO in finalize()
