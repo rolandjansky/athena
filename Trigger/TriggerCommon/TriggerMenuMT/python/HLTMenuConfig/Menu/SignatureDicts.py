@@ -127,7 +127,7 @@ JetChainParts = {
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'trkopt'       : [],
-    'hypoScenario' : ['simple', 'vbenf'],
+    'hypoScenario' : ['simple', 'vbenf', 'vbenfSEP30etSEP34mass35SEP50fbet'],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 

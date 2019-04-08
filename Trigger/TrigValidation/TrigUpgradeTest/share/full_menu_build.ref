@@ -212,6 +212,8 @@ TrigSignatureMoniMT                                INFO HLT_e7_etcut            
 TrigSignatureMoniMT                                INFO HLT_e7_etcut decisions                            36        265       0         0         
 TrigSignatureMoniMT                                INFO HLT_g5_etcut                  20        20        17        17        0         0         17        
 TrigSignatureMoniMT                                INFO HLT_g5_etcut decisions                            50        50        0         0         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet20        20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet decisions                    0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split20        20        0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split decisions                    0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490            20        20        0         0         0         0         0         
