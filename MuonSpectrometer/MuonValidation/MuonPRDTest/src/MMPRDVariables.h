@@ -35,7 +35,10 @@ class MMPRDVariables : public ValAlgVariables
     m_NSWMM_prd_localPosX(0),
     m_NSWMM_prd_localPosY(0),
     m_NSWMM_prd_covMatrix_1_1(0),
-    m_NSWMM_prd_rdos_charge(0)
+    m_NSWMM_prd_rdos_charge(0),
+    m_NSWMM_prd_rdos_time(0),
+    m_NSWMM_prd_rdos_channel(0),
+    m_NSWMM_prd_nRdos(0)
   {
     setHelper(idhelper);
   }
