@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.cxx,v 1.7 2009-05-20 20:48:52 ssnyder Exp $
@@ -98,6 +98,8 @@ StatusCode CaloRunClusterCorrections::initialize()
   // Note: we _must_ return @c SUCCESS after doing this, or we may
   // cause a crash.
   registerCallbacks();
+
+  ATH_CHECK( m_affKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
