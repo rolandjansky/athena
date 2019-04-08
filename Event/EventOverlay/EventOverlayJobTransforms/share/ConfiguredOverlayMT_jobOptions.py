@@ -40,10 +40,18 @@ job += CfgGetter.getAlgorithm("CopyTimings")
 import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 OverlayEventSelector = ServiceMgr.DoubleEventSelector
-OverlayEventSelector.PrimaryInputCollections = athenaCommonFlags.PoolHitsInput()
-OverlayEventSelector.SecondaryaryInputCollections = athenaCommonFlags.PoolRDOInput()
+OverlayEventSelector.PrimaryInputCollections = athenaCommonFlags.PoolRDOInput()
+OverlayEventSelector.SecondaryaryInputCollections = athenaCommonFlags.PoolHitsInput()
 OverlayEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+
+# Properly generate event context
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads > 0:
+    svcMgr.AthenaHiveEventLoopMgr.UseSecondaryEventNumber = True
+elif hasattr(svcMgr, "AthenaHiveEventLoopMgr"):
+    svcMgr.AthenaEventLoopMgr.UseSecondaryEventNumber = True
 
 
 #-------------------------
@@ -65,3 +73,19 @@ syncBeamAndDigitizationJobProperties()
 
 # TODO: Override run number if needed
 # include("Digitization/RunNumberOverride.py")
+
+
+#------------------------------------------------------------
+# xAOD::EventInfo setup
+#------------------------------------------------------------
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+# Support legacy EventInfo
+if overlayFlags.processLegacyEventInfo() and not hasattr(job, "xAODMaker::EventInfoCnvAlg"):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    alg = xAODMaker__EventInfoCnvAlg("EventInfoCnvAlg")
+    alg.AODKey = overlayFlags.sigPrefix() + 'McEventInfo'
+    alg.xAODKey = overlayFlags.sigPrefix() + 'EventInfo'
+    job += alg
+
+# Run the xAOD::EventInfo overlay
+job += CfgGetter.getAlgorithm("EventInfoOverlay")
