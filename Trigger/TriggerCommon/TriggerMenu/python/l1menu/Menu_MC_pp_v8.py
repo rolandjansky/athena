@@ -410,7 +410,8 @@ def defineMenu():
         '60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49',
         '60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49',
         #ATR-19302
-        #'0INVM70-27DPHI32-EM10his1-EM10his6',
+        '0INVM70-27DPHI32-EM10his1-EM10his6',
+        '0INVM70-27DPHI32-EM10his1-EM12his6',
 
         ]
 
