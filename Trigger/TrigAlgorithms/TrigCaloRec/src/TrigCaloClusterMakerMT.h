@@ -2,7 +2,7 @@
 // Hi Emacs ! this is  -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,9 +21,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloEvent/CaloClusterContainer.h"
+#include "CaloRec/CaloClusterCollectionProcessor.h"
+#include "CaloRec/CaloClusterProcessor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 
 class IAlgToolEFCalo;
@@ -37,16 +40,18 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
  public:
 
   TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigCaloClusterMakerMT();
+  virtual ~TrigCaloClusterMakerMT();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode execute() override;
 
  private:
 
-  std::vector<std::string> m_clusterMakerNames;      // Cluster maker tools name
-  std::vector<std::string> m_clusterCorrectionNames; // Cluster correction tools name
+  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterMakers
+  { this, "ClusterMakerTools", {}, "" };
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrections
+  { this, "ClusterCorrectionTools", {}, "" };
 
 
   // Following used for testing only :
@@ -55,8 +60,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
  
 
   //Other members  
-  std::vector<CaloClusterCollectionProcessor*> m_clusterMakerPointers;      //pointers to tools
-  std::vector<CaloClusterProcessor*>           m_clusterCorrectionPointers; //pointers to tools
   xAOD::CaloClusterContainer* m_pCaloClusterContainer;
 
 //   double m_Eta;
