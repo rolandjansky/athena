@@ -66,19 +66,19 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getEtCutStep(self, stepName):
         if stepName == "Step1_etcut":
-            log.debug("Configuring step " + stepName)
-            fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
-            chainStep =ChainStep(stepName, [fastCalo])
+          log.debug("Configuring step " + stepName)
+          fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
+          chainStep =ChainStep(stepName, [fastCalo])
         elif stepName == "Step2_etcut":
-            log.debug("Configuring step " + stepName)
-            electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
-            chainStep=ChainStep(stepName, [electronReco])
+          log.debug("Configuring step " + stepName)
+          electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+          chainStep=ChainStep(stepName, [electronReco])
         elif stepName == "Step3_etcut":
-            log.debug("Configuring step " + stepName)
-            precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-            chainStep=ChainStep(stepName, [precisionReco])
-	else:            
-            raise RuntimeError("chainStepName unknown: " + stepName )
+          log.debug("Configuring step " + stepName)
+          precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+          chainStep=ChainStep(stepName, [precisionReco])
+        else:            
+          raise RuntimeError("chainStepName unknown: " + stepName )
                         
         log.debug("Returning chainStep from getEtCutStep function: " + stepName)
         return chainStep
