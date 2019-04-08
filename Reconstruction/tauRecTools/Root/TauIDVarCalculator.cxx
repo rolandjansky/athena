@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,17 +19,22 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_nVtx(1)
+  m_nVtx(1),
+  m_mu(0.)
 {
 }
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
+  const xAOD::EventInfo* xEventInfo = nullptr;
+  ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+  m_mu = xEventInfo->averageInteractionsPerCrossing();
+
   if(!inTrigger()){
 
     m_nVtx = int(LOW_NUMBER);    
     // Get the primary vertex container from StoreGate
-    const xAOD::VertexContainer* vertexContainer = 0;
+    const xAOD::VertexContainer* vertexContainer = nullptr;
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
@@ -40,6 +45,7 @@ StatusCode TauIDVarCalculator::eventInitialize()
       m_nVtx=0;
       for( auto vertex : *vertexContainer ){
 	if(!vertex) continue;
+	// WARNING! the nVtx definition is different from the MVA TES equivalent, where we only count pileup vertices
 	int nTrackParticles = vertex->nTrackParticles();
         if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
             (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
@@ -64,31 +70,23 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
-
-  const xAOD::EventInfo* xEventInfo;  //!
-
   static SG::AuxElement::Accessor<float> acc_mu("MU");
-  ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
-  acc_mu(tau) = xEventInfo->averageInteractionsPerCrossing();
+  acc_mu(tau) = m_mu;
 
   if(!inTrigger()){
     static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
+    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
   }
   
   if(inTrigger()){
     //for old trigger BDT:
     static SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-    acc_numWideTrk(tau) = tau.nTracks(xAOD::TauJetParameters::classifiedIsolation);//the ID should train on nIsolatedTracks which is static!
-#else
-    acc_numWideTrk(tau) = tau.nWideTracks();
-#endif
+    //the ID should train on nIsolatedTracks which is static!
+    acc_numWideTrk(tau) = tau.nTracks(xAOD::TauJetParameters::classifiedIsolation);
   }
 
-
   static SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
-  float ipSigLeadTrk=0;
+  float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
     return StatusCode::FAILURE;
   acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);

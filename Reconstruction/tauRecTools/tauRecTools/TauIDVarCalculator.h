@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //! This class implements a tool to calculate ID input variables and add them to the tau aux store
@@ -46,6 +46,7 @@ class TauIDVarCalculator: public TauRecToolBase
  private:
 
   int m_nVtx;
+  float m_mu;
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
