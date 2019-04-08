@@ -34,7 +34,8 @@ class MMPRDVariables : public ValAlgVariables
     m_NSWMM_prd_globalPosZ(0),
     m_NSWMM_prd_localPosX(0),
     m_NSWMM_prd_localPosY(0),
-    m_NSWMM_prd_covMatrix_1_1(0)
+    m_NSWMM_prd_covMatrix_1_1(0),
+    m_NSWMM_prd_rdos_charge(0)
   {
     setHelper(idhelper);
   }
@@ -78,6 +79,13 @@ class MMPRDVariables : public ValAlgVariables
   std::vector<double> *m_NSWMM_prd_localPosX;
   std::vector<double> *m_NSWMM_prd_localPosY;
   std::vector<double> *m_NSWMM_prd_covMatrix_1_1;
+
+  std::vector<std::vector<int>> *m_NSWMM_prd_rdos_charge;
+  std::vector<std::vector<int>> *m_NSWMM_prd_rdos_time;
+  std::vector<std::vector<int>> *m_NSWMM_prd_rdos_channel;
+  std::vector<int>              *m_NSWMM_prd_nRdos;
+  
+
 
 };
 
