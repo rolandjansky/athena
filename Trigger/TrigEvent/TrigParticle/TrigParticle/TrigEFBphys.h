@@ -57,7 +57,7 @@ class TrigEFBphys  {
 	    float mass, const ElementLink<TrigEFBphysContainer>& sDecay);
 
   /** destructor */
-  ~TrigEFBphys();
+  ~TrigEFBphys() = default;
   
   /** accessor method:  ID of L1 RoI */
   int   roiId()    const { return m_roiID;    }

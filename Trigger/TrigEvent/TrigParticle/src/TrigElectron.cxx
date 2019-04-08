@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -286,61 +286,6 @@ TrigElectron::TrigElectron(float pt,
       m_track(track)
 {
 }
-
-
-/** Copy constructor: Copy ElementLinks only if valid. Otherwise
-    should leave as invalid in this object.
- */
-TrigElectron::TrigElectron(const TrigElectron& te) :
-  I4Momentum(te),
-  P4PtEtaPhiMBase(te),
-  INavigable(te),
-  IAthenaBarCode(te),
-  INavigable4Momentum(te),
-  P4PtEtaPhiM(te),
-  NavigableTerminalNode()
-{
-  m_roiWord  = te.m_roiWord;
-  m_valid    = te.m_valid;
-  // track variables
-  m_tr_Algo  = te.m_tr_Algo; 
-  m_tr_Zvtx  = te.m_tr_Zvtx;
-  m_tr_nr_trt_hits = te.m_tr_nr_trt_hits;
-  m_tr_nr_trt_hithresh_hits = te.m_tr_nr_trt_hithresh_hits;
-  m_tr_eta_at_calo = te.m_tr_eta_at_calo;
-  m_tr_phi_at_calo = te.m_tr_phi_at_calo;
-  // track-cluster match
-  m_etoverpt = te.m_etoverpt;
-  // calorimeter variables
-  m_cl_eta   = te.m_cl_eta;  
-  m_cl_phi   = te.m_cl_phi;
-  m_cl_Rcore = te.m_cl_Rcore; 
-  m_cl_Eratio= te.m_cl_Eratio;
-  m_cl_EThad = te.m_cl_EThad;
-  //    m_cl_energy= te.m_cl_energy;
-  m_cl_e_frac_S0 = te.m_cl_e_frac_S0;
-  m_cl_e_frac_S1 = te.m_cl_e_frac_S1;
-  m_cl_e_frac_S2 = te.m_cl_e_frac_S2;
-  m_cl_e_frac_S3 = te.m_cl_e_frac_S3;
-
-
-  // set ElementLink to cluster
-  if (m_cluster.isValid()) {
-    m_cluster.toIndexedElement( te.m_cluster.getStorableObjectRef(), te.m_cluster.index() );
-  } else {
-    m_cluster.reset();
-  }
-
-  // set ElementLink to track
-  if (m_track.isValid()) {
-    m_track.toIndexedElement( te.m_track.getStorableObjectRef(), te.m_track.index() );
-  } else {
-    m_track.reset();
-  }
-}
-
-// destructor
-TrigElectron::~TrigElectron() {}
 
 
 // accessor to get pointer to cluster (TrigEMCluster) 

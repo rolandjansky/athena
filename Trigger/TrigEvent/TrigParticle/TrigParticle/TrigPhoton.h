@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -85,7 +85,9 @@ class TrigPhoton : public P4PtEtaPhiM,
 
   TrigPhoton(const TrigPhoton& te);
 
-  ~TrigPhoton();
+  TrigPhoton& operator=(const TrigPhoton& te) = default;
+
+  ~TrigPhoton() = default;
   
   void  validate(bool v) { m_valid = v;       } // OBSOLETE!: to disappear in next iteration
   bool  isValid()  const { return m_valid;    }

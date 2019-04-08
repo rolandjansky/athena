@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -49,7 +49,7 @@ class TrigL2Bjet: public P4PtEtaPhiM,  public NavigableTerminalNode ,
 	     float xSv, float xmvtx, float xevtx, float xnvtx);
 
   /** @brief Destructor. */
-  ~TrigL2Bjet();
+  ~TrigL2Bjet() = default;
 
   /** @brief To retrieve identifier of the RoI (unique to each LVL1 RoI). */
   int   roiId() const;
