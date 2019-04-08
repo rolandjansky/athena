@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -15,7 +15,6 @@
 #define TRIGEFTAUMVHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TGraph.h"
 
 class StoreGateSvc;
 namespace HLT {
@@ -60,14 +59,11 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   double m_highptidthr;
   double m_highptjetthr;
   bool   m_applyIDon0p;
-  /** min BDTScore cut **/
-  //double m_BDTScoreMin;
 
   /** variables used for cuts in hypo algorithm */   
   int m_numTrack;
   int m_numWideTrack;
   
-  double m_LLHScore;
   double m_BDTScore;
 
   /** for monitoring */
@@ -78,8 +74,6 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   int m_inputTaus;
 
   std::string m_cut_level;
-  std::map<std::string,TGraph> m_cuts;
-  TGraph *m_OneProngGraph,*m_MultiProngGraph;
 };
 #endif
 
