@@ -1,13 +1,11 @@
 
 # file to simulate the HypoTool configuration of the signatures
 
-from AthenaCommon.Constants import VERBOSE,DEBUG
-
 def TestHypoTool(name, prop, threshold_value):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
     UseThisLinkName="initialRoI"
-    h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop, LinkName=UseThisLinkName)
+    h = HLTTest__TestHypoTool(name, Threshold=value, Property=prop, LinkName=UseThisLinkName)
     return h
 
 def MuTestHypoTool(chainDict):
