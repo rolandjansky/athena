@@ -1629,9 +1629,10 @@ class ItemDef:
             LVL1MenuItem('L1_ZAFB-25DPHI-EM15I' ).setLogic( TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & physcond) # noqa: F821
             LVL1MenuItem('L1_ZAFB-25DPHI-EM18I' ).setLogic( TOPO_60INVM9999_25DPHI32_EM15abhi_FJj15s623ETA49 & EM18VHI & physcond) # noqa: F821
 
-        #ATR-19302: giving compilation issues, add later                                                                                                
+        #ATR-19302: 
         if '_v8' in TriggerFlags.triggerMenuSetup():                                                                                                   
             LVL1MenuItem('L1_DPHI-M70-2EM10I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM10his6 & physcond)  # noqa: F821
+            LVL1MenuItem('L1_DPHI-M70-2EM12I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM12his6 & physcond)  # noqa: F821
 
 
         #if (('Physics_HI_v3' not in TriggerFlags.triggerMenuSetup()) and ('MC_HI_v3' not in TriggerFlags.triggerMenuSetup())):
