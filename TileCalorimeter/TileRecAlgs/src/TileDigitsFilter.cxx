@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -35,11 +35,9 @@
 // Constructor
 //
 TileDigitsFilter::TileDigitsFilter(std::string name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
   , m_tileHWID(0)
 {
-  declareProperty("LowGainThereshold", m_threshold[0] = 0); // keep all LG except zeros
-  declareProperty("HighGainThereshold", m_threshold[1] = 10); // keep signals above ~128(106) MeV in A,BC(D) samplings
 }
 
 TileDigitsFilter::~TileDigitsFilter() {
@@ -57,6 +55,9 @@ StatusCode TileDigitsFilter::initialize() {
 
   ATH_MSG_INFO( "Input raw channel container: '" << m_inputRawChannelContainerKey.key()
                 << "'  output container: '" << m_outputRawChannelContainerKey.key() << "'" );
+
+  m_threshold[0] = m_lowGainThreashold;
+  m_threshold[1] = m_highGainThreashold;
 
   ATH_MSG_INFO( "Threshold low gain: " << m_threshold[0]
                 << " counts,  high gain: " << m_threshold[1] << " counts" );
@@ -87,7 +88,7 @@ StatusCode TileDigitsFilter::initialize() {
 //
 // Begin Execution Phase.
 //
-StatusCode TileDigitsFilter::execute() {
+StatusCode TileDigitsFilter::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "in execute()" );
 
@@ -108,7 +109,7 @@ StatusCode TileDigitsFilter::execute() {
 
   // Get digit container from TES
   if (!m_inputDigitsContainerKey.key().empty()) {
-    SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey);
+    SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey, ctx);
 
     if (inputDigitsContainer.isValid()) {
       collItr = inputDigitsContainer->begin();
@@ -127,7 +128,7 @@ StatusCode TileDigitsFilter::execute() {
 
   // Get rawChannel container from TES
   if (!m_inputRawChannelContainerKey.key().empty()) {
-    SG::ReadHandle<TileRawChannelContainer> inputRawChannelContainer(m_inputRawChannelContainerKey);
+    SG::ReadHandle<TileRawChannelContainer> inputRawChannelContainer(m_inputRawChannelContainerKey, ctx);
 
     if (inputRawChannelContainer.isValid()) {
       collRchItr = firstRchColl = inputRawChannelContainer->begin();
@@ -240,7 +241,7 @@ StatusCode TileDigitsFilter::execute() {
 
   if (!m_outputDigitsContainerKey.key().empty()) {
     // register new container in the TES
-    SG::WriteHandle<TileDigitsContainer> outputDigitsContainer(m_outputDigitsContainerKey);
+    SG::WriteHandle<TileDigitsContainer> outputDigitsContainer(m_outputDigitsContainerKey, ctx);
     ATH_CHECK( outputDigitsContainer.record(std::move(outputCont)) );
 
     ATH_MSG_DEBUG( "TileDigitsContainer registered successfully (" << m_outputDigitsContainerKey.key() << ")");
@@ -249,7 +250,7 @@ StatusCode TileDigitsFilter::execute() {
 
   if (!m_outputRawChannelContainerKey.key().empty()) {
     // register new container in the TES
-    SG::WriteHandle<TileRawChannelContainer> outputRawChannelContainer(m_outputRawChannelContainerKey);
+    SG::WriteHandle<TileRawChannelContainer> outputRawChannelContainer(m_outputRawChannelContainerKey, ctx);
     ATH_CHECK( outputRawChannelContainer.record(std::move(outRchCont)) );
 
     ATH_MSG_DEBUG( "TileRawChannelContainer registered successfully (" 
