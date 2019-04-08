@@ -4,6 +4,7 @@
 
 #ifndef TRIGHLTJETHYPO_ITRIGJETHYPOHELPERVISITOR_H
 #define TRIGHLTJETHYPO_ITRIGJETHYPOHELPERVISITOR_H
+#include <string>
 
 class TrigJetHypoToolHelperMT;
 class AndHelperTool;
@@ -14,10 +15,10 @@ class CombinationsHelperTool;
 class ITrigJetHypoHelperVisitor{
     
 public:
-  virtual void visit(TrigJetHypoToolHelperMT*) = 0;
-  virtual void visit(AndHelperTool*) = 0;
-  virtual void visit(OrHelperTool*) = 0;
-  virtual void visit(NotHelperTool*) = 0;
-  virtual void visit(CombinationsHelperTool*) = 0;
+  virtual void visit(const TrigJetHypoToolHelperMT*, const std::string&) = 0;
+  virtual void visit(const AndHelperTool*, const std::string&) = 0;
+  virtual void visit(const OrHelperTool*, const std::string&) = 0;
+  virtual void visit(const NotHelperTool*, const std::string&) = 0;
+  virtual void visit(const CombinationsHelperTool*, const std::string&) = 0;
 };
 #endif

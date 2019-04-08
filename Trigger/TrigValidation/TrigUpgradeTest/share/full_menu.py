@@ -137,6 +137,8 @@ if opt.doJetSlice == True:
 
       Chain(name='HLT_3j200', Seed='L1_J20', ChainSteps=[jetstep1] ),
       Chain(name='HLT_5j70_0eta240_L14J15', Seed='L1_J20', ChainSteps=[jetstep1] ),
+      Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed='L1_J20',  ChainSteps=[jetstep1]  ),
+
     ]
     testChains += jetChains
 

@@ -9,10 +9,10 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
-class ITrigJetHypoHelperVisitor;
+class ITrigJetHypoInfoCollector;
 
 class ITrigJetHypoToolHelperMT : virtual public ::IAlgTool {
-    
+
 public:
   DeclareInterfaceID(ITrigJetHypoToolHelperMT, 1, 0);
   virtual ~ITrigJetHypoToolHelperMT(){};
@@ -21,8 +21,10 @@ public:
   // devicsion objects. Jets typically have only a decision object
   // generated at L1.
 
-  virtual bool pass(HypoJetVector& jets) = 0;
-  virtual void accept(ITrigJetHypoHelperVisitor&) = 0;
-  
+  virtual bool pass(HypoJetVector& jets,
+                    ITrigJetHypoInfoCollector*) const = 0;
+
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const = 0;
+   
 };
 #endif

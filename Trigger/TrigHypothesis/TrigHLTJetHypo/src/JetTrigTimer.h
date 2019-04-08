@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_TIMER_H
-#define TRIGHLTJETHYPO_TIMER_H
+#ifndef TRIGHLTJETHYPO_JETTRIGTIMER_H
+#define TRIGHLTJETHYPO_JETTRIGTIMER_H
 
 #include <chrono>
 #include <vector>
@@ -14,8 +14,9 @@ class JetTrigTimer{
  public:
   void start();
   void stop();
-  std::string readAndReset();
+  std::string read();
   void reset() noexcept;
+  std::string readAndReset();
  private:
   system_clock::time_point m_start;
   system_clock::time_point m_stop;
@@ -24,3 +25,4 @@ class JetTrigTimer{
   std::size_t m_nCalls{0};
 };
 #endif
+
