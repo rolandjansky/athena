@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SORTMEASUREMENTSBYPOSITION_H
@@ -64,7 +64,6 @@ namespace Muon {
   class SortTSOSs {
   public:
     bool operator()(const Trk::TrackStateOnSurface* tsos1, const Trk::TrackStateOnSurface* tsos2) const{
-      //std::cout << " comparing " << tsos1 << "  " << tsos2 << std::endl; 
       if( !tsos1->trackParameters() ) {
 	std::cout << "Muon::SortTSOSs: state 1 without parameters " << std::endl;
 	return false;
@@ -73,18 +72,20 @@ namespace Muon {
 	std::cout << "Muon::SortTSOSs: state 2 without parameters " << std::endl;
 	return true;
       }
-      //check between muon and non-muon hits first
+      //check between muon and non-muon hits first, but only if neither hit is a hole!
       const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
       Identifier id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
-      
+
       const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
       Identifier id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
-      
+
       bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
       bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
       // put invalid hits and non-muon hits after valid muon hits
-      if(  okId1 && !okId2 ) return true;
-      if( !okId1 &&  okId2 ) return false;
+      if(!tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::Hole) && !tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::Hole)){
+	if(  okId1 && !okId2 ) return true;
+	if( !okId1 &&  okId2 ) return false;
+      }
       // get average direction of the 2 TSOSs
       Amg::Vector3D trackDir = tsos1->trackParameters()->momentum().unit();
       trackDir += tsos2->trackParameters()->momentum().unit();
@@ -100,6 +101,8 @@ namespace Muon {
       if( fabs(dist) < 1e-5 ){
 	//std::cout << " close hits " << tsos1->measurementOnTrack() << "   " << tsos2->measurementOnTrack()
         //          << "\ndist " << dist << std::endl;
+	if(  okId1 && !okId2 ) return true;
+        if( !okId1 &&  okId2 ) return false;
 	// both invalid or non-muon: consider them equal
 	if ( !okId1 && !okId2 ) return false;
 	// now we have 2 valid muon Ids
