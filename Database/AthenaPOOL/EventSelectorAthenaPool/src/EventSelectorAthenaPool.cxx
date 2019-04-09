@@ -20,6 +20,8 @@
 #include "PoolSvc/IPoolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/ICollectionSize.h"
@@ -489,24 +491,18 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          delete (char*)tokenStr; tokenStr = nullptr;
          return(StatusCode::FAILURE);
       }
-      // Remove any old AttributeList
-      if (const AthenaAttributeList* oldAttrList =
-          eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
-      {
-         if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
-           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-           return(StatusCode::FAILURE);
-         }
+      if (!eventStore()->clearStore().isSuccess()) {
+         ATH_MSG_WARNING("Cannot clear Store");
       }
-      AthenaAttributeList* athAttrList = new AthenaAttributeList();
-      if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
-         ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-         delete (char*)tokenStr; tokenStr = nullptr;
-         delete athAttrList; athAttrList = nullptr;
-         return(StatusCode::FAILURE);
-      }
+      std::unique_ptr<AthenaAttributeList> athAttrList(new AthenaAttributeList());
       athAttrList->extend("eventRef", "string");
       (*athAttrList)["eventRef"].data<std::string>() = std::string((char*)tokenStr);
+      SG::WriteHandle<AthenaAttributeList> wh(m_attrListKey.value(), eventStore()->name());
+      if (!wh.record(std::move(athAttrList)).isSuccess()) {
+         delete (char*)tokenStr; tokenStr = nullptr;
+         ATH_MSG_ERROR("Cannot record AttributeList to StoreGate " << StoreID::storeName(eventStore()->storeID()));
+         return(StatusCode::FAILURE);
+      }
       Token token;
       token.fromString(std::string((char*)tokenStr));
       delete (char*)tokenStr; tokenStr = nullptr;
@@ -627,6 +623,9 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                return(StatusCode::FAILURE);
             }
          } else {
+            if (!eventStore()->clearStore().isSuccess()) {
+               ATH_MSG_WARNING("Cannot clear Store");
+            }
             if (!recordAttributeList().isSuccess()) {
                ATH_MSG_ERROR("Failed to record AttributeList.");
                return(StatusCode::FAILURE);
@@ -710,8 +709,8 @@ StatusCode EventSelectorAthenaPool::rewind(IEvtSelector::Context& /*ctxt*/) cons
 StatusCode EventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /*ctxt*/,
 		IOpaqueAddress*& iop) const {
    std::string tokenStr;
-   const DataHandle<AthenaAttributeList> attrList;
-   if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
+   SG::ReadHandle<AthenaAttributeList> attrList(m_attrListKey.value(), eventStore()->name());
+   if (attrList.isValid()) {
       try {
          if (m_refName.value().empty()) {
             tokenStr = (*attrList)["eventRef"].data<std::string>();
@@ -1004,26 +1003,12 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
 }
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::recordAttributeList() const {
-   // Remove any old AttributeList
-   if (const AthenaAttributeList* oldAttrList =
-       eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
-   {
-      if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
-         ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-         return(StatusCode::FAILURE);
-      }
-   }
    // Get access to AttributeList
    ATH_MSG_DEBUG("Get AttributeList from the collection");
    // MN: accessing only attribute list, ignoring token list
    const coral::AttributeList& attrList = m_headerIterator->currentRow().attributeList();
    ATH_MSG_DEBUG("AttributeList size " << attrList.size());
-   AthenaAttributeList* athAttrList = new AthenaAttributeList(attrList);
-   if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
-      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
-      delete athAttrList; athAttrList = nullptr;
-      return(StatusCode::FAILURE);
-   }
+   std::unique_ptr<AthenaAttributeList> athAttrList(new AthenaAttributeList(attrList));
    const pool::TokenList& tokenList = m_headerIterator->currentRow().tokenList();
    for (pool::TokenList::const_iterator iter = tokenList.begin(), last = tokenList.end(); iter != last; ++iter) {
       athAttrList->extend(iter.tokenName(), "string");
@@ -1033,6 +1018,11 @@ StatusCode EventSelectorAthenaPool::recordAttributeList() const {
    athAttrList->extend("eventRef", "string");
    (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
    ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << m_headerIterator->eventRef().toString() << ".");
+   SG::WriteHandle<AthenaAttributeList> wh(m_attrListKey.value(), eventStore()->name());
+   if (!wh.record(std::move(athAttrList)).isSuccess()) {
+      ATH_MSG_ERROR("Cannot record AttributeList to StoreGate " << StoreID::storeName(eventStore()->storeID()));
+      return(StatusCode::FAILURE);
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

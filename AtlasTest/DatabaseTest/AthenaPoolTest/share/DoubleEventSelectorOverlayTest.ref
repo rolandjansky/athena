@@ -30,8 +30,8 @@ AddressRemappin...  DEBUG Service base class initialized successfully
 ProxyProviderSvc    DEBUG Property update for OutputLevel : new value = 2
 ProxyProviderSvc    DEBUG Service base class initialized successfully
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
-AthenaPoolAddre...  DEBUG Cannot find DataHeader in DetectorStore.
-AthenaPoolAddre...  DEBUG Cannot find DataHeader in DetectorStore.
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
 Stream1              INFO Data output: OutputRDO.root
 Stream1              INFO I/O reinitialization...

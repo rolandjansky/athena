@@ -238,7 +238,7 @@ AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application M
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
 ReadCond            DEBUG in execute()
-AthenaPoolAddre...  DEBUG Cannot find DataHeader in DetectorStore.
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
 POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
