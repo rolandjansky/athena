@@ -11,7 +11,6 @@ log = logging.getLogger( 'Calibration_pp_v8.py' )
 def setupMenu():
 
     physics_menu.setupMenu()
-    PhysicsStream="Main"
 
     ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
     L1toRemove = []
@@ -56,9 +55,6 @@ def setupMenu():
         ['g40_loose_larpeb',                     'L1_EM24VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g60_loose_larpeb',                     'L1_EM24VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g80_loose_larpeb',                     'L1_EM24VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],        
-        # Supporting trigger
-        ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
-        ['g0_perf_L1EM15',                'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 
     ]
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
         # ATR-16163
@@ -159,31 +155,6 @@ def setupMenu():
         ['id_cosmicid_L1MU11_EMPTY',        'L1_MU11_EMPTY', [], ['HLT_IDCosmic',  'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], -1],
     ]
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
-        ['noalg_L1RD0_EMPTY', 'L1_RD0_EMPTY', [],   [PhysicsStream, 'express'], ["RATE:MinBias", "BW:MinBias"], -1],
-        ['noalg_L1RD0_FILLED', 'L1_RD0_FILLED', [], [PhysicsStream, 'express'], ["RATE:MinBias", "BW:MinBias"], -1],
-
-        # Muon streamers
-        ['noalg_L1MU20',           'L1_MU20',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU21',           'L1_MU21',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU10',           'L1_MU10',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU11',           'L1_MU11',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L12MU6',           'L1_2MU6',           [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L12MU10',          'L1_2MU10',          [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L12MU4',           'L1_2MU4',           [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-
-        ['noalg_L1MU4_EMPTY',      'L1_MU4_EMPTY',      [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU4_FIRSTEMPTY', 'L1_MU4_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU11_EMPTY',      'L1_MU11_EMPTY',      [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        ['noalg_L1MU4_UNPAIRED_ISO', 'L1_MU4_UNPAIRED_ISO', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
-        
-        # MET streamers
-        ['noalg_L1XE35',             'L1_XE35',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
-        ['noalg_L1XE30',             'L1_XE30',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
-        ['noalg_L1XE300',            'L1_XE300',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
-
-        # Chains for Week1 menu (ATR-11119)
-        ['noalg_L1MU4',   'L1_MU4',  [], [PhysicsStream, 'express'], ["RATE:SeededStreamers", "BW:Muon"], -1 ], #AFP request
-        ['noalg_L1MU6',   'L1_MU6',  [], [PhysicsStream,'express'], ["RATE:SeededStreamers", "BW:Muon"], -1 ],
 
         ['noalg_to_L12MU20_OVERLAY',   'L1_2MU20_OVERLAY', [], ['TauOverlay'], ["RATE:TauOverlay",  "BW:TauOverlay"], -1],
         ['noalg_L1TGC_BURST',   'L1_TGC_BURST', [], ['TgcNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
@@ -214,14 +185,6 @@ def setupMenu():
         ['noalg_idmon_L1RD0_EMPTY',          'L1_RD0_EMPTY',        [], ['IDMonitoring', 'express'], ["RATE:Monitoring", "BW:Detector"], -1],
         ['noalg_idmon_L1RD0_FILLED',         'L1_RD0_FILLED',        [], ['IDMonitoring'], ["RATE:Monitoring", "BW:Detector"], -1],
         ['noalg_idmon_L1RD0_UNPAIRED_ISO',   'L1_RD0_UNPAIRED_ISO', [], ['IDMonitoring'], ["RATE:Monitoring", "BW:Detector"], -1],
-	
-        #L1Calo requested streamers
-        ['noalg_L1J400',  'L1_J400',   [], [PhysicsStream, 'express'], ["Primary:20000","RATE:SeededStreamers", "BW:Jet"], -1 ],
-        ['noalg_L1EM15VH',  'L1_EM15VH',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Egamma"], -1 ],
-
-        ['noalg_L1XE50',  'L1_XE50',   [], [PhysicsStream, 'express'], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1XE45',  'L1_XE45',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1XE40',  'L1_XE40',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
 	
         # Note: These EB noalg chains (bar RD3) are multi-seeded. All L1 seeds must be PS=1 during EB campaign for unweighting to work
         ## Enhanced Bias Physics ##

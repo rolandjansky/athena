@@ -948,6 +948,10 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
 
+        # Supporting trigger
+        ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1], 
+        ['g0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1], 
+
         #Performance:
         ['e26_lhtight_idperf',        'L1_EM22VHI',    [], [PhysicsStream], ['Legacy:Support','RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
         ['e28_lhtight_idperf',        'L1_EM24VHI',    [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
@@ -1631,8 +1635,6 @@ def setupMenu():
         #ATR-16089 combined egamma support chains
         ['e60_etcut_trkcut_j15_perf_xe60_6dphi05_mt35','L1_EM24VHIM', ['L1_EM24VHIM','',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma'], -1, ['serial',-1,["e60_etcut_trkcut","j15_perf","xe60"]]],
 
-        #['e60_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35', 'L1_EM24VHIM', ['L1_EM24VHIM','','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMET', 'BW:Egamma'], -1, ['serial',-1,["e60_etcut_trkcut_L1EM24VHIM","xs30","j15_perf","xe30"]]],
-
         ['mu4_j15_boffperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j15_boffperf_split'] ]],
         ['mu4_j25_boffperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j25_boffperf_split'] ]],
         ['mu4_j35_boffperf_split_dr05_dz99', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j35_boffperf_split'] ]],
@@ -1831,7 +1833,6 @@ def setupMenu():
         ['e20_lhtight_nod0_3j20_L1EM18VHI_3J20',      'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhtight_nod0","3j20"] ]],
 
         ### ATR-15524
-        #['e20_lhtight_nod0_ivarloose_3j20_L1EM18VHI_3J20', 'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhtight_nod0_ivarloose","3j20"] ]],
         ['e20_lhmedium_nod0_3j20_L1EM18VHI_3J20', 'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhmedium_nod0","3j20"] ]],
          
         #nod0 chains:
@@ -1921,7 +1922,6 @@ def setupMenu():
      #ATR-14196
         ['j80_bmv2c1050_split_xe60_L12J50_XE40','L1_2J50_XE40',  [],  [PhysicsStream], ['Legacy:Primary','RATE:JetMET', 'BW:MET', 'BW:BJet_combined'], -1,['serial',-1,["xe60","j80_bmv2c1050_split"]]],
         ['j40_cleanT_xe85_tc_lcw_2dphi05_L1XE50',         'L1_XE50', ['',''], [PhysicsStream], ['Legacy:Support','RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,["j40_cleanT","xe85_tc_lcw_L1XE50"]]],
-        #['mu14_ivarloose_3j20_L1MU10_3J20', 'L1_MU10_3J20', ['L1_MU10_3J20', ''], [PhysicsStream], ['Legacy:Primary','RATE:MuonJet', 'BW:Muon','BW:Jet'], -1,['serial',-1,['mu14_ivarloose', '3j20'] ],True],
         ### ATR-15524
         ['mu14_3j20_L1MU10_3J20', 'L1_MU10_3J20', ['L1_MU10_3J20', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonJet', 'BW:Muon','BW:Jet'], -1,['serial',-1,['mu14', '3j20'] ],True],
 
@@ -1992,6 +1992,40 @@ def setupMenu():
     TriggerFlags.CosmicSlice.signatures  = [ 
         ]
     TriggerFlags.StreamingSlice.signatures = [
+        ['noalg_L1RD0_EMPTY', 'L1_RD0_EMPTY', [],   [PhysicsStream, 'express'], ['Legacy:Support',"RATE:MinBias", "BW:MinBias"], -1],
+        ['noalg_L1RD0_FILLED', 'L1_RD0_FILLED', [], [PhysicsStream, 'express'], ['Legacy:Support',"RATE:MinBias", "BW:MinBias"], -1],
+
+        # Muon streamers
+        ['noalg_L1MU20',           'L1_MU20',           [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU21',           'L1_MU21',           [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU10',           'L1_MU10',           [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU11',           'L1_MU11',           [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L12MU6',           'L1_2MU6',           [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L12MU10',          'L1_2MU10',          [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L12MU4',           'L1_2MU4',           [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+
+        ['noalg_L1MU4_EMPTY',      'L1_MU4_EMPTY',      [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU4_FIRSTEMPTY', 'L1_MU4_FIRSTEMPTY', [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU11_EMPTY',      'L1_MU11_EMPTY',      [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU4_UNPAIRED_ISO', 'L1_MU4_UNPAIRED_ISO', [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:Muon'], -1],
+        
+        # MET streamers
+        ['noalg_L1XE35',             'L1_XE35',             [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:MET'], -1],
+        ['noalg_L1XE30',             'L1_XE30',             [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:MET'], -1],
+        ['noalg_L1XE300',            'L1_XE300',             [], [PhysicsStream], ['Legacy:Support','RATE:SeededStreamers', 'BW:MET'], -1],
+
+        # Chains for Week1 menu (ATR-11119)
+        ['noalg_L1MU4',   'L1_MU4',  [], [PhysicsStream, 'express'], ['Legacy:Support',"RATE:SeededStreamers", "BW:Muon"], -1 ], #AFP request
+        ['noalg_L1MU6',   'L1_MU6',  [], [PhysicsStream,'express'], ['Legacy:Support',"RATE:SeededStreamers", "BW:Muon"], -1 ],
+
+        #L1Calo requested streamers
+        ['noalg_L1J400',  'L1_J400',   [], [PhysicsStream, 'express'], ['Legacy:Support',"RATE:SeededStreamers", "BW:Jet"], -1 ],
+        ['noalg_L1EM15VH',  'L1_EM15VH',   [], [PhysicsStream], ['Legacy:Support',"RATE:SeededStreamers", "BW:Egamma"], -1 ],
+
+        ['noalg_L1XE50',  'L1_XE50',   [], [PhysicsStream, 'express'], ['Legacy:Support',"RATE:SeededStreamers", "BW:MET"], -1 ],
+        ['noalg_L1XE45',  'L1_XE45',   [], [PhysicsStream], ['Legacy:Support',"RATE:SeededStreamers", "BW:MET"], -1 ],
+        ['noalg_L1XE40',  'L1_XE40',   [], [PhysicsStream], ['Legacy:Support',"RATE:SeededStreamers", "BW:MET"], -1 ],
+	
         ]
 
     if TriggerFlags.doFTK():
