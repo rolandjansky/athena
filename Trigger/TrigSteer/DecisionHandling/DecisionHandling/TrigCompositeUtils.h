@@ -256,6 +256,17 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
+  /// @name Constant string literals used within the HLT
+  /// @{
+  const std::string& initialRoIString();
+  const std::string& intitalRecRoIString();
+  const std::string& roiString();
+  const std::string& viewString();
+  const std::string& featureString();
+  const std::string& seedString();
+  /// @}
+
+
 }
 
 #include "DecisionHandling/TrigCompositeUtils.icc"
