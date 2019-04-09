@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_HWMappingSvc_H
@@ -9,6 +9,7 @@
  *  @file TRT_HWMappingSvc.h
  *  @Service to provide offline -> hardware mapping
  *  @author Denver Whittington <Denver.Whittington@cern.ch>
+ * updated March 2019 Peter Hansen <phansen@nbi.dk>
  *///-------------------------------------------------------
 
 // Header Includes
@@ -17,16 +18,16 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TRT_ConditionsData/HWMap.h"
+
 
 class ITRT_StrawNeighbourSvc;
 class TRT_ID;
 class Identifier;
 
 /// AlgTool providing offline -> hardware mapping information
-class TRT_HWMappingSvc : public AthService,
-  virtual public ITRT_HWMappingSvc,
-  virtual public IIncidentListener
-{
+class TRT_HWMappingSvc : public AthService, virtual public ITRT_HWMappingSvc {
 
  public:
 
@@ -62,15 +63,6 @@ class TRT_HWMappingSvc : public AthService,
   /// Hashes an Endcap HV cell by sector/wheel/layer/cell#
   int hashThisEndcapCell( int, int, int, int );
 
-  /// Builds the HV-line/pad map for barrel
-  StatusCode build_BarrelHVLinePadMap();
-
-  /// Builds the HV-line/pad maps for endcaps
-  StatusCode build_EndcapHVLinePadMaps();
-
-  /// Handle IncidentSvc callbacks
-  void handle( const Incident& );
-
   /// Dump HV-line/pad maps
   void DumpMaps();
 
@@ -79,25 +71,15 @@ class TRT_HWMappingSvc : public AthService,
   ServiceHandle<StoreGateSvc> m_detStore;
 
   /// jobOptions properties
-  bool m_UseMapDb;
-  std::string m_MapDbConnectionString;
   std::string m_Barrel_HV_COOLFolderName;
   std::string m_EndcapA_HV_COOLFolderName;
   std::string m_EndcapC_HV_COOLFolderName;
-  bool m_DumpMaps;
-  bool m_buildChanNumMaps;
-
-  /// Local objects
-  std::vector<std::string>* m_Barrel_HV_CoolChanNames;
-  std::vector<std::string>* m_EndcapA_HV_CoolChanNames;
-  std::vector<std::string>* m_EndcapC_HV_CoolChanNames;
-  std::vector<int>* m_Barrel_HV_CoolChanNums;
-  std::vector<int>* m_EndcapA_HV_CoolChanNums;
-  std::vector<int>* m_EndcapC_HV_CoolChanNums;
 
   /// Straw Helpers
   const TRT_ID* m_TRT_ID_Helper;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+
+  SG::ReadCondHandleKey<TRTCond::HWMap> m_HWMapReadKey{this,"HWMapReadKey","HWMap","HV map in-key"};
 
 };
 
