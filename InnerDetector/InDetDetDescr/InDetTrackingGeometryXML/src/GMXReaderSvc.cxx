@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// GMXReaderSvc.cxx, (c) ATLAS Detector software
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometryXML/GMXReaderSvc.h"
@@ -16,12 +16,16 @@ InDet::GMXReaderSvc::GMXReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_dictionaryFileName("MyFolder/IDTest.xml"),
   m_gmxInputName("ITkStrip.gmx"),
   m_createDict(true),
-  m_addBCL(false)
+  m_addBCL(false),
+  m_useDb(true),
+  m_pathToGMXFile("")
 {
   declareProperty("dictionaryFileName",    m_dictionaryFileName);
   declareProperty("GMX_InputName",         m_gmxInputName);
   declareProperty("createXMLDictionary",   m_createDict);
   declareProperty("addBCL",                m_addBCL);
+  declareProperty("readGMXfromDB",         m_useDb);
+  declareProperty("pathToGMXFile",         m_pathToGMXFile);
 }
 
 InDet::GMXReaderSvc::~GMXReaderSvc()
@@ -48,6 +52,11 @@ StatusCode InDet::GMXReaderSvc::initialize()
   // Dump XML dictionary
   if(m_createDict) {
     writeDictionary(m_dictionaryFileName);    
+  }
+
+  if(m_useDb && m_pathToGMXFile==""){
+    ATH_MSG_FATAL("readGMXFromDB set without specifying pathToGMXFile! Please check your configuration!");
+    return StatusCode::FAILURE;
   }
   
   return StatusCode::SUCCESS;
@@ -98,7 +107,7 @@ void InDet::GMXReaderSvc::closeDictFile(std::ofstream& file) const
 void InDet::GMXReaderSvc::getInputGMX(std::string& gmxInput) {
 
   ATH_MSG_DEBUG("InDet::GMXReaderSvc::getInputGMX start!!");
- 
+
   gmxInput = PathResolver::find_file(m_gmxInputName, "DATAPATH");
   if (gmxInput == "") { // File not found
     std::string errMessage("GMXReaderSvc::getInputGMX : Unable to find file " + m_gmxInputName +
@@ -112,7 +121,8 @@ void InDet::GMXReaderSvc::getInputGMX(std::string& gmxInput) {
 void InDet::GMXReaderSvc::writeGMXDictionary(std::ofstream& file) {
   
   std::string gmxInput;
-  getInputGMX(gmxInput);
+  if(m_useDb) gmxInput  =  m_pathToGMXFile;
+  else getInputGMX(gmxInput);
   
   ATH_MSG_DEBUG("InDet::GMXReaderSvc::writeGMXDictionary start!!");
   

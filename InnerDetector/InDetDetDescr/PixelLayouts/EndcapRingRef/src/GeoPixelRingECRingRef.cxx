@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EndcapRingRef/GeoPixelRingECRingRef.h"
@@ -68,7 +68,10 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   // Retrieve PixelModuleSvc (svc that builds and store the modules)
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
-    std::cout << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << std::endl;
+    basics->msgStream()<<MSG::WARNING<< "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
+
+  m_pixelModuleSvc->initModuleMap(basics);
+  m_pixelDesignSvc->initModuleMap(basics);
 
   // Open link to the xml file that describes the rings
   PixelRingSupportXMLHelper ringHelper(basics);
@@ -178,13 +181,7 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
       if (phi> CLHEP::pi*CLHEP::rad) phi -= 2*CLHEP::pi*CLHEP::rad;
       if (phi<-CLHEP::pi*CLHEP::rad) phi += 2*CLHEP::pi*CLHEP::rad;
      
-      //     cout<<"GPRing: Layer="<< iLayer<<" ring="<< iring <<" nmods="<< nmodules
-      //        <<", imod="<< imod <<", phiId="<< phiId
-      //        <<", angle="<< angle
-      //        <<" LayerSide="<< (gmt_mgr->isAside() ? 'A' : 'C')
-      //        <<" LayerFace="<< (gmt_mgr->isLayerFront()?"front":"back")
-      //        << endl;
-     
+   
       // Rotate the module to switch to a radial plane
       HepGeom::Transform3D initModule = HepGeom::RotateY3D(90.*CLHEP::deg);
       if(m_front_back==1 || m_ringSide<0 ) initModule = HepGeom::RotateX3D(180.*CLHEP::deg) * initModule;

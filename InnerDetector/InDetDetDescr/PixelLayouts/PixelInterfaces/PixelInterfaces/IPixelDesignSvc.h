@@ -1,7 +1,6 @@
- /**
- * @file IPixelDesignSvc.h
- * @author Grant.Gorfine@cern.ch
-**/
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef IPixelDesignSvc_h
 #define IPixelDesignSvc_h
@@ -35,6 +34,8 @@ class IPixelDesignSvc: virtual public IInterface {
 						  double etaPitchLong, double etaPitchLongEnd,
 						  int circuitsPhi, int circuitsEta,
 						  int diodeRowPerCirc, int diodeColPerCirc) = 0;
+
+  virtual void initModuleMap(const PixelGeoBuilderBasics*) =0;
 
 };
 

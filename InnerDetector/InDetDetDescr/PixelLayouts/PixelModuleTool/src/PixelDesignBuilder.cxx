@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelModuleTool/PixelDesignBuilder.h"
@@ -23,17 +23,24 @@ using namespace InDetDD;
 
 std::vector<PixelModuleDesign*> PixelDesignBuilder::s_designs;
 
-PixelDesignBuilder::PixelDesignBuilder( const std::string& name, ISvcLocator* pSvcLocator ) : 
+PixelDesignBuilder::PixelDesignBuilder( const std::string& name, ISvcLocator* pSvcLocator) : 
   AthService(name, pSvcLocator),
-  GeoXMLUtils()
+  GeoXMLUtils(),
+  m_moduleMap(nullptr)
 {
   s_designs.clear();
-  m_moduleMap = GeoDetModulePixelMap();
 }
 
 PixelDesignBuilder::~PixelDesignBuilder()
 {
   for(int i=0; i<(int)s_designs.size(); i++) delete s_designs[i];
+  if(m_moduleMap) delete m_moduleMap;
+}
+
+void PixelDesignBuilder::initModuleMap(const PixelGeoBuilderBasics* basics)
+{
+  m_moduleMap = new GeoDetModulePixelMap(basics);
+ 
 }
 
 
@@ -72,9 +79,6 @@ StatusCode PixelDesignBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 PixelModuleDesign* PixelDesignBuilder::getDesign( const PixelGeoBuilderBasics* basics, int moduleIndex)
 {
 
-  //  std::cout<<"PIXELDESIGNBUILDER per index : "<<moduleIndex<<std::endl;
-
-  //  std::cout<<"PixelModuleDesign* PixelDesignBuilder::getDesign( const OraclePixGeoAccessor& geoAccessor, int moduleIndex)"<<endmsg;
   if (moduleIndex > (int) s_designs.size()-1) {
     s_designs.resize( moduleIndex+1, 0); // prefill with zeros
   }
@@ -89,9 +93,11 @@ PixelModuleDesign* PixelDesignBuilder::getDesign( const PixelGeoBuilderBasics* b
 
 PixelModuleDesign* PixelDesignBuilder::getDesign(const PixelGeoBuilderBasics* basics, std::string moduleType)
 {
-  int moduleIndex = m_moduleMap.getModuleIndex(moduleType);
-  
-  //  std::cout<<"PIXELDESIGNBUILDER per type : "<<moduleType<<" "<<moduleIndex<<std::endl;
+  if(!m_moduleMap) {
+    basics->msgStream()<<MSG::ERROR<<"No Module Map avilable! Did you call initModuleMap?"<<endreq;
+    return nullptr;
+  }
+  int moduleIndex = m_moduleMap->getModuleIndex(moduleType);
 
   return getDesign(basics, moduleIndex);
 }

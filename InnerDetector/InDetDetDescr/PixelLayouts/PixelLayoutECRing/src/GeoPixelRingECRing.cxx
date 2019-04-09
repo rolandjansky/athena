@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelLayoutECRing/GeoPixelRingECRing.h"
@@ -66,7 +66,10 @@ void GeoPixelRingECRing::preBuild(const PixelGeoBuilderBasics* basics )
   // Retrieve the pixelModuleServcie (in charge of building the modules)
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
-    std::cout << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << std::endl;
+    basics->msgStream()<<MSG::WARNING<< "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
+
+  m_pixelModuleSvc->initModuleMap(basics);
+  m_pixelDesignSvc->initModuleMap(basics);
 
   // XML file reader
   PixelRingSupportXMLHelper ringHelper;

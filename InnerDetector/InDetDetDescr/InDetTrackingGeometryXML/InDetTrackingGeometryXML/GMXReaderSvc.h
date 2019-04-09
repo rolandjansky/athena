@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// GMXReaderSvc.h, (c) ATLAS Detector software
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 // Tool to fill templates from XML files
 ///////////////////////////////////////////////////////////////////
 
@@ -69,6 +69,10 @@ namespace InDet {
     bool m_createDict;
     
     bool m_addBCL;
+
+    bool m_useDb;
+
+    std::string m_pathToGMXFile;
   };
 }
 

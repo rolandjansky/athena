@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "BarrelInclinedRef/GeoPixelLadderInclRef.h"
 #include "BarrelInclinedRef/GeoPixelStaveSupportInclRef.h"
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
@@ -69,6 +73,7 @@ GeoPixelLadderInclRef::GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics
 
   // Build stave support and module
   m_svcMaterialCmpt=0;
+
   preBuild();
 }
 
@@ -87,6 +92,8 @@ void GeoPixelLadderInclRef::preBuild( ) {
       msg(MSG::DEBUG) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
     }
 
+   m_pixelModuleSvc->initModuleMap(getBasics());
+   m_pixelDesignSvc->initModuleMap(getBasics());
 
   std::string value;
   msg(MSG::DEBUG)<<endreq;
