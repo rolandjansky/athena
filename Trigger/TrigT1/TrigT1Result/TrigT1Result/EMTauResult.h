@@ -31,6 +31,11 @@ namespace ROIB {
     EMTauResult();
     ~EMTauResult();
 
+    EMTauResult(EMTauResult&&) noexcept = default;
+    EMTauResult(const EMTauResult&) = default;
+    EMTauResult& operator=(EMTauResult&&) noexcept =default;
+    EMTauResult& operator=(const EMTauResult&) =default;
+
     /* Member function returning the header */
     const Header& header() const;
     /* Member function returning the trailer */
