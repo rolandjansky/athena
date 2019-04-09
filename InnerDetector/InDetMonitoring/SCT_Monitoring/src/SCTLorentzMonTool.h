@@ -67,14 +67,15 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
   enum Sides { side0, side1, bothSides, nSidesInclBoth };
 
-  int m_numberOfEvents{0};
+  // Data member, which is not changed after initialization
+  std::string m_path{""};
+
   //@name Histograms related members
   //@{
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips
   Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces]{};
 
-  std::string m_path{""};
   //@}
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
@@ -94,10 +95,10 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, const InDetDD::SiDetectorElementCollection* elements, float& theta, float& phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, const InDetDD::SiDetectorElementCollection* elements, float& theta, float& phi ) const;
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag);
+  Prof_t pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag) const;
   //@}
 };
 
