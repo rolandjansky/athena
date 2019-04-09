@@ -12,6 +12,9 @@ from AthenaCommon import CfgMgr
 ##
 def SimpleMMClusterBuilderTool(name="SimpleMMClusterBuilderTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__SimpleMMClusterBuilderTool(name,**kwargs)
+
+def UTPCMMClusterBuilderTool(name="UTPCMMClusterBuilderTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__UTPCMMClusterBuilderTool(name,**kwargs)
 ##
 ## STgc Tools
 ##

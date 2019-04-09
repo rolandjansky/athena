@@ -226,6 +226,7 @@ addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdC
 # Tools from MuonRecExample.NSWTools  (NSW - MicroMegas and STgc reconstruction tools)
 ################################################################################
 addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 ################################################################################
