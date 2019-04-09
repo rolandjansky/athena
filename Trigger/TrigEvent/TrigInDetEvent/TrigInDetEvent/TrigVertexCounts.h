@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_TRIGVERTEXCOUNTS_H
@@ -27,7 +27,7 @@ public:
 		   std::vector<float>&& vtxTrkPtSqSum);
   
   /** Destructor */
-  ~TrigVertexCounts();
+  ~TrigVertexCounts() = default;
 
   const std::vector<unsigned int>& vtxNtrks(void) const { return m_vtxNtrks; }
   const std::vector<float>& vtxTrkPtSqSum(void) const { return m_vtxTrkPtSqSum; }

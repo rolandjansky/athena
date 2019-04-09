@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_TRIGTRACKCOUNTS_H
@@ -29,7 +29,7 @@ public:
 		  TrigHisto2D&& eta_phi);
   
   /** Destructor */
-  ~TrigTrackCounts();
+  ~TrigTrackCounts() = default;
 
   const TrigHisto2D& z0_pt(void) const;
 

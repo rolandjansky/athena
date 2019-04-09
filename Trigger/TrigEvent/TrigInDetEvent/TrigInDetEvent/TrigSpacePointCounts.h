@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_SPACEPOINTCOUNTER_H
@@ -43,11 +43,8 @@ class TrigSpacePointCounts {
 		       unsigned int sctSpEndcapA,
 		       std::vector<Identifier>&& droppedSctModules);
   
-  /** Copy Constructor */
-  TrigSpacePointCounts(const TrigSpacePointCounts& trigSpacePointCounts);
-
   /** Destructor */
-  ~TrigSpacePointCounts(void);
+  ~TrigSpacePointCounts(void) = default;
 
   const TrigHisto2D& pixelClusEndcapC(void) const;
 
