@@ -205,6 +205,18 @@ class WriteDAOD_TEST10Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST10Stream)
 listAODtoDPD.append(WriteDAOD_TEST10Stream.StreamName)
 
+class WriteDAOD_TEST11Stream(JobProperty):
+    """ Produce the DPD for DAOD_TEST1011 - example of trigger navigation thinning """
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_TEST11"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/TriggerMatchingExample.py"
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST11Stream)
+listAODtoDPD.append(WriteDAOD_TEST11Stream.StreamName)
+
 
 class WriteDAOD_MCTEST1Stream(JobProperty):
     """ Produce the DPD for DAOD_MCTEST1 - derivation framework test """

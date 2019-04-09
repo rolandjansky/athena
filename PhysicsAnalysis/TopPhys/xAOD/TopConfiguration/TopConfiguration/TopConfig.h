@@ -103,6 +103,10 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // List of branches to be removed
+  inline std::vector<std::string> filterBranches() const {return m_filterBranches;}
+  inline void setFilterBranches(const std::vector<std::string>& value) {if(!m_configFixed){m_filterBranches = value;}}
+
   // Generators name
   inline std::string getGenerators() const {return m_generators;}
   inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
@@ -998,6 +1002,7 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::vector<std::string> m_filterBranches;
   std::string m_generators;
   std::string m_AMITag;
   bool m_isPrimaryxAOD;
