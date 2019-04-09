@@ -45,12 +45,6 @@ class ITRT_HWMappingSvc : virtual public IService {
   /// Hashes an Endcap HV cell by sector/wheel/layer/cell#
   virtual int hashThisEndcapCell( int, int, int, int ) = 0;
 
-  /// Builds the HV-line/pad map for barrel
-  virtual StatusCode build_BarrelHVLinePadMap() = 0;
-
-  /// Builds the HV-line/pad maps for endcaps
-  virtual StatusCode build_EndcapHVLinePadMaps() = 0;
-
   /// Dump HV-line/pad maps
   virtual void DumpMaps() = 0;
 
