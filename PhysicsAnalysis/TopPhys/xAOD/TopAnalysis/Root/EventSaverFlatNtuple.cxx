@@ -14,6 +14,7 @@
 #include "TFile.h"
 #include <cmath>
 #include <iostream>
+#include <regex>
 #include <boost/algorithm/string.hpp>
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
@@ -203,6 +204,8 @@ namespace top {
     m_extraBranches = extraBranches;
     m_selectionDecisions.resize(m_extraBranches.size());
 
+    // set the branch filters
+    branchFilters().push_back(std::bind(&EventSaverFlatNtuple::filterBranches, this, std::placeholders::_1, std::placeholders::_2));
 
     // fixed-R re-clustering (RC)
     if (config->useRCJets()){
@@ -2123,8 +2126,8 @@ namespace top {
 	m_jet_ghostTrack_d0    .clear();
 	m_jet_ghostTrack_z0    .clear();
 	m_jet_ghostTrack_qOverP.clear();
-	
-	
+
+
         m_jet_ghostTrack_pt.resize(event.m_jets.size());
         m_jet_ghostTrack_eta.resize(event.m_jets.size());
         m_jet_ghostTrack_phi.resize(event.m_jets.size());
@@ -2214,9 +2217,9 @@ namespace top {
           m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
-	    
+
 	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-            
+
 	    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
@@ -2543,7 +2546,7 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
-	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);        
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);
 
       }
       if (m_useRCAdditionalJSS){
@@ -3546,7 +3549,7 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
-      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");      
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
@@ -4569,5 +4572,24 @@ namespace top {
     return prompt;
   }
 
+  int EventSaverFlatNtuple::filterBranches(const top::TreeManager*, const std::string& variable) {
+    const std::vector<std::string>& filteredBranches = m_config->filterBranches();
 
+    // lambda to test a wildcard on the variable
+    auto matches_wildcard = [&variable] (const std::string& wildcard) {
+      std::smatch match;
+      std::regex_search(variable, match, std::regex(wildcard));
+      if (!match.empty()) return true;
+      return false;
+    };
+
+    for (std::string filter : filteredBranches){
+      // replace "*" with ".*"
+      filter = regex_replace(filter,std::regex("\\*"),".*");
+      // check for a match
+      if (matches_wildcard(("^"+filter).c_str())) return 0;
+    }
+
+    return -1;
+  }
 } // namespace
