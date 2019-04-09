@@ -413,22 +413,25 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
 
-     // local position from the mdt's 
-     const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
+
+     const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);
+     // local position from the mdts
+     const Amg::Vector3D  localPos = mdtROE->globalToLocalCoords(parm->position(),id);
+     const double innerTubeRadius = mdtROE->innerTubeRadius(); //was 15.075;
 
      // drift radius
-     double residual = m_measTool->residual(lay,parm,id);     
+     double driftRadius = sqrt(localPos.x()*localPos.x()+localPos.y()*localPos.y());
+     
+     if (driftRadius<innerTubeRadius) {
 
-     if (fabs(residual)<15.075) {
-
-       double dlh = sqrt(15.075*15.075-residual*residual); 
-       double de = 0.02*dlh/15.075;
+       double dlh = sqrt(innerTubeRadius*innerTubeRadius-driftRadius*driftRadius); 
+       double de = 0.02*dlh/innerTubeRadius;
        double energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
        while (energyDeposit<0.)  energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
     
        // a new simhit                                            
        MDTSimHit mdtHit = MDTSimHit(simId,globalTimeEstimate,
-				    fabs(residual),
+				    driftRadius,
 				    localPos,
 				    isp.barcode(),
                                     2*dlh, energyDeposit, isp.pdgCode(),isp.momentum().mag() ) ;
