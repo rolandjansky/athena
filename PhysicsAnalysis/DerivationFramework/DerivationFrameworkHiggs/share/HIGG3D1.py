@@ -203,8 +203,6 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                   "AntiKt10LCTopoJets" # Needed for Ghost association
                  ]
-if jetFlags.useTruth:
-   reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]
 replaceAODReducedJets(reducedJetList, higg3d1Seq,"HIGG3D1")
 
 addDefaultTrimmedJets(higg3d1Seq,"HIGG3D1")
@@ -296,12 +294,12 @@ HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTa
                                            }
 
 if globalflags.DataSource()=='geant4':
-    HIGG3D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
-                                               "AntiKt4TruthWZJets"]
+    HIGG3D1SlimmingHelper.SmartCollections += ["AntiKt4TruthDressedWZJets"]
 
     # Add special truth containers
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBSMAndDownstreamParticles
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addBSMAndDownstreamParticles,addLargeRJetD2
     addStandardTruthContents()
+    addWbosonsAndDownstreamParticles()
     addBSMAndDownstreamParticles()
 
     HIGG3D1SlimmingHelper.AppendToDictionary = {
@@ -313,6 +311,12 @@ if globalflags.DataSource()=='geant4':
                                                 'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                                 'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                                'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                                'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
+                                                'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                                }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
@@ -332,6 +336,7 @@ addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                       "AntiKt4PV0TrackJets",
                                       "AntiKt4TruthJets",
                                       "AntiKt4TruthWZJets",
+                                      "AntiKt4TruthDressedWZJets",
                                       "AntiKt4EMPFlowJets",
                                       "AntiKt10LCTopoJets",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"] #veto list

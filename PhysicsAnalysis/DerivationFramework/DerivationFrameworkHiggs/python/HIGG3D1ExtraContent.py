@@ -19,8 +19,7 @@ HIGG3D1ExtraVariables = [ "GSFTrackParticles.z0.vz",
 HIGG3D1ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLink.bkgTruthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthParticleLink.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.firstEgMotherTruthParticleLink",
                                "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                "InDetTrackParticles.truthOrigin.truthType",
-                               "AntiKt4TruthWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink",
-                               "AntiKt4TruthJets.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinalCount.GhostTausFinalPt.ActiveArea.ActiveArea4vec_m.ActiveArea4vec_pt.ActiveArea4vec_eta.ActiveArea4vec_phi",
+                               "AntiKt4TruthDressedWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinalCount.GhostTausFinalPt.ActiveArea.ActiveArea4vec_m.ActiveArea4vec_pt.ActiveArea4vec_eta.ActiveArea4vec_phi",
                                "AntiKt4EMPFlowJets.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID"]
 
 HIGG3D1ExtraContainers = [ ]
@@ -36,4 +35,9 @@ HIGG3D1ExtraTruthContainers = [ "TruthEvents",
                                 "TruthBSM",
                                 "TruthTop",
                                 "TruthBoson",
+                                "TruthWbosonWithDecayParticles",
+                                "TruthWbosonWithDecayVertices",
+                                "TruthBSMWithDecayParticles",
+                                "TruthBSMWithDecayVertices",
+                                "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                 "MuonTruthParticles" ]
