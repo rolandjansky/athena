@@ -186,6 +186,14 @@ class ComponentAccumulator(object):
         self._privateTools=None
         return tool
         
+    def popToolsAndMerge(self, other):
+        """ Merging in the other accumulator and getting the (list of) private AlgTools from this CompoentAccumulator.
+        """
+        if other is None:
+            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
+        tool = other.popPrivateTools()
+        self.merge(other)
+        return tool
 
     def addEventAlgo(self, algorithms,sequenceName=None,primary=False):
         if not isinstance(algorithms,collections.Sequence):
