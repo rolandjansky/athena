@@ -68,6 +68,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_timeKeeper("",name), m_allowSubEvtsEOF(true),
     m_xingByXing(false), m_isEventOverlayJob(false),
     m_failureMode(1),
+    m_evinfName( c_pileUpEventInfoObjName ),
     m_evinfContName( c_pileUpEventInfoContName ),
     m_beamInt("FlatBM", name),
     m_beamLumi("LumiProfileSvc", name),
@@ -108,6 +109,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
   declareProperty("IsEmbedding", m_isEmbedding, "Set this to True for embedding jobs.");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
+  declareProperty("EventInfoName", m_evinfName, "SG key for the EventInfo object");
   declareProperty("EventInfoContName", m_evinfContName, "SG key for the EventInfoContainer object");
   //  m_caches.push_back("BkgStreamsCache/MinBiasCache");
 }
@@ -348,8 +350,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       pOverEvent->clearSubEvents();  // start clean without any subevents
 
       // Record the xAOD object(s):
-      CHECK( m_evtStore->record( pOverEventAux, c_pileUpEventInfoObjName + "Aux." ) );
-      CHECK( m_evtStore->record( pOverEvent, c_pileUpEventInfoObjName ) );
+      CHECK( m_evtStore->record( pOverEventAux, m_evinfName + "Aux." ) );
+      CHECK( m_evtStore->record( pOverEvent, m_evinfName ) );
       pOverEvent->setEvtStore( &*m_evtStore ); 
       // Create an EventInfoContainer for the pileup events:
       xAOD::EventInfoContainer *puei(new xAOD::EventInfoContainer());
