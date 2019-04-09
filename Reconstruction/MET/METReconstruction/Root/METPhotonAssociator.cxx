@@ -30,7 +30,9 @@ namespace met {
     METAssociator(name),
     METEgammaAssociator(name),
     m_phContKey("")
-  {}
+  {
+    declareProperty("PhotonContainer",m_phContKey);
+  }
 
   // Destructor
   ///////////////

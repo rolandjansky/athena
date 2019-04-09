@@ -44,6 +44,7 @@ namespace met {
     m_jetContKey("")
   {
     declareProperty( "MatchRadius",       m_matchRadius = 0.4               );
+    declareProperty( "JetContKey", m_jetContKey );
   }
 
   // Destructor
