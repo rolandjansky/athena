@@ -30,6 +30,8 @@ fi
 export ROOTCOMP_CMD="rootcomp.py --pdf --noRoot"
 export ROOTCOMP_LOG="rootcompout.log"
 
+printenv >> printenv_post.log
+
 ###
 echo $(date "+%FT%H:%M %Z")"     Checking for athenaHLT log"
 if [ -f ${JOB_athenaHLT_LOG} ]; then
@@ -49,7 +51,7 @@ if [ -f ${JOB_athenaHLT_LOG} ]; then
      echo ${checkTimeut}
      echo "art-result: 1 ${NAME}.ChildTimeout"
    fi
-   checkCrash=`grep "Child pid= [0-9]* exited with signal|Child pid= [0-9]* exited with unexpected return value"  ${JOB_athenaHLT_LOG}`
+   checkCrash=`grep "Child pid=[0-9]* exited with signal"  ${JOB_athenaHLT_LOG} | grep  -v "exited with signal[[:space:]]*0"`
    if [[ -z "${checkCrash}" ]]; then
      echo "art-result: 0 ${NAME}.ChildCrash"
    else
