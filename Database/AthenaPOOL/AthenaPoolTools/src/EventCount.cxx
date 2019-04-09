@@ -357,8 +357,8 @@ StatusCode EventCount::finalize()
       //log << MSG::INFO << "--------- D A T A - O B J ---------" << endmsg;
       std::map<int,int>::iterator i = m_clids.begin();
       std::string classname = "NONE";
-      StatusCode clidsvc_sc;
       while (i!=m_clids.end()) {
+          StatusCode clidsvc_sc;
           classname = "Unknown";
           if(clidTran) clidsvc_sc = m_pCLIDSvc->getTypeNameOfID(i->first,classname);
           if (!clidsvc_sc.isSuccess())
