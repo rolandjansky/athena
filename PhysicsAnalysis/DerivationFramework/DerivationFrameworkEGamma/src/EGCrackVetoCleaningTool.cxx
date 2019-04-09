@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -79,16 +79,15 @@ namespace DerivationFramework {
       const xAOD::CaloCluster *clu = pCopy->caloCluster();
       bool maybeBug = clu->hasSampling(CaloSampling::EMB2) && clu->hasSampling(CaloSampling::EME2);
       const std::vector<const xAOD::CaloCluster*> assocC = xAOD::EgammaHelpers::getAssociatedTopoClusters(clu);
-      int numberOfSatellites = assocC.size() - 1;
       double dRsatMax = -1.;
-      if (numberOfSatellites > 0) {
+      if (assocC.size() > 1) {
         for (auto sclu : assocC) {
 	  double dR = clu->p4().DeltaR(sclu->p4());
 	  if (dR > dRsatMax)
 	    dRsatMax = dR;
 	}
       }
-      decoratorPass(*pCopy) = !(maybeBug && numberOfSatellites > 0 && dRsatMax > 0.16); // (or dPhi > 0.15 better ?)
+      decoratorPass(*pCopy) = !(maybeBug && assocC.size() > 1 && dRsatMax > 0.16); // (or dPhi > 0.15 better ?)
     }
     
     return StatusCode::SUCCESS;
