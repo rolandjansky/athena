@@ -12,6 +12,7 @@
 #include "InDetPrepRawData/PixelCluster.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
 // HepMC
 #include "HepMC/GenParticle.h"
 // CLHEP
@@ -21,10 +22,18 @@ InDet::PRD_TruthTrajectoryManipulatorID::PRD_TruthTrajectoryManipulatorID(const 
 AthAlgTool(t,n,p),
 m_randSvc("AtDSFMTGenSvc", n),
 m_randEngineName("PRD_TruthTrajectoryManipulatorID"),
-m_randEngine(nullptr)
+m_randEngine(nullptr),
+m_pixelIblEff(0.995),
+m_pixelEff(0.98),
+m_sctEff(0.98),
+m_trtEff(0.99)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryManipulator>(this);
 
+    declareProperty("PixelIBLEfficiency",m_pixelIblEff);
+    declareProperty("PixelEfficiency",m_pixelEff);
+    declareProperty("SCT_Efficiency",m_sctEff);
+    declareProperty("TRT_Efficiency",m_trtEff);
     declareProperty("RandomNumberService", m_randSvc, "ATLAS Random number AthService");
     declareProperty("RandomStreamName", m_randEngineName, "Name of the random number stream");
 }
@@ -36,6 +45,12 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::initialize() {
     msg(MSG::ERROR) << "Could not get AtlasID helper !" << endreq;
     return StatusCode::FAILURE;
   }
+
+  sc = detStore()->retrieve(m_pixelId, "PixelID");
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+    return StatusCode::FAILURE;
+  }  
 
   ATH_CHECK(m_randSvc.retrieve());
 
@@ -56,24 +71,31 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::finalize() {
 
 bool InDet::PRD_TruthTrajectoryManipulatorID::manipulateTruthTrajectory( Trk::PRD_TruthTrajectory &prdvec) const {
 
-  if( (*prdvec.genParticle).barcode() < 100000){
-      const int pdg_id = (*prdvec.genParticle).pdg_id();
-      const double prob_pix = pdg_id == 2212 ? 0.04 : 0.;
-      const double prob_sct = 0.04375;
       std::vector<const Trk::PrepRawData* >::iterator prdIter  = prdvec.prds.begin();
       std::vector<const Trk::PrepRawData* >::iterator prdIterE = prdvec.prds.end();
 
       while( prdIter != prdIterE ){
             if( m_atlasId->is_pixel((*prdIter)->identify()) ){
-                if( prob_pix > 0. && CLHEP::RandFlat::shoot(m_randEngine) <= prob_pix ){
+              double prob = m_pixelEff;
+	      if( m_pixelId->is_barrel((*prdIter)->identify()) && 
+                  m_pixelId->layer_disk((*prdIter)->identify()) == 0) prob=m_pixelIblEff;
+              if(CLHEP::RandFlat::shoot(m_randEngine) > prob ){
+                prdIter = prdvec.prds.erase(prdIter);
+                prdIterE  = prdvec.prds.end();
+              }
+              else ++ prdIter;
+            }
+            else if( m_atlasId->is_sct((*prdIter)->identify()) ){
+                double rand = CLHEP::RandFlat::shoot(m_randEngine);
+                if( rand > m_sctEff ){
                   prdIter = prdvec.prds.erase(prdIter);
                   prdIterE  = prdvec.prds.end();
                 }
                 else ++ prdIter;
             }
-            else if( m_atlasId->is_sct((*prdIter)->identify()) ){
+            else if( m_atlasId->is_trt((*prdIter)->identify()) ){
                 double rand = CLHEP::RandFlat::shoot(m_randEngine);
-                if( rand <= prob_sct ){
+                if( rand > m_trtEff ){
                   prdIter = prdvec.prds.erase(prdIter);
                   prdIterE  = prdvec.prds.end();
                 }
@@ -81,7 +103,7 @@ bool InDet::PRD_TruthTrajectoryManipulatorID::manipulateTruthTrajectory( Trk::PR
             }
             else ++ prdIter;
       }
-  }
+  
 
   return true;
 }

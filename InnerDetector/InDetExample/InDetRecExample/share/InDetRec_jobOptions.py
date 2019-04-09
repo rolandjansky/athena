@@ -1047,10 +1047,11 @@ else:
             InDetKeys.UnslimmedTracksTruth     = InDetKeys.PseudoTracksTruth()
             # add as the combined ID collection
             InputCombinedInDetTracks = [ InDetKeys.PseudoTracks() ]
+            if InDetFlags.doTRTStandalone():
+               InputCombinedInDetTracks += [InDetRecTRTStandalone.TRTStandaloneTracks() ]
         if InDetFlags.doSplitReco() :
             InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
-
-
+           
         # add final output for statistics
         TrackCollectionKeys      += [ InDetKeys.PseudoTracks() ]
         TrackCollectionTruthKeys += [ InDetKeys.PseudoTracksTruth() ]
