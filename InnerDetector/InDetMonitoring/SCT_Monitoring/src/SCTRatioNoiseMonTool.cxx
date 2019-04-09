@@ -145,7 +145,6 @@ SCTRatioNoiseMonTool::fillHistograms() {
 
   // Declare Time Bin
   m_set_timebin = 4;
-  m_tbin = -1;
 
   // Declaring Counting variables
   m_nNoSides_ev = 0;
@@ -214,22 +213,25 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (const SCT_RDORawData* rdo: *rd) {
         count_SCT_RDO++;
         const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
+        int tbin{-1};
+        int groupSize{1};
         if (rdo3) {
-          m_tbin = (rdo3)->getTimeBin();
+          tbin = (rdo3)->getTimeBin();
+          groupSize = (rdo3)->getGroupSize();
         }
-        if (timeBinInPattern(m_tbin, XIX) and goodModule) {
+        if (timeBinInPattern(tbin, XIX) and goodModule) {
           // fill hit info in barrel
           if (thisBec == 0) {
             int layer{thisLayerDisk};
-            m_numberHitsinBarrel[layer]->Fill(thisPhi, 1.);
+            m_numberHitsinBarrel[layer]->Fill(thisPhi, groupSize);
           }
 
           if (thisSide == 1) {
-            m_nLink1[m_modNum] += 1;
-            m_side->Fill(1);
+            m_nLink1[m_modNum] += groupSize;
+            m_side->Fill(1, groupSize);
           } else {
-            m_nLink0[m_modNum] += 1;
-            m_side->Fill(3);
+            m_nLink0[m_modNum] += groupSize;
+            m_side->Fill(3, groupSize);
           }
         }
       }

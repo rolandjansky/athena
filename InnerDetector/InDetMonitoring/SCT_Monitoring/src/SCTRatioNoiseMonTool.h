@@ -144,7 +144,6 @@ private:
   int m_last_reset_lb{0};
   
   int m_set_timebin{0};
-  int m_tbin{0};
   int m_modNum{0};
   float m_ratio{0.0f};
   float m_ratioside0{0.0f};
