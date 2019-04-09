@@ -96,23 +96,21 @@ def defineMenu():
         # 15 x 2-bit JET (can have maximum multiplicity of 3) (SLOT 8, CON 1)
 
         # 3 x Central Jet
-        'J35.0ETA23','J40.0ETA25', 'J20.28ETA31',
+        'J35.0ETA23','J40.0ETA25', #'J20.28ETA31',
 
         # 6 Jets # replace J400 with J45.0ETA20 - ATR-19309
-        'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J120',
+        'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J120', 'J400',
         # 'J40', 'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
 
 
         # 6 x FJ              
-        'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', #'JJ15.23ETA49', 'J100.31ETA49',
-        # ATR-19437
+        'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', #'JJ15.23ETA49', 'J100.31ETA49', # ATR-19437
         # 8 x new JET1
         'jJ12', 'jJ12.0ETA23', 'jJ15', 'jJ15.0ETA25', 'jJ20', 'jJ25', 'jJ25.0ETA23', 'jJ30', 
         # 9 x new JET2
         'jJ35.0ETA23', 'jJ40.0ETA25', 
         'jJ40', 'jJ50', 'jJ85', 'jJ100',
         'jJ15.31ETA49', 'jJ20.31ETA49', 'jJ75.31ETA49', 
-
 
         #---------------------
         # SLOT 8 / CON 2 (EN1)
@@ -550,7 +548,7 @@ def defineMenu():
         'L1_MU20_J50',
 
         # single jet
-        "L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50" ,"L1_J75","L1_J85", "L1_J100", "L1_J120", #"L1_J400",
+        "L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50" ,"L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
         "L1_J20.31ETA49", "L1_J30.31ETA49", "L1_J50.31ETA49", "L1_J75.31ETA49", #"L1_J100.31ETA49",
         #'L1_J15.23ETA49',
          'L1_J15.31ETA49',
@@ -1048,7 +1046,7 @@ def defineMenu():
         'L1_J85' : 99,
         'L1_J100' : 100,
         'L1_J120' : 101,
-        #'L1_J400' : 102,
+        'L1_J400' : 195,
         'L1_jJ100' : 36,
         'L1_2jJ50_gXERHO40' : 166,
         'L1_3jJ15.0ETA25_gXERHO40' : 167,
