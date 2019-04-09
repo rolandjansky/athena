@@ -2,17 +2,14 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+from AthenaCommon.CFElements import seqAND
 
 ## def jetFSInputMaker( ):
 ##   """ Creates the jet inputMaker for FS"""
 ##   RoIs = jetCollections.L1RoIs
 ##   #'FSJETRoI'
 ##   from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-##   InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+##   InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
 ##   InputMakerAlg.RoIs=RoIs
 ##   return InputMakerAlg
 
@@ -45,12 +42,10 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
     pseudoJetGetter.InputContainer = caloclusters
     pseudoJetGetter.OutputContainer = 'PseudoJetEMTopo'
     pseudoJetGetter.Label = ''
-#    pseudoJetGetter.OutputLevel = DEBUG
 
     ToolSvc += pseudoJetGetter
 
     algo3 = PseudoJetAlgorithm()
-#    algo3.OutputLevel = VERBOSE
     algo3.PJGetter = pseudoJetGetter
 
     jetRecoSequence += algo3
@@ -62,23 +57,19 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
     # and then convert the output of FastJet (new pseudojets) to Atlas jets.
 
     from JetRec.JetRecConf import (JetAlgorithm,
-                                       JetRecTool,
-                                       JetFromPseudojet,
-                                       JetFinder)
+                                   JetRecTool,
+                                   JetFromPseudojet,
+                                   JetFinder)
 
 
     name = 'simpleJob'
 
     # jet from Pseudo jet takes a pseudo jet returned by FastJet
-
-    from JetRec.JetRecConf import JetFromPseudojet  
     jetBuilder = JetFromPseudojet(name+'JetBuilder')
-#    jetBuilder.OutputLevel = DEBUG
     ToolSvc += jetBuilder
 
     jetFinder = JetFinder(name+'JetFinder')
     jetFinder.JetBuilder = jetBuilder
-#    jetFinder.OutputLevel = DEBUG
     jetFinder.JetAlgorithm = 'AntiKt'
     jetFinder.VariableRMinRadius = -1
     jetFinder.VariableRMassScale = -1
@@ -95,8 +86,7 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
     jetRecTool.JetFinder = jetFinder
     jetRecTool.JetModifiers = []
     jetRecTool.Trigger = False
-#    jetRecTool.OutputLevel = DEBUG
-    jetRecTool.InputPseudoJets = ['StoreGateSvc+PseudoJetEMTopo'] 
+    jetRecTool.InputPseudoJets = ['StoreGateSvc+PseudoJetEMTopo']
 
     ToolSvc += jetRecTool
 

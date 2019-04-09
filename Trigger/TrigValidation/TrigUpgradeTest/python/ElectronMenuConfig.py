@@ -1,9 +1,8 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def CaloLUMIBCIDToolCfg( flags, name='CaloLumiBCIDToolDefault' ):
@@ -11,7 +10,7 @@ def CaloLUMIBCIDToolCfg( flags, name='CaloLumiBCIDToolDefault' ):
     from CaloTools.CaloToolsConf import CaloLumiBCIDTool
     from IOVDbSvc.IOVDbSvcConfig import addFolders
 
-    if flags.Input.isMC == False:
+    if flags.Input.isMC is False:
       from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
       theLumiTool = LuminosityToolDefault()
       acc.addPublicTool( theLumiTool )
@@ -60,7 +59,7 @@ def TrigCaloDataAccessCfg(flags):
                                  '/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
 
     acc.merge(addFolders(flags, ['/CALO/Identifier/CaloTTOnOffIdMapAtlas', '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
-                                       '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
+                                 '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
     # ??? should be moved to tile domain
     from TileConditions.TileConditionsConfig import tileCondCfg
     acc.merge( tileCondCfg( flags ) )
@@ -76,9 +75,6 @@ def TrigCaloDataAccessCfg(flags):
 
 def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
 
-    #from AthenaCommon.CFElements import parOR, seqOR, seqAND
-
-    from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
 
     # load Calo geometry
@@ -114,7 +110,6 @@ def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
     acc.addPublicTool( samph )
 
     ring = RingerFexConfig('RingsMaker')
-    ring.OutputLevel=DEBUG
     ring.RingsKey='CaloRings'
     acc.addPublicTool( ring )
 
@@ -122,7 +117,6 @@ def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
     
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
     fastCalo                         = T2CaloEgammaFastAlgo( 'FastEMCaloAlgo' )
-    fastCalo.OutputLevel             = DEBUG
     fastCalo.ClustersName            = recordable('L2CaloEMClusters')
     fastCalo.RoIs                    = roisKey
     fastCalo.EtaWidth                = 0.2
@@ -141,7 +135,6 @@ def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
 
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaSshapeCalibrationEndcapConfig
-    from TrigT2CaloEgamma.TrigT2CaloEgammaMonitoring import TrigT2CaloEgammaValMonitoring, TrigT2CaloEgammaCosmicMonitoring, TrigT2CaloEgammaOnMonitoring, TrigT2CaloEgammaSwValMonitoring, TrigT2CaloEgammaSwOnMonitoring, TrigT2CaloEgammaSwCosMonitoring, TrigT2CaloEgammaTimeMonitoring, TrigT2CaloEgammaAllTimeMonitoring, TrigT2CaloEgammaRingerTimeMonitoring
 
     __sshape      = EgammaSshapeCalibrationBarrelConfig()
     __hits        = EgammaHitsCalibrationBarrelConfig()
@@ -215,7 +208,7 @@ def generateElectronsCfg( flags ):
 
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
-    from AthenaCommon.CFElements import parOR, seqOR, seqAND
+    from AthenaCommon.CFElements import parOR
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

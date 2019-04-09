@@ -22,7 +22,6 @@ class opt :
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
     condOverride     = {}             # overwrite conditions folder tags e.g. '{"Folder1":"Tag1", "Folder2":"Tag2"}'
-    HLTOutputLevel   = INFO           # change OutputLevel of HLT relevant components
     doHLT            = True           # run HLT?
     doID             = True           # TriggerFlags.doID
     doCalo           = True           # TriggerFlags.doCalo
@@ -342,7 +341,6 @@ svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
 if opt.doL1Sim:
-    logLevel=DEBUG
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker")
     caloTowerMaker.ZeroSuppress = True
@@ -380,9 +378,7 @@ if opt.doL1Sim:
         LVL1__TrigT1MBTS(),
         LVL1__TrigT1ZDC()
     ])
-    for a in l1CaloSim.Members:
-        a.OutputLevel=logLevel
-        
+
     from IOVDbSvc.CondDB import conddb
     L1CaloFolderList = []
     #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
@@ -426,20 +422,18 @@ if opt.doL1Sim:
 
 
     muctpi             = L1Muctpi()
-    muctpi.OutputLevel = logLevel
     muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
     
     l1MuonSim = seqAND("l1MuonSim", [
         
         MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
-                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool,
-                            OutputLevel            = logLevel),
-        
+                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool),
+
         TrigT1RPC("TrigT1RPC",
                   Hardware          = True, # not sure if needed, not there in old config, present in JO
                   DataDetail        = False,
                   RPCbytestream     = False,
-                  RPCbytestreamFile = "", OutputLevel=logLevel),
+                  RPCbytestreamFile = ""),
         
         # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
         # interesting is that this JO sets inexisting properties, commented out below
@@ -449,8 +443,7 @@ if opt.doL1Sim:
                                       # MuonTrigConfig     = "/Run/MuonTrigConfig",
                                        MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
                                        MaskFileName        = "TrigT1TGCMaskedChannel.db",
-                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
-                                       OutputLevel         = logLevel),
+                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
         muctpi
     ])
     # only needed for MC
@@ -468,7 +461,6 @@ if opt.doL1Sim:
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = False
-    ctp.OutputLevel = logLevel
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
     
@@ -481,13 +473,13 @@ if opt.doL1Unpacking:
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
         from TrigUpgradeTest.TestUtils import L1DecoderTest
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+        topSequence += L1DecoderTest()
     elif opt.doL1Sim:
         from TrigUpgradeTest.TestUtils import L1DecoderTest
-        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+        topSequence += L1DecoderTest()
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
-        topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
+        topSequence += L1EmulationTest()
 
 # ---------------------------------------------------------------
 # Monitoring
@@ -523,7 +515,7 @@ if len(opt.condOverride)>0:
         log.warn('Overriding folder %s with tag %s' % (folder,tag))
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel<INFO or opt.HLTOutputLevel<INFO:                
+if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print svcMgr
