@@ -32,7 +32,7 @@ class SCTCondAlgCardinality:
             "SCT_CablingCondAlgFromCoraCool",
             "SCT_CablingCondAlgFromText",
             # InnerDetector/InDetRecAlgs/SiSpacePointFormation package
-            "InDet__SiDetElementsRoadCondAlg_xk",
+            "InDetSiElementPropertiesTableCondAlg",
             # InnerDetector/InDetRecTools/SiCombinatorialTrackFinderTool_xk package
             "InDetSiDetElementBoundaryLinksCondAlg",
             # InnerDetector/InDetRecTools/SiDetElementsRoadTool_xk package
