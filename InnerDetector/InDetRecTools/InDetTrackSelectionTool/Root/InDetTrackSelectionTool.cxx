@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
@@ -1087,6 +1087,14 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.0;
     if (overwrite || m_maxChiSqperNdf >= LOCAL_MAX_DOUBLE) m_maxChiSqperNdf = 6.0;
     break;
+  case CutLevel::ITkLoose:
+    // reset all cuts
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    // ITk basic phase-space and loose SiHits selection
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 4.0;
+    if (overwrite || m_minPt < 0.) m_minPt = 400.0;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
+    break;  
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");
     break;
@@ -1106,5 +1114,6 @@ InDet::InDetTrackSelectionTool::s_mapCutLevel =
     {"LooseTau", InDet::CutLevel::LooseTau},
     {"MinBias", InDet::CutLevel::MinBias},
     {"HILoose", InDet::CutLevel::HILoose},
-    {"HITight", InDet::CutLevel::HITight}
+    {"HITight", InDet::CutLevel::HITight},
+    {"ITkLoose", InDet::CutLevel::ITkLoose}
   };
