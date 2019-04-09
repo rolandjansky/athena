@@ -1,3 +1,4 @@
+Storing config in the config newJOtest.pkl
 Py:Athena            INFO now loading newJOtest.pkl  ... 
 TrigSignatureMo...   INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMo...   INFO Chain name                   L1,      AfterPS, [... steps ...], Output
