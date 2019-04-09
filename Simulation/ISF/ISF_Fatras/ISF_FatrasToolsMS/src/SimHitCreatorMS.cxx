@@ -345,7 +345,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       // 
       if (m_idHelperTool->mdtIdHelper().valid(hid)) {
 	// create first hit 
-	bool hitCreated = createHit(isp, currLay,parm,hid,timeInfo,pitch, true);
+	bool hitCreated = createHit(isp,parm,hid,timeInfo,pitch, true);
       
 	if (m_createAllMdtHits) {
 	  // nearby hits - check range 
@@ -363,7 +363,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 									m_idHelperTool->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
 	    if (!m_idHelperTool->mdtIdHelper().valid(nextId)) break;
-	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
+	    hitCreated = createHit(isp,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next--;
 	  }
@@ -376,7 +376,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 									m_idHelperTool->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
 	    if (!m_idHelperTool->mdtIdHelper().valid(nextId)) break;
-	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
+	    hitCreated = createHit(isp,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next++; 
 	  }
@@ -387,12 +387,12 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       Identifier hid = m_measTool->nearestDetEl(currLay,parm,false,pitch);
       
       // check if this is valid 
-      if ( hid.get_identifier32().get_compact()>0 && createHit(isp, currLay,parm,hid,timeInfo,pitch,false) )
+      if ( hid.get_identifier32().get_compact()>0 && createHit(isp,parm,hid,timeInfo,pitch,false) )
 	ATH_MSG_VERBOSE("[ muhit ] Hit in MS created.");
 	// reset id for the other side
       hid = m_measTool->nearestDetEl(currLay,parm,true,pitch);
       // again check if this is valid
-      if ( hid.get_identifier32().get_compact()>0 && createHit(isp, currLay,parm,hid,timeInfo,pitch,true) )     
+      if ( hid.get_identifier32().get_compact()>0 && createHit(isp,parm,hid,timeInfo,pitch,true) )     
 	  ATH_MSG_VERBOSE("[ muhit ] Hit in MS created.");           
     }  // end of asocciated layer check            
   } // end of the loop over TrackParameters    
@@ -400,7 +400,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 
 
 bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
-					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
+					 const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
 
    // MDT SECTION 
