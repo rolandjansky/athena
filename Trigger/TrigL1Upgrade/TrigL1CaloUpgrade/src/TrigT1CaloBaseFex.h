@@ -91,7 +91,7 @@ protected :
 	/** calculate the ET of an input cell */
 	float CaloCellET(CaloCell* const &inputCell, float digitScale, float digitThreshold);
 	/** SC from container is returned according to its ID */
-	CaloCell* returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer);
+	CaloCell* returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer, const CaloCell_SuperCell_ID* &idHelper);
 	/** returns the SC left/right to the input cell for the barrel */
 	CaloCell* NextEtaCell_Barrel(CaloCell* inputCell, bool upwards, const CaloCellContainer* &cellContainer, const  CaloCell_SuperCell_ID* &idHelper);
 	/** returns the SC left/right to the input cell for the OW */

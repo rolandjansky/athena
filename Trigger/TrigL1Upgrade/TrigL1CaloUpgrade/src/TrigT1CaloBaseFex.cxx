@@ -591,12 +591,10 @@ float TrigT1CaloBaseFex::CaloCellET(CaloCell* const &inputCell, float digitScale
 	else return 0.;
 }
 
-CaloCell* TrigT1CaloBaseFex::returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer){
-	for (auto iCell : *cellContainer){
-	  bool sameIndices = (iCell->ID() == inputID);
-	  if (sameIndices) return iCell;
-	}
-	return NULL;
+CaloCell* TrigT1CaloBaseFex::returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer, const CaloCell_SuperCell_ID* &idHelper){
+	CaloCell* isCell = const_cast<CaloCell*>(cellContainer->findCell(idHelper->CaloCell_SuperCell_ID::calo_cell_hash(inputID)));
+	if (isCell) return isCell;
+	else return NULL;
 }
 
 CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upwards, const CaloCellContainer* &cellContainer, const CaloCell_SuperCell_ID* &idHelper){
@@ -695,7 +693,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upward
         // Form identifier, find cell & return it
         // sub_calo, left_pos_neg, 2, region, eta_index, down_phi_index
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, ithPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);      
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);      
         if (nextCell == NULL) {
 		msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
 		msg << MSG::WARNING << "Barrel Tracker = " << tracker << endreq;
@@ -865,7 +863,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
 		tracker = 11;
         }
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell == NULL) {
 		msg << MSG::WARNING << "ERROR: "<<__LINE__<< endreq;
 		msg << MSG::WARNING << "OW Tracker = "<<tracker<< endreq;
@@ -962,7 +960,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_IW(CaloCell*inputCell, bool upwards, co
 		nextEta_index=ithEta_index+incrementEta;
         }
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell && (nextCell->ID() != nextCellID)) msg << MSG::WARNING <<__LINE__<<" does not match" << endreq;
         return nextCell;
 }
@@ -1025,7 +1023,7 @@ CaloCell* TrigT1CaloBaseFex::NextPhiCell(CaloCell*inputCell, bool upwards, const
 
         const int nextPhi_index = restrictPhiIndex(ithPhi_index+incrementPhi, is64);
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(ithSub_calo, ithPos_neg, ithSampling, ithRegion, ithEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell && (nextCell->ID() != nextCellID)) msg << MSG::WARNING << __LINE__ << " does not match" << endreq;
         if (nextCell == NULL) msg << MSG::WARNING << "Next phi cell is NULL at " << __LINE__ << endreq;
         return nextCell;
@@ -1182,7 +1180,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
 		tracker = 2;
 		for (unsigned int i = 0; i < 3; i++){
 		  Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, region, i, phi_index);
-		  CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+		  CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
 		  addOnce(resultCell,outputVector);
 		}
         }
@@ -1224,7 +1222,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
                         for (unsigned int  i = 0; i < 2; i++){
                           outputEta = i+eta_index - offset;
                           Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, outputRegion, outputEta, phi_index);
-                          CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+                          CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                           addOnce(resultCell,outputVector);
                         }
                 } 
@@ -1245,7 +1243,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
         }
         if (oneCell){
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, outputRegion, outputEta, phi_index);
-                CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+                CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 addOnce(resultCell,outputVector);
         }
         //msg << MSG::DEBUG << "L2->L1 tracker = " << tracker << endreq;
@@ -1274,19 +1272,19 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputConta
         if (abs(pos_neg)==1 && region ==0){
                 int outputEta = eta_index/4;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 1;  
         }
         else if (abs(pos_neg)==1 && region ==1){
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, 0, 14, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 2;
         }
         else if (abs(pos_neg)==2 && region ==1){
                 outputEta = (eta_index - 3)/4;
                 outputRegion = 0;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer); 
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 3;
         }
         //msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
@@ -1317,14 +1315,14 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toLayer3(const CaloCellContainer* &inputC
         if (abs(pos_neg)==1 && region ==0){
                 int outputEta = eta_index/4;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 3, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 1;  
         }
         else if (abs(pos_neg)==2 && region ==1){
                 outputEta = (eta_index - 3)/4;
                 outputRegion = 0;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 3, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer); 
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 2;
         }
         //msg << MSG::DEBUG << "L2->L3 tracker = " << tracker << endreq;
@@ -1613,6 +1611,7 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
         // Loops through and find L2 SCs that are local maxes and adds to list of local maxes if cluster ET is at least 10GeV
         std::vector<CaloCell*> potentialCentres;
         for (auto ithCell : *SCs){
+	  if ( !(fabs(CaloCellET(ithCell, m_nominalDigitization, m_nominalNoise_thresh)) > 0) ) continue;
           Identifier ithID = ithCell->ID();
           int ithLayer = idHelper->sampling(ithID);
           if (ithLayer != 2) continue;
