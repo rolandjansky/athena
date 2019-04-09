@@ -89,7 +89,7 @@ namespace iFatras
     private:
 
       /** Private HitCreate method - returns bool for a successful hit creation */       
-      bool createHit(const ISF::ISFParticle& isp, const Trk::Layer* , const Trk::TrackParameters*, Identifier, double, double, bool) const;
+      bool createHit(const ISF::ISFParticle& isp, const Trk::TrackParameters*, Identifier, double, double, bool) const;
 
       int  offIdToSimId(Identifier id) const;
 
