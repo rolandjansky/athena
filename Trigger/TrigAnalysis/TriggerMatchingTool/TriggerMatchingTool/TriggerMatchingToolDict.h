@@ -8,5 +8,6 @@
 
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "TriggerMatchingTool/IParticleRetrievalTool.h"
+#include "TriggerMatchingTool/MatchFromCompositeTool.h"
 
 #endif
