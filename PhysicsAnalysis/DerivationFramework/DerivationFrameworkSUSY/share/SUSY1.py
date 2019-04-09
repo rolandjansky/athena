@@ -334,6 +334,7 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 
 # Add VR jets
 addVRJets(SeqSUSY1)
+addRecommendedXbbTaggers(SeqSUSY1, ToolSvc)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
@@ -371,6 +372,7 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				                              "Photons.author.Loose.Tight",
 				                              "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD", #xbb variables
                                       "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1rmu_pu.DL1rmu_pc.DL1rmu_pb.DL1r_pu.DL1r_pc.DL1r_pb",
                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                       # TODO: .DFCommonJets_Jvt",
