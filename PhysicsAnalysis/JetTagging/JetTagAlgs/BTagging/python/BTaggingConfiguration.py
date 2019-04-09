@@ -508,7 +508,6 @@ class Configuration:
           # Set remaining options
           btagname = self.getOutputFilesPrefix() + jetcol
           options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
-          #options.setdefault('name', 'btag_akt4')
           options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
           options.setdefault('BTaggingCollectionName', btagname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
@@ -520,7 +519,6 @@ class Configuration:
           if not topSequence is None:
               topSequence += jetbtaggeralg
           if Verbose:
-              print jetbtaggeralg
               print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:'
               print self._BTaggingConfig_JetCollections.get(jetcol, None)
           # Register
