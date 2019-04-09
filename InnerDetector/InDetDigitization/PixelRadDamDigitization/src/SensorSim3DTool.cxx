@@ -144,6 +144,7 @@
     // *****************************
     //TODO This is only temporary until remotely stored maps and locally generated maps can be implemented 
 
+    //NOTE: All maps generated from the efield using PixelRadDamageDigitization/share/createAllMaps.C
 
         ATH_MSG_INFO("Using maps located in: " << mapsPath);
 //	auto mapsFile = std::make_unique<TFile>(mapsPath.c_str());
