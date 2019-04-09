@@ -59,7 +59,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 							 std::vector<Muon::MMPrepData*>& clustersVect)
 
 {
-
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
   ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 
   std::vector<int> MMflag;
