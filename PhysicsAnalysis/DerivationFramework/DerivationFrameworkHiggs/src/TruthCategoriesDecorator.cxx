@@ -181,11 +181,26 @@ namespace DerivationFramework {
     eventInfo->auxdecor<int>("HTXS_errorCode")  = (int)htxs->errorCode;
     eventInfo->auxdecor<int>("HTXS_Stage0_Category") = (int)htxs->stage0_cat;
 
+    // Stage-1 binning
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs->stage1_cat_pTjet25GeV;
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs->stage1_cat_pTjet30GeV;
 
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
+
+    // Stage-1.1 binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet25") = (int)htxs->stage1_1_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet30") = (int)htxs->stage1_1_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet30") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet25") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type,true);
+
+    // Stage-1.1 finer binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet25") = (int)htxs->stage1_1_fine_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet30") = (int)htxs->stage1_1_fine_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet30") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet25") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type,true);
 
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs->jets25.size();
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs->jets30.size();
