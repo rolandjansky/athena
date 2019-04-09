@@ -6,11 +6,10 @@ MuonAGDDDumper.Locked=True
 # at the moment the blob is retrieved from AmdcAth the following line would produced it from input xml
 # MuonAGDDDumper.ReadAGDD = False
 # MuonAGDDDumper.XMLFiles=["inputXMLfile.xml"]
-ToolSvc += MuonAGDDDumper
 
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 AGDD2Geo = AGDDtoGeoSvc()
-AGDD2Geo.Builders += ["MuonAGDDTool/AGDDDumper"]
+AGDD2Geo.Builders += [MuonAGDDDumper]
 theApp.CreateSvc += ["AGDDtoGeoSvc"]
 ServiceMgr += AGDD2Geo
 
