@@ -23,9 +23,11 @@ atlas_add_library( TrigConfBase
 atlas_install_joboptions( share/*.py )
 
 # Tests:
-atlas_add_component( TrigConfBaseTest
-   test/TrigConfMsgAlg.cxx
-   LINK_LIBRARIES TrigConfBase AthenaBaseComps )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( TrigConfBaseTest
+      test/TrigConfMsgAlg.cxx
+      LINK_LIBRARIES TrigConfBase AthenaBaseComps )
+endif()
 
 atlas_add_test( trigconf_msg_standalone_test
    SOURCES test/trigconf_msgsvc_test.cxx
