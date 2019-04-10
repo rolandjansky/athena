@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 785819 2016-11-22 17:50:02Z krasznaa $
 ################################################################################
 # Package: Hephaestus
 ################################################################################
@@ -16,7 +15,7 @@ atlas_add_library( Hephaestus
    Hephaestus/*.h src/hlib/*.c
    PUBLIC_HEADERS Hephaestus
    INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${PYTHON_LIBRARIES} )
+   LINK_LIBRARIES ${PYTHON_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 atlas_add_library( MemoryTracker
    src/*.c
