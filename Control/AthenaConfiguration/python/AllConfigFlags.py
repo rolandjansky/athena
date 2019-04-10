@@ -47,7 +47,7 @@ def _createCfgFlags():
 
     acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
     acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myROD.pool.root')
+    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
