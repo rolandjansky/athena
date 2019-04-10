@@ -72,6 +72,7 @@ acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
 
