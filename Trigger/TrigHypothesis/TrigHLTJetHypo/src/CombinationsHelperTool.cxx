@@ -17,6 +17,15 @@ CombinationsHelperTool::CombinationsHelperTool(const std::string& type,
 
 }
 
+StatusCode CombinationsHelperTool::initialize() {
+
+  m_conditions = m_config->getConditions();
+  m_grouper  = std::move(m_config->getJetGrouper());
+
+  return StatusCode::SUCCESS;
+}
+
+
 void CombinationsHelperTool::collectData(const std::string& setuptime,
                                          const std::string& exetime,
                                          ITrigJetHypoInfoCollector* collector,
@@ -31,6 +40,26 @@ void CombinationsHelperTool::collectData(const std::string& setuptime,
   
   collector->collect(name(), helperInfo);
 }
+
+
+struct HypoJetSelector{
+  HypoJetSelector(const ConditionsMT& c):m_conditions(c){}
+  bool operator()(pHypoJet j){
+    std::vector<pHypoJet> v{j};
+    for(const auto& c : m_conditions)
+      {
+        if (!c.isSatisfied(v, nullptr))
+          {
+            return false;
+          }
+      }
+    
+    return true;
+  }
+  ConditionsMT m_conditions;
+};
+
+ 
 bool CombinationsHelperTool::pass(HypoJetVector& jets,
                                   ITrigJetHypoInfoCollector* collector) const {
   /* seek first jet group that passes all children  */
@@ -41,11 +70,18 @@ bool CombinationsHelperTool::pass(HypoJetVector& jets,
   JetTrigTimer setupTimer;
 
   setupTimer.start();
+
   
-  auto b = jets.begin();
-  auto e = jets.end();
-  auto grouper = CombinationsGrouper(m_size);
-  auto jetGroups = grouper.group(b, e);
+  HypoJetSelector selector(m_conditions);
+
+  // use conditions objects to select jets
+  auto end_iter = std::partition(jets.begin(),
+                                 jets.end(),
+                                 selector);
+  
+  // auto grouper = CombinationsGrouper(m_size);
+  auto begin = jets.begin();
+  auto jetGroups = m_grouper->group(begin, end_iter);
 
   ATH_MSG_DEBUG("No of groups" << jetGroups.size());
 
@@ -53,8 +89,8 @@ bool CombinationsHelperTool::pass(HypoJetVector& jets,
   setupTimer.stop();
   exeTimer.start();
 
-  for(auto& jets : jetGroups){
-    if (testGroup(jets, collector)){
+  for(auto& gjets : jetGroups){
+    if (testGroup(gjets, collector)){
       pass = true;
       exeTimer.stop();
       collectData(setupTimer.readAndReset(),
