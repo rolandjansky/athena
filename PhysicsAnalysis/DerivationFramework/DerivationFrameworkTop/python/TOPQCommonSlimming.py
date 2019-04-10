@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ slimming
@@ -135,6 +135,7 @@ def setup(TOPQname, stream):
   if DFisMC:
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthDressedWZJets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles  
