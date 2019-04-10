@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 793760 2017-01-25 02:02:33Z ssnyder $
 ################################################################################
 # Package: xAODTrigger
 ################################################################################
@@ -40,6 +39,8 @@ atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
   SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
 
-atlas_add_test( ut_xaodtrigger_trigcomposite_test
-  SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
-  LINK_LIBRARIES AthContainers xAODTrigger )
+if( NOT XAOD_STANDALONE )
+   atlas_add_test( ut_xaodtrigger_trigcomposite_test
+      SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
+      LINK_LIBRARIES AthContainers xAODTrigger )
+endif()
