@@ -15,6 +15,7 @@
 
 // forward declarations
 class AtlasDetectorID;
+class PixelID;
 
 namespace CLHEP {
     class HepRandomEngine;
@@ -49,11 +50,18 @@ namespace InDet {
     private:
         /**ID pixel helper*/
         const AtlasDetectorID* m_atlasId;
+        const PixelID* m_pixelId;
 
         /** Random number generation */
         ServiceHandle<IAtRndmGenSvc>        m_randSvc;           //!< ATLAS Random Svc
         std::string                         m_randEngineName;    //!< Name of the random number stream
         CLHEP::HepRandomEngine*             m_randEngine;        //!< Random Engine instance
+
+	// detector layer efficiencies
+	double m_pixelIblEff;  
+        double m_pixelEff;
+        double m_sctEff;
+        double m_trtEff;
     };
 }
 
