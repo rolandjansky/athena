@@ -27,7 +27,9 @@ class UserLimitsTool final : public extends<AthAlgTool, IUserLimitsTool> {
   virtual StatusCode initialize() override final;
 
  private:
-  bool isMatch(const std::string& a,const std::string b) const;
+  /** Functions for string comparison */
+  bool isMatch(const std::string& pattern, const std::string logicalVolume) const;
+  bool contains(const std::string& pattern, const std::string logicalVolume) const;
   /** Maximum step length */
   double m_MaxStep;
   /** Minimum remaining kinetic energy for a track */
@@ -38,6 +40,8 @@ class UserLimitsTool final : public extends<AthAlgTool, IUserLimitsTool> {
   double m_MaxTime;
   /** Minimum remaining range for a track */
   double m_MinRange;
+  /** Use 'contains' or 'isMatch' function for string comparison */
+  std::string m_matchType;
   /** List of Logical volume to which these limits should be applied */
   std::vector<std::string> m_logicalVolumes;
 };

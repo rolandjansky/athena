@@ -10,6 +10,7 @@
 #include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IUserLimitsTool.h"
 // Member
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -30,6 +31,7 @@ class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
   ToolHandle<IPhysicsListTool> m_physicsListTool;
+  ToolHandle<IUserLimitsTool> m_userLimitsTool;
   bool m_isMT;
   bool m_activateParallelGeometries;
 };
