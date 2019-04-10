@@ -62,9 +62,11 @@ if [ -f ${JOB_athenaHLT_LOG} ]; then
    # TODO: add check that all children exited normally
 fi 
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
-echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+if [ -z ${ART_SKIP_CHECKLOG} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running checklog"
+  timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
+  echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+fi
 
 # TODO
 # add check_statuscode.py ${JOB_LOG}

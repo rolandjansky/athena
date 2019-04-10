@@ -11,20 +11,11 @@
 outputBaseName="output.test_athenaHLT_timeout.data"
 nEvents=20
 
-(set -x; \
-athenaHLT \
--n ${nEvents} \
---timeout 2000 \
---nprocs 2 \
---threads 2 \
---concurrent-events 2 \
--o ${outputBaseName} \
--f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root  \
-TrigP1Test/testHLT_timeout.py \
-2>&1 > athena.log)
-
-status=$?
-echo "art-result: ${status} athenaHLT-mother"
+export NAME="athenaHLT_timeout"
+export ART_CMD="athenaHLT -n ${nEvents} --timeout 2000 --nprocs 2 --threads 2 --concurrent-events 2 -o ${outputBaseName} -f INPUT_FILE TrigP1Test/testHLT_timeout.py"
+export ART_SKIP_CHECKLOG="true"
+export ART_NO_COUNT="true"
+exec_art_trigp1test.sh
 
 outputFile=`ls ${outputBaseName}* | tail -n 1`
 
@@ -47,4 +38,3 @@ else
   echo "Processed ${nEvents} events, but found ${nOutputEvents} in the output file ${outputFile}"
   echo "art-result: 1 NOutputEvents"
 fi
-
