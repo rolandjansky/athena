@@ -43,6 +43,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileRecUtils/TileRawChannelBuilderMF.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -63,7 +64,6 @@ class TileInfo;
 class TileCablingService;
 class TileEvent;
 class TileDQstatus;
-class TileRawChannelBuilderMF;
 
 #include <string>
 #include <vector>
@@ -74,35 +74,46 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     TilePulseForTileMuonReceiver(std::string name, ISvcLocator* pSvcLocator);
     // destructor
     virtual ~TilePulseForTileMuonReceiver();
+
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute() override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
-    std::string m_hitContainer;         //!< Name of the tile hit container
-    std::string m_MuRcvDigitsContainer; //!< Name of the algorithm digits container
-    std::string m_MuRcvRawChContainer;  //!< Name of the algorithm raw channel container
 
-    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
-                                                          "input Tile hit container key"};
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,
+        "TileHitContainer","TileHitCnt", "Input Tile hit container key"};
 
+    SG::WriteHandleKey<TileDigitsContainer> m_muRcvDigitsContainerKey{this,
+        "MuonReceiverDigitsContainer", "MuRcvDigitsCnt", "Output Tile muon receiver digits container key"};
 
-    SG::WriteHandleKey<TileDigitsContainer> m_muRcvDigitsContainerKey{this,"MuonReceiverDigitsContainer",
-                                                                      "MuRcvDigitsCnt",
-                                                                      "Output Tile muon receiver digits container key"};
+    SG::WriteHandleKey<TileRawChannelContainer> m_muRcvRawChannelContainerKey{this,
+        "MuonReceiverRawChannelContainer", "MuRcvRawChCnt", "Output Tile muon receiver raw channel container key"};
 
-    SG::WriteHandleKey<TileRawChannelContainer> m_muRcvRawChannelContainerKey{this,"MuonReceiverRawChannelContainer",
-                                                                              "MuRcvRawChCnt",
-                                                                              "Output Tile muon receiver raw channel container key"};
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number service to use
 
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
 
-    std::string m_infoName;             //!< Name of tile info object in TES
-    bool m_integerDigits;               //!< If true => round digits to integer
-    bool m_useCoolPulseShapes;          //!< If true => use of pulse shapes from db
-    bool m_maskBadChannels;             //!< If true => mask bad channels
-    bool m_tilePedestal;                //!< If true => generate pedestal (amp) in digits from  db
-    bool m_tileNoise;                   //!< If true => generate noise (rms) in digits from  db
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
+        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
+    ToolHandle<TileRawChannelBuilderMF> m_MuRcvBuildTool{this,
+        "TileRawChannelBuilderMF", "TileRawChannelBuilderMF", "Reconstruction tool, default: the Matched Filter"};
+
+    Gaudi::Property<std::string> m_infoName{this, "TileInfoName", "TileInfo", "TileInfo object name"};
+    Gaudi::Property<bool> m_integerDigits{this, "IntegerDigits", false, "Round digits (default=false)"};
+    Gaudi::Property<bool> m_maskBadChannels{this, "MaskBadChannels", false, "Remove channels tagged bad (default=false)"};
+    Gaudi::Property<bool> m_useCoolPulseShapes{this, "UseCoolPulseShapes", false, "Pulse shapes from database (default=false)"};
+    Gaudi::Property<bool> m_tileNoise{this, "UseCoolNoise", false, "Noise from database (default=false)"};
+    Gaudi::Property<bool> m_tilePedestal{this, "UseCoolPedestal", false, "Pedestal from database (default=false)"};
 
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
@@ -125,20 +136,6 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     //
     std::vector<double> m_shapeMuonReceiver;//!< Muon receiver pulse shape
 
-    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number service to use
-
-    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
-        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
-
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
-        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
-
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
-        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
-
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
-    ToolHandle<TileRawChannelBuilderMF> m_MuRcvBuildTool;      //!< tool to set up the reconstruction algorithm
     
     bool m_run2;
 };

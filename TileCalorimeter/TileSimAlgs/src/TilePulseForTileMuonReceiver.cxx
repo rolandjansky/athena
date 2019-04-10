@@ -30,7 +30,7 @@
 //****************************************************************************************
 
 // Tile includes
-#include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
+#include "TilePulseForTileMuonReceiver.h"
 #include "TileEvent/TileMutableDigitsContainer.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileIdentifier/TileHWID.h"
@@ -39,7 +39,7 @@
 #include "TileConditions/TilePulseShapes.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileRawChannelBuilderMF.h"
+
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -78,18 +78,9 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_nBinsPerX(0)
   , m_binTime0(0)
   , m_timeStep(0.0)
-  , m_MuRcvBuildTool("TileRawChannelBuilderMF")
   , m_run2(true)
 {
-  // declare properties...
 
-  declareProperty("TileInfoName"                   , m_infoName             = "TileInfo");
-  declareProperty("IntegerDigits"                  , m_integerDigits        = false, "Round digits (default=false)");
-  declareProperty("MaskBadChannels"                , m_maskBadChannels      = false, "Remove channels tagged bad (default=false)");
-  declareProperty("UseCoolPulseShapes"             , m_useCoolPulseShapes   = false, "Pulse shapes from database (default=false)");
-  declareProperty("UseCoolNoise"                   , m_tileNoise            = false, "Noise from database (default=false)");
-  declareProperty("UseCoolPedestal"                , m_tilePedestal         = false, "Pedestal from database (default=false)");
-  declareProperty("TileRawChannelBuilderMF"        , m_MuRcvBuildTool, "The tool by default is the Matched Filter");
 }
 
 // destructor
