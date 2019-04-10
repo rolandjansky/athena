@@ -38,7 +38,7 @@ function( atlas_build_lvl1_trigger_menu menu )
       ${CMAKE_CURRENT_BINARY_DIR}/${menu}.attempted.stamp
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
-      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateL1MenuMT.sh -r ${CMAKE_PROJECT_VERSION} ${menu}
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -69,7 +69,7 @@ function( atlas_build_lvl1_trigger_menu menu )
                         COMMAND ${CMAKE_COMMAND} -E make_directory
                         ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
                      execute_process(
-                        COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+                        COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
                         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateL1MenuMT.sh
                         -r ${CMAKE_PROJECT_VERSION} ${menu} ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
                   endif()" )
