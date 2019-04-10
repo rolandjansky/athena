@@ -7,7 +7,21 @@
 
 echo  $(date "+%FT%H:%M %Z")"     Execute TrigUpgradeTest post processing for test ${NAME}"
 
+### Find the branch name
+if [ -n "${AtlasBuildBranch}" ]; then
+  export BRANCH=${AtlasBuildBranch} # available after asetup
+elif [ -n "${gitlabTargetBranch}" ]; then
+  export BRANCH=${gitlabTargetBranch} # available in CI
+else
+  echo "WARNING Cannot determine the branch name, both variables AtlasBuildBranch and gitlabTargetBranch are empty"
+fi
+
 ### DEFAULTS
+
+if [ -z ${ATH_RETURN} ]; then
+  echo "WARNING The env variable ATH_RETURN is not set, assuming 0"
+  export ATH_RETURN=0
+fi
 
 if [ -z ${JOB_LOG} ]; then
   export JOB_LOG="athena.log"
@@ -19,12 +33,12 @@ fi
 
 if [ -z ${REF_FOLDER} ]; then
   # Try eos first
-  export REF_FOLDER="/eos/atlas/atlascerngroupdisk/data-art/grid-input/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+  export REF_FOLDER="/eos/atlas/atlascerngroupdisk/data-art/grid-input/${TEST}/ref/${BRANCH}/test_${NAME}"
   # If not available, try cvmfs
   if [ -d ${REF_FOLDER} ]; then
     echo "Using reference directory from eos: ${REF_FOLDER}"
   else
-    export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
+    export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${BRANCH}/test_${NAME}"
     if [ -d ${REF_FOLDER} ]; then
       echo "Reference from eos unavailable, using one from cvmfs: ${REF_FOLDER}"
     else
@@ -43,19 +57,25 @@ if [ -z "${REGTESTREF}" ]; then
   export REGTESTREF=${REF_FOLDER}/athena.regtest
 fi
 
-###
+### CHECKLOG
+
+# if athena failed and we are running in CI, print the full log to stdout
+if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
+  echo "Printing the full ${JOB_LOG}"
+  cat ${JOB_LOG}
+fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
-###
+### MAKE LOG TAIL FILE
 
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
-###
+### REGTEST
 
 REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
 grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
@@ -80,7 +100,7 @@ else
   echo "art-result:  999 RootComp"
 fi
 
-###
+### SUMMARY
 
 echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
 ls -lh
