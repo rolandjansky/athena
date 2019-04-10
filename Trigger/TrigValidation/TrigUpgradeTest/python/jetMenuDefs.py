@@ -10,7 +10,8 @@ def jetMenuSequence():
     ## RoIs = 'FSJETRoI'
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetAthSequence
-    (JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+    #(JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
+    (JetAthSequence, InputMakerAlg, sequenceOut) = jetAthSequence(ConfigFlags)
      
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT

@@ -69,7 +69,7 @@ calibcontexts = {
 
 }
 
-hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow"]
+hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow", "TrigAntiKt4EMTopo"]
 
 # This method extracts the relevant configuration, does some consistency checks,
 # then forwards the configuration to defineJetCalibTool, returning the output.
