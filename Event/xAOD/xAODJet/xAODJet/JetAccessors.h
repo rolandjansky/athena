@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETACCESSORS_H
@@ -28,6 +28,7 @@
 #include <string>
 #include <type_traits>
 #include "AthContainers/AuxElement.h"
+#include "AthLinks/ElementLink.h"
 #include "xAODBase/IParticle.h"
 #include "xAODJet/JetTypes.h"
 
