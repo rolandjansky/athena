@@ -39,9 +39,6 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
-  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
-  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
-  //m_hvCorrTool
 
   std::string m_folder;
 
