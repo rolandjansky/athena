@@ -742,7 +742,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
  
           # correction tools not using tools
           TrigTopoMoments = CaloClusterMomentsMaker ("TrigTopoMoments")
-          TrigTopoMoments.OutputLevel = DEBUG
           TrigTopoMoments.MaxAxisAngle = 20*deg
           TrigTopoMoments.CaloNoiseTool = theCaloNoiseTool
           TrigTopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
@@ -837,7 +836,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
 
         # use 2-gaussian or single gaussian noise for TileCal
         TrigTopoMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-        TrigTopoMaker.OutputLevel = DEBUG
 
         TrigTopoSplitter = CaloTopoClusterSplitter("TrigTopoSplitter")        
         # cells from the following samplings will be able to form local
@@ -859,7 +857,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
                                                    "FCAL1","FCAL2"]
         TrigTopoSplitter.ShareBorderCells = True
         TrigTopoSplitter.RestrictHECIWandFCalNeighbors  = False
-        TrigTopoSplitter.OutputLevel = DEBUG
         #
         # the following options are not set, since these are the default
         # values
@@ -974,7 +971,6 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
         # cells from the following samplings will be able to form seeds. By default 
         # no sampling is excluded 
         #
-        emtopocluster.OutputLevel=DEBUG
         emtopocluster.SeedSamplingNames = [
             "PreSamplerB", "EMB1", "EMB2", 
             "PreSamplerE", "EME1", "EME2"  ]
@@ -1012,7 +1008,6 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
         # excluded samplings are PreSamplerB, EMB1, PreSamplerE, EME1,
         # and all samplings from Tile, HEC and FCAL
         #
-        emtoposplitter.OutputLevel=DEBUG
         emtoposplitter.SamplingNames = ["EMB2", "EME2"]
         emtoposplitter.SecondarySamplingNames = ["EMB1", "EME1"]
         emtoposplitter.ShareBorderCells = True
@@ -1445,7 +1440,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
  
           # correction tools not using tools
           TrigTopoMoments = CaloClusterMomentsMaker ("TrigTopoMoments")
-          TrigTopoMoments.OutputLevel = DEBUG
           TrigTopoMoments.MaxAxisAngle = 20*deg
           TrigTopoMoments.CaloNoiseTool = theCaloNoiseTool
           TrigTopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
@@ -1540,7 +1534,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
 
         # use 2-gaussian or single gaussian noise for TileCal
         TrigTopoMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-        TrigTopoMaker.OutputLevel = DEBUG
 
         TrigTopoSplitter = CaloTopoClusterSplitter("TrigTopoSplitter")        
         # cells from the following samplings will be able to form local
@@ -1562,7 +1555,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
                                                    "FCAL1","FCAL2"]
         TrigTopoSplitter.ShareBorderCells = True
         TrigTopoSplitter.RestrictHECIWandFCalNeighbors  = False
-        TrigTopoSplitter.OutputLevel = DEBUG
         #
         # the following options are not set, since these are the default
         # values
@@ -1646,7 +1638,6 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         # cells from the following samplings will be able to form seeds. By default 
         # no sampling is excluded 
         #
-        emtopocluster.OutputLevel=DEBUG
         emtopocluster.SeedSamplingNames = [
             "PreSamplerB", "EMB1", "EMB2", 
             "PreSamplerE", "EME1", "EME2"  ]
@@ -1684,7 +1675,6 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         # excluded samplings are PreSamplerB, EMB1, PreSamplerE, EME1,
         # and all samplings from Tile, HEC and FCAL
         #
-        emtoposplitter.OutputLevel=DEBUG
         emtoposplitter.SamplingNames = ["EMB2", "EME2"]
         emtoposplitter.SecondarySamplingNames = ["EMB1", "EME1"]
         emtoposplitter.ShareBorderCells = True
