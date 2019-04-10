@@ -132,6 +132,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST(iovDbFolder.retrieved() == true);
       IOVRange actualRange{100,cool::ValidityKeyMax};
       BOOST_TEST(returnRange == actualRange);
+      BOOST_CHECK_NO_THROW(iovDbFolder.resetCache());
     }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
