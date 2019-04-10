@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -327,6 +327,18 @@ class WriteDAOD_TOPQ5Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ5Stream)
 listAODtoDPD.append(WriteDAOD_TOPQ5Stream.StreamName)
 
+class WriteDAOD_TOPQ6Stream(JobProperty):
+    """TOPQ6: lepton+jet (as TOPQ1 without track thinning)"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_TOPQ6'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkTop/TOPQ6.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ6Stream)
+listAODtoDPD.append(WriteDAOD_TOPQ6Stream.StreamName)
 
 ##################################
 # Defined by Higgs subgroup 1

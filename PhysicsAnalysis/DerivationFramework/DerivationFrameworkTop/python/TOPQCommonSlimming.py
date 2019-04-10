@@ -53,7 +53,7 @@ def setup(TOPQname, stream):
   # for jets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
   # for TOPQDERIV-62
-  if TOPQname == 'TOPQ1':
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
   
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
@@ -152,7 +152,7 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.StaticContent += TOPQStaticContent
   
   # for TOPQDERIV-69
-  if TOPQname == 'TOPQ1':
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
 
   if DFisMC:
