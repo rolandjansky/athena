@@ -190,6 +190,12 @@ StatusCode TRTDigitizationTool::initialize()
     ATH_MSG_DEBUG ( "Retrieved the Sim. Drifttime Tool" );
   }
 
+  // Initialize ReadHandleKey
+  if (!m_hitsContainerKey.key().empty()) {
+    ATH_MSG_INFO("Loading single input HITS");
+  }
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+
   // Initialize data handle keys
   ATH_CHECK(m_outputRDOCollName.initialize());
   ATH_CHECK(m_outputSDOCollName.initialize());
@@ -568,42 +574,58 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   m_vDigits.clear();
 
+  //  get the container(s)
+  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  TimedHitCollection<TRTUncompressedHit> thpctrt;
+  // In case of single hits container just load the collection using read handles
+  if (!m_hitsContainerKey.key().empty()) {
+    SG::ReadHandle<TRTUncompressedHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get TRTUncompressedHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // Define Hit Collection
+    thpctrt.reserve(1);
+
+    // create a new hits collection
+    m_thpctrt->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollection->size() << " hits");
+  }
+  else {
+    TimedHitCollList hitCollList; // this is a list<pair<time_t, DataLink<TRTUncompressedHitCollection> > >
+    unsigned int numberOfSimHits(0);
+    if ( !(m_mergeSvc->retrieveSubEvtsData(m_dataObjectName, hitCollList, numberOfSimHits).isSuccess()) && hitCollList.size()==0 ) {
+      ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG ( hitCollList.size() << " TRTUncompressedHitCollections with key " << m_dataObjectName << " found" );
+    }
+
+    // Define Hit Collection
+    thpctrt.reserve(numberOfSimHits);
+
+    //now merge all collections into one
+    TimedHitCollList::iterator   iColl(hitCollList.begin());
+    TimedHitCollList::iterator endColl(hitCollList.end()  );
+    m_HardScatterSplittingSkipper = false;
+    // loop on the hit collections
+    while ( iColl != endColl ) {
+      //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+      if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
+      if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
+      if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
+      const TRTUncompressedHitCollection* p_collection(iColl->second);
+      thpctrt.insert(iColl->first, p_collection);
+      ATH_MSG_DEBUG ( "TRTUncompressedHitCollection found with " << p_collection->size() << " hits" );
+      ++iColl;
+    }
+  }
+  m_thpctrt = &thpctrt;
+
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
   std::set<Identifier> simhitsIdentifiers;
-
-  //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
-
-  //this is a list<pair<time_t, DataLink<TRTUncompressedHitCollection> > >
-  TimedHitCollList hitCollList;
-  unsigned int numberOfSimHits(0);
-  if ( !(m_mergeSvc->retrieveSubEvtsData(m_dataObjectName, hitCollList, numberOfSimHits).isSuccess()) && hitCollList.size()==0 ) {
-    ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( hitCollList.size() << " TRTUncompressedHitCollections with key " << m_dataObjectName << " found" );
-  }
-
-  // Define Hit Collection
-  TimedHitCollection<TRTUncompressedHit> thpctrt(numberOfSimHits);
-
-  //now merge all collections into one
-  TimedHitCollList::iterator   iColl(hitCollList.begin());
-  TimedHitCollList::iterator endColl(hitCollList.end()  );
-  m_HardScatterSplittingSkipper = false;
-  // loop on the hit collections
-  while ( iColl != endColl ) {
-    //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
-    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
-    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
-    const TRTUncompressedHitCollection* p_collection(iColl->second);
-    thpctrt.insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG ( "TRTUncompressedHitCollection found with " << p_collection->size() << " hits" );
-    ++iColl;
-  }
-  m_thpctrt = &thpctrt;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
   ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
