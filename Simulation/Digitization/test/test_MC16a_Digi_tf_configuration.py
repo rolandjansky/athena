@@ -167,7 +167,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___StandardSignalOnlyTruthPileUpToolsAlg_PileUpTools(self):
-        expected_PileUpTools = ['MergeMcEventCollTool/SignalOnlyMcEventCollTool','MergeTruthJetsTool/MergeTruthJetsTool','MergeTrackRecordCollTool/MergeTrackRecordCollTool','MergeCalibHitsTool/MergeCalibHitsTool','BCM_DigitizationTool/BCM_DigitizationTool','PixelDigitizationTool/PixelDigitizationTool','SCT_DigitizationTool/SCT_DigitizationTool','TRTDigitizationTool/TRTDigitizationTool','LArPileUpTool/LArPileUpTool','TileHitVecToCntTool/TileHitVecToCntTool','CscDigitizationTool/CscDigitizationTool','MdtDigitizationTool/MdtDigitizationTool','RpcDigitizationTool/RpcDigitizationTool','TgcDigitizationTool/TgcDigitizationTool','MergeRecoTimingObjTool/MergeRecoTimingObjTool']
+        expected_PileUpTools = ['MergeMcEventCollTool/SignalOnlyMcEventCollTool','MergeTruthJetsTool/MergeTruthJetsTool','MergeTrackRecordCollTool/MergeMuonEntryLayerTool','MergeCalibHitsTool/MergeCalibHitsTool','BCM_DigitizationTool/BCM_DigitizationTool','PixelDigitizationTool/PixelDigitizationTool','SCT_DigitizationTool/SCT_DigitizationTool','TRTDigitizationTool/TRTDigitizationTool','LArPileUpTool/LArPileUpTool','TileHitVecToCntTool/TileHitVecToCntTool','CscDigitizationTool/CscDigitizationTool','MdtDigitizationTool/MdtDigitizationTool','RpcDigitizationTool/RpcDigitizationTool','TgcDigitizationTool/TgcDigitizationTool','MergeRecoTimingObjTool/MergeRecoTimingObjTool']
         self._assert_Algorithm_property_unordered_equal(
             'StandardSignalOnlyTruthPileUpToolsAlg',
             'PileUpTools',
@@ -176,7 +176,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MergeTruthJetsTool_properties(self):
         tested_configurable_name = 'ToolSvc.MergeTruthJetsTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InTimeOutputTruthJetCollKey', 'LastXing', 'OutOfTimeTruthJetCollKey']
         expected_nonstring_properties = {'LastXing': '100', 'FirstXing': '-500'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -186,9 +186,9 @@ class TestDigitizationMC16a(unittest.TestCase):
             expected_string_properties)
 
 
-    def test___MergeTrackRecordCollTool_properties(self):
-        tested_configurable_name = 'ToolSvc.MergeTrackRecordCollTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing']
+    def test___MergeMuonEntryLayerTool_properties(self):
+        tested_configurable_name = 'ToolSvc.MergeMuonEntryLayerTool'
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'TrackRecordCollKey', 'TrackRecordCollOutputKey']
         expected_nonstring_properties = {'LastXing': '1', 'FirstXing': '-1'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
