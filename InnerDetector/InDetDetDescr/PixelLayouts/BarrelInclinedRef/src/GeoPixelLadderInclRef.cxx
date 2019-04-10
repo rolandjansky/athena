@@ -1215,7 +1215,7 @@ std::vector<double> GeoPixelLadderInclRef:: ConstructAndPlaceModuleService(std::
 
     // Alternating layers have overlapping services, offset one radially
     double svcOverlapOffset   = 0.0;
-    //if (fabs(phiOffsetLongeron) > 0.0001 && m_sector%2 == 0) svcOverlapOffset = (2.0*svcHalfThick) + 0.01;
+  
     if (fabs(phiOffsetLongeron) > 0.0001 && m_sector%2 == 0) svcOverlapOffset = (2.2*m_moduleSvcThickness);
     // Corrections to parameters - barrel offset, and radial link from barrel to eos
     double supBarrelExtension = 0.0;
@@ -1242,13 +1242,13 @@ std::vector<double> GeoPixelLadderInclRef:: ConstructAndPlaceModuleService(std::
 
     // svc routing inner = along outer half of longeron
     double radiusSvc =  supRadialMidpoint + ((0.5*supRadialLength) - supShellThickness + supBarrelExtension - svcHalfThick - svcOverlapOffset - radialSvcOffset) * svcRouteDir;
-    //double radiusSvc =  supRadialMidpoint + ((0.5*supRadialLength) - supShellThickness + supBarrelExtension - svcOverlapOffset - radialSvcOffset) * svcRouteDir;
+   
     HepGeom::Point3D<double> gServicePos =  HepGeom::RotateZ3D( phiOffsetLongeron )*HepGeom::Point3D<double>(radiusSvc, 0.0, 0.0);
     
     // Shift svc along longeron inside wall (so two services can be placed next to each other)
     double supSideShiftDir = (phiOffsetLongeron < 0.0) ? 1.0 : -1.0;
     if (fabs(phiOffsetLongeron) < 0.0001) supSideShiftDir = 0.0;  // no shift if longeron already aligned - one svc only
-    //double distanceShiftSvc = 0.5*((supWidth*0.5)  - supShellThickness);
+   
     double distanceShiftSvc = ((supWidth*0.5)  - supShellThickness) - (1.1*svcHalfWidth);
     //if (svcHalfWidth + distanceShiftSvc > supWidth) distanceShiftSvc = supWidth;
     double xShiftSvc = supSideShiftDir * distanceShiftSvc * sin(phiOffsetLongeron);
