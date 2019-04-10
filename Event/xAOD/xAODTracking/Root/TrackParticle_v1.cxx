@@ -2,8 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackParticle_v1.cxx 576255 2013-12-19 12:54:41Z emoyse $
-
 // Misc includes
 #include <bitset>
 #include <vector>
@@ -40,10 +38,10 @@ namespace xAOD {
        makePrivateStore();
     }
     this->IParticle::operator=( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
     // assume that this copy will create new cache as needed
     m_perigeeParameters.reset();
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
     return *this;
   }
   
@@ -128,12 +126,12 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
@@ -153,12 +151,12 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
 
     static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     Amg::compress(cov,acc(*this));
@@ -199,7 +197,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
 
     // Require the cache to be valid and check if the cached pointer has been set
@@ -232,7 +230,7 @@ namespace xAOD {
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
 
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, chiSquared)
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, numberDoF)
@@ -379,7 +377,7 @@ namespace xAOD {
     acc( *this ).at(index) = static_cast<uint8_t>(pos);
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
   const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {    
 
     static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
@@ -395,7 +393,7 @@ namespace xAOD {
 
     return param;
   }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties)
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties, setTrackProperties)
@@ -461,7 +459,7 @@ namespace xAOD {
   }
  
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
    /// The function will return an invalid ElementLink in case nothing was set
    /// for it yet. This is to avoid users having to always check both for
    /// the decoration being available, and the link being valid.
@@ -508,10 +506,12 @@ namespace xAOD {
 
       return *( acc( *this ) );
    } 
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
    
    void TrackParticle_v1::resetCache(){
+#ifndef XAOD_STANDALONE
      m_perigeeParameters.reset();
+#endif // not XAOD_STANDALONE
    }
 
  

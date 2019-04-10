@@ -30,9 +30,9 @@ namespace xAOD {
     
     if(!hasStore() ) makePrivateStore();
     this->IParticle::operator=( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
     m_perigeeParameters.reset();
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
     return *this;
   }
 
@@ -107,11 +107,11 @@ namespace xAOD {
   }
 
   void NeutralParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float oneOverP) {
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
@@ -131,11 +131,11 @@ namespace xAOD {
   }
 
   void NeutralParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
    if(m_perigeeParameters.isValid()) {
      m_perigeeParameters.reset();
    }
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
     
     static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float>& v = acc(*this);
@@ -184,7 +184,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
   const Trk::NeutralPerigee& NeutralParticle_v1::perigeeParameters() const {
    
     // Require the cache to be valid and check if the cached pointer has been set
@@ -210,9 +210,11 @@ namespace xAOD {
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
 
-  void NeutralParticle_v1::resetCache(){
+  void NeutralParticle_v1::resetCache() {
+#ifndef XAOD_STANDALONE
      m_perigeeParameters.reset();
-   }
+#endif // not XAOD_STANDALONE
+  }
 } // namespace xAOD
