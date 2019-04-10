@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #include "BarrelInclinedRef/GeoPixelBarrelInclRefTool.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
@@ -227,7 +230,7 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
     
     for (int side=-1; side<=1; side=side+2)
       {
-	for(int i=0; i<(int)rmininnerList.size(); i++)
+	for(size_t i=0; i<rmininnerList.size(); i++)
 	  {
 	    double halflen = hlenList[0];
 

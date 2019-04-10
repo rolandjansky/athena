@@ -187,11 +187,6 @@ void GeoPixelLadderInclRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Build stave support
   // ----------------------------------------------------------------------------
-  // Gap between last barrel module and zpos that correspond to the radial escape of the stvae & services
-  //m_gapPlanarStave = 0.;
-  //if (m_layer==1) m_gapPlanarStave = 0.;
-  //if(m_layer>1) m_gapPlanarStave = 4.;
-  // Above now an XML parameter
   msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
   double zEndOfNBarrelModulePos = (m_barrelModuleNumber*m_barrelModule->Length()+m_barrelModuleGap*(m_barrelModuleNumber-1))*.5;
   
@@ -216,24 +211,10 @@ void GeoPixelLadderInclRef::preBuild( ) {
   if (m_staveDBHelpers[0]->getStaveSupportType() == "Standard" ) {
     m_staveSupport = new GeoPixelStaveSupportInclRef( getBasics(), m_layer, *m_barrelModule, m_barrelModuleTilt, 0., m_gapPlanarStave, ecMinRadialPos, ecMaxRadialPos, zEndOfNBarrelModulePos);
   }
-  /*
-  m_thicknessN = m_staveSupport->thicknessN();
-  m_thicknessP = m_staveSupport->thicknessP();
-  m_length = m_staveSupport->length()+0.01;
-  m_width = m_staveSupport->width()+.01;
-  */
-
+ 
   msg(MSG::DEBUG)<<"** stave support thicknesses   : "<<m_thicknessN<<"  "<<m_thicknessP<<endreq;
   msg(MSG::DEBUG)<<"** stave support width/length  : "<<m_width<<"  "<<m_length<<endreq;
 
-//   double halfThickness = 0.5*(m_thicknessP+m_thicknessN);
-//   double shift = 0.5*(m_thicknessP-m_thicknessN);
-//   GeoBox * box = new GeoBox(halfThickness, m_width/2., m_length/2.);
-//   const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
-//   m_ladderShape = &shiftedBox;  
-
-//   const GeoMaterial* air = matMgr()->getMaterial("special::Ether");
-//   m_theLadder = new GeoLogVol("Ladder",m_ladderShape,air);
 
   // ----------------------------------------------------------------------------
   // MinMax parameters
@@ -247,7 +228,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
   if(m_endcapModuleNumber>0) nbTotModule += 2*(m_endcapModuleNumber);
   getBasics()->getDetectorManager()->numerology().setNumEtaModulesForLayer(m_layer, nbTotModule);
 
-//   msg(MSG::DEBUG)<<"** compute Rminmax : "<<m_rmin<<"  "<<m_rmax<<endreq;
+
 }
 
 
@@ -255,7 +236,6 @@ void GeoPixelLadderInclRef::preBuild( ) {
 GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 
   GeoPhysVol* ladderPhys = 0;
-  //  GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
 
   int iModuleCmpt = 0; 
   m_svcMaterialCmpt = 0;
@@ -369,8 +349,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 foamTrans = foamEndcap;
          zTransFoamShift = zEndcapFoamShift;
        }  
-
-       // HepGeom::Transform3D trfFoam = HepGeom::RotateX3D(180.*CLHEP::deg)*HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);       
+     
        HepGeom::Transform3D trfFoam = (m_svcRouting=="inner") ? 
 	 HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D((90.+m_endcapModuleRtilt)*CLHEP::deg):      
 	 HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D((90.-m_endcapModuleRtilt)*CLHEP::deg);       
@@ -401,7 +380,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
 	     InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_endcapModuleDesign, 
 										   modulePhys, getBasics()->getCommonItems());
-	     //	    getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+	    
 	     getBasics()->getDetectorManager()->addDetectorElement(element);
 	     moduleTrans = HepGeom::Transform3D(EcRot.getRotation(),HepGeom::Vector3D<double> (xPos,yPos,zPos));
 
@@ -422,7 +401,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
 	     InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_transitionModuleDesign, 
 										   modulePhys, getBasics()->getCommonItems());
-	     //	    getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+	    
 	     getBasics()->getDetectorManager()->addDetectorElement(element);
 	     moduleTrans = HepGeom::Transform3D(EcRotTrans.getRotation(),HepGeom::Vector3D<double> (xPos,yPos,zPos));
 	   }
@@ -590,7 +569,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 
 	 if(bVerbose)std::cout<<"*******************************************************************"<<std::endl;
 	 if(bVerbose)std::cout<<"xx > module barrel transition Z<0 "<<iModuleCmpt<<" "<<iBrl<<"/"<<m_barrelModuleNumber<<std::endl;
-	 //	 m_transitionModule->setIdentifierFlags(0, m_layer, m_sector, iModuleCmpt);
+
 	 std::ostringstream modName; 
 	 modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	 GeoFullPhysVol* modulePhys = m_transitionModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
@@ -599,7 +578,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 Identifier idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
 	 InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_transitionModuleDesign, 
 									       modulePhys, getBasics()->getCommonItems());
-	 //	 getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+	
 	 getBasics()->getDetectorManager()->addDetectorElement(element);
 
 	 std::ostringstream nameTag; 
@@ -615,8 +594,6 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 ladderPhys->add(modulePhys);
 
 	 // Now store the xform by identifier:
-	 //	 Identifier id = m_barrelModule->getID();
-	 //	 DDmgr->addAlignableTransform(0,id,xform,modulePhys);
 	 getBasics()->getDetectorManager()->addAlignableTransform(0,idwafer,xform,modulePhys);
 
 	 // Increment module counting parametr
@@ -656,7 +633,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
        Identifier idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
        InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_barrelModuleDesign, 
 									     modulePhys, getBasics()->getCommonItems());
-       //       getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+      
        getBasics()->getDetectorManager()->addDetectorElement(element);
 
        std::ostringstream nameTag; 
@@ -685,7 +662,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 BuildAndPlaceModuleService(nbModuleSvc, z0, z1 ,m_barrelModuleTilt, ladderPhys, "barrel");
 	 
 	 // Barrel module to the first endcap module
-	 //if(m_transitionModuleNumber>0) {
+	
 	 if((iBrl==0||iBrl==m_barrelModuleNumber-1)&&m_endcapModuleNumber>0){
 	   double z0 = 0., z1=0.;
 	   if(iBrl==0) { z0 = -endcapModulePos[0].z(); z1 = zpos - m_barrelModule->Length()*.5- m_gapPlanarStave + m_moduleSvcThickness; }
@@ -694,7 +671,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	   if(iBrl==0 && (z1 - m_moduleSvcThickness) < -m_barrelZMax) z1 = -m_barrelZMax + m_moduleSvcThickness;
 	   if(iBrl==m_barrelModuleNumber-1 && (z0 + m_moduleSvcThickness) > m_barrelZMax) z0 = m_barrelZMax - m_moduleSvcThickness;
 
-    	   //BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "endcap",ecSvcRadialPos);
+    	  
 	   BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleZeroTilt, ladderPhys, "endcap");
 	   
 	   // In case endcap modules are shifted in R
@@ -706,11 +683,11 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     if(iBrl==0 && z0 < -m_barrelZMax) { z0 = -m_barrelZMax; z1 = z0+m_moduleSvcThickness; }
 	     else if(iBrl==m_barrelModuleNumber-1 && z1 > m_barrelZMax) { z1 = m_barrelZMax; z0 = z1-m_moduleSvcThickness;}
 
-	     //BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "radial");
+	    
 	     BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleZeroTilt, ladderPhys, "radial");
 	   }
 	 }
-	 //}
+
        }
        
        // Increment/decrement the number of module which services run on the top of the stave
@@ -719,8 +696,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 { nbModuleSvc[brlModuleIndex]=1; brlModuleCmpt=1; }
        
        if(!m_minmaxDefined&&iBrl==0){
-	 //	 computeRadiusMinMax(m_localTrf*HepGeom::Transform3D(rm,modulepos), 
-	 // 			     m_barrelModule->Length(),  m_staveSupport->width(), 2.*m_staveSupport->thickness(), radiusMin, radiusMax);
+	 
 	 computeRadiusMinMax(m_localTrf*HepGeom::Transform3D(rm,modulepos), 
 			     m_barrelModule->Length(),  m_barrelModule->Width(), m_barrelModule->Thickness(), radiusMin, radiusMax);
 
@@ -772,7 +748,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 
 	 if(bVerbose)std::cout<<"*******************************************************************"<<std::endl;
 	 if(bVerbose)std::cout<<"xx > module barrel transition Z>0 "<<iModuleCmpt<<" "<<iBrl<<"/"<<m_barrelModuleNumber<<std::endl;
-	 //	 m_transitionModule->setIdentifierFlags(0, m_layer, m_sector, iModuleCmpt);
+	
 	 std::ostringstream modName; 
 	 modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	 GeoFullPhysVol* modulePhys = m_transitionModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
@@ -796,8 +772,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 ladderPhys->add(modulePhys);
 	 
 	 // Now store the xform by identifier:
-	 //	 Identifier id = m_barrelModule->getID();
-	 //	 DDmgr->addAlignableTransform(0,id,xform,modulePhys);
+	
 	 getBasics()->getDetectorManager()->addAlignableTransform(0,idwafer,xform,modulePhys);
 
 	 iModuleCmpt++;
@@ -820,12 +795,11 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
       // Increment/decrement the number of module which services run on the top of the stave
       nbModuleSvc[brlModuleIndex]--;
 
-      //      double xModPos=0.0;
-      //      double yModPos=0.0;
+     
       GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(), m_width, m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
       GeoPhysVol* foamEndcap = dynamic_cast<GeoPhysVol*>(foamBuilder.getEndcapFoam());
 
-      double zEndcapFoamShift = foamBuilder.getEndcapZshift(); //m_endcapModule->ThicknessN()*sin(m_endcapInclAngle);
+      double zEndcapFoamShift = foamBuilder.getEndcapZshift(); 
       zEndcapFoamShift += (m_svcRouting=="inner") ? -0.25 : 0.25;
 
       GeoPhysVol* foamTrans = dynamic_cast<GeoPhysVol*>(foamBuilder.getTransFoam());
@@ -856,7 +830,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	  double xPos=0., yPos=0., zPos=0.;
 	  GeoFullPhysVol* modulePhys = 0;
 	  if(iPos>=m_transitionModuleNumber) {
-	    //	    m_endcapModule->setIdentifierFlags(0, m_layer, m_sector, iModuleCmpt);
+	  
 	    std::ostringstream modName; 
 	    modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	    modulePhys = m_endcapModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
@@ -870,12 +844,12 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
 	    InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_endcapModuleDesign, 
 										  modulePhys, getBasics()->getCommonItems());
-	    //	    getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+	    
 	    getBasics()->getDetectorManager()->addDetectorElement(element);
 	    moduleTrans = HepGeom::Transform3D(EcRot_pos.getRotation(),HepGeom::Vector3D<double> (xPos,yPos,zPos));
 	  }
 	  else if(m_transitionModuleNumber>0) {
-	    //	    m_transitionModule->setIdentifierFlags(0, m_layer, m_sector, iModuleCmpt);
+	   
 	    std::ostringstream modName; 
 	    modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	    modulePhys = m_transitionModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
@@ -891,7 +865,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
 	    InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_transitionModuleDesign, 
 										  modulePhys, getBasics()->getCommonItems());
-	    //	    getBasics()->getDetectorManager()->addDesign(m_barrelModuleDesign);
+	   
 	    getBasics()->getDetectorManager()->addDetectorElement(element);
 	    moduleTrans = HepGeom::Transform3D(EcRot_posTrans.getRotation(),HepGeom::Vector3D<double> (xPos,yPos,zPos));
 
@@ -1018,9 +992,7 @@ void GeoPixelLadderInclRef::computeRadiusMinMax(HepGeom::Transform3D trf, double
       corners_trf.push_back(p);
     }
 
-//   std::default_random_engine generator;
-//   std::uniform_int_distribution<int> distrib_int(0,7);
-//   std::uniform_real_distribution<double> distrib_float(0.0,1.0);
+
   for(int i=0; i<(int)corners.size(); i++)
     {
       HepGeom::Point3D<double> p = corners_trf[i];

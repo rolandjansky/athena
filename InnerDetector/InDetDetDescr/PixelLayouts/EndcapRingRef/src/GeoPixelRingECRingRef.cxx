@@ -203,7 +203,6 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
       int tmp_ring = m_ring; 
       int tmp_endcapId = endcapId;
 
-      //endcapId = tmp_endcapId; m_layer = tmp_layer; m_ring = tmp_ring;
       Identifier idwafer = basics->getIdHelper()->wafer_id(tmp_endcapId, tmp_layer, phiId, tmp_ring);
       InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, ringModuleDesign,
                                                                             modulePhys, basics->getCommonItems());
