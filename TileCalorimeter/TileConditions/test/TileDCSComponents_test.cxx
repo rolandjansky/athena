@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -670,7 +670,7 @@ void testTileDCSCondAlg(ISvcLocator* svcLoc) {
   prepareDCSStatesFolder();
   prepareEms();
 
-  assert( (alg->execute()).isSuccess() );
+  assert( (alg->execute(Gaudi::Hive::currentContext())).isSuccess() );
 
 
   SG::ReadCondHandleKey<TileDCSState> dcsStateKey{TILE_TEST_DCS};
