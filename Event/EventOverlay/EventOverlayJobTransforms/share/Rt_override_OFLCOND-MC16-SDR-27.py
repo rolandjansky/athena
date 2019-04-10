@@ -62,7 +62,7 @@ if DetFlags.writeRDOPool.pixel_on():
 
 conddb.blockFolder("/PIXEL/PixdEdx")
 conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True)
-mcIDoverlay=False
+mcIDoverlay=True
 if mcIDoverlay:
     print "ACH777: Using MC overlay Lorentz DB settings"
     conddb.blockFolder("/PIXEL/DCS/HV")
@@ -73,7 +73,7 @@ if mcIDoverlay:
     conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/HV","SctDcsHv-MC16-02",force=True,forceMC=True)
     conddb.blockFolder("/SCT/DCS/MODTEMP")
     conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/MODTEMP","SctDcsModtemp-MC16-02",force=True,forceMC=True)
-mcIDoverlay2=False
+mcIDoverlay2=True
 if mcIDoverlay2:
     print "ACH777: Using more MC overlay ID DB settings"
     conddb.blockFolder("/Indet/PixelDist")
