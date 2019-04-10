@@ -203,6 +203,8 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                   "AntiKt10LCTopoJets" # Needed for Ghost association
                  ]
+if jetFlags.useTruth:
+    reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt4TruthDressedWZJets", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]
 replaceAODReducedJets(reducedJetList, higg3d1Seq,"HIGG3D1")
 
 addDefaultTrimmedJets(higg3d1Seq,"HIGG3D1")
@@ -339,7 +341,8 @@ addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                       "AntiKt4TruthDressedWZJets",
                                       "AntiKt4EMPFlowJets",
                                       "AntiKt10LCTopoJets",
-                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"] #veto list
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"] #veto list
                                      )
 
 HIGG3D1SlimmingHelper.AppendContentToStream(HIGG3D1Stream)
