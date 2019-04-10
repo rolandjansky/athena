@@ -150,6 +150,7 @@ private:
   double                                m_pixDiffShiftBarrY; //Shift of the track to improve cluster size description
   double                                m_pixDiffShiftEndCX; //Shift of the track to improve cluster size description
   double                                m_pixDiffShiftEndCY; //Shift of the track to improve cluster size description
+  double 				m_inefficiencySF; // Inefficiency scale factor applied to reduce the HIT efficiency on pixel clusters
   double                                m_ThrConverted;
   
   bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  

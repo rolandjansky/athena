@@ -74,6 +74,7 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/SurfaceCollection.h"
 
+#include <time.h>
 
 using namespace InDetDD;
 using namespace InDet;
@@ -122,6 +123,7 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixDiffShiftBarrY(0.005),
   m_pixDiffShiftEndCX(0.008),
   m_pixDiffShiftEndCY(0.008),
+  m_inefficiencySF(0.008),
   m_ThrConverted(50000),
   m_mergeCluster(true),
   m_splitClusters(0),
@@ -161,6 +163,7 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixDiffShiftBarrY", m_pixDiffShiftBarrY);
   declareProperty("PixDiffShiftEndCX", m_pixDiffShiftEndCX);
   declareProperty("PixDiffShiftEndCY", m_pixDiffShiftEndCY);
+  declareProperty("InefficiencySF", m_inefficiencySF);
   declareProperty("ThrConverted", m_ThrConverted);
 }
 
@@ -517,6 +520,7 @@ StatusCode PixelFastDigitizationTool::digitize()
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
+  srand (time(NULL));
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
@@ -897,9 +901,27 @@ StatusCode PixelFastDigitizationTool::digitize()
       hit_vector.clear();
     } // end hit while
      
+     //check inefficiency SF
+     //std::cout<<"PixelDetElClusterMap.size() before SF "<<PixelDetElClusterMap.size()<<std::endl;
+    //Apply an eta dependent inefficiency SF
+    if (m_inefficiencySF != 0 ){
+       
+	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();)
+	{
+    Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
+    double random= rand()% 1000 / 1000.0;
+    //std::cout<<random<<std::endl;
+	  if  ( random < m_inefficiencySF ){
+	    PixelDetElClusterMap.erase(clusIter);
+      InDet::PixelCluster* currentCluster = clusIter->second;
+      m_pixPrdTruth->erase(currentCluster->identify());
+      delete currentCluster;
+	  }
+	}
+    }  
+     //std::cout<<"PixelDetElClusterMap.size() after SF "<<PixelDetElClusterMap.size()<<std::endl;
     
-    (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
-
+      (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
 
   } // end nextDetectorElement while
 

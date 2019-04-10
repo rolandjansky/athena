@@ -383,7 +383,29 @@ StatusCode SCT_FastDigitizationTool::digitize()
     
       HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
       HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+    
+    
+      //TEST ON CLUSTER SIZE 04/03  
+      // get the identifier of the entry and the exit
+     /* 
+      const double localEntryX_prediffuse = localStartPosition.x();
+      const double localEntryY_prediffuse = localStartPosition.y();
+      const double localEntryZ_prediffuse = localStartPosition.z();
+      const double localExitX_prediffuse = localEndPosition.x();
+      const double localExitY_prediffuse = localEndPosition.y();
+      const double localExitZ_prediffuse = localEndPosition.z();
       
+      const Amg::Vector2D localEntry_prediffuse(localEntryX_prediffuse,localEntryY_prediffuse);
+      const Amg::Vector2D localExit_prediffuse(localExitX_prediffuse,localExitY_prediffuse);
+      
+      const Identifier entryId_prediffuse = hitSiDetElement->identifierOfPosition(localEntry_prediffuse);
+      const Identifier exitId_prediffuse  = hitSiDetElement->identifierOfPosition(localExit_prediffuse);
+      // now get the cellIds and check whether they're valid
+      const InDetDD::SiCellId entryCellId_prediffuse = hitSiDetElement->cellIdFromIdentifier(entryId_prediffuse);
+      const InDetDD::SiCellId exitCellId_prediffuse = hitSiDetElement->cellIdFromIdentifier(exitId_prediffuse);
+      
+      std::cout<<"Entry and exit ID before diffuse "<< entryCellId_prediffuse.phiIndex() << "  " << exitCellId_prediffuse.phiIndex() <<std::endl;
+      */
       Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
@@ -433,6 +455,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
       const bool entryValid = entryCellId.isValid();
       const bool exitValid  = exitCellId.isValid();
       
+      //TEST ON CLUSTER SIZE 04/03  
+      //std::cout<<"Entry and exit ID after diffuse "<< entryCellId.phiIndex() << "  " << exitCellId.phiIndex() <<std::endl;
+      
       // the intersecetion id and cellId of it
       const double par = -localEntryZ/(localExitZ-localEntryZ);
       const double interX = localEntryX + par*(localExitX-localEntryX);
@@ -456,6 +481,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       {
 	continue;
       }
+      //TEST ON CLUSTER SIZE 04/03  
+      //std::cout<<"Entry and exit ID after diffuse "<< entryCellId.phiIndex() << "  " << exitCellId.phiIndex() <<std::endl;
       
       std::vector<Identifier>          potentialClusterRDOList;
       std::map<Identifier, double>     surfaceChargeWeights;
@@ -554,10 +581,18 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  // -------------------------------------------------------------------------------------------------
 	  // current phi/eta indices
 	  const int currentPhiIndex = currentCellId.phiIndex();
+	  
+	  //TEST ON CLUSTER SIZE 04/03  
+   // std::cout<<"Running on strips "<< currentPhiIndex << std::endl;
+	  // std::cout<<"Current Position "<<currentPosition3D.x()<<" "<<currentPosition3D.y()<<" "<<currentPosition3D.z()<<std::endl;
+	  
 	  // record for the full validation
 	  // (a) steps through the strips
 	  // sct break for last strip or if you step out of the game
-	  if (lastStrip || currentPosition3D.z() > 0.5*thickness || strips > 4)
+	  
+	  //TEST ON CLUSTER SIZE 04/03  
+	  //if (lastStrip || currentPosition3D.z() > 0.5*thickness || strips > 4)
+	  if (lastStrip || currentPosition3D.z() > 0.5*thickness || strips > 8)
 	  {
 	    break;
 	  }
@@ -569,6 +604,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  // cache it
 	  phiIndexMinRaw = currentPhiIndex < phiIndexMinRaw ?  currentPhiIndex : phiIndexMinRaw;
 	  phiIndexMaxRaw = currentPhiIndex > phiIndexMaxRaw ?  currentPhiIndex : phiIndexMaxRaw;
+	  
 	  // find out if this is the last step
 	  lastStrip = (currentPhiIndex == exitCellId.phiIndex());
 	  // get the current Pitch
@@ -692,6 +728,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  const Amg::Vector2D currentInsidePosition(currentPosition3D.x()+0.01*signX,currentPosition3D.y()+0.01*signY);
 	  currentId              = hitSiDetElement->identifierOfPosition(currentInsidePosition);
 	  currentCellId          = hitSiDetElement->cellIdFromIdentifier(currentId);
+	  
 	  // just to be sure also for fan structure cases
 	  currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
 	  // The new current Position && the path length for monitoring
@@ -756,6 +793,11 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	// path statistics
 	potentialClusterPath_Drift += chargeWeight;
 	const Identifier chargeId = (weightIter)->first;
+	
+	// Check on diffuse 04/03
+	//const InDetDD::SiCellId CellId_creatingcluster = hitSiDetElement->cellIdFromIdentifier(chargeId);
+  //    	std::cout<<"ID after diffuse, creating cluster "<< CellId_creatingcluster.phiIndex() << std::endl;
+	
 	// charge smearing if set : 2 possibilities landau/gauss
 	// two options fro charge smearing: landau / gauss
 	if ( m_sctSmearPathLength > 0. )
@@ -769,6 +811,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
 
 	// the threshold cut
 	if (!(chargeWeight > m_sctMinimalPathCut)) { continue; }
+	
+	// Check on diffuse 04/03
+  //    	std::cout<<"ID after diffuse, creating cluster, after thr "<< CellId_creatingcluster.phiIndex() << std::endl;
 	
 	// get the position according to the identifier
 	const Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
@@ -800,6 +845,15 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
       const IdentifierHash waferID = m_sct_ID->wafer_hash(hitSiDetElement->identify());
       
+      
+      // Check on diffuse 04/03
+     /* 	for (auto id : potentialClusterRDOList )
+      	{
+      		const InDetDD::SiCellId CellId_beforemergingcluster = hitSiDetElement->cellIdFromIdentifier(id);
+      		std::cout<<"ID before merging "<< CellId_beforemergingcluster.phiIndex() << std::endl;
+      	}
+      */
+      	
       // merging clusters
       if(m_mergeCluster){
 	unsigned int countC(0);
@@ -845,6 +899,12 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  }
 	}
 	ATH_MSG_INFO("After cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
+	 // Check on diffuse 04/03
+	/*for (auto id : potentialClusterRDOList )
+      	{
+      		const InDetDD::SiCellId CellId_aftermergingcluster = hitSiDetElement->cellIdFromIdentifier(id);
+      		std::cout<<"ID after merging "<< CellId_aftermergingcluster.phiIndex() << std::endl;
+      	}*/
       }
       // check whether this is a trapezoid
       const bool isTrapezoid(design->shape()==InDetDD::Trapezoid);
@@ -1015,17 +1075,66 @@ Amg::Vector3D SCT_FastDigitizationTool::stepToStripBorder(
   else
     {
       // the end position of this particular strip
+     // std::pair<Amg::Vector3D,Amg::Vector3D> stripEndGlobal = sidetel.endsOfStrip(stripCenter);
+     // Amg::Vector3D oneStripEndLocal = coef*stripEndGlobal.first;
+     // Amg::Vector3D twoStripEndLocal = coef*stripEndGlobal.second;
+     //double oneStripPitch = sidetel.phiPitch(Amg::Vector2D(oneStripEndLocal.x(), oneStripEndLocal.y()));
+     //double twoStripPitch = sidetel.phiPitch(Amg::Vector2D(twoStripEndLocal.x(), twoStripEndLocal.y()));
+     //Trk::LineIntersection2D intersectStripBorder(localStartX,localStartY,localEndX,localEndY,
+                                                  // oneStripEndLocal.x()+direction*0.5*oneStripPitch,oneStripEndLocal.y(),
+                                                  // twoStripEndLocal.x()+direction*0.5*twoStripPitch,twoStripEndLocal.y());
+      
+      
+      
       std::pair<Amg::Vector3D,Amg::Vector3D> stripEndGlobal = sidetel.endsOfStrip(stripCenter);
-      Amg::Vector3D oneStripEndLocal = coef*stripEndGlobal.first;
-      Amg::Vector3D twoStripEndLocal = coef*stripEndGlobal.second;
-
-      double oneStripPitch = sidetel.phiPitch(Amg::Vector2D(oneStripEndLocal.x(), oneStripEndLocal.y()));
-      double twoStripPitch = sidetel.phiPitch(Amg::Vector2D(twoStripEndLocal.x(), twoStripEndLocal.y()));
-      // now intersect track with border
+      Amg::Vector2D stripEndLocal_inner = sidetel.localPosition(stripEndGlobal.first);
+      Amg::Vector2D stripEndLocal_outer = sidetel.localPosition(stripEndGlobal.second);
+      const double minWidth(sidetel.phiPitch(stripEndLocal_inner));
+      const double maxWidth(sidetel.phiPitch(stripEndLocal_outer));
+     /* std::cout<<" stripWidth x "<<minWidth<<" "<<maxWidth<<" "<<stripCenter.x()<<" "<< sidetel.phiPitch(stripCenter)<< std::endl;
+      std::cout<<" One position detelement"<<" "<<stripEndLocal_inner.x()<<" "<<stripEndLocal_inner.y()<<std::endl;
+      std::cout<<" Second position detelement"<<" "<<stripEndLocal_outer.x()<<" "<<stripEndLocal_outer.y()<<std::endl;
+      */
+      const double angle=atan((stripEndLocal_inner.x()-stripCenter.x())/stripEndLocal_inner.y());
+      const double angle1=atan((stripEndLocal_outer.x()-stripCenter.x())/stripEndLocal_outer.y());
+      //std::cout<<" New coordinate angle "<<angle<<" "<<angle1<<std::endl;
+      const double InnerX= stripEndLocal_inner.x()+ cos(angle) * direction * minWidth *0.5;
+      const double InnerY= stripEndLocal_inner.y()+ sin(angle) * direction * minWidth *0.5;
+      //std::cout<<" Inner position "<<" "<<InnerX<<" "<<InnerY<<std::endl;
+      const double OuterX= stripEndLocal_outer.x()+ cos(angle1) * direction * maxWidth *0.5;
+      const double OuterY= stripEndLocal_outer.y()+ sin(angle1) * direction * maxWidth *0.5;
+      //std::cout<<" Outer position "<<" "<<OuterX<<" "<<OuterY<<std::endl;
+      
+      //const double distance=sqrt((InnerX-OuterX)*(InnerX-OuterX)+(InnerY-OuterY)*(InnerY-OuterY));
+      //std::cout<<" distance "<<" "<<distance<<std::endl;
+      
+      
+      
+      /*
+      Identifier          currentId             = sidetel.identifierOfPosition(stripCenter);
+      InDetDD::SiCellId   currentCellId         = sidetel.cellIdFromIdentifier(currentId);
+      std::cout<<" Cell Center Index "<< currentCellId.phiIndex()<<" "<<sidetel.rawLocalPositionOfCell(currentCellId)<<std::endl;
+      Identifier          followingId             = sidetel.identifierOfPosition(stripCenter+Amg::Vector2D(sidetel.phiPitch(stripCenter),0));
+      InDetDD::SiCellId   followingCellId         = sidetel.cellIdFromIdentifier(followingId);
+      std::cout<<" Following Center Index "<< followingCellId.phiIndex()<<" "<<sidetel.rawLocalPositionOfCell(followingCellId)<<std::endl;
+      Identifier          previousId             = sidetel.identifierOfPosition(stripCenter+Amg::Vector2D(-1 * sidetel.phiPitch(stripCenter),0));
+      InDetDD::SiCellId   previousCellId         = sidetel.cellIdFromIdentifier(previousId);
+      std::cout<<" Following Center Index "<< previousCellId.phiIndex()<<" "<<sidetel.rawLocalPositionOfCell(previousCellId)<<std::endl;
+      */
+   
+      
       Trk::LineIntersection2D intersectStripBorder(localStartX,localStartY,localEndX,localEndY,
-                                                   oneStripEndLocal.x()+direction*0.5*oneStripPitch,oneStripEndLocal.y(),
-                                                   twoStripEndLocal.x()+direction*0.5*twoStripPitch,twoStripEndLocal.y());
+                                                   InnerX,InnerY,
+                                                   OuterX,OuterY);
+      
+      // now intersect track with border
       // the step in x
+      //std::cout<<" Intersection "<< intersectStripBorder.interX<<std::endl; 
+      const Amg::Vector2D Intersection(intersectStripBorder.interX,intersectStripBorder.interY);
+      Identifier          Id_intersection             = sidetel.identifierOfPosition(Intersection);
+      InDetDD::SiCellId   IntersectionCellId         = sidetel.cellIdFromIdentifier(Id_intersection);
+      //std::cout<<" Cell intersection Index "<< IntersectionCellId.phiIndex()<< std::endl;
+      
       stepExitX = intersectStripBorder.interX - localStartX;
       stepExitY = slopeYX*stepExitX;
       stepExitZ = slopeZX*stepExitX;
