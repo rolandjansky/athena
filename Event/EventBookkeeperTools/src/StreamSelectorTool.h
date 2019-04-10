@@ -10,7 +10,9 @@
  *  $Id: StreamSelectorTool.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
+#include "AthenaKernel/ICutFlowSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
@@ -36,12 +38,14 @@ public:
    virtual StatusCode preFinalize();
    virtual StatusCode finalize();
 private:
-   std::string m_attrListKey;
-   std::string m_streamName;
+   StringProperty m_attrListKey{this,"AttributeListKey","Input","Key for attribute list input to be used"};
+   StringProperty m_streamName{this,"SelectedStream","ALL","Name of stream to be used as a filter, defaluts to ALL"};
+
+   ServiceHandle<ICutFlowSvc> m_cutflow;
+   CutIdentifier m_cutid;
 };
 
 inline StatusCode StreamSelectorTool::initialize() {return StatusCode::SUCCESS;}
-inline StatusCode StreamSelectorTool::postInitialize() {return StatusCode::SUCCESS;}
 inline StatusCode StreamSelectorTool::preFinalize() {return StatusCode::SUCCESS;}
 inline StatusCode StreamSelectorTool::finalize() {return StatusCode::SUCCESS;}
 
