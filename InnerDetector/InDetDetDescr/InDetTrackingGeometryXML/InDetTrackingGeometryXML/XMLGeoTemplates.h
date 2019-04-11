@@ -1,5 +1,9 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////////////////////////////////
-// TrkGeoTemplates.h, (c) ATLAS Detector software
+// TrkGeoTemplates.h
 // Define a few templates to be filled from XML files
 // Used to build Trk detector layouts
 ///////////////////////////////////////////////////////////////////
@@ -20,10 +24,12 @@ namespace InDet {
 
     inline void Print() {
       std::cout << "-----Trk Material Template '" << name  << "' Thickness = " << thickness <<" [mm]"<< std::endl;
-      for(unsigned int i=0;i<components.size();i++) 
-	std::cout << "     Component '" << components[i] << "' fraction = " << fractions[i]; std::cout << std::endl;       
+      for(unsigned int i=0;i<components.size();i++) {
+	std::cout << "     Component '" << components[i] << "' fraction = " << fractions[i]; std::cout << std::endl;   
+      }
       std::cout <<"     Averaged: X0 = " << X0 << "  L0 = " << L0 << " A = " << A 
 		<< " Z = " << Z << " rho = "   << density <<  " [gram/mm^3]" << std::endl; 
+      
     }
 
     std::string name;

@@ -262,7 +262,6 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 
     int tmp_layer = layer; 
     int tmp_ring = iRing;
-    int tmp_endcapId = 2*m_endcapSide; 
    
     basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(tmp_layer,tmp_ring,numModules);
  

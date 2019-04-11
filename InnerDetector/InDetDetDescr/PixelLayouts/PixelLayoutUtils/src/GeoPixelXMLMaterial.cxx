@@ -60,7 +60,9 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   int nbMaterial = getChildCount("PixelMaterials", 0, "Material");
   msg(MSG::DEBUG) <<"MATERIAL NUMBER : "<<nbMaterial<<endmsg;
   
-  if(prefix=="none") prefix="pix"; prefix = prefix+"::";
+  if(prefix=="none") prefix="pix"; 
+
+  prefix = prefix+"::";
   
   // --------------------------------------------------------------------------------------------------
   // ADD the material defined in the XML file

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -118,9 +118,7 @@ std::vector<InDet::GeoComponent*> InDet::GeoComponentHelper::getGeoComponentBran
     {
       std::vector<GeoComponent *> compNext;
       compNext=getGeoComponentBranch_Level(*(*i),volumeName);
-      //      compNext=(*i)->getGeoComponentBranch_Level(volumeName);
-      //      compNext=(*i)->getGeoComponentBranch_Level(volumeName);
-      //      std::cout<<"   -> # element "<<compNext.size()<<std::endl;
+     
       if(compNext.size()>0)
 	{
 	  compList.insert(compList.end(),compNext.begin(),compNext.end());
@@ -158,14 +156,14 @@ std::vector<InDet::GeoComponent*> InDet::GeoComponentHelper::findGeoComponentLis
   // If parent is defined look for parent GeoComponent
   if(parentName!="None")
     {
-      //      std::cout<<"**> Parent defined "<<std::endl;
+     
       GeoComponent *compFirst=findGeoComponent(parentName);
       if(compFirst==0)return compList;
       return findGeoComponentList_rec((*compFirst),volumeName);
     }
   else
     {
-      //      std::cout<<"**> Parent undefined "<<std::endl;
+     
       return findGeoComponentList_rec(geoComponent,volumeName);
     }
 
@@ -176,7 +174,7 @@ std::vector<InDet::GeoComponent*> InDet::GeoComponentHelper::findGeoComponentLis
 std::vector<InDet::GeoComponent*> InDet::GeoComponentHelper::findGeoComponentList_rec(const GeoComponent& currentComponent, const std::string& volumeName) const
 {
 
-  //  std::cout<<"findGeoComponentList_rec : "<<volumeName<<"   current "<<currentComponent.getNameTag()<<std::endl;
+ 
 
   std::vector<InDet::GeoComponent*> compList;
 
@@ -185,31 +183,31 @@ std::vector<InDet::GeoComponent*> InDet::GeoComponentHelper::findGeoComponentLis
   // Loop over component to extract readout geometry
 
   std::string namePrefix=currentComponent.getNameTag().substr(0,volumeName.length());
-  //  std::cout<<"Comparison : -"<<namePrefix<<"- // -"<<volumeName<<"-"<<std::endl;  
+  
   const std::vector<InDet::GeoComponent*> vec=currentComponent.components();
   if(namePrefix.compare(volumeName)==0)
     {
-      //      std::cout<<"*** MATCH "<<std::endl;
+     
       compList.push_back(const_cast<GeoComponent*>(&currentComponent));
     }
   if(vec.size()==0) return compList;
 
   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) 
     {
-      //      std::cout<<"-> analyse : "<<(*i)->getNameTag()<<std::endl;
+      
 
       std::string namePrefix=(*i)->getNameTag().substr(0,volumeName.length());
       if(namePrefix.compare(volumeName)==0)
 	{
 	  compList.push_back((*i));
-	  //	  std::cout<<"*** STORED *** "<<(*i)->getNameTag()<<" // "<<compList.size()<<std::endl;
+	 
 	}
       else
 	{
 	  std::vector<GeoComponent*> newCompList;
 	  newCompList.clear();
 	  newCompList = findGeoComponentList_rec(*(*i),volumeName);
-	  //	  newCompList = (*i)->findGeoComponentList(volumeName);
+	 
 	  
 	  if(newCompList.size()>0)
 	    compList.insert(compList.end(),newCompList.begin(),newCompList.end());
@@ -396,7 +394,10 @@ double InDet::GeoComponentHelper::getHalfSizeAlongXAxis() const
 	{
 	  const double& x=bmBox->getXVertex(i);
 	  if(i==0){ xMin=x; xMax=x; }
-	  else { if(x>xMax)xMax=x; if(x<xMin)xMin=x; }
+	  else { 
+	    if(x>xMax)xMax=x; 
+	    if(x<xMin)xMin=x; 
+	  }
 	}
       const double xDim=(xMax-xMin)*0.5;
       return xDim;
@@ -486,7 +487,8 @@ void InDet::GeoComponentHelper::getMaxSizeXAxis(double& vMin, double &vMax) cons
 	  const double& x=bmBox->getXVertex(i);
 	  if(i==0){ xMin=x; xMax=x; }
 	  else {
-	    if(x>xMax)xMax=x; if(x<xMin)xMin=x;
+	    if(x>xMax)xMax=x; 
+	    if(x<xMin)xMin=x;
 	  }
 	}
       vMin = xMin; vMax = xMax;
@@ -655,37 +657,34 @@ std::vector<HepGeom::Point3D<double>> InDet::GeoComponentHelper::getVertexShape(
 void InDet::GeoComponentHelper::FindGeoComponentsMatchingName(const GeoComponent& currentComponent, const std::string& name, std::vector<GeoComponent*> &list) const
 {
 
-  //  std::cout<<"findGeoComponentList_rec : "<<name<<"   current "<<currentComponent.getNameTag()<<std::endl;
 
   // Loop over component to extract readout geometry
   std::string namePrefix=currentComponent.getNameTag().substr(0,name.length());
-  //  std::cout<<"Comparison : -"<<namePrefix<<"- // -"<<name<<"-"<<std::endl;  
+    
   const std::vector<InDet::GeoComponent*> vec=currentComponent.components();
   if(namePrefix.compare(name)==0)
     {
-      //      std::cout<<"*** MATCH "<<std::endl;
+     
       list.push_back(const_cast<GeoComponent*>(&currentComponent));
     }
   if(vec.size()==0) return;
 
   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) 
     {
-      //      std::cout<<"-> analyse : "<<(*i)->getNameTag()<<std::endl;
+     
 
       std::string namePrefix=(*i)->getNameTag().substr(0,name.length());
       if(namePrefix.compare(name)==0)
 	{
 	  list.push_back((*i));
-	  //	  std::cout<<"*** STORED *** "<<(*i)->getNameTag()<<" // "<<list.size()<<std::endl;
+	 
 	}
       else
 	{
 	  std::vector<GeoComponent*> newCompList;
 	  newCompList.clear();
 	  FindGeoComponentsMatchingName(*(*i),name,newCompList);
-	  //newCompList = findGeoComponentList_rec(*(*i),name);
-	  //	  newCompList = (*i)->findGeoComponentList(name);
-	  
+	 
 	  if(newCompList.size()>0)
 	    list.insert(list.end(),newCompList.begin(),newCompList.end());
 	}
@@ -701,24 +700,6 @@ std::vector<int> InDet::GeoComponentHelper::getSensorModuleIndices() const
   std::vector<InDet::GeoComponent*> sensorList;
   FindGeoComponentsMatchingName(geoComponent,"siLog",sensorList);
 
-//   std::cout<<"getSensorModuleIndices() : "<<sensorList.size()<<std::endl;
-//   //  std::vector<InDet::GeoComponent*> sensorList= geoComponent.findGeoComponentList("siLog");
-//   for(std::vector<InDet::GeoComponent*>::iterator it=sensorList.begin();  it!=sensorList.end(); it++)
-//     {
-//       const GeoComponent& component  = *((*it));
-//       const GeoSensor& sensor=dynamic_cast<const GeoSensor&>(component); 
-
-//       int moduleType=sensor.getModuleType();
-
-//       bool bFound=false;
-//       for (std::vector<int>::const_iterator k=modIndices.begin(); k!=modIndices.end(); k++) 
-// 	{
-// 	  if ((*k)==moduleType)bFound=true;
-// 	}
-//       if(!bFound)modIndices.push_back(moduleType);
-//     }
-
-//   std::sort(modIndices.begin(), modIndices.end());
 
   return modIndices;
 }
@@ -746,18 +727,16 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
 { 
 
   std::map<std::string,double>materialMap;
-  std::cout<<"ComputeAllMaterialVolume  : "<<geoComponent.getNameTag()<<std::endl;
 
   // First of all : compute volumes of GeoComponent tree
   bool bGroupVolume=true;
   std::map<std::string,double>volumeMap=computeSubTreeComponentsVolume(bGroupVolume);
-  //    std::cout<<"**> back to computeSubTreeComponentsMaterialAndVolume"<<std::endl;
+ 
   
   // Loop over volume to get Material and complete map with key set to materialName
   for (std::map<std::string,double>::iterator it=volumeMap.begin() ; it != volumeMap.end(); it++ )
     {  
       std::string volNameTmp=(*it).first;	
-      //	std::cout<<"    -> find : "<<volNameTmp<<"  / "<<getNameTag()<<std::endl;
       
       bool bIgnoreVolume=false;
       for (std::vector<std::string>::iterator it2=ignoreVol.begin() ; it2 != ignoreVol.end(); it2++ )
@@ -766,7 +745,7 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
 	  if((volNameTmp.substr(0,volNameIgn.length())).compare(volNameIgn)==0)
 	    {
 	      bIgnoreVolume=true;
-	      //		std::cout<<"    -> ignore : "<<volNameTmp<<"  / "<<volNameIgn<<std::endl;
+	     
 	    }
 	}
       
@@ -774,7 +753,7 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
 	{
 	  GeoComponent *comp=findGeoComponent(volNameTmp);
 	  std::string matName=comp->getMaterialName();
-	  //	    std::cout<<"    -> corresp. mat : "<<matName<<std::endl;
+	 
 	  
 	  // Lopp over material map
 	  std::map<std::string,double>::iterator itGbl;
@@ -986,11 +965,6 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
 
   double compVolume=0.0;
 
-  //  compVolume=this->getShapeVolume();
-
-  //  for(int j=0; j<iLevel;j++) std::cout<<"  ";
-  //  std::cout<<"Volume initial : "<<this->getNameTag()<<" : "<<compVolume<<std::endl;
-
   // Compute current component volume
   const std::vector<InDet::GeoComponent*> vec=currentComponent.components();
   GeoComponentHelper compHelper(currentComponent);
@@ -1013,11 +987,10 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
 
   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) 
     {
-      //	  for(int j=0; j<iLevel;j++) std::cout<<"  ";
-      //	  std::cout<<"Volume ignored : "<<(*i)->getNameTag()<<std::endl;
+     
       std::map<std::string,double>volumeMap_Child;
       volumeMap_Child=computeSubTreeComponentsVolume_level(*(*i),iLevel+1);
-      //      volumeMap_Child=(*i)->computeSubTreeComponentsVolume(iLevel+1);
+     
       
       std::map<std::string,double>::iterator it;
       for ( it=volumeMap_Child.begin() ; it != volumeMap_Child.end(); it++ )
@@ -1042,13 +1015,7 @@ std::map<std::string,double> InDet::GeoComponentHelper::computeSubTreeComponents
   
    for(int j=0; j<iLevel;j++) std::cout<<"  ";
    std::cout<<"Volume final : "<<currentComponent.getNameTag()<<" : "<<compVolume<<std::endl;
-  
-
-//   for ( itGbl=compVolumeMap.begin() ; itGbl != compVolumeMap.end(); itGbl++ )
-//     {
-//       std::cout<<(*itGbl).first<<" "<<(*itGbl).second<<"  /  ";
-//     }
-//   std::cout<<std::endl;
+ 
 
   return compVolumeMap;
 }
@@ -1107,12 +1074,10 @@ double InDet::GeoComponentHelper::computeComponentVolume_basic(int /*iLevel*/) c
 	{
 	  GeoComponentHelper compHelper(*(*i));
 	  double vol2=compHelper.getShapeVolume();
-	  //	  double vol2=(*i)->getShapeVolume();
 	  compVolume-=vol2;
 	}
     }
 
-  //  for(int j=0; j<iLevel;j++) std::cout<<"  ";
   std::cout<<"computeVolume : Volume final : "<<geoComponent.getNameTag()<<" shape/real : "<<shapeVolume<<" "<<compVolume<<" "<<geoComponent.getMaterialName()<<std::endl;
   return compVolume;
 }

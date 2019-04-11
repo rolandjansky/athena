@@ -160,7 +160,7 @@ double PixelInclRefStaveXMLHelper::getMaterialFudge() const
     std::cerr << fudgeString << std::endl;
     std::cerr << std::string(eval.error_position(), '-') << '^' << '\n';
     std::cerr << "Exiting program.\n";
-    exit(999); // Should do better...
+    throw std::runtime_error("Error processing CLHEP evaluator for PixelStaveGeo!");
   }
   return theFudge;
 }

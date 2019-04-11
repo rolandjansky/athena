@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoComponent/GeoComponent.h"
@@ -30,9 +30,7 @@ InDet::GeoComponent::GeoComponent(GeoFullPhysVol* vol) :
   m_physVol(0)
 { 
   m_number=-1;
-  //	m_transform3D=new HepGeom::Transform3D();
   m_transform3D = HepGeom::Transform3D();
-  //	m_nameTag=new GeoNameTag(vol->getLogVol()->getName());
   m_nameTag=std::string(vol->getLogVol()->getName());
   m_bG4InsertFlag=false;
   m_bLock=false;
@@ -46,11 +44,8 @@ InDet::GeoComponent::GeoComponent(GeoPhysVol* vol) :
 { 
   
   m_fullPhysVol=0;
-  //      	m_transform3D=new HepGeom::Transform3D();
   m_transform3D = HepGeom::Transform3D();
-  //	m_nameTag=new GeoNameTag(vol->getLogVol()->getName());
   m_nameTag=vol->getLogVol()->getName();
-  //	m_idTag=0;
   m_bG4InsertFlag=false;
   m_components.clear();
   m_bLock=false;
@@ -65,13 +60,7 @@ InDet::GeoComponent::GeoComponent(GeoFullPhysVol* vol, int seqNum, const HepGeom
 { 
   m_fullPhysVol= new GeoFullPhysVol(vol->getLogVol());
   m_physVol=0; 
-  //	if(&trf==0)
-  // 	  m_transform3D=new HepGeom::Transform3D();
-  // 	else
-  // 	  m_transform3D=new HepGeom::Transform3D(trf);
   m_transform3D=HepGeom::Transform3D(trf);
-  //	m_idTag=0;
-  //	m_nameTag=new GeoNameTag(name);
   m_nameTag=name;
   m_components.clear();
   m_bLock=false;
@@ -84,13 +73,7 @@ InDet::GeoComponent::GeoComponent(GeoPhysVol* vol, int seqNum, const HepGeom::Tr
 { 
   m_physVol= new GeoPhysVol(vol->getLogVol());
   m_fullPhysVol=0; 
-  // 	if(&trf==0)
-  // 	  m_transform3D=new HepGeom::Transform3D();
-  // 	else
-  // 	  m_transform3D = new HepGeom::Transform3D(trf);
   m_transform3D=HepGeom::Transform3D(trf);
-  //	m_idTag=0;
-  //m_nameTag=new GeoNameTag(name);
   m_nameTag=name;
   m_components.clear();
   m_bLock=false;
@@ -101,51 +84,16 @@ InDet::GeoComponent::GeoComponent(GeoPhysVol* vol, int seqNum, const HepGeom::Tr
 InDet::GeoComponent::~GeoComponent() 
 {
    const std::vector<InDet::GeoComponent*> vec=components();
-//   std::cout<<"~GeoComponent :  # objects : "<<vec.size()<<std::endl;
-
-//   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) if(*i) delete (*i);
-
-  
-//  std::cout<<"~GeoComponent :  delete  "<<name()<<"  "<<vec.size()<<std::endl;
-//  if(m_bOriginalObject && m_transform3D) delete m_transform3D;
-
-  //    delete m_fullPhysVol;    // FIXME : all destructors are private
-  //  if(m_physVol) delete m_physVol;
-  //    delete m_transform;
-  //    delete m_idTag;
-  //    delete m_nameTag;
 
 }
 
 
 void InDet::GeoComponent::UnRef() 
 {
-//   std::cout<<"~GeoComponent :  # objects : "<<vec.size()<<std::endl;
-  
-//  if(m_bOriginalObject && m_transform3D) delete m_transform3D;
 
-//   std::cout<<"~GeoComponent :  unref  "<<name()<<"  "<<vec.size()<<std::endl;
-//   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) 
-//     if(*i){
-//       std::cout<<"     -- unref child of "<<name()<<" :  "<<(*i)->name()<<"  "<<std::endl;
-//       (*i)->UnRef();
-//      }
-  
-// // FIXME SES : need to declare GeoComponent as friend class in GeoModelKernel classes
-// //   // Delete the complete physvol/fullPhysVol tree
-// //   std::cout<<"------------ ~GeoComponent :  unref  object "<<name()<<std::endl;
-
-// //   if(m_physVol) { /*std::cout<<"delete m_physVol"<<std::endl;*/ delete m_physVol; }
-// //   if(m_fullPhysVol) { /*std::cout<<"delete m_fullPhysVol"<<std::endl;*/ delete m_fullPhysVol; }
 
   m_physVol=0;
   m_fullPhysVol=0;
-
-//   // Delete the pointers
-//   const std::vector<InDet::GeoComponent*> vec=components();
-//   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) if(*i) delete (*i);
-
-//  std::cout<<"------------ ~GeoComponent :  unref  object "<<name()<<" -------------- DONE --------"<<std::endl;
 
 }
 
@@ -292,29 +240,11 @@ void InDet::GeoComponent::connectChildComponent( GeoComponent& child)
 
 void InDet::GeoComponent::deleteAllChildComponents()
 {
-//   // Loop over components of current GeoComponent
-//   const std::vector<InDet::GeoComponent*> vec=components();
-//   if(vec.size()==0) return;
 
-//   for (std::vector<GeoComponent*>::const_iterator i=vec.begin(); i!=vec.end(); i++) 
-//     {
-//       const std::vector<InDet::GeoComponent*> vecTmp=(*i)->components();
-//       if(vecTmp.size()>0)
-// 	{
-// 	  (*i)->deleteAllChildComponents();
-// 	}
-//     }
+  //??? This was empty aside from commented code... assume it coud be removed?
 
 }
 
-
-// void InDet::GeoComponent::addAlignableComponent( GeoComponent& child)
-// {
-//   // FIXME
-//   // maybe check order and duplicate numbers?
-//   connectChild( child);
-//   m_components.push_back( &child);
-// }
 
 
 void InDet::GeoComponent::dump(int iLevel) const
@@ -344,26 +274,7 @@ void InDet::GeoComponent::dumpNames(int iLevel) const
 
   std::ostringstream os;
   os<<" type : ";
-  //  try{
-  //    const GeoEnvelope& tmp=dynamic_cast<const GeoEnvelope&>(component); 
-  //    os <<"GeoEnvelope "<<tmp.getNameTag();
-//   }
-//   catch(...){}
- //  try{
-//     const GeoBarrelAlpine& tmp=dynamic_cast<const GeoBarrelAlpine&>(component); 
-//     os <<"GeoBarrelAlpine "<<tmp.getNameTag();
-//   }
-//   catch(...){}
-//   try{
-//     const GeoLayerAlpine& tmp=dynamic_cast<const GeoLayerAlpine&>(component); 
-//     os <<"GeoLayerAlpine "<<tmp.getNameTag();
-//   }
-//   catch(...){}
-//   try{
-//     const GeoStaveAlpine& tmp=dynamic_cast<const GeoStaveAlpine&>(component); 
-//     os <<"GeoStaveAlpine "<<tmp.getNameTag();
-//   }
-//   catch(...){}
+  
   try{
     const GeoDetModule& tmp=dynamic_cast<const GeoDetModule&>(component); 
     os <<"GeoDetModule "<<tmp.getNameTag();
@@ -438,9 +349,15 @@ void InDet::GeoComponent::showTransform() const
   HepGeom::Point3D<double> p2_trf=trfRot*p2;
   HepGeom::Point3D<double> p3_trf=trfRot*p3;
 
-  if(fabs(p1_trf.x())<0.001)p1_trf.setX(0.0); if(fabs(p1_trf.y())<0.001)p1_trf.setY(0.0); if(fabs(p1_trf.z())<0.001)p1_trf.setZ(0.0);
-  if(fabs(p2_trf.x())<0.001)p2_trf.setX(0.0); if(fabs(p2_trf.y())<0.001)p2_trf.setY(0.0); if(fabs(p2_trf.z())<0.001)p2_trf.setZ(0.0);
-  if(fabs(p3_trf.x())<0.001)p3_trf.setX(0.0); if(fabs(p3_trf.y())<0.001)p3_trf.setY(0.0); if(fabs(p3_trf.z())<0.001)p3_trf.setZ(0.0);
+  if(fabs(p1_trf.x())<0.001)p1_trf.setX(0.0); 
+  if(fabs(p1_trf.y())<0.001)p1_trf.setY(0.0); 
+  if(fabs(p1_trf.z())<0.001)p1_trf.setZ(0.0);
+  if(fabs(p2_trf.x())<0.001)p2_trf.setX(0.0); 
+  if(fabs(p2_trf.y())<0.001)p2_trf.setY(0.0); 
+  if(fabs(p2_trf.z())<0.001)p2_trf.setZ(0.0);
+  if(fabs(p3_trf.x())<0.001)p3_trf.setX(0.0); 
+  if(fabs(p3_trf.y())<0.001)p3_trf.setY(0.0); 
+  if(fabs(p3_trf.z())<0.001)p3_trf.setZ(0.0);
 
   std::cout<<std::setprecision(3)<<p1_trf.x()<<"  "<<p2_trf.x()<<"  "<<p3_trf.x()<<"  -  "<<trfTrans.x()<<std::endl;
   std::cout<<std::setprecision(3)<<p1_trf.y()<<"  "<<p2_trf.y()<<"  "<<p3_trf.y()<<"  -  "<<trfTrans.y()<<std::endl;
@@ -448,12 +365,6 @@ void InDet::GeoComponent::showTransform() const
 
 }
 
-
-
-// HepGeom::Transform3D* InDet::GeoComponent::getTransform3D() const
-// {
-//   return m_transform3D;
-// }
 
 const HepGeom::Transform3D& InDet::GeoComponent::getTransform3D() const
 {
