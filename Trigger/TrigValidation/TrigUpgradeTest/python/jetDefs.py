@@ -11,13 +11,22 @@ from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 def jetAthSequence(ConfigFlags):
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
     InputMakerAlg= clusterFSInputMaker()
-    (recoSequence, sequenceOut) = jetRecoSequence()
+
+    dataOrMC = "data"
+    #if ConfigFlags.Input.isMC:
+    #    dataOrMC = "mc"
+    # want to make this automatic.
+
+    if ConfigFlags.jetdef=="EMTopoSubJESIS":
+    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigEMSubJESIS:"+dataOrMC)
+    elif ConfigFlags.jetdef=="EMTopoSubJES":
+    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigEMSubJES:"+dataOrMC)
 
     JetAthSequence =  seqAND("jetAthSequence",[InputMakerAlg, recoSequence ])
     return (JetAthSequence, InputMakerAlg, sequenceOut)
 
     
-def jetRecoSequence(RoIs = 'FSJETRoI'):
+def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
 
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     (caloMakerSequence, caloclusters) = HLTFSTopoRecoSequence(RoIs)
@@ -34,7 +43,8 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
     TrigEMTopo.ptmin = 2e3
     TrigEMTopo.ptminfilter = 15e3
     TrigAntiKt4EMTopoSubJES = JetDefinition( "AntiKt", 0.4, TrigEMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
-    TrigAntiKt4EMTopoSubJES.modifiers = ["Calib:TrigEMSubJES:mc","Sort"] + clustermods 
+    TrigAntiKt4EMTopoSubJES.modifiers = [calibString,"Sort"] + clustermods 
+    #TrigAntiKt4EMTopoSubJES.ghostdefs = []
     #TrigAntiKt4EMTopoSubJES.isTrigger = True
     jetDefinition = TrigAntiKt4EMTopoSubJES
 
@@ -69,10 +79,11 @@ def jetRecoSequence(RoIs = 'FSJETRoI'):
 
     # Schedule the ghost PseudoJetGetterAlgs
     for ghostdef in deps["ghosts"]:
+        print("ghostdef = ", ghostdef)
         ghostPJAlg = getGhostPJGAlg( ghostdef )
         jetRecoSequence += ghostPJAlg
         ghostPJKey = ghostPJAlg.PJGetter.OutputContainer
-        pjs.append( ghostpjkey )
+        pjs.append( ghostPJKey )
 
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
@@ -113,6 +124,44 @@ def getConstitPJGAlg(basedef):
         )
     return pjgalg
 
+def getGhostPJGAlg(ghostdef):
+
+    label = "Ghost"+ghostdef.inputtype
+    kwargs = {
+        "OutputContainer":    "PseudoJet"+label,
+        "Label":              label,
+        "SkipNegativeEnergy": True,
+        "GhostScale":         1e-40
+        }
+
+    from JetRec import JetRecConf
+    pjgclass = JetRecConf.PseudoJetGetter
+    if ghostdef.inputtype=="MuonSegment":
+        # Muon segments have a specialised type
+        pjgclass = JetRecConf.MuonSegmentPseudoJetGetter
+        kwargs = {
+            "InputContainer":"MuonSegments",
+            "OutputContainer":"PseudoJet"+label,
+            "Label":label,
+            "Pt":1e-20
+            }
+    elif ghostdef.inputtype=="Track":
+        kwargs["InputContainer"] = "JetSelectedTracks"
+    elif ghostdef.inputtype.startswith("TruthLabel"):
+        truthsuffix = ghostdef.inputtype[5:]
+        kwargs["InputContainer"] = "TruthLabel"+truthsuffix
+    elif ghostdef.inputtype == "Truth":
+        kwargs["InputContainer"] = "JetInputTruthParticles"
+    else:
+        raise ValueError("Unhandled ghost type {0} received!".format(ghostdef.inputtype))
+
+    getter = pjgclass("pjg_"+label, **kwargs)
+
+    pjgalg = JetRecConf.PseudoJetAlgorithm(
+        "pjgalg_"+label,
+        PJGetter = getter
+        )
+    return pjgalg
 
 def getTrackPrepAlg( trackPrepAlgName ):
 
