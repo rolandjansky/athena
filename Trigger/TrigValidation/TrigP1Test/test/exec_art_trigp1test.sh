@@ -17,9 +17,8 @@ if [ -z ${JOB_athenaHLT_LOG} ]; then
 fi
 
 if [ -z ${JOB_LOG_LVL} ]; then
-  #export JOB_LOG_LVL="INFO,ERROR"
-  export JOB_LOG_LVL="INFO,ERROR,DEBUG"
-  export TDAQ_ERS_DEBUG_LEVEL=3
+  export JOB_LOG_LVL="INFO,ERROR"
+  #export TDAQ_ERS_DEBUG_LEVEL=3
 fi
 
 # read test configurations from env variables
@@ -31,7 +30,7 @@ if [ -z "${ART_CMD}" ]; then
 fi
 
 if [ -z ${ART_TIMEOUT} ]; then
-  export ART_TIMEOUT="20m"
+  export ART_TIMEOUT="200m"
 fi
 
 if [ -z ${ART_FILE_NAME} ]; then

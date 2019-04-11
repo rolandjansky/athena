@@ -43,7 +43,7 @@ fi
 
 echo $(date "+%FT%H:%M %Z")"     Checking for crashes and timeouts in child processes"
 if [ -f ${JOB_athenaHLT_LOG} ]; then
-   checkTimeut=`grep "CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
+   checkTimeut=`grep "ERROR Caught signal 15|CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
    if [[ -z "${checkTimeut}" ]]; then
      echo "art-result: 0 ${NAME}.ChildTimeout"
    else
