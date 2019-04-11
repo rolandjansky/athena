@@ -164,15 +164,25 @@ skimmingTools=[]
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 4*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
 leadElectron = electronRequirements + ' && (Electrons.pt > 17*GeV)'
+
 muonsRequirements = '(Muons.pt > 2*GeV) && (Muons.DFCommonGoodMuon) && (Muons.DFCommonMuonsPreselection)'
-leadMuon = muonsRequirements + ' && (Muons.pt > 14*GeV)'
+leadMuon = muonsRequirements + ' && (Muons.pt > 17*GeV)'
+
+# Set the pT threshold lower for the symmetric dilepton case
+leadMuon_symdilepton = muonsRequirements + ' && (Muons.pt > 14*GeV)'
 
 eeSelection = '((count('+electronRequirements+') >= 2) && (count('+leadElectron+') >= 1))'
 mmSelection = '((count('+muonsRequirements+') >= 2) && (count('+leadMuon+') >= 1))'
 
+#Adding in a symmetric dilepton kinematic + trigger requirment
+mmSelection_symdilepton = '((count('+muonsRequirements+') >= 2) && (count('+leadMuon_symdilepton+') >= 2) && (HLT_2mu14 || HLT_2mu10))'
+
 emSelection = '(((count('+electronRequirements+') >= 1) && (count('+muonsRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 
-preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection
+#preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection
+
+# Adding in the new category
+preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection+' || '+mmSelection_symdilepton
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG3D1PreselectionSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG3D1PreselectionSkimmingTool",
