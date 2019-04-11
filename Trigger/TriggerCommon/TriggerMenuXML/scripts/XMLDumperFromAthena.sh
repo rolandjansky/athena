@@ -86,6 +86,7 @@ fi
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml
     cp outputHLTconfig.xml ${dest}/HLTconfig_${menu}_${release}.xml
+    cp outputLVL1config.xml ${dest}/LVL1config_${menu}.xml
 fi
 
 #this gives some more sensitivity to hidden problems

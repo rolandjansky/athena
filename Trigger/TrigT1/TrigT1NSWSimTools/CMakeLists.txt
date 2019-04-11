@@ -4,7 +4,6 @@
 
 # Declare the package name:
 atlas_subdir( TrigT1NSWSimTools )
-set(CMAKE_CXX_FLAGS "-std=c++14")
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel

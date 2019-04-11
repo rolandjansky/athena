@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -59,7 +59,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 							 std::vector<Muon::MMPrepData*>& clustersVect)
 
 {
-
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
   ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 
   std::vector<int> MMflag;
@@ -86,7 +85,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     int strip = m_mmIdHelper->channel(id_prd);
     int gasGap  = m_mmIdHelper->gasGap(id_prd);
     int layer   = m_mmIdHelper->multilayer(id_prd);
-    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
+    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
+		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
     for (unsigned int j=i+1; j<MMprds.size(); ++j){
       Identifier id_prdN = MMprds[j].identify();
       int stripN = m_mmIdHelper->channel(id_prdN);
@@ -110,7 +110,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
     unsigned int nmergeStrips = 1;
-    unsigned int nmergeStripsMax = 25;
+    unsigned int nmergeStripsMax = 50;
     for (unsigned int k=0; k < nmergeStripsMax; ++k) {
       for (unsigned int j=jmerge; j<MMprds.size(); ++j){
 	if(MMflag[j] == 1) continue;
@@ -136,7 +136,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       if(k>=nmergeStrips) break;
     }
     ATH_MSG_VERBOSE(" add merged MMprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
-    
+
     // start off from strip in the middle
     int stripSum = 0;
     for (unsigned int k =0; k<mergeStrips.size(); ++k) {
@@ -150,6 +150,28 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
     }
     ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
+
+    ///
+    /// get the local position from the cluster centroid
+    ///
+    double weightedPosX = 0.0;
+    double posY = 0.0;
+    double totalCharge = 0.0;
+    if ( mergeStrips.size() > 0 ) { 
+      /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
+      posY = MMprds[mergeIndices[0]].localPosition().y();
+      for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
+	double posX = MMprds[mergeIndices[k]].localPosition().x();
+	double charge = MMprds[mergeIndices[k]].charge();
+	weightedPosX += posX*charge;
+	totalCharge += charge;
+	ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
+      } 
+      weightedPosX = weightedPosX/totalCharge;
+    }
+
+    
+    Amg::Vector2D clusterLocalPosition(weightedPosX,posY);
     
     double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
 
@@ -165,7 +187,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
+    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement());
     clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements

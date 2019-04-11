@@ -69,6 +69,7 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	m_SupercellMapEM2 = new TH2F("SupercellMapEM2","Supercell map of EM2",392,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapEM3 = new TH2F("SupercellMapEM3","Supercell map of EM3",98,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapHAD = new TH2F("SupercellMapHAD","Supercell map of HAD",98,-4.9,4.9,64,0,2*M_PI);
+	m_SupercellMapTWR = new TH2F("SupercellMapTWR","Supercell map of TWR",98,-4.9,4.9,64,0,2*M_PI);
 
 	// Hard-code variable names - we don't want them to be configurable for now
 	// Feel free to change the names
@@ -103,9 +104,6 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 		return StatusCode::SUCCESS;
 	}
 
-	// Simply check cells which are above a given threshold (1GeV) 
-	findCellsAbove_EMB2_EMEC2(scells,1e3,m_cellsAboveThr);
-
 	// Prepare output containers (with all xAOD annoying features)
 	xAOD::EmTauRoIContainer* clustersForTau = new xAOD::EmTauRoIContainer();
 	xAOD::EmTauRoIAuxContainer* auxclustersForTau = new xAOD::EmTauRoIAuxContainer();
@@ -130,165 +128,226 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	m_SupercellMapEM2->Reset();
 	m_SupercellMapEM3->Reset();
 	m_SupercellMapHAD->Reset();
+	m_SupercellMapTWR->Reset();
+
+	int currentSampling = 0;
 
 	// fill energy in all TH2 histograms for supercell map
 	for(auto scell : allSuperCells) {
-		//if (scell->caloDDE()->getSampling()==0||scell->caloDDE()->getSampling()==4) {m_SupercellMapEM0->Fill(scell->eta(),scell->phi(),scell->et());}
-		//if (scell->caloDDE()->getSampling()==1||scell->caloDDE()->getSampling()==5) {m_SupercellMapEM1->Fill(scell->eta(),scell->phi(),scell->et());}
-		//if (scell->caloDDE()->getSampling()==2||scell->caloDDE()->getSampling()==6) {m_SupercellMapEM2->Fill(scell->eta(),scell->phi(),scell->et());}
-		//if (scell->caloDDE()->getSampling()==3||scell->caloDDE()->getSampling()==7) {m_SupercellMapEM3->Fill(scell->eta(),scell->phi(),scell->et());}
-		//if (scell->caloDDE()->getSampling()==0||scell->caloDDE()->getSampling()==4) {m_SupercellMapEM0->Fill(scell->eta(),scell->phi(),scell->energy());}
-		//if (scell->caloDDE()->getSampling()==1||scell->caloDDE()->getSampling()==5) {m_SupercellMapEM1->Fill(scell->eta(),scell->phi(),scell->energy());}
-		//if (scell->caloDDE()->getSampling()==2||scell->caloDDE()->getSampling()==6) {m_SupercellMapEM2->Fill(scell->eta(),scell->phi(),scell->energy());}
-		//if (scell->caloDDE()->getSampling()==3||scell->caloDDE()->getSampling()==7) {m_SupercellMapEM3->Fill(scell->eta(),scell->phi(),scell->energy());}
-		//else {m_SupercellMapHAD->Fill(scell->eta(),scell->phi(),scell->energy());}
-	  if (scell->caloDDE()->getSampling()==0||scell->caloDDE()->getSampling()==4) {m_SupercellMapEM0->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));}
-	  if (scell->caloDDE()->getSampling()==1||scell->caloDDE()->getSampling()==5) {m_SupercellMapEM1->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));}
-	      if (scell->caloDDE()->getSampling()==2||scell->caloDDE()->getSampling()==6) {m_SupercellMapEM2->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));}
-		  if (scell->caloDDE()->getSampling()==3||scell->caloDDE()->getSampling()==7) {m_SupercellMapEM3->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));}
-		  else {m_SupercellMapHAD->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));}
+	  currentSampling = scell->caloDDE()->getSampling();
+
+	  // Store maps per layer
+	  if (currentSampling==0 || currentSampling==4)
+	    m_SupercellMapEM0->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	  else if (currentSampling==1 || currentSampling==5)
+	    m_SupercellMapEM1->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	  else if (currentSampling==2 || currentSampling==6)
+	    m_SupercellMapEM2->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	  else if (currentSampling==3 || currentSampling==7)
+	    m_SupercellMapEM3->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	  else m_SupercellMapHAD->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	  
+	  // Store a map sum of all layers
+	  
+	  m_SupercellMapTWR->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
 	}
 
-	// Loop over seed cells, this should give us
-	// 
-	for( auto cellAbove : m_cellsAboveThr ) {
-		// builds a vector with all the cells around the seed cell
-		// with the size (deta,dphi)=(0.08,0.21)
-		findCellsAround(scells, cellAbove, m_cellsAround,0.13,0.15); // large window
-		// check if seed cell is a local maximum in 3*3 window
-		if ( ! isCellEmMaximum ( m_cellsAround, cellAbove ) ) continue;
+	// Need to also loop over Run-I towers to get central region hadronic energy
+	for(unsigned tt_hs=0 ; tt_hs<TTs->size(); tt_hs++){
+	  const xAOD::TriggerTower * tt = TTs->at(tt_hs);
+	  // Only use towers within 1.5, and in Tile
 
-		float seedCenterEtaCourse = m_SupercellMapEM0->GetXaxis()->GetBinCenter( m_SupercellMapEM0->GetXaxis()->FindBin(cellAbove->eta()) );
-		float seedCenterPhiCourse = m_SupercellMapEM0->GetYaxis()->GetBinCenter( m_SupercellMapEM0->GetYaxis()->FindBin(TVector2::Phi_0_2pi(cellAbove->phi())) );
-		float seedCenterEtaFine = m_SupercellMapEM2->GetXaxis()->GetBinCenter( m_SupercellMapEM2->GetXaxis()->FindBin(cellAbove->eta()) );
-		float seedCenterPhiFine = m_SupercellMapEM2->GetYaxis()->GetBinCenter( m_SupercellMapEM2->GetYaxis()->FindBin(TVector2::Phi_0_2pi(cellAbove->phi())) );
-		float seedPlace=0;
-		if (seedCenterEtaCourse-seedCenterEtaFine>0.0124&&seedCenterEtaCourse-seedCenterEtaFine<0.0126) seedPlace=0.0125; //  |*||
-		if (seedCenterEtaCourse-seedCenterEtaFine>-0.0126&&seedCenterEtaCourse-seedCenterEtaFine<-0.0124) seedPlace=0.0375; // ||*|
-		if (seedCenterEtaCourse-seedCenterEtaFine>0.0374&&seedCenterEtaCourse-seedCenterEtaFine<0.0376) seedPlace=0.; // *|||
-		if (seedCenterEtaCourse-seedCenterEtaFine>-0.0376&&seedCenterEtaCourse-seedCenterEtaFine<-0.0374) seedPlace=0.05; // |||*
+          if(tt->sampling()!=1 || fabs(tt->eta())>1.5) continue;
+	  
+	  // Conversion into ET
+	  float cpET = tt->cpET()*500.; // EM energy scale: 1 unit corresponds to 500 MeV
+	  if(cpET < 0.)
+	    cpET = 0;
 
-		msg << MSG::DEBUG  <<"Esumi_ seed center etadiff = "<<seedCenterEtaCourse-seedCenterEtaFine<<" , phidiff = "<<seedCenterPhiCourse-seedCenterPhiFine<<endreq;
-		std::vector<float> EM0Supercells55;
-		std::vector<float> EM1Supercells55;
-		std::vector<float> EM2Supercells55;
-		std::vector<float> EM3Supercells55;
-		std::vector<float> HADSupercells55;
-		std::vector<float> EM0Supercells33;
-		std::vector<float> EM1Supercells33;
-		std::vector<float> EM2Supercells33;
-		std::vector<float> EM3Supercells33;
-		std::vector<float> HADSupercells33;
-		for (int iPhi=0;iPhi<5;iPhi++) {
-			for (int iEta=0;iEta<5;iEta++) {
-				if ( fabs(seedCenterEtaCourse-0.2+0.1*iEta)<4.9 ) {
-					if ((seedCenterPhiCourse-0.2+0.1*iPhi)>0 && (seedCenterPhiCourse-0.2+0.1*iPhi)<2*M_PI) {
-						EM0Supercells55.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-						EM3Supercells55.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-						HADSupercells55.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-						if (iEta>0 && iEta<4 && iPhi>0 && iPhi<4) {
-							EM0Supercells33.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-							EM3Supercells33.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-							HADSupercells33.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi))));
-						}
-					}
-					if ((seedCenterPhiCourse-0.2+0.1*iPhi)<=0) {
-						EM0Supercells55.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-						EM3Supercells55.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-						HADSupercells55.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-						if (iEta>0 && iEta<4 && iPhi>0 && iPhi<4) {
-							EM0Supercells33.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-							EM3Supercells33.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-							HADSupercells33.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi+2.*M_PI))));
-						}
-					}
-					if ((seedCenterPhiCourse-0.2+0.1*iPhi)>=2*M_PI) {
-						EM0Supercells55.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-						EM3Supercells55.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-						HADSupercells55.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-						if (iEta>0 && iEta<4 && iPhi>0 && iPhi<4) {
-							EM0Supercells33.push_back(m_SupercellMapEM0->GetBinContent( m_SupercellMapEM0->GetBin(m_SupercellMapEM0->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM0->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-							EM3Supercells33.push_back(m_SupercellMapEM3->GetBinContent( m_SupercellMapEM3->GetBin(m_SupercellMapEM3->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapEM3->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-							HADSupercells33.push_back(m_SupercellMapHAD->GetBinContent( m_SupercellMapHAD->GetBin(m_SupercellMapHAD->GetXaxis()->FindBin(seedCenterEtaCourse-0.2+0.1*iEta),m_SupercellMapHAD->GetYaxis()->FindBin(seedCenterPhiCourse-0.2+0.1*iPhi-2.*M_PI))));
-						}
-					}
-				}
-				if ( fabs(seedCenterEtaCourse-0.2+0.1*iEta)>=4.9 ) {
-					EM0Supercells55.push_back(0.);
-					EM3Supercells55.push_back(0.);
-					HADSupercells55.push_back(0.);
-					if (iEta>0 && iEta<4 && iPhi>0 && iPhi<4) {
-						EM0Supercells33.push_back(0.);
-						EM3Supercells33.push_back(0.);
-						HADSupercells33.push_back(0.);
-					}
-				}
+	  // Fill hadronic maps
+	  m_SupercellMapHAD->Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
+	  m_SupercellMapTWR->Fill(tt->eta(), TVector2::Phi_0_2pi(tt->phi()), cpET);
+	}
+	
+	// Find local maxima
+	std::vector<TLorentzVector> m_localMaxima;
+
+	// X is eta, Y is phi
+	for(int i=0; i<m_SupercellMapTWR->GetNbinsX(); i++) {
+	  for(int j=0; j<m_SupercellMapTWR->GetNbinsY(); j++) {
+	    // Start by filtering out 'useless towers' (ie: anything less than a GeV)
+	    double towerET = m_SupercellMapTWR->GetBinContent(i+1, j+1);
+	    if(towerET < 1000.)
+	      continue;
+	    
+	    // Check if the current tower has the largest ET in this 3x3 window
+	    
+	    // Need to be careful with wrap-around in phi, unfortunately.
+	    std::vector<double> binsAbove;
+	    std::vector<double> binsBelow;
+	    
+	    // Handle wrap-around in phi
+	    int aboveInPhi = j+1;
+	    if(j == m_SupercellMapTWR->GetNbinsY()-1)
+	      aboveInPhi = 0;
+	    int belowInPhi = j-1;
+	    if(j == 0)
+	      belowInPhi = m_SupercellMapTWR->GetNbinsY()-1;
+
+	    // The convention here is arbitrary, but needs to be mirrored
+	    // Take the cells in the next row in phi, and the one cell above in eta
+	    binsAbove.push_back( m_SupercellMapTWR->GetBinContent(i, aboveInPhi+1) );
+	    binsAbove.push_back( m_SupercellMapTWR->GetBinContent(i+1, aboveInPhi+1) );
+	    binsAbove.push_back( m_SupercellMapTWR->GetBinContent(i+2, aboveInPhi+1) );
+	    binsAbove.push_back( m_SupercellMapTWR->GetBinContent(i+2, j+1) );
+
+	    // Inversely so for the bins below
+	    binsBelow.push_back( m_SupercellMapTWR->GetBinContent(i, belowInPhi+1) );
+	    binsBelow.push_back( m_SupercellMapTWR->GetBinContent(i+1, belowInPhi+1) );
+	    binsBelow.push_back( m_SupercellMapTWR->GetBinContent(i+2, belowInPhi+1) );
+	    binsBelow.push_back( m_SupercellMapTWR->GetBinContent(i, j+1) );
+	    
+	    bool isMax = true;
+
+	    // Check if it is a local maximum
+	    for(unsigned int k=0; k<binsAbove.size(); k++) {
+				if(towerET < binsAbove[k])
+		  		isMax = false;
 			}
+	    for(unsigned int k=0; k<binsBelow.size(); k++) {
+				if(towerET <= binsBelow[k])
+		  		isMax = false;
+	  	}
+	    
+	    if(isMax)
+	      {
+		TLorentzVector myMaximum;
+		myMaximum.SetPtEtaPhiM(towerET, m_SupercellMapTWR->GetXaxis()->GetBinCenter(i+1), m_SupercellMapTWR->GetYaxis()->GetBinCenter(j+1), 0);
+		m_localMaxima.push_back(myMaximum);
+	      }
+	  }
+	}	  
+	
+
+	// Now loop over local maxima, decide what to do
+	for( auto myMaximum : m_localMaxima ) {
+	  
+	  // Check eta bounds
+	  if(fabs(myMaximum.Eta()) > 2.5)
+	    continue;
+	  
+	  // Cluster coordinates
+	  int i=m_SupercellMapTWR->GetXaxis()->FindFixBin(myMaximum.Eta());
+	  // Careful, ROOT conventions are -pi,pi
+	  int j=m_SupercellMapTWR->GetYaxis()->FindFixBin(TVector2::Phi_0_2pi(myMaximum.Phi()));
+
+
+	  // Prepare Phi Wrap-around
+	  int aboveInPhi = j+1;
+	  if(j == m_SupercellMapTWR->GetNbinsY())
+	    aboveInPhi = 1;
+	  int belowInPhi = j-1;
+	  if(j == 1)
+	    belowInPhi = m_SupercellMapTWR->GetNbinsY();
+
+
+	  // Start calculating total energy
+	  // Use Fixed 2x2 cluster, 4 possibilities
+	  std::vector<double> allET;
+
+	  double ET;	  
+	  // Up and right
+	  ET = m_SupercellMapTWR->GetBinContent(i, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i+1, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i, aboveInPhi);
+	  ET += m_SupercellMapTWR->GetBinContent(i+1, aboveInPhi);
+	  allET.push_back(ET);
+
+	  // Up and left
+	  ET = m_SupercellMapTWR->GetBinContent(i, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i-1, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i, aboveInPhi);
+	  ET += m_SupercellMapTWR->GetBinContent(i-1, aboveInPhi);
+	  allET.push_back(ET);
+	  
+	  // Down and left
+	  ET = m_SupercellMapTWR->GetBinContent(i, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i-1, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i, belowInPhi);
+	  ET += m_SupercellMapTWR->GetBinContent(i-1, belowInPhi);
+	  allET.push_back(ET);
+
+	  // Down and right
+	  ET = m_SupercellMapTWR->GetBinContent(i, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i+1, j);
+	  ET += m_SupercellMapTWR->GetBinContent(i, belowInPhi);
+	  ET += m_SupercellMapTWR->GetBinContent(i+1, belowInPhi);
+	  allET.push_back(ET);
+
+	  // Code Oregon cluster later
+	  // Will need to write a library of shape summation functions
+	  // EM0: 1x2, 4 possibilities
+	  // EM1: 5x2
+	  // EM2: 5x2
+	  // EM3: 3x2
+	  // HAD: 3x2
+
+	  // Pick largest resulting sum
+	  double eFEXOldCluster = 0;
+	  for(unsigned int k=0; k<allET.size(); k++)
+	    {
+	      if(allET.at(k) > eFEXOldCluster)
+		eFEXOldCluster = allET.at(k);
+	    }
+
+	  // Calculate an EM2-based isolation
+	  // Center in EM2, offset to the right in eta:
+	  int em2i=m_SupercellMapEM2->GetXaxis()->FindFixBin(myMaximum.Eta()+0.05);
+          // Careful, ROOT conventions are -pi,pi
+          int em2j=m_SupercellMapEM2->GetYaxis()->FindFixBin(TVector2::Phi_0_2pi(myMaximum.Phi()));
+
+	  float maximumET = m_SupercellMapEM2->GetBinContent(em2i, em2j);
+	  int maximumCell = em2i;
+	  
+	  // Find maximum in EM2
+	  for(int k=-2; k<2; k++)
+	    {
+	      float ETvalue = m_SupercellMapEM2->GetBinContent(em2i+k, em2j);
+	      if(ETvalue > maximumET)
+		{
+		  maximumET = ETvalue;
+		  maximumCell = em2i+k;
 		}
+	    } 
+	  
+	  // Find highest pT nearest cell, but we don't care which it is
+	  // Note that we don't need to worry about phi wrap-around
+	  float nextET = m_SupercellMapEM2->GetBinContent(maximumCell+1, em2j);
+	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell-1, em2j) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell-1, em2j) : nextET);
+	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) : nextET);
+	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell, em2j-1) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell, em2j-1) : nextET);
+	  
+	  float numerator = maximumET + nextET;
 
-		for (int iPhi=0;iPhi<5;iPhi++) {
-			for (int iEta=0;iEta<20;iEta++) {
-				if ( fabs(seedCenterEtaFine-0.2+0.1*iEta+seedPlace)<4.9 ) {
-					if ((seedCenterPhiFine-0.2+0.1*iPhi)>0 && (seedCenterPhiFine-0.2+0.1*iPhi)<2*M_PI) {
-						EM1Supercells55.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi))));
-						EM2Supercells55.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi))));
-						if (iEta>3 && iEta<16 && iPhi>0 && iPhi<4) {
-							EM1Supercells33.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi))));
-							EM2Supercells33.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi))));
-						}
-					}
-					if ((seedCenterPhiFine-0.2+0.1*iPhi)<=0) {
-						EM1Supercells55.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi+2.*M_PI))));
-						EM2Supercells55.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi+2.*M_PI))));
-						if (iEta>3 && iEta<16 && iPhi>0 && iPhi<4) {
-							EM1Supercells33.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi+2.*M_PI))));
-							EM2Supercells33.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi+2.*M_PI))));
-						}
-					}
-					if ((seedCenterPhiFine-0.2+0.1*iPhi)>=2*M_PI) {
-						EM1Supercells55.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi-2.*M_PI))));
-						EM2Supercells55.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi-2.*M_PI))));
-						if (iEta>3 && iEta<16 && iPhi>0 && iPhi<4) {
-							EM1Supercells33.push_back(m_SupercellMapEM1->GetBinContent( m_SupercellMapEM1->GetBin(m_SupercellMapEM1->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM1->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi-2.*M_PI))));
-							EM2Supercells33.push_back(m_SupercellMapEM2->GetBinContent( m_SupercellMapEM2->GetBin(m_SupercellMapEM2->GetXaxis()->FindBin(seedCenterEtaFine-0.2+0.1*iEta+seedPlace),m_SupercellMapEM2->GetYaxis()->FindBin(seedCenterPhiFine-0.2+0.1*iPhi-2.*M_PI))));
-						}
-					}
-				}
-				if ( fabs(seedCenterEtaFine-0.2+0.1*iEta+seedPlace)>=4.9 ) {
-					EM1Supercells55.push_back(0.);
-					EM2Supercells55.push_back(0.);
-					if ((seedCenterPhiFine-0.2+0.1*iPhi)>=2*M_PI) {
-						EM1Supercells55.push_back(0.);
-						EM2Supercells55.push_back(0.);
-					}
-				}
-			}
-		}
-
-		float eFEXTDRcluser = eFEXTDRclus(EM0Supercells33, EM1Supercells33, EM2Supercells33, EM3Supercells33, HADSupercells33, seedPlace);
-		float eFEXTDRIso = eFEXIsoTDR(EM2Supercells33,seedPlace);
-		//bool iseFEXTDRIso = TrigT1CaloBaseFex::IseFEXIsoTDR (EM2Supercells33,seedPlace,0.6) ;
-
-
-		// build cluster for tau
-		//xAOD::EmTauRoI_v2* clForTau = new xAOD::EmTauRoI_v2();
-		xAOD::EmTauRoI* clForTau = new xAOD::EmTauRoI();
-		clustersForTau->push_back( clForTau );
-		clForTau->setEta( cellAbove->eta() );
-		clForTau->setPhi( cellAbove->phi() );
-
-		(*acc_clusterET)(*clForTau) = eFEXTDRcluser;
-		(*acc_clusterIso)(*clForTau) = eFEXTDRIso;
-		
-		// Retrieve tau properties
-		//double score = (*acc_score)(clForTau);
-		//msg << MSG::INFO << "Esumi score = "<<score<< endreq;
-
-/*
-		clForTau->setClusEnergyTDR( eFEXTDRcluser );
-		clForTau->seteFEXIsoTDR( eFEXTDRIso );
-		clForTau->setIseFEXTDRIso( iseFEXTDRIso );
-*/		
+	  // And now, run the full sum: avoid phi wrapping by converting back and forth
+	  float denominator = 0;
+	  float phicenter =  m_SupercellMapEM2->GetYaxis()->GetBinCenter(em2j);
+	  for(int eta=-6; eta<6; eta++)
+	    for(int phi=-1; phi<2; phi++)
+	      denominator += m_SupercellMapEM2->GetBinContent(em2i+eta, m_SupercellMapEM2->GetYaxis()->FindFixBin(TVector2::Phi_0_2pi(phicenter+(phi*0.1))));
+	  
+	  // build cluster for tau
+	  //xAOD::EmTauRoI_v2* clForTau = new xAOD::EmTauRoI_v2();
+	  xAOD::EmTauRoI* clForTau = new xAOD::EmTauRoI();
+	  clustersForTau->push_back( clForTau );
+	  clForTau->setEta( myMaximum.Eta() );
+	  clForTau->setPhi( myMaximum.Phi() );
+	  
+	  (*acc_clusterET)(*clForTau) = eFEXOldCluster;
+	  (*acc_clusterIso)(*clForTau) = 0;
+	  if(denominator > 0)
+	    (*acc_clusterIso)(*clForTau) = numerator/denominator;
+	  
 	}
 	// avoid memory leak
 	if ( scells ) {scells->clear(); delete scells;}

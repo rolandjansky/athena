@@ -45,7 +45,7 @@ namespace LArWheelCalculator_Impl {
 		const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
 		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+		lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
 #endif
 
 	// determination of the nearest quarter-wave number
@@ -154,7 +154,7 @@ namespace LArWheelCalculator_Impl {
 		double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
 		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+		lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
 #endif
 
 		bool sqw = false;
@@ -244,7 +244,7 @@ namespace LArWheelCalculator_Impl {
 		const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
 		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+		lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
 #endif
 
 		int nqwave;
@@ -328,7 +328,7 @@ namespace LArWheelCalculator_Impl {
 		double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
 		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+		lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
 #endif
 
 		bool sqw = false;
@@ -419,7 +419,7 @@ namespace LArWheelCalculator_Impl {
 // parameterized sine
 #else
 		double cos_a, sin_a;
-		lwc()->parameterized_sin(P.y(), sin_a, cos_a);
+		lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
 #endif
 
 	// determination of the nearest quarter-wave number

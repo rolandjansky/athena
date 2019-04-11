@@ -47,7 +47,8 @@ class MonitorDef:
         for thr in thresholds:
             # this special check addresses the LUT size issue for the monitoring (see file header and Cabling.py)
             dontGenerateCounter = (thr.ttype=="JET" and (thr.mapping==8 or thr.mapping==9)) \
-                                  or thr.ttype=="TOPO" or thr.ttype=="ALFA"
+                                  or thr.ttype=="TOPO" or thr.ttype=="ALFA" \
+                                  or thr.cableinfo == None  # at the moment we don't have monitoring for the new thresholds yet
             if dontGenerateCounter: continue
             for mult in range(1, 2**thr.cableinfo.bitnum):
                 counters += [ Lvl1CtpinCounter(thr.name,mult) ]

@@ -83,6 +83,16 @@ class ThresholdDef:
             .addThrValue(7, -15, -14, priority=2).addThrValue(7, 14, 15, priority=2)\
             .addThrValue(9, -18, -15, priority=2).addThrValue(9, 15, 18, priority=2)\
             .addThrValue(10, -25, -18, priority=2).addThrValue(10, 18, 25, priority=2)
+
+        #ATR-19302
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            tc.registerThr( 'EM10VHI', type='EM').addThrValue(11, priority=1)\
+                .addThrValue(11, -8, 0, priority=2).addThrValue(11, 0, 8, priority=2)\
+                .addThrValue(9, -11, -8, priority=2).addThrValue(9, 8, 11, priority=2)\
+                .addThrValue(8, -14, -11, priority=2).addThrValue(8, 11, 14, priority=2)\
+                .addThrValue(7, -15, -14, priority=2).addThrValue(7, 14, 15, priority=2)\
+                .addThrValue(9, -18, -15, priority=2).addThrValue(9, 15, 18, priority=2)\
+                .addThrValue(10, -25, -18, priority=2).addThrValue(10, 18, 25, priority=2)
         
         tc.registerThr( 'eEM10VH', type='EM').addThrValue(11, priority=1)\
             .addThrValue(11, -8, 0, priority=2).addThrValue(11, 0, 8, priority=2)\

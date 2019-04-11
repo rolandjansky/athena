@@ -17,11 +17,12 @@ def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()              )
     kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
     kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_ParticleBrokerSvc'               )
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault("ParticleBroker"                   , ISF_Flags.ParticleBroker()               )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
     kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_CaloCellContainerFCSFinalizerTool',
                                                              'ISF_FastHitConvertTool' ])
     kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
     # register the FastCaloSim random number streams
@@ -44,11 +45,12 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )
     kwargs.setdefault("PUWeights_lar_em"                 , FastChain_Flags.FastChainPUWeights_lar_em()  )
     kwargs.setdefault("PUWeights_tile"                   , FastChain_Flags.FastChainPUWeights_tile()  )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_ParticleBrokerSvc'               )
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault("ParticleBroker"                   , ISF_Flags.ParticleBroker()               )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
     kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_CaloCellContainerFCSFinalizerTool',
                                                              'ISF_FastHitConvertTool' ])
     kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
     # register the FastCaloSim random number streams
@@ -67,14 +69,13 @@ def getFastCaloSimPileupSvc(name="ISF_FastCaloSimPileupSvc", **kwargs):
 #### Legacy FastCaloSim
 def getLegacyAFIIFastCaloSimSvc(name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth" , True )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_AFIIParticleBrokerSvc' )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_LegacyFastShowerCellBuilderTool' ] )
     return getFastCaloSimSvc(name, **kwargs)
 
 def getFastHitConvAlgFastCaloSimSvc(name="ISF_FastHitConvAlgFastCaloSimSvc",**kwargs):
     kwargs.setdefault("CaloCellMakerTools_release", [
                                                            #'ISF_AddNoiseCellBuilderTool',
-                                                            'ISF_CaloCellContainerFinalizerTool'
+                                                            'ISF_CaloCellContainerFCSFinalizerTool'
                                                     ] )
     # setup FastCaloSim hit converter and add it to the alg sequence:
     # -> creates HITS from reco cells
@@ -94,7 +95,7 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
 
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()   )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
-    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFinalizerTool',
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
     kwargs.setdefault("ParamsInputObject"                , 'SelPDGID')

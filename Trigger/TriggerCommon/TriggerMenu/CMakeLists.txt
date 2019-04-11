@@ -26,11 +26,6 @@ atlas_add_test ( pyflakesMenu
    ENVIRONMENT "PYPATH=${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/share ${CMAKE_CURRENT_SOURCE_DIR}/scripts"
 )
 
-if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
-    atlas_add_test ( checkL1Menu SCRIPT scripts/checkL1Menu.sh
-        POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkL1Menu.log" )
-endif()
-
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
                 PROPERTIES TIMEOUT 200 
                 POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkMenuPrimaries.log" 

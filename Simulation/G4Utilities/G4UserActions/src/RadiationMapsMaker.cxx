@@ -74,12 +74,16 @@ namespace G4UA{
       m_rz_eion[i] += maps.m_rz_eion[i];
       m_rz_niel[i] += maps.m_rz_niel[i];
       m_rz_h20 [i] += maps.m_rz_h20 [i];
+      m_rz_neut[i] += maps.m_rz_neut[i];
+      m_rz_chad[i] += maps.m_rz_chad[i];
 
       // full 2d
       m_full_rz_tid [i] += maps.m_full_rz_tid [i];
       m_full_rz_eion[i] += maps.m_full_rz_eion[i];
       m_full_rz_niel[i] += maps.m_full_rz_niel[i];
       m_full_rz_h20 [i] += maps.m_full_rz_h20 [i];
+      m_full_rz_neut[i] += maps.m_full_rz_neut[i];
+      m_full_rz_chad[i] += maps.m_full_rz_chad[i];
     }
 
     for(unsigned int i=0;i<maps.m_rz_vol.size();i++) {
@@ -97,6 +101,8 @@ namespace G4UA{
       m_3d_eion[i] += maps.m_3d_eion[i];
       m_3d_niel[i] += maps.m_3d_niel[i];
       m_3d_h20 [i] += maps.m_3d_h20 [i];
+      m_3d_neut[i] += maps.m_3d_neut[i];
+      m_3d_chad[i] += maps.m_3d_chad[i];
     }
 
     for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
@@ -114,16 +120,22 @@ namespace G4UA{
     m_maps.m_rz_eion.resize(0);
     m_maps.m_rz_niel.resize(0);
     m_maps.m_rz_h20 .resize(0);
+    m_maps.m_rz_neut.resize(0);
+    m_maps.m_rz_chad.resize(0);
 
     m_maps.m_full_rz_tid .resize(0);
     m_maps.m_full_rz_eion.resize(0);
     m_maps.m_full_rz_niel.resize(0);
     m_maps.m_full_rz_h20 .resize(0);
+    m_maps.m_full_rz_neut.resize(0);
+    m_maps.m_full_rz_chad.resize(0);
 
     m_maps.m_3d_tid .resize(0);
     m_maps.m_3d_eion.resize(0);
     m_maps.m_3d_niel.resize(0);
     m_maps.m_3d_h20 .resize(0);
+    m_maps.m_3d_neut.resize(0);
+    m_maps.m_3d_chad.resize(0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -141,16 +153,22 @@ namespace G4UA{
     m_maps.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_rz_neut.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_rz_chad.resize(m_config.nBinsz*m_config.nBinsr,0.0);
 
     m_maps.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_full_rz_neut.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_full_rz_chad.resize(m_config.nBinsz*m_config.nBinsr,0.0);
 
     m_maps.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_maps.m_3d_neut.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_maps.m_3d_chad.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -223,8 +241,7 @@ namespace G4UA{
 	       aStep->GetTrack()->GetDefinition()==G4KaonZeroLong::Definition() ||
 	       aStep->GetTrack()->GetDefinition()==G4KaonZero::Definition() ||
 	       aStep->GetTrack()->GetDefinition()==G4AntiKaonZero::Definition() ||
-	       aStep->GetTrack()->GetDefinition()==G4PionZero::Definition() ||
-	       aStep->GetTrack()->GetDefinition()==G4KaonPlus::Definition()){
+	       aStep->GetTrack()->GetDefinition()==G4PionZero::Definition()){
       pdgid=8; // particles not charged pions treated as charged pions for NIEL 
 
     } else if (aStep->GetTrack()->GetDefinition()==G4AntiProton::Definition() ||
@@ -259,11 +276,14 @@ namespace G4UA{
 	pdgid = 9;
       }
     }
-    // process NIEL, h20 and Edep particles only
+
+    // process NIEL, h20, Edep, NEUT and CHAD particles only
 
     if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 || /* NIEL & h20*/
 	 aStep->GetTotalEnergyDeposit() > 0 || pdgid == 999) {
       
+    
+      double absq = fabs(aStep->GetTrack()->GetDefinition()->GetPDGCharge());
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
 
@@ -332,8 +352,9 @@ namespace G4UA{
       double dE_TOT = aStep->GetTotalEnergyDeposit()/nStep;
       double dE_NIEL = aStep->GetNonIonizingEnergyDeposit()/nStep;
       double dE_ION = dE_TOT-dE_NIEL;
-      
-      if ( weight > 0 || eKin > 20 || dE_TOT > 0 || pdgid == 999) {
+
+      //   NIEL          SEE          TID           NEUT                                          CHAD                                                    geantino  
+      if ( weight > 0 || eKin > 20 || dE_TOT > 0 || ((pdgid == 6 || pdgid == 7) && eKin > 0.1) || (absq>0 && (pdgid == 1 || pdgid == 2 || pdgid == 8 || pdgid == 9)) || pdgid == 999 ) {
 
 	for(unsigned int i=0;i<nStep;i++) {
 	  double absz = fabs(z0+dz*(i+0.5));
@@ -394,7 +415,7 @@ namespace G4UA{
 	      }
 	    }
 	  }
-	  
+	  // TID & EION
 	  if ( goodMaterial && vBinZoom >=0 ) {
 	    if ( pdgid == 999 ) {
 	      m_maps.m_rz_tid [vBinZoom] += 1;
@@ -427,7 +448,7 @@ namespace G4UA{
 	  }
 	    
 	  if ( goodMaterial && (pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 )) {
-	    
+	    // NIEL
 	    if ( weight > 0 ) {
 	      if ( vBinZoom >=0 ) {
 		m_maps.m_rz_niel [vBinZoom] += weight*dl;
@@ -439,6 +460,7 @@ namespace G4UA{
 		m_maps.m_3d_niel [vBin3d] += weight*dl;
 	      }
 	    }
+	    // SEE
 	    if ( eKin > 20 && (pdgid == 1 || pdgid == 2 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9) ) {
 	      if ( vBinZoom >=0 ) {
 		m_maps.m_rz_h20 [vBinZoom] += dl;
@@ -448,6 +470,30 @@ namespace G4UA{
 	      }
 	      if ( vBin3d >=0 ) {
 		m_maps.m_3d_h20 [vBin3d] += dl;
+	      }
+	    }
+	    // NEUT
+	    if ( eKin > 0.1 && (pdgid == 6 || pdgid == 7 ) ) {
+	      if ( vBinZoom >=0 ) {
+		m_maps.m_rz_neut [vBinZoom] += dl;
+	      }
+	      if ( vBinFull >=0 ) {
+		m_maps.m_full_rz_neut [vBinFull] += dl;
+	      }
+	      if ( vBin3d >=0 ) {
+		m_maps.m_3d_neut [vBin3d] += dl;
+	      }
+	    }
+	    // CHAD
+	    if ( absq > 0 && (pdgid == 1 || pdgid == 2 || pdgid == 8 || pdgid == 9 ) ) {
+	      if ( vBinZoom >=0 ) {
+		m_maps.m_rz_chad [vBinZoom] += dl;
+	      }
+	      if ( vBinFull >=0 ) {
+		m_maps.m_full_rz_chad [vBinFull] += dl;
+	      }
+	      if ( vBin3d >=0 ) {
+		m_maps.m_3d_chad [vBin3d] += dl;
 	      }
 	    }
 	  }

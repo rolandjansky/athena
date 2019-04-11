@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 from Limits import Limits # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
@@ -120,11 +122,11 @@ class Cabling:
                                 }
         else:
             type2cablename  = { 'MUON'   : [(0,6,'MUCTPI')],
-                                'EM'     : [(0,8,'EM1'), (8,16,'EM2')],
-                                'TAU'    : [(0,8,'TAU1'), (8,16,'TAU2')],
-                                'JET'    : [(0,10,'JET1'), (10,25,'JET2')],
+                                'EM'     : [(0,8,'EM1'), (8,16,'EM2'), (16, 20, 'EM1'), (20, 26, 'EM2')],
+                                'TAU'    : [(0,8,'TAU1'), (8,16,'TAU2'), (16, 19, 'TAU1'), (19, 24, 'TAU2')],
+                                'JET'    : [(0,10,'JET1'), (10,25,'JET2'), (25, 33, 'JET1'), (33, 42, 'JET2')],
                                 'TE'     : [(0,8,'EN1'),(8,16,'EN2')],
-                                'XE'     : [(0,8,'EN1'),(8,16,'EN2')],
+                                'XE'     : [(0,8,'EN1'),(8,16,'EN2'), (16, 24, 'EN1')],
                                 'XS'     : [(0,8,'EN1')],
                                 'MBTSSI' : [(0,16,'NIM1'),(16,32,'NIM2')],
                                 'MBTS'   : [(0,1,'NIM1'), (1,2,'NIM2')],
@@ -254,6 +256,22 @@ class InputCable:
             cableAssign += self.getCTPINCableAssignment("TAU")
 
         offset = self.mapping
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+           name = Cabling.getCableName(self.thrtype,self.mapping)
+           if name == 'EM1' and self.mapping >= 16: 
+              offset -= 16
+           elif name == 'EM2' and self.mapping >= 20:
+              offset -= 12
+           elif name == 'TAU1' and self.mapping >= 16:
+              offset -= 16
+           elif name == 'TAU2' and self.mapping >= 19:
+              offset -= 11
+           elif name == 'JET1' and self.mapping >= 25:
+              offset -= 25
+           elif name == 'JET2' and self.mapping >= 33:
+              offset -= 23
+           elif self.thrtype == 'XE' and name == 'EN1' and self.mapping >= 16:
+              offset -= 16
         for (slot, connector, start, stop, bitnum) in cableAssign:
 
             self.bitnum = bitnum
@@ -270,7 +288,6 @@ class InputCable:
             self.range_begin = start + offset * self.bitnum
             self.range_end   = self.range_begin + self.bitnum-1
             break
-
         if not self.connector:
             print "Cable mapping ERROR ",cableAssign
             raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))

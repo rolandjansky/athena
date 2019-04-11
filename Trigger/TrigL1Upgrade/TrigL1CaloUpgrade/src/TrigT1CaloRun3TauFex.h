@@ -49,6 +49,7 @@ private :
 	TH2F* m_SupercellMapEM2;
 	TH2F* m_SupercellMapEM3;
 	TH2F* m_SupercellMapHAD;
+	TH2F* m_SupercellMapTWR;
 
 	std::string m_scoreName;
 	std::string m_newScoreName;
