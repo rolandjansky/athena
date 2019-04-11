@@ -538,7 +538,19 @@ def setupMenu():
 
 
 
-    TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + []
+    TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [
+        ['mb_trk40_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk50_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk60_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk70_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk80_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk90_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk100_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk110_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk120_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk130_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+]
     TriggerFlags.CalibSlice.signatures   = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures  = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + []

@@ -19,6 +19,7 @@ from TrigT2MinBias.TrigT2MinBiasConfig import (MbMbtsHypo,L2MbMbtsFex,L2MbSpFex,
                                                L2MbSpFex_BLayer,L2MbSpHypo_ncb,L2MbSpHypo,L2MbSpHypo_PT,L2MbSpMhNoPixHypo_veto,
                                                L2MbMbtsHypo_PT,L2MbZdcFex_LG,L2MbZdcHypo_PT,L2MbZdcFex_HG,trigT2MinBiasProperties)
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
+from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 #fexes.efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 #fexes.efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
@@ -26,6 +27,8 @@ efiddataprep = TrigEFIDSequence("minBias","minBias","DataPrep").getSequence()
 efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
+ftksequence_list = TrigInDetFTKSequence("FullScan","fullScan",sequenceFlavour=["FTKVtx","noFTFxAODCnv"]).getSequence()
+
 
 from TrigMinBias.TrigMinBiasConfig import (EFMbTrkFex,EFMbTrkHypoExclusiveLoose,EFMbTrkHypoExclusiveTight,EFMbTrkHypo,
                                            EFMbVxFex,MbVxHypo,MbTrkHypo)
@@ -94,6 +97,8 @@ class L2EFChain_MB(L2EFChainDef):
             self.setup_mb_zdcperf()
         elif "hmt" in self.chainPart['recoAlg']:
             self.setup_mb_hmt()
+        elif "hmftk" in self.chainPart['recoAlg']:  ## Lidija
+            self.setup_mb_hmftk()
         elif "hmtperf" in self.chainPart['recoAlg']:
             self.setup_mb_hmtperf()
         elif "noalg" in self.chainPart['recoAlg']:
@@ -672,6 +677,55 @@ class L2EFChain_MB(L2EFChainDef):
             'EF_mb_step2': mergeRemovingOverlap('EF_', l2hypo1+'_'+efhypo2+'_'+chainSuffixEF),
             }
 
+########################### FTK triggers for high multiplicity triggers
+    def setup_mb_hmftk(self):
+        efhypo1 = self.chainPart['hypoEFsumEtInfo']
+        efhypo2 = self.chainPart['hypoEFInfo']
+        efth2=efhypo2.lstrip('trk')
+
+        l2hypo1 = self.chainPart['hypoL2Info']
+#        l2hypo2 = self.chainPart['pileupInfo']
+#        l2th1=l2hypo1.lstrip('sp')
+#        l2th2=l2hypo2.lstrip('pusup')
+        
+        chainSuffix = "hmftk"
+        chainSuffixL2 = "hmftk"
+        
+        theEFFex1 =  ftksequence_list 
+        
+        theEFFex2 =  EFMbTrkFex
+        theEFFex3 =  EFMbVxFex
+        
+        theEFHypo =  MbVxHypo("EFMbVxHypoMh_hip_"+efth2)
+        theEFHypo.AcceptAll_EF = False
+        theEFHypo.RejectPileup = False
+        theEFHypo.Required_ntrks = int(efth2)
+        
+        
+        ########### Sequence List ##############
+        
+        self.L2sequenceList += [["",
+                                 [dummyRoI],
+                                 'L2_mb_dummy']] 
+        
+        
+        self.EFsequenceList += [[['L2_mb_dummy'],
+                                 theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                 'EF_mb_step1']]
+        
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_dummy']] ]
+        
+        self.EFsignatureList += [ [['EF_mb_step1']] ]
+        
+        chainSuffixL2=efhypo2+'_'+chainSuffixL2
+        
+        self.TErenamingDict = {
+            'L2_mb_dummy': mergeRemovingOverlap('L2_dummy_', chainSuffix),
+            'L2_mb_step1': mergeRemovingOverlap('L2_', l2hypo1+'_'+chainSuffix),
+            'EF_mb_step1': mergeRemovingOverlap('EF_', l2hypo1+'_'+efhypo1+'_'+chainSuffixL2),
+            }
+        
 ########################### supporting triggers for high multiplicity triggers
     def setup_mb_hmtperf(self):
         l2hypo1 = self.chainPart['hypoL2Info']
