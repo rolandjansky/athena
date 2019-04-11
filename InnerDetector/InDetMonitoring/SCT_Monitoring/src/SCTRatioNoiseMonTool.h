@@ -35,16 +35,10 @@
 
 
 // Forward declarations
-class IInterface;
-class TH1I;
-class TH1F;
-class TH2I;
-class TH2F;
 class TProfile2D;
 class TProfile;
 class TH1F_LW;
 class TH2F_LW;
-class StatusCode;
 class SCT_ID;
 
 class SCTRatioNoiseMonTool : public ManagedMonitorToolBase {
@@ -56,14 +50,14 @@ class SCTRatioNoiseMonTool : public ManagedMonitorToolBase {
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  virtual StatusCode bookHistogramsRecurrent();
-  virtual StatusCode bookHistograms();
+  virtual StatusCode bookHistogramsRecurrent() final;
+  virtual StatusCode bookHistograms() final;
   ///Fill histograms in each loop
-  virtual StatusCode fillHistograms() ;
+  virtual StatusCode fillHistograms() final;
   ///process histograms at the end (we only use 'isEndOfRun')
-  virtual StatusCode procHistograms();
+  virtual StatusCode procHistograms() final;
   ///helper function used in procHistograms
-  StatusCode checkHists(bool fromFinalize);
+  virtual StatusCode checkHists(bool fromFinalize) final;
 //@}
 
 
@@ -74,14 +68,10 @@ private:
   typedef TProfile2D* Prof2_t;
   typedef TH1F_LW* H1_t;
   typedef TH2F_LW* H2_t;
-  typedef TH1I* H1I_t;
-  typedef TH2I* H2I_t;
   typedef std::vector<Prof2_t> VecProf2_t;
-  typedef std::vector<Prof_t> VecProf_t;
   typedef std::vector<H1_t> VecH1_t;
-  typedef std::vector<H2_t> VecH2_t;
-  typedef std::vector<H1I_t> VecH1I_t;
   //@}
+
   int m_numberOfEvents{0};
 
   int m_nNoSides_ev{0};
@@ -99,16 +89,6 @@ private:
   int m_nOneSideEndcapC_ev[SCT_Monitoring::N_DISKS]{};
   int m_nTwoSideEndcapC_ev[SCT_Monitoring::N_DISKS]{};
   int m_nNonGoodModulesEndcapC_ev[SCT_Monitoring::N_DISKS]{};
-  
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECC{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBAR{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide0{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide1{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECA{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0{nullptr};
-  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1{nullptr};
   
   float m_d1{0.0f};
   float m_n1{0.0f};
@@ -139,7 +119,6 @@ private:
   int m_nPhi[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS]{};
   int m_nNonGoodModule[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS]{};
 
-  IntegerProperty m_checkrecent{this, "CheckRecent", 1};
   int m_current_lb{0};
   int m_last_reset_lb{0};
   
@@ -152,9 +131,40 @@ private:
   int m_nNoSides_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS]{};
   int m_nOneSide_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS]{};
   int m_noisyM[SCT_Monitoring::NBINS_LBs+1]{};
+
+  std::string m_path{""};
+
+  /// Data object name: for the SCT this is "SCT_RDOs"
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
+
+  //@name Service and Tool members
+  //@{
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
+  ///SCT Helper class
+  const SCT_ID* m_pSCTHelper{nullptr};
+  //@}
+
+  IntegerProperty m_checkrecent{this, "CheckRecent", 1};
+
+  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
+  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
+  /// For online monitoring
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
+
   //@name Histograms related members
   //@{
 
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECC{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBAR{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide0{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBARSide1{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECA{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0{nullptr};
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1{nullptr};
+  
   //General Histograms
   H1_t m_NOEV{nullptr};
   H1_t m_NOEVBAR[SCT_Monitoring::N_BARRELS]{};
@@ -212,22 +222,8 @@ private:
   H1_t m_NZ1_vs_modnum{nullptr};
   H1_t m_N11_vs_modnum{nullptr};
 
-  std::string m_path{""};
   //@}
 
-  //@name Service members
-  //@{
-  /// Data object name: for the SCT this is "SCT_RDOs"
-  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
-  ///SCT Helper class
-  const SCT_ID* m_pSCTHelper{nullptr};
-  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",
-      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
-  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
-  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
-  /// For online monitoring
-  IntegerProperty m_checkrate{this, "CheckRate", 1000};
-  //@}
   //@name  Histograms related methods
   //@{
   // Book Histograms
@@ -236,30 +232,23 @@ private:
 
   //@name Service methods
   //@{
-  // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, float& theta, float& phi );
-  float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
-  float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
-  bool isBarrel(const int moduleNumber);
-  bool isEndcap(const int moduleNumber);
-  bool isEndcapA(const int moduleNumber);
-  bool isEndcapC(const int moduleNumber);
+  float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide) const;
+  float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide) const;
+  bool isBarrel(const int moduleNumber) const;
+  bool isEndcap(const int moduleNumber) const;
+  bool isEndcapA(const int moduleNumber) const;
+  bool isEndcapC(const int moduleNumber) const;
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t 
-    pFactory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
-  H1_t
-    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins);
-  H1_t
-    h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
-  H2_t
-    h2Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo_x, const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y, const unsigned int nbins_y);
-  H1I_t
-    h1IFactory(const std::string& name, const std::string& title, MonGroup& registry, VecH1I_t& storageVector, const float lo, const float hi, const unsigned int nbins);
-  H1I_t
-    h1IFactory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins);
-  Prof2_t
-    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, MonGroup& registry, VecProf2_t& storageVector);
+  Prof_t pFactory(const std::string& name, const std::string& title, MonGroup& registry,
+                  const float lo, const float hi, const unsigned int nbins) const;
+  H1_t h1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                 VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) const;
+  H1_t h1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                 const float lo, const float hi, const unsigned int nbins) const;
+  H2_t h2Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                 const float lo_x, const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y, const unsigned int nbins_y) const;
+  Prof2_t prof2Factory(const std::string& name, const std::string& title, const unsigned int&, MonGroup& registry, VecProf2_t& storageVector) const;
  
   //@}
 };
