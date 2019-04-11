@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef InDet_GeoPixelEndcapTool_H
 #define InDet_GeoPixelEndcapTool_H
 
@@ -39,5 +42,3 @@ class IGeoPixelEndcapTool : public virtual IAlgTool {
 
 
 #endif
-
-

@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "BarrelInclinedRef/PixelLayerValidationTool.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
@@ -544,4 +547,3 @@ void PixelLayerValidationTool::printChildren(const PVConstLink pv,int gen, int i
   }  
    
 }
-

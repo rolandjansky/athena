@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
  
 #include "PixelServicesTool/PixelRoutingServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -211,22 +214,6 @@ std::vector<std::string> PixelRoutingServiceXMLHelper::getTypeMaterialNames( int
   
   std::vector<std::string> tmp = getVectorString("PixelBarrelSvcType",brlSvcTypeIndex,"service");  
 
-//   for(int iMod=0; iMod<(int)tmp.size(); iMod++){
-
-//     int svcIndex = getChildValue_Index("ServiceSet","name",-1,tmp[iMod]);
-//     std::vector<std::string> svcList = getServiceSetContent(svcIndex);
-
-//     for(std::vector<std::string>::iterator it=svcList.begin(); it!=svcList.end(); ++it) {
-//       // Decode string vs ' ' pattern
-//       std::vector<std::string>res;
-//       std::istringstream s(*it);
-//       std::string tmp;
-//       while (s >> tmp) res.push_back(tmp);
-
-//       std::string multiplicity = res[2];
-//       if (multiplicity.find(pattern)!=std::string::npos) matNameList.push_back(res[1]);
-//     }
-//   }
   for(auto& it : tmp){
     int svcIndex = getChildValue_Index("ServiceSet","name",-1,it);
     std::vector<std::string> svcList = getServiceSetContent(svcIndex);
@@ -275,12 +262,7 @@ std::vector<double> PixelRoutingServiceXMLHelper::EOScardLength(int index) const
 
   std::vector<std::string> cardList = getVectorString("PixelSvcRoute",index,"EOScard");  
 
-//   for(int i=0; i<(int)cardList.size(); i++)
-//     {
-//       int cardIndex = getChildValue_Index("PixelBarrelEOScard","name",-1,cardList[i]);
-//       std::cout<<"CARD : "<<cardList[i]<<" "<<cardIndex<<std::endl;
-//       cardLength.push_back(getEOSCardLength(cardIndex));
-//     }
+
   for(auto& it : cardList)
     {
       int cardIndex = getChildValue_Index("PixelBarrelEOScard","name",-1,it);
@@ -354,7 +336,8 @@ double PixelRoutingServiceXMLHelper::getMaterialFudgeGeneric(const std::string L
 	std::cerr << fudgeString << std::endl;
 	std::cerr << std::string(eval.error_position(), '-') << '^' << '\n';
 	std::cerr << "Exiting program.\n";
-	exit(999); // Should do better...
+	throw std::runtime_error("Error processing CLHEP evaluator for Pixel Service Routing!");
+
       }
     }
   }

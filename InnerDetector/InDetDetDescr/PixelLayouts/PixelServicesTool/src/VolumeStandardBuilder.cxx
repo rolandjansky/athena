@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/VolumeStandardBuilder.h"
 
 #include "InDetGeoModelUtils/ServiceVolume.h"
@@ -658,5 +661,3 @@ double VolumeStandardBuilder::computeZmax(const std::string & /*region*/, std::v
 
 
 } // end namespace
-
-

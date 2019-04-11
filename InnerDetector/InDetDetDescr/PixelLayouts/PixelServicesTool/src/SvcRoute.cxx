@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/SvcRoute.h"
 
 #include "PixelServicesTool/ServiceDynVolume.h"
@@ -69,4 +72,3 @@ ServiceDynVolume* SvcRoute::exitVolume( bool ascending, const Athena::MsgStreamM
     return volumes().front(); // catch-all
   }
 }
-

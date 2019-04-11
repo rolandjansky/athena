@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
  
 #include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -264,5 +267,3 @@ double PixelSimpleServiceXMLHelper::SupportTubeZMax(std::string srvName) const
 
   return zmax(index);
 }
-
-

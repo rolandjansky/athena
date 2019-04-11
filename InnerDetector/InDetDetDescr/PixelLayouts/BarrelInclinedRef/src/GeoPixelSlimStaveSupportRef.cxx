@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
 // This will be built once per two layers
@@ -346,5 +349,3 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
 GeoVPhysVol* GeoPixelSlimStaveSupportInclRef::Build() {
   return m_physVol;
 }
-
-

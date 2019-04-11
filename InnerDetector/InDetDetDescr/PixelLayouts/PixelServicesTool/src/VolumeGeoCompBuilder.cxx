@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/VolumeGeoCompBuilder.h"
 
 #include "InDetGeoModelUtils/ServiceVolume.h"
@@ -604,5 +607,3 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacementEnvelope(int iElement, int iCo
 }
 
 } // end namespace
-
-

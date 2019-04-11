@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "BarrelInclinedRef/GeoPixelLayerInclRefTool.h"
@@ -374,4 +377,3 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   }
 
 }
-

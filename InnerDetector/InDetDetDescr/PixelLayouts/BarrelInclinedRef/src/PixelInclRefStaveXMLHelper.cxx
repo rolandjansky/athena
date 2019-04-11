@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 #include "PathResolver/PathResolver.h"
@@ -224,7 +227,8 @@ double PixelInclRefStaveXMLHelper::getCurlyMaterialFudge() const
     std::cerr << fudgeString << std::endl;
     std::cerr << std::string(eval.error_position(), '-') << '^' << '\n';
     std::cerr << "Exiting program.\n";
-    exit(999); // Should do better...
+    throw std::runtime_error("Error processing CLHEP evaluator for PixelStaveGeos!");
+
   }
   return theFudge;
 }

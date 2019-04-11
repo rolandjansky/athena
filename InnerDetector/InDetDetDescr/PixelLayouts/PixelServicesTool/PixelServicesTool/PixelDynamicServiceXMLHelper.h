@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef PixelDynamicServiceXMLHelper_H
 #define PixelDynamicServiceXMLHelper_H
 
@@ -31,4 +34,3 @@ class PixelDynamicServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
 };
 
 #endif
-
