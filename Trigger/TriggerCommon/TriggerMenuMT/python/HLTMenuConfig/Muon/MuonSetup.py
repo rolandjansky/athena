@@ -244,29 +244,6 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
                                                         CSCPrepDataContainer = CscClusterBuilderTool.cluster_key,
                                                         OutputLevel          = OutputLevel )
   ToolSvc += L2CscDataPreparator
-
- 
-  ### MDT RDO data ###
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
-  MDTRodDecoder = MdtROD_Decoder(name	     = "MdtROD_Decoder_L2SA",
-                                 OutputLevel = OutputLevel )
-
-  ToolSvc += MDTRodDecoder
-
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
-  MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "MDT_RawDataProviderTool_L2SA",
-                                                             RdoLocation = "MDTCSM_L2SA",
-                                                             Decoder     = MDTRodDecoder,
-                                                             OutputLevel = OutputLevel )
-  ToolSvc += MuonMdtRawDataProviderTool
-
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool_L2SA",
-                                                       RDOContainer        = MuonMdtRawDataProviderTool.RdoLocation,
-                                                       OutputCollection    = "MDT_DriftCircles_L2SA",
-                                                       OutputLevel         = OutputLevel )
-  ToolSvc += MdtRdoToMdtPrepDataTool
-
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
