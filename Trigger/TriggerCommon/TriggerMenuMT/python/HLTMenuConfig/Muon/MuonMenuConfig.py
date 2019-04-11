@@ -3,7 +3,6 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG
 
 ### Output Name ###
 muFastInfo = "MuonL2SAInfo"
@@ -278,8 +277,7 @@ def l2MuFastAlgCfg( flags, roisKey="MURoIs" ):
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"
-    muFastFex.OutputLevel = DEBUG
-    acc.merge( muFastAcc )   
+    acc.merge( muFastAcc )
 
     # Get services of the Reco alg
     acc.merge( PtBarrelLUTSvcCfg(flags)[0] )   
