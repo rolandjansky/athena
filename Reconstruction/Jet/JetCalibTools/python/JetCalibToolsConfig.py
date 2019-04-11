@@ -24,23 +24,25 @@ all = ['getJetCalibTool']
 pflowcontexts = {
     "T0":("JES_MC15cRecommendation_PFlow_Aug2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
     # Omit smearing, to avoid any efficiency loss
-    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_InSitu"),
+    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
 }
 
 topocontexts = {
     "T0":("JES_MC15cRecommendation_May2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
     # Placeholder from a vague approximation of the 2017 setup?
-    "Trigger":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_Residual_EtaJES_InSitu"),
+    "TrigEMSubJES":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_DEV"),
+    "TrigEMSubJESIS":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_Insitu_DEV"),
+    "TrigEMGSC":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_DEV"),
     # Omit smearing, to avoid any efficiency loss
-    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_InSitu"),
+    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
 }
 
 rscanlc2 = {
-    "RScanLatest":("JES_MC16Recommendation_Rscan2LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_InSitu")
+    "RScanLatest":("JES_MC16Recommendation_Rscan2LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_Insitu")
 }
 
 rscanlc6 = {
-    "RScanLatest":("JES_MC16Recommendation_Rscan6LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_InSitu")
+    "RScanLatest":("JES_MC16Recommendation_Rscan6LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_Insitu")
 }
 
 fatjetcontexts = {
@@ -61,6 +63,10 @@ calibcontexts = {
     "AntiKt4EMPFlow":pflowcontexts,
     "AntiKt4EMTopo":topocontexts,
     "AntiKt4LCTopo":topocontexts,
+    "TrigAntiKt4EMTopoSubJES":topocontexts,
+    "TrigAntiKt4EMTopoSubJESIS":topocontexts,
+    "TrigAntiKt4EMTopoGSC":topocontexts,
+    #"TrigEMSubJES":topocontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
     # R-Scan
@@ -98,7 +104,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = ""):
         # Check that the calib sequence requests something sensible for the in situ calibration
         # Leave other checks for the tool code.
         # Might need to specialise if we decide MC trigger jets should also have in situ.
-        if calibseq_tmp.endswith("InSitu"):
+        if calibseq_tmp.endswith("Insitu"):
             if data_type == 'data':
                 if not jetcollection in hasInSitu:
                     raise ValueError("In situ calibration does not exist for {0}, context {1}".format(jetcollection,context))
@@ -141,7 +147,7 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     calibcontext, data_type, calibseq = getCalibSpecsFromString(modspec)
     if calibseq=="":
         cfg, calibarea, calibseq = calibcontexts[jetdef.basename][calibcontext]
-    # For now, only dependent on calibseq -- can ignore InSitu, which is
+    # For now, only dependent on calibseq -- can ignore Insitu, which is
     # added when getting the concrete tool
     prereqs = []
     prereqs.append("mod:ConstitFourMom")

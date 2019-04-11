@@ -4,9 +4,10 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
-def jetMenuSequence():
+def jetMenuSequence(jetdef):
     """ Function to create the jet Menu Sequence"""
-    
+   
+    ConfigFlags.jetdef=jetdef
     ## RoIs = 'FSJETRoI'
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetAthSequence

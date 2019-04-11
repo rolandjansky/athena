@@ -125,21 +125,17 @@ if opt.doMuonSlice == True:
 if opt.doJetSlice == True:
     from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
-    jetSeq1 = jetMenuSequence()
-    jetstep1=ChainStep("Step1_jet", [jetSeq1])
+    jetSeq1 = jetMenuSequence("EMTopoSubJES")
+    step1=ChainStep("Step1_jet", [jetSeq1])
+    jetSeq2 = jetMenuSequence("EMTopoSubJESIS")
+    step2=ChainStep("Step1_jet", [jetSeq2])
     
     jetChains  = [
-      Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-      Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[jetstep1]  ),
-      Chain(name='HLT_j420', Seed='L1_J20', ChainSteps=[jetstep1] ),
-      Chain(name='HLT_j225_gsc420_boffperf_split', Seed='L1_J20', ChainSteps=[jetstep1] ),
-      Chain(name='HLT_j260_320eta490', Seed='L1_J20', ChainSteps=[jetstep1] ),
+        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
+        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step1]  ),
+        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step2]  )
+        ]
 
-      Chain(name='HLT_3j200', Seed='L1_J20', ChainSteps=[jetstep1] ),
-      Chain(name='HLT_5j70_0eta240_L14J15', Seed='L1_J20', ChainSteps=[jetstep1] ),
-      Chain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet', Seed='L1_J20',  ChainSteps=[jetstep1]  ),
-
-    ]
     testChains += jetChains
 
 
