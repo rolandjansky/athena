@@ -11,5 +11,19 @@ def createSimConfigFlags():
     scf.addFlag('Sim.ParticleID',False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # 'LAr', 'Tile', 'LAr+Tile', 'DeadLAr'
 
+    scf.addFlag('Sim.CavernBG',False) #'Write' , 'Read' , 'Signal' , 'WriteWorld' , 'SignalWorld'
+    scf.addFlag('Sim.ReadTR',False) 
+    scf.addFlag('Sim.WorldRRange', 12500) #int or float
+    scf.addFlag('Sim.WorldZRange', 22031) #int or float
+
+    #for forward region
+    scf.addFlag('Sim.TwissFileBeam1',False)
+    scf.addFlag('Sim.TwissFileBeam2',False)
+    scf.addFlag('Sim.TwissEnergy',8000000.)
+    scf.addFlag('Sim.TwissFileBeta',550.)
+    scf.addFlag('Sim.TwissFileNomReal',False) #'nominal','real' #default to one of these?!
+    scf.addFlag('Sim.TwissFileVersion','v01')
+
+
 
     return scf
