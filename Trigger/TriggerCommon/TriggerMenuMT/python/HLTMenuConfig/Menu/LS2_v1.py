@@ -49,13 +49,18 @@ def setupMenu():
         ['HLT_e5_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
         ['HLT_e7_etcut_L1EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron']],
         ]
+
+    TriggerFlags.METSlice.signatures = [
+        ['HLT_xe65_cell_L1XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET']],
+        ['HLT_xe30_cell_L1XE10', [], [PhysicsStream], ['RATE:MET', 'BW:MET']],
+    ]
+
     TriggerFlags.CombinedSlice.signatures = [
         
         #['e8_mu8_L1EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
         ]
     TriggerFlags.JetSlice.signatures = [ ]
     TriggerFlags.BjetSlice.signatures = [] 
-    TriggerFlags.METSlice.signatures = []
     TriggerFlags.TauSlice.signatures = []
     TriggerFlags.BphysicsSlice.signatures = [ ]
     TriggerFlags.HeavyIonSlice.signatures  = []
