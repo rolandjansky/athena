@@ -7,6 +7,8 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createOverlayCfgFlags():
     """Return an AthConfigFlags object with required flags"""
     flags = AthConfigFlags()
+    # Data overlay flag
+    flags.addFlag("Overlay.DataOverlay", False)
     # Overlay background StoreGate key prefix
     flags.addFlag("Overlay.BkgPrefix", "Bkg_")
     # Overlay signal StoreGate key prefix

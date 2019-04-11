@@ -52,7 +52,7 @@ namespace Trk
  
  KalmanVertexOnJetAxisSmoother::KalmanVertexOnJetAxisSmoother(const std::string& t, const std::string& n, const IInterface*  p):
    AthAlgTool(t,n,p),
-   m_Updator("Trk::KalmanVertexOnJetAxisUpdator"),
+   m_Updator("Trk::KalmanVertexOnJetAxisUpdator", this),
    m_maxWeight(0.001),
    m_initialMomentumError(1000.)
  { 

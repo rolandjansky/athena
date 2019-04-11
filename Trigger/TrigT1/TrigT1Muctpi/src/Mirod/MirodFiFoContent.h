@@ -69,7 +69,7 @@ class MirodFiFoContent {
   /**
    * The destructor of MirodFiFoContent 
    */
-  ~MirodFiFoContent();  
+  ~MirodFiFoContent() = default;
 
  private:
 

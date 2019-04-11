@@ -124,8 +124,8 @@ namespace Muon {
     ATH_CHECK(m_key_csc.initialize());
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    ATH_CHECK(m_key_stgc.initialize());
-    ATH_CHECK(m_key_mm.initialize());
+    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
+    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
     
     
     return StatusCode::SUCCESS;

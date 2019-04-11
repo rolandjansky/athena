@@ -10,7 +10,7 @@ from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
+from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 
 # test setup
@@ -18,6 +18,7 @@ log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 # call tests
+tool = SCT_SiliconConditionsToolCfg(ConfigFlags, name="SiliconTestTool")
 dcs_acc = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
 dcs_acc.popPrivateTools()
 acc1=SCT_SiliconConditionsCfg(ConfigFlags, name="SiliconTest")

@@ -32,6 +32,7 @@ MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 
    // Declare the properties
    declareProperty("Key", m_key = "");
+   declareProperty("EventInfoKey", m_eventInfoKey = "EventInfo");
 }
 //___________________________________________________________________________
 MakeEventStreamInfo::~MakeEventStreamInfo() {
@@ -99,7 +100,7 @@ StatusCode MakeEventStreamInfo::postExecute() {
       lumiN = pEvent->event_ID()->lumi_block();
       evtype = *pEvent->event_type();
    } else {
-      const xAOD::EventInfo* xEvent = m_eventStore->tryConstRetrieve<xAOD::EventInfo>();
+      const xAOD::EventInfo* xEvent = m_eventStore->tryConstRetrieve<xAOD::EventInfo>(m_eventInfoKey);
       if( xEvent ) {
          runN = xEvent->runNumber();
          lumiN = xEvent->lumiBlock();

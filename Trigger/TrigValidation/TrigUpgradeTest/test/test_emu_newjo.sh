@@ -12,7 +12,7 @@ svcMgr.AvalancheSchedulerSvc.ShowControlFlow=True
 svcMgr.AvalancheSchedulerSvc.ShowDataDependencies=True
 EOF
 
-athena --threads=1 --config-only=bootstrap.pkl bootstrap.py
+athena --imf --threads=1 --config-only=bootstrap.pkl bootstrap.py
 
 
 get_files -jo TrigUpgradeTest/EmuNewJOTest.py

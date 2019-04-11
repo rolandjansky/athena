@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_TRTHITCOUNTER_H
@@ -32,7 +32,7 @@ class TrigTrtHitCounts {
 		   TrigHisto1D&& endcapA);
 
   /** Destructor */
-  ~TrigTrtHitCounts(void);
+  ~TrigTrtHitCounts(void) = default;
 
   /** Return a histogram of time over threshold for endcap C pixel clusters */
   const TrigHisto1D& endcapC(void) const;

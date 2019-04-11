@@ -177,6 +177,19 @@ namespace xAOD {
       /// For use in validation, when copying element links from one object to another
       static bool s_throwOnCopyError;
 
+      /// Constant used to identify an initial ROI from L1
+      static const std::string s_initialRoIString;
+      /// Constant used to identify an initial HLT ROI derived from L1
+      static const std::string s_initialRecRoIString;
+      /// Constant used to identify an (explicitly) updated HLT ROI
+      static const std::string s_roiString;
+      /// Constant used to identify a view
+      static const std::string s_viewString;
+      /// Constant used to identify a feature
+      static const std::string s_featureString;
+      /// Constant used to identify a seed (parent)
+      static const std::string s_seedString;
+
    private:
       /// Raw access to the persistent link names (non-const)
       std::vector< std::string >& linkColNamesNC();

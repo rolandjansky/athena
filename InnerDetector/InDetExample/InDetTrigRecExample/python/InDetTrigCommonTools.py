@@ -43,7 +43,7 @@ InDetTrigTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTrigTRT_Drif
 if DetFlags.overlay.TRT_on() :
 
     InDetTrigTRTCalDbTool2 = TRT_CalDbTool(name = "TRT_CalDbSvc2")
-    InDetTrigTRTCalDbTool2.IsGEANT4 = True
+    InDetTrigTRTCalDbTool2.isGEANT4 = True
     InDetTrigTRTCalDbTool2.RtFolderName = "/TRT/Calib/MC/RT"             
     InDetTrigTRTCalDbTool2.T0FolderName = "/TRT/Calib/MC/T0"             
     InDetTrigTRT_DriftFunctionTool.TRTCalDbTool2 = InDetTrigTRTCalDbTool2

@@ -13,56 +13,54 @@
 #include "AndHelperTool.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./ITrigJetHypoHelperVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "./nodeIDPrinter.h"
+#include "./JetTrigTimer.h"
 #include <sstream>
 
 AndHelperTool::AndHelperTool(const std::string& type,
                              const std::string& name,
                              const IInterface* parent) :
-  base_class(type, name, parent),
-    m_timer(std::make_unique<JetTrigTimer>()){
+  base_class(type, name, parent){
 }
 
 
-bool AndHelperTool::pass(HypoJetVector& jets) {
+bool AndHelperTool::pass(HypoJetVector& jets,
+                         ITrigJetHypoInfoCollector* collector) const {
   ATH_MSG_DEBUG("AndHelperTool::pass... " << jets.size() << " jets");
 
-  m_timer->start();
-  m_pass = m_lhs->pass(jets);
-  if (m_pass){
+  JetTrigTimer timer;
+  if(collector){
+    timer.start();
+  }
+  bool pass = m_lhs->pass(jets, collector);
+  if (pass){
     ATH_MSG_DEBUG("LHS passed");
-    m_pass = m_rhs->pass(jets);
-    ATH_MSG_DEBUG("RHS " <<std::boolalpha << m_pass);
+    pass = m_rhs->pass(jets, collector);
+    ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
   } else {
     ATH_MSG_DEBUG("LHS failed");
-  }    
+  }
 
-  m_timer->stop();
-  return m_pass;
+  if (collector){
+    timer.stop();
+    collector->collect(name(), nodeIDPrinter(name(),
+                                             m_nodeID,
+                                             m_parentNodeID,
+                                             pass,
+                                             timer.readAndReset()));
+  }
+  return pass;
+
 }
-
-
 
 std::string AndHelperTool::toString() const{
-
-  std::stringstream ss;
-  
-  ss <<nodeIDPrinter(name(), m_nodeID,
-                     m_parentNodeID, m_pass, m_timer->readAndReset());
-  return ss.str();
-                     
+  return nodeIDPrinter(name(), m_nodeID, m_parentNodeID);                     
 }
 
-
-void AndHelperTool::accept(ITrigJetHypoHelperVisitor& v) {
-  v.visit(this);
-  m_lhs->accept(v);
-  m_rhs->accept(v);
+StatusCode AndHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
+  c.collect(name(), toString());
+  m_lhs->getDescription(c);
+  m_rhs->getDescription(c);
+  return StatusCode::SUCCESS;
 }
-
-std::string AndHelperTool::toStringAndResetHistory() {
-  auto result = toString();
-  return result;
-}
-

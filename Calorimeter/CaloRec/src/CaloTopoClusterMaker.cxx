@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -72,7 +72,6 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 					   const IInterface* parent)
   
   : AthAlgTool(type, name, parent),
-    m_calo_dd_man(0),
     m_calo_id(0),
     m_cellsKey(""),
     m_subcaloUsed(),
@@ -175,10 +174,7 @@ StatusCode CaloTopoClusterMaker::initialize()
   ATH_CHECK( m_cellsKey.initialize() );
   getClusterSize();
 
-  // pointer to detector manager:
-  m_calo_dd_man  = CaloDetDescrManager::instance(); 
-
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
+  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
 
   ATH_MSG_INFO( "Threshold choices:"
                 << (m_seedCutsInAbsE?" SeedThresholdOnAbsEinSigma=":
@@ -368,6 +364,8 @@ StatusCode CaloTopoClusterMaker::initialize()
       m_hashMax = std::max (m_hashMax, thismax);
     }
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
   

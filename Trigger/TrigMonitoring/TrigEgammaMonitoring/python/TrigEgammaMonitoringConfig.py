@@ -17,8 +17,10 @@
 # Provide function that is called by HLTMonitoring
 # Returns the name of tool in ToolSvc
 def TrigEgammaMonitoringTool(**kwargs):
+    log_trigeg.info('TrigEgammaMonitoringTool()')
     from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolBuilder
     builder = TrigEgammaMonToolBuilder(**kwargs)
+
     return builder.monTool
 
 """
@@ -72,6 +74,8 @@ class TrigEgammaMonToolBuilder:
     monTool=[]
 
     def __init__(self,**kwargs):
+        log_trigeg.info('TrigEgammaMonToolBuilder.__init__()')
+
         if not self._configured:
             for key,value in kwargs.items():
                 print key,value
@@ -80,8 +84,11 @@ class TrigEgammaMonToolBuilder:
             #print self.derivation,self.emulation
 
             self.config()
+            print('monTool')
+            print(self.monTool)
         
     def config(self):
+        log_trigeg.info("TrigEgammaMonToolBuilder.config()")
         self._get_monitoring_mode_success = self.get_monitoring_mode()
         #print self._get_monitoring_mode_success
         if self._get_monitoring_mode_success == False:
@@ -94,6 +101,7 @@ class TrigEgammaMonToolBuilder:
 
     # Implementation of https://its.cern.ch/jira/browse/ATR-13200
     def get_monitoring_mode(self):
+        log_trigeg.info("TrigEgammaMonToolBuilder.get_monitoring_mode()")
         self.data_type = dqflags.monManDataType()
         if self.data_type == 'monteCarlo': 
             self.mc_mode = True
@@ -112,7 +120,7 @@ class TrigEgammaMonToolBuilder:
             return False
 
     def setProperties(self):
-        log_trigeg.info("Set Properties")
+        log_trigeg.info("TrigEgammaMonToolBuilder.setProperties()")
         self.basePath = 'HLT/Egamma'
         self.debug = INFO
         self.tagItems = monitoring_tags 
@@ -142,6 +150,7 @@ class TrigEgammaMonToolBuilder:
         log_trigeg.info('Configuring photon chains %s',self.photonList)
 
     def setDefaultProperties(self):
+        log_trigeg.info("TrigEgammaMonToolBuilder.setDefaultProperties()")
         self.electronList = monitoring_electron
         self.photonList = monitoring_photon
         self.tpList = monitoringTP_electron+monitoring_ele_idperf+monitoring_L1Calo
@@ -149,6 +158,7 @@ class TrigEgammaMonToolBuilder:
         self.mam=monitoring_mam
 
     def configureElectronMonTool(self,plotTool,toolList):
+        log_trigeg.info("TrigEgammaMonToolBuilder.configureElectronMonTool()")
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += plotTool()
         for t in toolList:
@@ -251,10 +261,11 @@ class TrigEgammaMonToolBuilder:
         
   
     def configureDefaultMonTool(self):
+        log_trigeg.info("Default configuration of HLTEgammaMon")
         tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                 histoPathBase=self.basePath,
                 IgnoreTruncationCheck=True,
-                Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
+                Tools=[ "TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                         "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
                         "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis",
                         "TrigEgammaNavTPAnalysisTool/HLTEgammaTPJpsieeAnalysis"])
@@ -285,6 +296,5 @@ class TrigEgammaMonToolBuilder:
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
         else:
             tool = self.configureDefaultMonTool()
-        ToolSvc += tool
-        #return toolList    
+        
         return [tool]

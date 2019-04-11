@@ -80,7 +80,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// Retrieve the histogram fillers
-  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path

@@ -9,6 +9,7 @@ class defaultTestFiles():
     HITS_SPECIAL = [d + "/DigitizationTests/mc16_13TeV.HITS.16965029._000024.pool.root.1"]
     RAW = [d + "/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
     RDO = [d + "/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root"]
+    RDO_BKG = [d + "/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root"]
     ESD = [d + "/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     AOD = [d + "/CommonInputs/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1"]
 

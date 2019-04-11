@@ -61,16 +61,6 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   : AthAlgorithm(name, pSvcLocator),
     m_pCaloClusterContainer(NULL)
 {
-
-  // Eta and Phi size of the RoI window...
-
-  // Name(s) of Cluster Maker Tools
-  declareProperty("ClusterMakerTools",m_clusterMakerNames);
-
-  // Name(s) of Cluster Correction Tools
-  declareProperty("ClusterCorrectionTools",m_clusterCorrectionNames);
-
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -99,50 +89,13 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
     ATH_MSG_INFO("No monTool configured => NO MONITOING");
   }
      
-  // Cache pointer to ToolSvc
-  IToolSvc* toolSvc = 0;// Pointer to Tool Service
-  if (service("ToolSvc", toolSvc).isFailure()) {
-    ATH_MSG_FATAL (" Tool Service not found " );
-    return StatusCode::FAILURE;
-  }
-
-  std::vector<std::string>::iterator itrName;
-  std::vector<std::string>::iterator endName;
-
-  for (int iC=1;iC<3;++iC){ 
-    if (iC==1) {
-      itrName = m_clusterMakerNames.begin();
-      endName = m_clusterMakerNames.end();
-    } else if (iC==2) {
-      itrName = m_clusterCorrectionNames.begin();
-      endName = m_clusterCorrectionNames.end();
-    }
-
-    for (; itrName!=endName; ++itrName) {
-
-      ListItem theItem(*itrName);
-      IAlgTool* algtool;
-
-      if( toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool,this).isFailure() ) {
-	ATH_MSG_FATAL ("Unable to find tool for " << (*itrName) );
-	return StatusCode::FAILURE;
-      } else {
-	ATH_MSG_DEBUG((*itrName) << " successfully retrieved" );
-	if(iC==1) {
-	  m_clusterMakerPointers.push_back(dynamic_cast<CaloClusterCollectionProcessor*>(algtool) );
-	} else if (iC==2) {
-	  m_clusterCorrectionPointers.push_back(dynamic_cast<CaloClusterProcessor*>(algtool) );
-	}
-      }
-    }
-  }
+  ATH_CHECK( m_clusterMakers.retrieve() );
+  ATH_CHECK( m_clusterCorrections.retrieve() );
  
-  // end of helpers...
- 
-ATH_CHECK( m_inputCaloQualityKey.initialize() );
-ATH_CHECK( m_inputCellsKey.initialize() );
-ATH_CHECK( m_inputTowersKey.initialize() );
-ATH_CHECK( m_outputClustersKey.initialize() );
+  ATH_CHECK( m_inputCaloQualityKey.initialize() );
+  ATH_CHECK( m_inputCellsKey.initialize() );
+  ATH_CHECK( m_inputTowersKey.initialize() );
+  ATH_CHECK( m_outputClustersKey.initialize() );
 
   ATH_MSG_DEBUG("Initialization of TrigCaloClusterMakerMT completed successfully");
 
@@ -220,16 +173,15 @@ StatusCode TrigCaloClusterMakerMT::execute()
   auto towers = SG::makeHandle(m_inputTowersKey, ctx);
   //  ATH_MSG_DEBUG(" Input Towers : " << towers.name() <<" of size "<< towers->size());
 
-  int index=0;
-  for (CaloClusterCollectionProcessor* clproc : m_clusterMakerPointers) {
+  for (ToolHandle<CaloClusterCollectionProcessor>& clproc : m_clusterMakers) {
     
     // JTB: TO DO: The offline tools should be changed to set declare ReadHandles 
     
     // We need to set the properties of the offline tools. this way of doing is ugly...
     // Abusing of harcoding?? Yes...
     
-    AlgTool* algtool = dynamic_cast<AlgTool*> (clproc);
-    if(m_clusterMakerNames[index].find("CaloTopoClusterMaker") != std::string::npos){
+    AlgTool* algtool = dynamic_cast<AlgTool*> (clproc.get());
+    if(clproc->name().find("CaloTopoClusterMaker") != std::string::npos){
       
       
       if(!algtool || algtool->setProperty( StringProperty("CellsName",cells.name() )).isFailure()) {
@@ -238,7 +190,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
 	return StatusCode::SUCCESS;
       }
       
-    } else if(m_clusterMakerNames[index].find("trigslw") != std::string::npos){
+    } else if(clproc->name().find("trigslw") != std::string::npos){
       if(!algtool || algtool->setProperty( StringProperty("CaloCellContainer",cells.name()) ).isFailure()) { 
 	ATH_MSG_ERROR ("ERROR setting the CaloCellContainer name in the offline tool" ); 
         //return HLT::TOOL_FAILURE; 
@@ -254,12 +206,11 @@ StatusCode TrigCaloClusterMakerMT::execute()
 
     if ( (clproc->name()).find("trigslw") != std::string::npos ) isSW=true;
     if ( clproc->execute(pCaloClusterContainer).isFailure() ) {
-      ATH_MSG_ERROR("Error executing tool " << m_clusterMakerNames[index] );
+      ATH_MSG_ERROR("Error executing tool " << clproc->name() );
     } else {
-      ATH_MSG_VERBOSE("Executed tool " << m_clusterMakerNames[index] );
+      ATH_MSG_VERBOSE("Executed tool " << clproc->name() );
     }
 
-    ++index;
   }
   time_clusMaker.stop();
   
@@ -287,15 +238,12 @@ StatusCode TrigCaloClusterMakerMT::execute()
   
   time_clusCorr.start();
   ATH_MSG_VERBOSE(" Running cluster correction tools");
-  std::vector<CaloClusterProcessor*>::const_iterator itrcct = m_clusterCorrectionPointers.begin();
-  std::vector<CaloClusterProcessor*>::const_iterator endcct = m_clusterCorrectionPointers.end();
     
-  index=0;
-  for (; itrcct!=endcct; ++itrcct) {
+  for (ToolHandle<CaloClusterProcessor>& clcorr : m_clusterCorrections) {
 
-    ATH_MSG_VERBOSE(" Running " << (*itrcct)->name());
+    ATH_MSG_VERBOSE(" Running " << clcorr->name());
     ISetCaloCellContainerName* setter =
-      dynamic_cast<ISetCaloCellContainerName*> (*itrcct);
+      dynamic_cast<ISetCaloCellContainerName*> (clcorr.get());
     if (setter) {
       if(setter->setCaloCellContainerName(cells.name()) .isFailure()) {
         ATH_MSG_ERROR("ERROR setting the CaloCellContainer name in the offline tool" );
@@ -306,22 +254,20 @@ StatusCode TrigCaloClusterMakerMT::execute()
     
     for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
       bool exec = false;
-      if      ( (fabsf(cl->eta0())<1.45)  && ((*itrcct)->name().find("37") != std::string::npos ) ) exec=true;
-      else if ( (fabsf(cl->eta0())>=1.45) && ((*itrcct)->name().find("55") != std::string::npos ) ) exec=true;
+      if      ( (fabsf(cl->eta0())<1.45)  && (clcorr->name().find("37") != std::string::npos ) ) exec=true;
+      else if ( (fabsf(cl->eta0())>=1.45) && (clcorr->name().find("55") != std::string::npos ) ) exec=true;
       else exec = false;
       if (!isSW) exec=true;
       if ( exec ) {
-      if ( (*itrcct)->execute(cl).isFailure() ) {
-        ATH_MSG_ERROR("Error executing correction tool " <<  m_clusterCorrectionNames[index] );
+      if ( clcorr->execute(cl).isFailure() ) {
+        ATH_MSG_ERROR("Error executing correction tool " <<  clcorr->name() );
 	//        return HLT::TOOL_FAILURE;
 	return StatusCode::SUCCESS;
       } else {
-	ATH_MSG_VERBOSE("Executed correction tool " << m_clusterCorrectionNames[index] );
+	ATH_MSG_VERBOSE("Executed correction tool " << clcorr->name() );
       }
       } // Check conditions
     }
-    ++index;
-    
   }
   time_clusCorr.stop();
 

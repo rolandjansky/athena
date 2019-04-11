@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
@@ -35,12 +35,11 @@ class MvaTESVariableDecorator
   StatusCode eventFinalize();
   
  private:
-  const xAOD::EventInfo* m_xEventInfo;  //!
-  const xAOD::VertexContainer* m_xVertexContainer; //!
   int m_mu; //!
   int m_nVtxPU; //!
   bool m_emitVertexWarning=true; //!
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
 

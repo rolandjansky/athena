@@ -246,7 +246,8 @@ if DetFlags.haveRIO.SCT_on():
                                                           sct_FlaggedConditionToolSetup.getTool().getFullName(),
                                                           sct_MonitorConditionsToolSetup.getTool().getFullName(),
                                                           sct_ReadCalibDataToolSetup.getTool().getFullName()]
-
+        if InDetFlags.useSctDCS():
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
@@ -365,7 +366,7 @@ if DetFlags.haveRIO.TRT_on():
         if (conddb.dbdata == "CONDBR2"):
             tdaqFolder = '/TDAQ/Resources/ATLAS/TRT/Robins'
         # TDAQ Enabled Service (only for monitoring on data)
-        conddb.addFolder('TDAQ_ONL',tdaqFolder)
+        conddb.addFolder('TDAQ_ONL',tdaqFolder,className='CondAttrListCollection')
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DAQ_ConditionsSvc
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc

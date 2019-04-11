@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_PAI_Process.h"
@@ -17,8 +17,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // For Athena-based random numbers
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // To get TRT dig. settings:
 #include "StoreGate/StoreGateSvc.h"
@@ -35,19 +35,10 @@ TRT_PAI_Process::TRT_PAI_Process( const std::string& type,
                                   const std::string& name,
                                   const IInterface* parent )
   : base_class( type, name, parent )
-  , m_nTabulatedGammaValues( 56 )
-  , m_gamExpMin( -2. )
-  , m_gamExpMax(  5. )
   , m_deltaGamExp( (m_gamExpMax-m_gamExpMin)/m_nTabulatedGammaValues )
-  , m_trtgas(nullptr)
-  , m_gasType("Auto")
-  , m_pHRengine(nullptr)
-  , m_pAtRndmGenSvc ("AtRndmGenSvc", name)
 {
   //Properties:
   declareProperty( "GasType", m_gasType, "Gas Type" );
-  declareProperty( "RndServ", m_pAtRndmGenSvc, "Random Number Service for TRT_PAI_Process" );
-
 }
 //__________________________________________________________________________
 StatusCode TRT_PAI_Process::initialize() {
@@ -56,13 +47,6 @@ StatusCode TRT_PAI_Process::initialize() {
   using namespace TRT_PAI_physicsConstants;
 
   ATH_MSG_VERBOSE ( "TRT_PAI_Process::initialize()" );
-
-  // Get the Rndm number service
-  if ( !m_pAtRndmGenSvc.retrieve().isSuccess() ) {
-    ATH_MSG_FATAL ( "Problems retrieving random number service" );
-    return StatusCode::FAILURE;
-  }
-  m_pHRengine = m_pAtRndmGenSvc->GetEngine("TRT_PAI");
 
   // Supported gasType's are 70%/27%/03%:
   // 1) "Xenon"  - Xe/CO2/O2
@@ -292,7 +276,7 @@ double TRT_PAI_Process::GetMeanFreePath(double scaledKineticEnergy,
 }
 
 //__________________________________________________________________________
-double TRT_PAI_Process::GetEnergyTransfer(double scaledKineticEnergy) const {
+double TRT_PAI_Process::GetEnergyTransfer(double scaledKineticEnergy, CLHEP::HepRandomEngine* rndmEngine) const {
 
   double gv = ScaledEkin2GamVarTab( scaledKineticEnergy );
   unsigned int tabIndx = 0;
@@ -303,7 +287,7 @@ double TRT_PAI_Process::GetEnergyTransfer(double scaledKineticEnergy) const {
 
   // Generate a random number uniformly in [0,1].
   //  CLHEP::HepRandomEngine* pHRengine = m_pAtRndmGenSvc->GetEngine("TRT_PAI");
-  double random = CLHEP::RandFlat::shoot(m_pHRengine, 0., 1.);
+  double random = CLHEP::RandFlat::shoot(rndmEngine, 0., 1.);
 
   // What we are doing next is actually to select a value of E from
   // dN^2/dXdE considered as a function of E using the standard Monte

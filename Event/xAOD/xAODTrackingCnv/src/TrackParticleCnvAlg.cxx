@@ -113,7 +113,8 @@ namespace xAODMaker {
     ATH_MSG_DEBUG( "AODContainerName  = " << m_aod.key() );
     ATH_MSG_DEBUG( "xAODContainerName = " << m_xaodTrackParticlesout.key() );
     ATH_CHECK(m_particleCreator.retrieve());
-    ATH_CHECK(m_truthClassifier.retrieve());
+    if(m_addTruthLink) ATH_CHECK(m_truthClassifier.retrieve());
+    else m_truthClassifier.disable();
     ATH_CHECK( m_TrackCollectionCnvTool.retrieve() );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool.retrieve() );
     // to preserve the inisialised parameters of the ParticleCreatorTool:

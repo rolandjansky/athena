@@ -229,8 +229,9 @@ bool MuonTrackPerformanceAlg::handleTracks() {
       ATH_MSG_WARNING(" Could not find tracks at " << m_trackKey.key());
       return false;
     }
+    m_trackTypeString = m_trackKey.key();
     ATH_MSG_DEBUG( " Retrieved " << trackCol->size()<<" tracks from "<<trackCol.key());
-    m_ntracks = trackCol->size();
+    m_ntracks += trackCol->size();
 
     if( m_doTruth ) {
       handleTrackTruth(*trackCol);
@@ -259,10 +260,10 @@ bool MuonTrackPerformanceAlg::handleTracks() {
 	//if combined and not stau, only take MuidCo and MuGirl
 	if(m_isCombined && muon->author()!=1 && muon->author()!=6) continue;
 	if(!m_isCombined){
-	  //only MuidCo and MuidSA will have MSOnlyExtrapolated tracks
-	  if(m_trackType==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5) continue;
+	  //only MuidCo, MuidSA, and STACO will have MSOnlyExtrapolated tracks
+	  if(m_trackType==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5 && muon->author()!=2) continue;
 	  //MuGirl should also have ME tracks
-	  if(m_trackType==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5 && muon->author()!=6) continue;
+	  if(m_trackType==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5 && muon->author()!=2 && muon->author()!=6) continue;
 	}
       }
       else{

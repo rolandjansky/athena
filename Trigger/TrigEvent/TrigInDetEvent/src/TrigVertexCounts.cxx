@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigVertexCounts.h"
@@ -25,11 +25,6 @@ TrigVertexCounts::TrigVertexCounts(std::vector<unsigned int>&& vtxNtrks,
   : m_vtxNtrks(std::move(vtxNtrks)),
     m_vtxTrkPtSqSum(std::move(vtxTrkPtSqSum))
 {
-}
-
-//---------------------------------------------------------------
-
-TrigVertexCounts::~TrigVertexCounts() {
 }
 
 //---------------------------------------------------------------

@@ -50,18 +50,18 @@ elif [[ $INPUT == "minbias" ]]; then
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_FTK.minbias_1000.pool.root.1"]'
 
 elif [[ $INPUT == 'data' ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._002546.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1.pool.root"]'
 
 else 
   # Default - ttbar
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000065.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000235.pool.root.1"]'
 fi
 
-trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
-
 ######################################
 
+echo "Running athena command:"
 if [[ $INPUT == 'data' ]]; then
+  (set -x
   athena.py -b -c \
   "setMenu=\"${MENU}\";\
   BSRDOInput=${DS};\
@@ -70,7 +70,9 @@ if [[ $INPUT == 'data' ]]; then
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
   ${JOBOPTION} &> ${JOB_LOG}
+  )
 else
+  (set -x
   athena.py -b -c \
   "enableCostMonitoring=${COST_MONITORING};\
   RunningRTT=True;\
@@ -83,13 +85,12 @@ else
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
   ${JOBOPTION} &> ${JOB_LOG}
+  )
 fi
 
 ######################################
 
-COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
-echo ${COMMAND} > command.txt
-echo "Command to reproduce:"
-envsubst < command.txt
+export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME}"
+

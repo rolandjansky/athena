@@ -9,7 +9,6 @@
  */
 
 #include "SCTErrMonTool.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 // conditions stuff
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -29,16 +28,15 @@
 #include "LWHists/TProfile2D_LW.h"
 #include "StoreGate/ReadHandle.h"
 
+#include "GaudiKernel/ITHistSvc.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH2I.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-#include <vector>
-#include <set>
 #include <iostream>
-#include <map>
 
 using namespace std;
 using namespace SCT_Monitoring;
@@ -46,7 +44,7 @@ using namespace SCT_Monitoring;
 namespace {
   // anon. namespace for file-scoped functions
   // test offline the online code
-  const bool testOffline{false};
+  static const bool testOffline{false};
 
   int
   numberOfInefficientSides(TH2* pHistogramArray[], const int xbin, const int ybin, const float threshold) {
@@ -184,7 +182,7 @@ SCTErrMonTool::~SCTErrMonTool() {
 //             SCTErrMonTool :: transfer [enum CategoryErrors] -> [TString ErrorName]
 // ====================================================================================================
 TString
-SCTErrMonTool::errorsString(int errtype) {
+SCTErrMonTool::errorsString(int errtype) const {
   if (errtype == MASKEDLINKALL) {
     return "MaskedLinkALL";
   }
@@ -242,6 +240,13 @@ SCTErrMonTool::copyHistograms() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::copyHistograms_book() {
+  //RODLevelErrors histograms
+  static const TString regLabel[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", ""
+  };
+  static const TString regTitle[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", "All Region"
+  };
 
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
@@ -251,14 +256,6 @@ SCTErrMonTool::copyHistograms_book() {
       MonGroup{this, "SCT/GENERAL/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED}
     };
 
-    //RODLevelErrors histograms
-    TString regLabel[NREGIONS_INC_GENERAL] = {
-      "EndcapC", "Barrel", "EndcapA", ""
-    };
-    TString regTitle[NREGIONS_INC_GENERAL] = {
-      "EndcapC", "Barrel", "EndcapA", "All Region"
-    };
-    
     for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
       m_LinksWithRODErrorsVsLB_check[reg] =
         TProfile_LW::create("SCTModulesWithRODLevelErrorsCheck" + regLabel[reg],
@@ -330,6 +327,25 @@ SCTErrMonTool::bookHistograms() {
 //          SCTErrMonTool :: bookHistogramsRecurrent, Keisuke Koda 12.09.2016
 //====================================================================================================
 StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
+  static const string profNames[numberOfProblemForCoverage] = {
+    "", // All
+    "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
+    "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
+    "SCT_CoverageWithNoBadRODLevelErrorVsLbs", // All - BadRODLevelError
+    "SCT_CoverageWithNoBadErrorVsLbs", // All - BadError
+    "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
+    "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
+  };
+  static const string profTitles[numberOfProblemForCoverage] = {
+    "", // All
+    "Ave. Coverage of Enabled Links per LB", // All - Disabled
+    "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
+    "Ave. Coverage of Links with No Bad RODLevelError per LB", // All - BadRODLevelError
+    "Ave. Coverage of Links with No Bad Error per LB", // All - BadError
+    "Ave. Coverage of links Not Affected by PS Trip", // All - PSTrip(DCS)
+    "Ave. Coverage of Links With No Bad Problem per LB" // All - Summary
+  };
+
   MonGroup monGr_shift{this, "SCT/DetectorCoverage", run, ATTRIB_UNMANAGED};
 
   bool status{true};
@@ -369,24 +385,6 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
       m_mapSCT[iProblem]->SetStats(0);
     }
 
-    string profNames[numberOfProblemForCoverage] = {
-      "", // All
-      "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
-      "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
-      "SCT_CoverageWithNoBadRODLevelErrorVsLbs", // All - BadRODLevelError
-      "SCT_CoverageWithNoBadErrorVsLbs", // All - BadError
-      "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
-      "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
-    };
-    string profTitles[numberOfProblemForCoverage] = {
-      "", // All
-      "Ave. Coverage of Enabled Links per LB", // All - Disabled
-      "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
-      "Ave. Coverage of Links with No Bad RODLevelError per LB", // All - BadRODLevelError
-      "Ave. Coverage of Links with No Bad Error per LB", // All - BadError
-      "Ave. Coverage of links Not Affected by PS Trip", // All - PSTrip(DCS)
-      "Ave. Coverage of Links With No Bad Problem per LB" // All - Summary
-    };
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
       if (iProblem==all) continue;
 
@@ -425,13 +423,12 @@ SCTErrMonTool::fillHistograms() {
     return StatusCode::RECOVERABLE;
   }
   m_current_lb = pEvent->lumiBlock();
-  m_sctflag = false;
+  bool sctflag{false};
   if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
     // ATH_MSG_WARNING("SCT_Flag==FALSE:: LVL1ID Errors >500 ");
     m_NumberOfSCTFlagErrorsVsLB->Fill(m_current_lb);
     m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb,1);
-    m_sctflag = true;
-    //return StatusCode::SUCCESS;
+    sctflag = true;
   } else {
     m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb,0);
   }
@@ -439,7 +436,7 @@ SCTErrMonTool::fillHistograms() {
 
   ATH_CHECK(fillByteStreamErrors());
 
-  if (m_sctflag) {
+  if (sctflag) {
     return StatusCode::SUCCESS;
   }
 
@@ -738,7 +735,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
 //          SCTErrMonTool :: numByteStreamErrors, Daniel Damiani 04/07/2011
 // ====================================================================================================
 void
-SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) {
+SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const {
 
   for (const IdentifierHash& fit: *errors) {
     if (fit.is_valid()) {
@@ -771,6 +768,11 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
   unsigned int current_lb{pEvent->lumiBlock()};
 
+  bool sctflag{false};
+  if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
+    sctflag = true;
+  }
+
   //--- Fill 1D histograms (vs LumiBlock) for each BS
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
     int bs_errs[NREGIONS_INC_GENERAL];
@@ -783,12 +785,12 @@ SCTErrMonTool::fillByteStreamErrors() {
                         bs_errs[GENERAL_INDEX],bs_errs[BARREL_INDEX],bs_errs[ENDCAP_A_INDEX],bs_errs[ENDCAP_C_INDEX]);
     // fill number of BS errors vs LBs
     for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-      if (not m_sctflag) m_ByteStreamVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
+      if (not sctflag) m_ByteStreamVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
       else m_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
     }
   }
 
-  if (m_sctflag) {
+  if (sctflag) {
     return StatusCode::SUCCESS;
   }
 
@@ -845,14 +847,15 @@ SCTErrMonTool::fillByteStreamErrors() {
       m_mapSCT[iProblem]->Reset("ICE");
     }
 
-    syncDisabledSCT();
-    syncErrorSCT();
-    summarySCT();
-    psTripDCSSCT();
+    syncDisabledSCT(m_SCTHash[disabled]);
+    syncErrorSCT(m_SCTHash[badLinkError], m_SCTHash[badRODError], m_SCTHash[badError]);
+    summarySCT(m_SCTHash[all], m_SCTHash[summary]);
+    float PSTripModules{0.};
+    psTripDCSSCT(m_SCTHash[psTripDCS], PSTripModules);
     
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
       for (const IdentifierHash& hash: m_SCTHash[iProblem]) {
-        fillWafer( m_geo[hash], m_mapSCT[iProblem] );
+        fillWafer(m_geo[hash], m_mapSCT[iProblem]);
       }
     }
     
@@ -867,7 +870,7 @@ SCTErrMonTool::fillByteStreamErrors() {
     }
 
     //Modules affected by PS Tirp
-    m_PSTripModulesVsLbs ->Fill(static_cast<double>(current_lb), m_PSTripModules);
+    m_PSTripModulesVsLbs ->Fill(static_cast<double>(current_lb), PSTripModules);
     
   }
 
@@ -982,7 +985,6 @@ SCTErrMonTool::fillByteStreamErrors() {
     }
   }
 
-  m_previous_lb = current_lb;
   m_numberOfEvents++;
   m_numberOfEventsLumi++;
   return StatusCode::SUCCESS;
@@ -994,7 +996,7 @@ SCTErrMonTool::fillByteStreamErrors() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
-                                   Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel) {
+                                   Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel) const {
   ostringstream streamhitmap;
 
   streamhitmap << layer / 2 << "_" << layer % 2;
@@ -1032,7 +1034,7 @@ SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TS
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, Prof2_t& tprof, const int layer,
-                                   const bool barrel) {
+                                   const bool barrel) const {
   ostringstream streamhitmap;
 
   streamhitmap << layer / 2 << "_" << layer % 2;
@@ -1092,7 +1094,7 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
         m_numErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
         m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
       }
-      for ( int bin{0}; bin < nLayers; bin++) {
+      for (int bin{0}; bin < nLayers; bin++) {
         m_numErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
         m_rateErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
       }
@@ -1218,6 +1220,22 @@ SCTErrMonTool::bookErrHistosGen() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookConfMapsGen() {
+  static const string SummaryBinNames[ConfbinsSummary] = {
+    "Mod Out", "Flagged Links", "Masked Links", "Errors", "Inefficient", "Noisy"
+  };
+  static const string DetailedBinNames[ConfbinsDetailed] = {
+    "Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"
+  };
+  static const string OnlineBinNames[ConfbinsOnline] = {
+    "Mod Out", "Flagged Links", "Masked Links", "Errors"
+  };
+  static const TString regLabel[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", ""
+  };
+  static const TString regTitle[NREGIONS_INC_GENERAL] = {
+    "EndcapC", "Barrel", "EndcapA", "All Region"
+  };
+
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
       MonGroup{this, "SCT/SCTEC/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
@@ -1230,32 +1248,12 @@ SCTErrMonTool::bookConfMapsGen() {
     m_path = streamName.substr(0, streamName.rfind("SCT/GENERAL/Conf"));
     ATH_MSG_INFO("Global Path :" << m_path);
 
-    const int ConfbinsSummary{6};
-    const string SummaryBinNames[ConfbinsSummary] = {
-      "Mod Out", "Flagged Links", "Masked Links", "Errors", "Inefficient", "Noisy"
-    };
-    const int ConfbinsDetailed{5};
-    const string DetailedBinNames[ConfbinsDetailed] = {
-      "Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"
-    };
-    const int ConfbinsOnline{4};
-    const string OnlineBinNames[ConfbinsOnline] = {
-      "Mod Out", "Flagged Links", "Masked Links", "Errors"
-    };
-
     if (m_makeConfHisto or testOffline) {
       m_DetailedConfiguration = TProfile_LW::create("SCTConfDetails", "Exclusion from the Configuration",
                                                     ConfbinsDetailed, -0.5, ConfbinsDetailed - 0.5);
       for (int bin{0}; bin < ConfbinsDetailed; bin++) {
         m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin + 1, DetailedBinNames[bin].c_str());
       }
-
-      const TString regLabel[NREGIONS_INC_GENERAL] = {
-        "EndcapC", "Barrel", "EndcapA", ""
-      };
-      const TString regTitle[NREGIONS_INC_GENERAL] = {
-        "EndcapC", "Barrel", "EndcapA", "All Region"
-      };
 
       for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
         m_Conf[reg] = TProfile_LW::create("SCTConf"+regLabel[reg], "Num of Problematic Modules in "+regTitle[reg],
@@ -1312,8 +1310,8 @@ SCTErrMonTool::bookConfMapsGen() {
                                 NBINS_LBs, 0.5, NBINS_LBs+0.5);
           m_LinksWithCategorisedErrorsVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
           m_LinksWithCategorisedErrorsVsLB[errType][reg]->GetYaxis()->SetTitle("Num of Links with "+errorsString(errType));
-          if (reg==NREGIONS_INC_GENERAL-1)continue;
-          int nLayers{n_layers[reg]*2};
+          if (reg==NREGIONS_INC_GENERAL-1) continue;
+          const int nLayers{n_layers[reg]*2};
           for (int layer{0}; layer < nLayers; ++layer) {
             m_LinksWithCategorisedErrorsVsLBLayer[errType][reg][layer] =
               TProfile_LW::create("SCT_LinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg] + "lyr" + to_string(layer/2) + "_" + to_string(layer%2),
@@ -1429,7 +1427,6 @@ SCTErrMonTool::bookConfMapsGen() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookConfMaps(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
-
   if (reg==-1) return StatusCode::FAILURE;
 
   string regName{("SCT" + subDetNameShort[reg]).Data()};
@@ -1726,13 +1723,13 @@ SCTErrMonTool::resetConfigurationDetails() {
 //                          SCTErrMonTool :: getHisto, Martin Flechl 14/9/2009
 // ====================================================================================================
 bool
-SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) {
-  const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) const {
+  static const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
     {"SCT/SCTEC/Noise/noiseoccupancymapECm_","SCT/SCTB/Noise/noiseoccupancymap_", "SCT/SCTEA/Noise/noiseoccupancymapECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
     {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
   };
-  const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
     {"SCT/SCTEC/Noise/noiseoccupancymaptriggerECm_", "SCT/SCTB/Noise/noiseoccupancymaptrigger_", "SCT/SCTEA/Noise/noiseoccupancymaptriggerECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
     {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
@@ -1768,8 +1765,8 @@ SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* his
 //                          SCTErrMonTool :: getHistoRecent, Dan Damiani  21/7/2011
 // ====================================================================================================
 bool
-SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH2* histo[2]) {
-  const string trm[1][N_REGIONS] = {
+SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH2* histo[2]) const {
+  static const string trm[1][N_REGIONS] = {
     {"SCT/SCTEC/Noise/noiseoccupancymaprecentECm_", "SCT/SCTB/Noise/noiseoccupancymaprecent_", "SCT/SCTEA/Noise/noiseoccupancymaprecentECp_"}
   };
   string shname1{m_path + trm[type][reg] + to_string(layer) + "_0"};
@@ -1787,7 +1784,7 @@ SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH
 
 SCTErrMonTool::Prof2_t
 SCTErrMonTool::prof2Factory(const string& name, const string& title, const unsigned int& bec,
-                            VecProf2_t& storageVector) {
+                            VecProf2_t& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS},
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
   if (bec != BARREL) {
@@ -1808,7 +1805,7 @@ SCTErrMonTool::prof2Factory(const string& name, const string& title, const unsig
 }
 
 bool
-SCTErrMonTool::isEndcapC(const int moduleNumber) {
+SCTErrMonTool::isEndcapC(const int moduleNumber) const {
   bool moduleinEndcapC{false};
 
   if ((0 <= moduleNumber) and (moduleNumber < f_mod[BARREL_INDEX])) {
@@ -1818,7 +1815,7 @@ SCTErrMonTool::isEndcapC(const int moduleNumber) {
 }
 
 bool
-SCTErrMonTool::isBarrel(const int moduleNumber) {
+SCTErrMonTool::isBarrel(const int moduleNumber) const {
   bool moduleinBarrel{false};
 
   if ((f_mod[BARREL_INDEX] <= moduleNumber) and (moduleNumber < f_mod[ENDCAP_A_INDEX])) {
@@ -1828,7 +1825,7 @@ SCTErrMonTool::isBarrel(const int moduleNumber) {
 }
 
 bool
-SCTErrMonTool::isEndcapA(const int moduleNumber) {
+SCTErrMonTool::isEndcapA(const int moduleNumber) const {
   bool moduleinEndcapA{false};
 
   if ((f_mod[ENDCAP_A_INDEX] <= moduleNumber) and (moduleNumber < n_mod[GENERAL_INDEX])) {
@@ -1839,7 +1836,7 @@ SCTErrMonTool::isEndcapA(const int moduleNumber) {
 //====================================================================================================
 //                          SCTErrMonTool :: fillWafer, Keisuke Kouda 12.09.2016
 //====================================================================================================
-void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F* histo ) {
+void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
   double etaMin{module.first.first}, etaMax{module.first.second};
   double phiMin{module.second.first}, phiMax{module.second.second};
   unsigned int nRep{1};
@@ -1888,25 +1885,26 @@ void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F* histo ) {
 //====================================================================================================
 //                          SCTErrMonTool :: SyncSCT, Keisuke Kouda 12.09.2016
 //====================================================================================================
-bool SCTErrMonTool::syncErrorSCT() {
-  m_SCTHash[badLinkError].clear();
-  m_SCTHash[badRODError].clear();
-  m_SCTHash[badError].clear();
+bool SCTErrMonTool::syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
+                                 std::set<IdentifierHash>& sctHashBadRODError,
+                                 std::set<IdentifierHash>& sctHashBadError) const {
+  sctHashBadLinkError.clear();
+  sctHashBadRODError.clear();
+  sctHashBadError.clear();
  
   //BadLinkLevelError
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
     const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash: *sctErrors) {
-      m_SCTHash[badLinkError].insert(waferHash);
+      sctHashBadLinkError.insert(waferHash);
     }
   }
 
   //BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
     const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
-
     for (const IdentifierHash& waferHash: *sctErrors) {
-      m_SCTHash[badRODError].insert(waferHash);
+      sctHashBadRODError.insert(waferHash);
     }
   }
 
@@ -1914,16 +1912,16 @@ bool SCTErrMonTool::syncErrorSCT() {
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash: *sctErrors) {
-      m_SCTHash[badError].insert(waferHash);
+      sctHashBadError.insert(waferHash);
     }
   }
   return true;
 }
 
 //Disabled
-bool SCTErrMonTool::syncDisabledSCT() {
+bool SCTErrMonTool::syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) const {
   bool altered{false};
-  m_SCTHash[disabled].clear();
+  sctHashDisabled.clear();
   const set<Identifier>* badModules{m_ConfigurationTool->badModules()};
 
   for (const Identifier& badModule: *badModules) {
@@ -1931,33 +1929,33 @@ bool SCTErrMonTool::syncDisabledSCT() {
     IdentifierHash hashSide0{m_pSCTHelper->wafer_hash(badModule)};
     IdentifierHash hashSide1;
     m_pSCTHelper->get_other_side(hashSide0, hashSide1);
-    m_SCTHash[disabled].insert(hashSide0);
-    m_SCTHash[disabled].insert(hashSide1);
+    sctHashDisabled.insert(hashSide0);
+    sctHashDisabled.insert(hashSide1);
   }
   return altered;
 }
 
-//Total (SCT_ConditionsSummarySvc) //All
-bool SCTErrMonTool::summarySCT() {
+//Total (SCT_ConditionsSummaryTool) //All
+bool SCTErrMonTool::summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<IdentifierHash>& sctHashSummary) const  {
   bool altered{false};
-  m_SCTHash[all].clear();//All
-  m_SCTHash[summary].clear();
+  sctHashAll.clear();//All
+  sctHashSummary.clear();
 
   const unsigned int maxHash{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())}; // 8176
   for (unsigned int i{0}; i<maxHash; i++) {
     IdentifierHash hash{i};
-    m_SCTHash[all].insert(hash);//All
+    sctHashAll.insert(hash);//All
     if (not m_pSummaryTool->isGood(hash)) {
-      m_SCTHash[summary].insert(hash);
+      sctHashSummary.insert(hash);
     }
   }
   return altered;
 }
 
-//Power supply trip (SCT_DCSConditionsSvc)
-bool SCTErrMonTool::psTripDCSSCT() {
+//Power supply trip (SCT_DCSConditionsTool)
+bool SCTErrMonTool::psTripDCSSCT(std::set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const {
   bool altered{false};
-  m_SCTHash[psTripDCS].clear();
+  sctHashPSTripDCS.clear();
 
   const unsigned int maxHash{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())}; // 8176
   int npsw{0};
@@ -1966,17 +1964,17 @@ bool SCTErrMonTool::psTripDCSSCT() {
     if (m_useDCS and (not m_dcsTool->isGood(hash))) {
       npsw++; //Counting the number of PS sides
       altered = true;
-      m_SCTHash[psTripDCS].insert(hash);
+      sctHashPSTripDCS.insert(hash);
     }
   }
-  m_PSTripModules = npsw/2;
+  PSTripModules = npsw/2.;
   return altered;
 }
 
 //====================================================================================================
 //                          SCTErrMonTool :: calculateDetectorCoverage, Keisuke Kouda 12.09.2016
 //====================================================================================================
-double SCTErrMonTool::calculateDetectorCoverage( const TH2F* histo ) {
+double SCTErrMonTool::calculateDetectorCoverage( const TH2F* histo ) const {
   double occupancy{0.};
 
   for (unsigned int i{0}; i < m_nBinsEta; i++) {

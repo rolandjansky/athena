@@ -23,11 +23,6 @@ MirodFiFoContent::MirodFiFoContent() {
 
 }
 
-//destructor of class MirodFiFoContent
-MirodFiFoContent::~MirodFiFoContent() {
-
-}
-
 // print content of Monitoring Fifo in "human" , "hex" or "bin"
 void MirodFiFoContent::printMonFiFo( std::string format ) {
 

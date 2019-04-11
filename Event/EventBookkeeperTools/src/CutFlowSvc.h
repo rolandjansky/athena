@@ -127,6 +127,8 @@ public:
   /// using CutIdentifier returned by selfRegisterFilter or registerCut
   void addEvent( CutIdentifier cutID, double weight ) override final;
 
+  const std::string SGKey() override final;
+
   /// Get a CutBookkeeper given a CutID
   xAOD::CutBookkeeper* getCutBookkeeper( const CutIdentifier cutID ) const;
 
@@ -193,6 +195,10 @@ public:
 
 inline const InterfaceID& CutFlowSvc::interfaceID() {
   return ICutFlowSvc::interfaceID();
+}
+
+inline const std::string CutFlowSvc::SGKey() {
+  return m_fileCollName;
 }
 
 #endif //> !CUTFLOWSVC_H

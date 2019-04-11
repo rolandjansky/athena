@@ -3,7 +3,6 @@
 #include "MDT_Digitization/MDT_Response_DigiTool.h"
 #include "MDT_Digitization/RT_Relation_DigiTool.h"
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 DECLARE_COMPONENT( MDT_Digitizer )
 

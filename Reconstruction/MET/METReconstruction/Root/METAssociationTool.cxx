@@ -43,13 +43,20 @@ namespace met {
   // Constructors
   ////////////////
   METAssociationTool::METAssociationTool(const std::string& name) : 
-    AsgTool(name)
+    AsgTool(name),
+    m_metassociators(this)
   {
     declareProperty( "METAssociators", m_metassociators              );
     declareProperty( "METSuffix",      m_metsuffix = "AntiKt4LCTopo" );
     declareProperty( "TCSignalState",  m_signalstate = 1             );
-    declareProperty( "AllowOverwrite", m_overwrite = false             );
-    declareProperty( "TimingDetail",       m_timedetail = 0      );
+    declareProperty( "AllowOverwrite", m_overwrite = false           );
+    declareProperty( "TimingDetail",   m_timedetail = 0      );
+
+    //These properties will be overwritten in intialize
+    declareProperty( "CoreOutputKey", m_corenameKey );
+    declareProperty( "AssociationOutputKey", m_mapnameKey );
+    
+
   }
 
   // Athena algtool's Hooks
@@ -77,22 +84,13 @@ namespace met {
 
     // retrieve associators and generate clocks
     unsigned int ntool = m_metassociators.size();
-    unsigned int itool = 0;
     m_toolclocks.resize(ntool);
-    for(ToolHandleArray<IMETAssocToolBase>::const_iterator iAssociator=m_metassociators.begin();
-	iAssociator != m_metassociators.end(); ++iAssociator) {
-      ToolHandle<IMETAssocToolBase> tool = *iAssociator;
-      if( tool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool: " << tool->name());
-	return StatusCode::FAILURE;
-      };
-      ATH_MSG_INFO("Retrieved tool: " << tool->name() );
-      m_toolclocks[itool].Reset();
-      ++itool;
+
+    ATH_CHECK(m_metassociators.retrieve());    
+    for (auto & clock : m_toolclocks) {
+      clock.Reset();
     }
     m_clock.Reset();
-
-
     return StatusCode::SUCCESS;
   }
 

@@ -36,14 +36,14 @@ class DijetCondition: public ICondition{
                  double dphiMax
                  );
 
-  ~DijetCondition() override {}
+  virtual ~DijetCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
   
-  std::string toString() const noexcept override;
-  void resetHistory() noexcept {}
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory() noexcept override {}
 
  private:
 

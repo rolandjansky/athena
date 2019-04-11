@@ -598,7 +598,7 @@ bool ByteStreamEventStorageInputSvc::ready()
 }
 
 //__________________________________________________________________________
-long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName)
+std::pair<long,std::string> ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName)
 {
    m_fullFile = fileName;
 
@@ -608,7 +608,7 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    if (!m_reader) {
       ATH_MSG_ERROR("Failed to open file " << fileName);
       closeBlockIterator();
-      return -1; 
+      return std::make_pair(-1,"END"); 
    }
    // Initilaize offset vector
    m_evtOffsets.resize(m_reader->eventsInFile(), -1);
@@ -622,12 +622,12 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    // enable sequentialReading if multiple files
    if (m_sequential) {
       bool test = setSequentialRead();
-      if (!test) return -1;
+      if (!test) return std::make_pair(-1,"SEQ");
    }
    ATH_MSG_INFO("Picked valid file: " << m_reader->fileName());
    // initialize offsets and counters
    m_evtOffsets.push_back((long long)m_reader->getPosition());
-   return m_reader->eventsInFile();
+   return std::make_pair(m_reader->eventsInFile(),m_reader->GUID());;
 }
 
 //__________________________________________________________________________

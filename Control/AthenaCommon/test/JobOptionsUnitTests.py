@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
 """Unit tests for verifying setting of Gaudi/Athena job properties setting.
@@ -37,7 +37,7 @@ class JobOptionsTestBase( unittest.TestCase ):
          assert( len(JobOptionsSvc.getProperties( client )) == 0 ),\
            '%s still has %d properties' %\
            (client,len(JobOptionsSvc.getProperties( client )))
-      del client
+         del client
 
 
 ### setting of basic properties (a la HelloWorld) ============================

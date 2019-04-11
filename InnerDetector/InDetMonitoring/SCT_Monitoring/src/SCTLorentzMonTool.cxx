@@ -60,9 +60,6 @@ StatusCode SCTLorentzMonTool::initialize() {
 StatusCode
 SCTLorentzMonTool::bookHistogramsRecurrent( ) {
   m_path = "";
-  if (newRunFlag()) {
-    m_numberOfEvents = 0;
-  }
   ATH_MSG_DEBUG("initialize being called");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
@@ -77,7 +74,6 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {
 StatusCode
 SCTLorentzMonTool::bookHistograms( ) {
   m_path = "";
-  m_numberOfEvents = 0;
   ATH_MSG_DEBUG("initialize being called");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
@@ -93,18 +89,18 @@ SCTLorentzMonTool::bookHistograms( ) {
 StatusCode
 SCTLorentzMonTool::fillHistograms() {
   // should use database for this!
-  constexpr int layer100[] = {
+  static const int layer100[] = {
     2, 2, 3, 2, 2, 2, 0, 2, 3, 2, 0, 2, 3, 2, 3, 2, 0, 2, 3, 0, 2, 0, 2, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 0, 3, 2, 0, 2,
     2, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 3, 3, 2, 2, 2, 2, 2, 3, 3, 2, 3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 2, 3, 3,
     2, 3, 2, 3, 3, 2, 3, 2, 2, 2, 2, 2, 2, 2
   };
-  constexpr int phi100[] = {
+  static const int phi100[] = {
     29, 29, 6, 13, 23, 13, 14, 29, 9, 29, 14, 29, 9, 29, 39, 32, 21, 32, 13, 22, 32, 22, 32, 13, 32, 32, 32, 20, 20, 20,
     20, 20, 20, 13, 21, 17, 33, 5, 33, 33, 31, 6, 19, 47, 21, 37, 37, 37, 37, 33, 37, 37, 24, 33, 33, 47, 19, 33, 33,
     37, 37, 37, 55, 9, 38, 24, 37, 38, 8, 9, 9, 26, 38, 38, 38, 38, 39, 39, 38, 11, 45, 54, 54, 24, 31, 14, 47, 45, 47,
     47, 47, 47
   };
-  constexpr int eta100[] = {
+  static const int eta100[] = {
     3, -4, -6, 2, 6, 3, -5, -1, 6, -2, -6, -5, 5, -3, 2, 6, -3, 5, 5, 3, 4, 2, 2, 2, -1, -3, -4, 1, -1, -2, -3, -4, 4,
     -1, -5, 6, 2, 4, 3, 1, 6, -2, 6, 3, -6, -1, 2, 1, 3, -5, 4, 5, -3, -4, -3, -5, -2, -1, -2, -3, -2, -4, -3, 2, 3, -6,
     -5, 4, 6, 1, -6, 1, 1, -5, -4, -3, -3, -5, -2, 1, 5, 5, 4, 4, 5, 4, -1, -5, 3, 4, 1, -5
@@ -234,7 +230,6 @@ SCTLorentzMonTool::fillHistograms() {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   } // end of loop on tracks
 
-  m_numberOfEvents++;
   return StatusCode::SUCCESS;
 }
 
@@ -245,7 +240,6 @@ StatusCode
 SCTLorentzMonTool::procHistograms() {
   if (endOfRunFlag()) {
     ATH_MSG_DEBUG("finalHists()");
-    ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
     ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
     if (checkHists(true).isFailure()) {
       ATH_MSG_WARNING("Error in checkHists(true)");
@@ -268,19 +262,19 @@ SCTLorentzMonTool::bookLorentzHistos() {
   const string stem{m_path + "/SCT/GENERAL/lorentz/"};
   MonGroup Lorentz{this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED};
 
-  const string hNum[N_BARRELS] = {
+  static const string hNum[N_BARRELS] = {
     "0", "1", "2", "3"
   };
-  const string hNumS[N_SIDES] = {
+  static const string hNumS[N_SIDES] = {
     "0", "1"
   };
-  const int nProfileBins{360};
+  static const int nProfileBins{360};
 
   int success{1};
 
-  const string histNames1[nSurfaces]{"_100",   "_111",   ""};
-  const string histNames2[nSurfaces]{"_100_",  "_111_",  ""};
-  const string histTitles[nSurfaces]{"100 - ", "111 - ", ""};
+  static const string histNames1[nSurfaces]{"_100",   "_111",   ""};
+  static const string histNames2[nSurfaces]{"_100_",  "_111_",  ""};
+  static const string histTitles[nSurfaces]{"100 - ", "111 - ", ""};
   for (int l{0}; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
     for (int side{0}; side < nSidesInclBoth; ++side) {
@@ -307,7 +301,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
 
 TProfile*
 SCTLorentzMonTool::pFactory(const string& name, const string& title, int nbinsx, float xlow, float xhigh,
-                            MonGroup& registry, int& iflag) {
+                            MonGroup& registry, int& iflag) const {
   Prof_t tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
   bool success{registry.regHist(tmp).isSuccess()};
 
@@ -325,7 +319,7 @@ int
 SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], // 3 is for x, y, z.
                                             const float& sinAlpha, const Identifier& id,
                                             const InDetDD::SiDetectorElementCollection* elements,
-                                            float& theta, float& phi) {
+                                            float& theta, float& phi) const {
   int iflag{-1};
 
   phi = 90.;

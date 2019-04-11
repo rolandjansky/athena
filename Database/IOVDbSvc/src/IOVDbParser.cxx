@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbParser.cxx
@@ -286,8 +286,10 @@ IOVDbParser::iovOverrideValue() const{
   unsigned long long value{};
   if (not overridesIov()) return value;
   auto pTsPair = m_keys.find("forceTimestamp");
-  value = IOVDbNamespace::iovFromTimeString(pTsPair->second);
-  if (pTsPair==m_keys.end()){
+  if (pTsPair!=m_keys.end()){
+    value = IOVDbNamespace::iovFromTimeString(pTsPair->second);
+  }
+  else {
     auto pRunPair = m_keys.find("forceRunNumber");
     auto pLumiPair = m_keys.find("forceLumiblockNumber");
     const auto & runString = (pRunPair!=m_keys.end()) ? pRunPair->second : "";

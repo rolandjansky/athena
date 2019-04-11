@@ -12,16 +12,17 @@ TriggerFlags.triggerMenuSetup = "LS2_v1"
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 menu = GenerateMenuMT(DEBUG)
 
+def signaturesToGenerate():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.EgammaSlice.setAll()
+    TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.METSlice.setAll()
 
-
-# set some flags
-menu.doEgammaChains      = True
-menu.doMuonChains        = True
-menu.doJetChains         = False
-menu.doCombinedChains    = False
 
 # generate the Chains from the Menu Dictionary
+menu.overwriteSignaturesWith(signaturesToGenerate)
 allChainConfigs = menu.generateMT()
+
 
 
 ##########################################  

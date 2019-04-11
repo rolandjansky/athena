@@ -65,9 +65,6 @@ void MatrixReadOutStructure::setInit(){
   m_crc       =0xffff;
 }//end-of-MatrixReadOutStructure::MatrixReadOutStructure
 //----------------------------------------------------------------------------//
-MatrixReadOutStructure::~MatrixReadOutStructure() {
-}//end-of-MatrixReadOutStructure::~MatrixReadOutStructure
-//----------------------------------------------------------------------------//
 ubit16 MatrixReadOutStructure::makeHeader(ubit16 *inputData) {
   const ubit16 theHeader[s_headerNum]={s_headerVal,*(inputData+1),*(inputData+2)};
   m_cmid = *(inputData+1);

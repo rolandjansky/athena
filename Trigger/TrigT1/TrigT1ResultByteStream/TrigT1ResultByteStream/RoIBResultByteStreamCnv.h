@@ -1,21 +1,22 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_H
 #define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_H
 
-// Gaudi/Athena include(s):
+// Local includes
+#include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthMessaging.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
-
-// Local include(s):
-#include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
 /**
  *   @short ByteStream converter for the RoIBResult object
@@ -24,8 +25,7 @@
  *          early on, hence the implementation as a template class. The RoIBResult
  *          object is put together from a number of separate ROB fragments, as
  *          from eformat 3.0 onwards one ROB fragment can only hold one ROD
- *          fragment. For this reason this converter is treated in a special way
- *          at ByteStream conversion.
+ *          fragment.
  *
  *     @see RoIBResultByteStreamTool
  *
@@ -34,7 +34,7 @@
  *    @date $Date: 2009-02-23 21:23:03 $
  */
 template< class ROBF >
-class RoIBResultByteStreamCnv : public Converter {
+class RoIBResultByteStreamCnv : public Converter, public AthMessaging {
 
 public:
   /// Standard constructor
@@ -58,6 +58,10 @@ private:
   ToolHandle< RoIBResultByteStreamTool > m_tool;
   /// Service used when writing the BS data
   ServiceHandle< IByteStreamEventAccess > m_ByteStreamCnvSvc;
+  /// Service used when reading the BS data
+  ServiceHandle< IROBDataProviderSvc > m_robDataProviderSvc;
+  /// Flag if running in athenaMT to prevent calling deprecated methods
+  bool m_isMT{false};
 
 }; // class RoIBResultByteStreamCnv
 

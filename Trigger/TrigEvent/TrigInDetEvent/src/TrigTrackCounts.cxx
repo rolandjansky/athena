@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigTrackCounts.h"
@@ -26,11 +26,6 @@ TrigTrackCounts::TrigTrackCounts(TrigHisto2D&& z0_pt,
   : m_z0_pt(std::move(z0_pt)),
     m_eta_phi(std::move(eta_phi))
 {
-}
-
-//---------------------------------------------------------------
-
-TrigTrackCounts::~TrigTrackCounts() {
 }
 
 //---------------------------------------------------------------

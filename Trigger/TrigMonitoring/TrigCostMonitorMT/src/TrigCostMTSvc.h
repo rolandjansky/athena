@@ -13,12 +13,12 @@
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 #include "TrigCostDataStore.h"
+#include "AlgorithmPayload.h"
 
 /**
  * @class TrigCostMTSvc
@@ -108,10 +108,8 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
 
-  TrigCostDataStore<TrigTimeStamp> m_algStartTime; //!< Thread-safe store of algorithm start times.
+  TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
-  TrigCostDataStore<std::thread::id> m_algThreadID; //!< Thread-safe store of algorithm's thread ID hash.
-  TrigCostDataStore<int32_t> m_algROIID; //!< Thread-safe store of algorithm's ROI identifier.
 
 };
 

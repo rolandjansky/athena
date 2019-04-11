@@ -22,6 +22,10 @@ atlas_depends_on_subdirs( PRIVATE
 # Function to build trigger menu:
 function( atlas_build_trigger_menu menu )
 
+   # Parse the options given to the function:
+   cmake_parse_arguments( ARG "" "" "PYTHON_SOURCES" ${ARGN} )
+   set ( source_path "${CMAKE_CURRENT_SOURCE_DIR}/../TriggerMenu/" )
+
    # Don't do anything in release recompilation dryrun mode. In all other
    # modes, proceed as usual.
    if( ATLAS_RELEASE_RECOMPILE_DRYRUN )
@@ -51,7 +55,9 @@ function( atlas_build_trigger_menu menu )
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
       COMMAND ${CMAKE_COMMAND} -E touch
       ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
-      DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
+      DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" 
+              "${source_path}$<JOIN:${ARG_PYTHON_SOURCES},;${source_path}>" )
+
 
    # Create custom target and add it to package dependencies
    add_custom_target( build_menu_${menu} ALL SOURCES
@@ -110,21 +116,18 @@ atlas_install_xmls( data/*.xml )
 # All menus disabled except Physics_pp_v7_primaries while the migration
 # from 21.1 is ongoing
 
-#atlas_build_trigger_menu( Physics_pp_v6 )
-#atlas_build_trigger_menu( Physics_pp_v6_tight_physics_prescale )
-#atlas_build_trigger_menu( MC_pp_v6 )
-#atlas_build_trigger_menu( MC_pp_v6_loose_mc_prescale )
-#atlas_build_trigger_menu( MC_pp_v6_tight_mc_prescale )
-#atlas_build_trigger_menu( MC_pp_v6_tightperf_mc_prescale )
+#set ( MC_pp_v7_sources      python/menu/Physics_pp_v7.py python/menu/MC_pp_v7.py python/l1menu/Menu_MC_pp_v7.py )
+#set ( Physics_pp_v7_sources python/menu/Physics_pp_v7.py python/l1menu/Menu_Physics_pp_v7.py python/l1menu/Menu_MC_pp_v7.py )
+#atlas_build_trigger_menu( Physics_pp_v7 PYTHON_SOURCES ${Physics_pp_v7_sources} )
+#atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale PYTHON_SOURCES ${Physics_pp_v7_sources} )
+atlas_build_trigger_menu( Physics_pp_v7_primaries PYTHON_SOURCES ${Physics_pp_v7_sources} python/menu/Physics_pp_v7_primaries.py)
+#atlas_build_trigger_menu( MC_pp_v7 PYTHON_SOURCES ${MC_pp_v7_sources} )
+#atlas_build_trigger_menu( MC_pp_v7_loose_mc_prescale PYTHON_SOURCES ${MC_pp_v7_sources} )
+#atlas_build_trigger_menu( MC_pp_v7_tight_mc_prescale PYTHON_SOURCES ${MC_pp_v7_sources} )
+#atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale PYTHON_SOURCES ${MC_pp_v7_sources} )
 #
-#atlas_build_trigger_menu( Physics_pp_v7 )
-#atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale )
-atlas_build_trigger_menu( Physics_pp_v7_primaries )
-#atlas_build_trigger_menu( MC_pp_v7 )
-#atlas_build_trigger_menu( MC_pp_v7_loose_mc_prescale )
-#atlas_build_trigger_menu( MC_pp_v7_tight_mc_prescale )
-#atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale )
-#
-#atlas_build_trigger_menu( Physics_HI_v4 )
-#atlas_build_trigger_menu( MC_HI_v4 )
-#atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale )
+#set ( MC_HI_v4_sources      python/menu/Physics_HI_v4.py python/menu/MC_HI_v4.py python/l1menu/Menu_MC_HI_v4.py )
+#set ( Physics_HI_v4_sources python/menu/Physics_HI_v4.py python/l1menu/Menu_Physics_HI_v4.py python/l1menu/Menu_MC_HI_v4.py )
+#atlas_build_trigger_menu( Physics_HI_v4 PYTHON_SOURCES ${Physics_HI_v4_sources} )
+#atlas_build_trigger_menu( MC_HI_v4 PYTHON_SOURCES ${MC_HI_v4_sources} )
+#atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale PYTHON_SOURCES ${MC_HI_v4_sources} )

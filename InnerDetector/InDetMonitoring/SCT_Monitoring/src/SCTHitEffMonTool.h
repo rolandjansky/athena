@@ -66,7 +66,6 @@ class StatusCode;
 class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   
  public:
-  typedef Trk::Track Track;
   /** Constructor */
   SCTHitEffMonTool (const std::string& type, const std::string& name, const IInterface* parent);
   /** Destructor */
@@ -81,47 +80,69 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   virtual StatusCode procHistograms ();
 
  private:
+  typedef std::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
+  typedef std::array < TH1F*, SCT_Monitoring::N_REGIONS > TH1FArray;
+  typedef std::array < TH2F*, SCT_Monitoring::N_REGIONS > TH2FArray;
+  typedef std::array < std::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
 
   StatusCode initialize();
 
   /** Method to cut on track or hit variables and automatize DEBUG statements */
-  StatusCode failCut (bool value, std::string name);
+  StatusCode failCut (bool value, std::string name) const;
 
   /** Method to compute incident angle of track to wafer */
   StatusCode findAnglesToWaferSurface (const Amg::Vector3D& mom, const Identifier id,
                                        const InDetDD::SiDetectorElementCollection* elements,
-                                       double& theta, double& phi);
+                                       double& theta, double& phi) const;
 
   /** Method to find the chip just before a given hit */
-  int previousChip (double xl, int side, bool swap);
+  int previousChip (double xl, int side, bool swap) const;
 
   /** Computes residual of a hit to a track */
   double getResidual (const Identifier& surfaceID,
                       const Trk::TrackParameters* trkParam,
-                      const InDet::SCT_ClusterContainer* p_sctclcontainer);
+                      const InDet::SCT_ClusterContainer* p_sctclcontainer) const;
 
   /** Single histogram booking method */
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
-                                                int nbin, double x1, double x2);
+                                                int nbin, double x1, double x2) const;
 
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
                                                 int nbinx, double x1, double x2,
-                                                int nbiny, double y1, double y2);
+                                                int nbiny, double y1, double y2) const;
 
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup& MG, 
                                                 TString name, TString title,
                                                 int nbinx, double* xbins,
-                                                int nbiny, double* ybins);
+                                                int nbiny, double* ybins) const;
 
-  SG::ReadHandleKey<TrackCollection> m_TrackName{this, "TrackName", "CombinedInDetTracks"};
-  IChronoStatSvc* m_chrono{nullptr};
 
+  /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
+   * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B
+   * I have re-ordered this!!!! so now its C,B,A
+   **/
+  SCT_Monitoring::BecIndex layerIndex2becIndex(const int index) const;
+  ///Convert a layer/disk number (0-21) to a layer number (0-8 for endcaps, 0-3 for barrel)
+  int layerIndex2layer(const int index) const;
+  int becIdxLayer2Index(const int becIdx, const int layer) const;
+
+  std::string m_path;
   const std::map < Identifier, unsigned int >* m_badChips{nullptr};
+
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctContainerName{this, "SCT_ClusterContainer", "SCT_Clusters"};
+  SG::ReadHandleKey<TrackCollection> m_TrackName{this, "TrackName", "CombinedInDetTracks"};
+  SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
+  ServiceHandle<IChronoStatSvc> m_chrono{this, "ChronoStatSvc", "ChronoStatSvc"};
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool", "Trig::BunchCrossingTool/BunchCrossingTool"};
 
+  const PixelID* m_pixelId{nullptr};
+  const SCT_ID* m_sctId{nullptr};
+  const TRT_ID* m_trtId{nullptr};
 
   IntegerProperty m_DetectorMode{this, "DetectorMode", 3, "Barrel = 1, endcap =2, both =3"};
   IntegerProperty m_RunningMode{this, "RunningMode", 2};
@@ -140,10 +161,6 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   FloatProperty m_effdistcut{this, "effDistanceCut", 2.};
   FloatProperty m_maxZ0sinTheta{this, "MaxZ0sinTheta", 0.};
   UnsignedIntegerProperty m_maxTracks{this, "MaxTracks", 500};
-
-  std::string m_path;
-  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctContainerName{this, "SCT_ClusterContainer", "SCT_Clusters"};
-
 
   BooleanProperty m_insideOutOnly{this, "InsideOutOnly", false};
   BooleanProperty m_usemasks{this, "UseMasks", false};
@@ -164,14 +181,8 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   ToolHandle<Trk::IRIO_OnTrackCreator> m_rotcreator{this, "ROTCreator", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{this, "HoleSearch", "InDet::InDetTrackHoleSearchTool"};
-
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configConditions{this, "ConfigConditions",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
-
-  typedef std::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
-  typedef std::array < TH1F*, SCT_Monitoring::N_REGIONS > TH1FArray;
-  typedef std::array < TH2F*, SCT_Monitoring::N_REGIONS > TH2FArray;
-  typedef std::array < std::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
 
   std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
   std::array < std::array < TProfile2D*, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMapFirstBCID;
@@ -283,48 +294,6 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
 
   TGraphErrors* m_badModMap{nullptr};
   TGraphErrors* m_badChipMap{nullptr};
-
-  int m_countEvent{0};
-  const PixelID* m_pixelId{nullptr};
-  const SCT_ID* m_sctId{nullptr};
-  const TRT_ID* m_trtId{nullptr};
-
-  SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-
-  /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
-   * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B
-   * I have re-ordered this!!!! so now its C,B,A
-   **/ 
-  SCT_Monitoring::BecIndex layerIndex2becIndex(const int index) {
-    if ((index< 0) or (index>21)) return SCT_Monitoring::INVALID_INDEX;
-    if (index< 9) return SCT_Monitoring::ENDCAP_C_INDEX;
-    if (index< 13) return SCT_Monitoring::BARREL_INDEX;
-    if (index< 22) return SCT_Monitoring::ENDCAP_A_INDEX;
-    return SCT_Monitoring::INVALID_INDEX;
-  }
-  ///Convert a layer/disk number (0-21) to a layer number (0-8 for endcaps, 0-3 for barrel)
-  int layerIndex2layer(const int index) {
-    if ((index < 0) or (index > 21)) return SCT_Monitoring::INVALID_INDEX;
-    if (index < 9) return index;
-    if (index < 13) return index-9;
-    if (index < 22) return index-13;
-    return SCT_Monitoring::INVALID_INDEX;
-  }
-  
-  int becIdxLayer2Index(const int becIdx, const int layer) {
-    switch( becIdx ) {
-    case SCT_Monitoring::ENDCAP_C_INDEX:
-      return layer;
-    case SCT_Monitoring::BARREL_INDEX:
-      return layer + SCT_Monitoring::N_DISKS;
-    case SCT_Monitoring::ENDCAP_A_INDEX: 
-      return layer + SCT_Monitoring::N_DISKS + SCT_Monitoring::N_BARRELS;
-    default:
-      return -1;
-    }
-  }
-
 };
 
 #endif //SCTEFFICIENCYTOOL_H

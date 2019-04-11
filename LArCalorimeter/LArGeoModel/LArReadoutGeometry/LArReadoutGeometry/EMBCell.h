@@ -173,6 +173,7 @@ class EMBCell : public RCBase
 
       const EMBDetDescr *m_embDetDescr;
 
+      // The cell does NOT own the pointers to its electrodes
       mutable std::vector<const EMBHVElectrode*> m_electrode;
 
       mutable EMBPresamplerHVModuleConstLink m_presamplerModule;

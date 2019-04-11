@@ -18,9 +18,7 @@
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-#include "./Timer.h"
-
-class ITrigJetHypoHelperVisitor;
+class ITrigJetHypoInfoCollector;
 
 class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
@@ -30,9 +28,10 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                 const std::string& name,
                 const IInterface* parent);
   
-  bool pass(HypoJetVector&) override;
-  virtual void accept(ITrigJetHypoHelperVisitor&) override;
-  std::string toStringAndResetHistory();
+  bool pass(HypoJetVector&,
+            ITrigJetHypoInfoCollector*) const override;
+
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
 
@@ -49,11 +48,7 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
-  bool m_pass;
-  
   std::string toString() const;
-
- std::unique_ptr<JetTrigTimer> m_timer;
 
 };
 #endif

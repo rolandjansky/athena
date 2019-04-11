@@ -12,7 +12,6 @@
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 
 // random number service includes
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h" // for ITHistSvc

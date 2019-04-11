@@ -8,8 +8,12 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 #-------------------------
 # Remapping Service
 #-------------------------
-from SGComps import AddressRemappingSvc	
-AddressRemappingSvc.addInputRename('EventInfo', 'McEventInfo', 'Sig_McEventInfo')
+from SGComps import AddressRemappingSvc
+if overlayFlags.processLegacyEventInfo():
+    AddressRemappingSvc.addInputRename('EventInfo', 'McEventInfo', 'Sig_McEventInfo')
+else:
+    AddressRemappingSvc.addInputRename('xAOD::EventAuxInfo', 'EventInfoAux.', 'Sig_EventInfoAux.')
+    AddressRemappingSvc.addInputRename('xAOD::EventInfo', 'EventInfo', 'Sig_EventInfo')
 
 # Timings
 AddressRemappingSvc.addInputRename('RecoTimingObj', 'EVNTtoHITS_timings', 'Sig_EVNTtoHITS_timings')

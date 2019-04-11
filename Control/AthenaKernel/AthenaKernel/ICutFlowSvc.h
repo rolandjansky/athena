@@ -19,12 +19,6 @@
 
 //<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 class INamedInterface;
-//class EventBookkeeper;
-//class EventBookkeeperCollection;
-//class TTree;
-// namespace xAOD{
-//   class CutBookkeeper;
-// }
 
 
 /// InstanceIdentifier is a unique identifer used for every AthFilterAlgorithm instance
@@ -92,6 +86,9 @@ public:
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
   /// using CutIdentifier returned by selfRegisterFilter or registerCut
   virtual void addEvent( CutIdentifier cutID, double weight) = 0;
+
+  /// Tell consumers the name of the storegate container being used
+  virtual const std::string SGKey() = 0;
 
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();

@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDD2GeoSvc/AGDD2GeoSvc.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
-#include "GaudiKernel/IToolSvc.h"
 
 #include "AGDDControl/IAGDDToolBase.h"
 #include "AGDDControl/AGDDTokenizer.h"
@@ -13,8 +12,6 @@
 #include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
-#include "GaudiKernel/IToolSvc.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -22,13 +19,10 @@
  ** Constructor(s)
  **/
 AGDDtoGeoSvc::AGDDtoGeoSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc),m_tagInfoMgr(0)
+  : base_class(name,svc)
+  , m_builders(this)
 {
-	declareProperty( "Builders",      	m_builders, "Builders");
-}
-
-AGDDtoGeoSvc::~AGDDtoGeoSvc()
-{
+  declareProperty( "Builders", m_builders, "Builders");
 }
 
 /**
@@ -38,71 +32,24 @@ StatusCode
 AGDDtoGeoSvc::initialize()
 {
   ATH_MSG_INFO(" this is AGDDtoGeoSvc::initialize()");
-  StatusCode result;
-  // = Service::initialize();
-  // if (result.isFailure()) 
-//   {
-//     ATH_MSG_FATAL("Unable to initialize the service!");
-//     return result;
-//   }
-  
+
   localInitialization();
-  
-  for (unsigned int i=0;i<m_builders.size();i++)
-  {
-    IToolSvc* toolSvc=0;
-	StatusCode mySvc=service("ToolSvc",toolSvc);
-	if (mySvc.isFailure()) std::cout<<" could not get ToolSvc!!!"<<std::endl;
-	
-	IAGDDToolBase* aTest;
-  
-	AGDDTokenizer toolNames("/",m_builders[i]);
-	StatusCode myTest;
-	if (toolNames.size() == 1) myTest=toolSvc->retrieveTool(toolNames[0],aTest);
-	else myTest=toolSvc->retrieveTool(toolNames[0],toolNames[1],aTest);
-    if (myTest.isFailure()) std::cout<<"Failed retrieving tool!!"<<std::endl;
-	
-	StatusCode tConstruct=aTest->construct();
-	if (tConstruct.isFailure()) std::cout<<"something wrong while calling construct()"<<std::endl;
-  }  
-  
+
+  ATH_CHECK(m_builders.retrieve());
+  for (const auto& aTest : m_builders) {
+    ATH_CHECK(aTest->construct());
+  }
+
   const DataHandle<TagInfo> tagInfoH;
   std::string tagInfoKey="";
-  
-  result=service("TagInfoMgr",m_tagInfoMgr);
-  if (result.isFailure()) 
-  {
-    ATH_MSG_FATAL("Unable to retrieve TagInfoMgr!" );
-    return result;
-  }
-  else
-  	tagInfoKey=m_tagInfoMgr->tagInfoKey();
-  
+
+  ATH_CHECK(service("TagInfoMgr",m_tagInfoMgr));
+  tagInfoKey=m_tagInfoMgr->tagInfoKey();
+
   ATH_MSG_INFO(" initializing ");
 
-  return result;
-}
-
-StatusCode
-AGDDtoGeoSvc::finalize()
-{
-	return StatusCode::SUCCESS;
-}
-
-StatusCode
-AGDDtoGeoSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IID_IAGDDtoGeoSvc == riid )    {
-    *ppvInterface = (IAGDDtoGeoSvc*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
-
 
 #include "AGDDHandlers/HandlerList.h"
 void AGDDtoGeoSvc::localInitialization()

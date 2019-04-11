@@ -44,14 +44,14 @@ def MainServicesThreadedCfg(cfgFlags):
     #Build standard sequences:
     cfg.addSequence(AthSequencer('AthAlgEvtSeq',Sequential=True, StopOverride=True),parentName="AthMasterSeq") 
     cfg.addSequence(AthSequencer('AthOutSeq',StopOverride=True),parentName="AthMasterSeq")
-    cfg.addSequence(AthSequencer('AthRegSeq'),parentName="AthMasterSeq")
+    cfg.addSequence(AthSequencer('AthRegSeq',StopOverride=True),parentName="AthMasterSeq")
 
     cfg.addSequence(AthSequencer('AthBeginSeq',Sequential=True),parentName='AthAlgEvtSeq')
-    cfg.addSequence(AthSequencer('AthAllAlgSeq'),parentName='AthAlgEvtSeq') 
+    cfg.addSequence(AthSequencer('AthAllAlgSeq',StopOverride=True),parentName='AthAlgEvtSeq') 
 
     if cfgFlags.Concurrency.NumThreads==0:
         # For serial execution, we need the CondAlgs to execute first.
-        cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
         cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
     else:
         # In MT, the order of execution is irrelevant (determined by data deps).
@@ -59,7 +59,7 @@ def MainServicesThreadedCfg(cfgFlags):
         # initialized after all other user Algorithms for MT, so the base classes
         # of data deps can be correctly determined. 
         cfg.addSequence(AthSequencer('AthAlgSeq',IgnoreFilterPassed=True,StopOverride=True),parentName='AthAllAlgSeq')
-        cfg.addSequence(AthSequencer('AthCondSeq'),parentName='AthAllAlgSeq')
+        cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
 

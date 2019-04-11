@@ -50,8 +50,6 @@ def TrigBSReadCfg( inputFlags ):
     
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
     bsMetaDataTool = ByteStreamMetadataTool()
-    bsMetaDataTool.InputCollName  = "ByteStreamMetadata"
-    bsMetaDataTool.OutputCollName = "ByteStreamMetadata"
     acc.addPublicTool( bsMetaDataTool )
     
     from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
@@ -123,3 +121,4 @@ if __name__ == "__main__":
     acc = TrigBSReadCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
     print "All OK"
+

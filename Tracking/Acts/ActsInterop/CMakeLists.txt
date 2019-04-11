@@ -12,9 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 
-if(NOT ATH_ACTS_BUILD_SUBDIR)
-  find_package(Acts REQUIRED COMPONENTS Core)
-endif()
+find_package(Acts REQUIRED COMPONENTS Core)
 
 # Component(s) in the package:
 atlas_add_library( ActsInteropLib

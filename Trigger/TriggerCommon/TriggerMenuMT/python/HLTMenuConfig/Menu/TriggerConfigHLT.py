@@ -18,7 +18,7 @@ class TriggerConfigHLT:
         return TriggerConfigHLT.sCurrentTriggerConfig
     currentTriggerConfig = staticmethod(currentTriggerConfig)
 
-    def __init__(self, hltfile=None):
+    def __init__(self, hltfile=None, signaturesOverwritten=False):
         self.menuName = 'TestMenu'
         self.__HLTFile = hltfile
         
@@ -33,6 +33,10 @@ class TriggerConfigHLT:
         self.theHLTChains      = []
         self.theSeqLists       = []
         self.theSeqDict        = {} # dict by Seq output TE
+
+        if type(signaturesOverwritten)!=bool:
+            log.error('Wrong type for signaturesOverwritten. Received %s but expected bool', type(signaturesOverwritten))
+        self.signaturesOverwritten = signaturesOverwritten
 
         TriggerConfigHLT.sCurrentTriggerConfig = self
 
