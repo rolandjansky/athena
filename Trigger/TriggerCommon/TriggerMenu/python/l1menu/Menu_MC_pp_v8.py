@@ -618,6 +618,7 @@ def defineMenu():
         'L1_EM12_XS20', 'L1_EM15_XS30',
         
         # TE
+        'L1_TE5',
         #"L1_TE3",                                                        
         #                        "L1_TE45",                "L1_TE55",        "L1_TE60",        "L1_TE65",
         #      "L1_TE60", "L1_TE70",
@@ -1123,7 +1124,7 @@ def defineMenu():
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
-
+        'L1_TE5' : 180,
 
 #        'L1_MBTS_1_VTE2' : 160,
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,

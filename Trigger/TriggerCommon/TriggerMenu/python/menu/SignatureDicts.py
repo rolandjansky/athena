@@ -564,7 +564,7 @@ MinBiasChainParts = {
     'extra'          : ['noisesup', 'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusiveloose1', 'exclusiveloose2', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
-    'trkInfo'        : ['hlttr', 'ftk', 'costr'],
+    'trkInfo'        : ['hlttr', 'ftk', 'costr','FTKVtx'],
     'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp50', 'sp100', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
                         'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 'sp1900',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
@@ -575,7 +575,7 @@ MinBiasChainParts = {
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmftk', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb','hipeb'],
     'veto'           : ['vetombts2in', 'vetombts1side2in',  'vetospmbts2in', 'vetosp', 'vetombts8'],
     }
