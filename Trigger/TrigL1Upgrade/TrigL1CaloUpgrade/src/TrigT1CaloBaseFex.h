@@ -132,6 +132,8 @@ protected :
 	double L2clusET(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale , float digitThresh);
 	/** calculate the energy isolation of the central cell along eta */
 	double REta(CaloCell* centreCell, int etaWidth1, int phiWidth1, int etaWidth2, int phiWidth2, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh);
+	/** calculate the energy isolation of the central cell along eta using Layer 1 and Layer 2 */
+	double REtaL12(CaloCell* centreCell, int etaWidth1, int phiWidth1, int etaWidth2, int phiWidth2, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh);
 	/** convert the TT phi to match the definition of SC phi  */
 	double TT_phi(const xAOD::TriggerTower* &inputTower);
 	/** calculate deltaR between two points in eta/phi space */
@@ -220,6 +222,8 @@ protected :
   	float m_L1Width_thresh;
 	/** max eta for applying cut on L1Width */
   	float m_eta_dropL1Width;
+	/** boolean for caluclating REta using Layer 1 in addition to Layer 2 */
+	bool m_use_REtaL12;
 };
 
 #endif

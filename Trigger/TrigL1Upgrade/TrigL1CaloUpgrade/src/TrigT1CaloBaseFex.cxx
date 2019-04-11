@@ -48,6 +48,7 @@ TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvc
   	declareProperty("RHadThreshold", m_RHad_thresh = 0.16);
   	declareProperty("L1WidthThreshold", m_L1Width_thresh = 0.02);
   	declareProperty("EtaThresholdToApplyL1Width", m_eta_dropL1Width = 2.3);
+	declareProperty("UseREtaL12", m_use_REtaL12 = false);
 }
 
 StatusCode TrigT1CaloBaseFex::initialize(){
@@ -1457,6 +1458,37 @@ double TrigT1CaloBaseFex::REta(CaloCell* centreCell, int etaWidth1, int phiWidth
         return my_REta;
 }
 
+double TrigT1CaloBaseFex::REtaL12(CaloCell* centreCell, int etaWidth1, int phiWidth1, int etaWidth2, int phiWidth2, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh){
+	MsgStream msg(msgSvc(), name());
+	// Check windows sizes are right way round
+        if (etaWidth1 > etaWidth2) msg << MSG::WARNING << "REta ERROR: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2 << endreq;
+        if (phiWidth1 > phiWidth2) msg << MSG::WARNING << "Rphi ERROR: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2 << endreq;
+        // Finds ET of windows
+        double inner_ET = L2clusET(centreCell, etaWidth1, phiWidth1, scells, idHelper, digitScale, digitThresh);
+        double outer_ET = L2clusET(centreCell, etaWidth2, phiWidth2, scells, idHelper, digitScale, digitThresh);
+	// Find corresponding L1 cells, calculate the L1 ET and add them to L2 ET
+        std::vector<CaloCell*> L2cells_inner = L2cluster(centreCell, etaWidth1, phiWidth1, scells, idHelper,digitScale, digitThresh);
+        std::vector<CaloCell*> L1cells_inner;
+        for (auto ithL2Cell : L2cells_inner){
+          fromLayer2toLayer1(scells, ithL2Cell, L1cells_inner, idHelper);
+        }
+        inner_ET += sumVectorET(L1cells_inner, digitScale, digitThresh);
+        std::vector<CaloCell*> L2cells_outer = L2cluster(centreCell, etaWidth2, phiWidth2, scells, idHelper,digitScale, digitThresh);
+        std::vector<CaloCell*> L1cells_outer;
+        for (auto ithL2Cell : L2cells_outer){
+          fromLayer2toLayer1(scells, ithL2Cell, L1cells_outer, idHelper);
+        }
+        outer_ET += sumVectorET(L1cells_outer, digitScale, digitThresh);
+        // Find normal value of REta & changes it to my version
+        double normal_REta;
+        if (inner_ET != 0. && outer_ET==0.) normal_REta = 0.;
+        else if (inner_ET==0.) normal_REta = 0.;
+        else normal_REta = inner_ET / outer_ET;
+        if (normal_REta < 0) normal_REta = 0.;
+        double my_REta = 1-normal_REta;
+        return my_REta;
+}
+
 double TrigT1CaloBaseFex::TT_phi(const xAOD::TriggerTower* &inputTower){
 	MsgStream msg(msgSvc(), name());
 	if (inputTower == NULL){
@@ -1644,15 +1676,22 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
             float ithEta = ithCell->eta();
             float ithPhi = ithCell->phi();
             float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
-            float ithREta = REta(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);    
+            float ithREta = REta(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
             float ithRHad = RHad(ithCell, m_etaWidth_RHadIsolation, m_phiWidth_RHadIsolation, SCs, TTs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, HadET);
             float ithL1Width = L1Width(ithCell, m_etaWidth_wstotIsolation, m_phiWidth_wstotIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
 	    float L2ClusterET33 = L2clusET(ithCell, 3, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
 	    float L2ClusterET37 = L2clusET(ithCell, 7, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
-            std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
-            result.push_back(ithResult);
-            }
+            if (!m_use_REtaL12){ 
+		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
+		    result.push_back(ithResult);
+	    }
+	    else {
+		    float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
+		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37, ithREtaL12};
+		    result.push_back(ithResult);
+	    }
           }
+        }
         return result;
 }
 

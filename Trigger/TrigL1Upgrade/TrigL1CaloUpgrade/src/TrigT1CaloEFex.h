@@ -66,6 +66,7 @@ private :
 	
 	// Acessors for dynamic decorations
 	SG::AuxElement::Accessor<float>* Run3eFEXIsolation_REta;
+	SG::AuxElement::Accessor<float>* Run3eFEXIsolation_REtaL12;
 	SG::AuxElement::Accessor<float>* Run3eFEXIsolation_RHad;
 	SG::AuxElement::Accessor<int>* pass_Run3eFEXIsolation_REta;
 	SG::AuxElement::Accessor<int>* pass_Run3eFEXIsolation_RHad;
