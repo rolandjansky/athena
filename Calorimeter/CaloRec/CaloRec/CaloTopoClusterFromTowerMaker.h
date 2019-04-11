@@ -65,7 +65,9 @@ private:
   bool                                          m_useCellsFromClusters;     ///< Use cells from topo-clusters if @c true, else use all cells, default is @c true
   bool                                          m_applyCellEnergyThreshold; ///< Apply cell energy threshold, default is @c false 
   bool                                          m_doCellIndexCheck;         ///< Check cell hash index consistency if @c true (default @c false)
+  bool                                          m_buildCombinedSignal;      ///< Build topo-clusters within given @f$ y @f$ range, else topo-towers
   double                                        m_energyThreshold;          ///< Cell energy threshold, default is set in @c m_energyThresholdDef
+  double                                        m_clusterRange;             ///< Range where topo-clusters are used when <tt>m_buildCombinedSignal = true</tt>
   /// @}
 
   /// @name Constants and parameters
@@ -75,7 +77,9 @@ private:
   uint_t             m_numberOfSamplings;      ///< Number of samplings
   uint_t             m_numberOfTowers;         ///< Number of towers
   static double      m_energyThresholdDef;     ///< Default energy threshold
+  static double      m_clusterRangeDef;        ///< Default cluster @f$ y @f$ range
   static std::string m_defaultKey;             ///< Default container key
+  static uint_t      m_errorValueUINT;         ///< Error value for @c uint_t type values
   /// @}
 
   ///@name Internally used helpers
@@ -93,11 +97,13 @@ private:
   ///@param pProtoCont reference to @c CaloProtoCluster container filled on output.
   ///@param clusCont reference to non-modifiable @c xAOD::CaloClusterContainer
   ///@param protoCont reference to modifiable proto-cluster container
+  ///
+  ///@return 
   ///@{
-  StatusCode buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Inclusive towers
-  StatusCode buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);           ///< Exclusive towers
-  StatusCode buildEMTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont);  ///< EM topo-towers
-  StatusCode buildLCWTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont); ///< LCW topo-towers
+  uint_t buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);            ///< Inclusive towers
+  uint_t buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont);            ///< Exclusive towers
+  uint_t buildEMTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont);   ///< EM topo-towers
+  uint_t buildLCWTopoTowers(const xAOD::CaloClusterContainer& clusCont,protocont_t& protoCont);  ///< LCW topo-towers
   ///@}
   /// @brief Adding cells to proto-clusters
   ///
@@ -105,12 +111,15 @@ private:
   ///
   /// @param cptr       pointer ton non-modifiable @c CaloCell object
   /// @param pProtoCont reference to proto-cluster container
-  bool addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont);
+  /// @param weight     additional (global) weight of cell (e.g. for geometrical weight for combined EM-scale signals)  
+  bool addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont,double weight=1.);
   
   ///@name Helpers
   ///@{
-  bool        filterProtoCluster(const CaloClusterCellLink& clnk)  const;
-  bool        checkCellIndices(const CaloCellContainer* pCellCont) const;
+  bool   filterProtoCluster(const CaloClusterCellLink& clnk)  const; ///< Checks for and removes invalid cell links  
+  bool   checkCellIndices(const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
+  bool   isValidIndex(uint_t idx)                             const; ///< Checks if argument is a valid index value 
+  uint_t badIndexValue()                                      const; ///< Returns value indicating a bad index
   ///@}
 
   ///@name Excluded samplings
@@ -124,6 +133,9 @@ private:
   ///@{
   ///@}
 };
+
+inline CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::badIndexValue()          const { return m_errorValueUINT;       } 
+inline bool                                  CaloTopoClusterFromTowerMaker::isValidIndex(uint_t idx) const { return idx != badIndexValue(); }
 
 ///@class CaloTopoClusterFromTowerMaker
 ///
@@ -191,6 +203,19 @@ private:
 /// <td align="center" valign="top"><tt>&minus;N/A&minus;</tt></td>
 /// <td align="left" valign="top">key for @c CaloCellClusterWeights object is needed if <tt>PrepareLCW = true</tt>. Default is empty key. 
 /// </tr>
+/// <tr>
+/// <td align="left" valign="top"><tt>BuildCombinedTopoSignal</tt></td>
+/// <td align="center" valign="top"><tt>bool</tt></td>
+/// <td align="center" valign="top"><tt>false</tt></td>
+/// <td align="left" valign="top">turns on combined topo-cluster/topo-tower output, with topo-clusters used within the rapidity range defined by <tt>TopoClusterRange</tt> and topo-towers elsewhere.</td></tr>
+/// </tr>
+/// <tr>
+/// <td align="left" valign="top"><tt>TopoClusterRange</tt></td>
+/// <td align="center" valign="top"><tt>double</tt></td>
+/// <td align="center" valign="top"><tt>5.</tt></td>
+/// <td align="left" valign="top">sets the range @f$ y_{\rm topo-cluster}^{\rm max} @f$ for using topo-clusters when <tt>BuildCombinedTopoSignal = true</tt>; 
+/// topo-clusters with @f$ \left|y_{\rm topo-cluster}\right| < y_{\rm topo-cluster}^{\rm max} @f$ are used. 
+/// </tr>
 /// </table> 
 ///                                 
 /// The towers can be classified as:
@@ -203,7 +228,13 @@ private:
 /// -# <b>filtered mode</b>
 ///    Cells contributing to standard topo-clusters are collected into topo-towers. This behaviour is triggered by <tt>UseCellsFromClusters = true</tt>. Optionally, LCW calibration can be applied
 ///    to these towers by setting <tt>PrepareLCW = true</tt> and scheduling a @c CaloTopoClusterFromTowerCalibrator tool after the cluster moment calculators. The values of the <tt>UseEnergyThreshold</tt>
-///    and <tt>CellEnergyThreshold</tt> properties are ignored in this mode. A valid event store key needs to be provided in the to pick up the topo-cluster container. 
+///    and <tt>CellEnergyThreshold</tt> properties are ignored in this mode. A valid event store key needs to be provided in the to pick up the topo-cluster container. Note that building EM 
+///    topo-towers requires topo-clusters on EM scale (no LCW applied) to get the correct geometrical cell weights only. LCW topo-towers require LCW scale topo-clusters to get the correct full geometrical 
+///    and calibration weights.
+/// -# <b>mixed mode</b>
+///    Cells contributing to standard topo-clusters are collected into towers if these topo-clusters are outside of a give rapidity range. The rapidity range is defined by the <tt>TopoClusterRange</tt>
+///    property. This mode is turned on by setting the property <tt>BuildCombinedTopoSignal = true</tt>. It is turned off by default (<tt>BuildCombinedTopoSignal = false</tt>). 
+///    EM scale and LCW scale is possible, as in the filtered mode. 
 ///
 ///  Configuration 2 and 3 are exclusive, with 3 overwriting 2. The output topo-clusters represent calorimeter towers on the EM scale. The can be handed to cluster moment
 ///  tools (needs EM scale) and, if desired, to a dedicated cluster calibration tool of type @c xAOD::CaloTowerClusterFromTowerCalibrator .  
@@ -220,5 +251,4 @@ private:
 ///      <a href="https://twiki.cern.ch/twiki/bin/view/AtlasSandboxProtected/CaloTowerPerformance" title="https://twiki.cern.ch/twiki/bin/view/AtlasSandboxProtected/CaloTowerPerformance">this page</a>.
 ///
 /// @author Peter Loch <loch@physics.arizona.edu>
-///      
 #endif

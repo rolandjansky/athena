@@ -4,17 +4,17 @@
 
 
 from AthenaCommon.Logging import logging
-mlog = logging.getLogger('CaloTopoTowerFragment.py:: ')
+mlog = logging.getLogger('CaloTopoSognalFragment.py:: ')
 
 import AthenaCommon.Constants as Lvl
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 from CaloRec.MakeClustersFromTowers import ClustersFromTowersDict, MakeClustersFromTowers
-from CaloRec.CaloRecConf            import CaloTowerGeometrySvc
+from CaloRec.CaloRecConf            import CaloTowerGeometrySvc, CaloTopoClusterTowerMerger
 
 mlog.info(' ')
 mlog.info('##################################')
-mlog.info('## Standard Tower Configuration ##')
+mlog.info('## Topological Signal Formation ##')
 mlog.info('##################################')
 mlog.info(' ')
 
@@ -30,27 +30,36 @@ if not hasattr(svcMgr,'CaloTowerGeometryProvider'):
     caloTowerGeoSvc.TowerEtaMax  =  5.
     svcMgr                      += caloTowerGeoSvc
 
+
 #############################
 ## CaloTopoTower Formation ##
 #############################
 
-caloTowerDict = ClustersFromTowersDict(clusterBuilderName='CaloTopoTowerBuilder',
+caloTowerDict = ClustersFromTowersDict(clusterBuilderName='CaloFwdTopoTowerBuilder',
                                        towerGeometrySvc=svcMgr.CaloTowerGeometryProvider,
                                        cellContainerKey='AllCalo',
                                        buildTopoTowers=True,
                                        topoClusterContainerKey='CaloCalTopoClusters',
-                                       cellClusterWeightKey='CaloCalTopoTowerCellWeights',
+                                       cellClusterWeightKey='CaloCalFwdTopoTowerCellWeights',
                                        orderClusterByPt=False,
                                        applyCellEnergyThreshold=False,
                                        doCellIndexCheck=False,
                                        cellEnergyThreshold=0.,
                                        applyLCW=True,
-                                       buildCombinedSignal=False,
-                                       clusterRange=5.)
+                                       buildCombinedSignal=True,
+                                       clusterRange=2.5)
 
-caloTowerAlgo = MakeClustersFromTowers(towerMakerName      = 'CaloTopoTowerMaker',
-                                       towerContainerKey = 'CaloCalTopoTowers',
+caloTowerAlgo = MakeClustersFromTowers(towerMakerName      = 'CaloFwdTopoTowerMaker',
+                                       towerContainerKey = 'CaloCalFwdTopoTowers',
                                        configDict          = caloTowerDict,
                                        debugOn             = False)
+#merging
+caloTowerMerger                         = CaloTopoClusterTowerMerger("CaloTopoSignalMaker")
+caloTowerMerger.TopoClusterRange        = caloTowerAlgo.CaloFwdTopoTowerBuilder.TopoClusterRange
+caloTowerMerger.TopoClusterContainerKey = caloTowerAlgo.CaloFwdTopoTowerBuilder.CaloTopoClusterContainerKey
+caloTowerMerger.TopoTowerContainerKey   = caloTowerAlgo.ClustersOutputName
+caloTowerMerger.TopoSignalContainerKey  = 'CaloCalTopoSignals'
+caloTowerMerger.OutputLevel             = Lvl.DEBUG
 
 topSequence+=caloTowerAlgo
+topSequence+=caloTowerMerger

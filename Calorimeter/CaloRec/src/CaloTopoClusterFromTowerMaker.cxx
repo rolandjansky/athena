@@ -31,6 +31,7 @@
 #include <memory>
 #include <vector>
 #include <atomic>
+#include <tuple>
 
 namespace {
   MsgStream& operator<<(MsgStream& mstr,const SG::ReadHandleKey<CaloCellContainer>&          ckey) { mstr << ckey.key(); return mstr; }
@@ -44,8 +45,10 @@ std::atomic<bool> CaloTopoClusterFromTowerMaker_checkCellIndices(false);
 // CaloTopoClusterFromTowerMaker //
 ///////////////////////////////////
 
-double      CaloTopoClusterFromTowerMaker::m_energyThresholdDef = -100000000.; // in MeV
-std::string CaloTopoClusterFromTowerMaker::m_defaultKey         = "NONE";
+double                                CaloTopoClusterFromTowerMaker::m_energyThresholdDef = -100000000.; // in MeV
+double                                CaloTopoClusterFromTowerMaker::m_clusterRangeDef    = 5.;
+std::string                           CaloTopoClusterFromTowerMaker::m_defaultKey         = "NONE";
+CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::m_errorValueUINT     = uint_t(-1); 
 
 CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& type,
 							     const std::string& name,
@@ -60,7 +63,9 @@ CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& 
   , m_useCellsFromClusters(true)
   , m_applyCellEnergyThreshold(false)
   , m_doCellIndexCheck(false)
+  , m_buildCombinedSignal(false)
   , m_energyThreshold(m_energyThresholdDef-1.)
+  , m_clusterRange(m_clusterRangeDef)
   , m_numberOfCells(0)
   , m_maxCellHash(0)
   , m_numberOfSamplings(static_cast<uint_t>(CaloSampling::Unknown))
@@ -78,9 +83,8 @@ CaloTopoClusterFromTowerMaker::CaloTopoClusterFromTowerMaker(const std::string& 
   declareProperty("PrepareLCW",                  m_prepareLCW,                                                                        "Prepare data structure to apply LCW");
   declareProperty("ExcludedSamplings",           m_excludedSamplingsName,                                                             "Excluded samplings by name");
   declareProperty("DoCellIndexCheck",            m_doCellIndexCheck,                                                                  "Check cell hash indices for consistency");
-  // the extensions below are not thread safe! -> Gaudi accumulators?
-  //  declareProperty("CollectMonitorData",          m_collectMonitorData,                                                                "Turn on/off monitor data collection");
-  //  declareProperty("MonitorDataFile",             m_monitorDataFile,                                                                   "File to dump monitor data");
+  declareProperty("BuildCombinedTopoSignal",     m_buildCombinedSignal,                                                               "Build topo-clusters and topo-towers");
+  declareProperty("TopoClusterRange",            m_clusterRange,                                                                      "Rapidity range for using topo-clusters in combined signal mode");
 }
 
 StatusCode CaloTopoClusterFromTowerMaker::initialize()
@@ -185,6 +189,8 @@ StatusCode CaloTopoClusterFromTowerMaker::initialize()
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ApplyCellEnergyThreshold ... %s",             blu[m_applyCellEnergyThreshold].c_str()) );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("OrderClusterByPt ........... %s",             blu[m_orderByPt].c_str())                );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("DoCellIndexCheck ........... %s",             blu[m_doCellIndexCheck].c_str())         );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("BuildCombinedTopoSignal .... %s",             blu[m_buildCombinedSignal].c_str())      );
+  ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("TopoClusterRange ........... %.2f",           m_clusterRange)                          );
   ATH_MSG_INFO( CaloRec::Helpers::fmtMsg("ExcludedSamplings .......... %zu (number of)",m_excludedSamplingsName.size())          );
 
   return StatusCode::SUCCESS;
@@ -236,6 +242,7 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
   // for each clustered cell. In case of EM, the LCW weights are ignored and this
   // object is not used - a simple vector<bool> tags cells already put into towers.
 
+  uint_t cCtr(0);
   if ( m_useCellsFromClusters ) {
     // retrieve topo-cluster container for topo-towers
     SG::ReadHandle<xAOD::CaloClusterContainer> pTopoClusCont(m_clusterContainerKey);
@@ -243,19 +250,16 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
       ATH_MSG_ERROR("Cannot allocate xAOD::CaloClusterContainer with key <" << m_clusterContainerKey << ">");
       return StatusCode::FAILURE;
     } // check on ReadHandle validity
-    // mode-dependent processing
-    if ( !m_prepareLCW ) { 
-      ATH_CHECK( this->buildEMTopoTowers(*pTopoClusCont,pProtoCont) );
-    } else { 
-      ATH_CHECK( buildLCWTopoTowers(*pTopoClusCont,pProtoCont) );
-    }
+    cCtr = m_prepareLCW ? this->buildLCWTopoTowers(*pTopoClusCont,pProtoCont) : this->buildEMTopoTowers(*pTopoClusCont,pProtoCont);
+    if ( !isValidIndex(cCtr) ) { ATH_MSG_WARNING("problems building EM or LCW topo-towers"); return StatusCode::SUCCESS; }
   } else {
-    // fill inclusive/exclusive towers 
-    if ( !m_applyCellEnergyThreshold ) { ATH_CHECK( buildInclTowers(*pCellCont,pProtoCont) ); } else { ATH_CHECK( buildExclTowers(*pCellCont,pProtoCont) ); }
-  } // end mode dependent processing
+    // fill inclusive/exclusive towers
+    cCtr = m_applyCellEnergyThreshold ?  this->buildExclTowers(*pCellCont,pProtoCont) : this->buildInclTowers(*pCellCont,pProtoCont);
+    if ( !isValidIndex(cCtr) ) { ATH_MSG_WARNING("problems building EM inclusive or exclusive towers"); return StatusCode::SUCCESS; }
+  } // end topo-towers/inclusive-exclusive towers
 
-  // common tasks: convert CaloProtoCluster to CaloCluster
-  pClusCont->reserve(pProtoCont.size()); // reserve space (maybe not needed)
+  // allocate sufficient space in vector
+  pClusCont->reserve(cCtr);
   // pick up cluster size tag and set up counter
   xAOD::CaloCluster::ClusterSize csize = this->getClusterSize(m_numberOfTowers);
   // loop proto-clusters
@@ -283,10 +287,10 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
   // Sorting //
   /////////////
 
-  // All towers at this point are on EM scale. Sorting LCW towers by pT should be done in the 
+  // All towers/clusters at this point are on EM scale. Sorting LCW towers by pT should be done in the 
   // CaloTopoClusterFromTowerCalibrator tool to assure desired ordering on the final scale.
   // The link between tower location and index of tower representation (CaloCluster) in its
-  // container is definitively broken after sorting.
+  // container is definitively broken after sorting (was never ok in mixed cluster/tower mode).
   if ( m_orderByPt ) { 
     std::sort(pClusCont->begin(),pClusCont->end(),[](xAOD::CaloCluster* pc1,xAOD::CaloCluster* pc2) {
    	volatile double pt1(pc1->pt()); // FIXME needed? (this was just copied)
@@ -304,28 +308,55 @@ StatusCode CaloTopoClusterFromTowerMaker::execute(xAOD::CaloClusterContainer* pC
 //////////////////////
 
 // EM 
-StatusCode CaloTopoClusterFromTowerMaker::buildEMTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
+CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::buildEMTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
 {
-  // -- EM scale clusters
+  // presets
+  uint_t cCtr(0);
   std::vector<bool> cellTags(m_numberOfCells,false);
-  for ( auto pClus : pClusCont ) { 
-    for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
-      uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
-      if ( cidx < cellTags.size() ) {
-	if ( !cellTags.at(cidx) ) { cellTags[cidx] = this->addCellToProtoCluster(*fCell,pProtoCont); }  
-      } else {
-	ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("Invalid cell hash index %6zu >= maximum index %6zu for cell in %s at (eta,phi) = (%6.3,%f6.3)",
-						cidx,cellTags.size(),CaloSampling::getSamplingName((*fCell)->caloDDE()->getSampling()).c_str(),(*fCell)->eta(),(*fCell)->phi()) );
-	return StatusCode::FAILURE;
-      }
-    } // end cells-in-cluster loop
-  } // end cluster loop
+
+  // -- EM scale clusters
+  if ( !m_buildCombinedSignal ) { 
+    // topo-towers
+    for ( auto pClus : pClusCont ) { 
+      for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
+	uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
+	if ( cidx < cellTags.size() ) {
+	  if ( !cellTags.at(cidx) ) { cellTags[cidx] = this->addCellToProtoCluster(*fCell,pProtoCont); }  
+	} else {
+	  ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("Invalid cell hash index %6zu >= maximum index %6zu for cell in %s at (eta,phi) = (%6.3,%f6.3)",
+						  cidx,cellTags.size(),CaloSampling::getSamplingName((*fCell)->caloDDE()->getSampling()).c_str(),(*fCell)->eta(),(*fCell)->phi()) );
+	  return m_errorValueUINT;
+	}
+      } // end cells-in-cluster loop
+    } // end cluster loop
+  } else { 
+    // selected topo-towers for combined signal
+    std::vector<std::tuple<const CaloCell*,double> > cellList(m_numberOfCells,std::tuple<const CaloCell*,double>(0,0.));
+    for ( auto pClus : pClusCont ) { 
+      if ( std::abs(pClus->eta()) > m_clusterRange ) { 
+	for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) { 
+	  uint_t cidx(static_cast<uint_t>((*fCell)->caloDDE()->calo_hash()));
+	  if ( cellTags.at(cidx) ) { 
+	    std::get<1>(cellList[cidx]) += fCell.weight();
+	  } else { 
+	    cellList[cidx] = std::tuple<const CaloCell*,double>(*fCell,fCell.weight());
+	    cellTags[cidx] = true; 
+	  } 
+	} // cell in cluster loop
+      } else { 
+	++cCtr; 
+      } // cluster range check
+    } // cluster loop
+    // fill proto-cluster
+    for ( auto tpl : cellList ) { this->addCellToProtoCluster(std::get<0>(tpl),pProtoCont,std::get<1>(tpl)); }
+  } // end of fill mode
+
   //
-  return StatusCode::SUCCESS;
+  return cCtr+pProtoCont.size();
 }
 
 // LCW
-StatusCode CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
+CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClusterContainer& pClusCont,protocont_t& pProtoCont)
 { 
   // Need to keep track of LCW weights (up to two per cell) available from the topo-cluster(s) the cell is assigned to.
   // Each cell in a topo-cluster is, at first occurance, added to the CaloProtoCluster(s) representing the tower(s) and its
@@ -333,22 +364,42 @@ StatusCode CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClu
   // time the same cell is found in another topo-cluster, only its LCW weight is added to the lookup table (stored in
   // CaloCellClusterWeights for use in the downstream tower calibration tool) - the assignment to tower(s) has already
   // happened.
-  
+
+  uint_t cCtr(0);
   // write handle object on the stack
   SG::WriteHandle<CaloCellClusterWeights> cellClusterWeightHandle(m_cellClusterWeightKey);
   // record output container
-  ATH_CHECK( cellClusterWeightHandle.record(std::make_unique<CaloCellClusterWeights>(m_towerGeometrySvc->maxCellHash())) );
+  if ( cellClusterWeightHandle.record(std::make_unique<CaloCellClusterWeights>(m_towerGeometrySvc->maxCellHash())).isFailure() ) {
+    ATH_MSG_WARNING( "Cannot record cluster cell weights with key <" << m_cellClusterWeightKey << ">" );
+    return m_errorValueUINT;
+  }
   // project cells on tower grid
-  for ( auto pClus : pClusCont ) { 
-    for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) {
-      // map to towers only once
-      if ( !cellClusterWeightHandle.ptr()->check(*fCell) ) { this->addCellToProtoCluster(*fCell,pProtoCont); }
-      // store all associated LCW weights
-      cellClusterWeightHandle.ptr()->set(*fCell,fCell.weight());
-    } // end cells-in-cluster loop
-  } // end cluster loop
-  // 
-  return StatusCode::SUCCESS;
+  if ( !m_buildCombinedSignal ) { 
+    for ( auto pClus : pClusCont ) { 
+      for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) {
+	// map to towers only once
+	if ( !cellClusterWeightHandle.ptr()->check(*fCell) ) { this->addCellToProtoCluster(*fCell,pProtoCont); }
+	// store all associated LCW weights
+	cellClusterWeightHandle.ptr()->set(*fCell,fCell.weight());
+      } // end cells-in-cluster loop
+    } // end cluster loop
+  } else { 
+    for ( auto pClus : pClusCont ) {
+      if ( std::abs(pClus->eta()) > m_clusterRange ) {  
+	for ( auto fCell(pClus->cell_begin()); fCell != pClus->cell_end(); ++fCell ) {
+	  // map to towers only once
+	  if ( !cellClusterWeightHandle.ptr()->check(*fCell) ) { this->addCellToProtoCluster(*fCell,pProtoCont); }
+	  // store all associated LCW weights
+	  cellClusterWeightHandle.ptr()->set(*fCell,fCell.weight());
+	} // end cells-in-cluster loop
+      } else { 
+	++cCtr; 
+      } // end range check
+    } // end cluster loop
+  } // end combined signal check
+
+  //
+  return cCtr+pProtoCont.size();
 }
 
 /////////////////
@@ -356,30 +407,32 @@ StatusCode CaloTopoClusterFromTowerMaker::buildLCWTopoTowers(const xAOD::CaloClu
 /////////////////
 
 // inclusive
-StatusCode CaloTopoClusterFromTowerMaker::buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
+CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::buildInclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
 {
   // loop cell container - counter icl replaces cell hash index for NULL pointers in cell container
   uint_t icl(0);
   for ( auto cptr : pCellCont ) { 
     if ( cptr == 0 ) { 
-      ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); return StatusCode::FAILURE;
+      ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); 
+      return m_errorValueUINT;
     } else {
       // existing cell with non-zero energy (negative or positive)
       if ( std::fabs(cptr->e()) > 0. ) { this->addCellToProtoCluster(cptr,pProtoCont); }
     } // end pointer check 
     ++icl;
   } // end cell loop
-  return StatusCode::SUCCESS;
+  return pProtoCont.size();
 }
 
 // exclusive
-StatusCode CaloTopoClusterFromTowerMaker::buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
+CaloTopoClusterFromTowerMaker::uint_t CaloTopoClusterFromTowerMaker::buildExclTowers(const CaloCellContainer& pCellCont,protocont_t& pProtoCont)
 {
   // loop cell container
   uint_t icl(0);
   for ( auto cptr : pCellCont ) {
     if ( cptr == 0 ) { 
-      ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); return StatusCode::FAILURE;
+      ATH_MSG_ERROR( CaloRec::Helpers::fmtMsg("CaloCellContainer[%6zu] contains invalid cell object pointer %p",icl,(void*)cptr) ); 
+      return m_errorValueUINT;
     } else {
       // existing cell with energy above threshold
       if ( cptr->e() > m_energyThreshold ) { this->addCellToProtoCluster(cptr,pProtoCont); }
@@ -389,7 +442,7 @@ StatusCode CaloTopoClusterFromTowerMaker::buildExclTowers(const CaloCellContaine
   return StatusCode::SUCCESS;
 }
 
-bool CaloTopoClusterFromTowerMaker::addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont) 
+bool CaloTopoClusterFromTowerMaker::addCellToProtoCluster(const CaloCell* cptr,protocont_t& pProtoCont,double weight) 
 {
   // invalid input
   if ( cptr == 0 ) { return false; }
@@ -401,7 +454,7 @@ bool CaloTopoClusterFromTowerMaker::addCellToProtoCluster(const CaloCell* cptr,p
     if ( !m_towerGeometrySvc->isInvalidIndex(towerIdx) ) {
       if ( !m_excludedSamplingsPattern[(size_t)cptr->caloDDE()->getSampling()] ) {
 	uint_t cellIdx(pProtoCont.at(towerIdx).getCellLinks()->getCellContainer()->findIndex(cptr->caloDDE()->calo_hash()));
-	pProtoCont[towerIdx].addCell(cellIdx,m_towerGeometrySvc->cellWeight(elm)); ++nctr; 
+	pProtoCont[towerIdx].addCell(cellIdx,m_towerGeometrySvc->cellWeight(elm)*weight); ++nctr; 
       }
     }
   }

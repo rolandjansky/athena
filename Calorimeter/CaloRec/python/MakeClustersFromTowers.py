@@ -5,21 +5,26 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from CaloRec.CaloRecConf import CaloTopoClusterFromTowerMaker
 from CaloRec.CaloRecConf import CaloTowerGeometrySvc
 
-from AthenaCommon.Logging import logging
-
+from   AthenaCommon.Logging import logging
 import AthenaCommon.Constants as Lvl
 
-def ClustersFromTowersDict(clusterBuilderName='TowerFromClusterTool',
-                           towerGeometrySvc=CaloTowerGeometrySvc('CaloTowerGeometrySvc'),
-                           cellContainerKey='AllCalo',
-                           buildTopoTowers=True,
-                           topoClusterContainerKey='CaloTopoCluster',
-                           cellClusterWeightKey='CaloCellClusterWeightKey',
-                           orderClusterByPt=False,
-                           applyCellEnergyThreshold=False,
-                           doCellIndexCheck=False,
-                           cellEnergyThreshold=0.,
-                           applyLCW=False):
+####################################
+## Tower configuration dictionary ##
+####################################
+
+def ClustersFromTowersDict(clusterBuilderName       = 'TowerFromClusterTool',
+                           towerGeometrySvc         = CaloTowerGeometrySvc('CaloTowerGeometrySvc'),
+                           cellContainerKey         = 'AllCalo',
+                           buildTopoTowers          = True,
+                           topoClusterContainerKey  = 'CaloTopoCluster',
+                           cellClusterWeightKey     = 'CaloCellClusterWeightKey',
+                           orderClusterByPt         = False,
+                           applyCellEnergyThreshold = False,
+                           doCellIndexCheck         = False,
+                           cellEnergyThreshold      = 0.,
+                           applyLCW                 = False,
+                           buildCombinedSignal      = False,
+                           clusterRange             = 5.):
     ''' Configuration dictionary for tower-to-cluster converter 
     '''
     configDict = { 'ClusterBuilderName'          : clusterBuilderName,         ### name of the tower builder tool
@@ -32,166 +37,225 @@ def ClustersFromTowersDict(clusterBuilderName='TowerFromClusterTool',
                    'ApplyCellEnergyThreshold'    : applyCellEnergyThreshold,   ### (control) apply energy thresholds to cells
                    'CellEnergyThreshold'         : cellEnergyThreshold,        ### (control) value of energy threshold
                    'PrepareLCW'                  : applyLCW,                   ### (control) prepare (and apply) LCW
-                   'DoCellIndexCheck'            : doCellIndexCheck            ### (control) check cell hash indices     
+                   'DoCellIndexCheck'            : doCellIndexCheck,           ### (control) check cell hash indices
+                   'BuildCombinedTopoSignal'     : buildCombinedSignal,        ### (control) build combined topo-cluster/topo-tower container
+                   'TopoClusterRange'            : clusterRange,               ### (control) range for topo-cluster in combined mode 
                    }
     return configDict
 
-def MakeClustersFromTowers(clusterMakerName='TowerBuilderAlg',                 ### name of tower builder algorithm
-                           clusterContainerKey='CaloTowerTopoCluster',         ### output container key
-                           configDict=ClustersFromTowersDict(),
-                           debugOn=False):
+###################################
+## Tower algorithm configuration ##
+###################################
+
+def MakeClustersFromTowers(towerMakerName      = 'CaloTowerBuilderAlg',        ### name of tower builder algorithm
+                           towerContainerKey   = 'CaloTowerTopoCluster',       ### output container key
+                           configDict          = ClustersFromTowersDict(),     ### tower builder tool configuration
+                           debugOn             = False):
     ''' This function generates an instance of a cluster algorithm configuration producting clusters trom towers with or without moments. 
     '''
     mlog = logging.getLogger('MakeClustersFromTowers.py:: ')
-    mlog.info('ClusterMakerName    = "'+clusterMakerName+'"')
-    mlog.info('ClusterContainerKey = <'+clusterContainerKey+'>')
+    mlog.info('TowerMakerName    = "'+towerMakerName+'"')
+    mlog.info('TowerContainerKey = <'+towerContainerKey+'>')
 
-    ''' collect properties from dictionary
+    ########################################
+    ## Configuring the tower builder tool ##
+    ########################################
+
+    ''' collect properties from dictionary and set correct dependencies
     ''' 
     mlog.info('Converter properties: ',configDict)
-    toolname       = configDict['ClusterBuilderName']     ### name of the tower builder tool
-    cellkey        = configDict['CaloCellContainerKey']   ### cell container key
-    buildtopotower = configDict['BuildTopoTowers']        ### controls if topo-towers or inclusive towers are built
-    towergeosvc    = configDict['CaloTowerGeometrySvc']   ### tower geometry provider 
-    if ( buildtopotower ):
-        topoclusterkey = configDict['CaloTopoClusterContainerKey']
+    excludedKeys = [ 'ClusterBuilderName' ]
+    if configDict['PrepareLCW']: 
+        towerBuilder  = CaloTopoClusterFromTowerMaker(configDict['ClusterBuilderName'],OrderClusterByPt=False) ### order by pt after LCW calibration!
+        excludedKeys += [ 'OrderClusterByPt' ]
     else:
-        topoclusterkey = 'N/A'
+        towerBuilder  = CaloTopoClusterFromTowerMaker(configDict['ClusterBuilderName'])
 
-    cellweightkey  = configDict['CellClusterWeightKey']
-
-    mlog.info('(input) CaloCellContainer        <'+cellkey+'>')
-    mlog.info('(input) CaloTopoClusterContainer <'+topoclusterkey+'>')
-    mlog.info('(input) CellClusterWeightKey     <'+cellweightkey+'>')
-
-    ''' other configuration control
+    ''' Copy properties from dictionary
     '''
-    ptordered  = configDict['OrderClusterByPt']
-    doLCW      = configDict['PrepareLCW']
+    for key,value in configDict.items():
+        if key not in excludedKeys:
+            setattr(towerBuilder,key,value)
 
-    ''' Tower converter configuration
+    ''' Check basic consistency of configuration
     '''
-    mlog.info(' ')
-    if doLCW:
-        mlog.info('################################################')
-        mlog.info('## Produce LCW calibrated topo-tower clusters ##')
-        mlog.info('################################################')
-        mlog.info('CaloTopoClusterContainerKey .. {0}'.format(topoclusterkey))
-        mlog.info('CellClusterWeightKey ......... {0}'.format(cellweightkey))
-        towerConverter                             = CaloTopoClusterFromTowerMaker(toolname,CaloCellContainerKey=cellkey,OrderClusterByPt=False) ### order by pt after LCW calibration!
-        towerConverter.CaloTowerGeometrySvc        = towergeosvc
-        towerConverter.CaloTopoClusterContainerKey = topoclusterkey 
-        towerConverter.CellClusterWeightKey        = cellweightkey
-        towerConverter.PrepareLCW                  = True
-    else:
-        mlog.info('###############################################')
-        mlog.info('## Produce EM calibrated topo-tower clusters ##')
-        mlog.info('###############################################')
-        towerConverter                      = CaloTopoClusterFromTowerMaker(toolname,CaloCellContainerKey=cellkey,OrderClusterByPt=ptordered)
-        towerConverter.CaloTowerGeometrySvc = towergeosvc
-        towerConverter.PrepareLCW           = False
- 
-    mlog.info(' ')
-    if configDict['ApplyCellEnergyThreshold']:
-        towerConverter.CellEnergyThreshold = configDict['CellEnergyThreshold']
+    mlog.info('Consistency check')
+    if towerBuilder.PrepareLCW and not towerBuilder.BuildTopoTowers:
+        raise RuntimeError('{0}[inconsistent configuration] applying LCW requires to build topo-towers'.format(towerBuilder.name()))
+    if towerBuilder.BuildCombinedTopoSignal and not towerBuilder.BuildTopoTowers:
+        raise RuntimeError('{0}[inconsistent configuration] building combined topo-cluster/topo-tower signals requires to build topo-towers'.format(towerBuilder.name()))
+    if towerBuilder.ApplyCellEnergyThreshold and towerBuilder.BuildTopoTowers:
+        raise RuntimeError('{0}[inconsistent configuration] applying cell energy thresholds for topo-towres not yet implemented'.format(towerBuilder.name()))
 
-    import AthenaCommon.Constants as Lvl
+    ''' Tower converter configuration summary
+    '''
+    if towerBuilder.BuildTopoTowers:
+        if towerBuilder.PrepareLCW:
+            ''' LCW topo-towers
+            '''
+            mlog.info('################################################')
+            mlog.info('## Produce LCW calibrated topo-tower clusters ##')
+            mlog.info('################################################')
+            mlog.info('CaloTopoClusterContainerKey .. {0}'.format(towerBuilder.CaloTopoClusterContainerKey))
+            mlog.info('CellClusterWeightKey ......... {0}'.format(towerBuilder.CellClusterWeightKey))
+        else:
+            ''' EM topo-towers
+            '''
+            mlog.info('###############################################')
+            mlog.info('## Produce EM calibrated topo-tower clusters ##')
+            mlog.info('###############################################')
+            mlog.info('CaloTopoClusterContainerKey .. {0}'.format(towerBuilder.CaloTopoClusterContainerKey))
 
+        if towerBuilder.BuildCombinedTopoSignal:
+            mlog.info(' ')
+            mlog.info('Combined topo-cluster/topo-towermode with y_max = {0}'.format(towerBuilder.TopoClusterRange))
+    else:    
+        ''' EM towers
+        '''
+        mlog.info('########################################')
+        mlog.info('## Produce EM standard tower clusters ##')
+        mlog.info('########################################')
+
+    ''' Set debug flag (not a property in the dictionary)
+    '''
     if debugOn:
-        towerConverter.OutputLevel  = Lvl.DEBUG
+        towerBuilder.OutputLevel  = Lvl.DEBUG
 
-    towerConverter.DoCellIndexCheck = configDict['DoCellIndexCheck']
+    towerCoreName = towerMakerName
+    if towerCoreName.find('Builder') > 0:
+        (towerCoreName.replace('Builder',' ')).rstrip(' ')
+    elif towerCoreName.find('Maker') > 0:
+        (towerCoreName.replace('Maker',' ')).rstrip(' ')
 
-    # setting up the moments: external tools
+    ############################
+    ## Setting up the moments ##
+    ############################
+    
+    ''' External tools for moment calculation
+    '''
     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    caloNoiseTool = CaloNoiseToolDefault()
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += caloNoiseTool
+    caloNoiseTool  = CaloNoiseToolDefault()
+    ToolSvc       += caloNoiseTool
 
-    # moment maker
+    ''' Cluster moment maker (all general moments)
+    '''
     from CaloRec.CaloTopoClusterFlags import jobproperties
-    from AthenaCommon.SystemOfUnits import deg, GeV, MeV
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
-    clusterMoments = CaloClusterMomentsMaker (clusterMakerName+'MomentMaker')
-    clusterMoments.MaxAxisAngle = 20*deg
-    clusterMoments.CaloNoiseTool = caloNoiseTool
-    clusterMoments.UsePileUpNoise = True
+    from AthenaCommon.SystemOfUnits   import deg, GeV, MeV
+    from CaloRec.CaloRecConf          import CaloClusterMomentsMaker
+    clusterMoments                  = CaloClusterMomentsMaker (towerMakerName+'MomentMaker')
+    clusterMoments.MaxAxisAngle     = 20*deg
+    clusterMoments.CaloNoiseTool    = caloNoiseTool
+    clusterMoments.UsePileUpNoise   = True
     clusterMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
     clusterMoments.MinBadLArQuality = 4000
-    clusterMoments.MomentsNames = ["FIRST_PHI" 
-                                   ,"FIRST_ETA"
-                                   ,"SECOND_R" 
-                                   ,"SECOND_LAMBDA"
-                                   ,"DELTA_PHI"
-                                   ,"DELTA_THETA"
-                                   ,"DELTA_ALPHA" 
-                                   ,"CENTER_X"
-                                   ,"CENTER_Y"
-                                   ,"CENTER_Z"
-                                   ,"CENTER_MAG"
-                                   ,"CENTER_LAMBDA"
-                                   ,"LATERAL"
-                                   ,"LONGITUDINAL"
-                                   ,"FIRST_ENG_DENS" 
-                                   ,"ENG_FRAC_EM" 
-                                   ,"ENG_FRAC_MAX" 
-                                   ,"ENG_FRAC_CORE" 
-                                   ,"SECOND_ENG_DENS" 
-                                   ,"ISOLATION"
-                                   ,"ENG_BAD_CELLS"
-                                   ,"N_BAD_CELLS"
-                                   ,"N_BAD_CELLS_CORR"
-                                   ,"BAD_CELLS_CORR_E"
-                                   ,"BADLARQ_FRAC"
-                                   ,"ENG_POS"
-                                   ,"SIGNIFICANCE"
-                                   ,"CELL_SIGNIFICANCE"
-                                   ,"CELL_SIG_SAMPLING"
-                                   ,"AVG_LAR_Q"
-                                   ,"AVG_TILE_Q"
-                                   ,"PTD"
-                                   ,"MASS"
-                                   ]
+    clusterMoments.MomentsNames     = [
+        "FIRST_PHI" 
+        ,"FIRST_ETA"
+        ,"SECOND_R" 
+        ,"SECOND_LAMBDA"
+        ,"DELTA_PHI"
+        ,"DELTA_THETA"
+        ,"DELTA_ALPHA" 
+        ,"CENTER_X"
+        ,"CENTER_Y"
+        ,"CENTER_Z"
+        ,"CENTER_MAG"
+        ,"CENTER_LAMBDA"
+        ,"LATERAL"
+        ,"LONGITUDINAL"
+        ,"FIRST_ENG_DENS" 
+        ,"ENG_FRAC_EM" 
+        ,"ENG_FRAC_MAX" 
+        ,"ENG_FRAC_CORE" 
+        ,"SECOND_ENG_DENS" 
+        ,"ISOLATION"
+        ,"ENG_BAD_CELLS"
+        ,"N_BAD_CELLS"
+        ,"N_BAD_CELLS_CORR"
+        ,"BAD_CELLS_CORR_E"
+        ,"BADLARQ_FRAC"
+        ,"ENG_POS"
+        ,"SIGNIFICANCE"
+        ,"CELL_SIGNIFICANCE"
+        ,"CELL_SIG_SAMPLING"
+        ,"AVG_LAR_Q"
+        ,"AVG_TILE_Q"
+        ,"PTD"
+        ,"MASS"
+    ]
 
-    # only add HV related moments if it is offline.
+    ''' HV related moments for offline data
+    '''
     from IOVDbSvc.CondDB import conddb
     if not conddb.isOnline:
         from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
-        clusterMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
-        clusterMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
-                                        ,"N_BAD_HV_CELLS"
-                                        ]
+        clusterMoments.LArHVScaleRetriever = LArHVScaleRetrieverDefault()
+        clusterMoments.MomentsNames       += ["ENG_BAD_HV_CELLS","N_BAD_HV_CELLS"]
 
-    # cluster maker
+    ###############################################################
+    ## Set up the tower builder algorithm - as a cluster builder ##
+    ###############################################################
+
+    ''' Basic algorithm properties
+    '''
     from CaloRec.CaloRecConf import CaloClusterMaker
-    clusterMaker = CaloClusterMaker(clusterMakerName)
-    clusterMaker.ClustersOutputName = clusterContainerKey
-    clusterMaker.ClusterMakerTools  = [ towerConverter ]
-    clusterMaker                   += towerConverter
-    mlog.info('instantiated CaloClusterMaker "{0}"'.format(clusterMaker.name()))
+    towerMaker                    = CaloClusterMaker(towerMakerName)
+    towerMaker.ClustersOutputName = towerContainerKey
+    towerMaker.ClusterMakerTools  = [ towerBuilder ]
+    towerMaker                   += towerBuilder
+    mlog.info('instantiated CaloClusterMaker "{0}" configuration'.format(towerMaker.name()))
 
-    # bad cell corrections          
+    ''' Set up bad cell corrections
+    '''
     from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
     badChannelCorr = CaloClusterBadChannelListCorr()
 
-    # Correction tools
-    clusterMaker.ClusterCorrectionTools += [ badChannelCorr ]
-    clusterMaker.ClusterCorrectionTools += [ clusterMoments ]
-    clusterMaker                        += clusterMoments
+    ''' Register correction and moment tools
+    '''
+    towerMaker.ClusterCorrectionTools += [ badChannelCorr ]
+    towerMaker.ClusterCorrectionTools += [ clusterMoments ]
+    towerMaker                        += clusterMoments
 
-    if doLCW:
+    ####################################
+    ## Configure LCW calibration tool ##
+    ####################################
+
+    if towerBuilder.PrepareLCW:
         from CaloRec.CaloRecConf import CaloTopoClusterFromTowerCalibrator
-        calgname = clusterMakerName+'Calibrator'
-        mlog.info('TopoTowers: add LCW calibration tool <'+calgname+'>')
-        towerCalibrator = CaloTopoClusterFromTowerCalibrator(calgname)
-        mlog.info('TopoTowers: '+calgname+'.CellClusterWeightKey = "'+cellweightkey+'"')
-        towerCalibrator.CellClusterWeightKey     = cellweightkey
-        towerCalibrator.OrderClusterByPt         = ptordered
+        ''' Configure name for calibration tool
+        '''
+        towerCalName    = towerCoreName+'Calibrator'
+        towerCalibrator = CaloTopoClusterFromTowerCalibrator(towerCalName)
+        mlog.info('add LCW calibration tool <'+towerCalName+'>')
+        mlog.info('TopoTowers: '+towerCalName+'.CellClusterWeightKey = "'+towerBuilder.CellClusterWeightKey+'"')
+        towerCalibrator.CellClusterWeightKey = towerBuilder.CellClusterWeightKey
+        towerCalibrator.OrderClusterByPt     = configDict['OrderClusterByPt']
         if debugOn:
             towerCalibrator.OutputLevel = Lvl.DEBUG
-        clusterMaker.ClusterCorrectionTools     += [ towerCalibrator ]
-        clusterMaker                            += towerCalibrator
+        ''' Schedule calibration tool
+        '''
+        towerMaker.ClusterCorrectionTools += [ towerCalibrator ]
+        towerMaker                        += towerCalibrator
 
+    #######################
+    # Configuration done ##
+    #######################
 
-    # done
-    return clusterMaker
+    return towerMaker
+
+##
+##    toolname       = configDict['ClusterBuilderName']     ### name of the tower builder tool
+##    cellkey        = configDict['CaloCellContainerKey']   ### cell container key
+##    buildtopotower = configDict['BuildTopoTowers']        ### controls if topo-towers or inclusive towers are built
+##    towergeosvc    = configDict['CaloTowerGeometrySvc']   ### tower geometry provider 
+##    if ( buildtopotower ):
+##        topoclusterkey = configDict['CaloTopoClusterContainerKey']
+##    else:
+##        topoclusterkey = 'N/A'
+##
+##    cellweightkey  = configDict['CellClusterWeightKey']
+##
+##    mlog.info('(input) CaloCellContainer        <'+cellkey+'>')
+##    mlog.info('(input) CaloTopoClusterContainer <'+topoclusterkey+'>')
+##    mlog.info('(input) CellClusterWeightKey     <'+cellweightkey+'>')

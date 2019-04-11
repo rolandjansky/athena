@@ -35,7 +35,7 @@
 #include "CaloRec/CaloTopoClusterFromTowerCalibrator.h"
 #include "CaloRec/CaloTopoClusterFromTowerMonitor.h"
 #include "CaloRec/CaloTowerGeometrySvc.h"
- 
+#include "CaloRec/CaloTopoClusterTowerMerger.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -123,4 +123,5 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
 }
 
 DECLARE_COMPONENT( CaloTowerGeometrySvc )
+DECLARE_COMPONENT( CaloTopoClusterTowerMerger )
 
