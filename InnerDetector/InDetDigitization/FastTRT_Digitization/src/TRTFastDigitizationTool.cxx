@@ -201,52 +201,81 @@ StatusCode TRTFastDigitizationTool::initializeNumericalConstants() {
 // set (pileup-dependent) numerical constants 
 StatusCode TRTFastDigitizationTool::setNumericalConstants() {
 
- //   correction coefficient for TRT efficiency,
-  //   correction coefficient for TRT sigma, adjust total/precise hits ratio
-  //   narrow Gaus1 : wide Gaus2, Gaus1 sigma, Gaus2 sigma }
-  double ecorr = 1-0.001*(m_NCollPerEvent-20);  // pileup dependence of the efficiency
-  double rcorr1 =  1+0.01*(m_NCollPerEvent-20);  // pileup dependence of the resolution (gaus1)
-  double rcorr2 =  1+0.015*(m_NCollPerEvent-20);  // pileup dependence of the resolution (gaus2)
-  m_cFit[ 0 ][ 0 ] = ecorr*0.840;   // Barrel A-side Xenon
-  m_cFit[ 0 ][ 1 ] = 0.997;
-  m_cFit[ 0 ][ 2 ] = 0.900;
-  m_cFit[ 0 ][ 3 ] = rcorr1*1.545;
-  m_cFit[ 0 ][ 4 ] = rcorr2*3.600;
-  m_cFit[ 1 ][ 0 ] = ecorr*0.875;   // Endcap A-side Xenon
-  m_cFit[ 1 ][ 1 ] = 1.065;
-  m_cFit[ 1 ][ 2 ] = 0.900;
-  m_cFit[ 1 ][ 3 ] = rcorr1*1.455;
-  m_cFit[ 1 ][ 4 ] = rcorr2*3.600; 
-  m_cFit[ 2 ][ 0 ] = ecorr*0.833;   // Barrel C-side Xenon
-  m_cFit[ 2 ][ 1 ] = 0.997;
-  m_cFit[ 2 ][ 2 ] = 0.900;
-  m_cFit[ 2 ][ 3 ] = rcorr1*1.545;
-  m_cFit[ 2 ][ 4 ] = rcorr2*3.600;
-  m_cFit[ 3 ][ 0 ] = ecorr*0.894;   // Endcap C-side Xenon
-  m_cFit[ 3 ][ 1 ] = 1.065;
-  m_cFit[ 3 ][ 2 ] = 0.900;
-  m_cFit[ 3 ][ 3 ] = rcorr1*1.455;
-  m_cFit[ 3 ][ 4 ] = rcorr2*3.600; 
-  m_cFit[ 4 ][ 0 ] = ecorr*0.933;   // Barrel A-side Argon
-  m_cFit[ 4 ][ 1 ] = 1.020;
-  m_cFit[ 4 ][ 2 ] = 0.800;
-  m_cFit[ 4 ][ 3 ] = rcorr1*1.495;
-  m_cFit[ 4 ][ 4 ] = rcorr2*3.600; 
-  m_cFit[ 5 ][ 0 ] = ecorr*0.949;   // Endcap A-side Argon
-  m_cFit[ 5 ][ 1 ] = 1.040;
-  m_cFit[ 5 ][ 2 ] = 0.800;
-  m_cFit[ 5 ][ 3 ] = rcorr1*1.405;
-  m_cFit[ 5 ][ 4 ] = rcorr2*3.600;
-  m_cFit[ 6 ][ 0 ] = ecorr*0.937;   // Barrel C-side Argon
-  m_cFit[ 6 ][ 1 ] = 1.020;
-  m_cFit[ 6 ][ 2 ] = 0.800;
-  m_cFit[ 6 ][ 3 ] = rcorr1*1.495;
-  m_cFit[ 6 ][ 4 ] = rcorr2*3.600; 
-  m_cFit[ 7 ][ 0 ] = ecorr*0.977;   // Endcap C-side Argon
-  m_cFit[ 7 ][ 1 ] = 1.040;
-  m_cFit[ 7 ][ 2 ] = 0.800;
-  m_cFit[ 7 ][ 3 ] = rcorr1*1.405;
-  m_cFit[ 7 ][ 4 ] = rcorr2*3.600; 
+  // Efficiency and resolution dependence on  pileup 
+  // Resolution is parametrized with a double gaussian so there are two parameters (res1 = core, res2= tail) 
+
+  static const float eff_corr_pileup_dependence = -0.001;   // variation of efficiency with the number of Xing
+  static const float res1_corr_pileup_dependence = 0.01;   // variation of core resolution (fractional) with the number of Xing
+  static const float res2_corr_pileup_dependence = 0.015;   // variation of tail resolution (fractional) with the number of Xing
+  // scale factors relative to the value for mu=20
+  float effcorr = 1-eff_corr_pileup_dependence*(m_NCollPerEvent-20);  
+  float res1corr =  1+res1_corr_pileup_dependence*(m_NCollPerEvent-20);  
+  float res2corr =  1+res2_corr_pileup_dependence*(m_NCollPerEvent-20);  
+
+  // Now the numerical parameters for efficiency and resolution   
+  static const float tailRes = 3.600;  // scale factor for tail resolution
+  static const float coreFrac_Xe = 0.900;  // fraction of events in resolution core (Xe) 
+  static const float coreFrac_Ar = 0.800;  // fraction of events in resolution core (Ar)  
+ 
+  static const float eff_BarrelA_Xe = 0.840;     // efficiency scale factor 
+  static const float eff_EndcapA_Xe = 0.875;   
+  static const float eff_BarrelC_Xe = 0.833;      
+  static const float eff_EndcapC_Xe = 0.894;   
+  static const float eff_BarrelA_Ar = 0.933;     
+  static const float eff_EndcapA_Ar = 0.949;   
+  static const float eff_BarrelC_Ar = 0.937;      
+  static const float eff_EndcapC_Ar = 0.977;  
+
+  static const float err_Barrel_Xe = 0.997;     // scale factor for the error as returned by the drift function tool 
+  static const float err_Endcap_Xe = 1.065; 
+  static const float err_Barrel_Ar = 1.020;     
+  static const float err_Endcap_Ar = 1.040; 
+
+  static const float coreRes_Barrel_Xe = 1.545;  // scale factor for core resolution    
+  static const float coreRes_Endcap_Xe = 1.455;  
+  static const float coreRes_Barrel_Ar = 1.495;    
+  static const float coreRes_Endcap_Ar = 1.405; 
+
+  m_cFit[ 0 ][ 0 ] = effcorr*eff_BarrelA_Xe;   // Barrel A-side Xenon
+  m_cFit[ 0 ][ 1 ] = err_Barrel_Xe;
+  m_cFit[ 0 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 0 ][ 3 ] = res1corr*coreRes_Barrel_Xe;
+  m_cFit[ 0 ][ 4 ] = res2corr*tailRes;
+  m_cFit[ 1 ][ 0 ] = effcorr*eff_EndcapA_Xe;   // Endcap A-side Xenon
+  m_cFit[ 1 ][ 1 ] = err_Endcap_Xe;
+  m_cFit[ 1 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 1 ][ 3 ] = res1corr*coreRes_Endcap_Xe;
+  m_cFit[ 1 ][ 4 ] = res2corr*tailRes; 
+  m_cFit[ 2 ][ 0 ] = effcorr*eff_BarrelC_Xe;   // Barrel C-side Xenon
+  m_cFit[ 2 ][ 1 ] = err_Barrel_Xe;
+  m_cFit[ 2 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 2 ][ 3 ] = res1corr*coreRes_Barrel_Xe;
+  m_cFit[ 2 ][ 4 ] = res2corr*tailRes;
+  m_cFit[ 3 ][ 0 ] = effcorr*eff_EndcapC_Xe;   // Endcap C-side Xenon
+  m_cFit[ 3 ][ 1 ] = err_Endcap_Xe;
+  m_cFit[ 3 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 3 ][ 3 ] = res1corr*coreRes_Endcap_Xe;
+  m_cFit[ 3 ][ 4 ] = res2corr*tailRes; 
+  m_cFit[ 4 ][ 0 ] = effcorr*eff_BarrelA_Ar;   // Barrel A-side Argon
+  m_cFit[ 4 ][ 1 ] = err_Barrel_Ar;
+  m_cFit[ 4 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 4 ][ 3 ] = res1corr*coreRes_Barrel_Ar;
+  m_cFit[ 4 ][ 4 ] = res2corr*tailRes; 
+  m_cFit[ 5 ][ 0 ] = effcorr*eff_EndcapA_Ar;   // Endcap A-side Argon
+  m_cFit[ 5 ][ 1 ] = err_Endcap_Ar;
+  m_cFit[ 5 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 5 ][ 3 ] = res1corr*coreRes_Endcap_Ar;
+  m_cFit[ 5 ][ 4 ] = res2corr*tailRes;
+  m_cFit[ 6 ][ 0 ] = effcorr*eff_BarrelC_Ar;   // Barrel C-side Argon
+  m_cFit[ 6 ][ 1 ] = err_Barrel_Ar;
+  m_cFit[ 6 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 6 ][ 3 ] = res1corr*coreRes_Barrel_Ar;
+  m_cFit[ 6 ][ 4 ] = res2corr*tailRes; 
+  m_cFit[ 7 ][ 0 ] = effcorr*eff_EndcapC_Ar;   // Endcap C-side Argon
+  m_cFit[ 7 ][ 1 ] = err_Endcap_Ar;
+  m_cFit[ 7 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 7 ][ 3 ] = res1corr*coreRes_Endcap_Ar;
+  m_cFit[ 7 ][ 4 ] = res2corr*tailRes; 
 
    return StatusCode::SUCCESS;
 }
@@ -812,7 +841,6 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
 
   double probHT = m_trtElectronPidTool->probHTRun2( pTrk, hypothesis, trtPart, gasType( straw_id ), strawLayer, hitGlobalPosition, rTrkWire, Occupancy );
   if( probHT == 0.5 || probHT == 1. ){
-    //std::cout << "FIXME WARNING BAD probHT" << std::endl;
     probHT = 0.;
   }
   if(hypothesis == Trk::electron) probHT *= 1.3;
