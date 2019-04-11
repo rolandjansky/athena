@@ -188,6 +188,23 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
 
   muFastRecoSequence = parOR("l2MuViewNode")
 
+  # Get the common data preparation algorithms
+  (eventDPalgs, viewDPalgs) =  makeMuonPrepDataAlgs()
+
+  for alg in viewDPalgs:
+    # This is an ugly way to get hold of the algorithms we want to schedule
+    # It will be improved once we migrate to the new job options
+    if 'MdtRawData' in alg.name():
+      MdtRawDataProviderAlg = alg
+    if 'MdtRdoToMdt' in alg.name():
+      MdtRdoToPrdAlg = alg
+
+  # Schedule BS->RDO only if needed (not needed on MC RDO files)
+  if DetFlags.readRDOBS.MDT_on():
+    muFastRecoSequence += MdtRawDataProviderAlg
+  # Always need RDO->PRD
+  muFastRecoSequence += MdtRdoToPrdAlg
+
   ### These configurations for decoding tools should be removed. ###
   ### CSC RDO data ###
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
@@ -251,15 +268,15 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
   ToolSvc += MdtRdoToMdtPrepDataTool
 
  
+  # Configure the L2 MDT data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(DecodeBS = DetFlags.readRDOBS.MDT_on(),
-                                                        MdtPrepDataProvider  = MdtRdoToMdtPrepDataTool,
-                                                        MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection,
-                                                        MDT_RawDataProvider  = MuonMdtRawDataProviderTool,
-                                                        MDTCSMContainer      = MuonMdtRawDataProviderTool.RdoLocation,
+  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator",
+                                                        DecodeBS = False,
+                                                        DoDecoding = False,
+                                                        MDT_RawDataProvider = "",
+                                                        MdtPrepDataProvider = "",
                                                         OutputLevel          = OutputLevel )
   ToolSvc += L2MdtDataPreparator
-  
 
   ### RPC RDO data ###
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
@@ -446,8 +463,17 @@ def muEFSARecoSequence( RoIs, name, OutputLevel=INFO ):
   ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs()
 
   # setup RDO preparator algorithms 
+  from AthenaCommon import CfgMgr
+  if name != 'FS':
+    # we now try to share the MDT data preparation algorithm with L2, so we tell the view that it should expect the MDT PRDs to be available
+    efAlgs.append( CfgMgr.AthViews__ViewDataVerifier(name = "EFMuonViewDataVerifier",
+                                                     DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' )])
+                 )
   for viewAlg_MuonPRD in viewAlgs_MuonPRD:
-    efAlgs.append( viewAlg_MuonPRD )
+    # we now try to share the MDT data preparation algorithm with L2, so only add the MDT algo if we are running full-scane
+    # this is slightly ugly, should be improved in new JO setup
+    if not 'Mdt' in viewAlg_MuonPRD.name() or name == 'FS':
+      efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False, OutputLevel=OutputLevel )
