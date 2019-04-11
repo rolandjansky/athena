@@ -32,8 +32,14 @@ def getCscDigitizationTool(name="CscDigitizationTool", **kwargs):
         kwargs.setdefault("FirstXing", CSC_FirstXing() ) 
         kwargs.setdefault("LastXing",  CSC_LastXing() ) 
 
-    kwargs.setdefault("InputObjectName", "CSC_Hits") 	 
-    kwargs.setdefault("OutputObjectName", "CSC_DIGITS") 	 
+    kwargs.setdefault("InputObjectName", "CSC_Hits")
+    kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("CSCSimDataCollectionOutputName", overlayFlags.bkgPrefix() + "CSC_SDO")
+    else:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
+
     kwargs.setdefault("pedestal", 0.0) 	 
     kwargs.setdefault("WindowLowerOffset", -25.0) #-50.0,	 
     kwargs.setdefault("WindowUpperOffset",  25.0) #50.0  	 

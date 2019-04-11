@@ -50,6 +50,11 @@ def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", MDT_FirstXing())
         kwargs.setdefault("LastXing", MDT_LastXing())
+    kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "MDT_SDO")
     acc.setPrivateTools(MdtDigitizationTool(name,**kwargs))
     return acc
 
