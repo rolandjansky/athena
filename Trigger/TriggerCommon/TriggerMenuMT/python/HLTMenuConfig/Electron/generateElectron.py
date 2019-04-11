@@ -25,6 +25,9 @@ def generateChains( flags,  chainDict ):
 
     l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
     accCalo.merge(l2CaloReco)
+    #l2CaloReco = l2CaloRecoCfg( flags ) 
+    #accCalo.merge( l2CaloReco )
+
 
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
