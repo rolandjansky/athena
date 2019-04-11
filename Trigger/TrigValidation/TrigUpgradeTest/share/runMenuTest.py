@@ -23,7 +23,6 @@ menu.overwriteSignaturesWith(signaturesToGenerate)
 allChainConfigs = menu.generateMT()
 
 
-
 ##########################################  
 # Some debug
 ##########################################  

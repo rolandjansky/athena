@@ -44,7 +44,7 @@ CTPToChainMapping = { "HLT_mu6" :  "L1_MU6",
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
-topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
 
 def __mon(finalCollName, stepColls=[]):
     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg

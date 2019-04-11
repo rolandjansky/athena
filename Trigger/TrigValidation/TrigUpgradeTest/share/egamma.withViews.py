@@ -34,11 +34,11 @@ CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_2e3_etcut": "L1_2EM3",
                      "HLT_e3_e5_etcut":"L1_2EM3"}
 
-topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
-topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
 
  
 
@@ -267,7 +267,7 @@ steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = list( set( topSequence.L1DecoderTest.ChainToCTPMapping.keys() ) )
+mon.ChainsList = list( set( topSequence.L1Decoder.ChainToCTPMapping.keys() ) )
 #mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
 
 
@@ -305,7 +305,6 @@ StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronCo
                         "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
 StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
-
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#EMRoIs" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#JRoIs" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
@@ -430,7 +429,7 @@ ServiceMgr += AuditorSvc()
 
 # This triggers the L1 decoder to signal the start of processing, 
 # and the HLT summary alg to signal end of processing and handle the writing of data.
-topSequence.L1DecoderTest.EnableCostMonitoring = True
+topSequence.L1Decoder.EnableCostMonitoring = True
 summMaker.EnableCostMonitoring = True
 
 # Write out the data at the end

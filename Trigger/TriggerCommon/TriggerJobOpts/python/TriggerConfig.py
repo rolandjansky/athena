@@ -90,9 +90,12 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
-            __log.debug( "and hypo tools %s " % (str( [ t.getName() for t in hypoAlg.HypoTools ] ) ) )
-            decisionObjects.add( hypoAlg.HypoInputDecisions )
-            decisionObjects.add( hypoAlg.HypoOutputDecisions )
+            if isinstance( hypoAlg.HypoInputDecisions, list):
+                [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
+                [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
+            else:
+                decisionObjects.add( hypoAlg.HypoInputDecisions )
+                decisionObjects.add( hypoAlg.HypoOutputDecisions )
 
     __log.info("Collecting decision obejcts from filters")
     for step, stepFilters in filters.iteritems():
@@ -260,6 +263,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
                 continue
             if len(producer) > 1:
                 __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
+                __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
                 continue
             producer = producer[0]
             tool.TrigCompositeContainer = producer.InputMakerOutputDecisions
@@ -365,6 +369,7 @@ def triggerRunCfg( flags, menu=None ):
     if flags.Output.AODFileName != "":
         acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
         edmSet.append('AOD')
+        
     if any( (flags.Output.ESDFileName != "" , flags.Output.AODFileName != "", flags.Trigger.writeBS) ):
         mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( edmSet , hypos, viewMakers, decObj )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )

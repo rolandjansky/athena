@@ -21,7 +21,7 @@ from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 
 steps = seqOR("HLTTop")
 topSequence += steps
-steps += topSequence.L1DecoderTest
+steps += topSequence.L1Decoder
 
 
 
