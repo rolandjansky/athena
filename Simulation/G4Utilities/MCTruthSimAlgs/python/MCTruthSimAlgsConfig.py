@@ -306,13 +306,13 @@ def MergeMicromegasSimHitCollTool(name="MergeMicromegasSimHitCollTool", **kwargs
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -250)
         kwargs.setdefault("LastXing",   200)
-    return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
+    return CfgMgr.MergeMicromegasSimHitCollTool(name, **kwargs)
 
 def MergeSTGCSimHitCollTool(name="MergeSTGCSimHitCollTool", **kwargs):
     kwargs.setdefault("SimHitContainerNames", ["sTGCSensitiveDetector"])
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -50)
         kwargs.setdefault("LastXing",   75)
-    return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
+    return CfgMgr.MergeSTGCSimHitCollTool(name, **kwargs)
 
 ############################################################################
