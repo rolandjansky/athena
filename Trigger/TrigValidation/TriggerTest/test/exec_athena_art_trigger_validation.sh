@@ -13,7 +13,11 @@ if [ -z ${EVENTS} ]; then
 fi
 
 if [ -z ${JOBOPTION} ]; then
-  export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDO.py"
+  if [[ $INPUT == "data" ]]; then
+    export JOBOPTION="TriggerRelease/runHLT_standalone.py"
+  else
+    export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDO.py"
+  fi
 fi
 
 if [ -z ${JOB_LOG} ]; then
@@ -45,33 +49,49 @@ elif [[ $INPUT == "mubphysics" ]]; then
 elif [[ $INPUT == "minbias" ]]; then
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00/RDO.07858100._000087.pool.root.1"]'
 
+elif [[ $INPUT == 'data' ]]; then
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1.pool.root"]'
+
 else 
   # Default - ttbar
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000002.pool.root.1"]'
 fi
 
-trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
 
 ######################################
 
-athena.py -b -c \
-"enableCostMonitoring=${COST_MONITORING};\
-RunningRTT=True;\
-menu=\"${MENU}\";\
-sliceName=\"${SLICE}\";\
-jp.AthenaCommonFlags.FilesInput=${DS};\
-jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(${EVENTS});\
-jp.Rec.OutputLevel=WARNING;\
-${EXTRA}\
-LVL1OutputLevel=WARNING;\
-HLTOutputLevel=WARNING;" \
-${JOBOPTION} &> ${JOB_LOG}
+echo "Running athena command:"
+if [[ $INPUT == 'data' ]]; then
+  (set -x
+  athena.py -b -c \
+  "setMenu=\"${MENU}\";\
+  BSRDOInput=${DS};\
+  EvtMax=${EVENTS};\
+  ${EXTRA}\
+  LVL1OutputLevel=WARNING;\
+  HLTOutputLevel=WARNING;" \
+  ${JOBOPTION} &> ${JOB_LOG}
+  )
+else
+  (set -x
+  athena.py -b -c \
+  "enableCostMonitoring=${COST_MONITORING};\
+  RunningRTT=True;\
+  menu=\"${MENU}\";\
+  sliceName=\"${SLICE}\";\
+  jp.AthenaCommonFlags.FilesInput=${DS};\
+  jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(${EVENTS});\
+  jp.Rec.OutputLevel=WARNING;\
+  ${EXTRA}\
+  LVL1OutputLevel=WARNING;\
+  HLTOutputLevel=WARNING;" \
+  ${JOBOPTION} &> ${JOB_LOG}
+  )
+fi
 
 ######################################
 
-COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
-echo ${COMMAND} > command.txt
-echo "Command to reproduce:"
-envsubst < command.txt
+export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME}"
+
