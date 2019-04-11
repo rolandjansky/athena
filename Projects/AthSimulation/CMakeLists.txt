@@ -21,11 +21,12 @@ find_package( Gaudi REQUIRED )
 find_package( Frontier_Client )
 find_package( PNG )
 
-# Temporarily setting additional compile flags here:
-add_definitions( -DSIMULATIONBASE )
-
+# Set the project into "SIMULATIONBASE mode".
 set( SIMULATIONBASE TRUE CACHE BOOL
    "Flag specifying that this is a simulation release build" )
+if( SIMULATIONBASE )
+   add_definitions( -DSIMULATIONBASE )
+endif()
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
@@ -47,7 +48,7 @@ atlas_ctest_setup()
 atlas_project( AthSimulation ${ATHSIMULATION_PROJECT_VERSION}
    USE AthSimulationExternals ${AthSimulationExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   FORTRAN )
+   LANGUAGES C CXX Fortran )
 
 # Install the external configurations:
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
@@ -68,15 +69,16 @@ if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
 endif()
 
 # Now generate and install the installed setup files:
-lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/env_setup_install.sh
+lcg_generate_env(
+   SH_FILE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    REPLACE ${_replacements} )
-install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Configure and install the post-configuration file:
-configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
-   ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:
