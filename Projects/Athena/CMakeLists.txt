@@ -67,6 +67,9 @@ endforeach()
 unset( _external )
 unset( _externals )
 
+# Make the local CMake files visible to AtlasCMake.
+list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
+
 # Set up CTest:
 atlas_ctest_setup()
 

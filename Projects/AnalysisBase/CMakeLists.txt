@@ -22,6 +22,9 @@ set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
    "Path to AnalysisBaseReleaseEnvironmentConfig.cmake" )
 find_package( AnalysisBaseReleaseEnvironment REQUIRED )
 
+# Make the local CMake files visible to AtlasCMake.
+list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
+
 # Set up CTest:
 atlas_ctest_setup()
 
