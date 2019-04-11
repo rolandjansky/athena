@@ -63,6 +63,7 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   void collectData(const std::string& setuptime,
                    const std::string& exetime,
                    ITrigJetHypoInfoCollector*,
+                   std::unique_ptr<IConditionVisitor>& cVstr,
                    bool) const;
 
   std::string toString() const;

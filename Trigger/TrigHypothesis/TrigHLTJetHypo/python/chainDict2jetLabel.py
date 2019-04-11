@@ -147,7 +147,7 @@ def make_vbenf_label(scenario):
       )
       combgen
       (
-        [(2)(10et)(20et)]
+        [(2)(10et)]
         dijet
         (
           [(%(masslo).0fmass, 26dphi)]

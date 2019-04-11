@@ -18,7 +18,7 @@ EtaEtConditionMT::EtaEtConditionMT(double etaMin,
 
 
 bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
-                                   IConditionVisitor* visitor) const {
+                                   std::unique_ptr<IConditionVisitor>& visitor) const {
   auto abseta = std::abs(ip->eta());
   auto et = ip->et();
   bool result =
@@ -37,7 +37,7 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
 
 bool 
 EtaEtConditionMT::isSatisfied(const HypoJetVector& ips,
-                              IConditionVisitor* v) const {
+                              std::unique_ptr<IConditionVisitor>& v) const {
   auto result =  isSatisfied(ips[0], v);
   return result;
 }
