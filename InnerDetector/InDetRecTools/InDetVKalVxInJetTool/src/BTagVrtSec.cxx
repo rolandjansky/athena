@@ -747,6 +747,7 @@ namespace InDet{
             m_hb_impactRZ->Fill(SignifR, SignifZ, m_w_1); 
 	    m_hb_impact->Fill( ImpactSignif, m_w_1);
 	    if(i<DevTuple::maxNTrk && m_curTup){
+                 m_curTup->etatrk[i]=SelectedTracks[i]->eta();
                  m_curTup->p_prob[i]=RankBTrk(SelectedTracks[i]->pt(),JetDir.Pt(),0.);
                  m_curTup->s_prob[i]=RankBTrk(0.,0.,ImpactSignif); 
                  m_curTup->SigR[i]=SignifR; m_curTup->SigZ[i]=SignifZ; 
@@ -768,7 +769,7 @@ namespace InDet{
             }
 	 }
       }
-      if(m_fillHist){  m_curTup->ptjet=JetDir.Perp();  m_curTup->etajet=fabs(JetDir.Eta()); m_curTup->phijet=JetDir.Phi();
+      if(m_fillHist){  m_curTup->ptjet=JetDir.Perp();  m_curTup->etajet=JetDir.Eta(); m_curTup->phijet=JetDir.Phi();
                        m_curTup->nTrkInJet=std::min(NTracks,DevTuple::maxNTrk); };
 
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for single vertex

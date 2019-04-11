@@ -24,11 +24,13 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
   m_trkPixelHitsCut(1),
   m_trkChi2Cut(5.),
   m_trkMinPtCut(700.),
+  m_jetMaxPtCut(7500000.),
+  m_jetMinPtCut(  35000.),
   m_d0_limLow(-3.),
   m_d0_limUpp( 5.),
   m_Z0_limLow(-8.),
   m_Z0_limUpp(12.),
-  m_calibFileName("TrackClassif_3cl.v01.xml"),
+  m_calibFileName("TrackClassif_3cl.v02.xml"),
   m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
   {
      declareInterface<IInDetTrkInJetType>(this);
@@ -36,6 +38,8 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      declareProperty("trkPixelHits", m_trkPixelHitsCut ,  "Cut on track Pixel hits number" );
      declareProperty("trkChi2",   m_trkChi2Cut   ,  "Cut on track Chi2/Ndf" );
      declareProperty("trkMinPt",  m_trkMinPtCut  ,  "Minimal track Pt cut" );
+     declareProperty("jetMaxPt",  m_jetMaxPtCut  ,  "Maximal jet Pt cut" );
+     declareProperty("jetMinPt",  m_jetMinPtCut  ,  "Minimal jet Pt cut from training" );
      declareProperty("d0_limLow", m_d0_limLow    ,  "Low d0 impact cut" );
      declareProperty("d0_limUpp", m_d0_limUpp    ,  "Upper d0 impact cut" );
      declareProperty("Z0_limLow", m_Z0_limLow    ,  "Low Z0 impact cut" );
@@ -53,21 +57,22 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      m_initialised = 0;
      m_tmvaReader = new TMVA::Reader();
      //m_tmvaReader->AddVariable( "prbS",  &m_prbS );
-     m_tmvaReader->AddVariable( "Sig3D", &m_Sig3D );
-     m_tmvaReader->AddVariable( "prbP",  &m_prbP );
-     m_tmvaReader->AddVariable( "pTvsJet", &m_pTvsJet );
+     m_tmvaReader->AddVariable( "Sig3D",  &m_Sig3D );
+     m_tmvaReader->AddVariable( "prbP",   &m_prbP );
+     m_tmvaReader->AddVariable( "pTvsJet",&m_pTvsJet );
      //m_tmvaReader->AddVariable( "prodTJ", &m_prodTJ );
-     m_tmvaReader->AddVariable( "d0",    &m_d0 );
-     m_tmvaReader->AddVariable( "SigR",  &m_SigR );
-     m_tmvaReader->AddVariable( "SigZ",  &m_SigZ );
-     m_tmvaReader->AddVariable( "ptjet", &m_ptjet );
+     m_tmvaReader->AddVariable( "d0",     &m_d0 );
+     m_tmvaReader->AddVariable( "SigR",   &m_SigR );
+     m_tmvaReader->AddVariable( "SigZ",   &m_SigZ );
+     m_tmvaReader->AddVariable( "ptjet",  &m_ptjet );
      m_tmvaReader->AddVariable( "ibl"   , &m_ibl );
      m_tmvaReader->AddVariable( "bl"   ,  &m_bl );
-     m_tmvaReader->AddVariable( "etajet", &m_etajet );
+     //m_tmvaReader->AddVariable( "etajet", &m_etajet );
+     m_tmvaReader->AddVariable( "etatrk", &m_etatrk );
 //
 //-- Calibration file
 //
-//     std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/TrackClassif_3cl.v01.xml");
+//     std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/TrackClassif_3cl.v02.xml");
      std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/"+m_calibFileName);
      if(fullPathToFile != ""){
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"TrackClassification calibration file" << fullPathToFile << endmsg;
@@ -106,7 +111,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 //-- Track quality checks
       std::vector<float> safeReturn(3,0.);
       if( !m_initialised )          return safeReturn;
-      if(Jet.Perp() > 2500000.)     return safeReturn;
+      if(Jet.Perp() > m_jetMaxPtCut)return safeReturn;
       if(Trk->pt() < m_trkMinPtCut) return safeReturn;
       if(Trk->pt() > Jet.Pt())      return safeReturn;
       if(Trk->numberDoF() == 0)                             return safeReturn; //Safety
@@ -162,6 +167,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      double coeffPt=10.;
      double pfrac=(Trk->pt()-m_trkMinPtCut)/sqrt(Jet.Perp());
      m_prbP= pfrac/(coeffPt+pfrac);
+     m_etatrk=Trk->eta();
 //---
      double coeffSig=1.0;
      if(trkSignif<coeffSig) return safeReturn;
@@ -172,7 +178,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      m_SigZ=SignifZ;
      m_SigR=SignifR;
 //---
-     m_ptjet=Jet.Perp();
+     m_ptjet=Jet.Perp(); if(m_ptjet<m_jetMinPtCut)m_ptjet=m_jetMinPtCut; //Very low jet pt is replaced by Pt=35GeV
      m_etajet=fabs(Jet.Eta());
 //---
      m_ibl = (float)hitIBL;

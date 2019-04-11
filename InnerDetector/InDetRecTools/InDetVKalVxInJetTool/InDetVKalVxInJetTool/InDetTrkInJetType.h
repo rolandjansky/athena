@@ -83,6 +83,8 @@ namespace InDet {
     int m_trkPixelHitsCut{};
     float m_trkChi2Cut{};
     float m_trkMinPtCut{};
+    float m_jetMaxPtCut{};
+    float m_jetMinPtCut{};
     float m_d0_limLow{};
     float m_d0_limUpp{};
     float m_Z0_limLow{};
@@ -103,8 +105,9 @@ namespace InDet {
     float m_SigR{};
     float m_ptjet{};
     float m_etajet{};
-    float   m_ibl{};
-    float   m_bl{};
+    float m_etatrk{};
+    float m_ibl{};
+    float m_bl{};
  };
 
 

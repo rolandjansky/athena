@@ -270,6 +270,7 @@ namespace InDet {
        float ptjet;
        float etajet;
        float phijet;
+       float etatrk[maxNTrk];
        float p_prob[maxNTrk];
        float s_prob[maxNTrk];
        int   idMC[maxNTrk];
