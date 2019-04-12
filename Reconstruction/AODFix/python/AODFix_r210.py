@@ -56,6 +56,10 @@ class AODFix_r210(AODFix_base):
                 self.trklinks_postSystemRec(topSequence)
                 pass
 
+            if "egammaClusLinks" not in oldMetadataList:
+                self.egammaClusLinks_postSystemRec(topSequence)
+                pass
+
             if "egammaStrips" not in oldMetadataList and not self.isHI:
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
@@ -195,6 +199,14 @@ class AODFix_r210(AODFix_base):
 
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = containers )
+
+    def egammaClusLinks_postSystemRec(self, topSequence):
+        """This fixes the links to constituent clusters in egammaClusters
+        JIRA: https://its.cern.ch/jira/browse/ATLASG-1460
+        """
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_egammaClusLinks", 
+                                              Containers = ["egammaClustersAux."] )
 
     def btagging_postSystemRec(self, topSequence):
         """
