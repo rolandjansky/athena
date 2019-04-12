@@ -236,7 +236,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___PixelDigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.PixelDigitizationTool'
-        expected_property_list = ['ChargeTools', 'DetStore', 'EnergyDepositionTool', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEndSimTools', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'RndmSvc']
+        expected_property_list = ['ChargeTools', 'DetStore', 'EnergyDepositionTool', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEndSimTools', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'RDOCollName', 'RndmSvc', 'SDOCollName']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-25'}
         expected_string_properties = {'InputObjectName': 'PixelHits'}
         self._detailed_ConfigurablePropertiesCheck(
