@@ -151,84 +151,47 @@ namespace Trk {
   }
 
   StatusCode GlobalChi2Fitter::initialize() {
-    if (!m_ROTcreator.name().empty() && m_ROTcreator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_ROTcreator.type());
-      return StatusCode::FAILURE;
+    if (!m_ROTcreator.name().empty()) {
+      ATH_CHECK(m_ROTcreator.retrieve());
     }
 
-    if (!m_broadROTcreator.name().empty() && m_broadROTcreator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_broadROTcreator.type());
-      return StatusCode::FAILURE;
+    if (!m_broadROTcreator.name().empty()) { 
+      ATH_CHECK(m_broadROTcreator.retrieve());
     }
 
-    if (m_updator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_updator.type());
-      return StatusCode::FAILURE;
-    }
-
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_extrapolator.type());
-      return StatusCode::FAILURE;
-    }
-
-    if (m_navigator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_navigator.type());
-      return StatusCode::FAILURE;
-    }
-
-    if (m_residualPullCalculator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve " << m_residualPullCalculator <<
-        " (to calculate residuals and pulls) ");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_propagator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_propagator.type());
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK(m_updator.retrieve());
+    ATH_CHECK(m_extrapolator.retrieve());
+    ATH_CHECK(m_navigator.retrieve());
+    ATH_CHECK(m_residualPullCalculator.retrieve());
+    ATH_CHECK(m_propagator.retrieve());
+    
     if (m_calomat) {
-      if (m_calotool.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not get " << m_calotool.type());
-        return StatusCode::FAILURE;
+      ATH_CHECK(m_calotool.retrieve());
+      
+      if (!m_calotoolparam.empty()) {
+        ATH_CHECK(m_calotoolparam.retrieve());
       }
-      if (!m_calotoolparam.empty() && m_calotoolparam.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not get " << m_calotoolparam.
-          type());
-        return StatusCode::FAILURE;
-      }
-    }
-    else{
+    } else{
       m_calotool.disable();
       m_calotoolparam.disable();
     }
 
-    if (m_scattool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_scattool.type());
-      return StatusCode::FAILURE;
-    }
-
-    if (m_elosstool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_elosstool.type());
-      return StatusCode::FAILURE;
-    }
-
-    if (!m_matupdator.name().empty() && m_matupdator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Could not get " << m_matupdator.type());
-      return StatusCode::FAILURE;
+    ATH_CHECK(m_scattool.retrieve());
+    ATH_CHECK(m_elosstool.retrieve());
+    
+    if (!m_matupdator.name().empty()) {
+      ATH_CHECK(m_matupdator.retrieve());
     }
 
     if (!m_fieldService.retrieve()) {
       ATH_MSG_FATAL("Failed to retrieve " << m_fieldService);
       return StatusCode::FAILURE;
     }
+    
     ATH_MSG_DEBUG("Retrieved " << m_fieldService);
 
     // need an Atlas id-helper to identify sub-detectors, take the one from detStore
-    if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
-      ATH_MSG_ERROR("Could not get AtlasDetectorID helper");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_DetID, "AtlasID"));
 
     if (m_fillderivmatrix && m_acceleration) {
       ATH_MSG_WARNING("FillDerivativeMatrix option selected, switching off acceleration!");
@@ -236,21 +199,12 @@ namespace Trk {
     }
 
     if (!m_trackingGeometrySvc.empty()) {
-      StatusCode sc = m_trackingGeometrySvc.retrieve();
-      if (sc.isFailure()) {
-        ATH_MSG_ERROR(" failed to retrieve geometry Svc " <<
-          m_trackingGeometrySvc);
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(m_trackingGeometrySvc.retrieve());
       ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     }
 
     if (m_useCaloTG) {
-      StatusCode sc = m_caloMaterialProvider.retrieve();
-      if (sc.isFailure()) {
-        ATH_MSG_ERROR(" failed to retrieve " << m_caloMaterialProvider);
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(m_caloMaterialProvider.retrieve());
       ATH_MSG_INFO(m_caloMaterialProvider << " retrieved ");
     }
     else{
