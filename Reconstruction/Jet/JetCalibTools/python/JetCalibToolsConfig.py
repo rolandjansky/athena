@@ -29,12 +29,10 @@ pflowcontexts = {
 
 topocontexts = {
     "T0":("JES_MC15cRecommendation_May2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
-    # Placeholder from a vague approximation of the 2017 setup?
-    "TrigEMSubJES":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_DEV"),
-    "TrigEMSubJESIS":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_Insitu_DEV"),
-    "TrigEMGSC":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_DEV"),
     # Omit smearing, to avoid any efficiency loss
     "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
+    "TrigSubJES":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES"),
+    "TrigSubJESIS":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_GSC_Insitu"),
 }
 
 rscanlc2 = {
@@ -63,9 +61,6 @@ calibcontexts = {
     "AntiKt4EMPFlow":pflowcontexts,
     "AntiKt4EMTopo":topocontexts,
     "AntiKt4LCTopo":topocontexts,
-    "TrigAntiKt4EMTopoSubJES":topocontexts,
-    "TrigAntiKt4EMTopoSubJESIS":topocontexts,
-    "TrigAntiKt4EMTopoGSC":topocontexts,
     #"TrigEMSubJES":topocontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
@@ -153,9 +148,9 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     prereqs.append("mod:ConstitFourMom")
     if "JetArea" in calibseq:
         prereqs.append("input:EventDensity")
-    if "GSC" in calibseq:
-        prereqs += ["mod:CaloEnergies",
-                    "mod:TrackMoments",
+    prereqs += ["mod:CaloEnergies"]
+    if "GSC" in calibseq and not jetdef.isTrigger:
+        prereqs += ["mod:TrackMoments",
                     "ghost:MuonSegment"]
     jetcaliblog.debug("Prereqs for calibseq '{0}': {1}".format(calibseq,str(prereqs)))
     return prereqs

@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 def jetMenuSequence(jetdef):
     """ Function to create the jet Menu Sequence"""
    
-    ConfigFlags.jetdef=jetdef
+    ConfigFlags.jetdefinition=jetdef
     ## RoIs = 'FSJETRoI'
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetAthSequence

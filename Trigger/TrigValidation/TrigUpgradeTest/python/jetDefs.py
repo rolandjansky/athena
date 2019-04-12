@@ -17,41 +17,61 @@ def jetAthSequence(ConfigFlags):
     #    dataOrMC = "mc"
     # want to make this automatic.
 
-    if ConfigFlags.jetdef=="EMTopoSubJESIS":
-    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigEMSubJESIS:"+dataOrMC)
-    elif ConfigFlags.jetdef=="EMTopoSubJES":
-    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigEMSubJES:"+dataOrMC)
+    jetDefinition = ConfigFlags.jetdefinition
 
-    JetAthSequence =  seqAND("jetAthSequence",[InputMakerAlg, recoSequence ])
+    if jetDefinition=="EMTopoSubJESIS":
+    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigSubJESIS:"+dataOrMC)
+    elif jetDefinition=="EMTopoSubJES":
+    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigSubJES:"+dataOrMC)
+    elif jetDefinition=="EMTopoNoCalib":
+    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("")
+    elif jetDefinition=="LCWSubJESIS": # call for LC sequence
+    	(recoSequence, sequenceOut) = jetRecoSequenceLCW("Calib:TrigSubJESIS:"+dataOrMC)
+
+    JetAthSequence =  seqAND("jetAthSequence_"+jetDefinition,[InputMakerAlg, recoSequence ])
     return (JetAthSequence, InputMakerAlg, sequenceOut)
 
     
 def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
 
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    (caloMakerSequence, caloclusters) = HLTFSTopoRecoSequence(RoIs)
+    #(caloMakerSequence, caloclusters) = HLTFSTopoRecoSequence(RoIs)
+    (jetRecoSequence, caloclusters) = HLTFSTopoRecoSequence(RoIs)
 
     from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
   
     #hardcoded jet collection for now 
     # chosen jet collection
-    jetsFullName = "TrigAntiKt4EMTopoSubJES"
-    clustermods = ["ECPSFrac","ClusterMoments"]
-    #clustermods = []
+    calibSeq = ""
+    if calibString:
+        calibSeq = calibString.split(":")[1]
+
+    #caloMakerSequence.name = "TrigCaloClusterMakerMT_topo_"+calibSeq
+    jetsFullName = "TrigAntiKt4EMTopo"+calibSeq
+    #clustermods = ["ECPSFrac","ClusterMoments"]
+    clustermods = []
     trigMinPt = 7e3
     TrigEMTopo = JetConstit( xAODType.CaloCluster, ["EM"])
     TrigEMTopo.ptmin = 2e3
     TrigEMTopo.ptminfilter = 15e3
-    TrigAntiKt4EMTopoSubJES = JetDefinition( "AntiKt", 0.4, TrigEMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
-    TrigAntiKt4EMTopoSubJES.modifiers = [calibString,"Sort"] + clustermods 
-    #TrigAntiKt4EMTopoSubJES.ghostdefs = []
-    #TrigAntiKt4EMTopoSubJES.isTrigger = True
-    jetDefinition = TrigAntiKt4EMTopoSubJES
+    TrigAntiKt4EMTopo = JetDefinition( "AntiKt", 0.4, TrigEMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
+    TrigAntiKt4EMTopo.modifiers = ["Sort"] + clustermods 
+    if calibString:
+        TrigAntiKt4EMTopo.modifiers= [calibString] + TrigAntiKt4EMTopo.modifiers
+    TrigAntiKt4EMTopo.isTrigger = True
+    jetDefinition = TrigAntiKt4EMTopo
+
+    print("printing jet definition info ")
+    print(" jet basename = ", jetDefinition.basename)
+    print(" jet modifiers = ", jetDefinition.modifiers)
+    print(" calibString = ", calibString)
+    print(" jets full name = ", jetsFullName)
 
 
     from JetRecConfig import JetRecConfig
     deps = JetRecConfig.resolveDependencies( jetDefinition )
 
+    print("TrigAntiKt4EMTopo.modifiers = ", TrigAntiKt4EMTopo.modifiers )
     print("resolved dependencies: ", deps)
 
     inputdeps = deps["inputs"]
@@ -61,7 +81,8 @@ def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
     print("constit.rawname = ", constit.rawname )
     print("constit.inputname = ", constit.inputname )
     constitAlg = getConstitAlg( constit )
-    jetRecoSequence = seqAND( "JetRecoSeq", [constitAlg])
+    #jetRecoSequence = parOR( "JetRecSeq_"+jetsFullName, [constitAlg])
+    jetRecoSequence+= constitAlg
 
     constitPJAlg = getConstitPJGAlg( constit )
     constitPJKey = constitPJAlg.PJGetter.OutputContainer
@@ -91,7 +112,82 @@ def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
 
     jetRecoSequence += jetRecAlg
 
-    #sequenceOut = 'HLTJets_EMSubJES'
+    sequenceOut = jetsFullName
+
+    #caloMakerSequence += jetRecoSequence
+
+    #jetRecoFullSequence = seqAND("fullJetRecoSequence", [caloMakerSequence, jetRecoSequence]) 
+    #jetRecoFullSequence = caloMakerSequence
+    jetRecoFullSequence = jetRecoSequence
+
+    return (jetRecoFullSequence,sequenceOut)
+
+def jetRecoSequenceLCW(calibString, RoIs = 'FSJETRoI'):
+
+    from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
+    (caloMakerSequence, caloclusters) = HLTLCTopoRecoSequence(RoIs)
+
+    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
+  
+    #hardcoded jet collection for now 
+    # chosen jet collection
+    calibSeq = ""
+    if calibString:
+        calibSeq = calibString.split(":")[1]
+    jetsFullName = "TrigAntiKt4LCW_"+calibSeq
+    #clustermods = ["ECPSFrac","ClusterMoments"]
+    clustermods = []
+    trigMinPt = 7e3
+    TrigLCW = JetConstit( xAODType.CaloCluster, ["LC"])
+    TrigLCW.ptmin = 2e3
+    TrigLCW.ptminfilter = 15e3
+    TrigAntiKt4LCW = JetDefinition( "AntiKt", 0.4, TrigLCW, ptmin=trigMinPt,ptminfilter=trigMinPt)
+    TrigAntiKt4LCW.modifiers = ["Sort"] + clustermods 
+    if calibString:
+        TrigAntiKt4LCW.modifiers+= [calibString]
+    TrigAntiKt4LCW.isTrigger = True
+    jetDefinition = TrigAntiKt4LCW
+
+    from JetRecConfig import JetRecConfig
+    deps = JetRecConfig.resolveDependencies( jetDefinition )
+
+    inputdeps = deps["inputs"]
+    constit = inputdeps[0]
+    constit.rawname = caloclusters
+    #constit.inputname = caloclusters
+    print("constit.rawname = ", constit.rawname )
+    print("constit.inputname = ", constit.inputname )
+    constitAlg = getConstitAlg( constit )
+    jetRecoSequence = parOR( "JetRecSeq_"+jetsFullName, [constitAlg])
+
+    constitPJAlg = getConstitPJGAlg( constit )
+    constitPJKey = constitPJAlg.PJGetter.OutputContainer
+
+    pjs = [constitPJKey]
+
+    jetRecoSequence += constitPJAlg 
+        
+    if "JetSelectedTracks" in inputdeps or "JetTrackVtxAssoc" in inputdeps:
+        jetTrkPrepAlg = getTrackPrepAlg( "trigjetalg_TrackPrep")
+        jetRecoSequence += jetTrkPrepAlg
+        
+    eventShapeAlg = getEventShapeAlg( constit, constitPJKey )
+    jetRecoSequence += eventShapeAlg                    
+
+    # Schedule the ghost PseudoJetGetterAlgs
+    for ghostdef in deps["ghosts"]:
+        print("ghostdef = ", ghostdef)
+        ghostPJAlg = getGhostPJGAlg( ghostdef )
+        jetRecoSequence += ghostPJAlg
+        ghostPJKey = ghostPJAlg.PJGetter.OutputContainer
+        pjs.append( ghostPJKey )
+
+    # Generate a JetAlgorithm to run the jet finding and modifiers
+    # (via a JetRecTool instance).
+    jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDefinition, pjs, deps["mods"])
+
+    jetRecoSequence += jetRecAlg
+
     sequenceOut = jetsFullName
 
     caloMakerSequence += jetRecoSequence

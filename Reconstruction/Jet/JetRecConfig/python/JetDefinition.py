@@ -179,7 +179,7 @@ class JetDefinition(object):
     def __init__(self, algorithm, radius, inputdef,
                  ptmin=5000., ptminfilter=5000.,
                  ghostdefs=[], modifiers=[],
-                 extrainputs=[]):
+                 extrainputs=[], istrigger=False):
 
         # Should add some type checking here
         # Could use JetContainerInfo conversion
@@ -200,6 +200,7 @@ class JetDefinition(object):
         self.ghostdefs = ghostdefs     # Objects to ghost-associate
         self.modifiers = modifiers     # Tools to modify the jet
         self.extrainputs = extrainputs # Any extra input dependencies
+        self.isTrigger = istrigger
 
         # Should this be a derived class?
         self.grooming = None

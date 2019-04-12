@@ -129,11 +129,20 @@ if opt.doJetSlice == True:
     step1=ChainStep("Step1_jet", [jetSeq1])
     jetSeq2 = jetMenuSequence("EMTopoSubJESIS")
     step2=ChainStep("Step1_jet", [jetSeq2])
+    jetSeq3 = jetMenuSequence("EMTopoNoCalib")
+    step3=ChainStep("Step1_jet", [jetSeq3])
+    #jetSeq4 = jetMenuSequence("LCWSubJESIS")
+    #step4=ChainStep("Step4_jet", [jetSeq4])
     
+
+    # don't forget the commas -.-
+	# damn commas
     jetChains  = [
         Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
         Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step1]  ),
-        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step2]  )
+        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step2]  ),
+        Chain(name='HLT_j45_nojcalib', Seed="L1_J20",  ChainSteps=[step3]  ),
+        #Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step4]  )
         ]
 
     testChains += jetChains
