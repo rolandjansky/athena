@@ -181,16 +181,17 @@ void RHadronsPhysicsTool::ConstructProcess()
   standardpdgidtodecay.push_back(-541);
   standardpdgidtodecay.push_back(553);
 
-  standardpdgidtodecay.push_back(423);
-  standardpdgidtodecay.push_back(-423);
-  standardpdgidtodecay.push_back(433);
-  standardpdgidtodecay.push_back(-433);
-  standardpdgidtodecay.push_back(513);
-  standardpdgidtodecay.push_back(-513);
-  standardpdgidtodecay.push_back(523);
-  standardpdgidtodecay.push_back(-523);
-  standardpdgidtodecay.push_back(551);
-  standardpdgidtodecay.push_back(-551);
+//  Unknown to Geant4, so removed for the time being
+//  standardpdgidtodecay.push_back(423);
+//  standardpdgidtodecay.push_back(-423);
+//  standardpdgidtodecay.push_back(433);
+//  standardpdgidtodecay.push_back(-433);
+//  standardpdgidtodecay.push_back(513);
+//  standardpdgidtodecay.push_back(-513);
+//  standardpdgidtodecay.push_back(523);
+//  standardpdgidtodecay.push_back(-523);
+//  standardpdgidtodecay.push_back(551);
+//  standardpdgidtodecay.push_back(-551);
 
   for (unsigned int i=0; i<standardpdgidtodecay.size(); ++i) {
     int pid=standardpdgidtodecay[i];
