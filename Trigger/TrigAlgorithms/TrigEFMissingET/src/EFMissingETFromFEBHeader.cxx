@@ -19,7 +19,8 @@ PURPOSE:  Data preparation from FEB Header
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
+#include "TrigTimeAlgs/TrigTimer.h"
 
 #include <iostream>
 

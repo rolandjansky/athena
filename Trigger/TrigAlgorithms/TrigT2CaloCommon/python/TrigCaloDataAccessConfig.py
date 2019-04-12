@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
 def createLArRoI_Map( flags ):
     acc = ComponentAccumulator()
     from LArRawUtils.LArRawUtilsConf import LArRoI_Map
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
-    # LArOnOffIdMappingCfg, LArOnOffIdMappingSCCfg 
 
     from LArCabling.LArCablingConf import LArCablingLegacyService
     cablingTool = LArCablingLegacyService() # this is realy a tool
@@ -89,7 +89,6 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Input.isMC=False
     ConfigFlags.lock()
@@ -117,15 +116,11 @@ if __name__ == "__main__":
     regSel.enableTGC   = False
     regSel.enableCSC   = False
 
-    #acc.getService("MessageSvc").Format = "% F%60W%S%7W%R%T %0W%M"
-    #acc.MessageSvc.Format = "% F%60W%S%7W%R%T %0W%M"
-
     acc.printConfig(True)
 
-    #print acc.getService("TrigCaloDataAccessSvc")
-    print acc.getPublicTool("LArRoI_Map")
+    print(acc.getPublicTool("LArRoI_Map"))
 
-    print "running this configuration"
+    print("running this configuration")
     of = open("test.pkl", "w")
     acc.store(of)
     of.close()

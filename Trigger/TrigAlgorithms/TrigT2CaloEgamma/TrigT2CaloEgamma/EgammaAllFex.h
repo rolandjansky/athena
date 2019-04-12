@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,6 +21,7 @@
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "GaudiKernel/AlgTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include "TrigT2CaloCommon/phiutils.h"
 
