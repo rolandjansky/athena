@@ -24,6 +24,10 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+
+class CaloNoise;
+
 class CaloNoise2Ntuple : public AthAlgorithm {
 
   public:
@@ -53,6 +57,10 @@ class CaloNoise2Ntuple : public AthAlgorithm {
 
   ToolHandle<ICaloNoiseTool> m_noiseTool;
   ToolHandle<ICaloMBAverageTool> m_averageTool;
+
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey;
+
+  std::string m_treeName;
 
   int m_iCool;
   int m_SubHash;

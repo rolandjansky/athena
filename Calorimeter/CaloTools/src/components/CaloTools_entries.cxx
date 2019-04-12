@@ -5,6 +5,7 @@
 #include "CaloTools/SimpleNoiseToolFromTextFile.h"
 #include "CaloTools/CaloAffectedTool.h"
 #include "CaloTools/CaloLumiBCIDTool.h"
+#include "../CaloNoiseCondAlg.h"
 
 DECLARE_COMPONENT( CaloNoiseTool )
 DECLARE_COMPONENT( CaloMBAverageTool )
@@ -13,4 +14,4 @@ DECLARE_COMPONENT( SimpleNoiseTool )
 DECLARE_COMPONENT( SimpleNoiseToolFromTextFile )
 DECLARE_COMPONENT( CaloAffectedTool )
 DECLARE_COMPONENT( CaloLumiBCIDTool )
-
+DECLARE_COMPONENT( CaloNoiseCondAlg )

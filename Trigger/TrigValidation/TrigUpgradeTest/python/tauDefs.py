@@ -2,13 +2,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO, ERROR
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from TrigT2CaloCommon.CaloDef import HLTCellMaker, HLTLCTopoRecoSequence
+from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 
 def _algoTauRoiUpdater(inputEDM="EMRoIs"):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT

@@ -16,6 +16,7 @@ def signaturesToGenerate():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.EgammaSlice.setAll()
     TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.METSlice.setAll()
 
 
 # generate the Chains from the Menu Dictionary

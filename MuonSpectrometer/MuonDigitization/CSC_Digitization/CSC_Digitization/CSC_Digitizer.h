@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_CSC_DIGITIZER_H
@@ -22,11 +22,8 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "CscCalibTools/ICscCalibTool.h"
-
-class IAtRndmGenSvc;
 
 // Author: Ketevi A. Assamagan
 // BNL, October 17 2003

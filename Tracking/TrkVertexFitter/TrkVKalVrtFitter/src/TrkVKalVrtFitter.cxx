@@ -35,7 +35,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_IterationPrecision(0),
     m_IDsizeR(1150.),
     m_IDsizeZ(3000.),
-    m_extPropagator("DefaultVKalPropagator"),                   // Internal propagator
+    m_extPropagator(this),                   // Internal propagator
     // m_extPropagator("Trk::Extrapolator/InDetExtrapolator"),  // External propagator
     // m_magFieldAthenaSvc("MagFieldAthenaSvc",name),           //Athena magnetic field---old version
     m_magFieldAthenaSvc("AtlasFieldSvc", name),                 //Athena magnetic field
@@ -214,7 +214,7 @@ StatusCode TrkVKalVrtFitter::initialize()
 // If ATHENA propagator is not provided, only defined object is
 //     myPropagator      - extern propagator from TrkVKalVrtCore
 //
-    if (m_extPropagator.name() == "DefaultVKalPropagator" ){
+    if (m_extPropagator.empty()){
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endmsg;
       m_extPropagator.disable();
     }else{

@@ -118,6 +118,30 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
 
     return None
 
+def findAllAlgorithms(sequence, nameToLookFor=None):
+    algorithms = []
+    for idx, child in enumerate(sequence.getChildren()):
+        if isSequence(child):
+            algorithms += findAllAlgorithms(child, nameToLookFor)
+        else:
+            if nameToLookFor is None or child.name() == nameToLookFor:
+                algorithms.append(child)
+    return algorithms
+
+
+def findAllAlgorithmsByName(sequence, namesToLookFor=None):
+    algorithms = collections.defaultdict(list)
+    for idx, child in enumerate(sequence.getChildren()):
+        if isSequence(child):
+            childAlgs = findAllAlgorithmsByName(child, namesToLookFor)
+            for algName in childAlgs:
+                algorithms[algName] += childAlgs[algName]
+        else:
+            if namesToLookFor is None or child.name() in namesToLookFor:
+                algorithms[child.name()].append(child)
+    return algorithms
+
+
 def flatAlgorithmSequences( start ):
     """ Converts tree like structure of sequences into dictionary 
     keyed by top/start sequence name containing lists of of algorithms & sequences."""

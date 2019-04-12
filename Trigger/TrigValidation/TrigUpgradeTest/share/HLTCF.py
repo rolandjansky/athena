@@ -29,7 +29,7 @@ def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
     output_list = list (set(Outputs))
     chain_list = list (set(Chains))
     fname = "F_"+name
-    f = RoRSeqFilter(fname, OutputLevel = DEBUG, Input=input_list, Output=output_list,  Chains=chain_list)
+    f = RoRSeqFilter(fname, Input=input_list, Output=output_list,  Chains=chain_list)
     if "Step1" in name: # so that we see events running through, will be gone once L1 emulation is included
         f.AlwaysPass = True        
     allAlgs[name] = f
@@ -40,7 +40,7 @@ def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
 def TestRecoAlg(name, Output,  FileName="noreco.dat", Input=""):
     fname = "R_"+name
-    a = HLTTest__TestRecoAlg(fname, OutputLevel = DEBUG, FileName=FileName, Output=Output, Input=Input)
+    a = HLTTest__TestRecoAlg(fname, FileName=FileName, Output=Output, Input=Input)
     allAlgs[name] = a
     return a
 
@@ -48,7 +48,7 @@ def TestRecoAlg(name, Output,  FileName="noreco.dat", Input=""):
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 def TestHypoAlg(name, Input, Output):
     fname = "H_"+name
-    h = HLTTest__TestHypoAlg(fname, OutputLevel = DEBUG, HypoInputDecisions=Input, HypoOutputDecisions=Output)
+    h = HLTTest__TestHypoAlg(fname, HypoInputDecisions=Input, HypoOutputDecisions=Output)
     allAlgs[name] = h
     return h
 
@@ -56,7 +56,7 @@ def TestHypoAlg(name, Input, Output):
 def merger(name, Inputs, Output ):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     outdec=["%s_decision"%i for i in Output]
-    return remember(name,   HLTTest__TestInputMaker( "M_"+name, OutputLevel=DEBUG, InputMakerInputDecisions=Inputs, Output=Output, InputMakerOutputDecisions=outdec, LinkName="initialRoI" ) )
+    return remember(name,   HLTTest__TestInputMaker( "M_"+name, InputMakerInputDecisions=Inputs, Output=Output, InputMakerOutputDecisions=outdec, LinkName="initialRoI" ) )
 
 
 def addSteps(s):
@@ -77,24 +77,24 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 def TestHypoTool(name, prop):
     threshold_value=''.join(filter(lambda x: x.isdigit(), name))
     value  =  int(threshold_value)*1000
-    h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop)
+    h = HLTTest__TestHypoTool(name, Threshold=value, Property=prop)
     return h
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerAlg(name):
-    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, LinkName="initialRoI")
+    return HLTTest__TestInputMaker(name, LinkName="initialRoI")
 
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
 def SeqFilterNew(name):
-    return HLTTest__TestRoRSeqFilter(name, OutputLevel = DEBUG)
+    return HLTTest__TestRoRSeqFilter(name)
 
 
 def TestRecAlgNew(name, FileName="noreco.dat"):
-    return HLTTest__TestRecoAlg(name=name, FileName=FileName, OutputLevel = DEBUG)
+    return HLTTest__TestRecoAlg(name=name, FileName=FileName)
 
 def TestHypoAlgNew(name):
-    return HLTTest__TestHypoAlg(name=name, OutputLevel = DEBUG)
+    return HLTTest__TestHypoAlg(name=name)
 
 def muTestHypoTool(name):
     return TestHypoTool(name, "pt")

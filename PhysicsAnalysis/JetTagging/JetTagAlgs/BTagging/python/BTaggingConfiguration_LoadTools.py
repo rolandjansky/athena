@@ -492,7 +492,7 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   # -- b-tagging tool is now fully configured.
 
   if BTaggingFlags.OutputLevel < 3:
-    ConfInstance.printAllTools()
+      ConfInstance.printAllTools()
       # NOTE: Printing all tools might be excessive; however the adding of future tools might affect the earlier ones; so printing
       # only really makes sense at the end, so we either have to do it each time; or get people to add the print command in their
       # jobOptions. Let us go for the excessive printing in this case; which is only done if debugging anyway.

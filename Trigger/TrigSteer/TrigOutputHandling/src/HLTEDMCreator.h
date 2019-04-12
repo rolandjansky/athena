@@ -71,7 +71,10 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", false, "Fix links that may be pointing objects in views"};
   SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint32_t> > m_remapLinkCollKeys{ this, "DoNotSet_RemapLinkCollKeys", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
   SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint16_t> > m_remapLinkColIndices{ this, "DoNotSet_RemapLinkCollIndices", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
-  
+
+  Gaudi::Property<bool> m_dumpSGBefore{ this, "dumpSGBefore", false, "Dump SG content before the merging"}; // for debugging 
+  Gaudi::Property<bool> m_dumpSGAfter { this, "dumpSGAfter", false, "Dump SG content after the merging"};
+
 #define DEF_VIEWS(__TYPE) \
   SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
 

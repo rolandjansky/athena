@@ -149,6 +149,9 @@ private:
   Gaudi::Property<int> m_failureMode;
 
   /// SG key for the EventInfoContainer
+  Gaudi::Property<std::string> m_evinfName;
+
+  /// SG key for the EventInfoContainer
   Gaudi::Property<std::string> m_evinfContName;
 
   /// property: beam intensity service handle for beam profile in local time

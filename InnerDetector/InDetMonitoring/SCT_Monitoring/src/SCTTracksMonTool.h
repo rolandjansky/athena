@@ -75,17 +75,28 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   ///enumerated constant for the types of level 1 triggers, corresponds to the string m_triggerNames
   enum TriggerTypes {RNDM=0, BPTX, L1CAL, TGC, RPC, MBTS, COSM, CALIB, N_TRIGGER_TYPES };
 
+  // Data members, which are not changed after initialization
+  std::string m_stream{"/stat"};
+  std::string m_path{""};
+
+  // Data members, which are changed during event processing
+  // These have to be converted to local variables or be protected by std::atomic or std::mutex
+  // before or when this tool is migrated to the new AthenaMT compatible DQ framework.
+  std::vector<int> m_nTracks_buf{}; // This requires a care in AthenaMT.
+  int m_nTracks_pos{0}; // This requires a care in AthenaMT.
+  int m_numberOfEvents{0}; // This should be conveted to std::atomic_int in AthenaMT.
+
+  ///Abbreviations for level 1 trigger types
+  static const std::string s_triggerNames[N_TRIGGER_TYPES];
+
+  //@name Histograms related members
+  //@{
   TH1I* m_nTracks{nullptr};
-  std::vector<int> m_nTracks_buf{};
-  int m_nTracks_pos{9};
   TH1I* m_trackTrigger{nullptr};
   TProfile* m_trackTriggerRate{nullptr};
   TH1F* m_totalResidual[SCT_Monitoring::N_REGIONS]{};
   TH1F* m_totalPull[SCT_Monitoring::N_REGIONS]{};
 
-  int m_numberOfEvents{0};
-  //@name Histograms related members
-  //@{
   /// Pointer to 1D histogram of Number of SCT Clusters associated to any Track per Event
   H1_t m_trk_nclu_totHisto{nullptr};
 
@@ -130,14 +141,8 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   VecH2_t m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
   VecH1_t m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
-  std::string m_stream{"/stat"};
-  std::string m_path{""};
-  BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
-  BooleanProperty m_doTrigger{this, "doTrigger", false};
-
   //@}
-  /// Name of the Track collection to use
-  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
+
   /// Cut on number of SCT hits on track
   IntegerProperty m_trackHitCut{this, "trackHitCut", 3};
   /// CheckHists() frequency
@@ -145,19 +150,21 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   /// Tracks vs evt
   IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
 
+  BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};
+  BooleanProperty m_doTrigger{this, "doTrigger", false};
   BooleanProperty m_doPositiveEndcap{this, "doPositiveEndcap", true};
   BooleanProperty m_doNegativeEndcap{this, "doNegativeEndcap", true};
-  ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   BooleanProperty m_doUnbiasedCalc{this, "doUnbiasedCalc", true};
 
-  ///Abbreviations for level 1 trigger types
-  static const std::string s_triggerNames[N_TRIGGER_TYPES];
+  /// Name of the Track collection to use
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
+  /// ReadHandleKey of EventInfo
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "Key of xAOD::EventInfo"};
-  std::bitset<N_TRIGGER_TYPES> m_firedTriggers{0};
 
-  //@name Service members
+  //@name Tool and service members
   //@{
   /// Kalman Updator for SCT Unbiased states in Residual calculation
+  ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   ToolHandle<Trk::IUpdator> m_updator{this, "KalmanUpdator", "Trk::KalmanUpdator/TrkKalmanUpdator", ""};
 
   ///SCT Helper class
@@ -176,24 +183,24 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   //@name  Trigger related methods
   //{
   ///Fill the m_firedTriggers bitset according to event information
-  StatusCode checkTriggers();
+  StatusCode checkTriggers(std::bitset<N_TRIGGER_TYPES>& firedTriggers) const;
   ///Get the status of a particular trigger bit (trigger bit 0-7)
-  bool hasTriggerFired(const unsigned int trigger) const;
+  bool hasTriggerFired(const unsigned int trigger, const std::bitset<N_TRIGGER_TYPES>& firedTriggers) const;
   //@}
   
   //@name Service methods
   //@{
   /// Calculate Pull value for MeasuredAtPlane TrackStates
-  float calculatePull(const float, const float, const float);
+  float calculatePull(const float, const float, const float) const;
   
   ///Factory + register for the 2D histos, returns whether successfully registered
-  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector);
+  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector) const;
   
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector);
+  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector) const;
   
   ///Factory + register for the 1D histograms, returns whether successfully registered
-  StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector);
+  StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector) const;
   //@}
 };
 

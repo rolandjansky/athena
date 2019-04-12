@@ -108,11 +108,12 @@ for chain, decisionKey in chainToDecisionKeyDict.iteritems():
 ##########################################
 l1decoder = getSequence("L1DecoderTest")
 hltAllSteps = getSequence("HLTAllSteps")
-from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectDecisionObjects,triggerAddMissingEDMCfg
+from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectViewMakers,collectDecisionObjects,triggerMergeViewsAndAddMissingEDMCfg
 hypos = collectHypos(hltAllSteps)
 filters = collectFilters(hltAllSteps)
+viewMakers = collectViewMakers(hltAllSteps)
 decisionObjects = collectDecisionObjects(hypos,filters,l1decoder)
-edmMakerAlg = triggerAddMissingEDMCfg([],decisionObjects)
+edmMakerAlg = triggerMergeViewsAndAddMissingEDMCfg( [], hypos, viewMakers, decisionObjects )
 topSequence.hltTop += edmMakerAlg
 
 # Add Electrons merger (somehow not created by triggerAddMissingEDMCfg above)

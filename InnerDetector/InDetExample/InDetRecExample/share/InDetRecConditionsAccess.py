@@ -366,7 +366,7 @@ if DetFlags.haveRIO.TRT_on():
         if (conddb.dbdata == "CONDBR2"):
             tdaqFolder = '/TDAQ/Resources/ATLAS/TRT/Robins'
         # TDAQ Enabled Service (only for monitoring on data)
-        conddb.addFolder('TDAQ_ONL',tdaqFolder)
+        conddb.addFolder('TDAQ_ONL',tdaqFolder,className='CondAttrListCollection')
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DAQ_ConditionsSvc
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc

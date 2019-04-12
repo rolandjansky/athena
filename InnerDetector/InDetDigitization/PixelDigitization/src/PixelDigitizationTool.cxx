@@ -86,6 +86,12 @@ StatusCode PixelDigitizationTool::initialize() {
   
   CHECK(m_energyDepositionTool.retrieve());
 
+  // Initialize ReadHandleKey
+  if (!m_hitsContainerKey.key().empty()) {
+    ATH_MSG_INFO("Loading single input HITS");
+  }
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+
   // Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollKey.initialize());
@@ -111,21 +117,35 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 
   // Get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
-  TimedHitCollList hitCollList;
-  unsigned int numberOfSiHits(0);
-  CHECK(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName,hitCollList,numberOfSiHits));
-  m_timedHits->reserve(numberOfSiHits);
-  // Now merge all collections into one
-  for (TimedHitCollList::iterator iColl=hitCollList.begin(); iColl!=hitCollList.end(); iColl++) {
-    // Decide if this event will be processed depending on HardScatterSplittingMode
-    if (m_HardScatterSplittingMode==2 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; continue; }
-    if (m_HardScatterSplittingMode==1 &&  m_HardScatterSplittingSkipper) { continue; }
-    if (m_HardScatterSplittingMode==1 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; }
-    const SiHitCollection* p_collection(iColl->second);
-    m_timedHits->insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG("SiTrackerHitCollection found with"<<p_collection->size()<<" hits");    // loop on the hit collections
-  }
+  // In case of single hits container just load the collection using read handles
+  if (!m_hitsContainerKey.key().empty()) {
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get Pixel SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
 
+    // create a new hits collection
+    m_timedHits->reserve(1);
+    m_timedHits->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("SiHitCollection found with " << hitCollection->size() << " hits");
+  }
+  else {
+    TimedHitCollList hitCollList;
+    unsigned int numberOfSiHits(0);
+    ATH_CHECK(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName,hitCollList,numberOfSiHits));
+    m_timedHits->reserve(numberOfSiHits);
+    // Now merge all collections into one
+    for (TimedHitCollList::iterator iColl=hitCollList.begin(); iColl!=hitCollList.end(); iColl++) {
+      // Decide if this event will be processed depending on HardScatterSplittingMode
+      if (m_HardScatterSplittingMode==2 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; continue; }
+      if (m_HardScatterSplittingMode==1 &&  m_HardScatterSplittingSkipper) { continue; }
+      if (m_HardScatterSplittingMode==1 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; }
+      const SiHitCollection* p_collection(iColl->second);
+      m_timedHits->insert(iColl->first, p_collection);
+      ATH_MSG_DEBUG("SiTrackerHitCollection found with"<<p_collection->size()<<" hits");    // loop on the hit collections
+    }
+  }
   // Digitize hits
   CHECK(digitizeEvent());
 
