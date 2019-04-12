@@ -14,7 +14,7 @@ class MatrixReadOutStructure : public RPCReadOut {
  public:
   MatrixReadOutStructure();
   MatrixReadOutStructure(ubit16 inputData);
-  ~MatrixReadOutStructure();
+  ~MatrixReadOutStructure() = default;
   void setInit();
 //
   virtual ubit16 makeHeader(ubit16 *inputData);

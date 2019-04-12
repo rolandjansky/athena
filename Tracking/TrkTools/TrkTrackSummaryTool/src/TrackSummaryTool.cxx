@@ -41,12 +41,12 @@ AthAlgTool(t,n,p),
   m_doHolesInDet(false),
   m_doSharedHits(false),
   m_detID{},
-  m_idTool(""),
-  m_eProbabilityTool(""),
-  m_trt_dEdxTool(""),
-  m_dedxtool(""),
-  m_muonTool(""),
-  m_idHoleSearch(""),
+  m_idTool("", this),
+  m_eProbabilityTool("", this),
+  m_trt_dEdxTool("", this),
+  m_dedxtool("", this),
+  m_muonTool("", this),
+  m_idHoleSearch("", this),
   m_pixelExists(true)
 {
   declareInterface<ITrackSummaryTool>(this);

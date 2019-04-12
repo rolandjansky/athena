@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventInfo
                           ForwardDetectors/ALFA/ALFA_Geometry
                           ForwardDetectors/ALFA/ALFA_RawEv
                           ForwardDetectors/ALFA/ALFA_RecEv/ALFA_GloRecEv
@@ -33,7 +32,7 @@ atlas_add_component( ALFA_Ntuple
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo ALFA_Geometry ALFA_RawEv ALFA_GloRecEv ALFA_LocRecCorrEv ALFA_LocRecEv GaudiKernel GeneratorObjects )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities ALFA_Geometry ALFA_RawEv ALFA_GloRecEv ALFA_LocRecCorrEv ALFA_LocRecEv GaudiKernel GeneratorObjects )
 
 # Install files from the package:
 atlas_install_headers( ALFA_Ntuple )

@@ -43,7 +43,7 @@ namespace IOVDbNamespace{
     ///length of store
     unsigned int size() const { return m_iovs.size();}
     ///clear the store
-    void clear() { m_iovs.clear();}
+    void clear();
     ///'at' to read iov at specific index
     Iov_t at(const unsigned int idx) const { return m_iovs.at(idx);}
     ///Extend a specific iov at the index to a new 'until' time

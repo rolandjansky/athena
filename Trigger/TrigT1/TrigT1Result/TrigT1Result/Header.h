@@ -50,6 +50,11 @@ namespace ROIB {
     Header( const std::vector<uint32_t>& v)
       : m_header( v ) {}
 
+    Header(Header&&) noexcept = default;
+    Header(const Header&) = default;
+    Header& operator=(Header&&) noexcept =default;
+    Header& operator=(const Header&) =default;
+
     //! constructor specifying subdet ID, event ID and version 
     Header( const uint32_t, const uint32_t, const uint32_t );
     //! constructor specifying subdet ID, event ID 
@@ -57,11 +62,12 @@ namespace ROIB {
     //! constructor specifying subdet ID only 
     Header( const uint32_t );
 
+
     //! empty default desctructor 
-    ~Header() {};
+    ~Header() = default;
 
     //! get full header 
-    const std::vector<uint32_t> header() const;
+    const std::vector<uint32_t>& header() const;
     //! get header(data) size 
     int size() const;
 

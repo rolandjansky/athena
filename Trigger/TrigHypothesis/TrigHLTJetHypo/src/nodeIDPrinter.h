@@ -9,7 +9,7 @@
 #ifndef TRIGHLTJETHYPO_NODEIDPRINTER_H
 #define TRIGHLTJETHYPO_NODEIDPRINTER_H
 
-#include <sstream>
+
 #include <string>
 
 std::string nodeIDPrinter(const std::string& name,
@@ -17,4 +17,9 @@ std::string nodeIDPrinter(const std::string& name,
                           int parentID,
                           bool pass,
                           const std::string& time="");
+
+
+std::string nodeIDPrinter(const std::string& name,
+                          int nodeID,
+                          int parentID);
 #endif

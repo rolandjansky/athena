@@ -9,8 +9,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsSorter.h"
+#include "./conditionsFactoryMT.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
@@ -86,17 +85,14 @@ StatusCode TrigJetHypoToolConfig_dijet::initialize() {
 
 
 
-Conditions TrigJetHypoToolConfig_dijet::getConditions() const {
+ConditionsMT TrigJetHypoToolConfig_dijet::getConditions() const {
   auto conditions = conditionsFactoryDijetMT(m_massMins,
                                              m_massMaxs,
                                              m_dEtaMins,
                                              m_dEtaMaxs,
                                              m_dPhiMins,
-                                             m_dPhiMaxs,
-                                             m_debug);
+                                             m_dPhiMaxs);
  
-  std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
-  
   return conditions;
 }
 

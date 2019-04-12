@@ -9,21 +9,11 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (TrigJetHypoToolConfig_simple,
                                                TrigJetHypoToolHelperMT,
                                                CombinationsHelperTool,)
 
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
-
 class ToolSetter(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
-    def __init__(self, name, debug):
+    def __init__(self, name):
 
-        # flag to be sent to the relevant C++ objects
-        self.debug = debug
-        
         self.tool_factories = {
             'simple': [TrigJetHypoToolConfig_simple, 0],
             'not': [NotHelperTool, 0],
@@ -118,12 +108,9 @@ class ToolSetter(object):
 
         config_tool = klass(name=name+'_config')
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        config_tool.debug = self.debug  # affects Conditions etc
         
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
-        helper_tool.OutputLevel = DEBUG
-        helper_tool.debug = self.debug  # dumps every event
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
 
@@ -141,7 +128,6 @@ class ToolSetter(object):
 
         config_tool = klass(name=name+'_config')
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        config_tool.debug = self.debug  # affects Conditions etc
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
 

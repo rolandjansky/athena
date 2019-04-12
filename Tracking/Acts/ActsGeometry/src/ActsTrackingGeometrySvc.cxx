@@ -51,7 +51,6 @@ ActsTrackingGeometrySvc::initialize()
     msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endmsg;
   }
   
-  std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
       makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
@@ -68,27 +67,35 @@ ActsTrackingGeometrySvc::initialize()
     = std::make_shared<const Acts::CylinderVolumeHelper>(
         cvhConfig, makeActsAthenaLogger(this, "CylVolHlpr", "ActsTGSvc"));
 
+  Acts::TrackingGeometryBuilder::Config tgbConfig;
+  tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   try {
     // PIXEL
-    volumeBuilders.push_back(
-          makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true));
+    tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
+          const auto& inner, const auto&) {
+        auto tv =  makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true);
+        return tv->trackingVolume(inner);
+    });
     
     // SCT
-    volumeBuilders.push_back(
-          makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper));
+    tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
+          const auto& inner, const auto&) {
+        auto tv = makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper);
+        return tv->trackingVolume(inner);
+    });
 
     // TRT
-    volumeBuilders.push_back(makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper));
+    tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
+          const auto& inner, const auto&) {
+        auto tv = makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper);
+        return tv->trackingVolume(inner);
+    });
   }
   catch (const std::invalid_argument& e) {
     ATH_MSG_ERROR(e.what());
     return StatusCode::FAILURE;
   }
 
-
-  Acts::TrackingGeometryBuilder::Config tgbConfig;
-  tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
-  tgbConfig.trackingVolumeBuilders = volumeBuilders;
 
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,

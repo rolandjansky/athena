@@ -36,6 +36,7 @@ namespace met {
 
   {
     declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
+    declareProperty("MuonKey",m_muContKey);
   }
 
   // Destructor

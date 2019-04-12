@@ -87,13 +87,6 @@ class FcnWrapper:
   def __call__(self):
     return self.fcn()
 
-class FullNameWrapper( FcnWrapper ):
-  """FcnWrapper to instantiate tool and return tool.getFullName()
-  usage: FullNameWrapper( ToolFactory(MyPkgConf.MyTool) )
-  """
-  def __call__(self):
-    return self.fcn().getFullName()
-
 class Factory:
   """Factory: base class of ToolFactory and AlgFactory.
   Allows to "lazy" instantiate tools/algs/services. Properties are set in the c-tor , 

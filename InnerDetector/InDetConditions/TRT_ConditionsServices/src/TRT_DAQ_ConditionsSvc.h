@@ -18,6 +18,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -27,8 +29,7 @@ class CondAttrListCollection;
 // Class definition for this AlgTool
 class TRT_DAQ_ConditionsSvc : public AthService,
   virtual public ITRT_ConditionsSvc,
-  virtual public ITRT_DAQ_ConditionsSvc,
-  virtual public IIncidentListener
+  virtual public ITRT_DAQ_ConditionsSvc
 {
 
  public:
@@ -44,9 +45,6 @@ class TRT_DAQ_ConditionsSvc : public AthService,
 
   /// Query Interface
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-
-  /// Handle IncidentSvc callbacks
-  void handle( const Incident& );
 
   /// ConditionsSummaryStatus for a ROD ID
   /** Similar to ITRT_ConditionsSvc::condSummaryStatus,
@@ -66,7 +64,6 @@ class TRT_DAQ_ConditionsSvc : public AthService,
 
  private:
 
-  ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
 
   // jobOptions properties
@@ -75,8 +72,8 @@ class TRT_DAQ_ConditionsSvc : public AthService,
   // Straw Helpers
   const TRT_ID* m_TRT_ID_Helper;
 
-  // Pointer to COOL Folder
-  const CondAttrListCollection* m_EnabledRods;
+  // Read Key
+  SG::ReadCondHandleKey<CondAttrListCollection> m_RobinsReadKey{this,"RobinsReadKey","/TDAQ/Resources/ATLAS/TRT/Robins","Robins in-key"};
 
 };
 

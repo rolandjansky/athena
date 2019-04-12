@@ -12,7 +12,7 @@ class RPCReadOut {
 
  public:
  RPCReadOut();
- virtual ~RPCReadOut()=0;
+ virtual ~RPCReadOut() = default;
  
  virtual ubit16 getWord(){return m_word;};
  virtual char field()    {return m_field;}; 

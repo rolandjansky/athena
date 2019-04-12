@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Flag class for Pileup Overlay building
@@ -88,6 +88,12 @@ class optionalContainerMap(JobProperty):
     statusOn=False
     allowedTypes=['dict']
     StoredValue=dict()
+
+class processLegacyEventInfo(JobProperty):
+    """ workaround to track presence of the legacy EventInfo """
+    statusOn=False
+    allowedTypes=['bool']
+    StoredValue = False
 
 ## Definition and registration of the simulation flag container
 class Overlay_Flags(JobPropertyContainer):

@@ -1,9 +1,7 @@
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
 def jetMenuSequence():
@@ -18,7 +16,6 @@ def jetMenuSequence():
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT")
-    hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
 
 

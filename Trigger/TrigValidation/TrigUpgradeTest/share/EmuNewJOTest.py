@@ -21,7 +21,6 @@ from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
 log = logging.getLogger('EmuNewJOTest')
-log.setLevel(VERBOSE)
 
 flags.needFlagsCategory("Trigger")
 flags.Input.isMC = False
@@ -79,7 +78,7 @@ filters = collectFilters(HLTSteps)
 summaryAcc, summaryAlg = triggerSummaryCfg(flags, hypos)
 acc.merge(summaryAcc)
 
-monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
+monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
 acc.merge( monitoringAcc )
 
 topSequenceName = "HLTTop"
@@ -89,8 +88,6 @@ acc.addSequence(HLTTopSequence)
 acc.merge(menuAcc)
 acc.merge(regSelCfg(flags))
 acc.merge(TrigInDetCondConfig(flags))
-
-acc.getEventAlgo( "TrigSignatureMoniMT").OutputLevel=DEBUG
 
 acc.printConfig()
 

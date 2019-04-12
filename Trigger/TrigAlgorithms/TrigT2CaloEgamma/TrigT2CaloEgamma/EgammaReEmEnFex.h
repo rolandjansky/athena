@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -18,6 +18,8 @@
 #define TRIGT2CALOEGAMMA_EGAMMAEMENFEXRE_H
 
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
+#include "TrigT2CaloCommon/phiutils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "GaudiKernel/AlgTool.h"
 
 /** Feature extraction Tool for LVL2 Calo. EM Presampler and

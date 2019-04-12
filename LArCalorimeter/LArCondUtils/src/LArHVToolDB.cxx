@@ -18,7 +18,6 @@
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
@@ -369,14 +368,14 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
         unsigned int ngap = 2*nelec;
         double wt = 1./ngap;
         for (unsigned int i=0;i<nelec;i++) {
-            const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
+            const EMECHVElectrode& electrode = cell->getElectrode(i);
           //  std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
           //     " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
           //     " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
             for (unsigned int igap=0;igap<2;igap++) {
                double hv;
                double curr;
-               electrode->voltage_current(igap,hv,curr);
+               electrode.voltage_current(igap,hv,curr);
                 if (hasPathology) {
                    msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
                    for (unsigned int ii=0;ii<listElec.size();ii++) {

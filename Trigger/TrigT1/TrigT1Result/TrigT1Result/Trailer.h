@@ -46,6 +46,11 @@ namespace ROIB {
     Trailer()
       : m_trailer() {}
 
+    Trailer(Trailer&&) noexcept = default;
+    Trailer(const Trailer&) = default;
+    Trailer& operator=(Trailer&&) noexcept =default;
+    Trailer& operator=(const Trailer&) =default;
+
     //! constructor which fully specifies the initialiser values
     Trailer( const std::vector< uint32_t >& v)
       : m_trailer( v ) {}
@@ -56,10 +61,11 @@ namespace ROIB {
     Trailer( const uint32_t );
 
     //! empty default destructor
-    ~Trailer() {}
+    ~Trailer() = default;
+
 
     //! get full trailer
-    const std::vector<uint32_t> trailer() const;
+    const std::vector<uint32_t>& trailer() const;
 
     //! get trailer/data size (should always return 5)
     int size() const;

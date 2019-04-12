@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 namespace Trk {
-  unsigned int VxTrackAtVertex::s_numberOfInstantiations=0;
+  std::atomic_uint VxTrackAtVertex::s_numberOfInstantiations=0;
   
   VxTrackAtVertex::VxTrackAtVertex() :
                               m_fitQuality(Trk::FitQuality(0.,2.)),
@@ -34,7 +34,7 @@ namespace Trk {
                               m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
                              
@@ -53,7 +53,7 @@ namespace Trk {
 			      m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
 
@@ -72,7 +72,7 @@ namespace Trk {
                               m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
   VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, Trk::TrackParameters* perigeeAtVertex, 
@@ -90,7 +90,7 @@ namespace Trk {
                               m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
   
@@ -114,7 +114,7 @@ namespace Trk {
                                    m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
 
@@ -134,7 +134,7 @@ namespace Trk {
                                    m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
   
@@ -158,7 +158,7 @@ namespace Trk {
                               m_trackOrParticleLink(0)
 			      {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
   VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, 
@@ -179,7 +179,7 @@ namespace Trk {
                               m_trackOrParticleLink(0)
 			      {
 #ifndef NDEBUG
-                                s_numberOfInstantiations++;
+                                s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
                               }
   
@@ -198,7 +198,7 @@ namespace Trk {
   {  
     this->setOrigTrack(trackOrParticleLink);
 #ifndef NDEBUG
-    s_numberOfInstantiations++;
+    s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
   }
 
@@ -214,7 +214,7 @@ namespace Trk {
    if (m_ImpactPoint3dNeutralAtaPlane!=0) { delete m_ImpactPoint3dNeutralAtaPlane; m_ImpactPoint3dNeutralAtaPlane=0; }
    if (m_trackOrParticleLink!=0) { delete m_trackOrParticleLink; m_trackOrParticleLink=0; }
 #ifndef NDEBUG
-   s_numberOfInstantiations--;
+    s_numberOfInstantiations.fetch_sub(1, std::memory_order_relaxed);
 #endif
   }
 
@@ -234,7 +234,7 @@ namespace Trk {
         m_trackOrParticleLink(rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0)
   {
 #ifndef NDEBUG
-   s_numberOfInstantiations++;
+    s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
 #endif
   }
 
@@ -266,7 +266,39 @@ namespace Trk {
     return *this;
   }
 
-  VxTrackAtVertex & VxTrackAtVertex::operator= (VxTrackAtVertex&& rhs)
+
+  VxTrackAtVertex::VxTrackAtVertex (VxTrackAtVertex&& rhs) noexcept
+  {
+
+      m_fitQuality = rhs.m_fitQuality;
+      m_trkWeight = rhs.m_trkWeight;
+
+      m_perigeeAtVertex = rhs.m_perigeeAtVertex;
+      rhs.m_perigeeAtVertex = nullptr;
+
+      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex;
+      rhs.m_neutralPerigeeAtVertex = nullptr;
+
+      m_linState = rhs.m_linState;
+      rhs.m_linState = nullptr;
+
+      m_initialPerigee = rhs.m_initialPerigee;
+      m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
+      m_VertexCompatibility=rhs.m_VertexCompatibility;
+
+      m_ImpactPoint3dAtaPlane = rhs.m_ImpactPoint3dAtaPlane;
+      rhs.m_ImpactPoint3dAtaPlane = nullptr;
+
+      m_ImpactPoint3dNeutralAtaPlane = rhs.m_ImpactPoint3dNeutralAtaPlane;
+      rhs.m_ImpactPoint3dNeutralAtaPlane = nullptr;
+
+      m_trackOrParticleLink = rhs.m_trackOrParticleLink;
+      rhs.m_trackOrParticleLink = nullptr;
+
+  }
+
+
+  VxTrackAtVertex & VxTrackAtVertex::operator= (VxTrackAtVertex&& rhs) noexcept
   {
     if (this!=&rhs)
     {
@@ -342,7 +374,7 @@ namespace Trk {
   
   unsigned int VxTrackAtVertex::numberOfInstantiations()
   {
-    return s_numberOfInstantiations;
+    return s_numberOfInstantiations.load();
   }
 
      

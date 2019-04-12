@@ -103,8 +103,8 @@ def getAssociator(config,suffix,doPFlow=False,
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
+    #if not hasattr(ToolSvc,tool.name()):
+    #   ToolSvc += tool
     return tool
 
 #################################################################################

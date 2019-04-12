@@ -33,6 +33,10 @@ def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
         kwargs.setdefault("LastXing",  CSC_LastXing())
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.BkgPrefix + "CSC_SDO")
+    else:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
     kwargs.setdefault("pedestal", 0.0)
     kwargs.setdefault("WindowLowerOffset", -25.0)
     kwargs.setdefault("WindowUpperOffset",  25.0)

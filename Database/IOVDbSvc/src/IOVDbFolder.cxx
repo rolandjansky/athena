@@ -109,7 +109,6 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   // extract settings from the properties
   // foldername from the 'unnamed' property
   m_foldername=folderprop.folderName();
-  if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder instance");
   // SG key from 'key' property, otherwise same as foldername
   // m_jokey is true if the 'key' property was set - need to remember this
   // to avoid using folder description <key> if present later
@@ -171,12 +170,10 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
 }
 
 IOVDbFolder::~IOVDbFolder() {
- if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder destruct");
   if (m_cachespec!=0) m_cachespec->release();
 }
 
 void IOVDbFolder::setMetaCon(const IOVMetaDataContainer* metacon) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder setMetaCon");
   // enable folder from FLMD at given connection
   m_metacon=metacon;
   // if previously connected to a real DB connection, remove association
@@ -336,7 +333,6 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
       if (not dbPtr.get()) throw std::runtime_error("COOL database pointer invalidated");
       // access COOL folder in case needed to resolve tag (even for CoraCool)
       cool::IFolderPtr folder=dbPtr->getFolder(m_foldername);
-      if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folderin loadCache");
 
       // resolve the tag for MV folders if not already done so
       if (m_multiversion && m_tag.empty()) {
@@ -418,7 +414,6 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         itr->close();
         retrievedone=true;
       }
-      if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder");
       ATH_MSG_DEBUG( "Retrieved " << iadd << " objects for "<< m_nchan << " channels into cache" );
       m_nobjread+=iadd;
     } catch (std::exception& e) {
@@ -475,7 +470,6 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
                                        const std::string& globalTag, 
                                        cool::IDatabasePtr dbPtr,
                                        const ServiceHandle<IIOVSvc>& iovSvc) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder lodCacheIf");
   ATH_MSG_DEBUG( "IOVDbFolder::recheck with DB for folder " << m_foldername<< " validitykey: " << vkey );
   if (m_iovs.empty()) {
     ATH_MSG_DEBUG( "Cache empty ! returning ..." );
@@ -546,7 +540,6 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
 
 void 
 IOVDbFolder::specialCacheUpdate(CoraCoolObject & obj, const ServiceHandle<IIOVSvc>& iovSvc) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder specialCacheUpdate");
 
   // reset IOVRange in IOVSvc to trigger reset of object. Set to a
   // time earlier than since.
@@ -573,7 +566,6 @@ IOVDbFolder::specialCacheUpdate(CoraCoolObject & obj, const ServiceHandle<IIOVSv
 
 void 
 IOVDbFolder::specialCacheUpdate(const cool::IObject& ref,const ServiceHandle<IIOVSvc>& iovSvc) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder specialCacheUpdate");
 
   // reset IOVRange in IOVSvc to trigger reset of object. Set to a
   // time earlier than since.
@@ -595,8 +587,6 @@ IOVDbFolder::specialCacheUpdate(const cool::IObject& ref,const ServiceHandle<IIO
 
 void 
 IOVDbFolder::resetCache() {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder resetcache");
-
   // reset the cache to unfilled state, used if no more data will be required
   // from this folder
   m_iovs.setCacheBounds(IovStore::Iov_t(0,0));
@@ -609,7 +599,6 @@ IOVDbFolder::getAddress(const cool::ValidityKey reftime,
                              const unsigned int poolSvcContext,
                              IOpaqueAddress*& address,
                              IOVRange& range, bool& poolPayloadReq) {
-  if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder in get Address");
 
   ++m_ncacheread;
   // will produce strAddress and one pointer type depending on folder data
@@ -961,8 +950,6 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,const unsigned int cacheRun,
 
 void 
 IOVDbFolder::clearCache() {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder clearcache");
-
   // clear all the cache vectors of information
   m_iovs.clear();
   m_cachechan.clear();
@@ -973,8 +960,6 @@ IOVDbFolder::clearCache() {
 
 bool 
 IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder resovetag");
-
   // resolve the tag 
   // if specified in job options or already-processed override use that,
   // else use global tag
@@ -1024,8 +1009,6 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
 
 bool 
 IOVDbFolder::magicTag(std::string& tag) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder magictag");
-
   // tag an inputag of form TagInfo{Major|Minor}/<tag> or 
   // TagInfo(Major|Minor}/<prefix>/<tag>
   // and resolve to value of TagInfo object tag <tag>
@@ -1104,7 +1087,6 @@ IOVDbFolder::setSharedSpec(const coral::AttributeList& atrlist) {
 
 void 
 IOVDbFolder::addIOVtoCache(cool::ValidityKey since,cool::ValidityKey until) {
-   if (m_foldername.find("ChipGain") !=std::string::npos) ATH_MSG_INFO("SCT ChipGain Folder addIOv");
 
   // add IOV to the cache
   m_iovs.addIov(since, until);

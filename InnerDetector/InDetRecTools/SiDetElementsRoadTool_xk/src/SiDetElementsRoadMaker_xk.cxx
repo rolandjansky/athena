@@ -353,7 +353,6 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   std::vector<SiDetElementsLayer_xk>* layer[3];
   getLayers(layer);
-  std::lock_guard<std::mutex> lock{m_mutex};
 
   int n0 = 0;
   int n1 = 0;
@@ -783,6 +782,9 @@ void InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_
       ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
     }
     m_cache[slot] = evt;
+    // Condition objects are copied for each event
+    // so that we can set used state in shared detector elements.
+    // Index 0: Endcap C, 1: Barrel, 2: Endcap A
     m_layerVectors[0][slot] = (*layerVec)->at(0);
     m_layerVectors[1][slot] = (*layerVec)->at(1);
     m_layerVectors[2][slot] = (*layerVec)->at(2);

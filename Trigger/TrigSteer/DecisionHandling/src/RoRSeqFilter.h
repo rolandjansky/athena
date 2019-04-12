@@ -11,6 +11,7 @@
 #include "AthContainers/ConstDataVector.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 /**
  * @class Filtering algorithm for HLT Step sequencer
@@ -90,6 +91,7 @@ class RoRSeqFilter
   size_t copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
                       TrigCompositeUtils::DecisionContainer& output) const;
 
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Filter I/O monitoring" };
 }; 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_TLACONDITION_H
@@ -35,14 +35,14 @@ class TLACondition: public ICondition{
                double massMin,
                double massMax);
   
-  ~TLACondition() override {}
+  virtual ~TLACondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
   
-  std::string toString() const noexcept override;
-  void resetHistory() noexcept {}
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory() noexcept override {}
 
  private:
   double m_etaMin;

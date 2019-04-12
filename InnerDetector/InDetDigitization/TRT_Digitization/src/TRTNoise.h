@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTNOISE_H
@@ -19,7 +19,6 @@
 class TRTDigCondBase;
 class TRTElectronicsProcessing;
 class TRTElectronicsNoise;
-class IAtRndmGenSvc;
 #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Random/RandomEngine.h"
 class Identifier;

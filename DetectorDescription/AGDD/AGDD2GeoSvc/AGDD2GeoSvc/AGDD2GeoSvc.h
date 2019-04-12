@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDD2GeoSvc_H
@@ -7,6 +7,7 @@
 
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
 #include "AGDDControl/XMLHandler.h"
+#include "AGDDControl/IAGDDToolBase.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
@@ -20,43 +21,32 @@ class IRDBAccessSvc;
 class IGeoModelSvc;
 class GeoFullPhysVol;
 
-template <class TYPE> class SvcFactory;
-
-class AGDDtoGeoSvc : public AthService, virtual public IAGDDtoGeoSvc {
+class AGDDtoGeoSvc : public extends<AthService, IAGDDtoGeoSvc> {
 
 public:
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
 
-    // Query the interfaces.
-    //   Input: riid, Requested interface ID
-    //          ppvInterface, Pointer to requested interface
-    //   Return: StatusCode indicating SUCCESS or FAILURE.
-    // N.B. Don't forget to release the interface after use!!!
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-		
-	void addHandler(XMLHandler* v) { m_handlerVector.push_back(v);}
-	
-	friend class SvcFactory<AGDDtoGeoSvc>;
+  virtual void addHandler(XMLHandler* v) override final { m_handlerVector.push_back(v);}
 
-    // Standard Constructor
-    AGDDtoGeoSvc(const std::string& name, ISvcLocator* svc);
+  // Standard Constructor
+  AGDDtoGeoSvc(const std::string& name, ISvcLocator* svc);
 
-    // Standard Destructor
-    virtual ~AGDDtoGeoSvc(); 
-	
+  // Standard Destructor
+  virtual ~AGDDtoGeoSvc() = default;
+
 private:
-	
-	void localInitialization();
-	
-	ITagInfoMgr* m_tagInfoMgr;
-	
-	std::vector<XMLHandler*> m_handlerVector;
-	
-	std::vector<std::string> m_builders;
 
-//	int PrintLevel() const {return m_printLevel;}
+  void localInitialization();
+
+  ITagInfoMgr* m_tagInfoMgr{};
+
+  std::vector<XMLHandler*> m_handlerVector;
+
+  ToolHandleArray<IAGDDToolBase> m_builders; // public ToolHandleArray
+
+
+  //	int PrintLevel() const {return m_printLevel;}
 };
 
 #endif

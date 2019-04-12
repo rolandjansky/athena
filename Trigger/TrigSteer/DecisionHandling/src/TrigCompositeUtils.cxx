@@ -201,6 +201,30 @@ namespace TrigCompositeUtils {
     }
     return ret;
   }
+
+  const std::string& initialRoIString() {
+    return Decision::s_initialRoIString;
+  }
+
+  const std::string& intitalRecRoIString() {
+    return Decision::s_initialRecRoIString;
+  }
+
+  const std::string& roiString() {
+    return Decision::s_roiString;
+  }
+
+  const std::string& viewString() {
+    return Decision::s_viewString;
+  }
+
+  const std::string& featureString() {
+    return Decision::s_featureString;
+  }
+
+  const std::string& seedString() {
+    return Decision::s_seedString;
+  }
   
 }
 

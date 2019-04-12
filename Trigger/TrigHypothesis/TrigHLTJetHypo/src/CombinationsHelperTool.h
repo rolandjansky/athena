@@ -13,9 +13,7 @@
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-#include "./Timer.h"
-
-class ITrigJetHypoHelperVisitor;
+class ITrigJetInfoCollector;
 
 class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  public:
@@ -24,10 +22,9 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
                          const std::string& name,
                          const IInterface* parent);
 
-  bool pass(HypoJetVector&) override;
+  bool pass(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
 
-  virtual void accept(ITrigJetHypoHelperVisitor&) override;
-  std::string toStringAndResetHistory();
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
 
@@ -37,7 +34,6 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   Gaudi::Property<unsigned int>
     m_size{this, "groupSize", {}, "Jet group size"};
   
-  bool testGroup(HypoJetVector&) const;
 
   Gaudi::Property<int>
     m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
@@ -45,16 +41,14 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
-  bool m_pass;
+
+  bool testGroup(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
+  void collectData(const std::string& setuptime,
+                   const std::string& exetime,
+                   ITrigJetHypoInfoCollector*,
+                   bool) const;
 
   std::string toString() const;
-
-  // use timers through pointers in order to update from const pass() 
-  std::unique_ptr<JetTrigTimer> m_totalTimer;
-  std::unique_ptr<JetTrigTimer> m_setupTimer;
-  std::unique_ptr<JetTrigTimer> m_extraTimer;
-  std::unique_ptr<JetTrigTimer> m_extraTimer1;
-
 
 };
 #endif

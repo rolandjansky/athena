@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,11 +56,11 @@ class TrigL2Bphys  {
   TrigL2Bphys(int roi, float eta, float phi, pType particleType, float mass);
 
 
-  /** copy constructor */
-  TrigL2Bphys(const TrigL2Bphys& te);
+  TrigL2Bphys(const TrigL2Bphys& te) = default;
+  TrigL2Bphys& operator=(const TrigL2Bphys& te) = default;
 
   /** destructor */
-  ~TrigL2Bphys();
+  ~TrigL2Bphys() = default;
   
   /** accessor method:  ID of L1 RoI */
   int   roiId()    const { return m_roiID;    }

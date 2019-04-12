@@ -35,6 +35,7 @@
 #include "VxVertex/LinearizedTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkTrackLink/ITrackLink.h"
+#include <atomic>
 
 class MsgStream;
 
@@ -80,7 +81,12 @@ namespace Trk
     * Default constructor
     */  
       VxTrackAtVertex();
-   
+
+    /**
+     * Move constructor operator
+     */
+      VxTrackAtVertex (VxTrackAtVertex &&) noexcept;
+
    /**
     * Constructor taking the perigee parameters and corresponding 
     * Chi2 value. NOTE: using this constructor does not allow to store the
@@ -131,7 +137,7 @@ namespace Trk
     /**
      * Move assignment operator
      */
-      VxTrackAtVertex &operator= (VxTrackAtVertex &&);  
+      VxTrackAtVertex &operator= (VxTrackAtVertex &&) noexcept;
      
     /**
      * Clone method
@@ -364,7 +370,7 @@ namespace Trk
     
     private:
       /** number of objects of this type in memory */
-      static unsigned int s_numberOfInstantiations;
+      static std::atomic_uint s_numberOfInstantiations;
   
   };//end of class definitions
   

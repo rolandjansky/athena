@@ -9,43 +9,51 @@
 #include "Identifier/HWIdentifier.h"
 #include "CoralBase/AttributeList.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
-#include <vector>
-#include <mutex>
+#include <unordered_map>
 
 class LArOnlineID;
 
 class LArFebConfig:  public AthMessaging {
-
-  friend class LArFEBConfigCondAlg; //The conditions alg filling this object
-
  public:
   LArFebConfig()=delete;
   LArFebConfig(const LArOnlineID* onlineId); // we do not own this pointer
 
+  void add (HWIdentifier febid,
+            const coral::AttributeList* attrList);
+
   //Accessor methods from ILArFEBConfigReader
   short lowerGainThreshold(const HWIdentifier& id) const;
   short upperGainThreshold(const HWIdentifier& id) const;
+  void thresholds (const HWIdentifier& chid, short& lower, short& upper) const;
+  
 
  private:
   const LArOnlineID* m_onlineID;
 
-  std::map<HWIdentifier,const coral::AttributeList*> m_attrPerFeb;
-  mutable std::map<HWIdentifier,const coral::AttributeList*>::const_iterator m_lastIt;
-  mutable std::mutex m_itMtx;
+  std::unordered_map<HWIdentifier::value_type,const coral::AttributeList*> m_attrPerFeb;
 
-  short getThreshold(const char* MedLow, const HWIdentifier& chid) const;
+  const coral::AttributeList* getAttrList (const HWIdentifier& chid,
+                                           int& channel) const;
+  short
+  getThresholdFromAttrList(const std::string& MedLow,
+                           const coral::AttributeList* attrList,
+                           const std::string& chanstr) const;
+  short getThreshold(const std::string& MedLow, const HWIdentifier& chid) const;
+
+  static const std::string s_lower;
+  static const std::string s_upper;
 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 
 };
 
 inline short LArFebConfig::lowerGainThreshold(const HWIdentifier& chid) const {
-  return getThreshold("lower",chid);
+  return getThreshold(s_lower, chid);
 }
 
 
 inline short LArFebConfig::upperGainThreshold(const HWIdentifier& chid) const {
-  return getThreshold("upper",chid);
+  return getThreshold(s_upper,chid);
 }
 
 

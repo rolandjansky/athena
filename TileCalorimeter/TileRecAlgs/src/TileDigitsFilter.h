@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -37,7 +37,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 
 // Atlas includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -51,7 +51,7 @@ class TileHWID;
  @brief This algorithm copies TileDigits from input container to output container
  keeping only channels with (max-min) sample above threshold
  */
-class TileDigitsFilter: public AthAlgorithm {
+class TileDigitsFilter: public AthReentrantAlgorithm {
   public:
     // Constructor
     TileDigitsFilter(std::string name, ISvcLocator* pSvcLocator);
@@ -60,31 +60,29 @@ class TileDigitsFilter: public AthAlgorithm {
     virtual ~TileDigitsFilter();
 
     //Gaudi Hooks
-    StatusCode initialize(); //!< initialize method
-    StatusCode execute();    //!< execute method
-    StatusCode finalize();   //!< finalize method
+    virtual StatusCode initialize() override; //!< initialize method
+    virtual StatusCode execute(const EventContext& ctx) const override;    //!< execute method
+    virtual StatusCode finalize() override;   //!< finalize method
 
   private:
-    std::string m_inputContainer;  //!< Name of the input TileDigitsContainer
-    std::string m_outputContainer; //!< Name of the output TileDigitsContainer
-    std::string m_inRchContainer; //!< Name of the input TileRawChannelContainer
-    std::string m_outRchContainer; //!< Name of the output TileRawChannelContainer
 
-    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsContainerKey{this,"InputDigitsContainer",
-                                                                       "TileDigitsCnt", "Input Tile digits container key"};
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsContainerKey{this,
+        "InputDigitsContainer", "TileDigitsCnt", "Input Tile digits container key"};
 
-    SG::WriteHandleKey<TileDigitsContainer> m_outputDigitsContainerKey{this,"OutputDigitsContainer",
-                                                                       "TileDigitsFlt","Output Tile digits container key"};
+    SG::WriteHandleKey<TileDigitsContainer> m_outputDigitsContainerKey{this,
+        "OutputDigitsContainer", "TileDigitsFlt","Output Tile digits container key"};
 
+    SG::ReadHandleKey<TileRawChannelContainer> m_inputRawChannelContainerKey{this,
+        "InputRawChannelContainer", "TileRawChannelCnt", "Input Tile raw channels container key"};
 
-    SG::ReadHandleKey<TileRawChannelContainer> m_inputRawChannelContainerKey{this,"InputRawChannelContainer",
-                                                                             "TileRawChannelCnt", 
-                                                                             "Input Tile raw channels container key"};
+    SG::WriteHandleKey<TileRawChannelContainer> m_outputRawChannelContainerKey{this,
+        "OutputRawChannelContainer", "TileRawChannelFlt", "Output Tile digits container key"};
 
-    SG::WriteHandleKey<TileRawChannelContainer> m_outputRawChannelContainerKey{this,"OutputRawChannelContainer",
-                                                                               "TileRawChannelFlt",
-                                                                               "Output Tile digits container key"};
+    Gaudi::Property<int> m_lowGainThreashold{this,
+        "LowGainThereshold", 0, "Low gain threshold to keep digits"}; // keep all LG except zeros
 
+    Gaudi::Property<int> m_highGainThreashold{this,
+        "HighGainThereshold", 10, "High gain threshold to keep digits"}; // keep signals above ~128(106) MeV in A,BC(D) samplings
 
     const TileHWID* m_tileHWID;
 

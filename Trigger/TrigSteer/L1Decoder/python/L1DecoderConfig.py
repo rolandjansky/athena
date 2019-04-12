@@ -42,6 +42,10 @@ def L1DecoderCfg(flags):
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
 
+    # Add the algorithm producing the input RoIBResult
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg
+    acc.merge( RoIBResultDecoderCfg(flags) )
+
     return acc,decoderAlg
 
 if __name__ == "__main__":

@@ -260,4 +260,9 @@ def getPileUpEventLoopMgr(name="PileUpEventLoopMgr", **kwargs):
         kwargs.setdefault('BeamLuminosity', noProfileSvc)
         ServiceMgr += noProfileSvc
 
+    # Special case for pre-mixing
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault('EventInfoName', overlayFlags.bkgPrefix() + 'EventInfo')
+
     return CfgMgr.PileUpEventLoopMgr(name, **kwargs)

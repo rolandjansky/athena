@@ -1,8 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
+
+TrigInDetTrack::TrigInDetTrack (TrigInDetTrack&& other)
+  : m_algId (other.m_algId),
+    m_param (other.m_param),
+    m_endParam (other.m_endParam),
+    m_chi2 (other.m_chi2),
+    m_NStrawHits (other.m_NStrawHits),
+    m_NStraw (other.m_NStraw),
+    m_NStrawTime (other.m_NStrawTime),
+    m_NTRHits (other.m_NTRHits),
+    m_NPixelSpacePoints (other.m_NPixelSpacePoints),
+    m_NSCT_SpacePoints (other.m_NSCT_SpacePoints),
+    m_HitPattern (other.m_HitPattern),
+    m_siSpacePoints (other.m_siSpacePoints),
+    m_trtDriftCircles (other.m_trtDriftCircles),
+    m_rdoList (std::move (other.m_rdoList))
+{
+  other.m_param = nullptr;
+  other.m_endParam = nullptr;
+  other.m_siSpacePoints = nullptr;
+  other.m_trtDriftCircles = nullptr;
+}
 
 void TrigInDetTrack::fillSiHitInfo() 
 {

@@ -70,7 +70,7 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
 
   /** @brief Tool to perform object quality*/
   ToolHandle<IegammaBaseTool> m_objectQualityTool {this,
-      "ObjectQualityToolName", "",
+      "ObjectQualityTool", "",
       "Name of the object quality tool (empty tool name ignored)"};
 
   /** @brief Tool to perform the 4-mom computation*/

@@ -132,7 +132,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   CHECK( m_clustersKey.initialize()        );
   CHECK( m_tracksKey.initialize()          );
   CHECK( m_vertexKey.initialize()          );
-  CHECK( m_trigTauJetKey.initialize()      );
+  CHECK( m_trigTauJetKey.initialize(SG::AllowEmpty) );
   CHECK( m_trigtauSeedOutKey.initialize()  );
   CHECK( m_trigtauRecOutKey.initialize()   );
   CHECK( m_trigtauTrkOutKey.initialize()   );
@@ -553,12 +553,14 @@ StatusCode TrigTauRecMergedMT::execute()
     if(dPhi<-M_PI) dPhi += 2.0*M_PI;
     if(dPhi>M_PI)  dPhi -= 2.0*M_PI;
 
-    std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
+    //std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
 
     // get TauJetContainer
-    SG::ReadHandle< xAOD::TauJetContainer > TJContainerHandle = SG::makeHandle( m_trigTauJetKey,ctx );
-    const xAOD::TauJetContainer *tempCaloOnlyCont=TJContainerHandle.get();
-    tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
+    const xAOD::TauJetContainer *tempCaloOnlyCont=nullptr;
+    if (!m_trigTauJetKey.empty()) {
+      tempCaloOnlyCont = SG::makeHandle( m_trigTauJetKey,ctx ).get();
+    }
+    //tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
 
     /*if( !tempCaloOnlyContVec.isValid()){
 

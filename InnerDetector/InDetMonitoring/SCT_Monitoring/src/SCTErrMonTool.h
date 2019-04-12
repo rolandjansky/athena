@@ -28,10 +28,11 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
-#include <string>
-#include <vector>
 #include <map>
+#include <set>
+#include <string>
 #include <utility>
+#include <vector>
 
 /** Forward declarations*/
 class IInterface;
@@ -40,7 +41,6 @@ class TH2F;
 class TH1I;
 class TH2I;
 class TProfile;
-class TProfile2D;
 class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
@@ -53,12 +53,6 @@ class TString;
 
 ///Concrete monitoring tool derived from MonitorToolBase
 class SCTErrMonTool : public ManagedMonitorToolBase {
-  //Define pair for FillModule
-  //First pair is eta and second pair is phi.
-  //First element of pair is minimum second is maximum.
-  typedef std::pair< std::pair<double, double>, std::pair<double, double> > moduleGeo_t;
-  typedef std::map< IdentifierHash, moduleGeo_t > geoContainer_t;
-
  public:
   SCTErrMonTool(const std::string& type,const std::string& name,const IInterface* parent);
   virtual ~SCTErrMonTool();
@@ -66,109 +60,70 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   /**    @name Methods reimplemented from baseclass */
   //@{
   //initialize
-  virtual StatusCode initialize() final;
+  virtual StatusCode initialize() override final;
   //book
-  virtual StatusCode bookHistograms() final;
+  virtual StatusCode bookHistograms() override final;
   //fill
-  virtual StatusCode fillHistograms() final;
+  virtual StatusCode fillHistograms() override final;
   //post processing
-  virtual StatusCode procHistograms() final;
+  virtual StatusCode procHistograms() override final;
   //Recurrent
-  virtual StatusCode bookHistogramsRecurrent() final;
+  virtual StatusCode bookHistogramsRecurrent() override final;
   //book
-  virtual StatusCode copyHistograms() final;
-  virtual StatusCode copyHistograms_book() final;
+  StatusCode copyHistograms();
+  StatusCode copyHistograms_book();
   //@}
 
  private:
+  //Define pair for FillModule
+  //First pair is eta and second pair is phi.
+  //First element of pair is minimum second is maximum.
+  typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
+
+  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
+
+  enum ProblemForCoverage {
+    all, //All SCT module for counting good module
+    disabled, //Disabled
+    badLinkError, //BadLinkLevelError
+    badRODError, //BadRODLevelError
+    badError, //BadError = BadLinkLevelError + BadRODLevelError
+    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
+    summary, //Total coverage using SCT_ConditionsSummarySvc
+    numberOfProblemForCoverage
+  };
+
+  /// "Magic numbers" for an SCT module
+  enum {ConfbinsSummary = 6, ConfbinsDetailed = 5, ConfbinsOnline = 4};
+
   static const int NREGIONS_INC_GENERAL=SCT_Monitoring::N_REGIONS+1;
-  typedef TProfile2D_LW* Prof2_t;
-  typedef std::vector<Prof2_t> VecProf2_t;
-  StatusCode checkRateHists();
-  StatusCode fillByteStreamErrors();
-  StatusCode bookErrHistosGen();
-  StatusCode bookErrHistos(int iregion);
 
+  const unsigned int m_nBinsEta{100};
+  const double m_rangeEta{2.5};
+  const unsigned int m_nBinsPhi{100};
+  const double m_WafersThreshold{3.0};
 
-  /// ---------------------------------------
-  //@name Histograms related members
-  //@{
-  // Pointers to hit error histograms
-  TH1F_LW* m_firstHit[NREGIONS_INC_GENERAL]{};
-  TH1F_LW* m_secondHit[NREGIONS_INC_GENERAL]{};
-  //@}
-
-  enum CategoryErrors { MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-
-  int errorsToGet(int errtype); // transfer [enum ErrorTypes] -> [SCT_ByteStreamErrors]
-  TString errorsString(int errtype); // transfer [enum ErrorTypes] -> [TString ErrorName]
-
-  ///rate of errors
-  Prof2_t m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///rate of errors per lumi-block
-  Prof2_t m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///total number of errors
-  TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///total number of errors per lumi-block
-  TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-
-  ///rate of errors
-  Prof2_t m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///rate of errors per lumi-block
-  Prof2_t m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///total number of errors
-  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  ///total number of errors per lumi-block
-  TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-
-  /// Recent error rate histograms
-  Prof2_t m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
-  /// Default histos to print per lumi block
-  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL]{};
-  Prof2_t m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{};
-
-  TH1I* m_nErrors{};
-  TH1I* m_nLinksWithErrors{};
   std::vector<int> m_nErrors_buf{};
   std::vector<int> m_nLinksWithErrors_buf{};
   int m_nErrors_pos{0};
-
-  TH1I* m_MaskedAllLinks{}; // maskedLinks or maskedRODs
 
   //Count number of events
   int m_numberOfEventsLumi{0};
   int m_numberOfEvents{0};
 
   bool m_initialize{false};
-  //max number of errors in lbs
-  unsigned int m_previous_lb{0};
 
-  // Book noise map histograms
-  StatusCode bookConfMapsGen();
-  StatusCode bookConfMaps(int iregion);
-
-  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors,
-                                 TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2],
-                                 bool lumi2DHist, int err_type);
-  void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc);
-  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
-                                 Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel=true);
-  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,
-                                 Prof2_t& tprof, const int layer, const bool barrel=true);
-
-  std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL]{};
-
-  /// "Magic numbers" for an SCT module
-  enum { Confbins = 6, ConfbinsDetailed = 5 };
-
-  std::string m_path{};
-  /// CheckHists() frequency
-  IntegerProperty m_checkrate{this, "CheckRate", 1000};
-  IntegerProperty m_checkrecent{this, "CheckRecent", 20};
   int m_current_lb{0};
   int m_last_reset_lb{0};
 
-  bool m_sctflag{false};
+  std::string m_path{};
+
+  std::vector<moduleGeo_t> m_geo{};
+  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage]{{}};
+
+  /// CheckHists() frequency
+  IntegerProperty m_checkrate{this, "CheckRate", 1000};
+  IntegerProperty m_checkrecent{this, "CheckRecent", 20};
 
   /// flag to run online
   BooleanProperty m_runOnline{this, "runOnline", false};
@@ -184,28 +139,76 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   // Min stats per layer to use for number of inefficient modules
   FloatProperty m_min_stat_ineff_mod{this, "MinStatsForInEffModules", 500.0};
 
-  /// ---------------------------------------
-  //@name Service members
-  //@{
+  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
+  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
+  BooleanProperty m_CoverageCheck{this, "CoverageCheck", true};
+  BooleanProperty m_useDCS{this, "UseDCS", true};
+
+  // Thresholds for the SCTConf histogram
+  FloatProperty m_errThreshold{this, "error_threshold", 0.7};
+  FloatProperty m_effThreshold{this, "efficiency_threshold", 0.9};
+  IntegerProperty m_noiseThreshold{this, "noise_threshold", 150};
 
   /// Data object name: for the SCT this is "SCT_RDOs"
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "RDOKey", "SCT_RDOs"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
+
+  /// ---------------------------------------
+  //@name Service and tool members
+  //@{
+
+  /** a handle on the Hist/TTree registration service */
+  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
+
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
+  ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper{nullptr};
 
   //@}
 
-  /// ---------------------------------------
-  //@name Service methods
-  //@{
+  ///rate of errors
+  TProfile2D_LW* m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///rate of errors per lumi-block
+  TProfile2D_LW* m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///total number of errors
+  TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///total number of errors per lumi-block
+  TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
 
-  ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
-      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
-  StatusCode fillCondDBMaps();
-  StatusCode fillConfigurationDetails();
-  StatusCode resetCondDBMaps();
-  StatusCode resetConfigurationDetails();
+  ///rate of errors
+  TProfile2D_LW* m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///rate of errors per lumi-block
+  TProfile2D_LW* m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///total number of errors
+  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  ///total number of errors per lumi-block
+  TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+
+  /// Recent error rate histograms
+  TProfile2D_LW* m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  /// Default histos to print per lumi block
+  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL]{};
+  TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{};
+
+  TH1I* m_nErrors{};
+  TH1I* m_nLinksWithErrors{};
+
+  TH1I* m_MaskedAllLinks{}; // maskedLinks or maskedRODs
+
+  /// ---------------------------------------
+  //@name Histograms related members
+  //@{
+  // Pointers to hit error histograms
+  TH1F_LW* m_firstHit[NREGIONS_INC_GENERAL]{};
+  TH1F_LW* m_secondHit[NREGIONS_INC_GENERAL]{};
+  //@}
+
+  std::vector<TH2F_LW*> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL]{};
 
   /// Pointer to 1D histogram of Number of SCT Clusters per LBs
   TProfile_LW* m_Conf[NREGIONS_INC_GENERAL]{};
@@ -231,68 +234,58 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   TProfile_LW* m_ConfNoiseOnlineRecent{};
   TProfile_LW* m_DetailedConfiguration{};
 
-  /** a handle on the Hist/TTree registration service */
-  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
-  ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-  ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
-  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
-  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
-  BooleanProperty m_ignore_RDO_cut_online{this, "IgnoreRDOCutOnline", true};
-  BooleanProperty m_CoverageCheck{this, "CoverageCheck", true};
-  BooleanProperty m_useDCS{this, "UseDCS", true};
-
-  // Thresholds for the SCTConf histogram
-  FloatProperty m_errThreshold{this, "error_threshold", 0.7};
-  FloatProperty m_effThreshold{this, "efficiency_threshold", 0.9};
-  IntegerProperty m_noiseThreshold{this, "noise_threshold", 150};
-  bool getHisto(const int lyr, const int reg, const int type, TH2* histo[2]);
-  bool getHistoRecent(const int lyr, const int reg, const int type, TH2* histo[2]);
-  /* float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide); */
-  /* float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide); */
-  bool isBarrel(const int moduleNumber);
-  bool isEndcap(const int moduleNumber);
-  bool isEndcapA(const int moduleNumber);
-  bool isEndcapC(const int moduleNumber);
-  //@}
-
-  Prof2_t
-    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, VecProf2_t& storageVector);
-
-  bool syncDisabledSCT();
-  bool syncErrorSCT();
-  bool summarySCT();
-  bool psTripDCSSCT();
-  bool eventVsWafer();
-
-  void fillWafer( moduleGeo_t module,  TH2F* histo );
-  double calculateDetectorCoverage(const TH2F* histo );
-
-  enum ProblemForCoverage {
-    all, //All SCT module for counting good module
-    disabled, //Disabled
-    badLinkError, //BadLinkLevelError
-    badRODError, //BadRODLevelError
-    badError, //BadError = BadLinkLevelError + BadRODLevelError
-    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
-    summary, //Total coverage using SCT_ConditionsSummarySvc
-    numberOfProblemForCoverage
-  };
-
-  std::vector<moduleGeo_t> m_geo{};
-  std::set<IdentifierHash> m_SCTHash[numberOfProblemForCoverage]{{}};
   TH2F* m_mapSCT[numberOfProblemForCoverage]{nullptr};
-
-  const unsigned int m_nBinsEta{100};
-  const double m_rangeEta{2.5};
-  const unsigned int m_nBinsPhi{100};
-  const double m_WafersThreshold{3.0};
 
   TProfile* m_detectorCoverageVsLbs[numberOfProblemForCoverage]{nullptr};
   TProfile* m_PSTripModulesVsLbs{};
 
-  float m_PSTripModules{0.};
+  StatusCode checkRateHists();
+  StatusCode fillByteStreamErrors();
+  StatusCode bookErrHistosGen();
+  StatusCode bookErrHistos(int iregion);
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
+  TString errorsString(int errtype) const; // transfer [enum ErrorTypes] -> [TString ErrorName]
+
+  // Book noise map histograms
+  StatusCode bookConfMapsGen();
+  StatusCode bookConfMaps(int iregion);
+
+  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors,
+                                 TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2],
+                                 bool lumi2DHist, int err_type);
+  void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const;
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
+                                 TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel=true) const;
+  StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,
+                                 TProfile2D_LW*& tprof, const int layer, const bool barrel=true) const;
+
+  /// ---------------------------------------
+  //@name Service methods
+  //@{
+  StatusCode fillCondDBMaps();
+  StatusCode fillConfigurationDetails();
+  StatusCode resetCondDBMaps();
+  StatusCode resetConfigurationDetails();
+
+  bool getHisto(const int lyr, const int reg, const int type, TH2* histo[2]) const;
+  bool getHistoRecent(const int lyr, const int reg, const int type, TH2* histo[2]) const;
+  bool isBarrel(const int moduleNumber) const;
+  bool isEndcapA(const int moduleNumber) const;
+  bool isEndcapC(const int moduleNumber) const;
+  //@}
+
+  TProfile2D_LW*
+    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, std::vector<TProfile2D_LW*>& storageVector) const;
+
+  bool syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
+  bool syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
+                    std::set<IdentifierHash>& sctHashBadRODError,
+                    std::set<IdentifierHash>& sctHashBadError) const;
+  bool summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<IdentifierHash>& sctHashSummary) const;
+  bool psTripDCSSCT(std::set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const;
+
+  void fillWafer(moduleGeo_t module,  TH2F* histo) const;
+  double calculateDetectorCoverage(const TH2F* histo) const;
 };
 
 #endif

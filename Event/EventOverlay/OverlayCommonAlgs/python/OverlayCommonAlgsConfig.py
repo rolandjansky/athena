@@ -1,7 +1,19 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.ConfiguredFactory import ConfigurationError
+
+
+def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "EventInfo")
+    kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "EventInfo")
+    kwargs.setdefault("OutputKey", "EventInfo")
+
+    kwargs.setdefault("DataOverlay", overlayFlags.isDataOverlay())
+
+    return CfgMgr.EventInfoOverlay(name, **kwargs)
 
 
 def getCopyCaloCalibrationHitContainer(name, collectionName="", **kwargs):

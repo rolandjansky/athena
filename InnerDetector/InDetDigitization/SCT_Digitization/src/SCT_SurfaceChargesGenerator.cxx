@@ -9,7 +9,6 @@
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // random number service includes
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 

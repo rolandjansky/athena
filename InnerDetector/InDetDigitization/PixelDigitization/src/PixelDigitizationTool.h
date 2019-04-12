@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -57,6 +58,7 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     std::vector<SiHitCollection*> m_hitCollPtrs;
 
+    SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
     SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey;
     SG::WriteHandle<PixelRDO_Container>        m_rdoContainer;
     SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollKey;

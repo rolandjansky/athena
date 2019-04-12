@@ -1,15 +1,11 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-isData = False
-if globalflags.InputFormat.is_bytestream():
-  isData = True
 
 # ----------------------------------------------------------------
 # Setup Views
@@ -19,9 +15,6 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
-
-     topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-     topSequence.L1DecoderTest.roiUnpackers[3].OutputLevel=DEBUG
 
      from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
@@ -53,12 +46,10 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Input = [hypoDecisions]
          filterL1RoIsAlg.Output = ["FilteredL1JET"]
          filterL1RoIsAlg.Chains = testChains
-         filterL1RoIsAlg.OutputLevel = DEBUG
-      
-         
+
          #inputmaker
          from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-         InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+         InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
          InputMakerAlg.RoIs='FSJETRoI'
          InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
          InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
@@ -72,7 +63,6 @@ if TriggerFlags.doCalo:
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
      from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
      hypo = TrigJetHypoAlgMT("jethypo")
-     hypo.OutputLevel = DEBUG
      hypo.Jets = sequenceOut
      hypo.HypoInputDecisions = hypoDecisions
      hypo.HypoOutputDecisions = "jetDecisions"
@@ -96,7 +86,6 @@ if TriggerFlags.doCalo:
         from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
         summarySteps = TriggerSummaryAlg( "TriggerSummary"+name )
         summarySteps.InputDecision = "L1DecoderSummary"
-        summarySteps.OutputLevel = DEBUG
         summarySteps.FinalDecisions = decisions
         return summarySteps
 
@@ -128,8 +117,7 @@ if TriggerFlags.doCalo:
      mon = TrigSignatureMoniMT()
      from TrigUpgradeTest.TestUtils import MenuTest
      mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-     mon.OutputLevel = DEBUG
-    
+
      hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
      topSequence += hltTop
 

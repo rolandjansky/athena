@@ -29,9 +29,9 @@ public:
   
   ~AntiCleanerTool(){}
   
-  bool select(const pHypoJet&) const override;
-  std::string getName() const noexcept override;
-  virtual std::string toString() const noexcept;
+  virtual bool select(const pHypoJet&) const override;
+  virtual std::string getName() const noexcept override;
+  virtual std::string toString() const noexcept override;
 
  private:
   ToolHandle<ICleanerTool> m_cleaner {this, "cleaner", {}, "cleaner to invert"};

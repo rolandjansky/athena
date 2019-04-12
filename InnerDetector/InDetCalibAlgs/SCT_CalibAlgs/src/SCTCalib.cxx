@@ -2648,7 +2648,7 @@ SCTCalib::addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList
 StatusCode
 SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll, 
                                 const std::map<Identifier, std::set<Identifier>>& moduleListNew, 
-                                const std::map<Identifier, std::set<Identifier>>& moduleListRef) const {
+                                const std::map<Identifier, std::set<Identifier>>& moduleListRef) {
   //--- Write out strips
   float noisyStripThr{m_noisyStripThrDef?(m_noisyStripThrOffline):(m_noisyStripThrOnline)};
   int nDefects{0};

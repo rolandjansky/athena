@@ -224,7 +224,8 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 						 const double& prex, const double& prey, const double& prez,
 						 const double& postx, const double& posty, const double& postz,
 						 std::vector<cluster>& clusterlist, int strawGasType,
-                                                 CLHEP::HepRandomEngine* rndmEngine)
+                                                 CLHEP::HepRandomEngine* rndmEngine,
+                                                 CLHEP::HepRandomEngine* paiRndmEngine)
 {
 
   // Choose the appropriate ITRT_PAITool for this straw
@@ -253,7 +254,7 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
       const double lambda(CLHEP::RandFlat::shoot(rndmEngine));
 
       //Append cluster (the energy is given by the PAI model):
-      double clusE(activePAITool->GetEnergyTransfer(scaledKineticEnergy));
+      double clusE(activePAITool->GetEnergyTransfer(scaledKineticEnergy, paiRndmEngine));
       clusterlist.push_back(cluster(clusE, timeOfHit,
 				    prex + lambda * deltaX,
 				    prey + lambda * deltaY,
@@ -275,7 +276,8 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 					  bool emulationKrflag,
                                           CLHEP::HepRandomEngine* rndmEngine,
                                           CLHEP::HepRandomEngine* elecProcRndmEngine,
-                                          CLHEP::HepRandomEngine* elecNoiseRndmEngine)
+                                          CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                                          CLHEP::HepRandomEngine* paiRndmEngine)
 {
 
   //////////////////////////////////////////////////////////
@@ -499,7 +501,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 	  addClustersFromStep ( scaledKineticEnergy, particleCharge, timeOfHit,
 				(*theHit)->GetPreStepX(),(*theHit)->GetPreStepY(),(*theHit)->GetPreStepZ(),
 				(*theHit)->GetPostStepX(),(*theHit)->GetPostStepY(),(*theHit)->GetPostStepZ(),
-				m_clusterlist, strawGasType, rndmEngine);
+				m_clusterlist, strawGasType, rndmEngine, paiRndmEngine);
 
 	}
     }//end of hit loop

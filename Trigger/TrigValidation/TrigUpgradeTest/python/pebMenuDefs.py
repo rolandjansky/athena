@@ -4,15 +4,13 @@
 
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 from AthenaCommon.CFElements import seqAND
-from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg,StaticPEBInfoWriterTool
+from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg,StaticPEBInfoWriterTool,RoIPEBInfoWriterTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from libpyeformat_helper import SourceIdentifier,SubDetector
 
 import sys
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 log = logging.getLogger('pebMenuDefs')
-log.setLevel( VERBOSE )
 
 ##################################################################
 # PEB Info Writer step
@@ -31,24 +29,46 @@ def addHLTResultToROBList(robList, moduleId=0):
 
 def pebInfoWriterToolFromDict(chainDict):
     name = chainDict['chainName']
-    # pebtestone is a physics-type PEB example, i.e. saves a few detector ROBs and the full HLT result
+    # pebtestone is an example which saves a few detector ROBs and the full HLT result (typically saved in physics streams)
     if "pebtestone" in name:
         tool = StaticPEBInfoWriterTool(name)
         tool.ROBList = [0x42002e, 0x420060, 0x420064] # a few example LAr ROBs
         addHLTResultToROBList(tool.ROBList) # add the main (full) HLT result to the list
         return tool
-    # pebtesttwo is a calibration-type PEB example, i.e. saves some detector data, but no HLT result
+    # pebtesttwo is an example which saves some detector data, but no HLT result (not needed in detector calibration streams)
     if "pebtesttwo" in name:
         tool = StaticPEBInfoWriterTool(name)
-        tool.SubDetList = [0x65, 0x66] # example: RPC side A and C
+        tool.SubDetList = [
+            int(SubDetector.MUON_RPC_BARREL_A_SIDE),
+            int(SubDetector.MUON_RPC_BARREL_C_SIDE)] # example: RPC side A and C
         return tool
     # pebtestthree is same as pebtestone, but does not write any HLT result (in DS+PEB example the DS writer adds the HLT result to the list)
     if "pebtestthree" in name:
         tool = StaticPEBInfoWriterTool(name)
         tool.ROBList = [0x42002e, 0x420060, 0x420064] # a few example LAr ROBs
         return tool
+    # pebtestfour is the first example using RoIPEBInfoWriterTool which writes all ROBs within a given RoI, and also the main (full) HLT result
+    if "pebtestfour" in name:
+        tool = RoIPEBInfoWriterTool(name)
+        tool.EtaEdge = 5.0
+        tool.EtaWidth = 0.1
+        tool.PhiWidth = 0.1
+        tool.DetNames = ["All"]
+        tool.ExtraROBs = []
+        tool.ExtraSubDets = []
+        addHLTResultToROBList(tool.ExtraROBs) # add the main (full) HLT result to the list
+        return tool
+    # pebtestfive is similar to pebtestfour, but saves only muon detector ROBs within a larger RoI plus the HLT result
+    if "pebtestfive" in name:
+        tool = RoIPEBInfoWriterTool(name)
+        tool.EtaWidth = 0.5
+        tool.PhiWidth = 0.5
+        tool.DetNames = ["MDT", "CSC", "RPC", "TGC", "MM", "STGC"] # all muon detectors
+        tool.ExtraROBs = []
+        addHLTResultToROBList(tool.ExtraROBs) # add the main (full) HLT result to the list
+        return tool
     else:
-        log.error("Unknown name %s passed to pebInfoWriterToolFromName" % name)
+        log.error("Unknown name %s passed to pebInfoWriterToolFromDict" % name)
         sys.exit("Configuration error")
 
 def pebInfoWriterSequence(name,toolGenerator=pebInfoWriterToolFromDict):
@@ -79,8 +99,7 @@ def dataScoutingInfoWriter(chainDict):
     '''Creates a StaticPEBInfoWriterTool, which adds the data scouting HLT result to the PEBInfo'''
     tool = StaticPEBInfoWriterTool(name)
     moduleId = dataScoutingResultIDFromName(name)
-    hltResultSID = SourceIdentifier(SubDetector.TDAQ_HLT,moduleId)
-    tool.ROBList = [hltResultSID.code()]
+    addHLTResultToROBList(tool.ROBList, moduleId)
     tool.SubDetList = []
     return tool
 

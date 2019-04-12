@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETTRACK_H
@@ -106,7 +106,12 @@ class TrigInDetTrack {
       m_NSCT_SpacePoints=0;
       m_HitPattern=0;
     }
+
+  TrigInDetTrack (const TrigInDetTrack&) = delete;
+  TrigInDetTrack& operator= (const TrigInDetTrack&) = delete;
   
+  TrigInDetTrack (TrigInDetTrack&& other);
+
   /** Destructor */
   ~TrigInDetTrack() {
     if(m_param) delete m_param;

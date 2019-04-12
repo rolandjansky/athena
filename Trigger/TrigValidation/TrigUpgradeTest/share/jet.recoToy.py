@@ -7,10 +7,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-isData = False
-if globalflags.InputFormat.is_bytestream():
-  isData = True
-
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
@@ -46,7 +42,6 @@ if TriggerFlags.doCalo:
                        ybins=64, ymin=-math.pi, ymax=math.pi )]
      
      svcMgr += TrigCaloDataAccessSvc()
-     svcMgr.TrigCaloDataAccessSvc.OutputLevel=INFO
      svcMgr.TrigCaloDataAccessSvc.MonTool = mon
     
      from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
@@ -56,14 +51,12 @@ if TriggerFlags.doCalo:
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      algo1.roiMode=False
      # algo1.roiMode=True
-     algo1.OutputLevel=DEBUG
      topSequence += algo1
 
      from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
 
      algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
      algo2.Cells = "StoreGateSvc+FullScanCells"
-     algo2.OutputLevel = INFO
      topSequence += algo2
 
 
@@ -80,12 +73,10 @@ if TriggerFlags.doCalo:
      pseudoJetGetter.InputContainer = 'StoreGateSvc+caloclusters'
      pseudoJetGetter.OutputContainer = 'StoreGateSvc+PseudoJetEMTopo'
      pseudoJetGetter.Label = ''
-     pseudoJetGetter.OutputLevel = DEBUG
 
      ToolSvc += pseudoJetGetter
      
      algo3 = PseudoJetAlgorithm()
-     algo3.OutputLevel = VERBOSE
      algo3.PJGetter = pseudoJetGetter
      
      topSequence += algo3
@@ -108,12 +99,10 @@ if TriggerFlags.doCalo:
  
      from JetRec.JetRecConf import JetFromPseudojet  
      jetBuilder = JetFromPseudojet(name+'JetBuilder')
-     jetBuilder.OutputLevel = DEBUG
      ToolSvc += jetBuilder
 
      jetFinder = JetFinder(name+'JetFinder')
      jetFinder.JetBuilder = jetBuilder
-     jetFinder.OutputLevel = DEBUG
      jetFinder.JetAlgorithm = 'AntiKt'
      jetFinder.VariableRMinRadius = -1
      jetFinder.VariableRMassScale = -1
@@ -130,8 +119,7 @@ if TriggerFlags.doCalo:
      jetRecTool.JetFinder = jetFinder
      jetRecTool.JetModifiers = []
      jetRecTool.Trigger = False
-     jetRecTool.OutputLevel = DEBUG
-     jetRecTool.InputPseudoJets = ['StoreGateSvc+PseudoJetEMTopo'] 
+     jetRecTool.InputPseudoJets = ['StoreGateSvc+PseudoJetEMTopo']
 
      ToolSvc += jetRecTool
 

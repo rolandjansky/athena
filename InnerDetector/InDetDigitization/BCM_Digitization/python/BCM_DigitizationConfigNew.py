@@ -29,8 +29,12 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc = RNG(flags.Random.Engine)
     kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
-    kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
-    kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
+    else:
+        kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
     if flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("ModNoise", [90.82] * 8)
     else:

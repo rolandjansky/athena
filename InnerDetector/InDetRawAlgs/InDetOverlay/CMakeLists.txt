@@ -38,7 +38,7 @@ atlas_add_test( PixelOverlay_test
                 EXTRA_PATTERNS "[0-9]+ ms")
 
 atlas_add_test( SCTOverlay_test
-                SOURCES src/SCTOverlay.cxx test/SCTOverlay_test.cxx
+                SOURCES test/SCTOverlay_test.cxx src/SCTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
                 EXTRA_PATTERNS "[0-9]+ ms"

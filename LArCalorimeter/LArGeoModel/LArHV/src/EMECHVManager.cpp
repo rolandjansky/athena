@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVModule.h"
-#include "LArHV/EMECHVDescriptor.h"
 #include "LArHV/EMECHVElectrode.h"
 #include <cmath>
-#include <stdexcept>
 #include <iostream>
 
 #include "EMECHVPayload.h"
@@ -31,22 +29,44 @@
 
 class EMECHVManager::Clockwork {
 public:
-  EMECHVDescriptor *descriptor;
+  Clockwork(const EMECHVManager* manager, IOType wheel)
+    : iWheel(wheel)
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<8; ++iEta) {
+	for(int iPhi=0; iPhi<8; ++iPhi) {
+	  for(int iSector=0; iSector<8; ++iSector) {
+	    moduleArray[iSide][iEta][iPhi][iSector] = new EMECHVModule(manager,wheel,iSide,iEta,iPhi,iSector);
+	  }
+	}
+      }
+    }
+  }
+  ~Clockwork() {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<8; ++iEta) {
+	for(int iPhi=0; iPhi<8; ++iPhi) {
+          for(int iSector=0; iSector<8; ++iSector) {
+	    delete moduleArray[iSide][iEta][iPhi][iSector];
+	  }
+	}
+      }
+    }
+    delete descriptor;
+  }
+  EMECHVDescriptor* descriptor{nullptr};
   IOType iWheel;
-  EMECHVModuleConstLink linkArray[2][8][8][8]; // not dense
+  const EMECHVModule*        moduleArray[2][8][8][8]; // not dense
   std::atomic<bool>          init{false};
   std::mutex                 mtx;
   std::vector<EMECHVPayload> payloadArray;
 };
 
 
-//##ModelId=43FBFC0A034F
-EMECHVManager::EMECHVManager(IOType wheel):
-  m_c(new Clockwork)
+EMECHVManager::EMECHVManager(IOType wheel)
+   : m_c(new Clockwork(this,wheel))
 {
-  m_c->init=false;
-  m_c->iWheel=wheel;
-  if (wheel==EMECHVModule::OUTER)  {
+  if (wheel==EMECHVModule::OUTER) {
     CellPartitioning etaBinning;
     etaBinning.addValue(1.375);
     etaBinning.addValue(1.50);
@@ -58,93 +78,70 @@ EMECHVManager::EMECHVManager(IOType wheel):
     etaBinning.addValue(2.5);
     m_c->descriptor = new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,4));
   }
-  else if (wheel==EMECHVModule::INNER)  {
+  else {
     CellPartitioning etaBinning;
     etaBinning.addValue(2.5);
     etaBinning.addValue(2.8);
     etaBinning.addValue(3.2);
     m_c->descriptor=new EMECHVDescriptor(etaBinning,CellBinning(0.0, 2*M_PI, 8),CellBinning(0,M_PI/4.0,8));
   }
-  else {
-    m_c->descriptor=NULL;
-    throw std::runtime_error ("EMECHVManager:  unknown Wheel Type");
-  }
 }
 
-
-
-//##ModelId=478D1079010F
-const EMECHVDescriptor *EMECHVManager::getDescriptor() const
+const EMECHVDescriptor& EMECHVManager::getDescriptor() const
 {
-  return m_c->descriptor;
+  return *(m_c->descriptor);
 }
 
-//##ModelId=478D10790120
 unsigned int EMECHVManager::beginPhiIndex() const
 {
   return m_c->descriptor->getPhiBinning().getFirstDivisionNumber();
 }
 
-//##ModelId=478D10790129
 unsigned int EMECHVManager::endPhiIndex() const
 {
   return m_c->descriptor->getPhiBinning().getFirstDivisionNumber() + m_c->descriptor->getPhiBinning().getNumDivisions();
 }
 
-//##ModelId=478D10790133
 unsigned int EMECHVManager::beginEtaIndex() const
 {
   return m_c->descriptor->getEtaBinning().getFirstDivisionNumber();
 }
 
-//##ModelId=478D1079013E
 unsigned int EMECHVManager::endEtaIndex() const
 {
   return m_c->descriptor->getEtaBinning().getFirstDivisionNumber() + m_c->descriptor->getEtaBinning().getNumDivisions();
 }
 
-//##ModelId=478D10790149
-EMECHVModuleConstLink EMECHVManager::getHVModule(unsigned int iSide, unsigned int iEta, unsigned int iPhi, unsigned int iSector) const
+const EMECHVModule& EMECHVManager::getHVModule(unsigned int iSide, unsigned int iEta, unsigned int iPhi, unsigned int iSector) const
 {
-
-  if (!m_c->linkArray[iSide][iEta][iPhi][iSector]) m_c->linkArray[iSide][iEta][iPhi][iSector] = EMECHVModuleConstLink(new EMECHVModule(this, iSide, iEta,iPhi,iSector));
-  return m_c->linkArray[iSide][iEta][iPhi][iSector];
-
+  return *(m_c->moduleArray[iSide][iEta][iPhi][iSector]);
 }
 
-//##ModelId=478D10790154
 EMECHVManager::~EMECHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-
-//##ModelId=47A07A81015E
 unsigned int EMECHVManager::beginSideIndex() const
 {
   return 0;
 }
 
-//##ModelId=47A07A81016F
 unsigned int EMECHVManager::endSideIndex() const
 {
   return 2;
 }
 
-//##ModelId=47A07AA60006
 unsigned int EMECHVManager::beginSectorIndex() const
 {
   return m_c->descriptor->getSectorBinning().getFirstDivisionNumber();
 }
 
-//##ModelId=47A07AA6006B
 unsigned int EMECHVManager::endSectorIndex() const
 {
   return m_c->descriptor->getSectorBinning().getFirstDivisionNumber() + m_c->descriptor->getSectorBinning().getNumDivisions();
 }
 
-//##ModelId=47A26D390123
 EMECHVManager::IOType EMECHVManager::getWheelIndex() const
 {
   return m_c->iWheel;
@@ -301,11 +298,11 @@ void EMECHVManager::update() const {
 EMECHVPayload *EMECHVManager::getPayload(const EMECHVElectrode &electrode) const {
   update();
   unsigned int electrodeIndex    = electrode.getElectrodeIndex();
-  EMECHVModuleConstLink module = electrode.getModule();
-  unsigned int etaIndex          = module->getEtaIndex();
-  unsigned int phiIndex          = module->getPhiIndex();
-  unsigned int sectorIndex       = module->getSectorIndex();
-  unsigned int sideIndex         = module->getSideIndex();
+  const EMECHVModule& module     = electrode.getModule();
+  unsigned int etaIndex          = module.getEtaIndex();
+  unsigned int phiIndex          = module.getPhiIndex();
+  unsigned int sectorIndex       = module.getSectorIndex();
+  unsigned int sideIndex         = module.getSideIndex();
 
   unsigned int index=0;
   if (m_c->iWheel==EMECHVModule::OUTER)      index= 5376*sideIndex+768*etaIndex+96*phiIndex+24*sectorIndex+electrodeIndex;

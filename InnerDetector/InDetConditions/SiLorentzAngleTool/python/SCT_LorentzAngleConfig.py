@@ -42,11 +42,7 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
         DCSAcc = SCT_DCSConditionsCfg(flags, **DCSkwargs)
         SCAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSAcc.popPrivateTools())
         acc.merge(DCSAcc)
-    else:
-        SCTool = SCT_SiliconConditionsToolCfg(flags, UseDB=False, ForceUseGeoModel=True)
-        SCAcc = SCT_SiliconConditionsCfg(flags, SiliconConditionsTool=SCTool)
-    SCAcc.popPrivateTools()
-    acc.merge(SCAcc)
+        acc.merge(SCAcc)
     # set up SCTSiLorentzAngleCondAlg
     kwargs.setdefault("UseMagFieldSvc", tool.UseMagFieldSvc)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
@@ -55,4 +51,3 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
     acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
-

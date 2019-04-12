@@ -54,16 +54,18 @@ else
   exit 1
 fi
 
-trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
-
 ######################################
 
 if [[ ${FROMPICKLE} == "1" ]]; then
-  echo "Running athena from pickle file ${JOBOPTION}"
+  echo "Running athena from pickle file ${JOBOPTION} with the command:"
+  (set -x
   athena.py \
   ${MATHLIBOPT} \
-  ${JOBOPTION} &> ${JOB_LOG}
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 else
+  echo "Running athena command:"
+  (set -x
   athena.py \
   ${MATHLIBOPT} \
   --threads ${THREADS} \
@@ -72,19 +74,13 @@ else
   --evtMax ${EVENTS} \
   --skipEvents ${SKIPEVENTS} \
   -c "${EXTRA}" \
-  ${JOBOPTION} &> ${JOB_LOG}
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 fi
 
 ######################################
 
-COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
-echo ${COMMAND} > command.txt
-echo "Command to reproduce:"
-envsubst < command.txt
+export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME} with result ${ATH_RETURN}"
-if [ "${ATH_RETURN}" -ne "0" ]; then
-  exit ${ATH_RETURN}
-fi
-
 
