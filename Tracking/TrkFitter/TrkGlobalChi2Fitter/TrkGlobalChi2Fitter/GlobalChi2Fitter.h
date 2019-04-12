@@ -376,7 +376,9 @@ namespace Trk {
       bool onlylocal, 
       int nfitpars
     ) const;
-      
+     
+    bool isMuonTrack(const Track &) const;
+
     ToolHandle < IRIO_OnTrackCreator > m_ROTcreator;
     ToolHandle < IRIO_OnTrackCreator > m_broadROTcreator;
     ToolHandle < IUpdator > m_updator;

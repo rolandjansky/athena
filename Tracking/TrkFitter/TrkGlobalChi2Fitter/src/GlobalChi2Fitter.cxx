@@ -75,6 +75,52 @@
 using CLHEP::MeV;
 using CLHEP::mm;
 
+namespace {
+  double getDistance(Trk::DistanceSolution distsol) {
+    if (distsol.numberOfSolutions() == 1) {
+      return distsol.first();
+    } else if (distsol.numberOfSolutions() == 2) {
+      return (
+        std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+        distsol.first() : 
+        distsol.second()
+      );
+    } else {
+      return 0;
+    }
+  }
+
+  std::pair<const Trk::TrackParameters *, const Trk::TrackParameters *> getFirstLastIdPar(const Trk::Track & track) {
+    const Trk::TrackParameters *firstidpar = 0, *lastidpar = 0;
+
+    DataVector<const Trk::TrackParameters>::const_iterator parit = track.trackParameters()->begin();
+
+    while (!firstidpar && parit != track.trackParameters()->end()) {
+      if (
+        (**parit).covariance() &&
+        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+      {
+        firstidpar = *parit;
+      }
+      
+      parit++;
+    }
+
+    parit = track.trackParameters()->end();
+    do {
+      parit--;
+      if (
+        (**parit).covariance() && 
+        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
+      {
+        lastidpar = *parit;
+      }
+    } while (!lastidpar && parit != track.trackParameters()->begin());
+  
+    return std::make_pair(firstidpar, lastidpar);
+  }
+}
+
 namespace Trk {
   GlobalChi2Fitter::GlobalChi2Fitter(
     const std::string & t,
@@ -264,38 +310,10 @@ namespace Trk {
     
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
 
-    bool firstismuon = false;
-    const Track *indettrack = &intrk1;
-    const Track *muontrack = &intrk2;
-    int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
-    const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = 0;
-    
-    if (!testrot) {
-      testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-      if (testcrot) {
-        testrot = &testcrot->rioOnTrack(0);
-      }
-    }
-    
-    if (!testrot) {
-      testrot = dynamic_cast<const RIO_OnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-      if (!testrot) {
-        testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-        if (testcrot) {
-          testrot = &testcrot->rioOnTrack(0);
-        }
-      }
-    }
-    if (
-      testrot && 
-      !m_DetID->is_indet(testrot->identify()) && 
-      m_DetID->is_muon(testrot->identify())
-    ) {
-      firstismuon = true;
-      muontrack = &intrk1;
-      indettrack = &intrk2;
-    }
+    bool firstismuon = isMuonTrack(intrk1);
+  
+    const Track *indettrack = firstismuon ? &intrk2 : &intrk1;
+    const Track *muontrack = firstismuon ? &intrk1 : &intrk2;
     
     bool muonisstraight = muontrack->info().trackProperties(TrackInfo::StraightTrack);
     bool measphi = false;
@@ -324,31 +342,7 @@ namespace Trk {
     }
 
     const IPropagator *prop = &*m_propagator;
-    const TrackParameters *firstidpar = 0, *lastidpar = 0;
-
-    DataVector<const TrackParameters>::const_iterator parit = indettrack->trackParameters()->begin();
-
-    while (!firstidpar && parit != indettrack->trackParameters()->end()) {
-      if (
-        (**parit).covariance() &&
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
-      {
-        firstidpar = *parit;
-      }
-      
-      parit++;
-    }
-
-    parit = indettrack->trackParameters()->end();
-    do {
-      parit--;
-      if (
-        (**parit).covariance() && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
-      {
-        lastidpar = *parit;
-      }
-    } while (!lastidpar && parit != indettrack->trackParameters()->begin());
+    auto [firstidpar, lastidpar] = getFirstLastIdPar(*indettrack);
 
     if (!firstidpar || !lastidpar) {
       return 0;
@@ -595,73 +589,13 @@ namespace Trk {
   ) const {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::mainCombinationStrategy");
 
-    bool firstismuon = false;
     double mass = m_particleMasses.mass[muon];
 
-    const Track *indettrack = &intrk1;
-    const Track *muontrack = &intrk2;
-    int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
+    bool firstismuon = isMuonTrack(intrk1);
+    const Track *indettrack = firstismuon ? &intrk2 : &intrk1;
+    const Track *muontrack = firstismuon ? &intrk1 : &intrk2;
     
-    const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = 0;
-    
-    if (!testrot) {
-      testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-      
-      if (testcrot) {
-        testrot = &testcrot->rioOnTrack(0);
-      }
-    }
-    
-    if (!testrot) {
-      testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-      
-      if (!testrot) {
-        testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
-        
-        if (testcrot) {
-          testrot = &testcrot->rioOnTrack(0);
-        }
-      }
-    }
-    
-    if (
-      testrot && 
-      !m_DetID->is_indet(testrot->identify()) && 
-      m_DetID->is_muon(testrot->identify())
-    ) {
-      firstismuon = true;
-      muontrack = &intrk1;
-      indettrack = &intrk2;
-    }
-    
-    const TrackParameters *firstidpar = 0, *lastidpar = 0;
-    DataVector<const TrackParameters>::const_iterator parit = indettrack->trackParameters()->begin();
-
-    while (
-      !firstidpar && 
-      parit != indettrack->trackParameters()->end()
-    ) {
-      if (
-        (**parit).covariance() && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee
-      ) {
-        firstidpar = *parit;
-      }
-      parit++;
-    }
-    
-    parit = indettrack->trackParameters()->end();
-    
-    do {
-      parit--;
-      if (
-        (**parit).covariance() && 
-        (**parit).associatedSurface().type() == Trk::Surface::Perigee
-      ) {
-        lastidpar = *parit;
-      }
-    } while (!lastidpar && parit != indettrack->trackParameters()->begin());
+    auto [firstidpar, lastidpar] = getFirstLastIdPar(*indettrack);
 
     if (!firstidpar || !lastidpar) {
       return 0;
@@ -4034,16 +3968,7 @@ namespace Trk {
         refpar->momentum().unit()
       );
       
-      double distance = 0;
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (
-          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-          distsol.first() : 
-          distsol.second()
-        );
-      }
+      double distance = getDistance(distsol);
 
       if (distance < 0 && distsol.numberOfSolutions() > 0 && !cache.m_acceleration) {
         ATH_MSG_DEBUG("Obtaining upstream layers from Extrapolator");
@@ -4106,17 +4031,7 @@ namespace Trk {
         refpar->momentum().unit()
       );
 
-      double distance = 0;
-      
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (
-          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-          distsol.first() :
-          distsol.second()
-        );
-      }
+      double distance = getDistance(distsol);
 
       if (distance > 0 && distsol.numberOfSolutions() > 0) {
         ATH_MSG_DEBUG("Obtaining downstream ID layers from Extrapolator");
@@ -4442,17 +4357,7 @@ namespace Trk {
         );
       }
 
-      double distance = 0;
-      
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (
-          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-          distsol.first() : 
-          distsol.second()
-        );
-      }
+      double distance = getDistance(distsol);
 
       if ((distance > 0) and(distsol.numberOfSolutions() >
                              0) and firstmuonhit) {
@@ -4606,17 +4511,7 @@ namespace Trk {
         );
       }
 
-      double distance = 0;
-      
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (
-          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-          distsol.first() : 
-          distsol.second()
-        );
-      }
+      double distance = getDistance(distsol);
 
       if (distance < 0 && distsol.numberOfSolutions() > 0) {
         const TrackParameters *prevtp = muonpar1;
@@ -4684,17 +4579,7 @@ namespace Trk {
           layerpar->momentum().unit()
         );
 
-        double distance = 0;
-        
-        if (distsol.numberOfSolutions() == 1) {
-          distance = distsol.first();
-        } else if (distsol.numberOfSolutions() == 2) {
-          distance = (
-            std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-            distsol.first() : 
-            distsol.second()
-          );
-        }
+        double distance = getDistance(distsol);
 
         if (distance > 0 && distsol.numberOfSolutions() > 0) {
           addlayer = true;
@@ -4989,13 +4874,8 @@ namespace Trk {
         Trk::PropDirection propdir = Trk::alongMomentum;
         const Surface *matsurf = mymatvec[i]->surface();
         DistanceSolution distsol = matsurf->straightLineDistanceEstimate(nearestpar->position(), nearestpar->momentum().unit());
-        double distance = 0;
         
-        if (distsol.numberOfSolutions() == 1) {
-          distance = distsol.first();
-        } else if (distsol.numberOfSolutions() == 2) {
-          distance = (std::abs(distsol.first()) < std::abs(distsol.second()))? distsol.first() : distsol.second();
-        }
+        double distance = getDistance(distsol);
         
         if (distance < 0 && distsol.numberOfSolutions() > 0) {
           propdir = oppositeMomentum;
@@ -7119,17 +6999,9 @@ namespace Trk {
           prevpar->position(), prevpar->momentum().unit()
         );
         
-        double distance = 0;
-        
-        if (distsol.numberOfSolutions() == 1) {
-          distance = distsol.first();
-        } else if (distsol.numberOfSolutions() == 2) {
-          distance = (
-            std::abs(distsol.first()) < std::abs(distsol.second()) ? 
-            distsol.first() : 
-            distsol.second()
-          );
-          
+        double distance = getDistance(distsol);
+
+        if (distsol.numberOfSolutions() == 2) {
           if (fabs(distance) < 0.01) {
             continue;
           }
@@ -7294,13 +7166,7 @@ namespace Trk {
         prevtrackpar->position(), prevtrackpar->momentum().unit()
       );
       
-      double distance = 0;
-      
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (std::abs(distsol.first()) < std::abs(distsol.second()))? distsol.first() : distsol.second();
-      }
+      double distance = getDistance(distsol);
       
       if (
         distance > 0 && 
@@ -7483,13 +7349,8 @@ namespace Trk {
       const TrackParameters *currenttrackpar = 0;
       Trk::PropDirection propdir = Trk::alongMomentum;
       DistanceSolution distsol = surf->straightLineDistanceEstimate(prevtrackpar->position(),  prevtrackpar->momentum().unit());
-      double distance = 0;
       
-      if (distsol.numberOfSolutions() == 1) {
-        distance = distsol.first();
-      } else if (distsol.numberOfSolutions() == 2) {
-        distance = (std::abs(distsol.first()) < std::abs(distsol.second()))? distsol.first() : distsol.second();
-      }
+      double distance = getDistance(distsol);
       
       if (distance < 0 && distsol.numberOfSolutions() > 0 && prevtrackpar != trajectory.referenceParameters()) {
         propdir = Trk::oppositeMomentum;
@@ -8443,6 +8304,39 @@ namespace Trk {
     }
   }
 
+  bool Trk::GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
+    int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
+    
+    const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
+    const CompetingRIOsOnTrack *testcrot = 0;
+    
+    if (!testrot) {
+      testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
+      
+      if (testcrot) {
+        testrot = &testcrot->rioOnTrack(0);
+      }
+    }
+    
+    if (!testrot) {
+      testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
+      
+      if (!testrot) {
+        testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
+        
+        if (testcrot) {
+          testrot = &testcrot->rioOnTrack(0);
+        }
+      }
+    }
+    
+    return (
+      testrot && 
+      !m_DetID->is_indet(testrot->identify()) && 
+      m_DetID->is_muon(testrot->identify())
+    );
+  }
+  
   void GlobalChi2Fitter::Cache::cleanup() {
     if (m_derivmat)
       delete m_derivmat;
