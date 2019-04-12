@@ -99,7 +99,15 @@ StatusCode TrigGSCFexMT::execute() {
     ATH_MSG_DEBUG( "  ** PV = " << primVtx->x() << "," << primVtx->y() << "," << primVtx->z() );
 
   //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
-  //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+
+  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+  CHECK( trkParticlesHandle.isValid() );
+  const xAOD::TrackParticleContainer *trkParticlesContainer = trkParticlesHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << trkParticlesContainer->size() <<" Precision Tracks." );
+  for ( const xAOD::TrackParticle *particle : *trkParticlesContainer ) {
+    ATH_MSG_DEBUG( "   ** pt=" << particle->p4().Et() <<" eta="<<particle->eta()<< " phi="<< particle->phi() );
+  }
+
 
 
   // ==============================================================================================================================
