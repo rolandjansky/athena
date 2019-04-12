@@ -5,8 +5,8 @@ acf.addFlag("flag2",2)
 acf.addFlag("flag3", lambda prev: prev.get("flag2")*2 )
 acf.addFlag("flag7", lambda prev: prev.get("flag1")+27)
 
-print acf.flag1
-print acf.flag3
+print(acf.flag1)
+print(acf.flag3)
 
 #acf.addFlag("flag4", lambda prev: prev.get("flag5")*2 )
 #acf.addFlag("flag5", lambda prev: prev.get("flag4")*2 )
@@ -21,23 +21,23 @@ acf.addFlag("domain2.flag2","xyz")
 
 acf.lock()
 
-print "Initial flag container"
+print("Initial flag container")
 acf.dump()
 
 acfPrime=acf.clone()
 acfPrime.flag3 = 42
 
-print "Cloned flag container"
+print("Cloned flag container")
 acfPrime.dump()
 
 acfMod=acf.cloneAndReplace("domain1","domain2")
 
-print "After cloneAndReplace"
+print("After cloneAndReplace")
 acfMod.dump()
 
 ff=acf.initAll()
 
-print "Frozen dict:" 
+print("Frozen dict:")
 acf.dump()
 
 
