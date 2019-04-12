@@ -243,7 +243,7 @@ ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj
 ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
 ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
 ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-ItemList += [ "xAOD::EventInfo#ByteStreamEventInfo" ]
+ItemList += [ "xAOD::EventInfo#EventInfo" ]
 
 ItemList = list(set(ItemList))
 
@@ -253,9 +253,8 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 StreamESD.ItemList = ItemList
-#topSequence.remove( StreamESD )
+
 
 HLTTop = findSubSequence(topSequence, "HLTTop")
-#HLTTop += StreamESD # the right palce is OutSeq but that one is parallel with event algs
-#kaboom
+
 
