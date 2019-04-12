@@ -353,8 +353,6 @@ namespace Trk {
       const MagneticFieldProperties *
     ) const;
 
-    void print(GXFTrajectory &) const;
-
     virtual int iterationsOfLastFit() const;
 
     virtual void setMinIterations(int);

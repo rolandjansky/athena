@@ -152,49 +152,49 @@ namespace Trk {
 
   StatusCode GlobalChi2Fitter::initialize() {
     if (!m_ROTcreator.name().empty() && m_ROTcreator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_ROTcreator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_ROTcreator.type());
       return StatusCode::FAILURE;
     }
 
     if (!m_broadROTcreator.name().empty() && m_broadROTcreator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_broadROTcreator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_broadROTcreator.type());
       return StatusCode::FAILURE;
     }
 
     if (m_updator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_updator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_updator.type());
       return StatusCode::FAILURE;
     }
 
     if (m_extrapolator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_extrapolator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_extrapolator.type());
       return StatusCode::FAILURE;
     }
 
     if (m_navigator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_navigator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_navigator.type());
       return StatusCode::FAILURE;
     }
 
     if (m_residualPullCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve " << m_residualPullCalculator <<
-        " (to calculate residuals and pulls) " << endmsg;
+      ATH_MSG_FATAL("Could not retrieve " << m_residualPullCalculator <<
+        " (to calculate residuals and pulls) ");
       return StatusCode::FAILURE;
     }
 
     if (m_propagator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_propagator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_propagator.type());
       return StatusCode::FAILURE;
     }
 
     if (m_calomat) {
       if (m_calotool.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not get " << m_calotool.type() << endmsg;
+        ATH_MSG_FATAL("Could not get " << m_calotool.type());
         return StatusCode::FAILURE;
       }
       if (!m_calotoolparam.empty() && m_calotoolparam.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not get " << m_calotoolparam.
-          type() << endmsg;
+        ATH_MSG_FATAL("Could not get " << m_calotoolparam.
+          type());
         return StatusCode::FAILURE;
       }
     }
@@ -204,17 +204,17 @@ namespace Trk {
     }
 
     if (m_scattool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_scattool.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_scattool.type());
       return StatusCode::FAILURE;
     }
 
     if (m_elosstool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_elosstool.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_elosstool.type());
       return StatusCode::FAILURE;
     }
 
     if (!m_matupdator.name().empty() && m_matupdator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_matupdator.type() << endmsg;
+      ATH_MSG_FATAL("Could not get " << m_matupdator.type());
       return StatusCode::FAILURE;
     }
 
@@ -231,37 +231,33 @@ namespace Trk {
     }
 
     if (m_fillderivmatrix && m_acceleration) {
-      msg(MSG::WARNING) <<
-        "FillDerivativeMatrix option selected, switching off acceleration!" <<
-        endmsg;
+      ATH_MSG_WARNING("FillDerivativeMatrix option selected, switching off acceleration!");
       m_acceleration = false;
     }
 
     if (!m_trackingGeometrySvc.empty()) {
       StatusCode sc = m_trackingGeometrySvc.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << " failed to retrieve geometry Svc " <<
-          m_trackingGeometrySvc << endmsg;
+        ATH_MSG_ERROR(" failed to retrieve geometry Svc " <<
+          m_trackingGeometrySvc);
         return StatusCode::FAILURE;
       }
-      msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved "
-        << endmsg;
+      ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     }
 
     if (m_useCaloTG) {
       StatusCode sc = m_caloMaterialProvider.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << " failed to retrieve " << m_caloMaterialProvider <<
-          endmsg;
+        ATH_MSG_ERROR(" failed to retrieve " << m_caloMaterialProvider);
         return StatusCode::FAILURE;
       }
-      msg(MSG::INFO) << m_caloMaterialProvider << " retrieved " << endmsg;
+      ATH_MSG_INFO(m_caloMaterialProvider << " retrieved ");
     }
     else{
       m_caloMaterialProvider.disable();
     }
 
-    msg(MSG::INFO) << "fixed momentum: " << m_p << endmsg;
+    ATH_MSG_INFO("fixed momentum: " << m_p);
     m_inputPreparator = new TrackFitInputPreparator;
 
     return StatusCode::SUCCESS;
@@ -270,16 +266,16 @@ namespace Trk {
   StatusCode GlobalChi2Fitter::finalize() {
     delete m_inputPreparator;
 
-    msg(MSG::INFO) << "finalize()" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_FITS] << " attempted track fits" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_SUCCESSFUL_FITS] << " successful track fits" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_MAT_INV_FAIL] << " track fits failed because of a matrix inversion failure" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_NOT_ENOUGH_MEAS] << " tracks were rejected by the outlier logic" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_PROPAGATION_FAIL] << " track fits failed because of a propagation failure" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_INVALID_ANGLES] << " track fits failed because of an invalid angle (theta/phi)" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_NOT_CONVERGENT] << " track fits failed because the fit did not converge" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_HIGH_CHI2] << " tracks did not pass the chi^2 cut" << endmsg;
-    msg(MSG::INFO) << m_fit_status[S_LOW_MOMENTUM] << " tracks were killed by the energy loss update" << endmsg; 
+    ATH_MSG_INFO("finalize()");
+    ATH_MSG_INFO(m_fit_status[S_FITS] << " attempted track fits");
+    ATH_MSG_INFO(m_fit_status[S_SUCCESSFUL_FITS] << " successful track fits");
+    ATH_MSG_INFO(m_fit_status[S_MAT_INV_FAIL] << " track fits failed because of a matrix inversion failure");
+    ATH_MSG_INFO(m_fit_status[S_NOT_ENOUGH_MEAS] << " tracks were rejected by the outlier logic");
+    ATH_MSG_INFO(m_fit_status[S_PROPAGATION_FAIL] << " track fits failed because of a propagation failure");
+    ATH_MSG_INFO(m_fit_status[S_INVALID_ANGLES] << " track fits failed because of an invalid angle (theta/phi)");
+    ATH_MSG_INFO(m_fit_status[S_NOT_CONVERGENT] << " track fits failed because the fit did not converge");
+    ATH_MSG_INFO(m_fit_status[S_HIGH_CHI2] << " tracks did not pass the chi^2 cut");
+    ATH_MSG_INFO(m_fit_status[S_LOW_MOMENTUM] << " tracks were killed by the energy loss update"); 
     
     return StatusCode::SUCCESS;
   }
@@ -427,7 +423,7 @@ namespace Trk {
         );
       }
     } else {
-      msg(MSG::VERBOSE) << "Updating Calorimeter TSOS in Muon Combined Fit ..." << endmsg;
+      ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Combined Fit ...");
       m_caloMaterialProvider->getCaloMEOT(*indettrack, *muontrack, calomeots);
     }
 
@@ -436,7 +432,7 @@ namespace Trk {
     }
     
     if (calomeots.empty()) {
-      msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endmsg;
+      ATH_MSG_WARNING("No calorimeter material collected, failing fit");
       return 0;
     }
 
@@ -488,7 +484,7 @@ namespace Trk {
         );
         
         if (calomeots.empty()) {
-          msg(MSG::WARNING) << "No calorimeter material collected, failing fit" << endmsg;
+          ATH_MSG_WARNING("No calorimeter material collected, failing fit");
           
           if (!m_fieldService->solenoidOn()) {
             delete parforcalo;
@@ -1332,9 +1328,7 @@ namespace Trk {
       }
     }
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "pull1: " << pull1 << " pull2: " << pull2 << endmsg;
-    }
+    ATH_MSG_DEBUG("pull1: " << pull1 << " pull2: " << pull2);
     
     if (!startPar) {
       return 0;
@@ -2128,12 +2122,12 @@ namespace Trk {
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
 
     if (inputTrack.trackStateOnSurfaces()->empty()) {
-      msg(MSG::WARNING) << "Track with zero track states, cannot perform fit" << endmsg;
+      ATH_MSG_WARNING("Track with zero track states, cannot perform fit");
       return 0;
     }
     
     if (inputTrack.trackParameters()->empty()) {
-      msg(MSG::WARNING) << "Track without track parameters, cannot perform fit" << endmsg;
+      ATH_MSG_WARNING("Track without track parameters, cannot perform fit");
       return 0;
     }
     
@@ -2319,7 +2313,7 @@ namespace Trk {
           if (layerNormal) {
             costracksurf = fabs(layerNormal->dot(layerpars->momentum().unit()));
           } else {
-            msg(MSG::WARNING) << "No normal on surface found!" << endmsg;
+            ATH_MSG_WARNING("No normal on surface found!");
           }
           
           delete layerNormal;
@@ -2601,7 +2595,7 @@ namespace Trk {
 
     for (; itSet != itSetEnd; ++itSet) {
       if (!(*itSet)) {
-        msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
+        ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! Skip this object..");
       } else {
         makeProtoStateFromMeasurement(cache, trajectory, *itSet);
       }
@@ -2771,7 +2765,7 @@ namespace Trk {
 
     for (auto itSet : rots) {
       if (!itSet) {
-        msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
+        ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! Skip this object..");
       } else {
         makeProtoStateFromMeasurement(cache, trajectory, itSet);
       }
@@ -3048,7 +3042,6 @@ namespace Trk {
     if (seg && m_decomposesegments) {
       imax = (int) seg->numberOfMeasurementBases();
     }
-    std::string string1, string2;
     for (int i = 0; i < imax; i++) {
       const MeasurementBase *measbase2 = (seg
                                           && m_decomposesegments) ? seg->
@@ -3074,78 +3067,40 @@ namespace Trk {
       bool measphi = false;
       if (hitid.is_valid()
           && measbase2->localParameters().contains(Trk::locX)) {
-        if (msgLvl(MSG::DEBUG)) {
-          if (!crot) {
-            crot = dynamic_cast < const CompetingRIOsOnTrack *>(measbase2);
-          }
-          string1 = crot ? "CompetingRIOsOnTrack " : "";
-        }
         bool rotated = false;
         if (m_DetID->is_indet(hitid) && !m_DetID->is_muon(hitid)) {
           if (m_DetID->is_pixel(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "Pixel hit";
-            }
             hittype = TrackState::Pixel;
           } else if (m_DetID->is_sct(hitid)) {
             if (covmat.cols() == 1 || covmat(1, 0) == 0) {
-              if (msgLvl(MSG::DEBUG)) {
-                string2 = "SCT barrel hit";
-              }
             } else {
-              if (msgLvl(MSG::DEBUG)) {
-                string2 = "SCT endcap hit";
-              }
               rotated = true;
             }
             hittype = TrackState::SCT;
           } else if (m_DetID->is_trt(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "TRT hit";
-            }
             hittype = TrackState::TRT;
           }
         } else {                // Muon hit
           if (m_DetID->is_rpc(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "RPC hit";
-            }
             hittype = TrackState::RPC;
             if (measbase->localParameters().parameterKey() != 1) {
-              msg(MSG::WARNING) << "Corrupt RPC hit, skipping it" << endmsg;
+              ATH_MSG_WARNING("Corrupt RPC hit, skipping it");
               delete ptsos;
               continue;
             }
           } else if (m_DetID->is_mdt(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "MDT hit";
-            }
             hittype = TrackState::MDT;
           } else if (m_DetID->is_tgc(hitid)) {
-            if (measbase2->associatedSurface().bounds().type() !=
-                Trk::SurfaceBounds::Trapezoid) {
-              string2 = "TGC wire hit";
+            if (measbase2->associatedSurface().bounds().type() != Trk::SurfaceBounds::Trapezoid) {
             } else {
-              if (msgLvl(MSG::DEBUG)) {
-                string2 = "TGC strip hit";
-              }
               rotated = true;
             }
             hittype = TrackState::TGC;
           } else if (m_DetID->is_csc(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "CSC hit";
-            }
             hittype = TrackState::CSC;
           } else if (m_DetID->is_mm(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "MM hit";
-            }
             hittype = TrackState::MM;
           } else if (m_DetID->is_stgc(hitid)) {
-            if (msgLvl(MSG::DEBUG)) {
-              string2 = "STGC hit";
-            }
             hittype = TrackState::STGC;
           }
         }
@@ -3186,23 +3141,6 @@ namespace Trk {
             measphi = true;
           }
         }
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "#" << cache.
-            m_hitcount << " " << string1 << string2 << " pos=(" << measbase2->
-            globalPosition().x() << "," << measbase2->globalPosition().
-            y() << "," << measbase2->globalPosition().z() << ") ";
-          if (measphi) {
-            msg(MSG::DEBUG) << " measures phi";
-          }
-          if (hittype == TrackState::MDT) {
-            msg(MSG::DEBUG) << " radius=" << measbase2->
-              localParameters()[Trk::locX];
-          }
-          if (isoutlier) {
-            msg(MSG::DEBUG) << " outlier";
-          }
-          msg(MSG::DEBUG) << endmsg;
-        }
       } else {
         const Trk::LocalParameters & psmpar = measbase2->localParameters();
         // @TODO coverity complains about index shadowing the method argument index
@@ -3232,20 +3170,13 @@ namespace Trk {
         
         if (dynamic_cast < const PseudoMeasurementOnTrack * >(measbase2)) {
           hittype = TrackState::Pseudo;
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "PseudoMeasurement, pos=" << measbase2->globalPosition() << endmsg;      // print out the hit
-            // type
-          }
+          ATH_MSG_DEBUG("PseudoMeasurement, pos=" << measbase2->globalPosition());
         } else if (dynamic_cast < const VertexOnTrack * >(measbase2)) {
           hittype = TrackState::Vertex;
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "VertexOnTrack, pos=" << measbase2->globalPosition() << endmsg;  // print out the hit type
-          }
+          ATH_MSG_DEBUG("VertexOnTrack, pos=" << measbase2->globalPosition());  // print out the hit type
         } else if (dynamic_cast < const Segment * >(measbase2)) {
           hittype = TrackState::Segment;
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "Segment, pos=" << measbase2->globalPosition() << endmsg;        // print out the hit type
-          }
+          ATH_MSG_DEBUG("Segment, pos=" << measbase2->globalPosition());        // print out the hit type
         }
       }
       
@@ -3266,13 +3197,11 @@ namespace Trk {
         // @TODO here index really is supposed to refer to the method argument index ?
         bool ok = trajectory.addMeasurementState(ptsos, index);
         if (!ok) {
-          msg(MSG::WARNING) << "Duplicate hit on track" << endmsg;
+          ATH_MSG_WARNING("Duplicate hit on track");
         }
       } else {
         delete ptsos;
-        msg(MSG::
-            WARNING) << "Measurement error is zero or negative, drop hit" <<
-          endmsg;
+        ATH_MSG_WARNING("Measurement error is zero or negative, drop hit");
       }
       
       cache.m_hitcount++;
@@ -3945,13 +3874,11 @@ namespace Trk {
         matstate->setPosition(intersect);
         trajectory.addMaterialState(matstate);
         
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "X0: " << meff->x0();
-          msg(MSG::DEBUG) << " qoverp: " << currentqoverp;
-          msg(MSG::DEBUG) << " sigmascat " << meff->sigmaDeltaTheta();
-          msg(MSG::DEBUG) << " eloss: " << meff->deltaE() << " sigma eloss: " << meff->sigmaDeltaE();
-          msg(MSG::DEBUG) << endmsg;
-        }
+        ATH_MSG_DEBUG(
+          "X0: " << meff->x0() << " qoverp: " << currentqoverp << 
+          " sigmascat " << meff->sigmaDeltaTheta() <<" eloss: " << meff->deltaE() << 
+          " sigma eloss: " << meff->sigmaDeltaE()
+        );
         layerindex++;
       }
 
@@ -4442,9 +4369,7 @@ namespace Trk {
           }
         }
       } else {
-        msg(MSG::
-            WARNING) << "No material layers collected in calorimeter" <<
-          endmsg;
+        ATH_MSG_WARNING("No material layers collected in calorimeter");
         for (auto & matstate : matstates) {
           delete matstate;
         }
@@ -4561,11 +4486,7 @@ namespace Trk {
           }
         }
         const TrackParameters *prevtp = muonpar1;
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::
-              DEBUG) << "Obtaining downstream layers from Extrapolator" <<
-            endmsg;
-        }
+        ATH_MSG_DEBUG("Obtaining downstream layers from Extrapolator");
 
         matvec = m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon);
         if (matvec->size() > 1000 && m_rejectLargeNScat) {
@@ -4703,9 +4624,7 @@ namespace Trk {
         delete muonpar1;
       }
     }
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Number of layers: " << matstates.size() << endmsg;
-    }
+    ATH_MSG_DEBUG("Number of layers: " << matstates.size());
 
     // Now insert the material states into the trajectory
     std::vector < GXFTrackState * >oldstates = states;
@@ -4763,15 +4682,10 @@ namespace Trk {
           if (meff->sigmaDeltaPhi() > .4
               || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
             if (meff->sigmaDeltaPhi() > .4) {
-              msg(MSG::
-                  DEBUG) <<
-                "Material state with excessive scattering, skipping it" <<
-                endmsg;
+              ATH_MSG_DEBUG("Material state with excessive scattering, skipping it");
             }
             if (meff->sigmaDeltaPhi() == 0) {
-              msg(MSG::
-                  WARNING) <<
-                "Material state with zero scattering, skipping it" << endmsg;
+              ATH_MSG_WARNING("Material state with zero scattering, skipping it");
             }
             delete matstates[layerno];
             layerno++;
@@ -4804,11 +4718,9 @@ namespace Trk {
       }
       states.push_back(oldstates[i]);
     }
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Total X0: " << trajectory.
-        totalX0() << " total eloss: " << trajectory.
-        totalEnergyLoss() << endmsg;
-    }
+    ATH_MSG_DEBUG("Total X0: " << trajectory.
+      totalX0() << " total eloss: " << trajectory.
+      totalEnergyLoss());
 
     for (; layerno < (int) matstates.size(); layerno++) {
       delete matstates[layerno];
@@ -4847,9 +4759,7 @@ namespace Trk {
     per = m_extrapolator->extrapolate(param, tmppersf, oppositeMomentum, false, matEffects);
     
     if (!per) {
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "Cannot make Perigee with starting parameters" << endmsg;
-      }
+      ATH_MSG_DEBUG("Cannot make Perigee with starting parameters");
       return 0;
     }
     
@@ -5982,13 +5892,9 @@ namespace Trk {
 
     double newredchi2 = (trajectory.nDOF() > 0) ? trajectory.chi2() / trajectory.nDOF() : 0;
 
-    if (msgLvl(MSG::DEBUG)) {
-      print(trajectory);
-
-      std::cout << "old chi2: " << oldchi2 << "/" << trajectory.nDOF() << 
-      "=" << oldredchi2 << " new chi2: " << trajectory.chi2() << "/" << 
-      trajectory.nDOF() << "=" << newredchi2 << std::endl;
-    }
+    ATH_MSG_DEBUG("old chi2: " << oldchi2 << "/" << trajectory.nDOF() << 
+    "=" << oldredchi2 << " new chi2: " << trajectory.chi2() << "/" << 
+    trajectory.nDOF() << "=" << newredchi2);
 
     if (trajectory.prefit() > 0 && trajectory.converged()) {
       return FitterStatusCode::Success;
@@ -6325,46 +6231,6 @@ namespace Trk {
     return FitterStatusCode::Success;
   }
 
-  void GlobalChi2Fitter::print(GXFTrajectory & trajectory) const {
-    const TrackParameters *per = trajectory.referenceParameters();
-    double d0 = per->parameters()[Trk::d0];
-    double z0 = per->parameters()[Trk::z0];
-    double phi = per->parameters()[Trk::phi0];
-    double theta = per->parameters()[Trk::theta];
-    double qoverp = per->parameters()[Trk::qOverP];
-    
-    std::cout << "d0: " << d0 << " z0: " << z0 << " theta: " << theta << " phi: " << phi << " qoverp: " << qoverp;
-
-    if (qoverp != 0) {
-      std::cout << " pt: " << sin(theta) / qoverp;
-    }
-    
-    std::cout << std::endl;
-
-    std::vector < std::pair < double, double >>scatangles = trajectory.scatteringAngles();
-    std::vector < std::pair < double, double >>scatsigmas = trajectory.scatteringSigmas();
-    
-    for (int i = 0; i < (int) scatangles.size(); i++) {
-      if (i == 0) {
-        std::cout << "scattering angles (phi, theta, sigmaphi, sigmatheta, pullphi, pulltheta): " << std::endl;
-      }
-      
-      std::cout << scatangles[i].first << " " << scatangles[i].second << " " << 
-      scatsigmas[i].first << " " << scatsigmas[i].second << " " << 
-      scatangles[i].first / scatsigmas[i].first << " " << 
-      scatangles[i].second / scatsigmas[i].second << std::endl;
-    }
-    
-    std::vector < double >qoverpbrem = trajectory.brems();
-    
-    for (int i = 0; i < (int) qoverpbrem.size(); i++) {
-      if (i == 0) {
-        std::cout << "brem qoverp: " << std::endl;
-      }
-      std::cout << qoverpbrem[i] << std::endl;
-    }
-  }
-
   void GlobalChi2Fitter::runTrackCleanerTRT(
     Cache & cache,
     GXFTrajectory & trajectory,
@@ -6408,9 +6274,7 @@ namespace Trk {
             runOutlier &&
             fabs(state->trackParameters()->parameters()[Trk::driftRadius]) > 1.05 * state->surface()->bounds().r()
           ) {
-            if (msgLvl(MSG::DEBUG)) {
-              msg(MSG::DEBUG) << "Removing TRT hit #" << hitno << endmsg;
-            }
+            ATH_MSG_DEBUG("Removing TRT hit #" << hitno);
             
             trajectory.setOutlier(stateno);
             outlierremoved = true;
@@ -6646,10 +6510,8 @@ namespace Trk {
       
       double maxpull = maxsipull;
 
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << " maxsipull: " << maxsipull << " hitno_maxsipull: " <<
-          hitno_maxsipull << " n3sigma: " << n3sigma << " cut: " << cut << " cut2: " << cut2 << endmsg;
-      }
+      ATH_MSG_DEBUG(" maxsipull: " << maxsipull << " hitno_maxsipull: " <<
+        hitno_maxsipull << " n3sigma: " << n3sigma << " cut: " << cut << " cut2: " << cut2);
 
       Amg::SymMatrixX * newap = &a;
       Amg::VectorX * newbp = &b;
@@ -7058,9 +6920,7 @@ namespace Trk {
       if (tstype == TrackState::Fittable) {
         typePattern.set(TrackStateOnSurface::Measurement);
         
-        if (fitQual && msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF() << endmsg;
-        }
+        ATH_MSG_DEBUG("FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF());
         
         if (fitQual && (fitQual->chiSquared() > 1.e5 || fitQual->chiSquared() < 0)) {
           double newchi2 = 0;
@@ -7331,9 +7191,7 @@ namespace Trk {
         delete trajectory;
         delete qual;
         
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "Failed to extrapolate to perigee, returning 0" << endmsg;
-        }
+        ATH_MSG_DEBUG("Failed to extrapolate to perigee, returning 0");
         
         cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
 
@@ -7356,9 +7214,7 @@ namespace Trk {
     typePattern.set(TrackStateOnSurface::Perigee);
     const TrackStateOnSurface *pertsos = new TrackStateOnSurface(0, per, 0, 0, typePattern);
     
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT() << endmsg;
-    }
+    ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
     
     if (!cache.m_acceleration) {
       trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos);
@@ -7484,21 +7340,16 @@ namespace Trk {
       if (
         propdir == Trk::alongMomentum && 
         currenttrackpar && 
-        msgLvl(MSG::DEBUG) && 
         (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
       ) {
-        msg(MSG::DEBUG) << "Propagation in wrong direction" << endmsg;
+        ATH_MSG_DEBUG("Propagation in wrong direction");
         
-        if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) << "upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar << endmsg;
-        }
+        ATH_MSG_VERBOSE("upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar);
       }
       
       if (!currenttrackpar) {
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar <<
-            " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endmsg;
-        }
+        ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
+          " pos: " << prevtrackpar->position() << " destination surface: " << *surf);
         
         if (jac) {
           delete jac;
@@ -7525,7 +7376,7 @@ namespace Trk {
       surf = states[hitno]->surface();
 
       if (calcderiv && !jac) {
-        msg(MSG::WARNING) << "Jacobian is null" << endmsg;
+        ATH_MSG_WARNING("Jacobian is null");
         return FitterStatusCode::ExtrapolationFailure;
       }
 
@@ -7551,9 +7402,7 @@ namespace Trk {
         bool ok = correctAngles(newphi, newtheta);
         
         if (!ok) {
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG:: DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endmsg;
-          }
+          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
           return FitterStatusCode::InvalidAngles;
         }
         
@@ -7677,25 +7526,19 @@ namespace Trk {
       if (
         currenttrackpar && 
         propdir == Trk::oppositeMomentum && 
-        msgLvl(MSG::DEBUG) && 
         (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
       ) {
-        msg(MSG::DEBUG) << "Propagation in wrong direction" << endmsg;
+        ATH_MSG_DEBUG("Propagation in wrong direction");
         
-        if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) << "downstream prevtrackpar: " << *prevtrackpar <<
-            " surf: " << prevtrackpar->associatedSurface() << " current par: " << 
-            *currenttrackpar << " surf: " << currenttrackpar->associatedSurface() << endmsg;
-        }
+        ATH_MSG_VERBOSE("downstream prevtrackpar: " << *prevtrackpar <<
+          " surf: " << prevtrackpar->associatedSurface() << " current par: " << 
+          *currenttrackpar << " surf: " << currenttrackpar->associatedSurface());
       }
       
       if (!currenttrackpar) {
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::
-              DEBUG) << "propagation failed, prev par: " << *prevtrackpar <<
-            " pos: " << prevtrackpar->
-            position() << " destination surface: " << *surf << endmsg;
-        }
+        ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
+          " pos: " << prevtrackpar->
+          position() << " destination surface: " << *surf);
         if (jac) {
           delete jac;
         }
@@ -7723,7 +7566,7 @@ namespace Trk {
       }
 
       if (calcderiv && !jac) {
-        msg(MSG::WARNING) << "Jacobian is null" << endmsg;
+        ATH_MSG_WARNING("Jacobian is null");
         delete currenttrackpar;
         return FitterStatusCode::ExtrapolationFailure;
       }
@@ -7738,9 +7581,7 @@ namespace Trk {
         
         bool ok = correctAngles(newphi, newtheta);
         if (!ok) {
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "Angles out of range, phi: " << newphi << " theta: " << newtheta << endmsg;
-          }
+          ATH_MSG_DEBUG("Angles out of range, phi: " << newphi << " theta: " << newtheta);
           
           delete currenttrackpar;
           return FitterStatusCode::InvalidAngles;
@@ -7758,9 +7599,7 @@ namespace Trk {
             double newp2 = oldp * oldp - 2 * std::abs(meff->deltaE()) * sqrt(mass * mass + oldp * oldp) + meff->deltaE() * meff->deltaE();
             
             if (newp2 < 0) {
-              if (msgLvl(MSG::DEBUG)) {
-                msg(MSG::DEBUG) << "Track killed by energy loss update" << endmsg;
-              }
+              ATH_MSG_DEBUG("Track killed by energy loss update");
               delete currenttrackpar;
               return FitterStatusCode::ExtrapolationFailureDueToSmallMomentum;
             }
