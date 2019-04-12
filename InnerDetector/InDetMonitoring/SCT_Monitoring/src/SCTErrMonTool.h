@@ -41,7 +41,6 @@ class TH2F;
 class TH1I;
 class TH2I;
 class TProfile;
-class TProfile2D;
 class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
@@ -61,18 +60,18 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   /**    @name Methods reimplemented from baseclass */
   //@{
   //initialize
-  virtual StatusCode initialize() final;
+  virtual StatusCode initialize() override final;
   //book
-  virtual StatusCode bookHistograms() final;
+  virtual StatusCode bookHistograms() override final;
   //fill
-  virtual StatusCode fillHistograms() final;
+  virtual StatusCode fillHistograms() override final;
   //post processing
-  virtual StatusCode procHistograms() final;
+  virtual StatusCode procHistograms() override final;
   //Recurrent
-  virtual StatusCode bookHistogramsRecurrent() final;
+  virtual StatusCode bookHistogramsRecurrent() override final;
   //book
-  virtual StatusCode copyHistograms() final;
-  virtual StatusCode copyHistograms_book() final;
+  StatusCode copyHistograms();
+  StatusCode copyHistograms_book();
   //@}
 
  private:
@@ -80,8 +79,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   //First pair is eta and second pair is phi.
   //First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
-  typedef TProfile2D_LW* Prof2_t;
-  typedef std::vector<Prof2_t> VecProf2_t;
 
   enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
 
@@ -175,28 +172,28 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   //@}
 
   ///rate of errors
-  Prof2_t m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  TProfile2D_LW* m_allErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///rate of errors per lumi-block
-  Prof2_t m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  TProfile2D_LW* m_allErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors
   TH2F_LW* m_pallErrs[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors per lumi-block
   TH2F_LW* m_pallErrsPerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
 
   ///rate of errors
-  Prof2_t m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  TProfile2D_LW* m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///rate of errors per lumi-block
-  Prof2_t m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  TProfile2D_LW* m_allErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors
   TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   ///total number of errors per lumi-block
   TH2F_LW* m_pallErrsCatePerLumi[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
 
   /// Recent error rate histograms
-  Prof2_t m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
+  TProfile2D_LW* m_summaryErrsRecent[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2]{};
   /// Default histos to print per lumi block
   TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL]{};
-  Prof2_t m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{};
+  TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{};
 
   TH1I* m_nErrors{};
   TH1I* m_nLinksWithErrors{};
@@ -258,9 +255,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
                                  bool lumi2DHist, int err_type);
   void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const;
   StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
-                                 Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel=true) const;
+                                 TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel=true) const;
   StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,
-                                 Prof2_t& tprof, const int layer, const bool barrel=true) const;
+                                 TProfile2D_LW*& tprof, const int layer, const bool barrel=true) const;
 
   /// ---------------------------------------
   //@name Service methods
@@ -277,8 +274,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   bool isEndcapC(const int moduleNumber) const;
   //@}
 
-  Prof2_t
-    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, VecProf2_t& storageVector) const;
+  TProfile2D_LW*
+    prof2Factory(const std::string& name, const std::string& title, const unsigned int&, std::vector<TProfile2D_LW*>& storageVector) const;
 
   bool syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
   bool syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
