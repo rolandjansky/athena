@@ -56,7 +56,7 @@ _add_test( decodeBS EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)" PROPERT
 _add_test( calo_only_data EXTRA_PATTERNS "-s .*ERROR.*|FastCaloL2EgammaAlg.*REGTEST*" )
 _add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*" )
 _add_test( emu_newjo EXTRA_PATTERNS "-s TrigSignatureMo.*INFO HLT_.*" )
-_add_test( runMenuTest EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|TrigSignatureMoniMT .*INFO.*" )
+_add_test( runMenuTest EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|(?\!IOVSvcTool).*FATAL.*|TrigSignatureMoniMT .*INFO.*" )
 _add_test( peb EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|TriggerSummary.*HLT_" )
 _add_test( dataScouting EXTRA_PATTERNS "-s , robs=\[|adds PEBInfo|ROBFragments with IDs|{module.*words}|TriggerSummary.*HLT_" )
 _add_test( bjet_menuALLTE EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" )
