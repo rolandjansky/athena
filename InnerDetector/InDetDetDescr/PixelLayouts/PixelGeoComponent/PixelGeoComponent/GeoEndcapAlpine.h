@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDet_GeoEndcapAlpine_H
@@ -30,10 +30,7 @@ namespace InDet {
 
     // Polimorphic access to rings
     virtual const GeoRingAlpine& activeComponent( int i) const {return *m_rings.at(i);}
-    //    virtual GeoRingAlpine* activeComponent_ptr( int i) const {return m_rings.at(i);}
-
-    // InDet::GeoEndcapAlpine*  clone() const;
-
+   
     void placeRing( GeoRingAlpine& ring, const HepGeom::Transform3D& transform, int number);
 
     // Radius of centers of sensors active volumes. In case not all sensors are at the same radius
@@ -50,7 +47,6 @@ namespace InDet {
     double getModuleHalfSizeInPhi(int iRing, int iModule) const ;
     double getModuleHalfSizeInEta(int iRing, int iModule) const ;
 
-    const HepGeom::Transform3D& getRingModuleTransform3D(int iRing, int iModule) const ;
     std::string getRingModuleName(int iRing, int iModule) const ;
     const GeoFullPhysVol* getSensorFullPhysVolume(int iRing,int iModule) const;
 

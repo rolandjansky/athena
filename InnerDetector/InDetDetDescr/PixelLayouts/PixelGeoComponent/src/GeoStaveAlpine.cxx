@@ -223,7 +223,6 @@ double InDet::GeoStaveAlpine::barrelModuleLength() const
 
   GeoComponentHelper compHelper(*(m_barrelModules[0]));
   return (2.0*compHelper.getHalfSizeAlongZAxis());
-  //  return (2.0*m_barrelModules[0]->getHalfSizeAlongZAxis());
 
 }
 
@@ -281,7 +280,7 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials(InDetMateri
       std::cout<<"STAVE : Compute equivalent material : "<<matName<<std::endl;
       GeoComponentHelper helper(*comp);
       matMgr->addMaterial( helper.computeEquivalentMaterial(matMgr,matName,ignoreVolume));
-      //      matMgr->addMaterial( comp->computeEquivalentMaterial(matMgr,matName,ignoreVolume));
+      
       std::cout<<"Compute equivalent material : "<<matName<<"  -------------- stored"<<std::endl;
     }
 }
@@ -311,8 +310,7 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_combination
       GeoComponentHelper helper(*comp);
       matMgr->addMaterial( helper.combineCompositeMaterial(matMgr,matName,
 							   mat1, mat2, prop1, prop2));
-      //      matMgr->addMaterial( comp->combineCompositeMaterial(matMgr,matName,
-      //							  mat1, mat2, prop1, prop2));
+     
       std::cout<<"Compute equivalent material : "<<matName<<"  -------------- stored"<<std::endl;
     }
 
@@ -426,18 +424,17 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_all(InDetMa
   double barrelStaveVolume=helperStave.computeComponentVolume(ignoreVolume);
   GeoComponentHelper helperMod1(*m_barrelModules[1]);
   double barrelModuleVolume=helperMod1.computeComponentVolume();
-  //  double barrelStaveVolume=m_barrelStave->computeComponentVolume(ignoreVolume);
-  //  double barrelModuleVolume=m_barrelModules[1]->computeComponentVolume();
+  
 
   double staveLength=2.0*helperStave.getHalfSizeAlongZAxis();
-  //  double staveLength=2.0*m_barrelStave->getHalfSizeAlongZAxis();
+  
 
   double moduleLength=2.0*helperMod1.getHalfSizeAlongZAxis();
-  //  double moduleLength=2.0*m_barrelModules[1]->getHalfSizeAlongZAxis();
+ 
   computeStaveEquivalentCompositeMaterials_combination(matMgr, m_barrelStave, matName,
 						       m_compositeMatNames.find("staveBrlComposite")->second,
 						       m_compositeMatNames.find("barrelModuleComposite")->second,
-						       // barrelCompositeMaterial_name, barrelModuleMaterial_name, 
+						      
 						       barrelStaveVolume*moduleLength/staveLength, barrelModuleVolume);
   const GeoMaterial *newMat1 = matMgr->getMaterial(matName);
   m_compositeMat.insert( std::pair<std::string,const GeoMaterial *>(matName,newMat1));
@@ -446,13 +443,12 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_all(InDetMa
   GeoComponentHelper helperMod0(*(m_barrelModules[0]));
   double barrelTransModuleVolume=helperMod0.computeComponentVolume();
   moduleLength=2.0*helperMod0.getHalfSizeAlongZAxis();
-  //  double barrelTransModuleVolume=m_barrelModules[0]->computeComponentVolume();
-  //  moduleLength=2.0*m_barrelModules[0]->getHalfSizeAlongZAxis();
+ 
 
   computeStaveEquivalentCompositeMaterials_combination(matMgr, m_barrelStave, matName,
 						       m_compositeMatNames.find("staveBrlComposite")->second,
 						       m_compositeMatNames.find("barrelTrModuleComposite")->second,
-						       // barrelCompositeMaterial_name, barrelTransModuleMaterial_name, 
+						      
 						       barrelStaveVolume*moduleLength/staveLength*0.5, barrelTransModuleVolume);
   const GeoMaterial *newMat2 = matMgr->getMaterial(matName);
   m_compositeMat.insert( std::pair<std::string,const GeoMaterial *>(matName,newMat2));
@@ -465,8 +461,7 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_all(InDetMa
       GeoComponentHelper helperEcMod1(*(m_posEcModules[1]));
       double foamModuleVolume=helperFoamMod1.computeComponentVolume();
       double ecModuleVolume=helperEcMod1.computeComponentVolume();
-      //      double foamModuleVolume=m_posFoamModule[1]->computeComponentVolume();
-      //      double ecModuleVolume=m_posEcModules[1]->computeComponentVolume();
+      
       computeStaveEquivalentCompositeMaterials_combination(matMgr, m_barrelStave, matName,
 							   m_compositeMatNames.find("foamModuleComposite")->second,
 							   m_compositeMatNames.find("ecModuleComposite")->second,
@@ -481,12 +476,11 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_all(InDetMa
       GeoComponentHelper helperEcMod0(*(m_posEcModules[0]));
       double foamTransModuleVolume=helperFoamMod0.computeComponentVolume();
       double ecTransModuleVolume=helperEcMod0.computeComponentVolume();
-      //      double foamTransModuleVolume=m_posFoamModule[0]->computeComponentVolume();
-      //      double ecTransModuleVolume=m_posEcModules[0]->computeComponentVolume();
+     
       computeStaveEquivalentCompositeMaterials_combination(matMgr, m_barrelStave, matName,
 							   m_compositeMatNames.find("foamTrModuleComposite")->second,
 							   m_compositeMatNames.find("ecTrModuleComposite")->second,
-							   //foamTransModuleMaterial_name, ecTransModuleMaterial_name,
+							  
 							   foamTransModuleVolume,ecTransModuleVolume);
       const GeoMaterial *newMat2 = matMgr->getMaterial(matName);
       m_compositeMat.insert( std::pair<std::string,const GeoMaterial *>(matName,newMat2));
@@ -497,17 +491,13 @@ void InDet::GeoStaveAlpine::computeStaveEquivalentCompositeMaterials_all(InDetMa
 
 const GeoMaterial* InDet::GeoStaveAlpine::findCompositeMaterial(std::string matName) const
 {
-  
-//   std::cout<<"GeoStaveAlpine : findCompositeMaterial --"<<matName<<"--"<<std::endl;
-//   std::map<std::string, std::string>::const_iterator itr0;
-//   for(itr0 = m_compositeMatNames.begin(); itr0 != m_compositeMatNames.end(); ++itr0)
-//     std::cout<<" -> "<<(*itr0).first<<"  "<<(*itr0).second<<std::endl;
+ 
 
   std::string localMatName=m_compositeMatNames.find(matName)->second;
   std::map<std::string, const GeoMaterial*>::const_iterator itr;
   for(itr = m_compositeMat.begin(); itr != m_compositeMat.end(); ++itr)
     {
-      //      std::cout<<" -> "<<(*itr).first<<std::endl;
+     
       if((*itr).first==localMatName) return (*itr).second;
     }
   return 0;
@@ -590,14 +580,14 @@ double InDet::GeoStaveAlpine::getBarrelStaveWidth() const
 {
   GeoComponentHelper compHelper(*(m_barrelStave));
   return (2.0*compHelper.getHalfSizeAlongXAxis());
-  //  return (2.0*m_barrelStave->getHalfSizeAlongXAxis());
+ 
 }
 
 double InDet::GeoStaveAlpine::getBarrelStaveLength() const
 {
   GeoComponentHelper compHelper(*(m_barrelStave));
   return (2.0*compHelper.getHalfSizeAlongZAxis());
-  //  return (2.0*m_barrelStave->getHalfSizeAlongZAxis());
+ 
 }
 
 double InDet::GeoStaveAlpine::getEndcapStaveWidth(int iSide) const
@@ -605,11 +595,11 @@ double InDet::GeoStaveAlpine::getEndcapStaveWidth(int iSide) const
   if(iSide<0) {
       GeoComponentHelper compHelper(*(m_negEcStave));
       return (2.0*compHelper.getHalfSizeAlongXAxis());
-      //      return (2.0*m_negEcStave->getHalfSizeAlongXAxis());
+      
     }
   GeoComponentHelper compHelper(*(m_posEcStave));
   return (2.0*compHelper.getHalfSizeAlongXAxis());
-  //  return (2.0*m_posEcStave->getHalfSizeAlongXAxis());
+ 
 }
 
 double InDet::GeoStaveAlpine::getEndcapStaveLength(int iSide) const
@@ -617,39 +607,9 @@ double InDet::GeoStaveAlpine::getEndcapStaveLength(int iSide) const
   if(iSide<0) {
     GeoComponentHelper compHelper(*(m_negEcStave));
     return (2.0*compHelper.getHalfSizeAlongZAxis());
-    //    return (2.0*m_negEcStave->getHalfSizeAlongZAxis());
+   
   }
   GeoComponentHelper compHelper(*(m_posEcStave));
   return (2.0*compHelper.getHalfSizeAlongZAxis());
-  //  return (2.0*m_posEcStave->getHalfSizeAlongZAxis());
+  
 }
-
-const HepGeom::Transform3D& InDet::GeoStaveAlpine::getBarrelStaveTransform3D() const
-//  /!\ this function returns the transform3D in the barrel module plane, not the real 3D one
-{
-  const HepGeom::Transform3D& trfStave = this->getTransform3D(); 
-  const HepGeom::Transform3D& trfBarrelStave = HepGeom::Transform3D();   //m_barrelStave->getTransform3D(); 
-  const HepGeom::Transform3D& trf=((trfStave)*(trfBarrelStave));
-  return trf;
-
-}
-
-const HepGeom::Transform3D& InDet::GeoStaveAlpine::getEndcapStaveTransform3D(int iSide) const
-//  /!\ this function returns the transform3D in the barrel module plane, not the real 3D one
-{
-
-  const HepGeom::Transform3D& trfStave = this->getTransform3D(); 
-  HepGeom::Vector3D<double>  trans;
-  if(iSide<0)
-    trans=(m_negEcStave->getTransform3D()).getTranslation();
-  else
-    trans=(m_posEcStave->getTransform3D()).getTranslation();
-
-  HepGeom::Rotate3D rotation;
-  HepGeom::Transform3D trf= HepGeom::Transform3D(CLHEP::HepRotation(),HepGeom::Point3D<double> (trans.x(),0.,trans.z()));
-
-  const HepGeom::Transform3D& trfGbl=(trfStave*trf);
-  return trfGbl;
-
-}
-
