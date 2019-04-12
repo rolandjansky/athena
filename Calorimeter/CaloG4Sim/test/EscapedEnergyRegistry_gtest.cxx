@@ -11,7 +11,7 @@ classToTest->AddAndAdoptProcessing( name, classToOperate );
 ASSERT_EQ( classToOperate, classToTest->GetProcessing( name ) );
 
 }
-
+//add something
 int main(int argc, char **argv) {
 
     testing::InitGoogleTest(&argc, argv);
