@@ -34,9 +34,7 @@
 #include <string>
 
 // Forward declarations
-class IInterface;
 class TProfile;
-class StatusCode;
 class SCT_ID;
 
 class SCTLorentzMonTool : public ManagedMonitorToolBase {
@@ -44,26 +42,21 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   SCTLorentzMonTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCTLorentzMonTool() = default;
   //initialize
-  virtual StatusCode initialize() final;
+  virtual StatusCode initialize() override final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
   //@{
   ///Book histograms in initialization
-  virtual StatusCode bookHistograms();
-  virtual StatusCode bookHistogramsRecurrent();
+  virtual StatusCode bookHistograms() override final;
+  virtual StatusCode bookHistogramsRecurrent() override final;
   ///Fill histograms in each loop
-  virtual StatusCode fillHistograms() ;
+  virtual StatusCode fillHistograms() override final;
   ///process histograms at the end (we only use 'isEndOfRun')
-  virtual StatusCode procHistograms();
+  virtual StatusCode procHistograms() override final;
   ///helper function used in procHistograms
-  StatusCode checkHists(bool fromFinalize);
+  virtual StatusCode checkHists(bool fromFinalize) override final;
   //@}
 
  private:
-  //@name typedefs centralised to enable easy changing of types
-  //@{
-  typedef TProfile* Prof_t;
-  //@}
-
   enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
   enum Sides { side0, side1, bothSides, nSidesInclBoth };
 
@@ -74,7 +67,7 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   //@{
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips
-  Prof_t m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces]{};
+  TProfile* m_phiVsNstrips[SCT_Monitoring::N_BARRELS][nSidesInclBoth][nSurfaces]{};
 
   //@}
   /// Name of the Track collection to use
@@ -98,7 +91,7 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   int findAnglesToWaferSurface ( const float (&vec)[3], const float& sinAlpha, const Identifier& id, const InDetDD::SiDetectorElementCollection* elements, float& theta, float& phi ) const;
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  Prof_t pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag) const;
+  TProfile* pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh, MonGroup& registry, int& iflag) const;
   //@}
 };
 

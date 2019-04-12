@@ -34,7 +34,6 @@
 #include "TH2F.h"
 #include "TH2I.h"
 #include "TProfile.h"
-#include "TProfile2D.h"
 
 #include <iostream>
 
@@ -996,7 +995,7 @@ SCTErrMonTool::fillByteStreamErrors() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
-                                   Prof2_t& tprof, TH2F_LW*& th, const int layer, const bool barrel) const {
+                                   TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel) const {
   ostringstream streamhitmap;
 
   streamhitmap << layer / 2 << "_" << layer % 2;
@@ -1033,7 +1032,7 @@ SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TS
 // Avoids duplicate code in the bookErrHistosXXXX functions; added 08/08/11, Daniel Damiani
 // ====================================================================================================
 StatusCode
-SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, Prof2_t& tprof, const int layer,
+SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TProfile2D_LW*& tprof, const int layer,
                                    const bool barrel) const {
   ostringstream streamhitmap;
 
@@ -1782,9 +1781,9 @@ SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH
   return false;
 }
 
-SCTErrMonTool::Prof2_t
+TProfile2D_LW*
 SCTErrMonTool::prof2Factory(const string& name, const string& title, const unsigned int& bec,
-                            VecProf2_t& storageVector) const {
+                            vector<TProfile2D_LW*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS},
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
   if (bec != BARREL) {
@@ -1795,7 +1794,7 @@ SCTErrMonTool::prof2Factory(const string& name, const string& title, const unsig
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  Prof2_t tmp{TProfile2D_LW::create(name.c_str(), title.c_str(),
+  TProfile2D_LW* tmp{TProfile2D_LW::create(name.c_str(), title.c_str(),
                                     nEta, firstEta - 0.5, lastEta + 0.5,
                                     nPhi, firstPhi - 0.5, lastPhi + 0.5)};
   tmp->SetXTitle("Index in the direction of #eta");
@@ -1885,9 +1884,9 @@ void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
 //====================================================================================================
 //                          SCTErrMonTool :: SyncSCT, Keisuke Kouda 12.09.2016
 //====================================================================================================
-bool SCTErrMonTool::syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
-                                 std::set<IdentifierHash>& sctHashBadRODError,
-                                 std::set<IdentifierHash>& sctHashBadError) const {
+bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
+                                 set<IdentifierHash>& sctHashBadRODError,
+                                 set<IdentifierHash>& sctHashBadError) const {
   sctHashBadLinkError.clear();
   sctHashBadRODError.clear();
   sctHashBadError.clear();
@@ -1919,7 +1918,7 @@ bool SCTErrMonTool::syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
 }
 
 //Disabled
-bool SCTErrMonTool::syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) const {
+bool SCTErrMonTool::syncDisabledSCT(set<IdentifierHash>& sctHashDisabled) const {
   bool altered{false};
   sctHashDisabled.clear();
   const set<Identifier>* badModules{m_ConfigurationTool->badModules()};
@@ -1936,7 +1935,7 @@ bool SCTErrMonTool::syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) c
 }
 
 //Total (SCT_ConditionsSummaryTool) //All
-bool SCTErrMonTool::summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<IdentifierHash>& sctHashSummary) const  {
+bool SCTErrMonTool::summarySCT(set<IdentifierHash>& sctHashAll, set<IdentifierHash>& sctHashSummary) const  {
   bool altered{false};
   sctHashAll.clear();//All
   sctHashSummary.clear();
@@ -1953,7 +1952,7 @@ bool SCTErrMonTool::summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<Id
 }
 
 //Power supply trip (SCT_DCSConditionsTool)
-bool SCTErrMonTool::psTripDCSSCT(std::set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const {
+bool SCTErrMonTool::psTripDCSSCT(set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const {
   bool altered{false};
   sctHashPSTripDCS.clear();
 

@@ -51,14 +51,16 @@
 #include <sstream>
 
 using namespace SCT_Monitoring;
+using std::ostringstream;
+using std::string;
 
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline(false);
 
-  static const std::string histogramPath[N_REGIONS+1] = {
+  static const string histogramPath[N_REGIONS+1] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  static const std::string histogramPathRe[N_REGIONS] = {
+  static const string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -97,10 +99,6 @@ namespace {// anonymous namespace for functions at file scope
 
   static const double stripWidth{79.95e-3}; // in mm
 }// namespace end
-
-using namespace SCT_Monitoring;
-using std::ostringstream;
-using std::string;
 
 // Constructor with parameters:
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
@@ -1852,7 +1850,7 @@ SCTHitEffMonTool::procHistograms() {
 }
 
 StatusCode
-SCTHitEffMonTool::failCut(bool value, std::string name) const {
+SCTHitEffMonTool::failCut(bool value, string name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
