@@ -2988,40 +2988,40 @@ namespace Trk {
   ) const {
     const Segment *seg = 0;
 
-    if (!measbase->associatedSurface().associatedDetectorElementIdentifier().
-        is_valid()) {
-      seg = dynamic_cast < const Segment *>(measbase);
+    if (!measbase->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
+      seg = dynamic_cast<const Segment *>(measbase);
     }
+
     int imax = 1;
+
     if (seg && m_decomposesegments) {
       imax = (int) seg->numberOfMeasurementBases();
     }
+
     for (int i = 0; i < imax; i++) {
-      const MeasurementBase *measbase2 = (seg
-                                          && m_decomposesegments) ? seg->
-        measurement(i) : measbase;
-      const TrackParameters *newtrackpar = (seg
-                                            && m_decomposesegments) ? 0 :
-        trackpar;
+      const MeasurementBase *measbase2 = (seg && m_decomposesegments) ? seg->measurement(i) : measbase;
+      const TrackParameters *newtrackpar = (seg && m_decomposesegments) ? 0 : trackpar;
       GXFTrackState *ptsos = new GXFTrackState(measbase2, newtrackpar);
       const Amg::MatrixX & covmat = measbase2->localCovariance();
       double sinstereo = 0;
       double errors[5];
       errors[0] = errors[1] = errors[2] = errors[3] = errors[4] = -1;
       TrackState::MeasurementType hittype = TrackState::unidentified;
-      Identifier hitid =
-        measbase2->associatedSurface().associatedDetectorElementIdentifier();
+      Identifier hitid = measbase2->associatedSurface().associatedDetectorElementIdentifier();
       const CompetingRIOsOnTrack *crot = 0;
+      
       if (!hitid.is_valid()) {
         crot = dynamic_cast < const CompetingRIOsOnTrack *>(measbase2);
         if (crot) {
           hitid = crot->rioOnTrack(0).identify();
         }
       }
+      
       bool measphi = false;
-      if (hitid.is_valid()
-          && measbase2->localParameters().contains(Trk::locX)) {
+      
+      if (hitid.is_valid() && measbase2->localParameters().contains(Trk::locX)) {
         bool rotated = false;
+
         if (m_DetID->is_indet(hitid) && !m_DetID->is_muon(hitid)) {
           if (m_DetID->is_pixel(hitid)) {
             hittype = TrackState::Pixel;
@@ -3082,15 +3082,17 @@ namespace Trk {
             errors[1] = sqrt(covmat(1, 1));
           }
         }
-        if (hittype == TrackState::RPC || hittype == TrackState::TGC
-            || hittype == TrackState::CSC || hittype == TrackState::STGC) {
+        if (
+          hittype == TrackState::RPC || 
+          hittype == TrackState::TGC || 
+          hittype == TrackState::CSC || 
+          hittype == TrackState::STGC
+        ) {
           const Surface *surf = &measbase2->associatedSurface();
           Amg::Vector3D measdir = surf->transform().rotation().col(0);
           double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
-          double dotprod2 =
-            measdir.
-            dot(Amg::Vector3D(surf->center().x(), surf->center().y(), 0) /
-                surf->center().perp());
+          double dotprod2 = measdir.dot(Amg::Vector3D(surf->center().x(), surf->center().y(), 0) / surf->center().perp());
+          
           if (std::abs(dotprod1) < .5 && std::abs(dotprod2) < .5) {
             measphi = true;
           }
@@ -3105,18 +3107,22 @@ namespace Trk {
           errors[0] = sqrt(covmat(0, 0));
           param_index++;
         }
+
         if (psmpar.contains(Trk::locZ)) {
           errors[1] = sqrt(covmat(param_index, param_index));
           param_index++;
         }
+        
         if (psmpar.contains(Trk::phi)) {
           errors[2] = sqrt(covmat(param_index, param_index));
           param_index++;
         }
+        
         if (psmpar.contains(Trk::theta)) {
           errors[3] = sqrt(covmat(param_index, param_index));
           param_index++;
         }
+        
         if (psmpar.contains(Trk::qOverP)) {
           errors[4] = sqrt(covmat(param_index, param_index));
           param_index++;
@@ -3145,9 +3151,11 @@ namespace Trk {
         ptsos->setSinStereo(sinstereo);
         ptsos->setMeasurementType(hittype);
         ptsos->setMeasuresPhi(measphi);
+        
         if (isoutlier && !cache.m_reintoutl) {
           ptsos->setTrackStateType(TrackState::GeneralOutlier);
         }
+        
         // @TODO here index really is supposed to refer to the method argument index ?
         bool ok = trajectory.addMeasurementState(ptsos, index);
         if (!ok) {
@@ -3874,6 +3882,7 @@ namespace Trk {
       TrackState::TrackStateType tstype = state->trackStateType();
       const TrackParameters *tp = state->trackParameters();
       GXFMaterialEffects *meff = state->materialEffects();
+      
       if (meastype == TrackState::Pseudo) {
         if (!firstidhit) {
           npseudomuon1++;
@@ -3882,18 +3891,24 @@ namespace Trk {
         }
         continue;
       }
-      if (tstype == TrackState::Fittable
-          || tstype == TrackState::GeneralOutlier) {
+      
+      if (tstype == TrackState::Fittable || tstype == TrackState::GeneralOutlier) {
         if (!firsthit) {
           firsthit = state->measurement();
           if (cache.m_acceleration) {
             if (!tp) {
-              tp =
-                m_extrapolator->extrapolate(*refpar2, *state->surface(),
-                                            alongMomentum, false, matEffects);
+              tp = m_extrapolator->extrapolate(
+                *refpar2, 
+                *state->surface(),
+                alongMomentum, 
+                false, 
+                matEffects
+              );
+
               if (!tp) {
                 return;
               }
+
               state->setTrackParameters(tp);
             }
             // When acceleration is enabled, material collection starts from first hit
@@ -3901,11 +3916,15 @@ namespace Trk {
           }
         }
         lasthit = state->measurement();
-        if (meastype == TrackState::Pixel || meastype == TrackState::SCT
-            || meastype == TrackState::TRT) {
+        if (
+          meastype == TrackState::Pixel || 
+          meastype == TrackState::SCT || 
+          meastype == TrackState::TRT
+        ) {
           if (!firstidhit) {
             firstidhit = state->measurement();
           }
+        
           if (!firstidpar && tp) {
             firstidpar = tp;
           }
@@ -3914,6 +3933,7 @@ namespace Trk {
           if (tp) {
             lastidpar = tp;
           }
+          
           if (tp && meastype != TrackState::TRT) {
             if (!firstsiliconpar) {
               firstsiliconpar = tp;
@@ -3921,9 +3941,15 @@ namespace Trk {
             lastsiliconpar = tp;
           }
         }
-        if (meastype == TrackState::RPC || meastype == TrackState::CSC
-            || meastype == TrackState::TGC || meastype == TrackState::MDT
-            || meastype == TrackState::MM || meastype == TrackState::STGC) {
+        
+        if (
+          meastype == TrackState::RPC || 
+          meastype == TrackState::CSC || 
+          meastype == TrackState::TGC || 
+          meastype == TrackState::MDT || 
+          meastype == TrackState::MM || 
+          meastype == TrackState::STGC
+        ) {
           if (!firstmuonhit) {
             firstmuonhit = state->measurement();
             if (tp) {
@@ -3948,23 +3974,24 @@ namespace Trk {
         }
       }
     }
+
     const TrackParameters *refpar = 0;
     AmgVector(5) newpars = refpar2->parameters();
+    
     if (trajectory.m_straightline && m_p != 0) {
       newpars[Trk::qOverP] = 1 / m_p;
     }
-    refpar =
-      refpar2->associatedSurface().createTrackParameters(newpars[0],
-                                                         newpars[1],
-                                                         newpars[2],
-                                                         newpars[3],
-                                                         newpars[4], 0);
+    
+    refpar = refpar2->associatedSurface().createTrackParameters(
+      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+    );
 
     bool dodelete = false;
     if (firstmatpar) {
       startmatpar1 = firstsiliconpar;
       startmatpar2 = lastsiliconpar;
     }
+    
     if (!startmatpar1 || (firstidhit && firstmuonhit)) {
       startmatpar1 = startmatpar2 = refpar;
     } else if (trajectory.m_straightline && m_p != 0) {
@@ -4023,49 +4050,49 @@ namespace Trk {
 
         const Surface *destsurf = &firstidhit->associatedSurface();
         const TrackParameters *tmppar = 0;
+        
         if (firstmuonhit) {
           if (!cache.m_caloEntrance) {
-            cache.m_trackingGeometry =
-              m_trackingGeometrySvc->trackingGeometry();
+            cache.m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+            
             if (cache.m_trackingGeometry) {
-              cache.m_caloEntrance =
-                cache.m_trackingGeometry->
-                trackingVolume("InDet::Containers::InnerDetector");
+              cache.m_caloEntrance = cache.m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
             } else {
               ATH_MSG_ERROR("Tracking Geometry not available");
             }
           }
+
           if (!cache.m_caloEntrance) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar =
-              m_extrapolator->extrapolateToVolume(*startmatpar1,
-                                                  *cache.m_caloEntrance,
-                                                  oppositeMomentum,
-                                                  Trk::nonInteracting);
+            tmppar = m_extrapolator->extrapolateToVolume(
+              *startmatpar1,
+              *cache.m_caloEntrance,
+              oppositeMomentum,
+              Trk::nonInteracting
+            );
+            
             if (tmppar) {
               destsurf = &tmppar->associatedSurface();
             }
           }
         }
+
         matvec = m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects);
+        
         if (tmppar) {
           delete tmppar;
         }
+        
         if (matvec && !matvec->empty()) {
           for (int i = (int)matvec->size() - 1; i > -1; i--) {
-            const MaterialEffectsBase *meb =
-              (*matvec)[i]->materialEffectsOnTrack();
+            const MaterialEffectsBase *meb = (*matvec)[i]->materialEffectsOnTrack();
             if (meb) {
-              const MaterialEffectsOnTrack *meot =
-                dynamic_cast < const MaterialEffectsOnTrack * >(meb);
+              const MaterialEffectsOnTrack *meot = dynamic_cast < const MaterialEffectsOnTrack * >(meb);
               if (meot) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
                 meff->setSigmaDeltaE(0);
-                matstates.
-                  push_back(new
-                            GXFTrackState(meff,
-                                          (*matvec)[i]->trackParameters()));
+                matstates.push_back(new GXFTrackState(meff, (*matvec)[i]->trackParameters()));
               }
             }
           }
@@ -4074,21 +4101,21 @@ namespace Trk {
     }
 
     if (lastidhit && trajectory.numberOfSiliconHits() > 0 && cache.m_idmat) {
-      DistanceSolution distsol =
-        lastidhit->associatedSurface().straightLineDistanceEstimate(refpar->
-                                                                    position
-                                                                    (),
-                                                                    refpar->
-                                                                    momentum
-                                                                    ().
-                                                                    unit());
+      DistanceSolution distsol = lastidhit->associatedSurface().straightLineDistanceEstimate(
+        refpar->position(),
+        refpar->momentum().unit()
+      );
+
       double distance = 0;
+      
       if (distsol.numberOfSolutions() == 1) {
         distance = distsol.first();
       } else if (distsol.numberOfSolutions() == 2) {
-        distance =
-          (std::abs(distsol.first()) <
-           std::abs(distsol.second()))? distsol.first() : distsol.second();
+        distance = (
+          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+          distsol.first() :
+          distsol.second()
+        );
       }
 
       if (distance > 0 && distsol.numberOfSolutions() > 0) {
@@ -4098,55 +4125,60 @@ namespace Trk {
         Surface *calosurf = 0;
         if (firstmuonhit) {
           if (!cache.m_caloEntrance) {
-            cache.m_trackingGeometry =
-              m_trackingGeometrySvc->trackingGeometry();
+            cache.m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+
             if (cache.m_trackingGeometry) {
-              cache.m_caloEntrance =
-                cache.m_trackingGeometry->
-                trackingVolume("InDet::Containers::InnerDetector");
+              cache.m_caloEntrance = cache.m_trackingGeometry->trackingVolume("InDet::Containers::InnerDetector");
             } else {
               ATH_MSG_ERROR("Tracking Geometry not available");
             }
           }
+
           if (!cache.m_caloEntrance) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar =
-              m_extrapolator->extrapolateToVolume(*startmatpar2,
-                                                  *cache.m_caloEntrance,
-                                                  Trk::alongMomentum,
-                                                  Trk::nonInteracting);
+            tmppar = m_extrapolator->extrapolateToVolume(
+              *startmatpar2,
+              *cache.m_caloEntrance,
+              Trk::alongMomentum,
+              Trk::nonInteracting
+            );
           }
+          
           if (tmppar) {
             const CylinderSurface *cylcalosurf = nullptr;
+            
             if (tmppar->associatedSurface().type() == Trk::Surface::Cylinder)
-              cylcalosurf =
-                static_cast <
-                const CylinderSurface *>(&tmppar->associatedSurface());
+              cylcalosurf = static_cast<const CylinderSurface *>(&tmppar->associatedSurface());
+            
             const DiscSurface *disccalosurf = nullptr;
+            
             if (tmppar->associatedSurface().type() == Trk::Surface::Disc)
-              disccalosurf =
-                static_cast <
-                const DiscSurface *>(&tmppar->associatedSurface());
+              disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
+            
             if (cylcalosurf) {
-              Amg::Transform3D * trans =
-                new Amg::Transform3D(cylcalosurf->transform());
+              Amg::Transform3D * trans = new Amg::Transform3D(cylcalosurf->transform());
               const CylinderBounds & cylbounds = cylcalosurf->bounds();
               double radius = cylbounds.r();
               double hlength = cylbounds.halflengthZ();
               calosurf = new CylinderSurface(trans, radius - 1, hlength);
             } else if (disccalosurf) {
-              double newz =
-                ((disccalosurf->center().z() >
-                  0) ? disccalosurf->center().z() -
-                 1 : disccalosurf->center().z() + 1);
-              Amg::Vector3D newpos(disccalosurf->center().x(),
-                                   disccalosurf->center().y(), newz);
-              Amg::Transform3D * trans =
-                new Amg::Transform3D(disccalosurf->transform());
+              double newz = (
+                disccalosurf->center().z() > 0 ? 
+                disccalosurf->center().z() - 1 : 
+                disccalosurf->center().z() + 1
+              );
+
+              Amg::Vector3D newpos(
+                disccalosurf->center().x(),
+                disccalosurf->center().y(), 
+                newz
+              );
+              
+              Amg::Transform3D * trans = new Amg::Transform3D(disccalosurf->transform());
               trans->translation() << newpos;
-              const DiscBounds *discbounds =
-                static_cast < const DiscBounds * >(&disccalosurf->bounds());
+              
+              const DiscBounds *discbounds = static_cast<const DiscBounds *>(&disccalosurf->bounds());
               double rmin = discbounds->rMin();
               double rmax = discbounds->rMax();
               calosurf = new DiscSurface(trans, rmin, rmax);
@@ -4154,41 +4186,41 @@ namespace Trk {
             destsurf = calosurf;
           }
         }
+
         matvec = m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects);
+        
         if (tmppar) {
           delete tmppar;
         }
+        
         if (calosurf) {
           delete calosurf;
         }
+        
         if (matvec && !matvec->empty()) {
           for (auto & i : *matvec) {
-            const Trk::MaterialEffectsBase * meb =
-              i->materialEffectsOnTrack();
+            const Trk::MaterialEffectsBase * meb = i->materialEffectsOnTrack();
+            
             if (meb) {
-              const MaterialEffectsOnTrack *meot =
-                dynamic_cast < const MaterialEffectsOnTrack * >(meb);
+              const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
+              
               if (meot) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
-                if (cache.m_fiteloss
-                    && meot->
-                    energyLoss()
-                    /*&& (matEffects==muon || matEffects==pion) */ ) {
+                if (cache.m_fiteloss && meot->energyLoss()) {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
+
                 if (matEffects == electron && cache.m_asymeloss) {
                   meff->setDeltaE(-5);
+                  
                   if (!trajectory.numberOfTRTHits()) {
                     meff->setScatteringSigmas(0, 0);
                   }
+                  
                   meff->setSigmaDeltaE(50);
                 }
 
-                matstates.
-                  push_back(new
-                            GXFTrackState(meff,
-                                          i->trackParameters()));
-
+                matstates.push_back(new GXFTrackState(meff, i->trackParameters()));
               }
             }
           }
@@ -4197,6 +4229,7 @@ namespace Trk {
         }
       }
     }
+
     if (dodelete) {
       if (startmatpar1 != refpar) {
         delete startmatpar1;
@@ -4207,58 +4240,62 @@ namespace Trk {
     if (cache.m_calomat && firstmuonhit && firstidhit) {
       const IPropagator *prop = &*m_propagator;
 
-      cache.m_calomeots =
-        m_calotool->extrapolationSurfacesAndEffects(*m_navigator->
-                                                    highestVolume(), *prop,
-                                                    *lastidpar,
-                                                    firstmuonhit->
-                                                    associatedSurface(),
-                                                    alongMomentum, muon);
+      cache.m_calomeots = m_calotool->extrapolationSurfacesAndEffects(
+        *m_navigator->highestVolume(), 
+        *prop,
+        *lastidpar,
+        firstmuonhit->associatedSurface(),
+        alongMomentum, 
+        muon
+      );
+
       if (!cache.m_calomeots.empty()) {
         const TrackParameters *prevtrackpars = lastidpar;
         if (lasthit == lastmuonhit) {
           for (int i = 0; i < (int) cache.m_calomeots.size(); i++) {
             PropDirection propdir = alongMomentum;
-            const TrackParameters *layerpar =
-              m_propagator->propagateParameters(*prevtrackpars,
-                                                cache.m_calomeots[i].
-                                                associatedSurface(), propdir,
-                                                false,
-                                                *trajectory.m_fieldprop,
-                                                nonInteracting);
+      
+            const TrackParameters *layerpar = m_propagator->propagateParameters(
+              *prevtrackpars,
+              cache.m_calomeots[i].associatedSurface(), 
+              propdir,
+              false,
+              *trajectory.m_fieldprop,
+              nonInteracting
+            );
+
             if (!layerpar) {
               m_fit_status[S_PROPAGATION_FAIL]++;
               return;
             }
 
-            GXFMaterialEffects *meff =
-              new GXFMaterialEffects(&cache.m_calomeots[i]);
+            GXFMaterialEffects *meff = new GXFMaterialEffects(&cache.m_calomeots[i]);
+            
             if (i == 2) {
               lastcalopar = layerpar;
             }
+            
             if (i == 1) {
               double qoverp = layerpar->parameters()[Trk::qOverP];
-
               double qoverpbrem = 0;
-              if (npseudomuon2 < 2 && firstmuonpar
-                  && fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9) {
+
+              if (
+                npseudomuon2 < 2 && 
+                firstmuonpar && 
+                fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              ) {
                 qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
               } else {
                 double sign = (qoverp > 0) ? 1 : -1;
-                qoverpbrem =
-                  sign / (1 / std::abs(qoverp) -
-                          std::abs(cache.m_calomeots[i].energyLoss()->
-                                   deltaE()));
+                qoverpbrem = sign / (1 / std::abs(qoverp) - std::abs(cache.m_calomeots[i].energyLoss()->deltaE()));
               }
+
               const AmgVector(5) & newpar = layerpar->parameters();
 
-              const TrackParameters *newlayerpar =
-                layerpar->associatedSurface().createTrackParameters(newpar[0],
-                                                                    newpar[1],
-                                                                    newpar[2],
-                                                                    newpar[3],
-                                                                    qoverpbrem,
-                                                                    0);
+              const TrackParameters *newlayerpar = layerpar->associatedSurface().createTrackParameters(
+                newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, 0
+              );
+
               delete layerpar;
               layerpar = newlayerpar;
               meff->setdelta_p(1000 * (qoverpbrem - qoverp));
@@ -4268,65 +4305,73 @@ namespace Trk {
             prevtrackpars = layerpar;
           }
         }
-        if (firsthit == firstmuonhit
-            && (!cache.m_getmaterialfromtrack || lasthit == lastidhit)) {
+
+        if (
+          firsthit == firstmuonhit && 
+          (!cache.m_getmaterialfromtrack || lasthit == lastidhit)
+        ) {
           prevtrackpars = firstidpar;
           for (int i = 0; i < (int) cache.m_calomeots.size(); i++) {
             PropDirection propdir = oppositeMomentum;
-            const TrackParameters *layerpar =
-              m_propagator->propagateParameters(*prevtrackpars,
-                                                cache.m_calomeots[i].
-                                                associatedSurface(), propdir,
-                                                false,
-                                                *trajectory.m_fieldprop,
-                                                nonInteracting);
+            const TrackParameters *layerpar = m_propagator->propagateParameters(
+              *prevtrackpars,
+              cache.m_calomeots[i].associatedSurface(), 
+              propdir,
+              false,
+              *trajectory.m_fieldprop,
+              nonInteracting
+            );
+            
             if (i == 2) {
               delete prevtrackpars;
             }
+            
             if (!layerpar) {
               m_fit_status[S_PROPAGATION_FAIL]++;
               return;
             }
-            GXFMaterialEffects *meff =
-              new GXFMaterialEffects(&cache.m_calomeots[i]);
+            
+            GXFMaterialEffects *meff = new GXFMaterialEffects(&cache.m_calomeots[i]);
+            
             if (i == 2) {
               firstcalopar = layerpar;
             }
 
             prevtrackpars = layerpar;
+            
             if (i == 1) {
               double qoverpbrem = layerpar->parameters()[Trk::qOverP];
               double qoverp = 0;
-              if (npseudomuon1 < 2 && lastmuonpar
-                  && fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9) {
+            
+              if (
+                npseudomuon1 < 2 && 
+                lastmuonpar && 
+                fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+              ) {
                 qoverp = lastmuonpar->parameters()[Trk::qOverP];
               } else {
                 double sign = (qoverpbrem > 0) ? 1 : -1;
-                qoverp =
-                  sign / (1 / std::abs(qoverpbrem) +
-                          std::abs(cache.m_calomeots[i].energyLoss()->
-                                   deltaE()));
+                qoverp = sign / (1 / std::abs(qoverpbrem) + std::abs(cache.m_calomeots[i].energyLoss()->deltaE()));
               }
+
               meff->setdelta_p(1000 * (qoverpbrem - qoverp));
               const AmgVector(5) & newpar = layerpar->parameters();
 
-              prevtrackpars =
-                layerpar->associatedSurface().createTrackParameters(newpar[0],
-                                                                    newpar[1],
-                                                                    newpar[2],
-                                                                    newpar[3],
-                                                                    qoverp,
-                                                                    0);
+              prevtrackpars = layerpar->associatedSurface().createTrackParameters(
+                newpar[0], newpar[1], newpar[2], newpar[3], qoverp, 0
+              );
             }
-            matstates.insert(matstates.begin(),
-                             new GXFTrackState(meff, layerpar));
+
+            matstates.insert(matstates.begin(), new GXFTrackState(meff, layerpar));
           }
         }
       } else {
         ATH_MSG_WARNING("No material layers collected in calorimeter");
+        
         for (auto & matstate : matstates) {
           delete matstate;
         }
+        
         delete refpar;
         return;
       }
@@ -4334,31 +4379,30 @@ namespace Trk {
 
     if (lasthit == lastmuonhit && cache.m_extmat) {
       const Trk::TrackParameters * muonpar1 = 0;
+      
       if (lastcalopar) {
-
         if (!cache.m_msEntrance) {
-          cache.m_trackingGeometry =
-            m_trackingGeometrySvc->trackingGeometry();
+          cache.m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
           if (cache.m_trackingGeometry) {
-            cache.m_msEntrance =
-              cache.m_trackingGeometry->
-              trackingVolume("MuonSpectrometerEntrance");
+            cache.m_msEntrance = cache.m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
             ATH_MSG_ERROR("Tracking Geometry not available");
           }
         }
+
         if (!cache.m_msEntrance) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(lastcalopar->position())) {
-          muonpar1 =
-            m_extrapolator->extrapolateToVolume(*lastcalopar,
-                                                *cache.m_msEntrance,
-                                                Trk::alongMomentum,
-                                                Trk::nonInteracting);
+          muonpar1 = m_extrapolator->extrapolateToVolume(
+            *lastcalopar,
+            *cache.m_msEntrance,
+            Trk::alongMomentum,
+            Trk::nonInteracting
+          );
+
           if (muonpar1) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
-            Amg::Vector3D curvZcrossT =
-              -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
+            Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
             Amg::Vector3D curvU = curvZcrossT.unit();
             Amg::Vector3D curvV = trackdir.cross(curvU);
             Amg::RotationMatrix3D rot = Amg::RotationMatrix3D::Identity();
@@ -4370,10 +4414,13 @@ namespace Trk {
             trans->translation() << muonpar1->position() - .1 * trackdir;
             PlaneSurface curvlinsurf(trans);
 
-            const TrackParameters *curvlinpar =
-              m_extrapolator->extrapolateDirectly(*muonpar1, curvlinsurf,
-                                                  Trk::alongMomentum,
-                                                  Trk::nonInteracting);
+            const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
+              *muonpar1, 
+              curvlinsurf,
+              Trk::alongMomentum,
+              Trk::nonInteracting
+            );
+
             if (curvlinpar) {
               delete muonpar1;
               muonpar1 = curvlinpar;
@@ -4387,90 +4434,108 @@ namespace Trk {
       }
 
       DistanceSolution distsol;
+      
       if (muonpar1) {
-        distsol =
-          lastmuonhit->associatedSurface().
-          straightLineDistanceEstimate(muonpar1->position(),
-                                       muonpar1->momentum().unit());
+        distsol = lastmuonhit->associatedSurface().straightLineDistanceEstimate(
+          muonpar1->position(), 
+          muonpar1->momentum().unit()
+        );
       }
+
       double distance = 0;
+      
       if (distsol.numberOfSolutions() == 1) {
         distance = distsol.first();
       } else if (distsol.numberOfSolutions() == 2) {
-        distance =
-          (std::abs(distsol.first()) <
-           std::abs(distsol.second()))? distsol.first() : distsol.second();
+        distance = (
+          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+          distsol.first() : 
+          distsol.second()
+        );
       }
 
       if ((distance > 0) and(distsol.numberOfSolutions() >
                              0) and firstmuonhit) {
-        distsol =
-          firstmuonhit->associatedSurface().
-          straightLineDistanceEstimate(muonpar1->position(),
-                                       muonpar1->momentum().unit());
+        distsol = firstmuonhit->associatedSurface().straightLineDistanceEstimate(
+          muonpar1->position(),
+          muonpar1->momentum().unit()
+        );
+
         distance = 0;
+        
         if (distsol.numberOfSolutions() == 1) {
           distance = distsol.first();
         } else if (distsol.numberOfSolutions() == 2) {
-          distance =
-            (std::abs(distsol.first()) <
-             std::abs(distsol.second()))? distsol.first() : distsol.second();
+          distance = (
+            std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+            distsol.first() : 
+            distsol.second()
+          );
         }
+
         if (distance < 0 && distsol.numberOfSolutions() > 0 && !firstidhit) {
           if (firstmuonpar) {
             AmgVector(5) newpars = firstmuonpar->parameters();
+            
             if (trajectory.m_straightline && m_p != 0) {
               newpars[Trk::qOverP] = 1 / m_p;
             }
-            muonpar1 =
-              firstmuonpar->associatedSurface().
-              createTrackParameters(newpars[0], newpars[1], newpars[2],
-                                    newpars[3], newpars[4], 0);
+            
+            muonpar1 = firstmuonpar->associatedSurface().createTrackParameters(
+              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+            );
           } else {
-            const TrackParameters *tmppar =
-              m_propagator->propagateParameters(*muonpar1,
-                                                firstmuonhit->
-                                                associatedSurface(),
-                                                oppositeMomentum, false,
-                                                *trajectory.m_fieldprop,
-                                                nonInteracting);
+            const TrackParameters *tmppar = m_propagator->propagateParameters(
+              *muonpar1,
+              firstmuonhit->associatedSurface(),
+              oppositeMomentum, 
+              false,
+              *trajectory.m_fieldprop,
+              nonInteracting
+            );
+
             if (tmppar) {
               muonpar1 = tmppar;
             }
           }
         }
+
         const TrackParameters *prevtp = muonpar1;
         ATH_MSG_DEBUG("Obtaining downstream layers from Extrapolator");
 
         matvec = m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon);
+        
         if (matvec->size() > 1000 && m_rejectLargeNScat) {
           ATH_MSG_DEBUG("too many scatterers: " << matvec->size());
           return;
         }
+        
         if (matvec && !matvec->empty()) {
           for (int j = 0; j < (int) matvec->size(); j++) {
-            const MaterialEffectsBase *meb =
-              (*matvec)[j]->materialEffectsOnTrack();
+            const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
+            
             if (meb) {
-              const MaterialEffectsOnTrack *meot =
-                dynamic_cast < const MaterialEffectsOnTrack * >(meb);
+              const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
+
               if (meot && j < (int) matvec->size() - 1) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
-                if (!trajectory.m_straightline && meot->energyLoss()
-                    && std::abs(meff->deltaE()) > 25
-                    && std::abs((*matvec)[j]->trackParameters()->position().
-                                z()) < 13000) {
+              
+                if (
+                  !trajectory.m_straightline && 
+                  meot->energyLoss() && 
+                  std::abs(meff->deltaE()) > 25 && 
+                  std::abs((*matvec)[j]->trackParameters()->position().z()) < 13000
+                ) {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
-                matstates.
-                  push_back(new
-                            GXFTrackState(meff,
-                                          (*matvec)[j]->trackParameters()));
+
+                matstates.push_back(new GXFTrackState(meff, (*matvec)[j]->trackParameters()));
               }
             }
           }
         }
       }
+
       if (muonpar1 != refpar && muonpar1 != lastcalopar) {
         delete muonpar1;
       }
@@ -4478,30 +4543,30 @@ namespace Trk {
 
     if (firsthit == firstmuonhit && cache.m_extmat && firstcalopar) {
       const Trk::TrackParameters * muonpar1 = 0;
+      
       if (firstcalopar) {
         if (!cache.m_msEntrance) {
-          cache.m_trackingGeometry =
-            m_trackingGeometrySvc->trackingGeometry();
+          cache.m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
           if (cache.m_trackingGeometry) {
-            cache.m_msEntrance =
-              cache.m_trackingGeometry->
-              trackingVolume("MuonSpectrometerEntrance");
+            cache.m_msEntrance = cache.m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
             ATH_MSG_ERROR("Tracking Geometry not available");
           }
         }
+
         if (!cache.m_msEntrance) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
-          muonpar1 =
-            m_extrapolator->extrapolateToVolume(*firstcalopar,
-                                                *cache.m_msEntrance,
-                                                Trk::oppositeMomentum,
-                                                Trk::nonInteracting);
+          muonpar1 = m_extrapolator->extrapolateToVolume(
+            *firstcalopar,
+            *cache.m_msEntrance,
+            Trk::oppositeMomentum,
+            Trk::nonInteracting
+          );
+          
           if (muonpar1) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
-            Amg::Vector3D curvZcrossT =
-              -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
+            Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
             Amg::Vector3D curvU = curvZcrossT.unit();
             Amg::Vector3D curvV = trackdir.cross(curvU);
             Amg::RotationMatrix3D rot = Amg::RotationMatrix3D::Identity();
@@ -4513,10 +4578,13 @@ namespace Trk {
             trans->translation() << muonpar1->position() - .1 * trackdir;
             PlaneSurface curvlinsurf(trans);
 
-            const TrackParameters *curvlinpar =
-              m_extrapolator->extrapolateDirectly(*muonpar1, curvlinsurf,
-                                                  Trk::oppositeMomentum,
-                                                  Trk::nonInteracting);
+            const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
+              *muonpar1, 
+              curvlinsurf,
+              Trk::oppositeMomentum,
+              Trk::nonInteracting
+            );
+            
             if (curvlinpar) {
               delete muonpar1;
               muonpar1 = curvlinpar;
@@ -4528,20 +4596,26 @@ namespace Trk {
       } else {
         muonpar1 = refpar;
       }
+
       DistanceSolution distsol;
+      
       if (muonpar1) {
-        distsol =
-          firstmuonhit->associatedSurface().
-          straightLineDistanceEstimate(muonpar1->position(),
-                                       muonpar1->momentum().unit());
+        distsol = firstmuonhit->associatedSurface().straightLineDistanceEstimate(
+          muonpar1->position(),
+          muonpar1->momentum().unit()
+        );
       }
+
       double distance = 0;
+      
       if (distsol.numberOfSolutions() == 1) {
         distance = distsol.first();
       } else if (distsol.numberOfSolutions() == 2) {
-        distance =
-          (std::abs(distsol.first()) <
-           std::abs(distsol.second()))? distsol.first() : distsol.second();
+        distance = (
+          std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+          distsol.first() : 
+          distsol.second()
+        );
       }
 
       if (distance < 0 && distsol.numberOfSolutions() > 0) {
@@ -4549,35 +4623,40 @@ namespace Trk {
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
 
         matvec = m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon);
+        
         if (matvec && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
+          
           for (int j = 0; j < (int) matvec->size(); j++) {
-            const MaterialEffectsBase *meb =
-              (*matvec)[j]->materialEffectsOnTrack();
+            const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
+            
             if (meb) {
-              const MaterialEffectsOnTrack *meot =
-                dynamic_cast < const MaterialEffectsOnTrack * >(meb);
+              const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
+
               if (meot && j < (int) matvec->size() - 1) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
-                if (!trajectory.m_straightline && meot->energyLoss()
-                    && std::abs(meff->deltaE()) > 25
-                    && std::abs((*matvec)[j]->trackParameters()->position().
-                                z()) < 13000) {
+                
+                if (
+                  !trajectory.m_straightline && 
+                  meot->energyLoss() && 
+                  std::abs(meff->deltaE()) > 25 && 
+                  std::abs((*matvec)[j]->trackParameters()->position().z()) < 13000
+                ) {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
-                matstates.insert(matstates.begin(),
-                                 new GXFTrackState(meff,
-                                                   (*matvec)[j]->
-                                                   trackParameters()));
+                
+                matstates.insert(matstates.begin(), new GXFTrackState(meff, (*matvec)[j]->trackParameters()));
               }
             }
           }
         }
       }
+
       if (muonpar1 != refpar && muonpar1 != firstcalopar) {
         delete muonpar1;
       }
     }
+
     ATH_MSG_DEBUG("Number of layers: " << matstates.size());
 
     // Now insert the material states into the trajectory
@@ -4585,32 +4664,36 @@ namespace Trk {
     trajectory.setTrackStates(newstates);
     states.reserve(oldstates.size() + matstates.size());
     int layerno = 0, firstlayerno = -1;
+    
     if (cache.m_acceleration) {
       states.push_back(oldstates[0]);
     }
+    
     double cosphi = cos(refpar->parameters()[Trk::phi0]);
     double sinphi = sin(refpar->parameters()[Trk::phi0]);
-    for (int i = cache.m_acceleration ? 1 : 0; i < (int) oldstates.size();
-         i++) {
+    
+    for (int i = cache.m_acceleration ? 1 : 0; i < (int) oldstates.size(); i++) {
       bool addlayer = true;
+
       while (addlayer && layerno < (int) matstates.size()) {
         addlayer = false;
-        const TrackParameters *layerpar =
-          matstates[layerno]->trackParameters();
+        const TrackParameters *layerpar = matstates[layerno]->trackParameters();
 
-        DistanceSolution distsol =
-          oldstates[i]->surface()->straightLineDistanceEstimate(layerpar->
-                                                                position(),
-                                                                layerpar->
-                                                                momentum().
-                                                                unit());
+        DistanceSolution distsol = oldstates[i]->surface()->straightLineDistanceEstimate(
+          layerpar->position(),
+          layerpar->momentum().unit()
+        );
+
         double distance = 0;
+        
         if (distsol.numberOfSolutions() == 1) {
           distance = distsol.first();
         } else if (distsol.numberOfSolutions() == 2) {
-          distance =
-            (std::abs(distsol.first()) <
-             std::abs(distsol.second()))? distsol.first() : distsol.second();
+          distance = (
+            std::abs(distsol.first()) < std::abs(distsol.second()) ? 
+            distsol.first() : 
+            distsol.second()
+          );
         }
 
         if (distance > 0 && distsol.numberOfSolutions() > 0) {
@@ -4619,51 +4702,51 @@ namespace Trk {
 
         if (layerpar->associatedSurface().type() == Trk::Surface::Cylinder) {
           double cylinderradius = layerpar->associatedSurface().bounds().r();
-          double trackimpact =
-            std::abs(-refpar->position().x() * sinphi +
-                     refpar->position().y() * cosphi);
+          double trackimpact = std::abs(-refpar->position().x() * sinphi + refpar->position().y() * cosphi);
+          
           if (trackimpact > cylinderradius - 5 * mm) {
             delete matstates[layerno];
             layerno++;
             continue;
           }
         }
+
         if (i == (int) oldstates.size() - 1) {
           addlayer = true;
         }
+        
         if (addlayer) {
           GXFMaterialEffects *meff = matstates[layerno]->materialEffects();
-          if (meff->sigmaDeltaPhi() > .4
-              || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
+         
+          if (meff->sigmaDeltaPhi() > .4 || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
             if (meff->sigmaDeltaPhi() > .4) {
               ATH_MSG_DEBUG("Material state with excessive scattering, skipping it");
             }
+
             if (meff->sigmaDeltaPhi() == 0) {
               ATH_MSG_WARNING("Material state with zero scattering, skipping it");
             }
+            
             delete matstates[layerno];
             layerno++;
             continue;
           }
+
           if (firstlayerno < 0) {
             firstlayerno = layerno;
           }
 
           trajectory.addMaterialState(matstates[layerno]);
+          
           if (layerpar && matEffects != pion && matEffects != muon) {
-            const TrackingVolume *tvol =
-              m_navigator->volume(layerpar->position());
+            const TrackingVolume *tvol = m_navigator->volume(layerpar->position());
             const Layer *lay = 0;
+
             if (tvol) {
-              lay =
-                (tvol->
-                 closestMaterialLayer(layerpar->position(),
-                                      layerpar->momentum().normalized())).
-                object;
+              lay = (tvol->closestMaterialLayer(layerpar->position(),layerpar->momentum().normalized())).object;
             }
 
-            const MaterialProperties *matprop =
-              lay ? lay->fullUpdateMaterialProperties(*layerpar) : 0;
+            const MaterialProperties *matprop = lay ? lay->fullUpdateMaterialProperties(*layerpar) : 0;
             meff->setMaterialProperties(matprop);
           }
 
@@ -4672,13 +4755,13 @@ namespace Trk {
       }
       states.push_back(oldstates[i]);
     }
-    ATH_MSG_DEBUG("Total X0: " << trajectory.
-      totalX0() << " total eloss: " << trajectory.
-      totalEnergyLoss());
+
+    ATH_MSG_DEBUG("Total X0: " << trajectory.totalX0() << " total eloss: " << trajectory.totalEnergyLoss());
 
     for (; layerno < (int) matstates.size(); layerno++) {
       delete matstates[layerno];
     }
+
     delete refpar;
 
     return;
@@ -5551,7 +5634,8 @@ namespace Trk {
 
       ATH_MSG_VERBOSE(
         "res[" << measno << "]: " << res[measno] << " error[" << measno << "]: " << 
-        error[measno] << " res/err: " << res[measno] / error[measno]);
+        error[measno] << " res/err: " << res[measno] / error[measno]
+      );
     }
     if (!doderiv && (scatwasupdated)) {
       lu_m = a;
