@@ -81,7 +81,7 @@ if opt.doPhotonSlice == True:
 # muon chains
 ##################################################################
 if opt.doMuonSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
 
     inDetSetup()
 
@@ -91,7 +91,7 @@ if opt.doMuonSlice == True:
     step1mufast=ChainStep("Step1_muFast", [ muFastSequence() ])
     # step2
     step2muComb=ChainStep("Step2_muComb", [ muCombSequence() ])
-    step2muEFMS=ChainStep("Step2_muEFMS", [ muEFMSSequence() ])
+
     # step3
     step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSASequence() ])
     step3muIso =ChainStep("Step3_muIso",  [ muIsoSequence() ])
@@ -105,7 +105,7 @@ if opt.doMuonSlice == True:
     ## single muon trigger  
     MuonChains += [Chain(name='HLT_mu6fast',   Seed="L1_MU6",  ChainSteps=[ step1mufast ])]
     MuonChains += [Chain(name='HLT_mu6Comb',   Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb ])]
-    #MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muEFMS ])] # removed due to muEFSA isuue(?)
+    #MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step3muEFSA ])] # removed due to muEFSA isuue(?)
     MuonChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
     MuonChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
