@@ -97,9 +97,6 @@ def tileCondCfg( flags ):
     from TileConditions.TileConditionsConf import TileBadChanTool
     badChanTool = TileBadChanTool(name = 'TileBadChanTool', TileBadChannels = badChannels)
     acc.addPublicTool( badChanTool )
-
-    acc.merge( addFolders(flags, ['/LAR/BadChannelsOfl/BadChannels <key>/LAR/BadChannels/BadChannels</key>', 
-                                  '/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>'], 'LAR_OFL'))
     
 
     from TileConditions.TileConditionsConf import TileInfoLoader, TileCablingSvc

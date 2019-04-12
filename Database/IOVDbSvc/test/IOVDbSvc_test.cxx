@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -62,12 +62,7 @@ int main()
 
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
   ISvcLocator* svcLoc;
-  //The following is to ensure I can run the test executable outside ctest
-  const std::string here=__FILE__;
-  const size_t lastSlash=here.find_last_of("/");
-  const std::string dir=here.substr(0,lastSlash+1);
-  const std::string searchPath=dir+"../share/";
-  if (!Athena_test::initGaudi(searchPath+"IOVDbSvc_test.txt", svcLoc))
+  if (!Athena_test::initGaudi("IOVDbSvc/IOVDbSvc_test.txt", svcLoc))
     return 1;
 
   unlink ("mytest.db");

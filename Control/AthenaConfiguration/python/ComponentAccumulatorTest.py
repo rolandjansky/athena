@@ -5,9 +5,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaCommon.CFElements import findSubSequence,findAlgorithm
+from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
-from AthenaCommon.CFElements import seqAND, seqOR, parOR
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG, INFO
 
@@ -105,15 +104,15 @@ class TestComponentAccumulator( unittest.TestCase ):
     def test_foreach_component( self ):
         from AthenaCommon.Logging import logging
         logging.getLogger('foreach_component').setLevel(DEBUG)
-        algo3 = self.acc.getEventAlgo("Algo3")        
+        algo3 = self.acc.getEventAlgo("Algo3")
         algo3.OutputLevel = INFO
         self.acc.foreach_component("*/Algo3").OutputLevel = DEBUG # restet to debug level
         self.assertEqual( algo3.OutputLevel, DEBUG, "wrong OutputLevel value for Algo3")
-        self.acc.foreach_component("*sub2*/*").OutputLevel = INFO 
+        self.acc.foreach_component("*sub2*/*").OutputLevel = INFO
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
-        
+
 
 class TestHLTCF( unittest.TestCase ):
     def runTest( self ):
@@ -214,7 +213,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             accTop.addSequence(seq2, parentName = "seq1")
             accTop.addSequence(seq2_again, parentName = "seq1")
             accTop.wasMerged()
-            
+
 
         #Can't add a sequence with the same name two steps below itself, e.g.
         # \__ AthAlgSeq (seq: PAR AND)
@@ -292,12 +291,12 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         ca = ComponentAccumulator()
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm,ConfigurableAlgTool
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
-        
+
         self.assertIsNotNone( ca.getEventAlgo(), "Found single alg")
         self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
-# no idea why this assersts do not recognise exceptions        
-#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2")) 
-        
+# no idea why this assersts do not recognise exceptions
+#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
+
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
 
         self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
@@ -387,6 +386,86 @@ class TestDeduplication( unittest.TestCase ):
         
         with  self.assertRaises(DeduplicationFailed):
             result3.addService(dummyService(AString="blaOther"))
+
+
+class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
+
+    def setUp(self):
+        Configurable.configurableRun3Behavior=1
+
+    def test_algorithms_merging(self):
+
+        class MergeableAlgorithm( ConfigurablePyAlgorithm ):
+            def __init__( self, name, **kwargs ):
+                super( ConfigurablePyAlgorithm, self ).__init__( name )
+                self._jobOptName = name
+
+                for n, v in kwargs.items():
+                    setattr(self, n, v)
+
+                self._set_attributes = kwargs.keys()
+
+            def getValuedProperties(self):
+                d = {}
+                for attrib in self._set_attributes:
+                    d[attrib] = getattr(self, attrib)
+                return d
+
+            def __eq__(self,rhs):
+                if self is rhs:
+                    return True
+                if not rhs or not isinstance(rhs,Configurable) or self.getFullName() != rhs.getFullName():
+                    return False
+                for attr, value in self.getValuedProperties().items():
+                    if getattr(rhs, attr) != value:
+                        return False
+                return True
+
+            def __ne__(self,rhs):
+                return not self.__eq__(rhs)
+
+        ca = ComponentAccumulator()
+
+        seq1 = seqAND("seq1")
+        innerSeq1 = seqAND("innerSeq1")
+        level2Seq1 = seqAND("level2Seq1")
+
+        seq2 = seqAND("seq2")
+        innerSeq2 = seqAND("innerSeq2")
+
+        firstAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input1"], InputMakerOutputDecisions=["output1"])
+
+        ca.addSequence(seq1)
+        ca.addSequence(innerSeq1, parentName=seq1.name())
+        ca.addSequence(level2Seq1, parentName=innerSeq1.name())
+        ca.addEventAlgo(firstAlg, sequenceName=level2Seq1.name())
+
+        ca.addSequence(seq2)
+        ca.addSequence(innerSeq2, parentName=seq2.name())
+
+        innerSeqCopy = seqAND("innerSeq2")
+        level2SeqCopy = seqAND("level2Seq2")
+
+        secondAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input2"], InputMakerOutputDecisions=["output2"])
+
+        secondCa = ComponentAccumulator()
+        secondCa.addSequence(innerSeqCopy)
+        secondCa.addSequence(level2SeqCopy, parentName=innerSeqCopy.name())
+        secondCa.addEventAlgo(secondAlg, sequenceName=level2SeqCopy.name())
+
+        ca.merge(secondCa)
+
+        foundAlgs = findAllAlgorithms(ca.getSequence(), 'alg1')
+
+        self.assertEqual(len(foundAlgs), 2)
+
+        self.assertEqual(set(foundAlgs[0].InputMakerInputDecisions), {"input1", "input2"})
+        self.assertEqual(set(foundAlgs[0].InputMakerOutputDecisions), {"output1", "output2"})
+        self.assertEqual(set(foundAlgs[1].InputMakerInputDecisions), {"input1", "input2"})
+        self.assertEqual(set(foundAlgs[1].InputMakerOutputDecisions), {"output1", "output2"})
+
+        ca.printConfig()
+        ca.wasMerged()
 
 
 if __name__ == "__main__":

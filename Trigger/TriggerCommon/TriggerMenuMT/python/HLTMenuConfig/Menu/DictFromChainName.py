@@ -24,52 +24,58 @@ class DictFromChainName(object):
         
         # ---- Loop over all chains (keys) in dictionary ----
         # ---- Then complete the dict with other info    ----
-        # --- chainName = chainInfo[0]
-        # --- L1items_chainparts = chainInfo[1]
-        # --- Stream = chainInfo[2]
-        # --- groups = chainInfo[3]
- 
+        # Default input format will be namedtuple: 
+        # ChainProp: ['name', 'L1chainParts'=[], 'stream', 'groups', 
+        # 'merging'=[], 'topoStartFrom'=False],
+
+        # these if/elif/else statements are due to temporary development
         if type(chainInfo) == str:
             m_chainName = chainInfo
             m_L1item = ''
-            m_L1items_chainParts = []
+            m_L1chainParts = []
             m_stream = ''
             m_groups = []
 
         elif type(chainInfo) == list:
             m_chainName = chainInfo[0]
             m_L1item = '' 
-            m_L1items_chainParts = chainInfo[1]
+            m_L1chainParts = chainInfo[1]
             m_stream = chainInfo[2]
             m_groups = chainInfo[3]
+
+        elif 'ChainProp' in str(type(chainInfo)): 
+            m_chainName = chainInfo.name
+            m_L1item = ''
+            m_L1chainParts = chainInfo.l1SeedThresholds
+            m_stream = chainInfo.stream
+            m_groups = chainInfo.groups
+        
         else:
             logDict.error("Format of chainInfo passed to genChainDict not known")
 
         m_L1item = self.getOverallL1item(m_chainName)
 
         logDict.debug("Analysing chain with name: %s", m_chainName)
-        chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts, m_L1item)
-        logDict.debug('ChainProperties: %s', chainProp)
+        chainDict = self.analyseShortName(m_chainName,  m_L1chainParts, m_L1item)
+        logDict.debug('ChainProperties: %s', chainDict)
 
-        chainProp['stream'] = m_stream
-        chainProp['groups'] = m_groups
+        chainDict['stream'] = m_stream
+        chainDict['groups'] = m_groups
 
         logDict.debug('Setting chain multiplicities')
-        allChainMultiplicities = self.getChainMultFromDict(chainProp)
-
-        chainProp['chainMultiplicities'] = allChainMultiplicities
+        allChainMultiplicities = self.getChainMultFromDict(chainDict)
+        chainDict['chainMultiplicities'] = allChainMultiplicities
                 
         # setting the L1 item
-        if (chainProp['L1item']== ''): 
-            chainProp['L1item'] = m_L1item
+        if (chainDict['L1item']== ''): 
+            chainDict['L1item'] = m_L1item
 
         if logDict.isEnabledFor(logging.DEBUG):
             import pprint
             pp = pprint.PrettyPrinter(indent=4, depth=8)
-            logDict.debug('FINAL dictionary: %s', pp.pformat(chainProp))
+            logDict.debug('FINAL dictionary: %s', pp.pformat(chainDict))
 
-
-        return chainProp
+        return chainDict
 
 
     def checkL1inName(self, m_chainName):
@@ -82,7 +88,7 @@ class DictFromChainName(object):
         mainL1 = ''
 
         if not self.checkL1inName(chainName):
-            logDict.warning("Chain name not complying with naming convention: L1 item missing! PLEASE FIX THIS!!")
+            logDict.warning("Chain name %s not complying with naming convention: L1 item missing! PLEASE FIX THIS!!", chainName)
             return mainL1
         # this assumes that the last string of a chain name is the overall L1 item
         cNameParts = chainName.split("_") 
