@@ -9,6 +9,7 @@
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IChronoStatSvc.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TTree.h"
@@ -165,18 +166,14 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 //Destructor---------------------------------------------------------------
     InDetVKalVxInJetTool::~InDetVKalVxInJetTool(){
-     //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endmsg;
      if(m_WorkArray) delete m_WorkArray;
      if(m_compatibilityGraph)delete m_compatibilityGraph;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endmsg;
+     ATH_MSG_DEBUG("InDetVKalVxInJetTool destructor called");
    }
 
 //Initialize---------------------------------------------------------------
    StatusCode InDetVKalVxInJetTool::initialize(){
-     //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endmsg;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endmsg;
+     ATH_MSG_DEBUG("InDetVKalVxInJetTool initialize() called");
      m_WorkArray = new VKalVxInJetTemp;
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
@@ -215,6 +212,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endmsg;
 //     }
 
+//------------------------------------------
+     if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
 //------------------------------------------
 // Chose whether IBL is installed
      if(m_existIBL){ // 4-layer pixel detector
@@ -426,7 +425,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
   StatusCode InDetVKalVxInJetTool::finalize()
   {
     //MsgStream log( msgSvc(), name() );
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endmsg;
+    if(m_timingProfile)m_timingProfile->chronoPrint("InDetVKalVxInJetTool");
+    ATH_MSG_DEBUG("InDetVKalVxInJetTool finalize()");
     return StatusCode::SUCCESS; 
   }
   
@@ -437,6 +437,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 							           const TLorentzVector & JetDir,
 						 	           const std::vector<const xAOD::IParticle*> & IInpTrk)
     const  {
+    if(m_timingProfile)m_timingProfile->chronoStart("InDetVKalVxInJetTool");
     std::vector<double>     Results;
     std::vector<const xAOD::TrackParticle*>            InpTrk;
     std::vector<const xAOD::TrackParticle*>            SelSecTrk;
@@ -502,6 +503,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_compatibilityGraph->clear();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
+    if(m_timingProfile)m_timingProfile->chronoStop("InDetVKalVxInJetTool");
     return res;
    }
 
@@ -511,6 +513,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 							           const TLorentzVector & JetDir,
 						 	           const std::vector<const Trk::TrackParticleBase*> & InpTrkBase)
     const  {
+    if(m_timingProfile)m_timingProfile->chronoStart("InDetVKalVxInJetTool");
     std::vector<double>     Results;
     std::vector<const Rec::TrackParticle*>            SelSecTrk;
     std::vector< std::vector<const Rec::TrackParticle*> >  SelSecTrkPerVrt;
@@ -559,6 +562,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_compatibilityGraph->clear();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
+    if(m_timingProfile)m_timingProfile->chronoStop("InDetVKalVxInJetTool");
     return res;
        
 //    return new Trk::VxSecVertexInfo(listVrtSec);

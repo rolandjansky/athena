@@ -706,7 +706,6 @@ namespace InDet{
       std::vector<double> Chi2PerTrk,VKPerigee,CovPerigee,closeVrtSig(0),closeVrtCh2(0);
       //TLorentzVector   Momentum;
       std::vector<double> Impact,ImpactError;
-      double ImpactSignif=0;
       double             Chi2, Signif3D, Dist2D, JetVrtDir;
       long int           Charge;
       int i,j;
@@ -745,11 +744,11 @@ namespace InDet{
 	    m_hb_impactR->Fill( SignifR, m_w_1); 
             m_hb_impactZ->Fill( SignifZ, m_w_1); 
             m_hb_impactRZ->Fill(SignifR, SignifZ, m_w_1); 
-	    m_hb_impact->Fill( ImpactSignif, m_w_1);
+	    m_hb_impact->Fill( TrkSig3D[i], m_w_1);
 	    if(i<DevTuple::maxNTrk && m_curTup){
                  m_curTup->etatrk[i]=SelectedTracks[i]->eta();
                  m_curTup->p_prob[i]=RankBTrk(SelectedTracks[i]->pt(),JetDir.Pt(),0.);
-                 m_curTup->s_prob[i]=RankBTrk(0.,0.,ImpactSignif); 
+                 m_curTup->s_prob[i]=RankBTrk(0.,0.,TrkSig3D[i]); 
                  m_curTup->SigR[i]=SignifR; m_curTup->SigZ[i]=SignifZ; 
                  m_curTup->d0[i]=Impact[0]; m_curTup->Z0[i]=Impact[1];
 	         m_curTup->idMC[i]=getG4Inter(SelectedTracks[i]); 
@@ -783,6 +782,8 @@ namespace InDet{
          for (j=i+1; j<NTracks; j++) {
              if(trkScore[i][0]==0.)continue;
              if(trkScore[j][0]==0.)continue;
+             if(trkScore[i][2] > m_antiGarbageCut)continue;  //---- Use classificator to remove Pileup+Interactions
+             if(trkScore[j][2] > m_antiGarbageCut)continue;  //---- Use classificator to remove Pileup+Interactions
  	     if(!m_multiWithPrimary) {  // Not used for multi-vertex with primary one search
                 if( std::max(trkScore[i][1],trkScore[j][1]) > m_antiFragmentCut ) continue; // Remove definite fragmentation tracks
 		bool goodPair=false;

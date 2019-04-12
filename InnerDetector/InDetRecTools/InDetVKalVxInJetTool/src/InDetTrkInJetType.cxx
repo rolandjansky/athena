@@ -3,13 +3,15 @@
 */
 
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
-#include "TMVA/MethodBase.h"
+#include "TMVA/MethodBDT.h"
 #include "TMVA/Reader.h"
 #include "PathResolver/PathResolver.h"
 #include "TLorentzVector.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
-#include  "Particle/TrackParticle.h"
+#include "Particle/TrackParticle.h"
+#include "MVAUtils/BDT.h" 
+#include "GaudiKernel/IChronoStatSvc.h"
 //
 //-------------------------------------------------
 namespace InDet {
@@ -44,12 +46,13 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      declareProperty("d0_limUpp", m_d0_limUpp    ,  "Upper d0 impact cut" );
      declareProperty("Z0_limLow", m_Z0_limLow    ,  "Low Z0 impact cut" );
      declareProperty("Z0_limUpp", m_Z0_limUpp    ,  "Upper Z0 impact cut" );
+     m_timingProfile=nullptr;
   }
 
 //Destructor---------------------------------------------------------------
   InDetTrkInJetType::~InDetTrkInJetType(){
     delete m_tmvaReader;
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetTrkInJetType destructor called" << endmsg;
+    ATH_MSG_DEBUG("InDetTrkInJetType destructor called");
   }
 
 //Initialize---------------------------------------------------------------
@@ -77,29 +80,44 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      if(fullPathToFile != ""){
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"TrackClassification calibration file" << fullPathToFile << endmsg;
         m_tmvaReader->BookMVA("BDTG", fullPathToFile);
+        TMVA::MethodBDT* method_bdt = dynamic_cast<TMVA::MethodBDT*> (m_tmvaReader->FindMVA("BDTG"));
+	if(!method_bdt){    ATH_MSG_DEBUG("Error! No method_BDT for TrackClassification!");
+                            return StatusCode::SUCCESS;  }
+        bool useYesNoLeaf = false;
+        bool isGrad       = false;
+        if(method_bdt->GetOptions().Contains("UseYesNoLeaf=True")) useYesNoLeaf = true;
+        if(method_bdt->GetOptions().Contains("BoostType=Grad")) isGrad = true;
+        m_localBDT = new MVAUtils::BDT( method_bdt, isGrad, useYesNoLeaf);
+	if(!m_localBDT){   ATH_MSG_DEBUG("Error! No_BDT from MVAUtils created");
+                           return StatusCode::SUCCESS; }
      }else{
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"Error! No calibration for TrackClassification found." << endmsg;
+        ATH_MSG_DEBUG("Error! No calibration for TrackClassification found.");
         return StatusCode::SUCCESS;
      }    
      //-------
      if (m_fitterSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
+        ATH_MSG_DEBUG("Could not find Trk::TrkVKalVrtFitter");
         return StatusCode::SUCCESS;
      } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetTrkInJetTool TrkVKalVrtFitter found" << endmsg;
+        ATH_MSG_DEBUG("InDetTrkInJetTool TrkVKalVrtFitter found");
      }
      m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
      if(!m_fitSvc){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
+        ATH_MSG_DEBUG(" No implemented Trk::ITrkVKalVrtFitter interface");
         return StatusCode::SUCCESS;
      }
      m_initialised = 1;          // Tool is initialised successfully.
+//-----
+     if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
+//-----
      return StatusCode::SUCCESS;
    }
 
    StatusCode InDetTrkInJetType::finalize()
    {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetTrkInJetType finalize()" << endmsg;
+    if(m_timingProfile)m_timingProfile->chronoPrint("InDet_TrkInJetType");
+    if(m_localBDT)delete m_localBDT;
+    ATH_MSG_DEBUG("InDetTrkInJetType finalize()");
     return StatusCode::SUCCESS; 
    }
 
@@ -122,7 +140,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       if( PixelHits < m_trkPixelHitsCut ) return safeReturn;
       if( SctHits   < m_trkSctHitsCut )   return safeReturn;
  
-
       std::vector<double> Impact,ImpactError;
       m_Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
       AmgVector(5) tmpPerigee = Trk->perigeeParameters().parameters(); 
@@ -190,8 +207,15 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 //---
      TLorentzVector normJ;  normJ.SetPtEtaPhiM(1.,Jet.Eta(),Jet.Phi(),0.);
      m_prodTJ=sqrt(TLV.Dot(normJ));
-     return m_tmvaReader->EvaluateMulticlass("BDTG");
-
+//---
+     if(m_timingProfile)m_timingProfile->chronoStart("InDet_TrkInJetType");
+     //std::vector<float> weights=m_tmvaReader->EvaluateMulticlass("BDTG");
+     //-----Use MVAUtils to save CPU
+     std::vector<float> bdt_vars={m_Sig3D, m_prbP, m_pTvsJet, m_d0, m_SigR, m_SigZ, m_ptjet, m_ibl, m_bl, m_etatrk};
+     std::vector<float> weights=m_localBDT->GetMultiResponse(bdt_vars,3);
+     //-----
+     if(m_timingProfile)m_timingProfile->chronoStop("InDet_TrkInJetType");
+     return weights;
    }
    
 }// close namespace
