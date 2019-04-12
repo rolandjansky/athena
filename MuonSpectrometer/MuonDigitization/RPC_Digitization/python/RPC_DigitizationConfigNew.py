@@ -29,6 +29,11 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", RPC_FirstXing())
         kwargs.setdefault("LastXing", RPC_LastXing())
+    kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "RPC_SDO")
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    
     # kwargs.setdefault("PatchForRpcTimeShift", 9.6875)  

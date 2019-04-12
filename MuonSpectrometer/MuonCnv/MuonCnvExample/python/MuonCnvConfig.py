@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 def BaseCscDigitToCscRDOTool(name,**kwargs):
@@ -14,6 +14,13 @@ def BaseCscDigitToCscRDOTool(name,**kwargs):
 def CscDigitToCscRDOTool(name,**kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     digitizationFlags.rndmSeedList.addSeed("CscDigitToCscRDOTool", 49261510, 105132394 )
+
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "CSCRDO")
+    else:
+        kwargs.setdefault("OutputObjectName", "CSCRDO")
+
     return BaseCscDigitToCscRDOTool(name,**kwargs)
 
 def CscDigitToCscRDOTool2(name,**kwargs):

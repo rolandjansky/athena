@@ -19,6 +19,13 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
         kwargs.setdefault("LastXing",  TGC_LastXing() )
 
+    kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "TGC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "TGC_SDO")
+
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
 def getTgcRange(name="TgcRange", **kwargs):
