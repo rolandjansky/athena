@@ -1,23 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALTILE_H
 #define LARREADOUTGEOMETRY_FCALTILE_H
+
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArHV/FCALHVModule.h"
 #include "LArReadoutGeometry/FCALTubeConstLink.h"
 
-/**
- * @brief A tile of the forward calorimeter readout geometry
- */
+class FCALModule;
 
 /**
- *	This class represents the size, shape, position, and
- *	indices of a single tile within the FCAL.  For access to
- *	the FCAL Tiles, you should use the FCAL Module class.
+ * @class FCALTile
+ *
+ * @brief A tile of the forward calorimeter readout geometry
+ *
+ * This class represents the size, shape, position, and
+ * indices of a single tile within the FCAL.  For access to
+ * the FCAL Tiles, you should use the FCAL Module class.
  */
-class FCALModule;
+
 class FCALTile 
 {
   typedef FCAL_ChannelMap::tileMap_const_iterator TileConstIterator;
@@ -98,7 +101,7 @@ class FCALTile
   /**
    * @brief Get hvline
    */
-  const FCALHVLineConstLink & getHVLine (unsigned int i) const;
+  const FCALHVLine* getHVLine (unsigned int i) const;
           
  private:
 
@@ -109,7 +112,7 @@ class FCALTile
   /**
    * @brief	Cache of subgaps.
    */
-  mutable FCALHVLineConstLink m_line[4];
+  mutable const FCALHVLine* m_line[4] = { nullptr };
 
   /**
    * @brief	Cache of tubes.

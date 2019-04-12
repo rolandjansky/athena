@@ -270,8 +270,8 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
         list.clear();
         HVline = m_hvlineHelper->hv_line(hwid);
         for (unsigned int i=0;i<nsubgaps;i++) {
-          const HECHVSubgapConstLink subgap = cell->getSubgap(i);
-          if ((unsigned)subgap->hvLineNo()==HVline) {
+          const HECHVSubgap& subgap = cell->getSubgap(i);
+          if ((unsigned)subgap.hvLineNo()==HVline) {
             list.push_back(i);
           }
         }
@@ -291,7 +291,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
          list.clear();
          HVline = m_hvlineHelper->hv_line(hwid);
          for (unsigned int i=0;i<nlines;i++) {
-           const FCALHVLineConstLink line2 = tile->getHVLine(i);
+           const FCALHVLine* line2 = tile->getHVLine(i);
            if (line2) {
              if ((unsigned)line2->hvLineNo()==HVline) {
                list.push_back(i);

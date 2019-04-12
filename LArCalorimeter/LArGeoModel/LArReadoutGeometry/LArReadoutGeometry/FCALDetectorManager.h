@@ -1,29 +1,29 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALDETECTORMANAGER_H
 #define LARREADOUTGEOMETRY_FCALDETECTORMANAGER_H
+
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArReadoutGeometry/FCALModule.h"
+#include "LArHV/FCALHVManager.h"
+#include "GeoModelKernel/GeoVDetectorManager.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
-#include "GeoModelKernel/GeoVDetectorManager.h"
-class FCALHVManager;
+
 class IMessageSvc;
 
 /**
- *     @brief A manager class providing access to readout geometry information
- *     for the forward calorimeter.
+ * @class FCALDetectorManager
+ *
+ * @brief A manager class providing access to readout geometry information
+ * for the forward calorimeter.
+ *
+ * Manager class for the FCAL which provides access to the
+ * FCAL Modules, the Physical Volumes, and the FCAL Channel
+ * Map. The FCAL Channel Map is a descriptor for the FCAL.
  */
-
-/**
- *	Manager class for the FCAL which provides access to the
- *	FCAL Modules, the Physical Volumes, and the FCAL Channel
- *	Map.  The FCAL Channel Map is a descriptor for the
- *	FCAL.
- */
-
 
 class FCALDetectorManager : public GeoVDetectorManager  
 {
@@ -34,17 +34,17 @@ class FCALDetectorManager : public GeoVDetectorManager
   typedef std::vector<const FCALModule *>::const_iterator ConstIterator;
   
 
-  public:
+ public:
       
   /**
    * @brief Constructor
    */
-  FCALDetectorManager ();
+  FCALDetectorManager (const FCALHVManager* hvManager=nullptr);
     
   /**
    * @brief Desctructor
    */
-  virtual ~FCALDetectorManager();
+  virtual ~FCALDetectorManager() override;
       
   /**
    * @brief Iterate over FCAL Modules
@@ -64,12 +64,12 @@ class FCALDetectorManager : public GeoVDetectorManager
   /**
    * @brief Gets the number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
       
   /**
    * @brief Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
       
   /**
    * @brief Returns the Channel Map.
@@ -84,12 +84,12 @@ class FCALDetectorManager : public GeoVDetectorManager
   /**
    * @brief Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
 
   /**
    * @brief Get the HV Manager:
    */
-  const FCALHVManager * getHVManager() const;
+  const FCALHVManager& getHVManager() const;
 
   private:
     
@@ -116,7 +116,7 @@ class FCALDetectorManager : public GeoVDetectorManager
 
       const FCAL_ChannelMap *m_fcal_channel_map;
 
-      mutable const FCALHVManager *m_HVManager;
+      const FCALHVManager* m_HVManager;
       
 };
 

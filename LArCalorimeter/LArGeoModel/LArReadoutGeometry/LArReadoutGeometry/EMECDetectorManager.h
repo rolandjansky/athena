@@ -47,7 +47,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief  Destructor
    */
-  ~EMECDetectorManager();
+  virtual ~EMECDetectorManager() override;
       
   /**
    * @brief 	Iterate over detector regions
@@ -72,12 +72,12 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
       
   /**
    * @brief 	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
       
   /**
    * @brief 	This provides the distance in CLHEP::mm from the Focal Plane to
@@ -168,7 +168,7 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
 
   /**
    * @brief 	Get the HV Managers
