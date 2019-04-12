@@ -380,13 +380,28 @@ ToolSvc += HIGG3D3SkimmingTool
 
 skimmingTools = []
 
-# Keep only ~5% of MC to reduce the total derivation size, adding this to the skimming tool list FIRST
+HIGG33D1DSIDList = [361020, 361021, 361022, 361023, 361024, 361025, 361026, 361027, 361028, 361029, 361030, 361031, 361032,
+                    361000, 361001, 361002, 361003, 361004, 361005, 361006, 361007, 361008, 361009, 361010, 361011, 361012,
+                    426131, 426132, 426133, 426134, 426135, 426136, 426137, 426138, 426139, 426140, 426141, 426142,
+                    426040, 426041, 426042, 426043, 426044, 426045, 426046, 426047, 426048, 426049, 426050, 426051, 426052,
+                    364430, 364431, 364432, 364433, 364434, 364435, 364436, 364437, 364438, 364439, 364440, 364441, 364442, 364443, 364444, 364445, 364446, 364447, 364448, 364449, 364450, 364451, 364452, 364453,
+                    363701, 363702, 363703, 363704, 363705, 363706, 363707, 363708, 363709, 363710, 363711, 363712, 363713, 363714, 363715,
+                    426101, 426102, 426103, 426104, 426105, 426106, 426107, 426108, 426109,
+                    426001, 426002, 426003, 426004, 426005, 426006, 426007, 426008, 426009]
+
 if globalflags.DataSource()=='geant4':
-    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
-    mcPrescaleTool = DerivationFramework__PrescaleTool(name = "HIGG3D3MCPrescaleTool",
-                                                       Prescale = 9)
-    ToolSvc += mcPrescaleTool
-    skimmingTools.append(mcPrescaleTool)
+    import PyUtils.AthFile as af
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+    # Apply a prescale to mc in order to keep the overall format size under control
+    if len(f.mc_channel_number) > 0:
+        # but only if it's not dijet
+        if(int(f.mc_channel_number[0]) not in HIGG33D1DSIDList):
+            from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+            mcPrescaleTool = DerivationFramework__PrescaleTool(name = "HIGG3D3MCPrescaleTool",
+                                                               Prescale = 9)
+            ToolSvc += mcPrescaleTool
+            skimmingTools.append(mcPrescaleTool)
 
 skimmingTools += [HIGG3D3TrigSkimmingTool,HIGG3D3SkimmingTool]
 
