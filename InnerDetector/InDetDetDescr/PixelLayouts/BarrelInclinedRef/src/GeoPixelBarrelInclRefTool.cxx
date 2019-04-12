@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #include "BarrelInclinedRef/GeoPixelBarrelInclRefTool.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
@@ -11,6 +14,7 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
@@ -127,7 +131,7 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
 {
 
   msg(MSG::DEBUG)<<"GeoBarrelInclRef : GeoVPhysVol* GeoPixelBarrelInclRefTool::Build( )"<<endreq;
-
+  
   // links to material manager and msgstream
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
@@ -208,6 +212,87 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
       
     }
 
+
+  if(!cylBarrel) {
+    std::vector<double> hlenList = genDBHelper.getBarrelHalfLengthList();
+    std::vector<double> radiusList = genDBHelper.getBarrelRadiusList();
+
+    std::vector<double> zoffsetList = genDBHelper.getBarrelSupportZOffsetList();
+    std::vector<double> thicknessList = genDBHelper.getBarrelSupportThicknessList();
+    std::vector<std::string> materialList = genDBHelper.getBarrelSupportMaterialList();
+    std::vector<double> rmininnerList = genDBHelper.getBarrelSupportRminInnerList();
+    std::vector<double> rmaxinnerList = genDBHelper.getBarrelSupportRmaxInnerList();
+    std::vector<double> rminouterList = genDBHelper.getBarrelSupportRminOuterList();
+    std::vector<double> rmaxouterList = genDBHelper.getBarrelSupportRmaxOuterList();
+    std::vector<int> nsectorsList = genDBHelper.getBarrelSupportNSectorsList();
+    std::vector<double> sphiList = genDBHelper.getBarrelSupportSPhiList();
+    std::vector<double> dphiList = genDBHelper.getBarrelSupportDPhiList();
+    
+    for (int side=-1; side<=1; side=side+2)
+      {
+	for(size_t i=0; i<rmininnerList.size(); i++)
+	  {
+	    double halflen = hlenList[0];
+
+	    double zoffset = zoffsetList[i];
+	    double thickness = thicknessList[i];
+	    double zpos = (halflen - (thickness/1.99) - zoffset) * side;
+	    std::string matName = materialList[i];
+
+	    double rmin_inner = rmininnerList[i];
+	    double rmax_inner = rmaxinnerList[i];
+	    double rmin_outer = rminouterList[i];
+	    double rmax_outer = rmaxouterList[i];
+
+	    int nsectors = nsectorsList[i];
+	    double sphiSvc = sphiList[i];
+	    double dphiSvc = dphiList[i];
+	    
+	    const GeoTube* supTube_inner = new GeoTube(rmin_inner,rmax_inner,thickness*.5);
+	    double matVolume_inner = supTube_inner->volume();
+	    const GeoMaterial* supMat_inner = m_matMgr->getMaterial(matName);
+	    ATH_MSG_DEBUG("Density = " << supMat_inner->getDensity() << " Mass = " << ( matVolume_inner * supMat_inner->getDensity() ));
+	    GeoLogVol* _supLog_inner = new GeoLogVol("supLog_inner",supTube_inner,supMat_inner);
+	    GeoPhysVol* supPhys_inner = new GeoPhysVol(_supLog_inner);
+	    GeoTransform* xform_inner = new GeoTransform( HepGeom::Translate3D(0., 0., zpos) );
+	    barrelPhys->add(xform_inner);
+	    barrelPhys->add(supPhys_inner);
+	    
+	    for (int i_sector = 0; i_sector < nsectors; i_sector++) {
+
+	      if ((360. / nsectors) < dphiSvc) {
+		ATH_MSG_WARNING("Arms will overlap. Do not implement them.");
+		continue;
+	      }
+
+	      double Sphi  = (sphiSvc + 360. / nsectors * i_sector) * CLHEP::deg;
+	      double Dphi  = dphiSvc * CLHEP::deg;
+
+	      const GeoShape* supTubs_arm = new GeoTubs(rmax_inner,rmin_outer,thickness*.5,Sphi,Dphi);
+	      double matVolume_arm = supTubs_arm->volume();
+	      const GeoMaterial* supMat_arm = m_matMgr->getMaterial(matName);
+	      ATH_MSG_DEBUG("Density = " << supMat_arm->getDensity() << " Mass = " << ( matVolume_arm * supMat_arm->getDensity() ));
+	      GeoLogVol* _supLog_arm = new GeoLogVol("supLog_arm",supTubs_arm,supMat_arm);
+	      GeoPhysVol* supPhys_arm = new GeoPhysVol(_supLog_arm);
+	      GeoTransform* xform_arm = new GeoTransform( HepGeom::Translate3D(0., 0., zpos) );
+	      barrelPhys->add(xform_arm);
+	      barrelPhys->add(supPhys_arm);
+
+	    }
+
+	    const GeoTube* supTube_outer = new GeoTube(rmin_outer,rmax_outer,thickness*.5);
+	    double matVolume_outer = supTube_outer->volume();
+	    const GeoMaterial* supMat_outer = m_matMgr->getMaterial(matName);
+	    ATH_MSG_DEBUG("Density = " << supMat_outer->getDensity() << " Mass = " << ( matVolume_outer * supMat_outer->getDensity() ));
+	    GeoLogVol* _supLog_outer = new GeoLogVol("supLog_outer",supTube_outer,supMat_outer);
+	    GeoPhysVol* supPhys_outer = new GeoPhysVol(_supLog_outer);
+	    GeoTransform* xform_outer = new GeoTransform( HepGeom::Translate3D(0., 0., zpos) );
+	    barrelPhys->add(xform_outer);
+	    barrelPhys->add(supPhys_outer);
+
+	  }
+      }
+  }
 
   if(m_IDserviceTool){
     m_IDserviceTool->buildAndPlace("B", barrelPhys);

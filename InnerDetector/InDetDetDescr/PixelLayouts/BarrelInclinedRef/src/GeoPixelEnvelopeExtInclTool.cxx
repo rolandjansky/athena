@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 
 #include "BarrelInclinedRef/GeoPixelEnvelopeInclRefTool.h"
 
@@ -338,4 +341,3 @@ std::vector<InDetDD::TubeZone*> GeoPixelEnvelopeInclRefTool::SortServiceRegions(
   
   return newSvcRegions;
 }
-

@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 
 #include "PixelServicesTool/ServiceDynamicBuilder.h"
 #include "PixelSCTDBHelper/GeoPixelGeneralDBHelper.h"
@@ -47,10 +50,6 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
   std::map<std::string,std::string> svcMap = tracker->getSvcMaterialNameTable();      
   m_svcMaterialNameTable.insert(svcMap.begin(), svcMap.end());
 
-//   std::cout<<">> svcMaterialTable "<<endreq;
-//   std::map<std::string,std::string>::iterator it;
-//   for (it = m_svcMaterialNameTable.begin(); it != m_svcMaterialNameTable.end(); ++it)
-//     std::cout<<"- svcMaterialTable : "<<it->first<<" "<<it->second<<endreq;
 
   // Add the defined services to the geometry
   typedef  std::vector<ServiceDynVolume*>::const_iterator iter;
@@ -132,7 +131,7 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
 	     << " with " << vol.materials().size() << " materials" << endreq;
 
   InDetDD::ServiceVolume * param = new InDetDD::ServiceVolume;
-  //  std::unique_ptr<InDetDD::ServiceVolume>  param( new InDetDD::ServiceVolume); 
+ 
   std::vector<std::string> linearComponents;
   std::vector<double>      linWeights;
 

@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef GEOPIXEL_LadderPlanarRef_H
 #define GEOPIXEL_LadderPlanarRef_H
 
@@ -14,6 +17,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PixelInterfaces/IPixelServicesTool.h"
+
 
 namespace InDet{
   class StaveTmp;
@@ -33,6 +37,7 @@ class GeoPixelLadderPlanarRef : public PixelGeoBuilder {
  public:
   GeoPixelLadderPlanarRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, HepGeom::Transform3D trf);
   virtual GeoVPhysVol* Build();
+  GeoVPhysVol* BuildPigtail();
   virtual void preBuild();
 
   double thickness() const {return m_thickness;}

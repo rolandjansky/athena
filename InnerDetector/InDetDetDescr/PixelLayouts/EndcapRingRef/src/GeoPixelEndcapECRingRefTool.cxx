@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "EndcapRingRef/GeoPixelEndcapECRingRefTool.h"
 #include "EndcapRingRef/GeoPixelLayerECRingRefTool.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
@@ -219,9 +218,7 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
       ecPhys = new GeoFullPhysVol(endcapLog);
   }
 
-
-  // Set numerology
-  basics->getDetectorManager()->numerology().setNumDisks(m_nlayers);
+    basics->getDetectorManager()->numerology().setNumDisks(m_nlayers);
 
 
   // Retrieve the PixelServiceTool

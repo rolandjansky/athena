@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef GEOPIXEL_LayerIncRefTool_H
 #define GEOPIXEL_LayerIncRefTool_H
 
@@ -33,7 +36,7 @@ class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAl
   
   GeoVPhysVol* getPhysVol() const { return m_physVol; }
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_layerSvcRegions; }
- 
+  
  private:
 
   GeoVPhysVol* m_physVol;
@@ -51,6 +54,7 @@ class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAl
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
   ToolHandle<IPixelLayerValidationTool> m_validationTool;
   bool                                  m_validationMode;
+  
 };
 
 #endif

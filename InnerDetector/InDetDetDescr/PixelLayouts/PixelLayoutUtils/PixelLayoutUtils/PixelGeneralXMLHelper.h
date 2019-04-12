@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef PixelGeneralXMLHelper_H
 #define PixelGeneralXMLHelper_H
 
@@ -33,6 +32,17 @@ class PixelGeneralXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   bool isBarrelCylindrical() const;
   std::vector<double> getBarrelRadiusList() const;
   std::vector<double> getBarrelHalfLengthList() const;
+
+  std::vector<double> getBarrelSupportZOffsetList() const;
+  std::vector<double> getBarrelSupportThicknessList() const;
+  std::vector<std::string> getBarrelSupportMaterialList() const;
+  std::vector<double> getBarrelSupportRminInnerList() const;
+  std::vector<double> getBarrelSupportRmaxInnerList() const;
+  std::vector<double> getBarrelSupportRminOuterList() const;
+  std::vector<double> getBarrelSupportRmaxOuterList() const;
+  std::vector<int> getBarrelSupportNSectorsList() const;
+  std::vector<double> getBarrelSupportSPhiList() const;
+  std::vector<double> getBarrelSupportDPhiList() const;
 
   double getEndcapRMin() const;
   double getEndcapRMax() const;

@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/ComputeDynStaveServices.h"
 
 #include "PixelServicesTool/SvcCcawUtils.h"
@@ -123,4 +126,3 @@ int ComputeDynStaveServices::computeLVGaugeSerial( DetTypeDyn::Type type, DetTyp
 
   return gauge;
 }
-

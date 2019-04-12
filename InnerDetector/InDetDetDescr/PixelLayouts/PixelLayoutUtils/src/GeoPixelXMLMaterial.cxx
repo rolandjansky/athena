@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
 // This is built one time per layer. 
 
@@ -63,6 +61,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   msg(MSG::DEBUG) <<"MATERIAL NUMBER : "<<nbMaterial<<endmsg;
   
   if(prefix=="none") prefix="pix"; 
+
   prefix = prefix+"::";
   
   // --------------------------------------------------------------------------------------------------

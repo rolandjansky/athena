@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/ServicesTrackerBuilder.h"
 #include "PixelServicesTool/ServicesDynTracker.h"
 
@@ -293,4 +296,3 @@ double ServicesTrackerBuilder::ComputeRMax(double rMin, double safety, double mo
   return ringRmax + std::abs(safety);
 
 }
-

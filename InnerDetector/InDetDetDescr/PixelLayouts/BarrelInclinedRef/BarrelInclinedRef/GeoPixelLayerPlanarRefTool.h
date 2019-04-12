@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef GEOPIXEL_LayerPlanarRefTool_H
 #define GEOPIXEL_LayerPlanarRefTool_H
 
@@ -32,7 +35,7 @@ class GeoPixelLayerPlanarRefTool : virtual public IGeoPixelLayerTool, public Ath
   
   GeoVPhysVol* getPhysVol() const { return m_physVol; }
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_layerSvcRegions; }
-
+  
  private:
 
   GeoVPhysVol* m_physVol;
@@ -48,6 +51,7 @@ class GeoPixelLayerPlanarRefTool : virtual public IGeoPixelLayerTool, public Ath
   std::vector<InDetDD::TubeZone*> m_layerSvcRegions;
 
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
+  
 };
 
 #endif

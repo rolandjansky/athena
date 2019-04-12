@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef PixelRingSupportXMLHelper_H
 #define PixelRingSupportXMLHelper_H
 
@@ -25,6 +24,9 @@ class PixelRingSupportXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   double getRingSupportRMin(int iSupport) const;
   double getRingSupportRMax(int iSupport) const;
   double getRingSupportThickness(int iSupport) const;
+  int getRingSupportNSectors(int iSupport) const;
+  double getRingSupportSPhi(int iSupport) const;
+  double getRingSupportDPhi(int iSupport) const;
   std::string getRingSupportMaterial(int iSupport) const;
 
   int getNbLayerSupport(int layer);

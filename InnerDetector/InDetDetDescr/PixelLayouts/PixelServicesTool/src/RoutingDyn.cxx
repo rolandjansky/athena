@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "PixelServicesTool/RoutingDyn.h"
 #include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 #include "PixelServicesTool/PixelDynamicServiceXMLHelper.h"
@@ -296,13 +299,6 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
     for(std::vector<HSvcRoute>::iterator it=m_horizRoutes.begin(); it!=m_horizRoutes.end(); ++it)
       {
 	const SvcRoute::VolumeContainer& svcVol_hrz=(*it).volumes();
-	//	int nbSvcVol_hrz=(int)svcVol_hrz.size();
-
-// 	for(int isvc=0; isvc<nbSvcVol_hrz; isvc++){
-// 	  double zmin_hrz = svcVol_hrz[isvc]->zMin();
-// 	  double zmax_hrz = svcVol_hrz[isvc]->zMax();
-// 	  double rmin_hrz = svcVol_hrz[isvc]->rMin();
-// 	  double rmax_hrz = svcVol_hrz[isvc]->rMax();
 
 	for(auto& itSvc_hrz : svcVol_hrz){
 	  double zmin_hrz = itSvc_hrz->zMin();
@@ -321,14 +317,11 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
 	      if(svcInter.isInInterval(rmin_hrz)||svcInter.isInInterval(rmax_hrz))bIntersection=true;
 	      
 	      if(bIntersection){
-		//  	      msg(MSG::DEBUG)<<"SERVICE INTERSECTION : "<<svcVol[i]->name()<<" "<<svcVol_hrz[isvc]->name()<<" => "<<rMin<<" "<<rMax<<" // "<<rmin_hrz<<" "<<rmax_hrz<<endreq;
-		//  	      msg(MSG::DEBUG)<<"                : "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<" "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<endreq;
-		//  	      msg(MSG::DEBUG)<<"                : "<<fabs(rMax-rmax_hrz)<<" "<<fabs(rMin-rmin_hrz)<<endreq;
+		
 		rPos.push_back(rmin_hrz);
 		rPos.push_back(rmax_hrz);
 		bool bAlreadyExists = false;
-		//		for(std::vector<Interval>::iterator it2=overlapInterval.begin(); it2!=overlapInterval.end(); ++it2)
-		//		  if ((*it2).isIdenticalTo(locInter)) bAlreadyExists = true;
+	
 		for(auto& itOverlap : overlapInterval)
 		  if (itOverlap.isIdenticalTo(locInter)) 
               bAlreadyExists = true;

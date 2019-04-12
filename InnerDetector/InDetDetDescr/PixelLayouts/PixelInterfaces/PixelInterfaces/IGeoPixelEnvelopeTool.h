@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef PIXELINTERFACES_IGEOPIXELENVELOPETOOL_H
 #define PIXELINTERFACES_IGEOPIXELENVELOPETOOL_H
 
@@ -33,4 +36,3 @@ class IGeoPixelEnvelopeTool : public virtual IAlgTool {
 };
 
 #endif 
-

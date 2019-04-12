@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "EndcapRingRef/GeoPixelLayerECRingRefTool.h"
 #include "EndcapRingRef/GeoPixelRingECRingRef.h"
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
@@ -177,7 +176,6 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     rLayerMax = std::max(rLayerMax,ringB.getRingRMax());
     zLayerMin = std::min(zLayerMin,ringPosition+halfZoffset-halfSplitOffset+ringB.getRingZMin());
     zLayerMax = std::max(zLayerMax,ringPosition+halfZoffset+halfSplitOffset+ringB.getRingZMax());
-
   }
 
   // Open link to the xml file that describes the layer services
@@ -191,6 +189,16 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     zLayerMin = std::min(zLayerMin,z[0]);
     zLayerMax = std::max(zLayerMax,z[1]);
   }
+
+  nbSvcSupport = ringHelper.getNbSupport(m_layer);
+  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
+    double rmin = ringHelper.getRingSupportRMin(iSvc);
+    double rmax = ringHelper.getRingSupportRMax(iSvc);
+
+    rLayerMin = std::min(rLayerMin,rmin);
+    rLayerMax = std::max(rLayerMax,rmax);
+  }
+  
 
   // Further layer parameters...
   m_layerPosition = (zLayerMin+zLayerMax)*.5;
@@ -251,10 +259,15 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     
     // Set numerology
     int numModules = getValueFromVector(v_numModules, iRing);
-    basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(layer,iRing,numModules);
-  
+
+    int tmp_layer = layer; 
+    int tmp_ring = iRing;
+   
+    basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(tmp_layer,tmp_ring,numModules);
+ 
+
   }
-  
+   
   
   // Build layer envelope
   const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
@@ -314,9 +327,9 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  zPos += (isTwdBSShift) ? -halfSplitOffset : halfSplitOffset;
 	  
 	  bool swap = false;
-	  if (halfIsEven and (splitMode==MIDDLE or splitMode==GOOD) and not isTwdBSShift) 
+	  if (halfIsEven && (splitMode==MIDDLE || splitMode==GOOD) && !isTwdBSShift) 
 	    swap = true;
-	  else if (not halfIsEven and ((splitMode==MIDDLE and isTwdBSShift) or splitMode==GOOD))
+	  else if (!halfIsEven && ((splitMode==MIDDLE && isTwdBSShift) || splitMode==GOOD))
 	    swap = true;
 	  
 	  if (swap)
@@ -338,30 +351,50 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	}
       
       }
-      
-      if(i%2==0 and nbSvcSupport>0){
-	// std::cout<<" -> I should add some supports for disc i = " << i << std::endl;
-	// Add ring supports
-	int iSvc = i/2<nbSvcSupport ? i/2 : nbSvcSupport-1;
-	double rminSvc = ringHelper.getRingSupportRMin(iSvc);
-	double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
-	double thick = ringHelper.getRingSupportThickness(iSvc);
-	std::string matName = ringHelper.getRingSupportMaterial(iSvc);
+
+      if(nbSvcSupport>0){      
+	if (splitMode==NONE && i==0) {	  
+	  // Add ring supports
+	  for (int iSvc = 0; iSvc < nbSvcSupport; iSvc++){
+	    double rminSvc = ringHelper.getRingSupportRMin(iSvc);
+	    double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
+	    double thick = ringHelper.getRingSupportThickness(iSvc);
+	    int nsectors = ringHelper.getRingSupportNSectors(iSvc);
+	    double sphiSvc = ringHelper.getRingSupportSPhi(iSvc);
+	    double dphiSvc = ringHelper.getRingSupportDPhi(iSvc);
+	    std::string matName = ringHelper.getRingSupportMaterial(iSvc);	
+
+	    for (int i_sector = 0; i_sector < nsectors; i_sector++) {
+	      
+	      if ((360. / nsectors) < dphiSvc) {
+		ATH_MSG_WARNING("Arms will overlap. Do not implement them.");
+		continue;
+	      }
+	      
+	      double Sphi  = (sphiSvc + 360. / nsectors * i_sector) * CLHEP::deg;
+	      double Dphi  = dphiSvc * CLHEP::deg;
+	      
+	      const GeoShape* supTubs = (nsectors>1) ? dynamic_cast<const GeoShape*> (new GeoTubs(rminSvc,rmaxSvc,thick*.5,Sphi,Dphi)) : dynamic_cast<const GeoShape*> (new GeoTube(rminSvc,rmaxSvc,thick*.5));
+	      double matVolume = supTubs->volume();
+	      const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+	      ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
+	      GeoLogVol* _supLog = new GeoLogVol("supLog",supTubs,supMat);
+	      GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+	      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
+	      ecPhys->add(xform);
+	      ecPhys->add(supPhys);
+	    }
+	  }
+	}
 	
-	if (splitMode==NONE) {
-	  
-	  const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
-	  double matVolume = supTube->volume();
-	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
-	  ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
-	  GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
-	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(supPhys);
-	  
-	} else {
+	if (splitMode!=NONE && i%2==0){
 	  // here starts if we have the 2 tubs when we split the rings
+	  int iSvc = i/2<nbSvcSupport ? i/2 : nbSvcSupport-1;
+	  double rminSvc = ringHelper.getRingSupportRMin(iSvc);
+	  double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
+	  double thick = ringHelper.getRingSupportThickness(iSvc);
+	  std::string matName = ringHelper.getRingSupportMaterial(iSvc);	
+
 	  double SphiTwd  = 90.*CLHEP::deg;
 	  double DphiTwd  = 180.*CLHEP::deg;
 	  double SphiAway = 270.*CLHEP::deg;

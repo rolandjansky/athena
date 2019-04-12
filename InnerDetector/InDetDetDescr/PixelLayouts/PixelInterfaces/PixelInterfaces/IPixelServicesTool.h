@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef PIXELINTERFACES_IINDETSERVICESTOOL_H
 #define PIXELINTERFACES_IINDETSERVICESTOOL_H
 
@@ -61,5 +64,3 @@ namespace InDetDD{
 //}
 
 #endif // GEOMODELINTERFACES_IGEOPIXELMODULETOOL_H
-
-

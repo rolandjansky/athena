@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef InDet_GeoPixelEndcapModuleSvcRef_H
 #define InDet_GeoPixelEndcapModuleSvcRef_H
 
@@ -52,6 +55,8 @@ class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
   
   GeoPhysVol *m_endcapFoam;
   GeoPhysVol *m_transFoam;
+
+  double m_CurlyMaterialFudge;
 
 };
 

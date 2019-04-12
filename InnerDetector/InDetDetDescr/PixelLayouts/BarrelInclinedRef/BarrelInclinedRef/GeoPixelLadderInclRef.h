@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef GEOPIXEL_LadderInclRef_H
 #define GEOPIXEL_LadderInclRef_H
 
@@ -14,6 +17,8 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PixelInterfaces/IPixelServicesTool.h"
+
+#include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 
 namespace InDet{
   class StaveTmp;
@@ -32,6 +37,11 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
 
  public:
   GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, int iLadder, int nSectors, int nSectorsLastLayer, int nSectorsNextLayer, double phiOfStaveZero, double phiOfStaveZeroLastLayer, HepGeom::Transform3D trf);
+  ~GeoPixelLadderInclRef(){
+    for(auto it = m_staveDBHelpers.begin(); it != m_staveDBHelpers.end(); ++it) delete (*it);
+    m_staveDBHelpers.clear();
+  }
+
   virtual GeoVPhysVol* Build();
   virtual void preBuild();
 
@@ -92,7 +102,10 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   std::string m_barrelModuleType;
   double m_barrelModuleGap;
   double m_barrelModuleTilt;
+  double m_barrelModuleZeroTilt;
+  double m_barrelModuleZoffset;
   double m_barrelModuleDZ;
+  double m_barrelZMax;
   double m_moduleTilt;
 
   int m_endcapModuleNumber;
@@ -101,7 +114,9 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   double m_endcapModuleGap;
   double m_endcapInclAngle;
   double m_endcapModuleRshift;
+  double m_endcapModuleROffset;
   double m_endcapModuleRtilt;
+  double m_endcapModuleZoffset;
   std::vector<HepGeom::Point3D<double> > m_endcapModPos;
 
   int m_transitionModuleNumber;
@@ -127,6 +142,8 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   ServiceHandle<IPixelModuleSvc> m_pixelModuleSvc;
   ServiceHandle<IPixelDesignSvc> m_pixelDesignSvc;
   ToolHandle<IPixelServicesTool> m_IDserviceTool;
+
+  std::vector<PixelInclRefStaveXMLHelper*> m_staveDBHelpers;
 
 };
 

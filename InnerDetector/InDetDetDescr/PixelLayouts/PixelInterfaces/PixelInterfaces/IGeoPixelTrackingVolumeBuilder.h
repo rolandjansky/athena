@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef PIXELINTERFACES_IGEOPIXELTRACKINGVOLUMEBUILDER_H
 #define PIXELINTERFACES_IGEOPIXELTRACKINGVOLUMEBUILDER_H
 
@@ -40,4 +43,3 @@ inline void IGeoPixelTrackingVolumeBuilder::processMaterial(const Trk::TrackingV
 { }
 
 #endif 
-

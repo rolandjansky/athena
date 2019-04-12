@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #ifndef InDet_PixelLayerValidationTool_H
 #define InDet_PixelLayerValidationTool_H
 
@@ -31,5 +34,3 @@ class IPixelLayerValidationTool : public virtual IAlgTool {
 
 
 #endif
-
-

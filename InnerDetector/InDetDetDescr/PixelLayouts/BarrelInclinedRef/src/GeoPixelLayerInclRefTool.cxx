@@ -1,4 +1,8 @@
+/*
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/ 
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
+#include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "BarrelInclinedRef/GeoPixelLayerInclRefTool.h"
 #include "BarrelInclinedRef/GeoPixelSlimStaveSupportInclRef.h"
 #include "PixelInterfaces/IPixelLayerValidationTool.h"
@@ -122,7 +126,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   //
   // create a barrel layer
   //
-
+  
   InDet::BarrelLayerTmp *layerTmp = m_xmlReader->getPixelBarrelLayerTemplate(m_layer);
 
   printf("************** BUILD LAYER  %d\n", m_layer);
@@ -161,6 +165,10 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   // Register the number of stave defined for the layer
   basics->getDetectorManager()->numerology().setNumPhiModulesForLayer(m_layer,nSectors);
 
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
+  double brl_rmin = genDBHelper.getBarrelRMin();
+  double brl_rmax = genDBHelper.getBarrelRMax();
+
   GeoFullPhysVol* layerPhys = 0;
 
   // Loop over the sectors and place everything
@@ -185,14 +193,13 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
       msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax<<endreq;
 
-
       // Enlarge layer envelope if longerons are being built.
       PixelInclRefStaveXMLHelper staveHelperCurrLayer(m_layer, basics);
       if (staveHelperCurrLayer.getStaveSupportType() == "Longeron") {
 	rmax = staveHelperCurrLayer.getRadialMidpointAtEOS();
 	
 	// Last layer longeron conects to PST, so extend envelope some more (refine this!)
-	if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) rmax += fabs(staveHelperCurrLayer.getRadialMidpointAtEOS() - layerRadius);
+	if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) rmax = brl_rmax - 0.01;
       }
 
       // If previous layer used a longeron, extend this layer's envelope down to meet it
@@ -200,13 +207,16 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 	PixelInclRefStaveXMLHelper staveHelperLastLayer(m_layer-1, basics);
 	if (staveHelperLastLayer.getStaveSupportType() == "Longeron") rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
       }
-
+      
+      if ( rmin < brl_rmin ) rmin = brl_rmin + 0.001;
+      if ( rmax > brl_rmax ) rmax = brl_rmax - 0.001;
+      
       // Now make the layer envelope
       msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;
-      const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*ladderLength); //solid
+      const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*(ladderLength)+staveOffset); //solid
       const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
       layerPhys = new GeoFullPhysVol(layerLog); // phys vol
     }
@@ -266,7 +276,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       ShellsToBuild.push_back(halfStaveType::OUTER);
       
       // Last layer is a special case - outer shell will be full longeron (inner+outer halves)
-      if (m_layer == m_xmlReader->nbOfPixelBarrelLayers()-1) ShellsToBuild.push_back(halfStaveType::INNER);
+      if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers()-1)) ShellsToBuild.push_back(halfStaveType::INNER);
     }
     
    
@@ -320,7 +330,7 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   //
   // Calculate layerThicknessN: Thickness from layer radius to min radius of envelope
   // Calculate layerThicknessP: Thickness from layer radius to max radius of envelope
-  //       
+  //      
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
@@ -328,7 +338,7 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
 	    << " " << ladderTilt << " " << layerRadius << endreq;
   
-  double distToClosestPoint = 0.;
+ double distToClosestPoint = 0.;
   double radClosest = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;
   
   if (ladderTilt!=0.) {
@@ -337,8 +347,6 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
     
     // x1, y1 is the point on the center of ladder surface.
     double y1 = -ladderHalfThickN*sin(std::abs(ladderTilt));
-    
-    std::cout << "y1 = " << y1 << std::endl;
     
     double x1 = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;
     
@@ -351,8 +359,9 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
     // distance of closest approach.
     radClosest = (y1 - grad*x1)/(sqrt(1+grad*grad));
   }
-  //msg(MSG::DEBUG) << "Distance of closest approach: " << radClosest << endreq;
-  //msg(MSG::DEBUG) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
+
+
+ 
 
   // Calculate the radius of the corners of the ladder.
   HepGeom::Point3D<double> ladderLowerCorner(-ladderHalfThickN, ladderHalfWidth, 0);
@@ -363,16 +372,8 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   m_layerThicknessN = layerRadius - ladderLowerCorner.perp();
   m_layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
   
-  //  msg(MSG::DEBUG)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
-  //  msg(MSG::DEBUG)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
-
-  //msg(MSG::DEBUG) << "Layer Envelope (using ladder corners): "
-  //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<endreq;
-
-  // If distance of closest approach is within the ladder width we use that instead
   if (distToClosestPoint < ladderHalfWidth) {
     m_layerThicknessN = layerRadius - radClosest;
   }
-  
-}
 
+}
