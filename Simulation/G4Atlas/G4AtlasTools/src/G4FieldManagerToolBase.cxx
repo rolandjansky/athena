@@ -23,8 +23,6 @@
 #include "G4DormandPrince745.hh"
 #include "G4DormandPrinceRK56.hh"
 #include "G4DormandPrinceRK78.hh"
-#include "G4MagErrorStepper.hh"
-#include "G4MagHelicalStepper.hh"
 #include "G4RK547FEq1.hh"
 #include "G4RK547FEq2.hh"
 #include "G4RK547FEq3.hh"
@@ -129,8 +127,6 @@ G4FieldManagerToolBase::getStepper(std::string name, G4MagneticField* field) con
   else if (name=="DormandPrince745") return new G4DormandPrince745(eqRhs);
   else if (name=="DormandPrinceRK56") return new G4DormandPrinceRK56(eqRhs);
   else if (name=="DormandPrinceRK78") return new G4DormandPrinceRK78(eqRhs);
-  else if (name=="MagErrorStepper") return new G4MagErrorStepper(eqRhs);
-  else if (name=="MagHelicalStepper") return new G4MagHelicalStepper(eqRhs);
   else if (name=="RK547FEq1") return new G4RK547FEq1(eqRhs);
   else if (name=="RK547FEq2") return new G4RK547FEq2(eqRhs);
   else if (name=="RK547FEq3") return new G4RK547FEq3(eqRhs);
