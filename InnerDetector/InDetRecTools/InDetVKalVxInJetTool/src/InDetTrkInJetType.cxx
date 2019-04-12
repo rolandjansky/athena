@@ -21,7 +21,8 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_tmvaReader(0),
+  m_tmvaReader(nullptr),
+  m_localBDT(nullptr),
   m_trkSctHitsCut(4),
   m_trkPixelHitsCut(1),
   m_trkChi2Cut(5.),
@@ -51,7 +52,8 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 
 //Destructor---------------------------------------------------------------
   InDetTrkInJetType::~InDetTrkInJetType(){
-    delete m_tmvaReader;
+    if(m_tmvaReader)delete m_tmvaReader;
+    if(m_localBDT)delete m_localBDT;
     ATH_MSG_DEBUG("InDetTrkInJetType destructor called");
   }
 
@@ -116,7 +118,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
    StatusCode InDetTrkInJetType::finalize()
    {
     if(m_timingProfile)m_timingProfile->chronoPrint("InDet_TrkInJetType");
-    if(m_localBDT)delete m_localBDT;
     ATH_MSG_DEBUG("InDetTrkInJetType finalize()");
     return StatusCode::SUCCESS; 
    }
