@@ -57,7 +57,6 @@ namespace Trk {
        * presence of a TrackingVolume.
        */
 
-      const TrackingGeometry *m_trackingGeometry = nullptr;
       const TrackingVolume *m_caloEntrance = nullptr;
       const TrackingVolume *m_msEntrance = nullptr;
 
@@ -70,45 +69,42 @@ namespace Trk {
       bool m_acceleration;
       bool m_fiteloss;
       bool m_asymeloss;
-      bool m_updatescat;        // Need to look at how this should be intialised
 
       std::vector<double> m_phiweight;
       std::vector<int> m_firstmeasurement;
       std::vector<int> m_lastmeasurement;
-      std::vector<MaterialEffectsOnTrack> m_calomeots;
       
-      std::vector < const TrackStateOnSurface *>m_matvec;
       std::vector < const Trk::Layer * >m_negdiscs;
       std::vector < const Trk::Layer * >m_posdiscs;
       std::vector < const Trk::Layer * >m_barrelcylinders;
       
       bool m_fastmat = true;
 
-      int m_hitcount = 0;
       int m_lastiter;
       int m_miniter;
-      int m_MMCorrectionStatus = 0;
 
       #ifdef GXFDEBUGCODE
       int m_iterations = 0;
       #endif
       
-      Amg::MatrixX * m_derivmat = nullptr;
-      Amg::SymMatrixX * m_fullcovmat = nullptr;
+      Amg::MatrixX m_derivmat;
+      Amg::SymMatrixX m_fullcovmat;
 
       FitterStatusCode m_fittercode;
 
-      void cleanup();
-       ~Cache() {
-        cleanup();
-      };
-      //default constructor is defaulted
-        Cache() = default;
-      //assignment is deleted
-        Cache & operator=(const Cache &) = delete;
-      //copy is deleted
-        Cache(const Cache &) = delete;
+      Cache(const GlobalChi2Fitter *fitter):
+        m_calomat(fitter->m_calomat),
+        m_extmat(fitter->m_extmat),
+        m_sirecal(fitter->m_sirecal),
+        m_getmaterialfromtrack(fitter->m_getmaterialfromtrack),
+        m_reintoutl(fitter->m_reintoutl),
+        m_acceleration(fitter->m_acceleration),
+        m_fiteloss(fitter->m_fiteloss),
+        m_asymeloss(fitter->m_asymeloss),
+        m_miniter(fitter->m_miniter)
+      {}
 
+      Cache & operator=(const Cache &) = delete;
     };
 
     enum FitterStatusType {
