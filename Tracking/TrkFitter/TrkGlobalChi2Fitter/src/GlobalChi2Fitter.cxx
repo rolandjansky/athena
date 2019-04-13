@@ -4114,123 +4114,7 @@ namespace Trk {
         muon
       );
 
-      if (!calomeots.empty()) {
-        const TrackParameters *prevtrackpars = lastidpar;
-        if (lasthit == lastmuonhit) {
-          for (int i = 0; i < (int) calomeots.size(); i++) {
-            PropDirection propdir = alongMomentum;
-      
-            const TrackParameters *layerpar = m_propagator->propagateParameters(
-              *prevtrackpars,
-              calomeots[i].associatedSurface(), 
-              propdir,
-              false,
-              *trajectory.m_fieldprop,
-              nonInteracting
-            );
-
-            if (!layerpar) {
-              m_fit_status[S_PROPAGATION_FAIL]++;
-              return;
-            }
-
-            GXFMaterialEffects *meff = new GXFMaterialEffects(&calomeots[i]);
-            
-            if (i == 2) {
-              lastcalopar = layerpar;
-            }
-            
-            if (i == 1) {
-              double qoverp = layerpar->parameters()[Trk::qOverP];
-              double qoverpbrem = 0;
-
-              if (
-                npseudomuon2 < 2 && 
-                firstmuonpar && 
-                fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
-              ) {
-                qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
-              } else {
-                double sign = (qoverp > 0) ? 1 : -1;
-                qoverpbrem = sign / (1 / std::abs(qoverp) - std::abs(calomeots[i].energyLoss()->deltaE()));
-              }
-
-              const AmgVector(5) & newpar = layerpar->parameters();
-
-              const TrackParameters *newlayerpar = layerpar->associatedSurface().createTrackParameters(
-                newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, 0
-              );
-
-              delete layerpar;
-              layerpar = newlayerpar;
-              meff->setdelta_p(1000 * (qoverpbrem - qoverp));
-            }
-
-            matstates.push_back(new GXFTrackState(meff, layerpar));
-            prevtrackpars = layerpar;
-          }
-        }
-
-        if (
-          firsthit == firstmuonhit && 
-          (!cache.m_getmaterialfromtrack || lasthit == lastidhit)
-        ) {
-          prevtrackpars = firstidpar;
-          for (int i = 0; i < (int) calomeots.size(); i++) {
-            PropDirection propdir = oppositeMomentum;
-            const TrackParameters *layerpar = m_propagator->propagateParameters(
-              *prevtrackpars,
-              calomeots[i].associatedSurface(), 
-              propdir,
-              false,
-              *trajectory.m_fieldprop,
-              nonInteracting
-            );
-            
-            if (i == 2) {
-              delete prevtrackpars;
-            }
-            
-            if (!layerpar) {
-              m_fit_status[S_PROPAGATION_FAIL]++;
-              return;
-            }
-            
-            GXFMaterialEffects *meff = new GXFMaterialEffects(&calomeots[i]);
-            
-            if (i == 2) {
-              firstcalopar = layerpar;
-            }
-
-            prevtrackpars = layerpar;
-            
-            if (i == 1) {
-              double qoverpbrem = layerpar->parameters()[Trk::qOverP];
-              double qoverp = 0;
-            
-              if (
-                npseudomuon1 < 2 && 
-                lastmuonpar && 
-                fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
-              ) {
-                qoverp = lastmuonpar->parameters()[Trk::qOverP];
-              } else {
-                double sign = (qoverpbrem > 0) ? 1 : -1;
-                qoverp = sign / (1 / std::abs(qoverpbrem) + std::abs(calomeots[i].energyLoss()->deltaE()));
-              }
-
-              meff->setdelta_p(1000 * (qoverpbrem - qoverp));
-              const AmgVector(5) & newpar = layerpar->parameters();
-
-              prevtrackpars = layerpar->associatedSurface().createTrackParameters(
-                newpar[0], newpar[1], newpar[2], newpar[3], qoverp, 0
-              );
-            }
-
-            matstates.insert(matstates.begin(), new GXFTrackState(meff, layerpar));
-          }
-        }
-      } else {
+      if (calomeots.empty()) {
         ATH_MSG_WARNING("No material layers collected in calorimeter");
         
         for (auto & matstate : matstates) {
@@ -4239,6 +4123,122 @@ namespace Trk {
         
         delete refpar;
         return;
+      }
+
+      const TrackParameters *prevtrackpars = lastidpar;
+      if (lasthit == lastmuonhit) {
+        for (int i = 0; i < (int) calomeots.size(); i++) {
+          PropDirection propdir = alongMomentum;
+    
+          const TrackParameters *layerpar = m_propagator->propagateParameters(
+            *prevtrackpars,
+            calomeots[i].associatedSurface(), 
+            propdir,
+            false,
+            *trajectory.m_fieldprop,
+            nonInteracting
+          );
+
+          if (!layerpar) {
+            m_fit_status[S_PROPAGATION_FAIL]++;
+            return;
+          }
+
+          GXFMaterialEffects *meff = new GXFMaterialEffects(&calomeots[i]);
+          
+          if (i == 2) {
+            lastcalopar = layerpar;
+          }
+          
+          if (i == 1) {
+            double qoverp = layerpar->parameters()[Trk::qOverP];
+            double qoverpbrem = 0;
+
+            if (
+              npseudomuon2 < 2 && 
+              firstmuonpar && 
+              fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+            ) {
+              qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
+            } else {
+              double sign = (qoverp > 0) ? 1 : -1;
+              qoverpbrem = sign / (1 / std::abs(qoverp) - std::abs(calomeots[i].energyLoss()->deltaE()));
+            }
+
+            const AmgVector(5) & newpar = layerpar->parameters();
+
+            const TrackParameters *newlayerpar = layerpar->associatedSurface().createTrackParameters(
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, 0
+            );
+
+            delete layerpar;
+            layerpar = newlayerpar;
+            meff->setdelta_p(1000 * (qoverpbrem - qoverp));
+          }
+
+          matstates.push_back(new GXFTrackState(meff, layerpar));
+          prevtrackpars = layerpar;
+        }
+      }
+
+      if (
+        firsthit == firstmuonhit && 
+        (!cache.m_getmaterialfromtrack || lasthit == lastidhit)
+      ) {
+        prevtrackpars = firstidpar;
+        for (int i = 0; i < (int) calomeots.size(); i++) {
+          PropDirection propdir = oppositeMomentum;
+          const TrackParameters *layerpar = m_propagator->propagateParameters(
+            *prevtrackpars,
+            calomeots[i].associatedSurface(), 
+            propdir,
+            false,
+            *trajectory.m_fieldprop,
+            nonInteracting
+          );
+          
+          if (i == 2) {
+            delete prevtrackpars;
+          }
+          
+          if (!layerpar) {
+            m_fit_status[S_PROPAGATION_FAIL]++;
+            return;
+          }
+          
+          GXFMaterialEffects *meff = new GXFMaterialEffects(&calomeots[i]);
+          
+          if (i == 2) {
+            firstcalopar = layerpar;
+          }
+
+          prevtrackpars = layerpar;
+          
+          if (i == 1) {
+            double qoverpbrem = layerpar->parameters()[Trk::qOverP];
+            double qoverp = 0;
+          
+            if (
+              npseudomuon1 < 2 && 
+              lastmuonpar && 
+              fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
+            ) {
+              qoverp = lastmuonpar->parameters()[Trk::qOverP];
+            } else {
+              double sign = (qoverpbrem > 0) ? 1 : -1;
+              qoverp = sign / (1 / std::abs(qoverpbrem) + std::abs(calomeots[i].energyLoss()->deltaE()));
+            }
+
+            meff->setdelta_p(1000 * (qoverpbrem - qoverp));
+            const AmgVector(5) & newpar = layerpar->parameters();
+
+            prevtrackpars = layerpar->associatedSurface().createTrackParameters(
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, 0
+            );
+          }
+
+          matstates.insert(matstates.begin(), new GXFTrackState(meff, layerpar));
+        }
       }
     }
 
