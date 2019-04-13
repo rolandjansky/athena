@@ -66,6 +66,8 @@ cd $rundir
 # L1Topo config file
 generateL1TopoMenu.py $menu >&! $logfiletopo
 cp L1Topoconfig_*.xml ${dest}
+rename _${release}.xml .xml L1Topoconfig_*.xml
+cp L1Topoconfig_*.xml ${dest}
 
 # L1 + HLT config file
 if [ -z "$TMXML_DEBUG" ]; then
