@@ -689,8 +689,16 @@ class readL1TopoConfigFromXML(JobProperty):
 
     def _do_action(self):
         """ setup some consistency """
+        import os
+        log = logging.getLogger( 'TriggerFlags.readL1TopoConfigFromXML' )
+
         if self.get_Value() is False:
             TriggerFlags.inputL1TopoConfigFile = TriggerFlags.outputL1TopoConfigFile()
+        else:
+            xmlFile=TriggerFlags.inputL1TopoConfigFile()
+            from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+            if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
+                log.error("Cannot find LVL1 xml file %s" % xmlFile)
 
 _flags.append(readL1TopoConfigFromXML)
 
@@ -756,22 +764,13 @@ class readHLTconfigFromXML(JobProperty):
             TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
         else:
             if TriggerFlags.inputHLTconfigFile != 'NONE':
-                
-                TriggerFlags.inputHLTconfigFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                nightlyPaths=os.environ['XMLPATH'].split(':')
-
-                for p in nightlyPaths:
-                    #print p+"/TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                    full_path_name = p+"/TriggerMenuXML/"+TriggerFlags.inputHLTconfigFile()
-                    if os.path.exists(full_path_name) is True:
-                        log.info("The HLT xml file is: "+full_path_name)
-                        success = True
-                        break
-                    else:
-                        success = False
-
-                if success is False:
-                    log.error("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
+            
+                xmlFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+                from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+                if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
+                    log.error("Cannot find HLT xml file %s" % TriggerFlags.inputHLTconfigFile)
+                else:
+                    TriggerFlags.inputHLTconfigFile = xmlFile
                 
 _flags.append(readHLTconfigFromXML)
 
