@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
-			  AtlasTest/TestTools)
+                          AtlasTest/TestTools)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -50,13 +50,17 @@ atlas_install_joboptions( share/*.py )
 file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )
 foreach ( test_file ${CXX_TEST_FILES} )
    get_filename_component( name ${test_file} NAME_WE)
-	atlas_add_test( ${name}
-			SOURCES ${test_file}
-			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
-			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-			POST_EXEC_SCRIPT "true"
-            PROPERTIES TIMEOUT 300
-	)
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_cxx_${name} )
+   file( REMOVE_RECURSE ${rundir} )
+   file( MAKE_DIRECTORY ${rundir} )
+   atlas_add_test( ${name}
+      SOURCES ${test_file}
+      LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
+      ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+      POST_EXEC_SCRIPT "true"
+         PROPERTIES TIMEOUT 300
+         PROPERTIES WORKING_DIRECTORY ${rundir}
+   )
 endforeach()
 
 # Units tests Python:
@@ -64,8 +68,12 @@ endforeach()
 file( GLOB PYTHON_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py )
 foreach ( test_file ${PYTHON_TEST_FILES} )
    get_filename_component( name ${test_file} NAME_WE)
-	atlas_add_test( ${name}
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_py_${name} )
+   file( REMOVE_RECURSE ${rundir} )
+   file( MAKE_DIRECTORY ${rundir} )
+   atlas_add_test( ${name}
       SCRIPT python ${test_file}
       POST_EXEC_SCRIPT "true"
-	)
+         PROPERTIES WORKING_DIRECTORY ${rundir}
+   )
 endforeach()
