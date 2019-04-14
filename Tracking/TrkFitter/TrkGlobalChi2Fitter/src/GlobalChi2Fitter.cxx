@@ -91,13 +91,13 @@ namespace {
   }
 
   std::pair<const Trk::TrackParameters *, const Trk::TrackParameters *> getFirstLastIdPar(const Trk::Track & track) {
-    const Trk::TrackParameters *firstidpar = 0, *lastidpar = 0;
+    const Trk::TrackParameters *firstidpar = nullptr, *lastidpar = nullptr;
 
     DataVector<const Trk::TrackParameters>::const_iterator parit = track.trackParameters()->begin();
 
-    while (!firstidpar && parit != track.trackParameters()->end()) {
+    while ((firstidpar == nullptr) && parit != track.trackParameters()->end()) {
       if (
-        (**parit).covariance() &&
+        ((**parit).covariance() != nullptr) &&
         (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
       {
         firstidpar = *parit;
@@ -110,12 +110,12 @@ namespace {
     do {
       parit--;
       if (
-        (**parit).covariance() && 
+        ((**parit).covariance() != nullptr) && 
         (**parit).associatedSurface().type() == Trk::Surface::Perigee) 
       {
         lastidpar = *parit;
       }
-    } while (!lastidpar && parit != track.trackParameters()->begin());
+    } while ((lastidpar == nullptr) && parit != track.trackParameters()->begin());
   
     return std::make_pair(firstidpar, lastidpar);
   }
@@ -311,14 +311,14 @@ namespace Trk {
 
     for (auto i : *(muontrack->measurementsOnTrack())) {
       const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>(i);
-      const RIO_OnTrack *rot = 0;
+      const RIO_OnTrack *rot = nullptr;
       
-      if (crot) {
+      if (crot != nullptr) {
         rot = &crot->rioOnTrack(0);
       } else {
         rot = dynamic_cast<const RIO_OnTrack *>(i);
       }
-      if (rot && !m_DetID->is_mdt(rot->identify())) {
+      if ((rot != nullptr) && !m_DetID->is_mdt(rot->identify())) {
         const Surface *surf = &rot->associatedSurface();
         Amg::Vector3D measdir = surf->transform().rotation().col(0);
         
@@ -335,8 +335,8 @@ namespace Trk {
     const IPropagator *prop = &*m_propagator;
     auto [firstidpar, lastidpar] = getFirstLastIdPar(*indettrack);
 
-    if (!firstidpar || !lastidpar) {
-      return 0;
+    if ((firstidpar == nullptr) || (lastidpar == nullptr)) {
+      return nullptr;
     }
 
     const TrackParameters *parforcalo = firstismuon ? firstidpar : lastidpar;
@@ -345,7 +345,7 @@ namespace Trk {
       const AmgVector(5) & newpars = parforcalo->parameters();
       
       parforcalo = parforcalo->associatedSurface().createTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., 0
+        newpars[0], newpars[1], newpars[2], newpars[3], 1 / 5000., nullptr
       );
     }
 
@@ -372,10 +372,10 @@ namespace Trk {
     
     if (calomeots.empty()) {
       ATH_MSG_WARNING("No calorimeter material collected, failing fit");
-      return 0;
+      return nullptr;
     }
 
-    Track *track = 0;
+    Track *track = nullptr;
 
     bool tmp = m_calomat;
     cache.m_calomat = false;
@@ -385,16 +385,16 @@ namespace Trk {
     const TrackParameters *measperid = indettrack->perigeeParameters();
     const TrackParameters *measpermuon = muontrack->perigeeParameters();
     
-    double qoverpid = measperid ? measperid->parameters()[Trk::qOverP] : 0;
-    double qoverpmuon = measpermuon ? measpermuon->parameters()[Trk::qOverP] : 0;
+    double qoverpid = measperid != nullptr ? measperid->parameters()[Trk::qOverP] : 0;
+    double qoverpmuon = measpermuon != nullptr ? measpermuon->parameters()[Trk::qOverP] : 0;
     
-    const AmgSymMatrix(5) * errmatid = measperid ? measperid->covariance() : 0;
-    const AmgSymMatrix(5) * errmatmuon = measpermuon ? measpermuon->covariance() : 0;
+    const AmgSymMatrix(5) * errmatid = measperid != nullptr ? measperid->covariance() : nullptr;
+    const AmgSymMatrix(5) * errmatmuon = measpermuon != nullptr ? measpermuon->covariance() : nullptr;
 
     if (
       !firstismuon && 
-      errmatid && 
-      errmatmuon && 
+      (errmatid != nullptr) && 
+      (errmatmuon != nullptr) && 
       qoverpmuon != 0 && 
       !m_calotoolparam.empty() && 
       !m_useCaloTG
@@ -429,7 +429,7 @@ namespace Trk {
             delete parforcalo;
           }
           
-          return 0;
+          return nullptr;
         }
       }
     }
@@ -441,16 +441,16 @@ namespace Trk {
     int nfits = m_fit_status[S_FITS];
     bool firstfitwasattempted = false;
 
-    if (!cache.m_caloEntrance) {
+    if (cache.m_caloEntrance == nullptr) {
       const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
       
-      if (geometry) {
+      if (geometry != nullptr) {
         cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
       }
       
-      if (!cache.m_caloEntrance) {
+      if (cache.m_caloEntrance == nullptr) {
         ATH_MSG_ERROR("calo entrance not available");
-        return 0;
+        return nullptr;
       }
     }
 
@@ -472,7 +472,7 @@ namespace Trk {
     }
 
     if (
-      !track && 
+      (track == nullptr) && 
       !firstfitwasattempted && 
       (m_fieldService->toroidOn() || m_fieldService->solenoidOn())
     ) {
@@ -486,9 +486,9 @@ namespace Trk {
 
     bool pseudoupdated = false;
     
-    if (track) {
+    if (track != nullptr) {
       for (GXFTrackState *pseudostate : trajectory.trackStates()) { 
-        if (!pseudostate) {
+        if (pseudostate == nullptr) {
           continue;
         }
         
@@ -499,7 +499,7 @@ namespace Trk {
           continue;
         }
         
-        if (!pseudostate || pseudostate->fitQuality()->chiSquared() < 10) {
+        if ((pseudostate == nullptr) || pseudostate->fitQuality()->chiSquared() < 10) {
           continue;
         }
         
@@ -510,7 +510,7 @@ namespace Trk {
           pseudostate->measurement()->localCovariance()
         );
         
-        if (!updpar) {
+        if (updpar == nullptr) {
           continue;
         }
         
@@ -554,7 +554,7 @@ namespace Trk {
 
     m_fit_status[S_FITS] = nfits + 1;
     
-    if (track) {
+    if (track != nullptr) {
       track->info().addPatternReco(intrk1.info());
       track->info().addPatternReco(intrk2.info());
       m_fit_status[S_SUCCESSFUL_FITS]++;
@@ -583,8 +583,8 @@ namespace Trk {
     
     auto [firstidpar, lastidpar] = getFirstLastIdPar(*indettrack);
 
-    if (!firstidpar || !lastidpar) {
-      return 0;
+    if ((firstidpar == nullptr) || (lastidpar == nullptr)) {
+      return nullptr;
     }
 
     DataVector<const TrackStateOnSurface>::const_iterator tsosit =
@@ -596,20 +596,20 @@ namespace Trk {
       tsosit--;
     }
     
-    const MeasurementBase *closestmuonmeas = 0;
-    const TrackParameters *tp_closestmuon = 0;
+    const MeasurementBase *closestmuonmeas = nullptr;
+    const TrackParameters *tp_closestmuon = nullptr;
 
-    while (!closestmuonmeas) {
-      closestmuonmeas = 0;
+    while (closestmuonmeas == nullptr) {
+      closestmuonmeas = nullptr;
       const TrackParameters *thispar = (**tsosit).trackParameters();
       
-      if ((**tsosit).measurementOnTrack()) {
+      if ((**tsosit).measurementOnTrack() != nullptr) {
         closestmuonmeas = (**tsosit).measurementOnTrack();
         
-        if (thispar) {
+        if (thispar != nullptr) {
           const AmgVector(5) & parvec = thispar->parameters();
           tp_closestmuon = thispar->associatedSurface().createTrackParameters(
-            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], 0
+            parvec[0], parvec[1], parvec[2], parvec[3], parvec[4], nullptr
           );
         }
         break;
@@ -623,21 +623,21 @@ namespace Trk {
     }
 
     PropDirection propdir = firstismuon ? Trk::alongMomentum : oppositeMomentum;
-    const TrackParameters *tmppar = 0;
+    const TrackParameters *tmppar = nullptr;
 
-    if (!cache.m_msEntrance) {
+    if (cache.m_msEntrance == nullptr) {
       const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
       
-      if (geometry) {
+      if (geometry != nullptr) {
         cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
       }
       
-      if (!cache.m_msEntrance) {
+      if (cache.m_msEntrance == nullptr) {
         ATH_MSG_ERROR("MS entrance not available");
       }
     }
 
-    if (tp_closestmuon && cache.m_msEntrance) {
+    if ((tp_closestmuon != nullptr) && (cache.m_msEntrance != nullptr)) {
       tmppar = m_extrapolator->extrapolateToVolume(
         *tp_closestmuon, 
         *cache.m_msEntrance, 
@@ -646,11 +646,11 @@ namespace Trk {
       );
     }
     
-    const std::vector<const TrackStateOnSurface *> *matvec = 0;
+    const std::vector<const TrackStateOnSurface *> *matvec = nullptr;
     
-    if (tmppar) {
+    if (tmppar != nullptr) {
       const Surface & associatedSurface = tmppar->associatedSurface();
-      Surface *muonsurf = 0;
+      Surface *muonsurf = nullptr;
       
       if (associatedSurface.type() == Trk::Surface::Cylinder) {
         if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder) {
@@ -683,7 +683,7 @@ namespace Trk {
         }
       }
       
-      if (muonsurf) {
+      if (muonsurf != nullptr) {
         matvec = m_extrapolator->extrapolateM(
           *tp_closestmuon, 
           *muonsurf, 
@@ -699,7 +699,7 @@ namespace Trk {
 
     std::vector<const TrackStateOnSurface *> tmp_matvec;
 
-    if (matvec && !matvec->empty()) {
+    if ((matvec != nullptr) && !matvec->empty()) {
       for (auto & i : tmp_matvec) {
         delete i;
       }
@@ -713,7 +713,7 @@ namespace Trk {
         propdir = firstismuon ? Trk::alongMomentum : oppositeMomentum;
         const MaterialEffectsOnTrack *meff = dynamic_cast<const MaterialEffectsOnTrack *>(i->materialEffectsOnTrack());
         
-        if (!meff) {
+        if (meff == nullptr) {
           continue;
         }
         
@@ -727,7 +727,7 @@ namespace Trk {
           Trk::nonInteracting
         );
         
-        if (!tmppar) {
+        if (tmppar == nullptr) {
           propdir = !firstismuon ? Trk::alongMomentum : oppositeMomentum;
           tmppar = m_propagator->propagateParameters(
             *tp_closestmuon, 
@@ -740,8 +740,8 @@ namespace Trk {
         }
         
         delete tp_closestmuon;
-        if (!tmppar) {
-          return 0;
+        if (tmppar == nullptr) {
+          return nullptr;
         }
         
         AmgVector(5) newpars = tmppar->parameters();
@@ -758,7 +758,7 @@ namespace Trk {
         }
         
         tp_closestmuon = tmppar->associatedSurface().createTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
         );
         delete tmppar;
       }
@@ -778,13 +778,13 @@ namespace Trk {
     DataVector<const TrackStateOnSurface>::const_iterator endState2 = intrk2.trackStateOnSurfaces()->end();
 
     for (; itStates != endState; ++itStates) {
-      if (firstismuon && dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack())) {
+      if (firstismuon && (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr)) {
         continue;
       }
       
       bool tmpgetmat = cache.m_getmaterialfromtrack;
       
-      if ((*itStates)->materialEffectsOnTrack()) {
+      if ((*itStates)->materialEffectsOnTrack() != nullptr) {
         if (firstismuon) {
           cache.m_extmat = false;
         } else {
@@ -793,7 +793,7 @@ namespace Trk {
         
         const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>((*itStates)->materialEffectsOnTrack());
         
-        if (meot && (!meot->scatteringAngles() || !meot->energyLoss())) {
+        if ((meot != nullptr) && ((meot->scatteringAngles() == nullptr) || (meot->energyLoss() == nullptr))) {
           cache.m_getmaterialfromtrack = true;  // always take calorimeter layers
         }
       }
@@ -806,11 +806,11 @@ namespace Trk {
       !firstismuon && 
       intrk1.info().trackProperties(TrackInfo::SlimmedTrack)
     ) {
-      trajectory.trackStates().back()->setTrackParameters(0);
+      trajectory.trackStates().back()->setTrackParameters(nullptr);
     }
     
-    const TrackParameters *firstscatpar = 0; 
-    const TrackParameters *lastscatpar = 0;
+    const TrackParameters *firstscatpar = nullptr; 
+    const TrackParameters *lastscatpar = nullptr;
     const TrackParameters *origlastidpar = lastidpar;
     const TrackParameters *origfirstidpar = firstidpar;
     
@@ -837,7 +837,7 @@ namespace Trk {
         
         const AmgVector(5) & newpar = firstidpar->parameters();
         firstidpar = firstidpar->associatedSurface().createTrackParameters(
-          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, 0
+          newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, nullptr
         );
       }
       
@@ -849,7 +849,7 @@ namespace Trk {
       );
     }
 
-    if (!lastidpar) {
+    if (lastidpar == nullptr) {
       lastidpar = origlastidpar;
     }
     
@@ -870,9 +870,9 @@ namespace Trk {
       delete firstidpar;
     }
 
-    if (!firstscatpar) {
+    if (firstscatpar == nullptr) {
       delete tp_closestmuon;
-      return 0;
+      return nullptr;
     }
     
     lastscatpar = m_propagator->propagateParameters(
@@ -884,13 +884,13 @@ namespace Trk {
       Trk::nonInteracting
     );
 
-    if (!lastscatpar) {
+    if (lastscatpar == nullptr) {
       delete tp_closestmuon;
       delete firstscatpar;
-      return 0;
+      return nullptr;
     }
 
-    TransportJacobian *jac1 = 0, *jac2 = 0;
+    TransportJacobian *jac1 = nullptr, *jac2 = nullptr;
     std::unique_ptr<const TrackParameters> elosspar;
     
     double firstscatphi = 0;
@@ -916,7 +916,7 @@ namespace Trk {
     const TrackParameters *startPar = cache.m_idmat ? lastidpar : indettrack->perigeeParameters();
    
     for (int i = 0; i < 2; i++) {
-      const TrackParameters *tmpelosspar = 0;
+      const TrackParameters *tmpelosspar = nullptr;
       AmgVector(5) params1 = muonscatpar->parameters();
       params1[Trk::phi] += muonscatphi;
       params1[Trk::theta] += muonscattheta;
@@ -925,11 +925,11 @@ namespace Trk {
         delete tp_closestmuon;
         delete firstscatpar;
         delete lastscatpar;
-        return 0;
+        return nullptr;
       }
       
       const TrackParameters *tmppar1 = muonscatpar->associatedSurface().createTrackParameters(
-        params1[0], params1[1], params1[2], params1[3], params1[4], 0
+        params1[0], params1[1], params1[2], params1[3], params1[4], nullptr
       );
       
       PropDirection propdir = !firstismuon ? oppositeMomentum : alongMomentum;
@@ -956,7 +956,7 @@ namespace Trk {
       }
       delete tmppar1;
 
-      if (!tmpelosspar || !jac1) {
+      if ((tmpelosspar == nullptr) || (jac1 == nullptr)) {
         delete jac1;
         delete tp_closestmuon;
         delete firstscatpar;
@@ -969,12 +969,12 @@ namespace Trk {
         // because elosspar is initially NULL and only set in the last loop iteration  (i==1)
         // is this intended ?
         // delete elosspar;
-        return 0;
+        return nullptr;
       }
 
       const AmgVector(5) & newpars = tmpelosspar->parameters();
       const TrackParameters *elosspar2 = tmpelosspar->associatedSurface().createTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, 0
+        newpars[0], newpars[1], newpars[2], newpars[3], newqoverpid, nullptr
       );
       
       if (i == 1) {
@@ -1010,14 +1010,14 @@ namespace Trk {
       }
       
       delete elosspar2;
-      if (!scat2 || !jac2) {
+      if ((scat2 == nullptr) || (jac2 == nullptr)) {
         delete scat2;
         delete jac1;
         delete jac2;
         delete tp_closestmuon;
         delete firstscatpar;
         delete lastscatpar;
-        return 0;
+        return nullptr;
       }
       
       double jac3[5][5];
@@ -1033,7 +1033,7 @@ namespace Trk {
       delete jac1;
       delete jac2;
       
-      jac1 = jac2 = 0;
+      jac1 = jac2 = nullptr;
       Amg::MatrixX jac4(2, 2);
       
       jac4(0, 0) = jac3[0][2];
@@ -1055,7 +1055,7 @@ namespace Trk {
       if (scat2->associatedSurface().type() == Trk::Surface::Cylinder)
         discsurf = static_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
 
-      if (cylsurf) {
+      if (cylsurf != nullptr) {
         double length = 2 * M_PI * cylsurf->bounds().r();
         if (fabs(fabs(dloc1) - length) < fabs(dloc1)) {
           if (dloc1 > 0) {
@@ -1066,7 +1066,7 @@ namespace Trk {
         }
       }
       
-      if (discsurf) {
+      if (discsurf != nullptr) {
         if (fabs(fabs(dloc2) - 2 * M_PI) < fabs(dloc2)) {
           if (dloc2 > 0) {
             dloc2 -= 2 * M_PI;
@@ -1116,11 +1116,11 @@ namespace Trk {
           delete tp_closestmuon;
           delete firstscatpar;
           delete lastscatpar;
-          return 0;
+          return nullptr;
         }
 
         const TrackParameters *tmpidpar = scat2->associatedSurface().createTrackParameters(
-          params2[0], params2[1], params2[2], params2[3], params2[4], 0
+          params2[0], params2[1], params2[2], params2[3], params2[4], nullptr
         );
         
         delete idscatpar;
@@ -1133,7 +1133,7 @@ namespace Trk {
           Trk::nonInteracting
         );
         
-        if (startPar) {
+        if (startPar != nullptr) {
           Amg::Vector3D trackdir = startPar->momentum().unit();
           Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
           Amg::Vector3D curvU = curvZcrossT.unit();
@@ -1153,10 +1153,10 @@ namespace Trk {
             *startPar, 
             curvlinsurf,
             Trk::oppositeMomentum,
-            Trk::nonInteracting
+            Trk::nonInteracting != 0u
           );
           
-          if (curvlinpar) {
+          if (curvlinpar != nullptr) {
             delete startPar;
             startPar = curvlinpar;
           }
@@ -1207,8 +1207,8 @@ namespace Trk {
 
     ATH_MSG_DEBUG("pull1: " << pull1 << " pull2: " << pull2);
     
-    if (!startPar) {
-      return 0;
+    if (startPar == nullptr) {
+      return nullptr;
     }
     
     if (
@@ -1218,7 +1218,7 @@ namespace Trk {
       if (startPar != lastidpar && startPar != indettrack->perigeeParameters()) {
         delete startPar;
       }
-      return 0;
+      return nullptr;
     }
 
     bool largegap = false;
@@ -1229,13 +1229,13 @@ namespace Trk {
       const TrackParameters *tpar = (*itStates2)->trackParameters();
       const MeasurementBase *meas = (*itStates2)->measurementOnTrack();
       
-      if (meff) {
+      if (meff != nullptr) {
         if (!firstismuon) {
           const MaterialEffectsOnTrack *mefot = dynamic_cast<const MaterialEffectsOnTrack *>(meff);
           
           if (
-            mefot && 
-            mefot->energyLoss() && 
+            (mefot != nullptr) && 
+            (mefot->energyLoss() != nullptr) && 
             std::abs(mefot->energyLoss()->deltaE()) > 250 && 
             mefot->energyLoss()->sigmaDeltaE() < 1.e-9
           ) {
@@ -1246,7 +1246,7 @@ namespace Trk {
               delete startPar;
             }
             
-            return 0;
+            return nullptr;
           }
           
           cache.m_extmat = false;
@@ -1255,7 +1255,7 @@ namespace Trk {
         }
       }
 
-      bool ispseudo = dynamic_cast<const PseudoMeasurementOnTrack *>(meas);
+      bool ispseudo = dynamic_cast<const PseudoMeasurementOnTrack *>(meas) != nullptr;
       if (
         ispseudo && 
         !(itStates2 == beginStates2 || itStates2 == beginStates2 + 1) && 
@@ -1337,30 +1337,30 @@ namespace Trk {
     int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
     
     const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = 0;
+    const CompetingRIOsOnTrack *testcrot = nullptr;
     
-    if (!testrot) {
+    if (testrot == nullptr) {
       testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
       
-      if (testcrot) {
+      if (testcrot != nullptr) {
         testrot = &testcrot->rioOnTrack(0);
       }
     }
     
-    if (!testrot) {
+    if (testrot == nullptr) {
       testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
       
-      if (!testrot) {
+      if (testrot == nullptr) {
         testcrot = dynamic_cast<const CompetingRIOsOnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
         
-        if (testcrot) {
+        if (testcrot != nullptr) {
           testrot = &testcrot->rioOnTrack(0);
         }
       }
     }
     
     if (
-      testrot && 
+      (testrot != nullptr) && 
       !m_DetID->is_indet(testrot->identify()) && 
       m_DetID->is_muon(testrot->identify())
     ) {
@@ -1375,7 +1375,7 @@ namespace Trk {
     DataVector<const TrackStateOnSurface>::const_iterator itStates2 = beginStates2;
     DataVector<const TrackStateOnSurface>::const_iterator endState2 = intrk2.trackStateOnSurfaces()->end();
 
-    const TrackParameters *firstidpar = 0;
+    const TrackParameters *firstidpar = nullptr;
     // Dont understand why the second track parameters are taken
     // Is it assumed the ID track is slimmed?
     if (indettrack->trackParameters()->size() > 1)
@@ -1383,8 +1383,8 @@ namespace Trk {
     else
       firstidpar = indettrack->trackParameters()->back();
 
-    const TrackParameters *lastidpar = 0;
-    if (firstidpar && cache.m_caloEntrance)
+    const TrackParameters *lastidpar = nullptr;
+    if ((firstidpar != nullptr) && (cache.m_caloEntrance != nullptr))
       lastidpar = m_extrapolator->extrapolateToVolume(
         *firstidpar,
         *cache.m_caloEntrance,
@@ -1392,7 +1392,7 @@ namespace Trk {
         Trk::muon
       );
       
-    if (!lastidpar) {
+    if (lastidpar == nullptr) {
       lastidpar = indettrack->trackParameters()->back()->clone();
     }
     
@@ -1422,7 +1422,7 @@ namespace Trk {
       delete lastidpar;
       
       if (!firstscatpar) {
-        return 0;
+        return nullptr;
       }
       
       std::unique_ptr<const TrackParameters> tmppar(
@@ -1437,7 +1437,7 @@ namespace Trk {
       );
       
       if (!tmppar) {
-        return 0;
+        return nullptr;
       }
       
       double sign = (tmppar->parameters()[Trk::qOverP] < 0) ? -1 : 1;
@@ -1458,7 +1458,7 @@ namespace Trk {
       
       elosspar.reset(
         tmppar->associatedSurface().createTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, 0
+          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
         )
       );
         
@@ -1474,7 +1474,7 @@ namespace Trk {
       );
       
       if (!lastscatpar) {
-        return 0;
+        return nullptr;
       }
     } else {
       lastscatpar.reset(
@@ -1489,7 +1489,7 @@ namespace Trk {
       );
       
       if (!lastscatpar) {
-        return 0;
+        return nullptr;
       }
       
       elosspar.reset(
@@ -1504,7 +1504,7 @@ namespace Trk {
       );
       
       if (!elosspar) {
-        return 0;
+        return nullptr;
       }
       
       double sign = (elosspar->parameters()[Trk::qOverP] < 0) ? -1 : 1;
@@ -1516,7 +1516,7 @@ namespace Trk {
 
       std::unique_ptr<const TrackParameters>tmppar(
         elosspar->associatedSurface().createTrackParameters(
-          pars[0], pars[1], pars[2], pars[3], newqoverp, 0
+          pars[0], pars[1], pars[2], pars[3], newqoverp, nullptr
         )
       );
       
@@ -1532,19 +1532,19 @@ namespace Trk {
       );
       
       if (!firstscatpar) {
-        return 0;
+        return nullptr;
       }
     }
 
     for (; itStates != endState; ++itStates) {
       if (
         firstismuon && 
-        dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack())
+        (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr)
       ) {
         continue;
       }
 
-      if ((*itStates)->materialEffectsOnTrack()) {
+      if ((*itStates)->materialEffectsOnTrack() != nullptr) {
         if (!firstismuon) {
           cache.m_idmat = false;
         } else {
@@ -1573,7 +1573,7 @@ namespace Trk {
     trajectory.addMaterialState(new GXFTrackState(secondscatmeff.release(), lastscatpar.release()), -1, true);
     
     GXFTrackState *secondscatstate = trajectory.trackStates().back();
-    const Surface *triggersurf1 = 0, *triggersurf2 = 0;
+    const Surface *triggersurf1 = nullptr, *triggersurf2 = nullptr;
     Amg::Vector3D triggerpos1(0, 0, 0), triggerpos2(0, 0, 0);
 
     bool seenmdt = false, mdtbetweenphihits = false;
@@ -1585,7 +1585,7 @@ namespace Trk {
       (!firstismuon ? ++itStates2 : --itStates2)
     ) {
       if (
-        !(*itStates2)->measurementOnTrack() || 
+        ((*itStates2)->measurementOnTrack() == nullptr) || 
         (*itStates2)->type(TrackStateOnSurface::Outlier)
       ) {
         continue;
@@ -1593,20 +1593,20 @@ namespace Trk {
       
       const Surface *surf = &(*itStates2)->measurementOnTrack()->associatedSurface();
       const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((*itStates2)->measurementOnTrack());
-      const RIO_OnTrack *rot = 0;
+      const RIO_OnTrack *rot = nullptr;
       
-      if (crot) {
+      if (crot != nullptr) {
         rot = &crot->rioOnTrack(0);
       } else {
         rot = dynamic_cast<const RIO_OnTrack *>((*itStates2)->measurementOnTrack());
       }
       
-      if (rot && m_DetID->is_mdt(rot->identify()) && triggersurf1) {
+      if ((rot != nullptr) && m_DetID->is_mdt(rot->identify()) && (triggersurf1 != nullptr)) {
         seenmdt = true;
       }
       
       if (
-        rot && (
+        (rot != nullptr) && (
           m_DetID->is_tgc(rot->identify()) || 
           m_DetID->is_rpc(rot->identify()) ||
           m_DetID->is_stgc(rot->identify())
@@ -1625,10 +1625,10 @@ namespace Trk {
         if (measphi) {
           nphi++;
           Amg::Vector3D thispos =
-            (*itStates2)->trackParameters() ? 
+            (*itStates2)->trackParameters() != nullptr ? 
             (*itStates2)->trackParameters()->position() : 
             rot->globalPosition();
-          if (triggersurf1) {
+          if (triggersurf1 != nullptr) {
             triggerpos2 = thispos;
             triggersurf2 = surf;
             if (seenmdt) {
@@ -1643,29 +1643,29 @@ namespace Trk {
     }
 
     double mdttrig1 = 999999, mdttrig2 = 999999;
-    const Surface *mdtsurf1 = 0, *mdtsurf2 = 0;
+    const Surface *mdtsurf1 = nullptr, *mdtsurf2 = nullptr;
 
     for (
       itStates2 = (!firstismuon ? beginStates2 : endState - 1);
       itStates2 != (!firstismuon ? endState2 : beginStates - 1);
       (!firstismuon ? ++itStates2 : --itStates2)
     ) {
-      const Surface *surf = 0;
+      const Surface *surf = nullptr;
       if (
-        (*itStates2)->measurementOnTrack() && 
+        ((*itStates2)->measurementOnTrack() != nullptr) && 
         !(*itStates2)->type(TrackStateOnSurface::Outlier)
       ) {
         surf = &(*itStates2)->measurementOnTrack()->associatedSurface();
       }
       
-      if (!surf) {
+      if (surf == nullptr) {
         continue;
       }
       
       const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((*itStates2)->measurementOnTrack());
-      const RIO_OnTrack *rot = 0;
+      const RIO_OnTrack *rot = nullptr;
       
-      if (crot) {
+      if (crot != nullptr) {
         rot = &crot->rioOnTrack(0);
       } else {
         rot = dynamic_cast<const RIO_OnTrack *>((*itStates2)->measurementOnTrack());
@@ -1673,13 +1673,13 @@ namespace Trk {
       
       bool thisismdt = false;
       
-      if (rot && m_DetID->is_mdt(rot->identify())) {
+      if ((rot != nullptr) && m_DetID->is_mdt(rot->identify())) {
         thisismdt = true;
       }
       
       if (thisismdt) {
         Amg::Vector3D globpos =
-          (*itStates2)->trackParameters() ? 
+          (*itStates2)->trackParameters() != nullptr ? 
           (*itStates2)->trackParameters()->position() : 
           (*itStates2)->measurementOnTrack()->globalPosition();
         if (triggerpos1.mag() > 1 && (globpos - triggerpos1).mag() < mdttrig1) {
@@ -1693,32 +1693,32 @@ namespace Trk {
       }
     }
 
-    GXFTrackState *pseudostate1 = 0, *pseudostate2 = 0, *firstpseudostate = 0;
+    GXFTrackState *pseudostate1 = nullptr, *pseudostate2 = nullptr, *firstpseudostate = nullptr;
     std::vector<GXFTrackState *> outlierstates, outlierstates2;
     
     outlierstates.reserve(10);
     outlierstates2.reserve(10);
     
-    PseudoMeasurementOnTrack *newpseudo = 0;
+    PseudoMeasurementOnTrack *newpseudo = nullptr;
     
     for (itStates2 = beginStates2; itStates2 != endState2; ++itStates2) {
       const MeasurementBase *pseudo = dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates2)->measurementOnTrack());
 
       bool isStraightLine = 
-        (*itStates2)->measurementOnTrack() ? 
+        (*itStates2)->measurementOnTrack() != nullptr ? 
         (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::Surface::Line : 
         false;
 
       if (
         isStraightLine && 
         !firstismuon && 
-        !newpseudo && (
+        (newpseudo == nullptr) && (
           (itStates2 == beginStates2 || itStates2 == beginStates2 + 1) &&
           std::abs((*itStates2)->measurementOnTrack()->globalPosition().z()) < 10000
         )
       ) {
         const TrackParameters *par2 = 
-          ((*itStates2)->trackParameters() && nphi > 99) ? 
+          (((*itStates2)->trackParameters() != nullptr) && nphi > 99) ? 
           (*itStates2)->trackParameters()->clone() : 
           m_propagator->propagateParameters(
             *secondscatstate->trackParameters(),
@@ -1728,7 +1728,7 @@ namespace Trk {
             *trajectory.m_fieldprop,
             Trk::nonInteracting
           );
-        if (!par2) {
+        if (par2 == nullptr) {
           continue;
         }
         
@@ -1755,11 +1755,11 @@ namespace Trk {
         continue;
       }
       
-      if (pseudo && !firstismuon) {
+      if ((pseudo != nullptr) && !firstismuon) {
         continue;
       }
       
-      if ((**itStates2).materialEffectsOnTrack()) {
+      if ((**itStates2).materialEffectsOnTrack() != nullptr) {
         if (firstismuon) {
           cache.m_idmat = false;
         } else {
@@ -1769,9 +1769,9 @@ namespace Trk {
 
       if (!firstismuon) {
         if (
-          (**itStates2).measurementOnTrack() &&
+          ((**itStates2).measurementOnTrack() != nullptr) &&
           &(**itStates2).measurementOnTrack()->associatedSurface() == triggersurf1 &&
-          mdtsurf1
+          (mdtsurf1 != nullptr)
         ) {
           Amg::Transform3D * transf = new Amg::Transform3D(mdtsurf1->transform());
           
@@ -1784,7 +1784,7 @@ namespace Trk {
             LocalParameters(DefinedParameter(0, Trk::locY)), covMatrix, slsurf
           );
           
-          pseudostate1 = new GXFTrackState(newpseudo, 0, true);
+          pseudostate1 = new GXFTrackState(newpseudo, nullptr, true);
           pseudostate1->setMeasurementType(TrackState::Pseudo);
           
           double errors[5];
@@ -1797,10 +1797,10 @@ namespace Trk {
         }
         
         if (
-          (**itStates2).measurementOnTrack() &&
+          ((**itStates2).measurementOnTrack() != nullptr) &&
           &(**itStates2).measurementOnTrack()->associatedSurface() == triggersurf2 && 
           mdtbetweenphihits && 
-          mdtsurf2
+          (mdtsurf2 != nullptr)
         ) {
           Amg::Transform3D * transf = new Amg::Transform3D(mdtsurf2->transform());
           transf->translation() << triggerpos2;
@@ -1812,7 +1812,7 @@ namespace Trk {
             LocalParameters(DefinedParameter(0, Trk::locY)), covMatrix, slsurf
           );
           
-          pseudostate2 = new GXFTrackState(newpseudo, 0, true);
+          pseudostate2 = new GXFTrackState(newpseudo, nullptr, true);
           pseudostate2->setMeasurementType(TrackState::Pseudo);
           
           double errors[5];
@@ -1844,7 +1844,7 @@ namespace Trk {
 
     trajectory.setNumberOfPerigeeParameters(0);
 
-    Track *track = 0;
+    Track *track = nullptr;
 
     trajectory.setPrefit(2);
     const TrackParameters *startpar2 = &startper;
@@ -1860,11 +1860,11 @@ namespace Trk {
       trajectory.converged() &&
       std::abs(trajectory.residuals().back() / trajectory.errors().back()) > 10
     ) {
-      return 0;
+      return nullptr;
     }
 
     if (trajectory.converged()) {
-      if (firstpseudostate) {
+      if (firstpseudostate != nullptr) {
         const TrackParameters *par2 = firstpseudostate->trackParameters();
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
@@ -1897,7 +1897,7 @@ namespace Trk {
         itStates != (firstismuon ? endState2 : beginStates - 1);
         (firstismuon ? ++itStates : --itStates)
       ) {
-        if (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack())) {
+        if (dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates)->measurementOnTrack()) != nullptr) {
           continue;
         }
         
@@ -1953,7 +1953,7 @@ namespace Trk {
     alignCache.m_iterationsOfLastFit = 0;
 
     Trk::Track* newTrack = fitIm( cache, inputTrack, runOutlier, matEffects );
-    if(newTrack){
+    if(newTrack != nullptr){
       if(cache.m_derivmat.size() != 0)
         alignCache.m_derivMatrix = new Amg::MatrixX(cache.m_derivmat);
       if(cache.m_fullcovmat.size() != 0)
@@ -1982,19 +1982,19 @@ namespace Trk {
 
     if (inputTrack.trackStateOnSurfaces()->empty()) {
       ATH_MSG_WARNING("Track with zero track states, cannot perform fit");
-      return 0;
+      return nullptr;
     }
     
     if (inputTrack.trackParameters()->empty()) {
       ATH_MSG_WARNING("Track without track parameters, cannot perform fit");
-      return 0;
+      return nullptr;
     }
     
     const TrackParameters *minpar = inputTrack.perigeeParameters();
-    const TrackParameters *firstidpar = 0;
-    const TrackParameters *lastidpar = 0;
+    const TrackParameters *firstidpar = nullptr;
+    const TrackParameters *lastidpar = nullptr;
     
-    if (!minpar) {
+    if (minpar == nullptr) {
       minpar = *(inputTrack.trackParameters()->begin());
     }
     
@@ -2013,20 +2013,20 @@ namespace Trk {
 
     trajectory.trackStates().reserve(inputTrack.trackStateOnSurfaces()->size());
                                      
-    const Surface *firsthitsurf = 0, *lasthitsurf = 0;
+    const Surface *firsthitsurf = nullptr, *lasthitsurf = nullptr;
     bool hasid = false, hasmuon = false;
     bool iscombined = false, seenphimeas = false, phiem = false, phibo = false;
     
     for (; itStates != endState; ++itStates) {
       if (
-        !(**itStates).measurementOnTrack() && 
-        (**itStates).materialEffectsOnTrack() && 
+        ((**itStates).measurementOnTrack() == nullptr) && 
+        ((**itStates).materialEffectsOnTrack() != nullptr) && 
         matEffects != inputTrack.info().particleHypothesis()
       ) {
         continue;
       }
 
-      if ((**itStates).measurementOnTrack()) {
+      if ((**itStates).measurementOnTrack() != nullptr) {
         const Surface *surf = &(**itStates).measurementOnTrack()->associatedSurface();
 
         Identifier hitid = surf->associatedDetectorElementIdentifier();
@@ -2034,13 +2034,13 @@ namespace Trk {
         if (!hitid.is_valid()) {
           const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>((**itStates).measurementOnTrack());
           
-          if (crot) {
+          if (crot != nullptr) {
             hitid = crot->rioOnTrack(0).identify();
           }
         }
         
         if (hitid.is_valid()) {
-          if (!firsthitsurf) {
+          if (firsthitsurf == nullptr) {
             firsthitsurf = surf;
           }
           
@@ -2053,9 +2053,9 @@ namespace Trk {
               iscombined = true;
             }
             
-            if ((**itStates).trackParameters()) {
+            if ((**itStates).trackParameters() != nullptr) {
               lastidpar = (**itStates).trackParameters();
-              if (!firstidpar) {
+              if (firstidpar == nullptr) {
                 firstidpar = lastidpar;
               }
             }
@@ -2088,7 +2088,7 @@ namespace Trk {
         
         if (iscombined && seenphimeas && (phiem || phibo)) {
           const PseudoMeasurementOnTrack *pseudo = dynamic_cast<const PseudoMeasurementOnTrack *>((**itStates).measurementOnTrack());
-          if (pseudo) {
+          if (pseudo != nullptr) {
             continue;
           }
         }
@@ -2105,7 +2105,7 @@ namespace Trk {
     }
 
     if (firstidpar == lastidpar) {
-      firstidpar = lastidpar = 0;
+      firstidpar = lastidpar = nullptr;
     }
     
     if (
@@ -2115,7 +2115,7 @@ namespace Trk {
         m_DetID->is_indet(firsthitsurf->associatedDetectorElementIdentifier()) !=
         m_DetID->is_indet(lasthitsurf->associatedDetectorElementIdentifier())
       ) && 
-      firstidpar
+      (firstidpar != nullptr)
     ) {
       if (m_DetID->is_indet(firsthitsurf->associatedDetectorElementIdentifier())) {
         minpar = lastidpar;
@@ -2127,7 +2127,7 @@ namespace Trk {
     bool tmpacc = cache.m_acceleration;
     bool tmpfiteloss = m_fiteloss;
     bool tmpsirecal = cache.m_sirecal;
-    Track *tmptrack = 0;
+    Track *tmptrack = nullptr;
     
     if (matEffects == Trk::proton || matEffects == Trk::kaon || matEffects == Trk::electron) {
       ATH_MSG_DEBUG("call myfit(GXFTrajectory,TP,,)");
@@ -2141,12 +2141,12 @@ namespace Trk {
       tmptrack = myfit(cache, trajectory, *minpar, false, matEffects);
       cache.m_sirecal = tmpsirecal;
       
-      if (!tmptrack) {
+      if (tmptrack == nullptr) {
         cache.m_matfilled = false;
         cache.m_getmaterialfromtrack = tmpgetmat;
         cache.m_acceleration = tmpacc;
         cache.m_fiteloss = tmpfiteloss;
-        return 0;
+        return nullptr;
       }
       
       int nscats = 0;
@@ -2156,7 +2156,7 @@ namespace Trk {
       for (GXFTrackState *state : trajectory.trackStates()) {
         GXFMaterialEffects *meff = state->materialEffects();
         
-        if (meff) {
+        if (meff != nullptr) {
           nscats++;
           
           const TrackParameters *layerpars = state->trackParameters();
@@ -2168,7 +2168,7 @@ namespace Trk {
           const Amg::Vector3D * layerNormal = state->surface()->normal(*locpos);
           double costracksurf = 1.;
           
-          if (layerNormal) {
+          if (layerNormal != nullptr) {
             costracksurf = fabs(layerNormal->dot(layerpars->momentum().unit()));
           } else {
             ATH_MSG_WARNING("No normal on surface found!");
@@ -2178,14 +2178,14 @@ namespace Trk {
           delete locpos;
           double oldde = meff->deltaE();
           
-          EnergyLoss *eloss = 0;
+          EnergyLoss *eloss = nullptr;
           double sigmascat = 0;
           
-          if (matprop) {
+          if (matprop != nullptr) {
             eloss = m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects);
             sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, p, 1. / costracksurf, matEffects));
             
-            if (eloss) {
+            if (eloss != nullptr) {
               meff->setDeltaE(eloss->deltaE());
             }
             
@@ -2209,7 +2209,7 @@ namespace Trk {
               isbrem = true;
               bremdp = meff->delta_p();
             }
-          } else if (eloss) {
+          } else if (eloss != nullptr) {
             meff->setSigmaDeltaE(eloss->sigmaDeltaE());
           }
         }
@@ -2217,7 +2217,7 @@ namespace Trk {
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       minpar = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], 0
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
       );
       
       deleteminpar = true;
@@ -2246,10 +2246,10 @@ namespace Trk {
     
     bool pseudoupdated = false;
     
-    if (track && hasid && hasmuon) {
+    if ((track != nullptr) && hasid && hasmuon) {
       for (GXFTrackState *pseudostate : trajectory.trackStates()) {
         if (
-          !pseudostate || 
+          (pseudostate == nullptr) || 
           pseudostate->measurementType() != TrackState::Pseudo || 
           pseudostate->fitQuality()->chiSquared() < 10
         ) {
@@ -2263,7 +2263,7 @@ namespace Trk {
           pseudostate->measurement()->localCovariance()
         );
         
-        if (!updpar) {
+        if (updpar == nullptr) {
           continue;
         }
         
@@ -2300,13 +2300,13 @@ namespace Trk {
     cache.m_acceleration = tmpacc;
     cache.m_fiteloss = tmpfiteloss;
 
-    if (track) {
+    if (track != nullptr) {
       m_fit_status[S_SUCCESSFUL_FITS]++;
       const TrackInfo old_info = inputTrack.info();
       track->info().addPatternReco(old_info);
     }
     
-    if (tmptrack) {
+    if (tmptrack != nullptr) {
       delete tmptrack;
     }
     
@@ -2324,7 +2324,7 @@ namespace Trk {
 
     for (PrepRawDataSet::const_iterator it = prds.begin(); it != prds.end(); it++) {
       const Surface & prdsurf = (**it).detectorElement()->surface((**it).identify());
-      const RIO_OnTrack *rot = 0;
+      const RIO_OnTrack *rot = nullptr;
       const PlaneSurface *plsurf = nullptr;
       
       if (prdsurf.type() == Trk::Surface::Plane)
@@ -2335,13 +2335,13 @@ namespace Trk {
       if (prdsurf.type() == Trk::Surface::Line)
         slsurf = static_cast < const StraightLineSurface *>(&prdsurf);
 
-      if (!slsurf && !plsurf) {
+      if ((slsurf == nullptr) && (plsurf == nullptr)) {
         ATH_MSG_ERROR("Surface is neither PlaneSurface nor StraightLineSurface!");
       }
       
-      if (!m_broadROTcreator.empty() && slsurf) {
+      if (!m_broadROTcreator.empty() && (slsurf != nullptr)) {
         rot = m_broadROTcreator->correct(**it, param);
-      } else if (slsurf) {
+      } else if (slsurf != nullptr) {
         AtaStraightLine atasl(
           slsurf->center(), 
           param.parameters()[Trk::phi],
@@ -2350,8 +2350,8 @@ namespace Trk {
           *slsurf
         );
         rot = m_ROTcreator->correct(**it, atasl);
-      } else if (plsurf) {
-        if (param.covariance()) {
+      } else if (plsurf != nullptr) {
+        if (param.covariance() != nullptr) {
           AtaPlane atapl(
             plsurf->center(), 
             param.parameters()[Trk::phi],
@@ -2373,7 +2373,7 @@ namespace Trk {
         }
       }
       
-      if (rot) {
+      if (rot != nullptr) {
         rots.push_back(rot);
       }
     }
@@ -2407,7 +2407,7 @@ namespace Trk {
 
     const TrackParameters *minpar = inputTrack.perigeeParameters();
     
-    if (!minpar) {
+    if (minpar == nullptr) {
       minpar = *(inputTrack.trackParameters()->begin());
     }
 
@@ -2431,7 +2431,7 @@ namespace Trk {
       if (
         matEffects == electron && 
         !trajectory.trackStates().empty() &&
-        trajectory.trackStates().back()->materialEffects() &&
+        (trajectory.trackStates().back()->materialEffects() != nullptr) &&
         trajectory.trackStates().back()->materialEffects()->sigmaDeltaE() > 50.001
       ) {
         trajectory.trackStates().back()->materialEffects()->setKink(true);
@@ -2443,7 +2443,7 @@ namespace Trk {
     MeasurementSet::const_iterator itSetEnd = addMeasColl.end();
 
     for (; itSet != itSetEnd; ++itSet) {
-      if (!(*itSet)) {
+      if ((*itSet) == nullptr) {
         ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! Skip this object..");
       } else {
         makeProtoStateFromMeasurement(cache, trajectory, *itSet);
@@ -2455,7 +2455,7 @@ namespace Trk {
     Track *track = myfit(cache, trajectory, *minpar, runOutlier, matEffects);
     cache.m_asymeloss = tmpasymeloss;
     
-    if (track) {
+    if (track != nullptr) {
       double oldqual = 
         inputTrack.fitQuality()->numberDoF() != 0 ? 
         inputTrack.fitQuality()->chiSquared() / inputTrack.fitQuality()->numberDoF() : 
@@ -2471,11 +2471,11 @@ namespace Trk {
 
         delete track;
         m_fit_status[S_HIGH_CHI2]++;
-        track = 0;
+        track = nullptr;
       }
     }
 
-    if (track) {
+    if (track != nullptr) {
       m_fit_status[S_SUCCESSFUL_FITS]++;
     }
     
@@ -2509,7 +2509,7 @@ namespace Trk {
         )
       );
       
-      const RIO_OnTrack *rot = 0;
+      const RIO_OnTrack *rot = nullptr;
       
       if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::Surface::Line) {
         rot = m_broadROTcreator->correct(**it, *hitparam);
@@ -2517,7 +2517,7 @@ namespace Trk {
         rot = m_ROTcreator->correct(**it, *trackparForCorrect);
       }
       
-      if (rot) {
+      if (rot != nullptr) {
         rots.push_back(rot);
       }
     }
@@ -2555,7 +2555,7 @@ namespace Trk {
 
     for (auto itSet : rots_in) {
       if (
-        itSet &&
+        (itSet != nullptr) &&
         itSet->associatedSurface().associatedDetectorElementIdentifier().is_valid() &&
         m_DetID->is_mm(itSet->associatedSurface().associatedDetectorElementIdentifier())
       ) {
@@ -2568,7 +2568,7 @@ namespace Trk {
       MeasurementSet rots_new;
 
       for (auto itSet : rots_in) {
-        if (!itSet) {
+        if (itSet == nullptr) {
           ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
           continue;
         }
@@ -2576,7 +2576,7 @@ namespace Trk {
         const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(itSet);
         
         if (
-          rot && 
+          (rot != nullptr) && 
           m_DetID->is_mm(rot->identify()) &&
           rot->associatedSurface().type() == Trk::Surface::Plane
         ) {
@@ -2604,7 +2604,7 @@ namespace Trk {
     }
 
     for (auto itSet : rots) {
-      if (!itSet) {
+      if (itSet == nullptr) {
         ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! Skip this object..");
       } else {
         makeProtoStateFromMeasurement(cache, trajectory, itSet);
@@ -2626,7 +2626,7 @@ namespace Trk {
       cache.m_matfilled = false;
       
       if (!trajectory.converged()) {
-        return 0;
+        return nullptr;
       }
 
       trajectory.setConverged(false);
@@ -2665,7 +2665,7 @@ namespace Trk {
         trajectory.setPrefit(3);
         const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
         startpar = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], 0
+          refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
         );
 
         trajectory.reset();
@@ -2676,13 +2676,13 @@ namespace Trk {
         delete startpar;
         
         if (!trajectory.converged()) {
-          return 0;
+          return nullptr;
         }
       }
       
       const AmgVector(5) & refpars = trajectory.referenceParameters()->parameters();
       startpar = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], 0
+        refpars[0], refpars[1], refpars[2], refpars[3], refpars[4], nullptr
       );
 
       trajectory.reset();
@@ -2728,9 +2728,9 @@ namespace Trk {
       }
     }
     
-    Track *track = 0;
+    Track *track = nullptr;
     
-    if (startpar) {
+    if (startpar != nullptr) {
       track = myfit(cache, trajectory, *startpar, runOutlier, matEffects);
     }
     
@@ -2738,7 +2738,7 @@ namespace Trk {
       delete startpar;
     }
     
-    if (track) {
+    if (track != nullptr) {
       m_fit_status[S_SUCCESSFUL_FITS]++;
     }
     
@@ -2768,17 +2768,17 @@ namespace Trk {
       
       const MaterialEffectsOnTrack *meff = dynamic_cast<const MaterialEffectsOnTrack *>(tsos->materialEffectsOnTrack());
       
-      if (!meff) {
+      if (meff == nullptr) {
         return; // This should never happen
       }
       
-      GXFMaterialEffects *newmeff = 0;
+      GXFMaterialEffects *newmeff = nullptr;
 
       if (
-        meff->scatteringAngles() || 
-        meff->energyLoss() || 
+        (meff->scatteringAngles() != nullptr) || 
+        (meff->energyLoss() != nullptr) || 
         !tsos->type(TrackStateOnSurface::Scatterer) || 
-        !tsos->trackParameters()
+        (tsos->trackParameters() == nullptr)
       ) {
         newmeff = new GXFMaterialEffects(meff);
       } else {
@@ -2801,7 +2801,7 @@ namespace Trk {
         Trk::MaterialEffectsOnTrack newmeot(
           meff->thicknessInX0(), 
           newsa, 
-          0,
+          nullptr,
           tsos->surface()
         );
         
@@ -2809,19 +2809,19 @@ namespace Trk {
       }
       
       if (
-        meff->energyLoss() && 
+        (meff->energyLoss() != nullptr) && 
         meff->energyLoss()->sigmaDeltaE() > 0 &&
         (
-          (tsos->type(TrackStateOnSurface::BremPoint) && meff->scatteringAngles()) || 
-          (!meff->scatteringAngles() || meff->thicknessInX0() == 0)
+          (tsos->type(TrackStateOnSurface::BremPoint) && (meff->scatteringAngles() != nullptr)) || 
+          ((meff->scatteringAngles() == nullptr) || meff->thicknessInX0() == 0)
         )
       ) {
         newmeff->setSigmaDeltaE(meff->energyLoss()->sigmaDeltaE());
         
         if (
-          tsos->trackParameters() && 
+          (tsos->trackParameters() != nullptr) && 
           !trajectory.trackStates().empty() &&
-          (**trajectory.trackStates().rbegin()).trackParameters()
+          ((**trajectory.trackStates().rbegin()).trackParameters() != nullptr)
         ) {
           double delta_p = 1000 * (
             tsos->trackParameters()->parameters()[Trk::qOverP] -
@@ -2872,7 +2872,7 @@ namespace Trk {
     bool isoutlier,
     int index
   ) const {
-    const Segment *seg = 0;
+    const Segment *seg = nullptr;
 
     if (!measbase->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
       seg = dynamic_cast<const Segment *>(measbase);
@@ -2880,13 +2880,13 @@ namespace Trk {
 
     int imax = 1;
 
-    if (seg && m_decomposesegments) {
+    if ((seg != nullptr) && m_decomposesegments) {
       imax = (int) seg->numberOfMeasurementBases();
     }
 
     for (int i = 0; i < imax; i++) {
-      const MeasurementBase *measbase2 = (seg && m_decomposesegments) ? seg->measurement(i) : measbase;
-      const TrackParameters *newtrackpar = (seg && m_decomposesegments) ? 0 : trackpar;
+      const MeasurementBase *measbase2 = ((seg != nullptr) && m_decomposesegments) ? seg->measurement(i) : measbase;
+      const TrackParameters *newtrackpar = ((seg != nullptr) && m_decomposesegments) ? nullptr : trackpar;
       GXFTrackState *ptsos = new GXFTrackState(measbase2, newtrackpar);
       const Amg::MatrixX & covmat = measbase2->localCovariance();
       double sinstereo = 0;
@@ -2894,11 +2894,11 @@ namespace Trk {
       errors[0] = errors[1] = errors[2] = errors[3] = errors[4] = -1;
       TrackState::MeasurementType hittype = TrackState::unidentified;
       Identifier hitid = measbase2->associatedSurface().associatedDetectorElementIdentifier();
-      const CompetingRIOsOnTrack *crot = 0;
+      const CompetingRIOsOnTrack *crot = nullptr;
       
       if (!hitid.is_valid()) {
         crot = dynamic_cast < const CompetingRIOsOnTrack *>(measbase2);
-        if (crot) {
+        if (crot != nullptr) {
           hitid = crot->rioOnTrack(0).identify();
         }
       }
@@ -3014,13 +3014,13 @@ namespace Trk {
           param_index++;
         }
         
-        if (dynamic_cast < const PseudoMeasurementOnTrack * >(measbase2)) {
+        if (dynamic_cast < const PseudoMeasurementOnTrack * >(measbase2) != nullptr) {
           hittype = TrackState::Pseudo;
           ATH_MSG_DEBUG("PseudoMeasurement, pos=" << measbase2->globalPosition());
-        } else if (dynamic_cast < const VertexOnTrack * >(measbase2)) {
+        } else if (dynamic_cast < const VertexOnTrack * >(measbase2) != nullptr) {
           hittype = TrackState::Vertex;
           ATH_MSG_DEBUG("VertexOnTrack, pos=" << measbase2->globalPosition());  // print out the hit type
-        } else if (dynamic_cast < const Segment * >(measbase2)) {
+        } else if (dynamic_cast < const Segment * >(measbase2) != nullptr) {
           hittype = TrackState::Segment;
           ATH_MSG_DEBUG("Segment, pos=" << measbase2->globalPosition());        // print out the hit type
         }
@@ -3058,26 +3058,26 @@ namespace Trk {
     Cache & cache,
     const Trk::TrackingVolume *tvol
   ) const {
-    if (!tvol) {
+    if (tvol == nullptr) {
       return false;
     }
     
     const Trk::BinnedArray < Trk::Layer > *confinedLayers = tvol->confinedLayers();
       
     // loop over confined layers
-    if (confinedLayers) {
+    if (confinedLayers != nullptr) {
       const std::vector < const Trk::Layer * >&layerVector = confinedLayers->arrayObjects();
       std::vector < const Trk::Layer * >::const_iterator layerIter = layerVector.begin();
       
       // loop over layers
       for (; layerIter != layerVector.end(); ++layerIter) {
         // push_back the layer
-        if (*layerIter) {
+        if (*layerIter != nullptr) {
           // get the layerIndex
           const Trk::LayerIndex & layIndex = (*layerIter)->layerIndex();
           // skip navigaion layers for the moment
 
-          if (!layIndex.value() || !(*layerIter)->layerMaterialProperties()) {
+          if ((layIndex.value() == 0) || ((*layerIter)->layerMaterialProperties() == nullptr)) {
             continue;
           }
           
@@ -3090,13 +3090,13 @@ namespace Trk {
           if ((*layerIter)->surfaceRepresentation().type() == Trk::Surface::Disc)
             disclay = static_cast<const DiscLayer *>((*layerIter));
             
-          if (disclay) {
+          if (disclay != nullptr) {
             if (disclay->center().z() < 0) {
               cache.m_negdiscs.push_back(disclay);
             } else {
               cache.m_posdiscs.push_back(disclay);
             }
-          } else if (cyllay) {
+          } else if (cyllay != nullptr) {
             cache.m_barrelcylinders.push_back(cyllay);
           } else {
             return false;
@@ -3110,11 +3110,11 @@ namespace Trk {
     for (std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>::const_iterator it = bsurf.begin(); it != bsurf.end(); it++) {
       const Layer *layer = (*it)->surfaceRepresentation().materialLayer();
       
-      if (!layer) continue;
+      if (layer == nullptr) continue;
       
       const Trk::LayerIndex & layIndex = layer->layerIndex();
       
-      if (!layIndex.value() || !layer->layerMaterialProperties()) {
+      if ((layIndex.value() == 0) || (layer->layerMaterialProperties() == nullptr)) {
         continue;
       }
       
@@ -3128,7 +3128,7 @@ namespace Trk {
       if (layer->surfaceRepresentation().type() == Trk::Surface::Disc)
         discsurf = static_cast<const DiscSurface *>(&layer->surfaceRepresentation());
 
-      if (discsurf) {
+      if (discsurf != nullptr) {
         if (
           discsurf->center().z() < 0 &&
           std::find(cache.m_negdiscs.begin(), cache.m_negdiscs.end(), layer) == cache.m_negdiscs.end()
@@ -3141,27 +3141,27 @@ namespace Trk {
           cache.m_posdiscs.push_back(layer);
         }
       } else if (
-        cylsurf &&
+        (cylsurf != nullptr) &&
         std::find(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), layer) == cache.m_barrelcylinders.end()
       ) {
         cache.m_barrelcylinders.push_back(layer);
       }
       
-      if (!cylsurf && !discsurf) {
+      if ((cylsurf == nullptr) && (discsurf == nullptr)) {
         return false;
       }
     }
     
     const Trk::BinnedArray<Trk::TrackingVolume> *confinedVolumes = tvol->confinedVolumes();
     // get the confined volumes and loop over it -> call recursively
-    if (confinedVolumes) {
+    if (confinedVolumes != nullptr) {
       const std::vector<const Trk::TrackingVolume *> & volumes = confinedVolumes->arrayObjects();
       
       std::vector < const Trk::TrackingVolume * >::const_iterator volIter = volumes.begin();
       std::vector < const Trk::TrackingVolume * >::const_iterator volIterEnd = volumes.end();
       
       for (; volIter != volIterEnd; ++volIter) {
-        if (*volIter) {
+        if (*volIter != nullptr) {
           bool ok = processTrkVolume(cache, *volIter);
           if (!ok) {
             return false;
@@ -3182,32 +3182,32 @@ namespace Trk {
       const std::pair<const Layer *, const Layer *> & one,
       const std::pair<const Layer *, const Layer *> & two
     ) const {
-      const CylinderSurface *cyl1 = 0;
+      const CylinderSurface *cyl1 = nullptr;
 
-      if (one.first) {
+      if (one.first != nullptr) {
         cyl1 = (const CylinderSurface *) &one.first->surfaceRepresentation();
       }
-      const DiscSurface *disc1 = 0;
-      if (one.second) {
+      const DiscSurface *disc1 = nullptr;
+      if (one.second != nullptr) {
         disc1 = (const DiscSurface *) &one.second->surfaceRepresentation();
       }
-      const CylinderSurface *cyl2 = 0;
-      if (two.first) {
+      const CylinderSurface *cyl2 = nullptr;
+      if (two.first != nullptr) {
         cyl2 = (const CylinderSurface *) &two.first->surfaceRepresentation();
       }
-      const DiscSurface *disc2 = 0;
-      if (two.second) {
+      const DiscSurface *disc2 = nullptr;
+      if (two.second != nullptr) {
         disc2 = (const DiscSurface *) &two.second->surfaceRepresentation();
       }
 
-      if (cyl1 && cyl2) {
+      if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
         if (std::abs(cyl1->center().z() - cyl2->center().z()) > 1.) {
           return (std::abs(cyl1->center().z()) < std::abs(cyl2->center().z()));
         }
         return (cyl1->bounds().r() < cyl2->bounds().r());
       }
       
-      if (disc1 && disc2) {
+      if ((disc1 != nullptr) && (disc2 != nullptr)) {
         const DiscBounds *discbounds1 = (const DiscBounds *) &disc1->bounds();
         const DiscBounds *discbounds2 = (const DiscBounds *) &disc2->bounds();
         if (discbounds1->rMax() < discbounds2->rMin() + 1) {
@@ -3219,7 +3219,7 @@ namespace Trk {
         return (std::abs(disc1->center().z()) < std::abs(disc2->center().z()));
       }
       
-      if (cyl1 && disc2) {
+      if ((cyl1 != nullptr) && (disc2 != nullptr)) {
         const DiscBounds *discbounds = (const DiscBounds *) &disc2->bounds();
         if (cyl1->bounds().r() > discbounds->rMax() - 1) {
           return false;
@@ -3231,7 +3231,7 @@ namespace Trk {
         return (std::abs(cyl1->center().z()) < std::abs(disc2->center().z()));
       }
       
-      if (!disc1 || !cyl2) {
+      if ((disc1 == nullptr) || (cyl2 == nullptr)) {
         throw std::logic_error("Unhandled surface combination.");
       }
       
@@ -3274,11 +3274,11 @@ namespace Trk {
       if (two->surfaceRepresentation().type() == Trk::Surface::Disc)
         disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
 
-      if (cyl1 && cyl2) {
+      if ((cyl1 != nullptr) && (cyl2 != nullptr)) {
         return (cyl1->bounds().r() < cyl2->bounds().r());
       }
       
-      if (disc1 && disc2) {
+      if ((disc1 != nullptr) && (disc2 != nullptr)) {
         return (std::abs(disc1->center().z()) < std::abs(disc2->center().z()));
       }
       
@@ -3292,16 +3292,16 @@ namespace Trk {
     const TrackParameters * refpar2,
     ParticleHypothesis matEffects
   ) const {
-    if (!cache.m_caloEntrance) {
+    if (cache.m_caloEntrance == nullptr) {
       const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
       
-      if (geometry) {
+      if (geometry != nullptr) {
         cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
       } else {
         ATH_MSG_ERROR("Tracking Geometry not available");
       }
       
-      if (!cache.m_caloEntrance) {
+      if (cache.m_caloEntrance == nullptr) {
         ATH_MSG_ERROR("calo entrance not available");
         return;
       }
@@ -3325,16 +3325,16 @@ namespace Trk {
       std::stable_sort(cache.m_barrelcylinders.begin(), cache.m_barrelcylinders.end(), GXFlayersort2());
     }
     
-    const TrackParameters *refpar = refpar2, *firstsipar = 0, *lastsipar = 0;
+    const TrackParameters *refpar = refpar2, *firstsipar = nullptr, *lastsipar = nullptr;
     bool hasmat = false;
     int indexoffset = 0, lastmatindex = 0;
     std::vector < GXFTrackState * >oldstates = trajectory.trackStates();
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    GXFTrackState *lastsistate = 0;
+    GXFTrackState *lastsistate = nullptr;
    
     
     for (int i = 0; i < (int) oldstates.size(); i++) {
-      if (oldstates[i]->materialEffects()) {
+      if (oldstates[i]->materialEffects() != nullptr) {
         hasmat = true;
         lastmatindex = i;
       }
@@ -3343,8 +3343,8 @@ namespace Trk {
         oldstates[i]->measurementType() == TrackState::Pixel || 
         oldstates[i]->measurementType() == TrackState::SCT
       ) {
-        if (!firstsipar) {
-          if (!oldstates[i]->trackParameters()) {
+        if (firstsipar == nullptr) {
+          if (oldstates[i]->trackParameters() == nullptr) {
             const TrackParameters *tmppar = m_propagator->propagateParameters(
               *refpar, 
               *oldstates[i]->surface(), 
@@ -3354,7 +3354,7 @@ namespace Trk {
               Trk::nonInteracting
             );
             
-            if (!tmppar) return;
+            if (tmppar == nullptr) return;
             
             oldstates[i]->setTrackParameters(tmppar);
           }
@@ -3364,11 +3364,11 @@ namespace Trk {
       }
     }
     
-    if (!lastsistate) {
+    if (lastsistate == nullptr) {
       throw std::logic_error("No track state");
     }
     
-    if (!lastsistate->trackParameters()) {
+    if (lastsistate->trackParameters() == nullptr) {
       const TrackParameters *tmppar = m_propagator->propagateParameters(
         *refpar,
         *lastsistate->surface(),
@@ -3377,7 +3377,7 @@ namespace Trk {
         Trk::nonInteracting
       );
       
-      if (!tmppar) return;
+      if (tmppar == nullptr) return;
       
       lastsistate->setTrackParameters(tmppar);
     }
@@ -3402,7 +3402,7 @@ namespace Trk {
     lastr = laststate->position().perp();
     std::vector < std::pair < const Layer *, const Layer *>>layers;
     const Layer *startlayer = firststate->surface()->associatedLayer();
-    const Layer *startlayer2 = hasmat ? lastsistate->surface()->associatedLayer() : 0;
+    const Layer *startlayer2 = hasmat ? lastsistate->surface()->associatedLayer() : nullptr;
     const Layer *endlayer = laststate->surface()->associatedLayer();
     std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers = trajectory.upstreamMaterialLayers();
     layers.reserve(30);
@@ -3449,7 +3449,7 @@ namespace Trk {
           fabs((*it)->surfaceRepresentation().center().z()) < fabs(firstz) || 
           (*it) == startlayer
         ) {
-          upstreamlayers.push_back(std::make_pair((Layer *) 0, (*it)));
+          upstreamlayers.push_back(std::make_pair((Layer *) nullptr, (*it)));
         }
         
         if (
@@ -3457,7 +3457,7 @@ namespace Trk {
           (fabs((*it)->surfaceRepresentation().center().z()) > fabs(firstz2) || 
           (*it) == startlayer2)
         ) {
-          layers.push_back(std::make_pair((Layer *) 0, (*it)));
+          layers.push_back(std::make_pair((Layer *) nullptr, (*it)));
         }
       }
     }
@@ -3485,7 +3485,7 @@ namespace Trk {
         (*it)->surfaceRepresentation().bounds().r() < firstr || 
         (*it) == startlayer
       ) {
-        upstreamlayers.push_back(std::make_pair((*it), (Layer *) 0));
+        upstreamlayers.push_back(std::make_pair((*it), (Layer *) nullptr));
       }
       
       if (
@@ -3493,7 +3493,7 @@ namespace Trk {
         ((*it)->surfaceRepresentation().bounds().r() > firstr2 || 
         (*it) == startlayer2)
       ) {
-        layers.push_back(std::make_pair((*it), (Layer *) 0));
+        layers.push_back(std::make_pair((*it), (Layer *) nullptr));
       }
     }
 
@@ -3518,24 +3518,24 @@ namespace Trk {
       double zmeas = oldstates[i]->position().z();
 
       while (layerindex < (int) layers.size()) {
-        const CylinderSurface *cylsurf = 0;
-        if (layers[layerindex].first) {
+        const CylinderSurface *cylsurf = nullptr;
+        if (layers[layerindex].first != nullptr) {
           cylsurf = (const CylinderSurface *) (&layers[layerindex].first->surfaceRepresentation());
         }
         
-        const DiscSurface *discsurf = 0;
-        if (layers[layerindex].second) {
+        const DiscSurface *discsurf = nullptr;
+        if (layers[layerindex].second != nullptr) {
           discsurf = (const DiscSurface *) (&layers[layerindex].second->surfaceRepresentation());
         }
 
-        if (oldstates[i]->trackParameters()) {
-          if (cylsurf) {
+        if (oldstates[i]->trackParameters() != nullptr) {
+          if (cylsurf != nullptr) {
             double rlayer = cylsurf->bounds().r();
             if (fabs(rmeas - rlayer) < fabs(parforextrap->position().perp() - rlayer)) {
               parforextrap = oldstates[i]->trackParameters();
             }
           } else {
-            if (!discsurf) {
+            if (discsurf == nullptr) {
               throw std::logic_error("Unhandled surface.");
             }
             
@@ -3567,7 +3567,7 @@ namespace Trk {
         double phi0 = atan2(parforextrap->position().y() - yc, parforextrap->position().x() - xc);
         double z0 = parforextrap->position().z();
         
-        if (discsurf) {
+        if (discsurf != nullptr) {
           double delta_s = (discsurf->center().z() - z0) / costheta;
           double delta_phi = delta_s * sintheta / r;
           double x = xc + fabs(r) * cos(phi0 + delta_phi);
@@ -3583,7 +3583,7 @@ namespace Trk {
           
           costracksurf = fabs(costheta);
         } else {
-          if (!cylsurf) {
+          if (cylsurf == nullptr) {
             throw std::logic_error("Unhandled surface.");
           }
           
@@ -3653,21 +3653,21 @@ namespace Trk {
           costracksurf = fabs(normal.unit().dot(trackdir));
         }
         
-        if (cylsurf && cylsurf->bounds().r() > rmeas) {
+        if ((cylsurf != nullptr) && cylsurf->bounds().r() > rmeas) {
           break;
         }
         
-        if (discsurf && fabs(discsurf->center().z()) > fabs(zmeas)) {
+        if ((discsurf != nullptr) && fabs(discsurf->center().z()) > fabs(zmeas)) {
           break;
         }
         
         const Layer *layer = layers[layerindex].first;
-        if (!layer) {
+        if (layer == nullptr) {
           layer = layers[layerindex].second;
         }
         
         const MaterialProperties *matprop = layer->layerMaterialProperties()->fullMaterial(intersect);
-        if (!matprop) {
+        if (matprop == nullptr) {
           layerindex++;
           continue;
         }
@@ -3675,8 +3675,8 @@ namespace Trk {
         double X0 = matprop->thicknessInX0();
 
         double actualx0 = X0 / costracksurf;
-        double de = -fabs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p ? fabs(m_p) : fabs(1. / currentqoverp)), matEffects));
-        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p ? fabs(m_p) : fabs(1. / currentqoverp)), 1. / costracksurf, matEffects));
+        double de = -fabs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), matEffects));
+        double sigmascat = sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)), 1. / costracksurf, matEffects));
         
         GXFMaterialEffects *meff = new GXFMaterialEffects;
         meff->setDeltaE(de);
@@ -3684,35 +3684,35 @@ namespace Trk {
         meff->setX0(actualx0);
         meff->setSurface(&layer->surfaceRepresentation());
         meff->setMaterialProperties(matprop);
-        EnergyLoss *eloss = 0;
+        EnergyLoss *eloss = nullptr;
         
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
           eloss = m_elosstool->energyLoss(
             *matprop,
-            (m_p ? fabs(m_p) : fabs(1. / currentqoverp)),
+            (m_p != 0.0 ? fabs(m_p) : fabs(1. / currentqoverp)),
             1. / costracksurf, 
             alongMomentum,
             matEffects
           );
-          if (eloss) {
+          if (eloss != nullptr) {
             meff->setSigmaDeltaE(eloss->sigmaDeltaE());
           }
         }
         
         if (matEffects == electron && cache.m_asymeloss) {
           meff->setDeltaE(-5);
-          if (!trajectory.numberOfTRTHits()) {
+          if (trajectory.numberOfTRTHits() == 0) {
             meff->setScatteringSigmas(0, 0);
           }
           
           meff->setSigmaDeltaE(50);
-          if (eloss) {
+          if (eloss != nullptr) {
             meff->setSigmaDeltaEPos(eloss->sigmaPlusDeltaE());
             meff->setSigmaDeltaENeg(eloss->sigmaMinusDeltaE());
           }
         }
         
-        if (eloss) {
+        if (eloss != nullptr) {
           delete eloss;
         }
 
@@ -3738,26 +3738,26 @@ namespace Trk {
     const TrackParameters * refpar2,
     ParticleHypothesis matEffects
   ) const {
-    if (!refpar2) {
+    if (refpar2 == nullptr) {
       return;
     }
     ATH_MSG_VERBOSE("GlobalChi2Fitter::addMaterial, refpar=" << *refpar2);
-    const MeasurementBase *firstmuonhit = 0, *lastmuonhit = 0, *firstidhit =
-      0, *lastidhit = 0, *firsthit = 0, *lasthit = 0;
+    const MeasurementBase *firstmuonhit = nullptr, *lastmuonhit = nullptr, *firstidhit =
+      nullptr, *lastidhit = nullptr, *firsthit = nullptr, *lasthit = nullptr;
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     std::vector < GXFTrackState * >matstates, newstates;
-    const std::vector < const TrackStateOnSurface *>*matvec = 0;
-    const TrackParameters *startmatpar1 = 0;
-    const TrackParameters *startmatpar2 = 0;
-    const TrackParameters *firstidpar = 0;
-    const TrackParameters *lastidpar = 0;
-    const TrackParameters *firstsiliconpar = 0;
-    const TrackParameters *lastsiliconpar = 0;
-    const TrackParameters *firstmatpar = 0;
-    const TrackParameters *firstcalopar = 0;
-    const TrackParameters *lastcalopar = 0;
-    const TrackParameters *firstmuonpar = 0;
-    const TrackParameters *lastmuonpar = 0;
+    const std::vector < const TrackStateOnSurface *>*matvec = nullptr;
+    const TrackParameters *startmatpar1 = nullptr;
+    const TrackParameters *startmatpar2 = nullptr;
+    const TrackParameters *firstidpar = nullptr;
+    const TrackParameters *lastidpar = nullptr;
+    const TrackParameters *firstsiliconpar = nullptr;
+    const TrackParameters *lastsiliconpar = nullptr;
+    const TrackParameters *firstmatpar = nullptr;
+    const TrackParameters *firstcalopar = nullptr;
+    const TrackParameters *lastcalopar = nullptr;
+    const TrackParameters *firstmuonpar = nullptr;
+    const TrackParameters *lastmuonpar = nullptr;
 
     int npseudomuon1 = 0, npseudomuon2 = 0;
 
@@ -3768,7 +3768,7 @@ namespace Trk {
       GXFMaterialEffects *meff = state->materialEffects();
       
       if (meastype == TrackState::Pseudo) {
-        if (!firstidhit) {
+        if (firstidhit == nullptr) {
           npseudomuon1++;
         } else {
           npseudomuon2++;
@@ -3777,10 +3777,10 @@ namespace Trk {
       }
       
       if (tstype == TrackState::Fittable || tstype == TrackState::GeneralOutlier) {
-        if (!firsthit) {
+        if (firsthit == nullptr) {
           firsthit = state->measurement();
           if (cache.m_acceleration) {
-            if (!tp) {
+            if (tp == nullptr) {
               tp = m_extrapolator->extrapolate(
                 *refpar2, 
                 *state->surface(),
@@ -3789,7 +3789,7 @@ namespace Trk {
                 matEffects
               );
 
-              if (!tp) {
+              if (tp == nullptr) {
                 return;
               }
 
@@ -3805,21 +3805,21 @@ namespace Trk {
           meastype == TrackState::SCT || 
           meastype == TrackState::TRT
         ) {
-          if (!firstidhit) {
+          if (firstidhit == nullptr) {
             firstidhit = state->measurement();
           }
         
-          if (!firstidpar && tp) {
+          if ((firstidpar == nullptr) && (tp != nullptr)) {
             firstidpar = tp;
           }
 
           lastidhit = state->measurement();
-          if (tp) {
+          if (tp != nullptr) {
             lastidpar = tp;
           }
           
-          if (tp && meastype != TrackState::TRT) {
-            if (!firstsiliconpar) {
+          if ((tp != nullptr) && meastype != TrackState::TRT) {
+            if (firstsiliconpar == nullptr) {
               firstsiliconpar = tp;
             }
             lastsiliconpar = tp;
@@ -3834,32 +3834,32 @@ namespace Trk {
           meastype == TrackState::MM || 
           meastype == TrackState::STGC
         ) {
-          if (!firstmuonhit) {
+          if (firstmuonhit == nullptr) {
             firstmuonhit = state->measurement();
-            if (tp) {
+            if (tp != nullptr) {
               firstmuonpar = tp;
             }
           }
           lastmuonhit = state->measurement();
-          if (tp) {
+          if (tp != nullptr) {
             lastmuonpar = tp;
           }
         }
       }
       if (tstype == TrackState::Scatterer || tstype == TrackState::Brem) {
         if (meff->deltaE() == 0) {
-          if (!firstcalopar) {
+          if (firstcalopar == nullptr) {
             firstcalopar = state->trackParameters();
           }
           lastcalopar = state->trackParameters();
         }
-        if (!firstmatpar) {
+        if (firstmatpar == nullptr) {
           firstmatpar = state->trackParameters();
         }
       }
     }
 
-    const TrackParameters *refpar = 0;
+    const TrackParameters *refpar = nullptr;
     AmgVector(5) newpars = refpar2->parameters();
     
     if (trajectory.m_straightline && m_p != 0) {
@@ -3867,30 +3867,30 @@ namespace Trk {
     }
     
     refpar = refpar2->associatedSurface().createTrackParameters(
-      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+      newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
     );
 
     bool dodelete = false;
-    if (firstmatpar) {
+    if (firstmatpar != nullptr) {
       startmatpar1 = firstsiliconpar;
       startmatpar2 = lastsiliconpar;
     }
     
-    if (!startmatpar1 || (firstidhit && firstmuonhit)) {
+    if ((startmatpar1 == nullptr) || ((firstidhit != nullptr) && (firstmuonhit != nullptr))) {
       startmatpar1 = startmatpar2 = refpar;
     } else if (trajectory.m_straightline && m_p != 0) {
       AmgVector(5) newpars = startmatpar1->parameters();
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar1 = startmatpar1->associatedSurface().createTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
       );
       
       newpars = startmatpar2->parameters();
       newpars[Trk::qOverP] = 1 / m_p;
       
       startmatpar2 = startmatpar2->associatedSurface().createTrackParameters(
-        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+        newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
       );
       
       dodelete = true;
@@ -3905,13 +3905,13 @@ namespace Trk {
       startmatpar2 = startmatpar2->associatedSurface().createTrackParameters(
         newpars[0], newpars[1], newpars[2], newpars[3],
         sign / sqrt(oldp * oldp + 2 * 100 * MeV * sqrt(oldp * oldp + mass * mass) + 100 * MeV * 100 * MeV), 
-        0
+        nullptr
       );
       
       dodelete = true;
     }
 
-    if (firstidhit && trajectory.numberOfSiliconHits() > 0 && cache.m_idmat) {
+    if ((firstidhit != nullptr) && trajectory.numberOfSiliconHits() > 0 && cache.m_idmat) {
       
       DistanceSolution distsol = firstidhit->associatedSurface().straightLineDistanceEstimate(
         refpar->position(),
@@ -3924,20 +3924,20 @@ namespace Trk {
         ATH_MSG_DEBUG("Obtaining upstream layers from Extrapolator");
 
         const Surface *destsurf = &firstidhit->associatedSurface();
-        const TrackParameters *tmppar = 0;
+        const TrackParameters *tmppar = nullptr;
         
-        if (firstmuonhit) {
-          if (!cache.m_caloEntrance) {
+        if (firstmuonhit != nullptr) {
+          if (cache.m_caloEntrance == nullptr) {
             const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
             
-            if (geometry) {
+            if (geometry != nullptr) {
               cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
             } else {
               ATH_MSG_ERROR("Tracking Geometry not available");
             }
           }
 
-          if (!cache.m_caloEntrance) {
+          if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
             tmppar = m_extrapolator->extrapolateToVolume(
@@ -3947,7 +3947,7 @@ namespace Trk {
               Trk::nonInteracting
             );
             
-            if (tmppar) {
+            if (tmppar != nullptr) {
               destsurf = &tmppar->associatedSurface();
             }
           }
@@ -3955,16 +3955,16 @@ namespace Trk {
 
         matvec = m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects);
         
-        if (tmppar) {
+        if (tmppar != nullptr) {
           delete tmppar;
         }
         
-        if (matvec && !matvec->empty()) {
+        if ((matvec != nullptr) && !matvec->empty()) {
           for (int i = (int)matvec->size() - 1; i > -1; i--) {
             const MaterialEffectsBase *meb = (*matvec)[i]->materialEffectsOnTrack();
-            if (meb) {
+            if (meb != nullptr) {
               const MaterialEffectsOnTrack *meot = dynamic_cast < const MaterialEffectsOnTrack * >(meb);
-              if (meot) {
+              if (meot != nullptr) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
                 meff->setSigmaDeltaE(0);
                 matstates.push_back(new GXFTrackState(meff, (*matvec)[i]->trackParameters()));
@@ -3975,7 +3975,7 @@ namespace Trk {
       }
     }
 
-    if (lastidhit && trajectory.numberOfSiliconHits() > 0 && cache.m_idmat) {
+    if ((lastidhit != nullptr) && trajectory.numberOfSiliconHits() > 0 && cache.m_idmat) {
       DistanceSolution distsol = lastidhit->associatedSurface().straightLineDistanceEstimate(
         refpar->position(),
         refpar->momentum().unit()
@@ -3986,20 +3986,20 @@ namespace Trk {
       if (distance > 0 && distsol.numberOfSolutions() > 0) {
         ATH_MSG_DEBUG("Obtaining downstream ID layers from Extrapolator");
         const Surface *destsurf = &lastidhit->associatedSurface();
-        const TrackParameters *tmppar = 0;
-        Surface *calosurf = 0;
-        if (firstmuonhit) {
-          if (!cache.m_caloEntrance) {
+        const TrackParameters *tmppar = nullptr;
+        Surface *calosurf = nullptr;
+        if (firstmuonhit != nullptr) {
+          if (cache.m_caloEntrance == nullptr) {
             const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
 
-            if (geometry) {
+            if (geometry != nullptr) {
               cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
             } else {
               ATH_MSG_ERROR("Tracking Geometry not available");
             }
           }
 
-          if (!cache.m_caloEntrance) {
+          if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
             tmppar = m_extrapolator->extrapolateToVolume(
@@ -4010,7 +4010,7 @@ namespace Trk {
             );
           }
           
-          if (tmppar) {
+          if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
             if (tmppar->associatedSurface().type() == Trk::Surface::Cylinder)
@@ -4021,13 +4021,13 @@ namespace Trk {
             if (tmppar->associatedSurface().type() == Trk::Surface::Disc)
               disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             
-            if (cylcalosurf) {
+            if (cylcalosurf != nullptr) {
               Amg::Transform3D * trans = new Amg::Transform3D(cylcalosurf->transform());
               const CylinderBounds & cylbounds = cylcalosurf->bounds();
               double radius = cylbounds.r();
               double hlength = cylbounds.halflengthZ();
               calosurf = new CylinderSurface(trans, radius - 1, hlength);
-            } else if (disccalosurf) {
+            } else if (disccalosurf != nullptr) {
               double newz = (
                 disccalosurf->center().z() > 0 ? 
                 disccalosurf->center().z() - 1 : 
@@ -4054,31 +4054,31 @@ namespace Trk {
 
         matvec = m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects);
         
-        if (tmppar) {
+        if (tmppar != nullptr) {
           delete tmppar;
         }
         
-        if (calosurf) {
+        if (calosurf != nullptr) {
           delete calosurf;
         }
         
-        if (matvec && !matvec->empty()) {
+        if ((matvec != nullptr) && !matvec->empty()) {
           for (auto & i : *matvec) {
             const Trk::MaterialEffectsBase * meb = i->materialEffectsOnTrack();
             
-            if (meb) {
+            if (meb != nullptr) {
               const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
               
-              if (meot) {
+              if (meot != nullptr) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
-                if (cache.m_fiteloss && meot->energyLoss()) {
+                if (cache.m_fiteloss && (meot->energyLoss() != nullptr)) {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
 
                 if (matEffects == electron && cache.m_asymeloss) {
                   meff->setDeltaE(-5);
                   
-                  if (!trajectory.numberOfTRTHits()) {
+                  if (trajectory.numberOfTRTHits() == 0) {
                     meff->setScatteringSigmas(0, 0);
                   }
                   
@@ -4102,7 +4102,7 @@ namespace Trk {
       delete startmatpar2;
     }
 
-    if (cache.m_calomat && firstmuonhit && firstidhit) {
+    if (cache.m_calomat && (firstmuonhit != nullptr) && (firstidhit != nullptr)) {
       const IPropagator *prop = &*m_propagator;
 
       std::vector<MaterialEffectsOnTrack> calomeots = m_calotool->extrapolationSurfacesAndEffects(
@@ -4139,7 +4139,7 @@ namespace Trk {
             nonInteracting
           );
 
-          if (!layerpar) {
+          if (layerpar == nullptr) {
             m_fit_status[S_PROPAGATION_FAIL]++;
             return;
           }
@@ -4156,7 +4156,7 @@ namespace Trk {
 
             if (
               npseudomuon2 < 2 && 
-              firstmuonpar && 
+              (firstmuonpar != nullptr) && 
               fabs(firstmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverpbrem = firstmuonpar->parameters()[Trk::qOverP];
@@ -4168,7 +4168,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             const TrackParameters *newlayerpar = layerpar->associatedSurface().createTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, 0
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverpbrem, nullptr
             );
 
             delete layerpar;
@@ -4201,7 +4201,7 @@ namespace Trk {
             delete prevtrackpars;
           }
           
-          if (!layerpar) {
+          if (layerpar == nullptr) {
             m_fit_status[S_PROPAGATION_FAIL]++;
             return;
           }
@@ -4220,7 +4220,7 @@ namespace Trk {
           
             if (
               npseudomuon1 < 2 && 
-              lastmuonpar && 
+              (lastmuonpar != nullptr) && 
               fabs(lastmuonpar->parameters()[Trk::qOverP]) > 1.e-9
             ) {
               qoverp = lastmuonpar->parameters()[Trk::qOverP];
@@ -4233,7 +4233,7 @@ namespace Trk {
             const AmgVector(5) & newpar = layerpar->parameters();
 
             prevtrackpars = layerpar->associatedSurface().createTrackParameters(
-              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, 0
+              newpar[0], newpar[1], newpar[2], newpar[3], qoverp, nullptr
             );
           }
 
@@ -4243,20 +4243,20 @@ namespace Trk {
     }
 
     if (lasthit == lastmuonhit && cache.m_extmat) {
-      const Trk::TrackParameters * muonpar1 = 0;
+      const Trk::TrackParameters * muonpar1 = nullptr;
       
-      if (lastcalopar) {
-        if (!cache.m_msEntrance) {
+      if (lastcalopar != nullptr) {
+        if (cache.m_msEntrance == nullptr) {
           const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
           
-          if (geometry) {
+          if (geometry != nullptr) {
             cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
             ATH_MSG_ERROR("Tracking Geometry not available");
           }
         }
 
-        if (!cache.m_msEntrance) {
+        if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(lastcalopar->position())) {
           muonpar1 = m_extrapolator->extrapolateToVolume(
@@ -4266,7 +4266,7 @@ namespace Trk {
             Trk::nonInteracting
           );
 
-          if (muonpar1) {
+          if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
             Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
             Amg::Vector3D curvU = curvZcrossT.unit();
@@ -4284,10 +4284,10 @@ namespace Trk {
               *muonpar1, 
               curvlinsurf,
               Trk::alongMomentum,
-              Trk::nonInteracting
+              Trk::nonInteracting != 0u
             );
 
-            if (curvlinpar) {
+            if (curvlinpar != nullptr) {
               delete muonpar1;
               muonpar1 = curvlinpar;
             }
@@ -4301,7 +4301,7 @@ namespace Trk {
 
       DistanceSolution distsol;
       
-      if (muonpar1) {
+      if (muonpar1 != nullptr) {
         distsol = lastmuonhit->associatedSurface().straightLineDistanceEstimate(
           muonpar1->position(), 
           muonpar1->momentum().unit()
@@ -4311,7 +4311,7 @@ namespace Trk {
       double distance = getDistance(distsol);
 
       if ((distance > 0) and(distsol.numberOfSolutions() >
-                             0) and firstmuonhit) {
+                             0) and (firstmuonhit != nullptr)) {
         distsol = firstmuonhit->associatedSurface().straightLineDistanceEstimate(
           muonpar1->position(),
           muonpar1->momentum().unit()
@@ -4329,8 +4329,8 @@ namespace Trk {
           );
         }
 
-        if (distance < 0 && distsol.numberOfSolutions() > 0 && !firstidhit) {
-          if (firstmuonpar) {
+        if (distance < 0 && distsol.numberOfSolutions() > 0 && (firstidhit == nullptr)) {
+          if (firstmuonpar != nullptr) {
             AmgVector(5) newpars = firstmuonpar->parameters();
             
             if (trajectory.m_straightline && m_p != 0) {
@@ -4338,7 +4338,7 @@ namespace Trk {
             }
             
             muonpar1 = firstmuonpar->associatedSurface().createTrackParameters(
-              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+              newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
             );
           } else {
             const TrackParameters *tmppar = m_propagator->propagateParameters(
@@ -4350,7 +4350,7 @@ namespace Trk {
               nonInteracting
             );
 
-            if (tmppar) {
+            if (tmppar != nullptr) {
               muonpar1 = tmppar;
             }
           }
@@ -4366,19 +4366,19 @@ namespace Trk {
           return;
         }
         
-        if (matvec && !matvec->empty()) {
+        if ((matvec != nullptr) && !matvec->empty()) {
           for (int j = 0; j < (int) matvec->size(); j++) {
             const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
             
-            if (meb) {
+            if (meb != nullptr) {
               const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
 
-              if (meot && j < (int) matvec->size() - 1) {
+              if ((meot != nullptr) && j < (int) matvec->size() - 1) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
               
                 if (
                   !trajectory.m_straightline && 
-                  meot->energyLoss() && 
+                  (meot->energyLoss() != nullptr) && 
                   std::abs(meff->deltaE()) > 25 && 
                   std::abs((*matvec)[j]->trackParameters()->position().z()) < 13000
                 ) {
@@ -4397,21 +4397,21 @@ namespace Trk {
       }
     }
 
-    if (firsthit == firstmuonhit && cache.m_extmat && firstcalopar) {
-      const Trk::TrackParameters * muonpar1 = 0;
+    if (firsthit == firstmuonhit && cache.m_extmat && (firstcalopar != nullptr)) {
+      const Trk::TrackParameters * muonpar1 = nullptr;
       
-      if (firstcalopar) {
-        if (!cache.m_msEntrance) {
+      if (firstcalopar != nullptr) {
+        if (cache.m_msEntrance == nullptr) {
           const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
           
-          if (geometry) {
+          if (geometry != nullptr) {
             cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
             ATH_MSG_ERROR("Tracking Geometry not available");
           }
         }
 
-        if (!cache.m_msEntrance) {
+        if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
           muonpar1 = m_extrapolator->extrapolateToVolume(
@@ -4421,7 +4421,7 @@ namespace Trk {
             Trk::nonInteracting
           );
           
-          if (muonpar1) {
+          if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
             Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
             Amg::Vector3D curvU = curvZcrossT.unit();
@@ -4439,10 +4439,10 @@ namespace Trk {
               *muonpar1, 
               curvlinsurf,
               Trk::oppositeMomentum,
-              Trk::nonInteracting
+              Trk::nonInteracting != 0u
             );
             
-            if (curvlinpar) {
+            if (curvlinpar != nullptr) {
               delete muonpar1;
               muonpar1 = curvlinpar;
             }
@@ -4456,7 +4456,7 @@ namespace Trk {
 
       DistanceSolution distsol;
       
-      if (muonpar1) {
+      if (muonpar1 != nullptr) {
         distsol = firstmuonhit->associatedSurface().straightLineDistanceEstimate(
           muonpar1->position(),
           muonpar1->momentum().unit()
@@ -4471,21 +4471,21 @@ namespace Trk {
 
         matvec = m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon);
         
-        if (matvec && !matvec->empty()) {
+        if ((matvec != nullptr) && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
           
           for (int j = 0; j < (int) matvec->size(); j++) {
             const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
             
-            if (meb) {
+            if (meb != nullptr) {
               const MaterialEffectsOnTrack *meot = dynamic_cast<const MaterialEffectsOnTrack *>(meb);
 
-              if (meot && j < (int) matvec->size() - 1) {
+              if ((meot != nullptr) && j < (int) matvec->size() - 1) {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
                 
                 if (
                   !trajectory.m_straightline && 
-                  meot->energyLoss() && 
+                  (meot->energyLoss() != nullptr) && 
                   std::abs(meff->deltaE()) > 25 && 
                   std::abs((*matvec)[j]->trackParameters()->position().z()) < 13000
                 ) {
@@ -4575,15 +4575,15 @@ namespace Trk {
 
           trajectory.addMaterialState(matstates[layerno]);
           
-          if (layerpar && matEffects != pion && matEffects != muon) {
+          if ((layerpar != nullptr) && matEffects != pion && matEffects != muon) {
             const TrackingVolume *tvol = m_navigator->volume(layerpar->position());
-            const Layer *lay = 0;
+            const Layer *lay = nullptr;
 
-            if (tvol) {
+            if (tvol != nullptr) {
               lay = (tvol->closestMaterialLayer(layerpar->position(),layerpar->momentum().normalized())).object;
             }
 
-            const MaterialProperties *matprop = lay ? lay->fullUpdateMaterialProperties(*layerpar) : 0;
+            const MaterialProperties *matprop = lay != nullptr ? lay->fullUpdateMaterialProperties(*layerpar) : nullptr;
             meff->setMaterialProperties(matprop);
           }
 
@@ -4614,27 +4614,27 @@ namespace Trk {
     if (param.associatedSurface().type() == Trk::Surface::Perigee)
       persurf = static_cast<const PerigeeSurface *>(&param.associatedSurface());
       
-    const TrackParameters *per = 0;
+    const TrackParameters *per = nullptr;
 
-    if (persurf && (!cache.m_acceleration || persurf->center().perp() > 5)) {
+    if ((persurf != nullptr) && (!cache.m_acceleration || persurf->center().perp() > 5)) {
       const AmgVector(5) & pars = param.parameters();
       const TrackParameters *newper = param.associatedSurface().createTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], pars[4], 0
+        pars[0], pars[1], pars[2], pars[3], pars[4], nullptr
       );
       
       return newper;
     }
     
     if (cache.m_acceleration) {
-      return 0;
+      return nullptr;
     }
     
     PerigeeSurface tmppersf;
     per = m_extrapolator->extrapolate(param, tmppersf, oppositeMomentum, false, matEffects);
     
-    if (!per) {
+    if (per == nullptr) {
       ATH_MSG_DEBUG("Cannot make Perigee with starting parameters");
-      return 0;
+      return nullptr;
     }
     
     return per;
@@ -4654,7 +4654,7 @@ namespace Trk {
     if (!trajectory.m_straightline) {
       if (trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == trajectory.numberOfHits()) {
         trajectory.m_straightline = !m_fieldService->solenoidOn();
-      } else if (!trajectory.prefit() && trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == 0) {
+      } else if ((trajectory.prefit() == 0) && trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == 0) {
         trajectory.m_straightline = !m_fieldService->toroidOn();
       } else {
         trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
@@ -4677,7 +4677,7 @@ namespace Trk {
     
     if (trajectory.nDOF() < 0) {
       ATH_MSG_WARNING("Not enough measurements, reject track");
-      return 0;
+      return nullptr;
     }
 
     cache.m_phiweight.clear();
@@ -4686,12 +4686,12 @@ namespace Trk {
 
     if (matEffects != nonInteracting && param.parameters()[Trk::qOverP] == 0 && m_p == 0) {
       ATH_MSG_WARNING("Attempt to apply material corrections with q/p=0, reject track");
-      return 0;
+      return nullptr;
     }
 
     if (matEffects == Trk::electron && trajectory.m_straightline) {
       ATH_MSG_WARNING("Electron fit requires helix track model");
-      return 0;
+      return nullptr;
     }
 
     double mass = m_particleMasses.mass[matEffects];
@@ -4701,11 +4701,11 @@ namespace Trk {
 
     const TrackParameters *per = makePerigee(cache, param, matEffects);
 
-    if (!cache.m_acceleration && !per) {
+    if (!cache.m_acceleration && (per == nullptr)) {
       cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
       m_fit_status[S_PROPAGATION_FAIL]++;
       ATH_MSG_DEBUG("Propagation to perigee failed 1");
-      return 0;
+      return nullptr;
     }
     
     if (matEffects != Trk::nonInteracting && !cache.m_matfilled) {
@@ -4726,17 +4726,17 @@ namespace Trk {
         !cache.m_acceleration ||
         trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() != trajectory.numberOfHits()
       ) {
-        addMaterial(cache, trajectory, per ? per : &param, matEffects);
+        addMaterial(cache, trajectory, per != nullptr ? per : &param, matEffects);
       } else {
-        addIDMaterialFast(cache, trajectory, per ? per : &param, matEffects);
+        addIDMaterialFast(cache, trajectory, per != nullptr ? per : &param, matEffects);
       }
     }
 
-    if (cache.m_acceleration && !trajectory.referenceParameters() && !per) {
+    if (cache.m_acceleration && (trajectory.referenceParameters() == nullptr) && (per == nullptr)) {
       Amg::Vector3D vertex;
       
       if (trajectory.numberOfScatterers() >= 2) {
-        GXFTrackState *scatstate = 0, *scatstate2 = 0;
+        GXFTrackState *scatstate = nullptr, *scatstate2 = nullptr;
         int scatindex = 0;
         
         for (std::vector < GXFTrackState * >::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); it++) {
@@ -4757,7 +4757,7 @@ namespace Trk {
         // @TODO coverity complains about a possible null pointer dereferencing in scatstate->... or scatstate2->...
         // it seems to me that if (**it).materialEffects()->deltaE()==0 of the first scatterer
         // than scatstate will be NULL.
-        if (!scatstate || !scatstate2) {
+        if ((scatstate == nullptr) || (scatstate2 == nullptr)) {
           throw std::logic_error("Invalid scatterer");
         }
         
@@ -4771,7 +4771,7 @@ namespace Trk {
       }
 
       PerigeeSurface persurf(vertex);
-      const TrackParameters *nearestpar = 0;
+      const TrackParameters *nearestpar = nullptr;
       double mindist = 99999;
       std::vector < GXFTrackState * >mymatvec;
 
@@ -4780,20 +4780,20 @@ namespace Trk {
         it != trajectory.trackStates().end(); 
         it++
       ) {
-        if (!(**it).trackParameters()) {
+        if ((**it).trackParameters() == nullptr) {
           continue;
         }
         
         double distance = persurf.straightLineDistanceEstimate((**it).trackParameters()->position(),(**it).trackParameters()->momentum().unit()).first();
         
         bool insideid = (
-          !cache.m_caloEntrance || 
+          (cache.m_caloEntrance == nullptr) || 
           cache.m_caloEntrance->inside((**it).trackParameters()->position())
         );
 
         if (
-          ((**it).measurement() && insideid) || (
-            (**it).materialEffects() && 
+          (((**it).measurement() != nullptr) && insideid) || (
+            ((**it).materialEffects() != nullptr) && 
             distance > 0 && (
               (**it).materialEffects()->deltaE() == 0 || 
               ((**it).materialEffects()->sigmaDeltaPhi() == 0 && 
@@ -4811,12 +4811,12 @@ namespace Trk {
           }
         }
         
-        if ((**it).materialEffects() && distance > 0) {
+        if (((**it).materialEffects() != nullptr) && distance > 0) {
           mymatvec.push_back(*it);
         }
       }
       
-      if (!nearestpar) {
+      if (nearestpar == nullptr) {
         nearestpar = &param;
       }
 
@@ -4840,7 +4840,7 @@ namespace Trk {
           Trk::nonInteracting
         );
         
-        if (!tmppar) {
+        if (tmppar == nullptr) {
           propdir = (propdir == oppositeMomentum) ? alongMomentum : oppositeMomentum;
           tmppar = m_propagator->propagateParameters(
             *nearestpar, 
@@ -4851,7 +4851,7 @@ namespace Trk {
             Trk::nonInteracting
           );
           
-          if (!tmppar) {
+          if (tmppar == nullptr) {
             if (i != 0) {
               delete nearestpar;
             }
@@ -4861,7 +4861,7 @@ namespace Trk {
 
             ATH_MSG_DEBUG("Propagation to perigee failed 2");
 
-            return 0;
+            return nullptr;
           }
         }
         
@@ -4884,7 +4884,7 @@ namespace Trk {
         }
         
         nearestpar = tmppar->associatedSurface().createTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
         );
         
         delete tmppar;
@@ -4900,7 +4900,7 @@ namespace Trk {
       );
 
       // Parameters are at a Perigee surface so they are perigee parameters
-      if (tmpPars) {
+      if (tmpPars != nullptr) {
         per = static_cast < const Perigee *>(tmpPars);
       }
 
@@ -4908,7 +4908,7 @@ namespace Trk {
         delete nearestpar;
       }
       
-      if (per && (matEffects == Trk::proton || matEffects == Trk::kaon)) {
+      if ((per != nullptr) && (matEffects == Trk::proton || matEffects == Trk::kaon)) {
         double sign = (per->parameters()[Trk::qOverP] < 0) ? -1. : 1.;
         double oldp = 1. / std::abs(per->parameters()[Trk::qOverP]);
         double toteloss = std::abs(trajectory.totalEnergyLoss());
@@ -4917,19 +4917,19 @@ namespace Trk {
         params[Trk::qOverP] = sign / newp;
         
         const TrackParameters *newper = per->associatedSurface().createTrackParameters(
-          params[0], params[1], params[2], params[3], params[4], 0
+          params[0], params[1], params[2], params[3], params[4], nullptr
         );
         
         delete per;
         per = newper;
       }
       
-      if (!per) {
+      if (per == nullptr) {
         cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
         m_fit_status[S_PROPAGATION_FAIL]++;
         ATH_MSG_DEBUG("Propagation to perigee failed 3");
 
-        return 0;
+        return nullptr;
       }
       
       PerigeeSurface persurf2(per->position());
@@ -4940,23 +4940,23 @@ namespace Trk {
         per->parameters()[Trk::phi],
         per->parameters()[Trk::theta],
         per->parameters()[Trk::qOverP], 
-        0
+        nullptr
       );
       
       delete oldper;
-    } else if (!per) {
+    } else if (per == nullptr) {
       per = makePerigee(cache, param, matEffects);
     }
     
-    if (!per && !trajectory.referenceParameters()) {
+    if ((per == nullptr) && (trajectory.referenceParameters() == nullptr)) {
       cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
       m_fit_status[S_PROPAGATION_FAIL]++;
       ATH_MSG_DEBUG("Propagation to perigee failed 4");
 
-      return 0;
+      return nullptr;
     }
     
-    if (trajectory.m_straightline && per) {
+    if (trajectory.m_straightline && (per != nullptr)) {
       if (trajectory.numberOfPerigeeParameters() == -1) {
         trajectory.setNumberOfPerigeeParameters(4);
       }
@@ -4964,7 +4964,7 @@ namespace Trk {
       const AmgVector(5) & pars = per->parameters();
       const TrackParameters *oldper = per;
       per = per->associatedSurface().createTrackParameters(
-        pars[0], pars[1], pars[2], pars[3], 0, 0
+        pars[0], pars[1], pars[2], pars[3], 0, nullptr
       );
       
       delete oldper;
@@ -4972,7 +4972,7 @@ namespace Trk {
       trajectory.setNumberOfPerigeeParameters(5);
     }
 
-    if (per) {
+    if (per != nullptr) {
       trajectory.setReferenceParameters(per);
     }
 
@@ -4994,7 +4994,7 @@ namespace Trk {
     derivPool.setZero();
 
     for (GXFTrackState *state : trajectory.trackStates()) {
-      if (state->materialEffects()) {
+      if (state->materialEffects() != nullptr) {
         continue;
       }
       state->setDerivatives(derivPool);
@@ -5013,7 +5013,7 @@ namespace Trk {
         m_fit_status[S_NOT_CONVERGENT]++;
         gErrorIgnoreLevel = originalErrorLevel;
         cache.m_miniter = tmpminiter;
-        return 0;
+        return nullptr;
       }
       
       if (!trajectory.converged()) {
@@ -5029,7 +5029,7 @@ namespace Trk {
           
           gErrorIgnoreLevel = originalErrorLevel;
           cache.m_miniter = tmpminiter;
-          return 0;
+          return nullptr;
         }
         
         int nhits = trajectory.numberOfHits();
@@ -5055,7 +5055,7 @@ namespace Trk {
               ATH_MSG_DEBUG("TRT cleaner failed, returning null...");
               gErrorIgnoreLevel = originalErrorLevel;
               cache.m_miniter = tmpminiter;
-              return 0;
+              return nullptr;
             }
           }
         }
@@ -5067,7 +5067,7 @@ namespace Trk {
               m_fit_status[S_INVALID_ANGLES]++;
             }
             cache.m_miniter = tmpminiter;
-            return 0;
+            return nullptr;
           }
         }
       } else {
@@ -5077,7 +5077,7 @@ namespace Trk {
 
     cache.m_miniter = tmpminiter;
 
-    if (!trajectory.prefit()) {
+    if (trajectory.prefit() == 0) {
       // Solve assuming the matrix is SPD.
       // Cholesky Decomposition is used --  could use LDLT
 
@@ -5094,7 +5094,7 @@ namespace Trk {
         m_fit_status[S_MAT_INV_FAIL]++;
         cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
         gErrorIgnoreLevel = originalErrorLevel;
-        return 0;
+        return nullptr;
       }
     }
     
@@ -5115,14 +5115,14 @@ namespace Trk {
       if (finaltrajectory != &trajectory) {
         delete finaltrajectory;
       }
-      return 0;
+      return nullptr;
     }
     
-    if (m_domeastrackpar && !finaltrajectory->prefit()) {
+    if (m_domeastrackpar && (finaltrajectory->prefit() == 0)) {
       calculateTrackErrors(*finaltrajectory, a_inv, false);
     }
     
-    if (!cache.m_acceleration && !finaltrajectory->prefit()) {
+    if (!cache.m_acceleration && (finaltrajectory->prefit() == 0)) {
       if (nperpars == 5) {
         for (int i = 0; i < a.cols(); i++) {
           a_inv(4, i) *= .001;
@@ -5162,12 +5162,12 @@ namespace Trk {
       }
     }
     
-    Track *track = 0;
+    Track *track = nullptr;
     if (finaltrajectory->prefit() > 0) {
       if (finaltrajectory != &trajectory) {
         delete finaltrajectory;
       }
-      return 0;
+      return nullptr;
     }
     
     if (finaltrajectory->numberOfOutliers() <= m_maxoutliers || !runOutlier) {
@@ -5181,17 +5181,17 @@ namespace Trk {
     
     if (
       runOutlier && 
-      track && (
+      (track != nullptr) && (
         track->fitQuality()->numberDoF() != 0 && 
         track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF() > cut
       )
     ) {
       delete track;
-      track = 0;
+      track = nullptr;
       m_fit_status[S_HIGH_CHI2]++;
     }
     
-    if (!track) {
+    if (track == nullptr) {
       ATH_MSG_DEBUG("Track rejected");
     }
     
@@ -5230,7 +5230,7 @@ namespace Trk {
     ParamDefsAccessor paraccessor;
     bool scatwasupdated = false;
 
-    GXFTrackState *state_maxbrempull = 0;
+    GXFTrackState *state_maxbrempull = nullptr;
     int bremno_maxbrempull = 0;
     double maxbrempull = 0;
 
@@ -5308,7 +5308,7 @@ namespace Trk {
       
       if (
         statetype == TrackState::Scatterer && 
-        (!trajectory.prefit() || state->materialEffects()->deltaE() == 0)
+        ((trajectory.prefit() == 0) || state->materialEffects()->deltaE() == 0)
       ) {
         double deltaphi = state->materialEffects()->deltaPhi();
         double measdeltaphi = state->materialEffects()->measuredDeltaPhi();
@@ -5331,7 +5331,7 @@ namespace Trk {
         scatno++;
       }
 
-      if (state->materialEffects() && state->materialEffects()->sigmaDeltaE() > 0) {
+      if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
         double averagenergyloss = std::abs(state->materialEffects()->deltaE());
         double qoverpbrem = 1000 * states[hitno]->trackParameters()->parameters()[Trk::qOverP];
         double pbrem = 1 / std::abs(qoverpbrem);
@@ -5352,13 +5352,13 @@ namespace Trk {
         
         if (state->materialEffects()->isKink()) {
           maxbrempull = -999999999;
-          state_maxbrempull = 0;
+          state_maxbrempull = nullptr;
         }
         
         if (
           cache.m_asymeloss && 
           it > 0 && 
-          !trajectory.prefit() && 
+          (trajectory.prefit() == 0) && 
           sigde > 0 && 
           sigde != sigdepos && 
           sigde != sigdeneg
@@ -5373,7 +5373,7 @@ namespace Trk {
             }
             
             error[nmeas - nbrem + bremno] = .001 * state->materialEffects()->sigmaDeltaE();
-          } else if (!trajectory.numberOfTRTHits() || it >= 3) {
+          } else if ((trajectory.numberOfTRTHits() == 0) || it >= 3) {
             if (
               !state->materialEffects()->isKink() && (
                 (elosspull < -.2 && m_fixbrem == -1 && elosspull < maxbrempull) || 
@@ -5391,12 +5391,12 @@ namespace Trk {
           it > 0 && 
           hitno >= 2 && 
           !m_calotoolparam.empty() && 
-          !trajectory.prefit() && 
+          (trajectory.prefit() == 0) && 
           state->materialEffects()->sigmaDeltaPhi() == 0 && 
           state->materialEffects()->isMeasuredEloss() && 
           res[nmeas - nbrem + bremno] / (.001 * state->materialEffects()->sigmaDeltaEAve()) > 2.5
         ) {
-          const TrackParameters *parforcalo = trajectory.prefit()? trajectory.referenceParameters() : states[hitno - 2]->trackParameters();
+          const TrackParameters *parforcalo = trajectory.prefit() != 0? trajectory.referenceParameters() : states[hitno - 2]->trackParameters();
           const IPropagator *prop = &*m_propagator;
           
           std::vector < MaterialEffectsOnTrack > calomeots = m_calotoolparam->extrapolationSurfacesAndEffects(
@@ -5475,7 +5475,7 @@ namespace Trk {
       trajectory.setConverged(true);
     }
 
-    if (state_maxbrempull && trajectory.converged()) {
+    if ((state_maxbrempull != nullptr) && trajectory.converged()) {
       state_maxbrempull->materialEffects()->setSigmaDeltaE(
         10 * state_maxbrempull->materialEffects()->sigmaDeltaEPos()
       );
@@ -5539,7 +5539,7 @@ namespace Trk {
     for (GXFTrackState *state : states) {
       if (
         onlybrem && 
-        (!state->materialEffects() || state->materialEffects()->sigmaDeltaE() <= 0)
+        ((state->materialEffects() == nullptr) || state->materialEffects()->sigmaDeltaE() <= 0)
       ) {
         continue;
       } 
@@ -5644,12 +5644,12 @@ namespace Trk {
         }
       } else if (
         statetype == TrackState::Scatterer &&
-        (!trajectory.prefit() || state->materialEffects()->deltaE() == 0)
+        ((trajectory.prefit() == 0) || state->materialEffects()->deltaE() == 0)
       ) {
         scatno++;
       }
 
-      if (state->materialEffects() && state->materialEffects()->sigmaDeltaE() > 0) {
+      if ((state->materialEffects() != nullptr) && state->materialEffects()->sigmaDeltaE() > 0) {
         double qoverp = 0, qoverpbrem = 0;
         qoverpbrem = 1000 * state->trackParameters()->parameters()[Trk::qOverP];
         qoverp = qoverpbrem - state->materialEffects()->delta_p();
@@ -5769,12 +5769,12 @@ namespace Trk {
       for (int i = 0; i < (int) trajectory.trackStates().size(); i++) {
         GXFTrackState *state = trajectory.trackStates()[i];
         GXFMaterialEffects *meff = state->materialEffects();
-        if (!meff) {
+        if (meff == nullptr) {
           measno += state->numberOfMeasuredParameters();
         }
-        if (meff) {
+        if (meff != nullptr) {
           if (meff->sigmaDeltaTheta() != 0
-              && (!trajectory.prefit() || meff->deltaE() == 0)) {
+              && ((trajectory.prefit() == 0) || meff->deltaE() == 0)) {
             int scatterPos = nperpars + 2 * scatno;
             if (i < nupstreamstates) {
               cache.m_lastmeasurement[scatterPos] =
@@ -5874,12 +5874,12 @@ namespace Trk {
     for (GXFTrackState *thisstate : trajectory.trackStates()) {
       GXFMaterialEffects *meff = thisstate->materialEffects();
       
-      if (meff) {
+      if (meff != nullptr) {
         const PlaneSurface *plsurf = nullptr;
         
         if (thisstate->surface()->type() == Trk::Surface::Plane)
           plsurf = static_cast < const PlaneSurface *>(thisstate->surface());
-        if (meff->deltaE() == 0 || (!trajectory.prefit() && plsurf)) {
+        if (meff->deltaE() == 0 || ((trajectory.prefit() == 0) && (plsurf != nullptr))) {
           weightchanged = true;
 
           if (a.cols() != nfitpars) {
@@ -5888,7 +5888,7 @@ namespace Trk {
           
           int scatNoIndex = 2 * scatno + nperpars;
 
-          if (!trajectory.prefit()) {
+          if (trajectory.prefit() == 0) {
             if (thisstate->materialEffects()->sigmaDeltaPhi() != 0) {
               if (scatno >= cache.m_phiweight.size()) {
                 std::stringstream message;
@@ -5932,7 +5932,7 @@ namespace Trk {
         
         if (
           thisstate->materialEffects()->sigmaDeltaPhi() != 0 &&
-          (!trajectory.prefit() || thisstate->materialEffects()->deltaE() == 0)
+          ((trajectory.prefit() == 0) || thisstate->materialEffects()->deltaE() == 0)
         ) {
           scatno++;
         }
@@ -5964,7 +5964,7 @@ namespace Trk {
     }
 
     if (trajectory.converged()) {
-      if (!trajectory.prefit() && nsihits + ntrthits != nhits) {
+      if ((trajectory.prefit() == 0) && nsihits + ntrthits != nhits) {
         unsigned int scatno = 0;
         
         if (a.cols() != nfitpars) {
@@ -5972,7 +5972,7 @@ namespace Trk {
         }
 
         for (GXFTrackState *thisstate : trajectory.trackStates()) {
-          if (thisstate->materialEffects() && thisstate->materialEffects()->sigmaDeltaPhi() != 0) {
+          if ((thisstate->materialEffects() != nullptr) && thisstate->materialEffects()->sigmaDeltaPhi() != 0) {
             if (scatno >= cache.m_phiweight.size()) {
               std::stringstream message;
               message << "scatno is out of range " << scatno << " !< " << cache.m_phiweight.size();
@@ -5984,7 +5984,7 @@ namespace Trk {
             if (thisstate->surface()->type() == Trk::Surface::Plane)
               plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
               
-            if (thisstate->materialEffects()->deltaE() == 0 || plsurf) {
+            if (thisstate->materialEffects()->deltaE() == 0 || (plsurf != nullptr)) {
               int scatNoIndex = 2 * scatno + nperpars;
               a(scatNoIndex, scatNoIndex) /= cache.m_phiweight[scatno];
               cache.m_phiweight[scatno] = 1;
@@ -6004,7 +6004,7 @@ namespace Trk {
       !m_redoderivs && 
       it < 5 && 
       (newredchi2 < 2 || (newredchi2 < oldredchi2 && newredchi2 > oldredchi2 - .5)) && 
-      !trajectory.prefit()
+      (trajectory.prefit() == 0)
     ) {
       doderiv = false;
     }
@@ -6065,7 +6065,7 @@ namespace Trk {
     }
 
     const TrackParameters *newper = trajectory.referenceParameters()->associatedSurface().createTrackParameters(
-      d0, z0, phi, theta, qoverp, 0
+      d0, z0, phi, theta, qoverp, nullptr
     );
     
     trajectory.setReferenceParameters(newper);
@@ -6145,18 +6145,18 @@ namespace Trk {
             double olderror = errors[0];
             const Trk::RIO_OnTrack * oldrot = dynamic_cast<const Trk::RIO_OnTrack *>(state->measurement());
             
-            if (!oldrot) {
+            if (oldrot == nullptr) {
               continue;
             }
             
             double oldradius = oldrot->localParameters()[Trk::driftRadius];
             
-            if (oldrot->prepRawData()) {
+            if (oldrot->prepRawData() != nullptr) {
               double dcradius = oldrot->prepRawData()->localPosition()[Trk::driftRadius];
               double dcerror = sqrt(oldrot->prepRawData()->localCovariance()(Trk::driftRadius, Trk::driftRadius));
               double trackradius = state->trackParameters()->parameters()[Trk::driftRadius];
 
-              const Trk::RIO_OnTrack * newrot = 0;
+              const Trk::RIO_OnTrack * newrot = nullptr;
               double distance = std::abs(std::abs(trackradius) - dcradius);
               
               if (distance < scalefactor * dcerror && (olderror > 1. || trackradius * oldradius < 0)) {
@@ -6167,7 +6167,7 @@ namespace Trk {
                 newrot = m_broadROTcreator->correct(*oldrot->prepRawData(), *state->trackParameters());
               }
               
-              if (newrot) {
+              if (newrot != nullptr) {
                 ATH_MSG_DEBUG("Recalibrating TRT hit #" << hitno);
                 hitrecalibrated = true;
                 double newradius = newrot->localParameters()[Trk::driftRadius];
@@ -6256,7 +6256,7 @@ namespace Trk {
     bool trackok = false;
     GXFTrajectory *oldtrajectory = &trajectory;
     std::unique_ptr < GXFTrajectory > cleanup_oldtrajectory;
-    GXFTrajectory *newtrajectory = 0;
+    GXFTrajectory *newtrajectory = nullptr;
     std::unique_ptr < GXFTrajectory > cleanup_newtrajectory;
 
     // the oldtracjectory will be returned, so in case newtrajectory==oldtrajectory
@@ -6281,7 +6281,7 @@ namespace Trk {
       int hitno = 0, hitno_maxsipull = -1;
       int measno_maxsipull = -1;
       int stateno_maxsipull = 0;
-      GXFTrackState *state_maxsipull = 0;
+      GXFTrackState *state_maxsipull = nullptr;
       int measno = 0;
       int n3sigma = 0;
       double cut = m_outlcut;
@@ -6299,7 +6299,7 @@ namespace Trk {
         if (statetype == TrackState::Fittable) {
           TrackState::MeasurementType hittype = state->measurementType();
 
-          if ((hittype == TrackState::Pixel || hittype == TrackState::SCT) && state->trackCovariance()) {
+          if ((hittype == TrackState::Pixel || hittype == TrackState::SCT) && (state->trackCovariance() != nullptr)) {
             double *errors = state->measurementErrors();
             AmgSymMatrix(5) & trackcov = *state->trackCovariance();
             const Amg::MatrixX & hitcov = state->measurement()->localCovariance();
@@ -6370,7 +6370,7 @@ namespace Trk {
 
         const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(state_maxsipull->measurement());
 
-        const PrepRawData *prd = rot ? rot->prepRawData() : 0;
+        const PrepRawData *prd = rot != nullptr ? rot->prepRawData() : nullptr;
         std::unique_ptr < const RIO_OnTrack > broadrot;
         double *olderror = state_maxsipull->measurementErrors();
         TrackState::MeasurementType hittype_maxsipull = state_maxsipull->measurementType();
@@ -6394,7 +6394,7 @@ namespace Trk {
         double newsinstereo = 0;
 
         if (
-          prd && 
+          (prd != nullptr) && 
           !state_maxsipull->isRecalibrated() && 
           maxpull > 2.5 &&
           oldtrajectory->chi2() / trajectory.nDOF() > .3 * m_chi2cut && 
@@ -6618,7 +6618,7 @@ namespace Trk {
         cache.m_fittercode = updateFitParameters(*newtrajectory, *newbp, lu_m);
         if (cache.m_fittercode != FitterStatusCode::Success) {
           m_fit_status[S_NOT_ENOUGH_MEAS]++;
-          return 0;
+          return nullptr;
         }
 
         for (int it = 0; it < m_maxit; it++) {
@@ -6626,7 +6626,7 @@ namespace Trk {
             ATH_MSG_DEBUG("Fit did not converge");
             cache.m_fittercode = FitterStatusCode::NoConvergence;
             m_fit_status[S_NOT_CONVERGENT]++;
-            return 0;
+            return nullptr;
           }
           
           if (!newtrajectory->converged()) {
@@ -6634,7 +6634,7 @@ namespace Trk {
 
             if (cache.m_fittercode != FitterStatusCode::Success) {
               m_fit_status[S_NOT_ENOUGH_MEAS]++;
-              return 0;
+              return nullptr;
             }
             
             if (!newtrajectory->converged()) {
@@ -6642,7 +6642,7 @@ namespace Trk {
               if (cache.m_fittercode != FitterStatusCode::Success) {
                 m_fit_status[S_NOT_ENOUGH_MEAS]++;
 
-                return 0;
+                return nullptr;
               }
             }
           } else {
@@ -6664,7 +6664,7 @@ namespace Trk {
               if (oldchi2 > m_chi2cut) {
                 cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
                 m_fit_status[S_NOT_ENOUGH_MEAS]++;
-                return 0;
+                return nullptr;
               }
               
               cleanup_oldtrajectory.release();
@@ -6691,7 +6691,7 @@ namespace Trk {
               ATH_MSG_DEBUG("matrix inversion failed!");
               m_fit_status[S_MAT_INV_FAIL]++;
               cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
-              return 0;
+              return nullptr;
             }
             break;
           }
@@ -6710,7 +6710,7 @@ namespace Trk {
     ) {
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
       m_fit_status[S_NOT_ENOUGH_MEAS]++;
-      return 0;
+      return nullptr;
     }
     
     cleanup_oldtrajectory.release();
@@ -6725,15 +6725,15 @@ namespace Trk {
     const MeasurementBase *measurement = state->measurement(true);
     const FitQualityOnSurface *fitQual = state->fitQuality(true);
     GXFMaterialEffects *gxfmeff = state->materialEffects();
-    const MaterialEffectsBase *mateff = 0;
+    const MaterialEffectsBase *mateff = nullptr;
     TrackState::TrackStateType tstype = state->trackStateType();
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 
-    if (state->trackCovariance()) {
-      state->setTrackCovariance(0);
+    if (state->trackCovariance() != nullptr) {
+      state->setTrackCovariance(nullptr);
     }
     
-    if (gxfmeff && (tstype == TrackState::Scatterer || tstype == TrackState::Brem)) {
+    if ((gxfmeff != nullptr) && (tstype == TrackState::Scatterer || tstype == TrackState::Brem)) {
       if (tstype == TrackState::Scatterer) {
         typePattern.set(TrackStateOnSurface::Scatterer);
       }
@@ -6743,7 +6743,7 @@ namespace Trk {
           typePattern.set(TrackStateOnSurface::CaloDeposit);
         } else {
           typePattern.set(TrackStateOnSurface::BremPoint);
-          if (matEffects == electron && trackpar && false) {
+          if (matEffects == electron && (trackpar != nullptr) && false) {
             double pafter = std::abs(1 / trackpar->parameters()[Trk::qOverP]);
             double pbefore = std::abs(1 / (trackpar->parameters()[Trk::qOverP] - .001 * gxfmeff->delta_p()));
             double mass = m_particleMasses.mass[matEffects];
@@ -6757,7 +6757,7 @@ namespace Trk {
         }
       }
       
-      if (!mateff) {
+      if (mateff == nullptr) {
         mateff = state->materialEffects()->makeMEOT();
       }
     } else {
@@ -6766,7 +6766,7 @@ namespace Trk {
         
         ATH_MSG_DEBUG("FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF());
         
-        if (fitQual && (fitQual->chiSquared() > 1.e5 || fitQual->chiSquared() < 0)) {
+        if ((fitQual != nullptr) && (fitQual->chiSquared() > 1.e5 || fitQual->chiSquared() < 0)) {
           double newchi2 = 0;
           int ndf = fitQual->numberDoF();
           
@@ -6804,8 +6804,8 @@ namespace Trk {
       for (auto & hit : states) {
         if (
           hit->trackStateType() == TrackState::Fittable && (
-            dynamic_cast<const RIO_OnTrack *>(hit->measurement()) || 
-            dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement())
+            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
           )
         ) {
           nrealmeas += hit->numberOfMeasuredParameters();
@@ -6822,8 +6822,8 @@ namespace Trk {
       for (auto & hit : states) {
         if (
           hit->trackStateType() == TrackState::Fittable && (
-            dynamic_cast<const RIO_OnTrack *>(hit->measurement()) || 
-            dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement())
+            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
           )
         ) {
           for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
@@ -6838,13 +6838,13 @@ namespace Trk {
           }
           
           measindex += hit->numberOfMeasuredParameters();
-        } else if (!hit->materialEffects()) {
+        } else if (hit->materialEffects() == nullptr) {
           measindex2 += hit->numberOfMeasuredParameters();
         }
       }
     }
     
-    GXFTrackState *firstmeasstate = 0, *lastmeasstate = 0;
+    GXFTrackState *firstmeasstate = nullptr, *lastmeasstate = nullptr;
     bool foundbrem = false;
     
     for (auto & hit : states) {
@@ -6852,15 +6852,15 @@ namespace Trk {
         hit->measurementType() == TrackState::Pseudo &&
         hit->trackStateType() == TrackState::GeneralOutlier
       ) {
-        if (hit->trackCovariance()) {
-          hit->setTrackCovariance(0);
+        if (hit->trackCovariance() != nullptr) {
+          hit->setTrackCovariance(nullptr);
         }
         continue;
       }
       
       if (
         matEffects == electron && 
-        hit->materialEffects() && 
+        (hit->materialEffects() != nullptr) && 
         hit->materialEffects()->isKink()
       ) {
         foundbrem = true;
@@ -6869,8 +6869,8 @@ namespace Trk {
       const TrackStateOnSurface *trackState = makeTSOS(hit, matEffects);
       trajectory->push_back(trackState);
       
-      if (trackState->measurementOnTrack()) {
-        if (!firstmeasstate) {
+      if (trackState->measurementOnTrack() != nullptr) {
+        if (firstmeasstate == nullptr) {
           firstmeasstate = hit;
         }
         lastmeasstate = hit;
@@ -6897,11 +6897,11 @@ namespace Trk {
       info.setTrackProperties(TrackInfo::StraightTrack);
     }
 
-    if (!firstmeasstate) {
+    if (firstmeasstate == nullptr) {
       throw std::logic_error("no first measurement.");
     }
     
-    const TrackParameters *per = 0;
+    const TrackParameters *per = nullptr;
     
     if (cache.m_acceleration && !m_matupdator.empty()) {
       const TrackParameters *prevpar = firstmeasstate->trackParameters();
@@ -6909,14 +6909,14 @@ namespace Trk {
       std::vector<std::pair<const Layer *, const Layer *>> & upstreamlayers = oldtrajectory.upstreamMaterialLayers();
       
       for (int i = (int)upstreamlayers.size() - 1; i >= 0; i--) {
-        if (!prevpar) {
+        if (prevpar == nullptr) {
           break;
         }
         
         PropDirection propdir = oppositeMomentum;
         const Layer *layer = upstreamlayers[i].first;
         
-        if (!layer) {
+        if (layer == nullptr) {
           layer = upstreamlayers[i].second;
         }
         
@@ -6949,13 +6949,13 @@ namespace Trk {
           nonInteracting
         );
         
-        if (!layerpar) {
+        if (layerpar == nullptr) {
           continue;
         }
         
         if (layer->surfaceRepresentation().bounds().inside(layerpar->localPosition())) {
           const TrackParameters *updatedpar = m_matupdator->update(layerpar, *layer, oppositeMomentum, matEffects);
-          if (updatedpar && updatedpar != layerpar) {
+          if ((updatedpar != nullptr) && updatedpar != layerpar) {
             delete layerpar;
             layerpar = updatedpar;
           }
@@ -6970,7 +6970,7 @@ namespace Trk {
       
       const Layer *startlayer = firstmeasstate->trackParameters()->associatedSurface().associatedLayer();
       
-      if (startlayer && startlayer->layerMaterialProperties()) {
+      if ((startlayer != nullptr) && (startlayer->layerMaterialProperties() != nullptr)) {
         double startfactor = startlayer->layerMaterialProperties()->alongPostFactor();
         const Surface & discsurf = startlayer->surfaceRepresentation();
         
@@ -6979,7 +6979,7 @@ namespace Trk {
         }
         if (startfactor > 0.5) {
           const TrackParameters *updatedpar = m_matupdator->update(firstmeasstate->trackParameters(), *startlayer, oppositeMomentum, matEffects);
-          if (updatedpar && updatedpar != firstmeasstate->trackParameters()) {
+          if ((updatedpar != nullptr) && updatedpar != firstmeasstate->trackParameters()) {
             firstmeasstate->setTrackParameters(updatedpar);
           }
         }
@@ -6991,7 +6991,7 @@ namespace Trk {
 
       const Layer *endlayer = lastmeasstate->trackParameters()->associatedSurface().associatedLayer();
       
-      if (endlayer && endlayer->layerMaterialProperties()) {
+      if ((endlayer != nullptr) && (endlayer->layerMaterialProperties() != nullptr)) {
         double endfactor = endlayer->layerMaterialProperties()->alongPreFactor();
         const Surface & discsurf = endlayer->surfaceRepresentation();
         
@@ -7001,13 +7001,13 @@ namespace Trk {
         
         if (endfactor > 0.5) {
           const TrackParameters *updatedpar = m_matupdator->update(lastmeasstate->trackParameters(), *endlayer, alongMomentum, matEffects);
-          if (updatedpar && updatedpar != lastmeasstate->trackParameters()) {
+          if ((updatedpar != nullptr) && updatedpar != lastmeasstate->trackParameters()) {
             lastmeasstate->setTrackParameters(updatedpar);
           }
         }
       }
       
-      if (prevpar) {
+      if (prevpar != nullptr) {
         per = m_propagator->propagate(
           *prevpar,
           PerigeeSurface(Amg::Vector3D(0, 0, 0)),
@@ -7022,7 +7022,7 @@ namespace Trk {
         delete prevpar;
       }
       
-      if (!per) {
+      if (per == nullptr) {
         delete trajectory;
         delete qual;
         
@@ -7031,9 +7031,9 @@ namespace Trk {
         cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
 
         m_fit_status[S_PROPAGATION_FAIL]++;
-        return 0;
+        return nullptr;
       }
-    } else if (cache.m_acceleration && firstmeasstate->trackParameters()) {
+    } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
       per = m_extrapolator->extrapolate(
         *firstmeasstate->trackParameters(),
         PerigeeSurface(Amg::Vector3D(0, 0, 0)),
@@ -7047,7 +7047,7 @@ namespace Trk {
 
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(TrackStateOnSurface::Perigee);
-    const TrackStateOnSurface *pertsos = new TrackStateOnSurface(0, per, 0, 0, typePattern);
+    const TrackStateOnSurface *pertsos = new TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
     
     ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
     
@@ -7077,14 +7077,14 @@ namespace Trk {
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int bremno = trajectory.numberOfUpstreamBrems() - 1;
-    GXFTrackState *prevstate = 0;
+    GXFTrackState *prevstate = nullptr;
     const TrackParameters *prevtrackpar = trajectory.referenceParameters();
     
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
-      TrackState::TrackStateType prevtstype = prevstate ? prevstate->trackStateType() : TrackState::AnyState;
-      TransportJacobian *jac = 0;
+      TrackState::TrackStateType prevtstype = prevstate != nullptr ? prevstate->trackStateType() : TrackState::AnyState;
+      TransportJacobian *jac = nullptr;
       const Surface *surf = states[hitno]->surface();
-      const TrackParameters *currenttrackpar = 0;
+      const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::oppositeMomentum;
 
       DistanceSolution distsol = surf->straightLineDistanceEstimate(
@@ -7125,10 +7125,10 @@ namespace Trk {
         );
       }
 
-      if (!currenttrackpar) {
-        if (jac) {
+      if (currenttrackpar == nullptr) {
+        if (jac != nullptr) {
           delete jac;
-          jac = 0;
+          jac = nullptr;
         }
         
         propdir = (
@@ -7161,14 +7161,14 @@ namespace Trk {
         }
       }
 
-      if (currenttrackpar && m_numderiv && calcderiv) {
+      if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
         delete jac;
         jac = numericalDerivatives(prevtrackpar, surf, propdir, trajectory.m_fieldprop);
       }
 
       if (
         propdir == Trk::alongMomentum && 
-        currenttrackpar && 
+        (currenttrackpar != nullptr) && 
         (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
       ) {
         ATH_MSG_DEBUG("Propagation in wrong direction");
@@ -7176,11 +7176,11 @@ namespace Trk {
         ATH_MSG_VERBOSE("upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar);
       }
       
-      if (!currenttrackpar) {
+      if (currenttrackpar == nullptr) {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->position() << " destination surface: " << *surf);
         
-        if (jac) {
+        if (jac != nullptr) {
           delete jac;
         }
         
@@ -7204,13 +7204,13 @@ namespace Trk {
       states[hitno]->setTrackParameters(currenttrackpar);
       surf = states[hitno]->surface();
 
-      if (calcderiv && !jac) {
+      if (calcderiv && (jac == nullptr)) {
         ATH_MSG_WARNING("Jacobian is null");
         return FitterStatusCode::ExtrapolationFailure;
       }
 
-      if (jac) {
-        if (states[hitno]->materialEffects() && states[hitno]->materialEffects()->deltaE() != 0) {
+      if (jac != nullptr) {
+        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
           if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
             double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
             double de = std::abs(states[hitno]->materialEffects()->deltaE());
@@ -7225,7 +7225,7 @@ namespace Trk {
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
-      if (meff && hitno != 0) {
+      if ((meff != nullptr) && hitno != 0) {
         double newphi = currenttrackpar->parameters()[Trk::phi0] - meff->deltaPhi();
         double newtheta = currenttrackpar->parameters()[Trk::theta] - meff->deltaTheta();
         bool ok = correctAngles(newphi, newtheta);
@@ -7269,9 +7269,9 @@ namespace Trk {
     bremno = trajectory.numberOfUpstreamBrems();
     
     for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
-      TransportJacobian *jac = 0;
+      TransportJacobian *jac = nullptr;
       const Surface *surf = states[hitno]->surface();
-      const TrackParameters *currenttrackpar = 0;
+      const TrackParameters *currenttrackpar = nullptr;
       Trk::PropDirection propdir = Trk::alongMomentum;
       DistanceSolution distsol = surf->straightLineDistanceEstimate(prevtrackpar->position(),  prevtrackpar->momentum().unit());
       
@@ -7306,16 +7306,16 @@ namespace Trk {
         );
       }
 
-      if (!currenttrackpar) {
+      if (currenttrackpar == nullptr) {
         propdir = (
           propdir == Trk::oppositeMomentum ? 
           Trk::alongMomentum : 
           Trk::oppositeMomentum
         );
         
-        if (jac) {
+        if (jac != nullptr) {
           delete jac;
-          jac = 0;
+          jac = nullptr;
         }
         
         if (calcderiv && !m_numderiv) {
@@ -7342,13 +7342,13 @@ namespace Trk {
         }
       }
       
-      if (currenttrackpar && m_numderiv && calcderiv) {
+      if ((currenttrackpar != nullptr) && m_numderiv && calcderiv) {
         delete jac;
         jac = numericalDerivatives(prevtrackpar, surf, propdir, trajectory.m_fieldprop);
       }
 
       if (
-        currenttrackpar && 
+        (currenttrackpar != nullptr) && 
         propdir == Trk::oppositeMomentum && 
         (prevtrackpar->position() - currenttrackpar->position()).mag() > 5 * mm
       ) {
@@ -7359,19 +7359,19 @@ namespace Trk {
           *currenttrackpar << " surf: " << currenttrackpar->associatedSurface());
       }
       
-      if (!currenttrackpar) {
+      if (currenttrackpar == nullptr) {
         ATH_MSG_DEBUG("propagation failed, prev par: " << *prevtrackpar <<
           " pos: " << prevtrackpar->
           position() << " destination surface: " << *surf);
-        if (jac) {
+        if (jac != nullptr) {
           delete jac;
         }
 
         return FitterStatusCode::ExtrapolationFailure;
       }
 
-      if (jac) {
-        if (states[hitno]->materialEffects() && states[hitno]->materialEffects()->deltaE() != 0) {
+      if (jac != nullptr) {
+        if ((states[hitno]->materialEffects() != nullptr) && states[hitno]->materialEffects()->deltaE() != 0) {
           if (states[hitno]->materialEffects()->sigmaDeltaE() <= 0 && !trajectory.m_straightline) {
             double p = 1 / std::abs(currenttrackpar->parameters()[Trk::qOverP]);
             double de = std::abs(states[hitno]->materialEffects()->deltaE());
@@ -7389,7 +7389,7 @@ namespace Trk {
         states[hitno]->setJacobian(jac);
       }
 
-      if (calcderiv && !jac) {
+      if (calcderiv && (jac == nullptr)) {
         ATH_MSG_WARNING("Jacobian is null");
         delete currenttrackpar;
         return FitterStatusCode::ExtrapolationFailure;
@@ -7397,7 +7397,7 @@ namespace Trk {
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
 
-      if (meff) {
+      if (meff != nullptr) {
         AmgVector(5) newpars = currenttrackpar->parameters();
 
         double newphi = currenttrackpar->parameters()[Trk::phi0] + meff->deltaPhi();
@@ -7441,7 +7441,7 @@ namespace Trk {
         const TrackParameters *oldpar = currenttrackpar;
         
         currenttrackpar = surf->createTrackParameters(
-          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], 0
+          newpars[0], newpars[1], newpars[2], newpars[3], newpars[4], nullptr
         );
 
         delete oldpar;
@@ -7484,7 +7484,7 @@ namespace Trk {
       4, 4, 4, 4, 5
     };
     std::vector < EigenRM55 > jacbrem(trajectory.numberOfBrems(), initialjac);
-    GXFTrackState *prevstate = 0, *state = 0;
+    GXFTrackState *prevstate = nullptr, *state = nullptr;
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
       state = states[hitno];
       bool fillderivmat = false;
@@ -7512,9 +7512,9 @@ namespace Trk {
       } else {
         for (int scatindex = nscatupstream - 1; scatindex > scatno;
              scatindex--) {
-          if (prevstate
+          if ((prevstate != nullptr)
               && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno + 1 && (!trajectory.prefit()
+              && scatindex == scatno + 1 && ((trajectory.prefit() == 0)
                                              || prevstate->materialEffects()->
                                              deltaE() == 0)) {
             for (int i = 0; i < 4; i++) {
@@ -7553,7 +7553,7 @@ namespace Trk {
         }
         for (int bremindex = nbremupstream - 1; bremindex > bremno;
              bremindex--) {
-          if (prevstate && prevstate->materialEffects()
+          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
               && prevstate->materialEffects()->sigmaDeltaE() > 0
               && bremindex == bremno + 1) {
             for (int i = 0; i < 4; i++) {
@@ -7616,11 +7616,11 @@ namespace Trk {
       }
 
       if (tstype == TrackState::Scatterer &&
-          (!trajectory.prefit()
+          ((trajectory.prefit() == 0)
            || states[hitno]->materialEffects()->deltaE() == 0)) {
         scatno--;
       }
-      if (states[hitno]->materialEffects()
+      if ((states[hitno]->materialEffects() != nullptr)
           && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
         bremno--;
       }
@@ -7629,7 +7629,7 @@ namespace Trk {
 
     scatno = nscatupstream;
     bremno = nbremupstream;
-    prevstate = 0;
+    prevstate = nullptr;
 
     for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
       state = states[hitno];
@@ -7659,9 +7659,9 @@ namespace Trk {
         jacvertex(4, 4) = jac[4][4];
       } else {
         for (int scatindex = nscatupstream; scatindex < scatno; scatindex++) {
-          if (prevstate
+          if ((prevstate != nullptr)
               && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno - 1 && (!trajectory.prefit()
+              && scatindex == scatno - 1 && ((trajectory.prefit() == 0)
                                              || prevstate->materialEffects()->
                                              deltaE() == 0)) {
             for (int i = 0; i < 4; i++) {
@@ -7699,7 +7699,7 @@ namespace Trk {
           }
         }
         for (int bremindex = nbremupstream; bremindex < bremno; bremindex++) {
-          if (prevstate && prevstate->materialEffects()
+          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
               && prevstate->materialEffects()->sigmaDeltaE() > 0
               && bremindex == bremno - 1) {
             for (int i = 0; i < 4; i++) {
@@ -7762,11 +7762,11 @@ namespace Trk {
       }
 
       if (tstype == TrackState::Scatterer &&
-          (!trajectory.prefit()
+          ((trajectory.prefit() == 0)
            || states[hitno]->materialEffects()->deltaE() == 0)) {
         scatno++;
       }
-      if (states[hitno]->materialEffects()
+      if ((states[hitno]->materialEffects() != nullptr)
           && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
         bremno++;
       }
@@ -7794,7 +7794,7 @@ namespace Trk {
     int hitno = 0;
     int scatno = nscatupstream, bremno = nbremupstream;
       std::vector < int >indices(states.size());
-    GXFTrackState *prevstate = 0;
+    GXFTrackState *prevstate = nullptr;
     int i = nstatesupstream;
     for (int j = 0; j < (int) states.size(); j++) {
       if (j < nstatesupstream) {
@@ -7812,11 +7812,11 @@ namespace Trk {
       if (stateno == 0 || stateno == nstatesupstream) {
         scatno = nscatupstream;
         bremno = nbremupstream;
-        prevstate = 0;
+        prevstate = nullptr;
       }
       int index = indices[stateno];
       GXFTrackState *state = states[index];
-      if (state->materialEffects()) {
+      if (state->materialEffects() != nullptr) {
         if (state->trackStateType() == TrackState::Scatterer) {
           if (index >= nstatesupstream) {
             scatno++;
@@ -7835,14 +7835,14 @@ namespace Trk {
         continue;
       }
 
-      if (!state->trackCovariance()) {
+      if (state->trackCovariance() == nullptr) {
         AmgMatrix(5, 5) * newcov = new AmgMatrix(5, 5);
         newcov->setZero();
         state->setTrackCovariance(newcov);
       }
       AmgMatrix(5, 5) & trackerrmat = *state->trackCovariance();
 
-      if (prevstate &&
+      if ((prevstate != nullptr) &&
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier)
           && !onlylocal) {
@@ -7939,7 +7939,7 @@ namespace Trk {
           trackerrmat(4, 4) = 1e-20;
         }
 
-        const TrackParameters *trackpar = 0, *tmptrackpar =
+        const TrackParameters *trackpar = nullptr, *tmptrackpar =
           state->trackParameters();
 
         AmgMatrix(5, 5) * trkerrmat = state->trackCovariance(true);
@@ -7952,7 +7952,7 @@ namespace Trk {
                                                                  tpars[4],
                                                                  trkerrmat);
         state->setTrackParameters(trackpar);
-        const FitQualityOnSurface *fitQual = 0;
+        const FitQualityOnSurface *fitQual = nullptr;
         if (state->trackStateType() == TrackState::Fittable) {
           if (errorok && trajectory.nDOF() > 0) {
             fitQual = m_updator->fullStateFitQuality(*trackpar,
@@ -8032,14 +8032,14 @@ namespace Trk {
                                                               vecpluseps[2],
                                                               vecpluseps[3],
                                                               vecpluseps[4],
-                                                              0);
+                                                              nullptr);
       const TrackParameters *parminuseps =
         tmpprevpar->associatedSurface().createTrackParameters(vecminuseps[0],
                                                               vecminuseps[1],
                                                               vecminuseps[2],
                                                               vecminuseps[3],
                                                               vecminuseps[4],
-                                                              0);
+                                                              nullptr);
       const TrackParameters *newparpluseps =
         m_propagator->propagateParameters(*parpluseps, *surf, propdir, false,
                                           *fieldprop, Trk::nonInteracting);
@@ -8049,13 +8049,13 @@ namespace Trk {
       PropDirection propdir2 =
         (propdir ==
          Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-      if (!newparpluseps) {
+      if (newparpluseps == nullptr) {
         newparpluseps =
           m_propagator->propagateParameters(*parpluseps, *surf, propdir2,
                                             false, *fieldprop,
                                             Trk::nonInteracting);
       }
-      if (!newparminuseps) {
+      if (newparminuseps == nullptr) {
         newparminuseps =
           m_propagator->propagateParameters(*parminuseps, *surf, propdir2,
                                             false, *fieldprop,
@@ -8063,14 +8063,14 @@ namespace Trk {
       }
       delete parpluseps;
       delete parminuseps;
-      if (!newparpluseps || !newparminuseps) {
+      if ((newparpluseps == nullptr) || (newparminuseps == nullptr)) {
         delete newparpluseps;
         delete newparminuseps;
         delete jac;
         if (tmpprevpar != prevpar) {
           delete tmpprevpar;
         }
-        return 0;
+        return nullptr;
       }
 
       for (int j = 0; j < 5; j++) {
@@ -8233,30 +8233,30 @@ namespace Trk {
     int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
     
     const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
-    const CompetingRIOsOnTrack *testcrot = 0;
+    const CompetingRIOsOnTrack *testcrot = nullptr;
     
-    if (!testrot) {
+    if (testrot == nullptr) {
       testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
       
-      if (testcrot) {
+      if (testcrot != nullptr) {
         testrot = &testcrot->rioOnTrack(0);
       }
     }
     
-    if (!testrot) {
+    if (testrot == nullptr) {
       testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
       
-      if (!testrot) {
+      if (testrot == nullptr) {
         testcrot = dynamic_cast<const CompetingRIOsOnTrack*>((*intrk1.measurementsOnTrack())[nmeas1 - 2]);
         
-        if (testcrot) {
+        if (testcrot != nullptr) {
           testrot = &testcrot->rioOnTrack(0);
         }
       }
     }
     
     return (
-      testrot && 
+      (testrot != nullptr) && 
       !m_DetID->is_indet(testrot->identify()) && 
       m_DetID->is_muon(testrot->identify())
     );

@@ -41,13 +41,13 @@ namespace Trk {
   }
 
   GXFTrackState::GXFTrackState(GXFTrackState & rhs):
-    m_measurement(rhs.m_measurement ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : 0), 
+    m_measurement(rhs.m_measurement != nullptr ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : nullptr), 
     m_tsType(rhs.m_tsType), 
     m_trackpar(rhs.m_trackpar),
-    m_materialEffects(rhs.m_materialEffects ? new GXFMaterialEffects(*rhs. m_materialEffects) : 0),
-    m_derivs(rhs.m_derivs ? new Amg::MatrixX(*rhs.m_derivs) : nullptr),
-    m_covariancematrix(rhs.m_covariancematrix ? (rhs.m_owncov ? new AmgSymMatrix(5) (*rhs.m_covariancematrix) : rhs.m_covariancematrix) : 0),
-    m_fitqual(rhs.m_fitqual ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : 0), 
+    m_materialEffects(rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs. m_materialEffects) : nullptr),
+    m_derivs(rhs.m_derivs != nullptr ? new Amg::MatrixX(*rhs.m_derivs) : nullptr),
+    m_covariancematrix(rhs.m_covariancematrix != nullptr ? (rhs.m_owncov ? new AmgSymMatrix(5) (*rhs.m_covariancematrix) : rhs.m_covariancematrix) : nullptr),
+    m_fitqual(rhs.m_fitqual != nullptr ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : nullptr), 
     m_sinstereo(rhs.m_sinstereo),
     m_mType(rhs.m_mType), 
     m_recalib(rhs.m_recalib),
@@ -172,23 +172,23 @@ namespace Trk {
         delete m_trackpar;
       }
       
-      m_measurement = rhs.m_measurement ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : 0;
+      m_measurement = rhs.m_measurement != nullptr ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : nullptr;
       m_tsType = rhs.m_tsType;
       m_trackpar = rhs.m_trackpar;
-      m_materialEffects = rhs.m_materialEffects ? new GXFMaterialEffects(*rhs.m_materialEffects) : 0;
-      m_derivs = rhs.m_derivs ? new Amg::MatrixX(*rhs.m_derivs) : nullptr;
+      m_materialEffects = rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs.m_materialEffects) : nullptr;
+      m_derivs = rhs.m_derivs != nullptr ? new Amg::MatrixX(*rhs.m_derivs) : nullptr;
       
       delete m_covariancematrix;
       
       m_covariancematrix = (
-        rhs.m_covariancematrix ? (
+        rhs.m_covariancematrix != nullptr ? (
           rhs.m_owncov ? 
           new AmgSymMatrix(5) (*rhs.m_covariancematrix) : 
           rhs.m_covariancematrix
-        ) : 0
+        ) : nullptr
       );
 
-      m_fitqual = rhs.m_fitqual ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : 0;
+      m_fitqual = rhs.m_fitqual != nullptr ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : nullptr;
       m_sinstereo = rhs.m_sinstereo;
       m_mType = rhs.m_mType;
       m_recalib = rhs.m_recalib;
@@ -222,7 +222,7 @@ namespace Trk {
   const MeasurementBase *GXFTrackState::measurement(bool takeownership) {
     const MeasurementBase *meas = m_measurement;
 
-    if (meas && !m_ownmb && takeownership) {
+    if ((meas != nullptr) && !m_ownmb && takeownership) {
       meas = meas->clone();
     }
     if (takeownership) {
@@ -233,7 +233,7 @@ namespace Trk {
 
   void
     GXFTrackState::setTrackParameters(const TrackParameters * par) {
-    if (m_trackpar && m_owntp) {
+    if ((m_trackpar != nullptr) && m_owntp) {
       delete m_trackpar;
     }
     m_trackpar = par;
@@ -242,7 +242,7 @@ namespace Trk {
 
   void
     GXFTrackState::setMaterialEffects(GXFMaterialEffects * mef) {
-    if (m_materialEffects) {
+    if (m_materialEffects != nullptr) {
       delete m_materialEffects;
     }
     m_materialEffects = mef;
@@ -260,7 +260,7 @@ namespace Trk {
 
   void
     GXFTrackState::setDerivatives(Amg::MatrixX & deriv) {
-    if (m_derivs)
+    if (m_derivs != nullptr)
       delete m_derivs;
 
     m_derivs = new Amg::MatrixX(deriv);
@@ -295,31 +295,31 @@ namespace Trk {
   }
 
   const Surface *GXFTrackState::surface() {
-    if (m_measurement) {
+    if (m_measurement != nullptr) {
       return &m_measurement->associatedSurface();
-    } else if (m_trackpar) {
+    } else if (m_trackpar != nullptr) {
       return &m_trackpar->associatedSurface();
-    } else if (m_materialEffects) {
+    } else if (m_materialEffects != nullptr) {
       return m_materialEffects->surface();
     } else {
-      return 0;
+      return nullptr;
     }
   }
 
   void
     GXFTrackState::setTrackCovariance(AmgSymMatrix(5) * covmat) {
-    if (m_covariancematrix && m_owncov) {
+    if ((m_covariancematrix != nullptr) && m_owncov) {
       delete m_covariancematrix;
     }
     m_covariancematrix = covmat;
-    if (covmat) {
+    if (covmat != nullptr) {
       m_owncov = true;
     }
   }
 
   void
     GXFTrackState::setFitQuality(const FitQualityOnSurface * fitqual) {
-    if (m_fitqual && m_ownfq) {
+    if ((m_fitqual != nullptr) && m_ownfq) {
       delete m_fitqual;
     }
     m_fitqual = fitqual;
@@ -350,9 +350,9 @@ namespace Trk {
   }
 
   const Amg::Vector3D & GXFTrackState::position() {
-    if (m_trackpar) {
+    if (m_trackpar != nullptr) {
       return m_trackpar->position();
-    } else if (m_measurement) {
+    } else if (m_measurement != nullptr) {
       return m_measurement->globalPosition();
     }
     // return surface()->center();  // Better than nothing...

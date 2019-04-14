@@ -10,10 +10,10 @@
 
 namespace Trk {
   GXFMaterialEffects::GXFMaterialEffects() {
-    m_eloss = 0;
+    m_eloss = nullptr;
     m_scatphi = m_scattheta = m_sigmascatphi = m_sigmascattheta = m_x0 = m_measscatphi = 0;
-    m_surf = 0;
-    m_matprop = 0;
+    m_surf = nullptr;
+    m_matprop = nullptr;
     m_deltap = 0;
     m_sigmadeltae = 0;
     m_sigmadeltaepos = 0;
@@ -30,20 +30,20 @@ namespace Trk {
     m_owneloss = false;
     m_sigmadeltae = 0;
     
-    if (meot->energyLoss()) {
+    if (meot->energyLoss() != nullptr) {
       m_deltae = meot->energyLoss()->deltaE();
       m_sigmadeltaepos = meot->energyLoss()->sigmaPlusDeltaE();
       m_sigmadeltaeneg = meot->energyLoss()->sigmaMinusDeltaE();
       
-      if (!meot->scatteringAngles()) {
+      if (meot->scatteringAngles() == nullptr) {
         m_eloss = meot->energyLoss()->clone();
         m_sigmadeltae = meot->energyLoss()->sigmaDeltaE();
         m_owneloss = true;
       } else {
-        m_eloss = 0;
+        m_eloss = nullptr;
       }
     } else {
-      m_eloss = 0;
+      m_eloss = nullptr;
       m_deltae = 0;
       m_sigmadeltaepos = 0;
       m_sigmadeltaeneg = 0;
@@ -56,7 +56,7 @@ namespace Trk {
 
     const ScatteringAngles *scatangles = meot->scatteringAngles();
     
-    if (scatangles && x0 > 0) {
+    if ((scatangles != nullptr) && x0 > 0) {
       m_x0 = x0;
       m_sintheta = scatangles->sigmaDeltaTheta() / scatangles->sigmaDeltaPhi();
       m_scatphi = scatangles->deltaPhi();
@@ -68,7 +68,7 @@ namespace Trk {
     }
     
     m_surf = &meot->associatedSurface();
-    m_matprop = 0;
+    m_matprop = nullptr;
     m_iskink = false;
     m_ismeasuredeloss = true;
     m_deltap = 0;
@@ -76,7 +76,7 @@ namespace Trk {
   }
 
   GXFMaterialEffects::GXFMaterialEffects(GXFMaterialEffects & rhs) {
-    m_eloss = rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : 0;
+    m_eloss = rhs.m_eloss != nullptr ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
     m_scatphi = rhs.m_scatphi;
     m_scattheta = rhs.m_scattheta;
     m_sigmascatphi = rhs.m_sigmascatphi;
@@ -99,7 +99,7 @@ namespace Trk {
 
   GXFMaterialEffects & GXFMaterialEffects::operator =(GXFMaterialEffects & rhs) {
     if (this != &rhs) {
-      m_eloss = rhs.m_eloss ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : 0;
+      m_eloss = rhs.m_eloss != nullptr ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
       m_scatphi = rhs.m_scatphi;
       m_scattheta = rhs.m_scattheta;
       m_sigmascatphi = rhs.m_sigmascatphi;
@@ -191,7 +191,7 @@ namespace Trk {
   }
 
   double GXFMaterialEffects::sigmaDeltaEAve() {
-    if (m_eloss) {
+    if (m_eloss != nullptr) {
       return m_eloss->sigmaDeltaE();
     }
     return 0;
@@ -250,7 +250,7 @@ namespace Trk {
   }
 
   MaterialEffectsBase *GXFMaterialEffects::makeMEOT() {
-    ScatteringAngles *scatangles = 0;
+    ScatteringAngles *scatangles = nullptr;
 
     if (m_sigmascattheta != 0) {
       scatangles = new ScatteringAngles(m_scatphi, m_scattheta, m_sigmascatphi, m_sigmascattheta);
@@ -258,10 +258,10 @@ namespace Trk {
     
     std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
     typePattern.set(MaterialEffectsBase::FittedMaterialEffects);
-    const Trk::EnergyLoss * neweloss = 0;
+    const Trk::EnergyLoss * neweloss = nullptr;
     
     if (m_deltae != 0) {
-      if (m_eloss) {
+      if (m_eloss != nullptr) {
         neweloss = m_eloss;
         if (!m_owneloss) {
           neweloss = neweloss->clone();
