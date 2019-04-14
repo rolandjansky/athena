@@ -220,5 +220,10 @@ makeHLTTree(testChains)
 ##########################################
 # Some debug
 ##########################################
-from AthenaCommon.AlgSequence import dumpSequence
+from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
+
+import DecisionHandling
+for a in AthSequencer("HLTAllSteps").getChildren():
+    if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
+        a.OutputLevel = DEBUG

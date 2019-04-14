@@ -1,15 +1,7 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
-
-    #################################################
-    # Useful imports
-    #################################################
-from AthenaCommon.Constants import WARNING
-
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-
 from AthenaCommon.CFElements import seqAND 
 
 
@@ -33,14 +25,13 @@ def metCellRecoSequence():
     #################################################
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    metAlg.OutputLevel=WARNING
-    helperTool = EFMissingETFromHelper("theHelperTool") 
+    helperTool = EFMissingETFromHelper("theHelperTool")
     metAlg.HelperTool= helperTool 
     metAlg.METContainerKey = "HLT_MET"
     
-        #///////////////////////////////////////////
-        # Setup monitoring for EFMissingETAlg
-        #///////////////////////////////////////////
+    #///////////////////////////////////////////
+    # Setup monitoring for EFMissingETAlg
+    #///////////////////////////////////////////
     metMon = GenericMonitoringTool("METMonTool")
     metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
                           defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
@@ -95,8 +86,7 @@ def metClusterRecoSequence():
     #################################################
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    metAlg.OutputLevel=WARNING
-    helperTool = EFMissingETFromHelper("theHelperTool") 
+    helperTool = EFMissingETFromHelper("theHelperTool")
     metAlg.HelperTool= helperTool 
     metAlg.METContainerKey = "HLT_MET"
     
@@ -156,14 +146,13 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     #################################################
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    metAlg.OutputLevel=WARNING
-    helperTool = EFMissingETFromHelper("theHelperTool") 
+    helperTool = EFMissingETFromHelper("theHelperTool")
     metAlg.HelperTool= helperTool 
     metAlg.METContainerKey = "HLT_MET_mht"
     
-        #///////////////////////////////////////////
-        # Setup monitoring for EFMissingETAlg
-        #///////////////////////////////////////////
+    #///////////////////////////////////////////
+    # Setup monitoring for EFMissingETAlg
+    #///////////////////////////////////////////
     metMon = GenericMonitoringTool("METMonTool")
     metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
                           defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
@@ -180,9 +169,9 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     metMon.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
     metAlg.MonTool = metMon
 
-        #///////////////////////////////////////////
-        # Add EFMissingETFromCells tool
-        #///////////////////////////////////////////
+    #///////////////////////////////////////////
+    # Add EFMissingETFromCells tool
+    #///////////////////////////////////////////
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJetsMT
     mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
 
