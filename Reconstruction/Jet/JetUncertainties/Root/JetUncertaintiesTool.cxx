@@ -20,6 +20,7 @@
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
+#include "JetUncertainties/LogPtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
@@ -1143,6 +1144,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return new PtEtaUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
+            case CompParametrization::LogPtMass:
+                return new LogPtMassUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
@@ -1548,6 +1551,11 @@ bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Qw);
 }
+bool JetUncertaintiesTool::getComponentScalesSF(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::SF);
+}
 bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1788,6 +1796,9 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
         case CompParametrization::PtMass:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
+        case CompParametrization::LogPtMass:
+	    value = histo.getValue(jet4vec.Pt()*m_energyScale,log10(jet4vec.M()/jet4vec.Pt()));
+            break;
         case CompParametrization::PtMassEta:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
             break;
@@ -1991,9 +2002,9 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     }
     
     // Check for a global validity histogram
-    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet)){
         return CP::CorrectionCode::OutOfValidityRange;
-    
+    }
 
     // Scale the jet and/or its moments by the uncertainty/uncertainties
     // Note that uncertainties may be either positive or negative
@@ -2066,7 +2077,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         const double smear = uncSet.at(iVar).second;
-        
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
@@ -2116,6 +2126,10 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 break;
             case CompScaleVar::Qw:
                 if (updateQw(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::SF:
+                if (updateSF(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2807,6 +2821,28 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
     ATH_MSG_ERROR("Qw moment is not available on the jet, please make sure to set Qw before calling the tool");
     return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateSF(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accSF("SmoothWContained50_SF");
+    const static bool SFwasAvailable  = accSF.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (SFwasAvailable)
+    {
+        if (!accSF.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("SF was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accSF(constJet);
+        accSF(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("SF is not available on the jet, please make sure you called BoostedJetTaggers tag() function before calling this function.");
+    return StatusCode::FAILURE;
 }
 
 
