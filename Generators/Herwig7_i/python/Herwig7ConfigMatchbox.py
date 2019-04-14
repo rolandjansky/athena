@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+##  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 ## \file Herwig7ConfigMatchbox.py
 ## \brief Configuration class for Matchbox runs with %Herwig7
 ## \author Daniel Rauch (daniel.rauch@desy.de)
