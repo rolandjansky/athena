@@ -6,7 +6,6 @@ from GaudiKernel.GaudiHandles import GaudiHandleArray, PublicToolHandle, PublicT
 from AthenaCommon.Configurable import ConfigurableAlgTool
 import collections
 from AthenaCommon.Logging import logging
-from AthenaCommon.CFElements import findAllAlgorithmsByName
 
 from UnifyProperties import unifyProperty 
 

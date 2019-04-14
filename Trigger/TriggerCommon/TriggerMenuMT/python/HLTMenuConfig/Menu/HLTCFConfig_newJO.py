@@ -79,7 +79,6 @@ def generateDecisionTree(chains):
 
             stepReco, stepView = createStepView(chainStep.name)
             viewWithFilter = seqAND(chainStep.name, [sfilter.Alg, stepView])
-            # viewWithFilter = seqAND(chainStep.name, [sfilter.Alg])
 
             recoAcc.addSequence(viewWithFilter, parentName = stepRecoNodeName)
 
