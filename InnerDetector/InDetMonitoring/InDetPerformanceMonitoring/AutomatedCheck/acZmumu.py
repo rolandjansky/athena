@@ -6,7 +6,8 @@ m_athenaVersion = ""
 m_testArea = ""
 m_theUser = ""
 m_scriptName = "runzmumu_UserConstants.py"
-m_savingFile = "acZmumu_commands.txt"
+m_savingFile = "acZmumu_history.txt"
+m_reconmerge = "merge" #"%"
 
 # options
 m_minEvents = 10000
@@ -19,6 +20,7 @@ m_dataType = "DESDM_MCP"
 m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
 m_amitag = "%"
+m_physicsType = "physics_Main"
 
 ###################################################################################################
 def findListOfDataSets():
@@ -26,8 +28,10 @@ def findListOfDataSets():
 
     listOfDataSets = []
     #ami list datasets data18_13TeV.%.physics_Main.merge.DESDM_ZMUMU%
-    theAMIsearchCommand = "ami list datasets %s.%%.physics_Main.merge.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_dataType, m_amitag)
-    #theAMIsearchCommand = "ami list datasets %s.%%.physics_Main.merge.%s.%%"  %(m_dataProject, m_dataType)
+    #theAMIsearchCommand = "ami list datasets %s.%%.physics_Main.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
+    #theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
+    theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
+    #theAMIsearchCommand = "ami list datasets %s.%%.physics_HardProbes.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
     print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
 
     amiReturn = os.popen(theAMIsearchCommand).readlines()
@@ -83,6 +87,7 @@ def getYear ():
 ###################################################################################################
 def preliminaries ():
     import os
+    import sys
     global m_storingFolder
     global m_athenaVersion
     global m_testArea
@@ -108,6 +113,11 @@ def preliminaries ():
 
     m_storingFolder = folderName
     print (" <acZmumu> Storing output in folder: %s" %(m_storingFolder))
+
+    # verify proper order of run numbers
+    if (m_lastRun < m_firstRun):
+        print (" ** ERROR ** last run %d < first run %d \n" %(m_lastRun, m_firstRun)) 
+        sys.exit(" >> STOP excution due to bad run number ordering")
 
     return
 
@@ -222,14 +232,14 @@ def crossCheckInfo(infoFromAMI, infoFromRecordsFile):
                     if (runInAMI == runInFile):
                         runFound = True
             print (" <acZmumu> crosscheckInfo: ami run %d found in file list? %r" %(runInAMI,runFound))
-            if (not runFound or runToAdd):
+            if (not runFound):
                 listOfNewRuns.append(runInAMI)
-            else:
+            #else:
                 # maybe run is found but the analysis is not completed
                 # the logics must be formulated
-                if ("NEW" in infoFromRecordsFile[runInFile]["status"]):
-                    # this run is pending
-                    listOfPendingRuns.append(runInAMI)
+                #if ("NEW" in infoFromRecordsFile[runInFile]["status"]):
+                # this run is pending
+                #listOfPendingRuns.append(runInAMI)
 
     print (" <acZmumu> List of new runs has: %d items " %len(listOfNewRuns)) 
 
@@ -280,6 +290,7 @@ def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
+            print (" <acZmumu> testArea: %s" %(m_testArea))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> jobs would be submmited");
                 # move to the submission folder
@@ -300,6 +311,20 @@ def getAthenaBasics ():
     testArea = ""
     try:
         testArea = os.getenv("TestArea","")
+        # make sure this points to the athena folder
+        if ("athena" not in testArea.split()[-1]):
+            tempTestArea = testArea.split("/")
+            #print "tempTestArea = ", tempTestArea
+            #print "  old last = ", tempTestArea[-1]
+            tempTestArea[-1] = "athena"
+            # reform the string
+            #print "  new last = ", tempTestArea[-1]
+            newTestArea = ""
+            for tempword in tempTestArea:
+                if (len(tempword)>0):
+                    newTestArea = "%s/%s" %(newTestArea, tempword)
+                    #print " newTestArea: %s" %newTestArea
+            testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
         exit()
@@ -346,9 +371,10 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
     theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
     #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged --nFilesPerJob %d" %(infoFromAMI[runNumber]["nfiles"], 20)
-    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_IHEP" %(infoFromAMI[runNumber]["nfiles"])
     
     theCommand = "pathena %s %s %s %s" %(theScript, theInput, theOutput, theOptions)
+    print "%s " %theCommand
 
     return theCommand
 
@@ -379,6 +405,7 @@ def welcomeBanner ():
     print ("  ** min events: %d"  %m_minEvents)
     print ("  ** min Run: %d"  %m_firstRun)
     print ("  ** max Run: %d"  %m_lastRun)
+    print ("  ** physics type: %s" %m_physicsType)
     print ("  ** data type: %s"  %m_dataType)
     if (m_userFiles == 0):
         print ("  ** use all available files ")
@@ -409,6 +436,7 @@ def optParsing():
     p_userFiles = m_userFiles
     p_amitag = m_amitag
     p_dataProject = m_dataProject
+    p_physicsType = m_physicsType
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
@@ -418,8 +446,9 @@ def optParsing():
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
-    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
+    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
+    parser.add_option("--physicsType", dest="p_physicsType", help="Physics type to use (physics_Main, Hardprobes...) Default %s" %(p_physicsType), default = p_physicsType)
     parser.add_option("--userLabel", dest="p_userLabel", help="User defined label. Default %s" %(p_userLabel), default = p_userLabel)
 
     (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -474,6 +503,7 @@ if __name__ == '__main__':
     m_userFiles = int(config.p_userFiles)
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
+    m_physicsType = config.p_physicsType
 
     welcomeBanner ()
     preliminaries ()
