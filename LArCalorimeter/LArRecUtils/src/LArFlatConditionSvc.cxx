@@ -138,7 +138,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("RampSCInput",        m_objInfo[14].m_inputKey="/LAR/ElecCalibMCSC/Ramp");	     
   declareProperty("ShapeSCInput",       m_objInfo[15].m_inputKey="/LAR/ElecCalibMCSC/Shape");	     
   declareProperty("MinBiasSCInput",     m_objInfo[16].m_inputKey="/LAR/ElecCalibMCSC/MinBias");	     
-  declareProperty("MinBiasAverageSCInput",     m_objInfo[17].m_inputKey="/LAR/ElecCalibMCSC/MinBiasAverage");	     
+  declareProperty("MinBiasAverageSCInput",     m_objInfo[17].m_inputKey="/LAR/ElecCalibMCSC/LArPileupAverage");	     
 
   declareProperty("DoSuperCells", m_doSuperCells);
   declareProperty("DoRegularCells", m_doRegularCells);
