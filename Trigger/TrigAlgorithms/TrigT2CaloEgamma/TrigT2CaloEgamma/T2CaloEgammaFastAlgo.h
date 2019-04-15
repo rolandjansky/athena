@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,7 +31,6 @@
 class IAlgToolCalo;
 class IEgammaCalibration;
 class ITrigDataAccess;
-class MsgStream;
 
 /** Main LVL2 Algorithm. Processes LVL1 information, call FEX
     IAlgToolCalos and produces the TrigEMCluster output. */
@@ -39,24 +38,13 @@ class T2CaloEgammaFastAlgo: public AthAlgorithm {
 
 
   public:
-    /** Constructor */
     T2CaloEgammaFastAlgo(const std::string & name, ISvcLocator* pSvcLocator);
-    /** Destructor */
-    ~T2CaloEgammaFastAlgo();
+    virtual ~T2CaloEgammaFastAlgo();
 
-    /** main execute will call FEX IAlgToolCalo::execute() to process RoI.
-	called by the Steering per EMRoI. */
-    StatusCode execute();
-    /** initialize. Called by the Steering. */
-    StatusCode initialize();
-    /** hltFinalize. Called by the Steering. */
-    StatusCode finalize();
-    /** calculate zo mass */
-    //float calculateZ0(const float etaLayer1, const float etaLayer2);
+    virtual StatusCode execute() override;
+    virtual StatusCode initialize() override;
 
   private:
-    /** log output cached to avoid fetching MsgStream once per RoI */
-    MsgStream* m_log;
     /** To support new monitoring. Values must be copied to
 	this monitored Cluster for each RoI. */
     const xAOD::TrigEMCluster* m_monitoredCluster;
