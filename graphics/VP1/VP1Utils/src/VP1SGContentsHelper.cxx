@@ -14,6 +14,7 @@
 
 #include "VP1Utils/VP1SGContentsHelper.h"
 #include "VP1Base/IVP1System.h"
+#include "VP1Base/VP1Msg.h"
 #include "StoreGate/StoreGateSvc.h"                                    //
 #include <stdexcept>
 #include <QStringList>
@@ -41,7 +42,7 @@ VP1SGContentsHelper::VP1SGContentsHelper( StoreGateSvc * sg )
 //____________________________________________________________________
 bool VP1SGContentsHelper::contains( const CLID& id, const QString& key ) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("contains(..) called for key = "+key);
   if (!m_sg) {
     message("ERROR: Does not have StoreGate pointer - returning false.");
@@ -63,7 +64,7 @@ bool VP1SGContentsHelper::contains( const CLID& id, const QString& key ) const
     message("ERROR: Exception thrown during call to StoreGateSvc::contains(..). Returning false.");
     return false;
   }
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("contains(..) returning "+QString(contains?"true":"false"));
   return contains;
 }
@@ -97,11 +98,11 @@ QStringList VP1SGContentsHelper::getKeys(const CLID& id) const
       continue;
     if (contains(id,it->c_str()))
       l << it->c_str();
-    else if (verbose())
+    else if (VP1Msg::verbose())
       messageVerbose("NB: StoreGateSvc::keys() included '"+QString(it->c_str())
 		     +"' but StoreGateSvc::contains("+QString(it->c_str())+") returns false." );
   }
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     messageVerbose("returning "+QString::number(l.count())+" keys:");
     messageVerbose("      => ",l);
   }

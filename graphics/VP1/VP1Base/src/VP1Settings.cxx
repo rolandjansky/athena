@@ -23,7 +23,11 @@ QString VP1Settings::defaultFileSelectDirectory()
 {
   static QString thedir;
   if (thedir.isEmpty()) {
-    thedir = VP1QtUtils::environmentVariableValue("VP1_FILESELECTDIR");
+  	#if defined BUILDVP1LIGHT
+    	thedir = VP1QtUtils::expertSettingValue("expert","ExpertSettings/VP1_FILESELECTDIR");
+    #else
+    	thedir = VP1QtUtils::environmentVariableValue("VP1_FILESELECTDIR");
+    #endif
     if (thedir.isEmpty()||!QFileInfo(thedir).isDir()||!QFileInfo(thedir).exists())
       thedir = QDir::currentPath();
   }

@@ -36,8 +36,10 @@ public:
   void addParameterShapes();
   /// Make the line, but only using information on the track (a spline fit will be done from the parameters)
   void addLine_FromTrackParticle();
-  /// Extrapolate the initial track parameters to get the line (a spline fit is done between the extrapolated parameters)
-  void addLine_Extrapolated();
+  #ifndef BUILDVP1LIGHT
+      /// Extrapolate the initial track parameters to get the line (a spline fit is done between the extrapolated parameters)
+      void addLine_Extrapolated();
+  #endif // BUILDVP1LIGHT
   /// Fill d->line with a SoLineSet made from a spline fit between the information in positions and momenta.
   void fillLineFromSplineFit( const std::vector<Amg::Vector3D>& positions, 
   const std::vector<Amg::Vector3D>& momenta);
@@ -47,6 +49,7 @@ public:
 
   virtual QStringList clicked() const;
   virtual Amg::Vector3D momentum() const;
+  virtual Amg::Vector3D position() const;
   const xAOD::IParticle& iParticle() const;
   virtual double charge() const ;//!< Returns unknown() in case of trouble.
 	

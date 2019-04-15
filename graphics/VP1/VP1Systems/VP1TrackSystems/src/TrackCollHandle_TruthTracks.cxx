@@ -21,6 +21,7 @@
 #include "VP1TrackSystems/SimBarCode.h"
 #include "VP1TrackSystems/TrackSystemController.h"
 #include "VP1Base/IVP1System.h"
+#include "VP1Base/VP1Msg.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1ParticleData.h"
 
@@ -229,7 +230,7 @@ void TrackCollHandle_TruthTracks::Imp::addHitCollections(std::map<SimBarCode,Sim
   	if (trackID.isNonUniqueSecondary()) {
   	  double absmom = handle->momentum();
   	  if (absmom>=0&&absmom<1.0*CLHEP::MeV) {//Fixme: Useful? Put it higher??
-	    //    	    if (theclass->verbose())
+	    //    	    if (VP1Msg::verbose())
 	    //    	      theclass->messageVerbose("Ignoring low momentum sim hit for non. unique secondary particle");
   	    delete handle;
   	    continue;
@@ -263,7 +264,7 @@ bool TrackCollHandle_TruthTracks::Imp::loadHitLists(std::map<SimBarCode,SimHitLi
    if (VP1JobConfigInfo::hasPixelGeometry() && VP1JobConfigInfo::hasSCTGeometry())
      addHitCollections<SiHitCollection>(hitLists);
 
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose( "Found " + str( hitLists.size() ) + " lists of sim. hits.");
 
   //Time to assign all simhits with known pdg code a charge:
@@ -630,7 +631,7 @@ void TrackCollHandle_TruthTracks::Imp::createSecondaryHitLists(const SimBarCode&
     sort(itActualOutList->second.begin(),itActualOutList->second.end());
   }
 
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("Grouped "+str(ntothitinput)+" secondaries with pdgCode = "
 			     +str(pdgCode)+" into "+str(outHandleLists.size())
 			     +" tracks ("+str(ntothitinput-totused)+" went unused).");

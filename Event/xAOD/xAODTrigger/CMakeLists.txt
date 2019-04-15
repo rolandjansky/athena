@@ -40,6 +40,11 @@ atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
   SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
 
+# The tests do not compile in 'master' so far, because some operators are mnissing from AthLinksSA/ElementLinkVector. 
+# FIXME: add the missing operators
+if ( NOT BUILDVP1LIGHT )
 atlas_add_test( ut_xaodtrigger_trigcomposite_test
   SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
+endif()
+

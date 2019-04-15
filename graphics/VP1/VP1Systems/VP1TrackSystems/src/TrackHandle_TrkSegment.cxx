@@ -16,6 +16,7 @@
 #include "VP1TrackSystems/TrackSystemController.h"
 #include "VP1TrackSystems/TrackCollHandle_TrkSegment.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
+#include "VP1Base/VP1Msg.h"
 #include "VP1PRDSystems/MuonChamberProjectionHelper.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSurfaces/Surface.h"
@@ -67,7 +68,7 @@ QStringList TrackHandle_TrkSegment::clicked() const
 void TrackHandle_TrkSegment::ensureTouchedMuonChambersInitialised() const
 {
   if (!VP1JobConfigInfo::hasMuonGeometry()) {
-    if (VP1HelperClassBase::verbose())
+    if (VP1Msg::verbose())
       collHandle()->messageVerbose("");
     return;
   }
@@ -161,7 +162,7 @@ const std::vector< Amg::Vector3D > * TrackHandle_TrkSegment::provide_pathInfoPoi
         m_points->push_back(pointA);
         m_points->push_back(pointB);
       } else if (m_points->size()>2) {
-        if (VP1HelperClassBase::verbose())
+        if (VP1Msg::verbose())
           collHandle()->messageVerbose("Combining segment points into a single line!");
         (*m_points)[1] = m_points->back();
         m_points->resize(2);

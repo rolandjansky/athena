@@ -15,7 +15,9 @@
 #ifndef GEOMODELSVC_GEOMODELEXPERIMENT_H
 #define GEOMODELSVC_GEOMODELEXPERIMENT_H
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "AthenaKernel/CLASS_DEF.h"
+#ifndef BUILDVP1LIGHT
+    #include "AthenaKernel/CLASS_DEF.h"
+#endif
 #include <set>
 #include <string>
 #include <vector>
@@ -71,6 +73,9 @@ public:
   // Return the World physical volume:                                                       //
   GeoPhysVol *getPhysVol();                                                                  //
   const GeoPhysVol *getPhysVol() const;                                                      //
+  //
+  // Print a list of all the managers:
+  std::vector<std::string> getListOfManagers() const;
   //                                                                                         //
   // Manage the managers:                                                                    //
   void addManager(const GeoVDetectorManager *);                                              //
@@ -92,9 +97,11 @@ public:
 
 };
 
+#ifndef BUILDVP1LIGHT
 //using the macros below we can assign an identifier (and a version)
 //This is required and checked at compile time when you try to record/retrieve
-CLASS_DEF(GeoModelExperiment, 9875, 1)
+ CLASS_DEF(GeoModelExperiment, 9875, 1)
+#endif
 
 #endif // GEOMODELSVC_GEOMODELEXPERIMENT_H
 

@@ -77,7 +77,7 @@ _add_test( DVL_iter_swap_test )
 _add_test( AuxTypeVector_test )
 _add_test( AuxTypeVectorFactory_test )
 _add_test( AuxTypeRegistry_test EXTRA_PATTERNS "will use std::" )
-_add_test( AuxVectorBase_test EXTRA_PATTERNS "will use std::" )
+# _add_test( AuxVectorBase_test EXTRA_PATTERNS "will use std::" ) // std::random_shuffle() is deprecated in C++14 and removed in C++17 ==> TODO: to be replaced
 _add_test( AuxStoreInternal_test )
 _add_test( AuxStoreStandalone_test )
 _add_test( AuxElement_test )
