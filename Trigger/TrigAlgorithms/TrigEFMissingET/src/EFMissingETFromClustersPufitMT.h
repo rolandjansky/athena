@@ -12,23 +12,32 @@
 NAME:     EFMissingETFromClustersPufitMT.h
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Florian U. Bernlochner, Bob Kowalewski, Kenji Hamano
-CREATED:  Nov 28, 2014
+AUTHORS:  Kenji Hamano
+CREATED:  April 11, 2019
 
-PURPOSE:  Pile-up fit
+PURPOSE:  athenaMT migration
 
  ********************************************************************/
 
-#include "TrigEFMissingET/EFMissingETBaseTool.h"
+// Framework includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// TrigEFMissingET included
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
+#include "TrigEFMissingET/IMissingETTool.h"
+#include "TrigEFMissingET/EFMissingETHelper.h"
 
 
 /**
-  $class EFMissingETFromClustersPufitMT
-  Updates transient helper object with topo. clusters
+  @class EFMissingETFromClustersPufitMT
+  \brief Updates metHelper object with topoclusters
+  \author Kenji Hamano
+  \date Apri;l 11, 2019
  **/
 
-class EFMissingETFromClustersPufitMT : public EFMissingETBaseTool
+class EFMissingETFromClustersPufitMT : public extends<AthAlgTool, IMissingETTool>
 {
   public:
 
@@ -38,22 +47,18 @@ class EFMissingETFromClustersPufitMT : public EFMissingETBaseTool
 
     ~EFMissingETFromClustersPufitMT();
 
-    virtual StatusCode initialize(); 
-    virtual StatusCode finalize();
-    virtual StatusCode execute();
+    virtual StatusCode initialize() override; 
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met,
+    virtual StatusCode update(xAOD::TrigMissingET *met,
                                TrigEFMissingEtHelper *metHelper,
-                               const xAOD::CaloClusterContainer *caloCluster,
-                               const xAOD::JetContainer *jets,
-                               const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex,
-                               const xAOD::MuonContainer *muon);
+                               const EventContext& ctx) const override;
 
   private:
-    bool m_saveuncalibrated;
-    int  m_methelperposition;
+    Gaudi::Property<bool> m_saveuncalibrated {this, "SaveUncalibrated", false ,"save uncalibrated topo. clusters"};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersKey { this, "ClustersCollection", "CaloClusters", "Collection containg all clusters" };
+
     xAOD::CaloCluster_v1::State m_clusterstate;
+    TrigEFMissingEtComponent::Component m_metHelperComp;
 
     // Configurables of pile-up fit
     bool   m_subtractpileup;

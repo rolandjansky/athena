@@ -7,19 +7,24 @@
 NAME:     EFMissingETFromClustersPufitMT.cxx
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Florian U. Bernlochner, Bob Kowalewski, Kenji Hamano
-CREATED:  Nov 28, 2014
+AUTHORS:  Kenji Hamano
+CREATED:  April 11, 2019
 
-PURPOSE:  Pile-up fit
+PURPOSE:  athenaMT migration
 
  ********************************************************************/
-#include "EFMissingETFromClustersPufitMT.h"
+// Framework includes
+#include "AthenaMonitoring/Monitored.h"
+#include "GaudiKernel/IToolSvc.h"
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
 
 #include "EventKernel/ISignalState.h"
 #include "EventKernel/SignalStateHelper.h"
+
+// TrigEFMissingET includes
+#include "EFMissingETFromClustersPufitMT.h"
+
 
 #include <TMatrixD.h>
 
@@ -28,33 +33,10 @@ PURPOSE:  Pile-up fit
 using namespace std;
 
 EFMissingETFromClustersPufitMT::EFMissingETFromClustersPufitMT(const std::string& type, 
-    const std::string& name, 
-    const IInterface* parent) :
-  EFMissingETBaseTool(type, name, parent)
+							       const std::string& name, 
+							       const IInterface* parent) :
+  base_class(type, name, parent)
 {
-  declareProperty("use2016Algo", m_use2016algo = false ,"use 2016 version of algorithm");
-  declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
-  declareProperty("SubtractPileup", m_subtractpileup = true ,"use fit based pileup subtraction");
-  declareProperty("towerWidthInput", m_towerwidthinput = 0.7 ," ");
-  declareProperty("EtaRange", m_etarange = 5.0 ,"eta cut");
-  //  declareProperty("ptmin", m_ptmin = 45000 ,"tower pt threshold in MeV");
-  declareProperty("aveEclusPU", m_aveecluspu = 10000.0 ,"2016 only - sets scale for variance of masked regions in MeV; not to be interpreted literally as the average PU cluster energy");
-  declareProperty("resE", m_rese = 15.81 ,"calo energy resoln in sqrt(MeV)");
-  declareProperty("resEfloor", m_resefloor = 50.0 ,"floor for calo energy resoln in MeV");
-  declareProperty("nSigma", m_nsigma = 5.0 ,"tower ET significance");
-  declareProperty("varRhoScale", m_varrhoscale = 1.0 ,"adjustment factor for weighting rho errors in fit");
-  declareProperty("trimFactor", m_trimfactor = 0.90 ,"Fraction of towers used in calculating trimmed mean");
-
-  declareProperty("doLArH11off", m_doLArH11off = false, "LAr H11 crate is off" );
-  declareProperty("doLArH12off", m_doLArH12off = false, "LAr H12 crate is off" );
-  declareProperty("Jetptcut", m_Jetptcut = 999., "remove event when Jet pt > m_Jetptcut in the region of LAr H11 or/both H12");
-  
-  // declare configurables
-  
-  m_fextype = FexType::TOPO;
-  
-  m_methelperposition = 3;
-
   // Determine number of phi & eta bins, and number of towers
   m_nphibins = (TMath::TwoPi()/m_towerwidthinput/2)*2;
   m_netabins = 2* m_etarange/m_towerwidthinput;
@@ -62,7 +44,6 @@ EFMissingETFromClustersPufitMT::EFMissingETFromClustersPufitMT(const std::string
 
   //initialization to make coverity happy:
   m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
- 
   
 }
 
@@ -77,65 +58,51 @@ StatusCode EFMissingETFromClustersPufitMT::initialize()
 
   ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::initialize()" );
 
-  /// timers
-  if( service( "TrigTimerSvc", m_timersvc).isFailure() )
-    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
+  if(m_saveuncalibrated) 
+  {
+    m_metHelperComp = TrigEFMissingEtComponent::TCEM;
+    m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
+  }
+  else 
+  {
+    m_metHelperComp = TrigEFMissingEtComponent::TCLCW;
+    m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
+  }
 
-  if (m_timersvc) {
-    // global time
-    std::string basename=name()+".TotalTime";
-    m_glob_timer = m_timersvc->addItem(basename);
-  } // if timing service
-
-  if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
-   else m_clusterstate = xAOD::CaloCluster::CALIBRATED;
+  CHECK( m_clustersKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode EFMissingETFromClustersPufitMT::execute()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode EFMissingETFromClustersPufitMT::finalize()
-{
-  ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::finalize()" );
-
-  return StatusCode::SUCCESS;
-  
-}
-
-StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met */ ,
-    TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * jets,
-    const xAOD::TrackParticleContainer * /*trackContainer*/, const xAOD::VertexContainer * /*vertexContainer*/,
-                                        const xAOD::MuonContainer * /*muonContainer*/ )
+StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
+						  TrigEFMissingEtHelper *metHelper, 
+						  const EventContext& ctx ) const
 {
 
-  ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::execute()" );
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::update()" );
 
-  if(m_timersvc)
-    m_glob_timer->start(); // total time
+  /* This is a bit opaque but necessary to cooperate with how the MET helper 
+     and MissingETFromHelper classes work. This will be cleaned up (ATR-19488).
+     - @ggallard
+   */
+  const std::vector<std::string> vComp = {"TCLCWB1", "TCLCWB2", 
+                                          "TCLCWE1", "TCLCWE2", 
+                                          "TCEMB1", "TCEMB2", 
+                                          "TCEME1", "TCEME2",
+                                          "Muons" };
+  met->defineComponents(vComp);
 
 
+  auto totalTimer = Monitored::Timer( "TIME_Total" );
+  auto caloClustersHandle = SG::makeHandle( m_clustersKey, ctx );
 
- std::vector<const xAOD::Jet*> JetsVec(jets->begin(), jets->end());
- ATH_MSG_DEBUG( "num of jets: " << JetsVec.size() );
-
- bool foundJetVeto(false);
- if(m_Jetptcut>0){
-    for (const xAOD::Jet* jet : JetsVec) {
-        if(m_doLArH11off && jet->eta()>-1.5 && jet->eta()<0 && jet->phi() > -2.0 && jet->phi() < -1.5 && jet->pt() > m_Jetptcut*1000. ) foundJetVeto = true;
-        if(m_doLArH12off && jet->eta()>-1.5 && jet->eta()<0 && jet->phi() > -2.5 && jet->phi() < -2.0 && jet->pt() > m_Jetptcut*1000. ) foundJetVeto = true;
-    }
- }
+  auto loopTimer = Monitored::Timer( "TIME_Loop" );
 
 
   /// fetching the topo. cluster component
   TrigEFMissingEtComponent* metComp = nullptr;
-  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
+  metComp = metHelper->GetComponent(m_saveuncalibrated?  TrigEFMissingEtComponent::TCEM : TrigEFMissingEtComponent::TCLCW); // fetch Cluster component
   if (metComp==0) {
     ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
@@ -151,17 +118,12 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
     metComp->Reset();  // reset component...
   } else { // skip if processed
-    if(m_timersvc) m_glob_timer->stop(); // total time
     return StatusCode::SUCCESS;
   }
 
   // set status to Processing
   metComp->m_status |= m_maskProcessing;
   
-  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition ); // fetch Cluster component
-
-  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
   // Variables
   double MExEta = 0, MEyEta = 0, MEzEta = 0, MExFull = 0, MEyFull = 0, MEzFull = 0, METEta = 0, MET = 0;
@@ -175,7 +137,7 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
   vector<double> ExInMask, EyInMask, EtInMask, AreaInMask;
 
   // Calculate initial energy
-  for (const auto& clus : *caloCluster) {
+  for (const auto& clus : *caloClustersHandle) {
       float phi = clus->phi(m_clusterstate), eta = clus->eta(m_clusterstate), Et  = clus->pt(m_clusterstate),
             E = clus->p4(m_clusterstate).E();
       float cosPhi, sinPhi; sincosf(phi, &sinPhi, &cosPhi);
@@ -282,7 +244,7 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
    }
 
    int nummasks = ExInMask.size();
-   if(nummasks > 0 && !foundJetVeto) {
+   if(nummasks > 0) {
     // Form sumEtobs and covEtobs from all towers
     double sumEtobs = 0, varsumEtobs = 0;
     TMatrixD Etobs(2,1), covEtobs(2,2);
@@ -374,7 +336,7 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
       metComp->m_sumE  = sumEEta;
       metComp->m_usedChannels += 1;
 
-      metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + 1 ); // fetch first auxiliary component to store uncorrected MET
+      metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
     
       metComp->m_ex = -(float) ETobscor[0][0];
       metComp->m_ey = -(float) ETobscor[1][0];  
@@ -394,7 +356,7 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
       metComp->m_sumE  = 0.;
       metComp->m_usedChannels += 1;
       
-      metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + 1 ); // fetch first auxiliary component to store uncorrected MET
+      metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
       
       metComp->m_ex = -MExEta;
       metComp->m_ey = -MEyEta;
@@ -415,8 +377,6 @@ StatusCode EFMissingETFromClustersPufitMT::execute(xAOD::TrigMissingET * /* met 
  } // end container loop.
 
 
-  if(m_timersvc)
-    m_glob_timer->stop(); // total time
 
   return StatusCode::SUCCESS;
 
