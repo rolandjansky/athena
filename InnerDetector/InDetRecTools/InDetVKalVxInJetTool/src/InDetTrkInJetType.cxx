@@ -72,12 +72,10 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      m_tmvaReader->AddVariable( "ptjet",  &m_ptjet );
      m_tmvaReader->AddVariable( "ibl"   , &m_ibl );
      m_tmvaReader->AddVariable( "bl"   ,  &m_bl );
-     //m_tmvaReader->AddVariable( "etajet", &m_etajet );
      m_tmvaReader->AddVariable( "etatrk", &m_etatrk );
 //
 //-- Calibration file
 //
-//     std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/TrackClassif_3cl.v02.xml");
      std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/"+m_calibFileName);
      if(fullPathToFile != ""){
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"TrackClassification calibration file" << fullPathToFile << endmsg;
@@ -196,7 +194,8 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      m_SigZ=SignifZ;
      m_SigR=SignifR;
 //---
-     m_ptjet=Jet.Perp(); if(m_ptjet<m_jetMinPtCut)m_ptjet=m_jetMinPtCut; //Very low jet pt is replaced by Pt=35GeV
+     m_ptjet=Jet.Perp();
+     if(m_ptjet<m_jetMinPtCut)m_ptjet=m_jetMinPtCut; //Very low jet pt is replaced by Pt=35GeV
      m_etajet=fabs(Jet.Eta());
 //---
      m_ibl = (float)hitIBL;
