@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -479,7 +479,7 @@ private:
   /// SG proxy for this link.
   SG::DataProxyHolder m_proxy;  //! Transient
 
-  CxxUtils::CachedPointer  m_element;    //! Transient
+  CxxUtils::CachedPointer<void>  m_element;    //! Transient
 };
 
 
