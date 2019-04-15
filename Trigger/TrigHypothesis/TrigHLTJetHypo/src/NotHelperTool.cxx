@@ -56,6 +56,5 @@ std::string NotHelperTool::toString() const{
 
 StatusCode NotHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_hypoTool->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_hypoTool->getDescription(c);
 }
