@@ -83,7 +83,6 @@ def MdtDataPreparatorCfg( flags, roisKey ):
                                                          MDT_RawDataProvider   = acc.getPublicTool( "MDT_RawDataProviderTool" ),
                                                          #DecodeBS = DetFlags.readRDOBS.MDT_on() ) # This should be used flags
                                                          DecodeBS = True )
-    acc.addPublicTool( MdtDataPreparator, primary=True ) # This should be removed
  
     return acc, MdtDataPreparator
 

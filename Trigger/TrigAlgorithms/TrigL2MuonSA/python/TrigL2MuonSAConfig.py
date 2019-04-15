@@ -24,7 +24,6 @@ theDataPreparator.RPCDataPreparator = rpcDataPreparator
 
 mdtDataPreparator = TrigL2MuonSA__MdtDataPreparator()
 mdtDataPreparator.DecodeBS = DetFlags.readRDOBS.MDT_on()
-ToolSvc += mdtDataPreparator
 
 theDataPreparator.MDTDataPreparator = mdtDataPreparator
 

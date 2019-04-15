@@ -253,7 +253,6 @@ def muFastRecoSequence( RoIs, OutputLevel=INFO ):
                                                         MDT_RawDataProvider = "",
                                                         MdtPrepDataProvider = "",
                                                         OutputLevel          = OutputLevel )
-  ToolSvc += L2MdtDataPreparator
 
   ### RPC RDO data ###
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
