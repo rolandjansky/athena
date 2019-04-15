@@ -20,7 +20,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 
-#include "TrigT2CaloEgamma/T2CaloEgammaReFastAlgo.h"
+#include "T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"

@@ -17,7 +17,7 @@
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaReSamp1Fex.h"
+#include "EgammaReSamp1Fex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"

@@ -18,7 +18,7 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCell.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
-#include "TrigT2CaloEgamma/T2CaloEgamma.h"
+#include "T2CaloEgamma.h"
 
 class MsgStream;
 class TrigEMCluster; // I dont know if put the xAOD prefix here!
