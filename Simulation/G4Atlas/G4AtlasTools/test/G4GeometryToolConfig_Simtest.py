@@ -35,10 +35,11 @@ if __name__ == '__main__':
   ConfigFlags.Detector.SimulateFwdRegion = True
   ConfigFlags.Detector.GeometryLAr = True
   ConfigFlags.Detector.GeometryTile = True
-  ConfigFlags.Detector.GeometryLucid = True
-  ConfigFlags.Detector.GeometryZDC = True
-  ConfigFlags.Detector.GeometryALFA = True
-  ConfigFlags.Detector.GeometryAFP = True
+  #turn the forward region off
+  ConfigFlags.Detector.GeometryLucid = False
+  ConfigFlags.Detector.GeometryZDC = False
+  ConfigFlags.Detector.GeometryALFA = False
+  ConfigFlags.Detector.GeometryAFP = False
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000
 
@@ -55,12 +56,6 @@ if __name__ == '__main__':
   from G4AtlasTools.G4GeometryToolConfig import IDETEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import ATLASEnvelopeCfg
   from G4AtlasTools.G4GeometryToolConfig import CALOEnvelopeCfg
-  from G4AtlasTools.G4GeometryToolConfig import LucidGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import ALFAGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import ZDCGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import AFPGeoDetectorToolCfg
-  from G4AtlasTools.G4GeometryToolConfig import ForwardRegionEnvelopeCfg
-
 
   ## Initialize a new component accumulator
   cfg = ComponentAccumulator()
@@ -85,30 +80,9 @@ if __name__ == '__main__':
   cfg.merge(acc4)
   cfg.addPublicTool(tool4)
 
-
-  acc5,tool5 = ForwardRegionEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc5)
-  cfg.addPublicTool(tool5)
-
   acc6,tool6 = CALOEnvelopeCfg(ConfigFlags)
   cfg.merge(acc6)
   cfg.addPublicTool(tool6)
-
-  acc7, tool7 = LucidGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc7)
-  cfg.addPublicTool(tool7)
-
-  acc8, tool8 = ALFAGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc8)
-  cfg.addPublicTool(tool8)
-
-  acc9, tool9 = ZDCGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc9)
-  cfg.addPublicTool(tool9)
-
-  acc10, tool10 = AFPGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc10)
-  cfg.addPublicTool(tool10)
   
 
   accATLAS,toolATLAS = ATLASEnvelopeCfg(ConfigFlags)
