@@ -55,28 +55,25 @@ class EFMissingETFromClustersPufitMT : public extends<AthAlgTool, IMissingETTool
 
   private:
     Gaudi::Property<bool> m_saveuncalibrated {this, "SaveUncalibrated", false ,"save uncalibrated topo. clusters"};
+    Gaudi::Property<bool> m_subtractpileup {this, "SubtractPileup", true ,"use fit based pileup subtraction"};
+    Gaudi::Property<double> m_towerwidthinput {this, "towerWidthInput", 0.7 ," "};
+    Gaudi::Property<double> m_etarange {this, "EtaRange", 5.0 ,"the eta range (-m_etarange,+m_etarange) over which towers are defined"};
+    Gaudi::Property<double> m_rese {this, "resE", 15.81 ,"calo energy resoln in sqrt(MeV)"};
+    Gaudi::Property<double> m_resefloor {this, "resEfloor", 50.0 ,"floor for calo energy resoln in MeV"};
+    Gaudi::Property<double> m_nsigma {this, "nSigma", 5.0 ,"tower ET significance"};
+    Gaudi::Property<double> m_varrhoscale {this, "varRhoScale", 1.0 ,"adjustment factor for weighting rho errors in fit"};
+    Gaudi::Property<double> m_trimfactor {this, "trimFactor", 0.90 ,"Fraction of towers used in calculating trimmed mean"};
+    
+    Gaudi::Property<double> m_doLArH11off {this, "doLArH11off", false, "LAr H11 crate is off" };
+    Gaudi::Property<double> m_doLArH12off {this, "doLArH12off", false, "LAr H12 crate is off" };
+    Gaudi::Property<double> m_Jetptcut {this, "Jetptcut", 999., "remove event when Jet pt > m_Jetptcut in the region of LAr H11 or/both H12"};
+
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersKey { this, "ClustersCollection", "CaloClusters", "Collection containg all clusters" };
 
     xAOD::CaloCluster_v1::State m_clusterstate;
     TrigEFMissingEtComponent::Component m_metHelperComp;
 
-    // Configurables of pile-up fit
-    bool   m_subtractpileup;
-    bool   m_use2016algo;       // Use the old (2016) version of the algorithm - included for backwards compatibility
-    double m_towerwidthinput;
-    double m_etarange;          //the eta range (-m_etarange,+m_etarange) over which towers are defined
-    // double m_ptmin; //the tower Et threshold
-    double m_aveecluspu;        //a parameter (in MeV) that determines the variance assigned to masked-off regions
-    double m_rese;              //the resolution (in units of sqrt(MeV))
-    double m_resefloor;         //floor for calo energy resolution (sqrt(Mev))
-    double m_nsigma;            //tower ET significance
-    double m_varrhoscale;       //adjustment factor for weighting rho errors in fit
-    double m_trimfactor;        //Fraction of towers used in calculating the trimmed mean
-
-    bool m_doLArH11off; //! LAr H11 off or not 
-    bool m_doLArH12off; //! LAr H12 off or not
-    double m_Jetptcut; //! Jet pt cut for LAr H11/H12
-
+    // pufit variables
     int    m_nphibins;
     int    m_netabins;
     int    m_ntowers;
