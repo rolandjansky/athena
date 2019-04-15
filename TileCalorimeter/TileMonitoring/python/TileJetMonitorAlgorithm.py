@@ -225,9 +225,9 @@ def TileJetMonitoringConfig(inputFlags, **kwargs):
 
 
     
-    accumalator, sequence = helper.result()
+    accumalator = helper.result()
     result.merge(accumalator)
-    return result, sequence
+    return result
 
 if __name__=='__main__':
 
@@ -258,9 +258,9 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    tileJetMonitorAccumulator, tileMonitoringSequence  = TileJetMonitoringConfig(ConfigFlags, 
-                                                                                 Do1DHistograms = True, 
-                                                                                 DoEnergyDiffHistograms = True)
+    tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags, 
+                                                         Do1DHistograms = True, 
+                                                         DoEnergyDiffHistograms = True)
     cfg.merge(tileJetMonitorAccumulator)
 
     cfg.run()
