@@ -21,8 +21,6 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecEvent/LArCell.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
-// #include "Identifier/IdentifierHash.h"
-// #include "LArRawUtils/LArTT_Selector.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloEvent/CaloCluster.h"
@@ -31,7 +29,7 @@
 #include "LArRawUtils/LArRoI_Map.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
-#include "TrigT2CaloCommon/TrigDataAccessATLFAST.h"
+#include "TrigDataAccessATLFAST.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 

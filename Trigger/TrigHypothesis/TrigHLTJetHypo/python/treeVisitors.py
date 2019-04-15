@@ -3,7 +3,6 @@
 from constants import lchars
 
 import re
-import math
 
 from ToolSetter import ToolSetter
 class Checker(object):
@@ -423,7 +422,7 @@ if __name__ == '__main__':
     ic = -1
     try:
         ic = int(c)
-    except:
+    except Exception:
         print 'expected int on command line, got ',c
         sys.exit()
     test(ic)

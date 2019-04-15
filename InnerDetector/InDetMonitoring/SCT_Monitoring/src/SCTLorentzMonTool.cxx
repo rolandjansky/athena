@@ -302,7 +302,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
 TProfile*
 SCTLorentzMonTool::pFactory(const string& name, const string& title, int nbinsx, float xlow, float xhigh,
                             MonGroup& registry, int& iflag) const {
-  Prof_t tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
+  TProfile* tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {

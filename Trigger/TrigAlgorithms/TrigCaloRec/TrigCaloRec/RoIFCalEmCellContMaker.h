@@ -19,8 +19,7 @@
 
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 
-//#include "TrigT2CaloCommon/T2GeometryTool.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
 
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 

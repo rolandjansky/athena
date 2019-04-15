@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
@@ -230,6 +230,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("RDOCollName", overlayFlags.bkgPrefix() + "PixelRDOs")
+        kwargs.setdefault("SDOCollName", overlayFlags.bkgPrefix() + "PixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "PixelRDOs")
+        kwargs.setdefault("SDOCollName", "PixelSDO_Map")
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelGeantinoTruthDigitizationTool(name="PixelGeantinoTruthDigitizationTool", **kwargs):

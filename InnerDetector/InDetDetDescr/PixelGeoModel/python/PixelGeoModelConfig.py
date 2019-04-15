@@ -26,11 +26,9 @@ def PixelGeometryCfg( flags ):
   pixelDetectorTool = PixelDetectorTool("PixelDetectorTool")
   from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
   bcmTool = InDetDD__BCM_Builder()
-  acc.addPublicTool( bcmTool )
   pixelDetectorTool.BCM_Tool = bcmTool
   from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
   blmTool = InDetDD__BLM_Builder()
-  acc.addPublicTool( blmTool )
   pixelDetectorTool.BLM_Tool = blmTool
   if flags.GeoModel.Run=="RUN4":
       from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC

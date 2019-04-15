@@ -3,7 +3,6 @@
 #
 
 from AthenaCommon.Include import include
-from AthenaCommon.Constants import VERBOSE,DEBUG
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -47,7 +46,6 @@ def electronSequence(ConfigFlags):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
-    ViewVerify.OutputLevel = DEBUG
     viewAlgs.append(ViewVerify)
     
     TrackParticlesName = ""
@@ -61,10 +59,9 @@ def electronSequence(ConfigFlags):
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName="Electrons"
-    theElectronFex.OutputLevel=VERBOSE
 
     # EVCreator:
-    l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+    l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
     l2ElectronViewsMaker.RoIsLink = "roi" # -||-
     l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
     l2ElectronViewsMaker.Views = "EMElectronViews"
@@ -96,7 +93,6 @@ def electronMenuSequence():
     theElectronHypo.Electrons = sequenceOut
 
     theElectronHypo.RunInView=True
-    theElectronHypo.OutputLevel = VERBOSE
 
     from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromDict
 

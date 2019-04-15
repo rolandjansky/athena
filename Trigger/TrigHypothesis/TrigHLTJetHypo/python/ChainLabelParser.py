@@ -2,10 +2,7 @@
 
 from node import Node
 from constants import (lchars,
-                       digits,
-                       delims)
-
-
+                       digits)
 
 def get_char(s):
     """character generator"""
@@ -48,7 +45,7 @@ def preprocess(s):
     print s
     from constants import alphabet
     for c in s:
-        if not c in alphabet:
+        if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))
     print 'end of preprocess: ', s
     return s
@@ -345,9 +342,9 @@ def test(index):
     index = -1
     try:
         index = int(c)
-    except:
+    except Exception:
         print 'expected int in [1,%d] ]on comand line, got %s' % (
-            len(test_strins), c)
+            len(test_strings), c)
         sys.exit()
 
     print 'index', index
@@ -379,7 +376,7 @@ if __name__ == '__main__':
     o = args[0]
     try:
         index = int(o)
-    except:
+    except Exception:
         print 'Supply an test case integer index  on the command line '
         sys.exit(0)
     
