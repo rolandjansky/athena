@@ -96,6 +96,7 @@ DataStream.AcceptAlgs  = ["PassAllFilter"]
 DataStream.RequireAlgs = ["PassAllFilter"]
 DataStream.VetoAlgs    = ["PassNoneFilter"]
 DataStream.WritingTool.AttributeListKey="SimpleTag"
+DataStream.WritingTool.SaveDecisions = False
 
 #--------------------------------------------------------------
 # Output options
@@ -110,9 +111,6 @@ svcMgr.PoolSvc.OutputLevel = DEBUG
 svcMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 topSequence.WriteData.OutputLevel = DEBUG
 DataStream.OutputLevel = DEBUG
-if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
-svcMgr.DecisionSvc.SaveDecisions = False
-
 #
 # End of job options file
 #
