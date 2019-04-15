@@ -17,9 +17,10 @@ find_package( AtlasCMake QUIET )
 find_package( AthSimulationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
-# External(s) needed at runtime:
+# External(s) needed at build and runtime:
 find_package( Frontier_Client )
 find_package( PNG )
+find_package( VDT )
 
 # Set the project into "SIMULATIONBASE mode".
 set( SIMULATIONBASE TRUE CACHE BOOL
