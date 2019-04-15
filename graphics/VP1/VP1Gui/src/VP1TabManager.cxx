@@ -469,7 +469,13 @@ IVP1ChannelWidget* VP1TabManager::selectedChannelWidget() const {
 //_______________________________________________________________________
 IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QString tabname) {
 
-  if (m_d->channelwidget_2_dockwidget.size()&&VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS")) {
+  #if defined BUILDVP1LIGHT
+    bool checkDisallowMultipleChannels = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #else
+    bool checkDisallowMultipleChannels = VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #endif
+
+  if (m_d->channelwidget_2_dockwidget.size()&&checkDisallowMultipleChannels) {
     QMessageBox::critical(0, "Error - Not allowed to open channel",
 			  "The possibility to launch multiple channels has been disabled by the environment variable VP1_DISALLOW_MULTIPLE_CHANNELS."
 			  " This was likely set since some badly written 3D drivers have been known to cause crashes when showing multiple 3D views."

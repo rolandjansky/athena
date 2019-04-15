@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <string>
 #include <iostream>
+#include <sstream> // for std::ostringstream
 
 
 std::string VP1TimeUtilities::getHumanReadableTimestamp(time_t t_timestamp)
@@ -37,4 +38,3 @@ std::string VP1TimeUtilities::getHumanReadableTimestamp(time_t t_timestamp)
 	//std::cout << "'human readable' timestamp: " << m_humanTimestamp << std::endl;
 	return humanTimestamp;
 }
-

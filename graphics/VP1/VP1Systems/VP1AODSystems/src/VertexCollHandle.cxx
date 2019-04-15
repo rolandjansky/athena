@@ -27,8 +27,10 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
-#include "VP1Utils/VP1SGContentsHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1SGAccessHelper.h"
+  #include "VP1Utils/VP1SGContentsHelper.h"
+#endif
 
 //SoCoin
 #include <Inventor/nodes/SoSeparator.h>
@@ -50,6 +52,14 @@
 #include <qdatetime.h>
 #include <vector>
 #include <QString>
+#include <QDebug>
+
+#ifdef BUILDVP1LIGHT
+  #include <QSettings>
+  #include "xAODRootAccess/Init.h"
+  #include "xAODRootAccess/TEvent.h"
+#endif //  BUILDVP1LIGHT
+
 
 //____________________________________________________________________
 class VertexCollHandle::Imp {
@@ -112,7 +122,9 @@ VertexCollHandle::~VertexCollHandle()
   messageVerbose("destructor start");
 
   // clean the vector<handle>
-  cleanupPtrContainer(m_d->handles);
+  #ifndef BUILDVP1LIGHT
+    cleanupPtrContainer(m_d->handles);
+  #endif
 
   // delete the Imp instance
   delete m_d;
@@ -121,10 +133,17 @@ VertexCollHandle::~VertexCollHandle()
 }
 
 //____________________________________________________________________
-QStringList VertexCollHandle::availableCollections( IVP1System*sys )
-{
-  return VP1SGContentsHelper(sys).getKeys<xAOD::VertexContainer>();
-}
+#if defined BUILDVP1LIGHT
+  QStringList VertexCollHandle::availableCollections( IVP1System*sys )
+  {
+      return sys->getObjectList(xAOD::Type::Vertex);
+  }
+#else
+  QStringList VertexCollHandle::availableCollections( IVP1System*sys )
+  {
+    return VP1SGContentsHelper(sys).getKeys<xAOD::VertexContainer>();
+  }
+#endif // BUILDVP1LIGHT
 
 
 //____________________________________________________________________
@@ -182,11 +201,29 @@ bool VertexCollHandle::load()
   messageVerbose("loading Vertex collection");
 
   //Get collection:
-  const xAOD::VertexContainer * coll(0);
-  if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
-    message("Error: Could not retrieve vertex collection with key="+name());
-    return false;
-  }
+  const xAOD::VertexContainer * coll(nullptr);
+
+  #if defined BUILDVP1LIGHT
+    // // Get the name of the application:
+    // const char* appName = "VP1Light";
+
+    // // Initialize the environment:
+    // if( !xAOD::Init( appName ).isSuccess() ) {
+    //    message("Failed to execute xAOD::Init");
+    //    return false;
+    // }
+
+    // Retrieve objects from the event
+    if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
+      message("Error: Could not retrieve collection with key="+name());
+       return false;
+    }
+  #else
+      if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
+        message("Error: Could not retrieve vertex collection with key="+name());
+        return false;
+      }
+  #endif //BUILDVP1LIGHT
 
   // // Retrieve the xAOD particles:
   //  const xAOD::VertexContainer* xaod = evtStore()->retrieve<const xAOD::VertexContainer>( m_VertexCollection );
@@ -200,6 +237,9 @@ bool VertexCollHandle::load()
   // sorted out...
   const_cast< xAOD::VertexContainer* >( coll )->setStore(
     ( SG::IAuxStore* ) coll->getConstStore() );
+      for (auto vertex : *coll) {
+        qInfo() << "  (x, y, z) =  (" << vertex->x() << ", " << vertex->y() << ", " << vertex->z() << ")"; // just to print out something
+      } // end for loop over vertices
 
   //Make appropriate vertex handles:
   xAOD::VertexContainer::const_iterator it, itEnd = coll->end();
@@ -212,7 +252,6 @@ bool VertexCollHandle::load()
     }
     addHandle(new VertexHandle(this,*it));
   }
-
   return true;
 }
 

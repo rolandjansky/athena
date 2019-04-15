@@ -3,6 +3,7 @@
 */
 
 #include "VP1Utils/HitsSoNodeManager.h"
+#include "VP1Base/VP1Msg.h"
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -54,7 +55,7 @@ public:
     }
     if ( x <= 1.0e-5 ) {
       if ( x < 0.0 ) {
-        if (theclass->verbose())
+        if (VP1Msg::verbose())
           theclass->messageVerbose("sanitiseParameterValue WARNING - received negative parameter. Flipping sign.");
         x = - x;
       }
@@ -72,7 +73,7 @@ public:
     }
     if ( x <= 1.0e-5 ) {
       if ( x < 0.0 ) {
-        if (theclass->verbose())
+        if (VP1Msg::verbose())
           theclass->messageVerbose("sanitiseParameterValue WARNING - received negative parameter. Flipping sign.");
         x = - x;
       }
@@ -101,7 +102,7 @@ void HitsSoNodeManager::Imp::summarise(unsigned n,const QString& shapename) cons
 {
   if (n>100)
     theclass->messageDebug(" WARNING: Created more than 100 ("+QString::number(n)+") different "+shapename+" shapes.");
-  else if (theclass->verbose())
+  else if (VP1Msg::verbose())
     theclass->messageVerbose("Created "+QString::number(n)+" different "+shapename+" shapes.");
 }
 

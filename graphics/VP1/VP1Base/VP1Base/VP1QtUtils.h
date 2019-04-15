@@ -28,6 +28,11 @@ public:
   //       For getting/setting environment variables        //
   ////////////////////////////////////////////////////////////
 
+  static bool expertSettingIsSet(const QString& type, const QString& name);
+  static QString expertSettingValue(const QString& type, const QString& name);
+  static bool expertSettingIsOn(const QString& type, const QString& name);
+  static void setExpertSetting(const QString& type, const QString& name, const QString& content);
+
   static bool environmentVariableIsSet( const QString& name );//If variable is at all defined (returns true if variable has value "0")
   static QString environmentVariableValue( const QString& name );//Returns "" if not defined.
   static bool environmentVariableIsOn( const QString& name );//Returns false if undefined or value is "0", "", "false"/"off"/"no" (any capitalisation). Otherwise returns true.

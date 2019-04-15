@@ -27,6 +27,7 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1CustomTourEditor.h"
+#include "VP1Base/VP1Msg.h"
 
 
 #include <Inventor/nodes/SoSeparator.h>
@@ -435,7 +436,7 @@ void TrackCollHandleBase::update3DObjectsOfAllHandles(bool onlythosetouchingmuon
 {
   if (!isLoaded())
     return;
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("update3DObjectsOfAllHandles start (onlythosetouchingmuonchambers = "
                    +str(onlythosetouchingmuonchambers)+", invalidatePropagatedPoints = "
                    +str(invalidatePropagatedPoints)+")");
@@ -1047,7 +1048,7 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
   if (!m_sephelper)
     m_sephelper = new VP1ExtraSepLayerHelper(collSep());
 
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("TrackCollHandleBase::collVisibilityChanged => "+str(vis));
   if (vis){
     recheckCutStatusOfAllNotVisibleHandles();//Fixme -> ofallhandles? All must be not visible anyway...
