@@ -27,6 +27,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
     // Retrieve the trigger decision tool if requested
     if ( !m_trigDecTool.empty() ) {
         ATH_CHECK( m_trigDecTool.retrieve() );
+	ATH_MSG_DEBUG( "TDT retrieved" );
 
         // If the trigger chain is specified, parse it into a list.
         if ( m_triggerChainString!="" ) {
@@ -81,15 +82,18 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
     // fails, return SUCCESS code and do not fill the histograms with the event.
     for ( const auto& filterItr : m_DQFilterTools ) {
         if (!filterItr->accept()) {
+            ATH_MSG_DEBUG("Event rejected due to filter tool.");
             return StatusCode::SUCCESS;
         }
     }
 
     // Trigger: If there is a decision tool and the chains fail, skip the event.
     if ( !m_trigDecTool.empty() && !trigChainsArePassed(m_vTrigChainNames) ) {
+        ATH_MSG_DEBUG("Event rejected due to trigger filter.");
         return StatusCode::SUCCESS;
     }
 
+    ATH_MSG_DEBUG("Event accepted!");
     return fillHistograms(ctx);
 }
 
@@ -290,7 +294,7 @@ StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<s
     std::string item;
     std::stringstream ss(line);
 
-    ATH_MSG_DEBUG("AthMonitorAlgorithm::parseList()" << endmsg);
+    ATH_MSG_DEBUG( "AthMonitorAlgorithm::parseList()" );
 
     while ( std::getline(ss, item, ',') ) {
         std::stringstream iss(item); // remove whitespace
