@@ -117,6 +117,7 @@ Stream2.TakeItemsFromInput = True
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
+Stream2.WritingTool.SaveDecisions = True
 # bit 1
 Stream1.TakeItemsFromInput = True
 Stream1.ForceRead=TRUE
@@ -147,7 +148,6 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
-svcMgr.DecisionSvc.SaveDecisions = True
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
 svcMgr.ItemListSvc.OutputLevel = DEBUG
 #svcMgr.DecisionSvc.OutputLevel = VERBOSE
