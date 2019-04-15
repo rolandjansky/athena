@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from CSC_Digitization.CSC_DigitizationConf import (
     CscDigitizationTool, CscDigitBuilder,
 )
@@ -50,8 +51,9 @@ def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
 
 def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitBuilder algorithm"""
-    acc = CSC_DigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     return acc
     
@@ -68,8 +70,9 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**k
 
 def CSC_OverlayDigitBuilderCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
     """Return a ComponentAccumulator with CscDigitBuilder algorithm configured for Overlay"""
-    acc = CSC_OverlayDigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     return acc
 
