@@ -17,7 +17,7 @@
 #ifndef TRIGTAURECMERGEDMT_H
 #define TRIGTAURECMERGEDMT_H
 
-// general athena stuff 
+// general athena stuff
 //#include "GaudiKernel/IToolSvc.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //#include "TrigTimeAlgs/TrigTimer.h"
@@ -107,7 +107,7 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "clustersKey", "caloclusters", "caloclusters in view" };
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey {this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey { this, "TrigTauJet", "Undefined", "" };
+  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey { this, "TrigTauJet", "", "" };
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey {this,"TrigTauJetOutputKey","seed tau jet","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"TrigTauRecOutputKey","output tau jet object","Output taujet container"};
   SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"TrigTauTrkOutputKey","output tau track object","Output tautrack container"};

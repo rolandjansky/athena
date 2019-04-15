@@ -27,6 +27,14 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 
         kwargs.setdefault("LastXing",  RPC_LastXing() ) 
+
+    kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "RPC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "RPC_SDO")
+
     kwargs.setdefault("DeadTime", 100)  
     kwargs.setdefault("PatchForRpcTime"       ,True  )	    
     # kwargs.setdefault("PatchForRpcTimeShift"  ,9.6875)  

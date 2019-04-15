@@ -33,7 +33,7 @@ Output.ESDFileName                       : 'myESD.pool.root'
 Output.EVNTFileName                      : 'myEVNT.pool.root'
 Output.HISTFileName                      : 'myHIST.root'
 Output.HITSFileName                      : 'myHITS.pool.root'
-Output.RDOFileName                       : 'myROD.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
 Output.doESD                             : False
 Random.Engine                            : 'dSFMT'
 Scheduler.CheckDependencies              : True
@@ -183,7 +183,7 @@ Output.ESDFileName                       : 'myESD.pool.root'
 Output.EVNTFileName                      : 'myEVNT.pool.root'
 Output.HISTFileName                      : 'myHIST.root'
 Output.HITSFileName                      : 'myHITS.pool.root'
-Output.RDOFileName                       : 'myROD.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
 Output.doESD                             : False
 Random.Engine                            : 'dSFMT'
 Scheduler.CheckDependencies              : True
@@ -640,7 +640,7 @@ Output.ESDFileName                       : 'myESD.pool.root'
 Output.EVNTFileName                      : 'myEVNT.pool.root'
 Output.HISTFileName                      : 'myHIST.root'
 Output.HITSFileName                      : 'myHITS.pool.root'
-Output.RDOFileName                       : 'myROD.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
 Output.doESD                             : False
 Random.Engine                            : 'dSFMT'
 Scheduler.CheckDependencies              : True

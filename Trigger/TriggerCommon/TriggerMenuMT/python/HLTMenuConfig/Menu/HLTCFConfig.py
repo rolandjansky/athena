@@ -8,16 +8,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, s
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
 import sys
-from AthenaCommon.Constants import VERBOSE
 log = logging.getLogger('HLTCFConfig')
-log.setLevel( VERBOSE )
 
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    summary = TriggerSummaryAlg( name, OutputLevel = 2 )
+    summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary

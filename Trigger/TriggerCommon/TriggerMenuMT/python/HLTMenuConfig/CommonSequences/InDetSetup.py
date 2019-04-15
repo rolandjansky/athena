@@ -15,13 +15,12 @@ def makeInDetAlgs( whichSignature='' ):
   #Create IdentifiableCaches
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
   InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews" + signature,
-                                       Pixel_ClusterKey = "PixelTrigClustersCache" + signature,
-                                       SCT_ClusterKey   = "SCT_ClustersCache" + signature,
-                                       SpacePointCachePix = "PixelSpacePointCache" + signature,
-                                       SpacePointCacheSCT   = "SctSpacePointCache" + signature,
-                                       SCTRDOCacheKey       = "SctRDOCache" + signature,
-                                       PixRDOCacheKey = "PixRDOCache" + signature)
-                                       #OutputLevel=DEBUG)
+                                                   Pixel_ClusterKey = "PixelTrigClustersCache" + signature,
+                                                   SCT_ClusterKey   = "SCT_ClustersCache" + signature,
+                                                   SpacePointCachePix = "PixelSpacePointCache" + signature,
+                                                   SpacePointCacheSCT   = "SctSpacePointCache" + signature,
+                                                   SCTRDOCacheKey       = "SctRDOCache" + signature,
+                                                   PixRDOCacheKey = "PixRDOCache" + signature)
   eventAlgs.append(InDetCacheCreatorTrigViews)
 
   from AthenaCommon.AppMgr import ToolSvc
@@ -49,7 +48,6 @@ def makeInDetAlgs( whichSignature='' ):
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
                                                      RDOKey       = InDetKeys.PixelRDOs(),
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
-                                                     #OutputLevel = INFO)
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
@@ -64,12 +62,11 @@ def makeInDetAlgs( whichSignature='' ):
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
     InDetSCTRodDecoder = SCT_RodDecoder(name          = "InDetSCTRodDecoder" + signature)
-                                        # OutputLevel = INFO)
     ToolSvc += InDetSCTRodDecoder
     
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
     InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool" + signature,
-                                                        Decoder = InDetSCTRodDecoder)
+                                                         Decoder = InDetSCTRodDecoder)
     ToolSvc += InDetSCTRawDataProviderTool
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetSCTRawDataProviderTool
@@ -77,9 +74,8 @@ def makeInDetAlgs( whichSignature='' ):
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
     InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider" + signature,
-                                                RDOKey       = InDetKeys.SCT_RDOs(),
-                                                ProviderTool = InDetSCTRawDataProviderTool, )
-                                                #OutputLevel = INFO)
+                                                 RDOKey       = InDetKeys.SCT_RDOs(),
+                                                 ProviderTool = InDetSCTRawDataProviderTool)
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
@@ -158,7 +154,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
-                                                        ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
+                                                        ClustersName            = "PixelTrigClusters",)
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = "EMViewRoIs"
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
@@ -234,7 +230,6 @@ def makeInDetAlgs( whichSignature='' ):
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
                                                                     SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT,
                                                                     SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix,)
-                                                                    #OutputLevel=INFO)
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
 

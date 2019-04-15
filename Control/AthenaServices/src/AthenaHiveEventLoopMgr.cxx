@@ -1294,17 +1294,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     EventID::number_type n_run(0);
     EventID::number_type n_evt(0);
 
-    const EventInfo* pEvent(0);
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
-      if (eventStore()->retrieve(pEvent).isFailure()) {
-        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
-	delete thisFinishedEvtContext;
-	fail = true;
-	continue;
-      } else {
-	n_run = pEvent->event_ID()->run_number();
-	n_evt = pEvent->event_ID()->event_number();
-      }
+      n_run = thisFinishedEvtContext->eventID().run_number();
+      n_evt = thisFinishedEvtContext->eventID().event_number();
     } else {
       error() << "DrainSched: unable to select store "
 	      << thisFinishedEvtContext->slot() << endmsg;

@@ -43,7 +43,7 @@ fi
 
 echo $(date "+%FT%H:%M %Z")"     Checking for crashes and timeouts in child processes"
 if [ -f ${JOB_athenaHLT_LOG} ]; then
-   checkTimeut=`grep "CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
+   checkTimeut=`grep "ERROR Caught signal 15|CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
    if [[ -z "${checkTimeut}" ]]; then
      echo "art-result: 0 ${NAME}.ChildTimeout"
    else
@@ -62,9 +62,11 @@ if [ -f ${JOB_athenaHLT_LOG} ]; then
    # TODO: add check that all children exited normally
 fi 
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
-echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+if [ -z ${ART_SKIP_CHECKLOG} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running checklog"
+  timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
+  echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+fi
 
 # TODO
 # add check_statuscode.py ${JOB_LOG}

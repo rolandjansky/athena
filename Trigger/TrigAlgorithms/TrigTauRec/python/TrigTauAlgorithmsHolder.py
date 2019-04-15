@@ -771,7 +771,6 @@ def getTauTrackClassifier():
     cppyy.loadDictionary('xAODTau_cDict')
 
     input_file_name = 'EFtracks_BDT_classifier_v0.root'
-    calibrationFolder = 'TrigTauRec/00-11-02/'
     BDTcut = 0.45
     deltaZ0 = 1.0
 
@@ -782,8 +781,7 @@ def getTauTrackClassifier():
         Threshold        = BDTcut,
         DeltaZ0          = deltaZ0,
         ExpectedFlag     = ROOT.xAOD.TauJetParameters.unclassified, 
-        inTrigger        = True,
-        calibFolder      = calibrationFolder        
+        inTrigger        = True
     )
 
     ToolSvc += EFtrackBDT
@@ -812,6 +810,26 @@ def getTauIDVarCalculator():
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator
     return TauIDVarCalculator
+
+########################################################################
+# TauJetBDTEvaluator
+def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", calibFolder="", minNTracks=0, maxNTracks=10000):
+
+    _name = sPrefix + suffix
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
+    TauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
+                                            weightsFile=weightsFile,
+                                            calibFolder=calibFolder,
+                                            minNTracks=minNTracks,
+                                            maxNTracks=maxNTracks)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TauJetBDTEvaluator
+    cached_instances[_name] = TauJetBDTEvaluator
+    return TauJetBDTEvaluator
+
 
 ########################################################################
 # TauJetRNNEvaluator
@@ -845,6 +863,40 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
     cached_instances[_name] = TauJetRNNEvaluator
     return TauJetRNNEvaluator
 
+
+########################################################################
+# TauWPDecoratorJetBDT
+def getTauWPDecoratorJetBDT():
+
+    _name = sPrefix + 'TauWPDecoratorJetBDT'
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    TauWPDecorator = TauWPDecorator( name=_name,
+                                     flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
+                                     flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
+                                     CutEnumVals=[
+                                         ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, 
+                                         ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
+                                         ROOT.xAOD.TauJetParameters.JetBDTSigMedium, 
+                                         ROOT.xAOD.TauJetParameters.JetBDTSigTight],
+                                     SigEff1P = [0.995, 0.99, 0.97, 0.90],
+                                     SigEff3P = [0.995, 0.94, 0.88, 0.78],
+                                     ScoreName = "BDTJetScore",
+                                     NewScoreName = "BDTJetScoreSigTrans",
+                                     DefineWPs = True)
+
+    ToolSvc += TauWPDecorator
+    cached_instances[_name] = TauWPDecorator
+    return TauWPDecorator
+
 ########################################################################
 # TauWPDecoratorJetRNN
 def getTauWPDecoratorJetRNN():
@@ -873,17 +925,11 @@ def getTauWPDecoratorJetRNN():
                                      SigEff3P = [0.99, 0.98, 0.865, 0.80],
                                      ScoreName = "RNNJetScore",
                                      NewScoreName = "RNNJetScoreSigTrans",
-                                     DefineWPs = True,
-                                 )
+                                     DefineWPs = True )
 
     ToolSvc += TauWPDecorator
     cached_instances[_name] = TauWPDecorator
     return TauWPDecorator
-
-# target efficiencies used for 2017 BDT:
-# SigEff1P = [0.995, 0.99, 0.97, 0.90],
-# SigEff3P = [0.995, 0.94, 0.88, 0.78],
-
 
 
 # end
