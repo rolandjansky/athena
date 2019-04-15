@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -101,52 +103,23 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   // trap_pos and drift_time are updated based on spess.
   bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
 
-  int m_numberOfCharges;           //!< number of charges
-  float m_smallStepLength;         //!< max internal step along the larger G4 step
+  IntegerProperty m_numberOfCharges{this, "NumberOfCharges", 1, "number of charges"};
+  FloatProperty m_smallStepLength{this, "SmallStepLength", 5, "max internal step along the larger G4 step"};
 
   /** related to the surface drift */
-  float m_tSurfaceDrift;          //!< Surface drift time
-  float m_tHalfwayDrift;          //!< Surface drift time
-  float m_distInterStrip;         //!< Inter strip distance normalized to 1
-  float m_distHalfInterStrip;     //!< Half way distance inter strip
+  FloatProperty m_tSurfaceDrift{this, "SurfaceDriftTime", 10, "max surface drift time"};
 
-  bool m_SurfaceDriftFlag;        //!< surface drift ON/OFF
+  FloatProperty m_tfix{this, "FixedTime", -999., "fixed time"};
+  FloatProperty m_tsubtract{this, "SubtractTime", -999., "subtract drift time from mid gap"};
 
-  float m_tfix;       //!< fixed time
-  float m_tsubtract;  //!< subtract drift time from mid gap 
-
-  bool   m_doDistortions; //!< Flag to set Distortions
-  bool   m_useSiCondDB;   //!< Flag to change from using DB values to below ones, default True
-  float  m_vdepl;         //!< depletion voltage, default 70V
-  float  m_vbias;         //!< bias voltage, default 150V
-  bool   m_doTrapping ;   //!< Flag to set Charge Trapping
-  bool   m_doHistoTrap;   //!< Flag that allows to fill the histograms
-  bool   m_doRamo;        //!< Flag to use Ramo potential dor charge trapping 
-
-  // -- Histograms
-  ServiceHandle<ITHistSvc> m_thistSvc;
-  TProfile* m_h_efieldz;
-  TH1F* m_h_efield;
-  TH1F* m_h_spess;
-  TH1F* m_h_depD;
-  TH2F* m_h_drift_electrode;
-  TH1F* m_h_ztrap;
-  TH1F* m_h_drift_time;
-  TH1F* m_h_t_electrode;
-  TH1F* m_h_zhit;
-  TH1F* m_h_ztrap_tot;
-  TH1F* m_h_no_ztrap;
-  TH1F* m_h_trap_drift_t;
-  TH1F* m_h_notrap_drift_t;
-  TProfile* m_h_mob_Char;
-  TProfile* m_h_vel;
-  TProfile* m_h_drift1;
-  TProfile* m_h_gen;
-  TProfile* m_h_gen1;
-  TProfile* m_h_gen2;
-  TProfile* m_h_velocity_trap;
-  TProfile* m_h_mobility_trap;
-  TH1F* m_h_trap_pos;
+  BooleanProperty m_doDistortions{this, "doDistortions", false, "Simulation of module distortions"};
+  BooleanProperty m_useSiCondDB{this, "UseSiCondDB", false, "Usage of SiConditions DB values can be disabled to use setable ones"};
+  FloatProperty m_vdepl{this, "DepletionVoltage", 70., "depletion voltage, default 70V"};
+  FloatProperty m_vbias{this, "BiasVoltage", 150., "bias voltage, default 150V"};
+  BooleanProperty m_doTrapping{this, "doTrapping", false, "Flag to set Charge Trapping"};
+  BooleanProperty m_doHistoTrap{this, "doHistoTrap", false, "Histogram the charge trapping effect"};
+  BooleanProperty m_doRamo{this, "doRamo", false, "Ramo Potential for charge trapping effect"};
+  BooleanProperty m_isOverlay{this, "isOverlay", false, "flag for overlay"};
 
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
@@ -155,7 +128,37 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  bool m_isOverlay; // flag for overlay
+  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
+
+  float m_tHalfwayDrift{0.}; //!< Surface drift time
+  float m_distInterStrip{1.0}; //!< Inter strip distance normalized to 1
+  float m_distHalfInterStrip{0.}; //!< Half way distance inter strip
+
+  bool m_SurfaceDriftFlag{false}; //!< surface drift ON/OFF
+
+  // -- Histograms
+  TProfile* m_h_efieldz{nullptr};
+  TH1F* m_h_efield{nullptr};
+  TH1F* m_h_spess{nullptr};
+  TH1F* m_h_depD{nullptr};
+  TH2F* m_h_drift_electrode{nullptr};
+  TH1F* m_h_ztrap{nullptr};
+  TH1F* m_h_drift_time{nullptr};
+  TH1F* m_h_t_electrode{nullptr};
+  TH1F* m_h_zhit{nullptr};
+  TH1F* m_h_ztrap_tot{nullptr};
+  TH1F* m_h_no_ztrap{nullptr};
+  TH1F* m_h_trap_drift_t{nullptr};
+  TH1F* m_h_notrap_drift_t{nullptr};
+  TProfile* m_h_mob_Char{nullptr};
+  TProfile* m_h_vel{nullptr};
+  TProfile* m_h_drift1{nullptr};
+  TProfile* m_h_gen{nullptr};
+  TProfile* m_h_gen1{nullptr};
+  TProfile* m_h_gen2{nullptr};
+  TProfile* m_h_velocity_trap{nullptr};
+  TProfile* m_h_mobility_trap{nullptr};
+  TH1F* m_h_trap_pos{nullptr};
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H
