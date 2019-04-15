@@ -1,7 +1,7 @@
 IOVSvcTool                              8   0     FATAL Cannot update Conditions via callback functions in MT after the first event
 TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
-TrigSignatureMoniMT                                INFO All                           20        20        0         0         0         0         19        
+TrigSignatureMoniMT                                INFO All                           20        20        0         0         0         0         20        
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L1MU6            20        20        0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L1MU6 decisions                      0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6_L1MU6                20        20        0         0         0         0         0         
@@ -24,3 +24,7 @@ TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6       
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       6         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          20        20        12        0         0         0         12        
+TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    12        0         0         0         
+TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50          20        20        3         0         0         0         3         
+TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50 decisions                    3         0         0         0         

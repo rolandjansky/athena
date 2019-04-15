@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -38,13 +38,13 @@ public:
 
         //if ReturnCopy is true the method will return a copy of the original vertex if the fit cannot be changed
         //if Returncopy is false the method returns a null
-  	const xAOD::Vertex* refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex, bool ReturnCopy = true);
- 	const xAOD::Vertex* refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps, bool ReturnCopy = true);
-        int getLastExitCode() { return m_lastExitCode;}
+  	const xAOD::Vertex* refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex,
+            bool ReturnCopy = true, int* exitcode = nullptr) const;
+ 	const xAOD::Vertex* refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps,
+            bool ReturnCopy = true, int* exitcode = nullptr) const;
 private:
         unsigned int m_ntrk_min;
         ToolHandle <Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator;
-        int m_lastExitCode;
 
 };
 } // end of namespace

@@ -1,25 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*---------------------------------------------------------
  * @file TRT_HWMappingSvc.cxx
  * @Service to provide offline -> hardware mapping
  * @author Denver Whittington <Denver.Whittington@cern.ch>
+ * updated March 2019 Peter Hansen <phansen@nbi.dk>
  *///------------------------------------------------------
 
 // Header Includes
-#include "GaudiKernel/IIncidentSvc.h"
-
 #include "TRT_HWMappingSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
-#include "InDetCoolCoralClientUtils/TRT_COOLCORALClient.h"
-#include "CoolApplication/Application.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -34,24 +30,14 @@ TRT_HWMappingSvc::TRT_HWMappingSvc( const std::string& name,
 				    ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
   m_detStore("DetectorStore",name),
-  m_Barrel_HV_CoolChanNames(0),
-  m_EndcapA_HV_CoolChanNames(0),
-  m_EndcapC_HV_CoolChanNames(0),
-  m_Barrel_HV_CoolChanNums(0),
-  m_EndcapA_HV_CoolChanNums(0),
-  m_EndcapC_HV_CoolChanNums(0),
   m_TRT_ID_Helper(0),
   m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name)
 {
   // Get properties from job options
-  declareProperty( "UseMapDb", m_UseMapDb = false );
-  declareProperty( "MapDbConnectionString", m_MapDbConnectionString = "" );
   declareProperty( "Barrel_HV_COOLFolderName", m_Barrel_HV_COOLFolderName = "/TRT/DCS/HV/BARREL" );
   declareProperty( "EndcapA_HV_COOLFolderName", m_EndcapA_HV_COOLFolderName = "/TRT/DCS/HV/ENDCAPA" );
   declareProperty( "EndcapC_HV_COOLFolderName", m_EndcapC_HV_COOLFolderName = "/TRT/DCS/HV/ENDCAPC" );
   declareProperty( "TRTStrawNeighbourSvc", m_TRTStrawNeighbourSvc );
-  declareProperty( "DumpMaps", m_DumpMaps = false );
-  declareProperty( "BuildChanNumMaps", m_buildChanNumMaps = true );
   declareProperty( "DetectorStore", m_detStore );
 }
 
@@ -71,7 +57,7 @@ StatusCode TRT_HWMappingSvc::initialize() {
   // Retrieve the DetectorStore
   sc = m_detStore.retrieve();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve " << m_detStore);
+    msg(MSG::ERROR) << "Unable to retrieve " << m_detStore << endmsg;
     return sc;
   }
 
@@ -85,28 +71,11 @@ StatusCode TRT_HWMappingSvc::initialize() {
   // Get the TRTStrawNeighbourSvc
   sc = m_TRTStrawNeighbourSvc.retrieve();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't get " << m_TRTStrawNeighbourSvc);
+    msg(MSG::ERROR) << "Couldn't get " << m_TRTStrawNeighbourSvc << endmsg;
     return sc;
   }
 
-  // Register a callback to load the HVLinePadMap on "BeginRun"
-  IIncidentSvc* incSvc;
-  sc = service( "IncidentSvc", incSvc );
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't get the IncidentSvc.");
-    return sc;
-  }
-  incSvc->addListener( this, std::string("BeginRun") );
-
-  // Initialize HV-line/pad maps (don't forget to delete them at finalize!)
-  int nBarrelPadsTotal = 32*(42+65+100);
-  m_Barrel_HV_CoolChanNames = new std::vector<std::string>(nBarrelPadsTotal,"");
-  m_Barrel_HV_CoolChanNums  = new std::vector<int>(nBarrelPadsTotal,-1);
-  int nEndcapCellsTotal = 32*3*(6*4+8*2);
-  m_EndcapA_HV_CoolChanNames = new std::vector<std::string>(nEndcapCellsTotal,"");
-  m_EndcapA_HV_CoolChanNums  = new std::vector<int>(nEndcapCellsTotal,-1);
-  m_EndcapC_HV_CoolChanNames = new std::vector<std::string>(nEndcapCellsTotal,"");
-  m_EndcapC_HV_CoolChanNums  = new std::vector<int>(nEndcapCellsTotal,-1);
+  ATH_CHECK( m_HWMapReadKey.initialize() );
 
   return sc;
 }
@@ -125,38 +94,47 @@ std::string TRT_HWMappingSvc::get_HV_CoolChanName( const Identifier ident ) {
   //int straw_layer    = m_TRT_ID_Helper->straw_layer( ident );
   //int straw          = m_TRT_ID_Helper->straw( ident );
 
+  // get the data from the Write condition object
+  SG::ReadCondHandle<TRTCond::HWMap> readHandle(m_HWMapReadKey);
+  const TRTCond::HWMap* theMap{*readHandle};
+  if ( theMap == nullptr ) {
+    ATH_MSG_WARNING("Couldn't retrieve DCS HV names. Is TRTHWMapCondAlg added to condSeq?");
+    return chanName;
+  }
+
+
   if ( abs(barrel_ec) == 1 ) {
     // Barrel identifier
     int padNum = get_HV_BarrelPadNum( ident );
     int hashedPad = hashThisBarrelPad( phi_module, layer_or_wheel, padNum );
-    if ( m_Barrel_HV_CoolChanNames ) {
-      if ( hashedPad >= (int)m_Barrel_HV_CoolChanNames->size() || hashedPad<0) {
+
+    if ( hashedPad >= (int)theMap->get_Barrel_HV_Names()->size() || hashedPad<0) {
 	ATH_MSG_WARNING("channel request for invalid barrel HV pad.");
 	return "";
-      } else chanName = m_Barrel_HV_CoolChanNames->at(hashedPad);
-    }
+      } else chanName = theMap->get_Barrel_HV_Names()->at(hashedPad);
+
   } else if ( barrel_ec == 2 ) {
     // EndcapA identifier
     int fourPlaneNum = get_HV_Endcap4PlaneNum( ident );
     int cellNum = get_HV_EndcapCellNum( ident );
     int hashedCell = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
-    if ( m_EndcapA_HV_CoolChanNames ) {
-      if ( hashedCell >= (int)m_EndcapA_HV_CoolChanNames->size() || hashedCell<0 ) {
+
+    if ( hashedCell >= (int)theMap->get_EndcapA_HV_Names()->size() || hashedCell<0 ) {
 	ATH_MSG_WARNING("channel request for invalid endcap A HV pad.");
 	return "";
-      } else chanName = m_EndcapA_HV_CoolChanNames->at(hashedCell);
-    }
+      } else chanName = theMap->get_EndcapA_HV_Names()->at(hashedCell);
+
   } else if ( barrel_ec == -2 ) {
     // EndcapC identifier
     int fourPlaneNum = get_HV_Endcap4PlaneNum( ident );
     int cellNum = get_HV_EndcapCellNum( ident );
     int hashedCell = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
-    if ( m_EndcapC_HV_CoolChanNames ) {
-      if ( hashedCell >= (int)m_EndcapC_HV_CoolChanNames->size() || hashedCell<0) {
+
+    if ( hashedCell >= (int)theMap->get_EndcapC_HV_Names()->size() || hashedCell<0) {
 	ATH_MSG_WARNING("channel request for invalid endcap C HV pad.");
 	return "";
-      } else chanName = m_EndcapC_HV_CoolChanNames->at(hashedCell);
-    }
+    } else chanName = theMap->get_EndcapC_HV_Names()->at(hashedCell);
+
   } else {
     ATH_MSG_ERROR("Unknown Identifier (not barrel or endcap)!");
     return "";
@@ -179,38 +157,50 @@ int TRT_HWMappingSvc::get_HV_CoolChanNum( const Identifier ident ) {
   //int straw_layer    = m_TRT_ID_Helper->straw_layer( ident );
   //int straw          = m_TRT_ID_Helper->straw( ident );
 
+  // get the data from the Write condition object
+  SG::ReadCondHandle<TRTCond::HWMap> readHandle(m_HWMapReadKey);
+  const TRTCond::HWMap* theMap{*readHandle};
+  if ( theMap == nullptr ) {
+    ATH_MSG_WARNING("Couldn't retrieve DCS HV numbers. Is TRTHWMapCondAlg added to condSeq?");
+    return chanNum;
+  }
+
+
   if ( abs(barrel_ec) == 1 ) {
     // Barrel identifier
     int padNum = get_HV_BarrelPadNum( ident );
     int hashedPad = hashThisBarrelPad( phi_module, layer_or_wheel, padNum );
-    if ( m_Barrel_HV_CoolChanNums ) {
-      if ( hashedPad >= (int)m_Barrel_HV_CoolChanNums->size() || hashedPad<0 ) {
-	ATH_MSG_WARNING("channel number request for invalid barrel HV pad.");
+
+
+    if ( hashedPad >= (int)theMap->get_Barrel_HV_Nums()->size() || hashedPad<0) {
+	ATH_MSG_WARNING("channel request for invalid barrel HV pad.");
 	return -1;
-      } else chanNum = m_Barrel_HV_CoolChanNums->at(hashedPad);
-    }
+    } else chanNum = theMap->get_Barrel_HV_Nums()->at(hashedPad);
+
   } else if ( barrel_ec == 2 ) {
     // EndcapA identifier
     int fourPlaneNum = get_HV_Endcap4PlaneNum( ident );
     int cellNum = get_HV_EndcapCellNum( ident );
-    int hashedCell = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
-    if ( m_EndcapA_HV_CoolChanNums ) {
-      if ( hashedCell >= (int)m_EndcapA_HV_CoolChanNums->size() || hashedCell<0) {
-	ATH_MSG_WARNING("channel number request for invalid endcap A HV cell.");
+    int hashedPad = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
+
+    if ( hashedPad >= (int)theMap->get_EndcapA_HV_Nums()->size() || hashedPad<0) {
+	ATH_MSG_WARNING("channel request for invalid EndcapA HV pad.");
 	return -1;
-      } else chanNum = m_EndcapA_HV_CoolChanNums->at(hashedCell);
-    }
+    } else chanNum = theMap->get_EndcapA_HV_Nums()->at(hashedPad);
+
+
   } else if ( barrel_ec == -2 ) {
     // EndcapC identifier
     int fourPlaneNum = get_HV_Endcap4PlaneNum( ident );
     int cellNum = get_HV_EndcapCellNum( ident );
-    int hashedCell = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
-    if ( m_EndcapC_HV_CoolChanNums ) {
-      if ( hashedCell >= (int)m_EndcapC_HV_CoolChanNums->size() || hashedCell<0) {
-	ATH_MSG_WARNING("channel number request for invalid endcap C HV cell.");
+    int hashedPad = hashThisEndcapCell( phi_module, layer_or_wheel, fourPlaneNum, cellNum );
+
+    if ( hashedPad >= (int)theMap->get_EndcapC_HV_Nums()->size() || hashedPad<0) {
+	ATH_MSG_WARNING("channel request for invalid EndcapC HV pad.");
 	return -1;
-      } else chanNum = m_EndcapC_HV_CoolChanNums->at(hashedCell);
-    }
+    } else chanNum = theMap->get_EndcapC_HV_Nums()->at(hashedPad);
+
+
   } else {
     ATH_MSG_ERROR("Unknown Identifier (not barrel or endcap)!");
     return -1;
@@ -253,7 +243,8 @@ int TRT_HWMappingSvc::hashThisBarrelPad( int sector, int module, int padNum ) {
   case 1: padOffset = 42;  break;
   case 2: padOffset = 42+65; break;
   default:
-    ATH_MSG_ERROR("Couldn't hash this pad: " << sector << "," << module << "," << padNum);
+    msg(MSG::ERROR) << "Couldn't hash this pad: "
+	 << sector << "," << module << "," << padNum << endmsg;
     return -1;
   }
 
@@ -288,7 +279,7 @@ int TRT_HWMappingSvc::get_HV_EndcapCellNum( const Identifier ident ) {
   else if ( straw >= 8 && straw < 16 ) cellNum = 1;
   else if ( straw >=16 && straw < 24 ) cellNum = 2;
   else {
-    ATH_MSG_WARNING("Straw number out of range for Endcap!");
+    msg(MSG::WARNING) << "Straw number out of range for Endcap!" << endmsg;
     cellNum = -1;
   }
 
@@ -321,7 +312,7 @@ int TRT_HWMappingSvc::get_HV_Endcap4PlaneNum( const Identifier ident ) {
   else if ( straw_layer >=  8 && straw_layer < 12 ) fourPlaneWheelNum = 2;
   else if ( straw_layer >= 12 && straw_layer < 16 ) fourPlaneWheelNum = 3;
   else {
-    ATH_MSG_WARNING("Straw layer number out of range for Endcap!");
+    msg(MSG::WARNING) << "Straw layer number out of range for Endcap!" << endmsg;
     fourPlaneWheelNum = -1;
   }
 
@@ -381,7 +372,7 @@ int TRT_HWMappingSvc::hashThisEndcapCell( int sector, int wheel, int layer, int 
   if ( wheel >= 0 && wheel < 6  ) wheelType = 0; // A wheel
   if ( wheel >= 6 && wheel < 14 ) wheelType = 1; // B wheel
   if ( wheelType == -1 ) {
-    ATH_MSG_ERROR("Invalid wheel number.");
+    msg(MSG::ERROR) << "Invalid wheel number." << endmsg;
     return -1;
   }
 
@@ -398,447 +389,13 @@ int TRT_HWMappingSvc::hashThisEndcapCell( int sector, int wheel, int layer, int 
   return hashedCell;
 }
 
-//////////
-/// Build HV-line/pad map for Barrel
-/////
-StatusCode TRT_HWMappingSvc::build_BarrelHVLinePadMap() {
-  StatusCode sc(StatusCode::SUCCESS);
-
-  if ( m_UseMapDb ) {
-
-    // Get the HV-line/pad map from the mapping database
-
-    TRT_COOLCORALClient* TRTcoralClient;
-    TRTcoralClient = new TRT_COOLCORALClient( m_MapDbConnectionString );
-    std::map<std::string,std::string> rawMap;
-    TRTcoralClient->get_BarrelHVLinePadMap( rawMap );
-    if ( rawMap.size() == 0 ) {
-      ATH_MSG_WARNING("Retrieved and empty Barrel HV-line/pad map from database.");
-      delete TRTcoralClient;
-      return StatusCode::FAILURE;
-    }
-
-    // Iterate through the raw map to hash each pad number and enter its 
-    std::map<std::string,std::string>::const_iterator rawMapItr;
-    for ( rawMapItr = rawMap.begin(); rawMapItr != rawMap.end(); ++rawMapItr ) {
-      std::string padName  = (*rawMapItr).first;
-      std::string lineName = (*rawMapItr).second;
-
-      // Parse the pad name string to get the hashed pad (index in map vector)
-      int index1 = 0;
-      int index2 = 0;
-      index1 = padName.find("/Stack(",index1) + 7;
-      index2 = padName.find(")",index1);
-      std::string stackNumAsString( padName, index1, index2-index1 );
-      index1 = padName.find("/Module_Type_",index1) + 13;
-      std::string moduleNumAsString( padName, index1, 1 );
-      index1 = padName.find("Pad",index1) + 3;
-      index2 = padName.find("_",index1);
-      std::string padNumAsString( padName, index1, index2-index1 );
-      int stackNum = atoi(stackNumAsString.c_str()) - 1; // shift to range(0,31)
-      int moduleNum = atoi(moduleNumAsString.c_str()) - 1; // shift to range(0,2)
-      int padNum = atoi(padNumAsString.c_str()); // leave in range(1,n)
-      int hashedPad = hashThisBarrelPad( stackNum, moduleNum, padNum );
-
-      // Parse the string into COOL channel format
-      int indexStart = lineName.find(":")+1;
-      std::string chanName( lineName, indexStart, lineName.size()-indexStart );
-      for ( int itr = 0; itr < (int)chanName.size(); ++itr ) {
-	if ( chanName.compare( itr, 1, "/" ) == 0 ) {
-	  chanName.replace( itr, 1, "_" );
-	  if ( chanName.compare( itr+1, 1, "C" ) == 0 ) chanName.replace( itr+1, 1, "A" );
-	  if ( chanName.compare( itr+1, 1, "D" ) == 0 ) chanName.replace( itr+1, 1, "B" );
-	}
-      }
-      chanName.append( "_OutputVoltage" );
-
-      // Add this channel into the map vector at the appropriate position
-      // (hashed pad gives index in map vector)
-      if ( hashedPad >= (int)m_Barrel_HV_CoolChanNames->size() || hashedPad<0) {
-	ATH_MSG_WARNING("channel request for invalid barrel HV pad.");
-      }else{
-        m_Barrel_HV_CoolChanNames->at(hashedPad) = chanName;
-      }
-    }
-    delete TRTcoralClient;
-
-  } else {
-    std::map< std::string, std::vector<int> > fuseBoxPadMapEven;
-    std::map< std::string, std::vector<int> > fuseBoxPadMapOdd;
-    std::vector<int> theVector;
-    // Even stacks (in HW numbering): Fuseboxes A & B
-    int pads_1A1[ 9] = { 5, 7,13,21,23,30,38,39,41};
-    theVector = std::vector<int>( pads_1A1, pads_1A1+9 );
-    fuseBoxPadMapEven.insert( make_pair("1_A1", theVector) );
-    int pads_1A2[ 6] = { 6, 8,15,16,22,24};
-    theVector = std::vector<int>( pads_1A2, pads_1A2+6 );
-    fuseBoxPadMapEven.insert( make_pair("1_A2", theVector) );
-    int pads_1A3[ 6] = {14,29,31,32,40,42};
-    theVector = std::vector<int>( pads_1A3, pads_1A3+6 );
-    fuseBoxPadMapEven.insert( make_pair("1_A3", theVector) );
-    int pads_1B1[ 9] = { 2, 4,11,12,19,34,35,36,37};
-    theVector = std::vector<int>( pads_1B1, pads_1B1+9 );
-    fuseBoxPadMapEven.insert( make_pair("1_B1", theVector) );
-    int pads_1B2[ 6] = {17,25,26,27,28,33};
-    theVector = std::vector<int>( pads_1B2, pads_1B2+6 );
-    fuseBoxPadMapEven.insert( make_pair("1_B2", theVector) );
-    int pads_1B3[ 6] = { 1, 3, 9,10,18,20};
-    theVector = std::vector<int>( pads_1B3, pads_1B3+6 );
-    fuseBoxPadMapEven.insert( make_pair("1_B3", theVector) );
-    int pads_2A1[12] = { 6, 8,10,15,18,20,49,50,51,61,63,65};
-    theVector = std::vector<int>( pads_2A1, pads_2A1+12);
-    fuseBoxPadMapEven.insert( make_pair("2_A1", theVector) );
-    int pads_2A2[11] = { 7, 9,16,17,19,27,52,53,60,62,64};
-    theVector = std::vector<int>( pads_2A2, pads_2A2+11);
-    fuseBoxPadMapEven.insert( make_pair("2_A2", theVector) );
-    int pads_2A3[10] = {26,28,29,30,37,38,39,40,41,42};
-    theVector = std::vector<int>( pads_2A3, pads_2A3+10);
-    fuseBoxPadMapEven.insert( make_pair("2_A3", theVector) );
-    int pads_2B1[10] = { 2, 4,12,13,24,46,55,57,58,59};
-    theVector = std::vector<int>( pads_2B1, pads_2B1+10);
-    fuseBoxPadMapEven.insert( make_pair("2_B1", theVector) );
-    int pads_2B2[12] = { 1, 3, 5,11,14,21,43,44,45,47,54,56};
-    theVector = std::vector<int>( pads_2B2, pads_2B2+12);
-    fuseBoxPadMapEven.insert( make_pair("2_B2", theVector) );
-    int pads_2B3[10] = {22,23,25,31,32,33,34,35,36,48};
-    theVector = std::vector<int>( pads_2B3, pads_2B3+10);
-    fuseBoxPadMapEven.insert( make_pair("2_B3", theVector) );
-    int pads_3A1[10] = { 9,10,20,23,24,32,33,34,46,54};
-    theVector = std::vector<int>( pads_3A1, pads_3A1+10);
-    fuseBoxPadMapEven.insert( make_pair("3_A1", theVector) );
-    int pads_3A2[10] = {70,72,73,82,84,86,92,93,96,99};
-    theVector = std::vector<int>( pads_3A2, pads_3A2+10);
-    fuseBoxPadMapEven.insert( make_pair("3_A2", theVector) );
-    int pads_3A3[10] = { 8,11,12,21,22,31,35,36,43,44};
-    theVector = std::vector<int>( pads_3A3, pads_3A3+10);
-    fuseBoxPadMapEven.insert( make_pair("3_A3", theVector) );
-    int pads_3A4[10] = {59,71,81,83,85,94,95,97,98,100};
-    theVector = std::vector<int>( pads_3A4, pads_3A4+10);
-    fuseBoxPadMapEven.insert( make_pair("3_A4", theVector) );
-    int pads_3A5[10] = {45,47,48,55,56,57,58,60,68,69};
-    theVector = std::vector<int>( pads_3A5, pads_3A5+10);
-    fuseBoxPadMapEven.insert( make_pair("3_A5", theVector) );
-    int pads_3B1[10] = {51,63,64,66,74,76,78,80,89,90};
-    theVector = std::vector<int>( pads_3B1, pads_3B1+10);
-    fuseBoxPadMapEven.insert( make_pair("3_B1", theVector) );
-    int pads_3B2[10] = { 1, 4, 5, 6,14,15,18,25,27,28};
-    theVector = std::vector<int>( pads_3B2, pads_3B2+10);
-    fuseBoxPadMapEven.insert( make_pair("3_B2", theVector) );
-    int pads_3B3[10] = {61,62,65,67,75,77,79,87,88,91};
-    theVector = std::vector<int>( pads_3B3, pads_3B3+10);
-    fuseBoxPadMapEven.insert( make_pair("3_B3", theVector) );
-    int pads_3B4[10] = { 2, 3, 7,13,16,17,19,26,29,30};
-    theVector = std::vector<int>( pads_3B4, pads_3B4+10);
-    fuseBoxPadMapEven.insert( make_pair("3_B4", theVector) );
-    int pads_3B5[10] = {37,38,39,40,41,42,49,50,52,53};
-    theVector = std::vector<int>( pads_3B5, pads_3B5+10);
-    fuseBoxPadMapEven.insert( make_pair("3_B5", theVector) );
-    // Odd stacks (in HW numbering): Fuseboxes C & D
-    int* pads_1C1 = pads_1A1;
-    theVector = std::vector<int>( pads_1C1, pads_1C1+9 );
-    fuseBoxPadMapOdd.insert( make_pair("1_A1", theVector) );
-    int* pads_1C2 = pads_1A3;
-    theVector = std::vector<int>( pads_1C2, pads_1C2+6 );
-    fuseBoxPadMapOdd.insert( make_pair("1_A2", theVector) );
-    int* pads_1C3 = pads_1A2;
-    theVector = std::vector<int>( pads_1C3, pads_1C3+6 );
-    fuseBoxPadMapOdd.insert( make_pair("1_A3", theVector) );
-    int* pads_1D1 = pads_1B1;
-    theVector = std::vector<int>( pads_1D1, pads_1D1+ 9);
-    fuseBoxPadMapOdd.insert( make_pair("1_B1", theVector) );
-    int* pads_1D2 = pads_1B3;
-    theVector = std::vector<int>( pads_1D2, pads_1D2+ 6);
-    fuseBoxPadMapOdd.insert( make_pair("1_B2", theVector) );
-    int* pads_1D3 = pads_1B2;
-    theVector = std::vector<int>( pads_1D3, pads_1D3+ 6);
-    fuseBoxPadMapOdd.insert( make_pair("1_B3", theVector) );
-    int* pads_2C1 = pads_2A1;
-    theVector = std::vector<int>( pads_2C1, pads_2C1+12);
-    fuseBoxPadMapOdd.insert( make_pair("2_A1", theVector) );
-    int* pads_2C2 = pads_2A2;
-    theVector = std::vector<int>( pads_2C2, pads_2C2+11);
-    fuseBoxPadMapOdd.insert( make_pair("2_A2", theVector) );
-    int* pads_2C3 = pads_2A3;
-    theVector = std::vector<int>( pads_2C3, pads_2C3+10);
-    fuseBoxPadMapOdd.insert( make_pair("2_A3", theVector) );
-    int* pads_2D1 = pads_2B1;
-    theVector = std::vector<int>( pads_2D1, pads_2D1+10);
-    fuseBoxPadMapOdd.insert( make_pair("2_B1", theVector) );
-    int* pads_2D2 = pads_2B2;
-    theVector = std::vector<int>( pads_2D2, pads_2D2+12);
-    fuseBoxPadMapOdd.insert( make_pair("2_B2", theVector) );
-    int* pads_2D3 = pads_2B3;
-    theVector = std::vector<int>( pads_2D3, pads_2D3+10);
-    fuseBoxPadMapOdd.insert( make_pair("2_B3", theVector) );
-    int* pads_3C1 = pads_3A2;
-    theVector = std::vector<int>( pads_3C1, pads_3C1+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_A1", theVector) );
-    int* pads_3C2 = pads_3A1;
-    theVector = std::vector<int>( pads_3C2, pads_3C2+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_A2", theVector) );
-    int* pads_3C3 = pads_3A4;
-    theVector = std::vector<int>( pads_3C3, pads_3C3+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_A3", theVector) );
-    int* pads_3C4 = pads_3A3;
-    theVector = std::vector<int>( pads_3C4, pads_3C4+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_A4", theVector) );
-    int* pads_3C5 = pads_3A5;
-    theVector = std::vector<int>( pads_3C5, pads_3C5+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_A5", theVector) );
-    int* pads_3D1 = pads_3B2;
-    theVector = std::vector<int>( pads_3D1, pads_3D1+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_B1", theVector) );
-    int* pads_3D2 = pads_3B1;
-    theVector = std::vector<int>( pads_3D2, pads_3D2+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_B2", theVector) );
-    int* pads_3D3 = pads_3B4;
-    theVector = std::vector<int>( pads_3D3, pads_3D3+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_B3", theVector) );
-    int* pads_3D4 = pads_3B3;
-    theVector = std::vector<int>( pads_3D4, pads_3D4+10);
-    fuseBoxPadMapOdd.insert( make_pair("3_B4", theVector) );
-    int* pads_3D5 = pads_3B5;
-    theVector = std::vector<int>( pads_3D5, pads_3D5+10 );
-    fuseBoxPadMapOdd.insert( make_pair("3_B5", theVector) );
-    // Loop through sectors
-    for ( int sector = 0; sector < 32; ++sector ) {
-      // Odd Stacks = Side A (1) Fusebox C & D, Even = Side C (0) Fusebox A & B
-      int side = (sector+1)%2;
-      // Pick the appropriate Fusebox/Pad map
-      std::map<std::string,std::vector<int> >* fuseBoxPadMap = 0;
-      if ( side == 1 ) fuseBoxPadMap = &fuseBoxPadMapOdd;
-      else fuseBoxPadMap = &fuseBoxPadMapEven;
-      // Loop through all fusebox lines in this stack
-      std::map<std::string,std::vector<int> >::const_iterator mapItr;
-      for ( mapItr = fuseBoxPadMap->begin(); mapItr != fuseBoxPadMap->end(); ++mapItr ) {
-	std::string fuseBoxName = (*mapItr).first;
-	int module = atoi( &(fuseBoxName.at(0)) ) - 1;
-	std::stringstream chanName;
-	chanName << "HVB_S" << sector+1 << "_M" << fuseBoxName << "_OutputVoltage";
-	// Loop through pads
-	const std::vector<int>* padVec = &((*mapItr).second);
-	std::vector<int>::const_iterator padItr;
-	for ( padItr = padVec->begin(); padItr != padVec->end(); ++padItr ) {
-	  int hashedPad = hashThisBarrelPad( sector, module, *padItr );
-          if ( hashedPad >= (int)m_Barrel_HV_CoolChanNames->size() || hashedPad<0) {
-	    ATH_MSG_WARNING("channel request for invalid barrel HV pad.");
-          }else{
-  	     m_Barrel_HV_CoolChanNames->at(hashedPad) = chanName.str();
-          }
-	}
-      }  
-    }
-  }
-
-  ATH_MSG_INFO("TRT Barrel HV-line/pad map successfully built - "
-	       << m_Barrel_HV_CoolChanNames->size() << " channels.");
-
-  if ( m_buildChanNumMaps ) {
-    // Get the CondAttrListCollection for the barrel
-    const CondAttrListCollection* DCScondFolder = 0;
-    sc = m_detStore->retrieve( DCScondFolder, m_Barrel_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("Couldn't retrieve folder " << m_Barrel_HV_COOLFolderName
-		      << " from DetectorStore.  Has it been loaded into IOVDbSvc?");
-      return sc;
-    }
-    if ( DCScondFolder->name_size() == 0 ) {
-      ATH_MSG_WARNING("CondAttrListCollection for folder " << m_Barrel_HV_COOLFolderName
-			<< " has no channel names.");
-      return StatusCode::FAILURE;
-    }
-    // Loop through the channel names.
-    CondAttrListCollection::name_const_iterator nameItr;
-    for ( nameItr = DCScondFolder->name_begin(); nameItr != DCScondFolder->name_end(); ++nameItr ) {
-      int chanNum = (*nameItr).first;
-      std::string chanName = (*nameItr).second;
-      for ( int itr = 0; itr < (int)m_Barrel_HV_CoolChanNames->size(); ++itr ) {
-	if ( m_Barrel_HV_CoolChanNames->at(itr) == chanName ) {
-	  m_Barrel_HV_CoolChanNums->at(itr) = chanNum;
-	}
-      }
-    }
-  }
-
-  return sc;
-}
-
-//////////
-/// Build HV-line/pad maps for Endcaps
-/////
-StatusCode TRT_HWMappingSvc::build_EndcapHVLinePadMaps() {
-  StatusCode sc(StatusCode::SUCCESS);
-
-  // Loop through all possible pads
-
-  // Loop through phi-sectors
-  for ( int sector = 0; sector < 32; ++sector ) {
-    // Loop through wheels (type A and B)
-    for ( int wheel = 0; wheel < 14; ++wheel ) {
-      // Loop through 4-plane layers in each wheel
-      int nLayers = -1;
-      if ( wheel >= 0 && wheel < 6  ) nLayers = 4;
-      if ( wheel >= 6 && wheel < 14 ) nLayers = 2;
-      for ( int layer = 0; layer < nLayers; ++layer ) {
-	// Construct the HV-line logical name for this cell (COOL style)
-	std::stringstream lineName;
-	// SectorPair
-	int sectorLeft = 0;
-	int sectorRight = 0;
-	if ( sector%2 == 0 ) {
-	  sectorLeft  = sector+1;
-	  sectorRight = sector+2;
-	} else {
-	  sectorLeft  = sector;
-	  sectorRight = sector+1;
-	}
-	lineName << "S" << sectorLeft << "S" << sectorRight << "_";
-	if ( sectorLeft%2 == 0 ) {
-	  ATH_MSG_WARNING("Mistake in sector pairing!!!");
-	  break;
-	}
-	// Wheel
-	if ( wheel >= 0 && wheel < 6 ) lineName << "WA" << (wheel+1) << "_";
-	else lineName << "WB" << (wheel-5) << "_";
-	// 4-plane layer
-	if ( wheel >= 0 && wheel < 6 ) {
-	  if ( layer == 0 ) lineName << "1B";
-	  if ( layer == 1 ) lineName << "1T";
-	  if ( layer == 2 ) lineName << "2B";
-	  if ( layer == 3 ) lineName << "2T";
-	} else {
-	  if ( layer == 0 ) lineName << "B";
-	  if ( layer == 1 ) lineName << "T";
-	}
-	lineName << "_OutputVoltage";
-	// Final names for ECA and ECC
-	std::stringstream lineNameA;
-	std::stringstream lineNameC;
-	lineNameA << "HVA_" << lineName.str();
-	lineNameC << "HVC_" << lineName.str();
-	// Add them to the maps
-	for ( int cellNum = 0; cellNum < 3; ++cellNum ) {
-	  int hashedCell = hashThisEndcapCell( sector, wheel, layer, cellNum );
-          if ( hashedCell >= (int)m_EndcapA_HV_CoolChanNames->size() || hashedCell<0) {
-	    ATH_MSG_WARNING("channel request for invalid endcap HV pad.");
-          }else{
-	    m_EndcapA_HV_CoolChanNames->at(hashedCell) = lineNameA.str();
-	    m_EndcapC_HV_CoolChanNames->at(hashedCell) = lineNameC.str();
-	  }
-	}
-      }
-    }
-  }
-
-  // Apply corrections to the map
-  int hashedCellToFix = hashThisEndcapCell( 5, 12, 0, 2 );
-  if ( hashedCellToFix >= (int)m_EndcapA_HV_CoolChanNames->size() || hashedCellToFix<0) {
-    ATH_MSG_WARNING("channel request for invalid endcap HV pad.");
-  }else{
-    m_EndcapA_HV_CoolChanNames->at(hashedCellToFix) = "HVA_S7S8_WB7_B_OutputVoltage";
-  }
-  ATH_MSG_INFO("Endcap HV-line/pad maps successfully built - ECA: "
-       << m_EndcapA_HV_CoolChanNames->size() << " channels; ECC: "
-	       << m_EndcapC_HV_CoolChanNames->size() << " channels.");
-
-  if ( m_buildChanNumMaps ) {
-
-    // EndcapA
-
-    // Get the CondAttrListCollection for Endcap A
-    const CondAttrListCollection* DCScondFolder = 0;
-    sc = m_detStore->retrieve( DCScondFolder, m_EndcapA_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("Couldn't retrieve folder " << m_EndcapA_HV_COOLFolderName
-		      << " from DetectorStore.  Has it been loaded into IOVDbSvc?");
-      return sc;
-    }
-    if ( DCScondFolder->name_size() == 0 ) {
-      ATH_MSG_WARNING("CondAttrListCollection for folder " << m_EndcapA_HV_COOLFolderName
-			<< " has no channel names.");
-      return StatusCode::FAILURE;
-    }
-    // Loop through the channel names.
-    CondAttrListCollection::name_const_iterator nameItr;
-    for ( nameItr = DCScondFolder->name_begin(); nameItr != DCScondFolder->name_end(); ++nameItr ) {
-      int chanNum = (*nameItr).first;
-      std::string chanName = (*nameItr).second;
-      for ( int itr = 0; itr < (int)m_EndcapA_HV_CoolChanNames->size(); ++itr ) {
-	if ( m_EndcapA_HV_CoolChanNames->at(itr) == chanName ) {
-	  m_EndcapA_HV_CoolChanNums->at(itr) = chanNum;
-	}
-      }
-    }
-
-    // EndcapC
-
-    // Get the CondAttrListCollection for Endcap C
-    DCScondFolder = 0;
-    sc = m_detStore->retrieve( DCScondFolder, m_EndcapC_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("Couldn't retrieve folder " << m_EndcapC_HV_COOLFolderName
-		      << " from DetectorStore.  Has it been loaded into IOVDbSvc?");
-      return sc;
-    }
-    if ( DCScondFolder->name_size() == 0 ) {
-      ATH_MSG_WARNING("CondAttrListCollection for folder " << m_EndcapC_HV_COOLFolderName
-			<< " has no channel names.");
-      return StatusCode::FAILURE;
-    }
-    // Loop through the channel names.
-    for ( nameItr = DCScondFolder->name_begin(); nameItr != DCScondFolder->name_end(); ++nameItr ) {
-      int chanNum = (*nameItr).first;
-      std::string chanName = (*nameItr).second;
-      for ( int itr = 0; itr < (int)m_EndcapC_HV_CoolChanNames->size(); ++itr ) {
-	if ( m_EndcapC_HV_CoolChanNames->at(itr) == chanName ) {
-	  m_EndcapC_HV_CoolChanNums->at(itr) = chanNum;
-	}
-      }
-    }
-  }
-
-  return sc;
-}
 
 //////////
 /// Finalize
 /////
 StatusCode TRT_HWMappingSvc::finalize() {
 
-  if ( m_Barrel_HV_CoolChanNames )  delete m_Barrel_HV_CoolChanNames;
-  if ( m_EndcapA_HV_CoolChanNames ) delete m_EndcapA_HV_CoolChanNames;
-  if ( m_EndcapC_HV_CoolChanNames ) delete m_EndcapC_HV_CoolChanNames;
-  if ( m_Barrel_HV_CoolChanNums )   delete m_Barrel_HV_CoolChanNums;
-  if ( m_EndcapA_HV_CoolChanNums )  delete m_EndcapA_HV_CoolChanNums;
-  if ( m_EndcapC_HV_CoolChanNums )  delete m_EndcapC_HV_CoolChanNums;
-
   return StatusCode::SUCCESS;
-}
-
-//////////
-/// IncidentSvc incident handler
-/////
-void TRT_HWMappingSvc::handle( const Incident& inc ) {
-  StatusCode sc(StatusCode::SUCCESS);
-
-  // BeginRun handler
-  if ( inc.type() == "BeginRun" ) {
-
-    sc = build_BarrelHVLinePadMap();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Error in building Barrel HV-line/pad map.");
-    }
-
-    sc = build_EndcapHVLinePadMaps();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Error in building Endcap HV-line/pad maps.");
-    }
-
-    if ( m_DumpMaps ) DumpMaps();
-
-  }
-
-  return;
 }
 
 //////////
@@ -846,42 +403,45 @@ void TRT_HWMappingSvc::handle( const Incident& inc ) {
 /////
 void TRT_HWMappingSvc::DumpMaps() {
 
-  if ( m_Barrel_HV_CoolChanNames ) {
-    ATH_MSG_INFO( "Dumping TRT Barrel HV-line/pad map..." );
-    for ( int mapItr = 0; mapItr < (int)m_Barrel_HV_CoolChanNames->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_Barrel_HV_CoolChanNames->at(mapItr) );
-    }
+  // get the data from the Write condition object
+  SG::ReadCondHandle<TRTCond::HWMap> readHandle(m_HWMapReadKey);
+  const TRTCond::HWMap* theMap{*readHandle};
+  if ( theMap == nullptr ) {
+    ATH_MSG_WARNING("Couldn't retrieve DCS HV. Is TRTHWMapCondAlg added to condSeq?");
+    return;
   }
-  if ( m_EndcapA_HV_CoolChanNames ) {
-    ATH_MSG_INFO( "Dumping TRT EndcapA HV-line/pad map..." );
-    for ( int mapItr = 0; mapItr < (int)m_EndcapA_HV_CoolChanNames->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_EndcapA_HV_CoolChanNames->at(mapItr) );
-    }
+
+  ATH_MSG_INFO("Dumping TRT Barrel HV-line/pad map...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_Barrel_HV_Names()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_Barrel_HV_Names()->at(mapItr));
   }
-  if ( m_EndcapC_HV_CoolChanNames ) {
-    ATH_MSG_INFO( "Dumping TRT EndcapC HV-line/pad map..." );
-    for ( int mapItr = 0; mapItr < (int)m_EndcapC_HV_CoolChanNames->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_EndcapC_HV_CoolChanNames->at(mapItr) );
-    }
+
+  ATH_MSG_INFO("Dumping TRT EndcapA HV-line/pad map...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_EndcapA_HV_Names()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_EndcapA_HV_Names()->at(mapItr));
   }
-  if ( m_Barrel_HV_CoolChanNums ) {
-    ATH_MSG_INFO( "Dumping TRT Barrel HV-line/pad COOL channel numbers..." );
-    for ( int mapItr = 0; mapItr < (int)m_Barrel_HV_CoolChanNums->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_Barrel_HV_CoolChanNums->at(mapItr) );
-    }
+
+  ATH_MSG_INFO("Dumping TRT EndcapA HV-line/pad map...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_EndcapC_HV_Names()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_EndcapC_HV_Names()->at(mapItr));
   }
-  if ( m_EndcapA_HV_CoolChanNums ) {
-    ATH_MSG_INFO( "Dumping TRT EndcapA HV-line/pad COOL channel numbers..." );
-    for ( int mapItr = 0; mapItr < (int)m_EndcapA_HV_CoolChanNums->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_EndcapA_HV_CoolChanNums->at(mapItr) );
-    }
+
+  ATH_MSG_INFO("Dumping TRT Barrel HV-line/pad channel values...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_Barrel_HV_Nums()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_Barrel_HV_Nums()->at(mapItr));
   }
-  if ( m_EndcapC_HV_CoolChanNums ) {
-    ATH_MSG_INFO( "Dumping TRT EndcapC HV-line/pad COOL channel numbers..." );
-    for ( int mapItr = 0; mapItr < (int)m_EndcapC_HV_CoolChanNums->size(); ++mapItr ) {
-      ATH_MSG_INFO( mapItr << " " << m_EndcapC_HV_CoolChanNums->at(mapItr) );
-    }
+
+  ATH_MSG_INFO("Dumping TRT EndcapA HV-line/pad channel values...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_EndcapA_HV_Nums()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_EndcapA_HV_Nums()->at(mapItr));
   }
+
+  ATH_MSG_INFO("Dumping TRT EndcapA HV-line/pad channel values...");
+  for ( int mapItr = 0; mapItr < (int)theMap->get_EndcapC_HV_Nums()->size(); ++mapItr ) {
+    ATH_MSG_INFO( mapItr << " " << theMap->get_EndcapC_HV_Nums()->at(mapItr));
+  }
+
+
 
   // Create txt file of HV Line name and x,y / phi,z of straws on line
   const InDetDD::TRT_DetectorManager* detMan;

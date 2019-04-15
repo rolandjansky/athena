@@ -1,15 +1,11 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-isData = False
-if globalflags.InputFormat.is_bytestream():
-  isData = True
 
 # ----------------------------------------------------------------
 # Setup Views
@@ -49,7 +45,6 @@ if TriggerFlags.doID:
   theTrigFastTrackFinder_eGamma = TrigFastTrackFinder_eGamma()
   theTrigFastTrackFinder_eGamma.isRoI_Seeded = True
   theTrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  #theTrigFastTrackFinder_eGamma.OutputLevel=VERBOSE
   viewAlgs.append(theTrigFastTrackFinder_eGamma)
 
   for eventAlg in eventAlgs:
@@ -148,7 +143,6 @@ if TriggerFlags.doCalo:
   
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
   algo=T2CaloEgamma_FastAlgo("testFastAlgo")
-  algo.OutputLevel=VERBOSE
 
   algo.RoIs="EMViewRoIs"
   allViewAlgorithms += algo

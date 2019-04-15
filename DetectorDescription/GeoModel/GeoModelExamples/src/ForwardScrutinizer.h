@@ -6,7 +6,9 @@
 #define ForwardScrutinizer_h 1
 
 #include "GeoModelKernel/GeoVDetectorElement.h"
-#include "Identifier/Identifier.h"
+#ifndef BUILDVP1LIGHT
+    #include "Identifier/Identifier.h"
+#endif
 
 class ForwardScrutinizer : public GeoVDetectorElement
 {
@@ -14,7 +16,11 @@ class ForwardScrutinizer : public GeoVDetectorElement
   ForwardScrutinizer(const GeoVFullPhysVol *fullPhysVol);
   virtual ~ForwardScrutinizer() override final;
 
-  Identifier identify() const;
+   #if defined BUILDVP1LIGHT
+     int identify() const;
+   #else
+     Identifier identify() const;
+   #endif
 
  private:
   ForwardScrutinizer(const ForwardScrutinizer &right);

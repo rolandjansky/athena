@@ -3,14 +3,12 @@
 #
 
 from AthenaCommon.Include import include
-from AthenaCommon.Constants import VERBOSE,DEBUG
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigUpgradeTest.tauDefs import tauCaloSequence
 
@@ -28,7 +26,6 @@ def inDetSetup():
     InDetFlags.init()
 
     # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from InDetRecExample.InDetKeys import InDetKeys
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
 # ====================================================================================================  
@@ -81,18 +78,16 @@ def tauCoreTrackSequence():
     # Required to satisfy data dependencies
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+taujets')]
-    ViewVerify.OutputLevel = DEBUG
     viewAlgs.append(ViewVerify)
 
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
-    TrackRoiUpdater.OutputLevel  = DEBUG
     TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
     TrackRoiUpdater.RoIOutputKey = "RoiForID2"
     TrackRoiUpdater.fastTracksKey = "TrigFastTrackFinder_Tracks"
 
-    l2TauViewsMaker = EventViewCreatorAlgorithm("l2TauViewsMaker", OutputLevel=DEBUG)
+    l2TauViewsMaker = EventViewCreatorAlgorithm("l2TauViewsMaker")
     l2TauViewsMaker.RoIsLink = "roi" # -||-
     l2TauViewsMaker.InViewRoIs = "TCoreRoIs" # contract with the fastCalo
     l2TauViewsMaker.Views = "TAUIDViews"
@@ -100,9 +95,9 @@ def tauCoreTrackSequence():
 
 
     for viewAlg in viewAlgs:
-       if viewAlg.properties().has_key("RoIs"):
+       if "RoIs" in viewAlg.properties():
          viewAlg.RoIs = l2TauViewsMaker.InViewRoIs
-       if viewAlg.properties().has_key("roiCollectionName"):
+       if "roiCollectionName" in viewAlg.properties():
          viewAlg.roiCollectionName = l2TauViewsMaker.InViewRoIs
     TrackRoiUpdater.RoIInputKey = l2TauViewsMaker.InViewRoIs
 
@@ -114,7 +109,6 @@ def tauCoreTrackSequence():
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg")
-    fastTrkHypo.OutputLevel = DEBUG
     fastTrkHypo.trackcollection = TrackRoiUpdater.fastTracksKey
 
     from TrigTauHypo.TrigTrackPreSelHypoTool import TrigTauTrackHypoToolFromDict

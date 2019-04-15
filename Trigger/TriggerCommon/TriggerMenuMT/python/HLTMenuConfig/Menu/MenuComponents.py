@@ -2,10 +2,7 @@
 
 import sys, re, copy
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,DEBUG
 log = logging.getLogger('MenuComponents')
-log.setLevel( VERBOSE )
-logLevel=DEBUG
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -187,7 +184,7 @@ class SequenceFilterNode(AlgNode):
 
 class RoRSequenceFilterNode(SequenceFilterNode):
     def __init__(self, name):
-        Alg= RoRSeqFilter(name, OutputLevel = logLevel)
+        Alg= RoRSeqFilter(name)
         SequenceFilterNode.__init__(self,  Alg, 'Input', 'Output')
 
 
@@ -196,7 +193,6 @@ class InputMakerNode(AlgNode):
     def __init__(self, Alg):
         assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + Alg.name()
         AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
-        Alg.OutputLevel = logLevel
 
 
 from DecisionHandling.DecisionHandlingConf import ComboHypo
@@ -205,7 +201,6 @@ class ComboMaker(AlgNode):
         Alg = ComboHypo(name)
         log.debug("Making combo Alg %s"%name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
-        Alg.OutputLevel = logLevel
         self.prop="MultiplicitiesMap"
 
 
@@ -515,14 +510,12 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            from AthenaCommon.Constants import DEBUG
             self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView",
-                                                          OutputLevel=DEBUG)
+                                                          ViewNodeName    = name+"InView")
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name() )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )

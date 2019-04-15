@@ -25,11 +25,16 @@ atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( test/exec*.sh test/test*.sh )
 
+# Check python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=F,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )
+
 # Unit tests:
-atlas_add_test( ViewSchedule1  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=1 )
-atlas_add_test( ViewSchedule2  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=2 )
-atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=64 )
-atlas_add_test( merge SCRIPT test/test_merge.sh PROPERTIES TIMEOUT 1000 )
+atlas_add_test( ViewSchedule1  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=1 POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( ViewSchedule2  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=2 POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=64 POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( merge SCRIPT test/test_merge.sh PROPERTIES TIMEOUT 1000 POST_EXEC_SCRIPT nopost.sh )
 
 # Helper to define unit tests running in a separate directory
 # The test name is derived from the test script name: test/test_${name}.sh
@@ -44,13 +49,13 @@ function( _add_test name )
       ${ARGN} )
 endfunction( _add_test )
 
-_add_test( id_run_mc )
-_add_test( id_run_data )
-_add_test( mu_run_data )
-_add_test( id_calo_run_data )
-_add_test( emu_l1_decoding )
-_add_test( jet )
-_add_test( l1sim )
+_add_test( id_run_mc POST_EXEC_SCRIPT nopost.sh )
+_add_test( id_run_data POST_EXEC_SCRIPT nopost.sh )
+_add_test( mu_run_data POST_EXEC_SCRIPT nopost.sh )
+_add_test( id_calo_run_data POST_EXEC_SCRIPT nopost.sh )
+_add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh )
+_add_test( jet POST_EXEC_SCRIPT nopost.sh )
+_add_test( l1sim POST_EXEC_SCRIPT nopost.sh )
 _add_test( egamma_run_data EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Fragment size" )
 _add_test( decodeBS EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)" PROPERTIES DEPENDS egammaRunData )
 _add_test( calo_only_data EXTRA_PATTERNS "-s .*ERROR.*|FastCaloL2EgammaAlg.*REGTEST*" )

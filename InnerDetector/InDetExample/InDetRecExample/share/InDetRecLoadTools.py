@@ -957,6 +957,7 @@ if InDetFlags.loadSummaryTool():
                                                                   TRTCalDbTool = InDetTRTCalDbTool,
                                                                   TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool )
 
+
         ToolSvc += InDetTRT_LocalOccupancy
         if (InDetFlags.doPrintConfigurables()):
          print InDetTRT_LocalOccupancy

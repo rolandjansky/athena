@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,8 +23,10 @@
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
-#include "VP1Utils/VP1SGContentsHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1SGAccessHelper.h"
+  #include "VP1Utils/VP1SGContentsHelper.h"
+#endif
 
 //Qt
 #include <QStringList>
@@ -32,25 +34,40 @@
 //xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-
 // Coin3D
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoMaterial.h>
-//#include "Inventor/nodes/SoDrawStyle.h"
-//#include "Inventor/nodes/SoLightModel.h"
 #include <Inventor/nodes/SoTexture2.h>
 
-
+// Athena
 #include "PathResolver/PathResolver.h"
-#include "GaudiKernel/SystemOfUnits.h"
+
+#ifdef BUILDVP1LIGHT
+	#include <QSettings>
+	#include "xAODRootAccess/Init.h"
+	#include "xAODRootAccess/TEvent.h"
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // so we will get, e.g., 'GeoModelKernelUnits::cm'
+#else
+	#include "GaudiKernel/SystemOfUnits.h"
+	#define SYSTEM_OF_UNITS Gaudi::Units // so we will get, e.g., 'Gaudi::Units::cm'
+#endif // BUILDVP1LIGHT
 
 
 //____________________________________________________________________
-QStringList IParticleCollHandle_CaloCluster::availableCollections( IVP1System*sys )
-{
-  return VP1SGContentsHelper(sys).getKeys<xAOD::CaloClusterContainer>();
-}
+#if defined BUILDVP1LIGHT
+  QStringList IParticleCollHandle_CaloCluster::availableCollections( IVP1System*sys )
+  {
+    return sys->getObjectList(xAOD::Type::CaloCluster);
+  }
+#else
+  QStringList IParticleCollHandle_CaloCluster::availableCollections( IVP1System*sys )
+  {
+    return VP1SGContentsHelper(sys).getKeys<xAOD::CaloClusterContainer>();
+
+  }
+#endif // BUILDVP1LIGHT
 
 //____________________________________________________________________
 class IParticleCollHandle_CaloCluster::Imp {
@@ -76,6 +93,9 @@ public:
   double last_highestEnergy;
 //  double calculateHighestVisibleClusterEnergy() const;
 
+  #ifdef BUILDVP1LIGHT
+    QStringList caloClusterList;
+  #endif // BUILDVP1LIGHT
 
   double calo_start_r = theclass->calo_start_r;
   double calo_start_z = theclass-> calo_start_z;
@@ -92,8 +112,8 @@ public:
  * DEFINITIONS
  */
 //Fixme: Just some approximate values for now:
-double IParticleCollHandle_CaloCluster::calo_start_r = 1.1*Gaudi::Units::m + 0.05*Gaudi::Units::m;
-double IParticleCollHandle_CaloCluster::calo_start_z = 3.671*Gaudi::Units::m + 0.05*Gaudi::Units::m;
+double IParticleCollHandle_CaloCluster::calo_start_r = 1.1*SYSTEM_OF_UNITS::m + 0.05*SYSTEM_OF_UNITS::m;
+double IParticleCollHandle_CaloCluster::calo_start_z = 3.671*SYSTEM_OF_UNITS::m + 0.05*SYSTEM_OF_UNITS::m;
 double IParticleCollHandle_CaloCluster::calo_crack_eta = fabs(log(tan(0.5*atan(calo_start_r/calo_start_z))));
 
 
@@ -216,7 +236,7 @@ double IParticleCollHandle_CaloCluster::energyToLength(const double&energy) cons
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::energyToLength()");
 
-	return std::max(1*Gaudi::Units::mm, m_d->scale.second*(m_d->scale.first?log(1+fabs(energy)):energy));
+	return std::max(1*SYSTEM_OF_UNITS::mm, m_d->scale.second*(m_d->scale.first?log(1+fabs(energy)):energy));
 }
 
 //____________________________________________________________________
@@ -412,11 +432,30 @@ bool IParticleCollHandle_CaloCluster::load()
   messageVerbose("loading CaloCluster collection");
 
   //Get collection:
-  const xAOD::CaloClusterContainer * coll(0);
-  if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
-    message("Error: Could not retrieve collection with key="+name());
-    return false;
-  }
+  const xAOD::CaloClusterContainer * coll(nullptr);
+
+  #if defined BUILDVP1LIGHT
+    // // Get the name of the application:
+    // const char* appName = "VP1Light";
+
+    // // Initialize the environment:
+    // if( !xAOD::Init( appName ).isSuccess() ) {
+    //    message("Failed to execute xAOD::Init");
+    //    return false;
+    // }
+
+    // Retrieve objects from the event
+    if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
+      QString errMsg = "Failed to retrieve " + name();
+      message("Error: Could not retrieve collection with key="+name());
+       return false;
+    }
+  #else
+    if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
+      message("Error: Could not retrieve collection with key="+name());
+      return false;
+    }
+  #endif // BUILDVP1LIGHT
 
   // // Retrieve the xAOD particles:
   //  const xAOD::JetContainer* xaod = evtStore()->retrieve<const xAOD::JetContainer>( m_JetCollection );

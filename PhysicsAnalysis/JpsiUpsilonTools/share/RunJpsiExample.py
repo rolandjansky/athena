@@ -30,7 +30,6 @@ ExampleJpsiFinder = Analysis__JpsiFinder(name                        = "JpsiFind
                                          useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                          TrkVertexFitterTool         = TrkVKalVrtFitter,        # VKalVrt vertex fitter
                                          TrackSelectorTool           = InDetTrackSelectorTool,
-                                         ConversionFinderHelperTool  = InDetConversionHelper,
                                          VertexPointEstimator        = VtxPointEstimator,
                                          useMCPCuts                  = False)
 ToolSvc += ExampleJpsiFinder

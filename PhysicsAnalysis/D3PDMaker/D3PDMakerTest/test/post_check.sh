@@ -205,10 +205,7 @@ PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^Muon
 
 PP="$PP"'|TClassTable::Add|^Note.* already loaded|^DataLink version|^ElementLink version|Using split mode on a class'
 
-PP="$PP"'|^Warning .* is already in '
-
-# temp
-PP="$PP"'|^zzz[14]'
+PP="$PP"'|^Warning .* is already in |^xAODMaker::Even.*WARNING'
 
 test=$1
 if [ -z "$testStatus" ]; then
@@ -255,6 +252,7 @@ else
 	    diffStatus=$?
 	    if [ $diffStatus != 0 ] ; then
 		echo "post.sh> ERROR: $joblog and $reflog differ"
+                exit 1
 	    fi
 	else
 	    tail $joblog

@@ -51,14 +51,16 @@
 #include <sstream>
 
 using namespace SCT_Monitoring;
+using std::ostringstream;
+using std::string;
 
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline(false);
 
-  static const std::string histogramPath[N_REGIONS+1] = {
+  static const string histogramPath[N_REGIONS+1] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  static const std::string histogramPathRe[N_REGIONS] = {
+  static const string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -97,10 +99,6 @@ namespace {// anonymous namespace for functions at file scope
 
   static const double stripWidth{79.95e-3}; // in mm
 }// namespace end
-
-using namespace SCT_Monitoring;
-using std::ostringstream;
-using std::string;
 
 // Constructor with parameters:
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
@@ -215,7 +213,7 @@ SCTHitEffMonTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
 
   if (m_chronotime) {
-    ATH_CHECK(service("ChronoStatSvc", m_chrono));
+    ATH_CHECK(m_chrono.retrieve());
   }
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_CHECK(m_holeSearchTool.retrieve());
@@ -1677,7 +1675,6 @@ SCTHitEffMonTool::fillHistograms() {
   if (m_superDetailed) {
     m_LumiBlock->Fill(pEvent.lumi_block());
   }
-  m_countEvent++;
   if (m_chronotime) {
     m_chrono->chronoStop("SCTHitEff");
   }
@@ -1853,7 +1850,7 @@ SCTHitEffMonTool::procHistograms() {
 }
 
 StatusCode
-SCTHitEffMonTool::failCut(bool value, std::string name) {
+SCTHitEffMonTool::failCut(bool value, string name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
@@ -1863,7 +1860,7 @@ SCTHitEffMonTool::failCut(bool value, std::string name) {
 }
 
 int
-SCTHitEffMonTool::previousChip(double xl, int side, bool swap) {
+SCTHitEffMonTool::previousChip(double xl, int side, bool swap) const {
   double xLeftEdge{xl + N_STRIPS / 2. * stripWidth}; // xl defined wrt center of module, convert to edge of module
   int chipPos{static_cast<int>(xLeftEdge / (stripWidth * N_STRIPS) * N_CHIPS)};
 
@@ -1878,7 +1875,7 @@ SCTHitEffMonTool::previousChip(double xl, int side, bool swap) {
 StatusCode
 SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D& mom, const Identifier id, 
                                            const InDetDD::SiDetectorElementCollection* elements,
-                                           double& theta, double& phi) {
+                                           double& theta, double& phi) const {
   phi = 90.;
   theta = 90.;
 
@@ -1907,7 +1904,7 @@ SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D& mom, const Ident
 
 template <class T> StatusCode
 SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title, int nbin, double x1,
-                               double x2) {
+                               double x2) const {
   histo = new T(name, title, nbin, x1, x2);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1917,7 +1914,7 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 template <class T> StatusCode
 SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title,
                                int nbinx, double x1, double x2,
-                               int nbiny, double y1, double y2) {
+                               int nbiny, double y1, double y2) const {
   histo = new T(name, title, nbinx, x1, x2, nbiny, y1, y2);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1926,7 +1923,7 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 
 template <class T> StatusCode
 SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString title,
-                               int nbinx, double* xbins, int nbiny, double* ybins) {
+                               int nbinx, double* xbins, int nbiny, double* ybins) const {
   histo = new T(name, title, nbinx, xbins, nbiny, ybins);
   ATH_CHECK(MG.regHist(histo));
   ATH_MSG_VERBOSE("Registered " << name << " at " << histo);
@@ -1936,7 +1933,7 @@ SCTHitEffMonTool::bookEffHisto(T*& histo, MonGroup& MG, TString name, TString ti
 // Find the residual to track.
 double
 SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParameters* trkParam,
-                              const InDet::SCT_ClusterContainer* p_sctclcontainer) {
+                              const InDet::SCT_ClusterContainer* p_sctclcontainer) const {
   double trackHitResidual{-999.};
 
   if (trkParam==nullptr) {
@@ -1967,4 +1964,36 @@ SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParam
     }
   }
   return trackHitResidual;
+}
+
+SCT_Monitoring::BecIndex
+SCTHitEffMonTool::layerIndex2becIndex(const int index) const {
+  if ((index< 0) or (index>21)) return SCT_Monitoring::INVALID_INDEX;
+  if (index< 9) return SCT_Monitoring::ENDCAP_C_INDEX;
+  if (index< 13) return SCT_Monitoring::BARREL_INDEX;
+  if (index< 22) return SCT_Monitoring::ENDCAP_A_INDEX;
+  return SCT_Monitoring::INVALID_INDEX;
+}
+
+int
+SCTHitEffMonTool::layerIndex2layer(const int index) const {
+  if ((index < 0) or (index > 21)) return SCT_Monitoring::INVALID_INDEX;
+  if (index < 9) return index;
+  if (index < 13) return index-9;
+  if (index < 22) return index-13;
+  return SCT_Monitoring::INVALID_INDEX;
+}
+
+int
+SCTHitEffMonTool::becIdxLayer2Index(const int becIdx, const int layer) const {
+  switch( becIdx ) {
+  case SCT_Monitoring::ENDCAP_C_INDEX:
+    return layer;
+  case SCT_Monitoring::BARREL_INDEX:
+    return layer + SCT_Monitoring::N_DISKS;
+  case SCT_Monitoring::ENDCAP_A_INDEX:
+    return layer + SCT_Monitoring::N_DISKS + SCT_Monitoring::N_BARRELS;
+  default:
+    return -1;
+  }
 }

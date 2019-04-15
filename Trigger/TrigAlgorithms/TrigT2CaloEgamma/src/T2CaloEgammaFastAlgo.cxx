@@ -287,7 +287,6 @@ StatusCode T2CaloEgammaFastAlgo::execute()
     (*m_log) << MSG::DEBUG  << std::hex << " REGTEST: roiWord = 0x" << (*ptrigEmCluster).RoIword() << std::dec <<endmsg;
   }
   std::string key = "";
-  (*m_log) << MSG::INFO  << " REGTEST : DONE  "<< endmsg;
   //hltStatus = recordAndAttachFeature(outputTE, ptrigEmCluster, key, m_trigEmClusterKey);
 
 

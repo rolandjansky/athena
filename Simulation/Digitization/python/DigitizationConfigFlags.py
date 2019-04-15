@@ -46,8 +46,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.DoXingByXingPileUp", False)
     # Run pile-up premixing
     flags.addFlag("Digitization.PileUpPremixing", False)
-    # Run pile-up premixing for Multi-Threading
-    flags.addFlag("Digitization.PileUpPremixingForMT", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     return flags

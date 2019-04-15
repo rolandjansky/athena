@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 
@@ -6,9 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE
 _log = logging.getLogger('GenerateMenuMT_newJO')
-_log.setLevel( VERBOSE )
 
 def fillGeneratorsMap( sigMap, signature ):
     """ Fill the mapping from the flag container name to the function responsible for generating the Chain objects

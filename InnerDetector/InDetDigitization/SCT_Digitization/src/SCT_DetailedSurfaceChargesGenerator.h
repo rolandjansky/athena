@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -24,8 +26,12 @@
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
 // Gaudi
+#include "GaudiKernel/ITHistSvc.h" // for ITHistSvc
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+// CLHEP
+#include "CLHEP/Units/PhysicalConstants.h"
 
 // C++ Standard Library
 #include <string>
@@ -34,7 +40,6 @@
 class SiHit;
 
 // -- do histos
-class ITHistSvc;
 class TProfile;
 class TProfile2D;
 
@@ -53,7 +58,7 @@ namespace CLHEP {
  **/
 
 class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceChargesGenerator> {
- public:
+public:
 
   /**  constructor */
   SCT_DetailedSurfaceChargesGenerator(const std::string& type, const std::string& name, const IInterface* parent);
@@ -62,12 +67,12 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   virtual ~SCT_DetailedSurfaceChargesGenerator() = default;
 
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalize */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
- private:
+private:
   enum ChargeDriftMode {
     defaultSCTModel=0,
     ehTransport=1,
@@ -80,10 +85,10 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   };
 
   // Non-const methods are used in initialization
-  void setFixedTime(float fixedTime) { m_tfix = fixedTime; }
+  virtual void setFixedTime(float fixedTime) override { m_tfix.setValue(fixedTime); }
 
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine) const override;
   void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine) const;
 
   // some diagnostics methods are needed here too
@@ -114,79 +119,35 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   void electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const;
   double inducedCharge(int& istrip, double& x, double& y, double& t) const;
 
-  int m_numberOfCharges; //!< number of charges
-  float m_smallStepLength; //!< max internal step along the larger G4 step
+  IntegerProperty m_numberOfCharges{this, "NumberOfCharges", 1}; //!< number of charges
+  FloatProperty m_smallStepLength{this, "SmallStepLength", 5.}; //!< max internal step along the larger G4 step
 
   /** related to the surface drift */
-  float m_tSurfaceDrift; //!< Surface drift time
-  float m_tHalfwayDrift; //!< Surface drift time
-  float m_distInterStrip; //!< Inter strip distance normalized to 1
-  float m_distHalfInterStrip; //!< Half way distance inter strip
+  FloatProperty m_tSurfaceDrift{this, "SurfaceDriftTime", 10., "max surface drift time"};
 
-  bool m_SurfaceDriftFlag; //!< surface drift ON/OFF
+  FloatProperty m_tfix{this, "FixedTime", -999., "ixed time"};
+  FloatProperty m_tsubtract{this, "SubtractTime", -999., "subtract drift time from mid gap"};
 
-  float m_tfix; //!< fixed time
-  float m_tsubtract; //!< subtract drift time from mid gap
-
-  bool m_doDistortions; //!< Flag to set Distortions
+  BooleanProperty m_doDistortions{this, "doDistortions", false, "Flag to set simulation of module distortions"};
 
   // -- Charge Trapping -- //
-  bool m_doHistoTrap; //!< Flag that allows to fill the histograms
-  bool m_doTrapping;  //!< Flag to set Charge Trapping
-  double m_Fluence; //!< Fluence used for Charge Trapping
-
-  // -- Histograms
-  ServiceHandle<ITHistSvc> m_thistSvc;
-  TProfile* m_h_efieldz;
-  TProfile2D* m_h_yzRamo;
-  TProfile2D* m_h_yzEfield;
-  TProfile2D* m_h_yEfield;
-  TProfile2D* m_h_zEfield;
+  BooleanProperty m_doHistoTrap{this, "doHistoTrap", false, "Allow filling of histos for charge trapping effect"};
+  BooleanProperty m_doTrapping{this, "doTrapping", false, "Simulation of charge trapping effect"};
+  DoubleProperty m_Fluence{this, "Fluence", 0., "Fluence for charge trapping effect"};
 
   //TK model settings
-  int m_chargeDriftModel; // use enum ChargeDriftMode
-  int m_eFieldModel; // use enum EFieldModel
+  IntegerProperty m_chargeDriftModel{this, "ChargeDriftModel", ehTransport, "use enum ChargeDriftMode"};
+  IntegerProperty m_eFieldModel{this, "EFieldModel", FEMsolution, "use enum EFieldModel"};
 
   //------TK parameters given externally by jobOptions ------------------
-  double m_depletionVoltage;
-  double m_biasVoltage;
-  double m_magneticField;
-  double m_sensorTemperature;
-  double m_transportTimeStep;
-  double m_transportTimeMax;
+  DoubleProperty m_depletionVoltage{this, "DepletionVoltage", 70.};
+  DoubleProperty m_biasVoltage{this, "BiasVoltage", 150.};
+  DoubleProperty m_magneticField{this, "MagneticField", -2.0};
+  DoubleProperty m_sensorTemperature{this, "SensorTemperature", 0.+CLHEP::STP_Temperature};
+  DoubleProperty m_transportTimeStep{this, "TransportTimeStep", 0.25};
+  DoubleProperty m_transportTimeMax{this, "TransportTimeMax", 25.0};
 
-  //------TK parameters mostly fixed but can be changed externally  ------------
-  double m_bulk_depth;
-  double m_strip_pitch;
-  double m_depletion_depth;
-  double m_y_origin_min;
-
-  //------TK parameters for e, h transport --------------------------------
-  double m_kB;
-  double m_e;
-  double m_vs_e;
-  double m_Ec_e;
-  double m_vs_h;
-  double m_Ec_h;
-  double m_beta_e;
-  double m_beta_h;
-  double m_driftMobility;
-
-  //------TK arrays of FEM analysis -----------------------------------
-  double m_PotentialValue[81][115];
-  double m_ExValue150[17][115];
-  double m_EyValue150[17][115];
-
-  //------TK parameters for charge map, uses file storage of map....
-  // This member makes the class very large --- large enough that it fails
-  // ubsan's sanity checks and produces a false positive.  However, it is not
-  // actually used, so comment it out.  If it is ever actually needed,
-  // then it should be allocated dynamically rather than being allocated
-  // inline to the class.
-  //double m_stripCharge[5][81][285][50];
-  int m_stripCharge_iymax;
-  double m_stripCharge_dx;
-  double m_stripCharge_dy;
+  BooleanProperty m_isOverlay{this, "isOverlay", false, "flag for overlay"};
 
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
@@ -194,7 +155,55 @@ class SCT_DetailedSurfaceChargesGenerator : public extends<AthAlgTool, ISCT_Surf
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  bool m_isOverlay; // flag for overlay
+  ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
+
+  float m_tHalfwayDrift{0.}; //!< Surface drift time
+  float m_distInterStrip{1.0}; //!< Inter strip distance normalized to 1
+  float m_distHalfInterStrip{0.}; //!< Half way distance inter strip
+
+  bool m_SurfaceDriftFlag{false}; //!< surface drift ON/OFF
+
+  //------TK parameters mostly fixed but can be changed externally  ------------
+  double m_bulk_depth{0.0285}; //<!285 micron, expressed in cm units
+  double m_strip_pitch{0.0080}; //<! 80 micron, expressed in cm units
+  double m_depletion_depth{0.0285};
+  double m_y_origin_min{0.0}; //<! zero unless under-depleted
+
+  //------TK parameters for e, h transport --------------------------------
+  double m_kB{1.38E-23}; //<! Boltzmann const [m^2*kg/s^2/K]
+  double m_e{1.602E-19}; //<! electron charge [Coulomb]
+  double m_vs_e{11615084.7393}; //<! mobility at 273.15K
+  double m_Ec_e{6034.20429};
+  double m_vs_h{8761659.83530}; //<! hole mobility at 273.15K
+  double m_Ec_h{15366.52650};
+  double m_beta_e;
+  double m_beta_h;
+  double m_driftMobility;
+
+  //------TK arrays of FEM analysis -----------------------------------
+  double m_PotentialValue[81][115]{{0.}};
+  double m_ExValue150[17][115]{{0.}};
+  double m_EyValue150[17][115]{{0.}};
+
+  //------TK parameters for charge map, uses file storage of map....
+  // This member makes the class very large --- large enough that it fails
+  // ubsan's sanity checks and produces a false positive.  However, it is not
+  // actually used, so comment it out.  If it is ever actually needed,
+  // then it should be allocated dynamically rather than being allocated
+  // inline to the class.
+  // double m_stripCharge[5][81][285][50]{{{{0.}}}};
+  // sroe: the following were never initialised before, which begs the question:
+  // Did this code *ever* work? Has it *ever* been used?
+  int m_stripCharge_iymax{285-1};
+  double m_stripCharge_dx{1.};
+  double m_stripCharge_dy{1.};
+
+  // -- Histograms
+  TProfile* m_h_efieldz{nullptr};
+  TProfile2D* m_h_yzRamo{nullptr};
+  TProfile2D* m_h_yzEfield{nullptr};
+  TProfile2D* m_h_yEfield{nullptr};
+  TProfile2D* m_h_zEfield{nullptr};
 };
 
 #endif // SCT_DETAILEDSURFACECHARGESGENERATOR_H

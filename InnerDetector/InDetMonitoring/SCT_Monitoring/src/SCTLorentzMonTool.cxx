@@ -60,9 +60,6 @@ StatusCode SCTLorentzMonTool::initialize() {
 StatusCode
 SCTLorentzMonTool::bookHistogramsRecurrent( ) {
   m_path = "";
-  if (newRunFlag()) {
-    m_numberOfEvents = 0;
-  }
   ATH_MSG_DEBUG("initialize being called");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
@@ -77,7 +74,6 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {
 StatusCode
 SCTLorentzMonTool::bookHistograms( ) {
   m_path = "";
-  m_numberOfEvents = 0;
   ATH_MSG_DEBUG("initialize being called");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
@@ -234,7 +230,6 @@ SCTLorentzMonTool::fillHistograms() {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   } // end of loop on tracks
 
-  m_numberOfEvents++;
   return StatusCode::SUCCESS;
 }
 
@@ -245,7 +240,6 @@ StatusCode
 SCTLorentzMonTool::procHistograms() {
   if (endOfRunFlag()) {
     ATH_MSG_DEBUG("finalHists()");
-    ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
     ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
     if (checkHists(true).isFailure()) {
       ATH_MSG_WARNING("Error in checkHists(true)");
@@ -307,8 +301,8 @@ SCTLorentzMonTool::bookLorentzHistos() {
 
 TProfile*
 SCTLorentzMonTool::pFactory(const string& name, const string& title, int nbinsx, float xlow, float xhigh,
-                            MonGroup& registry, int& iflag) {
-  Prof_t tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
+                            MonGroup& registry, int& iflag) const {
+  TProfile* tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -325,7 +319,7 @@ int
 SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], // 3 is for x, y, z.
                                             const float& sinAlpha, const Identifier& id,
                                             const InDetDD::SiDetectorElementCollection* elements,
-                                            float& theta, float& phi) {
+                                            float& theta, float& phi) const {
   int iflag{-1};
 
   phi = 90.;

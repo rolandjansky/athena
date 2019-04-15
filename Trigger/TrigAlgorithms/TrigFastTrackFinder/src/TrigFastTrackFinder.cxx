@@ -529,8 +529,6 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
   }
   
 
-  ATH_MSG_INFO("Debug: " << roi);
-  
   if ( timerSvc() ) m_SpacePointConversionTimer->start();
   
   

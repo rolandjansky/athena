@@ -12,7 +12,6 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"

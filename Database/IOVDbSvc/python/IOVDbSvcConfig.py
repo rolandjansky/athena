@@ -77,7 +77,7 @@ def IOVDbSvcCfg(configFlags):
 
 #Convenience method to add folders:
 
-def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False):
+def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None):
     """Add access to the given set of folders, in the identified subdetector schema.
 If EXTENSIBLE is set, then if we access an open-ended IOV at the end of the list,
 the end time for this range will be set to just past the current event.
@@ -87,6 +87,10 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
         folderstrings=[folderstrings,]
+
+    #Add tag if present
+    if tag is not None:
+        folderstrings=[_ + ('<tag>%s</tag>' % tag) for _ in folderstrings]
 
     result=IOVDbSvcCfg(configFlags)
     iovDbSvc=result()

@@ -33,8 +33,13 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
         kwargs.setdefault("LastXing",  BCM_LastXing()  ) 
 
-    kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
-    kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputRDOKey", overlayFlags.bkgPrefix() + "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", overlayFlags.bkgPrefix() + "BCM_SDO_Map")
+    else:
+        kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
 
     from AthenaCommon import CfgMgr
     return CfgMgr.BCM_DigitizationTool(name,**kwargs)

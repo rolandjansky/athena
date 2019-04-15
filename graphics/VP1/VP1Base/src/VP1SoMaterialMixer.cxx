@@ -100,12 +100,16 @@ VP1SoMaterialMixer::~VP1SoMaterialMixer()
   //optimal.
 
   if (m_d->matlists2mixedmats.size()+m_d->matlists2mixedmats_weighted.size()>100)
-    messageDebug("WARNING: Watched more than 100 ("
-		 +str(m_d->matlists2mixedmats.size()+m_d->matlists2mixedmats_weighted.size())
-		 + ") different material combinations. Try to use fewer combinations for better performance!");
+    if(VP1Msg::debug()){
+        messageDebug("WARNING: Watched more than 100 ("
+  		 +str(m_d->matlists2mixedmats.size()+m_d->matlists2mixedmats_weighted.size())
+  		 + ") different material combinations. Try to use fewer combinations for better performance!");
+    }
   if (m_d->mat2sensors.size()>1000)
-    messageDebug("WARNING: Monitored more than 1000 (" +str(m_d->mat2sensors.size())+
-		 ") different materials. Try to lower this number for better performance!");
+    if(VP1Msg::debug()){
+      messageDebug("WARNING: Monitored more than 1000 (" +str(m_d->mat2sensors.size())+
+  		 ") different materials. Try to lower this number for better performance!");
+    }
 
   delete m_d;
 }
@@ -210,11 +214,13 @@ void VP1SoMaterialMixer::Imp::setMaterialFieldsAsAverageOfMatList(SoMaterial*mat
   if (save) {
     mat->enableNotify(true);
     mat->touch();
-    if (theclass->verbose())
+    if (VP1Msg::verbose()){
       theclass->messageVerbose("Material ("+str(mat)+") updated and touched");
+    }
   } else {
-    if (theclass->verbose())
+    if (VP1Msg::verbose()){
       theclass->messageVerbose("Material ("+str(mat)+") updated but notifications were off");
+    }
   }
 }
 
@@ -253,11 +259,13 @@ void VP1SoMaterialMixer::Imp::setMaterialFieldsAsAverageOfMatList(SoMaterial*mat
   if (save) {
     mat->enableNotify(true);
     mat->touch();
-    if (theclass->verbose())
+    if (VP1Msg::verbose()){
       theclass->messageVerbose("Material ("+str(mat)+") updated and touched");
+    }
   } else {
-    if (theclass->verbose())
+    if (VP1Msg::verbose()){
       theclass->messageVerbose("Material ("+str(mat)+") updated but notifications were off");
+    }
   }
 }
 

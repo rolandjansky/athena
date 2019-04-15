@@ -20,6 +20,7 @@
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
@@ -125,6 +126,7 @@ private:
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
   std::string m_dataObjectName; /**< Name of the hits collections */
+  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */
   SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle

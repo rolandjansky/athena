@@ -10,9 +10,7 @@ from libpyeformat_helper import SourceIdentifier,SubDetector
 
 import sys
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 log = logging.getLogger('pebMenuDefs')
-log.setLevel( VERBOSE )
 
 ##################################################################
 # PEB Info Writer step

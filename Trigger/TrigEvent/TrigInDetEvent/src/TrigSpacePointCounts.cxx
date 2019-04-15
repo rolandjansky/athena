@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigSpacePointCounts.h"
@@ -60,21 +60,6 @@ TrigSpacePointCounts::TrigSpacePointCounts(TrigHisto2D&& pixelClusEndcapC,
 
 //---------------------------------------------------------------
 
-TrigSpacePointCounts::TrigSpacePointCounts(const TrigSpacePointCounts& trigSpacePointCounts) {
-  m_pixelClusEndcapC = trigSpacePointCounts.m_pixelClusEndcapC;
-  m_pixelClusBarrel = trigSpacePointCounts.m_pixelClusBarrel;
-  m_pixelClusEndcapA = trigSpacePointCounts.m_pixelClusEndcapA;
-  m_sctSpEndcapC = trigSpacePointCounts.m_sctSpEndcapC;
-  m_sctSpBarrel = trigSpacePointCounts.m_sctSpBarrel;
-  m_sctSpEndcapA = trigSpacePointCounts.m_sctSpEndcapA;
-}
-
-//---------------------------------------------------------------
-
-TrigSpacePointCounts::~TrigSpacePointCounts(void) {
-}
-
-//---------------------------------------------------------------
 
 const TrigHisto2D& TrigSpacePointCounts::pixelClusEndcapC(void) const {
   return m_pixelClusEndcapC;

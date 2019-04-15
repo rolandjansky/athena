@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************************8
@@ -687,7 +687,7 @@ namespace MuonCalib {
      //       << parName << endmsg;
      StatusCode sc = getParameterTemplated(retData, name, index);
      if( name == m_defaultChanStatusName ) {
-       uint32_t val;
+       uint32_t val = 0;
        if( !getStatus( val, index) ) {
          m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -711,7 +711,7 @@ namespace MuonCalib {
      //       << parName << endmsg;
      StatusCode sc = getParameterTemplated(retData, name, index);
      if( name == "rms" ){
-       float val;
+       float val = 0;
        if( !getRMS( val, index) ) {
          m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -719,7 +719,7 @@ namespace MuonCalib {
          m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
        }
      }else if( name == "pslope" ){
-       float val;
+       float val = 0;
        if( !getSlope( val, index) ) {
                   m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -727,7 +727,7 @@ namespace MuonCalib {
          m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
        }       
      }else if( name == "noise" ){
-       float val;
+       float val = 0;
        if( !getNoise( val, index) ) {
                   m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -735,7 +735,7 @@ namespace MuonCalib {
          m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
        }       
      }else if( name == "f001" ) {
-       float val;
+       float val = 0;
        if( !getF001( val, index) ) {
                   m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -743,7 +743,7 @@ namespace MuonCalib {
          m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
        }       
      }else if( name == "ped" ) {
-       float val;
+       float val = 0;
        if( !getPedestal( val, index) ) {
                   m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -751,7 +751,7 @@ namespace MuonCalib {
          m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
        }       
      }else if( name == "t0base" ){
-       float val;
+       float val = 0;
        if( !getT0Base( val, index) ) {
                   m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
        }
@@ -767,7 +767,7 @@ namespace MuonCalib {
     // m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
     //       << parName << endmsg;
     if( name == "t0phase" ) {
-      bool val;
+      bool val = false;
       if( !getT0Phase( val, index) ) {
         m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
       }

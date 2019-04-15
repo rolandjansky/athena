@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIGSISPACEPOINTBASE_H__
-#define __TRIGSISPACEPOINTBASE_H__
+#ifndef TRIGINDETEVENT_TRIGSISPACEPOINTBASE_H
+#define TRIGINDETEVENT_TRIGSISPACEPOINTBASE_H
 
 #include <cmath>
 #include "TrkSpacePoint/SpacePoint.h"
@@ -45,7 +45,7 @@ public:
     }
 
   // Destructor
-    virtual ~TrigSiSpacePointBase() {};
+    virtual ~TrigSiSpacePointBase() = default;
   
   // Methods to set data members
   void r(  const double r  ) {m_r   = r;  }

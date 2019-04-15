@@ -27,12 +27,23 @@ status=$?
 if [ ${status} -ne 0 ]; then
     echo "ERROR in configuration generation stage, stopping"
     echo "art-result: 1 Configuration"
-    exit 1
+    export ATH_RETURN=1
+    export JOB_LOG="athena.pickle.log"
 else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
     echo "art-result: 0 Configuration"
     echo 
     source exec_TrigUpgradeTest_art_athenaMT.sh
-    source exec_TrigUpgradeTest_art_post.sh
+
+    # Merge log files for post-processing
+    JOB_LOG_MERGED="athena.merged.log"
+    echo "### athena.pickle.log ###" > ${JOB_LOG_MERGED}
+    cat athena.pickle.log >> ${JOB_LOG_MERGED}
+    echo "### ${JOB_LOG} ###"
+    cat ${JOB_LOG} >> ${JOB_LOG_MERGED}
+    export JOB_LOG=${JOB_LOG_MERGED}
 fi
+
+source exec_TrigUpgradeTest_art_post.sh
+

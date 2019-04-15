@@ -20,7 +20,7 @@
  **/
 AGDDtoGeoSvc::AGDDtoGeoSvc(const std::string& name,ISvcLocator* svc)
   : base_class(name,svc)
-  , m_builders()
+  , m_builders(this)
 {
   declareProperty( "Builders", m_builders, "Builders");
 }
@@ -35,13 +35,7 @@ AGDDtoGeoSvc::initialize()
 
   localInitialization();
 
-  if (m_builders.retrieve().isFailure()) {
-    std::cout<<"Failed retrieving tool!!"<<std::endl;
-  }
-  for (const auto& aTest : m_builders) {
-    StatusCode tConstruct=aTest->construct();
-    if (tConstruct.isFailure()) std::cout<<"something wrong while calling construct()"<<std::endl;
-  }
+  ATH_CHECK(m_builders.retrieve());
 
   const DataHandle<TagInfo> tagInfoH;
   std::string tagInfoKey="";

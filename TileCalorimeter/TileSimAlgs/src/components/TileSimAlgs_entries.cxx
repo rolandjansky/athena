@@ -6,7 +6,7 @@
 #include "TileSimAlgs/TileTBHitToBeamElem.h"
 #include "TileSimAlgs/TileDigitsMaker.h"
 #include "TileSimAlgs/TileDigitsFromPulse.h"
-#include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
+#include "../TilePulseForTileMuonReceiver.h"
 #include "TileSimAlgs/TileMuonReceiverDecision.h"
 
 DECLARE_COMPONENT( TileHitVecToCnt )

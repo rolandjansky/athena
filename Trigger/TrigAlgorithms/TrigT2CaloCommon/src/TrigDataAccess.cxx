@@ -33,7 +33,7 @@
 
 #include "ByteStreamData/ROBData.h"
 
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigDataAccess.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"

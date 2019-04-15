@@ -8,30 +8,20 @@
  *///-------------------------------------------------
 
 // Header Includes
-#include "GaudiKernel/IIncidentSvc.h"
-#include "TRT_DAQ_ConditionsSvc.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-//anonymous namespace for file scope functions, variables
-namespace{
-	const std::string run1FolderName("/TDAQ/EnabledResources/ATLAS/TRT/Robins"); //a multi-channel, single version folder in the DB
-	const std::string run2FolderName("/TDAQ/Resources/ATLAS/TRT/Robins");
-}
+#include "TRT_DAQ_ConditionsSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //////////
 /// Constructor
 /////
 TRT_DAQ_ConditionsSvc::TRT_DAQ_ConditionsSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
-  m_evtStore("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
-  m_FolderName(run1FolderName),
-  m_TRT_ID_Helper(0),
-  m_EnabledRods(0)
+  m_FolderName("/TDAQ/Resources/ATLAS/TRT/Robins") // For run1 the name is /TDAQ/EnabledResources/ATLAS/TRT/Robins
 {
   // Get properties from job options
   declareProperty( "FolderName", m_FolderName );
-  declareProperty( "EventStore", m_evtStore );
   declareProperty( "DetectorStore", m_detStore );
 }
 
@@ -46,33 +36,12 @@ TRT_DAQ_ConditionsSvc::~TRT_DAQ_ConditionsSvc() {}
 StatusCode TRT_DAQ_ConditionsSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
 	
-	//Determine the folder name by seeing which folder is in the detStore
-	const bool option1Exists = m_detStore->contains<CondAttrListCollection>(run1FolderName);
-	const bool option2Exists = m_detStore->contains<CondAttrListCollection>(run2FolderName);
-  const bool nonsense = (option1Exists == option2Exists); //both exist, or neither exist
-  if (nonsense) {
-    if (option1Exists) { //both exist
-      ATH_MSG_ERROR("The folders "<<run1FolderName<<" and "<<run2FolderName<<" are both present!");
-    } else { //neither exist
-      ATH_MSG_ERROR("Neither "<<run1FolderName<<" nor "<<run2FolderName<<" exist");
-    }
-    return StatusCode::FAILURE;
-  }
-  m_FolderName = option1Exists ? run1FolderName : run2FolderName;
-	ATH_MSG_INFO("TRT_DAQ_ConditionsSvc will use the folder "<<m_FolderName);
-	
+  // Read key for Robins folder
+  ATH_CHECK(m_RobinsReadKey.initialize());
+
   // Get the TRT Identifier Helper.
   ATH_CHECK( m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" ));
  
-  // Register a callback for "BeginRun"
-  IIncidentSvc* incSvc(0);
-  sc = service( "IncidentSvc", incSvc );
-  if ( sc.isFailure() or (incSvc==0)) {
-    ATH_MSG_ERROR( "Couldn't get the IncidentSvc." );
-    return sc;
-  }
-  incSvc->addListener( this, std::string("BeginEvent") );
-
   return sc;
 }
 
@@ -117,7 +86,9 @@ unsigned int TRT_DAQ_ConditionsSvc::RODid( const Identifier& ident ) {
 InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus(
 					    const Identifier& ident ) {
 
-  if ( !m_EnabledRods ) return InDet::TRT_COND_NOINFO;
+  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_RobinsReadKey);
+  const CondAttrListCollection* EnabledRods{*readHandle};
+  if ( !EnabledRods ) return InDet::TRT_COND_NOINFO;
 
   unsigned int thisRODid = RODid( ident );
 
@@ -129,17 +100,20 @@ InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus(
 /////
 InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus( unsigned int thisRODid ) {
 
-  if ( !m_EnabledRods ) return InDet::TRT_COND_NOINFO;
+  SG::ReadCondHandle<CondAttrListCollection> readHandle(m_RobinsReadKey);
+  const CondAttrListCollection* EnabledRods{*readHandle};
+
+  if ( !EnabledRods ) return InDet::TRT_COND_NOINFO;
 
   CondAttrListCollection::name_const_iterator chanNameMapItr;
-  if ( m_EnabledRods->name_size() == 0 ) {
+  if ( EnabledRods->name_size() == 0 ) {
     ATH_MSG_WARNING( m_FolderName << " has no entries in it's ChanNameMap." );
     return InDet::TRT_COND_NOINFO;
   }
   int chanNum = -1;
   std::string chanName = "";
-  for ( chanNameMapItr = m_EnabledRods->name_begin();
-	chanNameMapItr != m_EnabledRods->name_end(); ++chanNameMapItr ) {
+  for ( chanNameMapItr = EnabledRods->name_begin();
+	chanNameMapItr != EnabledRods->name_end(); ++chanNameMapItr ) {
     chanNum = (*chanNameMapItr).first;
     chanName = (*chanNameMapItr).second;
     // Pull off last 6 characters from chanName and convert
@@ -183,7 +157,7 @@ InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus( unsigned int thisR
     ATH_MSG_VERBOSE( "Comparing " << rod << " to " << thisRODid );
     if ( rod == thisRODid ) break;
   }
-  if ( chanNameMapItr == m_EnabledRods->name_end() ) {
+  if ( chanNameMapItr == EnabledRods->name_end() ) {
     ATH_MSG_VERBOSE( thisRODid << " not found in chanNameMap" );
     return InDet::TRT_COND_BAD; // SHOULD THIS BE NOINFO??
     // Either this is unnecessary (ROD absence won't show up here)
@@ -192,8 +166,8 @@ InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus( unsigned int thisR
 
   // Check for absence of AttributeList for this ROD.
   CondAttrListCollection::const_iterator chanAttrListPair;
-  chanAttrListPair = m_EnabledRods->chanAttrListPair( chanNum );
-  if ( chanAttrListPair == m_EnabledRods->end() ) {
+  chanAttrListPair = EnabledRods->chanAttrListPair( chanNum );
+  if ( chanAttrListPair == EnabledRods->end() ) {
     ATH_MSG_VERBOSE( "Channel " << chanNum << " (" << chanName << ") not found." );
     return InDet::TRT_COND_BAD;
   }
@@ -210,19 +184,3 @@ StatusCode TRT_DAQ_ConditionsSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//////////
-/// IncidentSvc incident handler
-/////
-void TRT_DAQ_ConditionsSvc::handle( const Incident& inc ) {
-  StatusCode sc(StatusCode::SUCCESS);
-
-  // BeginEvent handler
-  if ( inc.type() == "BeginEvent" ) {
-    // Retrieve COOL Folder at beginning of event to cut down on StoreGate accesses.
-    // Contents won't change during event.
-    sc= m_detStore->retrieve( m_EnabledRods, m_FolderName );
-    if (sc.isFailure()) ATH_MSG_ERROR("The folder "<<m_FolderName<<" could not be retrieved");
-  }
-
-  return;
-}
