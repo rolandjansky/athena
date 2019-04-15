@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InputMakerForRoI.h"
@@ -90,8 +90,8 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   ATH_CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
   
   // call base class helper method to print some debug messages summarising the content of the outputHandles.
-  ATH_CHECK( debugPrintOut(context, outputHandles) );
-  
+  if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
+
   return StatusCode::SUCCESS;
 }
 
