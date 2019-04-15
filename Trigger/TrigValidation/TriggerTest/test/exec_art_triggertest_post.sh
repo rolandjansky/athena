@@ -13,6 +13,11 @@ fi
 
 ### DEFAULTS
 
+if [ -z ${ATH_RETURN} ]; then
+  echo "WARNING The env variable ATH_RETURN is not set, assuming 0"
+  export ATH_RETURN=0
+fi
+
 if [ -z ${JOB_LOG} ]; then
   export JOB_LOG="athena.log"
 fi
@@ -25,22 +30,35 @@ if [ -z ${REF_FOLDER} ]; then
   export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${BRANCH}/test_${NAME}"
 fi
 
-###
+### CHECKLOG
+
+# if athena failed and we are running in CI, print the full log to stdout
+if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
+  echo "Printing the full ${JOB_LOG}"
+  cat ${JOB_LOG}
+fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
-# Run perfmon
+### PERFMON
+
 timeout 1m perfmon.py -f 0.90 ntuple.pmon.gz
 timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
+
+### CHAINDUMP
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
+### MAKE LOG TAIL FILE
+
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
+
+### REGTEST
 
 grep REGTEST athena.log > athena.regtest
 
@@ -68,6 +86,8 @@ else
   echo "art-result:  999 CheckCounts"
 fi
 
+### COST
+
 if [ -f trig_cost.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CostMon"
   timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode > costMon.log 2>&1
@@ -75,27 +95,34 @@ else
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
 
+### ZEROCOUNTS CHECK
 
+# SKIP_CHAIN_DUMP=1 skips this step
+# SKIP_CHAIN_DUMP=2 skips the L1 and HLTTE checks, but does the HLTChain check
 echo "trigedm SKIP_CHAIN_DUMP" $[SKIP_CHAIN_DUMP]
 if [ $[SKIP_CHAIN_DUMP] != 1 ]; then 
    echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
    export COUNT_EXIT=0
-   if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-      echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
-     (( COUNT_EXIT = COUNT_EXIT || 1 ))
+   if [ $[SKIP_CHAIN_DUMP] != 2 ]; then
+      if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+         echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
+         (( COUNT_EXIT = COUNT_EXIT || 1 ))
+      fi
+      if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+         echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
+         (( COUNT_EXIT = COUNT_EXIT || 1 ))
+      fi
    fi
-   if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
+   if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
       echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
-      (( COUNT_EXIT = COUNT_EXIT || 1 ))
-   fi
-   if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then 
-      echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
       (( COUNT_EXIT = COUNT_EXIT || 1 ))
    fi
    echo "art-result: ${COUNT_EXIT} ZeroCounts"
 else
   echo $(date "+%FT%H:%M %Z")"    Do not run ZERO counts for this test, SKIP_CHAIN_DUMP=1"
 fi
+
+### CHECKFILE
 
 if [ -f ESD.pool.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
@@ -115,6 +142,8 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+### SUMMARY
 
 echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
 ls -lh
