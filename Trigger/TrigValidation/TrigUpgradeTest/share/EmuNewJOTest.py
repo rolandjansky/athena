@@ -14,12 +14,11 @@ from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
 from TriggerJobOpts.TriggerConfig import triggerSummaryCfg, triggerMonitoringCfg, \
     setupL1DecoderFromMenu, collectHypos, collectFilters
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, createStepView
 from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
-from AthenaCommon.CFElements import createStepView
 
 log = logging.getLogger('EmuNewJOTest')
 

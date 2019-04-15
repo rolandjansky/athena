@@ -6,8 +6,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
     stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
-from AthenaCommon.CFElements import parOR, seqAND, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView
+from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger('HLTCFConfig_newJO')

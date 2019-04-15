@@ -1,5 +1,4 @@
 from AthenaCommon.AlgSequence import AthSequencer
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 import collections
 
 def parOR(name, subs=[]):
@@ -71,11 +70,6 @@ def stepSeq(name, filterAlg, rest):
     stepReco = parOR(name+"_reco", rest)
     stepAnd = seqAND(name, [ filterAlg, stepReco ])
     return stepAnd
-
-def createStepView(stepName):
-    stepReco = parOR(CFNaming.stepRecoName(stepName))
-    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
-    return stepReco, stepView
 
 def isSequence( obj ):
     return 'AthSequence' in type( obj ).__name__

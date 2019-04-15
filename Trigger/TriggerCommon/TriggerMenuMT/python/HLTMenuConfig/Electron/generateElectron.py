@@ -2,11 +2,10 @@
 
 from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
-    ChainStep, Chain, getChainStepName
+    ChainStep, Chain, getChainStepName, createStepView
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.CFElements import createStepView
 
 
 # TODO remove once full tracking is in place

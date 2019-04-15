@@ -6,6 +6,7 @@ log = logging.getLogger('MenuComponents')
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaCommon.CFElements import parOR, seqAND
 
 
 class Node():
@@ -589,3 +590,8 @@ class RecoFragmentsPool:
 
 def getChainStepName(chainName, stepNumber):
     return '{}_step{}'.format(chainName, stepNumber)
+
+def createStepView(stepName):
+    stepReco = parOR(CFNaming.stepRecoName(stepName))
+    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
+    return stepReco, stepView
