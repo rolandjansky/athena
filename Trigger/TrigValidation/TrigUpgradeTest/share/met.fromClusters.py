@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-OutputLevel=WARNING
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -19,7 +18,6 @@ mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title
 
 svcMgr += TrigCaloDataAccessSvc()
 svcMgr.TrigCaloDataAccessSvc.MonTool = mon
-svcMgr.TrigCaloDataAccessSvc.OutputLevel=WARNING
 
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
@@ -42,13 +40,11 @@ clusterTool = EFMissingETFromClustersMT( name="METFromClustersTool" )
 clusterTool.ClustersCollection = clusterContainer
 
 helperTool = EFMissingETFromHelper("theHelperTool") 
-helperTool.OutputLevel=DEBUG
 metAlg = EFMissingETAlgMT( name="EFMET" )
 
 
 metAlg.METTools=[ clusterTool ]
 metAlg.HelperTool= helperTool 
-metAlg.OutputLevel=DEBUG
 metAlg.METContainerKey = "HLT_MET_Clusters"
 
 metMon = GenericMonitoringTool("METMonTool")
@@ -81,20 +77,9 @@ def makeMETHypoTool():
 
 hypoAlg = MissingETHypoAlgMT("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
-for t in hypoAlg.HypoTools:
-    t.OutputLevel=VERBOSE
 hypoAlg.METContainerKey=metAlg.METContainerKey
 
-# Not sure how to implement monitoring at the moment. 
-# Left here in case will be useful.
-# Will be removed if not
-'''
-from TrigMissingETHypo.TrigMissingETHypoMonitoringTool import TrigMissingETHypoMonitoringTool
-hypoMon = TrigMissingETHypoMonitoringTool()
-hypoAlg.onlineMonitoring()
-'''
-
-hypoAlg.OutputLevel=DEBUG
+hypoAlg.OutputLevel = DEBUG
 hypoAlg.HypoInputDecisions = "L1MET"
 hypoAlg.HypoOutputDecisions = "EFMETDecisions"
 topSequence += hypoAlg

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
@@ -11,7 +11,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
-def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False ):
+def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
+                        eventInfoKey = "EventInfo" ):
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -39,7 +40,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
          from OutputStreamAthenaPoolConf import EventInfoAttListTool
          svcMgr.ToolSvc += EventInfoAttListTool()
          from OutputStreamAthenaPoolConf import EventInfoTagBuilder
-         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key)
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey)
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing

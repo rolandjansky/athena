@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon.Logging import logging 
 
@@ -11,13 +11,10 @@ def LArCellHVCorrDefault(name="LArCellHVCorrDefault"):
         return getattr(svcMgr.ToolSvc, name)
     
     
-    from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-    theLArHVCorrTool = LArHVCorrToolDefault()
-    svcMgr.ToolSvc += theLArHVCorrTool
+    from LArConditionsCommon import LArHVDB
 
     from LArCellRec.LArCellRecConf import LArCellHVCorr
     theLArCellHVCorr = LArCellHVCorr(name)
-    theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
 
     svcMgr.ToolSvc += theLArCellHVCorr
     return theLArCellHVCorr

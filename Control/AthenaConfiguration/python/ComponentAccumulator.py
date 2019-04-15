@@ -2,12 +2,13 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,checkSequenceConsistency
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
+    checkSequenceConsistency, findAllAlgorithms
 from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
+from Deduplication import deduplicate, deduplicateWithAll, DeduplicationFailed
 
 import ast
 import collections
@@ -186,6 +187,14 @@ class ComponentAccumulator(object):
         self._privateTools=None
         return tool
         
+    def popToolsAndMerge(self, other):
+        """ Merging in the other accumulator and getting the (list of) private AlgTools from this CompoentAccumulator.
+        """
+        if other is None:
+            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
+        tool = other.popPrivateTools()
+        self.merge(other)
+        return tool
 
     def addEventAlgo(self, algorithms,sequenceName=None,primary=False):
         if not isinstance(algorithms,collections.Sequence):
@@ -199,17 +208,13 @@ class ComponentAccumulator(object):
         if seq is None:
             raise ConfigurationError("Can not find sequence %s" % sequenceName )
 
-
         for algo in algorithms:
             if not isinstance(algo, ConfigurableAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-
-            existingAlg = findAlgorithm(seq, algo.getName())
-            if existingAlg:
-                deduplicateComponent(algo, existingAlg)
-            else:
-                seq+=algo #TODO: Deduplication necessary?
-            pass
+            deduplicateWithAll(self.getSequence(), [algo])
+            existingAlgInDest = findAlgorithm(seq, algo.getName())
+            if not existingAlgInDest:
+                seq += algo
 
         if primary:
             if len(algorithms)>1:
@@ -304,8 +309,6 @@ class ComponentAccumulator(object):
 
     def __call__(self):
         return self.getPrimary()
-        
-
 
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.getName() == name ]
@@ -392,18 +395,18 @@ class ComponentAccumulator(object):
                         mergeSequences(sub, c )
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
+                        algorithms = findAllAlgorithms(c)
+                        deduplicateWithAll(self.getSequence(), algorithms)
                         dest += c
+
                 else: # an algorithm
-                    existingAlg = findAlgorithm( dest, c.name(), depth=1 )
-                    if existingAlg:
-                        if existingAlg != c:
-                            deduplicate(c, existingAlg)
-                    else: # absent, adding
-                        self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
+                    deduplicateWithAll(self.getSequence(), [c])
+                    existingAlgInDest = findAlgorithm( dest, c.name(), depth=1 )
+                    if not existingAlgInDest:
+                        self._msg.debug("Adding algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
 
             checkSequenceConsistency(self._sequence)
-                        
 
         #Merge sequences:
         #if (self._sequence.getName()==other._sequence.getName()):
@@ -412,8 +415,6 @@ class ComponentAccumulator(object):
         else:
             destSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
         mergeSequences(destSeq,other._sequence)
-
-
 
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
@@ -424,7 +425,6 @@ class ComponentAccumulator(object):
 
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
-
 
         for k in other._outputPerStream.keys():
             if k in self._outputPerStream:
@@ -437,7 +437,6 @@ class ComponentAccumulator(object):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
-
 
 
     def appendToGlobals(self):

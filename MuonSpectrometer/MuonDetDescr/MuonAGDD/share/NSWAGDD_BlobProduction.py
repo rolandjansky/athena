@@ -17,10 +17,9 @@ NSWAGDDDumper.DefaultDetector="Muon"
 # NSWAGDDDumper.OutputFilePASVNAME = ""        # passive structure version string
 # NSWAGDDDumper.OutputFileFORMAT   = "AGDDXML" # format of output file
 # NSWAGDDDumper.OutputFileType     = "NSWD"    # name for database table
-ToolSvc += NSWAGDDDumper
 
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 AGDD2Geo = AGDDtoGeoSvc()
-AGDD2Geo.Builders += ["NSWAGDDTool/NSWAGDDDumper"]
+AGDD2Geo.Builders += [NSWAGDDDumper]
 theApp.CreateSvc += ["AGDDtoGeoSvc"]
 ServiceMgr += AGDD2Geo

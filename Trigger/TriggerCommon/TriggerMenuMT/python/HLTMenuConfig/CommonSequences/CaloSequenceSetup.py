@@ -1,9 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
-
-from AthenaCommon.Constants import DEBUG
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -38,7 +35,7 @@ def fastCaloMenuSequence(name):
 
     # hypo    
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo", OutputLevel = DEBUG)
+    theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo")
     theFastCaloHypo.CaloClusters = sequenceOut
     CaloMenuDefs.L2CaloClusters = sequenceOut
 

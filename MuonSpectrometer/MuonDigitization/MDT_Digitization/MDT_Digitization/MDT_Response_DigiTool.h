@@ -13,7 +13,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 /*-----------------------------------------------
 
    Created 7-5-2004 by Niels van Eldik
@@ -27,7 +26,6 @@ namespace MuonGM{
   class MuonDetectorManager;
 }
 class MdtIdHelper;
-class IAtRndmGenSvc;
 
 class MDT_Response_DigiTool : public AthAlgTool,
 			      virtual public IMDT_DigitizationTool {

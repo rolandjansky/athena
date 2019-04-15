@@ -9,7 +9,6 @@
 #include <vector>
 #include <string>
 
-using namespace std::chrono;
 class JetTrigTimer{
  public:
   void start();
@@ -18,8 +17,8 @@ class JetTrigTimer{
   void reset() noexcept;
   std::string readAndReset();
  private:
-  system_clock::time_point m_start;
-  system_clock::time_point m_stop;
+  std::chrono::system_clock::time_point m_start;
+  std::chrono::system_clock::time_point m_stop;
   bool m_isRunning{false};
   double m_delta{0.};
   std::size_t m_nCalls{0};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOKKEEPERTOOL_H
@@ -43,13 +43,13 @@ public: // Constructor and Destructor
 
 public:
    //void handle(const Incident& incident);
-   virtual StatusCode metaDataStop();
+   virtual StatusCode metaDataStop() override;
    virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
    virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}
    virtual StatusCode beginInputFile(const SG::SourceID&) override;
    virtual StatusCode endInputFile(const SG::SourceID&) override;
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
 private:
   

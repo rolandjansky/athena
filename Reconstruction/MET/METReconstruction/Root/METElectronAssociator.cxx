@@ -30,7 +30,10 @@ namespace met {
     METAssociator(name),
     METEgammaAssociator(name),
     m_elContKey("")
-  {}
+  {
+    declareProperty("ElectronContainer",m_elContKey);
+    
+  }
 
   // Destructor
   ///////////////

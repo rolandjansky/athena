@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef CALOEVENT_CALOBCIDAVERAGE_H
 #define CALOEVENT_CALOBCIDAVERAGE_H
@@ -17,6 +17,7 @@ class CaloBCIDAverage {
   CaloBCIDAverage(const LArMCSym* mcSym, std::unordered_map<unsigned, float>&& data);
   
   float average(const Identifier id) const {
+    if (!id.is_valid()) return 0;
     const HWIdentifier hwid=m_mcSym->ZPhiSymOfl(id);
     if (!hwid.is_valid()) return 0; //Catches the tile-case
     const unsigned id32=hwid.get_identifier32().get_compact();

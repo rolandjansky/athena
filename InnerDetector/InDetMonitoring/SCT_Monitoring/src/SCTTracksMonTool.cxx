@@ -107,7 +107,7 @@ SCTTracksMonTool::bookHistogramsRecurrent() {
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-  string names[N_REGIONS] = {
+  static const string names[N_REGIONS] = {
     "endcap C", "barrel", "endcap A"
   };
   for (unsigned int sys{0}; sys < N_REGIONS; ++sys) {
@@ -134,7 +134,7 @@ SCTTracksMonTool::bookHistograms() {
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-  string names[N_REGIONS] = {
+  static const string names[N_REGIONS] = {
     "endcap C", "barrel", "endcap A"
   };
   for (unsigned int sys{0}; sys < N_REGIONS; ++sys) {
@@ -170,19 +170,25 @@ SCTTracksMonTool::fillHistograms() {
       }
     }
   }
+
   ATH_MSG_DEBUG("SCTTracksMonTool::fillHistograms()");
-  if (m_doTrigger and (not checkTriggers().isSuccess())) {
-    ATH_MSG_WARNING("Triggers not found!");
-  }
-  SG::ReadHandle<TrackCollection> tracks{m_tracksName};
+
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
+
+  bitset<N_TRIGGER_TYPES> firedTriggers{0};
+  if (m_doTrigger and (not checkTriggers(firedTriggers).isSuccess())) {
+    ATH_MSG_WARNING("Triggers not found!");
+  }
+
+  SG::ReadHandle<TrackCollection> tracks{m_tracksName};
   if (not tracks.isValid()) {
     ATH_MSG_WARNING("No collection named " << m_tracksName.key() << " in StoreGate");
     return StatusCode::SUCCESS;
   }
-  int local_tot_trkhits{0};
+
+  // Fill trigger info once if no tracks are reconstructed.
   if (tracks->size()==0) {
     if (m_doTrigger) {
       for (int trig{0}; trig < N_TRIGGER_TYPES; ++trig) {
@@ -193,15 +199,17 @@ SCTTracksMonTool::fillHistograms() {
       m_trackRate->Fill(i, 0);
     }
   }
-  int goodTrks_N{0};
+
   ATH_MSG_DEBUG("Begin loop over " << tracks->size() << " tracks");
+  int goodTrks_N{0};
+  int local_tot_trkhits{0};
   for (const Trk::Track* track: *tracks) {
-    if (not track) {
+    if (track==nullptr) {
       ATH_MSG_ERROR("No pointer to track");
       break;
     }
     int local_scthits{0};
-    int scthits_on_trk{0};     // Breaks out of loop if track has less than 3 sct hits
+    int scthits_on_trk{0}; // Breaks out of loop if track has less than 3 sct hits
     const Trk::TrackSummary* trkSum{track->trackSummary()};
     if (trkSum) {
       scthits_on_trk = trkSum->get(Trk::numberOfSCTHits);
@@ -232,7 +240,7 @@ SCTTracksMonTool::fillHistograms() {
     //
     if (m_doTrigger) {
       for (int trig{0}; trig < N_TRIGGER_TYPES; ++trig) {
-        if (hasTriggerFired(trig)) {
+        if (hasTriggerFired(trig, firedTriggers)) {
           m_trackTrigger->Fill(trig);
           m_trackTriggerRate->Fill(trig, 1);
         } else {
@@ -249,10 +257,10 @@ SCTTracksMonTool::fillHistograms() {
       ATH_MSG_ERROR("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       break;
     }
-    Prof2_t residualsHistogram{nullptr};
-    Prof2_t pullsHistogram{nullptr};
-    H1_t residualsSummaryHistogram{nullptr};
-    H1_t pullsSummaryHistogram{nullptr};
+    TProfile2D* residualsHistogram{nullptr};
+    TProfile2D* pullsHistogram{nullptr};
+    TH1F* residualsSummaryHistogram{nullptr};
+    TH1F* pullsSummaryHistogram{nullptr};
     for (const Trk::TrackStateOnSurface* tsos: *trackStates) {
       if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack* clus{dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack())};
@@ -355,6 +363,7 @@ SCTTracksMonTool::fillHistograms() {
   } // end of loop on tracks
   m_trk_N->Fill(goodTrks_N);
   m_trk_nclu_totHisto->Fill(local_tot_trkhits, 1.);
+
   if (m_environment == AthenaMonManager::online) {
     if ((m_numberOfEvents == 1) or ((m_numberOfEvents > 1) and (m_numberOfEvents % m_checkrate == 0))) {
       ATH_MSG_DEBUG("Calling checkHists(false); false := during run");
@@ -392,7 +401,9 @@ SCTTracksMonTool::fillHistograms() {
       }
     }
   }
+
   m_numberOfEvents++;
+
   return StatusCode::SUCCESS;
 }
 
@@ -465,7 +476,7 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
   pullgaus.SetParameter(1, 0.);
   pullgaus.SetParameter(2, 1.);
   if (not m_psctpulls_summaryHistoVector[BARREL_INDEX].empty()) {
-    for (const H1_t h1: m_psctpulls_summaryHistoVector[BARREL_INDEX]) {
+    for (TH1F* h1: m_psctpulls_summaryHistoVector[BARREL_INDEX]) {
       if (h1->GetEntries() > 2) {// only fit if #entries > 1, otherwise root crashes
         ATH_MSG_DEBUG("GetEntries = " << h1->GetEntries());
         h1->Fit("pullgaus", "Q", "", -2., 2.); // Fit Pulls with a gaussian, Quiet mode ; adding 'N' would aslo do no
@@ -492,7 +503,7 @@ SCTTracksMonTool::checkHists(bool /*fromFinalize*/) {
 //                           SCTTracksMonTool :: calculatePull
 // ====================================================================================================
 float
-SCTTracksMonTool::calculatePull(const float residual, const float trkErr, const float hitErr) {
+SCTTracksMonTool::calculatePull(const float residual, const float trkErr, const float hitErr) const {
   float ErrorSum{sqrt(trkErr * trkErr + hitErr * hitErr)};
 
   if (ErrorSum > 1.0e-20) { // as floats are rarely exactly zero
@@ -638,8 +649,8 @@ SCTTracksMonTool::bookTrackHistos(const Bec becVal) {
   const string localPathResi{localPathsResi[systemIndex]};
   const string localPathPull{localPathsPull[systemIndex]};
   const unsigned int limit{limits[systemIndex]};
-  VecH1_t* p_residualsSummary{&m_psctresiduals_summaryHistoVector[systemIndex]};
-  VecH1_t* p_pullsSummary{&m_psctpulls_summaryHistoVector[systemIndex]};
+  vector<TH1F*>* p_residualsSummary{&m_psctresiduals_summaryHistoVector[systemIndex]};
+  vector<TH1F*>* p_pullsSummary{&m_psctpulls_summaryHistoVector[systemIndex]};
 
   MonGroup endCapTracks{this, m_path + localPath, run, ATTRIB_UNMANAGED};
   MonGroup endCapTracksResi{this, m_path + localPathResi, run, ATTRIB_UNMANAGED};
@@ -661,10 +672,10 @@ SCTTracksMonTool::bookTrackHistos(const Bec becVal) {
   
   
   if (m_environment != AthenaMonManager::online) {
-    VecProf2_t* p_residuals{&m_psctresidualsHistoVector[systemIndex]};
-    VecProf2_t* p_pulls{&m_psctpullsHistoVector[systemIndex]};
-    VecH2_t* p_residualsRms{&m_psctresidualsRMSHistoVector[systemIndex]};
-    VecH2_t* p_pullsRms{&m_psctpullsRMSHistoVector[systemIndex]};
+    vector<TProfile2D*>* p_residuals{&m_psctresidualsHistoVector[systemIndex]};
+    vector<TProfile2D*>* p_pulls{&m_psctpullsHistoVector[systemIndex]};
+    vector<TH2F*>* p_residualsRms{&m_psctresidualsRMSHistoVector[systemIndex]};
+    vector<TH2F*>* p_pullsRms{&m_psctpullsRMSHistoVector[systemIndex]};
 
     p_residuals->clear();
     p_pulls->clear();
@@ -701,7 +712,7 @@ SCTTracksMonTool::bookTrackHistos(const Bec becVal) {
 
 StatusCode
 SCTTracksMonTool::h2Factory(const string& name, const string& title,
-                            const Bec bec, MonGroup& registry, VecH2_t& storageVector) {
+                            const Bec bec, MonGroup& registry, vector<TH2F*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN},
       nEta{N_ETA_BINS}, nPhi{N_PHI_BINS};
@@ -714,7 +725,7 @@ SCTTracksMonTool::h2Factory(const string& name, const string& title,
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  H2_t tmp{new TH2F{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
+  TH2F* tmp{new TH2F{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
   ATH_CHECK(registry.regHist(tmp));
   storageVector.push_back(tmp);
   return StatusCode::SUCCESS;
@@ -722,7 +733,7 @@ SCTTracksMonTool::h2Factory(const string& name, const string& title,
 
 StatusCode
 SCTTracksMonTool::p2Factory(const string& name, const string& title,
-                            const Bec bec, MonGroup& registry, VecProf2_t& storageVector) {
+                            const Bec bec, MonGroup& registry, vector<TProfile2D*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN},
       nEta{N_ETA_BINS}, nPhi{N_PHI_BINS};
@@ -735,7 +746,7 @@ SCTTracksMonTool::p2Factory(const string& name, const string& title,
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  Prof2_t tmp{new TProfile2D{name.c_str(), title.c_str(),
+  TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(),
                              nEta, firstEta - 0.5, lastEta + 0.5,
                              nPhi, firstPhi - 0.5, lastPhi + 0.5,
                              "s"}};
@@ -746,11 +757,11 @@ SCTTracksMonTool::p2Factory(const string& name, const string& title,
 
 StatusCode
 SCTTracksMonTool::h1Factory(const string& name, const string& title, const float extent, MonGroup& registry,
-                            VecH1_t& storageVector) {
+                            vector<TH1F*>& storageVector) const {
   static const unsigned int nbins{100};
   const float lo{-extent};
   const float hi{extent};
-  H1_t tmp{new TH1F{name.c_str(), title.c_str(), nbins, lo, hi}};
+  TH1F* tmp{new TH1F{name.c_str(), title.c_str(), nbins, lo, hi}};
 
   ATH_CHECK(registry.regHist(tmp));
   storageVector.push_back(tmp);
@@ -758,10 +769,10 @@ SCTTracksMonTool::h1Factory(const string& name, const string& title, const float
 }
 
 StatusCode
-SCTTracksMonTool::checkTriggers() {
+SCTTracksMonTool::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
   SG::ReadHandle<xAOD::EventInfo> evtInfo{m_eventInfoKey};
   if (evtInfo.isValid()) {
-    m_firedTriggers = evtInfo->level1TriggerType();
+    firedTriggers = evtInfo->level1TriggerType();
 
     return StatusCode::SUCCESS;
   }
@@ -769,6 +780,6 @@ SCTTracksMonTool::checkTriggers() {
 }
 
 bool
-SCTTracksMonTool::hasTriggerFired(const unsigned int trigger) const {
-  return ((trigger < N_TRIGGER_TYPES) ? m_firedTriggers.test(trigger) : false);
+SCTTracksMonTool::hasTriggerFired(const unsigned int trigger, const bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+  return ((trigger < N_TRIGGER_TYPES) ? firedTriggers.test(trigger) : false);
 }

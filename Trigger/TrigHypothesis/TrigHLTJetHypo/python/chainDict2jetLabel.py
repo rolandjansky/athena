@@ -3,7 +3,7 @@
 import re
 
 # substrings that cannot occur in any chainPartName for simple chains.
-reject_substr = (
+reject_substr = ( # noqa: W605
     #    'gsc',
     'ion',
     'dphi',
@@ -23,12 +23,8 @@ def select_simple_chains(cd):
     Chains selected by reuiring that the signature os 'Jet'. Chains are
     vetoed if specific substrings occur in any of the chainPartNames"""
 
-
-    # print cd
-    # assert False
     chain_parts = [c for c in cd['chainParts'] if c['signature'] == 'Jet']
-    chain_name = cd['chainName']
-                       
+
     for cp in chain_parts:
         if  reject_substr_res.search(cp['chainPartName']):
             return []
@@ -74,8 +70,8 @@ def select_vbenf_chains(scenario):
     vetoed if specific substrings occur in any of the chainPartNames"""
 
 
-    if hypoScenario ==  startswith('vbenf'):
-        return hypoScenario
+    if scenario.startswith('vbenf'):
+        return scenario
 
     return ''
 

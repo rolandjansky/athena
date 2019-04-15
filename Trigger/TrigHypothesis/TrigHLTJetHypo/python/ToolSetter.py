@@ -12,13 +12,6 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_combgen,
 )
 
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
-
 class ToolSetter(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
@@ -123,7 +116,6 @@ class ToolSetter(object):
         
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
-        helper_tool.OutputLevel = DEBUG
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
 

@@ -133,7 +133,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
   static const SG::AuxElement::ConstAccessor< std::vector< uint32_t > > keyAccessor( "linkColKeys" );
   static const SG::AuxElement::ConstAccessor< std::vector< uint16_t > > offsetAccessor( "linkColIndices" );
 
-  ATH_MSG_DEBUG("Fixing links called" << handles.out.size() );
+  ATH_MSG_DEBUG("Fixing links called for " << handles.out.size() << " object(s)");
 
   // Do the remapping
   int index = -1;
@@ -199,7 +199,6 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for ( auto writeHandleKey : handles.out ) {
     
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
-    ATH_MSG_DEBUG( "Checking " << writeHandleKey.key() );
     
     if ( readHandle.isValid() ) {
       ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
@@ -208,16 +207,19 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
       generator.create();      
       if ( handles.views.size() != 0 ) {
 
-	ATH_MSG_DEBUG("Will be merging from " << handles.views.size() << " view containers into that output");
+	ATH_MSG_DEBUG("Will be trying to merge from " << handles.views.size() << " view containers into that output");
 	auto viewCollKeyIter = handles.views.begin();
 	auto inViewCollKeyIter = handles.in.begin();
 	
 	for ( ; viewCollKeyIter != handles.views.end(); ++viewCollKeyIter, ++inViewCollKeyIter ) {
 	  // get the views handle
-	  ATH_MSG_DEBUG("Will be merging from " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
+
 	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter );
 	  if ( viewsHandle.isValid() ) {	    
+	    ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
 	    CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *generator.data.get() ) );
+	  } else {
+	    ATH_MSG_DEBUG("Views " << viewCollKeyIter->key() << " are missing");
 	  }
 	}      
       }
@@ -231,6 +233,8 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 
 
 StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
+  if ( m_dumpSGBefore )  
+    ATH_MSG_DEBUG( evtStore()->dump() );
 
 #define CREATE(__TYPE) \
     {									\
@@ -270,10 +274,14 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   // After view collections are merged, need to update collection links
   if ( m_fixLinks ) {
     ATH_CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );
-    ATH_MSG_DEBUG( "SG dump " + evtStore()->dump() );
   }
   
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE
+
+  if ( m_dumpSGAfter )  
+    ATH_MSG_DEBUG( evtStore()->dump() );
+
+
   return StatusCode::SUCCESS;
 }

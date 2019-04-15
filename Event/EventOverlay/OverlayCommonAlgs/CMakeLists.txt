@@ -30,6 +30,10 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 # Setup and run tests
+atlas_add_test( EventInfoOverlayLegacyConfigTest
+                SCRIPT test/EventInfoOverlayLegacy_test.py
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( EventInfoOverlayLegacyTest
                 SCRIPT athena.py OverlayCommonAlgs/EventInfoOverlayLegacyTest.py
                 PROPERTIES TIMEOUT 300 )

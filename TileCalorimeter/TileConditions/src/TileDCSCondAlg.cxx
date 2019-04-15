@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -20,7 +20,7 @@
 #include <fstream>
 
 TileDCSCondAlg::TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc("CondSvc", name),
   m_cabling(nullptr)
 {
@@ -36,19 +36,13 @@ StatusCode TileDCSCondAlg::initialize() {
 
   ATH_MSG_DEBUG( "In initialize()" );
 
-  if (m_readHV) {
-    ATH_CHECK( m_hvKey.initialize() );
-  }
+  ATH_CHECK( m_hvKey.initialize(m_readHV) );
 
-  if (m_readHVSet) {
-    ATH_CHECK( m_hvSetKey.initialize() );
-  } else {
-    ATH_CHECK( m_emScaleKey.initialize() );
-  }
+  ATH_CHECK( m_hvSetKey.initialize(m_readHVSet) );
+  ATH_CHECK( m_emScaleKey.initialize(!m_readHVSet) );
 
-  if (m_readStates) {
-    ATH_CHECK( m_statesKey.initialize() );
-  }
+  ATH_CHECK( m_statesKey.initialize(m_readStates) );
+
 
   ATH_MSG_INFO( "Will read the following folders: "
                 << ((m_readHV) ? m_hvKey.key() : "") << " "
@@ -129,9 +123,9 @@ StatusCode TileDCSCondAlg::initialize() {
 }
 
 
-StatusCode TileDCSCondAlg::execute() {
+StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
 
-  SG::WriteCondHandle<TileDCSState> dcsState{m_dcsStateKey};
+  SG::WriteCondHandle<TileDCSState> dcsState{m_dcsStateKey, ctx};
 
   if (dcsState.isValid()) {
     ATH_MSG_DEBUG("Found valid TileDCSState: " << dcsState.key());
@@ -146,7 +140,7 @@ StatusCode TileDCSCondAlg::execute() {
 
   if (m_readHV) {
 
-    SG::ReadCondHandle<CondAttrListCollection> hv(m_hvKey);
+    SG::ReadCondHandle<CondAttrListCollection> hv(m_hvKey, ctx);
     for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **hv) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -185,7 +179,7 @@ StatusCode TileDCSCondAlg::execute() {
 
   if (m_readHVSet) {
 
-    SG::ReadCondHandle<CondAttrListCollection> hvSet(m_hvSetKey);
+    SG::ReadCondHandle<CondAttrListCollection> hvSet(m_hvSetKey, ctx);
     for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **hvSet) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -223,14 +217,14 @@ StatusCode TileDCSCondAlg::execute() {
   } else {
 
     EventIDRange hvReferenceRange;
-    ATH_CHECK( fillReferenceHV(*dcsStateData, hvReferenceRange) );
+    ATH_CHECK( fillReferenceHV(*dcsStateData, hvReferenceRange, ctx) );
 
   }
 
 
   if (m_readStates) {
 
-    SG::ReadCondHandle<CondAttrListCollection> states(m_statesKey);
+    SG::ReadCondHandle<CondAttrListCollection> states(m_statesKey, ctx);
     for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **states) {
 
       CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -529,9 +523,11 @@ int TileDCSCondAlg::readBadHV(std::string fileName) {
   return 0;
 }
 
-StatusCode TileDCSCondAlg::fillReferenceHV(TileDCSState& dcsState, EventIDRange& eventRange) {
+StatusCode TileDCSCondAlg::fillReferenceHV(TileDCSState& dcsState,
+                                           EventIDRange& eventRange,
+                                           const EventContext& ctx) const {
 
-  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey);
+  SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
 
   float laserReferenceHV = -5.;
   float cesReferenceHV = -5.;

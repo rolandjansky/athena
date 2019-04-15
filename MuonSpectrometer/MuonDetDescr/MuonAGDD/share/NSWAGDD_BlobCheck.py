@@ -8,7 +8,6 @@ NSWAGDDDumperFromFile.XMLFiles=[input_nsw_xml]
 # for the NSWAGDDTool volumes must always be given ("NewSmallWheel" usually includes everything)
 NSWAGDDDumperFromFile.Volumes=["NewSmallWheel"]
 NSWAGDDDumperFromFile.DefaultDetector="Muon"
-ToolSvc += NSWAGDDDumperFromFile
 
 # write blob from DB in Generated_NSWD_pool.txt
 from MuonAGDD.MuonAGDDConfig import NSWAGDDTool
@@ -19,11 +18,10 @@ NSWAGDDDumperFromDB.Locked=False
 # for the NSWAGDDTool volumes must always be given ("NewSmallWheel" usually includes everything)
 NSWAGDDDumperFromDB.Volumes=["NewSmallWheel"]
 NSWAGDDDumperFromDB.DefaultDetector="Muon"
-ToolSvc += NSWAGDDDumperFromDB
 
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 AGDD2Geo = AGDDtoGeoSvc()
-AGDD2Geo.Builders += ["NSWAGDDTool/NSWAGDDDumperFromFile"]
-AGDD2Geo.Builders += ["NSWAGDDTool/NSWAGDDDumperFromDB"]
+AGDD2Geo.Builders += [NSWAGDDDumperFromFile]
+AGDD2Geo.Builders += [NSWAGDDDumperFromDB]
 theApp.CreateSvc += ["AGDDtoGeoSvc"]
 ServiceMgr += AGDD2Geo

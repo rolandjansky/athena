@@ -40,7 +40,9 @@ namespace met {
     AsgTool(name),
     METAssociator(name),
     m_tauContKey("")
-  {}
+  {
+    declareProperty("tauContainer",m_tauContKey);
+  }
 
   // Destructor
   ///////////////

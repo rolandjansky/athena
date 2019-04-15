@@ -66,14 +66,11 @@ from AtlasGeoModel import GeoModelInit
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 Agdd2GeoSvc = AGDDtoGeoSvc()
 from AthenaCommon import CfgGetter
-
 # get AGDD tool for inert material
-ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
-Agdd2GeoSvc.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+Agdd2GeoSvc.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
 
 #get AGDD tool for NSW geometry
-ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-Agdd2GeoSvc.Builders += ["NSWAGDDTool/NewSmallWheel"]
+Agdd2GeoSvc.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
 
 theApp.CreateSvc += ["AGDDtoGeoSvc"]
 ServiceMgr += Agdd2GeoSvc

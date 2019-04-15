@@ -29,6 +29,11 @@ def TGC_DigitizationToolCfg(flags, name="TGC_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", TGC_FirstXing()) 
         kwargs.setdefault("LastXing", TGC_LastXing())
+    kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TGC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "TGC_SDO")
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 
