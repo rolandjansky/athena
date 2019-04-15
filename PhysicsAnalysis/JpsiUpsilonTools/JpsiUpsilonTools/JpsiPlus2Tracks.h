@@ -19,9 +19,10 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
+#include "StoreGate/ReadHandleKey.h"
 #include <vector>
 #include <string>
+#include "xAODMuon/MuonContainer.h"
 #include "JpsiUpsilonTools/ICandidateSearch.h"
 /////////////////////////////////////////////////////////////////////////////
 
@@ -76,12 +77,12 @@ namespace Analysis {
         double m_BThresholdPt;
         double m_BMassUpper;
         double m_BMassLower;
-        std::string m_jpsiCollectionKey;
+        SG::ReadHandleKey<xAOD::VertexContainer> m_jpsiCollectionKey;
         double m_jpsiMassUpper;
         double m_jpsiMassLower;
-        std::string m_TrkParticleCollection;
-        std::string m_TrkParticleGSFCollection;
-        std::string m_MuonsUsedInJpsi;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleCollection;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleGSFCollection;
+        SG::ReadHandleKey<xAOD::MuonContainer> m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly; //Add by Matt Klein
         bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
@@ -108,7 +109,7 @@ namespace Analysis {
         int m_requiredNMuons;
         // fit with PV
         bool m_vertexFittingWithPV;
-        std::string m_PVerticesCollection;
+        SG::ReadHandleKey<xAOD::VertexContainer> m_PVerticesCollection;
         std::vector<double> m_altMassMuonTracks;
         std::vector<double>  m_mumukkMasses;
         std::vector<double>  m_mumupipiMasses;
