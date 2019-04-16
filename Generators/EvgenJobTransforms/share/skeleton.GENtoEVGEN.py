@@ -81,8 +81,8 @@ if not hasattr(runArgs, "ecmEnergy"):
     raise RuntimeError("No center of mass energy provided.")
 if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
-if not hasattr(runArgs, "runNumber"):
-    raise RuntimeError("No run number provided.")
+#if not hasattr(runArgs, "runNumber"):
+#    raise RuntimeError("No run number provided.")
     # TODO: or guess it from the JO name??
 if not hasattr(runArgs, "firstEvent"):
     raise RuntimeError("No first number provided.")
@@ -179,23 +179,43 @@ if hasattr(runArgs, "preExec"):
         evgenLog.info(cmd)
         exec(cmd)
 
+def get_immediate_subdirectories(a_dir):
+            return [name for name in os.listdir(a_dir)
+                    if os.path.isdir(os.path.join(a_dir, name))]
+        
 # TODO: Explain!!!
 def OutputTXTFile():
     outputTXTFile = None
     if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
     return outputTXTFile
-
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 if len(runArgs.jobConfig) != 1:
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
-jo = runArgs.jobConfig[0]
-jofile = os.path.basename(jo)
-joparts = jofile.split(".")
+dsid_param = runArgs.jobConfig[0]
+evgenLog.info("dsid_param " + dsid_param)
+dsid = os.path.basename(dsid_param)
+evgenLog.info("dsid " + dsid)
+BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
+#if len(dsid)==6 and dsid.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
+dsid_part=dsid
+Jodir = dsid[:3]+'xxx'
+JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
+JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
+jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc16') and f.endswith('.py'))]
+## Only permit one JO file in each dsid folder
+if len(jofiles) !=1:
+    evgenLog.error("You must supply one and only one jobOption file in DSID directory")
+    sys.exit(1)
+jofile = dsid + '/' + jofiles[0]
+joparts = (os.path.basename(jofile)).split(".")
+#jo = runArgs.jobConfig[0]
+#jofile = os.path.basename(jo)
+#joparts = jofile.split(".")
 ## Perform some consistency checks if this appears to be an "official" production JO
 officialJO = False
-if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:]):
+if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:]):
     officialJO = True
     ## Check that the JO does not appear to be an old one, since we can't use those
     if int(joparts[0][2:]) < 14:
@@ -229,7 +249,7 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
     ## NOTE: a further check on physicsShort consistency is done below, after fragment loading
 
 ## Include the JO fragment
-include(jo)
+include(jofile)
 
 ##==============================================================
 ## Config validation and propagation to services, generators, etc.
@@ -449,12 +469,14 @@ for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( remov
 for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
 
 ## Set the run numbers
-svcMgr.EventSelector.RunNumber = runArgs.runNumber
+svcMgr.EventSelector.RunNumber = int(dsid)
+#runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
 
 ## Include information about generators in metadata
 import EventInfoMgt.EventInfoMgtInit
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(runArgs.runNumber) ]
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number",str(dsid)]
+#                                         str(runArgs.runNumber) ]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["lhefGenerator", '+'.join( filter( gens_lhef, gennames ) ) ]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["generators", '+'.join(gennames)]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
