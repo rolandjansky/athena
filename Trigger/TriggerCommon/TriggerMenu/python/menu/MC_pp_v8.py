@@ -270,25 +270,25 @@ def setupMenu():
 
            #ATR-19309
            ##### FTK-refit version #2b60 x4 L1 seeds 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j28_b60_j20_b60_FTKRefit_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j28_b60","j20_b60_FTKRefit_L1V1"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j28_b60_j20_b60_FTKRefit_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j28_b60","j20_b60_FTKRefit_L1V2"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j28_b60_j20_b60_FTKRefit_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j28_b60","j20_b60_FTKRefit_L1V3"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j28_b60_j20_b60_FTKRefit_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j28_b60","j20_b60_FTKRefit_L1V4"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j28_b60_FTK_j20_b60_FTK_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j28_b60_FTK","j20_b60_FTK_L1V1"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j28_b60_FTK_j20_b60_FTK_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j28_b60_FTK","j20_b60_FTK_L1V2"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j28_b60_FTK_j20_b60_FTK_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j28_b60_FTK","j20_b60_FTK_L1V3"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j28_b60_FTK_j20_b60_FTK_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j28_b60_FTK","j20_b60_FTK_L1V4"]]], 
            #3b70 x4 L1 seeds 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j45_gsc55_b70_j28_b70_j20_b70_FTKRefit_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j45_gsc55_b70","j28_b70","j20_b70_FTKRefit_L1V1"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j45_gsc55_b70_j28_b70_j20_b70_FTKRefit_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j45_gsc55_b70","j28_b70","j20_b70_FTKRefit_L1V2"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j45_gsc55_b70_j28_b70_j20_b70_FTKRefit_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j45_gsc55_b70","j28_b70","j20_b70_FTKRefit_L1V3"]]], 
-           ['j55_gsc80_boffperf_j45_gsc55_boffperf_FTKRefit_j28_j20_AND_j45_gsc55_b70_j28_b70_j20_b70_FTKRefit_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf","j45_gsc55_boffperf_FTKRefit","j28","j20_AND","j45_gsc55_b70","j28_b70","j20_b70_FTKRefit_L1V4"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j45_gsc55_b70_FTK_j28_b70_FTK_j20_b70_FTK_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j45_gsc55_b70_FTK","j28_b70_FTK","j20_b70_FTK_L1V1"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j45_gsc55_b70_FTK_j28_b70_FTK_j20_b70_FTK_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j45_gsc55_b70_FTK","j28_b70_FTK","j20_b70_FTK_L1V2"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j45_gsc55_b70_FTK_j28_b70_FTK_j20_b70_FTK_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j45_gsc55_b70_FTK","j28_b70_FTK","j20_b70_FTK_L1V3"]]], 
+           ['j55_gsc80_boffperf_FTK_j45_gsc55_boffperf_FTK_j28_j20_AND_j45_gsc55_b70_FTK_j28_b70_FTK_j20_b70_FTK_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_boffperf_FTK","j45_gsc55_boffperf_FTK","j28","j20_AND","j45_gsc55_b70_FTK","j28_b70_FTK","j20_b70_FTK_L1V4"]]], 
            #2b70+2b85 x4 L1 seeds 
-           ['j55_gsc80_b85_j45_gsc55_b85_j28_b85_j20_b85_FTKRefit_AND_j28_b70_j20_b70_FTKRefit_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85","j45_gsc55_b85","j28_b85","j20_b85_FTKRefit_AND","j28_b70","j20_b70_FTKRefit_L1V1"]]], 
-           ['j55_gsc80_b85_j45_gsc55_b85_j28_b85_j20_b85_FTKRefit_AND_j28_b70_j20_b70_FTKRefit_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85","j45_gsc55_b85","j28_b85","j20_b85_FTKRefit_AND","j28_b70","j20_b70_FTKRefit_L1V2"]]], 
-           ['j55_gsc80_b85_j45_gsc55_b85_j28_b85_j20_b85_FTKRefit_AND_j28_b70_j20_b70_FTKRefit_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85","j45_gsc55_b85","j28_b85","j20_b85_FTKRefit_AND","j28_b70","j20_b70_FTKRefit_L1V3"]]], 
-           ['j55_gsc80_b85_j45_gsc55_b85_j28_b85_j20_b85_FTKRefit_AND_j28_b70_j20_b70_FTKRefit_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85","j45_gsc55_b85","j28_b85","j20_b85_FTKRefit_AND","j28_b70","j20_b70_FTKRefit_L1V4"]]], 
+           ['j55_gsc80_b85_FTK_j45_gsc55_b85_FTK_j28_b85_FTK_j20_b85_FTK_AND_j28_b70_FTK_j20_b70_FTK_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85_FTK","j45_gsc55_b85_FTK","j28_b85_FTK","j20_b85_FTK_AND","j28_b70_FTK","j20_b70_FTK_L1V1"]]], 
+           ['j55_gsc80_b85_FTK_j45_gsc55_b85_FTK_j28_b85_FTK_j20_b85_FTK_AND_j28_b70_FTK_j20_b70_FTK_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85_FTK","j45_gsc55_b85_FTK","j28_b85_FTK","j20_b85_FTK_AND","j28_b70_FTK","j20_b70_FTK_L1V2"]]], 
+           ['j55_gsc80_b85_FTK_j45_gsc55_b85_FTK_j28_b85_FTK_j20_b85_FTK_AND_j28_b70_FTK_j20_b70_FTK_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85_FTK","j45_gsc55_b85_FTK","j28_b85_FTK","j20_b85_FTK_AND","j28_b70_FTK","j20_b70_FTK_L1V3"]]], 
+           ['j55_gsc80_b85_FTK_j45_gsc55_b85_FTK_j28_b85_FTK_j20_b85_FTK_AND_j28_b70_FTK_j20_b70_FTK_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b85_FTK","j45_gsc55_b85_FTK","j28_b85_FTK","j20_b85_FTK_AND","j28_b70_FTK","j20_b70_FTK_L1V4"]]], 
            #4b77 x4 L1 seeds 
-           ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_FTKRefit_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77","j45_gsc55_b77","j28_b77","j20_b77_FTKRefit_L1V1"]]], 
-           ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_FTKRefit_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77","j45_gsc55_b77","j28_b77","j20_b77_FTKRefit_L1V2"]]], 
-           ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_FTKRefit_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77","j45_gsc55_b77","j28_b77","j20_b77_FTKRefit_L1V3"]]], 
-           ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_FTKRefit_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77","j45_gsc55_b77","j28_b77","j20_b77_FTKRefit_L1V4"]]],
+           ['j55_gsc80_b77_FTK_j45_gsc55_b77_FTK_j28_b77_FTK_j20_b77_FTK_L1V1', 'L1_J45.0ETA20_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77_FTK","j45_gsc55_b77_FTK","j28_b77_FTK","j20_b77_FTK_L1V1"]]], 
+           ['j55_gsc80_b77_FTK_j45_gsc55_b77_FTK_j28_b77_FTK_j20_b77_FTK_L1V2', 'L1_J50_2J40.0ETA25_3J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77_FTK","j45_gsc55_b77_FTK","j28_b77_FTK","j20_b77_FTK_L1V2"]]], 
+           ['j55_gsc80_b77_FTK_j45_gsc55_b77_FTK_j28_b77_FTK_j20_b77_FTK_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77_FTK","j45_gsc55_b77_FTK","j28_b77_FTK","j20_b77_FTK_L1V3"]]], 
+           ['j55_gsc80_b77_FTK_j45_gsc55_b77_FTK_j28_b77_FTK_j20_b77_FTK_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial', -1,["j55_gsc80_b77_FTK","j45_gsc55_b77_FTK","j28_b77_FTK","j20_b77_FTK_L1V4"]]],
 
  
 ##  ATR-19574 copy gsc triggers with FTK; only "legacy-primary"
@@ -538,7 +538,19 @@ def setupMenu():
 
 
 
-    TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + []
+    TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [
+        ['mb_trk40_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk50_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk60_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk70_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk80_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk90_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk100_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk110_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk120_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_trk130_hmftk_FTKVtx_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+]
     TriggerFlags.CalibSlice.signatures   = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures  = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + []
