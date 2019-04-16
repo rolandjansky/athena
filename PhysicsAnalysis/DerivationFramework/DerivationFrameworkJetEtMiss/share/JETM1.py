@@ -128,6 +128,11 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
+# Augment AntiKt4 jets with QG tagging variables
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=jetm1Seq,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=jetm1Seq,algname="QGTaggerToolPFAlg")
+
 OutputJets["JETM1"] = []
 
 #=======================================
@@ -209,6 +214,10 @@ JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "Primar
 JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"]
 JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
 JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+# Add QG tagger variables
+JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
 
 if DerivationFrameworkIsMonteCarlo:
 
