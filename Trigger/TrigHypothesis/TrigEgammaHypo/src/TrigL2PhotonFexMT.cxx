@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,19 +36,11 @@ StatusCode TrigL2PhotonFexMT::initialize()
   ATH_CHECK( m_roiCollectionKey.initialize() );
   ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
   ATH_CHECK(m_outputPhotonsKey.initialize());
-  ATH_MSG_DEBUG("Initialization:");
   return  StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigL2PhotonFexMT::finalize()
-{
-  ATH_MSG_INFO("in finalize()");
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigL2PhotonFexMT::execute() 
+StatusCode TrigL2PhotonFexMT::execute()
 {
   using namespace xAOD;
   auto ctx = getContext();
@@ -60,8 +52,6 @@ StatusCode TrigL2PhotonFexMT::execute()
 				   std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputPhotonsKey );
-  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
-
 
   auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
   if (roiCollection->size()==0) {

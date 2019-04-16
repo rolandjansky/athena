@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -70,9 +70,9 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
   TrigL2ElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator);
   ~TrigL2ElectronFexMT();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode execute() override;
 
 
  private:
