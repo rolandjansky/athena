@@ -1,5 +1,7 @@
 // -*- C++ -*-
-
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 /*! \file Herwig7.cxx
  *  \brief Implementation of the Herwig 7 Athena interface.
  *  \author Daniel Rauch (daniel.rauch@desy.de)
