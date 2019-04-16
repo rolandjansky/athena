@@ -35,6 +35,8 @@
 #include <map>
 #include <utility>
 
+#include "StoreGate/ReadHandle.h"
+
 using namespace std;
 
 /*---------------------------------------------------------*/
@@ -64,15 +66,11 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCaloNoiseToolHEC(),
     m_hCaloNoiseToolFCAL()
 {
-  declareProperty("LArDigitContainerKey",m_LArDigitContainerKey = "FREE");
-  declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
+  declareProperty("LArRawChannelKey",m_rawChannelsKey="LArRawChannels");
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArCaloNoiseTool",m_caloNoiseTool);
   declareProperty("Nevents",m_nevents = 50);
-  declareProperty("Nsigma",m_nsigma = 3);
 
   m_eventsCounter = 0;
-  m_noisycells.clear();
 
   m_LArOnlineIDHelper	= NULL;
   m_LArEM_IDHelper	= NULL;
@@ -143,15 +141,9 @@ LArCoverage::initialize()
   // LArOnlineIDStrHelper
   m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
-
-  // Get CaloNoiseTool
-  if ( m_caloNoiseTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloNoiseTool );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved tool " << m_caloNoiseTool );
-  }
-
+  
+  ATH_CHECK( m_noiseCDOKey.initialize() );
+  ATH_CHECK( m_rawChannelsKey.initialize() );
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
   ATH_MSG_DEBUG( "Successful Initialize LArCoverage " );
@@ -590,20 +582,21 @@ LArCoverage::fillHistograms()
   if(m_eventsCounter > m_nevents ) return StatusCode::SUCCESS;
 
   // Retrieve Raw Channels Container
-  const LArRawChannelContainer* pRawChannelsContainer;
-  StatusCode sc = evtStore()->retrieve(pRawChannelsContainer, m_channelKey);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING( "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey );
-    return StatusCode::SUCCESS;
-  }
+  
+  SG::ReadHandle<LArRawChannelContainer> pRawChannelsContainer(m_rawChannelsKey);
+  if(!pRawChannelsContainer.isValid()) {
+    ATH_MSG_ERROR( " Can not retrieve LArRawChannelContainer: "
+                   << m_rawChannelsKey.key()  );
+    return StatusCode::FAILURE;
+   }
 
-  // Loop over LArRawChannels
-  SelectAllLArRawChannels AllRaw(pRawChannelsContainer);
-  for (SelectAllLArRawChannels::const_iterator itRaw = AllRaw.begin(); itRaw != AllRaw.end(); ++itRaw) {
-    const LArRawChannel* pRawChannel = (*itRaw) ;
-    int provenanceChan  = pRawChannel->provenance();
-    float energyChan  = pRawChannel->energy();
-    HWIdentifier id  = pRawChannel->hardwareID();
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+  const CaloNoise* noiseCDO=*noiseHdl;
+
+  for (const LArRawChannel& pRawChannel :  *pRawChannelsContainer) {
+    int provenanceChan  = pRawChannel.provenance();
+    float energyChan  = pRawChannel.energy();
+    HWIdentifier id  = pRawChannel.hardwareID();
     //CaloGain::CaloGain gain = pRawChannel->gain();
     Identifier offlineID = m_larCablingService->cnvToIdentifier(id);
     
@@ -632,7 +625,8 @@ LArCoverage::fillHistograms()
     if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = CaloPhiRange::fix(phiChan);
     
     // Retrieve expected noise
-    float noise = m_caloNoiseTool->getNoise(caloDetElement,ICalorimeterNoiseTool::ELECTRONICNOISE);
+    float noise = noiseCDO->getNoise(offlineID,m_highestGain[caloDetElement->getSubCalo()]); 
+    //->getNoise(caloDetElement,ICalorimeterNoiseTool::ELECTRONICNOISE);
     
     if(m_eventsCounter == 1){
       
