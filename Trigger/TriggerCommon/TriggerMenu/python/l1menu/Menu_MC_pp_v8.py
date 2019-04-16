@@ -652,6 +652,7 @@ def defineMenu():
         "L1_RD1_EMPTY",
 #        'L1_RD0_FIRSTEMPTY', 
         'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD2_FILLED',
 
         #LUCID
 #        'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
@@ -1178,6 +1179,7 @@ def defineMenu():
         'L1_RD0_UNPAIRED_ISO' : 201,
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_EMPTY' : 204,
+        'L1_RD2_FILLED' : 239,
 #        'L1_RD0_FIRSTEMPTY' : 209,
 #        'L1_LUCID_A_C_EMPTY' : 215,
 #        'L1_LUCID_A_C_UNPAIRED_ISO' : 216,
