@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
 # 
 
-from AthenaCommon.Include import include
 from AthenaCommon.AppMgr import ServiceMgr
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -26,26 +25,6 @@ muonCombinedRecFlags.printSummary = False
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-
-#-----------------------------------------------------#
-# Set InDet Flags
-#-----------------------------------------------------#
-def inDetSetup():
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doCaloSeededBrem = False
-    InDetFlags.InDet25nsec = True 
-    InDetFlags.doPrimaryVertex3DFinding = False 
-    InDetFlags.doPrintConfigurables = False
-    InDetFlags.doResolveBackTracks = True 
-    InDetFlags.doSiSPSeededTrackFinder = True
-    InDetFlags.doTRTPhaseCalculation = True
-    InDetFlags.doTRTSeededTrackFinder = True
-    InDetFlags.doTruth = False
-    InDetFlags.init()
-
-    ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 #-----------------------------------------------------#
