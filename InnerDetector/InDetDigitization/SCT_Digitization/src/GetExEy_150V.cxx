@@ -5,7 +5,7 @@
 #include "SCT_DetailedSurfaceChargesGenerator.h"
 
 double SCT_DetailedSurfaceChargesGenerator::EyValue150(int ix, int iy) const {
-//  EyArray for VD=70V(rho=0.1540[C/m**3]), VB=150V
+  //  EyArray for VD=70V(rho=0.1540[C/m**3]), VB=150V
 static const double EyArray[17][115] = {
 {
    2609.00,   2646.00,   2683.00,   2721.00,   2758.00,
@@ -867,10 +867,7 @@ static const double ExArray[17][115] = {
     -16.21,    -63.82,    -26.48,    -86.33,    -75.28,
    -103.50,   -134.00,   -174.80,    -72.07,     68.25,
 }, 
- };
+};
 //
-return ExArray[ix][iy];
- } 
-                                      
-                                      
-                                      
+ return ExArray[ix][iy];
+}

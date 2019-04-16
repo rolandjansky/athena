@@ -23,17 +23,17 @@ namespace xAOD {
   : IParticle() {
     // perigeeParameters cache initialized to be empty (default constructor)
   }
-  
-  TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
+
+  TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp )
   : IParticle( tp ) {
     makePrivateStore( tp );
     // perigeeParameters cache initialized to be empty (default constructor)
     // assume that this copy will create new cache as needed
   }
-  
+
   TrackParticle_v1& TrackParticle_v1::operator=(const TrackParticle_v1& tp ){
     if(this == &tp) return *this;
-    
+
     if( ( ! hasStore() ) && ( ! container() ) ) {
        makePrivateStore();
     }
@@ -44,7 +44,7 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE
     return *this;
   }
-  
+
   TrackParticle_v1::~TrackParticle_v1(){}
 
   double TrackParticle_v1::pt() const {
@@ -52,7 +52,7 @@ namespace xAOD {
   }
 
   double TrackParticle_v1::eta() const {
-    return genvecP4().Eta(); 
+    return genvecP4().Eta();
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1,float,double,phi)
@@ -62,7 +62,7 @@ namespace xAOD {
   }
 
   double TrackParticle_v1::e() const {
-    return genvecP4().E(); 
+    return genvecP4().E();
   }
   double TrackParticle_v1::rapidity() const {
     return genvecP4().Rapidity();
@@ -92,9 +92,9 @@ namespace xAOD {
     float px = p*sinTheta*cos(phiT);
     float py = p*sinTheta*sin(phiT);
     float pz = p*cos(thetaT);
-    float e  =  pow (m(),2) + 
+    float e  =  pow (m(),2) +
       pow( px,2) + pow( py,2) + pow( pz,2);
-    p4.SetPxPyPzE( px, py, pz, sqrt(e) ); 
+    p4.SetPxPyPzE( px, py, pz, sqrt(e) );
     return p4;
   }
 
@@ -163,7 +163,7 @@ namespace xAOD {
   }
 
   const xAOD::ParametersCovMatrix_t TrackParticle_v1::definingParametersCovMatrix() const {
-    xAOD::ParametersCovMatrix_t cov; 
+    xAOD::ParametersCovMatrix_t cov;
     const std::vector<float>& covVec = definingParametersCovMatrixVec();
     if( !covVec.empty() ) Amg::expand( covVec.begin(), covVec.end(),cov );
     else cov.setIdentity();
@@ -213,20 +213,20 @@ namespace xAOD {
     ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(definingParametersCovMatrix());
     static const Accessor< float > acc7( "beamlineTiltX" );
     static const Accessor< float > acc8( "beamlineTiltY" );
-    
+
     if(!acc7.isAvailable( *this ) || !acc8.isAvailable( *this )){
       Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
       m_perigeeParameters.set(tmpPerigeeParameters);
       return *(m_perigeeParameters.ptr());
     }
-    
-    Amg::Transform3D * amgTransf = new Amg::Transform3D();	
+
+    Amg::Transform3D * amgTransf = new Amg::Transform3D();
     Amg::Translation3D amgtranslation(vx(),vy(),vz());
     *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
     *amgTransf *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
     *amgTransf *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
     Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(amgTransf),cov);
-    
+
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }
@@ -237,9 +237,9 @@ namespace xAOD {
 
   void TrackParticle_v1::setFitQuality(float chiSquared, float numberDoF){
     static const Accessor< float > acc1( "chiSquared" );
-    acc1( *this ) = chiSquared;  
+    acc1( *this ) = chiSquared;
     static const Accessor< float > acc2( "numberDoF" );
-    acc2( *this ) = numberDoF;   
+    acc2( *this ) = numberDoF;
   }
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, radiusOfFirstHit, setRadiusOfFirstHit)
@@ -247,7 +247,7 @@ namespace xAOD {
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, beamlineTiltX, setBeamlineTiltX)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, beamlineTiltY, setBeamlineTiltY)
-  
+
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint32_t, hitPattern, setHitPattern)
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint8_t,numberOfUsedHitsdEdx ,setNumberOfUsedHitsdEdx )
@@ -328,7 +328,7 @@ namespace xAOD {
   }
 
   float TrackParticle_v1::parameterPZ(unsigned int index) const {
-    static const Accessor< std::vector<float>  > acc( "parameterPZ" );    
+    static const Accessor< std::vector<float>  > acc( "parameterPZ" );
     return acc(*this).at(index);
   }
 
@@ -358,7 +358,7 @@ namespace xAOD {
     return static_cast<xAOD::ParameterPosition>(acc(*this).at(index));
   }
 
-  bool TrackParticle_v1::indexOfParameterAtPosition(unsigned int& index, ParameterPosition position) const 
+  bool TrackParticle_v1::indexOfParameterAtPosition(unsigned int& index, ParameterPosition position) const
   {
     size_t maxParameters = numberOfParameters();
     bool foundParameters=false;
@@ -383,7 +383,7 @@ namespace xAOD {
     static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
     // copy the correct values into the temp matrix
-    ParametersCovMatrix_t* cov = new ParametersCovMatrix_t(); 
+    ParametersCovMatrix_t* cov = new ParametersCovMatrix_t();
     auto it = acc(*this).begin()+offset;
     Amg::expand(it,it+15,*cov);
     // retrieve the parameters to build the curvilinear frame
@@ -437,7 +437,7 @@ namespace xAOD {
     value = ( *acc )( *this );
     return true;
   }
-  
+
   bool TrackParticle_v1::summaryValue(float& value, const SummaryType &information)  const {
     const xAOD::TrackParticle_v1::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
     if( ( ! acc ) || ( ! acc->isAvailable( *this ) ) ) return false;
@@ -445,7 +445,7 @@ namespace xAOD {
     value = ( *acc )( *this );
     return true;
   }
-  
+
   void TrackParticle_v1::setSummaryValue(uint8_t& value, const SummaryType &information){
     const xAOD::TrackParticle_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
   // Set the value:
@@ -457,7 +457,7 @@ namespace xAOD {
   // Set the value:
     ( *acc )( *this ) = value;
   }
- 
+
 
 #ifndef XAOD_STANDALONE
    /// The function will return an invalid ElementLink in case nothing was set
@@ -514,5 +514,4 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE
    }
 
- 
 } // namespace xAOD

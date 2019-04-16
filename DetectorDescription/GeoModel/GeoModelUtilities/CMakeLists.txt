@@ -5,6 +5,7 @@
 # Declare the package name:
 atlas_subdir( GeoModelUtilities )
 
+if(NOT BUILDVP1LIGHT)
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
@@ -27,4 +28,32 @@ atlas_add_library( GeoModelUtilities
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps SGTools 
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
+endif()
+if(BUILDVP1LIGHT)
+# Declare the package's dependencies:
+#atlas_depends_on_subdirs( PUBLIC
+#                          DetectorDescription/GeoModel/GeoModelKernel )
+                          
+# External dependencies:
+find_package( CLHEP )
+find_package( GeoModel )
+find_package( Eigen )
 
+file(GLOB SOURCES src/GeoMPVEntry.cxx
+            src/GeoModelExperiment.cxx
+            src/GeoOpticalSurface.cxx
+            src/GeoBorderSurface.cxx
+            src/GeoMaterialPropertiesTable.cxx
+            src/StoredAlignX.cxx
+            src/GeoExtendedMaterial.cxx
+            src/GeoMaterialPropertyVector.cxx
+            src/GeoOpticalPhysVol.cxx
+            src/StoredPhysVol.cxx)
+            
+# Component(s) in the package:
+atlas_add_library( GeoModelUtilities
+                   ${SOURCES}
+                   PUBLIC_HEADERS GeoModelUtilities
+                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} )
+endif()

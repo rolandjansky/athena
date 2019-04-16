@@ -61,8 +61,8 @@ if [[ ${FROMPICKLE} == "1" ]]; then
   (set -x
   athena.py \
   ${MATHLIBOPT} \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 else
   echo "Running athena command:"
   (set -x
@@ -74,8 +74,8 @@ else
   --evtMax ${EVENTS} \
   --skipEvents ${SKIPEVENTS} \
   -c "${EXTRA}" \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 fi
 
 ######################################

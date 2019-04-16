@@ -1,14 +1,16 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import absolute_import
 import os, re
+from fnmatch import fnmatchcase
 from AthenaCommon.Logging import logging
 
 msg = logging.getLogger('MetaReader')
 
-regexEventStreamInfo      			=  re.compile(r'^EventStreamInfo(_p\d+)?$')
-regexIOVMetaDataContainer 			=  re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
-regexByteStreamMetadataContainer 	=  re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
-regexXAODEventFormat      			=  re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+regexEventStreamInfo				=  re.compile(r'^EventStreamInfo(_p\d+)?$')
+regexIOVMetaDataContainer			=  re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
+regexByteStreamMetadataContainer	=  re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
+regexXAODEventFormat				=  re.compile(r'^xAOD::EventFormat(_v\d+)?$')
 
 
 def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key_filter= []):
@@ -20,6 +22,8 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 	return a "tiny" version which have only the following keys: 'file_guid', 'file_size', 'file_type', 'nentries'.
 	:return: a dictionary of metadata for the given input file.
 	"""
+
+	from RootUtils import PyROOTFixes
 
 	# Check if the input is a file or a list of files.
 	if isinstance(filenames, basestring):
@@ -102,7 +106,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 					meta_filter = {
 						'/TagInfo': 'IOVMetaDataContainer_p1',
 						'IOVMetaDataContainer_p1__TagInfo': 'IOVMetaDataContainer_p1',
-						'*': 'EventStreamInfo_p3'
+						'*': 'EventStreamInfo_p*'
 					}
 
 				# set the filters for name
@@ -113,7 +117,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 						'/Simulation/Parameters': 'IOVMetaDataContainer_p1',
 						'/Digitization/Parameters': 'IOVMetaDataContainer_p1',
 						'/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
-						'*': 'EventStreamInfo_p3'
+						'*': 'EventStreamInfo_p*'
 					}
 
 				if mode == 'full' and len(meta_key_filter) > 0:
@@ -143,7 +147,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 					if len(meta_filter) > 0:
 						keep = False
 						for filter_key, filter_class in meta_filter.items():
-							if (filter_key.replace('/', '_') == name.replace('/', '_') or filter_key == '*') and (filter_class == class_name or filter_class == '*'):
+							if (filter_key.replace('/', '_') == name.replace('/', '_') or filter_key == '*') and fnmatchcase(class_name, filter_class):
 								keep = True
 								break
 
@@ -152,7 +156,10 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 
 					# assign the corresponding persistent class based of the name of the metadata container
 					if   regexEventStreamInfo.match(class_name):
-						persistent_instances[name] = ROOT.EventStreamInfo_p3()
+                                                if class_name.endswith('_p2'):
+                                                        persistent_instances[name] = ROOT.EventStreamInfo_p2()
+                                                else:
+                                                        persistent_instances[name] = ROOT.EventStreamInfo_p3()
 					elif regexIOVMetaDataContainer.match(class_name):
 						persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
 					elif regexXAODEventFormat.match(class_name):
@@ -278,7 +285,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 
 
 				# fix for ATEAM-122
-				if len(bs_metadata.get('eventTypes', '')) == 0:  # see: ATMETADATA-6
+				if len(bs_metadata.get('eventTypes', '')) == 0:	 # see: ATMETADATA-6
 					evt_type = ['IS_DATA', 'IS_ATLAS']
 					if bs_metadata.get('stream', '').startswith('physics_'):
 						evt_type.append('IS_PHYSICS')
@@ -309,10 +316,10 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
 #     # -- Sebastian Liem
 #     hash_md5 = hashlib.md5()
 #     with open(fname, 'rb') as f:
-#         for chunk in iter(lambda: f.read(block_size), b''):
-#             hash_md5.update(chunk)
-#             if do_fast_md5:
-#                 break
+#	  for chunk in iter(lambda: f.read(block_size), b''):
+#	      hash_md5.update(chunk)
+#	      if do_fast_md5:
+#		  break
 #     return hash_md5.hexdigest()
 
 
@@ -379,7 +386,7 @@ def _convert_value(value):
 				return _convert_value(value.first), _convert_value(value.second)
 
 			# elif cpp_type == 'long':
-			# 	return int(value)
+			#	return int(value)
 
 			elif value.__cppname__ == "_Bit_reference":
 				return bool(value)
@@ -394,10 +401,12 @@ def _convert_value(value):
 			elif value.__cppname__ == 'xAOD::EventFormat_v1':
 				return _extract_fields_ef(value)
 
-			elif value.__cppname__ == 'EventStreamInfo_p3':
+			elif (value.__cppname__ == 'EventStreamInfo_p2' or
+			      value.__cppname__ == 'EventStreamInfo_p3'):
 				return _extract_fields_esi(value)
 
-			elif value.__cppname__ == 'EventType_p3':
+			elif (value.__cppname__ == 'EventType_p1' or
+			      value.__cppname__ == 'EventType_p3'):
 				return _convert_event_type_bitmask( _extract_fields(value))
 
 			elif regex_persistent_class.match(value.__cppname__):
@@ -523,19 +532,19 @@ def _convert_event_type_bitmask(value):
 		if key == 'bit_mask':
 			val = value[key]
 
-			bitmask_lenght = len(val)
+			bitmask_length = len(val)
 
 			is_simulation = False
 			is_testbeam = False
 			is_calibration = False
 
-			if bitmask_lenght > 0:  # ROOT.EventType.IS_SIMULATION
+			if bitmask_length > 0:	# ROOT.EventType.IS_SIMULATION
 				is_simulation = val[0]
 
-			if bitmask_lenght > 1:  # ROOT.EventType.IS_TESTBEAM
+			if bitmask_length > 1:	# ROOT.EventType.IS_TESTBEAM
 				is_testbeam = val[1]
 
-			if bitmask_lenght > 2:  # ROOT.EventType.IS_CALIBRATION:
+			if bitmask_length > 2:	# ROOT.EventType.IS_CALIBRATION:
 				is_calibration = val[2]
 
 			types = [
@@ -624,29 +633,32 @@ def make_peeker(meta_dict):
 
 def promote_keys(meta_dict):
 	for filename, file_content in meta_dict.items():
+		md = meta_dict[filename]
 		for key in file_content:
-			if key in meta_dict[filename]['metadata_items'] and regexEventStreamInfo.match(meta_dict[filename]['metadata_items'][key]):
-				meta_dict[filename].update(meta_dict[filename][key])
-				meta_dict[filename]['mc_event_number'] = meta_dict[filename]['eventTypes'][0]['mc_event_number']
-				meta_dict[filename]['mc_channel_number'] = meta_dict[filename]['eventTypes'][0]['mc_channel_number']
-				meta_dict[filename]['eventTypes'] = meta_dict[filename]['eventTypes'][0]['type']
-				meta_dict[filename]['lumiBlockNumbers'] = meta_dict[filename]['lumiBlockNumbers']
-				meta_dict[filename]['processingTags'] = meta_dict[filename][key]['processingTags']
+			if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
+				md.update(md[key])
+				et = md['eventTypes'][0]
+				md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+														  
+				md['mc_channel_number'] = et.get('mc_channel_number', 0)
+				md['eventTypes'] = et['type']
+				md['lumiBlockNumbers'] = md['lumiBlockNumbers']
+				md['processingTags'] = md[key]['processingTags']
 
 				meta_dict[filename].pop(key)
 				break
 
 		if '/TagInfo' in file_content:
-			meta_dict[filename].update(meta_dict[filename]['/TagInfo'])
-			meta_dict[filename].pop('/TagInfo')
+			md.update(md['/TagInfo'])
+			md.pop('/TagInfo')
 
 		if '/Simulation/Parameters' in file_content:
-			meta_dict[filename].update(meta_dict[filename]['/Simulation/Parameters'])
-			meta_dict[filename].pop('/Simulation/Parameters')
+			md.update(md['/Simulation/Parameters'])
+			md.pop('/Simulation/Parameters')
 
 		if '/Digitization/Parameters' in file_content:
-			meta_dict[filename].update(meta_dict[filename]['/Digitization/Parameters'])
-			meta_dict[filename].pop('/Digitization/Parameters')
+			md.update(md['/Digitization/Parameters'])
+			md.pop('/Digitization/Parameters')
 
 	return meta_dict
 	

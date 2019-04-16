@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef BUILDVP1LIGHT
+
 #include "GeoModelUtilities/GeoModelTool.h"
 
 /**
@@ -42,3 +44,5 @@ StatusCode GeoModelTool::registerCallback()
   // Return Failure since no function has been registered
   return StatusCode::FAILURE;
 }
+
+#endif // BUILDVP1LIGHT

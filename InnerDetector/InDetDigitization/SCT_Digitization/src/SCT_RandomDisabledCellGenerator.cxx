@@ -15,7 +15,6 @@
 SCT_RandomDisabledCellGenerator::SCT_RandomDisabledCellGenerator(const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent)
 {
-  declareProperty("TotalBadChannels", m_disableProbability=0.01);
 }
 
 StatusCode SCT_RandomDisabledCellGenerator::initialize() {

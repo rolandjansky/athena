@@ -719,14 +719,14 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
     static const unsigned int limits[N_REGIONS] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
-    VecProf2_t* storageVectors[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectors[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECC, &m_pnoiseoccupancymapHistoVectorBAR, &m_pnoiseoccupancymapHistoVectorECA
     };
-    VecProf2_t* storageVectorsSide0[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectorsSide0[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECCSide0, &m_pnoiseoccupancymapHistoVectorBARSide0,
       &m_pnoiseoccupancymapHistoVectorECASide0
     };
-    VecProf2_t* storageVectorsSide1[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectorsSide1[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECCSide1, &m_pnoiseoccupancymapHistoVectorBARSide1,
       &m_pnoiseoccupancymapHistoVectorECASide1
     };
@@ -885,10 +885,10 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
   return StatusCode::SUCCESS;
 }
 
-SCTRatioNoiseMonTool::Prof_t
+TProfile*
 SCTRatioNoiseMonTool::pFactory(const string& name, const string& title, MonGroup& registry, const float lo,
                                const float hi, const unsigned int nbins) const {
-  Prof_t tmp{new TProfile(name.c_str(), title.c_str(), nbins, lo, hi)};
+  TProfile* tmp{new TProfile(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -897,10 +897,10 @@ SCTRatioNoiseMonTool::pFactory(const string& name, const string& title, MonGroup
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H1_t
+TH1F_LW*
 SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry, const float lo,
                                 const float hi, const unsigned int nbins) const {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -909,11 +909,11 @@ SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H2_t
+TH2F_LW*
 SCTRatioNoiseMonTool::h2Factory(const string& name, const string& title, MonGroup& registry, const float lo_x,
                                 const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y,
                                 const unsigned int nbins_y) const {
-  H2_t tmp{TH2F_LW::create(name.c_str(), title.c_str(), nbins_x, lo_x, hi_x, nbins_y, lo_y, hi_y)};
+  TH2F_LW* tmp{TH2F_LW::create(name.c_str(), title.c_str(), nbins_x, lo_x, hi_x, nbins_y, lo_y, hi_y)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -922,10 +922,10 @@ SCTRatioNoiseMonTool::h2Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H1_t
+TH1F_LW*
 SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry,
-                                VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) const {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
+                                vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const {
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -935,9 +935,9 @@ SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::Prof2_t
+TProfile2D*
 SCTRatioNoiseMonTool::prof2Factory(const string& name, const string& title, const unsigned int& bec,
-                                   MonGroup& registry, VecProf2_t& storageVector) const {
+                                   MonGroup& registry, vector<TProfile2D*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN},
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, 
       nEta{N_ETA_BINS}, nPhi{N_PHI_BINS};
@@ -950,7 +950,7 @@ SCTRatioNoiseMonTool::prof2Factory(const string& name, const string& title, cons
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  Prof2_t tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
+  TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success{registry.regHist(tmp).isSuccess()};

@@ -17,8 +17,6 @@
 // ********************************************************************
 
 #include "TrigL2MissingET/T2CaloMissingET.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
-//#include "TrigCaloEvent/TrigEMCluster.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -26,6 +24,7 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 #include "TrigT1Interfaces/RecEnergyRoI.h"
+#include "TrigTimeAlgs/TrigTimer.h"
 
 #include <cmath>
 #include <cstdio>

@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef BUILDVP1LIGHT
 #include "ToyDetectorTool.h"
-#include "ToyDetectorFactory.h" 
+#include "ToyDetectorFactory.h"
 #include "GeoModelExamples/ToyDetectorManager.h" 
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -81,3 +82,5 @@ void ToyDetectorTool::printVolume(GeoPVConstLink volume)
     cursor.next();
   }
 }
+
+#endif // BUILDVP1LIGHT

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -201,7 +201,7 @@ void VP1MaterialButton::Imp::adaptGuiAndMaterialsToLastApplied()
 {
   switchModeBasedOnLastApplied();
 
-  if (theclass->verbose()) {
+  if (VP1Msg::verbose()) {
     theclass->messageVerbose("Copied values from material: "
 			     "diffuse="+str(lastapplied_diffuse)
 			     +", ambient="+str(lastapplied_ambient)
@@ -213,8 +213,9 @@ void VP1MaterialButton::Imp::adaptGuiAndMaterialsToLastApplied()
   }
 
   if (editwindow) {
-    if (theclass->verbose())
+    if (VP1Msg::verbose()){
       theclass->messageVerbose(" => and updating preview.");
+    }
     blockGuiSignals(true);
     editwindow_ui.colbutton_ambient->setColor(lastapplied_ambient);
     editwindow_ui.colbutton_diffuse->setColor(lastapplied_diffuse);
@@ -307,7 +308,9 @@ void VP1MaterialButton::Imp::initEditWindow()
 {
   if (editwindow)
     return;
-  theclass->messageVerbose("Initialising material editor dialog");
+  if(VP1Msg::verbose()){
+    theclass->messageVerbose("Initialising material editor dialog");
+  }
   editwindow = new QWidget(0,Qt::WindowStaysOnTopHint);
   editwindow_ui.setupUi(editwindow);
   editwindow_ui.colbutton_ambient->setColor(lastapplied_ambient);
@@ -324,7 +327,13 @@ void VP1MaterialButton::Imp::initEditWindow()
   editwindow_ui.label_num_simple_brightness->setNum(lastapplied_brightness);
   editwindow_ui.colbutton_simple_colour->setColor(lastapplied_diffuse);
 
-  if (!VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS")) {
+  #if defined BUILDVP1LIGHT
+    bool checkDisallowMultipleChannels = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #else
+    bool checkDisallowMultipleChannels = VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #endif
+
+  if (!checkDisallowMultipleChannels) {
     SoSeparator * userroot = new SoSeparator;
     SoComplexity * complexity = new SoComplexity;
     complexity->value = 1.0;
@@ -651,9 +660,12 @@ void VP1MaterialButton::setText ( const QString & s )
 //____________________________________________________________________
 void VP1MaterialButton::updateButton()
 {
-  if (objectName().isEmpty())
+  if (objectName().isEmpty()){
     setObjectName("VP1MaterialButton");
-  messageVerbose("setColButtonProperties: color=" + str(m_d->lastapplied_diffuse));
+  }
+  if(VP1Msg::verbose()){
+    messageVerbose("setColButtonProperties: color=" + str(m_d->lastapplied_diffuse));
+  }
   VP1ColorSelectButton::setColButtonProperties(this,m_d->lastapplied_diffuse,m_d->dim);
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoSpecialShapes/LArCustomShape.h"
@@ -64,15 +64,23 @@ const LArCustomShape::ShapeCalc_typemap LArCustomShape::s_calculatorTypes = {
 
 LArCustomShape::LArCustomShape(const std::string& a_shapeName)
   : m_shapeName(a_shapeName),
-    m_calculator(0),
-    m_detStore( "StoreGateSvc/DetectorStore", a_shapeName )
+    m_calculator(0)
+    #ifndef XAOD_STANDALONE
+        ,m_detStore( "StoreGateSvc/DetectorStore", a_shapeName )
+    #endif // XAOD_STANDALONE
 {
-  // map.at throws std::out_of_range exception on unknown shape name
-  if ( createCalculator( s_calculatorTypes.at(a_shapeName) ).isFailure() ) {
-    std::string error = std::string("Can't create LArWheelCalculator for name ") + a_shapeName + " in LArCustomShape constructor";
-    throw std::runtime_error(error);
-  }
-  //std::cout << "-->>> LArCustomShape::m_calculator=" << m_calculator << "\n";
+    #if defined XAOD_STANDALONE
+        if ( createCalculator( s_calculatorTypes.at(a_shapeName) ) == 1 ) { // map.at throws std::out_of_range exception on unknown shape name
+            std::string error = std::string("Can't create LArWheelCalculator for name ") + a_shapeName + " in LArCustomShape constructor";
+            throw std::runtime_error(error);
+        }
+    #else // XAOD_STANDALONE
+    if ( createCalculator( s_calculatorTypes.at(a_shapeName) ).isFailure() ) { // map.at throws std::out_of_range exception on unknown shape name
+        std::string error = std::string("Can't create LArWheelCalculator for name ") + a_shapeName + " in LArCustomShape constructor";
+        throw std::runtime_error(error);
+    }
+    #endif // Athena
+	//std::cout << "-->>> LArCustomShape::m_calculator=" << m_calculator << "\n";
 }
 
 LArCustomShape::~LArCustomShape()
@@ -80,19 +88,34 @@ LArCustomShape::~LArCustomShape()
   //delete m_calculator;
 }
 
-StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef)
-{
-  LArG4::LArWheelCalculator_t wheelType = cdef.first;
-  int zside = cdef.second;
+#if defined XAOD_STANDALONE
+int LArCustomShape::createCalculator(const CalcDef_t & cdef) { // LArG4::LArWheelCalculator_t wheelType, int zside
+	LArG4::LArWheelCalculator_t wheelType = cdef.first;
+	int zside = cdef.second;
 
-  m_calculator = new LArWheelCalculator(wheelType, zside);
-  std::string calcDSname = std::string("LAr::EMEC::") + (zside>0?"Pos::":"Neg::") +
-                           LArWheelCalculator::LArWheelCalculatorTypeString(wheelType);
+	m_calculator = new LArWheelCalculator(wheelType, zside);
+	std::string calcDSname = std::string("LAr::EMEC::")+ (zside>0?"Pos::":"Neg::")+LArWheelCalculator::LArWheelCalculatorTypeString(wheelType);
 
-  //std::cout << "-->>> LArCustomShape::createCalculator:  m_calculator=" << m_calculator << ", name="<< calcDSname <<"\n";
-  // ownership is passed to detStore
-  return detStore()->record(m_calculator, calcDSname);
+	//std::cout << "-->>> LArCustomShape::createCalculator:  m_calculator=" << m_calculator << ", name="<< calcDSname <<"\n";
+	// ownership is passed to detStore
+    if (m_calculator==NULL)
+        return 1;
+    else
+        return 0;
 }
+#else // XAOD_STANDALONE
+StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef) { // LArG4::LArWheelCalculator_t wheelType, int zside
+    LArG4::LArWheelCalculator_t wheelType = cdef.first;
+    int zside = cdef.second;
+
+    m_calculator = new LArWheelCalculator(wheelType, zside);
+    std::string calcDSname = std::string("LAr::EMEC::")+ (zside>0?"Pos::":"Neg::")+LArWheelCalculator::LArWheelCalculatorTypeString(wheelType);
+
+    //std::cout << "-->>> LArCustomShape::createCalculator:  m_calculator=" << m_calculator << ", name="<< calcDSname <<"\n";
+    // ownership is passed to detStore
+    return detStore()->record(m_calculator,  calcDSname);
+}
+#endif // Athena
 
 const LArWheelCalculator *LArCustomShape::calculator() const
 {

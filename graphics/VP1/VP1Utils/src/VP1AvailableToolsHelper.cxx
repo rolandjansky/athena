@@ -14,6 +14,7 @@
 
 #include "VP1Utils/VP1AvailableToolsHelper.h"
 #include "VP1Base/IVP1System.h"
+#include "VP1Base/VP1Msg.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include <QComboBox>
@@ -171,7 +172,7 @@ QStringList VP1AvailableToolsHelper::Imp::actualCurrentlyAvailableTools()
     foreach ( QString tooltype, monitoredTypes ) {
       std::vector<std::string> instances;
       instances = toolsvc->getInstances( tooltype.toStdString() );
-      if (!silent&&theclass->verbose())
+      if (!silent&&VP1Msg::verbose())
 	theclass->messageVerbose("Used toolsvc->getInstances(..) to find "+QString::number(instances.size())+" public tools of type "+tooltype );
       for (unsigned i = 0; i < instances.size(); ++i ) {
 	QString instance(instances.at(i).c_str());
@@ -188,15 +189,15 @@ QStringList VP1AvailableToolsHelper::Imp::actualCurrentlyAvailableTools()
 	    }
 	  }
 	  if (ignore) {
-	    if (!silent&&theclass->verbose())
+	    if (!silent&&VP1Msg::verbose())
 	      theclass->messageVerbose("  --> Found but ignoring "+instance );
 	    continue;
 	  }
 	}
-	if (!silent&&theclass->verbose())
+	if (!silent&&VP1Msg::verbose())
 	  theclass->messageVerbose("  --> Found "+instance );
 	l << tooltype+"/"+instance;
-	if (!silent&&theclass->verbose())
+	if (!silent&&VP1Msg::verbose())
 	  theclass->messageVerbose("  --> Appended "+tooltype+"/"+instance+" to list" );
       }
     }

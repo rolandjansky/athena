@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef T2_MBTS_FEX_H
 #define T2_MBTS_FEX_H
 
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TrigT2MinBias/T2MbtsUtils.h"
 #include <vector>

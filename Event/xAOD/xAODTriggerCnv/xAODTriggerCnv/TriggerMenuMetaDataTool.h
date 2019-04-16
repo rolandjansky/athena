@@ -66,6 +66,7 @@ namespace xAODMaker {
       /// Function writing out the collected metadata
       virtual StatusCode metaDataStop();
 
+#ifndef XAOD_STANDALONE
    /// Function collecting the metadata from a new input file
    virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
 
@@ -74,6 +75,7 @@ namespace xAODMaker {
 
    /// Function writing the collected metadata to the output
    virtual StatusCode metaDataStop(const SG::SourceID&) {return metaDataStop();}
+#endif // XAOD_STANDALONE
 
       /// @}
 

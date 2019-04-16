@@ -146,6 +146,16 @@ TrackParticleCollectionSettingsButton::TrackParticleCollectionSettingsButton(QWi
   connect(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateTrackLightModel(bool)));
   connect(m_d->editwindow_ui.checkBox_hideactualpaths,SIGNAL(toggled(bool)),this,SLOT(updateHideActualTrackPath(bool)));
   
+  #if defined BUILDVP1LIGHT
+    m_d->editwindow_ui.radioButton_existingParameters->setChecked(true);
+    m_d->editwindow_ui.radioButton_existingParameters->setEnabled(true);
+    m_d->editwindow_ui.radioButton_extrapolate->setChecked(false);
+    m_d->editwindow_ui.radioButton_extrapolate->setEnabled(false);
+    m_d->editwindow_ui.radioButton_extrapolate->setToolTip("Not available in VP1 Light");
+    m_d->editwindow_ui.horizontalSlider_numBezierSteps->setValue(10);
+    m_d->editwindow_ui.horizontalSlider_numBezierSteps->setSliderPosition(10);
+  #endif //BUILDVP1LIGHT
+
   // Propagation - for all of these, just emit the propagationOptionsChanged() signal and rely on clients checking to see what has changed.
   connect(m_d->editwindow_ui.radioButton_existingParameters, SIGNAL(toggled(bool)),    this, SIGNAL(propagationOptionsChanged()));
   connect(m_d->editwindow_ui.radioButton_extrapolate,        SIGNAL(toggled(bool)),    this, SIGNAL(propagationOptionsChanged()));

@@ -1,7 +1,6 @@
+#
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
-from AthenaCommon.Constants import DEBUG
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
@@ -16,7 +15,6 @@ def metCellMenuSequence():
 
     metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
     metHypoAlg.METContainerKey=sequenceOut
-    metHypoAlg.OutputLevel=DEBUG
 
     return  MenuSequence( Sequence    = metCellSequence,
                           Maker       = InputMakerAlg,
@@ -35,7 +33,6 @@ def metClusterMenuSequence():
 
     metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
     metHypoAlg.METContainerKey=sequenceOut
-    metHypoAlg.OutputLevel=DEBUG
 
     return  MenuSequence( Sequence    = metClusterSequence,
                           Maker       = InputMakerAlg,
@@ -52,7 +49,6 @@ def metJetMenuSequence():
 
     metHypoAlg = MissingETHypoAlgMT("METHypoAlg")
     metHypoAlg.METContainerKey=sequenceOut
-    metHypoAlg.OutputLevel=DEBUG
 
     return  MenuSequence( Sequence    = metJetSequence,
                           Maker       = InputMakerAlg,

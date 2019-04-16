@@ -45,8 +45,10 @@ def ExampleMonitoringConfig(inputFlags):
 
     ### STEP 3 ###
     # Edit properties of a algorithm
-    exampleMonAlg.TriggerChain = ''
+    # some generic property
     # exampleMonAlg.RandomHist = True
+    # to enable a trigger filter, for example:
+    exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -100,10 +102,9 @@ def ExampleMonitoringConfig(inputFlags):
     return helper.result()
     
     # # Otherwise, merge with result object and return
-    # acc, seq = helper.result()
+    # acc = helper.result()
     # result.merge(acc)
-    # return result, seq
-
+    # return result
 
 if __name__=='__main__':
     # Setup the Run III behavior
@@ -122,6 +123,7 @@ if __name__=='__main__':
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
+    
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -130,7 +132,11 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    exampleMonitorAcc,exampleMonitorAlg = ExampleMonitoringConfig(ConfigFlags)
-    
+    exampleMonitorAcc = ExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
-    cfg.run()
+
+    # If you want to turn on more detailed messages ...
+    #exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
+    cfg.printConfig(withDetails=False) # set True for exhaustive info
+
+    cfg.run() #use cfg.run(20) to only run on first 20 events

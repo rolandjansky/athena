@@ -27,11 +27,11 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfBaseTest
       test/TrigConfMsgAlg.cxx
       LINK_LIBRARIES TrigConfBase AthenaBaseComps )
+
+   atlas_add_test( trigconf_msg_athena_test
+      SCRIPT athena.py TrigConfBase/test_TrigConfMsgAlg.py )
 endif()
 
 atlas_add_test( trigconf_msg_standalone_test
    SOURCES test/trigconf_msgsvc_test.cxx
    LINK_LIBRARIES TrigConfBase )
-
-atlas_add_test( trigconf_msg_athena_test
-   SCRIPT athena.py TrigConfBase/test_TrigConfMsgAlg.py )

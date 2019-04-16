@@ -21,7 +21,9 @@
 #include <QNetworkReply>
 
 
+
 class QNetworkAccessManager;
+class QSslError;
 
 class VP1Authenticator : public QDialog, public Ui::dlgAuthentication
 {

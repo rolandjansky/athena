@@ -17,7 +17,14 @@
 #include "VP1Base/VP1QtUtils.h"
 #include <iostream>
 
-bool VP1Msg::s_verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
+#ifndef BUILDVP1LIGHT   //TODO: Merge the two mechanisms, specifically for VP1
+  bool VP1Msg::m_verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
+  bool VP1Msg::m_debug = VP1QtUtils::environmentVariableIsOn("VP1_DEBUG_OUTPUT");
+#endif
+#ifdef BUILDVP1LIGHT
+  bool VP1Msg::m_verbose = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_VERBOSE_OUTPUT");
+  bool VP1Msg::m_debug = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_DEBUG_OUTPUT");
+#endif
 
 //____________________________________________________________________
 void VP1Msg::message( const QString& str, IVP1System*sys )
@@ -31,6 +38,9 @@ void VP1Msg::message( const QString& str, IVP1System*sys )
 //____________________________________________________________________
 void VP1Msg::messageDebug( const QString& str )
 {
+  if (!debug()){
+    return;
+  }
   std::cout << prefix_debug() << ": "<< str.toStdString()<<std::endl;
 }
 
@@ -66,8 +76,9 @@ void VP1Msg::messageWarningAllRed( const QString& str )
 //____________________________________________________________________
 void VP1Msg::messageVerbose( const QString& str )
 {
-  if (!verbose())
+  if (!verbose()){
     return;
+  }
   std::cout<<prefix_verbose()<<": "<<str.toStdString()<<std::endl;
 }
 
@@ -85,7 +96,10 @@ void VP1Msg::message(const QStringList& l, const QString& addtoend, IVP1System*s
 
 //____________________________________________________________________
 void VP1Msg::messageDebug(const QStringList& l, const QString& addtoend )
-{
+{  
+  if (!debug()){
+    return;
+  }
   if (addtoend.isEmpty()) {
     foreach(QString s, l)
       messageDebug(s);
@@ -98,8 +112,9 @@ void VP1Msg::messageDebug(const QStringList& l, const QString& addtoend )
 //____________________________________________________________________
 void VP1Msg::messageVerbose(const QStringList& l, const QString& addtoend )
 {
-  if (!verbose())
+  if (!verbose()){
     return;
+  }
   if (addtoend.isEmpty()) {
     foreach(QString s, l)
       messageVerbose(s);
@@ -129,6 +144,9 @@ void VP1Msg::message(const QString& addtostart, const QStringList& l,
 //____________________________________________________________________
 void VP1Msg::messageDebug(const QString& addtostart, const QStringList& l, const QString& addtoend )
 {
+  if (!debug()){
+    return;
+  }
   if (addtostart.isEmpty()) {
     messageDebug(l,addtoend);
     return;
@@ -145,8 +163,9 @@ void VP1Msg::messageDebug(const QString& addtostart, const QStringList& l, const
 //____________________________________________________________________
 void VP1Msg::messageVerbose(const QString& addtostart, const QStringList& l, const QString& addtoend )
 {
-  if (!verbose())
+  if (!verbose()){
     return;
+  }
   if (addtostart.isEmpty()) {
     messageVerbose(l,addtoend);
     return;
@@ -160,3 +179,20 @@ void VP1Msg::messageVerbose(const QString& addtostart, const QStringList& l, con
   }
 }
 
+#if defined BUILDVP1LIGHT
+void VP1Msg::enableMsg(const QString& type, const QString& name){
+  if( name == "ExpertSettings/VP1_VERBOSE_OUTPUT"){
+    VP1Msg::m_verbose = VP1QtUtils::expertSettingIsSet(type, name);
+} else {
+    VP1Msg::m_debug = VP1QtUtils::expertSettingIsSet(type, name);
+}
+}
+#else
+void VP1Msg::enableMsg(const QString& name){
+  if( name == "VP1_VERBOSE_OUTPUT"){
+    VP1Msg::m_verbose = VP1QtUtils::environmentVariableIsSet(name);
+  } else {
+    VP1Msg::m_debug = VP1QtUtils::environmentVariableIsSet(name);
+  }
+}
+#endif
