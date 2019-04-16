@@ -30,7 +30,6 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_disablePixMapCondDB(false),
     m_disableSpecialPixels(false),
-    m_disableCalibCondDB(false),
     m_disableAlignable(false),
     m_disableAllClusterSplitting(false),
     m_disableDCS(true)
@@ -39,7 +38,6 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
 	declareProperty("RDBAccessSvc",m_rdbAccessSvc);
  	declareProperty("DisablePixMapCondDB",m_disablePixMapCondDB);
  	declareProperty("DisableSpecialPixels",m_disableSpecialPixels);
- 	declareProperty("DisableCalibCondDB",m_disableCalibCondDB);
  	declareProperty("DisableAlignable",m_disableAlignable);
  	declareProperty("DisableAllClusterSplitting",m_disableAllClusterSplitting);
  	declareProperty("DisableDCS",m_disableDCS);
