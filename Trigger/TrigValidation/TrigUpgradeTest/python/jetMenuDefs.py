@@ -4,7 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
-def jetMenuSequence(jetdef):
+def jetMenuSequence(jetdef, hypoName):
     """ Function to create the jet Menu Sequence"""
    
     ConfigFlags.jetdefinition=jetdef
@@ -17,7 +17,7 @@ def jetMenuSequence(jetdef):
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT")
+    hypo = TrigJetHypoAlgMT(hypoName)
     hypo.Jets = sequenceOut
 
 
