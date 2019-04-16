@@ -19,7 +19,7 @@ def GeoModelCfg(configFlags):
     if configFlags.Detector.Simulate:
         ## Protects GeoModelSvc in the simulation from the AlignCallbacks
         gms.AlignCallbacks = False
-    result.addService(gms)
+    result.addService(gms,primary=True)
     
     from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
@@ -35,7 +35,7 @@ def GeoModelCfg(configFlags):
     result.merge(tim_ca)
     #TagInfoMgr used by GeoModelSvc but no ServiceHandle. Relies on string-name
 
-    return result,gms
+    return result
 
 
 
@@ -47,6 +47,6 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
-    acc, gms = GeoModelCfg( ConfigFlags )
+    acc = GeoModelCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
     print "All OK"

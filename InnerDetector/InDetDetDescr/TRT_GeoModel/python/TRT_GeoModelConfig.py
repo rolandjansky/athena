@@ -8,7 +8,8 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def TRT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc,geoModelSvc = GeoModelCfg( flags )
+    acc = GeoModelCfg( flags )
+    geoModelSvc=acc.getPrimary()
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool

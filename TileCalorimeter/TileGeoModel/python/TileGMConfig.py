@@ -4,12 +4,10 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 def TileGMCfg(configFlags):
-    result,gms=GeoModelCfg(configFlags)
+    result=GeoModelCfg(configFlags)
 
     from TileGeoModel.TileGeoModelConf import TileDetectorTool
-    gms.DetectorTools += [ TileDetectorTool() ]
-
-    result.addService(gms)
+    result.getPrimary().DetectorTools += [ TileDetectorTool() ]
 
     return result
 
