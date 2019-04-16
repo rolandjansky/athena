@@ -53,5 +53,9 @@ done
 echo  "art-result: $? web"
 
 
+echo "ls PHYSVAL_WEB"
+ls PHYSVAL_WEB
+
+
 
 
