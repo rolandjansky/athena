@@ -21,6 +21,7 @@
 #include <QFileInfoList>
 #include <QThread>
 
+#include <string>
 #include <sstream>
 #include <iomanip>
 #include <iostream>

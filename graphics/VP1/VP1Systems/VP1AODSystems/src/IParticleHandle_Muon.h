@@ -38,6 +38,7 @@ public:
 
   virtual QStringList clicked() const;
   virtual Amg::Vector3D momentum() const;
+  virtual Amg::Vector3D position() const;
   const xAOD::IParticle& iParticle() const;
   virtual double charge() const ;//!< Returns unknown() in case of trouble.
 

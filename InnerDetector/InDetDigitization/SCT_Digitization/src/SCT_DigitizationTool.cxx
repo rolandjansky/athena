@@ -29,11 +29,9 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 // C++ Standard Library
-#include <limits>
 #include <memory>
 #include <sstream>
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 // Barcodes at the HepMC level are int
 
 using InDetDD::SiCellId;
@@ -41,27 +39,9 @@ using InDetDD::SiCellId;
 SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
-  base_class(type, name, parent),
-  m_HardScatterSplittingSkipper{false},
-  m_detID{nullptr},
-  m_mergeSvc{"PileUpMergeSvc", name},
-  m_thpcsi{nullptr},
-  m_vetoThisBarcode{crazyParticleBarcode} {
-    declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
-    declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
-    declareProperty("EnableHits", m_enableHits = true, "Enable hits");
-    declareProperty("OnlyHitElements", m_onlyHitElements = false, "Process only elements with hits");
-    declareProperty("BarrelOnly", m_barrelonly = false, "Only Barrel layers");
-    declareProperty("RandomDisabledCells", m_randomDisabledCells = false, "Use Random disabled cells, default no");
-    declareProperty("CreateNoiseSDO", m_createNoiseSDO = false, "Set create noise SDO flag");
-    declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
-    declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
-    declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
-    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode = 0, "Control pileup & signal splitting");
-    declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
-
-    m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
-  }
+  base_class(type, name, parent) {
+  m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
+}
 
 SCT_DigitizationTool::~SCT_DigitizationTool() {
   delete m_thpcsi;

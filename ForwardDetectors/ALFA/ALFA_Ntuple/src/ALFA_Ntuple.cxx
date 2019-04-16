@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_Ntuple/ALFA_Ntuple.h"
 #include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <typeinfo>
 #include <numeric>
 
@@ -720,18 +721,16 @@ StatusCode ALFA_Ntuple::execute()
 	// std::fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
 	// std::fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
 
-	const EventInfo* eventInfo;
-	sc = evtStore()->retrieve(eventInfo);
-	if (sc.isFailure())
-	{
-		ATH_MSG_ERROR("ALFA_Ntuple: Cannot get event info.");
-		return sc;
+	const EventContext& ctx = Gaudi::Hive::currentContext();
+	if(!ctx.valid()) {
+	  ATH_MSG_ERROR("Invalid Event Context!");
+	  return StatusCode::FAILURE;
 	}
 
 	// current event number, run number and luminosity block
-	m_iEvent = eventInfo->event_ID()->event_number();
-	m_iRunNum = eventInfo->event_ID()->run_number();
-	m_iLumBlock = eventInfo->event_ID()->lumi_block();
+	m_iEvent = ctx.eventID().event_number();
+	m_iRunNum = ctx.eventID().run_number();
+	m_iLumBlock = ctx.eventID().lumi_block();
 
 	// for other algorithms -------------------------------------------------------------
 	std::string strAlgoMD;

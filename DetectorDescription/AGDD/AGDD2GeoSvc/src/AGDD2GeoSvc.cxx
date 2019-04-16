@@ -36,9 +36,6 @@ AGDDtoGeoSvc::initialize()
   localInitialization();
 
   ATH_CHECK(m_builders.retrieve());
-  for (const auto& aTest : m_builders) {
-    ATH_CHECK(aTest->construct());
-  }
 
   const DataHandle<TagInfo> tagInfoH;
   std::string tagInfoKey="";

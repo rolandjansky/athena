@@ -18,6 +18,7 @@
 #include "VP1RawDataSystems/VP1RawDataSysController.h"
 #include "VP1Base/VP1ExtraSepLayerHelper.h"
 #include "VP1Base/IVP13DSystem.h"
+#include "VP1Base/VP1Msg.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -94,7 +95,7 @@ QString VP1RawDataCollBase::provideText() const
 //____________________________________________________________________
 void VP1RawDataCollBase::collVisibilityChanged(bool vis)
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("TrackCollHandleBase::collVisibilityChanged => "+str(vis));
   if (vis)
     recheckCutStatusOfAllNotVisibleHandles();//Fixme -> ofallhandles? All must be not visible anyway...

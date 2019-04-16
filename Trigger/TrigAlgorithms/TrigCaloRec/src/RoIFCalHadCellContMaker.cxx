@@ -20,7 +20,6 @@
 
 
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "CaloDetDescr/CaloDetDescrElement.h"

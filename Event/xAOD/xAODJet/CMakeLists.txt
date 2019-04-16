@@ -26,6 +26,13 @@ if( NOT SIMULATIONBASE )
    set( extra_libs xAODBTagging xAODPFlow xAODTrigger )
 endif()
 
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs ${extra_libs} GenVector )
+    endif()
+endif()
+
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
@@ -55,7 +62,7 @@ atlas_add_library( xAODJet
 atlas_add_dictionary( xAODJetDict
    xAODJet/xAODJetDict.h
    xAODJet/selection.xml
-   LINK_LIBRARIES xAODJet
+   LINK_LIBRARIES xAODJet ${extra_libs}
    EXTRA_FILES Root/dict/*.cxx )
 
 # Test(s) in the package:

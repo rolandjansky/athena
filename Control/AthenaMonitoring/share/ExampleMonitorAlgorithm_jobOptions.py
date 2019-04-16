@@ -21,9 +21,13 @@ helper = AthMonitorCfgHelperOld(DQMonFlags, "ExampleMonitor")
 # base class configuration following the inputFlags. The returned object 
 # is the algorithm.
 from AthenaMonitoring.AthenaMonitoringConf import ExampleMonitorAlgorithm
-exampleMonAlg = helper.AddAlgorithm(ExampleMonitorAlgorithm, "ExampleMonAlg")
+exampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm, "ExampleMonAlg")
 
-myGroup = helper.AddGroup( exampleMonAlg,
+# Examples of setting a trigger, or of running with debug messages on
+#exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+#exampleMonAlg.OutputLevel = DEBUG
+
+myGroup = helper.addGroup( exampleMonAlg,
         "ExampleMonitor",
         "OneRing/"
     )

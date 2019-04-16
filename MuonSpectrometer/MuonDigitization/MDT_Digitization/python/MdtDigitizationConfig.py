@@ -44,6 +44,13 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
       kwargs.setdefault("FirstXing", MDT_FirstXing() ) # this should match the range for the MDT in Digitization/share/MuonDigitization.py
       kwargs.setdefault("LastXing",  MDT_LastXing() )  # this should match the range for the MDT in Digitization/share/MuonDigitization.py
 
+   kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
+   if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+      from OverlayCommonAlgs.OverlayFlags import overlayFlags
+      kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MDT_SDO")
+   else:
+      kwargs.setdefault("OutputSDOName", "MDT_SDO")
+
    return CfgMgr.MdtDigitizationTool(name,**kwargs)
       #return CfgMgr.MDT_PileUpTool(name,**kwargs)
    #else:

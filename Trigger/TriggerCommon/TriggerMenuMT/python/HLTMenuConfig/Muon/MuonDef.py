@@ -71,6 +71,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "Comb":[self.getmuFast(), self.getmuComb()],
             "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
             "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
+            "msonly":[self.getmuFast(), self.getmuEFMS()],
         }
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
@@ -105,11 +106,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return ChainStep(stepName, [muSeq])
 
     # --------------------
-    #def getmuEFMS(self):
-    #    stepName = 'Step1_muEFMS'
-    #    log.debug("Configuring step " + stepName)
-    #    muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
-    #    return ChainStep(stepName, [muSeq])
+    def getmuEFMS(self):
+        stepName = 'Step1_muEFMS'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
+        return ChainStep(stepName, [muSeq])
 
     # --------------------
     def getmuIso(self):

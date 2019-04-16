@@ -557,8 +557,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         for (const Trk::SpacePoint* sp: **spContainerIterator) {
           // the following is nasty; the 'normal' sides (where the sp is defined) swap from layer to layer. To be safe,
           // we get both sides
-          const std::vector<Identifier>& rdoList0{sp->clusterList().first->rdoList()};
-          const std::vector<Identifier>& rdoList1{sp->clusterList().second->rdoList()};
+          const vector<Identifier>& rdoList0{sp->clusterList().first->rdoList()};
+          const vector<Identifier>& rdoList1{sp->clusterList().second->rdoList()};
           // copy to mySetOfSPIds. Use inserter(set, iterator_hint) for a set, or back_inserter(vec) for vector...
           copy(rdoList0.begin(), rdoList0.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
           copy(rdoList1.begin(), rdoList1.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
@@ -594,8 +594,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
       unsigned int module_hash{m_pSCTHelper->wafer_hash(wafer_id)};
       //
       if (doThisSubsystem[systemIndex]) {
-        H2_t histogram{m_phitsHistoVector[systemIndex][thisElement]};
-        H2_t histogram_recent{nullptr};
+        TH2F_LW* histogram{m_phitsHistoVector[systemIndex][thisElement]};
+        TH2F_LW* histogram_recent{nullptr};
         if (m_environment == AthenaMonManager::online) {
           histogram_recent = m_phitsHistoVectorRecent[systemIndex][thisElement];
         }
@@ -1021,8 +1021,8 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
-  VecH1_t& clusterSizeVector{m_clusizeHistoVector[systemIndex]};
-  VecH1_t& clusterSizeVectorRecent{m_clusizeHistoVectorRecent[systemIndex]};
+  vector<TH1F_LW*>& clusterSizeVector{m_clusizeHistoVector[systemIndex]};
+  vector<TH1F_LW*>& clusterSizeVectorRecent{m_clusizeHistoVectorRecent[systemIndex]};
   if (newRunFlag()) {
     clusterSizeVector.clear();
     clusterSizeVectorRecent.clear();
@@ -1622,7 +1622,7 @@ SCTHitsNoiseMonTool::resetHitMapHists() {
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecProf2(VecProf2_t hists) const {
+SCTHitsNoiseMonTool::resetVecProf2(vector<TProfile2D*>& hists) const {
   for (unsigned int i{0}; i < hists.size(); ++i) {
     if (hists[i]==nullptr) {
       continue;
@@ -1639,7 +1639,7 @@ SCTHitsNoiseMonTool::resetVecProf2(VecProf2_t hists) const {
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecH2(VecH2_t hists) const {
+SCTHitsNoiseMonTool::resetVecH2(vector<TH2F_LW*>& hists) const {
   for (unsigned int i{0}; i < hists.size(); ++i) {
     if (hists[i]==nullptr) {
       continue;
@@ -1656,7 +1656,7 @@ SCTHitsNoiseMonTool::resetVecH2(VecH2_t hists) const {
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecH1(VecH1_t hists) const {
+SCTHitsNoiseMonTool::resetVecH1(vector<TH1F_LW*>& hists) const {
   for (unsigned int i{0}; i < hists.size(); ++i) {
     if (hists[i]==nullptr) {
       continue;
@@ -2052,8 +2052,8 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
 
   if (newRunFlag()) {
     //
-    vector<H1_t>& tbinHistoVector{m_tbinHistoVector[systemIndex]};
-    vector<H1_t>& tbinHistoVectorRecent{m_tbinHistoVectorRecent[systemIndex]};
+    vector<TH1F_LW*>& tbinHistoVector{m_tbinHistoVector[systemIndex]};
+    vector<TH1F_LW*>& tbinHistoVectorRecent{m_tbinHistoVectorRecent[systemIndex]};
     tbinHistoVector.clear();
     tbinHistoVectorRecent.clear();
     MonGroup timeGroup{this, path[systemIndex], run, ATTRIB_UNMANAGED};
@@ -2131,9 +2131,9 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
   return StatusCode::SUCCESS;
 }
 
-SCTHitsNoiseMonTool::H2_t
+TH2F_LW*
 SCTHitsNoiseMonTool::h2Factory(const string& name, const string& title, const Bec bec,
-                               MonGroup& registry, VecH2_t& storageVector) const {
+                               MonGroup& registry, vector<TH2F_LW*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
 
@@ -2145,7 +2145,7 @@ SCTHitsNoiseMonTool::h2Factory(const string& name, const string& title, const Be
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  H2_t tmp{TH2F_LW::create(name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5)};
+  TH2F_LW* tmp{TH2F_LW::create(name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5)};
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success{registry.regHist(tmp).isSuccess()};
@@ -2156,10 +2156,10 @@ SCTHitsNoiseMonTool::h2Factory(const string& name, const string& title, const Be
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::H2I_t
+TH2I_LW*
 SCTHitsNoiseMonTool::h2IFactory(const string& name, const string& title, MonGroup& registry, int nbinx,
                                 float xlo, float xhi, int nbiny, float ylo, float yhi) const {
-  H2I_t tmp{TH2I_LW::create(name.c_str(), title.c_str(), nbinx, xlo, xhi, nbiny, ylo, yhi)};
+  TH2I_LW* tmp{TH2I_LW::create(name.c_str(), title.c_str(), nbinx, xlo, xhi, nbiny, ylo, yhi)};
 
   tmp->SetXTitle("module #");
   tmp->SetYTitle("Time bin");
@@ -2170,10 +2170,10 @@ SCTHitsNoiseMonTool::h2IFactory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::Prof2_t
+TProfile2D*
 SCTHitsNoiseMonTool::prof2DFactory(const string& name, const string& title, MonGroup& registry, int nbinx,
                                    float xlo, float xhi, int nbiny, float ylo, float yhi) const {
-  Prof2_t tmp{new TProfile2D{name.c_str(), title.c_str(), nbinx, xlo - 0.5, xhi + 0.5, nbiny, ylo - 0.5, yhi + 0.5}};
+  TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(), nbinx, xlo - 0.5, xhi + 0.5, nbiny, ylo - 0.5, yhi + 0.5}};
 
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
@@ -2184,10 +2184,10 @@ SCTHitsNoiseMonTool::prof2DFactory(const string& name, const string& title, MonG
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::Prof_t
+TProfile_LW*
 SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGroup& registry, int nbin,
                                  float lo, float hi) const {
-  Prof_t tmp{TProfile_LW::create(name.c_str(), title.c_str(), nbin, lo, hi)};
+  TProfile_LW* tmp{TProfile_LW::create(name.c_str(), title.c_str(), nbin, lo, hi)};
 
   tmp->SetXTitle("LumiBlock");
   tmp->SetYTitle("Fraction of 01X");
@@ -2198,9 +2198,9 @@ SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGro
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::Prof_t
+TProfile_LW*
 SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGroup& registry) const {
-  Prof_t tmp{TProfile_LW::create(name.c_str(), title.c_str(), 3, 0, 3)};
+  TProfile_LW* tmp{TProfile_LW::create(name.c_str(), title.c_str(), 3, 0, 3)};
 
   tmp->SetYTitle("Fraction of 01X");
   tmp->GetXaxis()->SetBinLabel(1, "Endcap C");
@@ -2213,9 +2213,9 @@ SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGro
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::Prof2_t
+TProfile2D*
 SCTHitsNoiseMonTool::prof2Factory(const string& name, const string& title, const Bec bec,
-                                  MonGroup& registry, VecProf2_t& storageVector) const {
+                                  MonGroup& registry, vector<TProfile2D*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
 
@@ -2227,7 +2227,7 @@ SCTHitsNoiseMonTool::prof2Factory(const string& name, const string& title, const
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  Prof2_t tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
+  TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success{registry.regHist(tmp).isSuccess()};
@@ -2238,10 +2238,10 @@ SCTHitsNoiseMonTool::prof2Factory(const string& name, const string& title, const
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::H1_t
+TH1F_LW*
 SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry, const float lo,
                                const float hi, const unsigned int nbins) const {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -2250,10 +2250,10 @@ SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup
   return success ? tmp : nullptr;
 }
 
-SCTHitsNoiseMonTool::H1_t
+TH1F_LW*
 SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry,
-                               VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) const {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
+                               vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const {
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {

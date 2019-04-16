@@ -75,10 +75,7 @@ acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-
 acc.printConfig()
-
-
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname

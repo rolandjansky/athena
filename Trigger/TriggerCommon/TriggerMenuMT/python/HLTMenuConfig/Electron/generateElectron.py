@@ -2,7 +2,7 @@
 
 from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
-    ChainStep, Chain, RecoFragmentsPool, getChainStepName
+    ChainStep, Chain, getChainStepName
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -23,7 +23,7 @@ def generateChains( flags,  chainDict ):
                                  CaloClusters = 'L2CaloEMClusters')
     l2CaloHypo.HypoTools=[ TrigL2CaloHypoToolFromDict( chainDict ) ]
 
-    l2CaloReco = RecoFragmentsPool.retrieve(l2CaloRecoCfg, flags)
+    l2CaloReco = l2CaloRecoCfg(flags)
     accCalo.merge(l2CaloReco)
     #l2CaloReco = l2CaloRecoCfg( flags ) 
     #accCalo.merge( l2CaloReco )
@@ -41,9 +41,7 @@ def generateChains( flags,  chainDict ):
 
     # # # fast ID
     from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
-    fastInDetReco = RecoFragmentsPool.retrieve( indetInViewRecoCfg,
-                                                flags,
-                                                viewMakerName="ElectronInDet" )
+    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet')
     accTrk.merge( fastInDetReco )
     # TODO once tracking fully works remove fake hypos
 

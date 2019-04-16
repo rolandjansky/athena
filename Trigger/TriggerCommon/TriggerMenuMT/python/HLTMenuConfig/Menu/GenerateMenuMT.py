@@ -4,7 +4,6 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
-from AthenaCommon.Constants import DEBUG
 
 from TriggerJobOpts.TriggerFlags              import TriggerFlags
 
@@ -35,8 +34,7 @@ class GenerateMenuMT:
     overwriteSignaturesWith = staticmethod(overwriteSignaturesWith)
             
     
-    def __init__(self, logLevel=DEBUG):
-        log.setLevel(logLevel)
+    def __init__(self):
         self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []

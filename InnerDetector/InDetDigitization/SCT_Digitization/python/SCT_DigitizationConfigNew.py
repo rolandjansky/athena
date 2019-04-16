@@ -60,7 +60,7 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured SCT digitization tool"""
-    if flags.Digitization.PileUpPremixingForMT:
+    if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
     else:

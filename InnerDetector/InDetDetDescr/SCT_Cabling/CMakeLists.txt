@@ -37,7 +37,7 @@ atlas_add_component( SCT_Cabling
 
 atlas_add_test( TestSCT_CablingCfg
                 SCRIPT share/TestSCT_CablingCfg.sh
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
 # Install files from the package:

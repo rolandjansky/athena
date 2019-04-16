@@ -259,8 +259,10 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
                 __log.info("The producer of the {} not in the menu".format( viewsColl ) )
                 continue
             if len(producer) > 1:
-                __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
-                continue
+                for pr in producer[1:]:
+                    if pr != producer[0]:
+                        __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
+                        continue
             producer = producer[0]
             tool.TrigCompositeContainer = producer.InputMakerOutputDecisions
             tool.FixLinks = True

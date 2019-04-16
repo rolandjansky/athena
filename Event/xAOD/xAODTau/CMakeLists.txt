@@ -21,6 +21,13 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core GenVector )
 
+# Extra dependencies, based on what environment we are in:
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs GenVector )
+    endif()
+endif()
+
 # Component(s) in the package:
 atlas_add_library( xAODTau
    xAODTau/*.h xAODTau/*.icc xAODTau/versions/*.h
@@ -28,7 +35,7 @@ atlas_add_library( xAODTau
    PUBLIC_HEADERS xAODTau
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCore
-   xAODJet xAODPFlow xAODTracking xAODTruth )
+   xAODJet xAODPFlow xAODTracking xAODTruth ${extra_libs} )
 
 atlas_add_dictionary( xAODTauDict
    xAODTau/xAODTauDict.h

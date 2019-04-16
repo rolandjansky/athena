@@ -16,8 +16,6 @@
 
 #include "VP1Base/IVP13DSystemSimple.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include <QList>
 
 #include <vector>
@@ -25,6 +23,7 @@
 
 class SoMaterial;
 class SoCooperativeSelection;
+
 
 #ifndef Q_MOC_RUN
 #include "xAODTracking/TrackParticleFwd.h"
@@ -61,9 +60,11 @@ public:
 public slots:
 // FIXME - might be best to make a helper tool to do this, so we don't need to expose the xAOD objects in the interface here.
 // (Of course, that means we would then need to think of an alternate design to fill the collections in the system...)
+#ifndef BUILDVP1LIGHT
   void updateAssociatedObjects(const QList<const xAOD::TrackParticle*>&);
   // void updateAssociatedObjects(QList<xAOD::CaloCluster*>&);
   void updateAssociatedObjects(const QList<const xAOD::MuonSegment*>&);
+#endif // BUILDVP1LIGHT
 
   void dumpToJSON();
 
@@ -71,6 +72,7 @@ private slots:
   void visibleObjectsChanged();
   void updateSelectionMode();
   void updateShownTotMomentum();
+
 private:
     
   class Imp;

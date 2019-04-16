@@ -12,7 +12,6 @@ FastCaloL2EgammaAlg                     1   0     DEBUG  REGTEST: Eta1 = -0.2286
 FastCaloL2EgammaAlg                     1   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     1   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     1   0     DEBUG  REGTEST: roiWord = 0xa9eb1f08
-FastCaloL2EgammaAlg                     1   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: emEnergy = 2544
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: hadEnergy = -137
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: e237= 1510
@@ -27,7 +26,6 @@ FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: Eta1 = 1.20893
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     2   0     DEBUG  REGTEST: roiWord = 0xa2f01f07
-FastCaloL2EgammaAlg                     2   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: emEnergy = 5129
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: hadEnergy = 557.148
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: e237= 3442
@@ -42,7 +40,6 @@ FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: Eta1 = 0.66207
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: roiWord = 0xa25e1f09
-FastCaloL2EgammaAlg                     5   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: emEnergy = 63629
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: hadEnergy = 3562
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: e237= 52341
@@ -57,7 +54,6 @@ FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: Eta1 = -2.4411
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: roiWord = 0xa46d0210
-FastCaloL2EgammaAlg                     5   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: emEnergy = 6126
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: hadEnergy = 32
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: e237= 5815
@@ -72,7 +68,6 @@ FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: Eta1 = -0.5373
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: roiWord = 0xa5a3010d
-FastCaloL2EgammaAlg                     5   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: emEnergy = 56965
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: hadEnergy = -359
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: e237= 28865
@@ -87,7 +82,6 @@ FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: Eta1 = -1.3404
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: roiWord = 0xad2e1f35
-FastCaloL2EgammaAlg                     5   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: emEnergy = 44675
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: hadEnergy = 2940
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: e237= 22224
@@ -102,7 +96,6 @@ FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: Eta1 = 1.9601
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     5   0     DEBUG  REGTEST: roiWord = 0xaf1f1f19
-FastCaloL2EgammaAlg                     5   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: emEnergy = 7019
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: hadEnergy = -9
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: e237= 2955
@@ -117,7 +110,6 @@ FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: Eta1 = 0.93370
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: roiWord = 0xaaa11708
-FastCaloL2EgammaAlg                     7   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: emEnergy = 1073
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: hadEnergy = 451.024
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: e237= 923
@@ -132,7 +124,6 @@ FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: Eta1 = 0.35805
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     7   0     DEBUG  REGTEST: roiWord = 0xae0e1f08
-FastCaloL2EgammaAlg                     7   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: emEnergy = 23968
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: hadEnergy = -372
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: e237= 13197
@@ -147,7 +138,6 @@ FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: Eta1 = -1.1685
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     8   0     DEBUG  REGTEST: roiWord = 0xa925011b
-FastCaloL2EgammaAlg                     8   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: emEnergy = 10276
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: hadEnergy = 228
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: e237= 3148
@@ -162,7 +152,6 @@ FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: Eta1 = -0.7322
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: roiWord = 0xa59a1f0e
-FastCaloL2EgammaAlg                     9   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: emEnergy = 3640
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: hadEnergy = -248.5
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: e237= 1789
@@ -177,7 +166,6 @@ FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: Eta1 = -0.4186
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: roiWord = 0xa5b51f07
-FastCaloL2EgammaAlg                     9   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: emEnergy = 6856
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: hadEnergy = 97.5
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: e237= 2157
@@ -192,7 +180,6 @@ FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: Eta1 = 0.09794
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: roiWord = 0xa6321f08
-FastCaloL2EgammaAlg                     9   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: emEnergy = 9199
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: hadEnergy = 619.342
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: e237= 2613
@@ -207,7 +194,6 @@ FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: Eta1 = 1.17086
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: roiWord = 0xa6850109
-FastCaloL2EgammaAlg                     9   0      INFO  REGTEST : DONE  
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: emEnergy = 22566
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: hadEnergy = 5845
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: e237= 11730
@@ -222,4 +208,3 @@ FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: Eta1 = 1.80997
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: calZ0 = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: quality = 0
 FastCaloL2EgammaAlg                     9   0     DEBUG  REGTEST: roiWord = 0xa72b020c
-FastCaloL2EgammaAlg                     9   0      INFO  REGTEST : DONE  

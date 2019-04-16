@@ -29,6 +29,7 @@
 #include "VP1GuideLineSystems/InDetProjHelper.h"
 
 #include "VP1Base/VisibleObjectToMaterialHelper.h"
+#include "VP1Base/VP1Msg.h"
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -123,7 +124,7 @@ void TrackSysCommonData::clearEventData()
 //____________________________________________________________________
 void TrackSysCommonData::registerTrack(SoNode*node,TrackHandleBase*handle)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     if (!node||!handle) {
       message("registerTrack ERROR: Received null pointer!");
       return;
@@ -138,7 +139,7 @@ void TrackSysCommonData::registerTrack(SoNode*node,TrackHandleBase*handle)
 //____________________________________________________________________
 void TrackSysCommonData::unregisterTrack(SoNode*node)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     if (!node) {
       message("unregisterTrack ERROR: Received null pointer!");
       return;

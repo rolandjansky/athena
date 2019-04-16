@@ -71,7 +71,9 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "AtRanluxGenSvc.Seeds": unifySet,
                "AtRndmGenSvc.Seeds": unifySet,
                "dummyService.AList": unifySet,
-               "dummyTool.BList" : unifySet
+               "dummyTool.BList" : unifySet,
+               "*.InputMakerInputDecisions": unifySet,
+               "*.InputMakerOutputDecisions": unifySet
                }
 
 def setUnificationFunction(key, function):
