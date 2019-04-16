@@ -10,7 +10,11 @@ muL2ISInfo = "MuonL2ISInfo"
 TrackParticlesName = "xAODTracks"
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
-def makeMuonPrepDataAlgs():
+def makeMuonPrepDataAlgs(forFullScan=False):
+
+  postFix = ""
+  if forFullScan:
+    postFix = "FS"
 
   eventAlgs_MuonPRD = [] # These algs should be prepared for configuring RoIs same as muon RoIs used in viewAlg.
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
@@ -35,10 +39,10 @@ def makeMuonPrepDataAlgs():
   ToolSvc += CscRdoToCscPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
-  CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
+  CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData" + postFix,
                                             CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                             PrintPrepData           = False, 
-                                            DoSeededDecoding        = True,
+                                            DoSeededDecoding        = not forFullScan,
                                             RoIs                    = "MURoIs" )
 
  
@@ -77,16 +81,19 @@ def makeMuonPrepDataAlgs():
   ToolSvc += MdtRdoToMdtPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
-  MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name             = "MdtRdoToMdtPrepData",
+  MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name             = "MdtRdoToMdtPrepData" + postFix,
                                             DecodingTool     = MdtRdoToMdtPrepDataTool,
                                             PrintPrepData    = False,
-                                            DoSeededDecoding = True,
+                                            DoSeededDecoding = not forFullScan,
                                             RoIs             = "MURoIs")
   
   
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-  MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
-                                                ProviderTool = MuonMdtRawDataProviderTool )
+  MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
+                                                ProviderTool = MuonMdtRawDataProviderTool,
+                                                DoSeededDecoding = not forFullScan,
+                                                RoIs = "MURoIs"
+                                                )
 
   eventAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
   viewAlgs_MuonPRD.append( MdtRawDataProvider )
@@ -109,16 +116,16 @@ def makeMuonPrepDataAlgs():
   ToolSvc += RpcRdoToRpcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
-  RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name             = "RpcRdoToRpcPrepData",
+  RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name             = "RpcRdoToRpcPrepData" + postFix,
                                             DecodingTool     = RpcRdoToRpcPrepDataTool,
                                             PrintPrepData    = False,
-                                            DoSeededDecoding = True,
+                                            DoSeededDecoding = not forFullScan,
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
-  RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
+  RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider" + postFix,
                                                 ProviderTool = MuonRpcRawDataProviderTool,
-                                                DoSeededDecoding = True,
+                                                DoSeededDecoding = not forFullScan,
                                                 RoIs = "MURoIs")
 
   eventAlgs_MuonPRD.append( RpcRawDataProvider )
@@ -142,10 +149,10 @@ def makeMuonPrepDataAlgs():
   ToolSvc += TgcRdoToTgcPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
-  TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name             = "TgcRdoToTgcPrepData",
+  TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name             = "TgcRdoToTgcPrepData" + postFix,
                                             DecodingTool     = TgcRdoToTgcPrepDataTool,
                                             PrintPrepData    = False,
-                                            DoSeededDecoding = True,
+                                            DoSeededDecoding = not forFullScan,
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
@@ -232,7 +239,8 @@ def muFastRecoSequence( RoIs ):
   ToolSvc += CscClusterBuilderTool
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(CscPrepDataProvider  = CscRdoToCscPrepDataTool,
+  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(CscRawDataProvider   = MuonCscRawDataProviderTool,
+                                                        CscPrepDataProvider  = CscRdoToCscPrepDataTool,
                                                         CscClusterProvider   = CscClusterBuilderTool,
                                                         CSCPrepDataContainer = CscClusterBuilderTool.cluster_key)
   ToolSvc += L2CscDataPreparator
@@ -410,7 +418,7 @@ def muEFSARecoSequence( RoIs, name ):
   
   ### Provide Muon_PrepDataAlgorithms ###
   from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import makeMuonPrepDataAlgs
-  ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs()
+  ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs( name == 'FS')
 
   # setup RDO preparator algorithms 
   from AthenaCommon import CfgMgr
@@ -515,10 +523,11 @@ def muEFSARecoSequence( RoIs, name ):
   # setup muEFMsonly algs
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
-        if "FS" in RoIs:
+        if name == "FS":
           efAlg.RoIs = "FSRoI"
         else:
           efAlg.RoIs = RoIs
+        print efAlg.RoIs
       muEFSARecoSequence += efAlg
   sequenceOut = themuoncreatoralg.MuonContainerLocation
 
