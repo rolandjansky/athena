@@ -15,16 +15,8 @@
 
 // constructor
 SCT_Amp::SCT_Amp(const std::string& type, const std::string& name, const IInterface* parent) 
-  : base_class(type, name, parent), 
-    m_NormConstCentral{0.},
-    m_NormConstNeigh{0.}
+  : base_class(type, name, parent)
 {
-  declareProperty("CrossFactor2sides", m_CrossFactor2sides=0.1); //! <Loss of charge to neighbour strip constant
-  declareProperty("CrossFactorBack", m_CrossFactorBack=0.07);    //! <Loss of charge to back plane constant
-  declareProperty("PeakTime", m_PeakTime=21.);                   //! <Front End Electronics peaking time
-  declareProperty("deltaT", m_dt=1.0);
-  declareProperty("Tmin", m_tmin=-25.0);
-  declareProperty("Tmax", m_tmax=150.0);
 }
 
 //----------------------------------------------------------------------
@@ -40,10 +32,10 @@ StatusCode SCT_Amp::initialize() {
   ATH_MSG_DEBUG("SCT_Amp::initialize()");
 
   /** CHLEP Units */
-  m_PeakTime *= CLHEP::ns;
-  m_dt *= CLHEP::ns;
-  m_tmin *= CLHEP::ns;
-  m_tmax *= CLHEP::ns;
+  m_PeakTime.setValue(m_PeakTime.value() * CLHEP::ns);
+  m_dt.setValue(m_dt.value() * CLHEP::ns);
+  m_tmin.setValue(m_tmin.value() * CLHEP::ns);
+  m_tmax.setValue(m_tmax.value() * CLHEP::ns);
 
   m_NormConstCentral = (exp(3.0)/27.0)*(1.0-m_CrossFactor2sides)*(1.0-m_CrossFactorBack);
   m_NormConstNeigh = exp(3.0-sqrt(3.0))/(6*(2.0*sqrt(3.0)-3.0));

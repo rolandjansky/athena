@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include <QTimer>
+#include "VP1Base/VP1Msg.h"
 
 //____________________________________________________________________
 template <class objectT>
@@ -39,7 +40,7 @@ inline void VisibleObjectToMaterialHelper<objectT>::setState( const objectT* t, 
     message("setState WARNING: Called with null pointer");
     return;
   }
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("setState Called");
 
   typename std::map<const objectT*,SoMaterial*>::iterator it = m_visobjects.find(t);

@@ -26,6 +26,8 @@
 
 //xAOD
 #include "xAODBase/IParticle.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccessInterfaces/TVirtualEvent.h"
 
 // Qt
 #include <QtGui/QColor>
@@ -33,6 +35,7 @@
 
 //Misc
 #include <iostream>
+
 
 class AODSysCommonData;
 class VertexHandle;
@@ -54,8 +57,8 @@ public:
 
   VertexCollHandle(AODSysCommonData *,
           const QString& name,
-		      xAOD::Type::ObjectType);
-          
+          xAOD::Type::ObjectType);
+         
   virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to VP1StdCollection::init.
   virtual ~VertexCollHandle();
 

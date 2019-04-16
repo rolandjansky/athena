@@ -40,9 +40,18 @@ echo ${refdir}
 
 # make webdisplay 
 mkdir PHYSVAL_WEB
-physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB --startpath run_1/HLT NTUP_PHYSVAL.pool.root
+#physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB --startpath run_1/HLT NTUP_PHYSVAL.pool.root
+
+
+domains="TauMon MuonMon IDMon JetMon BphysMon HLTCaloESD ResultMon BjetMon METMon MinBiasMon Egamma"
+for slice in ${domains}
+do 
+  physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB/${slice} --startpath run_1/HLT/${slice} NTUP_PHYSVAL.pool.root
+done
+
 
 echo  "art-result: $? web"
+
 
 
 

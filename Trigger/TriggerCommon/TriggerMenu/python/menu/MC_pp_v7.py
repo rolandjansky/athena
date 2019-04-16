@@ -984,10 +984,8 @@ def setupMenu():
         # Run-II - No BDT: variations
         ['tau25_perf_calo',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_perf_calo_L1TAU12',                'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwocalo',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: main calo-based items
         ['tau25_medium1_calo',                     'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_tracktwocalo',             'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - High-pT variations
         ['tau35_medium1_calo',                     'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau80_medium1_calo',                     'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -3225,7 +3223,6 @@ ps_perform_list = [
     'tau25_medium1_calo',
     'tau25_medium1_ptonly',
     'tau25_medium1_track',
-    'tau25_medium1_tracktwocalo',
     'tau25_perf_calo',
     'tau25_perf_calo_L1TAU12',
     'tau25_perf_ptonly',
@@ -3233,7 +3230,6 @@ ps_perform_list = [
     'tau25_perf_track',
     'tau25_perf_track_L1TAU12',
     'tau25_perf_tracktwo_L1TAU12',
-    'tau25_perf_tracktwocalo',
     'tau35_loose1_ptonly',
     'tau35_medium1_calo',
     'tau35_medium1_ptonly',

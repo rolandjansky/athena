@@ -8,14 +8,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
-// random number service includes
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGaussZiggurat.h"
-
-// CLHEP
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetSimEvent/SiHit.h" // for SiHit, SiHit::::xDep, etc
@@ -25,6 +17,12 @@
 #include "TH1.h" // for TH1F
 #include "TH2.h" // for TH2F
 #include "TProfile.h" // for TProfile
+
+// CLHEP
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 // STL
 #include <cmath>
@@ -39,53 +37,8 @@ using namespace std;
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type,
                                                          const std::string& name,
                                                          const IInterface* parent)
-  : base_class(type, name, parent),
-  m_tHalfwayDrift{0},
-  m_distInterStrip{1.0},
-  m_distHalfInterStrip{0},
-  m_SurfaceDriftFlag{false},
-  m_doDistortions{false},
-  m_useSiCondDB{true},
-  m_doTrapping{false},
-  m_doHistoTrap{false},
-  m_doRamo{false},
-  m_thistSvc{"THistSvc", name},
-  m_h_efieldz{nullptr},
-  m_h_efield{nullptr},
-  m_h_spess{nullptr},
-  m_h_depD{nullptr},
-  m_h_drift_electrode{nullptr},
-  m_h_ztrap{nullptr},
-  m_h_drift_time{nullptr},
-  m_h_t_electrode{nullptr},
-  m_h_zhit{nullptr},
-  m_h_ztrap_tot{nullptr},
-  m_h_no_ztrap{nullptr},
-  m_h_trap_drift_t{nullptr},
-  m_h_notrap_drift_t{nullptr},
-  m_h_mob_Char{nullptr},
-  m_h_vel{nullptr},
-  m_h_drift1{nullptr},
-  m_h_gen{nullptr},
-  m_h_gen1{nullptr},
-  m_h_gen2{nullptr},
-  m_h_velocity_trap{nullptr},
-  m_h_mobility_trap{nullptr},
-  m_h_trap_pos{nullptr} {
-    declareProperty("FixedTime", m_tfix = -999.); // !< fixed timing
-    declareProperty("SubtractTime", m_tsubtract = -999); // !< substract drift time
-    declareProperty("SurfaceDriftTime", m_tSurfaceDrift = 10); // !< max surface drift time
-    declareProperty("NumberOfCharges", m_numberOfCharges = 1);
-    declareProperty("SmallStepLength", m_smallStepLength = 5);
-    declareProperty("doDistortions", m_doDistortions, "Simulation of module distortions");
-    declareProperty("UseSiCondDB", m_useSiCondDB, "Usage of SiConditions DB values can be disabled to use setable ones");
-    declareProperty("DepletionVoltage", m_vdepl = 70.);
-    declareProperty("BiasVoltage", m_vbias = 150.);
-    declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); //
-    declareProperty("doHistoTrap", m_doHistoTrap, "Histogram the charge trapping effect"); //
-    declareProperty("doRamo", m_doRamo, "Ramo Potential for charge trapping effect"); //
-    declareProperty("isOverlay", m_isOverlay=false);
-  }
+  : base_class(type, name, parent) {
+}
 
 // ----------------------------------------------------------------------
 // Initialize
@@ -179,8 +132,8 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
   }
   ///////////////////////////////////////////////////
 
-  m_smallStepLength *= CLHEP::micrometer;
-  m_tSurfaceDrift *= CLHEP::ns;
+  m_smallStepLength.setValue(m_smallStepLength.value() * CLHEP::micrometer);
+  m_tSurfaceDrift.setValue(m_tSurfaceDrift.value() * CLHEP::ns);
 
   // Surface drift time calculation Stuff
   m_tHalfwayDrift = m_tSurfaceDrift * 0.5;
@@ -548,7 +501,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
           if (design->inActiveArea(position)) {
             const float sdist{static_cast<float>(design->scaledDistanceToNearestDiode(position))}; // !< dist on the surface from the hit point to the nearest strip (diode)
             const float t_surf{surfaceDriftTime(2.0 * sdist)}; // !< Surface drift time
-            const float totaltime{(m_tfix > -998.) ? m_tfix : t_drift + timeOfFlight + t_surf}; // !< Total drift time
+            const float totaltime{(m_tfix > -998.) ? m_tfix.value() : t_drift + timeOfFlight + t_surf}; // !< Total drift time
             inserter(SiSurfaceCharge(position, SiCharge(q1, totaltime, hitproc, trklink)));
           } else {
             ATH_MSG_VERBOSE(std::fixed << std::setprecision(8) << "Local position (phi, eta, depth): ("

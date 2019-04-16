@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MDT_Digitization.MDT_DigitizationConf import (
     MdtDigitizationTool, MDT_Response_DigiTool, RT_Relation_DB_DigiTool, MDT_Digitizer
 )
@@ -55,14 +56,15 @@ def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")
-    acc.setPrivateTools(MdtDigitizationTool(name,**kwargs))
+    acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
 
 def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
     """Return a ComponentAccumulator with configured MDT_Digitizer algorithm"""
-    acc = MDT_DigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
-    acc.addEventAlgo(MDT_Digitizer(name,**kwargs))
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(MDT_DigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
+    acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
     return acc
 
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
@@ -73,13 +75,14 @@ def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**k
     kwargs.setdefault("GetT0FromBD", flags.Detector.Overlay)
     if not flags.Detector.Overlay:
         kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+MDT_SDO")
-    acc.setPrivateTools(MdtDigitizationTool(name,**kwargs))
+    acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
 
 def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
     """Return a ComponentAccumulator with MDT_Digitizer algorithm configured for Overlay"""
-    acc = MDT_OverlayDigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
-    acc.addEventAlgo(MDT_Digitizer(name,**kwargs))
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
+    acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
     return acc
 

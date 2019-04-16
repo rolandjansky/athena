@@ -29,8 +29,7 @@ struct P
   static std::atomic<int> s_count;
 };
 
-std::atomic<int> P::s_count = 0;
-
+std::atomic<int> P::s_count = 0; // C++17 only
 
 // Basic tests.
 void test1()
@@ -107,7 +106,7 @@ public:
     int m_iworker;
   };
 
-  
+
   struct readerThread
   {
     readerThread (ThreadingTest& test, int iworker)

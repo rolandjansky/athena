@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELEXAMPLES_TOYDETECTORTOOL_H
 #define GEOMODELEXAMPLES_TOYDETECTORTOOL_H
+
+#ifndef BUILDVP1LIGHT
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
@@ -18,5 +20,7 @@ class ToyDetectorTool : public GeoModelTool
  private:
   void printVolume(GeoPVConstLink volime);
 };
+
+#endif // BUILDVP1LIGHT
 
 #endif // GEOMODELEXAMPLES_TOYDETECTORTOOL_H

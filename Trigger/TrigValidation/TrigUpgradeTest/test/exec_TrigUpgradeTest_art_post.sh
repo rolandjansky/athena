@@ -66,7 +66,7 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
 fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
+timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
@@ -82,7 +82,7 @@ grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
 
 if [ -f ${REGTESTREF} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
-  timeout 1m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" | tee regtest.log
+  timeout 5m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" 2>&1 | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     The reference file does not exist: ${REGTESTREF}"
@@ -93,7 +93,7 @@ mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root | tee rootcompout.log
+  timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
   echo "art-result: ${PIPESTATUS[0]} RootComp"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
@@ -106,4 +106,3 @@ echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
 ls -lh
 
 echo  $(date "+%FT%H:%M %Z")"     Finished TrigUpgradeTest post processing for test ${NAME}"
-
