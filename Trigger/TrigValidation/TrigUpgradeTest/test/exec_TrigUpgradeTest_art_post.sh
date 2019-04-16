@@ -100,6 +100,14 @@ else
   echo "art-result:  999 RootComp"
 fi
 
+### CHAINDUMP
+
+# Using temporary workaround to dump HLTChain.txt
+if [ -f expert-monitoring.root ]; then
+  echo "Running chainDumpWorkaround.sh"
+  chainDumpWorkaround.sh expert-monitoring.root
+fi
+
 ### SUMMARY
 
 echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
