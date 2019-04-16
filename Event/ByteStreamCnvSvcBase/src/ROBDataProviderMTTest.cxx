@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include "GaudiKernel/Property.h"
 #include "TestTools/ParallelCallTest.h"
+#include "TestTools/random.h"
 #include "ROBDataProviderMTTest.h"
 
 
@@ -70,8 +71,10 @@ StatusCode ROBDataProviderMTTest::execute( const EventContext& context ) const
   std::vector<eformat::read::ROBFragment> robs;
   ev->robs( robs );
 
+  Athena_test::URNG rng;
+  rng.seed = context.evt();
   for ( size_t i = 0; i < 8; ++i ) { 
-    std::random_shuffle( robs.begin(), robs.end() );
+    std::shuffle( robs.begin(), robs.end(), rng );
     auto r = new AskForROBs( context, m_robDataProvider, lvl1ID, robs );
     ATH_MSG_DEBUG( "Prepared parallel request with " << r->nrobs() << " robs" );  
     requests.push_back( r );
