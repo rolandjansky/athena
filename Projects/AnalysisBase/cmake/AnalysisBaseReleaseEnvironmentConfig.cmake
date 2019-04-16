@@ -7,7 +7,6 @@
 add_definitions( -DROOTCORE )
 add_definitions( -DXAOD_STANDALONE )
 add_definitions( -DXAOD_ANALYSIS )
-add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
 
 # And the same variables for CMake as well:
 set( ROOTCORE TRUE CACHE BOOL

@@ -2,14 +2,10 @@
 # File setting up some basic properties for the installed analysis releases.
 #
 
-# Make all compilation see the RootCore/Packages.h file:
-include_directories( $ENV{AnalysisBase_DIR}/RootCore/include )
-
 # This is a standalone project, so set the appropriate compile flags:
 add_definitions( -DROOTCORE )
 add_definitions( -DXAOD_STANDALONE )
 add_definitions( -DXAOD_ANALYSIS )
-add_definitions( -DROOTCORE_RELEASE_SERIES=$ENV{ROOTCORE_RELEASE_SERIES} )
 
 # And some variables for CMake as well:
 set( ROOTCORE TRUE CACHE BOOL
