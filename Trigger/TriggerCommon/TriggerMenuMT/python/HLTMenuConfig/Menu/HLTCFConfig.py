@@ -130,7 +130,7 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
-    hltTop = seqOR("hltTop")
+    hltTop = seqOR("HLTTop")
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -146,17 +146,24 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     hltTop += summary
 
     # add signature monitor
-    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, triggerMonitoringCfg, triggerSummaryCfg
+    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
+    viewMakers = collectViewMakers(steps)
+    decObj = collectDecisionObjects( hypos, filters, l1decoder[0] )
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
-    summaryAcc.appendToGlobals()
+    summaryAcc.appendToGlobals()    
     
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
-    monAcc.appendToGlobals()    
+    monAcc.appendToGlobals()
     hltTop += monAlg
     
+    # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
+    hltTop += edmAlg
+        
     topSequence += hltTop
 
 

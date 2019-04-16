@@ -41,7 +41,7 @@ def applyMenu(l1decoder ):
 # L1Decoder for bytestream
 from L1Decoder.L1DecoderConf import L1Decoder
 class L1DecoderTest(L1Decoder) :
-    def __init__(self, name='L1DecoderTest', *args, **kwargs):
+    def __init__(self, name='L1Decoder', *args, **kwargs):
         super(L1DecoderTest, self).__init__(name, *args, **kwargs)
         
         from TriggerJobOpts.TriggerFlags import TriggerFlags
