@@ -105,7 +105,6 @@ namespace InDet {
 
     // Data members
     std::string m_dictionaryFileName;
-    std::string m_xml_materials;
     std::string m_xml_pixmodules;
     std::string m_xml_pixStaves;
     std::string m_xml_pixBarrelLayers;
