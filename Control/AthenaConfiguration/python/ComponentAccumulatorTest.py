@@ -41,7 +41,7 @@ class TestComponentAccumulator( unittest.TestCase ):
             result,algs=AlgsConf1( flags )
             acc.merge(result)
             a = Algo("Algo3")
-            print "algo3 when created", id(a)
+            print("algo3 when created %s" % id(a))
             algs.append(a)
             return acc,algs
 
@@ -175,9 +175,9 @@ class MultipleParentsInSequences( unittest.TestCase ):
         # check if the recording did not harm the sequences
         with open("dummy.pkl") as f:
             s = pickle.load( f )
-            self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
-            self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
-            self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
+            self.assertEqual( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
+            self.assertEqual( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
+            self.assertEqual( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
 
 class ForbidRecursiveSequences( unittest.TestCase ):
     def runTest( self ):
@@ -293,14 +293,14 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
 
         self.assertIsNotNone( ca.getEventAlgo(), "Found single alg")
-        self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
-# no idea why this assersts do not recognise exceptions
-#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
-
+        self.assertEqual( len(ca.getEventAlgos()), 1 , "Found single alg")
+# no idea why this assersts do not recognise exceptions        
+#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2")) 
+        
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
 
         self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
-        self.assertEquals( len(ca.getEventAlgos()), 2 , "Found single alg")
+        self.assertEqual( len(ca.getEventAlgos()), 2 , "Found single alg")
  #       self.assertRaises(ConfigurationError, ca.getEventAlgo(), "Single Alg API ambiguity")
 
         class Tool(ConfigurableAlgTool):

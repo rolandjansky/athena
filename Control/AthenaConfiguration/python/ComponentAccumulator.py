@@ -93,7 +93,8 @@ class ComponentAccumulator(object):
                         return seq.getValuedProperties()[name]
                     return seq.getDefaultProperties()[name]
 
-                self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
+                self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)",
+                                "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND" )
                 nestLevel += 3
                 for c in seq.getChildren():
                     if isSequence(c):
@@ -220,8 +221,8 @@ class ComponentAccumulator(object):
             if len(algorithms)>1:
                 self._msg.warning("Called addEvenAlgo with a list of algorithms and primary==True. Designating the first algorithm as primary component")
             if self._primaryComp: 
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
-                                  (self._primaryComp.getType(),self._primaryComp.getName(),algorithms[0].getType(),algorithms[0].getName()))
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                                  self._primaryComp.getType(), self._primaryComp.getName(), algorithms[0].getType(), algorithms[0].getName())
             #keep a ref of the algorithm as primary component
             self._primaryComp=algorithms[0]
         return None
@@ -259,8 +260,8 @@ class ComponentAccumulator(object):
         deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         if primary: 
             if self._primaryComp: 
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
-                                  (self._primaryComp.getType(),self._primaryComp.getName(),algo.getType(),algo.getName()))
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                                  self._primaryComp.getType(),self._primaryComp.getName(),algo.getType(),algo.getName())
             #keep a ref of the de-duplicated conditions algorithm as primary component
             self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos") 
         return algo
@@ -279,8 +280,8 @@ class ComponentAccumulator(object):
         deduplicate(newSvc,self._services)  #will raise on conflict
         if primary: 
             if self._primaryComp: 
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
-                                  (self._primaryComp.getType(),self._primaryComp.getName(),newSvc.getType(),newSvc.getName()))
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                                  self._primaryComp.getType(),self._primaryComp.getName(),newSvc.getType(),newSvc.getName())
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.getName(), "Services") 
         return 
@@ -294,8 +295,8 @@ class ComponentAccumulator(object):
         deduplicate(newTool,self._publicTools)
         if primary: 
             if self._primaryComp: 
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s" % \
-                                  (self._primaryComp.getType(),self._primaryComp.getName(),newTool.getType(),newTool.getName()))
+                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                                  self._primaryComp.getType(),self._primaryComp.getName(),newTool.getType(),newTool.getName())
             #keep a ref of the de-duplicated service as primary component
             self._primaryComp=self.__getOne( self._publicTools, newTool.getName(), "Public Tool") 
         return
@@ -320,14 +321,14 @@ class ComponentAccumulator(object):
         return self._publicTools
 
     def getPublicTool(self, name=None):        
-        """ Returns single public tool, exception if either not found or to many found"""
+        """Returns single public tool, exception if either not found or to many found"""
         return self.__getOne( self._publicTools, name, "PublicTools")
 
     def getServices(self):
         return self._services
 
     def getService(self, name=None):        
-        """ Returns single service, exception if either not found or to many found"""
+        """Returns single service, exception if either not found or to many found"""
         if name is None:
             return self._primarySvc
         else:
@@ -364,7 +365,7 @@ class ComponentAccumulator(object):
         pass
 
     def merge(self,other, sequenceName=None):
-        """ Merging in the other accumulator """
+        """Merging in the other accumulator"""
         if other is None:
             raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
 
@@ -373,8 +374,8 @@ class ComponentAccumulator(object):
 
         if (other._privateTools is not None):
             if isinstance(other._privateTools,ConfigurableAlgTool):
-                raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s" % \
-                                   (other._privateTools.getType(),other._privateTools.getName()))
+                raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s",
+                                   other._privateTools.getType(),other._privateTools.getName())
             else:
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
@@ -586,8 +587,6 @@ class ComponentAccumulator(object):
                 self.appendConfigurable( alg )
                 evtalgseq.append( alg.getFullName() )
 
-
-        print self._sequence
         for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
             for prop in self._jocat[seqName]:
@@ -661,7 +660,6 @@ class ComponentAccumulator(object):
         svcToCreate=[]
         extSvc=[]
         for svc in self._services:
-            print svc.getFullName()
             extSvc+=[svc.getFullName(),]
             if svc.getJobOptName() in _servicesToCreate:
                 svcToCreate+=[svc.getFullName(),]
@@ -672,7 +670,6 @@ class ComponentAccumulator(object):
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
 
-        print "CONFIGURE STEP"
         app.configure()
 
         msp=app.getService("MessageSvc")
@@ -706,7 +703,7 @@ class ComponentAccumulator(object):
 
         #Add tree of algorithm sequences:
         for seqName, algoList in flatSequencers( self._sequence ).iteritems():
-            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
             bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
             for alg in algoList:
                 addCompToJos(alg)
@@ -789,9 +786,9 @@ class ComponentAccumulator(object):
 
 
 def CAtoGlobalWrapper(cfgmethod,flags):
-     Configurable.configurableRun3Behavior+=1
-     result=cfgmethod(flags)
-     Configurable.configurableRun3Behavior-=1
+    Configurable.configurableRun3Behavior+=1
+    result=cfgmethod(flags)
+    Configurable.configurableRun3Behavior-=1
 
-     result.appendToGlobals()
-     return
+    result.appendToGlobals()
+    return
