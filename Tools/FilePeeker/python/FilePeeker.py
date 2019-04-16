@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os,sys
 from subprocess import check_output
@@ -10,7 +12,7 @@ def PeekFiles(inputfiles):
     poolfiles=[]
     for inputfile in inputfiles:
         if not os.access(inputfile,os.R_OK):
-            print "ERROR: Failed input file",inputfile,"not accessible"
+            print ("ERROR: Failed input file",inputfile,"not accessible")
             return None
         if "pool.root" in inputfile:
             poolfiles.append(inputfile)
@@ -20,10 +22,10 @@ def PeekFiles(inputfiles):
 
     retval=""
     if len(bsfiles)>0:
-        retval=check_output(["BSFilePeeker","-k"]+bsfiles)
+        retval=check_output(["BSFilePeeker","-k"]+bsfiles).decode('utf-8')
 
     if len(poolfiles)>0:
-        retval+=check_output(["PoolFilePeeker","-k"]+poolfiles)
+        retval+=check_output(["PoolFilePeeker","-k"]+poolfiles).decode('utf-8')
     
 
     fullResult=dict()
@@ -56,6 +58,6 @@ def PeekFiles(inputfiles):
     
 
 if __name__=="__main__":
-    print PeekFiles(sys.argv[1:])
+    print (PeekFiles(sys.argv[1:]))
      
                   
