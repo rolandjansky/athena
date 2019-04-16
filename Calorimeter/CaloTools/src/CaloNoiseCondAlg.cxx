@@ -51,14 +51,14 @@ StatusCode CaloNoiseCondAlg::initialize() {
   const std::string& noiseKey=m_outputKey.key();
   if(noiseKey=="electronicNoise") {
     ATH_MSG_INFO("Will compute electronic noise");
-    m_noisetype=ELEC;
+    m_noiseType=CaloNoise::ELEC;
   }
   else if (noiseKey=="pileupNoise") {
     ATH_MSG_INFO("Will compute pileup noise");
-    m_noisetype=PILEUP;
+    m_noiseType=CaloNoise::PILEUP;
   }
   else if (noiseKey=="totalNoise") {
-    m_noisetype=TOTAL;
+    m_noiseType=CaloNoise::TOTAL;
     ATH_MSG_INFO("Will compute total (electronic + pileup)  noise");
   }
   else {
@@ -131,16 +131,23 @@ StatusCode CaloNoiseCondAlg::execute() {
     return StatusCode::SUCCESS;
   }
 
+  //Start with a range covering 0 - inf, then narrow down
+  const EventIDBase start{0,EventIDBase::UNDEFEVT,0,0,0,0};
+  const EventIDBase stop{EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFEVT-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1,0};
+  //                            Run                   Event                  time                    time_ns               LB              BCID	
+  EventIDRange rangeOut{start, stop};	
+  EventIDRange rangeIn;
+
+
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
-
-  //To determine the output range, start with cabling:
-  EventIDRange rangeIn,rangeOut;
-  if (!cablingHdl.range(rangeOut)){ 
+  if (!cablingHdl.range(rangeIn)){ 
     ATH_MSG_ERROR("Failed to retrieve validity range of LArCabling CDO with key " << m_larNoiseKey.key());
     return StatusCode::FAILURE;
   }  
- 
+  //std::cout << "rangeIn lar cabling " << rangeIn << std::endl;
+  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+  //std::cout << "rangeOut lar cabling " << rangeOut << std::endl;
   //Obtain AttrListsCollections for all possible folders (LAr,Tile,Calo) 
   std::vector<const CondAttrListCollection*> attrListNoise;
 
@@ -239,7 +246,8 @@ StatusCode CaloNoiseCondAlg::execute() {
   const size_t maxCells=m_caloCellID->calo_cell_hash_max();
   //Create the CaloNoise CDO:
   std::unique_ptr<CaloNoise> caloNoiseObj=std::make_unique<CaloNoise>(m_maxLArCells,3,
-								      m_maxTileCells,4,m_caloCellID);
+								      m_maxTileCells,4,
+								      m_caloCellID,m_noiseType);
 
   //Counters for crosschecks
   std::array<unsigned,4> cellsPerGain{0,0,0,0};
@@ -275,14 +283,14 @@ StatusCode CaloNoiseCondAlg::execute() {
 	const float b=blob->getData(i,igain,1);
 	++(cellsPerGain[igain]);
 	const size_t hash = (sys==TILE) ? i : i+offset;
-	switch (m_noisetype){
-	case ELEC:
+	switch (m_noiseType){
+	case CaloNoise::ELEC:
 	  noise[igain][hash]=a;
 	  break;
-	case PILEUP:
+	case CaloNoise::PILEUP:
 	  noise[igain][hash]=b*std::sqrt(lumi);
 	  break;
-	case TOTAL:
+	case CaloNoise::TOTAL:
 	  noise[igain][hash]=std::sqrt(a*a + b*b*lumi);
 	  break;
 	default:
@@ -292,8 +300,9 @@ StatusCode CaloNoiseCondAlg::execute() {
     }//end loop over gains
 
 
-    // Cache data to calculate effective sigma for tile double-gaussian noise
-    if (sys==TILE && m_noisetype!=PILEUP) {
+    // Cache data to calculate effective sigma for tile double-gaussian noise 
+    // Matters for Electronic and total noise
+    if (sys==TILE && m_noiseType!=CaloNoise::PILEUP) {
       caloNoiseObj->setTileBlob(blob.release(),lumi);
     }
 

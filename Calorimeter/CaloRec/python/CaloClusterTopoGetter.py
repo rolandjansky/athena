@@ -34,10 +34,18 @@ from RecExConfig.RecFlags import rec
 
 from LArCellRec.LArCellRecConf import LArHVFraction
 
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
+#For LCWeightsTool needs electronic noise
+CaloNoiseCondAlg(noisetype="electronicNoise") 
+
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += theCaloNoiseTool
+
+
+
 
 def addSnapshot(corrName,contName):
     from AthenaCommon.AlgSequence import AlgSequence
@@ -137,7 +145,6 @@ class CaloClusterTopoGetter ( Configured )  :
             LCWeight = CaloLCWeightTool("LCWeight")
             LCWeight.CorrectionKey       = "H1ClusterCellWeights"
             LCWeight.SignalOverNoiseCut  = 2.0
-            LCWeight.CaloNoiseTool       = theCaloNoiseTool
             LCWeight.UseHadProbability   = True
 
             LCOut     = CaloLCOutOfClusterTool("LCOut")
@@ -155,7 +162,6 @@ class CaloClusterTopoGetter ( Configured )  :
             #DMTool.SignalOverNoiseCut  = 1.0
             #DMTool.ClusterRecoStatus   = 0
             #DMTool.WeightModeDM        = 2 
-            #DMTool.CaloNoiseTool       = theCaloNoiseTool
             
             LCDeadMaterial   = CaloLCDeadMaterialTool("LCDeadMaterial")
             LCDeadMaterial.HadDMCoeffKey       = "HadDMCoeff2"
@@ -205,8 +211,6 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
         TopoMoments.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
         TopoMoments.MaxAxisAngle = 20*deg
-        TopoMoments.CaloNoiseTool = theCaloNoiseTool
-        TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
         TopoMoments.MomentsNames = ["FIRST_PHI" 
@@ -366,9 +370,6 @@ class CaloClusterTopoGetter ( Configured )  :
                                        "TileExt0", "TileExt1", "TileExt2",
                                        "TileGap1", "TileGap2", "TileGap3",
                                        "FCAL0", "FCAL1", "FCAL2"] 
-        TopoMaker.CaloNoiseTool=theCaloNoiseTool
-        TopoMaker.UseCaloNoiseTool=True
-        TopoMaker.UsePileUpNoise=True
         TopoMaker.NeighborOption = "super3D"
         TopoMaker.RestrictHECIWandFCalNeighbors  = False
         TopoMaker.RestrictPSNeighbors  = True

@@ -22,6 +22,7 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 
 class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWeightTool
 {
@@ -29,7 +30,7 @@ class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWei
 
   virtual ~CaloLCOutOfClusterTool();
 
-  virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+  virtual StatusCode weight(xAOD::CaloCluster* theCluster, const EventContext& ctx) const override;
   virtual StatusCode initialize() override;
 
   CaloLCOutOfClusterTool(const std::string& type, 

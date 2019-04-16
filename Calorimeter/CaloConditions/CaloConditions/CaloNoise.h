@@ -15,6 +15,10 @@ class CaloNoise {
   ///Conditions Data Object holding the calorimeter noise per cell and per gain
 
  public:
+
+  enum NOISETYPE{ELEC=0,
+		 PILEUP,
+		 TOTAL};
  
   CaloNoise() =delete;
 
@@ -22,7 +26,7 @@ class CaloNoise {
 
   /// Explicit constructor with number of cells and gains and ptr to CaloCell_ID obj 
   CaloNoise(const size_t nLArCells, const size_t nLArGains, const size_t nTileCells, const size_t nTileGains,
-	    const CaloCell_Base_ID* caloCellId);
+	    const CaloCell_Base_ID* caloCellId, const NOISETYPE noisetype);
 
   /// Accessor by IdentifierHash and gain.
   float getNoise(const IdentifierHash h, const int gain) const {
@@ -41,16 +45,15 @@ class CaloNoise {
     return getNoise(h,gain);
   }
 
-  float getEffectiveSigma(const Identifier id, const int gain, const float energy) {
-     IdentifierHash h=m_caloCellId->calo_cell_hash(id);
-     if (h<m_tileHashOffset) {
-       return m_larNoise[gain][h];
-     }
-     else
-       return calcSig(h-m_tileHashOffset,gain,energy);
+  float getEffectiveSigma(const Identifier id, const int gain, const float energy) const {
+    IdentifierHash h=m_caloCellId->calo_cell_hash(id);
+    if (h<m_tileHashOffset) {
+      return m_larNoise[gain][h];
+    }
+    else {
+      return getTileEffSigma(h-m_tileHashOffset,gain,energy);
+    }
   }
-
-  float calcSig(const IdentifierHash tilehash, const int gain, const float energy) const;
 
   /// Non-const accessor to underlying storage for filling:
   boost::multi_array<float, 2>& larStorage() {return m_larNoise;}
@@ -59,6 +62,9 @@ class CaloNoise {
   void setTileBlob(const CaloCondBlobFlt* flt, const float lumi);
 
  private:
+  float calcSig(const IdentifierHash tilehash, const int gain, const float energy) const;
+  float getTileEffSigma(const IdentifierHash subHash, const int gain, const float e) const;
+
   const CaloCell_Base_ID* m_caloCellId;
 
   //Flat structure, choosen based on profiling done by Scott in Nov 2013
@@ -70,7 +76,7 @@ class CaloNoise {
   //For double-gaussian noise:
   const CaloCondBlobFlt* m_tileBlob=nullptr; 
   float m_lumi=0;
-
+  NOISETYPE m_noiseType=TOTAL;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"
