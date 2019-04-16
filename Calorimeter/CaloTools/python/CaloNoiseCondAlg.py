@@ -95,7 +95,7 @@ def _CaloNoiseCondAlgData(noiseAlgName,noisetype):
             if jobproperties.CaloCellFlags.doLArHVCorr():
                 mlog.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
                 theCaloNoiseAlg.useHVCorr=True
-                #... schedule HV corr cond alg
+                from LArConditionsCommon import LArHVDB
                 pass
             pass
         else: #COMP200 case:

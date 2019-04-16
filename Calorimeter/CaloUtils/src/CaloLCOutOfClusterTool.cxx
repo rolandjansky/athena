@@ -132,7 +132,7 @@ StatusCode CaloLCOutOfClusterTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
+StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster, const EventContext& ctx) const
 {
   double eWeightedOrig = theCluster->e();
   double eWeighted = theCluster->e();
@@ -198,7 +198,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
     
     double log10cluse = log10(eEM);
 
-    SG::ReadCondHandle<CaloLocalHadCoeff> h (m_key);
+    SG::ReadCondHandle<CaloLocalHadCoeff> h (m_key,ctx);
     const CaloLocalHadCoeff* data = *h;
     if (!data) {
       ATH_MSG_ERROR("Unable to access conditions object");

@@ -6,8 +6,8 @@
 #include "TMath.h"
 
 CaloNoise::CaloNoise(const size_t nLArCells, const size_t nLArGains, const size_t nTileCells, const size_t nTileGains,
-		     const CaloCell_Base_ID* caloCellId) :
-  m_caloCellId(caloCellId) {
+		     const CaloCell_Base_ID* caloCellId,const NOISETYPE noisetype) :
+  m_caloCellId(caloCellId),m_noiseType(noisetype) {
   m_larNoise.resize(boost::extents[nLArGains][nLArCells]);
   m_tileNoise.resize(boost::extents[nTileGains][nTileCells]);
   IdentifierHash h1,h2;
@@ -25,23 +25,17 @@ CaloNoise::~CaloNoise() {
 }
 
 
-//The following method is copied (amost unchagned) from CaloNoiseToolDB
+//The following method is copied (amost unchanged) from CaloNoiseToolDB
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
 
-float CaloNoise::calcSig(const IdentifierHash subHash, const int gain, const float e) const {
-  const unsigned int dbGain = CaloCondUtils::getDbCaloGain(gain);
-  if (!m_tileBlob) {
-    //No data (like pileup-noise only): return cached noise
-    return m_tileNoise[dbGain][subHash];
-  }
+float CaloNoise::calcSig(const IdentifierHash subHash, const int dbGain, const float e) const {
 
   const double sigma1 = m_tileBlob->getData(subHash,dbGain,2);
   const double sigma2 = m_tileBlob->getData(subHash,dbGain,3);
   const double ratio  = m_tileBlob->getData(subHash,dbGain,4);
  
 
-  
   if((sigma1 == 0. && sigma2 == 0.) || e == 0.) return 0.;
   if(sigma1 == 0.) return e/sigma2;
   if((ratio  == 0.) || sigma2 == 0.) return e/sigma1;
@@ -66,15 +60,40 @@ float CaloNoise::calcSig(const IdentifierHash subHash, const int gain, const flo
  
   // if instead you want to return the sigma-equivalent C.L.
   // (with sign!) use the following line
-  const double sigma= sqrt2*TMath::ErfInverse(z);
+  return sqrt2*TMath::ErfInverse(z);
+}
 
-  const float elecNoise= (sigma != 0.) ? fabs(e/sigma) : 0.0;
 
-  if (m_lumi>0) {
-    const float b= m_tileBlob->getData(subHash,dbGain,1);
-    return std::sqrt(elecNoise*elecNoise+b*b*m_lumi);
+float CaloNoise::getTileEffSigma(const IdentifierHash subHash, const int gain, const float e) const {
+
+  const unsigned int dbGain = CaloCondUtils::getDbCaloGain(gain);
+  if (!m_tileBlob) {
+    //No data (pilup-noise only): return cached noise
+    return m_tileNoise[dbGain][subHash];
   }
-  else {
-    return elecNoise;
+
+  const float sigma=calcSig(subHash,dbGain,e);
+  const float a= (sigma != 0.) ? fabs(e/sigma) : 0.0;
+
+  if (m_noiseType==CaloNoise::ELEC) {
+    return a;
   }
+
+  //Case: Total Noise
+  const float b= m_tileBlob->getData(subHash,dbGain,1);
+  const int objver = m_tileBlob->getObjVersion();
+  float x=0;
+  if(objver==1){
+    //=== Total noise parameterized as
+    //=== Sigma**2 = a**2 + b**2 * Lumi
+    x = std::sqrt( a*a + b*b*m_lumi );
+  }
+  else if (objver==2) {
+    //== parameterization for pedestal = a + b*Lumi
+    x = a+b*m_lumi;
+  }
+  else{
+    throw CaloCond::VersionConflict("CaloNoise::get2dEffSigma ",objver);
+  }
+  return x;
 }

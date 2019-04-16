@@ -1,8 +1,8 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
 #ifndef CALOTOPOCLUSTERMAKER_H
 #define CALOTOPOCLUSTERMAKER_H
 /**
@@ -41,6 +41,7 @@
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class Identifier; 
@@ -48,9 +49,8 @@ class CaloDetDescrManager;
 class CaloDetDescrElement;
 
 
-class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionProcessor
-{
- public:    
+class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionProcessor {
+public:    
   
   CaloTopoClusterMaker(const std::string& type, const std::string& name,
 		       const IInterface* parent);
@@ -62,7 +62,7 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
 
   void getClusterSize();
 
- private: 
+private: 
   
   const CaloCell_ID* m_calo_id;
   
@@ -128,66 +128,13 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * would be included in both clusters.  */
   float m_seedThresholdOnEorAbsEinSigma;         
 
-  /** 
-   * @brief optional cut on \f$E_\perp\f$ or \f$|E|_\perp\f$ on the
-   * cell level
-   *
-   * This and the following 2 variables define on cell, neighbor and
-   * seed level additional thresholds on \f$E_\perp\f$ or
-   * \f$|E|_\perp\f$. They are treated like the noise cuts above on
-   * each level and used only in case m_usePileUpNoise is set to
-   * false. Usually m_usePileUpNoise should be set to true and using
-   * these cuts is not recommended.  */
-  float m_cellThresholdOnEtorAbsEt;                  
+  /** @brief Key of the CaloNoise Conditions data object. Typical values 
+      are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */
 
-  /** @brief optional cut on \f$E_\perp\f$ or \f$|E|_\perp\f$ on the
-      neighbor level */
-  float m_neighborThresholdOnEtorAbsEt;              
-
-  /** @brief optional cut on \f$E_\perp\f$ or \f$|E|_\perp\f$ on the
-      seed level */
-  float m_seedThresholdOnEtorAbsEt;              
-
-  /**
-   * @brief switch to use the CaloNoiseTool 
-   *
-   * the CaloNoiseTool should be used whenever possible in order to
-   * get the electronics noise and the pile-up noise for each cell
-   * according to the current conditions. In case this switch is set
-   * to false a constant noise value for all cells will be used.  */
-  bool m_useNoiseTool;
-
-  /**
-   * @brief switch to use the pile-up noise CaloNoiseTool 
-   *
-   * if usePileUpNoise is set to true the relevant sigma for each cell
-   * will be the quadratic sum of the electronics noise at current
-   * cell gain and its pile-up noise at the current
-   * luminosity. Otherwise it will be just the electronics noise. This
-   * switch can be set to true only if m_useNoiseTool is set to true
-   * as well.  It is recommended to set usePileUpNoise to true even
-   * for situations (like single particle MC) where no pile-up noise
-   * is expected since the CaloNoiseTool most likely will be
-   * configured in a way that it reflects that situation. If this
-   * switch is set to false the additional \f$E_\perp\f$ thresholds
-   * declared above will be used.  */
-  bool m_usePileUpNoise;
-  // FIXME: mutable
-  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-
-  // FIXME: Conditions dependencies required by CaloNoiseTool.
-  //        These can be removed once we change to using
-  //        the conditions algorithm instead of CaloNoiseTool.
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
 
-  /**
-   * @brief constant noise value in case the CaloNoiseTool is not used
-   *
-   * this value should only be used for testing purposes. It will be
-   * used if the CaloNoiseTool is switched off as the electronics
-   * noise for each cell.  */
-  float m_noiseSigma;                            
+  //SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   /**
    * @brief type of neighbor relations to use.
