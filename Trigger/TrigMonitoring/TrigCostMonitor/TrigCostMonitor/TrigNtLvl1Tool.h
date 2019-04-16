@@ -45,6 +45,7 @@ namespace Trig
         
     bool FillFromL1Result(TrigMonEvent &event);
     bool FillFromRBResult(TrigMonEvent &event);
+    bool FillFromCTPRDO(TrigMonEvent &event);
 
     bool Fill(const LVL1CTP::Lvl1Result &l1Result, TrigMonEvent &event);
     
@@ -53,6 +54,7 @@ namespace Trig
     // Tool properties
     std::string  m_keyL1Result;      // Key to retrieve the L1Result from SG
     std::string  m_keyRBResult;      // Key to retrieve the RoIBResult from SG
+    std::string  m_CTPRDOKey;        // Key to retrieve CTP_RDO
 
   };
 }
