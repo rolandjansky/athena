@@ -486,6 +486,9 @@ IOVSvcTool::handle(const Incident &inc) {
       m_log << MSG::FATAL 
             << "Cannot update Conditions via callback functions in MT after the first event"
             << endmsg;
+      for (const auto* prox : proxiesToReset) {
+	m_log << MSG::FATAL << "CLID=" << prox->clID() << ", name=" << prox->name() << endmsg;
+      }
       throw GaudiException("Cannot update Conditions via callback functions in MT after the first event",name(),StatusCode::FAILURE);
     }
 
