@@ -295,7 +295,8 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
     metComp->m_sumEt = sumEtEta;
     metComp->m_sumE  = sumEEta;
     metComp->m_usedChannels += 1;
-    
+
+    // Not sure if this is accessing the right component. Fix it later.   
     metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
     
     metComp->m_ex = -(float) ETobscor[0][0];
@@ -316,6 +317,7 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
      metComp->m_sumE  = 0.;
      metComp->m_usedChannels += 1;
      
+    // Not sure if this is accessing the right component. Fix it later.    
      metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
      
      metComp->m_ex = -MExEta;
