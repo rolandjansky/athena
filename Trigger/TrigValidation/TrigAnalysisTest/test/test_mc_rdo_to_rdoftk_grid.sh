@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# art-description: Test of Trigger NTUP_PHYSVAL 
+# art-description: Test of Trigger FTK RDO->RDO_FTK 
 # art-type: grid
 # art-include: 21.3/Athena
+# art-include: 21.0/Athena
 # art-include: master/Athena
 # art-output: *check*
 # art-output: *.log

@@ -3,8 +3,8 @@
 # art-description: Test of Trigger NTUP_PHYSVAL 
 # art-type: grid
 # art-include: 21.3/Athena
+# art-include: 21.0/Athena
 # art-include: master/Athena
-# art-include: master/AthenaP1
 # art-output: *check*
 # art-output: *.log
 # art-output: log.*
