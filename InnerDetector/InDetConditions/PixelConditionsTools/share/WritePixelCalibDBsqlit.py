@@ -100,12 +100,6 @@ from AthenaCommon.AppMgr import ToolSvc
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-#theApp.Dlls +=[ "PixelConditionsServices" ]
-
-#configure PixelCalibDbSvc
-#theApp.ExtSvc +=[ "PixelCalibSvc" ]
-#PixelCalibSvc = Service( "PixelCalibSvc" )
-
 from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
 ToolSvc +=PixelCalibDbTool()
 

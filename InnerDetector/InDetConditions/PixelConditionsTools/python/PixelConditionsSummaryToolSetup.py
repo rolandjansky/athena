@@ -87,7 +87,8 @@ class PixelConditionsSummaryToolSetup:
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadMap=self.useDeadMap,
-                                    ReadDeadMapKey=PixelDeadMapFolder)
+                                    ReadDeadMapKey=PixelDeadMapFolder,
+                                    UseCalibConditions=True)
 
     if not hasattr(ToolSvc, self.toolName):
       from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool

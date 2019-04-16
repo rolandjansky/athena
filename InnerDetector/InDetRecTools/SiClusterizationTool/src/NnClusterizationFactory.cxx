@@ -90,10 +90,8 @@ namespace InDet {
 
   StatusCode NnClusterizationFactory::initialize() {
 
-
-    if (!m_calibSvc.name().empty()) {
-      ATH_CHECK( m_calibSvc.retrieve() );
-    }
+    ATH_CHECK(m_pixelCabling.retrieve());
+    ATH_CHECK(m_chargeDataKey.initialize());
 
     ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
 
@@ -789,6 +787,8 @@ namespace InDet {
     return input;
   }
 
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+
 //  const InDet::PixelCluster* pCluster  = pcot->prepRawData();
   const std::vector<Identifier>& rdos  = pCluster.rdoList();
 
@@ -816,8 +816,12 @@ namespace InDet {
            // recreate the charge: should be a method of the calibSvc
         int tot0 = *tot;
 
-        float ch = m_calibSvc->getCharge(*rdosBegin,tot0);
-
+        Identifier pixid = *rdosBegin;
+        Identifier moduleID = pixelID.wafer_id(pixid);
+        IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+        int circ = m_pixelCabling->getFE(&pixid,moduleID);
+        int type = m_pixelCabling->getPixelType(pixid);
+        float ch = calibData->getCharge((int)moduleHash, circ, type, 1.0*tot0);
         chListRecreated.push_back(ch);
         totListRecreated.push_back(tot0);
       }
