@@ -227,3 +227,14 @@ import DecisionHandling
 for a in AthSequencer("HLTAllSteps").getChildren():
     if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
         a.OutputLevel = DEBUG
+
+
+AthSequencer("AthAlgSeq").InDetCacheCreatorTrig.OutputLevel = DEBUG
+
+
+
+def d(alg):
+    alg.OutputLevel = DEBUG
+    alg.ProviderTool.OutputLevel = DEBUG
+d(AthSequencer("electronInViewAlgs").InDetPixelRawDataProvider)
+d(AthSequencer("efcbViewNode_FS").InDetPixelRawDataProvider_MuonFS)
