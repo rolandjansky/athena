@@ -5,6 +5,8 @@ def flake8_atlas(f):
    """Default decorator for flake8 plugins"""
    f.name = 'flake8_atlas'
    f.version = '1.0'
+   if not hasattr(f, 'off_by_default'):
+      f.off_by_default = False
    return f
 
 def off_by_default(f):
