@@ -115,6 +115,7 @@ public:
   /// \name indexing accessors (e.g. for writing)
   //@{
   int barcode() const { return int(m_extBarcode.barcode()); } //FIXME ret type
+  static uint16_t getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position, IProxyDict* sg);
   static index_type getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position) ; //if the an old event index (position in the collection) is stored, returns the event number of the corresponding GenEvent in the specified collection
   index_type getEventNumberForEventPosition(index_type position) const; //if the an old event index (position in the collection) is stored, returns the event number of the corresponding GenEvent
   static index_type getEventPositionForEventNumber(EBC_EVCOLL evColl, index_type evNumber); //Returns the position/index in the specified collection of the event having the given event number

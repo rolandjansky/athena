@@ -58,6 +58,42 @@ HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
 }
 
 
+uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position, IProxyDict* sg) {
+    CLID clid = ClassID_traits<McEventCollection>::ID();
+    const McEventCollection* pEvtColl(nullptr);
+    const std::string * colNames;
+    if (evColl==EBC_MAINEVCOLL) {
+      colNames=s_MAINEVCOLKEYS;
+    }
+    else if (evColl==EBC_FIRSTPUEVCOLL) {
+      colNames=s_FIRSTPUEVCOLKEYS;
+    }
+    else if (evColl==EBC_SECONDPUEVCOLL) {
+      colNames=s_SECONDPUEVCOLKEYS;
+    }
+    else if (evColl==EBC_THIRDPUEVCOLL) {
+    colNames=s_THIRDPUEVCOLKEYS;
+    }
+    else {
+      return 0;
+    }
+
+    for (unsigned int iName=0; iName<4; iName++) {
+      SG::DataProxy* proxy = sg->proxy(clid, colNames[iName]);
+      if (proxy) {
+        pEvtColl = SG::DataProxy_cast<McEventCollection> (proxy);
+        if(pEvtColl && pEvtColl->size()>position) {
+          const HepMC::GenEvent *pEvt(pEvtColl->at(position));
+          if(pEvt) {
+            return pEvt->event_number();
+          }
+          break;
+        }
+      }
+    }
+    return 0;
+}
+
 uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position) {
   const McEventCollection* pEvtColl = retrieveMcEventCollection(evColl);
   if (pEvtColl && position<pEvtColl->size()) {
