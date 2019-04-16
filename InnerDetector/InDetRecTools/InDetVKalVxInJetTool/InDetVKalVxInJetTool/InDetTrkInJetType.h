@@ -28,13 +28,10 @@
 //
 
 class TLorentzVector;
-namespace Rec{
-  class TrackParticle;
-}
-
-namespace Trk{
-  class TrkVKalVrtFitter;
-}
+class IChronoStatSvc;
+namespace Rec{ class TrackParticle; }
+namespace MVAUtils { class BDT; }
+namespace Trk {  class TrkVKalVrtFitter; }
 namespace TMVA { class Reader; }
 
 namespace InDet {
@@ -78,11 +75,16 @@ namespace InDet {
 
    private:
 
-    TMVA::Reader* m_tmvaReader;
+    TMVA::Reader* m_tmvaReader{};
+    MVAUtils::BDT* m_localBDT{};
+    IChronoStatSvc * m_timingProfile{}; 
+   
     int m_trkSctHitsCut{};
     int m_trkPixelHitsCut{};
     float m_trkChi2Cut{};
     float m_trkMinPtCut{};
+    float m_jetMaxPtCut{};
+    float m_jetMinPtCut{};
     float m_d0_limLow{};
     float m_d0_limUpp{};
     float m_Z0_limLow{};
@@ -103,8 +105,9 @@ namespace InDet {
     float m_SigR{};
     float m_ptjet{};
     float m_etajet{};
-    float   m_ibl{};
-    float   m_bl{};
+    float m_etatrk{};
+    float m_ibl{};
+    float m_bl{};
  };
 
 
