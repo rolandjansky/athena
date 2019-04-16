@@ -399,7 +399,7 @@ if globalflags.DataSource()=='geant4':
         if(int(f.mc_channel_number[0]) not in HIGG33D1DSIDList):
             from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
             mcPrescaleTool = DerivationFramework__PrescaleTool(name = "HIGG3D3MCPrescaleTool",
-                                                               Prescale = 9)
+                                                               Prescale = 5)
             ToolSvc += mcPrescaleTool
             skimmingTools.append(mcPrescaleTool)
 
