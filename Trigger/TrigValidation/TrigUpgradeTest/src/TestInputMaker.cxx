@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigUpgradeTest includes
@@ -100,7 +100,7 @@ namespace HLTTest {
     CHECK( reco_outputHandle.record(std::move(reco_output), std::move(aux)) );
 
     // call base class helper method to print some debug messages summarising the content of the outputHandles.
-    CHECK( debugPrintOut(context, outputHandles) );
+    if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
 
     return StatusCode::SUCCESS;
   }

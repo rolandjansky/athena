@@ -39,7 +39,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /////////////////////////////////////////////////////////////////////
   
   /// provides debug printout of the output of the algorithm
-  StatusCode debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
+  void debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
 
    /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
   StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
