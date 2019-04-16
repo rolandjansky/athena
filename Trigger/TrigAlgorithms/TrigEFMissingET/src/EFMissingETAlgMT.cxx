@@ -97,7 +97,7 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   auto EF_XS        = Monitored::Scalar( "EF_XS", toLinGeV( std::hypot( met->ex(), met->ey() ) ) / toLinGeV( met->sumEt() ) );
   auto EF_MET_phi   = Monitored::Scalar( "EF_MET_phi",   std::atan2( met->ey(), met->ex() ) );
  
-  ATH_MSG_INFO("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
+  ATH_MSG_DEBUG("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
 
   auto monitorIt = Monitored::Group( m_monTool,
 					    totalTimer, loopTimer,
