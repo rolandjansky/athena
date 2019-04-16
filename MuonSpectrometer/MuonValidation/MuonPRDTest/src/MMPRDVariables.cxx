@@ -96,7 +96,7 @@ StatusCode MMPRDVariables::fillVariables()
       m_NSWMM_prd_nRdos->push_back((prd->rdoList()).size());
 
       for(Identifier id_rdo:prd->rdoList()){
-        Muon::MM_RawData* rdo=nullptr;
+        const Muon::MM_RawData* rdo=nullptr;
         for(auto it :*rdo_coll){if(it->identify() == id_rdo) rdo=it;}
         if(rdo==0){
           ATH_MSG_ERROR("Did not find rdo for identifier in rdo list");
