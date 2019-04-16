@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKPARTICLEBASE_LINKTOTRACKPARTICLEBASE_H
@@ -24,7 +24,7 @@ namespace Trk
     LinkToTrackParticleBase( ElementLink<TrackParticleBaseCollection>& link);
     
     /** default destructor */
-    virtual ~LinkToTrackParticleBase();
+    virtual ~LinkToTrackParticleBase() = default;
    
     /** return the track parameters of the track (to which the EL< TrackParticleBaseCollection > points) */
     const TrackParameters * parameters() const;
@@ -35,9 +35,6 @@ namespace Trk
     /** method to clone the LinkToTrack object */
     LinkToTrackParticleBase * clone() const ;
     
-    /** assignment operator */
-    LinkToTrackParticleBase& operator= ( const LinkToTrackParticleBase& rhs );
- 
  };//end of class definitions
 }//end of namespace definitions
 
