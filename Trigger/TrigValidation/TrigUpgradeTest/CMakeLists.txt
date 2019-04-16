@@ -67,6 +67,7 @@ _add_test( dataScouting EXTRA_PATTERNS "-s obeysLB=.*robs=.*dets = |adds PEBInfo
 _add_test( bjet_menuALLTE EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" )
 _add_test( met_fromCells EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromClusters EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
+_add_test( met_fromClustersPufit EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromJets EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 
 # ART-based tests:
