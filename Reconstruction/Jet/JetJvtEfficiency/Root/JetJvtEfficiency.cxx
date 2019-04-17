@@ -30,11 +30,12 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"  );
     declareProperty( "JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"           );
     declareProperty( "JetfJvtMomentName",   m_jetfJvtMomentName   = "passFJVT"    );
-    declareProperty("OverlapDecorator", m_ORdec = ""                        );
+    declareProperty( "OverlapDecorator", m_ORdec = ""                        );
     declareProperty( "JetEtaName",   m_jetEtaName   = "DetectorEta"               );
     declareProperty( "MaxPtForJvt",   m_maxPtForJvt   = 120e3                      );
     declareProperty( "DoTruthReq",   m_doTruthRequirement   = true );
     declareProperty( "TruthLabel",   m_isHS_decoration_name  = "isJvtHS"          );
+    declareProperty( "TruthJetContainerName", m_truthJetContName = "AntiKt4TruthJets");
     applySystematicVariation(CP::SystematicSet()).ignore();
 }
 
@@ -191,8 +192,8 @@ CorrectionCode JetJvtEfficiency::applyInefficiencyScaleFactor(const xAOD::Jet& j
 CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf) {
   sf = 1;
   const xAOD::JetContainer *truthJets = nullptr;
-  if( evtStore()->retrieve(truthJets, "AntiKt4TruthJets").isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve AntiKt4TruthJets container");
+  if( evtStore()->retrieve(truthJets, m_truthJetContName).isFailure()) {
+      ATH_MSG_WARNING("Unable to retrieve truth jet container with name " << m_truthJetContName);
   }
   if(!truthJets || tagTruth(jets,truthJets).isFailure()) {
     ATH_MSG_WARNING("Unable to match truthJets to jets in tagTruth() method");
