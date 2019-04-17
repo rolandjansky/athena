@@ -37,7 +37,7 @@ namespace Trk{
 
   class VKalVrtControl;
 
-  enum { NTrMaxVFit=300 };
+  enum { NTrMaxVFit=200 };
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;

@@ -157,9 +157,13 @@ namespace Trk {
     nextCascadeVrt = 0;
     truncatedStep = src.truncatedStep;
     existFullCov = src.existFullCov;
-    std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
+
+    int NTrack=src.TrackList.size();
+    int FULLSIZE=3*vkalNTrkM+3;
+    int SIZE=3*NTrack+3;
+    for(int i=0; i<SIZE; i++) for(int j=0; j<SIZE; j++) { ader[i*FULLSIZE+j]=src.ader[i*FULLSIZE+j]; }
     //----- Creation of track and constraint copies
-    for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
+    for( int i=0; i<NTrack; i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
     ConstraintList.reserve(src.ConstraintList.size());
     for( int ic=0; ic<(int)src.ConstraintList.size(); ic++){
         ConstraintList.emplace_back(src.ConstraintList[ic]->clone());
@@ -196,12 +200,16 @@ namespace Trk {
       nextCascadeVrt = 0;
       truncatedStep = src.truncatedStep;
       existFullCov = src.existFullCov;
-      std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
+
+      int NTrack=src.TrackList.size();
+      int FULLSIZE=3*vkalNTrkM+3;
+      int SIZE=3*NTrack+3;
+      for(int i=0; i<SIZE; i++) for(int j=0; j<SIZE; j++) { ader[i*FULLSIZE+j]=src.ader[i*FULLSIZE+j]; }
     //----- Creation of track and constraint copies
       TrackList.clear();
       tmpArr.clear();
       ConstraintList.clear();
-      for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
+      for( int i=0; i<NTrack; i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
       ConstraintList.reserve(src.ConstraintList.size());
       for( int ic=0; ic<(int)src.ConstraintList.size(); ic++){
         ConstraintList.emplace_back(src.ConstraintList[ic]->clone());
