@@ -402,6 +402,9 @@ class Configurable( object ):
    def getChildren( self ):
       return self.__children[:]    # read only
 
+   def overwriteChild( self, idx, newChild ):
+      self.__children[idx] = newChild
+
    def getAllChildren( self ):
       """Get all (private) configurable children, both explicit ones (added with +=)
       and the ones in the private GaudiHandle properties"""

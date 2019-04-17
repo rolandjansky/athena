@@ -26,7 +26,7 @@
 
 
 #include "AthAllocators/DataPool.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 
 StatusCode Muon::CscPrepDataContainerCnv_p1::initialize(MsgStream &log) {

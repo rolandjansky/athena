@@ -35,6 +35,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
+#include "TestTools/random.h"
 #include "AthenaKernel/errorcheck.h"
 #include <vector>
 #include <map>
@@ -69,22 +70,10 @@ ISvcLocator* g_svcloc = 0;
 // getting something that's reproducible.
 
 #include <stdint.h>
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
-uint32_t rng()
-{
-  seed = (1664525*seed + 1013904223);
-  return seed;
-}
 
-efloat_t randf (float rmax)
-{
-  return static_cast<efloat_t>(rng()) / rngmax * rmax;
-}
-int randi (int rmax)
-{
-  return static_cast<int> (randf(rmax));
-}
+using Athena_test::URNG;
+using Athena_test::randi_seed;
+using Athena_test::randf_seed;
 
 
 
@@ -205,7 +194,8 @@ CaloDetDescriptor* find_dd (int hashid,
 
 
 CaloCell* make_cell (int hashid,
-                     CaloDetDescrManager* mgr)
+                     CaloDetDescrManager* mgr,
+                     URNG& rng)
 {
   CaloDetDescriptor* descr = find_dd (hashid, mgr);
   CaloDetDescrElement* dde = new DummyDetDescrElement (hashid -
@@ -218,47 +208,47 @@ CaloCell* make_cell (int hashid,
   if (descr->is_tile()) {
     int gain1;
     efloat_t ene1;
-    switch (randi(2)) {
+    switch (randi_seed(rng.seed, 2)) {
     case 0:
       gain1 = TileID::LOWGAIN;
-      ene1 = randf(3200*GeV)-20*GeV;
+      ene1 = randf_seed(rng.seed, 3200*GeV)-20*GeV;
       break;
     case 1:
     default:
       gain1 = TileID::HIGHGAIN;
-      ene1 = randf(50*GeV)-20*GeV;
+      ene1 = randf_seed(rng.seed, 50*GeV)-20*GeV;
       break;
     }
-    int qbit1 = randi(32);
-    int qual1 = ((qbit1 & TileCell::MASK_BADCH) != 0) ? 255 : randi(256);
+    int qbit1 = randi_seed(rng.seed, 32);
+    int qual1 = ((qbit1 & TileCell::MASK_BADCH) != 0) ? 255 : randi_seed(rng.seed, 256);
     int time1 = 0;
-    if (randi(2)>0) {
+    if (randi_seed(rng.seed, 2)>0) {
       qbit1 |= TileCell::KEEP_TIME;
-      time1 = (randi(2000)-1000);
+      time1 = (randi_seed(rng.seed, 2000)-1000);
     }  
 
     int gain2;
     efloat_t ene2;
-    switch (randi(3)) {
+    switch (randi_seed(rng.seed, 3)) {
     case 0:
       gain2 = TileID::LOWGAIN;
-      ene2 = randf(3200*GeV)-20*GeV;
+      ene2 = randf_seed(rng.seed, 3200*GeV)-20*GeV;
       break;
     case 1:
       gain2 = TileID::HIGHGAIN;
-      ene2 = randf(50*GeV)-20*GeV;
+      ene2 = randf_seed(rng.seed, 50*GeV)-20*GeV;
       break;
     default:
       gain2 = CaloGain::INVALIDGAIN;
       ene2 = 0;
       break;
     }
-    int qbit2 = randi(32);
-    int qual2 = ((qbit2 & TileCell::MASK_BADCH) != 0) ? 255 : randi(256);
+    int qbit2 = randi_seed(rng.seed, 32);
+    int qual2 = ((qbit2 & TileCell::MASK_BADCH) != 0) ? 255 : randi_seed(rng.seed, 256);
     int time2 = 0;
-    if (randi(2)>0) {
+    if (randi_seed(rng.seed, 2)>0) {
       qbit2 |= TileCell::KEEP_TIME;
-      time2 = (randi(2000)-1000);
+      time2 = (randi_seed(rng.seed, 2000)-1000);
     }
     
     if (((gain1 == TileID::LOWGAIN && gain2 == TileID::HIGHGAIN) ||
@@ -294,41 +284,42 @@ CaloCell* make_cell (int hashid,
   else {
     CaloGain::CaloGain gain = CaloGain::INVALIDGAIN;
     efloat_t energy = 0;
-    int quality = randi(65536);
-    int provenance = randi(0x2000);
+    int quality = randi_seed(rng.seed, 65536);
+    int provenance = randi_seed(rng.seed, 0x2000);
     float time = 0;
     // Good quality?  Take 10% to be bad.
-    if (randi(10) != 0) {
+    if (randi_seed(rng.seed, 10) != 0) {
       provenance |= 0x2000;
-      switch (randi(3)) {
+      switch (randi_seed(rng.seed, 3)) {
       case 0:
         gain = CaloGain::LARHIGHGAIN;
-        energy = randf(60*GeV) - 16*GeV;
+        energy = randf_seed(rng.seed, 60*GeV) - 16*GeV;
         break;
       case 1:
         gain = CaloGain::LARMEDIUMGAIN;
-        energy = randf(360*GeV) + 40*GeV;
+        energy = randf_seed(rng.seed, 360*GeV) + 40*GeV;
         break;
       case 2:
       default:
         gain = CaloGain::LARLOWGAIN;
-        energy = randf(3000*GeV) + 40*GeV;
+        energy = randf_seed(rng.seed, 3000*GeV) + 40*GeV;
         break;
       }
-      time = randf(2000) - 1000;
+      time = randf_seed(rng.seed, 2000) - 1000;
     }
     return new CaloCell (dde, energy, time, quality, provenance, gain);
   }
 }
 
 
-std::vector<CaloCell*> make_cells (CaloDetDescrManager* mgr)
+std::vector<CaloCell*> make_cells (CaloDetDescrManager* mgr,
+                                   URNG& rng)
 {
   size_t hashmax = mgr->getCaloCell_ID()->calo_cell_hash_max(); 
  std::vector<CaloCell*> v;
   v.reserve (hashmax);
   for (size_t i = 0; i < hashmax; i++)
-    v.push_back (make_cell (i, mgr));
+    v.push_back (make_cell (i, mgr, rng));
 
   // Give a few cells off-scale energies, to test saturation.
   IdentifierHash tilemin, tilemax;
@@ -337,14 +328,14 @@ std::vector<CaloCell*> make_cells (CaloDetDescrManager* mgr)
   assert (tilemax <= v.size());
   assert (tilemin <= tilemax);
   for (size_t i = 0; i < 10; i++) {
-    CaloCell* cell = v[randi(tilemin)];
+    CaloCell* cell = v[randi_seed(rng.seed, tilemin)];
     assert ( ! cell->caloDDE()->is_tile());
     cell->setGain ((i&2) ? CaloGain::LARLOWGAIN : CaloGain::LARHIGHGAIN);
     cell->setEnergy ((((int)i&1)*2-1) * 4000*GeV);
   }
   for (size_t i = 0; i < 8; i++) {
     TileCell* cell =
-      dynamic_cast<TileCell*>(v[tilemin + randi(tilemax-tilemin)]);
+      dynamic_cast<TileCell*>(v[tilemin + randi_seed(rng.seed, tilemax-tilemin)]);
     assert (cell != 0);
     assert (cell->caloDDE()->is_tile());
     int pmt = (i&2)>>1;
@@ -357,10 +348,11 @@ std::vector<CaloCell*> make_cells (CaloDetDescrManager* mgr)
 
 void fill_cells_rand (int n,
                       const std::vector<CaloCell*>& cells,
-                      CaloCellContainer& cont)
+                      CaloCellContainer& cont,
+                      URNG& rng)
 {
   std::vector<CaloCell*> tmp = cells;
-  std::random_shuffle (tmp.begin(), tmp.end(), randi);
+  std::shuffle (tmp.begin(), tmp.end(), rng);
   for (int i = 0; i < n; i++)
     cont.push_back (tmp[i]);
 }
@@ -368,14 +360,15 @@ void fill_cells_rand (int n,
 
 void fill_cells_clustery (int n,
                           const std::vector<CaloCell*>& cells,
-                          CaloCellContainer& cont)
+                          CaloCellContainer& cont,
+                          URNG& rng)
 {
   std::vector<CaloCell*> tmp = cells;
   while (n > 0) {
-    int idx = randi (tmp.size());
+    int idx = randi_seed (rng.seed, tmp.size());
     int nmax = std::min ((unsigned int)n, (unsigned int)tmp.size() - idx);
     assert (nmax > 0);
-    int thisn = randi (nmax) + 1;
+    int thisn = randi_seed (rng.seed, nmax) + 1;
     for (int i = idx; i < idx + thisn; i++)
       cont.push_back (tmp[i]);
     tmp.erase (tmp.begin()+idx, tmp.begin()+idx+thisn);
@@ -387,13 +380,14 @@ void fill_cells_clustery (int n,
 CaloCellContainer* fill_cells (int n,
                                const std::vector<CaloCell*>& cells,
                                bool clustery,
-                               bool ordered)
+                               bool ordered,
+                               URNG& rng)
 {
   CaloCellContainer* cont = new CaloCellContainer (SG::VIEW_ELEMENTS);
   if (clustery)
-    fill_cells_clustery (n, cells, *cont);
+    fill_cells_clustery (n, cells, *cont, rng);
   else
-    fill_cells_rand (n, cells, *cont);
+    fill_cells_rand (n, cells, *cont, rng);
 
   if (ordered) {
     cont->order();
@@ -751,12 +745,13 @@ void test_one (int n,
                int version,
                const std::vector<CaloCell*>& cells,
                CaloCompactCellTool& tool,
+               URNG& rng,
                bool clustery = false,
                bool dump = false,
                bool ordered = true)
 {
   printf ("*** test %d %d %d %d\n", version, n, clustery, ordered);
-  CaloCellContainer* cont = fill_cells (n, cells, clustery, ordered);
+  CaloCellContainer* cont = fill_cells (n, cells, clustery, ordered, rng);
 
   if (dump)
     dump_cells (*cont);
@@ -1047,10 +1042,11 @@ CaloCellPacker_400_500_test::test_err11(const CaloCompactCellContainer&
 
 // Test handling of corrupt data.
 void test_errs (const std::vector<CaloCell*>& cells,
-                CaloCompactCellTool& tool)
+                CaloCompactCellTool& tool,
+                URNG& rng)
 {
   printf ("*** test_errs\n");
-  CaloCellContainer* cont = fill_cells (10000, cells, true, true);
+  CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
   CaloCompactCellContainer ccc;
   tool.getPersistent (*cont, &ccc, CaloCompactCellTool::VERSION_501);
 
@@ -1070,8 +1066,8 @@ void test_errs (const std::vector<CaloCell*>& cells,
 
   // Unordered
   printf (" --- err unordered\n");
-  seed = 101;
-  CaloCellContainer* cont2 = fill_cells (10000, cells, true, false);
+  rng.seed = 101;
+  CaloCellContainer* cont2 = fill_cells (10000, cells, true, false, rng);
   CaloCompactCellContainer ccc2;
   tool.getPersistent (*cont2, &ccc2, CaloCompactCellTool::VERSION_500);
   T::test_fin (ccc2, tool);
@@ -1083,7 +1079,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
 //============================================================================
 
 
-std::vector<CaloCell*> init (IdDictParser* parser)
+std::vector<CaloCell*> init (IdDictParser* parser, URNG& rng)
 {
   ISvcLocator* svcloc;
   if (!Athena_test::initGaudi("CaloCompactCellTool_test.txt", svcloc)) {
@@ -1103,7 +1099,7 @@ std::vector<CaloCell*> init (IdDictParser* parser)
   scmgr->set_helper (schelper);
   scmgr->initialize();
 
-  std::vector<CaloCell*> cells = make_cells (mgr);
+  std::vector<CaloCell*> cells = make_cells (mgr, rng);
 
   IToolSvc* toolsvc = 0;
   CHECK( svcloc->service ("ToolSvc", toolsvc, true) );
@@ -1128,89 +1124,90 @@ std::vector<CaloCell*> init (IdDictParser* parser)
 
 void runtests (IdDictParser* parser)
 {
+  Athena_test::URNG rng;
   CaloCompactCellTool tool;
-  std::vector<CaloCell*> cells = init (parser);
+  std::vector<CaloCell*> cells = init (parser, rng);
 
-  seed = 10;
-  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, false, true);
-  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool,  true, true);
-  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, true);
+  rng.seed = 10;
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, true, true);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_400, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_400, cells, tool, rng);
 
-  seed = 20;
-  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, false, true);
-  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool,  true, true);
+  rng.seed = 20;
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng,  true, true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_500, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_500, cells, tool, rng);
 
-  seed = 40;
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, false);
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool,  true);
+  rng.seed = 40;
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, false);
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool, rng);
 
   // Unordered
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool,  false,
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, false,
             true, false);
 
-  seed = 50;
-  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, false);
-  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool,  true);
+  rng.seed = 50;
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng, false);
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_502, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_502, cells, tool, rng);
 
-  seed = 60;
-  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, false);
-  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool,  true);
+  rng.seed = 60;
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng, false);
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_503, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_503, cells, tool, rng);
 
-  seed = 70;
-  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, false);
-  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool,  true);
+  rng.seed = 70;
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng, false);
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool);
-  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, true);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool);
-  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, true);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool, rng);
 
-  seed = 80;
+  rng.seed = 80;
   test_supercells (CaloCompactCellTool::VERSION_504, cells, tool);
 
-  seed = 30;
-  test_errs (cells, tool);
+  rng.seed = 30;
+  test_errs (cells, tool, rng);
 }
 
 
@@ -1222,9 +1219,10 @@ float tv_diff (const timeval& tv1, const timeval& tv2)
 
 void timetests (IdDictParser* parser, int nrep)
 {
+  Athena_test::URNG rng;
   CaloCompactCellTool tool;
-  std::vector<CaloCell*> cells = init (parser);
-  CaloCellContainer* cont = fill_cells (10000, cells, true, true);
+  std::vector<CaloCell*> cells = init (parser, rng);
+  CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
 
   rusage ru0, ru1, ru2, ru3;
 

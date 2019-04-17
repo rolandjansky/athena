@@ -11,7 +11,7 @@
 #include "Pixel1RawDataCnv_p2.h"
 #include "Pixel1RawDataContainerCnv_p2.h"
 #include "MsgUtil.h"
-#include "CreateTransientTemplate.h"
+
 
 
 void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCont, InDetRawDataContainer_p2* persCont, MsgStream &log) 

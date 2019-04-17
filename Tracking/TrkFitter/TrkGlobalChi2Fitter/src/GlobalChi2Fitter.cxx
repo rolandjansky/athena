@@ -4981,10 +4981,6 @@ namespace Trk {
     int nscat = trajectory.numberOfScatterers();
     int nbrem = trajectory.numberOfBrems();
 
-    // save ROOT error message level
-    int originalErrorLevel = gErrorIgnoreLevel;
-    gErrorIgnoreLevel = 10000;
-
     Eigen::MatrixXd a, a_inv;
     a.resize(nfitpar, nfitpar);
     
@@ -5011,7 +5007,6 @@ namespace Trk {
         ATH_MSG_DEBUG("Fit did not converge");
         cache.m_fittercode = FitterStatusCode::NoConvergence;
         m_fit_status[S_NOT_CONVERGENT]++;
-        gErrorIgnoreLevel = originalErrorLevel;
         cache.m_miniter = tmpminiter;
         return nullptr;
       }
@@ -5026,8 +5021,6 @@ namespace Trk {
           } else if (cache.m_fittercode == FitterStatusCode::ExtrapolationFailureDueToSmallMomentum) {
             m_fit_status[S_LOW_MOMENTUM]++;
           }
-          
-          gErrorIgnoreLevel = originalErrorLevel;
           cache.m_miniter = tmpminiter;
           return nullptr;
         }
@@ -5053,7 +5046,6 @@ namespace Trk {
             runTrackCleanerTRT(cache, trajectory, a, b, lu, runOutlier, m_trtrecal, it);
             if (cache.m_fittercode != FitterStatusCode::Success) {
               ATH_MSG_DEBUG("TRT cleaner failed, returning null...");
-              gErrorIgnoreLevel = originalErrorLevel;
               cache.m_miniter = tmpminiter;
               return nullptr;
             }
@@ -5093,7 +5085,6 @@ namespace Trk {
         ATH_MSG_DEBUG("matrix inversion failed!");
         m_fit_status[S_MAT_INV_FAIL]++;
         cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
-        gErrorIgnoreLevel = originalErrorLevel;
         return nullptr;
       }
     }
@@ -5106,9 +5097,6 @@ namespace Trk {
       calculateTrackErrors(trajectory, a_inv, true);
       finaltrajectory = runTrackCleanerSilicon(cache, trajectory, a, a_inv, b, runOutlier);
     }
-
-    // We're done with the ROOT stuff, so we can reset the error level
-    gErrorIgnoreLevel = originalErrorLevel;
 
     if (cache.m_fittercode != FitterStatusCode::Success) {
       ATH_MSG_DEBUG("Silicon cleaner failed, returning null...");

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
@@ -104,7 +104,7 @@ def getStreamTag(streams):
             streamTags += [(stream, 'calibration', 'yes', '1')]
             
         else:
-            log.error('Stream %s not defined, returning dummy stream!' % stream)
+            log.error('Stream %s not defined, returning dummy stream!', stream)
             return [ ('jettauetmiss','physics','yes','1') ]#[('','','','')]
             
 

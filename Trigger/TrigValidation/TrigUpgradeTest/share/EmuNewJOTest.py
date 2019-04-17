@@ -14,7 +14,7 @@ from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
 from TriggerJobOpts.TriggerConfig import triggerSummaryCfg, triggerMonitoringCfg, \
     setupL1DecoderFromMenu, collectHypos, collectFilters
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, createStepView
 from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
@@ -56,8 +56,12 @@ for index, chain in enumerate(HLTChains):
             hypoTool = seq.hypoToolConf.hypoToolGen(chainDicts[index])
             hypoAlg.HypoTools = [hypoTool]
 
+            stepReco, stepView = createStepView(step.name)
+
             sequenceAcc = ComponentAccumulator()
-            sequenceAcc.addSequence(seq.sequence.Alg)
+            sequenceAcc.addSequence(stepView)
+            sequenceAcc.addSequence(seq.sequence.Alg, parentName=stepReco.getName())
+            sequenceAcc.addEventAlgo(hypoAlg, sequenceName=stepView.getName())
             seq.ca = sequenceAcc
             sequenceAcc.wasMerged()
 

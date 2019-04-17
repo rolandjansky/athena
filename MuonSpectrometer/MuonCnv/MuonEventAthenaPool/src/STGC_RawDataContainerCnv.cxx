@@ -4,7 +4,7 @@
 
 #include "STGC_RawDataContainerCnv.h"
 #include "StoreGate/StoreGateSvc.h"
-
+#include "MuonIdHelpers/sTgcIdHelper.h"
 
 STGC_RawDataContainerCnv::STGC_RawDataContainerCnv(ISvcLocator* svcloc) :
   STGC_RawDataContainerCnvBase(svcloc)

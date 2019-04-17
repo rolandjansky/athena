@@ -82,11 +82,8 @@ namespace Trk{
     /**Interface method for output, to be overloaded by child classes* */
     virtual std::ostream& dump( std::ostream& out ) const =0 ;
 
-    /**return number of parameters currently created*/
-    static unsigned int numberOfInstantiations() ;
-
   protected:
-    mutable const std::pair<const PrepRawData*, const PrepRawData*> *m_clusList;
+    const std::pair<const PrepRawData*, const PrepRawData*> *m_clusList;
     std::pair<IdentifierHash, IdentifierHash> m_elemIdList;
     Amg::Vector3D m_position; 
     Amg::MatrixX  m_globalCovariance;
@@ -95,8 +92,6 @@ namespace Trk{
     /** might not be performant enough, evaluate */
 
   private:
-    /** number of objects of this type in memory */
-    static unsigned int s_numberOfInstantiations;
         
   };
 

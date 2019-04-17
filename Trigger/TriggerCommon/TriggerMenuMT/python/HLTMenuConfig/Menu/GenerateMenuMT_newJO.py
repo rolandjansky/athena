@@ -22,7 +22,7 @@ def fillGeneratorsMap( sigMap, signature ):
 
     gen = __import__(importString, globals(), locals(), ['generateChains'])
     sigMap[signature] = gen.generateChains
-    _log.info( 'Imported generator for %s' % signature )
+    _log.info( 'Imported generator for %s', signature )
 
 
 def generateMenu( flags ):
@@ -91,8 +91,6 @@ def generateMenu( flags ):
         menuAcc.merge(chainsAcc)
 
     menuAcc.printConfig()
-
-    # kaboom
 
     _log.info('CF is built')
 
