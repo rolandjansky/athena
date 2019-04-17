@@ -32,13 +32,13 @@ monitoringAllTracks = True
 useGRL = False
 
 # MC
-MC_bool = True
+MC_bool = False
 
 # do Trigger
 DoTrigger = False
 
 # where to run
-grid_bool = False
+grid_bool = True
 
 # handle input constants
 readPool = False # default True
@@ -87,33 +87,9 @@ print ' ========= runzmumu === config == end == '
 #include("InDetSimpleVisual/GetDetectorPositions.py")
 
 if (grid_bool):
-    #PoolInput = [ "/afs/cern.ch/work/w/wollrath/private/IDAlignment/inputFiles/data16_13TeV/AOD.11063137._018527.pool.root.1" ]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._000001.pool.root.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data15_5TeV/DESDM_ZMUMU.11207033._000001.pool.root.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_ZMUMU/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00349977.physics_Main.merge.DESDM_MCP.f933_m1964._0027.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0027.1",
-    #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0028.1",
-    #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0029.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350923.physics_Main.merge.DESDM_MCP.f937_m1976._0027.1",
-    #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350923.physics_Main.merge.DESDM_MCP.f937_m1976._0127.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/ZmumuAOD2018/data18_13TeV.00358395.physics_Main.merge.DAOD_ZMUMU.f961_m1831_f961_m2018._0027.1"]
-    PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
-
-else:
-    #PoolInput = [ "/home/jw1095/storage/IDAlignment/inputFiles/data17_13TeV/data17_13TeV.00327265.physics_Main.merge.DESDM_ZMUMU.f832_m1616_f832_m1816._0518.1" ]
-    if (MC_bool): 
-        PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
-        # PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._000001.pool.root.1"
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001884.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001883.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001300.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001200.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001100.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001101.pool.root.1",
-        #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001000.pool.root.1"]
-    else:
-        PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data16_13TeV/data16_13TeV.00303338.physics_Main.merge.DESDM_MCP.f716_m1624._0001.1"]
+    PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
+if (MC_bool): 
+    PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
 
 #EvtMax= -1
 EvtMax= 100
@@ -357,8 +333,8 @@ if zmumuval == True:
         ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
                             resonName = "Zmumu",
                             minInvmass = 10.,
-                            maxInvmass = 120.,
-                            nMassBins = 60,
+                            maxInvmass = 180.,
+                            nMassBins = 80,
                             triggerChainName = "NoTrig",
                             regions = ["All","BB","EAEA","ECEC"],
                             varsVSmean = varsVSmeanZmumu,
