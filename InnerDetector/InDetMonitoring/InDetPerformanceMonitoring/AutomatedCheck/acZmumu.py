@@ -36,9 +36,9 @@ def findListOfDataSets():
     #theAMIsearchCommand = "ami list datasets %s.%%.physics_HardProbes.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
     
     # case of using MC 
-    theAMIsearchCommand = "ami list datasets %s --order run_number --fields events,nfiles"  %(m_mcDataSetName)
+    if (m_usingMC):
+        theAMIsearchCommand = "ami list datasets %s --order run_number --fields events,nfiles"  %(m_mcDataSetName)
 
-    
     print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
     amiReturn = os.popen(theAMIsearchCommand).readlines()
 
