@@ -437,14 +437,14 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpName = "PtProjections_pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
                  "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
-      m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, aux_loglin_x, false);
+      m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, 200,-10,10, false);
     }
 
     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
       tmpName = "EtaProjections_pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
                  "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
-      m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, aux_loglin_x, false);
+      m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, 200,-10,10, false);
     }
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
       tmpName = "PtProjections_resProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
