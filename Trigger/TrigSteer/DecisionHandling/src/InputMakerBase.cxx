@@ -122,9 +122,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     } // loop over input decisions
 
     ATH_MSG_DEBUG( "Filled output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    for (auto i : *outDecisions) msg() << i << " ";
-    msg() << endmsg;
-    outputIndex++;         
+    outputIndex++;
   } // end of first loop over input keys
 
   return StatusCode::SUCCESS;

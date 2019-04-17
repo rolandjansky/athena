@@ -861,8 +861,8 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
         
         if ( updateTriggerElement ) {
           
-          ATH_MSG_INFO("Updating the trigger element");
-          ATH_MSG_INFO(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
+          ATH_MSG_DEBUG("Updating the trigger element");
+          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
 	  // create the TrigCompositeContainer to store the calibration buffer
 	  // at StatusCode execute() and hltExecute().
 
@@ -1026,7 +1026,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
     ATH_MSG_DEBUG("pattern#0: # of hits at barrel endcap inner  =" << pattern.mdtSegments[endcapinner].size());
   }
   ATH_MSG_DEBUG("### ************************************* ###");
-  ATH_MSG_INFO("Estimated muon pt = " << pattern.pt << " GeV");
+  ATH_MSG_DEBUG("Estimated muon pt = " << pattern.pt << " GeV");
 
   // ---------
   // store xAOD
