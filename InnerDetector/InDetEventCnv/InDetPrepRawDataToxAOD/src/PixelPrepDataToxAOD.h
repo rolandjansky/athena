@@ -21,9 +21,12 @@
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 #include <string>
 
@@ -102,16 +105,29 @@ private:
   bool  m_writeRDOinformation;
   bool m_useSiHitsGeometryMatching;
 
-  ServiceHandle<IPixelCalibSvc> m_calibSvc;
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey{this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
-  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey{this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
+  SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+  {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
-  SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
+  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey
+  {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
 
-  ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey
+  {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
+
+  SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp
+  {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
+
+  SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV
+  {this, "ReadKeyHV",    "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
+
+  ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc
+  {this, "PixelByteStreamErrorsSvc", "PixelByteStreamErrorsSvc", "Pixel byte stream error service"};
+
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool
+  {this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   // -- Private members   
   bool m_firstEventWarnings;

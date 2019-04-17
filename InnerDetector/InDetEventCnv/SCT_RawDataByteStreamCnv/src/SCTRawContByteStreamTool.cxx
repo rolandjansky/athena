@@ -6,23 +6,19 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
+#include "eformat/SourceIdentifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
-
 #include "StoreGate/ReadCondHandle.h"
-#include "eformat/SourceIdentifier.h"
 
 // Constructor 
 
 SCTRawContByteStreamTool::SCTRawContByteStreamTool(const std::string& type, const std::string& name,
                                                    const IInterface* parent) :
-  base_class(type, name, parent),
-  m_sctIDHelper{nullptr},
-  m_mutex{}
+  base_class(type, name, parent)
 {
-  declareProperty("RodBlockVersion", m_rodBlockVersion=0);
 }
 
 // Initialize
@@ -51,7 +47,7 @@ StatusCode SCTRawContByteStreamTool::finalize()
 StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
                                              RawEventWrite* rawEvtWrite, MsgStream& log) const 
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::mutex> lock{m_mutex};
 
   m_fullEventAssembler.clear();
   FullEventAssembler<SrcIdMap>::RODDATA* rod;
@@ -61,7 +57,7 @@ StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont
   ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_rodBlockVersion);
   
   // Mapping between ROD IDs and the hits in that ROD
-  std::map<uint32_t, std::vector<const SCT_RDORawData*> > rdoMap;
+  std::map<uint32_t, std::vector<const SCT_RDORawData*>> rdoMap;
 
   // The following few lines are to make sure there is an entry in the rdoMap for 
   // every ROD, even if there are no hits in it for a particular event 

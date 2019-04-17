@@ -27,7 +27,7 @@
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log,
                                              IRPCcablingSvc* cabling /*= nullptr*/) {

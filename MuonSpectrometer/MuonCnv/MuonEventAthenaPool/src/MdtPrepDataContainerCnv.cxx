@@ -19,7 +19,7 @@
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 
 MdtPrepDataContainerCnv::MdtPrepDataContainerCnv(ISvcLocator* svcloc) :

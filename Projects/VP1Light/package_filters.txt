@@ -1,0 +1,56 @@
+#
+# Packages to build as part of VP1Light:
+#
+# GeoModel
++ DetectorDescription/GeoModel/GeoModelStandalone/GeoModelDBManager
++ DetectorDescription/GeoModel/GeoModelStandalone/GeoModelErrorHandler
++ DetectorDescription/GeoModel/GeoModelStandalone/GeoRead
++ DetectorDescription/GeoModel/GeoModelStandalone/GeoWrite
++ DetectorDescription/GeoModel/GeoModelExamples
+#+ DetectorDescription/GeoModel/GeoModelKernel # moved to Externals
++ DetectorDescription/GeoModel/GeoModelStandalone/TFPersistification
++ DetectorDescription/GeoModel/GeoModelUtilities
++ DetectorDescription/GeoPrimitives
+#
+# Utility packages
++ AtlasTest/TestTools
++ Calorimeter/CaloGeoHelpers
++ Control/AthToolSupport/.*
++ Control/AthContainersInterfaces
++ Control/AthContainers
++ Control/AthLinksSA
++ Control/xAODRootAccess.*
++ Control/CxxUtils
++ Event/EventPrimitives
++ MuonSpectrometer/MuonIdHelpers
++ Generators/TruthUtils
++ Tools/PathResolver
+#
+# VP1/VP1Light packages
++ graphics/VP1/RunVP1Light
++ graphics/VP1/VP1Base
++ graphics/VP1/VP1Gui
++ graphics/VP1/VP1HEPVis
++ graphics/VP1/VP1Plugins/VP1GeometryPlugin
++ graphics/VP1/VP1Plugins/VP1AODPlugin
++ graphics/VP1/VP1Plugins/VP1LightPlugin
++ graphics/VP1/VP1Systems/VP1GeometrySystems
++ graphics/VP1/VP1Systems/VP1GuideLineSystems
++ graphics/VP1/VP1Systems/VP1AODSystems
++ graphics/VP1/VP1Utils
++ graphics/VP1/VP1UtilsBase
+#
+# xAOD packages
+- Event/xAOD/.*AthenaPool
++ Event/xAOD/xAODMetaDataCnv
+#+ Event/xAOD/xAODTriggerCnv
+- Event/xAOD/xAODCaloRings
+- Event/xAOD/.*Cnv
++ Event/xAOD/.*
+#
+# Trigger packages
++ Trigger/TrigConfiguration/TrigConfBase
++ Trigger/TrigConfiguration/TrigConfL1Data
++ Trigger/TrigConfiguration/TrigConfHLTData
++ Trigger/TrigEvent/TrigNavStructure
+- .*

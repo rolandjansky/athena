@@ -60,7 +60,5 @@ std::string AndHelperTool::toString() const{
 
 StatusCode AndHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_lhs->getDescription(c);
-  m_rhs->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }

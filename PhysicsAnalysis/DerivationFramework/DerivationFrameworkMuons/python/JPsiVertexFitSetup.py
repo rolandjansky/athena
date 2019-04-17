@@ -45,7 +45,6 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
                                            useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                            TrkVertexFitterTool         = ToolSvc.VKalVrtFitterName,        # VKalVrt vertex fitter
                                            TrackSelectorTool           = ToolSvc.InDetDetailedTrackSelectorTool,
-                                           ConversionFinderHelperTool  = ToolSvc.InDetConversionFinderUtils,
                                            VertexPointEstimator        = ToolSvc.VtxPointEstimator,
                                            useMCPCuts                  = True, 
                                            OutputLevel                 = WARNING)

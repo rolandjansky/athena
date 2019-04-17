@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,12 @@
 
 #include "PixelProcessorTool.h"
 
-#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -39,7 +44,15 @@ class PixelNoisyCellGenerator:public PixelProcessorTool {
   private:
     PixelNoisyCellGenerator();
 
-    ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
+    ServiceHandle<IPixelCablingSvc>  m_pixelCabling
+    {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
+
+    SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+    {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
     double m_timeBCN;
     bool                 m_mergeCharge;
     std::vector<double>  m_noiseShape;

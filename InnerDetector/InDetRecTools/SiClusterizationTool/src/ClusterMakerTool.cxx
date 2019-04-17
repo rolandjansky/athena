@@ -23,10 +23,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-
 #include "EventPrimitives/EventPrimitives.h"
-
 
 using CLHEP::micrometer;
 
@@ -50,12 +47,9 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
   m_issueErrorA(true),
   m_forceErrorStrategy1A(false),
   m_issueErrorB(true),
-  m_forceErrorStrategy1B(false),
-  m_calibSvc("PixelCalibSvc", n)
+  m_forceErrorStrategy1B(false)
 { 
   declareInterface<ClusterMakerTool>(this);
-  declareProperty("UsePixelCalibCondDB",m_calibrateCharge=true,"Compute deposited charge in Pixels");
-  declareProperty("PixelCalibSvc",m_calibSvc);
 }
 
 //=============== Destructor =================================================
@@ -68,28 +62,9 @@ StatusCode  ClusterMakerTool::initialize(){
 
    ATH_MSG_INFO ( name() << " initialize()" );
    
-   // Protect from the situation in which the PixelCalibSvc is not configured:
-   // that should be the case if no PixelRDO are read in.
-   // AA 01/10/2009
-   if ( m_calibSvc.empty() ) {
-     if ( m_calibrateCharge ) {
-       ATH_MSG_WARNING("Requesting charge calibration, but ServiceHandle is not configured");
-       ATH_MSG_WARNING("No charge calibration applied");
-     }
-     m_calibrateCharge = false;
-   }
-   
-   if ( m_calibrateCharge ) {
-     StatusCode sc = m_calibSvc.retrieve();
-     if (sc.isFailure() || !m_calibSvc) {
-       ATH_MSG_WARNING ( m_calibSvc.type() << " not found! " );
-       ATH_MSG_WARNING ( "Continuing without calibrating charge" );
-       m_calibrateCharge = false;
-     }
-     else{
-      ATH_MSG_INFO ( "Retrieved tool " <<  m_calibSvc.type() ) ;
-     }
-   }
+   ATH_CHECK(m_pixelCabling.retrieve());
+   ATH_CHECK(m_moduleDataKey.initialize());
+   ATH_CHECK(m_chargeDataKey.initialize());
 
    if (not m_pixelLorentzAngleTool.empty()) {
      ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
@@ -105,7 +80,6 @@ StatusCode  ClusterMakerTool::initialize(){
    ATH_CHECK(m_clusterErrorKey.initialize());
 
    return StatusCode::SUCCESS;
-
 }
 
 
@@ -161,17 +135,24 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   	return nullptr;
   }
   
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+
   if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
-  if (m_calibrateCharge) {
+  if (moduleData->getUseCalibConditions()) {
     int nRDO=rdoList.size();
     chargeList.reserve(nRDO);
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
 
-      float charge = m_calibSvc->getCharge(pixid,ToT);
+      Identifier moduleID = pid->wafer_id(pixid);
+      IdentifierHash moduleHash = pid->wafer_hash(moduleID);
+      int circ = m_pixelCabling->getFE(&pixid,moduleID);
+      int type = m_pixelCabling->getPixelType(pixid);
+      float charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
 
       chargeList.push_back(charge);
     }
@@ -301,6 +282,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   if ( errorStrategy==2 && m_forceErrorStrategy1B ) errorStrategy=1;
 
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design){
@@ -315,15 +299,22 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   float qColMin = 0;  float qColMax = 0;
   std::vector<float> chargeList;
   int nRDO=rdoList.size();
-  if (m_calibrateCharge) chargeList.reserve(nRDO);
+  if (moduleData->getUseCalibConditions()) { chargeList.reserve(nRDO); }
   for (int i=0; i<nRDO; i++) {
      Identifier pixid=rdoList[i];
      int ToT=totList[i];
      
      float charge = ToT;
-     if (m_calibrateCharge){
+     if (moduleData->getUseCalibConditions()) {
 
-       charge = m_calibSvc->getCharge(pixid,ToT);
+       Identifier moduleID = pixelID.wafer_id(pixid);
+       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+       int circ = m_pixelCabling->getFE(&pixid,moduleID);
+       int type = m_pixelCabling->getPixelType(pixid);
+       charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+       if (moduleHash<12 || moduleHash>2035) {
+         charge = ToT/8.0*(8000.0-1200.0)+1200.0;
+       }
 
        chargeList.push_back(charge);
      }

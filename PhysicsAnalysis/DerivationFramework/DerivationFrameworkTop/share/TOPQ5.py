@@ -80,7 +80,6 @@ TOPQ5JpsiFinder = Analysis__JpsiFinder(
   useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
   TrkVertexFitterTool         = TOPQ5_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
   TrackSelectorTool           = TOPQ5_VertexTools.InDetTrackSelectorTool,
-  ConversionFinderHelperTool  = TOPQ5_VertexTools.InDetConversionHelper,
   VertexPointEstimator        = TOPQ5_VertexTools.VtxPointEstimator,
   useMCPCuts                  = False )
 

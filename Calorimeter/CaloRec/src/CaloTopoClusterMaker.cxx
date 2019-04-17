@@ -31,7 +31,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
 #include "GaudiKernel/StatusCode.h"
@@ -47,24 +46,6 @@
 
 using CLHEP::MeV;
 
-namespace {
-
-  /*
-struct CaloClusterSort
-{
-  CaloClusterSort (xAOD::CaloCluster* cl, float et)
-    : m_et (et), m_cl (cl) {}
-  bool operator< (const CaloClusterSort& other) const
-  { return m_et < other.m_et; }
-  operator xAOD::CaloCluster* () const { return m_cl; }
-
-  float m_et;
-  xAOD::CaloCluster* m_cl;
-};
-  */
-
-} // anonymous namespace
-
 //#############################################################################
 
 CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type, 
@@ -78,13 +59,6 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_cellThresholdOnEorAbsEinSigma    (    0.),
     m_neighborThresholdOnEorAbsEinSigma(    3.),
     m_seedThresholdOnEorAbsEinSigma    (    6.),
-    m_cellThresholdOnEtorAbsEt         (    0.*MeV),   
-    m_neighborThresholdOnEtorAbsEt     (  100.*MeV), 
-    m_seedThresholdOnEtorAbsEt         (  200.*MeV),
-    m_useNoiseTool                     (false),
-    m_usePileUpNoise                   (false),
-    m_noiseTool                        ("CaloNoiseTool"),
-    m_noiseSigma                       (  100.*MeV),                      
     m_neighborOption                   ("super3D"),
     m_nOption                          (LArNeighbours::super3D),
     m_restrictHECIWandFCalNeighbors    (false),
@@ -118,13 +92,6 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 		  m_neighborThresholdOnEorAbsEinSigma);
   declareProperty("CellThresholdOnEorAbsEinSigma",
 		  m_cellThresholdOnEorAbsEinSigma);
-  // Additional E_t cuts in MeV in case usePileUpNoise is set to false
-  declareProperty("SeedThresholdOnEtorAbsEt",
-		  m_seedThresholdOnEtorAbsEt);
-  declareProperty("NeighborThresholdOnEtorAbsEt",
-		  m_neighborThresholdOnEtorAbsEt);
-  declareProperty("CellThresholdOnEtorAbsEt",
-		  m_cellThresholdOnEtorAbsEt);
 
   // Seed and cluster cuts are in E or Abs E
   declareProperty("SeedCutsInAbsE",m_seedCutsInAbsE);
@@ -134,16 +101,6 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 
   // Cell cuts are in E or Abs E
   declareProperty("CellCutsInAbsE",m_cellCutsInAbsE);
-
-  // Noise Sigma
-  declareProperty("NoiseSigma",m_noiseSigma);
-
-  // NoiseTool
-  declareProperty("UseCaloNoiseTool",m_useNoiseTool);
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
-
-  // PileUpNoise
-  declareProperty("UsePileUpNoise",m_usePileUpNoise);
 
   // Neighbor Option
   declareProperty("NeighborOption",m_neighborOption);
@@ -311,44 +268,9 @@ StatusCode CaloTopoClusterMaker::initialize()
     msg() << " " << caloName;
   msg() << endmsg;
 
-  //---- retrieve the noise tool ----------------
+  //---- retrieve the noise CDO  ----------------
   
-  if (m_useNoiseTool) {
-    
-    if(m_noiseTool.retrieve().isFailure()){
-      ATH_MSG_WARNING( "Unable to find Noise Tool"  );
-    }  
-    else {
-      ATH_MSG_INFO( "Noise Tool retrieved"  );
-    }
-  }
-  else  {
-    ATH_MSG_INFO( "Noise Sigma "
-                  << m_noiseSigma << " MeV is selected!" 
-                  << (!m_usePileUpNoise?
-                      " The noise sigma will just be the electronics noise!":"") 
-                  );
-  }
-
-  if ( m_useNoiseTool && m_usePileUpNoise ) {
-    ATH_MSG_INFO( "Pile-Up Noise from Noise Tool" 
-                  << " is selected! The noise sigma will be the"
-                  << " quadratic sum of the electronics noise and the pile up!"  );
-  }
-  else {
-    ATH_MSG_INFO( "Additional E_t cuts (instead of Pile-Up Noise):" 
-                  << (m_seedCutsInAbsE?" SeedThresholdOnAbsEt=":" SeedThresholdOnEt=")
-                  << m_seedThresholdOnEtorAbsEt 
-                  << " MeV, " 
-                  << (m_neighborCutsInAbsE?"NeighborThresholdOnAbsEt=":
-                      "NeighborThresholdOnEt=")
-                  << m_neighborThresholdOnEtorAbsEt 
-                  << " MeV, "
-                  << (m_cellCutsInAbsE?"CellThresholdOnAbsEt=":
-                      "CellThresholdOnEt=")
-                  << m_cellThresholdOnEtorAbsEt 
-                  << " MeV"  );
-  }
+  ATH_CHECK(m_noiseCDOKey.initialize());
 
   ATH_MSG_INFO( (m_seedCutsInAbsE?"ClusterAbsEtCut= ":"ClusterEtCut= ")
                 << m_clusterEtorAbsEtCut << " MeV"  );
@@ -365,7 +287,7 @@ StatusCode CaloTopoClusterMaker::initialize()
     }
   }
 
-  ATH_CHECK( m_cablingKey.initialize() );
+  //ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
   
@@ -401,6 +323,10 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
   std::vector<HashCell> cellVector (m_hashMax - m_hashMin);
   HashCell* hashCells = cellVector.data() - m_hashMin;
 
+  
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
+  const CaloNoise* noiseCDO=*noiseHdl;
+
   //---- Get the CellContainers ----------------
 
   //  for (const std::string& cellsName : m_cellsNames) {
@@ -426,36 +352,19 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	   ++iCell, ++cellIter)
         {
           CaloPrefetch::nextDDE(cellIter, cellIterEnd, 2);
-	  // noise() member does not exist for CaloCell - need to use noise tool
 	  const CaloCell* pCell = *cellIter;
-	  // take the noise for the current gain of the cell
-	  // the highest gain would be nice to use, but this is not possible 
-	  // in runs with fixed gain because it might not be defined ...
-	  float noiseSigma;
-	  if ( m_useNoiseTool ) {
-	    if ( m_usePileUpNoise ) {
-	      if(m_twogaussiannoise) noiseSigma = m_noiseTool->getEffectiveSigma(pCell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::TOTALNOISE);
-	      else noiseSigma = m_noiseTool->getNoise(pCell,ICalorimeterNoiseTool::TOTALNOISE);
-	    }
-	    else
-	      if(m_twogaussiannoise) noiseSigma = m_noiseTool->getEffectiveSigma(pCell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::ELECTRONICNOISE);
-	      else noiseSigma = m_noiseTool->getNoise(pCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-	  }
-	  else 
-	    noiseSigma = m_noiseSigma;
+	  const float noiseSigma = m_twogaussiannoise ? \
+	    noiseCDO->getEffectiveSigma(pCell->ID(),pCell->gain(),pCell->energy()) : \
+	    noiseCDO->getNoise(pCell->ID(),pCell->gain());
+
 	  float signedE = pCell->energy();
 	  float signedEt = pCell->et();
 	  float signedRatio = epsilon; // not 0 in order to keep bad cells 
 	  if ( finite(noiseSigma) && noiseSigma > 0 && !CaloBadCellHelper::isBad(pCell,m_treatL1PredictedCellsAsGood) ) 
 	    signedRatio = signedE/noiseSigma;
-	  bool passedCellCut = (m_cellCutsInAbsE?std::abs(signedRatio):signedRatio)
-	    > m_cellThresholdOnEorAbsEinSigma 
-	    && (m_usePileUpNoise || ((m_cellCutsInAbsE?std::abs(signedEt):signedEt)
-				     > m_cellThresholdOnEtorAbsEt));
-	  bool passedNeighborCut = (m_neighborCutsInAbsE?std::abs(signedRatio):signedRatio) > m_neighborThresholdOnEorAbsEinSigma
-	    && ( m_usePileUpNoise || ((m_neighborCutsInAbsE?std::abs(signedEt):signedEt) > m_neighborThresholdOnEtorAbsEt ));
-	  bool passedSeedCut = (m_seedCutsInAbsE?std::abs(signedRatio):signedRatio) > m_seedThresholdOnEorAbsEinSigma
-	    && ( m_usePileUpNoise || ((m_seedCutsInAbsE?std::abs(signedEt):signedEt) > m_seedThresholdOnEtorAbsEt ));
+	  bool passedCellCut = (m_cellCutsInAbsE?std::abs(signedRatio):signedRatio) > m_cellThresholdOnEorAbsEinSigma;
+	  bool passedNeighborCut = (m_neighborCutsInAbsE?std::abs(signedRatio):signedRatio) > m_neighborThresholdOnEorAbsEinSigma;
+	  bool passedSeedCut = (m_seedCutsInAbsE?std::abs(signedRatio):signedRatio) > m_seedThresholdOnEorAbsEinSigma;
 
 	  if ( passedCellCut || passedNeighborCut || passedSeedCut ) {
 	    const CaloDetDescrElement* dde = pCell->caloDDE();
@@ -619,8 +528,7 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	    // check neighbor threshold only since seed cells are already in
 	    // the original list 
 	    bool isAboveNeighborThreshold = 
-	      (m_neighborCutsInAbsE?std::abs(pNCell->getSignedRatio()):pNCell->getSignedRatio()) > m_neighborThresholdOnEorAbsEinSigma
-	      && ( m_usePileUpNoise || ((m_neighborCutsInAbsE?std::abs(pNCell->getSignedEt()):pNCell->getSignedEt()) > m_neighborThresholdOnEtorAbsEt ));
+	      (m_neighborCutsInAbsE?std::abs(pNCell->getSignedRatio()):pNCell->getSignedRatio()) > m_neighborThresholdOnEorAbsEinSigma;
 	    // checking the neighbors
 	    if ( isAboveNeighborThreshold && !pNCell->getUsed() ) {
 	      pNCell->setUsed();

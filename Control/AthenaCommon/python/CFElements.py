@@ -130,6 +130,7 @@ def findAllAlgorithms(sequence, nameToLookFor=None):
 
 
 def findAllAlgorithmsByName(sequence, namesToLookFor=None):
+    """Finds all algorithms in sequence and groups them by name"""
     algorithms = collections.defaultdict(list)
     for idx, child in enumerate(sequence.getChildren()):
         if isSequence(child):
@@ -138,7 +139,7 @@ def findAllAlgorithmsByName(sequence, namesToLookFor=None):
                 algorithms[algName] += childAlgs[algName]
         else:
             if namesToLookFor is None or child.name() in namesToLookFor:
-                algorithms[child.name()].append(child)
+                algorithms[child.name()].append( (child, sequence, idx) )
     return algorithms
 
 
@@ -157,19 +158,21 @@ def flatAlgorithmSequences( start ):
     __inner(start, c)
     return c
 
-def flatSequencers( start ):
+def flatSequencers( start, algsCollection=None ):
     """ Flattens sequences """
     
     def __inner( seq, collector ):
         if seq.name() not in collector:
             collector[seq.name()] = []
         for c in seq.getChildren():
+            isSeq = isSequence(c)
+            if not isSeq and algsCollection is not None and c.name() in algsCollection:
+                collector[seq.name()].append( algsCollection[c.name()] )
+                continue
             collector[seq.name()].append( c )
-            if isSequence( c ):            
-                if c.name() in collector: # already visited
-                    pass
-                else:       
-                    __inner( c, collector )
+            if isSeq and c.name() not in collector:
+                __inner( c, collector )
+
 
     from collections import defaultdict
     c = defaultdict(list)

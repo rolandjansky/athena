@@ -15,48 +15,44 @@ namespace Monitored {
    */
   class HistogramFillerProfile : public HistogramFiller {
   public:
-    HistogramFillerProfile(TProfile* hist, const HistogramDef& histDef)
-      : HistogramFiller(hist, histDef) {};
+    HistogramFillerProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller(definition, provider) {}
 
     virtual HistogramFillerProfile* clone() override { return new HistogramFillerProfile(*this); };
 
     virtual unsigned fill() override {
-      using namespace std;
-
       if (m_monVariables.size() != 2) {
         return 0;
       }
 
       unsigned i(0);
-      auto hist = histogram();
+      auto histogram = this->histogram<TProfile>();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       if (valuesVector1.size() != valuesVector2.size()) {
         if (valuesVector1.size() == 1) {
           // first variable is scalar -- loop over second
           for (auto value2 : valuesVector2) {
-            hist->Fill(valuesVector1[0], value2);
+            histogram->Fill(valuesVector1[0], value2);
             ++i;
           }
         } else if (valuesVector2.size() == 1)  {
           // second variable is scalar -- loop over first
           for (auto value1 : valuesVector1) {
-            hist->Fill(value1, valuesVector2[0]); 
+            histogram->Fill(value1, valuesVector2[0]); 
             ++i;
           } 
         }
       } else {
-        for (i = 0; i < valuesVector1.size(); ++i) {
-          hist->Fill(valuesVector1[i], valuesVector2[i]);
+        for (i = 0; i < std::size(valuesVector1); ++i) {
+          histogram->Fill(valuesVector1[i], valuesVector2[i]);
         }
       }
       
       return i;
     }
-  protected:
-    virtual TProfile* histogram() override { return static_cast<TProfile*>(m_hist); }
   };
 }
 

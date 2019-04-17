@@ -53,8 +53,8 @@ foreach( hanfile collisions_run collisions_minutes10
       ${CMAKE_CURRENT_SOURCE_DIR}/scripts/MergeConfigs.py ${hanfile}.config
       ${CMAKE_CURRENT_SOURCE_DIR}/config ${configOutputFile}
       # Build binary config
-      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
-      ${configOutputFile}
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
+      han-config-gen ${configOutputFile}
       # Deploy binary config
       COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${hanfile}.hcfg

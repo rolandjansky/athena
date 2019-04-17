@@ -56,7 +56,6 @@ MUON2JpsiFinder = Analysis__JpsiFinder(name                         = "MUON2Jpsi
                                         useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                         TrkVertexFitterTool         = MUON2_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
                                         TrackSelectorTool           = MUON2_VertexTools.InDetTrackSelectorTool,
-                                        ConversionFinderHelperTool  = MUON2_VertexTools.InDetConversionHelper,
                                         VertexPointEstimator        = MUON2_VertexTools.VtxPointEstimator,
                                         useMCPCuts                  = False)
 ToolSvc += MUON2JpsiFinder

@@ -2,11 +2,12 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "VP1Base/VP1Msg.h"
 
 template <typename T>
 inline const T* VP1SGAccessHelper::retrieve( const QString& key ) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("retrieve(..) called with key = "+key+" for type "+QString(typeid(T).name()));
 
   if (!storeGate()) {
@@ -43,7 +44,7 @@ inline const T* VP1SGAccessHelper::retrieve( const QString& key ) const
     message("ERROR: Failed StoreGateSvc::retrieve(..) with key="+key+" claimed to be succesful, but resulted in NULL pointer.");
     return 0;
   }
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("Succesfully retrieved collection "+key);
   return t;
 }
@@ -59,7 +60,7 @@ template <typename T>
 inline bool VP1SGAccessHelper::retrieve(const DataHandle<T>& begin, const DataHandle<T>& end, const bool&silent )
 {
 
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("retrieve(DataHandle<"+QString(typeid(T).name())+">,DataHandle<"
 		   +QString(typeid(T).name())+">) called.");
   if (!storeGate()) {
@@ -91,7 +92,7 @@ inline bool VP1SGAccessHelper::retrieve(const DataHandle<T>& begin, const DataHa
     return false;
   }
 
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("Successfully retrieved datahandles to "+QString(typeid(T).name())+".");
   return true;
 }

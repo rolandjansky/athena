@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from TGC_Digitization.TGC_DigitizationConf import TgcDigitizationTool, TGCDigitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 
@@ -39,8 +40,9 @@ def TGC_DigitizationToolCfg(flags, name="TGC_DigitizationTool", **kwargs):
 
 def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
     """Return a ComponentAccumulator with configured TGCDigitizer algorithm"""
-    acc = TGC_DigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(TGC_DigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name,**kwargs))
     return acc
 
@@ -57,8 +59,9 @@ def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **
 
 def TGC_OverlayDigitizerCfg(flags, name="TGC_OverlayDigitizer", **kwargs):
     """Return a ComponentAccumulator with TGCDigitizer algorithm configured for Overlay"""
-    acc = TGC_OverlayDigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(TGCDigitizer(name,**kwargs))
     return acc
 

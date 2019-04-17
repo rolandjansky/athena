@@ -31,10 +31,6 @@ sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetTrigClusterMakerTool = \
     InDet__ClusterMakerTool( name = "InDetTrigClusterMakerTool",
-                             UsePixelCalibCondDB = False,  #simpler setup for EFID
-                             #UsePixelCalibCondDB = True,  #simpler setup for EFID
-                             #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
-                             #UseLorentzAngleCorrections = False
                              PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
                              SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )

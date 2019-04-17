@@ -17,7 +17,7 @@
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 // #include "MuonReadoutGeometry/MuonDetectorManager.h"
 // #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 
 CscStripPrepDataContainerCnv::CscStripPrepDataContainerCnv(ISvcLocator* svcloc) :

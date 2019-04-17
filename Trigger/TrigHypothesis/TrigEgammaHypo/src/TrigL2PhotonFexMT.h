@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -50,9 +50,8 @@ class TrigL2PhotonFexMT : public AthAlgorithm {
   TrigL2PhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator);
   ~TrigL2PhotonFexMT();
   
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
   
  private:
   

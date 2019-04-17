@@ -38,6 +38,8 @@ const GeoPhysVol *GeoModelExperiment::getPhysVol() const{
   return m_physVol;
 }
 
+
+
 GeoModelExperiment::ConstIterator GeoModelExperiment::beginManager() const {
   return m_managers.begin();
 }
@@ -69,6 +71,15 @@ const GeoVDetectorManager *GeoModelExperiment::getManager(const std::string & na
   }
   
 }
+
+std::vector<std::string> GeoModelExperiment::getListOfManagers() const {
+  std::vector<std::string> managersList;
+  for(auto manager : m_managers) {
+    managersList.push_back(manager->getName());
+  }
+  return managersList;
+}
+
 
 GeoModelExperiment::NameEquals::NameEquals(const std::string & name):m_name(name) {
 }

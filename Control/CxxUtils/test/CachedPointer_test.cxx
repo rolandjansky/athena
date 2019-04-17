@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -20,6 +20,9 @@
 #include <shared_mutex>
 
 
+typedef CxxUtils::CachedPointer<void> CVP;
+
+
 // Basic tests.
 void test1()
 {
@@ -28,7 +31,7 @@ void test1()
   int x2 = 0;
   int x4 = 0;
 
-  CxxUtils::CachedPointer cp1;
+  CVP cp1;
   assert (!cp1.get());
   cp1.store (&x1);
   assert (cp1.get() == &x1);
@@ -36,7 +39,7 @@ void test1()
   cp1.store (nullptr);
   assert (!cp1.get());
 
-  CxxUtils::CachedPointer cp2 (&x2);
+  CVP cp2 (&x2);
   assert (cp2.get() == &x2);
   assert (*cp2.ptr() == &x2);
 
@@ -49,12 +52,12 @@ void test1()
   cp1 = cp2;
   assert (!cp1.get());
 
-  const CxxUtils::CachedPointer cp3 (cp1);
+  const CVP cp3 (cp1);
   assert (!cp3.get());
   cp3.set (&x4);
   assert (cp3.get() == &x4);
   assert (*cp3.ptr() == &x4);
-  const CxxUtils::CachedPointer cp4 (cp3);
+  const CVP cp4 (cp3);
   assert (cp4.get() == &x4);
   assert (*cp4.ptr() == &x4);
 }
@@ -64,7 +67,7 @@ class ThreadingTest
 {
 public:
   static const int NVAL = 10;
-  CxxUtils::CachedPointer m_vals[10];
+  CVP m_vals[10];
   std::shared_timed_mutex m_sm;
   int m_x[NVAL] = {0};
 

@@ -60,6 +60,7 @@ class TH2D;
 class TH1F;
 class TProfile;
 class TTree;
+class IChronoStatSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -238,6 +239,7 @@ namespace InDet {
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
       Trk::TrkVKalVrtFitter*   m_fitSvc{};
+      IChronoStatSvc * m_timingProfile{}; 
  
       ToolHandle < IInDetTrkInJetType >       m_trackClassificator;
 
@@ -270,6 +272,7 @@ namespace InDet {
        float ptjet;
        float etajet;
        float phijet;
+       float etatrk[maxNTrk];
        float p_prob[maxNTrk];
        float s_prob[maxNTrk];
        int   idMC[maxNTrk];

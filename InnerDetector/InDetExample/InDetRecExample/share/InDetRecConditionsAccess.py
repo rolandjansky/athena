@@ -60,15 +60,15 @@ if DetFlags.haveRIO.pixel_on():
         print InDetPixelConditionsSummaryTool
 
  
-    # Load pixel calibration service
-    if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/PIXEL/PixCalib'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-        InDetPixelCalibSvc = PixelCalibSvc()
-        ServiceMgr += InDetPixelCalibSvc
-        if InDetFlags.doPrintConfigurables():
-            print InDetPixelCalibSvc
+    #####################
+    # Calibration Setup #
+    #####################
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     # Load Pixel BS errors service
     if not (globalflags.DataSource=='geant4'):

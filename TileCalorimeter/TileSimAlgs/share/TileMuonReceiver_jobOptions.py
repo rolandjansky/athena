@@ -52,7 +52,9 @@ topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver
                                                    , UseCoolPulseShapes = True
                                                    , TileCondToolPulseShape = TileCondToolMuRcvPulseShape
                                                    , TileRawChannelBuilderMF = TileMuRcvRawChannelBuilderMF)
-
+if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"
 
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
 #                                                , OutputLevel = VERBOSE 
@@ -60,4 +62,6 @@ topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
 						, MuonReceiverEneThreshCellD6andD5Low = 500
 						, MuonReceiverEneThreshCellD6High = 600
 						, MuonReceiverEneThreshCellD6andD5High = 600)
-
+if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = overlayFlags.bkgPrefix() + "TileMuRcvCnt"

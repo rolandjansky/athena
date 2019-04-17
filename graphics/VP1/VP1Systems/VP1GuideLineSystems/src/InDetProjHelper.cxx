@@ -18,7 +18,13 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
+#ifdef BUILDVP1LIGHT
+  #include "CLHEP/Units/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS CLHEP
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units
+#endif
 
 //Fixme: Epsilon in projections! (at least take surface thickness into account!)
 
@@ -278,7 +284,7 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
 				Amg::SetVectorVector3D& resulting_subpaths_endcapA,
 				Amg::SetVectorVector3D& resulting_subpaths_endcapC ) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("clipPath(..) called. Input path has "+QString::number(path.size())+" points.");
 
   resulting_subpaths_barrelA.clear();
@@ -288,12 +294,12 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
 
   //Fixme: If verbose - perform sanity check of input data (check for NAN's).
   if (m_d->parts == InDetProjFlags::NoProjections ) {
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("All projections currently off.");
     return;
   }
   if ( path.size()<2 ) {
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("Input path too short.");
     return;
   }
@@ -308,7 +314,7 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
 			       m_d->covercyl_zmin, m_d->covercyl_zmax );
 
   if (paths_clipped.empty()) {
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("Path entirely outside clip volumes.");
     return;
   }
@@ -322,25 +328,25 @@ void InDetProjHelper::clipPath( const std::vector<Amg::Vector3D >& path,
   if ( ( (enabled_brlA?1:0) + (enabled_brlC?1:0) + (enabled_ecA?1:0) + (enabled_ecC?1:0) ) == 1 ) {
     if (enabled_brlA) {
       resulting_subpaths_barrelA = paths_clipped;
-      if (verbose())
+      if (VP1Msg::verbose())
 	messageVerbose("clipPath(..) only brlA enabled. Returning.");
       return;
     }
     if (enabled_brlC) {
       resulting_subpaths_barrelC = paths_clipped;
-      if (verbose())
+      if (VP1Msg::verbose())
 	messageVerbose("clipPath(..) only brlC enabled. Returning.");
       return;
     }
     if (enabled_ecA) {
       resulting_subpaths_endcapA = paths_clipped;
-      if (verbose())
+      if (VP1Msg::verbose())
 	messageVerbose("clipPath(..) only ecA enabled. Returning.");
       return;
     }
     if (enabled_ecC) {
       resulting_subpaths_endcapC = paths_clipped;
-      if (verbose())
+      if (VP1Msg::verbose())
 	messageVerbose("clipPath(..) only ecC enabled. Returning.");
       return;
     }
@@ -497,13 +503,13 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
   //We might be inside inner wall:
   if (ar2 <= rmin2 && br2 <= rmin2 ) {
     //    seg2_a=seg2_b;
-//     if (verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder Segment entirely inside rmin.");
     return false;
   }
   //Some fast checks for being outside:
   if ( (a.x()<=-rmax&&b.x()<=-rmax) || (a.x()>=rmax&&b.x()>=rmax) || (a.y()<=-rmax&&b.y()<=-rmax)|| (a.y()>=rmax&&b.y()>=rmax) ) {
-//     if (verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder Segment clearly entirely outside outside rmax.");
 //    seg2_a=seg2_b;
     return false;
@@ -515,7 +521,7 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
   const double rmax2 = rmax*rmax;
   if (dx==0.0&&dy==0.0) {
     //Apparently a==b (apart from perhaps z coord).
-//     if (theclass->verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder a==b.");
     return ar2<=rmax2;
   }
@@ -525,7 +531,7 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
   const double py = ( u <= 0 ? a.y() : ( u >= 1 ? b.y() : a.y()+u*dy ) );
   const double pr2 = px*px+py*py;
   if (pr2>=rmax2) {
-//     if (theclass->verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder segment entirely outside rmax.");
 //    seg2_a=seg2_b;
     return false;
@@ -537,7 +543,7 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
 
   if (pr2>=rmin2&&ar2<=rmax2&&br2<=rmax2) {
     //We are actually already entirely inside the clip volume.
-//     if (theclass->verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder segment entirely inside clip volume."
 // 			       " (pr="+QString::number(sqrt(pr2))+", ar="+QString::number(sqrt(ar2))
 // 			       +", br="+QString::number(sqrt(br2))+")");
@@ -560,19 +566,19 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
     if (u1>0&&u1<1) {
       //move a to a+u1*(b-a)
       a = a+u1*(b-a);
-//       if (verbose())
+//       if (VP1Msg::verbose())
 // 	theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder sliding a towards b, at the rmax circle.");
     }
     if (u2>0&&u2<1) {
       //move b to a+u2*(b-a)
       b = asave+u2*(b-asave);
-//       if (verbose())
+//       if (VP1Msg::verbose())
 // 	theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder sliding b towards a, at the rmax circle.");
     }
   }
 
   if (pr2>=rmin2) {
-//     if (verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder remaining segment is now entirely inside.");
     return true;
   }
@@ -588,7 +594,7 @@ bool InDetProjHelper::Imp::clipSegmentToInfiniteHollowCylinder( Amg::Vector3D&a,
       seg2_b = b;
       b = a+u1*(seg2_b-a);
       seg2_a=a+u2*(seg2_b-a);
-//       if (verbose())
+//       if (VP1Msg::verbose())
 // 	theclass->messageVerbose("clipSegmentToInfiniteHollowCylinder Two resulting segments!.");
       return true;
     }
@@ -611,7 +617,7 @@ bool InDetProjHelper::Imp::clipSegmentToHollowCylinder( Amg::Vector3D&a, Amg::Ve
 							Amg::Vector3D&seg2_a, Amg::Vector3D&seg2_b ) const
 {
   //  seg2_a = seg2_b;//test
-//   if (theclass->verbose()) {
+//   if (VP1Msg::verbose()) {
 //     theclass->messageVerbose("clipSegmentToHollowCylinder called with:");
 //     theclass->messageVerbose("   rmin = "+QString::number(rmin));
 //     theclass->messageVerbose("   rmax = "+QString::number(rmax));
@@ -622,11 +628,11 @@ bool InDetProjHelper::Imp::clipSegmentToHollowCylinder( Amg::Vector3D&a, Amg::Ve
 //   }
   if (!clipSegmentToZInterval(a,b,zmin,zmax)) {
     //    seg2_a = seg2_b;
-//     if (theclass->verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToHollowCylinder segment outside z-interval.");
     return false;
   }
-//   if (theclass->verbose()) {
+//   if (VP1Msg::verbose()) {
 //     theclass->messageVerbose("clipSegmentToHollowCylinder parameters after clipSegmentToZInterval:");
 //     if (a.z()<zmin||a.z()>zmax)
 //       theclass->messageVerbose("clipSegmentToHollowCylinder ERROR in clipSegmentToZInterval call (a_z wrong).");
@@ -637,11 +643,11 @@ bool InDetProjHelper::Imp::clipSegmentToHollowCylinder( Amg::Vector3D&a, Amg::Ve
 //   }
   if (!clipSegmentToInfiniteHollowCylinder(a,b,rmin,rmax,seg2_a,seg2_b)) {
     //    seg2_a = seg2_b;
-//     if (theclass->verbose())
+//     if (VP1Msg::verbose())
 //       theclass->messageVerbose("clipSegmentToHollowCylinder segment outside infinite hollow cylinder.");
     return false;
   }
-//   if (theclass->verbose()) {
+//   if (VP1Msg::verbose()) {
 //     theclass->messageVerbose("clipSegmentToHollowCylinder parameters after clipSegmentToInfiniteHollowCylinder:");
 //     theclass->messageVerbose("   a = ("+QString::number(a.x())+", "+QString::number(a.y())+", "+QString::number(a.z())+")");
 //     theclass->messageVerbose("   b = ("+QString::number(b.x())+", "+QString::number(b.y())+", "+QString::number(b.z())+")");
@@ -664,7 +670,7 @@ void InDetProjHelper::Imp::clipPathToHollowCylinder( const std::vector<Amg::Vect
 						     const double& rmin, const double& rmax,
 						     const double& zmin, const double& zmax ) const
 {
-//   if (theclass->verbose()) {
+//   if (VP1Msg::verbose()) {
 //     theclass->messageVerbose("clipPathToHollowCylinder called");
 //     theclass->messageVerbose("    ===>  rmin = "+QString::number(rmin));
 //     theclass->messageVerbose("    ===>  rmax = "+QString::number(rmax));
@@ -823,7 +829,7 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
 				   Amg::SetVectorVector3D& resulting_projections_endcapA,
 				   Amg::SetVectorVector3D& resulting_projections_endcapC ) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("projectPath(..) called. Input path has "+QString::number(path.size())+" points.");
 
   resulting_projections_barrelA.clear();
@@ -833,12 +839,12 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
 
   //Fixme: If verbose - perform sanity check of input data (check for NAN's).
   if (m_d->parts == InDetProjFlags::NoProjections ) {
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("All projections currently off.");
     return;
   }
   if ( path.size()<2 ) {
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("Input path too short.");
     return;
   }
@@ -853,7 +859,7 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
   //Fixme: The dependence on surface thickness and epsilon below is very preliminary.
 
   const double eps = m_d->data_disttosurface_epsilon;
-  const double endcapeps(-5*Gaudi::Units::mm);//fixme hardcoding..
+  const double endcapeps(-5*SYSTEM_OF_UNITS::mm);//fixme hardcoding..
 
   Amg::SetVectorVector3D::const_iterator it,itE;
 
@@ -919,7 +925,7 @@ void InDetProjHelper::projectPath( const std::vector<Amg::Vector3D >& path,
 //____________________________________________________________________
 InDetProjHelper::PartsFlags InDetProjHelper::touchedParts( const std::vector<Amg::Vector3D >& path ) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("touchedParts(..) called. Input path has "+QString::number(path.size())+" points.");
   PartsFlags touchedparts = NoParts;
   if ( m_d->touchesHollowCylinder(path,m_d->barrel_inner_radius, m_d->barrel_outer_radius, 0, m_d->barrel_posneg_z) )

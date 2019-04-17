@@ -25,9 +25,6 @@
 // xAOD
 #include "xAODBase/ObjectType.h"
 
-
-
-
 // FWD declarations
 //class SoMaterial;
 class CaloClusterCollectionSettingsButton;
@@ -44,7 +41,8 @@ public:
 	static QStringList availableCollections(IVP1System*);//For the collection widget.
 
 	IParticleCollHandle_CaloCluster( AODSysCommonData *,
-			const QString& name, xAOD::Type::ObjectType type );
+				const QString& name, xAOD::Type::ObjectType type );
+
 	virtual ~IParticleCollHandle_CaloCluster();
 
 	virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.

@@ -15,6 +15,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
@@ -213,7 +214,7 @@ bool PRDCollHandleBase::load() {
 //____________________________________________________________________
 void PRDCollHandleBase::collVisibilityChanged(bool vis)
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("TrackCollHandleBase::collVisibilityChanged => "+str(vis));
   if (vis)
     recheckCutStatusOfAllNotVisibleHandles();//Fixme -> ofallhandles? All must be not visible anyway...

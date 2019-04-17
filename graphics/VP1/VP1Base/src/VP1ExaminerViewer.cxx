@@ -1661,7 +1661,17 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     //        glDisable(GL_MULTISAMPLE);
 
     bool printWarning = false;
-    const char* env_aa = std::getenv("VP1_ADVANCED_ANTIALIASING");
+    const char* env_aa;
+    #ifndef BUILDVP1LIGHT
+    	env_aa = std::getenv("VP1_ADVANCED_ANTIALIASING");
+    #else
+    	bool antialiasingIsOn = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_ADVANCED_ANTIALIASING");
+    	if(antialiasingIsOn){
+    		env_aa = "1";
+    	} else {
+    		env_aa = "0";
+    	}
+    #endif
     if (env_aa != NULL) {
      std::string env_aa_string( env_aa );
      if(env_aa_string == "1") {

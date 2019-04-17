@@ -15,11 +15,14 @@
 #include "VP1AODSystems/AODSystemController.h"
 #include "IParticleCollHandleBase.h"
 #include "AODCollHandleBase.h"
-#include "IParticleCollHandle_TrackParticle.h"
-#include "IParticleHandle_TrackParticle.h"
-#include "IParticleCollHandle_Jet.h"
+#ifndef BUILDVP1LIGHT
+    #include "IParticleHandle_TrackParticle.h"
+#endif
+#include "IParticleCollHandle_Electron.h"
 #include "IParticleCollHandle_Muon.h"
-#include "IParticleCollHandle_CaloCluster.h" 
+#include "IParticleCollHandle_TrackParticle.h"
+#include "IParticleCollHandle_CaloCluster.h"
+#include "IParticleCollHandle_Jet.h"
 #include "MissingEtCollHandle.h"
 #include "VertexCollHandle.h"
 #include "AODSysCommonData.h"
@@ -32,8 +35,10 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Utils/VP1DetInfo.h"
-#include "VP1Utils/VP1AvailableToolsHelper.h"
-#include "VP1Utils/VP1ToolAccessHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1AvailableToolsHelper.h"
+  #include "VP1Utils/VP1ToolAccessHelper.h"
+#endif
 
 // SoCoin (see if we can shift this to external file?)
 #include <Inventor/nodes/SoSeparator.h>
@@ -52,13 +57,28 @@
 #include <sstream>
 #include <typeinfo>
 
-// Athena
-#include "StoreGate/StoreGateSvc.h"
-#include "TrkExInterfaces/IExtrapolationEngine.h"
+#ifndef BUILDVP1LIGHT
+  // Athena
+  #include "StoreGate/StoreGateSvc.h"
+  #include "TrkExInterfaces/IExtrapolationEngine.h"
+#endif
 
 // Qt
 #include <QTreeWidget>
 
+// XAOD
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/TStore.h"
+#include "xAODRootAccess/tools/Message.h"
+#include "xAODRootAccess/TAuxStore.h"
+#include "xAODCore/AuxContainerBase.h"
+#include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/IOStats.h"
+
+// ROOT include(s):
+#include <TFile.h>
+#include <TError.h>
 
 
 class VP1AODSystem::Imp {
@@ -72,6 +92,7 @@ public:
   SoLineSet * totmomline;
   Amg::Vector3D totmomgev;
   double totmass;
+
 
   // TrackCommonFlags::SELECTIONMODE selMode;
 
@@ -91,11 +112,11 @@ public:
   template <class T>
   QList<AODCollHandleBase*> createSpecificCollections(xAOD::Type::ObjectType type) {
     QList<AODCollHandleBase*> l;
-    foreach (QString name, T::availableCollections(theclass)) {
-      T * col = new T(common,name,type);
-      col->init();
-      l << col;
-    }
+      foreach (QString name, T::availableCollections(theclass)) {
+        T * col = new T(common,name,type);
+        col->init();
+        l << col;
+      }
     return l;
   }
 
@@ -108,12 +129,13 @@ public:
   */
   QList<AODCollHandleBase*> createCollections() {
     QList<AODCollHandleBase*> l;
-    l << createSpecificCollections<IParticleCollHandle_TrackParticle>(xAOD::Type::TrackParticle);
-    l << createSpecificCollections<IParticleCollHandle_Jet>(xAOD::Type::Jet);
-    l << createSpecificCollections<IParticleCollHandle_Muon>(xAOD::Type::Muon);
-    l << createSpecificCollections<IParticleCollHandle_CaloCluster>(xAOD::Type::CaloCluster); // Calorimeter Clusters
-    l << createSpecificCollections<MissingEtCollHandle>(xAOD::Type::Other);
-    l << createSpecificCollections<VertexCollHandle>(xAOD::Type::Vertex);
+   l << createSpecificCollections<IParticleCollHandle_TrackParticle>(xAOD::Type::TrackParticle);
+   l << createSpecificCollections<IParticleCollHandle_Jet>(xAOD::Type::Jet);
+   l << createSpecificCollections<IParticleCollHandle_Muon>(xAOD::Type::Muon);
+   l << createSpecificCollections<IParticleCollHandle_Electron>(xAOD::Type::Electron);
+   l << createSpecificCollections<IParticleCollHandle_CaloCluster>(xAOD::Type::CaloCluster); // Calorimeter Clusters
+   l << createSpecificCollections<MissingEtCollHandle>(xAOD::Type::Other);
+   l << createSpecificCollections<VertexCollHandle>(xAOD::Type::Vertex);
     return l;
   }
 };
@@ -122,7 +144,8 @@ public:
 VP1AODSystem::VP1AODSystem(QString name)
   : IVP13DSystemSimple(name,
 "System showing all (x)AOD objects.",
-"Edward.Moyse@cern.ch, Riccardo.maria.bianchi@cern.ch"), m_d(new Imp)
+"Edward.Moyse@cern.ch, Riccardo.maria.bianchi@cern.ch, Sebastian.Andreas.Merkt@cern.ch"), m_d(new Imp)
+
 {
   m_d->theclass = this;
   m_d->selObjects = 0;
@@ -153,6 +176,7 @@ void VP1AODSystem::systemcreate(StoreGateSvc* /*detstore*/)
   messageVerbose("systemcreate");
   ensureBuildController();
 
+#ifndef BUILDVP1LIGHT
   //Get available extrapolators:
   QString tooltype("Trk::ExtrapolationEngine");
   VP1AvailableToolsHelper availTools(this);
@@ -162,11 +186,16 @@ void VP1AODSystem::systemcreate(StoreGateSvc* /*detstore*/)
   foreach (QString value, existingExtrapolators)
     messageVerbose(value);
 
-
   VP1ToolAccessHelper toolaccess(this);
   Trk::IExtrapolationEngine * extrapolator = toolaccess.getToolPointer<Trk::IExtrapolationEngine>("Trk::ExtrapolationEngine/AtlasExtrapolation",false/*silent*/,true/*create if not exists*/);
   m_d->common->setExtrapolator(extrapolator);
+#endif
 
+#ifdef BUILDVP1LIGHT
+  // Load event from xAOD once AODSystem is created
+  emit signalLoadEvent(this);
+#endif // BUILDVP1LIGHT
+  
   // m_d->common->controller()->initTools();
 }
 
@@ -648,6 +677,8 @@ void VP1AODSystem::userChangedSelection(SoCooperativeSelection* sel, QSet<SoNode
   // updateShownTotMomentum();
 }
 
+#ifndef BUILDVP1LIGHT
+//____________________________________________________________________
 void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle*>& trackparticles)
 {
   messageVerbose("updateAssociatedObjects TrackParticle");
@@ -683,6 +714,7 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle
   messageVerbose("updateAssociatedObjects TrackParticle end");
 
 }
+#endif // BUILDVP1LIGHT
 
 // void VP1AODSystem::updateAssociatedObjects(QList<xAOD::CaloCluster*>& clusters)
 // {
@@ -690,14 +722,17 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle
 //   std::cout<<"Got "<<clusters.size() << " from " <<typeid(sender()).name()<<std::endl;
 //
 // }
-
+#ifndef BUILDVP1LIGHT
+//____________________________________________________________________
 void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::MuonSegment*>& segments)
 {
   messageVerbose("updateAssociatedObjects Segment");
   std::cout<<"Got "<<segments.size() << " from " <<typeid(sender()).name()<<std::endl;
 
 }
+#endif // BUILDVP1LIGHT
 
+//____________________________________________________________________
 void VP1AODSystem::dumpToJSON()
 {
   
@@ -753,7 +788,3 @@ void VP1AODSystem::dumpToJSON()
   }
   message("Wrote visible objects to \'EventDump.json\'");
 }
-
-
-
-

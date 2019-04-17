@@ -99,8 +99,9 @@ std::string CombinationsHelperTool::toString() const{
 StatusCode
 CombinationsHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
+  StatusCode sc;
   for(auto child : m_children){
-    child->getDescription(c);
+    sc = sc & child->getDescription(c);
   }
-  return StatusCode::SUCCESS;
+  return sc;
 }

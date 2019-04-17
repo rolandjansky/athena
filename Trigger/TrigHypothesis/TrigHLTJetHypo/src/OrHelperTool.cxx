@@ -62,7 +62,5 @@ std::string OrHelperTool::toString() const{
 
 StatusCode OrHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_lhs->getDescription(c);
-  m_rhs->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }

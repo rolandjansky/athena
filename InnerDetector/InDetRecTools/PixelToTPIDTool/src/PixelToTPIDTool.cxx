@@ -220,7 +220,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
 	  if ( (m_IBLParameterSvc->containsIBL()) and (bec==0) and (layer==0) ){ // check if IBL 
 	  
 	  //loop over ToT and check if anyone is overflow (ToT==14) check for IBL cluster overflow
-    m_overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLOverflowToT();
+    m_overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getFEI4OverflowToT(0,0);
 	  const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
 	  
     for (int pixToT : ToTs) {

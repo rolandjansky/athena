@@ -16,6 +16,9 @@ TrackSelectionTool = InDet__InDetTrackSelectionTool()
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += TrackSelectionTool
 
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
+
 TrackSelectionTool.CutLevel = "TightPrimary"
 TrackSelectionTool.minPt = 500.0 
 
@@ -103,16 +106,9 @@ PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
 
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
-
 PFClusterMomentsMaker.MaxAxisAngle = 20*deg
 PFClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
 PFClusterMomentsMaker.MinBadLArQuality = 4000
-PFClusterMomentsMaker.CaloNoiseTool = theCaloNoiseTool
-PFClusterMomentsMaker.UsePileUpNoise = True
 PFClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 PFClusterMomentsMaker.OutputLevel = INFO
 PFClusterMomentsMaker.MomentsNames = [

@@ -21,10 +21,11 @@
 #include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
-#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //New digi
 #include "TrkDigEvent/DigitizationModule.h"
@@ -146,7 +147,11 @@ private:
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
-  ServiceHandle<IPixelCalibSvc>         m_pixelCalibSvc;
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+
+  SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+  {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;

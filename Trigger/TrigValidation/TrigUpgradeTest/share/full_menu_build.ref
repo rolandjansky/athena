@@ -88,6 +88,7 @@ TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e7_etcut ID#243
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
 TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_mu20_ivar ID#267444585
 TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_mu6 ID#1672162766
+TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_mu6 ID#1672162766
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_mu6nol1 ID#1250234908
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_g5_etcut ID#1407390618
@@ -226,8 +227,8 @@ TrigSignatureMoniMT                                INFO HLT_j85                 
 TrigSignatureMoniMT                                INFO HLT_j85 decisions                                 0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar                 20        20        3         2         2         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar decisions                           3         2         2         0         
-TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         2         1         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 3         2         1         0         
+TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         2         1         1         1         
+TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 3         2         1         1         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb                   20        20        3         2         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb decisions                             3         2         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6fast                   20        20        3         0         0         0         3         
