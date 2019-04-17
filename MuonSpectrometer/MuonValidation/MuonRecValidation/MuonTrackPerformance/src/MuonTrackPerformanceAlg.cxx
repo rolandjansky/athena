@@ -280,7 +280,10 @@ bool MuonTrackPerformanceAlg::handleTracks() {
 	else ATH_MSG_WARNING("no track particle of type "<<m_trackType<<" for muon with author "<<muon->author()<<" and pT "<<muon->pt());
 	continue;
       }
-      if(tp->track()) allTracks->push_back(new Trk::Track(*tp->track()));
+      if(tp->track()){
+	m_ntracks++;
+	allTracks->push_back(new Trk::Track(*tp->track()));
+      }
       else ATH_MSG_WARNING("no track for this trackParticle, skipping");
     }
     ATH_MSG_DEBUG("got "<<allTracks->size()<<" tracks");
