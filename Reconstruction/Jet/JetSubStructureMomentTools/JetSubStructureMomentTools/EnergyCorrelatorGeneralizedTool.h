@@ -19,6 +19,8 @@ class EnergyCorrelatorGeneralizedTool :
 
     private:
       float m_Beta;
+      bool m_doN3;
+      bool m_doLSeries;
 };
 
 #endif
