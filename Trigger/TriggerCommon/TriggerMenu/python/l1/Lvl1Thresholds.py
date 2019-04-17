@@ -87,9 +87,9 @@ class ThresholdValue:
 
 
 class LVL1Threshold(object):
-    __slots__ = ['name','ttype','mapping','active','seed','seed_ttype', 'seed_multi', 'bcdelay', 'cableinfo', 'thresholdValues']
+    __slots__ = ['name','ttype','mapping','active','seed','seed_ttype', 'seed_multi', 'bcdelay', 'cableinfo', 'thresholdValues','run']
 
-    def __init__(self, name, ttype, mapping = -1, active = 1, seed='', seed_type = '', seed_multi = 0, bcdelay = 0):
+    def __init__(self, name, ttype, mapping = -1, active = 1, seed='', seed_type = '', seed_multi = 0, bcdelay = 0, run = 0):
         self.name            = name
         self.ttype           = ttype
         self.mapping         = int(mapping)
@@ -99,6 +99,7 @@ class LVL1Threshold(object):
         self.seed_multi      = int(seed_multi)
         self.bcdelay         = int(bcdelay)
         self.cableinfo       = None
+        self.run             = int(run)
         self.thresholdValues = []
 
     def __str__(self):
@@ -207,12 +208,13 @@ class LVL1Threshold(object):
         seed       = ' seed="%s"' % self.seed if self.ttype=='ZB' else ''
         seed_multi = ' seed_multi="%i"' % self.seed_multi if self.ttype=='ZB' else ''
         bcdelay    = ' bcdelay="%i"' % self.bcdelay if self.ttype=='ZB' else ''
+        run        = ' run="%i"' % self.run if self.run else ''
         inputboard = "ctpcore"
         if self.cableinfo and not self.cableinfo.isDirectIn:
             inputboard = "ctpin"
         bitnum = self.cableinfo.bitnum if self.cableinfo else -1
-        s = ind * step * ' ' + '<TriggerThreshold active="%i" bitnum="%i" id="%i" mapping="%i" name="%s" type="%s" input="%s"%s%s%s version="1">\n' % \
-            (self.active, bitnum, int(idgen.get('TriggerThreshold')), self.mapping, self.name, self.ttype, inputboard, seed, seed_multi, bcdelay)
+        s = ind * step * ' ' + '<TriggerThreshold active="%i" bitnum="%i" id="%i" mapping="%i" name="%s" type="%s" input="%s"%s%s%s%s version="1">\n' % \
+            (self.active, bitnum, int(idgen.get('TriggerThreshold')), self.mapping, self.name, self.ttype, inputboard, seed, seed_multi, bcdelay, run)
         for thrv in sorted(self.thresholdValues):
             s += thrv.xml(ind+1,step)
         if self.cableinfo:
