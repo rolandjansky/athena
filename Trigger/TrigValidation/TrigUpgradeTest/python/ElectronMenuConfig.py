@@ -10,8 +10,6 @@ def l2CaloRecoCfg( flags ):
     from TrigT2CaloEgamma.TrigT2CaloEgammaMTConfig import fastL2EgammaClusteringAlg
     algAcc = fastL2EgammaClusteringAlg( flags, roisKey=reco.name+'RoIs')
     reco.mergeReco( algAcc )
-    reco.merge( algAcc )
-
     return reco
 
 def l2CaloHypoCfg( flags, name="UNSPECIFIED", CaloClusters="UNSPECIFIED" ):

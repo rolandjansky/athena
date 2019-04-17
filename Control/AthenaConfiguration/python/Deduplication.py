@@ -6,7 +6,6 @@ from GaudiKernel.GaudiHandles import GaudiHandleArray, PublicToolHandle, PublicT
 from AthenaCommon.Configurable import ConfigurableAlgTool
 import collections
 from AthenaCommon.Logging import logging
-from AthenaCommon.CFElements import findAllAlgorithmsByName
 
 from UnifyProperties import unifyProperty 
 
@@ -129,16 +128,3 @@ def deduplicateComponent(newComp,comp):
             pass
         #end if startswith("_")
     return newComp
-
-
-def deduplicateWithAll(sequence, algorithms):
-    existingAlgsByName = findAllAlgorithmsByName(sequence, namesToLookFor=set(map(lambda alg: alg.name(), algorithms)))
-    for alg in algorithms:
-        existingAlgs = existingAlgsByName[alg.name()]
-        for idx, existingAlg in enumerate(existingAlgs):
-            if alg == existingAlg:
-                continue
-            deduplicateComponent(alg, existingAlg)
-            if idx == len(existingAlgs) - 1:
-                # Merge other way around with last algorithm
-                deduplicateComponent(existingAlg, alg)
