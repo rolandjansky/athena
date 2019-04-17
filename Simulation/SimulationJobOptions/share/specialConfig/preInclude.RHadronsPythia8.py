@@ -174,7 +174,7 @@ load_files_for_rhadrons_scenario('SLHA_INPUT.DAT',spectrum)
 # Add any lines that were missing
 # In case we want to use Pythia8 for decays during simulation
 lifetime = float(simdict['LIFETIME']) if simdict.has_key("LIFETIME") else -1.
-if lifetime>0.
+if lifetime>0.:
     if lifetime<1. and hasattr(runArgs,'outputEVNT_TRFile'):
         rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
         rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
