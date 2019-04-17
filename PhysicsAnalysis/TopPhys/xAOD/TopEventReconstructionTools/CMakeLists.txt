@@ -1,7 +1,6 @@
-# Auto-generated on: 2017-03-08 14:47:36.489231
 
 # Declare the name of this package:
-atlas_subdir( TopEventReconstructionTools None )
+atlas_subdir( TopEventReconstructionTools )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -21,8 +20,9 @@ find_package( KLFitter )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEventReconstructionTools _cintDictSource
-                           ROOT_HEADERS Root/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT )
+   ROOT_HEADERS TopEventReconstructionTools/TopEventReconstructionToolsLoader.h
+   Root/LinkDef.h
+   EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc

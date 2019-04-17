@@ -23,7 +23,7 @@ def _setup():
 
 	inFiles = InputFileNames()
 	if len(inFiles) < 1:
-		msg.error("No input files specified yet! Cannot do anything.")
+		msg.warning("No input files specified yet! Cannot do anything.")
 
 	metadata_all_files = read_metadata(inFiles, mode='full')
 

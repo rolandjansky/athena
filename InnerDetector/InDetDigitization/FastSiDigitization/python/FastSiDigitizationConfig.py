@@ -30,10 +30,22 @@ def FastSCT_LastXing():
 
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
+
+    #################################
+    # Config pixel conditions setup #
+    #################################
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                      UseDeadMap=False,
+                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                      UseCalibConditions=True)
+
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
-        kwargs.setdefault("UsePixelCalibCondDB", False)
-        kwargs.setdefault("PixelCalibSvc","");
+        PixelConfigCondAlg.UseCalibConditions=False
     else:
         from AthenaCommon.Include import include
         include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
@@ -44,21 +56,25 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             ToolSvc += PixelRecoDbTool()
         ToolSvc.PixelRecoDbTool.InputSource = 1
 
+        #####################
+        # Calibration setup #
+        #####################
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+
+
         # setup PixelCalibDbTool in ToolSvc
         if not hasattr(ToolSvc, "PixelCalibDbTool"):
             from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
             ToolSvc += PixelCalibDbTool()
 
-        from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested('/PIXEL/PixCalib'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
         if not conddb.folderRequested('/PIXEL/ReadoutSpeed'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/ReadoutSpeed")
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, "PixelCalibSvc"):
-            from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-            InDetPixelCalibSvc = PixelCalibSvc()
-            ServiceMgr += InDetPixelCalibSvc
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)

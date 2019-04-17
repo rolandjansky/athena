@@ -25,11 +25,11 @@ if TriggerFlags.doCalo:
        "HLT_j45" : "L1_J20"
      }
      testChains =[x for x, y in CTPToChainMapping.items()]
-     topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+     topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
      print testChains
 
      # get L1 decisions
-     for unpack in topSequence.L1DecoderTest.roiUnpackers:
+     for unpack in topSequence.L1Decoder.roiUnpackers:
          if unpack.name() is "JRoIsUnpackingTool":
              L1JetDecisions=unpack.Decisions
              

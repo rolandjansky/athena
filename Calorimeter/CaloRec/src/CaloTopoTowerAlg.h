@@ -41,8 +41,9 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 
-class ICalorimeterNoiseTool;
-class StoreGateSvc;
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 class CaloTopoTowerAlg : public AthReentrantAlgorithm
 {
@@ -75,12 +76,10 @@ private:
   double m_minimumClusterEnergy;
   bool   m_useCellWeights;
    
-  // Noise tool stuff
-  bool m_useNoiseTool;
-  bool m_usePileUpNoise;
-  // FIXME: mutable
-  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-  float m_noiseSigma;
+  /** @brief Key of the CaloNoise Conditions data object. Typical values 
+      are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
+
   float m_cellESignificanceThreshold; 
  
   // Type definitions 

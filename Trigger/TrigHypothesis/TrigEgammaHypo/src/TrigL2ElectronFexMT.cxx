@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -87,9 +87,7 @@ ATH_CHECK( m_outputElectronsKey.initialize() );
 
 StatusCode TrigL2ElectronFexMT::finalize()
 {
-    ATH_MSG_INFO("in finalize()");
-
-    if (m_extrapolator_failed) 
+    if (m_extrapolator_failed)
         ATH_MSG_INFO("track extrapolation failed " << m_extrapolator_failed << " times");
 
     return  StatusCode::SUCCESS;
@@ -107,8 +105,6 @@ StatusCode TrigL2ElectronFexMT::execute() {
                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputElectronsKey );
-  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
- 
 
   auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );

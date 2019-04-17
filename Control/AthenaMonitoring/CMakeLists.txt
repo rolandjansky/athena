@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
-			  AtlasTest/TestTools)
+                          AtlasTest/TestTools)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -46,18 +46,34 @@ atlas_add_component( AthenaMonitoring
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
-# Units tests:
-foreach ( name GenericMonParsing_test GenericMonFilling_test )
-	atlas_add_test( ${name}
-			SOURCES test/${name}.cxx
-			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
-			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-			POST_EXEC_SCRIPT "true"
-            PROPERTIES TIMEOUT 300
-	)
+# Units tests C++:
+file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )
+foreach ( test_file ${CXX_TEST_FILES} )
+   get_filename_component( name ${test_file} NAME_WE)
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_cxx_${name} )
+   file( REMOVE_RECURSE ${rundir} )
+   file( MAKE_DIRECTORY ${rundir} )
+   atlas_add_test( ${name}
+      SOURCES ${test_file}
+      LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
+      ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+      POST_EXEC_SCRIPT "true"
+         PROPERTIES TIMEOUT 300
+         PROPERTIES WORKING_DIRECTORY ${rundir}
+   )
 endforeach()
 
-atlas_add_test( defineHistogram
-   SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/test_defineHistogram.py
-   POST_EXEC_SCRIPT "true"
-)
+# Units tests Python:
+
+file( GLOB PYTHON_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py )
+foreach ( test_file ${PYTHON_TEST_FILES} )
+   get_filename_component( name ${test_file} NAME_WE)
+   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_py_${name} )
+   file( REMOVE_RECURSE ${rundir} )
+   file( MAKE_DIRECTORY ${rundir} )
+   atlas_add_test( ${name}
+      SCRIPT python ${test_file}
+      POST_EXEC_SCRIPT "true"
+         PROPERTIES WORKING_DIRECTORY ${rundir}
+   )
+endforeach()

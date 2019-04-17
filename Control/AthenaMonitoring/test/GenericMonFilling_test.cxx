@@ -352,7 +352,7 @@ int main() {
     log << MSG::ERROR << "Failed to acquire the MonTool tools via the ToolHandle" << endmsg;
     return -1;
   }
-  
+
   assert( fillFromScalarWorked( validMon, histSvc ) );
   assert( noToolBehaviourCorrect( emptyMon ) );
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );

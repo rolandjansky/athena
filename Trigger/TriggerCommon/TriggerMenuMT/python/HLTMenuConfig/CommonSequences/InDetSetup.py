@@ -123,10 +123,11 @@ def makeInDetAlgs( whichSignature='' ):
   #Pixel clusterisation
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
   
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+  PixelConfigCondAlg.UseCalibConditions = False
+
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool" + signature,
-                                                  PixelCalibSvc        = None,
-                                                  UsePixelCalibCondDB  = False,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
                                                   PixelLorentzAngleTool = TrigPixelLorentzAngleTool)
   

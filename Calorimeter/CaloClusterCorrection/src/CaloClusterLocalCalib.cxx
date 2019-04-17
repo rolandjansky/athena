@@ -57,7 +57,7 @@ StatusCode  CaloClusterLocalCalib::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode  CaloClusterLocalCalib::execute(const EventContext& /*ctx*/,
+StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
                                            CaloCluster* theCluster) const
 {
   CaloRecoStatus& recoStatus=theCluster->recoStatus();
@@ -135,7 +135,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& /*ctx*/,
         
 //         Weight the new cluster
         for (const ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
-          if (tool->weight(myCluster).isFailure())
+          if (tool->weight(myCluster,ctx).isFailure())
             msg(MSG::ERROR) << " failed to weight cluster " << endmsg;
         }
 
@@ -187,7 +187,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& /*ctx*/,
       else{ 
         
         for (const ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
-          if (tool->weight(theCluster).isFailure())
+          if (tool->weight(theCluster,ctx).isFailure())
             msg(MSG::ERROR) << " failed to weight cluster " << endmsg;
         }       
  

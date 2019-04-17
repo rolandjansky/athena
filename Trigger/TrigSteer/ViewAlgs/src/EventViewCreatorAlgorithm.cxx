@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -115,7 +115,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   // ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
   
-  ATH_CHECK( debugPrintOut(context, outputHandles) );
+  if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
 }
 

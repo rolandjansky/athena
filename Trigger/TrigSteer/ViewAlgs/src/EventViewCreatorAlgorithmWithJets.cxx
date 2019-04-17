@@ -21,8 +21,8 @@ EventViewCreatorAlgorithmWithJets::EventViewCreatorAlgorithmWithJets( const std:
 EventViewCreatorAlgorithmWithJets::~EventViewCreatorAlgorithmWithJets() {}
 
 StatusCode EventViewCreatorAlgorithmWithJets::initialize() {
-  EventViewCreatorAlgorithm::initialize();
 
+  ATH_CHECK( EventViewCreatorAlgorithm::initialize() );
   ATH_CHECK( m_inViewJets.initialize() );
 
   return StatusCode::SUCCESS;
@@ -121,8 +121,8 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   // auto viewsHandle = SG::makeHandle( m_viewsKey );
   // ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
+  if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
 
-  ATH_CHECK( debugPrintOut(context, outputHandles) );
   return StatusCode::SUCCESS;
 }
 

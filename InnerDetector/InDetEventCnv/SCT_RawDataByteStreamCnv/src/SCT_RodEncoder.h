@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
  
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
@@ -79,7 +81,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                   TRAILER_OVFLW_ERR=(1<<10),
                   ABCD_ERR=0,
                   RAWDATA_ERR=(3<<13),
-                  NULL_TRAILER_ERR=0}; 
+                  NULL_TRAILER_ERR=0};
 
   /**
    * @brief Method to encode RDO data to vector of 16 bin words.
@@ -171,7 +173,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */
-  const SCT_ID* m_sctID;
+  const SCT_ID* m_sctID{nullptr};
 
   /** Boolean used to determine if fillROD(...) should use Condensed or Expanded mode when decoding. */
   BooleanProperty m_condensed{this, 
@@ -180,7 +182,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                               "Condensed mode (true) or Expanded mode (false)"};
 
   /** Swap Module identifier, set by SCTRawContByteStreamTool. */
-  std::set<Identifier> m_swapModuleID;
+  std::set<Identifier> m_swapModuleID{};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H

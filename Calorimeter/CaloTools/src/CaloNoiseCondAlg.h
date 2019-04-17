@@ -68,14 +68,7 @@ class CaloNoiseCondAlg: public AthAlgorithm {
   std::size_t m_maxTileCells=0;
   void buildHashRanges();
 
-
-  enum NOISETYPE{ELEC=0,
-		 PILEUP,
-		 TOTAL};
-
-  
-
-  NOISETYPE m_noisetype=TOTAL;
+  CaloNoise::NOISETYPE m_noiseType=CaloNoise::TOTAL;
 
 };
 

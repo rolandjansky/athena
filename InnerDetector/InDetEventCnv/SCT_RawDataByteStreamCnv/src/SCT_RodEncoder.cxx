@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodEncoder.h" 
@@ -44,9 +44,7 @@ namespace { // Anonymous namespace
 
 SCT_RodEncoder::SCT_RodEncoder(const std::string& type, const std::string& name, 
                                const IInterface* parent) : 
-  base_class(type, name, parent),
-  m_sctID{nullptr},
-  m_swapModuleID{} 
+  base_class(type, name, parent)
 {
 }
 
@@ -72,7 +70,7 @@ StatusCode SCT_RodEncoder::initialize()
   ATH_CHECK(detStore()->retrieve(sctDetManager, "SCT"));
 
   const InDetDD::SiDetectorElementCollection* sctDetElementColl{sctDetManager->getDetectorElementCollection()};
-  for (auto sctDetElement : *sctDetElementColl) {
+  for (const InDetDD::SiDetectorElement* sctDetElement : *sctDetElementColl) {
     if (sctDetElement->swapPhiReadoutDirection()) {
       m_swapModuleID.insert(sctDetElement->identify());
     }
@@ -286,7 +284,7 @@ void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector
     vec16Words.push_back(hitExpFirst);
 
     // Even consecutive strips to the first one 1DDD 1st consec strip 1DDD 2nd consec strip
-    for (int i=1; i<=numEven; i++) {
+    for (int i{1}; i<=numEven; i++) {
       const uint16_t hitExpEven{static_cast<uint16_t>(0x8088 | ((vecTimeBins[(2*i-1)] & 0xF) << 4) | (vecTimeBins[2*i] & 0xF))};
       vec16Words.push_back(hitExpEven);
     }

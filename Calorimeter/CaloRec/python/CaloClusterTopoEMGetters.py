@@ -22,9 +22,6 @@ from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
-
 
 class CaloClusterTopoEMGetterBase (CaloClusterGetterBase):
     _inputGetter = jp.CaloRecFlags.clusterCellGetterName()
@@ -53,9 +50,6 @@ class CaloClusterTopoEMGetterBase (CaloClusterGetterBase):
               SeedSamplingNames = [
                 "PreSamplerB", "EMB1", "EMB2", "EMB3",
                 "PreSamplerE", "EME1", "EME2", "EME3"],
-              CaloNoiseTool=theCaloNoiseTool,
-              UseCaloNoiseTool=True,
-              UsePileUpNoise=True,
               NeighborOption  = "all3D",
               # note E or AbsE 
               CellThresholdOnEorAbsEinSigma  =    self._cellThreshold,

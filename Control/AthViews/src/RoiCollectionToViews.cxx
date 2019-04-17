@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RoiCollectionToViews.h"
@@ -36,19 +36,12 @@ RoiCollectionToViews::~RoiCollectionToViews()
 ////////////////////////////
 StatusCode RoiCollectionToViews::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   CHECK( m_trigRoIs.initialize() );
   CHECK( m_viewRoIs.initialize() );
   CHECK( m_w_views.initialize() );
   CHECK( m_scheduler.retrieve() );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode RoiCollectionToViews::finalize()
-{
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }

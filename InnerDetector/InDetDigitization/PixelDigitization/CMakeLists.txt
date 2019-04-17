@@ -9,7 +9,6 @@ atlas_subdir( PixelDigitization )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Commission/CommissionEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CxxUtils
@@ -25,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SiPropertiesTool
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/PixelCabling
                           InnerDetector/InDetDigitization/SiDigitization
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRawEvent/InDetSimData
