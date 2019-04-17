@@ -21,6 +21,7 @@ m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
+m_isMC = False
 
 ###################################################################################################
 def findListOfDataSets():
@@ -292,7 +293,7 @@ def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             listOfSubmittedRuns.append(runNumber)
             print (" <acZmumu> testArea: %s" %(m_testArea))
             if (m_submitExec): 
-                print (" <acZmumu> m_submitExec = True --> jobs would be submmited");
+                print (" <acZmumu> m_submitExec = True --> job to be submmited");
                 # move to the submission folder
                 submissionPath = "%s/run" %(m_testArea) 
                 os.chdir(submissionPath)
@@ -371,7 +372,7 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
     theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
     #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged --nFilesPerJob %d" %(infoFromAMI[runNumber]["nfiles"], 20)
-    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_IHEP" %(infoFromAMI[runNumber]["nfiles"])
+    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --excludedSite=ANALY_HPC2N" %(infoFromAMI[runNumber]["nfiles"])
     
     theCommand = "pathena %s %s %s %s" %(theScript, theInput, theOutput, theOptions)
     print "%s " %theCommand
@@ -401,6 +402,7 @@ def welcomeBanner ():
     print ("\n")
     print ("  config:")
     print ("  ** Exec: %r" %m_submitExec)
+    print ("  ** using MC? %r" %m_isMC)
     print ("  ** data project: %s " %m_dataProject)
     print ("  ** min events: %d"  %m_minEvents)
     print ("  ** min Run: %d"  %m_firstRun)
@@ -437,6 +439,7 @@ def optParsing():
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
+    p_isMC = m_isMC
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
@@ -445,6 +448,7 @@ def optParsing():
     parser.add_option("--EXEC", dest="p_submitExec", help="Submit the Grid jobs. Default: no submission", action="store_true", default = False)
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
+    parser.add_option("--MC", dest="p_isMC", help="Use MC. The data set must be provided in full. Default: no MC", action="store_true", default = p_isMC)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
     parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
@@ -504,6 +508,7 @@ if __name__ == '__main__':
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
+    m_isMC = config.p_isMC
 
     welcomeBanner ()
     preliminaries ()
