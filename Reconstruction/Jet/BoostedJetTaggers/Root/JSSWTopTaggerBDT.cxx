@@ -274,20 +274,14 @@ Root::TAccept JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
   if (std::fabs(jet.eta()) > m_jetEtaMax) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
   if (jet.pt() < m_jetPtMin) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeLow", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
   if (jet.pt() > m_jetPtMax) {
     ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeHigh", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
 
   // get the relevant attributes of the jet
