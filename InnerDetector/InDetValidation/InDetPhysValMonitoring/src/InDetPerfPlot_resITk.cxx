@@ -107,7 +107,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[D0].paraLabel = std::string("d_{0}");
   m_paramProp[D0].paraUnit = std::string("[mm]");
   m_paramProp[D0].useLogLinBins = true;
-  m_paramProp[D0].nBinsRes = 2000;
+  m_paramProp[D0].nBinsRes = 1000;
   m_paramProp[D0].limRes = {
     3e-4, 30
   };
@@ -125,7 +125,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[Z0].paraLabel = std::string("z_{0}");
   m_paramProp[Z0].paraUnit = std::string("[mm]");
   m_paramProp[Z0].useLogLinBins = true;
-  m_paramProp[Z0].nBinsRes = 2000;
+  m_paramProp[Z0].nBinsRes = 1000;
   m_paramProp[Z0].limRes = {
     1e-3, 200.0
   };
@@ -161,7 +161,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[QOVERP].paraName = std::string("qoverp");
   m_paramProp[QOVERP].paraLabel = std::string("(q/p)");
   m_paramProp[QOVERP].paraUnit = std::string("[MeV^{-1}]");
-  m_paramProp[QOVERP].nBinsRes = 5000;
+  m_paramProp[QOVERP].nBinsRes = 2000;
   m_paramProp[QOVERP].useLogLinBins = true;
   m_paramProp[QOVERP].limRes = {
     1e-7, 1e-2
@@ -179,10 +179,11 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[QOVERPT].paraName = std::string("qoverpt");
   m_paramProp[QOVERPT].paraLabel = std::string("(1/p_{T})");
   m_paramProp[QOVERPT].paraUnit = std::string("[MeV^{-1}]");
-  m_paramProp[QOVERPT].nBinsRes = 6000;
+  m_paramProp[QOVERPT].nBinsRes = 2000;
   m_paramProp[QOVERPT].useLogLinBins = true;
+  // note that this (and only this!) is measured as a RELATIVE resolution! 
   m_paramProp[QOVERPT].limRes = {
-   1e-7, 1e-2
+   1e-5,50
   };
   m_paramProp[QOVERPT].nBinsPrp = 200;
   m_paramProp[QOVERPT].limPrp = {
@@ -197,10 +198,10 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[THETA].paraName = std::string("theta");
   m_paramProp[THETA].paraLabel = std::string("#theta");
   m_paramProp[THETA].paraUnit = std::string("[rad]");
-  m_paramProp[THETA].nBinsRes = 1000;
-  m_paramProp[THETA].useLogLinBins = false;
+  m_paramProp[THETA].nBinsRes = 2000;
+  m_paramProp[THETA].useLogLinBins = true;
   m_paramProp[THETA].limRes = {
-    -0.01, 0.01
+   1e-7,1e-1
   };
   m_paramProp[THETA].nBinsPrp = 200;
   m_paramProp[THETA].limPrp = {
@@ -216,9 +217,9 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[PHI].paraLabel = std::string("#phi");
   m_paramProp[PHI].paraUnit = std::string("[rad]");
   m_paramProp[PHI].nBinsRes = 1000;
-  m_paramProp[PHI].useLogLinBins = false;
+  m_paramProp[PHI].useLogLinBins = true;
   m_paramProp[PHI].limRes = {
-    -0.01, 0.01
+    1e-5,1e-1
   };
   m_paramProp[PHI].nBinsPrp = 60;
   m_paramProp[PHI].limPrp = {
@@ -233,10 +234,10 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_paramProp[PT].paraName = std::string("pt");
   m_paramProp[PT].paraLabel = std::string("p_{T}");
   m_paramProp[PT].paraUnit = std::string("[GeV]");
-  m_paramProp[PT].nBinsRes = 1000;
-  m_paramProp[PT].useLogLinBins = false;
+  m_paramProp[PT].nBinsRes = 2000;
+  m_paramProp[PT].useLogLinBins = true;
   m_paramProp[PT].limRes = {
-    -100.0, 100.0
+    1e-3,1000
   };
   m_paramProp[PT].nBinsPrp = 200;
   m_paramProp[PT].limPrp = {
@@ -405,7 +406,7 @@ InDetPerfPlot_resITk::initializePlots() {
     m_resITk_resHelperpt[iparam]->GetXaxis()->Set(49,ptlimits);
 
 
-    std::vector<double> binsForPull = populateLogLinearBinning(1000,2e-4,100,true);
+    std::vector<double> binsForPull = populateLogLinearBinning(1000,2e-2,100,true);
     tmpName = "pullHelperpt_" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track p_{T} [GeV]; (" + m_paramProp[iparam].paraLabel + "^{reco}-" +
                m_paramProp[iparam].paraLabel + "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
@@ -437,14 +438,14 @@ InDetPerfPlot_resITk::initializePlots() {
       tmpName = "PtProjections_pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
                  "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
-      m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, 200,-10,10, false);
+      m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, binsForPull, false);
     }
 
     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
       tmpName = "EtaProjections_pullProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; (" + m_paramProp[iparam].paraLabel + "^{reco}-" + m_paramProp[iparam].paraLabel +
                  "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
-      m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, 200,-10,10, false);
+      m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, binsForPull, false);
     }
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
       tmpName = "PtProjections_resProjection_" + m_paramProp[iparam].paraName + std::to_string(ibins + 1);
