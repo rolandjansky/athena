@@ -39,13 +39,6 @@ CaloNoiseCondAlg()
 #For LCWeightsTool needs electronic noise
 CaloNoiseCondAlg(noisetype="electronicNoise") 
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
-
-
-
 
 def addSnapshot(corrName,contName):
     from AthenaCommon.AlgSequence import AlgSequence
@@ -125,7 +118,6 @@ class CaloClusterTopoGetter ( Configured )  :
             # H1Weight = H1ClusterCellWeightTool("H1Weight")
             # H1Weight.CorrectionKey       = "H1ClusterCellWeights"
             # H1Weight.SignalOverNoiseCut  = 2.0
-            # H1Weight.CaloNoiseTool       = theCaloNoiseTool
             # 
             # OOCC     = OutOfClusterCorrectionTool("OOCC")
             # OOCC.CorrectionKey       = "OOCCorrection"
@@ -262,8 +254,6 @@ class CaloClusterTopoGetter ( Configured )  :
           TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
-          TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
-          TopoMoments_Truth.UsePileUpNoise = True
           TopoMoments_Truth.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
           TopoMoments_Truth.MinBadLArQuality = 4000
           TopoMoments_Truth.MomentsNames = ["FIRST_PHI_DigiHSTruth"
