@@ -17,13 +17,9 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 // Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_regionSelector{"RegSelSvc", name},
-  m_robDataProvider{"ROBDataProviderSvc", name},
-  m_sctID{nullptr},
-  m_rdoContainerCacheKey{""}
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
+  declareProperty("RDOCacheKey", m_rdoContainerCacheKey="");
 }
 
 // Initialize

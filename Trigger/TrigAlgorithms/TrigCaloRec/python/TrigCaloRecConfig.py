@@ -171,6 +171,9 @@ class TrigCaloCellMaker_eGamma (TrigCaloCellMakerBase):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc+=theCaloNoiseTool
 
+        from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+        CaloNoiseCondAlg()
+
         roilaremcellcontmaker  = RoILArEMCellContMaker()
         roilaremcellcontmaker.CaloNoiseTool = theCaloNoiseTool
         roilarhadcellcontmaker = RoILArHadCellContMaker()
@@ -669,13 +672,15 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
 
         print jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()
         # tools used by tools
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool=CaloNoiseToolDefault() #flag='tool', name='myCaloNoiseToolDefault')
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc+=theCaloNoiseTool
+        #from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        #theCaloNoiseTool=CaloNoiseToolDefault() #flag='tool', name='myCaloNoiseToolDefault')
+        #from AthenaCommon.AppMgr import ToolSvc
+        #ToolSvc+=theCaloNoiseTool
 
         if doLC:
-        
+          from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+          #For LCWeightsTool needs electronic noise
+          CaloNoiseCondAlg(noisetype="electronicNoise")   
           TrigLCClassify   = CaloLCClassificationTool("TrigLCClassify")
           TrigLCClassify.ClassificationKey   = "EMFracClassify"
           TrigLCClassify.UseSpread = False
@@ -685,7 +690,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
           TrigLCWeight = CaloLCWeightTool("TrigLCWeight")
           TrigLCWeight.CorrectionKey       = "H1ClusterCellWeights"
           TrigLCWeight.SignalOverNoiseCut  = 2.0
-          TrigLCWeight.CaloNoiseTool       = theCaloNoiseTool 
           TrigLCWeight.UseHadProbability   = True
 
           TrigLCOut     = CaloLCOutOfClusterTool("TrigLCOut")
@@ -703,7 +707,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
           #TrigLCDeadMaterial.SignalOverNoiseCut  = 1.0
           TrigLCDeadMaterial.ClusterRecoStatus   = 0
           TrigLCDeadMaterial.WeightModeDM        = 2
-          #TrigLCDeadMaterial.CaloNoiseTool       = theCaloNoiseTool
           TrigLCDeadMaterial.UseHadProbability   = True
 
           # correction tools using tools
@@ -743,9 +746,7 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
           # correction tools not using tools
           TrigTopoMoments = CaloClusterMomentsMaker ("TrigTopoMoments")
           TrigTopoMoments.MaxAxisAngle = 20*deg
-          TrigTopoMoments.CaloNoiseTool = theCaloNoiseTool
           TrigTopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-          TrigTopoMoments.UsePileUpNoise = True
           TrigTopoMoments.MinBadLArQuality = 4000
           TrigTopoMoments.MomentsNames = ["FIRST_PHI" 
                                           ,"FIRST_ETA"
@@ -808,9 +809,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
                                            "TileGap1", "TileGap2", "TileGap3",
                                            "FCAL0", "FCAL1", "FCAL2"]
 
-        TrigTopoMaker.CaloNoiseTool=theCaloNoiseTool
-        TrigTopoMaker.UseCaloNoiseTool=True
-        TrigTopoMaker.UsePileUpNoise=True
         TrigTopoMaker.NeighborOption = "super3D"
         TrigTopoMaker.RestrictHECIWandFCalNeighbors  = False
         TrigTopoMaker.CellThresholdOnEorAbsEinSigma     =    0.0
@@ -974,14 +972,6 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
         emtopocluster.SeedSamplingNames = [
             "PreSamplerB", "EMB1", "EMB2", 
             "PreSamplerE", "EME1", "EME2"  ]
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool=CaloNoiseToolDefault()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc+=theCaloNoiseTool
-        emtopocluster.CaloNoiseTool=theCaloNoiseTool
-
-        emtopocluster.UseCaloNoiseTool=True
-        emtopocluster.UsePileUpNoise=False
         
         emtopocluster.NeighborOption                 = "all3D"
         emtopocluster.CellThresholdOnEorAbsEinSigma     =    0.0
@@ -1029,9 +1019,7 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
         
         emtopomoments.OutputLevel = INFO
         emtopomoments.MaxAxisAngle = 20*deg
-        emtopomoments.CaloNoiseTool = theCaloNoiseTool
         emtopomoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-        emtopomoments.UsePileUpNoise = True
         emtopomoments.MinBadLArQuality = 4000
         emtopomoments.MomentsNames = ["FIRST_PHI" 
                                       ,"FIRST_ETA"
@@ -1356,6 +1344,7 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
             from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
             from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloCell2ClusterMapper
+            from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
             from CaloRec.CaloTopoClusterFlags import jobproperties
             from AthenaCommon.SystemOfUnits import deg
             from AthenaCommon.AlgSequence import AlgSequence
@@ -1367,13 +1356,10 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
 
         print jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()
         # tools used by tools
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool=CaloNoiseToolDefault() #flag='tool', name='myCaloNoiseToolDefault')
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc+=theCaloNoiseTool
 
         if doLC:
-        
+          #For LCWeightsTool needs electronic noise
+          CaloNoiseCondAlg(noisetype="electronicNoise") 
           TrigLCClassify   = CaloLCClassificationTool("TrigLCClassify")
           TrigLCClassify.ClassificationKey   = "EMFracClassify"
           TrigLCClassify.UseSpread = False
@@ -1383,7 +1369,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
           TrigLCWeight = CaloLCWeightTool("TrigLCWeight")
           TrigLCWeight.CorrectionKey       = "H1ClusterCellWeights"
           TrigLCWeight.SignalOverNoiseCut  = 2.0
-          TrigLCWeight.CaloNoiseTool       = theCaloNoiseTool 
           TrigLCWeight.UseHadProbability   = True
 
           TrigLCOut     = CaloLCOutOfClusterTool("TrigLCOut")
@@ -1401,7 +1386,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
           #TrigLCDeadMaterial.SignalOverNoiseCut  = 1.0
           TrigLCDeadMaterial.ClusterRecoStatus   = 0
           TrigLCDeadMaterial.WeightModeDM        = 2
-          #TrigLCDeadMaterial.CaloNoiseTool       = theCaloNoiseTool
           TrigLCDeadMaterial.UseHadProbability   = True
 
           # correction tools using tools
@@ -1441,9 +1425,7 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
           # correction tools not using tools
           TrigTopoMoments = CaloClusterMomentsMaker ("TrigTopoMoments")
           TrigTopoMoments.MaxAxisAngle = 20*deg
-          TrigTopoMoments.CaloNoiseTool = theCaloNoiseTool
           TrigTopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-          TrigTopoMoments.UsePileUpNoise = True
           TrigTopoMoments.MinBadLArQuality = 4000
           TrigTopoMoments.MomentsNames = ["FIRST_PHI" 
                                           ,"FIRST_ETA"
@@ -1489,6 +1471,7 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
         #    ]
         
         # maker tools
+        CaloNoiseCondAlg()
         TrigTopoMaker = CaloTopoClusterMaker("TrigTopoMaker")
 
         TrigTopoMaker.CellsName = cells
@@ -1506,9 +1489,6 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
                                            "TileGap1", "TileGap2", "TileGap3",
                                            "FCAL0", "FCAL1", "FCAL2"]
 
-        TrigTopoMaker.CaloNoiseTool=theCaloNoiseTool
-        TrigTopoMaker.UseCaloNoiseTool=True
-        TrigTopoMaker.UsePileUpNoise=True
         TrigTopoMaker.NeighborOption = "super3D"
         TrigTopoMaker.RestrictHECIWandFCalNeighbors  = False
         TrigTopoMaker.CellThresholdOnEorAbsEinSigma     =    0.0
@@ -1641,14 +1621,6 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         emtopocluster.SeedSamplingNames = [
             "PreSamplerB", "EMB1", "EMB2", 
             "PreSamplerE", "EME1", "EME2"  ]
-        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-        theCaloNoiseTool=CaloNoiseToolDefault()
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc+=theCaloNoiseTool
-        emtopocluster.CaloNoiseTool=theCaloNoiseTool
-
-        emtopocluster.UseCaloNoiseTool=True
-        emtopocluster.UsePileUpNoise=False
         
         emtopocluster.NeighborOption                 = "all3D"
         emtopocluster.CellThresholdOnEorAbsEinSigma     =    0.0
@@ -1696,9 +1668,7 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
         
         emtopomoments.OutputLevel = INFO
         emtopomoments.MaxAxisAngle = 20*deg
-        emtopomoments.CaloNoiseTool = theCaloNoiseTool
         emtopomoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-        emtopomoments.UsePileUpNoise = True
         emtopomoments.MinBadLArQuality = 4000
         emtopomoments.MomentsNames = ["FIRST_PHI" 
                                       ,"FIRST_ETA"

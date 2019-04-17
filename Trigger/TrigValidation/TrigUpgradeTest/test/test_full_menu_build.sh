@@ -3,8 +3,9 @@
 # art-type: build
 # art-include: master/Athena
 # art-output: *.log
+# art-output: *.new
+# art-output: *.txt
 # art-output: *.root
-# art-output: *.regtest.new
 
 export NAME="TrigUpgradeTest_full_menu_build"
 export SKIPEVENTS=10

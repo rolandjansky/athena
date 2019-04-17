@@ -10,11 +10,12 @@ else()
    find_package( Gaudi REQUIRED )
 endif()
 
-# Temporarily setting additional compile flags here:
-add_definitions( -DSIMULATIONBASE )
-
+# Set the project into "SIMULATIONBASE mode".
 set( SIMULATIONBASE TRUE CACHE BOOL
    "Flag specifying that this is a simulation release build" )
+if( SIMULATIONBASE )
+   add_definitions( -DSIMULATIONBASE )
+endif()
 
 # Load all the files from the externals/ subdirectory:
 get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )

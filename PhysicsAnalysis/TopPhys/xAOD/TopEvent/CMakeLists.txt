@@ -1,7 +1,6 @@
-# Auto-generated on: 2017-03-08 14:47:36.020351
 
 # Declare the name of this package:
-atlas_subdir( TopEvent None )
+atlas_subdir( TopEvent )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -26,8 +25,9 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEvent _cintDictSource
-                           ROOT_HEADERS Root/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT )
+   ROOT_HEADERS TopEvent/SystematicEvent.h TopEvent/KLFitterResult.h
+   TopEvent/PseudoTopResult.h Root/LinkDef.h
+   EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc

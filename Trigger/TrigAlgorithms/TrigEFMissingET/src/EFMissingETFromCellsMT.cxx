@@ -42,7 +42,6 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
   auto countUsedCells = Monitored::Scalar<unsigned>( "UsedCells", 0 );
 
   // now it is time to iterate over the cells
-  ATH_MSG_INFO("About to loop over cells from CellMET");
   int nCells(0), nZeroCells(0);
   for ( const CaloCell* cell: *caloCellsHandle ) {
     nCells++;

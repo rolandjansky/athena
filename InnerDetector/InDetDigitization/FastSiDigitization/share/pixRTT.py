@@ -73,9 +73,8 @@ include("SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfi
 include("Digitization/Digitization.py")
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-                                                PixelCalibSvc        = None,
-                                                UsePixelCalibCondDB  = FALSE)
+InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool")
+
 ToolSvc += InDetClusterMakerTool
 
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool

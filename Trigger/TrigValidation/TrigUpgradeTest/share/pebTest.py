@@ -75,7 +75,7 @@ if (doMuon):
 
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 
 ##########################################
 # CF construction
@@ -107,7 +107,7 @@ for chain, decisionKey in chainToDecisionKeyDict.iteritems():
 ##########################################
 # EDM Maker
 ##########################################
-l1decoder = getSequence("L1DecoderTest")
+l1decoder = getSequence("L1Decoder")
 hltAllSteps = getSequence("HLTAllSteps")
 from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectViewMakers,collectDecisionObjects,triggerMergeViewsAndAddMissingEDMCfg
 hypos = collectHypos(hltAllSteps)
@@ -115,7 +115,7 @@ filters = collectFilters(hltAllSteps)
 viewMakers = collectViewMakers(hltAllSteps)
 decisionObjects = collectDecisionObjects(hypos,filters,l1decoder)
 edmMakerAlg = triggerMergeViewsAndAddMissingEDMCfg( [], hypos, viewMakers, decisionObjects )
-topSequence.hltTop += edmMakerAlg
+topSequence.HLTTop += edmMakerAlg
 
 # Add Electrons merger (somehow not created by triggerAddMissingEDMCfg above)
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
@@ -190,7 +190,7 @@ hltResultMakerTool.OutputLevel = DEBUG
 hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
 hltResultMakerAlg.ResultMaker = hltResultMakerTool
-topSequence.hltTop += hltResultMakerAlg
+topSequence.HLTTop += hltResultMakerAlg
 
 ##########################################
 # Some debug

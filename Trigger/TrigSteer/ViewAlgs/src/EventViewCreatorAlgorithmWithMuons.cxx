@@ -25,8 +25,8 @@ EventViewCreatorAlgorithmWithMuons::EventViewCreatorAlgorithmWithMuons( const st
 EventViewCreatorAlgorithmWithMuons::~EventViewCreatorAlgorithmWithMuons() {}
 
 StatusCode EventViewCreatorAlgorithmWithMuons::initialize() {
-  EventViewCreatorAlgorithm::initialize();
 
+  ATH_CHECK( EventViewCreatorAlgorithm::initialize() );
   ATH_CHECK( m_inViewMuons.initialize() );
 
   return StatusCode::SUCCESS;
@@ -103,9 +103,8 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
 					m_scheduler.get() ) );
-  
 
-  ATH_CHECK( debugPrintOut(context, outputHandles) );
+  if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
 }
 

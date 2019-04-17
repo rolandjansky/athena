@@ -423,7 +423,6 @@ def muEFSARecoSequence( RoIs, name ):
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
   
   theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
-  theSegmentFinder.DoSummary=True
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
   theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
                                                   SegmentFinder=theSegmentFinder,
@@ -462,8 +461,6 @@ def muEFSARecoSequence( RoIs, name ):
   #                                                   doTGCClust = False,
   #                                                   doRPCClust = False)
   
-  from MuonRecExample.MuonStandalone import MuonTrackSteering
-  MuonTrackSteering.DoSummary=True
   TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
   TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
   

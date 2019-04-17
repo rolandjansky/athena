@@ -60,5 +60,9 @@ atlas_add_test( RootUtils
    EXTRA_PATTERNS "Ran 1 test in |CheckABICompatibility|standard library" )
 
 atlas_add_test( flake8_OutputLevel
-   SCRIPT flake8 --enable-extensions=ATL100 --ignore=E,F,W --stdin-display-name=flake8_OutputLevel.py
-   --exit-zero --isolated - < ${CMAKE_CURRENT_SOURCE_DIR}/test/flake8_OutputLevel.py )
+   SCRIPT flake8 --enable-extensions=ATL900 --select=ATL --stdin-display-name=flake8_OutputLevel.py
+   --exit-zero --isolated - < ${CMAKE_CURRENT_SOURCE_DIR}/python/flake8_atlas/test/flake8_OutputLevel.py )
+
+atlas_add_test( flake8_logging
+   SCRIPT flake8 --enable-extensions=ATL901 --select=ATL --stdin-display-name=flake8_logging.py
+   --exit-zero --isolated - < ${CMAKE_CURRENT_SOURCE_DIR}/python/flake8_atlas/test/flake8_logging.py )

@@ -22,14 +22,15 @@ testChains  = [
     Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1,step2] ),
     Chain(name='HLT_j35_gsc45_bmv2c1070_split', Seed="L1_J20",  ChainSteps=[step1,step2] ),
     Chain(name='HLT_j35_gsc45_bmv2c1070'      , Seed="L1_J20",  ChainSteps=[step1,step2] )
-    ]                                                                                                                                                                                   
+    ]
+
 
 #################################
 # Configure L1Decoder
 #################################
-topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_j35_gsc45_boffperf_split:1",
-                                                 "HLT_j35_gsc45_bmv2c1070_split:1",
-                                                 "HLT_j35_gsc45_bmv2c1070:1"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_j35_gsc45_boffperf_split:1",
+                                             "HLT_j35_gsc45_bmv2c1070_split:1",
+                                             "HLT_j35_gsc45_bmv2c1070:1"]
 
 
 ##### Make all HLT #######

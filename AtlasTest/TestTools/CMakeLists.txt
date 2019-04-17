@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 744649 2016-05-03 19:33:39Z krasznaa $
 ################################################################################
 # Package: TestTools
 ################################################################################
@@ -24,7 +23,7 @@ else()
    atlas_add_library( TestTools
       TestTools/*.h src/*.cxx
       PUBLIC_HEADERS TestTools
-      PRIVATE_LINK_LIBRARIES GaudiKernel )
+      PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} GaudiKernel )
 endif()
 
 # Install files from the package:

@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
 
@@ -29,7 +30,7 @@ def _getLArRunInfo(prevFlags):
         runnbr=prevFlags.Input.RunNumber[0] #If more than one run, assume config for first run is valid for all runs
         dbStr="COOLONL_LAR/"+prevFlags.IOVDb.DatabaseInstance
         _lArRunInfo=getLArFormatForRun(run=runnbr,connstring=dbStr)
-        print "Got LArRunInfo for run ",runnbr
+        print ("Got LArRunInfo for run ",runnbr)
     return _lArRunInfo
     
 

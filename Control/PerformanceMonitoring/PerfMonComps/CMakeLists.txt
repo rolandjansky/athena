@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 725991 2016-02-24 18:16:09Z krasznaa $
 ################################################################################
 # Package: PerfMonComps
 ################################################################################
@@ -33,8 +32,9 @@ atlas_add_component( PerfMonComps
    INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    ${PYTHON_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES}
-   AthenaBaseComps AthenaKernel RootUtils CxxUtils PerfMonEvent PerfMonKernel SGTools
-   StoreGateLib SGtests GaudiKernel AthDSoCallBacks )
+   ${CMAKE_DL_LIBS} AthenaBaseComps AthenaKernel RootUtils CxxUtils
+   PerfMonEvent PerfMonKernel SGTools StoreGateLib GaudiKernel
+   AthDSoCallBacks )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

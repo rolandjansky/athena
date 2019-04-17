@@ -91,14 +91,14 @@ def deduplicateComponent(newComp,comp):
                 # Case 3: A private AlgTool:
                 elif isinstance(oldprop,ConfigurableAlgTool):
                     #Recursive de-duplication of that AlgTool
-                    _msg.debug("Recursivly deduplicating ToolHandle %s" % oldprop)
+                    _msg.debug("Recursivly deduplicating ToolHandle %s", oldprop)
                     mergedTool=deduplicateComponent(oldprop,newprop)
                     setattr(newComp,prop,mergedTool)
                     continue
 
                 #Case 4: A privateToolHandleArray
                 elif isinstance(oldprop,GaudiHandleArray):
-                    _msg.debug("Recursivly deduplicating ToolHandleArray %s" % oldprop)
+                    _msg.debug("Recursivly deduplicating ToolHandleArray %s", oldprop)
                     #Unnecessary by now?
                         #if matchProperty(propid):
                         #    mergeprop = unifyProperty(propid, oldprop, newprop)

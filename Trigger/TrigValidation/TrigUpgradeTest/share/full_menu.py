@@ -3,6 +3,10 @@
 #
 
 # import flags
+from RecExConfig.RecFlags  import rec
+rec.doESD=True
+rec.doWriteESD=True
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 #Currently only runs egamma and mu chains but expect to expand
@@ -198,14 +202,48 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 makeHLTTree(testChains)
 
 
-
 ##########################################
 # Some debug
 ##########################################
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
 
+
 import DecisionHandling
 for a in AthSequencer("HLTAllSteps").getChildren():
     if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
         a.OutputLevel = DEBUG
+
+
+# this part uses parts from the NewJO configuration, it is very hacky for the moment
+
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
+hypos = collectHypos(topSequence)
+filters = collectFilters(topSequence)
+from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, 'L1Decoder') )
+print decObj
+
+from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
+ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
+ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
+ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+ItemList += [ "xAOD::EventInfo#EventInfo" ]
+
+ItemList = list(set(ItemList))
+
+
+
+import AthenaPoolCnvSvc.WriteAthenaPool
+from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+StreamESD.ItemList = ItemList
+
+
+HLTTop = findSubSequence(topSequence, "HLTTop")
+
+
+
+

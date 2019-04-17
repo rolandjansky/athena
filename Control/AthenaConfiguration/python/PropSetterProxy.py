@@ -3,6 +3,9 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence
 from AthenaCommon.Configurable import ConfigurableAlgTool
 from GaudiKernel.GaudiHandles import PrivateToolHandle, PrivateToolHandleArray
+
+msg = logging.getLogger('PropSetterProxy')
+
 class PropSetterProxy(object):
    __compPaths = {}
    __scannedCA = None
@@ -15,7 +18,6 @@ class PropSetterProxy(object):
        if name.startswith("_PropSetterProxy"):
            return super(PropSetterProxy, self).__setattr__(name, value)
 
-       msg = logging.getLogger('foreach_component')
        if name != "OutputLevel":
            msg.warning( "Only OutputLevel is allowed to be changed with the foreach_component at the moment"  )
            return
@@ -27,12 +29,15 @@ class PropSetterProxy(object):
                if name in component.getProperties():
                    try:
                        setattr( component, name, value )
-                       msg.info( "Set property: %s to value %s of component %s because it matched %s " % ( name, str(value), component_path, self.__path )   )
-                   except Exception, ex:
-                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s" % ( name, str(value), component_path, self.__path, str(ex) )   )
+                       msg.info( "Set property: %s to value %s of component %s because it matched %s ",
+                                 name, str(value), component_path, self.__path )
+                   except Exception as ex:
+                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s",
+                                    name, str(value), component_path, self.__path, str(ex) )
                        pass
                else:
-                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s" % ( name, component_path, self.__path )   )
+                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s",
+                                name, component_path, self.__path )
 
 
    def __findComponents(self, ca):
