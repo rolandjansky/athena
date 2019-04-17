@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDet_GeoStaveAlpine_H
@@ -21,8 +21,6 @@ namespace InDet {
 
     GeoStaveAlpine( GeoFullPhysVol* vol);
     GeoStaveAlpine( GeoPhysVol* vol);
-    //    GeoStaveAlpine(const GeoStaveAlpine& comp,  int seqNum, const HepGeom::Transform3D& trf);
-    //    GeoStaveAlpine(const GeoStaveAlpine& comp);
 
     GeoStaveAlpine(GeoPhysVol* vol, int seqNum, const HepGeom::Transform3D& trf, const std::string& name, const bool& bFlag);
     GeoStaveAlpine(GeoFullPhysVol* vol, int seqNum, const HepGeom::Transform3D& trf, const std::string& name, const bool& bFlag);
@@ -62,9 +60,6 @@ namespace InDet {
     virtual void placeFoamModule( GeoComponent& foam, const HepGeom::Transform3D& transform, int number, int side, int index);
 
     InDet::GeoStaveAlpine* place(const HepGeom::Transform3D& transform, int number) const;
-    //    InDet::GeoStaveAlpine*  copyandclone(const HepGeom::Transform3D& transform, int number) const;
-    //    InDet::GeoStaveAlpine*  copyandclone() const;
-    //    void buildComponentTree();
 
     /// barrel module length 
     double barrelModuleLength() const;
@@ -73,12 +68,10 @@ namespace InDet {
     
     // set stave support sequential number
     void setStaveSupportSequentialNumber(int number);
-    //    std::vector<HepGeom::Point3D<double> > staveExternalShape(int iSide) const;
-
+   
     // Remove stave supports or foam modules
     void removeStaveSupports();
     void removeFoamModules();
-    //    void switchFoamModulesGeoPhysVol(GeoPhysVol *vol, std::string type);
 
     void computeStaveEquivalentCompositeMaterials_all(InDetMaterialManager* matMgr, std::string suffix);
     void computeStaveEquivalentCompositeMaterials(InDetMaterialManager* matMgr, GeoComponent* comp, std::string matName);
@@ -115,8 +108,6 @@ namespace InDet {
     double getBarrelStaveLength() const;
     double getEndcapStaveWidth(int iSide) const;
     double getEndcapStaveLength(int iSide) const;
-    const HepGeom::Transform3D& getBarrelStaveTransform3D() const;
-    const HepGeom::Transform3D& getEndcapStaveTransform3D(int iSide) const;
 
   private:
     std::vector<GeoDetModule*> m_barrelModules;

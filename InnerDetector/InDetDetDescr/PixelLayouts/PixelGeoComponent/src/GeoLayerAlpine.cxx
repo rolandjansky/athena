@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoComponent/GeoComponentHelper.h"
@@ -295,41 +295,12 @@ double InDet::GeoLayerAlpine::getModuleHalfSizeInEta(int iStave,int iModule, int
 
 }
 
-const HepGeom::Transform3D& InDet::GeoLayerAlpine::getBarrelModuleTransform3D(int iStave,int iModule) const
-{
-  if(m_layerStaves.size()==0||(int)m_layerStaves.size()<iStave){
-    const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D();
-    return trfGbl;
-  }
-  const std::vector<GeoDetModule*> comp_brl=m_layerStaves[iStave]->barrelModules();
-  const HepGeom::Transform3D& trfStave=m_layerStaves[iStave]->getTransform3D();
-  const HepGeom::Transform3D& trfModule=comp_brl[iModule]->getTransform3D();
-
-  const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D((trfStave)*(trfModule));
-  return trfGbl;                                                                         ;
-}
 
 std::string InDet::GeoLayerAlpine::getBarrelModuleName(int iStave,int iModule) const
 {
   if(m_layerStaves.size()==0||(int)m_layerStaves.size()<iStave) return "xxxx";
   const std::vector<GeoDetModule*> comp_brl=m_layerStaves[iStave]->barrelModules();
   return comp_brl[iModule]->name();
-}
-
-const HepGeom::Transform3D& InDet::GeoLayerAlpine::getEndcapModuleTransform3D(int iStave,int iModule, int iSide) const
-{
-  if(m_layerStaves.size()==0||(int)m_layerStaves.size()<iStave){
-    const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D();
-    return trfGbl;
-  }
-
-  const std::vector<GeoDetModule*> comp_brl=m_layerStaves[iStave]->endcapModules(iSide);
-
-  const HepGeom::Transform3D& trfStave=m_layerStaves[iStave]->getTransform3D();
-  const HepGeom::Transform3D& trfModule=comp_brl[iModule]->getTransform3D();
-
-  const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D((trfStave)*(trfModule));
-  return trfGbl;                                                                         ;
 }
 
 std::string InDet::GeoLayerAlpine::getEndcapModuleName(int iStave,int iModule, int iSide) const
@@ -383,7 +354,6 @@ InDet::MinMaxHelper InDet::GeoLayerAlpine::activeLength_minmax(bool bBarrel, boo
       GeoDetModule* comp  = (*j);
       GeoComponentHelper compHelper(*comp);
       MinMaxHelper box=compHelper.getZminmax(trf);
-      //      MinMaxHelper box=comp->getZminmax(trf);
       boxGbl.update(box);
     }
   
@@ -431,7 +401,7 @@ double InDet::GeoLayerAlpine::staveLength(int iSector) const
   // Get module length from stave instance
   GeoComponentHelper compHelper(*m_layerStaves[iSector]);
   return (2.0*compHelper.getHalfSizeAlongZAxis());
-  //  return (2.0*m_layerStaves[iSector]->getHalfSizeAlongZAxis());
+ 
 }
 
 
@@ -456,14 +426,14 @@ void InDet::GeoLayerAlpine::removeAllFoamModules()
 int InDet::GeoLayerAlpine::getModuleType(int iStave, int iSide, int iModule) const
 {
   if(m_layerStaves.size()==0||iStave>=(int)m_layerStaves.size()) return -1;  
-  //  std::cout<<"getModuleType Layer "<<iStave<<" "<<iSide<<" "<<iModule<<std::endl;
+ 
   return m_layerStaves[iStave]->getModuleType(iSide,iModule);
 }
 
 int InDet::GeoLayerAlpine::getModuleType(int iStave, int iModule) const
 {
   if(m_layerStaves.size()==0||iStave>=(int)m_layerStaves.size()) return -1;  
-  //  std::cout<<"getModuleType Layer "<<iStave<<" "<<iSide<<" "<<iModule<<std::endl;
+ 
   return m_layerStaves[iStave]->getModuleType(iModule);
 }
 
@@ -495,11 +465,4 @@ double InDet::GeoLayerAlpine::getEndcapStaveLength(int iStave, int iSide) const
 {
   return m_layerStaves[iStave]->getEndcapStaveLength(iSide);
 }
-const HepGeom::Transform3D& InDet::GeoLayerAlpine::getBarrelStaveTransform3D(int iStave) const
-{
-  return m_layerStaves[iStave]->getBarrelStaveTransform3D();
-}
-const HepGeom::Transform3D& InDet::GeoLayerAlpine::getEndcapStaveTransform3D(int iStave, int iSide) const
-{
-  return m_layerStaves[iStave]->getEndcapStaveTransform3D(iSide);
-}
+

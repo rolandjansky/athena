@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoComponent/GeoComponentHelper.h"
 #include "PixelGeoComponent/GeoEndcapAlpine.h"
 #include "PixelGeoComponent/GeoRingAlpine.h"
-/*#include "PixelGeoComponent/GeoRingSupportAlpine.h"*/
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -27,9 +26,7 @@ const std::vector<InDet::GeoComponent*> InDet::GeoEndcapAlpine::components() con
   for (std::vector<GeoRingAlpine*>::const_iterator i=m_rings.begin(); i!=m_rings.end(); i++) {
     result.push_back( dynamic_cast<InDet::GeoComponent*>(*i)); // implicit cast to base class
   }
-//   for (std::vector<GeoRingSupportAlpine*>::const_iterator i=m_supports.begin(); i!=m_supports.end(); i++) {
-//     result.push_back( dynamic_cast<InDet::GeoComponent*>(*i)); // implicit cast to base class
-//   }
+
   return result;
 }
 
@@ -57,8 +54,6 @@ InDet::GeoEndcapAlpine*  InDet::GeoEndcapAlpine::place( const HepGeom::Transform
   for (std::vector<GeoRingAlpine*>::const_iterator it=m_rings.begin(); it!=m_rings.end(); it++) 
     newComp->placeRing(*(*it),(*it)->getTransform(),iCmpt++);
 
-//   for (int i=0; i<(int)m_supports.size(); i++)
-//     newComp->placeSupport(*m_supports[i]->copyandclone(),*m_supports[i]->getTransform3D(),i);
 
   return newComp;
 
@@ -136,7 +131,6 @@ double InDet::GeoEndcapAlpine::radiusMin() const
 	  GeoDetModule* comp  = (*j);
 	  GeoComponentHelper compHelper(*comp);
 	  double r=compHelper.getRmin(trf);
-	  //	  double r=comp->getRmin(*trf);
 	  if(r<radius) radius=r;
 	}
     }
@@ -170,33 +164,12 @@ double InDet::GeoEndcapAlpine::radiusMax() const
 	  GeoDetModule* comp  = (*j);
 	  GeoComponentHelper compHelper(*comp);
 	  double r=compHelper.getRmax(trf);
-	  //	  double r=comp->getRmax(*trf);
 	  if(r>radius) radius=r;
 	}
     }
   return radius;
 
 }
-
-
-
-// void InDet::GeoEndcapAlpine::placeSupport( GeoRingSupportAlpine& support, const HepGeom::Transform3D& transform, int number)
-// {
-
-//   //First resize vector if necessary
-//   if((int)m_supports.size()<=number)
-//     {
-//       m_supports.resize(number+1,0);
-//     }
-
-//   //Insert new module 
-//   GeoRingSupportAlpine *moduleNew=support.copyandclone();
-//   moduleNew->setTransform(transform);
-//   moduleNew->setSequentialNumber(number);
-//   m_supports[number]=moduleNew;
-
-//   //  placeComponent(layer,transform,number);
-// }
 
 
 int InDet::GeoEndcapAlpine::getNbRingModules(int iRing) const
@@ -211,21 +184,6 @@ int InDet::GeoEndcapAlpine::getNbRingModulesInPhi(int iRing) const
   return m_rings[iRing]->numActiveComponents();
 }
 
-const HepGeom::Transform3D& InDet::GeoEndcapAlpine::getRingModuleTransform3D(int iRing,int iModule) const
-{
-  if(m_rings.size()==0||(int)m_rings.size()<iRing){
-    const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D();
-    return trfGbl;
-  }
-
-  const std::vector<GeoDetModule*> comp_brl=m_rings[iRing]->ringModules();
-  const HepGeom::Transform3D& trfStave=m_rings[iRing]->getTransform3D();
-  const HepGeom::Transform3D& trfModule=comp_brl[iModule]->getTransform3D();
-
-  const HepGeom::Transform3D& trfGbl=HepGeom::Transform3D((trfStave)*(trfModule));
-  return trfGbl;
-}
-
 std::string InDet::GeoEndcapAlpine::getRingModuleName(int iRing,int iModule) const
 {
   if(m_rings.size()==0||(int)m_rings.size()<iRing) return "xxxx";
@@ -236,7 +194,7 @@ std::string InDet::GeoEndcapAlpine::getRingModuleName(int iRing,int iModule) con
 int InDet::GeoEndcapAlpine::getModuleType(int iRing, int iModule) const
 {
   if(m_rings.size()==0||iRing>=(int)m_rings.size()) return -1;  
-  //  std::cout<<"getModuleType Layer "<<iRing<<" "<<iSide<<" "<<iModule<<std::endl;
+ 
   return m_rings[iRing]->getModuleType(iModule);
 }
 
@@ -263,7 +221,6 @@ double InDet::GeoEndcapAlpine::getModuleHalfSizeInPhi(int iRing,int iModule) con
   const std::vector<GeoDetModule*> comp_brl=m_rings[iRing]->ringModules();
   GeoComponentHelper compHelper(*comp_brl[iModule]);
   return (compHelper.getHalfSizeAlongYAxis());
-  //  return (comp_brl[iModule])->getHalfSizeAlongYAxis();
 
 }
 
@@ -274,7 +231,6 @@ double InDet::GeoEndcapAlpine::getModuleHalfSizeInEta(int iRing,int iModule) con
   const std::vector<GeoDetModule*> comp_brl=m_rings[iRing]->ringModules();
   GeoComponentHelper compHelper(*comp_brl[iModule]);
   return (compHelper.getHalfSizeAlongZAxis());
-  //  return (comp_brl[iModule])->getHalfSizeAlongZAxis();
 
 }
 
