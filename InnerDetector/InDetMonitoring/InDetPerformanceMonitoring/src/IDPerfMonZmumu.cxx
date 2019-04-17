@@ -580,10 +580,10 @@ StatusCode IDPerfMonZmumu::execute()
 
   ATH_MSG_DEBUG("Retrieving event info.");
   const EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure())
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve event info.");
-  else
-  {
+  }
+  else {
     m_runNumber = eventInfo->event_ID()->run_number();
     m_evtNumber = eventInfo->event_ID()->event_number();
     m_lumi_block = eventInfo->event_ID()->lumi_block();
@@ -1147,10 +1147,10 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
       ATH_MSG_DEBUG("FillRecParameters::trackToVertexIPEstimator success !");
       PVd0 = iPandSigma->IPd0;
       PVd0res = iPandSigma->PVsigmad0;
-      d0res = iPandSigma->sigmad0;  //-> Check who are these motherfuckers
+      d0res = iPandSigma->sigmad0;  //-> ? 
       PVz0 = iPandSigma->IPz0;
       PVz0res = iPandSigma->PVsigmaz0;
-      z0res = iPandSigma->sigmaz0;  //-> Check who are these motherfuckers
+      z0res = iPandSigma->sigmaz0;  //-> ?
       
       m_pv_x = vertex->x();
       m_pv_y = vertex->y();
@@ -1191,7 +1191,8 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
     }
     ATH_MSG_DEBUG("(Filled charge == -1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<<z0 );
   }
-  if (m_doIP){
+
+  if (m_doIP && false){
     m_event_mu = 0.;
   }
 
