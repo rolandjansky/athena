@@ -421,7 +421,6 @@ def muEFSARecoSequence( RoIs, name ):
   ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs( name == 'FS')
 
   # setup RDO preparator algorithms 
-  from AthenaCommon import CfgMgr
   if name != 'FS':
     # we now try to share the MDT data preparation algorithm with L2, so we tell the view that it should expect the MDT PRDs to be available
     efAlgs.append( CfgMgr.AthViews__ViewDataVerifier(name = "EFMuonViewDataVerifier",
@@ -430,7 +429,7 @@ def muEFSARecoSequence( RoIs, name ):
   for viewAlg_MuonPRD in viewAlgs_MuonPRD:
     # we now try to share the MDT data preparation algorithm with L2, so only add the MDT algo if we are running full-scane
     # this is slightly ugly, should be improved in new JO setup
-    if not 'Mdt' in viewAlg_MuonPRD.name() or name == 'FS':
+    if 'Mdt' not in viewAlg_MuonPRD.name() or name == 'FS':
       efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
