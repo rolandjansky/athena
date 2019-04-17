@@ -99,7 +99,7 @@ def getEventInfoKey() :
 
     isData = (globalflags.DataSource == 'data')
 
-    eventInfoKey = "ByteStreamEventInfo"
+    eventInfoKey = "EventInfo"
     if not isData:
         eventInfoKey = "McEventInfo"
     if globalflags.isOverlay() and isData :
