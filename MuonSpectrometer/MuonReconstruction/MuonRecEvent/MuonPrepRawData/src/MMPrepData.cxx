@@ -19,7 +19,9 @@ namespace Muon
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_time(time),
-    m_charge(charge)
+    m_charge(charge),
+    m_angle(0),
+    m_chisqProb(0)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -31,7 +33,9 @@ namespace Muon
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_time(0),
-    m_charge(0)
+    m_charge(0),
+    m_angle(0),
+    m_chisqProb(0)
   { }
 
   // Destructor:

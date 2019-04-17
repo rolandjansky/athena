@@ -97,6 +97,10 @@ namespace Muon
     /** @brief measured charge */
     int m_charge;
 
+    /** @angle and chisquare from micro-TPC fit */
+    double m_angle;
+    double m_chisqProb;
+
   };
 
   inline const MuonGM::MMReadoutElement* MMPrepData::detectorElement() const
