@@ -10,6 +10,10 @@ from AthenaCommon.SystemOfUnits import GeV, mm
 
 from AthenaCommon.AppMgr import ToolSvc
 
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+ParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
 # ---------------------------------------------------------------
 # class for common setups (like monitoring)
 class L2ElectronFexBase(TrigL2ElectronFex):
@@ -35,6 +39,8 @@ class L2ElectronFexBase(TrigL2ElectronFex):
         self.CaloTrackdPHI = 0.3
         self.CaloTrackdEoverPLow  = 0.0
         self.CaloTrackdEoverPHigh = 999.0
+
+        self.ParticleCaloExtensionTool = ParticleCaloExtensionTool
 
 # ---------------------------------------------------------------
 # TrigL2ElectronFex configurations

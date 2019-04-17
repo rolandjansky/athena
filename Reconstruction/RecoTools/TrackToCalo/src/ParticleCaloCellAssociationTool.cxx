@@ -25,19 +25,10 @@ namespace Rec {
 
   ParticleCaloCellAssociationTool::ParticleCaloCellAssociationTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
-      m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
       m_defaultSelector(0.4)
   {
 
     declareInterface<IParticleCaloCellAssociationTool>(this);
-    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
-
-    //Default data source for the calocells
-    declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
-
-    //coneSize for including calo cells around track below 0.2 we will loose cells energy in e.g. Tile HEC etc.
-    declareProperty("ConeSize", m_coneSize = 0.2);
-
   }
 
   ParticleCaloCellAssociationTool::~ParticleCaloCellAssociationTool() {}

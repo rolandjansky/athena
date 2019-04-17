@@ -62,11 +62,14 @@ CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = "CaloCalTopoClusters")
 
 # tool to extrapolate to the calo
-import AthenaCommon.CfgMgr as CfgMgr
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
 #this is just regular extrapolator, but in ToolFactory form
 from egammaTools.InDetTools import egammaExtrapolator
-CaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
+CaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
                                   Extrapolator = egammaExtrapolator)
+
+CaloCellAssocTool =  ToolFactory (Rec__ParticleCaloCellAssociationTool,
+                                  ParticleCaloExtensionTool = CaloExtensionTool)
 
 
 # configuration for ED computation
@@ -188,6 +191,7 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
                                 ParticleCaloExtensionTool       = CaloExtensionTool,
                                 IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                ParticleCaloCellAssociationTool = CaloCellAssocTool,
                                 EMCaloNums                      = [SUBCALO.LAREM],
                                 HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
                                 UseEMScale                      = True)

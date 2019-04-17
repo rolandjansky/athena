@@ -33,8 +33,12 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauInsideOutRecoTool","MuonSt
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauRecoTool","MuonStauRecoTool")
 
 
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 
-addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
+pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
+addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool", ParticleCaloExtensionTool = pcExtensionTool)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
 addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagTool")
