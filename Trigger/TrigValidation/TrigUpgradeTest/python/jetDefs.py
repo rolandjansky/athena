@@ -13,7 +13,7 @@ def jetAthSequence(ConfigFlags):
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
     InputMakerAlg= clusterFSInputMaker()
 
-    dataOrMC = "data"
+    dataOrMC = "data"  #FIXME
     #if ConfigFlags.Input.isMC:
     #    dataOrMC = "mc"
     # want to make this automatic.
@@ -36,7 +36,7 @@ def jetAthSequence(ConfigFlags):
 def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
 
     calibSeq = ""
-    dataType = "data"
+    dataType = "data" # FIXME
     if calibString:
         calibSeq = calibString.split(":")[1]
         dataType = calibString.split(":")[2]
@@ -183,7 +183,7 @@ def jetRecoSequenceLCW(calibString, RoIs = 'FSJETRoI'):
     jetRecoSequence += eventShapeAlg                    
 
     # Schedule the ghost PseudoJetGetterAlgs
-    ghostList = []
+    ghostList = [] # FIXME
     for ghostdef in ghostList:
         print("ghostdef = ", ghostdef)
         ghostPJAlg = _getGhostPJGAlg( ghostdef )
