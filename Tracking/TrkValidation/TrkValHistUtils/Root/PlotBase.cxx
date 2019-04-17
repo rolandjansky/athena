@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -99,6 +99,20 @@ PlotBase::Book1D(const std::string &name, const std::string &labels, int nBins, 
 }
 
 TH1F *
+PlotBase::Book1D(const std::string &name, const std::string &labels, std::vector<Double_t> & binEdges,  bool prependDir) {
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+  Bool_t oldstat = TH1::AddDirectoryStatus();
+  TH1::AddDirectory(false);
+  // Note the vector argument can not be const due to the ROOT TH1/2 c-tor's expectation of a non-const array... 
+  TH1F *hist = new TH1F((prefix + name).c_str(), labels.c_str(), binEdges.size()-1, &(binEdges[0]));
+  TH1::AddDirectory(oldstat);
+
+  hist->Sumw2();
+  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  return hist;
+}
+
+TH1F *
 PlotBase::Book1D(const std::string &name, TH1 *refHist, const std::string &labels, bool prependDir) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
   Bool_t oldstat = TH1::AddDirectoryStatus();
@@ -126,6 +140,41 @@ PlotBase::Book2D(const std::string &name, const std::string &labels, int nBinsX,
 
   m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
   return hist;
+}
+
+TH2F *
+PlotBase::Book2D(const std::string & name, const std::string & labels, std::vector<Double_t> & binEdgesX, std::vector<Double_t> & binEdgesY, bool prependDir ) {
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+  Bool_t oldstat = TH2::AddDirectoryStatus();
+  TH2::AddDirectory(false);
+  TH2F *hist = new TH2F((prefix + name).c_str(), labels.c_str(), binEdgesX.size()-1, &(binEdgesX[0]), binEdgesY.size()-1, &(binEdgesY[0]));
+  hist->Sumw2();
+  TH2::AddDirectory(oldstat);
+
+
+  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  return hist;
+}
+
+TH2F *
+PlotBase::Book2D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, std::vector<Double_t> & binEdgesY, bool prependDir ) {
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+  Bool_t oldstat = TH2::AddDirectoryStatus();
+  TH2::AddDirectory(false);
+  TH2F *hist = new TH2F((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, binEdgesY.size()-1, &(binEdgesY[0]));
+  hist->Sumw2();
+  TH2::AddDirectory(oldstat);
+
+
+  m_vBookedHistograms.push_back(HistData(hist, m_sDirectory));
+  return hist;
+}
+
+
+TH2F *
+PlotBase::Book2D(const std::string & name, const std::string & labels, std::vector<Double_t> & binEdgesX, int nBinsY, float startY, float endY, bool prependDir ) {
+  // here we can internally fall back to the existing signature to avoid duplication
+  return Book2D(name, labels, binEdgesX.size()-1, &(binEdgesX[0]),nBinsY,startY,endY,prependDir); 
 }
 
 TH2F *

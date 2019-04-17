@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -51,11 +51,19 @@ public:
 
   /// Book a TH1D histogram
   TH1F* Book1D(const std::string & name, const std::string & labels, int nBins, float start, float end, bool prependDir = true);
+  // Book a TH1D histogram with variable bins. The vector binEdges should contain the bin edge locations, with nBins+1 entries in total. 
+  TH1F* Book1D(const std::string & name, const std::string & labels, std::vector<Double_t> & binEdges, bool prependDir = true);
   /// Book a TH1D histogram using refHist as reference for number of bins and axis range
   TH1F* Book1D(const std::string & name, TH1* refHist, const std::string & labels, bool prependDir = true);
 
   /// Book a TH2D histogram
   TH2F* Book2D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, bool prependDir = true);
+  // Book a TH2F histogram with variable binning on x and y. The vectors binEdgesX/Y should contain the bin edge locations, with nBins+1 entries in total for each of them. 
+  TH2F* Book2D(const std::string & name, const std::string & labels, std::vector<Double_t> & binEdgesX, std::vector<Double_t> & binEdgesY, bool prependDir = true);
+  // Book a TH2F histogram with variable binning on x - same functionaliy as ref-based version below, included for consistency
+  TH2F* Book2D(const std::string & name, const std::string & labels, std::vector<Double_t> & binEdgesX, int nBinsY, float startY, float endY, bool prependDir = true);
+  // Book a TH2F histogram with variable binning on y 
+  TH2F* Book2D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, std::vector<Double_t> & binEdgesY, bool prependDir = true);
   /// Book a TH2D histogram using refHist as reference for number of bins and axis range
   TH2F* Book2D(const std::string & name, TH2* refHist, const std::string & labels, bool prependDir = true);
   /// Book a TH2D histogram with variable x axis binning
