@@ -137,7 +137,6 @@ StatusCode PixelRawDataProvider::execute() {
      superRoI.setComposite(true);
      superRoI.manageConstituents(false);
      for (; roi!=roiE; ++roi) {
-       ATH_MSG_DEBUG("Adding RoI "<< **roi);
        superRoI.push_back(*roi);
      }
      m_regionSelector->DetROBIDListUint( PIXEL, 
@@ -158,7 +157,6 @@ StatusCode PixelRawDataProvider::execute() {
 
   IPixelRDO_Container *containerInterface = tempcont ? static_cast< IPixelRDO_Container* >(tempcont.get()) :
          static_cast< IPixelRDO_Container* >(rdoContainer.ptr());
-  ATH_MSG_DEBUG( "Container interface ptr: " << containerInterface );
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(listOfRobf,  containerInterface).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
