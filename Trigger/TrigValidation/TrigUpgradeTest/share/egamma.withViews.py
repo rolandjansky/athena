@@ -54,10 +54,11 @@ def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
    __l1RoIDecisions = "RerunL1EM" if rerun else "L1EM"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
+   
+   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+   clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )   
 
-   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-   #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
-   clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
+   clusterMaker.OutputLevel=DEBUG
    clusterMaker.ClustersName=clustersKey
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
@@ -94,7 +95,7 @@ def createFastCaloSequence(rerun=False):
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
    fastCaloHypo.HypoOutputDecisions = __prefix+"EgammaCaloDecisions"
    fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c,c ) for c in testChains ]
-
+   fastCaloHypo.OutputLevel = DEBUG
    fastCaloSequence = seqAND( __prefix+"fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, fastCaloHypo ])
    #if rerun: 
    #   return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )
