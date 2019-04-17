@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INDETPHYSVALMONITORING_InDetPerfPlot_resITk
 #define INDETPHYSVALMONITORING_InDetPerfPlot_resITk
@@ -52,6 +52,8 @@ public:
     std::vector<float> limPrp;
     int nBinsSig;
     std::vector<float> limSig;
+    // use loglinear binning? 
+    bool useLogLinBins; 
   };
 
 

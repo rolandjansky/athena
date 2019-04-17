@@ -18,6 +18,7 @@
 // to retrieve HistogramDefinitionSvc
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
 #include <cmath>
+#include <functional>
 
 namespace {
   bool
@@ -205,23 +206,32 @@ std::vector<Double_t> InDetPlotBase::populateLogLinearBinning(int nBins, double 
     ATH_MSG_ERROR("Please supply a positive definite number of bins to PlotBase::populateLogLinearBinning");
     return theBinning;
   } 
+  // reserve some space
   if (symmetriseAroundZero) theBinning.reserve(2 * nBins+2);
   else {
     theBinning.reserve(nBins+1);
   }
-
+  // define our starting bin edge and step size in log space
   double logStart = log(absXmin);
   double logdist = log(absXmax) - logStart;
   double logstep = logdist / (double) nBins;
+  // then populate the bin array
   for (int index = 0; index < nBins+1; ++index ){
     theBinning.push_back(exp(logStart + index * logstep));
   }
   // if we want to symmetrise, we need one extra step to add the negative 
   // half axis (and the division at zero). 
   if (symmetriseAroundZero){
-    std::vector<Double_t> aux_negative = theBinning;
+    std::vector<Double_t> aux_negative;
+    aux_negative.reserve(nBins+1);
+    // flip signs (and populate new vec)
+    std::transform(theBinning.begin(),theBinning.end(), std::back_inserter(aux_negative), 
+                  [](Double_t & val){return -1. * val;});
+    // reorder
     std::reverse(aux_negative.begin(),aux_negative.end());
+    // and add the split at zero 
     aux_negative.push_back(0.);
+    // then put it all together
     theBinning.insert(theBinning.begin(), aux_negative.begin(), aux_negative.end()); 
   }
   return theBinning;
