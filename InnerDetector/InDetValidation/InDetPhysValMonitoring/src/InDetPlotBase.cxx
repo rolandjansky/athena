@@ -191,3 +191,39 @@ InDetPlotBase::retrieveDefinition(const std::string& histoIdentifier, const std:
   }
   return s;
 }
+
+
+std::vector<Double_t> InDetPlotBase::populateLogLinearBinning(int nBins, double absXmin, double absXmax, bool symmetriseAroundZero){
+
+  std::vector<Double_t> theBinning; 
+  // some checks to ensure the user is requesting something sensible 
+  if (absXmin <=0 || absXmax <=0){
+    ATH_MSG_ERROR("Please supply positive definite arguments for absXmin and absXmax to PlotBase::populateLogLinearBinning");
+    return theBinning;
+  }
+  else if (nBins <=0){
+    ATH_MSG_ERROR("Please supply a positive definite number of bins to PlotBase::populateLogLinearBinning");
+    return theBinning;
+  } 
+  if (symmetriseAroundZero) theBinning.reserve(2 * nBins+2);
+  else {
+    theBinning.reserve(nBins+1);
+  }
+
+  double logStart = log(absXmin);
+  double logdist = log(absXmax) - logStart;
+  double logstep = logdist / (double) nBins;
+  for (int index = 0; index < nBins+1; ++index ){
+    theBinning.push_back(exp(logStart + index * logstep));
+  }
+  // if we want to symmetrise, we need one extra step to add the negative 
+  // half axis (and the division at zero). 
+  if (symmetriseAroundZero){
+    std::vector<Double_t> aux_negative = theBinning;
+    std::reverse(aux_negative.begin(),aux_negative.end());
+    aux_negative.push_back(0.);
+    theBinning.insert(theBinning.begin(), aux_negative.begin(), aux_negative.end()); 
+  }
+  return theBinning;
+}
+
