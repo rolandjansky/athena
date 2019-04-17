@@ -69,8 +69,8 @@ if [[ $INPUT == 'data' ]]; then
   ${EXTRA}\
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 else
   (set -x
   athena.py -b -c \
@@ -84,8 +84,8 @@ else
   ${EXTRA}\
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 fi
 
 ######################################
