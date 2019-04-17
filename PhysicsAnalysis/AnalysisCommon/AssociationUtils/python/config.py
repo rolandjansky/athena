@@ -13,6 +13,7 @@ from AthenaCommon.Constants import INFO
 from AssociationUtils.AssociationUtilsConf import (
     ORUtils__OverlapRemovalTool as OverlapRemovalTool,
     ORUtils__DeltaROverlapTool as DeltaROverlapTool,
+    ORUtils__MuPFJetOverlapTool as MuPFJetOverlapTool,
     ORUtils__EleEleOverlapTool as EleEleOverlapTool,
     ORUtils__EleJetOverlapTool as EleJetOverlapTool,
     ORUtils__EleMuSharedTrkOverlapTool as EleMuSharedTrkOverlapTool,
@@ -29,7 +30,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
                       linkOverlapObjects=False,
                       doEleEleOR=False,
                       doElectrons=True, doMuons=True, doJets=True,
-                      doTaus=True, doPhotons=True, doFatJets=False,
+                      doTaus=True, doPhotons=True, doFatJets=False, doMuPFJetOR=False,
                       **kwargs):
     """
     Provides the pre-configured overlap removal recommendations.
@@ -49,6 +50,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
                            marked with true or false.
       linkOverlapObjects - enable ElementLinks to overlap objects.
       doEleEleOR         - enable electron-electron overlap removal.
+      doMuPFJetOR        - enable the pflow jet removal for muons
       doXXXX             - these flags enable/disable object types to
                            configure tools for: doElectrons, doMuons,
                            doJets, doTaus, doPhotons, doFatJets.
@@ -70,6 +72,10 @@ def recommended_tools(masterName='OverlapRemovalTool',
 
     # Overlap tools share an additional common property for object linking
     common_args['LinkOverlapObjects'] = linkOverlapObjects
+
+    # Muon-PFlow fake-jet
+    if doMuPFJetOR:
+        orTool.MuPFJetORT = MuPFJetOverlapTool('MuPFJetORT', **common_args)
 
     # Electron-electron
     if doElectrons and doEleEleOR:

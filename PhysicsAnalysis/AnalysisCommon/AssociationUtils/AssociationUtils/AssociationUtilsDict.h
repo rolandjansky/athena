@@ -14,6 +14,7 @@
 #include "AssociationUtils/EleJetOverlapTool.h"
 #include "AssociationUtils/EleMuSharedTrkOverlapTool.h"
 #include "AssociationUtils/MuJetOverlapTool.h"
+#include "AssociationUtils/MuPFJetOverlapTool.h"
 #include "AssociationUtils/AltMuJetOverlapTool.h"
 #include "AssociationUtils/TauLooseEleOverlapTool.h"
 #include "AssociationUtils/TauLooseMuOverlapTool.h"

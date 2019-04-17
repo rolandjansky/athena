@@ -65,6 +65,7 @@ namespace ORUtils
 
       /// @name overlap tool handles
       /// @{
+      OverlapHandle_t muPFJetORT;
       OverlapHandle_t eleEleORT;
       OverlapHandle_t eleMuORT;
       OverlapHandle_t eleJetORT;

@@ -50,6 +50,8 @@ namespace ORUtils
     bool linkOverlapObjects = false;
     /// Do electron-electron overlap
     bool doEleEleOR = true;
+    /// Do PFlow muon-jet removal
+    bool doMuPFJetOR = false;
 
     /// @name Objects to configure tools for
     /// @{

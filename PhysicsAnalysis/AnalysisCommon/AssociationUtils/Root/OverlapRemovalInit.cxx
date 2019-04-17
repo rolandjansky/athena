@@ -14,6 +14,7 @@
 #include "AssociationUtils/EleMuSharedTrkOverlapTool.h"
 #include "AssociationUtils/EleJetOverlapTool.h"
 #include "AssociationUtils/MuJetOverlapTool.h"
+#include "AssociationUtils/MuPFJetOverlapTool.h"
 #include "AssociationUtils/TauLooseEleOverlapTool.h"
 #include "AssociationUtils/TauLooseMuOverlapTool.h"
 #include "AssociationUtils/OverlapRemovalTool.h"
@@ -52,6 +53,12 @@ namespace ORUtils
     // Master tool
     tbox.masterTool.setTypeAndName("ORUtils::OverlapRemovalTool/" +
                                    flags.masterName);
+
+    // Muon-PFlow fake-jet
+    if(flags.doMuPFJetOR && tbox.muPFJetORT.empty()) {
+      tbox.muPFJetORT.setTypeAndName("ORUtils::MuPFJetOverlapTool/" +
+                                   flags.masterName + ".MuPFJetORT");
+    }
 
     // El-el
     if(flags.doElectrons && flags.doEleEleOR && tbox.eleEleORT.empty()) {

@@ -90,6 +90,9 @@ namespace ORUtils
       // Overlap tool handles
       //
 
+      /// PFlow-Mu-jet overlap handle
+      ToolHandle<IOverlapTool> m_muPFJetORT;
+
       /// Ele-ele overlap handle
       ToolHandle<IOverlapTool> m_eleEleORT;
 
