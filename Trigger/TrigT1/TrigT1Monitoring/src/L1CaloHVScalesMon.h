@@ -166,6 +166,8 @@ private:
   /// Current CaloCell HV corrections
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
   /// LVL1 ID helper1
   const CaloLVL1_ID*                           m_lvl1Helper;
   /// L1Calo conditions service
