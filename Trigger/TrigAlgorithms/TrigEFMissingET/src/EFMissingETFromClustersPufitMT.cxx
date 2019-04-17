@@ -75,7 +75,7 @@ StatusCode EFMissingETFromClustersPufitMT::initialize()
 }
 
 
-StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
+StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met */ ,
 						  TrigEFMissingEtHelper *metHelper, 
 						  const EventContext& ctx ) const
 {
