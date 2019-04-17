@@ -4,7 +4,7 @@
 
 #include "SCT_RawDataContainerCnv_p1.h"
 
-#include "CreateTransientTemplate.h"
+
 #include "MsgUtil.h"
 #include "SCT1_RawDataCnv_p1.h"
 #include "SCT3_RawDataCnv_p1.h"
