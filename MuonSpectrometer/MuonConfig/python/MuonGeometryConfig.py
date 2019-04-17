@@ -12,7 +12,8 @@ def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
 
     # get the GeoModelSvc and add MuonDetectorTool
-    gmsAcc,gms=GeoModelCfg(flags )
+    gmsAcc=GeoModelCfg(flags )
+    gms=gmsAcc.getPrimary()
     acc.merge(gmsAcc)
 
     detTool = MuonDetectorTool()
@@ -46,7 +47,6 @@ def MuonGeoModelCfg(flags):
             acc.addService(AGDD2Geo)
 
     gms.DetectorTools += [ detTool ]
-    acc.addService(gms)
 
     # Temporary, until we move to services/private tools
     acc.addPublicTool( Muon__MuonIdHelperTool() )

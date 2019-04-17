@@ -19,7 +19,8 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def PixelGeometryCfg( flags ):
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  acc,geoModelSvc = GeoModelCfg( flags )
+  acc = GeoModelCfg( flags )
+  geoModelSvc=acc.getPrimary()
   from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
   acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
   from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
