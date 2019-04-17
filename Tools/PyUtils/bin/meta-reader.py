@@ -11,7 +11,7 @@ import logging
 import os
 
 # escape sequence [?1034h which aprear on several runs due to smm capability (Meta Mode On) for xterm. 
-if 'TERM' in os.envirn:
+if 'TERM' in os.environ:
 	del os.environ['TERM']
 
 msg = logging.getLogger('MetaReader')
