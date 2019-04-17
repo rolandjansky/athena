@@ -306,7 +306,7 @@ HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTa
                                            }
 
 if globalflags.DataSource()=='geant4':
-    HIGG3D1SlimmingHelper.SmartCollections += ["AntiKt4TruthDressedWZJets"]
+    HIGG3D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets", "AntiKt4TruthDressedWZJets"]
 
     # Add special truth containers
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addBSMAndDownstreamParticles,addLargeRJetD2
