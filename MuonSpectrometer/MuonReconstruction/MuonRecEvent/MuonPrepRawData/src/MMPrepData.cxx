@@ -68,6 +68,14 @@ namespace Muon
     m_charge(RIO.m_charge)
   { }
 
+  /// set the micro-tpc quantities
+  void MMPrepData::setMicroTPC(double angle, double chisqProb)
+  {
+    m_angle = angle;
+    m_chisqProb = chisqProb;
+  }
+
+
   //assignment operator
   MMPrepData&
   MMPrepData::operator=(const MMPrepData& RIO)
