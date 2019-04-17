@@ -114,10 +114,29 @@ def configureFlagsATLFASTII():
     return
 
 def configureFlagsATLFASTII_PileUp():
+    configureFlagsATLFASTII()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTII_PileUp"
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    ISF_Flags.UsingGeant4 = True
+    return
+
+## methods for simulators which use G4 + FastCaloSim V2
+
+def configureFlagsG4FastCalo():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo"
+    return
+
+def configureFlagsG4FastCaloTest():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCaloTest"
+    return
+
+def configureFlagsG4FastCaloDNN():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCaloDNN"
     return
 
 ## methods for simulators which use Fatras + FastCaloSim
