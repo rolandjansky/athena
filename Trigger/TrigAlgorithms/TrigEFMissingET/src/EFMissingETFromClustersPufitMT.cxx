@@ -82,17 +82,6 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
 
   ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::update()" );
 
-  /* This is a bit opaque but necessary to cooperate with how the MET helper 
-     and MissingETFromHelper classes work. This will be cleaned up (ATR-19488).
-     - @ggallard
-   */
-  const std::vector<std::string> vComp = {"TCLCWB1", "TCLCWB2", 
-                                          "TCLCWE1", "TCLCWE2", 
-                                          "TCEMB1", "TCEMB2", 
-                                          "TCEME1", "TCEME2",
-                                          "Muons" };
-  met->defineComponents(vComp);
-
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
   auto caloClustersHandle = SG::makeHandle( m_clustersKey, ctx );
@@ -102,7 +91,7 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
 
   /// fetching the topo. cluster component
   TrigEFMissingEtComponent* metComp = nullptr;
-  metComp = metHelper->GetComponent(m_saveuncalibrated?  TrigEFMissingEtComponent::TCEM : TrigEFMissingEtComponent::TCLCW); // fetch Cluster component
+  metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUC); // fetch Cluster component
   if (metComp==0) {
     ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
@@ -295,9 +284,8 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
     metComp->m_sumEt = sumEtEta;
     metComp->m_sumE  = sumEEta;
     metComp->m_usedChannels += 1;
-
-    // Not sure if this is accessing the right component. Fix it later.   
-    metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
+  
+    metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUCUnc); // fetch first auxiliary component to store uncorrected MET
     
     metComp->m_ex = -(float) ETobscor[0][0];
     metComp->m_ey = -(float) ETobscor[1][0];  
@@ -316,9 +304,8 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met ,
      metComp->m_sumEt = 0.;
      metComp->m_sumE  = 0.;
      metComp->m_usedChannels += 1;
-     
-    // Not sure if this is accessing the right component. Fix it later.    
-     metComp = metHelper->GetComponent(metHelper->GetElements() - 3 + 1 ); // fetch first auxiliary component to store uncorrected MET
+       
+     metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUCUnc); // fetch first auxiliary component to store uncorrected MET
      
      metComp->m_ex = -MExEta;
      metComp->m_ey = -MEyEta;
