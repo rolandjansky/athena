@@ -45,8 +45,10 @@ namespace CP {
         /// We exceed the limits of the histogram
         if (cc_flat != CorrectionCode::Ok){
             /// The eloss is going to take over now
-            if (cc_eloss == CorrectionCode::Ok){
+            if (cc_eloss == CorrectionCode::Ok){ 
                 syst = eloss_syst;
+                eff *= 1 + m_SystWeight * std::fabs(syst);
+                return cc_eloss;
              } else return cc_flat; 
         } else {        
             // The eloss -systematic is valid and smaller than the error from the flatness        
@@ -58,7 +60,6 @@ namespace CP {
                 syst = m_flatness->GetBinContent(bin_flat); 
             }
         }       
-        
         eff *= 1 + m_SystWeight * std::fabs(syst);
         return cc_flat;
     }

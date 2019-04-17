@@ -98,13 +98,13 @@ namespace TestMuonSF {
                 return CP::CorrectionCode::Error;
             }
             CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
 
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
 
             cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
-            if (cc == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
         }
         return CP::CorrectionCode::Ok;
     }
@@ -274,7 +274,7 @@ namespace TestMuonSF {
     }
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::Muon& mu) {
         for (auto& br : m_Branches) {
-            if (br->fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
+            if (br->fill(mu) == CP::CorrectionCode::Error) {return CP::CorrectionCode::Error;}
         }
         return CP::CorrectionCode::Ok;
     }
