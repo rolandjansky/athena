@@ -8,6 +8,7 @@
 #include "AssociationUtils/EleJetOverlapTool.h"
 #include "AssociationUtils/EleMuSharedTrkOverlapTool.h"
 #include "AssociationUtils/MuJetOverlapTool.h"
+#include "AssociationUtils/MuPFJetOverlapTool.h"
 #include "AssociationUtils/AltMuJetOverlapTool.h"
 #include "AssociationUtils/ObjLinkOverlapTool.h"
 #include "AssociationUtils/TauLooseEleOverlapTool.h"
@@ -25,6 +26,7 @@ DECLARE_TOOL_FACTORY( ORUtils::EleEleOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::EleJetOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::EleMuSharedTrkOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::MuJetOverlapTool )
+DECLARE_TOOL_FACTORY( ORUtils::MuPFJetOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::AltMuJetOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::ObjLinkOverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::TauLooseEleOverlapTool )
@@ -44,6 +46,7 @@ DECLARE_FACTORY_ENTRIES( AssociationUtils )
   DECLARE_TOOL( ORUtils::EleJetOverlapTool )
   DECLARE_TOOL( ORUtils::EleMuSharedTrkOverlapTool )
   DECLARE_TOOL( ORUtils::MuJetOverlapTool )
+  DECLARE_TOOL( ORUtils::MuPFJetOverlapTool )
   DECLARE_TOOL( ORUtils::AltMuJetOverlapTool )
   DECLARE_TOOL( ORUtils::ObjLinkOverlapTool )
   DECLARE_TOOL( ORUtils::TauLooseEleOverlapTool )

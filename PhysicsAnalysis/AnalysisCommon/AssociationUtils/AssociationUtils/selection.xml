@@ -11,6 +11,7 @@
   <class name="ORUtils::EleJetOverlapTool" />
   <class name="ORUtils::EleMuSharedTrkOverlapTool" />
   <class name="ORUtils::MuJetOverlapTool" />
+  <class name="ORUtils::MuPFJetOverlapTool" />
   <class name="ORUtils::AltMuJetOverlapTool" />
   <class name="ORUtils::TauLooseEleOverlapTool" />
   <class name="ORUtils::TauLooseMuOverlapTool" />
