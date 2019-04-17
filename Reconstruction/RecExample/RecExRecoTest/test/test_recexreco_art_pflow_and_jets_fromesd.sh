@@ -2,11 +2,22 @@
 #
 # art-description: Athena runs topoclustering from an ESD file
 # art-type: grid
-# art-include: 21.0/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
 
-athena eflowRec/run_ESDStandardReco.py
-echo "art-result: $?"
+athena eflowRec/run_ESDStandardReco.py | tee temp.log
+echo "art-result: ${PIPESTATUS[0]}"
+
+grep -v IsActiveStatus temp.log | grep -v "WILL SOON NOT WORK ANYMORE" >& stdout_cleaned.txt
+
+export GREP_ERROR=0
+#grep returns 1 if nothing is found, whilst ART assumes a non-zero code indicates a problem. So need
+#to revers the error code if 0 is returned by grep (by default assume error code zero in initialization above)
+grep ERROR stdout_cleaned.txt
+if [ $? == 0 ]; then
+    export GREP_ERROR=1
+fi    
+echo "art-result: $GREP_ERROR grepping log file for errors."
+
+#clean up files created by this script, because I am not sure whether anything else would do it.
+rm temp.log
+rm stdout_cleaned.txt
