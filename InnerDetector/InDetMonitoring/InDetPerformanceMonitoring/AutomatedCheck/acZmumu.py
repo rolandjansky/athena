@@ -21,7 +21,8 @@ m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
-m_isMC = False
+m_usingMC = False
+m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
 
 ###################################################################################################
 def findListOfDataSets():
@@ -33,8 +34,12 @@ def findListOfDataSets():
     #theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
     theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
     #theAMIsearchCommand = "ami list datasets %s.%%.physics_HardProbes.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
-    print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
+    
+    # case of using MC 
+    theAMIsearchCommand = "ami list datasets %s --order run_number --fields events,nfiles"  %(m_mcDataSetName)
 
+    
+    print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
     amiReturn = os.popen(theAMIsearchCommand).readlines()
 
     for theLine in amiReturn:
@@ -402,7 +407,9 @@ def welcomeBanner ():
     print ("\n")
     print ("  config:")
     print ("  ** Exec: %r" %m_submitExec)
-    print ("  ** using MC? %r" %m_isMC)
+    print ("  ** using MC? %r" %m_usingMC)
+    if (m_usingMC):
+        print ("  ** mc data set %s" %m_mcDataSetName)
     print ("  ** data project: %s " %m_dataProject)
     print ("  ** min events: %d"  %m_minEvents)
     print ("  ** min Run: %d"  %m_firstRun)
@@ -439,16 +446,18 @@ def optParsing():
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
-    p_isMC = m_isMC
+    p_usingMC = m_usingMC
+    p_mcDataSetName = m_mcDataSetName
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
     parser.add_option("--dataProject", dest="p_dataProject", help="data project of the data sets (examples: data17_13TeV). Default %s" %(p_dataProject), default = p_dataProject)
     parser.add_option("--dataType", dest="p_dataType", help="User defined data type (examples: DAOD_ZMUMU, DESDM_MCP). Default %s" %(p_dataType), default = p_dataType)
+    parser.add_option("--dataSet", dest="p_mcDataSetName", help="User defined full data set name", default = p_mcDataSetName)
     parser.add_option("--EXEC", dest="p_submitExec", help="Submit the Grid jobs. Default: no submission", action="store_true", default = False)
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
-    parser.add_option("--MC", dest="p_isMC", help="Use MC. The data set must be provided in full. Default: no MC", action="store_true", default = p_isMC)
+    parser.add_option("--MC", dest="p_usingMC", help="Use MC. The data set must be provided in full. Default: no MC", action="store_true", default = p_usingMC)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
     parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
@@ -508,7 +517,8 @@ if __name__ == '__main__':
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
-    m_isMC = config.p_isMC
+    m_usingMC = config.p_usingMC
+    m_mcDataSetName = config.p_mcDataSetName
 
     welcomeBanner ()
     preliminaries ()
