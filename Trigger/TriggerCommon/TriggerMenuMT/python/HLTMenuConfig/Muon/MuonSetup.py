@@ -532,8 +532,9 @@ def muEFCBRecoSequence( RoIs, name ):
   efAlgs = [] 
   muEFCBRecoSequence = parOR("efcbViewNode_"+name)
   #Need ID tracking related objects and MS tracks from previous steps
-  ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
-  ViewVerifyTrk.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
+  ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
+  ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+MuonSpectrometerTrackParticles' ) ]
+  muEFCBRecoSequence += ViewVerifyMS
   eventAlgs=[]
   if "FS" in name:
     #Need to run tracking for full scan chains
@@ -555,8 +556,9 @@ def muEFCBRecoSequence( RoIs, name ):
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
   else:
-    ViewVerifyTrk.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
-  muEFCBRecoSequence += ViewVerifyTrk
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
+    muEFCBRecoSequence += ViewVerifyTrk
 
 
   #Precision Tracking 

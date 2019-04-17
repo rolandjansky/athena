@@ -202,8 +202,8 @@ def muEFCBAlgSequence(ConfigFlags):
     muEFCBRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
  
     efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()    
-    
-    muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, efcbViewNode] )
+    muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, muEFCBRecoSequence] )
+
     return (muonEFCBSequence, efcbViewsMaker, sequenceOut)
 
 def muEFCBSequence():
