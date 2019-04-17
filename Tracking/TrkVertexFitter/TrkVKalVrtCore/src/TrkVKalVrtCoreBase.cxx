@@ -116,7 +116,6 @@ namespace Trk {
      Chi2=0.;
      truncatedStep=false;
      existFullCov=0;
-     std::fill_n(ader,(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
   }
 
   VKVertex::~VKVertex()
