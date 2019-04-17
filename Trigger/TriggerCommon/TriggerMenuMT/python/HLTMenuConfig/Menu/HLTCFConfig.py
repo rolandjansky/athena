@@ -195,11 +195,11 @@ def matrixDisplay( allSeq ):
     log.debug( "="*90 )    
     for sname, seq in mx[1].iteritems():
         guessChainName = '_'.join( sname.split( "_" )[1:] )
-        log.debug( " Reco chain: %s: %s" % ( guessChainName.rjust(longestName),  __nextSteps( 1, sname ) ) )
-        log.debug( " "+ " ".join( __getHyposOfStep( seq ) ) )
+        log.debug( " Reco chain: %s: %s", guessChainName.rjust(longestName),  __nextSteps( 1, sname ) )
+        log.debug( " %s", " ".join( __getHyposOfStep( seq ) ) )
         log.debug( "" )
         
-    log.debug( "="*90 )
+    log.debug( "%s", "="*90 )
     log.debug( "" )
 
         
@@ -268,10 +268,10 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
                     for out in seq.outputs:
                         if pre_filter_name in out:
                             filter_input.append(out)
-                            log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                            log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
 
             if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
-                log.error("ERROR: Filter for step %s has %d inputs! One is expected"%(chain_step.name, len(filter_input)))
+                log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
                 sys.exit("ERROR, in configuration of sequence "+seq.name)
                     
 
@@ -292,7 +292,7 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
             log.debug(sfilter.getChains())
 
             if len(chain.steps) == nstep+1:  
-                log.debug("Adding finalDecisions for chain %s at step %d:"%(chain.name, nstep+1))
+                log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
@@ -329,7 +329,7 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
 
 
 
-    log.debug("finalDecisions: %s" %str( finalDecisions) )
+    log.debug("finalDecisions: %s", finalDecisions)
     all_DataFlow_to_dot(HLTNodeName, allSeq_list)
 
     # matrix display
@@ -449,7 +449,7 @@ def findFilter(filter_name, cfseqList):
       """
       searches for a filter, with given name, in the CF sequence list of this step
       """
-      log.debug( "findFilter: filter name %s" % filter_name )
+      log.debug( "findFilter: filter name %s", filter_name )
       foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
       if len(foundFilters) > 1:
           log.error("found %d filters  with name %s", len( foundFilters ), filter_name)

@@ -28,8 +28,8 @@ class GenerateMenuMT:
         log.info('In overwriteSignaturesWith ')
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
-            log.warning('Updating the function to modify signatures from %s to %s'\
-                        % (_func_to_modify_signatures.__name__, f.__name__))
+            log.warning('Updating the function to modify signatures from %s to %s',
+                        _func_to_modify_signatures.__name__, f.__name__)
         _func_to_modify_signatures = f
     overwriteSignaturesWith = staticmethod(overwriteSignaturesWith)
             
@@ -92,7 +92,7 @@ class GenerateMenuMT:
         (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
-            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
+            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s',
                      _func_to_modify_signatures.__name__)
             _func_to_modify_signatures()
             self.signaturesOverwritten = True
@@ -107,12 +107,12 @@ class GenerateMenuMT:
         == Generates the L1Topo menu
         """
         if not TriggerFlags.readL1TopoConfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 topo configuration for %s' % TriggerFlags.triggerMenuSetup())
+            log.info('Generating L1 topo configuration for %s', TriggerFlags.triggerMenuSetup())
             from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
             self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )
             # build the menu structure
             self.trigConfL1Topo.generateMenu()        
-            log.debug('Topo Menu has %i trigger lines' % len(self.trigConfL1Topo.menu) )
+            log.debug('Topo Menu has %i trigger lines', len(self.trigConfL1Topo.menu))
             # write xml file
             self.trigConfL1Topo.writeXML()
         elif TriggerFlags.readLVL1configFromXML():
@@ -126,12 +126,12 @@ class GenerateMenuMT:
         == Generates the LVL1 menu
         """
         if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 configuration for %s' % TriggerFlags.triggerMenuSetup() )
+            log.info('Generating L1 configuration for %s', TriggerFlags.triggerMenuSetup() )
             from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
             self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
             # build the menu structure
             self.trigConfL1.generateMenu()        
-            log.debug('Menu has %i items' % len(self.trigConfL1.menu.items) )
+            log.debug('Menu has %i items', len(self.trigConfL1.menu.items) )
             # write xml file
             self.trigConfL1.writeXML()
         elif TriggerFlags.readLVL1configFromXML():
@@ -226,7 +226,7 @@ class GenerateMenuMT:
                         self.availableSignatures.append(ss)
 
             except ImportError:
-                log.exception('Problems when importing ChainDef generating code for %s' % sig)
+                log.exception('Problems when importing ChainDef generating code for %s', sig)
 
 
         # split the the chainDictionaries for each chain and print them in a pretty way
@@ -260,12 +260,12 @@ class GenerateMenuMT:
                     functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
                     chainConfigs = eval(functionToCall)
                 except RuntimeError:
-                    log.exception( 'Problems creating ChainDef for chain\n %s ' % chainName) 
+                    log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:                
-                log.error('Chain %s ignored - Signature not available' %(chainDict['chainName']))
+                log.error('Chain %s ignored - Signature not available', chainDict['chainName'])
             
-            log.debug('ChainConfigs  %s ' % chainConfigs)
+            log.debug('ChainConfigs  %s ', chainConfigs)
             listOfChainConfigs.append(chainConfigs)
 
         if len(listOfChainConfigs) == 0:  
@@ -276,7 +276,7 @@ class GenerateMenuMT:
                 log.warning("Need to define merging strategy, returning only first chain part configuration")
                 theChainConfig = listOfChainConfigs[0]
             else:
-                log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
+                log.error("No merging strategy specified for combined chain %s", chainDicts[0]['chainName'])
         else:
             theChainConfig = listOfChainConfigs[0]
             
