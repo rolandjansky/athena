@@ -49,7 +49,9 @@ namespace Muon
     MuonCluster(),
     m_detEl(0),
     m_time(0),
-    m_charge(0)
+    m_charge(0),
+    m_angle(0),
+    m_chisqProb(0)
   { }
 
   //copy constructor:
@@ -57,7 +59,9 @@ namespace Muon
     MuonCluster(RIO),
     m_detEl( RIO.m_detEl ),
     m_time(RIO.m_time),
-    m_charge(RIO.m_charge)
+    m_charge(RIO.m_charge),
+    m_angle(RIO.m_angle),
+    m_chisqProb(RIO.m_chisqProb)
   { }
 
   //move constructor:
@@ -65,7 +69,9 @@ namespace Muon
     MuonCluster(std::move(RIO)),
     m_detEl( RIO.m_detEl ),
     m_time(RIO.m_time),
-    m_charge(RIO.m_charge)
+    m_charge(RIO.m_charge),
+    m_angle(RIO.m_angle),
+    m_chisqProb(RIO.m_chisqProb)
   { }
 
   /// set the micro-tpc quantities
