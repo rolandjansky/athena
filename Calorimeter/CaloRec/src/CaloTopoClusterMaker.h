@@ -39,7 +39,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/IdentifierHash.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
