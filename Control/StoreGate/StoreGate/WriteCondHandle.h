@@ -63,7 +63,7 @@ namespace SG {
     
   private:
 
-    const EventIDBase& m_eid;
+    const EventContext& m_ctx;
     CondCont<T>* m_cc {nullptr};
 
     const SG::WriteCondHandleKey<T>& m_hkey;
@@ -82,7 +82,7 @@ namespace SG {
   template <typename T>
   WriteCondHandle<T>::WriteCondHandle( const SG::WriteCondHandleKey<T>& key,
                                        const EventContext& ctx) :
-    m_eid(ctx.eventID()),
+    m_ctx(ctx),
     m_cc( key.getCC() ),
     m_hkey(key)
   {
@@ -135,6 +135,17 @@ namespace SG {
 #endif
       sc = StatusCode::SUCCESS;
     }
+    // If the object exists already, try to extend it
+    else if (CondContBase::Category::isDuplicate (sc) &&
+             m_cc->keyType() != CondContBase::KeyType::MIXED) {
+      sc = this->extendLastRange(r, m_ctx);
+      if (sc.isFailure()) {
+        msg << MSG::ERROR
+            << "WriteCondHandle::record() : cannot extend duplicate range"
+            << endmsg;
+        return StatusCode::FAILURE;
+      }
+    }
  
     return sc;
   }
@@ -184,7 +195,7 @@ namespace SG {
   bool 
   WriteCondHandle<T>::isValid() {
 
-    return (m_cc->valid(m_eid));
+    return (m_cc->valid(m_ctx.eventID()));
   }
 
 }
