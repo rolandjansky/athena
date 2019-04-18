@@ -55,6 +55,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       from .OutputStreamAthenaPoolConf import MakeEventStreamInfo 
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
+      streamInfoTool.EventInfoKey = eventInfoKey
       outputStream.HelperTools = [ streamInfoTool ]
 
    # Set the list of transient items based on what we know is in the transient
