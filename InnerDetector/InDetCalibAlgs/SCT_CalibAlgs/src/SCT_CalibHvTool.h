@@ -63,15 +63,15 @@ class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
 
   ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
 
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   typedef std::vector<int> VecInt;
-  VecInt* m_sct_waferHash;
-  VecInt* m_sct_numHitsInWafer;
+  VecInt* m_sct_waferHash{nullptr};
+  VecInt* m_sct_numHitsInWafer{nullptr};
 
   //private use in this class
-  int m_maxq;
+  int m_maxq{100};
   // For HV trips
   std::vector<std::queue<int>> m_phvtripQueue;
   std::queue<int> m_prevLBN;
@@ -80,17 +80,17 @@ class SCT_CalibHvTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   VecInt m_phvtripHasItTripped;
   VecInt m_phvtripHasItTripped_prev;
   //
-  int m_phvtripPrevTime;
-  int m_phvtripFirstTime;
-  double m_absolutetriplimit;
-  double m_relativetriplimit;
-  int m_tq[100];
+  int m_phvtripPrevTime{0};
+  int m_phvtripFirstTime{0};
+  double m_absolutetriplimit{0};
+  double m_relativetriplimit{0};
+  int m_tq[100]{0};
 
   std::vector<std::vector<std::pair<int, int>>> m_summarytrips;
   std::vector<std::vector<std::pair<int, int>>> m_summarytripslb;
-  const EventInfo* m_evt;
-  bool m_outputLowHits;
-  int m_lowHitCut;
+  const EventInfo* m_evt{nullptr};
+  bool m_outputLowHits{false};
+  int m_lowHitCut{100};
   ///retrieve a tool and report if it failed
   template<class T>
     bool retrievedTool(T& tool, const std::string& toolName) const {

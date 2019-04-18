@@ -45,18 +45,8 @@ static const string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"
 static const string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_pSCTHelper{nullptr},
-  m_pManager{nullptr},
-  m_sct_waferHash{0},
-  m_sct_firstStrip{0},
-  m_sct_rdoGroupSize{0},
-  m_lumiBlock{0},
-  m_LbRange{0},
-  m_LbsToMerge{0},
-  m_rdoContainerKey{"SCT_RDOs"}
+  base_class(type, name, parent)
 {
-  //nop
 }
 
 StatusCode
