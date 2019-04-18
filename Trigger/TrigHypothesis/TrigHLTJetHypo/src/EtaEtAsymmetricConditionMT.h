@@ -31,7 +31,7 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
   ~EtaEtAsymmetricConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   IConditionVisitor*) const override;
+                   std::unique_ptr<IConditionVisitor>&) const override;
   std::string toString() const noexcept override;
 
  private:
@@ -41,7 +41,7 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
   double m_threshold;
 
   bool isSatisfied(const pHypoJet&,
-                   IConditionVisitor*) const;
+                   std::unique_ptr<IConditionVisitor>&) const;
 };
 
 #endif

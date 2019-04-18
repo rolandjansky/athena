@@ -16,7 +16,7 @@ HTConditionMT::HTConditionMT(double htMin): m_htMin(htMin){
 
 
 bool HTConditionMT::isSatisfied(const HypoJetVector& ips,
-                                IConditionVisitor*) const {
+                                std::unique_ptr<IConditionVisitor>&) const {
   return std::accumulate(ips.begin(),
                          ips.end(),
                          0.0,

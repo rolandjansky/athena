@@ -22,7 +22,7 @@ SingleConditionMatcherMT::SingleConditionMatcherMT(const ConditionBridgeMT& cb):
   
 bool SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
                                      const HypoJetGroupCIter& jets_e,
-                                     IConditionVisitor* v) {
+                                     std::unique_ptr<IConditionVisitor>& v) {
 
   
   for(auto i=jets_b; i != jets_e; ++i){

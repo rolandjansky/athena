@@ -64,6 +64,110 @@ class TreeToBooleanExpression(object):
         while self.stack: s += self.stack.pop()
         return s.strip()
 
+class SimpleConditionsDictMaker(object):
+    """Convert parameter string into duction holding low, high window
+    cut vals. Specialistaion for the 'simple' scenario
+
+    parameter strings look like '40et, 0eta320, nosmc'
+    """
+    
+    window_re = re.compile(
+        r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
+
+    defaults = {'eta_mins': 0.0,
+                'eta_maxs': 3.2,
+                'EtThresholds': 0.,
+                'asymmetricEtas': 0,
+    }
+
+    scale_factors = {'eta': 0.01,
+                     'et': 1000.,
+                     'smc': 1000.,
+    }
+
+    def makeDict(self, params):
+
+        
+        def get_conditions():
+            """Split conditions string into list of condition strings
+            Condition string looks like
+            '(10et,0eta320)(20et,0eta320)(40et,0eta320)'
+            returned is ['10et,0eta320', '20et,0eta320', '40et,0eta320']
+            """
+
+            alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789,'
+            pat = re.compile(r'(^\([%s]+\))'% alphabet )
+            s = params
+            m = True
+            conditions = []
+            while m:
+                m = pat.match(s)
+                if m is not None:
+                    conditions.append(m.group(0))
+                    s = s[len(conditions[-1]):]
+            assert params == ''.join(conditions)
+            conditions = [c[1:-1] for c in conditions]  # strip parens
+            return conditions
+
+
+        conditions = get_conditions()
+
+
+        attributes = ['EtThresholds',
+                      'eta_mins',
+                      'eta_maxs',
+                      'asymmetricEtas',]
+
+        result = {}
+        msgs = []
+        for a in attributes: result[a] = []
+
+        for c in conditions:
+            toks = c.split(',')
+            toks = [t.strip() for t in toks]
+
+            attributes2 = attributes[:]  # copy...
+
+            for t in toks:
+                m = self.window_re.match(t)
+                if m is None:
+                    msgs.append('match failed for parameter %s' % t)
+                    error = True
+                    return {}, error, msgs
+                group_dict = m.groupdict()
+                attr = group_dict['attr']
+                lo = group_dict['lo']
+                hi = group_dict['hi']
+                if lo == '':
+                    lo = self.defaults.get(attr+'lo', '')
+                if hi == '':
+                    hi = self.defaults.get(attr+'hi', '')
+
+                sf = self.scale_factors[attr]
+                if lo:
+                    if attr == 'eta':
+                        attr_lo = 'eta_mins'
+                        result[attr_lo].append(sf * float(lo))
+                        attributes2.remove(attr_lo)
+                    elif attr == 'et':
+                        attr = 'EtThresholds'
+                        result[attr].append(sf * float(lo))
+                        attributes2.remove(attr)
+                if hi:
+                    if attr == 'eta':
+                        attr = 'eta_maxs'
+
+                        attr_hi = 'eta_maxs'
+                        result[attr_hi].append(sf * float(hi))
+                        attributes2.remove(attr_hi)
+
+            # fill in unmentioned attributes with defaults:
+            for a in attributes2:
+                result[a].append(self.defaults[a])
+
+        msgs = ['ConditionsDict OK']
+        error = False
+        return result, error, msgs
 
 class TreeParameterExpander_simple(object):
     """Convert parameter string into duction holding low, high window
@@ -91,83 +195,11 @@ class TreeParameterExpander_simple(object):
 
     def mod(self, node):
 
-        def get_conditions(params):
-            """Split conditions string into list of condition strings
-            Condition string looks like
-            '(10et,0eta320)(20et,0eta320)(40et,0eta320)'
-            returned is ['10et,0eta320', '20et,0eta320', '40et,0eta320']
-            """
+        cdm = SimpleConditionsDictMaker()
+        d, error, msgs = cdm.makeDict(node.parameters)
+        self.msgs.extend(msgs)
+        node.conf_attrs.update(d)
 
-            alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789,'
-            pat = re.compile(r'(^\([%s]+\))'% alphabet )
-            s = params
-            m = True
-            conditions = []
-            while m:
-                m = pat.match(s)
-                if m is not None:
-                    conditions.append(m.group(0))
-                    s = s[len(conditions[-1]):]
-            assert params == ''.join(conditions)
-            conditions = [c[1:-1] for c in conditions]  # strip parens
-            return conditions
-
-
-        conditions = get_conditions(node.parameters)
-
-
-        attributes = ['EtThresholds',
-                      'eta_mins',
-                      'eta_maxs',
-                      'asymmetricEtas',]
-
-        for a in attributes: node.conf_attrs[a] = []
-
-        for c in conditions:
-            toks = c.split(',')
-            toks = [t.strip() for t in toks]
-
-            attributes2 = attributes[:]  # copy...
-
-            for t in toks:
-                m = self.window_re.match(t)
-                if m is None:
-                    self.msgs.append('match failed for parameter %s' % t)
-                    return
-                group_dict = m.groupdict()
-                attr = group_dict['attr']
-                lo = group_dict['lo']
-                hi = group_dict['hi']
-                if lo == '':
-                    lo = self.defaults.get(attr+'lo', '')
-                if hi == '':
-                    hi = self.defaults.get(attr+'hi', '')
-
-                sf = self.scale_factors[attr]
-                if lo:
-                    if attr == 'eta':
-                        attr_lo = 'eta_mins'
-                        node.conf_attrs[attr_lo].append(sf * float(lo))
-                        attributes2.remove(attr_lo)
-                    elif attr == 'et':
-                        attr = 'EtThresholds'
-                        node.conf_attrs[attr].append(sf * float(lo))
-                        attributes2.remove(attr)
-                if hi:
-                    if attr == 'eta':
-                        attr = 'eta_maxs'
-
-                        attr_hi = 'eta_maxs'
-                        node.conf_attrs[attr_hi].append(sf * float(hi))
-                        attributes2.remove(attr_hi)
-
-            # fill in unmentioned attributes with defaults:
-            for a in attributes2:
-                node.conf_attrs[a].append(self.defaults[a])
-
-        self.msgs = ['All OK']
-
-        
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -299,27 +331,35 @@ class TreeParameterExpander_dijet(object):
 
 
 class TreeParameterExpander_combgen(object):
-    """Convert parameter string into duction holding low, high window
-    cut vals. Specialistaion for the dijet scenario
+    """Convert parameter string into a dictionary holding low, high window
+    cut vals. Specialistaion for the combgen Tool
 
     parameter strings look like '40m,100deta200, 50dphi300'
     """
     
-    size_re = re.compile(r'^\((\d+)\)$')
-
     def __init__(self):
         self.msgs = []
 
     def mod(self, node):
 
         ok = True # status flag
-        size_re = re.compile(r'^\((\d+)\)$')
-        m = size_re.match(node.parameters)
+        # the group size must be the first attribute, then the conditions.
+        size_re = re.compile(r'^\((\d+)\)')
+        parameters = node.parameters[:]
+        m = size_re.match(parameters)
         if m is None:
             self.msgs.append('Error')
             return
 
         node.conf_attrs = {'groupSize':int(m.groups()[0])}
+        # remove goup info + 2 parentheses
+        parameters = parameters[len(m.groups()[0])+2:]
+
+        cdm = SimpleConditionsDictMaker()
+        d, ok, msgs = cdm.makeDict(parameters)
+        self.msgs.extend(msgs)
+        node.conf_attrs.update(d)
+        
 
         if ok:
             self.msgs = ['All OK']
@@ -391,7 +431,7 @@ def _test(s):
 
     # set the node attribute node.tool to be the hypo  Al\gTool.
     print 'sending in the ToolSetter visitor'
-    ts_visitor = ToolSetter(s, debug=True)
+    ts_visitor = ToolSetter(s)
     tree.accept_cf(ts_visitor)
     print ts_visitor.report()
 

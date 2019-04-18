@@ -32,7 +32,7 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
 void
 TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
                                      ITrigJetHypoInfoCollector* collector,
-                                     const IConditionVisitor* cVisitor,
+                                     std::unique_ptr<IConditionVisitor>& cVisitor,
                                      bool pass) const {
   if(!collector){return;}
   auto helperInfo = nodeIDPrinter(name(),
@@ -53,8 +53,10 @@ bool TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 
 
   // visit conditions if debugging
-  ConditionDebugVisitor*
-    cVisitor = collector ? new ConditionDebugVisitor : nullptr;
+  std::unique_ptr<IConditionVisitor> cVisitor(nullptr); 
+  if (collector){
+    cVisitor.reset(new ConditionDebugVisitor);
+  }
 
   JetTrigTimer timer;
   timer.start();
