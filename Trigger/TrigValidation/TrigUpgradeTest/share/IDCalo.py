@@ -136,9 +136,9 @@ if TriggerFlags.doID:
 
 if TriggerFlags.doCalo:
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-  
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-  algo=T2CaloEgamma_FastAlgo("testFastAlgo")
+
+  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+  algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
 
   algo.RoIs="EMViewRoIs"
   allViewAlgorithms += algo
