@@ -15,13 +15,7 @@
 #include "TMath.h"
 #include <stdexcept> // out_of_range exception
 
-ISCT_CalibHistoTool::ISCT_CalibHistoTool():
-  m_numberOfEventsHisto{0},
-  m_thistSvc{nullptr},
-  m_pSCTHelper{nullptr},
-  m_nLb{0},
-  m_nLbMerge{0} {
-  //nop
+ISCT_CalibHistoTool::ISCT_CalibHistoTool() {
 }
 
 int

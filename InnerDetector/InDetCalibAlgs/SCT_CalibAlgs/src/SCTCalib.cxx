@@ -134,13 +134,7 @@ namespace {
 //////////////////////////////////////////////////////////////////////////////////////
 
 SCTCalib::SCTCalib(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), 
-  m_pSCTHelper{nullptr}, 
-          m_numOfLBsProcessed{0}, 
-          m_numberOfEvents{0}, 
-          m_numberOfEventsHist{0}, 
-          m_LBRange{-999}, 
-          m_inputHist{nullptr}
+  AthAlgorithm(name, pSvcLocator)
 {
   m_readHIST = m_doNoiseOccupancy or m_doRawOccupancy or m_doEfficiency or m_doBSErrorDB or m_doLorentzAngle;
 }
