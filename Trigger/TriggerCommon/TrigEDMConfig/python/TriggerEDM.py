@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -36,6 +36,7 @@
 #	Combined   
 #	Unknown    <-- should be temporary until you figure out what to classify it as
 
+from __future__ import print_function
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
 #####################
@@ -1992,7 +1993,7 @@ def getARATypesRenaming():
                     # Duplicate entry; ok.
                     continue
                 else:
-                    print "ERROR types/keys will catch ", t, " ", key
+                    print ("ERROR types/keys will catch ", t, " ", key)
                 continue
             else:
                 obj = t                    
@@ -2002,7 +2003,7 @@ def getARATypesRenaming():
                 # form the branch name
                 bname = key+'_'+EDMDetails[t]['typealias']
                         
-                #print 'type/key : ',key, '/', obj, ' to be aliased to: ', bname
+                #print ('type/key : ',key, '/', obj, ' to be aliased to: ', bname)
                 renames[(key, obj)] = bname
             
     return renames
