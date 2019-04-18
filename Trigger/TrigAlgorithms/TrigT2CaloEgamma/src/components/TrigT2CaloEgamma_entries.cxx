@@ -1,5 +1,4 @@
 #include "TrigT2CaloEgamma/T2CaloEgamma.h"
-#include "TrigT2CaloEgamma/T2CaloEgammaFastAlgo.h"
 #include "TrigT2CaloEgamma/T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloEgamma/EgammaSamp2Fex.h"
 #include "TrigT2CaloEgamma/EgammaSamp1Fex.h"
@@ -13,7 +12,6 @@
 #include "TrigT2CaloEgamma/EgammaAllFex.h"
 
 DECLARE_COMPONENT( T2CaloEgamma )
-DECLARE_COMPONENT( T2CaloEgammaFastAlgo )
 DECLARE_COMPONENT( T2CaloEgammaReFastAlgo )
 DECLARE_COMPONENT( EgammaSamp2Fex )
 DECLARE_COMPONENT( EgammaSamp1Fex )

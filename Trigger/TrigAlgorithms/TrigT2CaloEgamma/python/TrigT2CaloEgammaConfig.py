@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 #from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwCluster
@@ -13,7 +13,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo, T2CaloEgammaReFastAlgo
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -463,46 +463,6 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
-
-class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
-   __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_FastAlgo"):
-       super(T2CaloEgamma_FastAlgo, self).__init__(name)
-       # here put your customizations
-       from AthenaCommon.AppMgr import ToolSvc
-
-       samp2 = EgammaSamp2FexNoTimerConfig(name="FaAlgoSamp2FexConfig")
-       ToolSvc+=samp2
-       samp1 = EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
-       ToolSvc+=samp1
-       sampe = EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
-       ToolSvc+=sampe
-       samph = EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
-       ToolSvc+=samph
-       ring = RingerFexConfig("RingsMaker")
-       ToolSvc+=ring
-
-       ring.OutputLevel=DEBUG
-       ring.RingsKey="CaloRings"
-       self.IAlgToolList = [ samp2 ]
-       self.IAlgToolList+= [ samp1 ]
-       self.IAlgToolList+= [ sampe ]
-       self.IAlgToolList+= [ samph ]
-       self.IAlgToolList+= [ ring ] 
-
-       self.EtaWidth = 0.2
-       self.PhiWidth = 0.2
-       #self.EtaWidthForID = 0.1
-       #self.PhiWidthForID = 0.1
-       #self.TrigEMClusterKey="TrigT2CaloEgamma"
-       #t2catime.TimerHistLimits = [0,20]
-       self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
-       self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
-       self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
-       self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
-       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
-       self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
-       self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
 
 class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
    __slots__ = []
