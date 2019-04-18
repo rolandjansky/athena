@@ -32,3 +32,4 @@ def fillOutStream ( stream, SuperCellContainer="SCellBCID", WriteAllCalo=False )
 def fillAOD ( SuperCellContainer="SCellBCID", WriteAllCalo=False ):
 
     fillOutStream( StreamAOD, SuperCellContainer, WriteAllCalo )
+    return StreamAOD
