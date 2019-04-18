@@ -345,7 +345,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       // 
       if (m_idHelperTool->mdtIdHelper().valid(hid)) {
 	// create first hit 
-	bool hitCreated = createHit(isp, currLay,parm,hid,timeInfo,pitch, true);
+	bool hitCreated = createHit(isp,parm,hid,timeInfo,pitch, true);
       
 	if (m_createAllMdtHits) {
 	  // nearby hits - check range 
@@ -363,7 +363,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 									m_idHelperTool->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
 	    if (!m_idHelperTool->mdtIdHelper().valid(nextId)) break;
-	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
+	    hitCreated = createHit(isp,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next--;
 	  }
@@ -376,7 +376,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 									m_idHelperTool->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
 	    if (!m_idHelperTool->mdtIdHelper().valid(nextId)) break;
-	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
+	    hitCreated = createHit(isp,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next++; 
 	  }
@@ -387,12 +387,12 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       Identifier hid = m_measTool->nearestDetEl(currLay,parm,false,pitch);
       
       // check if this is valid 
-      if ( hid.get_identifier32().get_compact()>0 && createHit(isp, currLay,parm,hid,timeInfo,pitch,false) )
+      if ( hid.get_identifier32().get_compact()>0 && createHit(isp,parm,hid,timeInfo,pitch,false) )
 	ATH_MSG_VERBOSE("[ muhit ] Hit in MS created.");
 	// reset id for the other side
       hid = m_measTool->nearestDetEl(currLay,parm,true,pitch);
       // again check if this is valid
-      if ( hid.get_identifier32().get_compact()>0 && createHit(isp, currLay,parm,hid,timeInfo,pitch,true) )     
+      if ( hid.get_identifier32().get_compact()>0 && createHit(isp,parm,hid,timeInfo,pitch,true) )     
 	  ATH_MSG_VERBOSE("[ muhit ] Hit in MS created.");           
     }  // end of asocciated layer check            
   } // end of the loop over TrackParameters    
@@ -400,7 +400,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 
 
 bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
-					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
+					 const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
 
    // MDT SECTION 
@@ -413,22 +413,25 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
 
-     // local position from the mdt's 
-     const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
+
+     const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);
+     // local position from the mdts
+     const Amg::Vector3D  localPos = mdtROE->globalToLocalCoords(parm->position(),id);
+     const double innerTubeRadius = mdtROE->innerTubeRadius(); //was 15.075;
 
      // drift radius
-     double residual = m_measTool->residual(lay,parm,id);     
+     double driftRadius = sqrt(localPos.x()*localPos.x()+localPos.y()*localPos.y());
+     
+     if (driftRadius<innerTubeRadius) {
 
-     if (fabs(residual)<15.075) {
-
-       double dlh = sqrt(15.075*15.075-residual*residual); 
-       double de = 0.02*dlh/15.075;
+       double dlh = sqrt(innerTubeRadius*innerTubeRadius-driftRadius*driftRadius); 
+       double de = 0.02*dlh/innerTubeRadius;
        double energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
        while (energyDeposit<0.)  energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
     
        // a new simhit                                            
        MDTSimHit mdtHit = MDTSimHit(simId,globalTimeEstimate,
-				    fabs(residual),
+				    driftRadius,
 				    localPos,
 				    isp.barcode(),
                                     2*dlh, energyDeposit, isp.pdgCode(),isp.momentum().mag() ) ;

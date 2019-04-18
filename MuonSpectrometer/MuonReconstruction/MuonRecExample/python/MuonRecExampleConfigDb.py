@@ -121,6 +121,8 @@ addTool( "MuonRecExample.MuonPrdProviderToolsConfig.RpcPrepDataProviderTool", "R
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MdtPrepDataProviderTool", "MdtPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.TgcPrepDataProviderTool", "TgcPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
+addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MM_PrepDataProviderTool", "MM_PrepDataProviderTool" )
+addTool( "MuonRecExample.MuonPrdProviderToolsConfig.STGC_PrepDataProviderTool", "STGC_PrepDataProviderTool" )
 
 addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
 
@@ -226,6 +228,7 @@ addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdC
 # Tools from MuonRecExample.NSWTools  (NSW - MicroMegas and STgc reconstruction tools)
 ################################################################################
 addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 ################################################################################

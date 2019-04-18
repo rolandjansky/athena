@@ -10,6 +10,7 @@
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigMonitoringEvent/TrigMonEvent.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Result/CTP_RDO.h"
 
 // Local
 #include "TrigCostMonitor/TrigNtLvl1Tool.h"
@@ -24,6 +25,8 @@ Trig::TrigNtLvl1Tool::TrigNtLvl1Tool(const std::string &name,
 
   declareProperty("keyL1Result",     m_keyL1Result = "Lvl1Result");
   declareProperty("keyRBResult",     m_keyRBResult = "");
+  declareProperty("CTP_RDOKey",      m_CTPRDOKey   = "CTP_RDO_Rerun");
+
 }
 
 //---------------------------------------------------------------------------------------
@@ -62,8 +65,12 @@ bool Trig::TrigNtLvl1Tool::Fill(TrigMonEvent &event)
   //
   // Collect RoIs and TriggerElements 
   //
-  if(!FillFromL1Result(event)) { 
-    FillFromRBResult(event);
+  if(!FillFromCTPRDO(event)) {
+    if(!FillFromL1Result(event)) { 
+      if(!FillFromRBResult(event)) {
+        return false;
+      }
+    }
   }
 
   return true;
@@ -98,6 +105,51 @@ bool Trig::TrigNtLvl1Tool::FillFromL1Result(TrigMonEvent &event)
   }
     
   return Fill(*l1Result, event);
+}
+
+//---------------------------------------------------------------------------------------
+bool Trig::TrigNtLvl1Tool::FillFromCTPRDO(TrigMonEvent &event)
+{
+  //
+  // Tertiary case: extract L1 decisions from CTP_RDO
+  //
+  if(!evtStore()->contains<CTP_RDO>(m_CTPRDOKey)) {
+    ATH_MSG_DEBUG("CTP_RDO does not exist with key: " << m_CTPRDOKey );
+    return false;
+  }
+
+  const CTP_RDO* ctpRdo = nullptr;
+
+  if(evtStore()->retrieve(ctpRdo, m_CTPRDOKey).isFailure() || !ctpRdo) {
+    ATH_MSG_ERROR("Error retrieving CTP_RDO from StoreGate" );
+    return false;
+  }
+  
+  ATH_MSG_DEBUG("Retrieved CTP_RDO:" << m_CTPRDOKey );
+
+  //
+  // Copied code from Lvl1ResultAccessTool
+  //
+  LVL1CTP::Lvl1Result lvl1Result(true);
+  
+  // 0.) TAV
+  const std::vector<uint32_t> ctpRDOVecAV = ctpRdo->getTAVWords();
+  std::copy(ctpRDOVecAV.begin(), ctpRDOVecAV.end(), std::back_inserter(lvl1Result.itemsAfterVeto()));
+
+  // 1.) TBP
+  const std::vector<uint32_t> ctpRDOVecBP = ctpRdo->getTBPWords();
+  std::copy(ctpRDOVecBP.begin(), ctpRDOVecBP.end(), std::back_inserter(lvl1Result.itemsBeforePrescale()));
+  
+  // 2.) TAP
+  const std::vector<uint32_t> ctpRDOVecAP = ctpRdo->getTAPWords();
+  std::copy(ctpRDOVecAP.begin(), ctpRDOVecAP.end(), std::back_inserter(lvl1Result.itemsAfterPrescale()));
+
+  // make sure TBP, TAP, TAV all have 16 entries !
+  while (lvl1Result.itemsBeforePrescale().size() < 16) lvl1Result.itemsBeforePrescale().push_back(0);
+  while (lvl1Result.itemsAfterPrescale().size()  < 16) lvl1Result.itemsAfterPrescale() .push_back(0);
+  while (lvl1Result.itemsAfterVeto().size()      < 16) lvl1Result.itemsAfterVeto()     .push_back(0);
+ 
+  return Fill(lvl1Result, event);
 }
 
 //---------------------------------------------------------------------------------------

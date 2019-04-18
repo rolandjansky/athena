@@ -157,8 +157,6 @@ bool InDet::PRD_TruthTrajectorySelectorID::pass( const Trk::PRD_TruthTrajectory 
   if( pos.size() != 3 ) return false;
   
   ThreePointCircle circle(pos);
-  // trajectory only selected when within cuts
-  if( ( abs(circle.d0()) <= 15 && (*prdvec.genParticle).barcode() <= 100000 )  )  return true;
   
   return false;
 }

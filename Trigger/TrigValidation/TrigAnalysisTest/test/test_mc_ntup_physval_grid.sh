@@ -3,8 +3,8 @@
 # art-description: Test of Trigger NTUP_PHYSVAL 
 # art-type: grid
 # art-include: 21.3/Athena
+# art-include: 21.0/Athena
 # art-include: master/Athena
-# art-include: master/AthenaP1
 # art-output: *check*
 # art-output: *.log
 # art-output: log.*
@@ -40,9 +40,22 @@ echo ${refdir}
 
 # make webdisplay 
 mkdir PHYSVAL_WEB
-physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB --startpath run_1/HLT NTUP_PHYSVAL.pool.root
+#physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB --startpath run_1/HLT NTUP_PHYSVAL.pool.root
+
+
+domains="TauMon MuonMon IDMon JetMon BphysMon HLTCaloESD ResultMon BjetMon METMon MinBiasMon Egamma"
+for slice in ${domains}
+do 
+  physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB/${slice} --startpath run_1/HLT/${slice} NTUP_PHYSVAL.pool.root
+done
+
 
 echo  "art-result: $? web"
+
+
+echo "ls PHYSVAL_WEB"
+ls PHYSVAL_WEB
+
 
 
 

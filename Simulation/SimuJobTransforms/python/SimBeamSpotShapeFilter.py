@@ -79,8 +79,11 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
 
     # Calculate the prob a event falling in the window given the original and target widths
     def calcScale(self, sigmaO, sigmaT, x):
+        #if the beamspot are the same to 1 nm don't reweight
+        if math.fabs( sigmaO - sigmaT ) < 1e-6:
+          return 1.
         if sigmaO < sigmaT:
-          self.msg.error( 'This will not work target width larger than original width: %f <  %f'  %(sigmaO, sigmaT) )
+          self.msg.error( 'This will not work target width larger than original width: %f <  %f '  %(sigmaO, sigmaT) )
           return 1.
         value =   math.exp( -0.5*(x*x)*(1./(sigmaT*sigmaT) - 1./(sigmaO*sigmaO)))
         #print 'Targetn Original Prob ',x, ' ', sigmaT, ' ',  sigmaO, ' ', value

@@ -28,7 +28,7 @@ TFCSHistoLateralShapeParametrizationFCal::~TFCSHistoLateralShapeParametrizationF
 {
 }
 
-FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
 {
   if (!simulstate.randomEngine()) {
     return FCSFatal;
@@ -38,9 +38,12 @@ FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, T
   const double  charge   = HepPDT::ParticleID(pdgId).charge();
 
   const int cs=calosample();
-  const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
+  //const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
+  //const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
+  //const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
+  const double center_phi = hit.center_phi();
+  const double center_r   = hit.center_r();
+  const double center_z   = hit.center_z();
 
   float alpha, r, rnd1, rnd2;
   rnd1 = CLHEP::RandFlat::shoot(simulstate.randomEngine());
