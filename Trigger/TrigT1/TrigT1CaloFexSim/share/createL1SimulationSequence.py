@@ -57,6 +57,14 @@ if rec.doAOD():
         include ( "TrigT1CaloFexSim/EnableFexAlgorithms.py" )
         enableJGTowerReader(debug = False, SuperCellType=SCIn) # too much debug output
 
+        #include L1Topo Simulation
+        if simflags.Topo.RunTopoAlgorithms():
+
+            if 'L1TopoSimulation' not in algseq:
+                from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+                include ( "TrigT1CaloFexSim/EnableTopoAlgorithms.py" )
+                enableL1TopoSimulation()
+
     # Schedule CTP Simulation
     if simflags.CTP.RunCTPEmulation():
         include ( "TrigT1CTP/TrigT1CTP_EnableCTPEmulation.py" )

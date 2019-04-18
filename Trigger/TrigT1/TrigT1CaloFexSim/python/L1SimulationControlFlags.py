@@ -13,6 +13,7 @@ log.setLevel(logging.DEBUG)
 
 _caloflags = list()
 _ctpflags = list()
+_topoflags = list()
 _glflags = list()
 
 
@@ -61,6 +62,13 @@ class RunFexAlgorithms(JobProperty):
 _caloflags.append(RunFexAlgorithms)
 
 
+class RunTopoAlgorithms(JobProperty):
+    """ Run L1Topo Simulation """
+    statusOn = False
+    allowedType = ['bool']
+    StoredValue = False
+_topoflags.append(RunTopoAlgorithms)
+
 
 class RunCTPEmulation(JobProperty):
     """ Run the CTP Emulation """
@@ -98,16 +106,22 @@ class CTP(JobPropertyContainer):
     """ CTP Phase I simulation flags """
     pass
 
+class Topo(JobPropertyContainer):
+    """ L1Topo Phase I simulation flags """
+    pass
+
 class L1Phase1Sim(JobPropertyContainer):
-    """ L1 Phase I simulation flags for L1Calo, L1Muon, CTP"""
+    """ L1 Phase I simulation flags for L1Calo, L1Muon, L1Topo, CTP"""
     pass
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 tf.add_Container( L1Phase1Sim )
 tf.L1Phase1Sim.add_Container( Calo )
+tf.L1Phase1Sim.add_Container( Topo )
 tf.L1Phase1Sim.add_Container( CTP )
 
 CTPPhase1SimFlags  = tf.L1Phase1Sim.CTP
+TopoPhase1SimFlags  = tf.L1Phase1Sim.Topo
 L1CaloPhase1SimFlags = tf.L1Phase1Sim.Calo
 L1Phase1SimFlags = tf.L1Phase1Sim
 
@@ -120,7 +134,11 @@ for flag in _caloflags:
 for flag in _ctpflags:
     L1Phase1SimFlags.CTP.add_JobProperty(flag)
 
+for flag in _topoflags:
+    L1Phase1SimFlags.Topo.add_JobProperty(flag)
+
 
 del _caloflags
 del _ctpflags
+del _topoflags
 del log
