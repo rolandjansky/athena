@@ -124,6 +124,7 @@ StatusCode L1CaloHVScalesMon:: initialize()
   }
 
   ATH_CHECK( m_scaleCorrKey.initialize() );
+  ATH_CHECK( m_onlineScaleCorrKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -369,6 +370,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
   SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
 
   CaloCellContainer::const_iterator CaloCellIterator    = caloCellContainer->begin();
@@ -395,7 +397,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
       const int layer = m_lvl1Helper->sampling(ttId1);
       const Identifier cellId(caloCell->ID());
       HWIdentifier hwid = cabling->createSignalChannelID(cellId);
-      const double scale = scaleCorr->HVScaleCorr(hwid);
+      const double scale = scaleCorr->HVScaleCorr(hwid) * onlineScaleCorr->HVScaleCorr(hwid);
       if (debug && scale < 1.) {
         msg(MSG::DEBUG) << " Current Mean Scale " << scale << " for sampling " << sampling
                         << " eta/phi " << eta << "/" << phi << endmsg;
