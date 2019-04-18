@@ -10,8 +10,8 @@ def l2PhotonAlgCfg( flags ):
     from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
 
     photonFex= L2PhotonFex_1()
-    photonFex.TrigEMClusterName = "L2CaloEMClusters"
-    photonFex.PhotonsName = recordable("L2Photons")
+    photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
+    photonFex.PhotonsName = recordable("HLT_L2Photons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
 
     return acc, photonFex
@@ -25,7 +25,7 @@ def l2PhotonRecoCfg( flags ):
     import AthenaCommon.CfgMgr as CfgMgr
 
     moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")
-    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloEMClusters') ]
+    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters') ]
     reco.addRecoAlg( moveClusters )
 
     algAcc, alg = l2PhotonAlgCfg( flags )

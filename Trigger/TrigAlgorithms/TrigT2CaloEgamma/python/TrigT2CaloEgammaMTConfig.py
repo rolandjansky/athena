@@ -55,7 +55,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
     from TrigEDMConfig.TriggerEDMRun3 import recordable
 
     alg.IReAlgToolList = __fex_tools
-    alg.ClustersName   = recordable('L2CaloEMClusters')
+    alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2

@@ -6,7 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # TODO remove once full tracking is in place
 def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):
@@ -28,7 +28,7 @@ def generateChains( flags,  chainDict ):
     accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
 
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
-                                 CaloClusters = 'L2CaloEMClusters')
+                                 CaloClusters = recordable('HLT_L2CaloEMClusters'))
     l2CaloHypo.HypoTools=[ TrigL2CaloHypoToolFromDict( chainDict ) ]
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())

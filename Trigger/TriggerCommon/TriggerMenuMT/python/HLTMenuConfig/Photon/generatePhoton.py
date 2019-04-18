@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def generateChains(flags, chainDict):
 
@@ -23,7 +23,7 @@ def generateChains(flags, chainDict):
 
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
-                                CaloClusters = 'L2CaloEMClusters' )
+                                CaloClusters = recordable('HLT_L2CaloEMClusters') )
 
     l2CaloHypo.HypoTools = [ TrigL2CaloHypoToolFromDict(chainDict) ]
 
@@ -48,7 +48,7 @@ def generateChains(flags, chainDict):
     accPhoton.merge(l2PhotonReco, sequenceName=stepReco.getName())
 
     l2PhotonHypo = l2PhotonHypoCfg( flags,
-                                    Photons = 'L2Photons',
+                                    Photons = 'HLT_L2Photons',
                                     RunInView = True )
 
     l2PhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromDict(chainDict) ]
