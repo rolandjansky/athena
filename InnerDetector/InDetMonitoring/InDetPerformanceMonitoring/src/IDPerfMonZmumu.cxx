@@ -1084,9 +1084,6 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
   double d0 = 0;
   double z0 = 0;
   
-  double d0res = 999.;
-  double z0res = 999.;
-  
   double d0_err = 999.;
   double z0_err = 999.;
   
@@ -1097,7 +1094,7 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
   
   
 
-  if(trkPerigee){
+  if (trkPerigee != NULL){
     //    std::cout << "################## >>> does not fail trkperigee" << std::endl;
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
     if (qOverP) {
@@ -1131,10 +1128,9 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
     //    std::cout << " -- atBL -- px: " << px << "  py: " << py << "  pz: " << pz << "  d0: "<< d0 << "   z0: "<< z0 << std::endl;
     delete atBL;
   }
-  else 
-    {
-      ATH_MSG_WARNING("FillRecParameters::Failed extrapolation to the BeamLine");
-    }
+  else {
+    ATH_MSG_WARNING("FillRecParameters::Failed extrapolation to the BeamLine");
+  }
   
   if(m_doIP && vertex && track->perigeeParameters()){ //I assume that the vertex is the same of the original track
     const Trk::ImpactParametersAndSigma* iPandSigma(NULL);
@@ -1147,10 +1143,10 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
       ATH_MSG_DEBUG("FillRecParameters::trackToVertexIPEstimator success !");
       PVd0 = iPandSigma->IPd0;
       PVd0res = iPandSigma->PVsigmad0;
-      d0res = iPandSigma->sigmad0;  //-> ? 
+      //d0res = iPandSigma->sigmad0;  //-> ? 
       PVz0 = iPandSigma->IPz0;
       PVz0res = iPandSigma->PVsigmaz0;
-      z0res = iPandSigma->sigmaz0;  //-> ?
+      //z0res = iPandSigma->sigmaz0;  //-> ?
       
       m_pv_x = vertex->x();
       m_pv_y = vertex->y();
