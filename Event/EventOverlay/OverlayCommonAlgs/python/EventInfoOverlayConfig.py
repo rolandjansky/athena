@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon import Logging
 
 
 def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg", **kwargs):
@@ -30,8 +29,16 @@ def EventInfoOverlayCfg(flags, name="EventInfoOverlay", **kwargs):
 
     kwargs.setdefault("DataOverlay", flags.Overlay.DataOverlay)
 
+    # Do the xAOD::EventInfo overlay
     from OverlayCommonAlgs.OverlayCommonAlgsConf import EventInfoOverlay
     alg = EventInfoOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
+
+    # Re-map signal address
+    from SGComps.AddressRemappingConfig import AddressRemappingCfg
+    acc.merge(AddressRemappingCfg([
+        "xAOD::EventInfo#EventInfo->" + flags.Overlay.SigPrefix + "EventInfo",
+        "xAOD::EventAuxInfo#EventInfoAux.->" + flags.Overlay.SigPrefix + "EventInfoAux.",
+    ]))
 
     return acc

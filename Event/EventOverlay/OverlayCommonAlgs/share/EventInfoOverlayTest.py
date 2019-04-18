@@ -68,10 +68,6 @@ AddressRemappingSvc.addInputRename("xAOD::EventAuxInfo", "EventInfoAux.", "Sig_E
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 100
-if hasattr(svcMgr, "AthenaEventLoopMgr"):
-    svcMgr.AthenaEventLoopMgr.UseSecondaryEventNumber = True
-if hasattr(svcMgr, "AthenaHiveEventLoopMgr"):
-    svcMgr.AthenaHiveEventLoopMgr.UseSecondaryEventNumber = True
 
 #--------------------------------------------------------------
 # Algorithms
@@ -81,6 +77,18 @@ from AthenaCommon import CfgGetter
 EventInfoOverlay = CfgGetter.getAlgorithm("EventInfoOverlay")
 EventInfoOverlay.OutputLevel = DEBUG
 topSequence += EventInfoOverlay
+
+#--------------------------------------------------------------
+# EventLoop
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads > 0:
+    EventLoop = Service("AthenaHiveEventLoopMgr")
+else:
+    EventLoop = Service("AthenaEventLoopMgr")
+EventLoop.UseSecondaryEventNumber = True
+svcMgr += EventLoop
 
 #--------------------------------------------------------------
 # Output options
