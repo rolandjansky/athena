@@ -52,13 +52,19 @@ class doGMX(JobProperty):
     """Steering of SLHC jobs, getting the database and the dictionary"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class LayoutOption(JobProperty):
     """Steering of SLHC jobs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = ''
+
+class UseLocalGeometry(JobProperty):
+    """Option to take local Xml/Gmx files during layout development"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -83,6 +89,7 @@ jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbEnvName)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbBaseName)
 jobproperties.SLHC_JobProperties.add_JobProperty(doGMX)
 jobproperties.SLHC_JobProperties.add_JobProperty(LayoutOption)
+jobproperties.SLHC_JobProperties.add_JobProperty(UseLocalGeometry)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people
