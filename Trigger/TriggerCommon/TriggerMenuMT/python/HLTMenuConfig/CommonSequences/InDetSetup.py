@@ -2,6 +2,17 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+# this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
+# once the cunction below is moved to the destination pkg, will eliminate this duplication
+class InDetCacheNames:
+  Pixel_ClusterKey   = "PixelTrigClustersCache"
+  SCT_ClusterKey     = "SCT_ClustersCache"
+  SpacePointCachePix = "PixelSpacePointCache"
+  SpacePointCacheSCT = "SctSpacePointCache"
+  SCTRDOCacheKey     = "SctRDOCache"
+  PixRDOCacheKey     = "PixRDOCache"
+
+
 def makeInDetAlgs( whichSignature='' ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
@@ -11,17 +22,6 @@ def makeInDetAlgs( whichSignature='' ):
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
-
-  #Create IdentifiableCaches
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews" + signature,
-                                                   Pixel_ClusterKey = "PixelTrigClustersCache" + signature,
-                                                   SCT_ClusterKey   = "SCT_ClustersCache" + signature,
-                                                   SpacePointCachePix = "PixelSpacePointCache" + signature,
-                                                   SpacePointCacheSCT   = "SctSpacePointCache" + signature,
-                                                   SCTRDOCacheKey       = "SctRDOCache" + signature,
-                                                   PixRDOCacheKey = "PixRDOCache" + signature)
-  eventAlgs.append(InDetCacheCreatorTrigViews)
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.AppMgr import ServiceMgr
@@ -50,7 +50,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
-    InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
+    InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
     
     viewAlgs.append(InDetPixelRawDataProvider)
     
@@ -78,7 +78,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                  ProviderTool = InDetSCTRawDataProviderTool)
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
-    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
+    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
     
     viewAlgs.append(InDetSCTRawDataProvider)
 
@@ -158,7 +158,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                         ClustersName            = "PixelTrigClusters",)
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = "EMViewRoIs"
-  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
+  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey 
 
   viewAlgs.append(InDetPixelClusterization)
 
@@ -206,7 +206,7 @@ def makeInDetAlgs( whichSignature='' ):
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = "EMViewRoIs"
-  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 
+  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey 
   
   viewAlgs.append(InDetSCT_Clusterization)
   
@@ -229,8 +229,8 @@ def makeInDetAlgs( whichSignature='' ):
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
-                                                                    SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT,
-                                                                    SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix,)
+                                                                    SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
+                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
 
