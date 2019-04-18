@@ -56,3 +56,8 @@ atlas_add_component( InDetOverlay
 atlas_install_headers( InDetOverlay )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
+
+# Configuration tests
+atlas_add_test( SCTOverlayConfig_test
+                SCRIPT test/SCTOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
