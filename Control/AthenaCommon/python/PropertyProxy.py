@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyProxy.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
+import six
 import os, weakref, copy, types
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
 
@@ -48,6 +49,8 @@ def _isCompatible( tp, value ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
+   if six.PY2 and type(value) == unicode:
+      value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
       raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
