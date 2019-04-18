@@ -4,29 +4,12 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
-from InDetRecExample.InDetKeys import InDetKeys
+from TrigUpgradeTest.InDetSetup import inDetSetup
+inDetSetup()
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",

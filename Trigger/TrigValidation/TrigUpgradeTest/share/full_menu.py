@@ -25,23 +25,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 testChains = []
 
 
-def inDetSetup():
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doCaloSeededBrem = False
-    InDetFlags.InDet25nsec = True 
-    InDetFlags.doPrimaryVertex3DFinding = False 
-    InDetFlags.doPrintConfigurables = False
-    InDetFlags.doResolveBackTracks = True 
-    InDetFlags.doSiSPSeededTrackFinder = True
-    InDetFlags.doTRTPhaseCalculation = True
-    InDetFlags.doTRTSeededTrackFinder = True
-    InDetFlags.doTruth = False
-    InDetFlags.init()
-
-    ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
-
+from TrigUpgradeTest.InDetSetup import inDetSetup
 inDetSetup()
 
 
@@ -85,9 +69,7 @@ if opt.doPhotonSlice == True:
 # muon chains
 ##################################################################
 if opt.doMuonSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
-
-    inDetSetup()
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
 
     MuonChains  = []
 
