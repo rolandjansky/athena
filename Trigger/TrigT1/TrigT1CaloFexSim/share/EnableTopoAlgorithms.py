@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
 include ("L1TopoSimulation/L1Simulation_topOptions.py")
