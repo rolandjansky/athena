@@ -163,12 +163,12 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
 
     // Services & Tools
     ITHistSvc*                          m_histSvc{};                             //!< Pointer to THistSvc
-    ToolHandle<Trk::IExtrapolator>      m_extrapolator;                        //!< Extrapolator tool
+     ToolHandle<Trk::IExtrapolator>     m_extrapolator{this, "ExtrapolatorHandle", ""};     //!< Extrapolator tool
     const CaloDetDescrManager*          m_caloDDM{};                             //!< Calorimeter detector description manager
     const TileDetDescrManager*          m_tileDDM{};
     
-    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
-    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
+    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""}; //!< Tool to make the step-wise extrapolation
+    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; //!< Tool to make the step-wise extrapolation
     
     // Members
     const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.

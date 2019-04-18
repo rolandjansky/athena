@@ -715,7 +715,11 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
     
     if _name in cached_instances:
         return cached_instances[_name] 
-    
+
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+ 
     from tauRecTools.tauRecToolsConf import TauTrackFinder
     TauTrackFinder = TauTrackFinder(name = _name,
                                     MaxJetDrTau = 0.2,
@@ -725,6 +729,7 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
+                                    ParticleCaloExtensionTool = pcExtensionTool,
                                     BypassSelector = noSelector,
                                     BypassExtrapolator = True
                                     )
