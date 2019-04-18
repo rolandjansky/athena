@@ -14,7 +14,6 @@
 InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   AthService(name, svc),
   m_dictionaryFileName("IDTest.xml"),
-  m_xml_materials("Materials.xml"),
   m_xml_pixmodules("PixelModules.xml"),
   m_xml_pixStaves("PixelStaves.xml"),
   m_xml_pixBarrelLayers("PixelBarrelLayers.xml"),
@@ -31,7 +30,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_readXMLfromDB(false)
 {
   declareProperty("dictionaryFileName",    m_dictionaryFileName);
-  declareProperty("XML_Materials",         m_xml_materials);
   declareProperty("XML_PixelModules",      m_xml_pixmodules);
   declareProperty("XML_PixelStaves",       m_xml_pixStaves);
   declareProperty("XML_PixelBarrelLayers", m_xml_pixBarrelLayers);

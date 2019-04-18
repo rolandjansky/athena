@@ -99,12 +99,10 @@ class SLHC_Setup_XMLReader :
             stripEndcapLayout = pathName+"/"+str(SCTENDCAPFILE)
 
         else:
-
             pixBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH')
             pixEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH')
             stripBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH')
             stripEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH')
-        
 
         ###### Setup XMLreader flags
         print "**** FLAGS **************************************************"
@@ -133,9 +131,6 @@ class SLHC_Setup_XMLReader :
 
         if not XMLReaderFlags.readXMLfromDB():
 
-            ###### Setup XML files for Material ######
-            xmlReader.XML_Materials         = find_file_env("Materials.xml",'DATAPATH')
-
             ###### Setup XML filesfor pixels ######
             xmlReader.XML_PixelModules      = find_file_env(str(PIXMODULEFILE),'DATAPATH')
             xmlReader.XML_PixelStaves       = find_file_env(str(PIXSTAVEFILE),'DATAPATH')
@@ -149,9 +144,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_SCTEndcapLayers = XMLReaderFlags.SCTEndcapLayout()
             
         else:
-
-            ###### Setup XML files for Material ######
-            xmlReader.XML_Materials         = pathName+"/Materials.xml"
 
             ###### Setup XML filesfor pixels ######
             xmlReader.XML_PixelModules      = pathName+"/"+str(PIXMODULEFILE)
