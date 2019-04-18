@@ -5,8 +5,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
-//#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -28,22 +28,11 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 
 CscDigitToCscRDOTool::CscDigitToCscRDOTool
 (const std::string& type,const std::string& name,const IInterface* pIID)
-  : AthAlgTool(type, name, pIID), 
-    m_cscCablingSvc("CSCcablingSvc", name),
-    m_cscCalibTool("CscCalibTool"),
-    m_rndmSvc("AtRndmGenSvc", name ),
-    m_rndmEngine(0),
-    m_rndmEngineName("CscDigitToCscRDOTool")
+  : base_class(type, name, pIID)
  {
-
-  declareInterface<IMuonDigitizationTool>(this);
-
-  declareProperty("NumSamples",   m_numSamples = 4);
-  declareProperty("Latency",      m_latency = 0);
-  declareProperty("RndmSvc", 	  m_rndmSvc, "Random Number Service used for CscDigitToCscRDOTool" );
-  declareProperty("RndmEngine",   m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
-  declareProperty("addNoise",     m_addNoise =true );
-  declareProperty("cscCalibTool", m_cscCalibTool);
+  declareProperty("NumSamples",   m_numSamples);
+  declareProperty("Latency",      m_latency);
+  declareProperty("addNoise",     m_addNoise);
  }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -53,41 +42,19 @@ StatusCode CscDigitToCscRDOTool::initialize()
 
   ATH_MSG_DEBUG ( " in initialize()" );
 
-  if ( m_cscCablingSvc.retrieve().isFailure() )  {
-    ATH_MSG_ERROR ( " Cannot get CSC Cabling Service " );
-    return StatusCode::FAILURE;
-  }
-    
-  if ( detStore()->retrieve(m_cscHelper, "CSCIDHELPER").isFailure()) {
-    ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
-  }
-  
-  
+  ATH_CHECK( m_cscCablingSvc.retrieve() );
+
+  ATH_CHECK( detStore()->retrieve(m_cscHelper, "CSCIDHELPER") );
+  ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
+
   /** CSC calibration tool for the Condtiions Data base access */
-  if ( m_cscCalibTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Can't get handle on CSC calibration tools" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_cscCalibTool.retrieve() );
 
   m_startTime   = m_cscCalibTool->getTimeOffset();//   StartTime=46.825,
   ATH_MSG_INFO (" m_startTims is set to be " << m_startTime << "from cscCalibTool->getTimeOffset()" );
 
   //random number initialization
-  if ( m_rndmSvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( " Could not initialize Random Number Service" );
-  }      
-  
-  // getting our random numbers stream
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( m_rndmSvc.retrieve() );
 
   /** initialization of CSC ROD Decoder */
   m_samplingTime = static_cast<uint16_t>( m_cscCalibTool->getSamplingTime() ); // FIXME
@@ -122,7 +89,10 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   // according to cosmic data ~33% is phase =1 peak close to 3rd...
   // but let's start with half and half
 
-  
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+
   CscRODReadOut rodReadOut(m_startTime, m_samplingTime, m_signalWidth, m_numberOfIntegration);
   // initialization but it will be updated per channel later 12/03/2009 WP
   // m_startTime is not related to rodReadOut at all but doesn't matter it's not used....by resetting later...
@@ -223,7 +193,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
           cscRdoCollection->set_samplingPhase();
         }
       } else {
-        double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+        double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
         if (flat < 0.5)
           cscRdoCollection->set_samplingPhase();
       }
@@ -351,7 +321,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 
         for (int i=0; i<m_numSamples; i++) {
           //          double samplingTime = (i+1)*(1000/m_samplingRate) + m_startTime;// considered in CSC_Digitization
-	  double theNoise = (m_addNoise) ? CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, noiseADC) : 0.0;
+	  double theNoise = (m_addNoise) ? CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, noiseADC) : 0.0;
 	  double rawAmpl = cscDigitSamples[i];
           double ampl = rawAmpl;
           double charge_to_adcCount  = m_cscCalibTool->numberOfElectronsToADCCount(cscOfflineChannelHashId, ampl) + theNoise + pedestalADC;
@@ -387,7 +357,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
         
         for (int i=0; i<m_numSamples; i++) {
           double samplingTime = (i+1)*(1000/m_samplingRate) + m_startTime;
-	  double theNoise = (m_addNoise) ? CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, noiseADC) : 0.0;
+	  double theNoise = (m_addNoise) ? CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, noiseADC) : 0.0;
           double rawAmpl = rodReadOut.signal_amplitude(samplingTime); //FIXME - to be updated still!
           double ampl = charge_to_adcCount*rawAmpl + theNoise + pedestalADC;
 
