@@ -24,7 +24,7 @@ if [ -z ${JOB_LOG} ]; then
   export JOB_LOG="athena.log"
 fi
 
-if [ -z ${EXTRA} ]; then
+if [ -z "${EXTRA}" ]; then
   export EXTRA="extraPython=False;"
 fi
 
