@@ -1,5 +1,5 @@
-""" SLHC_Setup
-    Python module to hold storegate keys of InDet objects.
+""" 
+    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 __author__ =   "A. Salzburger"
