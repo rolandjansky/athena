@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -36,22 +36,15 @@ EgammaReSamp2Fex::EgammaReSamp2Fex(const std::string & type, const std::string &
 	declareProperty("MaxDphiHotCell",m_maxHotCellDphi=1.0);
 }
 
-EgammaReSamp2Fex::~EgammaReSamp2Fex(){
-}
-
 StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
 				   const CaloDetDescrElement*& caloDDE,
-                                   const EventContext* context ) const { 
+                                   const EventContext& context ) const {
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
-	// reset error
-	m_error=0x0;
 
         ATH_MSG_DEBUG( "in execute(TrigEMCluster&)" );
-
-	ATH_CHECK( context != nullptr );
 
 	// Time to access RegionSelector
 	if (!m_timersvc.empty()) m_timer[1]->start();      
@@ -61,7 +54,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 	LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-	m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+	m_dataSvc->loadCollections( context, roi, TTEM, sampling, sel );
 	iBegin = sel.begin();
 	iEnd = sel.end();
 	// Finished to access Collection
@@ -126,8 +119,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   hotEta    = hotCell->eta();
   hotPhi    = hotCell->phi();
   } else { 
-	m_error|=0x80000000;
-	if (!m_timersvc.empty()) m_timer[3]->stop();      
+	if (!m_timersvc.empty()) m_timer[3]->stop();
 	return StatusCode::SUCCESS;
   }
 
@@ -204,7 +196,6 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // For the S-shape correction, we store the caloDDE of the hottest cell
   caloDDE = (seedCell->caloDDE());
   } else {
-        m_error|=0x80000000;
         if (!m_timersvc.empty()) m_timer[3]->stop();
         return StatusCode::SUCCESS;
   }
@@ -397,7 +388,6 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   } else {
     energyEta = 99. ;
     energyPhi = 0. ;
-    m_error|=0x40000000;
   }
 
   for(it = iBegin;it != iEnd; ++it) {

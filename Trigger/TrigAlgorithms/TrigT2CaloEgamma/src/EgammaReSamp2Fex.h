@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -28,44 +28,17 @@ class IRoiDesciptor;
 /** Feature extraction Tool for LVL2 Calo. Second EM Calorimeter sample. */
 class EgammaReSamp2Fex: public IReAlgToolCalo {
   public:
-    // to avoid compiler warning about hidden virtuals
-    using IReAlgToolCalo::execute;
-  
-    /** Constructor */
-    EgammaReSamp2Fex(const std::string & type, const std::string & name, 
-                 const IInterface* parent);
-    /** Destructor */
-    virtual ~EgammaReSamp2Fex();
+    EgammaReSamp2Fex(const std::string & type, const std::string & name,
+                     const IInterface* parent);
+
     /** @brief execute feature extraction for the EM Calorimeter
     *	second layer 
     *   @param[out] rtrigEmCluster is the output cluster.
     *   @param[in] eta/phi-min/max = RoI definition.
     */
-    StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
-				const CaloDetDescrElement*& caloDDE = caloReDDENull,
-                                const EventContext* context = nullptr ) const;
-
-    /** Special initialize for Samp2 to include eta as a
-	trigger timer item monitored parameter. Important
-	to compare time performance as a function of cluster
-	position.
-    */
-    StatusCode initialize() {
-		// Very important to call base class initialize
-                if ( IReAlgToolCalo::initialize().isFailure() ) {
-                	*(new MsgStream(AlgTool::msgSvc(), name()))
-			<< MSG::FATAL 
-			<< "Could not init base class IReAlgTooCalo" << endmsg;
-			return StatusCode::FAILURE;
-                }
-                std::string basename(name().substr(25,5)+".");
-		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-                //basename+=(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-		if (!m_timersvc.empty()) {
-                	m_timer[0]->propName(basename+"Eta");
-		}
-                return StatusCode::SUCCESS;
-    }
+    virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
+                               const CaloDetDescrElement*& caloDDE,
+                               const EventContext& context) const override;
 
   private:
     inline double etaSizeLArEMSamp2(const double eta, const int calo) const;

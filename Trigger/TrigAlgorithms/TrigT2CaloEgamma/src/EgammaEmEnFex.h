@@ -22,6 +22,9 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "GaudiKernel/AlgTool.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 /** Feature extraction Tool for LVL2 Calo. EM Presampler and
 	third EM Calorimeter sample. */
 class EgammaEmEnFex: public IAlgToolCalo {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -201,7 +201,7 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, &context ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, context ).isFailure() ) {
       (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       return StatusCode::FAILURE;
     }

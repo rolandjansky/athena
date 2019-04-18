@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,9 @@
 #include "CaloEvent/CaloCell.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "T2CaloEgamma.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class MsgStream;
 class TrigEMCluster; // I dont know if put the xAOD prefix here!

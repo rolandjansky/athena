@@ -26,6 +26,9 @@
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 //!=================================================================================
 const double RingerFex::ENERGY_THRESHOLD = 0.001;
 const double RingerFex::PI_THRESHOLD = 1.0;
