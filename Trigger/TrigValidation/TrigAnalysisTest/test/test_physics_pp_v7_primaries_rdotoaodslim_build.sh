@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to BS and BS to ESD test
+# art-description: Trigger v7 primaries RDO to AODSLIM
 # art-type: build
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
 # art-include: master/Athena
-# art-include: 21.1/AthenaP1
 # art-output: *check*
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
@@ -20,15 +17,12 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_rdotobstoesd_build"
+export NAME="physics_pp_v7_primaries_rdotoaodslim_build"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
-export MENU="MC_pp_v7"
+export MENU="Physics_pp_v7_primaries"
 export EVENTS="3"
-export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
+export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoAODSLIM.py"
 
 source exec_athena_art_trigger_validation.sh
-athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.BStoESD.${JOB_LOG#*.}
-echo "art-result: ${PIPESTATUS[0]} athena.BStoESD"
-
 source exec_art_triggertest_post.sh
