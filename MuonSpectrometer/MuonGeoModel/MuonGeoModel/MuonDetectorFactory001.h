@@ -62,7 +62,7 @@ public:
   inline void setMdtDeformationFlag(int mdtDeformationFlag);
   inline void setMdtAsBuiltParaFlag(int mdtAsBuiltParaFlag);
   inline void setFineClashFixingFlag(int value);
-    
+  inline void useCSC(bool value);
     
 private:
 
@@ -89,6 +89,7 @@ private:
   int m_mdtAsBuiltParaFlag;
   bool m_dumpMemoryBreakDown;  
   int m_enableFineClashFixing;
+  bool m_useCSC;
     
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
@@ -134,7 +135,7 @@ void MuonDetectorFactory001::setMdtDeformationFlag(int value){m_mdtDeformationFl
 void MuonDetectorFactory001::setMdtAsBuiltParaFlag(int value){m_mdtAsBuiltParaFlag = value;}
 void MuonDetectorFactory001::setDumpMemoryBreakDown(bool value){m_dumpMemoryBreakDown = value;}
 void MuonDetectorFactory001::setFineClashFixingFlag(int value){m_enableFineClashFixing = value;}
-    
+void MuonDetectorFactory001::useCSC(bool value){m_useCSC = value;}
     
 } // namespace MuonGM
 

@@ -41,6 +41,7 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_fillCache_initTime(0),
       m_dumpMemoryBreakDown(false),
       m_enableFineClashFixing(0),
+      m_useCSC(true),
       m_stationSelection(0),
       m_controlAlines(111111),
       m_dumpAlines(false),
@@ -71,6 +72,7 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
     declareProperty("DumpMemoryBreakDown"		, m_dumpMemoryBreakDown = false);
     //
     declareProperty("EnableFineClashFixing"		, m_enableFineClashFixing = 0);
+    declareProperty("UseCSC", m_useCSC);
     //
     declareProperty("StationSelection"			, m_stationSelection = 0);
     declareProperty("SelectedStations"			, m_selectedStations);
@@ -318,6 +320,7 @@ MuonDetectorTool::create()
         theFactory.setMdtDeformationFlag(m_enableMdtDeformations);
         theFactory.setMdtAsBuiltParaFlag(m_enableMdtAsBuiltParameters);
         theFactory.setFineClashFixingFlag(m_enableFineClashFixing);
+        theFactory.useCSC(m_useCSC);
         if ( m_stationSelection > 0 ) theFactory.setSelection(m_selectedStations, m_selectedStEta, m_selectedStPhi);
 		
         theFactory.setRDBAccess(access);
