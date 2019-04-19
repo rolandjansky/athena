@@ -25,8 +25,9 @@ DijetConditionMT::DijetConditionMT(double massMin,
 }
   
 
-bool DijetConditionMT::isSatisfied(const HypoJetVector& ips,
-                                   IConditionVisitor* visitor) const{
+bool
+DijetConditionMT::isSatisfied(const HypoJetVector& ips,
+                              std::unique_ptr<IConditionVisitor>& visitor) const{
 
   if(ips.size() != 2){
     std::stringstream ss;

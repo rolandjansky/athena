@@ -61,10 +61,16 @@ StatusCode  ClusterMakerTool::initialize(){
   // Code entered here will be executed once at program start.
 
    ATH_MSG_INFO ( name() << " initialize()" );
-   
-   ATH_CHECK(m_pixelCabling.retrieve());
-   ATH_CHECK(m_moduleDataKey.initialize());
-   ATH_CHECK(m_chargeDataKey.initialize());
+
+   if (not m_pixelCabling.empty()) {
+     ATH_CHECK(m_pixelCabling.retrieve());
+   }
+   if (not m_moduleDataKey.empty()) {
+     ATH_CHECK(m_moduleDataKey.initialize());
+   }
+   if (not m_chargeDataKey.empty()) {
+     ATH_CHECK(m_chargeDataKey.initialize());
+   }
 
    if (not m_pixelLorentzAngleTool.empty()) {
      ATH_CHECK(m_pixelLorentzAngleTool.retrieve());

@@ -9,8 +9,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
+
+from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
+from TrigUpgradeTest.InDetSetup import inDetSetup
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.precisionCaloSequenceSetup import precisionCaloMenuSequence
+
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now

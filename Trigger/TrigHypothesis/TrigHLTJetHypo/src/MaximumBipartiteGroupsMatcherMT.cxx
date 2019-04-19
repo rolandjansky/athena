@@ -26,9 +26,10 @@ MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(const Condition
   m_G(FlowNetwork(0)){
 }
   
-bool MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& jets_b,
-                                            const HypoJetGroupCIter& jets_e,
-                                            IConditionVisitor* visitor){
+bool
+MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& jets_b,
+                                       const HypoJetGroupCIter& jets_e,
+                                       std::unique_ptr<IConditionVisitor>& visitor){
   // setup a FlowNetwork with number of nodes = number of conditions
   // + number of jets + 2 (source and sink)
   int n_conditions = m_conditions.size();

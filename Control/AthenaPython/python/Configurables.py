@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: Configurables.py
 # @purpose: a set of Configurables for the PyAthena components
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 import AthenaCommon.Constants as Lvl
 from AthenaCommon.Configurable import *
@@ -99,7 +101,7 @@ class CfgPyAlgorithm( ConfigurableAlgorithm ):
         if not hasattr( svcMgr, 'PyComponentMgr' ):
             svcMgr += CfgMgr.PyAthena__PyComponentMgr('PyComponentMgr')
 
-        import PyAthena
+        from AthenaPython import PyAthena
         
         ## populate the PyComponents instances repository
         name = self.getJobOptName()
@@ -144,7 +146,7 @@ class CfgPyService( ConfigurableService ):
         if not hasattr( svcMgr, 'PyComponentMgr' ):
             svcMgr += CfgMgr.PyAthena__PyComponentMgr('PyComponentMgr')
         
-        import PyAthena
+        from AthenaPython import PyAthena
 
         ## populate the PyComponents instances repository
         name = self.getJobOptName()

@@ -440,11 +440,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       }
 
       ATH_MSG_INFO ( "set aliases" );
-      CHECK(m_evtStore->setAlias(pOverEvent, "EventInfo"));
       //add an alias to "OverlayEvent" (backward compatibility)
       CHECK(m_evtStore->setAlias(pOverEvent, "OverlayEvent"));
-      //add an alias to "MyEvent" (backward compatibility)
-      CHECK(m_evtStore->setAlias(pOverEvent, "MyEvent"));
 
       //FIXME at this point one may want to look into the original event
       //FIXME to decide whether to skip it or to do the pile-up

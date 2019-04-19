@@ -23,7 +23,7 @@ class IConditionMT {
  public:
   virtual ~IConditionMT(){}
   virtual bool isSatisfied(const HypoJetVector&,
-                           IConditionVisitor*) const = 0;
+                           std::unique_ptr<IConditionVisitor>&) const = 0;
   virtual std::string toString() const noexcept = 0;
 };
 

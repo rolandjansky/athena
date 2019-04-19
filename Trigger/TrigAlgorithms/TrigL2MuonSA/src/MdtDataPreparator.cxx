@@ -55,7 +55,6 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
    m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"), 
    m_regionSelector("RegSelSvc", name ), 
@@ -94,11 +93,16 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
      ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
       return sc;
    }
-   
-   ATH_CHECK( m_storeGateSvc.retrieve() );
+
+   // consistency check for decoding flag settings
+   if(m_decodeBS && !m_doDecoding) {
+     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
+     return StatusCode::FAILURE;
+   }
 
    ATH_MSG_DEBUG("Decode BS set to" << m_decodeBS );
-   if ( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+   // disable MDT Raw data provider if we either don't decode BS or don't decode MDTs
+   if ( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }).isFailure()) {
      ATH_MSG_ERROR("Failed to retrieve " << m_mdtRawDataProvider );
      return StatusCode::FAILURE;
    } else {
@@ -129,7 +133,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = m_muonMgr->mdtIdHelper();
    
-   ATH_CHECK( m_mdtPrepDataProvider.retrieve() );
+   // Disable MDT PRD converter if we don't do the MDT data decoding
+   ATH_CHECK( m_mdtPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
 
    // Retrieve ActiveStore
@@ -154,7 +159,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
      }
    }
 
-   ATH_CHECK(m_mdtCsmContainerKey.initialize());
+   
+   // pass the flags that determine if we run the actual decoding here so we don't create a data dependency if it is not needed
+   ATH_CHECK(m_mdtCsmContainerKey.initialize(m_decodeBS && m_doDecoding));
 
    ATH_CHECK(m_mdtPrepContainerKey.initialize());
    
@@ -910,17 +917,19 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 								       TrigL2MuonSA::MdtHits& mdtHits,
 								       const TrigL2MuonSA::MuonRoad& muonRoad)
 {    
-  if(m_decodeBS) {
-    if ( m_mdtRawDataProvider->convert(v_robIds).isFailure()) {
-      ATH_MSG_WARNING("Conversion of BS for decoding of MDTs failed");
+  if(m_doDecoding) {
+    if(m_decodeBS) {
+      if ( m_mdtRawDataProvider->convert(v_robIds).isFailure()) {
+        ATH_MSG_WARNING("Conversion of BS for decoding of MDTs failed");
+      }
     }
-  }
-  if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
-    ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
-  }
-  else{
-    ATH_MSG_WARNING("Error in ROB based decoding");
-    return StatusCode::FAILURE;
+    if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
+      ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
+    }
+    else{
+      ATH_MSG_WARNING("Error in ROB based decoding");
+      return StatusCode::FAILURE;
+    }
   }
   
   // Get MDT container                                                                                                                                    

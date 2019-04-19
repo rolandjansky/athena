@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_LINKTOTRACK_H
@@ -27,7 +27,7 @@ namespace Trk
     LinkToTrack( ElementLink<TrackCollection>& link );
     
     /** default destructor */
-    virtual ~LinkToTrack();
+    virtual ~LinkToTrack() = default;
    
     /** return the track parameters of the track (to which the EL< TrackCollection > points) */
     const TrackParameters* parameters() const;
@@ -38,8 +38,6 @@ namespace Trk
     /** method to clone the LinkToTrack object */
     LinkToTrack * clone() const ;
     
-    /** assignment operator */
-    Trk::LinkToTrack& operator= ( const Trk::LinkToTrack& rhs );
     // This is here to make sure that the TrackCollection typedef
     // will make it into the dictionary.
     typedef TrackCollection TrackCollectionForDict;

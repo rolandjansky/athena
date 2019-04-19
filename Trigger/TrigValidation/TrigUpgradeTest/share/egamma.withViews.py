@@ -4,29 +4,12 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
-from InDetRecExample.InDetKeys import InDetKeys
+from TrigUpgradeTest.InDetSetup import inDetSetup
+inDetSetup()
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",
@@ -54,10 +37,11 @@ def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
    __l1RoIDecisions = "RerunL1EM" if rerun else "L1EM"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
+   
+   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+   clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )   
 
-   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-   #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
-   clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
+
    clusterMaker.ClustersName=clustersKey
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
@@ -94,7 +78,6 @@ def createFastCaloSequence(rerun=False):
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
    fastCaloHypo.HypoOutputDecisions = __prefix+"EgammaCaloDecisions"
    fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c,c ) for c in testChains ]
-
    fastCaloSequence = seqAND( __prefix+"fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, fastCaloHypo ])
    #if rerun: 
    #   return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )

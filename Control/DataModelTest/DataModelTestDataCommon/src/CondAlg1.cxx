@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -57,11 +57,7 @@ StatusCode CondAlg1::execute (const EventContext& ctx) const
 
   SG::WriteCondHandle<DMTest::S2> scond (m_scondKey, ctx);
   auto s2 = std::make_unique<DMTest::S2> (xint*100);
-  StatusCode sc = scond.record (range, std::move(s2));
-  ATH_CHECK( sc );
-  if (CondContBase::Category::isDuplicate (sc)) {
-    ATH_CHECK( scond.extendLastRange (range, ctx) );
-  }
+  ATH_CHECK( scond.record (range, std::move(s2) ) );
 
   return StatusCode::SUCCESS;
 }

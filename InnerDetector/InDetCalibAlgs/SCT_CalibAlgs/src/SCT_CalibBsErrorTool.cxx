@@ -36,15 +36,7 @@ static const int firstBSErrorType{0};
 static const int lastBSErrorType{14};
 
 SCT_CalibBsErrorTool::SCT_CalibBsErrorTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_pSCTHelper{nullptr},
-  m_scterr_bec{0},
-  m_scterr_layer{0},
-  m_scterr_eta{0},
-  m_scterr_phi{0},
-  m_scterr_side{0},
-  m_scterr_type{0},
-  m_maxHash{0}
+  base_class(type, name, parent)
 {
 }
 

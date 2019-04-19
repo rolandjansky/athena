@@ -56,50 +56,9 @@ const bool becCapsFormat{true};
 const bool becUnderscoreFormat{false};
 
 SCTCalibWriteTool::SCTCalibWriteTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type, name, parent),
-  m_eventInfoKey{"ByteStreamEventInfo"},
-  m_mutex{},
-  m_attrListColl{nullptr},
-  m_attrListColl_deadStrip{nullptr},
-  m_attrListColl_deadChip{nullptr},
-  m_attrListColl_eff{nullptr},
-  m_attrListColl_no{nullptr},
-  m_attrListColl_RawOccu{nullptr},
-  m_attrListColl_BSErr{nullptr},
-  m_attrListColl_LA{nullptr},
-  m_version{0},
-  m_regSvc{nullptr},
-  m_streamer{nullptr},
-  m_defectRecorded{false},
-  m_deadStripRecorded{false},
-  m_deadChipRecorded{false},
-  m_effRecorded{false},
-  m_noRecorded{false},
-  m_RawOccuRecorded{false},
-  m_BSErrRecorded{false},
-  m_LARecorded{false},
-  m_pHelper{nullptr}
-  {
-    declareProperty("WriteCondObjs",        m_writeCondObjs=true);
-    declareProperty("RegisterIOV",          m_regIOV=true);
-    declareProperty("ReadWriteCool",        m_readWriteCool=true);
-    declareProperty("TwoStepWriteReg",      m_twoStepWriteReg=false);
-    declareProperty("ManualIOV",            m_manualiov=true);
-
-    declareProperty("BeginRun",             m_beginRun=IOVTime::MINRUN);
-    declareProperty("EndRun",               m_endRun=IOVTime::MAXRUN);
-    //string properties:
-    declareProperty("StreamName",           m_streamName="CondStreamTest");
-    declareProperty("TagID4NoisyStrips",    m_tagID4NoisyStrips);
-    declareProperty("TagID4DeadStrips",     m_tagID4DeadStrips);
-    declareProperty("TagID4DeadChips",      m_tagID4DeadChips);
-    declareProperty("TagID4Efficiency",     m_tagID4Efficiency);
-    declareProperty("TagID4NoiseOccupancy", m_tagID4NoiseOccupancy);
-    declareProperty("TagID4RawOccupancy",   m_tagID4RawOccupancy);
-    declareProperty("TagID4BSErrors",       m_tagID4BSErrors);
-    declareProperty("TagID4LorentzAngle",   m_tagID4LorentzAngle);
-
-  }
+  AthAlgTool(type, name, parent)
+{
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
