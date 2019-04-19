@@ -16,9 +16,11 @@ class IPileUpTool;
 class MergeMMSimHitColl : public AthAlgorithm {
 public:
   MergeMMSimHitColl(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize() override final;
-  StatusCode execute() override final;
-  StatusCode finalize() override final;
+  virtual ~MergeMMSimHitColl();
+
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 private:
   ToolHandle<IPileUpTool> m_mergeTool;
 };

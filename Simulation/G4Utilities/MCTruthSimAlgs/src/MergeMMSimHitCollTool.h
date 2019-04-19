@@ -27,6 +27,7 @@ public:
   MergeMMSimHitCollTool(const std::string& type,
                            const std::string& name,
                            const IInterface* parent);
+  virtual ~MergeMMSimHitCollTool();
   ///called before the event loop
   virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access

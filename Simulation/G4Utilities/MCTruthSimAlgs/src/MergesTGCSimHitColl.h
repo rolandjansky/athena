@@ -16,9 +16,11 @@ class IPileUpTool;
 class MergesTGCSimHitColl : public AthAlgorithm {
 public:
   MergesTGCSimHitColl(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize() override final;
-  StatusCode execute() override final;
-  StatusCode finalize() override final;
+  virtual ~MergesTGCSimHitColl();
+
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 private:
   ToolHandle<IPileUpTool> m_mergeTool;
 };
