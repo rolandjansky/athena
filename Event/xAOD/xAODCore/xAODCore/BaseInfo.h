@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BaseInfo.h 611441 2014-08-12 14:53:49Z krasznaa $
@@ -28,7 +28,7 @@
 ///
 /// All the xAOD packages should use this header for declaring SG inheritance
 /// relationships for their classes, instead of pulling in these macros from
-/// SGTools directly.
+/// AthenaKernel directly.
 ///
 /// $Revision: 611441 $
 /// $Date: 2014-08-12 16:53:49 +0200 (Tue, 12 Aug 2014) $
@@ -55,7 +55,7 @@
 #else // not XAOD_STANDALONE
 
 // Pull in the proper macro definitions
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #endif // not XAOD_STANDALONE
 
