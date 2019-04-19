@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALOHVCORRECTIONSFORDB_H
 #define L1CALOHVCORRECTIONSFORDB_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
@@ -14,7 +17,6 @@
 // forward declrations
 class L1CaloRxLayersContainer;
 class L1CaloHVCorrectionsContainer;
-class ILArHVCorrTool;
 
 namespace LVL1{
   class IL1TriggerTowerTool;
@@ -45,7 +47,10 @@ class L1CaloHVCorrectionsForDB : public AthAlgorithm
     ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
     ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
     ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_jmTools;
-    ToolHandle<ILArHVCorrTool> m_LArHVCorrTool;
+    SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+    { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
 
     boost::scoped_ptr<L1CaloRxLayersContainer> m_rxLayersContainer;
     boost::scoped_ptr<L1CaloHVCorrectionsContainer> m_hvCorrectionsContainer;
