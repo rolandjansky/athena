@@ -81,7 +81,7 @@ class TriggerConfigLVL1:
             
     ## Thresholds
     def registerThr(self, name, type, mapping=-1, active=1,
-                    seed='', seed_ttype='', seed_multi=0, bcdelay=0 ):
+                    seed='', seed_ttype='', seed_multi=0, bcdelay=0, run=0 ):
         """
         Add LVL1 thresholds with the given type and mapping and store
         it in the list of available thresholds.
@@ -100,7 +100,7 @@ class TriggerConfigLVL1:
         from l1.Lvl1Thresholds import LVL1Threshold
         thr = LVL1Threshold( name, type,
                              mapping = mapping, active = active,
-                             seed_type = seed_ttype, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay
+                             seed_type = seed_ttype, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay, run = run
                              )
 
         self.registeredThresholds[name] = thr

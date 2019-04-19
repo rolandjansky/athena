@@ -796,8 +796,6 @@ class rerunLVL1(_modifier):
     
     def preSetup(self):
 
-        log.info("JOERG Seeting up rerunLVL1 for Run 2")
-
         if rerunLVL1PhaseI.wasExecuted():
             raise RuntimeError("ERROR modifiers 'rerunLVL1PhaseI' and 'rerunLVL1' have both been set, but they are exclusive. Please specify only one")
         rerunLVL1.__wasExecuted = True
@@ -910,18 +908,15 @@ class rerunLVL1PhaseI(_modifier):
     def wasExecuted(cls):
         return cls.__wasExecuted
 
-    def postSetup(self):
+    def preSetup(self):
         if rerunLVL1.wasExecuted():
             raise RuntimeError("ERROR modifiers 'rerunLVL1PhaseI' and 'rerunLVL1' have both been set, but they are exclusive. Please specify only one")
-        rerunLVL1.__wasExecuted = True
+        rerunLVL1PhaseI.__wasExecuted = True
         log = logging.getLogger('Modifiers.py:rerunLVL1PhaseI')
-        log.info("JOERG setting up rerunLVL1 for Run 3")
+        log.info("enabling L1Calo Phase-I simulation by setting doLVL1PhaseI=True")
+        TriggerFlags.doLVL1PhaseI.set_Value_and_Lock(True)
 
-        from AthenaCommon.Include import include
-        include("TrigT1CaloFexSim/createL1SimulationSequenceBS.py")
-
-
-        # def postSetup(self):
+    def postSetup(self):
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
             "MuCTPI_RIO/MUCTPI_RIO",
             "CTP_RIO/CTP_RIO"

@@ -48,6 +48,7 @@ TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvc
   	declareProperty("RHadThreshold", m_RHad_thresh = 0.16);
   	declareProperty("L1WidthThreshold", m_L1Width_thresh = 0.02);
   	declareProperty("EtaThresholdToApplyL1Width", m_eta_dropL1Width = 2.3);
+	declareProperty("UseREtaL12", m_use_REtaL12 = false);
 }
 
 StatusCode TrigT1CaloBaseFex::initialize(){
@@ -591,12 +592,10 @@ float TrigT1CaloBaseFex::CaloCellET(CaloCell* const &inputCell, float digitScale
 	else return 0.;
 }
 
-CaloCell* TrigT1CaloBaseFex::returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer){
-	for (auto iCell : *cellContainer){
-	  bool sameIndices = (iCell->ID() == inputID);
-	  if (sameIndices) return iCell;
-	}
-	return NULL;
+CaloCell* TrigT1CaloBaseFex::returnCellFromCont(Identifier inputID, const CaloCellContainer* &cellContainer, const CaloCell_SuperCell_ID* &idHelper){
+	CaloCell* isCell = const_cast<CaloCell*>(cellContainer->findCell(idHelper->CaloCell_SuperCell_ID::calo_cell_hash(inputID)));
+	if (isCell) return isCell;
+	else return NULL;
 }
 
 CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upwards, const CaloCellContainer* &cellContainer, const CaloCell_SuperCell_ID* &idHelper){
@@ -695,7 +694,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_Barrel(CaloCell* inputCell, bool upward
         // Form identifier, find cell & return it
         // sub_calo, left_pos_neg, 2, region, eta_index, down_phi_index
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, ithPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);      
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);      
         if (nextCell == NULL) {
 		msg << MSG::WARNING << "ERROR: " << __LINE__ << endreq;
 		msg << MSG::WARNING << "Barrel Tracker = " << tracker << endreq;
@@ -865,7 +864,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_OW(CaloCell*inputCell, bool upwards, co
 		tracker = 11;
         }
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell == NULL) {
 		msg << MSG::WARNING << "ERROR: "<<__LINE__<< endreq;
 		msg << MSG::WARNING << "OW Tracker = "<<tracker<< endreq;
@@ -962,7 +961,7 @@ CaloCell* TrigT1CaloBaseFex::NextEtaCell_IW(CaloCell*inputCell, bool upwards, co
 		nextEta_index=ithEta_index+incrementEta;
         }
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(nextSub_calo, nextPos_neg, ithSampling, nextRegion, nextEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell && (nextCell->ID() != nextCellID)) msg << MSG::WARNING <<__LINE__<<" does not match" << endreq;
         return nextCell;
 }
@@ -1025,7 +1024,7 @@ CaloCell* TrigT1CaloBaseFex::NextPhiCell(CaloCell*inputCell, bool upwards, const
 
         const int nextPhi_index = restrictPhiIndex(ithPhi_index+incrementPhi, is64);
         Identifier nextCellID = idHelper->CaloCell_SuperCell_ID::cell_id(ithSub_calo, ithPos_neg, ithSampling, ithRegion, ithEta_index, nextPhi_index);
-        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer);
+        CaloCell* nextCell = returnCellFromCont(nextCellID, cellContainer, idHelper);
         if (nextCell && (nextCell->ID() != nextCellID)) msg << MSG::WARNING << __LINE__ << " does not match" << endreq;
         if (nextCell == NULL) msg << MSG::WARNING << "Next phi cell is NULL at " << __LINE__ << endreq;
         return nextCell;
@@ -1182,7 +1181,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
 		tracker = 2;
 		for (unsigned int i = 0; i < 3; i++){
 		  Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, region, i, phi_index);
-		  CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+		  CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
 		  addOnce(resultCell,outputVector);
 		}
         }
@@ -1224,7 +1223,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
                         for (unsigned int  i = 0; i < 2; i++){
                           outputEta = i+eta_index - offset;
                           Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, outputRegion, outputEta, phi_index);
-                          CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+                          CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                           addOnce(resultCell,outputVector);
                         }
                 } 
@@ -1245,7 +1244,7 @@ void TrigT1CaloBaseFex::fromLayer2toLayer1(const CaloCellContainer* &inputContai
         }
         if (oneCell){
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 1, outputRegion, outputEta, phi_index);
-                CaloCell* resultCell = returnCellFromCont(resultID, inputContainer);
+                CaloCell* resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 addOnce(resultCell,outputVector);
         }
         //msg << MSG::DEBUG << "L2->L1 tracker = " << tracker << endreq;
@@ -1274,19 +1273,19 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toPS(const CaloCellContainer* &inputConta
         if (abs(pos_neg)==1 && region ==0){
                 int outputEta = eta_index/4;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 1;  
         }
         else if (abs(pos_neg)==1 && region ==1){
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, 0, 14, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 2;
         }
         else if (abs(pos_neg)==2 && region ==1){
                 outputEta = (eta_index - 3)/4;
                 outputRegion = 0;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 0, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer); 
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 3;
         }
         //msg << MSG::DEBUG << "L2->PS tracker = " << tracker << endreq;
@@ -1317,14 +1316,14 @@ CaloCell* TrigT1CaloBaseFex::fromLayer2toLayer3(const CaloCellContainer* &inputC
         if (abs(pos_neg)==1 && region ==0){
                 int outputEta = eta_index/4;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 3, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer);
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper);
                 tracker = 1;  
         }
         else if (abs(pos_neg)==2 && region ==1){
                 outputEta = (eta_index - 3)/4;
                 outputRegion = 0;
                 Identifier resultID = idHelper->CaloCell_SuperCell_ID::cell_id(sub_calo, pos_neg, 3, outputRegion, outputEta, phi_index);
-                resultCell = returnCellFromCont(resultID, inputContainer); 
+                resultCell = returnCellFromCont(resultID, inputContainer, idHelper); 
                 tracker = 2;
         }
         //msg << MSG::DEBUG << "L2->L3 tracker = " << tracker << endreq;
@@ -1449,6 +1448,37 @@ double TrigT1CaloBaseFex::REta(CaloCell* centreCell, int etaWidth1, int phiWidth
         // Finds ET of windows
         double inner_ET = L2clusET(centreCell, etaWidth1, phiWidth1, scells, idHelper, digitScale, digitThresh);
         double outer_ET = L2clusET(centreCell, etaWidth2, phiWidth2, scells, idHelper, digitScale, digitThresh);
+        // Find normal value of REta & changes it to my version
+        double normal_REta;
+        if (inner_ET != 0. && outer_ET==0.) normal_REta = 0.;
+        else if (inner_ET==0.) normal_REta = 0.;
+        else normal_REta = inner_ET / outer_ET;
+        if (normal_REta < 0) normal_REta = 0.;
+        double my_REta = 1-normal_REta;
+        return my_REta;
+}
+
+double TrigT1CaloBaseFex::REtaL12(CaloCell* centreCell, int etaWidth1, int phiWidth1, int etaWidth2, int phiWidth2, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh){
+	MsgStream msg(msgSvc(), name());
+	// Check windows sizes are right way round
+        if (etaWidth1 > etaWidth2) msg << MSG::WARNING << "REta ERROR: eta1 = " << etaWidth1 << ", eta2 = " << etaWidth2 << endreq;
+        if (phiWidth1 > phiWidth2) msg << MSG::WARNING << "Rphi ERROR: phi1 = " << phiWidth1 << ", phi2 = " << phiWidth2 << endreq;
+        // Finds ET of windows
+        double inner_ET = L2clusET(centreCell, etaWidth1, phiWidth1, scells, idHelper, digitScale, digitThresh);
+        double outer_ET = L2clusET(centreCell, etaWidth2, phiWidth2, scells, idHelper, digitScale, digitThresh);
+	// Find corresponding L1 cells, calculate the L1 ET and add them to L2 ET
+        std::vector<CaloCell*> L2cells_inner = L2cluster(centreCell, etaWidth1, phiWidth1, scells, idHelper,digitScale, digitThresh);
+        std::vector<CaloCell*> L1cells_inner;
+        for (auto ithL2Cell : L2cells_inner){
+          fromLayer2toLayer1(scells, ithL2Cell, L1cells_inner, idHelper);
+        }
+        inner_ET += sumVectorET(L1cells_inner, digitScale, digitThresh);
+        std::vector<CaloCell*> L2cells_outer = L2cluster(centreCell, etaWidth2, phiWidth2, scells, idHelper,digitScale, digitThresh);
+        std::vector<CaloCell*> L1cells_outer;
+        for (auto ithL2Cell : L2cells_outer){
+          fromLayer2toLayer1(scells, ithL2Cell, L1cells_outer, idHelper);
+        }
+        outer_ET += sumVectorET(L1cells_outer, digitScale, digitThresh);
         // Find normal value of REta & changes it to my version
         double normal_REta;
         if (inner_ET != 0. && outer_ET==0.) normal_REta = 0.;
@@ -1613,6 +1643,7 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
         // Loops through and find L2 SCs that are local maxes and adds to list of local maxes if cluster ET is at least 10GeV
         std::vector<CaloCell*> potentialCentres;
         for (auto ithCell : *SCs){
+	  if ( !(fabs(CaloCellET(ithCell, m_nominalDigitization, m_nominalNoise_thresh)) > 0) ) continue;
           Identifier ithID = ithCell->ID();
           int ithLayer = idHelper->sampling(ithID);
           if (ithLayer != 2) continue;
@@ -1645,15 +1676,22 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
             float ithEta = ithCell->eta();
             float ithPhi = ithCell->phi();
             float clustET = EMClusET(ithCell, m_etaWidth_TDRCluster, m_phiWidth_TDRCluster, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1000.;
-            float ithREta = REta(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);    
+            float ithREta = REta(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
             float ithRHad = RHad(ithCell, m_etaWidth_RHadIsolation, m_phiWidth_RHadIsolation, SCs, TTs, idHelper, m_nominalDigitization, m_nominalNoise_thresh, HadET);
             float ithL1Width = L1Width(ithCell, m_etaWidth_wstotIsolation, m_phiWidth_wstotIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
 	    float L2ClusterET33 = L2clusET(ithCell, 3, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
 	    float L2ClusterET37 = L2clusET(ithCell, 7, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
-            std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
-            result.push_back(ithResult);
-            }
+            if (!m_use_REtaL12){ 
+		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
+		    result.push_back(ithResult);
+	    }
+	    else {
+		    float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
+		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37, ithREtaL12};
+		    result.push_back(ithResult);
+	    }
           }
+        }
         return result;
 }
 

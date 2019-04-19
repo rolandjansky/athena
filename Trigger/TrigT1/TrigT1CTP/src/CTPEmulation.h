@@ -15,16 +15,22 @@
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 
 // data
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Interfaces/MuCTPICTP.h"
+#include "TrigT1Interfaces/EmTauCTP.h"
+#include "TrigT1Interfaces/JetCTP.h"
+#include "TrigT1Interfaces/EnergyCTP.h"
+#include "TrigT1Interfaces/FrontPanelCTP.h"
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
+#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
 
 // internal
 #include "TrigT1CTP/ThresholdMap.h"
@@ -124,15 +130,19 @@ namespace LVL1CTP {
       const DataHandle< xAOD::JetRoIContainer > m_jLJet;          //!< large jets from jFEX 
 
 
-      // old ROI collections
+      // Inputs from old L1Calo and L1Muon
+      // from MC
       const DataHandle< xAOD::MuonRoIContainer > m_muonRoIs;
-      const DataHandle< xAOD::JetRoIContainer > m_lgJetRoIs;
+      const DataHandle< xAOD::JetRoIContainer >  m_lgJetRoIs;
+      const DataHandle< LVL1::MuCTPICTP >        m_muctpiCTP;        //!< MUCTPI input
+      const DataHandle< LVL1::EmTauCTP >         m_emtauCTP;         //!< EmTau input
+      const DataHandle< LVL1::JetCTP >           m_jetCTP;           //!< Jet input
+      const DataHandle< LVL1::EnergyCTP >        m_energyCTP;        //!< Energy input
+      const DataHandle< LVL1::FrontPanelCTP >    m_topoCTP;          //!< Topo input
 
-      // from BS
+      // from data
       const ROIB::RoIBResult * m_roibResult { nullptr };
 
-      // Other inputs to the simulations
-      const DataHandle< LVL1::MuCTPICTP > m_muctpiCTP;
 
       // properties
       BooleanProperty m_useCTPInput { false };
@@ -155,6 +165,11 @@ namespace LVL1CTP {
 
       // name of the CTP input words
       StringProperty m_muonCTPLoc {""};
+      StringProperty m_emtauCTPLoc { LVL1::TrigT1CaloDefs::EmTauCTPLocation };
+      StringProperty m_jetCTPLoc { LVL1::TrigT1CaloDefs::JetCTPLocation };
+      StringProperty m_energyCTPLoc { LVL1::TrigT1CaloDefs::EnergyCTPLocation };
+      StringProperty m_topoCTPLoc { LVL1::DEFAULT_L1TopoCTPLocation };
+
 
       // output locations and control
       BooleanProperty m_isData { false };

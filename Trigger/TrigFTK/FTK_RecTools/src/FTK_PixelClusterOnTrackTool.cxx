@@ -423,8 +423,8 @@ FTK_PixelClusterOnTrackTool::correctDefault
     InDetDD::SiLocalPosition centroid = pix->localPosition();
     double shift = element->getLorentzCorrection();
     int nrows = pix->width().colRow()[Trk::locX];
-    int ncol = pix->width().colRow()[Trk::locX];
-    double ang = 999.;
+    int ncol = pix->width().colRow()[Trk::locY];
+    double ang = 180 * angle * M_1_PI;
     double eta = 999.;
     ATH_MSG_VERBOSE(" row " << row << " col " << col << " nrows " << nrows << 
 		    " ncol " << ncol << " locX " << centroid.xPhi() << " locY " << centroid.xEta());
