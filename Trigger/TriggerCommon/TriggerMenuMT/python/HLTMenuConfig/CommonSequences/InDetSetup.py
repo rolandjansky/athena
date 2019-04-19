@@ -13,9 +13,13 @@ class InDetCacheNames:
   PixRDOCacheKey     = "PixRDOCache"
 
 
-def makeInDetAlgs( whichSignature='' ):
+def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
+  if signature != "" and separateTrackParticleCreator == "":
+    separateTrackParticleCreator = signature
+    
+    
 
 
   eventAlgs = []
@@ -249,11 +253,11 @@ def makeInDetAlgs( whichSignature='' ):
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                           doIBLresidual = False,
-                                                           TrackName = "TrigFastTrackFinder_Tracks",
-                                                           TrackParticlesName = recordable("HLT_xAODTracks"),
-                                                           ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + separateTrackParticleCreator,
+                                                            doIBLresidual = False,
+                                                            TrackName = "TrigFastTrackFinder_Tracks",
+                                                            TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),
+                                                            ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   viewAlgs.append(theTrackParticleCreatorAlg)
 

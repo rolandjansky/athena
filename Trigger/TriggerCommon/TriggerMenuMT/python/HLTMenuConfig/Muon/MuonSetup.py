@@ -8,7 +8,7 @@ muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
 muEFSAInfo = "Muons"
 muL2ISInfo = "MuonL2ISInfo"
-TrackParticlesName = recordable("HLT_xAODTracks")
+TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
 def makeMuonPrepDataAlgs(forFullScan=False):
@@ -340,7 +340,7 @@ def muCombRecoSequence( RoIs ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs()
+  (viewAlgs, eventAlgs) = makeInDetAlgs(separateTrackParticleCreator="_Muon")
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF_Muon = TrigFastTrackFinder_Muon()
@@ -352,7 +352,7 @@ def muCombRecoSequence( RoIs ):
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muFastInfo)]
   viewAlgs.append(ViewVerify)
-
+  global TrackParticlesName
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muCombRecoSequence += viewAlg
@@ -378,7 +378,7 @@ def muCombRecoSequence( RoIs ):
 
 
 def l2muisoRecoSequence( RoIs ):
-
+  global TrackParticlesName
   import AthenaCommon.CfgMgr as CfgMgr
   from AthenaCommon.CFElements import parOR
 

@@ -53,7 +53,7 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#L1MET',                'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1J',                  'BS ESD AODFULL AODSLIM', 'Steer'),
 
-
+    # Egamma
 
 
     ('xAOD::TrigEMClusterContainer#HLT_L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
@@ -63,9 +63,17 @@ TriggerHLTList = [
     ('xAOD::TrigElectronContainer#HLT_L2Electrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
 
-    # crashesdds in finalisation when enabled
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',          'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Electron',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.',          'BS ESD AODFULL', 'Egamma'),
+
+
+    # Muon
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Muon',                 'BS ESD AODFULL', 'Muon', 'inViews:EMCombViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonAux.',          'BS ESD AODFULL', 'Muon'),
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonFS',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonFSAux.',          'BS ESD AODFULL', 'Muon'),
 
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),

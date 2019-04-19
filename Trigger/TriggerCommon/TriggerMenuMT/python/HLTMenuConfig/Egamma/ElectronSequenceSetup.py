@@ -15,7 +15,7 @@ def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
+    (viewAlgs, eventAlgs) = makeInDetAlgs( separateTrackParticleCreator="_Electron")
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 
     theFTF = TrigFastTrackFinder_eGamma()
@@ -32,7 +32,7 @@ def electronSequence(ConfigFlags):
     
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
-        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
       
       
