@@ -1505,8 +1505,8 @@ def setupMenu():
         ['2e5_lhmedium_nod0_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_2EM3','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial', -1,["2e5_lhmedium_nod0","j70","j50_0eta490_invm900j50"]]],
         ['2mu6_2j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_2MU6',''], [PhysicsStream], ['Legacy:Primary','RATE:MuonJet', 'BW:Muon', 'BW:Jet'], -1, ['serial', -1,["2mu6","2j50_0eta490_invm900j50"]]],
 
-        ['tau25_medium1_tracktwo_tau20_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_medium1_tracktwo","tau20_medium1_tracktwo","j70","j50_0eta490_invm900j50"]]],
-        ['tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA","tau20_mediumRNN_tracktwoMVA","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_medium1_tracktwo_tau20_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_medium1_tracktwo","tau20_medium1_tracktwo","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA","tau20_mediumRNN_tracktwoMVA","j70","j50_0eta490_invm900j50"]]],
 
 
         ['e10_lhmedium_nod0_ivarloose_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_EM8VH','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial', -1,["e10_lhmedium_nod0_ivarloose","j70","j50_0eta490_invm900j50"]]],
@@ -1528,11 +1528,11 @@ def setupMenu():
 
 
         ['2e5_lhmedium_nod0_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_2EM3','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial', -1,["2e5_lhmedium_nod0","j70","j50_0eta490_invm900j50"]]],
-        ['2mu6_2j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_2MU6',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial', -1,["2mu6","2j50_0eta490_invm900j50"]]],
+        ['2mu6_2j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_2MU6',''], [PhysicsStream], ['Legacy:Primary','RATE:MuonJet', 'BW:Muon', 'BW:Jet'], -1, ['serial', -1,["2mu6","2j50_0eta490_invm900j50"]]],
 
 
-        ['tau25_medium1_tracktwo_tau20_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_medium1_tracktwo","tau20_medium1_tracktwo","j70","j50_0eta490_invm900j50"]]],
-        ['tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA","tau20_mediumRNN_tracktwoMVA","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_medium1_tracktwo_tau20_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_medium1_tracktwo","tau20_medium1_tracktwo","j70","j50_0eta490_invm900j50"]]],
+        ['tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_j70_j50_0eta490_invm900j50_L1MJJ-700', 'L1_MJJ-700', ['L1_TAU12IM','L1_TAU12IM','',''], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_mediumRNN_tracktwoMVA","tau20_mediumRNN_tracktwoMVA","j70","j50_0eta490_invm900j50"]]],
 
 
         # b-jet+MET ATR-17678

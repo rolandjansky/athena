@@ -106,8 +106,12 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
 
        corrfactor = LUTobj.getcorrKF(ipt,jeta);   
 
-       auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(/*abs*/(parType_t((*tob)->phi()))));
-       auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at(/*abs*/(parType_t((*tob)->phi()))));
+       //check phi coordinates, the range is supposed to be mapped to [0,63] but not true anymore in new MET (gXERHO_MET)
+       int phi_coordinate = (*tob)->phi();
+       if( phi_coordinate<0 ) phi_coordinate = 64+phi_coordinate;
+
+       auto cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at( parType_t(phi_coordinate) ));
+       auto sinphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Sin.at( parType_t(phi_coordinate) ));
 
        summetx += (-1.)*(*tob)->Et()*float(cosphi)*corrfactor ;
        summety += (-1.)*(*tob)->Et()*float(sinphi)*corrfactor ;

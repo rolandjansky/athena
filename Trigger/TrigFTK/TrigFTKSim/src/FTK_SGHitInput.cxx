@@ -843,8 +843,15 @@ FTK_SGHitInput::construct_truth_bitmap( const HepMC::GenParticle* particle ) con
     if( std::abs(p->pdg_id())==211 && level<=1 ) { result.set( PION_IMMEDIATE_PARENT_BIT , 1 ); }
     if( result.count()==NBITS ) { break; }
     parents.pop_back();
-    if( !(p->production_vertex()) ) { continue; }
+    if( p->production_vertex() == nullptr ) { continue; }
     for( HepMC::GenVertex::particle_iterator i=p->production_vertex()->particles_begin(HepMC::parents), f=p->production_vertex()->particles_end(HepMC::parents); i!=f; ++i ) {
+        // In some older sherpa samples, the parent record is broken
+        // This is identifiable by the "end" iterator above being nullptr
+        // The best thing to do in this situation is just break, and abort the search for further parents
+        if((*f)==nullptr){
+          m_log << MSG::INFO << "Bad truth record, aborting parent search"<< endmsg;
+          break;
+        }
       parents.push_back( Parent(*i,level+1) );
     }
   }

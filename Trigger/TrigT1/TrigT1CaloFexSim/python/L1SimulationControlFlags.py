@@ -17,7 +17,12 @@ _glflags = list()
 
 
 class SCellType(JobProperty):
-    """ String which contains the chosen approach to supercell creation: Pulse, Emulated, BCID """
+    """ String which contains the chosen approach to supercell creation: Pulse, Emulated, BCID
+    Pulse:    Fully simulated supercells, from supercell pulse
+    BCID:     Fully simulated supercells with applied BCID corrections (this is the only kind of supercell where we apply BCID corrections)
+    Emulated: Supercells reconstructed from the ET sum of the constituent calo cells
+              (this disables ApplySCQual)
+    """
     statusOn = True
     allowedType = ['str']
     StoredValue = "Pulse"
@@ -29,7 +34,10 @@ _caloflags.append(SCellType)
 
 
 class QualBitMask(JobProperty):
-    """ int bitmask to be used for quality requirements """
+    """ int bitmask to be used for quality requirements
+    0x40:  Corresponds to the peak finder (BCID maximum) approach, implemented per supercell
+    0x200: Corresponds to the ET*time requirement, implemented per supercell
+    """
     statusOn = True
     allowedType = ['int']
     StoredValue = 0x200
@@ -45,7 +53,7 @@ _caloflags.append(ComputeEFexClusters)
 
 
 class ApplySCQual(JobProperty):
-    """ ComputeClusters """
+    """ ? """
     statusOn = True
     allowedType = ['bool']
     StoredValue = True
@@ -73,17 +81,21 @@ _ctpflags.append(RunCTPEmulation)
 # global
 
 class OutputHistFile(JobProperty):
-    """ Location of output root file """
+    """ Location of output root file
+    If this is changed to a different filename, 
+    then something else than EXPERT should be used, 
+    and some L1 algorithms need to change the hist stream
+    """
     statusOn = True
     allowedType = ['str']
-    StoredValue = "L1Sim#l1simulation.root"
+    StoredValue = "EXPERT#expert-monitoring.root"
 _glflags.append(OutputHistFile)
 
 class EnableDebugOutput(JobProperty):
     """ To enable DEBUG or VERBOSE output for specific algorithms """
     statusOn = True
     allowedType = ['bool']
-    StoredValue = True
+    StoredValue = False
 _glflags.append(EnableDebugOutput)
 
 
