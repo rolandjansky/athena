@@ -24,7 +24,7 @@
 from PyUtils.flake8_atlas import utils
 import re
 import tokenize
-
+import ast
 
 def import_normalize(line):
     # convert "from x import y" to "import x.y"
@@ -58,7 +58,7 @@ def hacking_python3x_octal_literals(logical_line, tokens, noqa):
     Okay:   f(0)
     Okay:   f(000)
     Okay:   MiB = 1.0415
-    ATL232: f(0755)
+    Fail:   f(0755)
     Okay:   f(0755)  # noqa
     """
     if noqa:
@@ -68,35 +68,53 @@ def hacking_python3x_octal_literals(logical_line, tokens, noqa):
         if token_type == tokenize.NUMBER:
             match = RE_OCTAL.match(text)
             if match:
-                yield 0, ("ATL232: Python 3.x incompatible octal %s should be "
+                yield 0, ("ATL231: Python 3.x incompatible octal %s should be "
                           "written as 0o%s " %
                           (match.group(0)[1:], match.group(1)))
 
 
-RE_PRINT = re.compile(r"\bprint(?:$|\s+[^\(])")
-
 @utils.flake8_atlas
-def hacking_python3x_print_function(logical_line, noqa):
-    r"""Check that all print occurrences look like print functions.
+class incompatible_print_statement(object):
+    r"""Check if a Py3 incompatible print statement is used.
 
-    Check that all occurrences of print look like functions, not
-    print operator. As of Python 3.x, the print operator has
-    been removed.
+    Check for the use of print statements. But only flag those that are
+    indeed Py3 incompatible. If print_function has been imported, by definition
+    there are no print statements in the code, and this check will never fire.
+
+    Okay: print msg       # but caught by ATL233
+    Okay: print(msg)
+    Fail: print("a","b")  # unless 'from __future__ import print_function'
+    Fail: print
+    """
+    msg = ('ATL232: Python 3.x incompatible use of print statement', 'ATL232')
+
+    def __init__(self, tree):
+        self.tree = tree
+
+    def run(self):
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Print):   # Py2 print statement
+                # no arguments
+                if len(node.values)==0:
+                    yield (node.lineno, node.col_offset) + self.msg
+                # tuple as argument
+                if len(node.values)>0 and isinstance(node.values[0], ast.Tuple) and len(node.values[0].elts)>1:
+                    yield (node.lineno, node.col_offset) + self.msg
+
+
+RE_PRINT = re.compile(r"\bprint\b\s*[^\(]")
+@utils.flake8_atlas
+def print_statement(logical_line):
+    r"""Check if a Py3 incompatible print statement is used.
+
+    Check if a print statement without brackets is used. This check
+    complements ATL232.
 
     Okay:   print(msg)
-    Okay:   print (msg)
-    Okay:   print msg  # noqa
-    Okay:   print()
-    ATL233: print msg
-    ATL233: print >>sys.stderr, "hello"
-    ATL233: print msg,
-    ATL233: print
+    Fail:   print msg
     """
-    if noqa:
-        return
     for match in RE_PRINT.finditer(logical_line):
-        yield match.start(0), (
-            "ATL233: Python 3.x incompatible use of print operator")
+        yield match.start(0), ("ATL233: Python 3.x incompatible use of non function-like print statement")
 
 
 @utils.flake8_atlas
@@ -134,9 +152,8 @@ def hacking_no_assert_underscore(logical_line, tokens, noqa):
     for token_type, text, start_index, _, _ in tokens:
 
         if token_type == tokenize.NAME and text == "assert_":
-            yield (
-                start_index[1],
-                "ATL235: assert_ is deprecated, use assertTrue")
+            yield (start_index[1],
+                   "ATL235: assert_ is deprecated, use assertTrue")
 
 
 @utils.flake8_atlas
