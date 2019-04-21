@@ -334,7 +334,8 @@ class doTransientByteStream(JobProperty):
     """
     statusOn=True
     allowedType=['bool']
-    StoredValue=False
+    StoredValue=True
+    
 _flags.append(doTransientByteStream)
 
 class doNtuple(JobProperty):
