@@ -188,6 +188,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_analysisFile;
         std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
+	std::string m_name_SF;
         // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
@@ -249,7 +250,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateC2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
-        StatusCode updateSF(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateSF(xAOD::Jet& jet, const double shift, const TString jetFlavorForThisUnc) const;
 
 
         // Helper methods for CP::ISystematicsTool functions

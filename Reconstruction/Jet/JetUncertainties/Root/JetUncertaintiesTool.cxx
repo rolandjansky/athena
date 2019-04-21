@@ -9,6 +9,7 @@
 #include "JetUncertainties/ConfigHelper.h"
 #include "JetUncertainties/ResolutionHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
+#include "BoostedJetTaggers/WTopLabel.h"
 
 // UncertaintyHistogram types
 #include "JetUncertainties/UncertaintyHistogram.h"
@@ -445,7 +446,12 @@ StatusCode JetUncertaintiesTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    
+    // Get name of accessor to SF value
+    m_name_SF  = TString(settings.GetValue("FileValidSFName",""));
+    if ( m_name_SF != "") {
+      ATH_MSG_INFO("   accessor of SF is " << m_name_SF);
+    }
+
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
     TString refNPV = settings.GetValue("Pileup.NPVRef","");
@@ -2077,6 +2083,8 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         const double smear = uncSet.at(iVar).second;
+	//TString flavor = ... // to be implemented
+	TString flavor = "q";
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
@@ -2129,7 +2137,7 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::SF:
-                if (updateSF(jet,shift).isFailure())
+	        if (updateSF(jet,shift,flavor).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2823,11 +2831,18 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
     return StatusCode::FAILURE;       
 }
 
-StatusCode JetUncertaintiesTool::updateSF(xAOD::Jet& jet, const double shift) const
+StatusCode JetUncertaintiesTool::updateSF(xAOD::Jet& jet, const double shift, const TString jetFlavorForThisUnc) const
 {
-    static SG::AuxElement::Accessor<float> accSF("SmoothWContained50_SF");
-    const static bool SFwasAvailable  = accSF.isAvailable(jet);
+    WTopLabel jetFlavorLabel=jet.auxdata<WTopLabel>("WTopContainmentTruthLabel");
+    if ( (jetFlavorForThisUnc=="t_qqb" && jetFlavorLabel!=WTopLabel::t ) ||
+	 (jetFlavorForThisUnc=="W_qq" && jetFlavorLabel!=WTopLabel::W && jetFlavorLabel!=WTopLabel::Z ) ||
+	 (jetFlavorForThisUnc=="q" && (jetFlavorLabel==WTopLabel::t || jetFlavorLabel==WTopLabel::W || jetFlavorLabel==WTopLabel::Z) ) ){
+      return StatusCode::SUCCESS;
+    }
 
+    static SG::AuxElement::Accessor<float> accSF(m_name_SF);
+    const static bool SFwasAvailable  = accSF.isAvailable(jet);
+	 
     const xAOD::Jet& constJet = jet;
     if (SFwasAvailable)
     {

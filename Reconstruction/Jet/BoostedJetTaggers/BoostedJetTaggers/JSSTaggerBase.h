@@ -13,15 +13,13 @@
 #include "JetInterface/IJetSelector.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "BoostedJetTaggers/WTopLabel.h"
 
 #include "PATCore/TAccept.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-enum class WTopLabel : int {t = 1, W = 2, Z = 3, b = 4, other = 5, notruth = 6, unknown = -1};
-const WTopLabel WTopLabel_types [] = {WTopLabel::t, WTopLabel::W, WTopLabel::Z, WTopLabel::b, WTopLabel::other, WTopLabel::notruth, WTopLabel::unknown, WTopLabel::Z};
-  
 class JSSTaggerBase :   public asg::AsgTool ,
 			virtual public IJetSelectorTool,
 			virtual public IJetSelector {
