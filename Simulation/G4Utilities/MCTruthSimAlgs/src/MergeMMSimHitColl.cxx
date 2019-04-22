@@ -13,6 +13,10 @@ MergeMMSimHitColl::MergeMMSimHitColl(const std::string& name,
 {
   declareProperty("MergeMMSimHitCollTool", m_mergeTool);
 }
+
+MergeMMSimHitColl::~MergeMMSimHitColl() {
+}
+
 StatusCode MergeMMSimHitColl::initialize() {
   ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ); 
   if(m_mergeTool.retrieve().isFailure()) {

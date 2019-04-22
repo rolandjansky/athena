@@ -51,8 +51,8 @@ private:
   virtual void processMMSimHitColl(const MMSimHitCollection *inputCollection, MMSimHitCollection *outputCollection, const double& timeOfBCID);
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
   bool m_firstSubEvent;
-  std::vector<MMSimHitCollection*> m_outputContainers;
-  StringArrayProperty m_SimHitContainerNamesProp;
-  std::vector<std::string> m_SimHitContainerNames;
+  MMSimHitCollection* m_outputContainers;
+  StringProperty m_SimHitContainerNamesProp;
+  std::string m_SimHitContainerNames;
 };
 #endif //MCTRUTHSIMALGS_MERGEGENERICMUONSIMHITCOLLTOOL_H

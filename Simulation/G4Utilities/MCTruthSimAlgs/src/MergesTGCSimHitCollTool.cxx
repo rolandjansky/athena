@@ -17,17 +17,18 @@ MergesTGCSimHitCollTool::MergesTGCSimHitCollTool(const std::string& type,
   declareProperty("SimHitContainerNames",  m_SimHitContainerNamesProp);
 }
 
+MergesTGCSimHitCollTool::~MergesTGCSimHitCollTool() {
+}
+
 StatusCode MergesTGCSimHitCollTool::initialize() {
   ATH_MSG_VERBOSE ( "initialize()" );
-  // list of CaloCalibrationHit containers
+  // list of sTGCSimHit container
   if (m_SimHitContainerNamesProp.value().empty()) {
-    m_SimHitContainerNames.reserve(1);
-    m_SimHitContainerNames.push_back("sTGCSensitiveDetector");
+    m_SimHitContainerNames = "sTGCSensitiveDetector";
   }
   else {
     m_SimHitContainerNames = m_SimHitContainerNamesProp.value();
   }
-  m_outputContainers.reserve(m_SimHitContainerNames.size());
   return StatusCode::SUCCESS;
 }
 
@@ -36,10 +37,7 @@ StatusCode MergesTGCSimHitCollTool::prepareEvent(unsigned int nInputEvents) {
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent = true;
   //clean up pointers from the last event
-  m_outputContainers.clear();
-  for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size(); ++iHitContainer) {
-    m_outputContainers.push_back(NULL);
-  }
+  m_outputContainers=nullptr;
   return StatusCode::SUCCESS;
 }
 StatusCode MergesTGCSimHitCollTool::processBunchXing(int bunchXing,
@@ -52,27 +50,26 @@ StatusCode MergesTGCSimHitCollTool::processBunchXing(int bunchXing,
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    // loop over containers
-    for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
-      ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process sTGCSimHitCollection " << m_SimHitContainerNames[iHitContainer] );
-      const sTGCSimHitCollection* hitCont;
-      // if container not there, do nothing
-      if (seStore.contains<sTGCSimHitCollection>(m_SimHitContainerNames[iHitContainer])) {
-        if( !seStore.retrieve(hitCont, m_SimHitContainerNames[iHitContainer]).isSuccess()) {
-          ATH_MSG_ERROR ( " Failed to retrieve sTGCSimHitCollection called " << m_SimHitContainerNames[iHitContainer] );
-        }
+
+    ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process sTGCSimHitCollection " << m_SimHitContainerNames );
+    const sTGCSimHitCollection* hitCont;
+    // if container not there, do nothing
+    if (seStore.contains<sTGCSimHitCollection>(m_SimHitContainerNames)) {
+      if( !seStore.retrieve(hitCont, m_SimHitContainerNames).isSuccess()) {
+        ATH_MSG_ERROR ( " Failed to retrieve sTGCSimHitCollection called " << m_SimHitContainerNames );
       }
-      else {
-        ATH_MSG_VERBOSE ( " Cannot find sTGCSimHitCollection called " << m_SimHitContainerNames[iHitContainer] );
-        continue;
-      }
-      //if this is the first SubEvent for this Event then create the hitContainers;
-      if(m_firstSubEvent) {
-        m_outputContainers[iHitContainer] = new sTGCSimHitCollection(m_SimHitContainerNames[iHitContainer]);
-      }
-      const double timeOfBCID(static_cast<double>(iEvt->time()));
-      this->processsTGCSimHitColl(hitCont, m_outputContainers[iHitContainer], timeOfBCID);
     }
+    else {
+      ATH_MSG_VERBOSE ( " Cannot find sTGCSimHitCollection called " << m_SimHitContainerNames );
+      continue;
+    }
+    //if this is the first SubEvent for this Event then create the hitContainers;
+    if(m_firstSubEvent) {
+      m_outputContainers = new sTGCSimHitCollection(m_SimHitContainerNames);
+    }
+    const double timeOfBCID(static_cast<double>(iEvt->time()));
+    this->processsTGCSimHitColl(hitCont, m_outputContainers, timeOfBCID);
+
     ++iEvt;
     m_firstSubEvent=false;
   }
@@ -80,13 +77,10 @@ StatusCode MergesTGCSimHitCollTool::processBunchXing(int bunchXing,
 }
 
 StatusCode MergesTGCSimHitCollTool::mergeEvent() {
-  for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
-    if ( m_outputContainers[iHitContainer]==0 ) { continue; } //don't bother recording unused containers!
-    if (!(evtStore()->record(m_outputContainers[iHitContainer],m_SimHitContainerNames[iHitContainer]).isSuccess())) {
-      ATH_MSG_ERROR ( " Cannot record new sTGCSimHitCollection in overlayed event " );
-      return StatusCode::FAILURE;
-    }
-  }   // end of loop over the various types of calo calibration hits
+  if (!(evtStore()->record(m_outputContainers,m_SimHitContainerNames).isSuccess())) {
+    ATH_MSG_ERROR ( " Cannot record new sTGCSimHitCollection in overlayed event " );
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -100,31 +94,28 @@ StatusCode MergesTGCSimHitCollTool::processAllSubEvents()
     }
   }
 
-  // loop over containers
-  for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();iHitContainer++) {
 
-    ATH_MSG_DEBUG(" Process CalibrationHit container " << m_SimHitContainerNames[iHitContainer]);
-    typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type SimHitList;
-    SimHitList simHitList;
-    if ( (m_pMergeSvc->retrieveSubEvtsData(m_SimHitContainerNames[iHitContainer], simHitList)).isSuccess() ) {
-      sTGCSimHitCollection* newContainer = new sTGCSimHitCollection(m_SimHitContainerNames[iHitContainer]);
-      if (!simHitList.empty()) {
-        //now merge all collections into one
-        SimHitList::const_iterator simHitColl_iter(simHitList.begin());
-        const SimHitList::const_iterator endOfSimHitColls(simHitList.end());
-        while (simHitColl_iter!=endOfSimHitColls) {
-          const double timeOfBCID(static_cast<double>((simHitColl_iter)->first.time()));
-          this->processsTGCSimHitColl(&(*((simHitColl_iter)->second)), m_outputContainers[iHitContainer], timeOfBCID);
-        }
-      }
-      // record new container in overlayed event
-      if (!(evtStore()->record(newContainer,m_SimHitContainerNames[iHitContainer]).isSuccess())) {
-        ATH_MSG_ERROR(" Cannot record new sTGCSimHitCollection in overlayed event ");
-        delete newContainer;
-        return StatusCode::FAILURE;
+  ATH_MSG_DEBUG(" Process CalibrationHit container " << m_SimHitContainerNames);
+  typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type SimHitList;
+  SimHitList simHitList;
+  if ( (m_pMergeSvc->retrieveSubEvtsData(m_SimHitContainerNames, simHitList)).isSuccess() ) {
+    sTGCSimHitCollection* newContainer = new sTGCSimHitCollection(m_SimHitContainerNames);
+    if (!simHitList.empty()) {
+      //now merge all collections into one
+      SimHitList::const_iterator simHitColl_iter(simHitList.begin());
+      const SimHitList::const_iterator endOfSimHitColls(simHitList.end());
+      while (simHitColl_iter!=endOfSimHitColls) {
+        const double timeOfBCID(static_cast<double>((simHitColl_iter)->first.time()));
+        this->processsTGCSimHitColl(&(*((simHitColl_iter)->second)), m_outputContainers, timeOfBCID);
       }
     }
-  }   // end of loop over the various types of calo calibration hits
+    // record new container in overlayed event
+    if (!(evtStore()->record(newContainer,m_SimHitContainerNames).isSuccess())) {
+      ATH_MSG_ERROR(" Cannot record new sTGCSimHitCollection in overlayed event ");
+      delete newContainer;
+      return StatusCode::FAILURE;
+    }
+  }
   return StatusCode::SUCCESS;
 }
 

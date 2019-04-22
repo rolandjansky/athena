@@ -13,6 +13,10 @@ MergesTGCSimHitColl::MergesTGCSimHitColl(const std::string& name,
 {
   declareProperty("MergesTGCSimHitCollTool", m_mergeTool);
 }
+
+MergesTGCSimHitColl::~MergesTGCSimHitColl() {
+}
+
 StatusCode MergesTGCSimHitColl::initialize() {
   ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ); 
   if(m_mergeTool.retrieve().isFailure()) {

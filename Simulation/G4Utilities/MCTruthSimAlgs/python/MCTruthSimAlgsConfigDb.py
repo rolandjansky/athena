@@ -34,5 +34,5 @@ addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.SignalOnlyMcEventCollTool"      , "
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.InTimeOnlyMcEventCollTool"      , "InTimeOnlyMcEventCollTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeGenericMuonSimHitCollTool" , "MergeGenericMuonSimHitCollTool")
-addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMicromegasSimHitCollTool"  , "MergeMicromegasSimHitCollTool")
-addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeSTGCSimHitCollTool"        , "MergeSTGCSimHitCollTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMMSimHitCollTool"          , "MergeMMSimHitCollTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergesTGCSimHitCollTool"        , "MergesTGCSimHitCollTool")
