@@ -250,7 +250,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateC2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
-        StatusCode updateSF(xAOD::Jet& jet, const double shift, const TString jetFlavorForThisUnc) const;
+        StatusCode updateSF(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions

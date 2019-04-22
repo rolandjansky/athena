@@ -9,7 +9,6 @@
 #include "JetUncertainties/ConfigHelper.h"
 #include "JetUncertainties/ResolutionHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
-#include "BoostedJetTaggers/WTopLabel.h"
 
 // UncertaintyHistogram types
 #include "JetUncertainties/UncertaintyHistogram.h"
@@ -2083,8 +2082,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         const double smear = uncSet.at(iVar).second;
-	//TString flavor = ... // to be implemented
-	TString flavor = "q";
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
@@ -2137,7 +2134,7 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::SF:
-	        if (updateSF(jet,shift,flavor).isFailure())
+	        if (updateSF(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2831,18 +2828,11 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
     return StatusCode::FAILURE;       
 }
 
-StatusCode JetUncertaintiesTool::updateSF(xAOD::Jet& jet, const double shift, const TString jetFlavorForThisUnc) const
+StatusCode JetUncertaintiesTool::updateSF(xAOD::Jet& jet, const double shift) const
 {
-    WTopLabel jetFlavorLabel=jet.auxdata<WTopLabel>("WTopContainmentTruthLabel");
-    if ( (jetFlavorForThisUnc=="t_qqb" && jetFlavorLabel!=WTopLabel::t ) ||
-	 (jetFlavorForThisUnc=="W_qq" && jetFlavorLabel!=WTopLabel::W && jetFlavorLabel!=WTopLabel::Z ) ||
-	 (jetFlavorForThisUnc=="q" && (jetFlavorLabel==WTopLabel::t || jetFlavorLabel==WTopLabel::W || jetFlavorLabel==WTopLabel::Z) ) ){
-      return StatusCode::SUCCESS;
-    }
-
     static SG::AuxElement::Accessor<float> accSF(m_name_SF);
     const static bool SFwasAvailable  = accSF.isAvailable(jet);
-	 
+    
     const xAOD::Jet& constJet = jet;
     if (SFwasAvailable)
     {

@@ -28,6 +28,7 @@ class LogPtMassUncertaintyComponent : public UncertaintyComponent
     private:
         LogPtMassUncertaintyComponent(const std::string& name = "");
         const CompMassDef::TypeEnum m_massDef;
+	const TString m_label;
 };
 
 } // end jet namespace
