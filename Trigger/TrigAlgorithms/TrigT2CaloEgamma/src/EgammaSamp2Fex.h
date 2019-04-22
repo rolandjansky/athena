@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -22,6 +22,9 @@
 #include "GaudiKernel/AlgTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class IRoiDesciptor;
 

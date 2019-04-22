@@ -25,6 +25,9 @@
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include "TrigT2CaloCommon/phiutils.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 class IRoiDescriptor;
 
 /** Feature extraction Tool for LVL2 Calo. Second EM Calorimeter sample. */

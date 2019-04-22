@@ -50,6 +50,9 @@
 
 #include "TrigSteeringEvent/Enums.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 //class TrigEMCluster;
 class TrigTauCluster;
 class T2CaloConfig;

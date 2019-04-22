@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
  
- NAME:     EgammaReHadEnFex.h
+ NAME:     EgammaHadEnFex.h
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
  
  AUTHOR:   M.P. Casado
@@ -14,24 +14,27 @@
            energy.
  *******************************************************************/
 
-#ifndef TRIGT2CALOEGAMMA_EGAMMAHADENFEXRE_H 
-#define TRIGT2CALOEGAMMA_EGAMMAHADENFEXRE_H
+#ifndef TRIGT2CALOEGAMMA_EGAMMAHADENFEX_H 
+#define TRIGT2CALOEGAMMA_EGAMMAHADENFEX_H
 
-#include "TrigT2CaloCommon/IReAlgToolCalo.h"
+#include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "GaudiKernel/AlgTool.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 /** Feature extraction Tool for LVL2 Calo. Hadronic EndCaps
 	and Tile Calorimeter. All Samples */
-class EgammaReHadEnFex: public IReAlgToolCalo {
+class EgammaHadEnFex: public IAlgToolCalo {
   public:
     // to avoid compiler warning about hidden virtuals
-    using IReAlgToolCalo::execute;
+    using IAlgToolCalo::execute;
   
     /** Constructor */
-    EgammaReHadEnFex(const std::string & type, const std::string & name, 
+    EgammaHadEnFex(const std::string & type, const std::string & name, 
                  const IInterface* parent);
     /** Destructor */
-    virtual ~EgammaReHadEnFex();
+    virtual ~EgammaHadEnFex();
     /** @brief execute feature extraction for the EM Calorimeter
     *   second layer 
     *   @param[out] rtrigEmCluster is the output cluster.
@@ -39,8 +42,7 @@ class EgammaReHadEnFex: public IReAlgToolCalo {
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
 		       const IRoiDescriptor& roi,
-		       const CaloDetDescrElement*& caloDDE = caloReDDENull,
-                       const EventContext* context = nullptr ) const;
+		       const CaloDetDescrElement*& caloDDE = caloDDENull);
 
     //    StatusCode execute(TrigEMCluster &rtrigEmCluster,double etamin,
     //			double etamax, double phimin, double phimax);
@@ -48,10 +50,10 @@ class EgammaReHadEnFex: public IReAlgToolCalo {
 
     StatusCode initialize() {
                 // Very important to call base class initialize
-                if ( IReAlgToolCalo::initialize().isFailure() ) {
+                if ( IAlgToolCalo::initialize().isFailure() ) {
                         *(new MsgStream(AlgTool::msgSvc(), name()))
                         << MSG::FATAL
-                        << "Could not init base class IReAlgTooCalo" << endmsg;
+                        << "Could not init base class IAlgTooCalo" << endmsg;
                 }
                 if (!m_timersvc.empty()) {
                         m_timer[0]->propName("T2CaEm_NCells");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,7 +18,7 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaAllFex.h"
+#include "EgammaAllFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
