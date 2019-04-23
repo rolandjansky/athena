@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_EVENTSTREAMINFO_H
@@ -85,10 +85,10 @@ inline EventStreamInfo::EventStreamInfo() : m_numberOfEvents(0),
 inline EventStreamInfo::~EventStreamInfo() {}
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(EventStreamInfo, 167728019, 1)
 #include "AthenaKernel/MetaCont.h"
 CLASS_DEF(MetaCont<EventStreamInfo>, 167729019, 1)
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 SG_BASE(MetaCont<EventStreamInfo>, MetaContBase);
 #endif

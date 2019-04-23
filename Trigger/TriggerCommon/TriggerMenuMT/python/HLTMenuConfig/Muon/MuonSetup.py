@@ -3,11 +3,12 @@
 #
 
 ### Output data name ###
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
 muEFSAInfo = "Muons"
 muL2ISInfo = "MuonL2ISInfo"
-TrackParticlesName = "xAODTracks"
+TrackParticlesName = recordable("HLT_xAODTracks")
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
 def makeMuonPrepDataAlgs(forFullScan=False):
@@ -41,11 +42,11 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
   CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData" + postFix,
                                             CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
-                                            PrintPrepData           = False, 
+                                            PrintPrepData           = False,
                                             DoSeededDecoding        = not forFullScan,
                                             RoIs                    = "MURoIs" )
 
- 
+
   from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
   CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                 ProviderTool = MuonCscRawDataProviderTool )
@@ -57,14 +58,14 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   #CSC cluster building
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
   CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                 cluster_builder = CscClusterBuilderTool)    
+                                                 cluster_builder = CscClusterBuilderTool)
 
   eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
-  viewAlgs_MuonPRD.append( CscRawDataProvider )  
-  viewAlgs_MuonPRD.append( CscRdoToCscPrepData )  
-  viewAlgs_MuonPRD.append( CscClusterBuilder ) 
+  viewAlgs_MuonPRD.append( CscRawDataProvider )
+  viewAlgs_MuonPRD.append( CscRdoToCscPrepData )
+  viewAlgs_MuonPRD.append( CscClusterBuilder )
 
- 
+
   ### MDT RDO data ###
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
   MDTRodDecoder = MdtROD_Decoder(name	   = "MdtROD_Decoder" )
@@ -86,8 +87,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             PrintPrepData    = False,
                                             DoSeededDecoding = not forFullScan,
                                             RoIs             = "MURoIs")
-  
-  
+
+
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
   MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
                                                 ProviderTool = MuonMdtRawDataProviderTool,
@@ -143,7 +144,7 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "TGC_RawDataProviderTool",
                                                              Decoder = TGCRodDecoder )
   ToolSvc += MuonTgcRawDataProviderTool
-    
+
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
   TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "TgcRdoToPrepDataTool")
   ToolSvc += TgcRdoToTgcPrepDataTool
@@ -166,27 +167,27 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
 
-  if muonRecFlags.doCreateClusters():  
+  if muonRecFlags.doCreateClusters():
     #Run clustering
     from MuonClusterization.MuonClusterizationConf import MuonClusterizationTool
     MuonClusterTool = MuonClusterizationTool(name        = "MuonClusterizationTool" )
     ToolSvc += MuonClusterTool
-    
+
     from MuonClusterization.MuonClusterizationConf import MuonClusterizationAlg
     MuonClusterAlg = MuonClusterizationAlg(name                 = "MuonClusterizationAlg",
                                            ClusterTool          = MuonClusterTool,
                                            TgcPrepDataContainer = "TGC_MeasurementsAllBCs")
-    
+
     viewAlgs_MuonPRD.append( MuonClusterAlg )
 
 
   return ( eventAlgs_MuonPRD, viewAlgs_MuonPRD )
 
 
-# This def should be removed in the future. 
+# This def should be removed in the future.
 # We have not yet integrated muon decoding tool, so this def is used now.
 def muFastRecoSequence( RoIs ):
-   
+
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.DetFlags import DetFlags
   from AthenaCommon.CFElements import parOR
@@ -259,6 +260,7 @@ def muFastRecoSequence( RoIs ):
                                                         MDT_RawDataProvider = "",
                                                         MdtPrepDataProvider = "")
 
+
   ### RPC RDO data ###
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
   RPCRodDecoder = Muon__RpcROD_Decoder(name        = "RpcROD_Decoder_L2SA")
@@ -296,11 +298,11 @@ def muFastRecoSequence( RoIs ):
 
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-  muFastAlg = TrigL2MuonSAMTConfig("Muon")  
+  muFastAlg = TrigL2MuonSAMTConfig("Muon")
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
-  MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator 
+  MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator
   MuFastDataPreparator.MDTDataPreparator = L2MdtDataPreparator
   MuFastDataPreparator.RPCDataPreparator = L2RpcDataPreparator
   MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
@@ -321,7 +323,7 @@ def muFastRecoSequence( RoIs ):
 
 
 def muCombRecoSequence( RoIs ):
-   
+
   from AthenaCommon.CFElements import parOR
   import AthenaCommon.CfgMgr as CfgMgr
 
@@ -373,7 +375,7 @@ def l2muisoRecoSequence( RoIs ):
   from AthenaCommon.CFElements import parOR
 
   l2muisoRecoSequence = parOR("l2muIsoViewNode")
- 
+
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName),
                             ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muCombInfo)]
@@ -405,9 +407,9 @@ def muEFSARecoSequence( RoIs, name ):
   from AthenaCommon.CFElements import parOR
 
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
- 
-  efAlgs = [] 
-  
+
+  efAlgs = []
+
   ### Provide Muon_PrepDataAlgorithms ###
   from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import makeMuonPrepDataAlgs
   ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs( name == 'FS')
@@ -427,7 +429,7 @@ def muEFSARecoSequence( RoIs, name ):
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
-  
+
   theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
   theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
@@ -442,22 +444,22 @@ def muEFSARecoSequence( RoIs, name ):
                                                   UseTGCNextBC  = False,
                                                   doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
                                                   doRPCClust = muonRecFlags.doRPCClusterSegmentFinding())
-  
-  
-  
+
+
+
   #theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB_"+name,
   #                                                   SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
   #                                                                                      DoSummary=False,
   #                                                                                      Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
   #                                                                                                                             segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
   #                                                                                                                                                              "CscSegmentUtilTool",
-  #                                                                                                                                                              TightenChi2 = False, 
+  #                                                                                                                                                              TightenChi2 = False,
   #                                                                                                                                                              IPconstraint=False)),
   #                                                                                      Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
   #                                                                                                                             segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
   #                                                                                      DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
-  #                                                   MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
-  #                                                   MuonSegmentOutputLocation = "NCB_MuonSegments", 
+  #                                                   MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations",
+  #                                                   MuonSegmentOutputLocation = "NCB_MuonSegments",
   #                                                   UseCSC = muonRecFlags.doCSCs(),
   #                                                   UseMDT = False,
   #                                                   UseRPC = False,
@@ -466,21 +468,21 @@ def muEFSARecoSequence( RoIs, name ):
   #                                                   UseTGCNextBC  = False,
   #                                                   doTGCClust = False,
   #                                                   doRPCClust = False)
-  
+
   TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
   TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
-  
+
   from AthenaCommon.Include import include
-  include("InDetBeamSpotService/BeamCondSvc.py" )        
+  include("InDetBeamSpotService/BeamCondSvc.py" )
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
-  
+
   muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-  
+
   muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-  
+
   muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-  
-  xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg_"+name, 
+
+  xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg_"+name,
                                                             TrackParticleCreator = muonParticleCreatorTool,
                                                             TrackCollectionCnvTool=muonTrackCollectionCnvTool,
                                                             RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
@@ -488,18 +490,18 @@ def muEFSARecoSequence( RoIs, name ):
                                                             xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
                                                             ConvertTrackParticles = False,
                                                             ConvertTracks = True)
-  
-  
+
+
   theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder="",ExtrapolationStrategy=1)
 
   theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg_"+name,MuonCandidateTool=theCandidateTool)
-  
-  
+
+
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator)
-  
+
   themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=muEFSAInfo+"_"+name )
-  
+
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
   #efAlgs.append( theNCBSegmentFinderAlg ) #The configuration still needs some sorting out for this so disabled for now.
@@ -521,7 +523,7 @@ def muEFSARecoSequence( RoIs, name ):
   sequenceOut = themuoncreatoralg.MuonContainerLocation
 
 
-  
+
   return muEFSARecoSequence, sequenceOut
 
 
@@ -536,7 +538,7 @@ def muEFCBRecoSequence( RoIs, name ):
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR, seqAND
 
-  efAlgs = [] 
+  efAlgs = []
   muEFCBRecoSequence = parOR("efcbViewNode_"+name)
   #Need ID tracking related objects and MS tracks from previous steps
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
@@ -563,36 +565,42 @@ def muEFCBRecoSequence( RoIs, name ):
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
   else:
+    global TrackParticlesName
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
-    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ), ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),( 'xAOD::IParticleContainer' , 'StoreGateSvc+xAODTracks' ),( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                                 ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                 ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
     muEFCBRecoSequence += ViewVerifyTrk
 
 
-  #Precision Tracking 
+  #Precision Tracking
   PTAlgs = [] #List of precision tracking algs
-  PTTracks = [] #List of TrackCollectionKeys 
+  PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
 
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking   
+  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
-  if 'FS' in name:  
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS" ) 
+  if 'FS' in name:
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS" )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk ) 
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk )
 
   #Get last tracks from the list as input for other alg
 
-  ##Not added to the sequence! Causing stall 
+  ##Not added to the sequence! Causing stall
   PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   muEFCBRecoSequence += PTSeq
 
   #Default from FTF
-  #trackParticles = "xAODTracks" 
+  #trackParticles = "xAODTracks"
   #TODO: change according to what needs to be done here
-  #Last key in the list is for the TrackParticles after all PT stages (so far only one :) ) 
-  trackParticles = PTTrackParticles[-1] 
+  #Last key in the list is for the TrackParticles after all PT stages (so far only one :) )
+  trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
   theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles)
@@ -657,7 +665,5 @@ def muEFCBRecoSequence( RoIs, name ):
     muEFCBRecoSequence += efAlg
   sequenceOut = themuoncbcreatoralg.MuonContainerLocation
 
-  
+
   return muEFCBRecoSequence, eventAlgs, sequenceOut
-
-

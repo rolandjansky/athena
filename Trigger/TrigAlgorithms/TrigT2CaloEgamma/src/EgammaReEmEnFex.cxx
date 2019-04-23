@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,9 +15,9 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaReEmEnFex.h"
+#include "EgammaReEmEnFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "TrigT2CaloEgamma/T2CalibrationEgamma.h"
+#include "T2CalibrationEgamma.h"
 
 
 EgammaReEmEnFex::EgammaReEmEnFex(const std::string & type, const std::string & name, 
@@ -40,19 +40,16 @@ EgammaReEmEnFex::~EgammaReEmEnFex(){
 StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				  const IRoiDescriptor& roi,
 				  const CaloDetDescrElement*& caloDDE,
-                                  const EventContext* context ) const{
+                                  const EventContext& context ) const{
  
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
-        // reset error
-        m_error=0x0;
         bool cluster_in_barrel = true;
         if ( caloDDE )
           cluster_in_barrel = caloDDE->is_lar_em_barrel();
 
         // MsgStream log(msgSvc(), name());
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
-	ATH_CHECK( context != nullptr );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -62,7 +59,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+        m_dataSvc->loadCollections( context, roi, TTEM, sampling, sel );
         iBegin = sel.begin();
         iEnd = sel.end();
         // Finished to access Collection
@@ -141,7 +138,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         sampling = 3;
 
         LArTT_Selector<LArCellCont> sel3;
-        m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel3 );
+        m_dataSvc->loadCollections( context, roi, TTEM, sampling, sel3 );
         iBegin = sel3.begin();
         iEnd = sel3.end();
 /*

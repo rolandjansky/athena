@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # AtlCoolLib.py
 # module defining utilities for ATLAS command line tool use of COOL
 # Richard Hawkings, started 5/2/07
@@ -8,7 +8,8 @@
 Module defining utilities for ATLAS command line/python use of COOL
 """
 
-import sys,os,traceback,getopt,time,calendar,commands
+from __future__ import print_function
+import sys,os,traceback,getopt,time,calendar
 from PyCool import cool,coral
 
 def transConn(conn):
@@ -31,14 +32,14 @@ def forceOpen(conn):
     conn2=transConn(conn)
     try:
         db=dbSvc.openDatabase(conn2,False)
-    except Exception, e:
-        print e
-        print 'Could not connect to',conn,'try to create it'
+    except Exception as e:
+        print (e)
+        print ('Could not connect to',conn,'try to create it')
         try:
             db=dbSvc.createDatabase(conn2)
-        except Exception, e:
-            print e
-            print 'Could not create the database - give up'
+        except Exception as e:
+            print (e)
+            print ('Could not create the database - give up')
             return None
     return db
 
@@ -50,9 +51,9 @@ def readOpen(conn):
     conn2=transConn(conn)
     try:
         db=dbSvc.openDatabase(conn2,True)
-    except Exception, e:
-        print e
-        print 'Could not connect to',conn
+    except Exception as e:
+        print (e)
+        print ('Could not connect to',conn)
         return None
     return db
     
@@ -62,15 +63,15 @@ def ensureFolder(db,folder,spec,desc,version=cool.FolderVersioning.SINGLE_VERSIO
     Return COOL folder object
     """
     if (not db.existsFolder(folder)):
-        print 'Attempting to create',folder,'with description',desc
+        print ('Attempting to create',folder,'with description',desc)
         try:
             # Deprecated/dropped:  db.createFolder(folder,spec,desc,version,True)
             folderSpec = cool.FolderSpecification(version,spec)
             db.createFolder(folder,folderSpec,desc,True)
-            print 'Folder created'
-        except Exception,e:
-            print e
-            print 'Could not create folder',folder
+            print ('Folder created')
+        except Exception as e:
+            print (e)
+            print ('Could not create folder',folder)
             return None
     return db.getFolder(folder)
 
@@ -105,8 +106,8 @@ def timeVal(val):
         try:
             ts=time.strptime(val+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
             return int(calendar.timegm(ts))
-        except ValueError,e:
-            print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+        except ValueError as e:
+            print ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
             sys.exit(-1)
         
 def timeString(iovkey):
@@ -116,7 +117,7 @@ def timeString(iovkey):
     elif (iovkey==cool.ValidityKeyMax):
         return "ValidityKeyMax"
     else:
-        stime=int(iovkey/1000000000L)
+        stime=int(iovkey/1000000000)
         return time.asctime(time.gmtime(stime))+" UTC"
 
 def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
@@ -133,25 +134,25 @@ def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
     splitname=connstr.split('/')
     forceSQLite='ATLAS_COOL_FORCESQLITE' in os.environ
     if (debug and forceSQLite):
-        print "ATLAS_COOL_FORCESQLITE: Force consideration of SQLite replicas"
+        print ("ATLAS_COOL_FORCESQLITE: Force consideration of SQLite replicas")
     if (len(splitname)!=2 or readOnly==False or oracle==False or forceSQLite):
         try:
             db=dbSvc.openDatabase(connstr,readOnly)
-        except Exception,e:
+        except Exception as e:
             # if writeable connection on readonly filesystem, get
             # 'cannot be established error' - retry readonly
             if (not readOnly and ('attempt to write a readonly database' in e.__repr__())):
-                print "Writeable open failed - retry in readonly mode"
+                print ("Writeable open failed - retry in readonly mode")
                 db=dbSvc.openDatabase(connstr,True)
             else:
                 raise
         return db
-    if (debug): print "Trying to establish connection for %s from Oracle" % connstr
+    if (debug): print ("Trying to establish connection for %s from Oracle" % connstr)
     schema=splitname[0]
     dbinst=splitname[1]
     # list of servers to try, first one at beginning
     serverlist=replicaList()
-    if (debug): print serverlist
+    if (debug): print (serverlist)
     # will pop candidates from end of list - so reverse it first
     serverlist.reverse()
     while len(serverlist)>0:
@@ -166,17 +167,17 @@ def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
         elif server=='atlas_dd': continue
         else:
             connstr='oracle://%s;schema=ATLAS_%s;dbname=%s' % (server,schema,dbinst)
-        if (debug): print "Attempting to open %s" % connstr
+        if (debug): print ("Attempting to open %s" % connstr)
         try:
             dbconn=dbSvc.openDatabase(connstr)
             if (dbconn is not None and dbconn.isOpen()):
-                if (debug): print "Established connection to %s" % server
+                if (debug): print ("Established connection to %s" % server)
                 return dbconn
-            if (debug): print "Cannot connect to %s" % server
-        except Exception,e:
-            if (debug): print "Exception connecting to %s" % server
+            if (debug): print ("Cannot connect to %s" % server)
+        except Exception as e:
+            if (debug): print ("Exception connecting to %s" % server)
     # all replicas tried - give up
-    print "All available replicas tried - giving up"
+    print ("All available replicas tried - giving up")
     return None
 
 def replicaList():
@@ -184,7 +185,7 @@ def replicaList():
     Athena DBReplicaSvc"""
     configfile=pathResolver('dbreplica.config')
     if configfile is None:
-        print "Cannot find dbreplica.config"
+        print ("Cannot find dbreplica.config")
         return None
     hostname=getHostname()
     best=0
@@ -200,7 +201,7 @@ def replicaList():
                     serverlist=line[epos+1:].split()
     configfile.close()
     if (len(serverlist)==0):
-        print "No suitable servers found"
+        print ("No suitable servers found")
         return None
     return serverlist
             
@@ -246,36 +247,37 @@ def getHostname():
         return name
     else:
         if (name[-6:]==".local"):
-            print "WARNING. Hostname is ",name, " which does not define a domain. Consider setting $ATLAS_CONDDB to avoid this"
+            print ("WARNING. Hostname is ",name, " which does not define a domain. Consider setting $ATLAS_CONDDB to avoid this")
             return "unknown"
-        
+
+    import subprocess
     try:
-        name=commands.getoutput('hostname --fqdn')
+        name=subprocess.check_output('hostname --fqdn').decode('utf-8')
     except Exception:
         name='unknown'
     
     #Calling hostname wrong will fill 'name' with error message
     if (name.find('illegal')>-1 or name.find('unrecognized')>-1):
-      print "WARNING. hostname --fqdn returned the following:",name
-      print "Consider setting $ATLAS_CONDDB to avoid this."
+      print ("WARNING. hostname --fqdn returned the following:",name)
+      print ("Consider setting $ATLAS_CONDDB to avoid this.")
       return "unknown"
     return name
     
 
 # test code
 def tests():
-    print 'AtlCoolLib tests'
+    print ('AtlCoolLib tests')
     db=forceOpen("TESTCOOL")
     if (db is None):
-        print 'Could not create test database'
+        print ('Could not create test database')
         sys.exit(1)
     spec=cool.RecordSpecification()
     spec.extend('testString',cool.StorageType.String255)
     folder=ensureFolder(db,'/TEST/TEST1',spec,athenaDesc(True,'CondAttrListCollection'),cool.FolderVersioning.MULTI_VERSION)
     if (folder is None):
-        print 'Could not create test folder'
+        print ('Could not create test folder')
         sys.exit(1)
-    print 'All done'
+    print ('All done')
     return
 
 class coolTool:
@@ -309,12 +311,12 @@ class coolTool:
         try:
             fullopts=longopts+['r=','rs=','ru=','l=','ls=','lu=','ts=','tu=','readoracle','debug']
             opts,args=getopt.getopt(sys.argv[1:],'',fullopts)
-        except getopt.GetoptError, e:
-            print e
+        except getopt.GetoptError as e:
+            print (e)
             self.usage()
             sys.exit(1)
         if len(args)<minarg or len(args)>maxarg:
-            print name,'takes between',minarg,'and',maxarg,'non-optional parameters'
+            print (name,'takes between',minarg,'and',maxarg,'non-optional parameters')
             self.usage()
             sys.exit(1)
         # set standard parameters
@@ -332,21 +334,21 @@ class coolTool:
 
     def _usage1(self):
         # base implementation of usage - first part
-        print 'Usage:',self.name,' {<options>} dbname ',
+        print ('Usage:',self.name,' {<options>} dbname ',)
         
     def _usage2(self):
         # base implementation of usage - second part
-        print 'Options to specify IOV (default valid for all intervals)'
-        print '--rs=<first run>'
-        print '--ru=<last run> (inclusive)'
-        print '--r=<run> (only single run)'
-        print '--ls=<lumi block since>'
-        print '--l=<lumi block> (only single LB)'
-        print '--lu=<lumi block until> (inclusive)'
-        print '--ts=<initial timestamp> (in seconds)'
-        print '--tu=<final timestamp> (in seconds)'
-        print '--readoracle: Force read-only queries to use Oracle replica'
-        print '--debug: Enable debugging information'
+        print ('Options to specify IOV (default valid for all intervals)')
+        print ('--rs=<first run>')
+        print ('--ru=<last run> (inclusive)')
+        print ('--r=<run> (only single run)')
+        print ('--ls=<lumi block since>')
+        print ('--l=<lumi block> (only single LB)')
+        print ('--lu=<lumi block until> (inclusive)')
+        print ('--ts=<initial timestamp> (in seconds)')
+        print ('--tu=<final timestamp> (in seconds)')
+        print ('--readoracle: Force read-only queries to use Oracle replica')
+        print ('--debug: Enable debugging information')
 
     def _procopts(self,opts):
         # process the standard parameters
@@ -362,25 +364,25 @@ class coolTool:
                 self.lumimin=int(a)
                 self.lumimax=int(a)
             if (o=='--ts'):
-                self.tsmin=timeVal(a)*1000000000L
+                self.tsmin=timeVal(a)*1000000000
                 self.runLumi=False
             if (o=='--tu'):
-                self.tsmax=timeVal(a)*1000000000L
+                self.tsmax=timeVal(a)*1000000000
                 self.runLumi=False
             if (o=='--readoracle'): self.oracle=True
             if (o=='--debug'): self.debug=True
         # now set the real interval of validity
         if (self.runLumi):
-            print '>== Data valid for run,LB [',self.runmin,',',self.lumimin,'] to [',self.runmax,',',self.lumimax,']'
+            print ('>== Data valid for run,LB [',self.runmin,',',self.lumimin,'] to [',self.runmax,',',self.lumimax,']')
             self.since=(self.runmin << 32)+self.lumimin
             self.until=(self.runmax << 32)+self.lumimax+1
         else:
             self.since=self.tsmin
             self.until=self.tsmax
-            print '>== Data valid for timestamps (sec) from ',self.since/1000000000L,'(',timeString(self.since),') to ',self.until/1000000000L,'(',timeString(self.until),')'
+            print ('>== Data valid for timestamps (sec) from ',self.since/1000000000,'(',timeString(self.since),') to ',self.until/1000000000,'(',timeString(self.until),')')
         # check IOV is OK
         if (self.until<self.since):
-            print 'ERROR in IOV definition: until<since'
+            print ('ERROR in IOV definition: until<since')
             sys.exit(1)
 
     def procopts(self,opts):
@@ -404,7 +406,7 @@ class coolWrapper:
         self.version=version
         # check the database is open
         if (not self.db.isOpen()):
-            raise 'Database not open'
+            raise RuntimeError ('Database not open')
         
 
     def storeDataIOV(self,data,since=cool.ValidityKeyMin,
@@ -413,11 +415,11 @@ class coolWrapper:
             chanid=channel
         elif (type(channel)==string):
             # lookup channel
-            print 'channel is string'
+            print ('channel is string')
 
     def storeDataRun(self,data,run,channel=0,tag=''):
-        since=(run << 32L)
-        until=((run+1) << 32L)
+        since=(run << 32)
+        until=((run+1) << 32)
         storeDataIOV(since,until,channel,data,tag)
 
 class RangeList:
@@ -498,10 +500,10 @@ class TimeStampToRLB:
         lblbname='/TRIGGER/LUMI/LBLB'
         try:
             readfolder=self.readdb.getFolder(lblbname)
-        except Exception,e:
-            print e
-            print "Could not access folder %s " % lblbname
-            raise RuntimeError,"TimeStampToRLB initialisation error"
+        except Exception as e:
+            print (e)
+            print ("Could not access folder %s " % lblbname)
+            raise RuntimeError ("TimeStampToRLB initialisation error")
         # First try to read timestamp info            
         isFirst=True
         try:
@@ -514,21 +516,21 @@ class TimeStampToRLB:
                     self.StartTime=payload['StartTime']
                 else:
                     self.EndTime = payload['EndTime']
-        except Exception,e:
-            print e
-            print "Problem reading data from folder %s" % lblbname
-            raise RuntimeError,"TimeStampToRLB: initialisation error"
+        except Exception as e:
+            print (e)
+            print ("Problem reading data from folder %s" % lblbname)
+            raise RuntimeError ("TimeStampToRLB: initialisation error")
         if (self.StartTime==-1):
-            raise RuntimeError,"TimeStampToRLB: no data for given runs"
+            raise RuntimeError ("TimeStampToRLB: no data for given runs")
         
         # Now try to read the LBTIME folder to translate timestamps into run/lumi blocks
         lbtimename='/TRIGGER/LUMI/LBTIME'
         try:
             readfolder=self.readdb.getFolder(lbtimename)
-        except Exception,e:
-            print e
-            print "Problem accessing folder %s" % lbtimename
-            raise RuntimeError,"TimeStampToRLB: Initialisation error"
+        except Exception as e:
+            print (e)
+            print ("Problem accessing folder %s" % lbtimename)
+            raise RuntimeError ("TimeStampToRLB: Initialisation error")
         try:
             readobjs=readfolder.browseObjects(self.StartTime, self.EndTime, cool.ChannelSelection.all());
             while readobjs.goToNext():
@@ -540,11 +542,11 @@ class TimeStampToRLB:
                 self.TSBeginMap+=[TimeStampStart]
                 self.TSEndMap+=[TimeStampEnd]
                 self.RLMap+=[iov]
-        except Exception, e:
-            print e
-            print "Problem reading from folder %s" % lbtimename
-            raise RuntimeError,"TimeStampToRLB: Time data access error"
-        print "TimeStampToRLB initialised with %i entries in map" % len(self.RLMap)
+        except Exception as e:
+            print (e)
+            print ("Problem reading from folder %s" % lbtimename)
+            raise RuntimeError ("TimeStampToRLB: Time data access error")
+        print ("TimeStampToRLB initialised with %i entries in map" % len(self.RLMap))
 
     def getRLB(self,timestamp,StartType=True):
         """Lookup a timestamp value. If it is outside a run, round up to next
@@ -570,5 +572,5 @@ run (StartType=True) or down to previous (StartType=False)"""
 # main code - run test of library functions
 if __name__=='__main__':
     tests()
-    print 'All OK'
+    print ('All OK')
     

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IParticleContainer.h 567380 2013-10-28 10:48:26Z krasznaa $
@@ -35,7 +35,7 @@ namespace xAOD {
 
 // To make it possible to put IParticleContainers into StoreGate:
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
 #endif // not XAOD_STANDALONE
 

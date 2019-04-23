@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/OldStyleConfig.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
+from __future__ import print_function
+
 import string
-import Logging
+from AthenaCommon import Logging
 
 
 ### data ---------------------------------------------------------------------
@@ -24,7 +26,7 @@ def _compatLookup( name, klass ):
       log.error( msg )
       raise RuntimeError( msg )
 
-   import ConfigurableDb
+   from AthenaCommon import ConfigurableDb
    cls = ConfigurableDb.getConfigurable( parts[0] )
    if not cls or not issubclass( cls, klass ):
       msg = 'unable to locate configurable for type "%s"' % parts[0]
@@ -38,7 +40,7 @@ def _compatLookup( name, klass ):
 
 _algConfigurables = {}
 def Algorithm( name ):
-   import Configurable
+   from AthenaCommon import Configurable
    result = _compatLookup( name, Configurable.ConfigurableAlgorithm )
    if result:
       global _algConfigurables
@@ -50,7 +52,7 @@ Algorithm.configurables = _algConfigurables
 
 _svcConfigurables = {}
 def Service( name ):
-   import Configurable
+   from AthenaCommon import Configurable
    result = _compatLookup( name, Configurable.ConfigurableService )
    if result:
       global _svcConfigurables
@@ -62,7 +64,7 @@ Service.configurables = _svcConfigurables
 
 _atlConfigurables = {}
 def AlgTool( name ):
-   import Configurable
+   from AthenaCommon import Configurable
    result = _compatLookup( name, Configurable.ConfigurableAlgTool )
    if result:
       global _atlConfigurables

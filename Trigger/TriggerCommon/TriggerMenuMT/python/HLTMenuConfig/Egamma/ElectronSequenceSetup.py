@@ -9,6 +9,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
@@ -39,7 +40,7 @@ def electronSequence(ConfigFlags):
     theElectronFex= L2ElectronFex_1()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName="Electrons"
+    theElectronFex.ElectronsName=recordable("HLT_L2Electrons")
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker")

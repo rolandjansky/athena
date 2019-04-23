@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Logging.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Athena Python-side logging."""
+
+from __future__ import print_function
 
 from AthenaCommon import Constants
 

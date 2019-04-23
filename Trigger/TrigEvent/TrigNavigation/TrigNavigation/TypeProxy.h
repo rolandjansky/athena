@@ -130,8 +130,8 @@ namespace HLTNavDetails {
     virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ){
       REPORT_MESSAGE( MSG::INFO ) << "syncing a read-only Aux proxy with key " << key << endmsg;
       const SG::IAuxStore* aux = nullptr;
-      sg->retrieve(aux,key);
-      if(!aux){
+      StatusCode sc = sg->retrieve(aux,key);
+      if(!aux or sc.isFailure() ){
 	REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endmsg;
         return StatusCode::FAILURE;
       }

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from AthenaCommon.AlgSequence import AthSequencer
 import collections
 
