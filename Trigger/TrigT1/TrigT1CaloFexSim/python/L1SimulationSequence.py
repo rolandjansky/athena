@@ -125,6 +125,14 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
 
+        #include L1Topo Simulation
+        if simflags.Topo.RunTopoAlgorithms():
+
+            if 'L1TopoSimulation' not in algseq:
+                from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+                include ( "TrigT1CaloFexSim/EnableTopoAlgorithms.py" )
+                enableL1TopoSimulation()
+
     # Schedule CTP Simulation
     if not skipCTPEmulation and simflags.CTP.RunCTPEmulation():
         from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
