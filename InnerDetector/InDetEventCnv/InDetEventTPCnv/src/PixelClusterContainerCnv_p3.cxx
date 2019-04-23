@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/PixelCluster.h"
@@ -181,7 +181,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p3::createTransient(const
       log << MSG::FATAL << "nullptr for m_pixId in PixelClusterContainerCnv_p3::createTransient" << endmsg;
       return nullptr;
     }
-    std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
+    std::unique_ptr<InDet::PixelClusterContainer> trans(std::make_unique<InDet::PixelClusterContainer>(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
