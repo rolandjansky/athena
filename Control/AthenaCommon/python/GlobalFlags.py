@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################################
 ##
@@ -22,6 +22,8 @@
 
 """
 
+from __future__ import print_function
+
 __author__ = "S.Binet, M.Gallas, David Rousseau"
 __version__= "$Revision: 1.14 $"
 __doc__    = "Global job properties"
@@ -30,8 +32,8 @@ __all__    = [ "GlobalFlags", "globalflags" ]
 
 ##-----------------------------------------------------------------------------
 # imports
-from JobProperties import JobProperty, JobPropertyContainer
-from JobProperties import jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
 
 
 #
@@ -121,13 +123,13 @@ class Luminosity(JobProperty):
 
     # prepare removal for Luminosity    
     #def _undo_action(self):
-    #    print "WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead."
+    #    print ("WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead.")
 
     #def _do_action(self):
-    #    print "WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead."
+    #    print ("WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead.")
 
     #def get_Value(self):
-    #    print "WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead."
+    #    print ("WARNING GlobalFlags.Luminosity is OBSOLETE. Please use beamFlags instead.")
     #    return self.statusOn 
 
 #
@@ -286,7 +288,7 @@ class GlobalFlags:
                     # test if this flag on
                     if classObj.__dict__[attr]:
                         flagName = attr.replace(cls._flagPrefix,'')
-            print format % (classObj.__name__, flagName)
+            print (format % (classObj.__name__, flagName))
             
     # class method
     Print = classmethod(Print)

@@ -34,7 +34,7 @@ done
 source `which athena_preload.sh `
 
 # Now resurrect ourselves as python script
-python_path=`which python`
+python_path=`which python3`
 "exec" "$python_path" "-tt" "$0" "$@";
 
 """

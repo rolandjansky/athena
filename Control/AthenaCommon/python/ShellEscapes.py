@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ShellEscapes.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
 """Provide shell escapes from the prompt by catching name and syntax errors."""
 
+from __future__ import print_function
+
 import os, sys, string
-import exceptions, re
-import Utils.unixtools as unixtools
+import re
+import AthenaCommon.Utils.unixtools as unixtools
 
 
 ### data ________________________________________________________________________
@@ -43,7 +45,7 @@ class ShellEscapes:
       cmd = None
 
     # catch name and syntax errors to perform shell escapes if known
-      if isinstance( value, exceptions.NameError ):
+      if isinstance( value, NameError ):
          res = _NAMEREX.search( str(value) )
          if res:
             cmd = res.group( _NAME )
@@ -52,7 +54,7 @@ class ShellEscapes:
             if cmd in _unacceptable:
                cmd = None
 
-      elif isinstance( value, exceptions.SyntaxError ):
+      elif isinstance( value, SyntaxError ):
          cmd = value.text[:-1]
 
     # execute command, if any
@@ -68,7 +70,7 @@ class ShellEscapes:
 
          if exe == 'help' and len(args) == 2:
             import __main__
-            exec 'help( %s )' % args[1] in __main__.__dict__, __main__.__dict__
+            exec ('help( %s )' % args[1] in __main__.__dict__, __main__.__dict__)
             return
 
        # cache shell command

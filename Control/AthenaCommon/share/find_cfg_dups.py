@@ -4,6 +4,8 @@
     (based on their properties)
 """
 
+from __future__ import print_function
+
 import sys
 import AthenaCommon.CfgMergerLib as cfgmerger
 
@@ -12,8 +14,9 @@ def _make_jobo(joboname, run_full_job=False):
     jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py')
     import textwrap
     job = textwrap.dedent("""\
+    from __future__ import print_function
     import sys, os
-    print '::: analyzing [%(joboname)s]...'
+    print ('::: analyzing [%(joboname)s]...')
     sys.stdout = open(os.devnull,'w')
     sys.stderr = open(os.devnull,'w')
     include ('%(joboname)s')
@@ -33,9 +36,9 @@ def _make_jobo(joboname, run_full_job=False):
         svcMgr.JobOptionsSvc.PythonizedCatalogue = jobo_ascii_table
         
         #theApp.run()
-        #print '::: dumping jobo svc content into ['+oname+']...'
+        #print ('::: dumping jobo svc content into ['+oname+']...')
         #cfg_merger.dump_josvc_content(oname)
-        #print '::: dumping jobo svc content into ['+oname+']... [done]'
+        #print ('::: dumping jobo svc content into ['+oname+']... [done]')
         #theApp.finalize()
     else:
         theApp.exit()
@@ -80,7 +83,7 @@ def main():
         del sys.argv[idx]
 
     joboname = sys.argv[1]
-    print "::: joboname [%s]" % joboname
+    print ("::: joboname [%s]" % joboname)
 
     rc = _run_jobo(joboname, run_full_jobo)
     
