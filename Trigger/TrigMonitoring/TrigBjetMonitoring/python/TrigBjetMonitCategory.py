@@ -9,6 +9,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # v7 + v8 chains
 monitoring_bjet_FTK = ["S_HLT_j35_boffperf_split_FTK_L1J15_FTK", "E_HLT_j35_boffperf_split_FTKVtx_L1J15_FTK", "E_HLT_j35_boffperf_split_FTKRefit_L1J15_FTK",
+                       "S_HLT_j35_boffperf_split_FTK_L1J15", "E_HLT_j35_boffperf_split_FTKVtx_L1J15", "E_HLT_j35_boffperf_split_FTKRefit_L1J15",
                        "E_HLT_j150_boffperf_split_j50_boffperf_split_FTK_L1J100_FTK", "E_HLT_j150_boffperf_split_j50_boffperf_split_FTKVtx_L1J100_FTK",
                        "E_HLT_j150_boffperf_split_j50_boffperf_split_FTKRefit_L1J100_FTK"]
 
