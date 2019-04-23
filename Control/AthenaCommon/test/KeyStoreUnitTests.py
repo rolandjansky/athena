@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Author: Sebastien Binet (binet@cern.ch)
 
 """Unit tests for verifying setting of CfgItemList and CfgKeyStore."""
+
+from __future__ import print_function
+import six
 
 import unittest, sys
 
@@ -140,7 +143,7 @@ class BasicCfgItemListTestCase( unittest.TestCase ):
         self.failUnless( i() == [ 'Klass#key1', 'Klass#key2', 'Klass#key3' ] )
 
         props = i.getProperties()
-        self.failUnless( props.has_key( 'Klass' ) )
+        self.failUnless( 'Klass' in props )
         self.failUnless( len(props['Klass']) == len(['key1','key2','key3']) )
         self.failUnless( 'key1' in props['Klass'] )
         self.failUnless( 'key2' in props['Klass'] )
@@ -188,7 +191,7 @@ class BasicCfgItemListTestCase( unittest.TestCase ):
         self.failUnless( d == orig_d )
 
         ## test extraction of the item list of a given Container type
-        _keys = [ "Klassy#%s" % k for k in 'key1', 'key2', 'key3', 'key4' ]
+        _keys = [ "Klassy#%s" % k for k in ('key1', 'key2', 'key3', 'key4') ]
         self.failUnless(      i(       "Klassy" ) == _keys )
         self.failUnless( i.list(       "Klassy" ) == _keys )
         self.failUnless(      i( key = "Klassy" ) == _keys )
@@ -238,8 +241,8 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
 
     def test1NamedSingleton( self ):
         """Test that instances w/ same name are the same"""
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 0 )
-        self.failUnless( len(CfgItemList.instances.keys()) == 0 )
+        self.failUnless( len(list(CfgKeyStore.instances.keys())) == 0 )
+        self.failUnless( len(list(CfgItemList.instances.keys())) == 0 )
 
         i1 = CfgKeyStore( "MyStore" )
         i2 = CfgKeyStore( "MyStore" )
@@ -248,18 +251,18 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         self.failUnless( i1 !=     CfgKeyStore( "mystore" ) )
         self.failUnless( i1 is not CfgKeyStore( "mystore" ) )
 
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 1 )
-        self.failUnless( len(CfgItemList.instances.keys()) ==
+        self.failUnless( len(list(CfgKeyStore.instances.keys())) == 1 )
+        self.failUnless( len(list(CfgItemList.instances.keys())) ==
                          len(CfgKeyStore.__slots__['Labels'])+1 )
 
         del i1
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 1 )
-        self.failUnless( len(CfgItemList.instances.keys()) ==
+        self.failUnless( len(list(CfgKeyStore.instances.keys())) == 1 )
+        self.failUnless( len(list(CfgItemList.instances.keys())) ==
                          len(CfgKeyStore.__slots__['Labels'])+1 )
 
         del i2
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 0 )
-        self.failUnless( len(CfgItemList.instances.keys()) == 0 )
+        self.failUnless( len(list(CfgKeyStore.instances.keys())) == 0 )
+        self.failUnless( len(list(CfgItemList.instances.keys())) == 0 )
         
     def test2Constructor( self ):
         """Test constructor"""
@@ -333,18 +336,18 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         caught = False
         try:
             ks['unallowedKey'] = range(10)
-        except KeyError, err:
+        except KeyError as err:
             caught = True
         self.failUnless( caught )
 
         caught = False
         try:                  dummy = ks['unallowedKey']
-        except KeyError, err: caught = True
+        except KeyError as err: caught = True
         self.failUnless( caught )
 
         caught = False
         try:                  dummy = ks['streamAOD']
-        except KeyError, err: caught = True
+        except KeyError as err: caught = True
         self.failUnless( not caught )
         del dummy
 
@@ -362,15 +365,17 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         ## might be a bit confusing but 'clear' also removes children
         caught = False
         try:                        dummy = ks.streamAOD
-        except AttributeError, err: caught = True
+        except AttributeError as err: caught = True
         self.failUnless( caught )
 
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 1 )
+        self.failUnless( len(list(CfgKeyStore.instances.keys())) == 1 )
 
         del ks
         ## FIXME
         ## ARGH!!! Somebody is keeping a ref toward ks!
-        self.failUnless( len(CfgKeyStore.instances.keys()) == 1 )
+        ## OK with py3
+        if six.PY3:
+            self.failUnless( len(list(CfgKeyStore.instances.keys())) == 0 )
 
 ##         ks = CfgKeyStore( "MyStore" )
 
@@ -449,7 +454,10 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         self.failUnless( len(ks.transient()) == 3 )
 
         os.remove( outFileName )
-        os.remove( outFileName+'c' )
+        try:
+            os.remove( outFileName+'c' )
+        except FileNotFoundError:
+            pass
 
         import shelve
         outFileName = 'esd_%s.dat' % str(os.getpid())
@@ -463,7 +471,7 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         self.failUnless( len(ks.streamAOD()) == 0 )
         self.failUnless( len(ks.transient()) == 3 )
 
-        print 'outFileName:',outFileName
+        print ('outFileName:',outFileName)
         db = shelve.open( outFileName, 'c' )
         db['store'] = ks
         db.close()
@@ -613,7 +621,7 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         atexit.register (os.unlink, test4_fname)
         try:
             diff = keystore_diff ("ref", "typo-chk", ofile=otest4)
-        except ValueError, err:
+        except ValueError as err:
             err_msg = str(err)
         ref_errmsg = "invalid `chk` argument (non existing instance name [typo-chk])"
         self.failUnless (err_msg == ref_errmsg)
@@ -625,7 +633,7 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         atexit.register (os.unlink, test5_fname)
         try:
             diff = keystore_diff ("typo-ref", "chk", ofile=otest4)
-        except ValueError, err:
+        except ValueError as err:
             err_msg = str(err)
         ref_errmsg = "invalid `ref` argument (non existing instance name [typo-ref])"
         self.failUnless (err_msg == ref_errmsg)

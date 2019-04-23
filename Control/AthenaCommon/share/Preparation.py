@@ -34,12 +34,12 @@ if not opts.run_batch:                               # i.e. interactive
 
 ## create the application manager and start in a non-initialised state
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc
-exec 'theApp.setOutputLevel( %s )' % opts.msg_lvl
+theApp.setOutputLevel( globals()[opts.msg_lvl] )
 theApp._opts = opts                                     # FIXME
 
 ## further job messaging configuration
-if not os.environ.has_key( "POOL_OUTMSG_LEVEL" ):
-   exec 'os.environ[ "POOL_OUTMSG_LEVEL" ] = str(%s)' % opts.msg_lvl
+if not "POOL_OUTMSG_LEVEL" in os.environ:
+   os.environ[ "POOL_OUTMSG_LEVEL" ] = str(globals()[opts.msg_lvl])
 
 ## basic job configuration
 include( "AthenaCommon/Atlas.UnixStandardJob.py" )
@@ -163,7 +163,7 @@ if not opts.minimal:
 
 if opts.command:
    _msg.info( 'executing CLI (-c) command: "%s"' % opts.command )
-   exec opts.command
+   exec (opts.command)
 
 if DbgStage.value == "conf":
    hookDebugger()

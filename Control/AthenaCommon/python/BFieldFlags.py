@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   AthenaCommon/python/BeamFlags.py
@@ -7,6 +7,8 @@
 """
 #
 #
+from __future__ import print_function
+
 __author__  = 'D. Rousseau'
 __version__="$Revision: 1.2 $"
 __doc__="magnetic field flags "
@@ -17,8 +19,8 @@ __doc__="magnetic field flags "
 #=======================================================================
 # imports
 #=======================================================================
-from JobProperties import JobProperty, JobPropertyContainer
-from JobProperties import jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
 
 class override(JobProperty):
     """ True wether magnetic filed is taken from these flags rather than cond db (when available)

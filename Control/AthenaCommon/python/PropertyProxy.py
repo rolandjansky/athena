@@ -4,12 +4,17 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
+from __future__ import print_function
+
 import six
-import os, weakref, copy, types
+import os, weakref, copy
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
 
 # dictionary with configurable class : python module entries
-import ConfigurableDb
+from AthenaCommon import ConfigurableDb
+
+if six.PY3:
+   long = int
 
 
 ### data ---------------------------------------------------------------------
@@ -21,7 +26,7 @@ __all__ = [ 'PropertyProxy',
             'GaudiHandleArrayPropertyProxy' ]
 
 ## for messaging
-from Logging import logging
+from AthenaCommon.Logging import logging
 log = logging.getLogger( 'PropertyProxy' ) 
 
 
@@ -145,7 +150,7 @@ class PropertyProxy( object ):
          proptype = type( self.history[ obj ][ 0 ] )
 
     # check if type known; allow special initializer for typed instances
-      if proptype and not isinstance(proptype, types.NoneType):
+      if proptype and not isinstance(proptype, type(None)):
         # check value itself
           value = _isCompatible( proptype, value )
 

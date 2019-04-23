@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Configuration for the Hive Algorithm Scheduler.
 #
@@ -29,14 +29,16 @@
 #
 
 
+from __future__ import print_function
+
 class AlgScheduler:
     def __init__(self,theSched=None):
         """Setup Algorithm Scheduler"""
 
-        from AppMgr import ServiceMgr as svcMgr
-        from Constants import INFO
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.Constants import INFO
 
-        from ConcurrencyFlags import jobproperties as jps
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jps
         from AthenaCommon.Logging import logging
 
         self.log = logging.getLogger( 'AlgScheduler' )
@@ -64,7 +66,7 @@ class AlgScheduler:
         if (self.SchedulerSvc.getFullName() != theSched.getFullName()) :
             self.log.info("replacing " + self.SchedulerSvc.getFullName() 
                           + " with " + theSched.getFullName())
-            from AppMgr import ServiceMgr as svcMgr
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.remove(self.SchedulerSvc)
             svcMgr += theSched
             self.SchedulerSvc = theSched

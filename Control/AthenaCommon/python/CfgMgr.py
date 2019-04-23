@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/CfgMgr.py
 # @purpose: facade to Configurables
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.3 $"
@@ -27,7 +29,7 @@ class ModuleFacade(types.ModuleType):
       self.__dict__[ '__doc__'  ] = module.__doc__
       self.__dict__[ '__name__' ] = module.__name__
 
-      from ConfigurableDb import getConfigurable
+      from AthenaCommon.ConfigurableDb import getConfigurable
       self.__dict__[ 'getConfigurable' ] = getConfigurable
 
    def __getattr__(self, k):
