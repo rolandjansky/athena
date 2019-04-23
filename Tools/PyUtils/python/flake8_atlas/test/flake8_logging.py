@@ -20,5 +20,7 @@ print("Hello world")
 print("Hello world") # noqa
 print "Hello world"
 
-def myprint(s): pass
-myprint("Function that ends with print is OK")
+# Those should not trigger print warnings:
+def myprint(): pass
+def printSummary(): pass
+def my_print_function(): pass
