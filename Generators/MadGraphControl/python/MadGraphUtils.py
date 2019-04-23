@@ -118,7 +118,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     option_paths = {}
     for l in in_config.readlines():
         for o in needed_options:
-            if o+' =' in l.split('#')[0]:
+            if o+' =' in l.split('#')[0] and 'MCGenerators' in l.split('#')[0]:
                 old_path = l.split('#')[0].split('=')[1].strip().split('MCGenerators')[1]
                 old_path = old_path[ old_path.find('/') : ]
                 if o =='lhapdf' and 'LHAPATH' in os.environ:
