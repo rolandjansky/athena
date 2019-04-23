@@ -17,7 +17,7 @@ __docformat__ = "restructuredtext en"
 
 import ROOT
 import cppyy
-ROOT.TClass.GetClass("TClass")
+ROOT.TClass
 
 def fix_method (clname, methname):
     # Now only a stub.
