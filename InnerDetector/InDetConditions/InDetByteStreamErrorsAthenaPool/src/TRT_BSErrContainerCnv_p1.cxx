@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p1.h"
@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-void TRT_BSErrContainerCnv_p1::transToPers(const TRT_BSErrContainer* transCont, TRT_BSErrContainer_p1* persCont, MsgStream & /* log */) 
+void TRT_BSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_BSErrContainer* transCont, TRT_BSErrContainer_p1* persCont, MsgStream & /* log */) 
 {
   TRT_BSErrContainer::const_iterator it = transCont->begin();
   TRT_BSErrContainer::const_iterator itEnd = transCont->end();
@@ -42,7 +42,7 @@ void  TRT_BSErrContainerCnv_p1::persToTrans(const TRT_BSErrContainer_p1* persCon
 
 //================================================================
 TRT_BSErrContainer* TRT_BSErrContainerCnv_p1::createTransient(const TRT_BSErrContainer_p1* persObj, MsgStream& log) {
-  std::auto_ptr<TRT_BSErrContainer> trans(new TRT_BSErrContainer());
+  std::unique_ptr<TRT_BSErrContainer> trans(std::make_unique<TRT_BSErrContainer>());
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

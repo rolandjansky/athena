@@ -396,12 +396,12 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
         /// However, ABCDError_Chip0-ABCDError_Chip5 and TempMaskedChip0-TempMaskedChip5 are not common for two links.
         if (side==0) {
           IdentifierHash otherSide{IdentifierHash(elt->first  + 1)};
-          addError(otherSide,elt->second, ctx);
-          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy" << otherSide);
+          addError(otherSide, elt->second, ctx);
+          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
         } else if (side==1) {
           IdentifierHash otherSide{IdentifierHash(elt->first  - 1)};
-          addError(otherSide,elt->second, ctx);
-          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy" << otherSide);
+          addError(otherSide, elt->second, ctx);
+          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
         }
       }
     }
