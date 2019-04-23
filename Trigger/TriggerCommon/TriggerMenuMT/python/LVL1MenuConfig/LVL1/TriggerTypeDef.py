@@ -1,9 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-
-class TT:
+class TT(object):
     """
     Trigger type logic
     should also match StreamingDef.py definitions

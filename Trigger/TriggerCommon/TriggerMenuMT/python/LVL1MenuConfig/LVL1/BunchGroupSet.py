@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from copy import deepcopy
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Limits import Limits
 from Lvl1Flags import Lvl1Flags
@@ -30,9 +28,9 @@ def setDefaultBunchGroupDefinition(bgs):
     bgs.bunchGroups[1].bunches = [1]
     bgs.bunchGroups[7].bunches = [1]
 
-class BunchGroupSet:
+class BunchGroupSet(object):
 
-    class BunchGroup:
+    class BunchGroup(object):
         def __init__(self, name='', internalNumber=0, partition=0, bunches=[]):
             self.name           = name
             self.internalNumber = internalNumber
@@ -83,12 +81,12 @@ class BunchGroupSet:
     def addBunchGroup(self, name, internalNumber, bunches):
         # check if internalNumber is within limits
         if internalNumber<0 or internalNumber >= Limits.NumBunchgroups:
-            log.error('Warning: tried to add bunchgroup %i, which is not between 0 and %i' % (internalNumber, Limits.NumBunchgroups-1))
+            log.error('Warning: tried to add bunchgroup %i, which is not between 0 and %i', internalNumber, Limits.NumBunchgroups-1)
             return self
 
         # check if one already exists with this number
-        if self.bunchGroups[internalNumber] != None:
-            log.error('Warning: tried to add bunchgroup %i, but one with that number already exists' % internalNumber)
+        if self.bunchGroups[internalNumber] is not None:
+            log.error('Warning: tried to add bunchgroup %i, but one with that number already exists', internalNumber)
             return self
 
         partition=0
