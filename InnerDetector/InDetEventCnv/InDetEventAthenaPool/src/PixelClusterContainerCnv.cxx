@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -66,10 +66,10 @@ StatusCode PixelClusterContainerCnv::initialize() {
 
 
 InDet::PixelClusterContainer* PixelClusterContainerCnv::createTransient() {
-  const pool::Guid   p0_guid("37B00A31-EA80-45DF-9A3F-2721EC0F0DA6"); // before t/p split
-  const pool::Guid   p1_guid("9DB54746-8C4E-4A56-8B4C-0E5D42905218"); // with PixelCluster_tlp1
-  const pool::Guid   p2_guid("DE48E26B-9E03-4EAD-86B9-351AD88D060E"); // with pixelCluster_p2
-  const pool::Guid   p3_guid("7BF0F163-B227-434C-86A6-16130E005E6C"); // with pixelCluster_p3
+  static const pool::Guid   p0_guid("37B00A31-EA80-45DF-9A3F-2721EC0F0DA6"); // before t/p split
+  static const pool::Guid   p1_guid("9DB54746-8C4E-4A56-8B4C-0E5D42905218"); // with PixelCluster_tlp1
+  static const pool::Guid   p2_guid("DE48E26B-9E03-4EAD-86B9-351AD88D060E"); // with pixelCluster_p2
+  static const pool::Guid   p3_guid("7BF0F163-B227-434C-86A6-16130E005E6C"); // with pixelCluster_p3
   ATH_MSG_DEBUG("createTransient(): main converter");
   InDet::PixelClusterContainer* p_collection(0);
   if( compareClassGuid(p3_guid) ) {
