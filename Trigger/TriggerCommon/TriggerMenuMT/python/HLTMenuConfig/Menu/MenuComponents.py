@@ -9,8 +9,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.CFElements import parOR, seqAND
 
 
-class Node():
-    """ base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
+class Node(object):
+    """base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
     def __init__(self, Alg):
         self.name = ("%sNode")%( Alg.name())
         self.Alg=Alg
@@ -111,7 +111,7 @@ class AlgNode(Node):
         return "Alg::%s  [%s] -> [%s]"%(self.Alg.name(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
-class HypoToolConf():
+class HypoToolConf(object):
     """ Class to group info on hypotools"""
     def __init__(self, hypoToolGen):
         self.hypoToolGen = hypoToolGen
@@ -143,7 +143,6 @@ class HypoAlgNode(AlgNode):
         self.previous=[]
 
     def addHypoTool (self, hypoToolConf):
-        print "here", hypoToolConf.chainDict
         if hypoToolConf.chainDict['chainName'] not in self.tools:
             ## HypoTools are private, so need to be created when added to the Alg
             ## this incantation may seem strange, however it is the only one which works
@@ -210,7 +209,6 @@ class ComboMaker(AlgNode):
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
         dictDecoding = DictFromChainName.DictFromChainName()
         allMultis = dictDecoding.getChainMultFromName(chain)
-        print "WOOF allMultis", allMultis
         newdict = {chain : allMultis}
 
         for i in range(1, len(allMultis)):
@@ -250,7 +248,7 @@ def isFilterAlg(alg):
 ##########################################################
 
 
-class MenuSequence():
+class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         self.name = CFNaming.menuSequenceName(Hypo.name())
@@ -266,7 +264,7 @@ class MenuSequence():
 
     def replaceHypoForCombo(self, HypoAlg):
         log.debug("set new Hypo %s for combo sequence %s ", HypoAlg.name(), self.name)
-        self.hypo= HypoAlgNode( Alg=HypoAlg )
+        self._hypo = HypoAlgNode( Alg=HypoAlg )
 
     @property
     def maker(self):
@@ -338,7 +336,7 @@ def DoMapSeedToL1Decoder(seed):
 
 #################################################
 
-class Chain:
+class Chain(object):
     """Basic class to define the trigger menu """
     def __init__(self, name, Seed, ChainSteps=[]):
         self.name = name
@@ -355,8 +353,7 @@ class Chain:
                 mult=1
             else: 
                 mult=int(mult)
-#            print mult,single
-            for m in range(0,mult): 
+            for m in range(0,mult):
                 self.vseeds.append(single)
 
         # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
@@ -393,7 +390,6 @@ class Chain:
         from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getChainDictFromChainName
         chainDict = getChainDictFromChainName(self.name, allChainDicts)
 
-        print "got here", chainDict
         for step in self.steps:
             if len(chainDict['chainParts']) != len(step.sequences):
                 log.error("Error in step %s: found %d chain parts and %d sequences", step.name, len(chainDict['chainParts']), len(step.sequences))
@@ -409,7 +405,7 @@ class Chain:
                 seq.hypo.addHypoTool(seq.hypoToolConf)
 
 
-class CFSequence():
+class CFSequence(object):
     """Class to describe the ChainStep + filter
 
     """
@@ -470,7 +466,7 @@ class CFSequence():
             self.filter, self.step )
 
 
-class ChainStep:
+class ChainStep(object):
     """Class to describe one step of a chain; if more than one menuSequence, then the step is combo"""
     def __init__(self, name,  Sequences=[]):
         self.name = name
@@ -565,7 +561,7 @@ class InViewReco( ComponentAccumulator ):
         return self.viewMakerAlg
 
 
-class RecoFragmentsPool:
+class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """
     fragments = {}
     @classmethod

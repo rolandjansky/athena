@@ -2,7 +2,7 @@
 
 
 
-class CFNaming ():
+class CFNaming(object):
     """Static Class to collect all string manipulations on CF object names """
     
     RECO_POSTFIX = "_reco"

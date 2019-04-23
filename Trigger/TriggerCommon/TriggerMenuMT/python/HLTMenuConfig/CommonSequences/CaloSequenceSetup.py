@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
-class CaloMenuDefs():
+class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
       from TrigEDMConfig.TriggerEDMRun3 import recordable
       L2CaloClusters= recordable("HLT_L2CaloEMClusters")
