@@ -43,6 +43,8 @@ namespace CP
     virtual void setBool (SG::AuxElement& element,
                           bool selection) const override;
 
+  public:
+    virtual std::string label () const override;
 
 
     //
@@ -52,6 +54,10 @@ namespace CP
     /// \brief the list of selection accessors I rely on
   private:
     std::vector<std::unique_ptr<ISelectionAccessor> > m_list;
+
+    /// \brief the label of the accessor
+  private:
+    std::string m_label;
   };
 }
 
