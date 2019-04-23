@@ -133,3 +133,6 @@ def getRadLengthActionTool(name="G4UA::RadLengthActionTool", **kwargs):
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__RadLengthActionTool(name, **kwargs)
+
+def getVolumeDumperTool(name="G4UA::VolumeDumperTool", **kwargs):
+    return CfgMgr.G4UA__VolumeDumperTool(name, **kwargs)

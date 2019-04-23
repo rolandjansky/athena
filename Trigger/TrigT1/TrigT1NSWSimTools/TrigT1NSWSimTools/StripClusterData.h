@@ -1,10 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPCLUSTERDATA_H
 #define STRIPCLUSTERDATA_H
 
+
+// local includes
+#include <stdint.h>
+#include <ostream>
+
+
+class Identifier;
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
@@ -28,6 +35,8 @@ namespace NSWL1 {
 
     //! methods for retrieving the bare data
     virtual int bandId()         const = 0; //!< get the band id
+    virtual int phiId()         const = 0; //!< get the phi id
+    virtual int BCID()          const=0;
     //! helper  methods decoding the hit fragment position within the NSW detector
     virtual int isSmall()      const = 0;    //!< get the side (0==sideC, 1==sideA)
     virtual int moduleId()    const = 0;    //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)

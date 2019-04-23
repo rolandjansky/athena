@@ -83,6 +83,12 @@ class Lvl1SimulationGetter (Configured):
                 from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
                 topSequence += LVL1__TrigT1MBTS()
 
+            if TriggerFlags.doLVL1PhaseI():
+                log.info("setting up the Run 3 L1 calo simulation")
+                from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
+                simflags.Calo.SCellType = "Emulated" # as we have no SuperCells yet
+                from TrigT1CaloFexSim.L1SimulationSequence import setupRun3L1CaloSimulationSequence
+                setupRun3L1CaloSimulationSequence(skipCTPEmulation=True)
 
             # schedule simulation
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
@@ -176,9 +182,14 @@ class Lvl1SimulationGetter (Configured):
                     topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 0
 
 
-            log.info("adding ctp simulation to the topSequence")
-            from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
-            topSequence += CTPSimulationInReco("CTPSimulation")
+            if TriggerFlags.doLVL1PhaseI():
+                log.info("adding Run 3 CTP emulation to the topSequence")
+                from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
+                enableCTPEmulation(topSequence)
+            else:
+                log.info("adding CTP simulation to the topSequence")
+                from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
+                topSequence += CTPSimulationInReco("CTPSimulation")
             
             log.info("adding ROIB simulation to the topSequence")
             from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder
@@ -256,5 +267,5 @@ class Lvl1SimulationGetter (Configured):
 #        objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
 #        from TrigEDMConfig.TriggerEDM import getLvl1AODList
 #        objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
-        
+
         return True

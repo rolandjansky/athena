@@ -35,11 +35,8 @@ namespace xAOD{
     std::vector<float> deta;
     std::vector<float> dphi;
     std::vector<float> et;
-    std::vector<float> LAr_et;
-    std::vector<float> Tile_et;
     std::vector<int>   Id;
     std::vector<int>   sampling;
-    std::vector<float> tileFrac;
     std::vector<std::vector<int>> SCIndex;
     std::vector<std::vector<int>> TileIndex;
   }; // class JGTowerAuxContainer 

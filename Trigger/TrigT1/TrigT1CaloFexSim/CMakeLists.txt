@@ -40,6 +40,7 @@ atlas_add_component( TrigT1CaloFexSim
                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver )
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py )
 atlas_install_data( data/* )
 atlas_install_data( share/jetTowerMaps )
 atlas_install_joboptions( share/*.py )

@@ -1530,6 +1530,7 @@ trigMuonEFCombinerDiMuonMassThresholds = {
      '10invm60': [ 10.0,   60.0 ],
      '20invm60': [ 20.0,   60.0 ],
      '20invm80': [ 20.0,   80.0 ],
+     '10invm80': [ 10.0,   80.0 ],
     }
 
 class TrigMuonEFCombinerDiMuonMassHypoConfig(TrigMuonEFCombinerDiMuonMassHypo) :

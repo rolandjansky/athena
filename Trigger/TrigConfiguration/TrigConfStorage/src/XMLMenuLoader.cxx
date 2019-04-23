@@ -35,6 +35,8 @@ TrigConf::XMLMenuLoader::load(Menu& menu) {
    IThresholdConfigLoader& thrcfgloader = m_storageMgr.thresholdConfigLoader();
    thrcfgloader.setLevel(outputLevel());
    thrcfgloader.load( menu.thresholdConfig() );
+   std::cerr << std::flush;
+   std::cout << std::flush;
    TRG_MSG_INFO("Number of thresholds in the menu: " << menu.thresholdConfig().size());
 
    for(value_type v: pt()) {
@@ -122,10 +124,10 @@ TrigConf::XMLMenuLoader::readNode(const ptree::value_type& pt,
                trig_node->setTriggerThreshold(trig_thr);
                trig_node->setMultiplicity(mult);
             } else {
-               msg() << "XMLMenuLoader:               ERROR cannot find threshold " << thr_name << std::endl;
+               TRG_MSG_ERROR("cannot find threshold " << thr_name);
             }
          } else {
-            msg() << "XMLMenuLoader:               ERROR TriggerCondition without threshold " << std::endl;
+            TRG_MSG_ERROR("TriggerCondition without threshold");
          }
       } else if (node_name == "InternalTrigger") {
          std::string thr_name("");

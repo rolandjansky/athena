@@ -205,7 +205,7 @@ def generateChainDefs(chainDict):
 #  New AllTE Building (Only do it for split chains and non FTK)
 #
 def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
- 
+
     log.debug("In buildBjetChainsAllTE")
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
 
@@ -470,6 +470,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
 ###########################################################################
 ###########################################################################
 def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
+
     log.debug("In buildBjetChains")
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
@@ -515,10 +516,12 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     btagcut = btagcut[1:]
 
     ### changes for HH4b (bXX instead of bmv2c10XX)
+    isHH4bTrigger = False
     if ( btagcut == '40' or btagcut == '50' or
          btagcut == '60' or btagcut == '70' or
          btagcut == '77' or btagcut == '85' ):
         btagcut = 'mv2c10' + btagcut
+        isHH4bTrigger = True
 
     ftk=""
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:
@@ -621,7 +624,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 #        from TrigBjetHypo.TrigBjetFexConfig  import getBjetFexSplitInstance
 #        theBjetFex = getBjetFexSplitInstance(algoInstance,"2012","EFID")
 
-    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag'] or 'bhmv2c10' in chainParts['bTag']):
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag'] or 'bhmv2c10' in chainParts['bTag'] or isHH4bTrigger == True):
         # Offline taggers
         if('FTKRefit' in chainParts['bTracking']):
             theBjetFex = getBtagFexFTKRefitInstance(algoInstance,"2012","EFID") 

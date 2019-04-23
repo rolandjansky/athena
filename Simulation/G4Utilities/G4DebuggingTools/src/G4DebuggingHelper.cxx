@@ -1,4 +1,4 @@
-#include "StepHistogram.h"
+#include "G4DebuggingTools/G4DebuggingHelper.h"
 
 #include "G4Electron.hh"
 #include "G4Positron.hh"
