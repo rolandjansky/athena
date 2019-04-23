@@ -67,10 +67,11 @@ StatusCode EFMissingETFromClustersMT::initialize()
 
 
 StatusCode EFMissingETFromClustersMT::update(xAOD::TrigMissingET *met ,
-					      TrigEFMissingEtHelper *metHelper, const EventContext& ctx ) const
+					      TrigEFMissingEtHelper *metHelper, 
+					     const EventContext& ctx ) const
 {
   
-  ATH_MSG_DEBUG( "called EFMissingETFromClustersMT::execute()" );
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersMT::update()" );
 
   /* This is a bit opaque but necessary to cooperate with how the MET helper 
      and MissingETFromHelper classes work. This will be cleaned up (ATR-19488).

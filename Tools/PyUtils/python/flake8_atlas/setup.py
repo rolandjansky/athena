@@ -15,8 +15,9 @@ setuptools.setup(
    entry_points={
       'flake8.extension': [
          'ATL100 = PyUtils.flake8_atlas.checks:delayed_string_interpolation',
-         'ATL232 = PyUtils.flake8_atlas.python23:hacking_python3x_octal_literals',
-         'ATL233 = PyUtils.flake8_atlas.python23:hacking_python3x_print_function',
+         'ATL231 = PyUtils.flake8_atlas.python23:hacking_python3x_octal_literals',
+         'ATL232 = PyUtils.flake8_atlas.python23:incompatible_print_statement',
+         'ATL233 = PyUtils.flake8_atlas.python23:print_statement',
          'ATL234 = PyUtils.flake8_atlas.python23:hacking_no_assert_equals',
          'ATL235 = PyUtils.flake8_atlas.python23:hacking_no_assert_underscore',
          'ATL236 = PyUtils.flake8_atlas.python23:hacking_python3x_metaclass',

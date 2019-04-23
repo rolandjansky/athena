@@ -43,7 +43,7 @@ StatusCode TRT_DriftCircleContainerCnv_p0::initialize(MsgStream &log ) {
 
 InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p0::createTransient(TRT_DriftCircleContainer_p0* persObj, MsgStream& log) {
 
-  std::unique_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->straw_layer_hash_max()) );
+  std::unique_ptr<InDet::TRT_DriftCircleContainer> trans(std::make_unique<InDet::TRT_DriftCircleContainer>(m_trtId->straw_layer_hash_max()) );
   MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
   
   for (InDet::TRT_DriftCircleCollection* dcColl : *persObj) {

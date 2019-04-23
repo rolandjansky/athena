@@ -22,7 +22,6 @@ class TileDigitsContainer;
 class Identifier;
 class TileTTL1Cell;
 class CondAttrListCollection;
-class ILArHVCorrTool;
 class L1CaloRxCoolChannelId;
 
 namespace coral{
