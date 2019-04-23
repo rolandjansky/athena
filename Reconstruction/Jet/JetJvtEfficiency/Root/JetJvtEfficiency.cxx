@@ -193,21 +193,23 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
   sf = 1;
   const xAOD::JetContainer *truthJets = nullptr;
   if( evtStore()->retrieve(truthJets, m_truthJetContName).isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve truth jet container with name " << m_truthJetContName);
+      ATH_MSG_ERROR("Unable to retrieve truth jet container with name " << m_truthJetContName);
+      return CP::CorrectionCode::Error;
   }
   if(!truthJets || tagTruth(jets,truthJets).isFailure()) {
-    ATH_MSG_WARNING("Unable to match truthJets to jets in tagTruth() method");
+    ATH_MSG_ERROR("Unable to match truthJets to jets in tagTruth() method");
+    return CP::CorrectionCode::Error;
   }
   for(const auto& ipart : *jets) {
     if (ipart->type()!=xAOD::Type::Jet) {
-      ATH_MSG_WARNING("Input is not a jet");
+      ATH_MSG_ERROR("Input is not a jet");
       return CP::CorrectionCode::Error;
     }
     const xAOD::Jet *jet = static_cast<const xAOD::Jet*>(ipart);
     float current_sf = 0;
     CorrectionCode result = (m_dofJVT?jet->getAttribute<char>(m_jetfJvtMomentName):passesJvtCut(*jet))?this->getEfficiencyScaleFactor(*jet,current_sf):this->getInefficiencyScaleFactor(*jet,current_sf);
     if (result == CP::CorrectionCode::Error) {
-      ATH_MSG_WARNING("Inexplicably failed JVT calibration" );
+      ATH_MSG_ERROR("Inexplicably failed JVT calibration" );
       return result;
     }
     (*m_sfDec)(*jet) = current_sf;
