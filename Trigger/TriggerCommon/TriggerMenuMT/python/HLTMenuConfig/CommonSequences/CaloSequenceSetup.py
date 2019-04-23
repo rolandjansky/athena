@@ -8,7 +8,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 class CaloMenuDefs():
       """Static Class to collect all string manipulations in Calo sequences """
-      L2CaloClusters= ""
+      from TrigEDMConfig.TriggerEDMRun3 import recordable
+      L2CaloClusters= recordable("HLT_L2CaloEMClusters")
 
 
 

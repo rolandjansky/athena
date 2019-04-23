@@ -243,7 +243,3 @@ StreamESD.ItemList = ItemList
 
 
 HLTTop = findSubSequence(topSequence, "HLTTop")
-
-
-
-
