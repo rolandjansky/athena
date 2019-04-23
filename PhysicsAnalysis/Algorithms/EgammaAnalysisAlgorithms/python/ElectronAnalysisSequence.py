@@ -183,9 +183,9 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
+    alg.scaleFactorDecoration = 'effSF' + postfix
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
-    alg.efficiencyDecoration = 'effCor' + postfix
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
           ROOT.PATCore.ParticleDataType.Fast

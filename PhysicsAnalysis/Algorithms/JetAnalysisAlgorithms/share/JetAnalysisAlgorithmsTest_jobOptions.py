@@ -57,10 +57,10 @@ ntupleMaker.Branches = [
 ]
 if dataType != 'data':
     ntupleMaker.Branches += [
-        'EventInfo_%SYS%.jvt_efficiency -> jvtSF_%SYS%',
-        'EventInfo_%SYS%.fjvt_efficiency -> fjvtSF_%SYS%',
-        'AnalysisJets_%SYS%.jvt_efficiency -> jet_%SYS%_jvtEfficiency',
-        'AnalysisJets_%SYS%.fjvt_efficiency -> jet_%SYS%_fjvtEfficiency',
+        'EventInfo_%SYS%.jvt_effSF -> jvtSF_%SYS%',
+        'EventInfo_%SYS%.fjvt_effSF -> fjvtSF_%SYS%',
+        'AnalysisJets_%SYS%.jvt_effSF -> jet_%SYS%_jvtEfficiency',
+        'AnalysisJets_%SYS%.fjvt_effSF -> jet_%SYS%_fjvtEfficiency',
     ]
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker

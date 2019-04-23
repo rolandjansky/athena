@@ -155,9 +155,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                            'PhotonEfficiencyCorrectionAlg' + postfix )
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgPhotonEfficiencyCorrectionTool' )
+    alg.scaleFactorDecoration = 'effSF' + postfix
     alg.efficiencyCorrectionTool.MapFilePath = \
         'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
-    alg.efficiencyDecoration = 'effCor' + postfix
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
           ROOT.PATCore.ParticleDataType.Fast

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -61,13 +61,13 @@ namespace CP
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the b-tagging efficiency
+    /// \brief the decoration for the b-tagging scale factor
   private:
-    std::string m_efficiencyDecoration;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiencyDecoration
+    /// \brief the accessor for \ref m_scaleFactorDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
 
     /// \brief the decoration for the b-tagging selection
   private:
