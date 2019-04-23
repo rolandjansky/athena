@@ -103,12 +103,7 @@ private:
 
   // For P->T converters of ID tracks with SCT
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-
-  /* counters. For now use mutable atomic
-   * the methods will increment a local variable
-   * inside the loops.
-   * At the end they will add_fetch to these ones
-   */
+  
   mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
   mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;
   mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTracks;
