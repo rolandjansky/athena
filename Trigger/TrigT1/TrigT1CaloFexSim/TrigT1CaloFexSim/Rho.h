@@ -89,7 +89,7 @@ float Rho_bar(std::vector<const xAOD::JGTower*> towers, const bool useNegTowers)
       }
     }
   }
-  float rho_bar = rho/length;
+  float rho_bar = length > 0 ? rho/length : 0;
 
   return rho_bar;
 }

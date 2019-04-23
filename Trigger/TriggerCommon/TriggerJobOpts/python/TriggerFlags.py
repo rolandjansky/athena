@@ -28,6 +28,14 @@ class doLVL1(JobProperty):
 
 _flags.append(doLVL1)
 
+class doLVL1PhaseI(JobProperty):
+    """ enables the Run 3 simulation for L1 and HLT """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=False
+ 
+_flags.append(doLVL1PhaseI)
+
 class doL1Topo(JobProperty):
     """ Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file) """
     statusOn=True

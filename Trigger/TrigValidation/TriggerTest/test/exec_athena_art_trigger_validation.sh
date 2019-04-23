@@ -5,7 +5,7 @@ echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 ### DEFAULTS
 
 if [ -z ${MENU} ]; then
-  export MENU="MC_pp_v7_TriggerValidation_mc_prescale"
+  export MENU="MC_pp_v8"
 fi
 
 if [ -z ${EVENTS} ]; then
@@ -24,7 +24,7 @@ if [ -z ${JOB_LOG} ]; then
   export JOB_LOG="athena.log"
 fi
 
-if [ -z ${EXTRA} ]; then
+if [ -z "${EXTRA}" ]; then
   export EXTRA="extraPython=False;"
 fi
 
