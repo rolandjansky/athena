@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -471,26 +471,19 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& trac
 	if (!perigee) perigee = (*(track.trackStateOnSurfaces()->begin()))->trackParameters();
 
 	if (perigee) {
-		Trk::TrackStateOnSurfaceComparisonFunction* CompFunc =
-			new Trk::TrackStateOnSurfaceComparisonFunction( perigee->momentum() );
+		Trk::TrackStateOnSurfaceComparisonFunction CompFunc( perigee->momentum() );
 
 		if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
 			/* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
-			   not 100% transitive comparison functor.
-			   DataVector doesn't have stable sort, so we need to tamper with
-			   its vector content in order to avoid sort to get caught in DV full
-			   object ownership */
+			   not 100% transitive comparison functor. */
 			if (msgLvl(MSG::DEBUG)) {
 				msg() << "sorting vector with stable_sort" << endmsg;
 			}
-			std::vector<const Trk::TrackStateOnSurface*>* PtrVector
-				= const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&tsos->stdcont());
-			stable_sort( PtrVector->begin(), PtrVector->end(), *CompFunc );
+			stable_sort( tsos->begin(), tsos->end(), CompFunc );
 		} else {
-			tsos->sort( *CompFunc ); // respects DV object ownership
+			tsos->sort( CompFunc ); // respects DV object ownership
 		}
 
-		delete CompFunc;
 	}
 
 	// create copy of track
