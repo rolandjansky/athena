@@ -197,7 +197,7 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 UseEMScale                      = True)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
-#from AthenaCommon import CfgMgr
+from AthenaCommon import CfgMgr
 tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
 tit.TrackSelectionTool.maxZ0SinTheta = 3
 tit.TrackSelectionTool.minPt         = 1000
