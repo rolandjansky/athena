@@ -1570,10 +1570,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         double eta = thisjet->eta();
         double phi = thisjet->phi();
 
-	double  emfrac  =1;
-	double  hecfrac =1;
-	if (m_isPP || m_isCosmic || m_isMC){
-	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	float  emfrac  =1;
+	float  hecfrac =1;
+	if ((m_isPP || m_isCosmic || m_isMC) &&
+            thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+        {
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	  ATH_MSG_VERBOSE( "REGTEST    emfrac: " << emfrac ); 
 	  ATH_MSG_VERBOSE( "REGTEST    hecfrac: " << hecfrac ); 
@@ -1674,10 +1675,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             ATH_MSG_DEBUG( lvl << " thisjet->pt() =  " << et );
             double  eta     = thisjet->eta();
             double  phi     = thisjet->phi();
-	    double  emfrac  =1;
-	    double  hecfrac =1;
-	    if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	    float  emfrac  =1;
+	    float  hecfrac =1;
+	    if ((m_isPP || m_isCosmic || m_isMC) &&
+                thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+            {
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
@@ -1788,10 +1790,11 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	 if(hlt_thr_pass) {
 	   double eta     = j->eta();
 	   double phi     = j->phi();
-	   double  emfrac  =1;
-	   double  hecfrac =1;
-	   if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	   float  emfrac  =1;
+	   float  hecfrac =1;
+	   if ((m_isPP || m_isCosmic || m_isMC) &&
+               j->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+           {
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
