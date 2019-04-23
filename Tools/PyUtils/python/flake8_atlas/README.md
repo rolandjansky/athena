@@ -15,3 +15,15 @@ flake8 --enable-extension=ATL901
 In addition to ATLAS specific plugins most of the `python23.py` plugins from
 the [hacking](https://github.com/openstack-dev/hacking) plugin by OpenStack
 were imported (and some modified).
+
+## Addition of new plugins
+New plugins should be added following the existing examples:
+*  Add an entry_point to `setup.py`.
+*  Add the plugin code to one of the existing python files.
+*  Build the package (only needed when adding/changing entry points).
+*  If the plugin is enabled by default, make sure to run all existing flake8 unit tests
+   (`git grep -l flake8 '*/CMakeLists.txt'`) and apply the relevant fixes.
+
+### External Documentation:
+*  http://flake8.pycqa.org/en/latest/plugin-development
+*  AST-based plugins: https://greentreesnakes.readthedocs.io/en/latest/

@@ -22,7 +22,6 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
 
     # configure tools (this can be simplified further,
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig # use existing setup
 
     samp2 = EgammaReSamp2Fex(name='FaAlgoSamp2FexConfig', MaxDetaHotCell=0.15, MaxDphiHotCell=0.15)
     acc.addPublicTool( samp2 )
@@ -38,6 +37,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
+    #from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
     #ring = RingerFexConfig('RingsMaker')
     #ring.OutputLevel=DEBUG
     #ring.RingsKey='CaloRings'
@@ -50,12 +50,11 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
         t.OutputLevel = DEBUG
 
     
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
-    alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")    
+    alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
 
     alg.IReAlgToolList = __fex_tools
-    alg.ClustersName   = recordable('L2CaloEMClusters')
+    alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2

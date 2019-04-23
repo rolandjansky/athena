@@ -228,7 +228,7 @@ TrigSignatureMoniMT                                INFO HLT_j85 decisions       
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar                 20        20        3         2         2         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar decisions                           3         2         2         0         
 TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         2         1         1         1         
-TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 3         2         2         1         
+TrigSignatureMoniMT                                INFO HLT_mu6 decisions                                 3         2         1         1         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb                   20        20        3         2         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb decisions                             3         2         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6fast                   20        20        3         0         0         0         3         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,10 +23,10 @@ TRT_BSErrContainerCnv::createPersistent(TRT_BSErrContainer* transCont) {
 TRT_BSErrContainer* 
 TRT_BSErrContainerCnv::createTransient() {
   MsgStream log(msgSvc(), "TRT_BSErrContainerCnv" );
-  static pool::Guid   p1_guid("D461AC01-02CA-4A9E-886B-24EC14309121");
+  static const pool::Guid   p1_guid("D461AC01-02CA-4A9E-886B-24EC14309121");
   if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< TRT_BSErrContainer_p1 > col_vect( poolReadObject< TRT_BSErrContainer_p1 >() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr< TRT_BSErrContainer_p1 > col_vect( poolReadObject< TRT_BSErrContainer_p1 >() );
     return m_TPConverter.createTransient( col_vect.get(), log );
   }
   throw std::runtime_error("Unsupported persistent version of Data Collection");

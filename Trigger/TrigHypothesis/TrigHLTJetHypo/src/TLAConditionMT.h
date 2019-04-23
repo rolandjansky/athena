@@ -39,7 +39,7 @@ class TLAConditionMT: public IConditionMT{
   ~TLAConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   IConditionVisitor*) const override;
+                   std::unique_ptr<IConditionVisitor>&) const override;
   std::string toString() const noexcept override;
 
  private:

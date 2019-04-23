@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerMenuContainer.h 630856 2014-11-25 11:22:49Z gwatts $
@@ -23,7 +23,7 @@ CLASS_DEF( xAOD::TriggerMenuContainer, 1107011239, 1 )
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/MetaCont.h"
 CLASS_DEF( MetaCont<xAOD::TriggerMenuContainer> , 11070039 , 1 )
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( MetaCont<xAOD::TriggerMenuContainer>, MetaContBase );
 #endif // not XAOD_STANDALONE
 

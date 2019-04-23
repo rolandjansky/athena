@@ -38,7 +38,7 @@ class MemTraceInclude( Include ):
             rss = float(popen('ps -p %d -o %s | tail -1' % (getpid(), "rss")).read())
             vmem = vsz*pageSize / 1024.0 / 1024.0
             rss  = rss / 1024.0
-         ####    print 'getpid(%d) pageSize(%f) vmem(%f) rss(%f)' % (getpid(), pageSize, vmem, rss)
+         ####    print ('getpid(%d) pageSize(%f) vmem(%f) rss(%f)' % (getpid(), pageSize, vmem, rss))
             self.msg.info(
                 'VSIZE = %8.3f MB, SIZE = %8.3f MB, RSS = %8.3f MB',
                 vmem,

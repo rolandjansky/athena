@@ -29,7 +29,7 @@ class IGroupsMatcherMT{
   virtual ~IGroupsMatcherMT(){}
   virtual bool match(const HypoJetGroupCIter&,
                      const HypoJetGroupCIter&,
-                     IConditionVisitor*) = 0;
+                     std::unique_ptr<IConditionVisitor>&) = 0;
   virtual ConditionsMT getConditions() const noexcept = 0;
   virtual std::string toString() const noexcept = 0;
 };

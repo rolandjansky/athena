@@ -46,7 +46,8 @@ def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
     algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg")
     algo.RoIs=inputEDM
-    algo.ClustersName="L2CaloClusters" # defalut value, added for debugging
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    algo.ClustersName=recordable("HLT_L2CaloEMClusters")
     algo.OutputLevel=OutputLevel
     return algo
 

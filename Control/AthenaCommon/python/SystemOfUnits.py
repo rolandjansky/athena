@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/SystemOfUnits.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
@@ -46,6 +46,8 @@
 # 05.08.98   angstrom, picobarn, microsecond, picosecond, petaelectronvolt
 # 01.03.01   parsec    
 # -----
+
+from __future__ import print_function
 
 # 
 # Length [L]

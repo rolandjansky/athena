@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from PyCool import cool
+from __future__ import print_function
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 class LArRunInfo:
@@ -65,7 +65,7 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
         connstring = "COOLONL_LAR/"+conddb.dbdata
     
     mlog_LRF.info("Connecting to database " + connstring)
-    print "run=",run
+    print ("run=",run)
     runDB=indirectOpen(connstring,oracle=readOracle)
     if (runDB is None):
         mlog_LRF.error("Cannot connect to database %s",connstring)
@@ -88,7 +88,7 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
         runType=payload['runType']
         latency=ord(payload['l1aLatency'])
         firstSample=ord(payload['firstSample'])
-    except Exception,e:
+    except Exception as e:
         mlog_LRF.warning("No information in /LAR/Configuration/RunLog for run %i" % run)
         #mlog_LRF.warning(e)
         del mlog_LRF
@@ -102,11 +102,11 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
 if __name__=='__main__':
     import sys
     if len(sys.argv)!=2:
-        print "Syntax",sys.argv[0],'<run>'
+        print ("Syntax",sys.argv[0],'<run>')
         sys.exit(-1)
     run=int(sys.argv[1])
     myformat=getLArFormatForRun(run)
     if (myformat is not None):
-      print " LAr run configuration: Nsamples:%d  GainType:%d  Latency:%d  FirstSample:%d  Format:%s  runType:%s" % (myformat.nSamples(),myformat.gainType(),myformat.latency(),myformat.firstSample(),myformat.stringFormat(),myformat.stringRunType())
+      print (" LAr run configuration: Nsamples:%d  GainType:%d  Latency:%d  FirstSample:%d  Format:%s  runType:%s" % (myformat.nSamples(),myformat.gainType(),myformat.latency(),myformat.firstSample(),myformat.stringFormat(),myformat.stringRunType()))
     else:
-      print " LAr run infomation not available"
+      print (" LAr run infomation not available")

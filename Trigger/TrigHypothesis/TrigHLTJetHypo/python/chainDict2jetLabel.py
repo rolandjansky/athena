@@ -78,7 +78,7 @@ def select_vbenf_chains(scenario):
 
 def make_vbenf_label(scenario):
     """Marshal information from the selected chainParts to create a
-    vbenf label.
+    vbenf label. USe a Reducer for elimination of unusable jets
     """
 
     # toy label for developement: run simple and dijet independently.
@@ -133,7 +133,50 @@ def make_vbenf_label(scenario):
     assert len(args) == len(arg_res)
     assert len(args) == 0
 
-    return 'and([] simple([(%(etlo).0fet)(%(etlo).0fet)]) combgen([(2)] dijet([(%(masslo).0fmass, 26dphi)]) simple([(10et)(20et)])))' % argvals
+    return """
+    and
+    (
+      []
+      simple
+      (
+        [(%(etlo).0fet)(%(etlo).0fet)]
+      )
+      combgen
+      (
+        [(2)(10et)]
+        dijet
+        (
+          [(%(masslo).0fmass, 26dphi)]
+        ) 
+        simple
+        (
+          [(10et)(20et)]
+        )
+      )
+    )""" % argvals
+
+    # return """
+    # and
+    # (
+    #   []
+    #   simple
+    #   (
+    #     [(%(etlo).0fet)(%(etlo).0fet)]
+    #   )
+    #   combgen
+    #   (
+    #     [(2)]
+    #     dijet
+    #     (
+    #       [(%(masslo).0fmass, 26dphi)]
+    #     ) 
+    #     simple
+    #     (
+    #       [(10et)(20et)]
+    #     )
+    #   )
+    # )""" % argvals
+
 
 
 
@@ -157,12 +200,12 @@ def _test0():
 
 
 def _test1():
-    scenario = 'vbenf.81et.34mass35.503fbet'
+    scenario = 'vbenfSEP81etSEP34mass35SEP503fbet'
     print scenario
     print make_vbenf_label(scenario)
     print
     scenario = 'vbenf'
-    print scenario
+    print scenario, ' - note: no arguments'
     print make_vbenf_label(scenario)
 
 

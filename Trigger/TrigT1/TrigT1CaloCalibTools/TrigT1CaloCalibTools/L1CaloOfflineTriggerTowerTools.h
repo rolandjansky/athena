@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -20,11 +20,14 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 // ID includes
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // L1 includes
 #include "TrigT1CaloEvent/TriggerTower.h"
@@ -49,7 +52,6 @@
 // LAr includes
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
@@ -85,168 +87,175 @@ public:
       typedef std::vector<const CaloCell*>::const_iterator Itr_vCaloCells;
       typedef std::vector<std::vector<const CaloCell*> >::const_iterator Itr_vvCaloCells;
 
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
       //   Location, ID and Navigation Information
-      int                                        emPpmCrate(const TriggerTower* tt) const;
-      int                                        emPpmModule(const TriggerTower* tt) const;
-      int                                        emPpmSubmodule(const TriggerTower* tt) const;
-      int                                        emPpmChannel(const TriggerTower* tt) const;
-      unsigned int                               emCoolChannelId(const TriggerTower* tt) const;
-      std::vector<int>                           emLocation(const TriggerTower* tt) const;
-      std::vector<unsigned int>                  emRxId(const TriggerTower* tt) const;
+      virtual int                                emPpmCrate(const TriggerTower* tt) const override;
+      virtual int                                emPpmModule(const TriggerTower* tt) const override;
+      virtual int                                emPpmSubmodule(const TriggerTower* tt) const override;
+      virtual int                                emPpmChannel(const TriggerTower* tt) const override;
+      virtual unsigned int                       emCoolChannelId(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   emLocation(const TriggerTower* tt) const override;
+      virtual std::vector<unsigned int>          emRxId(const TriggerTower* tt) const override;
 
-      int                                        hadPpmCrate(const TriggerTower* tt) const;
-      int                                        hadPpmModule(const TriggerTower* tt) const;
-      int                                        hadPpmSubmodule(const TriggerTower* tt) const;
-      int                                        hadPpmChannel(const TriggerTower* tt) const;
-      unsigned int                               hadCoolChannelId(const TriggerTower* tt) const;
-      std::vector<int>                           hadLocation(const TriggerTower* tt) const;
-      std::vector<unsigned int>                  hadRxId(const TriggerTower* tt) const;
-      int                                        hadIsTile(const TriggerTower* tt) const;
+      virtual int                                hadPpmCrate(const TriggerTower* tt) const override;
+      virtual int                                hadPpmModule(const TriggerTower* tt) const override;
+      virtual int                                hadPpmSubmodule(const TriggerTower* tt) const override;
+      virtual int                                hadPpmChannel(const TriggerTower* tt) const override;
+      virtual unsigned int                       hadCoolChannelId(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   hadLocation(const TriggerTower* tt) const override;
+      virtual std::vector<unsigned int>          hadRxId(const TriggerTower* tt) const override;
+      virtual int                                hadIsTile(const TriggerTower* tt) const override;
 
       //  Energy, Et and Layer Information
-      std::vector<const CaloCell*>               emCells(const TriggerTower* tt) const;
-      int                                        emNCells(const TriggerTower* tt) const;
-      std::vector<int>                           emNCellsByLayer(const TriggerTower* tt) const;
-      std::vector<int>                           emNCellsByReceiver(const TriggerTower* tt) const;
-      std::vector<std::vector<int> >             emNCellsByReceiverByLayer(const TriggerTower* tt) const;
-      std::vector<int>                           emTTCellsLayerNames(const TriggerTower* tt) const;
-      std::vector<std::vector<int> >             emTTCellsLayerNamesByReceiver(const TriggerTower* tt) const;
-      float                                      emTTCellsEnergy(const TriggerTower* tt) const;
-      std::vector<float>                         emTTCellsEnergyByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt, const int mode = 0) const;
-      float                                      emTTCellsEt(const TriggerTower* tt) const;
-      std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const;
-      float                                      emLArTowerEnergy(const TriggerTower* tt) const;
+      virtual std::vector<const CaloCell*>       emCells(const TriggerTower* tt) const override;
+      virtual int                                emNCells(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   emNCellsByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   emNCellsByReceiver(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<int> >     emNCellsByReceiverByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   emTTCellsLayerNames(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<int> >     emTTCellsLayerNamesByReceiver(const TriggerTower* tt) const override;
+      virtual float                              emTTCellsEnergy(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emTTCellsEnergyByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emTTCellsEnergyByReceiver(const TriggerTower* tt, const int mode = 0) const override;
+      virtual float                              emTTCellsEt(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emTTCellsEtByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const override;
+      virtual float                              emLArTowerEnergy(const TriggerTower* tt) const override;
 
-      std::vector<const CaloCell*>               hadCells(const TriggerTower* tt) const;
-      int                                        hadNCells(const TriggerTower* tt) const;
-      std::vector<int>                           hadNCellsByLayer(const TriggerTower* tt) const;
-      std::vector<int>                           hadNCellsByReceiver(const TriggerTower* tt) const;
-      std::vector<std::vector<int> >             hadNCellsByReceiverByLayer(const TriggerTower* tt) const;
-      std::vector<int>                           hadTTCellsLayerNames(const TriggerTower* tt) const;
-      std::vector<std::vector<int> >             hadTTCellsLayerNamesByReceiver(const TriggerTower* tt) const;
-      float                                      hadTTCellsEnergy(const TriggerTower* tt) const;
-      std::vector<float>                         hadTTCellsEnergyByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         hadTTCellsEnergyByReceiver(const TriggerTower* tt, const int mode = 0) const;
-      float                                      hadTTCellsEt(const TriggerTower* tt) const;
-      std::vector<float>                         hadTTCellsEtByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         hadTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const;
-      float                                      hadLArTowerEnergy(const TriggerTower* tt) const;
-      float                                      tileCellEnergy(const TriggerTower* tt, IdTTL1CellMapType& map) const;
+      virtual std::vector<const CaloCell*>       hadCells(const TriggerTower* tt) const override;
+      virtual int                                hadNCells(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   hadNCellsByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   hadNCellsByReceiver(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<int> >     hadNCellsByReceiverByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<int>                   hadTTCellsLayerNames(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<int> >     hadTTCellsLayerNamesByReceiver(const TriggerTower* tt) const override;
+      virtual float                              hadTTCellsEnergy(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadTTCellsEnergyByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadTTCellsEnergyByReceiver(const TriggerTower* tt, const int mode = 0) const override;
+      virtual float                              hadTTCellsEt(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadTTCellsEtByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadTTCellsEtByReceiver(const TriggerTower* tt, const int mode = 0) const override;
+      virtual float                              hadLArTowerEnergy(const TriggerTower* tt) const override;
+      virtual float                              tileCellEnergy(const TriggerTower* tt, IdTTL1CellMapType& map) const override;
 
 
       //  Bad Calo, High Voltage Information
-      int                                        emBadCalo(const TriggerTower* tt) const;
-      float                                      emCaloQuality(const TriggerTower* tt) const;
-      float                                      emNCellsNonNominal(const TriggerTower* tt) const;
-      std::vector<float>                         emNCellsNonNominalByLayer(const TriggerTower* tt) const;
-      std::vector<std::vector<float> >           emNCellsNonNominalByReceiverByLayer(const TriggerTower* tt) const;
-      float                                      emNonNominalMeanScale(const TriggerTower* tt) const;
-      std::vector<float>                         emNonNominalMeanScaleByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         emNonNominalMeanScaleByReceiver(const TriggerTower* tt) const;
-      std::vector<std::vector<float> >           emNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const;
+      virtual int                                emBadCalo(const TriggerTower* tt) const override;
+      virtual float                              emCaloQuality(const TriggerTower* tt) const override;
+      virtual float                              emNCellsNonNominal(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emNCellsNonNominalByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<float> >   emNCellsNonNominalByReceiverByLayer(const TriggerTower* tt) const override;
+      virtual float                              emNonNominalMeanScale(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emNonNominalMeanScaleByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 emNonNominalMeanScaleByReceiver(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<float> >   emNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const override;
 
-      int                                        hadBadCalo(const TriggerTower* tt, IdTTL1CellMapType& map) const;
-      float                                      hadCaloQuality(const TriggerTower* tt) const;
-      float                                      hadNCellsNonNominal(const TriggerTower* tt) const;
-      std::vector<float>                         hadNCellsNonNominalByLayer(const TriggerTower* tt) const;
-      std::vector<std::vector<float> >           hadNCellsNonNominalByReceiverByLayer(const TriggerTower* tt) const;
-      float                                      hadNonNominalMeanScale(const TriggerTower* tt) const;
-      std::vector<float>                         hadNonNominalMeanScaleByLayer(const TriggerTower* tt) const;
-      std::vector<float>                         hadNonNominalMeanScaleByReceiver(const TriggerTower* tt) const;
-      std::vector<std::vector<float> >           hadNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const;
+      virtual int                                hadBadCalo(const TriggerTower* tt, IdTTL1CellMapType& map) const override;
+      virtual float                              hadCaloQuality(const TriggerTower* tt) const override;
+      virtual float                              hadNCellsNonNominal(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadNCellsNonNominalByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<float> >   hadNCellsNonNominalByReceiverByLayer(const TriggerTower* tt) const override;
+      virtual float                              hadNonNominalMeanScale(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadNonNominalMeanScaleByLayer(const TriggerTower* tt) const override;
+      virtual std::vector<float>                 hadNonNominalMeanScaleByReceiver(const TriggerTower* tt) const override;
+      virtual std::vector<std::vector<float> >   hadNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const override;
 
       //  Database Attributes
-      const coral::AttributeList*                emDbAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const;
-      std::vector<const coral::AttributeList*>   emDbRxGainsAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const;
+      virtual const coral::AttributeList*        emDbAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const override;
+      virtual std::vector<const coral::AttributeList*> emDbRxGainsAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const override;
 
-      const coral::AttributeList*                hadDbAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const;
-      std::vector<const coral::AttributeList*>   hadDbRxGainsAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const;
+      virtual const coral::AttributeList*        hadDbAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const override;
+      virtual std::vector<const coral::AttributeList*> hadDbRxGainsAttributes(const TriggerTower* tt, const CondAttrListCollection* dbAttrList) const override;
 
       // Phase 1 SuperCells
       std::vector<int>                           emSuperCellIdentifiers(const TriggerTower* tt) const;
       std::vector<int>                           hadSuperCellIdentifiers(const TriggerTower* tt) const;
 
       // Database access
-      unsigned int                               ModuleId(const coral::AttributeList* attrList) const;
-      unsigned int                               ErrorCode(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprDacScanResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprPedestalRunResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprNoiseRunResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprTimingResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprSatBcidResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprFirFilterResultsTimeStamp(const coral::AttributeList* attrList) const;
-      unsigned long long                         PprLutValuesResultsTimeStamp(const coral::AttributeList* attrList) const;
-      double                                     DacOffset(const coral::AttributeList* attrList) const;
-      double                                     DacSlope(const coral::AttributeList* attrList) const;
-      double                                     PedMean(const coral::AttributeList* attrList) const;
-      unsigned int                               PedValue(const coral::AttributeList* attrList) const;
-      unsigned int                               FullDelayData(const coral::AttributeList* attrList) const;
-      unsigned short int                         SyncDelayBcid(const coral::AttributeList* attrList) const;
-      unsigned short int                         InBcidNegedge(const coral::AttributeList* attrList) const;
-      unsigned short int                         ExtBcidThreshold(const coral::AttributeList* attrList) const;
-      unsigned short int                         SatBcidThreshLow(const coral::AttributeList* attrList) const;
-      unsigned short int                         SatBcidThreshHigh(const coral::AttributeList* attrList) const;
-      unsigned short int                         SatBcidLevel(const coral::AttributeList* attrList) const;
-      unsigned short int                         BcidEnergyRangeLow(const coral::AttributeList* attrList) const;
-      unsigned short int                         BcidEnergyRangeHigh(const coral::AttributeList* attrList) const;
-      unsigned short int                         FirStartBit(const coral::AttributeList* attrList) const;
-      short                                      FirCoeff1(const coral::AttributeList* attrList) const;
-      short                                      FirCoeff2(const coral::AttributeList* attrList) const;
-      short                                      FirCoeff3(const coral::AttributeList* attrList) const;
-      short                                      FirCoeff4(const coral::AttributeList* attrList) const;
-      short                                      FirCoeff5(const coral::AttributeList* attrList) const;
-      unsigned short                             LutStrategy(const coral::AttributeList* attrList) const;
-      unsigned short                             LutOffset(const coral::AttributeList* attrList) const;
-      unsigned short                             LutNoiseCut(const coral::AttributeList* attrList) const;
-      unsigned short                             LutSlope(const coral::AttributeList* attrList) const;
+      virtual unsigned int                       ModuleId(const coral::AttributeList* attrList) const override;
+      virtual unsigned int                       ErrorCode(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprDacScanResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprPedestalRunResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprNoiseRunResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprTimingResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprSatBcidResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprFirFilterResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual unsigned long long                 PprLutValuesResultsTimeStamp(const coral::AttributeList* attrList) const override;
+      virtual double                             DacOffset(const coral::AttributeList* attrList) const override;
+      virtual double                             DacSlope(const coral::AttributeList* attrList) const override;
+      virtual double                             PedMean(const coral::AttributeList* attrList) const override;
+      virtual unsigned int                       PedValue(const coral::AttributeList* attrList) const override;
+      virtual unsigned int                       FullDelayData(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 SyncDelayBcid(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 InBcidNegedge(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 ExtBcidThreshold(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 SatBcidThreshLow(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 SatBcidThreshHigh(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 SatBcidLevel(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 BcidEnergyRangeLow(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 BcidEnergyRangeHigh(const coral::AttributeList* attrList) const override;
+      virtual unsigned short int                 FirStartBit(const coral::AttributeList* attrList) const override;
+      virtual short                              FirCoeff1(const coral::AttributeList* attrList) const override;
+      virtual short                              FirCoeff2(const coral::AttributeList* attrList) const override;
+      virtual short                              FirCoeff3(const coral::AttributeList* attrList) const override;
+      virtual short                              FirCoeff4(const coral::AttributeList* attrList) const override;
+      virtual short                              FirCoeff5(const coral::AttributeList* attrList) const override;
+      virtual unsigned short                     LutStrategy(const coral::AttributeList* attrList) const override;
+      virtual unsigned short                     LutOffset(const coral::AttributeList* attrList) const override;
+      virtual unsigned short                     LutNoiseCut(const coral::AttributeList* attrList) const override;
+      virtual unsigned short                     LutSlope(const coral::AttributeList* attrList) const override;
 
-      unsigned int                               DeadChannel(const coral::AttributeList* attrList) const;
-      unsigned int                               DisabledTower(const coral::AttributeList* attrList) const;
+      virtual unsigned int                       DeadChannel(const coral::AttributeList* attrList) const override;
+      virtual unsigned int                       DisabledTower(const coral::AttributeList* attrList) const override;
 
-      float                                      RxGain(const coral::AttributeList* attrList) const;
-      unsigned int                               RxStatus(const coral::AttributeList* attrList) const;
+      virtual float                              RxGain(const coral::AttributeList* attrList) const override;
+      virtual unsigned int                       RxStatus(const coral::AttributeList* attrList) const override;
 
 
-      void                                       LArHV(ToolHandle<ILArHVCorrTool>& LArHV);
-      void                                       caloCells(const CaloCellContainer* cells);
-      void                                       larDigits(const LArDigitContainer* lar);
-      void                                       tileDigits(const TileDigitsContainer* tile);
-      void                                       l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc);
-      Identifier                                 ID(const double eta, const double phi, int layer) const;
-      Identifier                                 emID(const double eta, const double phi) const;
-      Identifier                                 hadID(const double eta, const double phi) const;
+      virtual void                               LArHV(const SG::ReadCondHandleKey<ILArHVScaleCorr>& scaleCorrKey,
+                                                       const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey) override;
+      virtual void                               caloCells(const CaloCellContainer* cells) override;
+      virtual void                               larDigits(const LArDigitContainer* lar) override;
+      virtual void                               tileDigits(const TileDigitsContainer* tile) override;
+      virtual void                               l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc) override;
+              Identifier                         ID(const double eta, const double phi, int layer) const;
+      virtual Identifier                         emID(const double eta, const double phi) const override;
+      virtual Identifier                         hadID(const double eta, const double phi) const override;
 
 
 protected:
-      int                                        pos_neg_z(const double eta) const;
-      int                                        region(const double eta) const;
-      int                                        ieta(const double eta) const;
-      int                                        iphi(const double eta, const double phi) const;
-//       Identifier                                 emID(const double eta,const double phi) const;
-//       Identifier                                 hadID(const double eta,const double phi) const;
+      virtual int                                pos_neg_z(const double eta) const override;
+      virtual int                                region(const double eta) const override;
+      virtual int                                ieta(const double eta) const override;
+      virtual int                                iphi(const double eta, const double phi) const override;
+//       virtual Identifier                         emID(const double eta,const double phi) const override;
+//       virtual Identifier                         hadID(const double eta,const double phi) const override;
 
-      std::vector<L1CaloRxCoolChannelId>         emReceivers(const TriggerTower* tt) const;
-      std::vector<L1CaloRxCoolChannelId>         hadReceivers(const TriggerTower* tt) const;
+      virtual std::vector<L1CaloRxCoolChannelId> emReceivers(const TriggerTower* tt) const override;
+      virtual std::vector<L1CaloRxCoolChannelId> hadReceivers(const TriggerTower* tt) const override;
 
-      virtual std::vector<std::vector<const CaloCell*> > sortFCAL23Cells(const std::vector<const CaloCell*> &cells, const double eta) const;
-      virtual std::vector<std::vector<const CaloCell*> > sortFCAL23Cells(const std::vector<const CaloCell*> &cells, const std::vector<unsigned int>& rxId) const;
+      virtual std::vector<std::vector<const CaloCell*> > sortFCAL23Cells(const std::vector<const CaloCell*> &cells, const double eta) const override;
+      virtual std::vector<std::vector<const CaloCell*> > sortFCAL23Cells(const std::vector<const CaloCell*> &cells, const std::vector<unsigned int>& rxId) const override;
 
-      std::vector<std::vector<const CaloCell*> > sortEMCrackCells(const std::vector<const CaloCell*> &cells) const;
+      virtual std::vector<std::vector<const CaloCell*> > sortEMCrackCells(const std::vector<const CaloCell*> &cells) const override;
 
-      virtual float                              LArNonNominalHV(const std::vector<const CaloCell*> &cells) const;
-      virtual float                              LArNonNominalHV(const CaloCell* cell) const;
-      virtual float                              LArHVScale(const  std::vector<const CaloCell*> &cells) const;
-      virtual float                              LArHVScale(const CaloCell* cell) const;
-      virtual float                              TileNonNominal(const  std::vector<const CaloCell*> &cells) const;
-      virtual float                              TileNonNominal(const CaloCell* cell) const;
+      virtual float                              LArNonNominalHV(const std::vector<const CaloCell*> &cells) const override;
+      virtual float                              LArNonNominalHV(const CaloCell* cell,
+                                                                 const ILArHVScaleCorr* scaleCorr,
+                                                                 const ILArHVScaleCorr* onlineScaleCorr,
+                                                                 const LArOnOffIdMapping* cabling) const override;
+      virtual float                              LArHVScale(const  std::vector<const CaloCell*> &cells) const override;
+      virtual float                              LArHVScale(const CaloCell* cell,
+                                                            const ILArHVScaleCorr* scaleCorr,
+                                                            const ILArHVScaleCorr* onlineScaleCorr,
+                                                            const LArOnOffIdMapping* cabling) const override;
+      virtual float                              TileNonNominal(const  std::vector<const CaloCell*> &cells) const override;
+      virtual float                              TileNonNominal(const CaloCell* cell) const override;
 
-      float                                      LArCaloQuality(const std::vector<const CaloCell*> &cells) const;
-      float                                      TileCaloQuality(const std::vector<const CaloCell*> &cells) const;
+      virtual float                              LArCaloQuality(const std::vector<const CaloCell*> &cells) const override;
+      virtual float                              TileCaloQuality(const std::vector<const CaloCell*> &cells) const override;
 
       std::vector<int>                           SuperCellIdentifiers(const std::vector<const CaloCell*> &cells) const;
 
@@ -265,8 +274,9 @@ private:
 
       // LAr HV
       bool                                             m_isLArHVCorrToolSet;
-      ToolHandle<ILArHVCorrTool>                       m_LArHVCorrTool;
       double                                           m_LArHVNonNomPara;
+      SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey;
+      SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
 
       // Tile HV
       const TileHWID*                                  m_tileHWID;
@@ -275,6 +285,8 @@ private:
       // FCAL 23 Mapping
       ToolHandle<LVL1::IL1CaloFcal23Cells2RxMappingTool>    m_rxMapTool;
 
+      SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+      { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
 };
 } // end of namespace
 #endif

@@ -41,6 +41,6 @@ finally:
           aths.setStatus( theApp._exitstate )
           aths.createSummary()
       except ImportError:
-         print "import of PyAthena failed: unable to trigger AthenaSummarySvc"
+         print ("import of PyAthena failed: unable to trigger AthenaSummarySvc")
    theApp.exit()    # exits program, yields theApp._exitstate on shell,
                     # ok if re-thrown C++ exception: try to exit clean

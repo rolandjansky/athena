@@ -5,10 +5,12 @@
 ## @author Sebastien Binet <binet@cern.ch>
 ###############################################################
 
+from __future__ import print_function
+
 def _setupAtlasUnixGeneratorJob():
-    import AtlasUnixStandardJob    # noqa: F401
-    from AppMgr import theApp
-    from AppMgr import ServiceMgr as svcMgr
+    from AthenaCommon import AtlasUnixStandardJob    # noqa: F401
+    from AthenaCommon.AppMgr import theApp
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.Logging import logging
     log = logging.getLogger('AtlasUnixGeneratorJob')
 

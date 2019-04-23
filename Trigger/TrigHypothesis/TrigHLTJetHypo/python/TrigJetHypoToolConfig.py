@@ -76,5 +76,18 @@ class TestStringMethods(unittest.TestCase):
             self.assertIsNotNone(tool) 
             log.info('%s %s', chain_name.rjust(wid), tool)
 
+
+class TestDebugFlagIsFalse(unittest.TestCase):
+    def testValidConfigs(self):
+        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+
+        chainNameDecoder = DictFromChainName.DictFromChainName()
+        chain_name = 'HLT_j85'
+        chain_dict = chainNameDecoder.getChainDict(chain_name)
+        tool = trigJetHypoToolFromDict(chain_dict)
+        self.assertIsNotNone(tool) 
+        self.assertFalse(tool.visit_debug) 
+
+
 if __name__ == '__main__':
     unittest.main()

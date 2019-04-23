@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -9,6 +9,7 @@
 // Like it says above, please chop up this code until it does what you want !
 
 #include "TrigT1CaloCalibTools/L1CaloOfflineTriggerTowerTools.h"
+#include "StoreGate/ReadCondHandle.h"
 
 namespace LVL1 {
 
@@ -17,7 +18,9 @@ namespace LVL1 {
     m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
-    m_scidtool ("CaloSuperCellIDTool"),    
+    m_scidtool ("CaloSuperCellIDTool"),
+    m_scaleCorrKey(""),
+    m_cablingKey(""),
     m_tileBadChanTool("TileBadChanTool"),
     m_rxMapTool("LVL1::L1CaloFcal23Cells2RxMappingTool/L1CaloFcal23Cells2RxMappingTool")
     {
@@ -30,7 +33,6 @@ namespace LVL1 {
     m_isLArHVCorrToolSet = false;
     m_tileHWID = 0;
     
-    declareProperty("LArHVCorrTool",m_LArHVCorrTool);
     declareProperty("LArHVNonNomPara",m_LArHVNonNomPara = 1.003);
     declareProperty("TileBadChanTool", m_tileBadChanTool);
     declareProperty("RxMappingTool",m_rxMapTool);
@@ -721,33 +723,52 @@ namespace LVL1 {
   // LAr Member Functions
 
   float L1CaloOfflineTriggerTowerTools::LArNonNominalHV(const std::vector<const CaloCell*> &cells) const{
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+    SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+    SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
     float nonNominal(0.0);
     for(Itr_vCaloCells i=cells.begin();i!=cells.end();++i){
-      nonNominal += this->LArNonNominalHV( (*i) );
+      nonNominal += this->LArNonNominalHV( (*i), scaleCorr.cptr(), onlineScaleCorr.cptr(), cabling.cptr() );
     }
     return nonNominal;
   }
 
-  float L1CaloOfflineTriggerTowerTools::LArNonNominalHV(const CaloCell* cell) const{
+  float L1CaloOfflineTriggerTowerTools::LArNonNominalHV(const CaloCell* cell,
+                                                        const ILArHVScaleCorr* scaleCorr,
+                                                        const ILArHVScaleCorr* onlineScaleCorr,
+                                                        const LArOnOffIdMapping* cabling) const{
     float nonNominal(0.0);
-    if(m_LArHVCorrTool->Scale( cell->ID() ) > m_LArHVNonNomPara){
+    HWIdentifier hwid=cabling->createSignalChannelID(cell->ID());
+    float corr = scaleCorr->HVScaleCorr( hwid ) * onlineScaleCorr->HVScaleCorr( hwid );
+    if(corr > m_LArHVNonNomPara){
       nonNominal = 1.0;
     }
     return nonNominal;
   }
 
   float L1CaloOfflineTriggerTowerTools::LArHVScale(const std::vector<const CaloCell*> &cells) const{
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+    SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+    SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
+
     float scale(0.0),count(0.0);
     for(Itr_vCaloCells i=cells.begin();i!=cells.end();++i){
-      scale += this->LArHVScale( (*i) );
+      scale += this->LArHVScale( (*i), scaleCorr.cptr(), onlineScaleCorr.cptr(), cabling.cptr() );
       count++;
     }
     if(count < 1.0){return 0.0;}
     return scale / count;
   }
 
-  float L1CaloOfflineTriggerTowerTools::LArHVScale(const CaloCell* cell) const{
-    return m_LArHVCorrTool->Scale( cell->ID() );
+  float L1CaloOfflineTriggerTowerTools::LArHVScale(const CaloCell* cell,
+                                                   const ILArHVScaleCorr* scaleCorr,
+                                                   const ILArHVScaleCorr* onlineScaleCorr,
+                                                   const LArOnOffIdMapping* cabling) const
+  {
+    HWIdentifier hwid=cabling->createSignalChannelID(cell->ID());
+    return scaleCorr->HVScaleCorr( hwid ) * onlineScaleCorr->HVScaleCorr( hwid );
   }
 
 
@@ -890,6 +911,7 @@ namespace LVL1 {
   std::vector<float> L1CaloOfflineTriggerTowerTools::emNCellsNonNominalByLayer(const TriggerTower* tt) const{
     std::vector<float> nNonNomHV;
     if(m_isLArHVCorrToolSet == false){return nNonNomHV;}
+
     Identifier Id = this->emID(tt->eta(),tt->phi());
     std::vector<std::vector<const CaloCell*> > cells = m_cells2tt->caloCellsByLayer(Id);
     for(Itr_vvCaloCells i=cells.begin();i!=cells.end();++i){
@@ -945,7 +967,6 @@ namespace LVL1 {
 
     std::vector<float> output;
     if(m_isLArHVCorrToolSet == false){return output;}
-    
     std::vector<L1CaloRxCoolChannelId> rx = this->emReceivers(tt);
     Identifier Id = this->emID(tt->eta(),tt->phi());
     std::vector<const CaloCell*> cells = m_cells2tt->caloCells(Id);
@@ -1042,9 +1063,7 @@ namespace LVL1 {
     Identifier Id = this->hadID(tt->eta(),tt->phi());
     bool isTile = m_lvl1Helper->is_tile(Id);
     std::vector<std::vector<const CaloCell*> > cells = m_cells2tt->caloCellsByLayer(Id);
-
     if(isTile == false && m_isLArHVCorrToolSet == false){return nNonNomHV;}
-
     if(isTile == false && m_isLArHVCorrToolSet == true){
       for(Itr_vvCaloCells i=cells.begin();i!=cells.end();++i){
         nNonNomHV.push_back( this->LArNonNominalHV( (*i) ) );
@@ -1066,7 +1085,6 @@ namespace LVL1 {
     Identifier Id = this->hadID(tt->eta(),tt->phi());
     bool isTile = m_lvl1Helper->is_tile(Id);
     if(isTile == false && m_isLArHVCorrToolSet == false){return nNonNomHV;}
-
     std::vector<unsigned int> rx = this->hadRxId(tt);
     std::vector<float> v1;
     std::vector<float> v2;
@@ -1109,7 +1127,6 @@ namespace LVL1 {
     if(isTile == true){return NonNomHV;}
 
     if(m_isLArHVCorrToolSet == false){return NonNomHV;}
-
     std::vector<std::vector<const CaloCell*> > cells = m_cells2tt->caloCellsByLayer(Id);
 
     for(Itr_vvCaloCells i=cells.begin();i!=cells.end();++i){
@@ -1122,7 +1139,6 @@ namespace LVL1 {
 
     std::vector<float> output;
     if(m_isLArHVCorrToolSet == false){return output;}
-    
     std::vector<unsigned int> rx = this->hadRxId(tt);
     Identifier Id = this->hadID(tt->eta(),tt->phi());
 
@@ -1151,7 +1167,6 @@ namespace LVL1 {
     Identifier Id = this->hadID(tt->eta(),tt->phi());
     bool isTile = m_lvl1Helper->is_tile(Id);
     if(isTile == true || m_isLArHVCorrToolSet == false){return output;}
-
     std::vector<unsigned int> rx = this->hadRxId(tt);
     std::vector<float> v1;
     std::vector<float> v2;
@@ -1691,12 +1706,7 @@ namespace LVL1 {
 
 
   StatusCode L1CaloOfflineTriggerTowerTools::initialize(){
-    StatusCode sc;
-
-
-
-    sc = detStore()->retrieve(m_caloMgr);
-    if(sc.isFailure()){ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectorStore");return sc;}
+    ATH_CHECK( detStore()->retrieve(m_caloMgr) );
 
     m_ttOnlineIdHelper = m_caloMgr->getTTOnlineID();
     if(!m_ttOnlineIdHelper){ATH_MSG_ERROR("Could not access TTOnlineId helper");return StatusCode::FAILURE;}
@@ -1704,57 +1714,42 @@ namespace LVL1 {
     m_lvl1Helper = m_caloMgr->getLVL1_ID();
     if(!m_lvl1Helper){ATH_MSG_ERROR("Could not access CaloLVL1_ID helper");return StatusCode::FAILURE;}
 
-    sc = detStore()->retrieve(m_tileHWID);
-    if(sc.isFailure()){ATH_MSG_ERROR("Unable to retrieve TileHWID helper from DetectorStore");return sc;}
+    ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+    ATH_CHECK( m_tileBadChanTool.retrieve() );
+    ATH_CHECK( m_rxMapTool.retrieve() );
+    ATH_CHECK( detStore()->retrieve(m_larOnlineID,"LArOnlineID") );
+    ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
+    ATH_CHECK( m_cells2tt.retrieve() );
+    ATH_CHECK( m_larEnergy.retrieve() );
 
-    sc = m_tileBadChanTool.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Could not access tileBadChanTool");return sc;}
-
-    sc = m_rxMapTool.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Cannot get L1CaloFcal23Cells2RxMappingTool !");return sc;}
-
-    sc = detStore()->retrieve(m_larOnlineID,"LArOnlineID");
-    if(sc.isFailure()){ATH_MSG_ERROR("Could not access LAr Online ID");return sc;}
-
-    sc = m_l1CaloTTIdTools.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Cannot get L1CaloTTIdTools !");return sc;}
-
-    sc = m_cells2tt.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Cannot get L1CaloCells2TriggerTowers !");return sc;}
-
-    sc = m_larEnergy.retrieve();
-    if(sc.isFailure()){ATH_MSG_ERROR("Cannot get L1CaloLArTowerEnergy !");return sc;}
+    ATH_CHECK( detStore()->retrieve (m_caloMgr, "CaloIdManager") );
+    ATH_CHECK( m_scidtool.retrieve() );
     
-    CHECK( detStore()->retrieve (m_caloMgr, "CaloIdManager") );
-    CHECK( m_scidtool.retrieve() );
-    
-//     sc = m_ttSvc.retrieve();
-//     if(sc.isFailure()){ATH_MSG_ERROR("Cannot get CaloTriggerTowerService !");return sc;}
-
     //Retrieve cabling & tt services
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    IToolSvc* toolSvc;
+    IToolSvc* toolSvc = nullptr;
 
-    sc = svcLoc->service( "ToolSvc",toolSvc  );
-    if(sc.isSuccess()) {
-      sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-      if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve CaloTriggerTowerService Tool");return sc;}
-    }
+    ATH_CHECK( svcLoc->service( "ToolSvc",toolSvc  ) );
+    ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
 
     // DB Access
-    sc = service("L1CaloCondSvc", m_l1CondSvc);
-    if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve L1CaloCondSvc");return sc;}
+    ATH_CHECK( service("L1CaloCondSvc", m_l1CondSvc) );
+
+    ATH_CHECK( m_onlineScaleCorrKey.initialize() );
 
     ATH_MSG_INFO("L1Calo L1CaloOfflineTriggerTowerTools initialize() success!");
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode L1CaloOfflineTriggerTowerTools::finalize(){
     return StatusCode::SUCCESS;
   }
 
-  void L1CaloOfflineTriggerTowerTools::LArHV(ToolHandle<ILArHVCorrTool>& LArHV){
-    m_LArHVCorrTool = LArHV;
+  void L1CaloOfflineTriggerTowerTools::LArHV(const SG::ReadCondHandleKey<ILArHVScaleCorr>& scaleCorrKey,
+                                             const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey)
+  {
+    m_scaleCorrKey = scaleCorrKey;
+    m_cablingKey = cablingKey;
     m_isLArHVCorrToolSet = true;
   }
 

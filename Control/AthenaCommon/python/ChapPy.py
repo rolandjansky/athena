@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -7,7 +7,7 @@
 # @date: July 2006
 #
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 """
 A set of python objects to ease the scripting of Athena from
@@ -20,7 +20,6 @@ __version__ = "$Revision: 1.3 $"
 
 import sys
 import os
-import commands
 import subprocess
 import time
 import types
@@ -143,9 +142,9 @@ class Athena( object ):
         if isinstance(logFile, str):
             try:
                 logFile = open( logFile, "w" )
-            except IOError, err:
-                print err
-                print "Opening /dev/null for logging..."
+            except IOError as err:
+                print (err)
+                print ("Opening /dev/null for logging...")
                 logFile = open( "/dev/null", "w" )
                 pass
             pass
@@ -182,13 +181,9 @@ class Athena( object ):
             import os
             env = dict(os.environ)
             pass
-        
-        sc, out = commands.getstatusoutput( "which athena.py" )
-        if sc != 0:
-            raise RuntimeError("Could not fetch athena.py executable: %s" % out)
-        else:
-            self.bin = os.path.realpath(os.path.expandvars(out))
-            pass
+
+        out = subprocess.check_output( ['/bin/sh', '-c', "which athena.py" ] ).decode().strip()
+        self.bin = os.path.realpath(os.path.expandvars(out.encode().strip()))
 
         # prepare logFile
         try:
@@ -247,7 +242,7 @@ class Athena( object ):
         sc = p.returncode 
         if sc != 0:
             monitor.writelines( " ==> [ERR]" + os.linesep )
-            print "Problem while running Athena !!"
+            print ("Problem while running Athena !!")
             dump(self.logFile)
             pass
         else:

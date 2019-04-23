@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CLASS_DEF.h 613558 2014-08-26 17:16:16Z krasznaa $
@@ -28,7 +28,7 @@
 /// decode the trigger navigation EDM.
 ///
 /// All xAOD packages should use this header for declaring class IDs for their
-/// EDM classes instead of using SGTools directly.
+/// EDM classes instead of using AthenaKernel directly.
 ///
 /// $Revision: 613558 $
 /// $Date: 2014-08-26 19:16:16 +0200 (Tue, 26 Aug 2014) $
@@ -73,7 +73,7 @@
 #else // not XAOD_STANDALONE
 
 // Pull in the proper macro definition
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #endif // not XAOD_STANDALONE
 #endif // not XAODCORE_CLASS_DEF_H

@@ -2,22 +2,6 @@
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.Include import include
-
-# Set InDet Flags
-def inDetSetup():
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doCaloSeededBrem = False
-    InDetFlags.InDet25nsec = True 
-    InDetFlags.doPrimaryVertex3DFinding = False 
-    InDetFlags.doPrintConfigurables = False
-    InDetFlags.doResolveBackTracks = True 
-    InDetFlags.doSiSPSeededTrackFinder = True
-    InDetFlags.doTRTPhaseCalculation = True
-    InDetFlags.doTRTSeededTrackFinder = True
-    InDetFlags.doTruth = False
-    InDetFlags.init()
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 # ====================================================================================================  
 #    Get MenuSequences

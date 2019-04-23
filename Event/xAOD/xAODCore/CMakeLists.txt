@@ -11,8 +11,8 @@ if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/AthLinks )
    set( extra_libs )
 else()
-   set( extra_deps Control/SGTools )
-   set( extra_libs SGTools )
+   set( extra_deps Control/AthenaKernel )
+   set( extra_libs AthenaKernel )
 endif()
 
 # Declare the package's dependencies:

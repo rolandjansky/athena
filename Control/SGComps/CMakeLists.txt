@@ -52,3 +52,6 @@ atlas_add_test( SGFolder_test
    LINK_LIBRARIES TestTools GaudiKernel SGTools AthenaKernel AthenaBaseComps AthLinks
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( AddressRemappingConfig_test
+   SCRIPT test/AddressRemappingConfig_test.py )

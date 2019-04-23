@@ -109,8 +109,9 @@ from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
-                                                PixelCalibSvc        = None,
-                                                UsePixelCalibCondDB  = False,
+                                                PixelCablingSvc = None,
+                                                PixelModuleData = "",
+                                                PixelChargeCalibCondData = "",
                                                 PixelLorentzAngleTool = None,
                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 # SCT conditions setups

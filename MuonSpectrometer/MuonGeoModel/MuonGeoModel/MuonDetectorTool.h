@@ -58,6 +58,7 @@ private:
   int m_fillCache_initTime;
   bool m_dumpMemoryBreakDown;  
   int m_enableFineClashFixing;
+  bool m_useCSC;
   int m_stationSelection;
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/LinkToTrack.h"
@@ -13,9 +13,6 @@ namespace Trk
 	{}
 
 	LinkToTrack::LinkToTrack ( ElementLink<TrackCollection>& link ) : ElementLink<TrackCollection> ( link )
-	{}
-
-	LinkToTrack::~LinkToTrack()
 	{}
 
         const TrackParameters* LinkToTrack::parameters() const
@@ -34,12 +31,4 @@ namespace Trk
 		return new LinkToTrack ( *this );
 	}
 
-	Trk::LinkToTrack& Trk::LinkToTrack::operator= ( const Trk::LinkToTrack& rhs )
-	{
-		if ( this!=&rhs )
-		{
-			ElementLink<TrackCollection>::operator= ( rhs );
-		}
-		return *this;
-	}
 }//end of namespace definitions

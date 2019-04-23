@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p1.h"
@@ -31,15 +31,15 @@ SiHitCollection* SiHitCollectionCnv::createTransient() {
 
     SiHitCollection       *trans_cont(0);
     if( this->compareClassGuid(p3_guid)) {
-      std::auto_ptr< SiHitCollection_p3 >   col_vect( this->poolReadObject< SiHitCollection_p3 >() );
+      std::unique_ptr< SiHitCollection_p3 >   col_vect( this->poolReadObject< SiHitCollection_p3 >() );
       trans_cont = converter_p3.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p1_guid)) {
-      std::auto_ptr< SiHitCollection_p1 >   col_vect( this->poolReadObject< SiHitCollection_p1 >() );
+      std::unique_ptr< SiHitCollection_p1 >   col_vect( this->poolReadObject< SiHitCollection_p1 >() );
       trans_cont = converter_p1.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p2_guid)) { // version p2
-      std::auto_ptr< SiHitCollection_p2 >   col_vect( this->poolReadObject< SiHitCollection_p2 >() );
+      std::unique_ptr< SiHitCollection_p2 >   col_vect( this->poolReadObject< SiHitCollection_p2 >() );
       trans_cont = converter_p2.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(old_guid)) {

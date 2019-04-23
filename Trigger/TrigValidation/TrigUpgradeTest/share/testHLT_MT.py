@@ -481,6 +481,7 @@ if opt.doL1Unpacking:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
 
+
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------
@@ -519,3 +520,12 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print svcMgr
+
+
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior=True
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.lock()
+triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
+Configurable.configurableRun3Behavior=False

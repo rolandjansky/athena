@@ -9,7 +9,7 @@
 a set of python tools to analyze configurables and find candidates to be lumped
 together.
 """
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 import os, sys
 
@@ -66,9 +66,9 @@ def dup_candidates():
         elif isinstance(cfg, acc.ConfigurableAuditor):
             comp_type = 'aud'
         else:
-            print "** type of configurable [%s] is unknown ! (%s)" % (
+            print ("** type of configurable [%s] is unknown ! (%s)" % (
                 n, type(cfg)
-                )
+                ))
         all_cfgs[n]['comp_type'] = comp_type
         # fully qualified class name
         cls_name = cfg.getFullJobOptName()
@@ -162,7 +162,7 @@ def cfg_diff(cfg1, cfg2):
 
 def dump_cfgs(cfgs):
     for c in cfgs:
-        print c
+        print (c)
 
 def dump_josvc_content(fname='josvc.ascii'):
     """dump the content of the joboptionsvc into `fname` and return that content
@@ -187,12 +187,12 @@ def dump_josvc_content(fname='josvc.ascii'):
             cfg[client][n] = v
 
     cfg = dict(cfg)
-    print >> f, "# content of the joboptions-svc"
-    print >> f, "josvc_catalog = \\ "
+    print ("# content of the joboptions-svc", file=f)
+    print ("josvc_catalog = \\ ", file=f)
 
     from pprint import pprint
     pprint(cfg, stream=f)
-    print >> f, "# EOF"
+    print ("# EOF", file=f)
     
     return cfg
 
@@ -229,12 +229,12 @@ def select_dups_by(dups, ndiffs=0):
 def dump_selected(selected, ascii=False):
     if ascii:
         for k,dups in selected.iteritems():
-            print " -- [component type: %s] -- "%k
+            print (" -- [component type: %s] -- "%k)
             for v in dups:
-                print "   +--"
+                print ("   +--")
                 for i in v:
-                    print "   | %s" % i
-                print "   +--"
+                    print ("   | %s" % i)
+                print ("   +--")
     else:
         for k,dups in selected.iteritems():
             msg.info (" -- [component type: %s] -- ", k)

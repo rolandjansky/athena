@@ -21,7 +21,7 @@ EtaEtAsymmetricConditionMT::EtaEtAsymmetricConditionMT(double etaMin,
 
 bool
 EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
-                                        IConditionVisitor*) const {
+                                        std::unique_ptr<IConditionVisitor>&) const {
   auto eta = ip->eta();
   auto et = ip->et();
   return 
@@ -31,8 +31,9 @@ EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
 }
 
 
-bool EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
-                                             IConditionVisitor* v) const {
+bool
+EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
+                                        std::unique_ptr<IConditionVisitor>& v) const {
   return isSatisfied(ips[0], v);
 }
 

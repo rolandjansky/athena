@@ -1,4 +1,3 @@
-IOVSvcTool                              8   0     FATAL Cannot update Conditions via callback functions in MT after the first event
 TrigSignatureMoniMT                                INFO Chains passing step (1st row events & 2nd row decision counts
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
 TrigSignatureMoniMT                                INFO All                           20        20        0         0         0         0         20        
@@ -19,7 +18,7 @@ TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6 deci
 TrigSignatureMoniMT                                INFO HLT_mu6Comb_L1MU6             20        20        3         2         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb_L1MU6 decisions                       3         2         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6_L1MU6                 20        20        3         2         1         1         1         
-TrigSignatureMoniMT                                INFO HLT_mu6_L1MU6 decisions                           3         2         2         1         
+TrigSignatureMoniMT                                INFO HLT_mu6_L1MU6 decisions                           3         2         1         1         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             20        20        3         0         0         0         3         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         0         0         0         0         

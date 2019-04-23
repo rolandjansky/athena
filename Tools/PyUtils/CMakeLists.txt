@@ -80,3 +80,7 @@ atlas_add_test( flake8_OutputLevel
 atlas_add_test( flake8_logging
    SCRIPT flake8 --enable-extensions=ATL901 --select=ATL --stdin-display-name=flake8_logging.py
    --exit-zero --isolated - < ${CMAKE_CURRENT_SOURCE_DIR}/python/flake8_atlas/test/flake8_logging.py )
+
+atlas_add_test( flake8_print_statement
+   SCRIPT flake8 --select=ATL --stdin-display-name=flake8_print_statement.py
+   --exit-zero --isolated - < ${CMAKE_CURRENT_SOURCE_DIR}/python/flake8_atlas/test/flake8_print_statement.py )
