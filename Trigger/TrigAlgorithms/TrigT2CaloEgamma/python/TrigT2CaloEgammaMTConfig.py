@@ -8,7 +8,6 @@ from CaloTools.CaloLumiBCIDConfig import CaloLUMIBCIDToolCfg
 
 def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
     acc = ComponentAccumulator()
-    from AthenaCommon.Constants import DEBUG
     # configure calo data access
     from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
     cdaSvcAcc = trigCaloDataAccessSvcCfg( flags )
@@ -39,15 +38,12 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
 
     #from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
     #ring = RingerFexConfig('RingsMaker')
-    #ring.OutputLevel=DEBUG
     #ring.RingsKey='CaloRings'
     #acc.addPublicTool( ring )
 
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
     for t in __fex_tools:
-        t.TrigTimerSvc = ""
         t.trigDataAccessMT = cdaSvc # set data access svc
-        t.OutputLevel = DEBUG
 
     
     alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
@@ -58,7 +54,6 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs"):
     alg.RoIs           = roisKey
     alg.EtaWidth       = 0.2
     alg.PhiWidth       = 0.2
-    alg.OutputLevel = DEBUG
 
     # set calibration
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaHitsCalibrationBarrelConfig, EgammaGapCalibrationConfig, EgammaTransitionRegionsConfig
