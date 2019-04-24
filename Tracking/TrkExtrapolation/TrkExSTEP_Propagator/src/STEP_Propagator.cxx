@@ -2520,12 +2520,14 @@ const Trk::TrackParameters* Trk::STEP_Propagator::createStraightLine( const Trk:
 
   //  ATH_MSG_VERBOSE("STEP propagator detects invalid input parameters (q/p=0 ), resetting momentum to 1.e10");
 
-  if (dynamic_cast<const Trk::CurvilinearParameters*>(inputTrackParameters)) {
-    return new Trk::CurvilinearParameters(  inputTrackParameters->position(), lp[2], lp[3], lp[4], 
-                                            (inputTrackParameters->covariance() ? new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
-  } else 
-    return inputTrackParameters->associatedSurface().createTrackParameters(lp[0], lp[1], lp[2], lp[3], lp[4],
-                                                                           (inputTrackParameters->covariance() ? new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
+  if (inputTrackParameters->type()==Trk::Curvilinear) {
+    return new Trk::CurvilinearParameters(inputTrackParameters->position(), lp[2], lp[3], lp[4], 
+                                          (inputTrackParameters->covariance() ? 
+                                           new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
+  }  
+  return inputTrackParameters->associatedSurface().createTrackParameters(lp[0], lp[1], lp[2], lp[3], lp[4],
+                                                                         (inputTrackParameters->covariance() ? 
+                                                                          new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
 
 }
 
