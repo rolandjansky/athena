@@ -10,6 +10,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
 
@@ -33,12 +34,12 @@ public:
 
   ActsObjWriterTool(const std::string& type, const std::string& name,
     const IInterface* parent);
-  
+
   void
-  write(const Acts::TrackingGeometry&);
+  write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry&);
 
 private:
-  
+
   Gaudi::Property<std::string> m_outputDirectory{this, "OutputDirectory", ".", ""};
   Gaudi::Property<std::vector<std::string>> m_subDetectors{this, "SubDetectors", {}, ""};
 

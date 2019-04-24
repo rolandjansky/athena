@@ -11,6 +11,7 @@
 // Gaudi / Athena
 #include "GaudiKernel/IInterface.h"
 
+#include "ActsGeometry/ActsGeometryContext.h"
 // ACTS
 #include "Acts/Detector/TrackingGeometry.hpp"
 
@@ -74,8 +75,8 @@ ActsObjWriterTool::initialize()
 }
 
 void
-ActsObjWriterTool::write(const Acts::TrackingGeometry& tg)
+ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg)
 {
-  m_tgObjWriter->write(tg);
+  m_tgObjWriter->write(gctx, tg);
 }
 

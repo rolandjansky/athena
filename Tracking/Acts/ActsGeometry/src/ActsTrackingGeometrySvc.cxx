@@ -29,6 +29,7 @@
 #include "ActsInterop/IdentityHelper.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 
 ActsTrackingGeometrySvc::ActsTrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
@@ -52,12 +53,15 @@ ActsTrackingGeometrySvc::initialize()
   }
   
 
-  auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-      makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
 
+  Acts::LayerArrayCreator::Config lacCfg;
+  auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
+      lacCfg, makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
+
+  Acts::TrackingVolumeArrayCreator::Config tvcCfg;
   auto trackingVolumeArrayCreator
       = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-          makeActsAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
+          tvcCfg, makeActsAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
 
   Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
@@ -72,23 +76,23 @@ ActsTrackingGeometrySvc::initialize()
   try {
     // PIXEL
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv =  makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
     
     // SCT
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv = makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
 
     // TRT
     tgbConfig.trackingVolumeBuilders.push_back([this, cylinderVolumeHelper](
-          const auto& inner, const auto&) {
+          const auto& gctx, const auto& inner, const auto&) {
         auto tv = makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper);
-        return tv->trackingVolume(inner);
+        return tv->trackingVolume(gctx, inner);
     });
   }
   catch (const std::invalid_argument& e) {
@@ -101,8 +105,11 @@ ActsTrackingGeometrySvc::initialize()
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
           makeActsAthenaLogger(this, "TrkGeomBldr", "ActsTGSvc"));
   
-  m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
   
+  // default geometry context, this is nominal
+  ActsGeometryContext defGctx;
+
+  m_trackingGeometry = trackingGeometryBuilder->trackingGeometry(defGctx);
   //const Acts::TrackingVolume* = m_trackingGeometry->highestTrackingVolume();
 
 
@@ -127,7 +134,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
   std::shared_ptr<const Acts::ILayerBuilder> gmLayerBuilder;
   if (manager->getName() == "TRT") {
-    auto matcher = [](Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
+    auto matcher = [](const Acts::GeometryContext& /*gctx*/, Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
                       const Acts::Surface* /*bS*/) -> bool {
       return false;
     };
@@ -158,8 +165,8 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     //gmLayerBuilder->positiveLayers();
   }
   else {
-    auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
-                      const Acts::Surface* bS) -> bool {
+    auto matcher = [](const Acts::GeometryContext& /*gctx*/, Acts::BinningValue bValue,
+                      const Acts::Surface* aS, const Acts::Surface* bS) -> bool {
 
       auto a = dynamic_cast<const ActsDetectorElement*>(aS->associatedDetectorElement());
       auto b = dynamic_cast<const ActsDetectorElement*>(bS->associatedDetectorElement());

@@ -19,41 +19,42 @@
 #include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Tools/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 using Acts::Surface;
 using Acts::Transform3D;
 using Acts::Translation3D;
 
 const Acts::LayerVector
-ActsLayerBuilder::negativeLayers() const
+ActsLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building negative layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector nVector;
-  mutableThis->buildLayers(nVector, -1);
+  mutableThis->buildLayers(gctx, nVector, -1);
   return nVector;
 }
 
 const Acts::LayerVector
-ActsLayerBuilder::centralLayers() const
+ActsLayerBuilder::centralLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building central layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector cVector;
-  mutableThis->buildLayers(cVector, 0);
+  mutableThis->buildLayers(gctx, cVector, 0);
   return cVector;
 }
 
 const Acts::LayerVector
-ActsLayerBuilder::positiveLayers() const
+ActsLayerBuilder::positiveLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building positive layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector pVector;
-  mutableThis->buildLayers(pVector, 1);
+  mutableThis->buildLayers(gctx, pVector, 1);
   return pVector;
 
 }
@@ -80,7 +81,8 @@ ActsLayerBuilder::getDetectorElements() const
 }
 
 void
-ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
+ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
+    Acts::LayerVector& layersOutput, int type)
 {
 
   std::vector<std::shared_ptr<const ActsDetectorElement>> elements = getDetectorElements();
@@ -138,7 +140,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
     for (const auto& layerPair : layers) {
       const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
       auto key = layerPair.first;
-      Acts::ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
       ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
           << key.first << ", " << key.second << ")");
       if (type == 0) {  // BARREL
@@ -162,7 +164,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
-      Acts::ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {20, 20};
         
@@ -217,16 +219,17 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       approachDescriptor 
         = std::make_unique<Acts::GenericApproachDescriptor>(std::move(aSurfaces));
 
-      auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces,
-                                                     Acts::equidistant, 
-                                                     Acts::equidistant, 
-                                                     pl, 
+      auto layer = m_cfg.layerCreator->cylinderLayer(gctx,
+                                                     layerSurfaces,
+                                                     Acts::equidistant,
+                                                     Acts::equidistant,
+                                                     pl,
                                                      transform,
                                                      std::move(approachDescriptor));
 
       layersOutput.push_back(layer);
     } else {  // ENDCAP
-      Acts::ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {10, 10};
 
@@ -319,9 +322,10 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       approachDescriptor 
         = std::make_unique<Acts::GenericApproachDescriptor>(aSurfaces);
 
-      auto layer = m_cfg.layerCreator->discLayer(layerSurfaces, 
-                                                 nBinsR, 
-                                                 nBinsPhi, 
+      auto layer = m_cfg.layerCreator->discLayer(gctx,
+                                                 layerSurfaces,
+                                                 nBinsR,
+                                                 nBinsPhi,
                                                  pl,
                                                  transformNominal,
                                                  std::move(approachDescriptor));

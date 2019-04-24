@@ -21,6 +21,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsInterop/Logger.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 //#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
@@ -104,8 +105,9 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   std::vector<Acts::detail::Step> steps;
 
   if(charge != 0.) {
-      // charged extrapolation - with hit recording
-      Acts::BoundParameters startParameters(
+      // Perigee, no alignment -> default geo context
+      ActsGeometryContext gctx;
+      Acts::BoundParameters startParameters(gctx,
           std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagate(startParameters);
       m_propStepWriterSvc->write(steps);

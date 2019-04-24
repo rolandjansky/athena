@@ -23,6 +23,7 @@
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 // STL
 #include <mutex>
@@ -131,9 +132,11 @@ ActsDetectorElement::identityHelper() const
 }
   
 const Acts::Transform3D&
-ActsDetectorElement::transform() const
+ActsDetectorElement::transform(const Acts::GeometryContext& gctx) const
 {
 
+  // this currently does not use the geo context at all
+  // @TODO: extracty gaudi context from geometry context
 
   auto ctx = Gaudi::Hive::currentContext();
 

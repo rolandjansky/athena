@@ -12,6 +12,7 @@
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // STL
 #include <string>
@@ -36,11 +37,14 @@ StatusCode ActsWriteTrackingGeometry::initialize() {
 StatusCode ActsWriteTrackingGeometry::execute() {
   ATH_CHECK( m_trackingGeometryTool->prepareAlignment() );
   auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
-  m_objWriterTool->write(*trackingGeometry);
+
+  // Use nominal context
+  ActsGeometryContext defGctx;
+
+  m_objWriterTool->write(defGctx, *trackingGeometry);
   return StatusCode::SUCCESS;
 }
 
 StatusCode ActsWriteTrackingGeometry::finalize() {
   return StatusCode::SUCCESS;
 }
-
