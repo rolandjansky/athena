@@ -48,7 +48,9 @@ class EgammaCPTools final : public asg::AsgTool {
   std::string m_electronEffSFIsoFile;
   std::string m_electronEffSFIsoLooseFile;
   std::string m_electronEffSFChargeIDFile;
+  std::string m_electronEffSFChargeIDLooseFile;
   std::string m_electronEffSFChargeMisIDFile;
+  std::string m_electronEffSFChargeMisIDLooseFile;
 
   ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibrationAndSmearingTool;
 
@@ -62,6 +64,7 @@ class EgammaCPTools final : public asg::AsgTool {
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIso;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIsoLoose;
   ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeID;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFChargeIDLoose;
 
   ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_photonFudgeTool;
   ToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEffSF;

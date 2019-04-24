@@ -37,7 +37,9 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
     m_electronEffSFIsoFile("SetMe"),
     m_electronEffSFIsoLooseFile("SetMe"),
     m_electronEffSFChargeIDFile("SetMe"),
-    m_electronEffSFChargeMisIDFile("SetMe") {
+    m_electronEffSFChargeIDLooseFile("SetMe"),
+    m_electronEffSFChargeMisIDFile("SetMe"),
+    m_electronEffSFChargeMisIDLooseFile("SetMe") {
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -52,6 +54,7 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
   declareProperty( "ElectronEffIso" , m_electronEffSFIso );
   declareProperty( "ElectronEffIsoLoose" , m_electronEffSFIsoLoose );
   declareProperty( "ElectronEffChargeID" , m_electronEffSFChargeID );
+  declareProperty( "ElectronEffChargeIDLoose", m_electronEffSFChargeIDLoose );
 
   declareProperty( "PhotonIsEMSelectorLoose" ,  m_photonLooseIsEMSelector);
   declareProperty( "PhotonIsEMSelectorMedium" , m_photonMediumIsEMSelector);
@@ -259,18 +262,25 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "");
+    m_electronEffSFChargeIDFile      = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
+    std::vector<std::string> inChargeIDLoose {m_electronEffSFChargeIDLooseFile};
     // Charge Id efficiency scale factor
-    m_electronEffSFChargeID = setupElectronSFTool(elSFPrefix + "ChargeID", inChargeID, dataType);
-    // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
-    CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
-    //top::check( ChargeMisIDCorrections->setProperty("OutputLevel",  MSG::VERBOSE ) , "Failed to setProperty" );
-    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
-    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) , "Failed to setProperty" );
-    top::check( ChargeMisIDCorrections->initialize() , "Failed to setProperty" );
+    m_electronEffSFChargeID      = setupElectronSFTool(elSFPrefix + "ChargeID",      inChargeID, dataType);
+    m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
   }
+  // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
+  CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections      = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
+  CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
+  m_electronEffSFChargeMisIDFile      = electronSFFilePath("ChargeMisID", electronID,      electronIsolation);
+  m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
+  top::check( ChargeMisIDCorrections     ->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) ,      "Failed to setProperty" );
+  top::check( ChargeMisIDCorrections     ->initialize() , "Failed to setProperty" );
+  top::check( ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDLooseFile) , "Failed to setProperty" );
+  top::check( ChargeMisIDCorrectionsLoose->initialize() , "Failed to setProperty" );
+
   return StatusCode::SUCCESS;
 }
 
