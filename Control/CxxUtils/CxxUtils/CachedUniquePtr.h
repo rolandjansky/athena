@@ -74,7 +74,8 @@ public:
 
 
   /// Atomically set the element.  If already set, then @c elt is discarded.
-  void set (std::unique_ptr<T> elt) const;
+  /// Returns the final value of the element.
+  T* set (std::unique_ptr<T> elt) const;
 
 
   /// Store a new value to the element.

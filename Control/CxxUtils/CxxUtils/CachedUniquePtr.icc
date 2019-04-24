@@ -80,18 +80,21 @@ CachedUniquePtrT<T>::~CachedUniquePtrT()
  * If the current value of the element is null, then set it to @c elt.
  * Otherwise, delete @c elt.
  * This is done atomically.
+ * Returns the final value of the element.
  */
 template <class T>
 inline
-void CachedUniquePtrT<T>::set (std::unique_ptr<T> elt) const
+T* CachedUniquePtrT<T>::set (std::unique_ptr<T> elt) const
 {
   // Set the element to ELT if it is currently null.
   T* ptr = elt.release();
-  T* null = nullptr;
-  if (!m_ptr.compare_exchange_strong (null, ptr)) {
+  T* expected = nullptr;
+  if (!m_ptr.compare_exchange_strong (expected, ptr)) {
     // Was already set.  Delete the new value.
     delete ptr;
+    ptr = expected;
   }
+  return ptr;
 }
 
 
