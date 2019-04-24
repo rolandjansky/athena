@@ -494,6 +494,8 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
                 "Failed to set JVT decoration name");
     top::check(jetJvtTool->setProperty("TruthLabel", "AnalysisTop_isHS"),
                 "Failed to set JVT TruthLabel decoration name");
+    top::check(jetJvtTool->setProperty("TruthJetContainerName", m_config->sgKeyTruthJets()),
+                "Failed to set JVT TruthJetContainerName decoration name");
     top::check(jetJvtTool->initialize(), "Failed to initialize JVT tool");
     m_jetJvtTool = jetJvtTool;
   }
