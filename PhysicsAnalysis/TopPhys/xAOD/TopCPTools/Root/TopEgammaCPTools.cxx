@@ -257,9 +257,6 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
 
   // Charge ID cannot use maps at the moment so we default to the old method
-  // for the moment only for MediumLH and FixedCutTight isolation
-  // either at Tight or Loose level
-  // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile      = electronSFFilePath("ChargeID", electronID,      electronIsolation);
@@ -346,7 +343,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
 
   std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
 
-  const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/";
+  const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
   std::string file_path;
 
@@ -359,16 +356,27 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   } else if (type == "triggerEff") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ChargeID") {
-    if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
-    file_path = "charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolFixedCutTight_MediumCFT.root";
-    file_path = el_calib_path + file_path;
+    if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_ERROR("The requested ID WP (" + ID + ") is not supported for electron ChargeID SFs! Try TightLH or MediumLH instead.");
+    if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_ERROR("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight or Gradient instead.");
+    file_path += "additional/efficiencySF.ChargeID.";
+    file_path += ID;
+    file_path += "_d0z0_v13_";
+    file_path += ISO;
+    file_path += "_ECIDSloose.root";
+    file_path  = el_calib_path + file_path;
   } else if (type == "ChargeMisID") {
-    file_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/";
+    file_path  = "charge_misID/";
     file_path += "chargeEfficiencySF.";
     file_path += ID;
     file_path += "_d0z0_v13_";
     file_path += ISO;
+    if (m_config->useElectronChargeIDSelection()) {
+      if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
+      else if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + ISO + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
+      else file_path += "_ECIDSloose";
+    }
     file_path += ".root";
+    file_path  = el_calib_path + file_path;
   } else {
     ATH_MSG_ERROR("Unknown electron SF type");
   }
@@ -395,6 +403,9 @@ std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");
+    }
+    else if(type == "ChargeMisID") {
+      ATH_MSG_ERROR("Use electronSFFilePath method until ChargeMisID is supported by maps");
     }
     else{
       ATH_MSG_ERROR("Unknown electron SF type");
