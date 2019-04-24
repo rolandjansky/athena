@@ -105,16 +105,16 @@ if [ $[SKIP_CHAIN_DUMP] != 1 ]; then
    export COUNT_EXIT=0
    if [ $[SKIP_CHAIN_DUMP] != 2 ]; then
       if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-         echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
+         echo "L1 counts   ERROR  : all entries are ZERO please consult L1AV.txt"
          (( COUNT_EXIT = COUNT_EXIT || 1 ))
       fi
       if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-         echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
+         echo "HLTTE counts   ERROR  : all entries are ZERO please consult HLTTE.txt"
          (( COUNT_EXIT = COUNT_EXIT || 1 ))
       fi
    fi
    if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-      echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
+      echo "HLTChain counts   ERROR  : all entries are ZERO please consult HLTChain.txt"
       (( COUNT_EXIT = COUNT_EXIT || 1 ))
    fi
    echo "art-result: ${COUNT_EXIT} ZeroCounts"
