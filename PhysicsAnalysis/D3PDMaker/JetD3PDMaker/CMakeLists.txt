@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/Navigation
-                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventKernel
@@ -42,7 +41,7 @@ atlas_add_component( JetD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} TrigCaloEvent CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel Navigation SGTools StoreGateLib SGtests Identifier EventKernel FourMomUtils GaudiKernel AnalysisTriggerEvent D3PDMakerUtils TriggerD3PDMakerLib JetTagEvent JetTagInfo JetEvent Particle TileConditionsLib TileEvent TileIdentifier VxVertex )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} TrigCaloEvent CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel Navigation StoreGateLib SGtests Identifier EventKernel FourMomUtils GaudiKernel AnalysisTriggerEvent D3PDMakerUtils TriggerD3PDMakerLib JetTagEvent JetTagInfo JetEvent Particle TileConditionsLib TileEvent TileIdentifier VxVertex )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
