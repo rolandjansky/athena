@@ -9,6 +9,7 @@
 
 #include "TrigCaloRec/TrigCaloClusterMaker.h"
 #include "TrigCaloRec/TrigCaloCellMaker.h"
+#include "TrigCaloRec/CaloCellMakerHLTROB.h"
 #include "TrigCaloRec/TrigCaloTowerMaker.h"
 #include "TrigCaloRec/TrigFullCaloCellMaker.h"
 #include "TrigCaloRec/TrigFullCaloClusterMaker.h"
@@ -20,6 +21,7 @@
 #include "TrigCaloRec/TrigCaloCell2ClusterMapper.h"
 
 DECLARE_ALGORITHM_FACTORY( TrigCaloCellMaker )
+DECLARE_ALGORITHM_FACTORY( CaloCellMakerHLTROB )
 DECLARE_ALGORITHM_FACTORY( TrigFullCaloCellMaker )
 DECLARE_ALGORITHM_FACTORY( TrigCaloTowerMaker )
 DECLARE_ALGORITHM_FACTORY( TrigCaloClusterMaker )
@@ -44,6 +46,7 @@ DECLARE_FACTORY_ENTRIES(TrigCaloRec)
   DECLARE_ALGORITHM( TrigCaloTopoTowerAlgorithm)
   DECLARE_ALGORITHM( TrigCaloCell2ClusterMapper)
   DECLARE_ALGORITHM( TrigCaloCellMaker )
+  DECLARE_ALGORITHM( CaloCellMakerHLTROB )
   DECLARE_ALGORITHM( TrigFullCaloCellMaker )
   DECLARE_ALGORITHM( TrigCaloTowerMaker )
   DECLARE_ALGORITHM( TrigFullCaloClusterMaker )
