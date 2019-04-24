@@ -67,6 +67,11 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
 
+  # Xbb tagger extra variables
+  if TOPQname == 'TOPQ1':
+    from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+    TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
+
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ForwardElectrons
