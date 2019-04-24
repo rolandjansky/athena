@@ -15,6 +15,7 @@
 #include "TrigCaloRec/TrigFullCaloClusterMaker.h"
 #include "TrigCaloRec/TrigLArNoisyROAlg.h"
 #include "TrigCaloRec/TrigL1BSTowerMaker.h"
+#include "TrigCaloRec/L1BSTowerMakerHLTROB.h"
 #include "TrigCaloRec/TrigL1BSTowerHypo.h"
 
 #include "TrigCaloRec/TrigCaloTopoTowerAlgorithm.h"
@@ -30,6 +31,7 @@ DECLARE_ALGORITHM_FACTORY( TrigCaloCell2ClusterMapper)
 DECLARE_ALGORITHM_FACTORY( TrigFullCaloClusterMaker )
 DECLARE_ALGORITHM_FACTORY( TrigLArNoisyROAlg )
 DECLARE_ALGORITHM_FACTORY( TrigL1BSTowerMaker )
+DECLARE_ALGORITHM_FACTORY( L1BSTowerMakerHLTROB )
 DECLARE_ALGORITHM_FACTORY( TrigL1BSTowerHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL1FCALTTSumFex )
 DECLARE_TOOL_FACTORY( RoILArEMCellContMaker )
@@ -52,6 +54,7 @@ DECLARE_FACTORY_ENTRIES(TrigCaloRec)
   DECLARE_ALGORITHM( TrigFullCaloClusterMaker )
   DECLARE_ALGORITHM( TrigLArNoisyROAlg )
   DECLARE_ALGORITHM( TrigL1BSTowerMaker )
+  DECLARE_ALGORITHM( L1BSTowerMakerHLTROB )
   DECLARE_ALGORITHM( TrigL1BSTowerHypo )
   DECLARE_ALGORITHM( TrigL1FCALTTSumFex )
   DECLARE_TOOL( RoILArEMCellContMaker )

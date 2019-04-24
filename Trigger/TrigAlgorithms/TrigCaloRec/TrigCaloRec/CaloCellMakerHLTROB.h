@@ -9,8 +9,8 @@
  * NAME:      CaloCellMakerHLTROB
  * PACKAGE:   Trigger/TrigAlgorithms/TrigCaloRec
  *
- * AUTHOR:    P.A. Delsart
- * CREATED:   August 2006
+ * AUTHOR:    Denis O. Damazio
+ * CREATED:   2019
  *
  *********************************************************************/
 #ifndef TRIGCALOREC_CALOCELLMAKERHLTROB_H
