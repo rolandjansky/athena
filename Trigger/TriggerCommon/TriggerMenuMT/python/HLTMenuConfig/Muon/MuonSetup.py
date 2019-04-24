@@ -586,6 +586,8 @@ def muEFCBRecoSequence( RoIs, name ):
   trackParticles = PTTrackParticles[-1] 
 
   #Make InDetCandidates
+  from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+  from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
   from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonSystemExtensionTool
   pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
   
