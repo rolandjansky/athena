@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TriggerCommon/TriggerJobOpts)
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 --enable-extension=ATL100 ${CMAKE_CURRENT_SOURCE_DIR}/python/HLTMenuConfig
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
    POST_EXEC_SCRIPT nopost.sh )
 
 #----------------------------------
@@ -115,12 +115,6 @@ atlas_install_scripts( scripts/test_HLTmenu.sh )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-#atlas_add_test( generateMenuMT SCRIPT scripts/generateMenuMT.sh 
-#                PROPERTIES TIMEOUT 500 
-#                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf generateMenuMT.log"
-#              )
-
-
 atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
                 PROPERTIES TIMEOUT 500 
               )
@@ -128,18 +122,6 @@ atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfi
 atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
                 PROPERTIES TIMEOUT 1000 
               )
-
-
-
-#file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenu )
-#atlas_add_test( generateMenu
-#                SCRIPT scripts/test_HLTmenu.sh
-#                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
-#                PROPERTIES TIMEOUT 500
-#                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenu
-#              )
-
-
 
 #----------------------------------
 # List of menus to be created:

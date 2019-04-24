@@ -4,7 +4,7 @@
 
 # this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
 # once the cunction below is moved to the destination pkg, will eliminate this duplication
-class InDetCacheNames:
+class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
@@ -45,8 +45,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetPixelRawDataProviderTool
-
+      print(InDetPixelRawDataProviderTool) # noqa: ATL901
+    
     # load the PixelRawDataProvider
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
@@ -60,8 +60,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
 
 
     if (InDetTrigFlags.doPrintConfigurables()):
-      print          InDetPixelRawDataProvider
-
+      print(InDetPixelRawDataProvider) # noqa: ATL901
+    
 
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
@@ -73,7 +73,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                          Decoder = InDetSCTRodDecoder)
     ToolSvc += InDetSCTRawDataProviderTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetSCTRawDataProviderTool
+      print(InDetSCTRawDataProviderTool) # noqa: ATL901
+    
 
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
@@ -181,7 +182,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
   condTools = []
   for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
     condTool = condToolHandle.typeAndName
-    print condTool
     if condTool not in condTools:
       if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
         condTools.append(condTool)

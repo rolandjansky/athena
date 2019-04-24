@@ -13,13 +13,13 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('HLTCFConfig_newJO')
 
 def printStepsMatrix(matrix):
-    print('----- Steps matrix ------')
+    print('----- Steps matrix ------') # noqa: ATL901
     for nstep in matrix:
-        print('step {}:'.format(nstep))
+        print('step {}:'.format(nstep)) # noqa: ATL901
         for chainName in matrix[nstep]:
             namesInCell = map(lambda el: el.name, matrix[nstep][chainName])
-            print('---- {}: {}'.format(chainName, namesInCell))
-    print('-------------------------')
+            print('---- {}: {}'.format(chainName, namesInCell))  # noqa: ATL901
+    print('-------------------------')  # noqa: ATL901
 
 
 def generateDecisionTree(chains):

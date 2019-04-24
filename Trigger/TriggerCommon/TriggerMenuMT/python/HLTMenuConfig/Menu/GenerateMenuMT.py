@@ -19,7 +19,7 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
 _func_to_modify_signatures = None
 
-class GenerateMenuMT:   
+class GenerateMenuMT(object):
 
     def overwriteSignaturesWith(f):
         """
@@ -310,7 +310,7 @@ class GenerateMenuMT:
             log.debug('  L1Seed %s', cc.seed)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
-                print step
+                log.info(step)
 
         makeHLTTree(finalListOfChainConfigs, self.triggerConfigHLT)
         # the return values used for debugging, might be removed later

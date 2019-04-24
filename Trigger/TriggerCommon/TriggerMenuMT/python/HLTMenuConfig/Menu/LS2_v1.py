@@ -85,7 +85,7 @@ def setupMenu():
     Prescales.HLTPrescales_cosmics = deepcopy(mydict)
     
 
-class Prescales:
+class Prescales(object):
     #   Item name             | Prescale
     #----------------------------------------------------------
     L1Prescales = {}

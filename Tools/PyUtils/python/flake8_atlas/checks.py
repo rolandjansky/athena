@@ -56,7 +56,7 @@ class OutputLevel(object):
                yield (node.lineno, node.col_offset) + self.msg
 
 
-RE_PRINT = re.compile(r"\bprint")
+RE_PRINT = re.compile(r"\bprint\b")
 @utils.flake8_atlas
 @utils.off_by_default
 def print_for_logging(logical_line):
