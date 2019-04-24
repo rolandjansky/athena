@@ -7,6 +7,7 @@
 
 // Geant4
 #include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
 
 // Gaudi
 #include "GaudiKernel/Bootstrap.h"
@@ -30,17 +31,22 @@ void VolumeDumper::BeginOfEventAction(const G4Event*)
         ATH_MSG_INFO("-----------------------------");
         
         G4PhysicalVolumeStore* store = G4PhysicalVolumeStore::GetInstance();
-        std::set<G4String> volumes;
+        std::set<std::pair<G4String, G4String>> volumes;
 
         ATH_MSG_INFO("Size: " << store->size());
 
         for (unsigned int i = 0; i < store->size(); i++) {
-                volumes.insert((*store)[i]->GetName());
+                volumes.insert(
+                    std::pair<G4String, G4String>(
+                        (*store)[i]->GetName(), (*store)[i]->GetLogicalVolume()->GetName() 
+                    ));
         }
 
         for (auto& vol : volumes) {
-                std::cout << "short: " << G4DebuggingHelpers::ClassifyVolume(vol)
-                          << " full: " << vol << std::endl;
+                std::cout << "short: " << G4DebuggingHelpers::ClassifyVolume(vol.first)
+                          << " full: " << vol.first
+                          << " logical: " << vol.second
+                          << std::endl;
         }
 
         ATH_MSG_INFO("Finished dumbing G4PhysicalVolumeStore");

@@ -73,12 +73,17 @@ namespace G4UA{
 
     // 2D map
     if (m_config.do2DHistograms) {
+      float DepositedE = aStep->GetTotalEnergyDeposit();
       InitializeFillHistogram2D(m_report.histoMapMap2D_vol_RZ, "vol_RZ", particleName, volumeName,
-                              1000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
+                              2000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
       InitializeFillHistogram2D(m_report.histoMapMap2D_mat_RZ, "mat_RZ", particleName, materialName,
-                              1000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
+                              2000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
       InitializeFillHistogram2D(m_report.histoMapMap2D_prc_RZ, "prc_RZ", particleName, processName,
-                              1000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
+                              2000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), 1.);
+      InitializeFillHistogram2D(m_report.histoMapMap2D_vol_RZ_E, "vol_RZ_E", particleName, volumeName,
+                              2000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), DepositedE);
+      InitializeFillHistogram2D(m_report.histoMapMap2D_mat_RZ_E, "mat_RZ_E", particleName, materialName,
+                              2000, -20000, 20000, 1000, 0, 5000, myPos.getZ(), myPos.perp(), DepositedE);
     }
 
     // step length
@@ -338,6 +343,8 @@ namespace G4UA{
     mergeMaps(histoMapMap2D_vol_RZ, rep.histoMapMap2D_vol_RZ);
     mergeMaps(histoMapMap2D_mat_RZ, rep.histoMapMap2D_mat_RZ);
     mergeMaps(histoMapMap2D_prc_RZ, rep.histoMapMap2D_prc_RZ);
+    mergeMaps(histoMapMap2D_vol_RZ_E, rep.histoMapMap2D_vol_RZ_E);
+    mergeMaps(histoMapMap2D_mat_RZ_E, rep.histoMapMap2D_mat_RZ_E);
   }
 
 } // namespace G4UA 

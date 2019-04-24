@@ -32,13 +32,17 @@ namespace G4UA
         /// Photon energy cut
         double photonEnergyCut;
         /// Energy threshold for the Neutron Russian Roulette
-        double russianRouletteThreshold;
+        double russianRouletteNeutronThreshold;
         /// Weight for the Neutron Russian Roulette
-        double russianRouletteWeight;
+        double russianRouletteNeutronWeight;
+        /// Energy threshold for the Photon Russian Roulette
+        double russianRoulettePhotonThreshold;
+        /// Weight for the Photon Russian Roulette
+        double russianRoulettePhotonWeight;
         /// Is this an ISF job
         bool isISFJob;
       };
-
+      
       /// Constructor with configuration
       AthenaStackingAction(const Config& config);
 
@@ -64,11 +68,17 @@ namespace G4UA
       /// My configuration options
       Config m_config;
 
-      // bool that checks if the Russian Roulette is active for neutrons
+      // bool that checks if the Neutron Russian Roulette is active for neutrons
       bool m_russianRouletteForNeutrons;
+      
+      // bool that checks if the Photon Russian Roulette is active for neutrons
+      bool m_russianRouletteForPhotons;
 
-      // one over m_config.russianRouletteWeight
-      double m_oneOverWeight;
+      // one over m_config.russianRouletteNeutronWeight
+      double m_oneOverWeightNeutron;
+      
+      // one over m_config.russianRoulettePhotonWeight
+      double m_oneOverWeightPhoton;
 
   }; // class AthenaStackingAction
 
