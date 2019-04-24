@@ -25,7 +25,7 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
   m_jvtCut(0),
   m_jvtCutBorder(0)
   {
-    declareProperty( "WorkingPoint", m_wp = "Medium"                             );
+    declareProperty( "WorkingPoint", m_wp = "Default"                             );
     declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root");
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"  );
     declareProperty( "JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"           );
@@ -48,6 +48,10 @@ StatusCode JetJvtEfficiency::initialize(){
   if (!m_doTruthRequirement) ATH_MSG_WARNING ( "No truth requirement will be performed, which is not recommended.");
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
+
+  if (m_wp=="Default" && !ispflow) m_wp = "Medium";
+  if (m_wp=="Default" && ispflow) m_wp = "Tight";
+
   m_jvtCutBorder = -2.;
   if (m_wp=="Loose" && !ispflow) m_jvtCut = 0.11;
   else if (m_wp=="Medium" && ispflow) m_jvtCut = 0.2;
