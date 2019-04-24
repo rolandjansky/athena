@@ -11,11 +11,11 @@
 #include "ActsInterop/IdentityHelper.h"
 
 // ACTS
-#include "Acts/Material/SurfaceMaterialProxy.hpp"
+#include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
 #include "Acts/Layers/GenericApproachDescriptor.hpp"
-#include "Acts/Utilities/ApproachDescriptor.hpp"
+#include "Acts/Layers/ApproachDescriptor.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Tools/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -157,7 +157,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
   for (const auto& layerPair : layers) {
 
     std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
-    std::shared_ptr<const Acts::SurfaceMaterialProxy> materialProxy = nullptr;
+    std::shared_ptr<const Acts::ProtoSurfaceMaterial> materialProxy = nullptr;
 
     // use ref here, copy later
     const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
@@ -196,7 +196,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
             binsZ, -layerHalfZ, layerHalfZ, Acts::open, Acts::binZ, transform);
 
       materialProxy
-        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -209,7 +209,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       // set material on inner
       // @TODO: make this configurable somehow
-      innerBoundary->setAssociatedMaterial(materialProxy);
+      innerBoundary->assignSurfaceMaterial(materialProxy);
 
       std::vector<std::shared_ptr<const Acts::Surface>> aSurfaces;
       aSurfaces.push_back(std::move(innerBoundary));
@@ -272,7 +272,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
           matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
       
       materialProxy
-        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -286,7 +286,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       // set material on inner
       // @TODO: make this configurable somehow
-      innerBoundary->setAssociatedMaterial(materialProxy);
+      innerBoundary->assignSurfaceMaterial(materialProxy);
 
       int nModPhi = std::numeric_limits<int>::max();
       int nModR = 0;
