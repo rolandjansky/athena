@@ -93,9 +93,9 @@ const PseudoJetContainer* TrackPseudoJetGetter::getC() const {
     ATH_MSG_DEBUG("Error storing PseudoJetContainer in event "
                   << " at key " << m_outcoll.key());
   } else {
-    ATH_MSG_DEBUG("PseudoJetContainer in event store with extractor: " 
-                  << extractor->toString(0)
-                  << " at key " << m_outcoll.key());
+    //ATH_MSG_DEBUG("PseudoJetContainer in event store with extractor: " 
+    //               << extractor->toString(0)
+    //             << " at key " << m_outcoll.key());
   }
 
   return pjcont;
