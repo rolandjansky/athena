@@ -19,7 +19,7 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-
+#include "CLHEP/Vector/LorentzVector.h"
 namespace Trk
 {
 
