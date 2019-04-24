@@ -12,7 +12,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
-      globalSF -- Wether to calculate per event efficiencies
+      globalSF -- Wether to calculate per event scale factors
       runSelection -- Wether to run selection
     """
 
@@ -20,7 +20,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         raise ValueError ("invalid data type: " + dataType)
 
     if runSelection and not globalSF :
-        raise ValueError ("per-event efficiency needs to be computed when doing a JVT selection")
+        raise ValueError ("per-event scale factors needs to be computed when doing a JVT selection")
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "JetJVTAnalysisSequence" )
@@ -33,7 +33,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
-        alg.efficiency = 'jvt_efficiency'
+        alg.scaleFactorDecoration = 'jvt_effSF'
         alg.preselection = 'no_jvt'
 
         seq.append( alg,
@@ -43,7 +43,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                        'eventInfo' : 'eventInfoOut' } )
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-        alg.efficiency = 'fjvt_efficiency'
+        alg.scaleFactorDecoration = 'fjvt_effSF'
         alg.preselection= 'no_fjvt'
 
         seq.append( alg,

@@ -54,13 +54,13 @@ namespace CP
     SelectionReadHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
-    /// \brief the decoration for the efficiency
+    /// \brief the decoration for the scale factor
   private:
-    std::string m_efficiency;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiency
+    /// \brief the accessor for \ref m_scaleFactor
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
   };
 }
 

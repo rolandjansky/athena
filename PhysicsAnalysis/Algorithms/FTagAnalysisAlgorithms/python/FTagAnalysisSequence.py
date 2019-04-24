@@ -70,7 +70,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
         alg.efficiencyTool.JetAuthor = jetContainer
         alg.efficiencyTool.ScaleFactorFileName = bTagCalibFile
         alg.efficiencyTool.SystematicsStrategy = "Envelope"
-        alg.efficiencyDecoration = 'ftag_eff_' + btagger + '_' + btagWP
+        alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP
         alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_ftag_' + btagger + '_' + btagWP
