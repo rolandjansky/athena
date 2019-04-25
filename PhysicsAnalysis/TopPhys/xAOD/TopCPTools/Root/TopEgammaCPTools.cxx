@@ -341,7 +341,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, std::string& ISO) {
 
   const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
@@ -365,11 +365,15 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
     file_path += "_ECIDSloose.root";
     file_path  = el_calib_path + file_path;
   } else if (type == "ChargeMisID") {
+    // Protect against "None" Iso key
+    if (ISO=="None") ISO="";
+    // Protect against Loose ID + any Iso
+    if (ID=="LooseAndBLayerLLH") ISO="";
     file_path  = "charge_misID/";
     file_path += "chargeEfficiencySF.";
     file_path += ID;
-    file_path += "_d0z0_v13_";
-    file_path += ISO;
+    file_path += "_d0z0_v13";
+    if (ISO!="") file_path += "_" + ISO;
     if (m_config->useElectronChargeIDSelection()) {
       if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
       else if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + ISO + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
