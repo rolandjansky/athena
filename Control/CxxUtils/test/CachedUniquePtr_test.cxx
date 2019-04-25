@@ -72,11 +72,14 @@ void test1()
   }
   assert (P::s_count == 0);
 
-  cp1.set (std::make_unique<P>(3));
+  const P* pp = nullptr;
+  pp = cp1.set (std::make_unique<P>(3));
+  assert (pp->m_x == 3);
   assert (cp1->m_x == 3);
   assert (P::s_count == 1);
 
-  cp1.set (std::make_unique<P>(4));
+  pp = cp1.set (std::make_unique<P>(4));
+  assert (pp->m_x == 3);
   assert (cp1->m_x == 3);
   assert (P::s_count == 1);
 
@@ -122,7 +125,7 @@ void ThreadingTest::writerThread::operator()()
 {
   int i = m_iworker;
   do {
-    m_test.m_vals[i].set (std::make_unique<const P>(i));
+    (void)m_test.m_vals[i].set (std::make_unique<const P>(i));
     i++;
     if (i >= NVAL) i = 0;
   } while (i != m_iworker);
