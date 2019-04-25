@@ -33,7 +33,7 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
   m_options(),
   m_regionSelector("RegSelSvc", name ),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
-  m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator"),
+  m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator", this),
   m_mdtDataPreparator("TrigL2MuonSA::MdtDataPreparator", this),
   m_cscDataPreparator("TrigL2MuonSA::CscDataPreparator"),
   m_rpcRoadDefiner("TrigL2MuonSA::RpcRoadDefiner"),

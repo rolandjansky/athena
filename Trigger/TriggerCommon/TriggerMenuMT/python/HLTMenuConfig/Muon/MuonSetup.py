@@ -207,12 +207,18 @@ def muFastRecoSequence( RoIs ):
       MdtRawDataProviderAlg = alg
     if 'MdtRdoToMdt' in alg.name():
       MdtRdoToPrdAlg = alg
+    if 'TgcRawData' in alg.name():
+      TgcRawDataProviderAlg = alg
+    if 'TgcRdoToTgc' in alg.name():
+      TgcRdoToPrdAlg = alg
 
   # Schedule BS->RDO only if needed (not needed on MC RDO files)
   if DetFlags.readRDOBS.MDT_on():
     muFastRecoSequence += MdtRawDataProviderAlg
+    muFastRecoSequence += TgcRawDataProviderAlg
   # Always need RDO->PRD
   muFastRecoSequence += MdtRdoToPrdAlg
+  muFastRecoSequence += TgcRdoToPrdAlg
 
   ### These configurations for decoding tools should be removed. ###
   ### CSC RDO data ###
@@ -285,28 +291,13 @@ def muFastRecoSequence( RoIs ):
   ToolSvc += L2RpcDataPreparator
 
 
-  ### TGC RDO data ###
-  from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RodDecoderReadout
-  TGCRodDecoder = Muon__TGC_RodDecoderReadout(name	  = "TGC_RodDecoderReadout_L2SA")
-  ToolSvc += TGCRodDecoder
-
-  from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
-  MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name        = "TGC_RawDataProviderTool_L2SA",
-                                                             RdoLocation = "TGCRDO_L2SA",
-                                                             Decoder     = TGCRodDecoder)
-  ToolSvc += MuonTgcRawDataProviderTool
-
-  from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-  TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                 = "TgcRdoToPrepDataTool_L2SA",
-                                                       OutputCollection     = "TGC_Measurements_L2SA",
-                                                       OutputCoinCollection = "TrigT1CoinDataCollection_L2SA")
-  ToolSvc += TgcRdoToTgcPrepDataTool
-
+  ### TGC data preparation - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(TgcPrepDataProvider  = TgcRdoToTgcPrepDataTool,
-                                                        TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection)
-  ToolSvc += L2TgcDataPreparator
-
+  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator",
+                                                        DecodeBS = False,
+                                                        DoDecoding = False,
+                                                        TgcPrepDataProvider  = "",
+                                                        TgcRawDataProvider = "")
 
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
@@ -318,8 +309,9 @@ def muFastRecoSequence( RoIs ):
   MuFastDataPreparator.MDTDataPreparator = L2MdtDataPreparator
   MuFastDataPreparator.RPCDataPreparator = L2RpcDataPreparator
   MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
-
+  
   muFastAlg.DataPreparator = MuFastDataPreparator
+
   muFastAlg.RecMuonRoI = "RecMURoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muFastInfo
@@ -427,14 +419,15 @@ def muEFSARecoSequence( RoIs, name ):
 
   # setup RDO preparator algorithms 
   if name != 'FS':
-    # we now try to share the MDT data preparation algorithm with L2, so we tell the view that it should expect the MDT PRDs to be available
+    # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT and TGC PRDs to be available
     efAlgs.append( CfgMgr.AthViews__ViewDataVerifier(name = "EFMuonViewDataVerifier",
-                                                     DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' )])
+                                                     DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+                                                                    ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )])
                  )
   for viewAlg_MuonPRD in viewAlgs_MuonPRD:
-    # we now try to share the MDT data preparation algorithm with L2, so only add the MDT algo if we are running full-scane
+    # we now try to share the MDT and TGC data preparation algorithms with L2, so only add those if we are running full-scane
     # this is slightly ugly, should be improved in new JO setup
-    if 'Mdt' not in viewAlg_MuonPRD.name() or name == 'FS':
+    if ('Mdt' not in viewAlg_MuonPRD.name() and 'Tgc' not in  viewAlg_MuonPRD.name()) or name == 'FS':
       efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc

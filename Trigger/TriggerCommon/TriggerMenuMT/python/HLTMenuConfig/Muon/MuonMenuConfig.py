@@ -55,7 +55,6 @@ def TgcDataPreparatorCfg( flags, roisKey ):
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
     TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = acc.getPublicTool( "TgcRdoToTgcPrepDataTool" ) )
                                                          #DecodeBS = DetFlags.readRDOBS.TGC_on() ) # This should be used flags
-    acc.addPublicTool( TgcDataPreparator, primary=True ) # This should be removed
  
     return acc, TgcDataPreparator
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
@@ -16,9 +16,10 @@
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
-#include "TrigL2MuonSA/TgcDataPreparator.h"
 #include "RegionSelector/IRegSelSvc.h"
+
 
 //#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 //#include "TGCcablingInterface/ITGCcablingSvc.h"
@@ -143,10 +144,6 @@ namespace TrigL2MuonSA {
 
     // pointer to the muon roi
     const LVL1::RecMuonRoI* m_roi;
-
-    // the tgc data preparator needed to retrieve the list of Hashes
-    ToolHandle<TgcDataPreparator>  m_tgcDataPreparator;
-
     
     // TGC raw data provider
     //    ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider;

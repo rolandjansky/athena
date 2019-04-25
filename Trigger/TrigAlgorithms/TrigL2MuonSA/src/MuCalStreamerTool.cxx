@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
@@ -11,10 +11,11 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-//#include "MuonRDO/RpcPadContainer.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/TgcRdoContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -44,8 +45,7 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
    m_robDataProvider( "ROBDataProviderSvc", name ),
    m_cid(-1),
    m_calibEvent(0),
-   m_roi(NULL),
-   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator")  
+   m_roi(NULL)
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 }
@@ -96,9 +96,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    //  ATH_MSG_ERROR("Could not retrieve the TGC cabling svc");
    //  return StatusCode::FAILURE;
    //} 
-
-   ATH_CHECK( m_tgcDataPreparator.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator); 
 
    // locate the region selector
    ATH_CHECK( m_regionSelector.retrieve() );
@@ -646,9 +643,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   uint16_t roiNumber = 0;
 
   tgcFragment = LVL2_MUON_CALIBRATION::TgcCalibFragment(systemId,subSystemId,rdoId,roiNumber);
-
-  // get the list of hash ID's from the TGC data preparator
-  std::vector<IdentifierHash> tgcHashList = m_tgcDataPreparator->getHashList();
 
   // retrieve the tgcrdo container
   const TgcRdoContainer* tgcRdoContainer = Muon::MuonRdoContainerAccess::retrieveTgcRdo("TGCRDO");
