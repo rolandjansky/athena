@@ -73,6 +73,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, nullptr);
   }
+  m_counterTotal   = {};
   m_neventsTotal   = 0;
   m_neventsTotalV  = 0;
   m_problemsTotal  = 0;
@@ -96,7 +97,7 @@ StatusCode InDet::SiSPSeededTrackFinder::execute()
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::oldStrategy() const
+StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
@@ -175,7 +176,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy() const
 // Execute with new strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::newStrategy() const
+StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));

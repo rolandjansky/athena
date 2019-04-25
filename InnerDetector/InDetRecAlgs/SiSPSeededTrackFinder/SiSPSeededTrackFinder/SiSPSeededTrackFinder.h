@@ -24,7 +24,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include <atomic>
 #include <string>
 
 //class SpacePointContainer;
@@ -60,7 +59,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
      
     enum ECounter {kNSeeds, kNTracks, kNCounter};
-    class Counter_t : public std::array<std::atomic_int, kNCounter> 
+    class Counter_t : public std::array<int, kNCounter> 
     {
     public:
       Counter_t& operator += (const Counter_t& counter) {
@@ -98,12 +97,12 @@ namespace InDet {
 
     Trk::MagneticFieldProperties m_fieldprop;
 
-    mutable Counter_t m_counterTotal ATLAS_THREAD_SAFE {};
+    Counter_t m_counterTotal{};
 
-    mutable std::atomic_int m_neventsTotal{0}; // Number events 
-    mutable std::atomic_int m_neventsTotalV{0}; // Number events 
-    mutable std::atomic_int m_problemsTotal{0}; // Numbe revents with number seeds > maxNumber
-    mutable std::atomic_int m_problemsTotalV{0}; // Numbe revents with number seeds > maxNumber
+    int m_neventsTotal{0}; // Number events 
+    int m_neventsTotalV{0}; // Number events 
+    int m_problemsTotal{0}; // Numbe revents with number seeds > maxNumber
+    int m_problemsTotalV{0}; // Numbe revents with number seeds > maxNumber
 
     // For new strategy reconstruction
     //
@@ -132,8 +131,8 @@ namespace InDet {
                      std::vector<int>& nhistogram,
                      std::vector<double>& zhistogram,
                      std::vector<double>& phistogram) const;
-    StatusCode oldStrategy() const;
-    StatusCode newStrategy() const;
+    StatusCode oldStrategy();
+    StatusCode newStrategy();
     void magneticFieldInit();
 
     MsgStream& dumptools(MsgStream& out) const;
