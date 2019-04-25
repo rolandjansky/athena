@@ -452,7 +452,7 @@ namespace InDet{
     
     if(doTiming()) m_timerSGate->resume();
     
-    const PixelRDO_Container* p_pixelRDOContainer;
+    const PixelRDO_Container* p_pixelRDOContainer = nullptr;
     if (store()->retrieve(p_pixelRDOContainer,  m_pixelRDOContainerName).isFailure() ) {
       ATH_MSG_WARNING( "Could not find the PixelRDO_Container " 
 		       << m_pixelRDOContainerName );
