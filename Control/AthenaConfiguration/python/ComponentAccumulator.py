@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
@@ -8,10 +9,11 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
-from Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
+from AthenaConfiguration.Deduplication import deduplicate, deduplicateComponent, DeduplicationFailed
 
 import ast
 import collections
+import six
 
 from UnifyProperties import unifySet
 
@@ -48,13 +50,13 @@ class ComponentAccumulator(object):
             len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0
 
     def __del__(self):
-        if not self._wasMerged and not self.empty():
-            raise RuntimeError("ComponentAccumulator was not merged!")
-            #log = logging.getLogger("ComponentAccumulator")
-            #log.error("The ComponentAccumulator listed below was never merged!")
+         if not getattr(self,'_wasMerged',True) and not self.empty():
+             raise RuntimeError("ComponentAccumulator was not merged!")
+             #log = logging.getLogger("ComponentAccumulator")
+             #log.error("The ComponentAccumulator listed below was never merged!")
 
-        if self._privateTools is not None:
-            raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
+         if getattr(self,'_privateTools',None) is not None:
+             raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
         #pass
 
 
@@ -65,7 +67,7 @@ class ComponentAccumulator(object):
         self._msg.info( "Event Algorithm Sequences" )
 
         def printProperties(c, nestLevel = 0):
-            for propname, propval in c.getValuedProperties().iteritems():
+            for propname, propval in six.iteritems(c.getValuedProperties()):
                 # Ignore empty lists
                 if propval==[]:
                     continue
@@ -456,7 +458,7 @@ class ComponentAccumulator(object):
                 self._outputPerStream[k]=other._outputPerStream[k]
 
         #Merge AppMgr properties:
-        for (k,v) in other._theAppProps.iteritems():
+        for (k,v) in six.iteritems(other._theAppProps):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
@@ -487,13 +489,13 @@ class ComponentAccumulator(object):
         for c in self._conditionsAlgs:
             deduplicate(c,condseq)
 
-        for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+        for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
             for alg in algoList:
                 seq+=alg
 
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             if k not in [ 'CreateSvc', 'ExtSvc']:
                 setattr(theApp,k,v)
 
@@ -527,7 +529,7 @@ class ComponentAccumulator(object):
                     self._jocat[name] = {}
                 self._jocat[name][k]=str(v)
 
-        #print "All Children:",confElem.getAllChildren()
+        #print ("All Children:",confElem.getAllChildren())
         for ch in confElem.getAllChildren():
             self.appendConfigurable(ch)
         return
@@ -549,7 +551,7 @@ class ComponentAccumulator(object):
             else:
                 bsfilename = "./"+localbs[0]
 
-            bsfile=open(bsfilename)
+            bsfile=open(bsfilename,'rb')
             self._jocat=pickle.load(bsfile)
             self._jocfg=pickle.load(bsfile)
             self._pycomps=pickle.load(bsfile)
@@ -595,7 +597,7 @@ class ComponentAccumulator(object):
                                                         'JobOptionsSvc/JobOptionsSvc']"
 
             #Code seems to be wrong here
-            for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+            for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
                 self._jocat[seqName] = {}
                 for alg in algoList:
                   self._jocat[alg.name()] = {}
@@ -603,13 +605,13 @@ class ComponentAccumulator(object):
                 self._jocat[self._sequence.getName()][k]=str(v)
 
         #EventAlgorithms
-        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList  in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             evtalgseq=[]
             for alg in algoList:
                 self.appendConfigurable( alg )
                 evtalgseq.append( alg.getFullName() )
 
-        for seqName, algoList  in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList  in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             # part of the sequence may come from the bootstrap, we need to retain the content, that is done here
             for prop in self._jocat[seqName]:
                 if prop == "Members":
@@ -627,7 +629,7 @@ class ComponentAccumulator(object):
 
         #Public Tools:
         for pt in self._publicTools:
-            #print "Appending public Tool",pt.getFullName(),pt.getJobOptName()
+            #print ("Appending public Tool",pt.getFullName(),pt.getJobOptName())
             self.appendConfigurable(pt)
 
 
@@ -650,7 +652,7 @@ class ComponentAccumulator(object):
         self._jocfg["ApplicationMgr"]["EvtMax"]=nEvents
 
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             if k not in [ 'CreateSvc', 'ExtSvc']:
                 self._jocfg["ApplicationMgr"][k]=v
 
@@ -675,7 +677,7 @@ class ComponentAccumulator(object):
         bsh=BootstrapHelper()
         app=bsh.createApplicationMgr()
 
-        for (k,v) in self._theAppProps.iteritems():
+        for (k,v) in six.iteritems(self._theAppProps):
             app.setProperty(k,str(v))
 
         #Assemble createSvc property:
@@ -686,16 +688,16 @@ class ComponentAccumulator(object):
             if svc.getJobOptName() in _servicesToCreate:
                 svcToCreate+=[svc.getFullName(),]
 
-        #print self._services
-        #print extSvc
-        #print svcToCreate
+        #print (self._services)
+        #print (extSvc)
+        #print (svcToCreate)
         app.setProperty("ExtSvc",str(extSvc))
         app.setProperty("CreateSvc",str(svcToCreate))
 
         app.configure()
 
         msp=app.getService("MessageSvc")
-        bsh.setProperty(msp,"OutputLevel",str(OutputLevel))
+        bsh.setProperty(msp,b"OutputLevel",str(OutputLevel).encode())
         #Feed the jobO service with the remaining options
         jos=app.getService("JobOptionsSvc")
 
@@ -711,7 +713,7 @@ class ComponentAccumulator(object):
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
                         self._msg.debug("Adding "+name+"."+k+" = "+str(v))
-                        bsh.addPropertyToCatalogue(jos,name,k,str(v))
+                        bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),str(v).encode())
                     pass
                 pass
             for ch in comp.getAllChildren():
@@ -724,9 +726,9 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
-        for seqName, algoList in flatSequencers( self._sequence, algsCollection=self._algorithms ).iteritems():
+        for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
-            bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
+            bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
                 pass

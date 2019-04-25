@@ -2,6 +2,7 @@
 
 # self test of ComponentAccumulator
 
+from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -74,11 +75,13 @@ class TestComponentAccumulator( unittest.TestCase ):
         accNA1=AlgsConf4(dummyCfgFlags)
         acc.merge(accNA1[0])
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
-        acc.store(open("testFile.pkl", "w"))
+        outf = open("testFile.pkl", "wb")
+        acc.store(outf)
+        outf.close()
         self.acc = acc
 
 
-    def test_algorihmsAreAdded( self ):
+    def test_algorithmsAreAdded( self ):
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo1", 1).name(), "Algo1", "Algorithm not added to a top sequence" )
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo2", 1).name(),  "Algo2", "Algorithm not added to a top sequence" )
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo3", 1).name(), "Algo3", "Algorithm not added to a top sequence" )
@@ -97,9 +100,9 @@ class TestComponentAccumulator( unittest.TestCase ):
 
     def test_readBackConfiguration( self ):
         import pickle
-        with open( "testFile.pkl" ) as f:
-            s = pickle.load( f )
-            self.assertIsNotNone( s, "The pickle has no content")
+        f = open('testFile.pkl', 'rb')
+        s = pickle.load( f )
+        self.assertIsNotNone( s, "The pickle has no content")
 
     def test_foreach_component( self ):
         from AthenaCommon.Logging import logging
@@ -131,9 +134,11 @@ class TestHLTCF( unittest.TestCase ):
         acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
         acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
 
-        acc.store(open("testFile2.pkl", "w"))
+        fout = open("testFile2.pkl", "wb")
+        acc.store(fout)
+        fout.close()
         import pickle
-        f = open("testFile2.pkl")
+        f = open("testFile2.pkl", 'rb')
         s = pickle.load(f)
         f.close()
         self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
@@ -170,10 +175,12 @@ class MultipleParentsInSequences( unittest.TestCase ):
         self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithms are cloned" )
         self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), recoAlg, "Clone of the original inserted in sequence" )
 
-        accTop.store( open("dummy.pkl", "w") )
+        fout = open("dummy.pkl", "wb")
+        accTop.store( fout )
+        fout.close()
         import pickle
         # check if the recording did not harm the sequences
-        with open("dummy.pkl") as f:
+        with open("dummy.pkl", 'rb') as f:
             s = pickle.load( f )
             self.assertEqual( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
             self.assertEqual( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
@@ -357,7 +364,7 @@ class TestDeduplication( unittest.TestCase ):
                                         SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
                                     )
                        )
-    
+
         self.assertEqual(len(result3._services),1) #Verify that we have only one service
 
 
@@ -368,10 +375,10 @@ class TestDeduplication( unittest.TestCase ):
                                         SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
                                     )
                        )
-        
+      
         self.assertEqual(len(result3._services),2)
-        
-        
+      
+      
         #Add the same service again, with a sightly differently configured private tool:
         result3.addService(dummyService(AString="bla",
                                         AList=["l1","l3"],

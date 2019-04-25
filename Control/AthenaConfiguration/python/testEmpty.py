@@ -1,4 +1,5 @@
 #Generate CA pickle files from athena and CA
+from __future__ import print_function
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator

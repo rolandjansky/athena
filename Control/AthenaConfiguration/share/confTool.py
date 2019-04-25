@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
+
+from __future__ import print_function
 import pickle
 import pprint
 import json
@@ -23,14 +25,14 @@ args = parser.parse_args()
 def __loadSingleFile( fname ):    
     conf = []
     if fname.endswith( ".pkl" ):
-        input_file = file( fname )
+        input_file = open( fname, 'rb' )
         conf = []
         while True:
             try:
                 conf.append( pickle.load( input_file ) )
             except EOFError:
                 break
-        print "... Read", len(conf), "items from python pickle file: ", fname
+        print ("... Read", len(conf), "items from python pickle file: ", fname)
 
     if fname.endswith( ".json" ):
 
@@ -44,20 +46,20 @@ def __loadSingleFile( fname ):
             return element
 
         conf = json.load( file( args.file[0] ), object_hook=__keepPlainStrings )
-        print "... Read", len(conf), "items from JSON file: ", fname
+        print ("... Read", len(conf), "items from JSON file: ", fname)
     return conf
 
 def __print( fname ):
     conf = __loadSingleFile( fname )
-    print "... ", fname, "content"
+    print ("... ", fname, "content")
     for n,c in enumerate(conf):
-        print "Item", n, "*"*80
+        print ("Item", n, "*"*80)
         pprint.pprint(dict(c))
-    print "... EOF", fname
+    print ("... EOF", fname)
 
 def __printComps( fname ):
     conf = __loadSingleFile( fname )
-    print "... ", fname, "content"
+    print ("... ", fname, "content")
     def __printdict( d ):
         for name, k in dict( d ).iteritems():
             if name in "Histograms":
@@ -68,20 +70,20 @@ def __printComps( fname ):
             elif isinstance(k, str) and '/' in k:
                 if not '[' in k: # not an array
                     if  k.count('/')  == 1:
-                        print k
+                        print (k)
                 else: # handle arrays
                     actualType = ast.literal_eval(k)
                     if isinstance( actualType, list ):
                         for el in actualType:
                             if el.count('/')  == 1 : # ==1 eliminates COOL folders
-                                print el
+                                print (el)
 
     for n,c in enumerate(conf):
         __printdict( c )
             
 
 
-    print "... EOF", fname
+    print ("... EOF", fname)
 
 
 def __diff():
@@ -92,13 +94,13 @@ def __diff():
 
     confs = [ __merge( __loadSingleFile( f )) for f in args.file ] 
     
-    allkeys = set( confs[0].keys() + confs[1].keys())
+    allkeys = set( list(confs[0].keys()) + list(confs[1].keys()))
 
     for comp in allkeys:
         if comp not in confs[0]:
-            print "... component %-54s" % comp, "absent in", args.file[0]
+            print ("... component %-54s" % comp, "absent in", args.file[0])
         elif comp not in confs[1]:
-            print "... component %-54s" % comp, "absent in", args.file[1]
+            print ("... component %-54s" % comp, "absent in", args.file[1])
         elif confs[0][comp] != confs[1][comp]:
             same = False
             if comp == "JobOptionsSvc":
@@ -109,13 +111,13 @@ def __diff():
                     if confs[0][comp][conf] != confs[1][comp][conf]:
                         break
             if not same:
-                print "... component %-54s" % comp, "present in both files but with different settings"
-                print "... in file: ", args.file[0]
+                print ("... component %-54s" % comp, "present in both files but with different settings")
+                print ("... in file: ", args.file[0])
                 pprint.pprint( confs[0][comp])
-                print "... in file: ", args.file[1]
+                print ("... in file: ", args.file[1])
                 pprint.pprint( confs[1][comp])
         else:
-            print "... component %-54s" % comp, "identical"
+            print ("... component %-54s" % comp, "identical")
 
 
 if args.prComps:
@@ -129,7 +131,7 @@ if args.pr:
 
 if args.toJSON:
     if len( args.file ) != 1:
-        print "ERROR, can convert single file at a time, got: ", args.file
+        print ("ERROR, can convert single file at a time, got: ", args.file)
         sys.exit( -1 )
     conf = __loadSingleFile( args.file[0] )
     oFile = open( args.toJSON, "w" )
@@ -139,6 +141,6 @@ if args.toJSON:
 
 if args.diff:
     if len( args.file ) != 2:
-        print "ERROR, can only diff two files at a time, got: ", args.file
+        print ("ERROR, can only diff two files at a time, got: ", args.file)
         sys.exit( -1 )
     __diff()
