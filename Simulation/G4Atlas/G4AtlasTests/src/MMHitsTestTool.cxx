@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMHitsTestTool.h"
@@ -16,8 +16,8 @@
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/MMSimHit.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -44,15 +44,15 @@ StatusCode MMHitsTestTool::processEvent() {
   CHECK(executeCheckEventInfo());
 
   if (m_DoMMTest) {
-    const DataHandle<GenericMuonSimHitCollection> p_collection;
+    const DataHandle<MMSimHitCollection> p_collection;
     CHECK(evtStore()->retrieve(p_collection,"MicromegasSensitiveDetector"));
-    for (GenericMuonSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
+    for (MMSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
       Amg::Vector3D u = (*i_hit).globalPosition();
       CHECK(executeFillHistos(u));
       //Useful link on how to retrieve variables: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/MuonSpectrometer/MuonValidation/MuonPRDTest/src/MMSimHitVariables.cxx
       //Get station names and make plots for each wedge
       MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();	
-      int simId = (*i_hit).GenericId();
+      int simId = (*i_hit).MMId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
       //Declare station name strings
       static std::string s_m1s1("M1S1");
