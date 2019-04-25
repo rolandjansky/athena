@@ -29,7 +29,8 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    src/FlowNetworkTest.cxx
    src/LlpCleanerTest.cxx
    src/LooseCleanerTest.cxx
-   src/MaximumBipartiteMatcherTest.cxx
+   src/MaximumBipartiteGroupsMatcherTest.cxx
+   src/MaximumBipartiteGroupsMatcherMTTest.cxx
    src/MultiJetMatcherTest.cxx
    src/OrderedCollectionsMatcherTest.cxx
    src/SelectedJetsMatcherTest.cxx
