@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////
@@ -20,7 +20,6 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-#include "CxxUtils/make_unique.h"
 
 
 using namespace std;
@@ -153,7 +152,7 @@ namespace D3PD {
       chambers.push_back(chIntersect);
     }
     //build the pattern combination
-    auto pattern = CxxUtils::make_unique<Muon::MuonPatternCombination>
+    auto pattern = std::make_unique<Muon::MuonPatternCombination>
       (new Trk::Perigee(patpos,patdir,1,patpos), chambers);
     pattern->setTrackRoadType(3);
 
