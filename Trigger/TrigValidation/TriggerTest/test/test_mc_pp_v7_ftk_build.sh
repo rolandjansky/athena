@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# art-description: Bphysics slice TriggerTest on MC using Jpsimu6mu6 to AOD
-# art-type: grid
+# art-description: MC v7 no prescales TriggerTest on FTK MC to AOD
+# art-type: build
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
@@ -22,10 +22,12 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="slice_bphysics_aod_grid"
-export SLICE="bphysics"
-export INPUT="bphysics"
-export JOBOPTIONS="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
+export NAME="mc_pp_v7_nops_aod_ftk_build"
+export MENU="MC_pp_v7_no_prescale"
+export INPUT="ftk"
+export EVENTS="5"
+export COST_MONITORING="False"
+export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
