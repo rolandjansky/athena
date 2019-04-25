@@ -18,6 +18,7 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
+#include "GaudiKernel/PhysicalConstants.h"
 
 using namespace std;
 using namespace LVL1;
@@ -88,7 +89,7 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
 		 );
 
   //doing this differently compared to what mentioned in the twiki https://twiki.cern.ch/twiki/bin/viewauth/Atlas/L1CaloUpgradeSimulation
-  TCS::MetTOB met( -(m_gFEXMET->energyX()/1000), -(m_gFEXMET->energyY()/1000), m_gFEXMET->energyT()/1000 );
+  TCS::MetTOB met( -(m_gFEXMET->energyX()/Gaudi::Units::GeV), -(m_gFEXMET->energyY()/Gaudi::Units::GeV), m_gFEXMET->energyT()/Gaudi::Units::GeV );
   inputEvent.setMET( met );
   m_hPt->Fill(met.Et());
   m_hPhi->Fill( atan2(met.Ey(),met.Ex()) );
