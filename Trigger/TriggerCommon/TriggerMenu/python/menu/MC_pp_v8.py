@@ -153,14 +153,14 @@ def setupMenu():
         ['ht1000_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['ht1000_L1HT190-J15s5.ETA21',  'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
-	    ['2j45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	    ['4j15',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	    ['4j45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['2j45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['4j15',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['4j45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         # ATR-19554  
         ['j0_perf_L1jJ100',   'L1_jJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j0_perf_L14jJ15',   'L1_4jJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j260_L1jJ100',      'L1_jJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	    ['6j45_L14jJ15',   'L1_4jJ15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['6j45_L14jJ15',   'L1_4jJ15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 			 ]
 
 
@@ -176,13 +176,13 @@ def setupMenu():
         ['j0_ftk_2jvt011et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j0_ftk_2jvt015et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j0_ftk_2jvt059et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_4jvt011et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_4jvt011et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j0_ftk_4jvt015et15',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_4jvt015et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_4jvt059et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_6jvt011et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_6jvt015et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_ftk_6jvt059et45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_4jvt015et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_4jvt059et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_6jvt011et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_6jvt015et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_ftk_6jvt059et45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 ##  ATR-19574 copy gsc triggers with FTK; only "legacy-primary"
         ['j225_gsc420_boffperf_split_FTKRefit',  'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
