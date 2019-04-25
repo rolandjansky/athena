@@ -341,7 +341,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, std::string& ISO) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, std::string ISO) {
 
   const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
