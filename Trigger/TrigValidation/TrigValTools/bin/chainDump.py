@@ -36,12 +36,18 @@ histDict = { "TrigSteer_HLT":"HLT",
              "NumberOfActiveTEs":"TE",
              "CTPSimulation":"L1",
              "L1ItemsAV":"AV",
-             "CTPEmulation":"L1Emu",
+             "CTPEmulation":"L1Emu", # this maybe overwritten later with 'L1', if no CTPSimulation is available
              "output/TAVbyName":"AV" }
 defFracTolerance  = "0.001"
 defSigmaTolerance = "0.0"
 defIntTolerance   = "2"
 defEnhancedTag    = "Enhanced "
+
+import inspect 
+def plno():
+   '''Prints the current line number in our program'''
+   print "LINE", inspect.currentframe().f_back.f_lineno
+ 
 
 class chainDump:
     """
@@ -292,7 +298,7 @@ class chainDump:
                 self.saveToFile = False
 
             if self.saveToFile:
-                print self.grandTotalEvents
+                print "Writing number of events to TotalEventsProcessed.txt:",self.grandTotalEvents
                 f.write("%d" % int(self.grandTotalEvents) )
                 f.close()
 
@@ -301,10 +307,9 @@ class chainDump:
 #
 #       prints a single file
 #
-
         for fileContainer,fileName,nevt in self.results:
             for textFile,chains in fileContainer:
-                print textFile
+                print "Writing counts to",textFile
                 # store to file if asked  
                 try:      
                     f=open(textFile,'w')
@@ -365,11 +370,11 @@ class chainDump:
                             if hist_entries != total_events:
                                 print "WARNING: total events in different directories don't match" 
                         if total_events != -1:
-                            print "Found %s events" % total_events
+                            print "Found %s events in histogram %s/%s" % (total_events, dir, self.totalEvHist)
                             break
                     tfile.cd("..")
                 except:
-                  print "ERROR: cound not cd to directory: ", dir
+                  print "ERROR: could not cd to directory: ", dir
             else:
                 print "WARNING: direcory ", dir," not found, could be normal if only HLT is run"
     
@@ -377,11 +382,25 @@ class chainDump:
         fileList=[]
         chainList=[]
         dummy=[]
+        missingDirs=[]
+        for dir in self.checkDir:
+            if not dir in baseList:
+                missingDirs += [dir]
+                if dir!="CTPSimulation" and dir!="CTPEmulation":
+                    print "WARNING: direcory ", dir,"requested but not found"
+
+        if "CTPSimulation" in missingDirs and "CTPEmulation" in missingDirs:
+            print 'WARNING: both directories "CTPSimulation" and "CTPEmulation" are missing'
+
+        if "CTPEmulation" in self.checkDir and "CTPEmulation" in baseList and ("CTPSimulation" not in baseList or "CTPSimulation" not in self.checkDir):
+            '''In case the CTPEmulation was run but the CTPSimulation was not run or not requested
+            this will write out L1 instead of L1Emu based on the CTPEmulation'''
+            histDict["CTPEmulation"] = "L1"
+
         for dir in self.checkDir:
             # check if dir is in list of base directories
             if dir in baseList:
-                if self.verbose:
-                    print dir
+                print "Using",dir
                 try:
                     tfile.cd(dir)
                     for histName in self.checkHist:
@@ -408,8 +427,6 @@ class chainDump:
                     tfile.cd("")
                 except:
                   print "ERROR: cound not cd to directory: ", dir
-            else:
-                print "WARNING: direcory ", dir," not found"
  
         self.results += [ [fileList,file,total_events] ]
         #print "DMS len:",len(self.results)
@@ -432,198 +449,195 @@ class chainDump:
                     print chain,count
 
     def run(self):
- 
-
-       files = glob.glob(self.checkFile)
-       if len(files) < 1:
-           return self.error
-       if self.refFile:
-           rfiles = glob.glob(self.refFile)
-           if len(rfiles) > 0:
-               files += rfiles
-       #
-       #  group files into different releases -- mainly for enhanced bias
-       # 
-       ages       = [ ]
-       releases  = [ ]
-       goodFiles = [ ]
-       for file in files:
- 
-           # first make some checks on the file
-           processFile = True
- 
-           #(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(file)
-           delta =  datetime.timedelta(days=0)
-           try:
-               modified = datetime.datetime.fromtimestamp(os.stat(file)[8]) 
-               delta = datetime.datetime.today() - modified
-               #print delta, modified, datetime.date.today()
-               #print delta, datetime.timedelta(days=8)
-               if delta > datetime.timedelta(days=8):
-                  if  self.ignoreDates:
-                      print "WARNING: old file found:",file,modified
-                      print "WARNING: processing anyway"
-                  else:
-                      print "WARNING:  skipping stale file: ",file,modified
-                      print "WARNING:  use option -i (--ignoreDates) to override and ignore file date"
-                      processFile = False
- 
-           except:
-              print "WARNING:  couldn\'t get time info skipping file ",file
-              processFile = False
-
-           try:
-              bytesize = os.path.getsize(file)
-              if bytesize < 10000:
-                  print "WARNING:   File too small, job crashed or is not finished"
-                  processFile = False
-           except:
-              print "WARNING: couldn't get filesize"
-              processFile = False
-
-           if self.enhancedBias:
+        files = glob.glob(self.checkFile)
+        if len(files) < 1:
+            return self.error
+        if self.refFile:
+            rfiles = glob.glob(self.refFile)
+            if len(rfiles) > 0:
+                files += rfiles
+        #
+        #  group files into different releases -- mainly for enhanced bias
+        # 
+        ages       = [ ]
+        releases  = [ ]
+        goodFiles = [ ]
+        for file in files:
+        
+            # first make some checks on the file
+            processFile = True
+        
+            #(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(file)
+            delta =  datetime.timedelta(days=0)
+            try:
+                modified = datetime.datetime.fromtimestamp(os.stat(file)[8]) 
+                delta = datetime.datetime.today() - modified
+                #print delta, modified, datetime.date.today()
+                #print delta, datetime.timedelta(days=8)
+                if delta > datetime.timedelta(days=8):
+                   if  self.ignoreDates:
+                       print "WARNING: old file found:",file,modified
+                       print "WARNING: processing anyway"
+                   else:
+                       print "WARNING:  skipping stale file: ",file,modified
+                       print "WARNING:  use option -i (--ignoreDates) to override and ignore file date"
+                       processFile = False
+        
+            except:
+               print "WARNING:  couldn\'t get time info skipping file ",file
                processFile = False
-               xmlFile=file.rstrip('/expert-monitoring.root')+'/rttjobinfo.xml'
-               try: 
-                   from xml.etree import ElementTree as elementTree
-                   e = open(xmlFile,'r')
-                   #print "xmlFile: ",e
-                   tree = elementTree.parse(e)
-                   e.close()
-                   if self.enhancedTag in  displayName:
-                   #if "Enhanced" in  displayName:
-                       print "got one:",file
-                       processFile = True
-               except:
-                   #print "failed to get ElementTree, use grep instead" 
-                   try:
-                       e = open(xmlFile,'r')
-                       if self.enhancedTag in e.read():
-                       #if "Enhanced " in e.read():
-                           processFile = True
-                           print "got one",file    
-                   except:
-                       print "WARNING: could\'t open xmlFile, skipping: ",xmlFile
-       
-           if self.top:
+        
+            try:
+               bytesize = os.path.getsize(file)
+               if bytesize < 10000:
+                   print "WARNING:   File too small, job crashed or is not finished"
+                   processFile = False
+            except:
+               print "WARNING: couldn't get filesize"
                processFile = False
-               xmlFile=file.rstrip('/expert-monitoring.root')+'/rttjobinfo.xml'
-               try: 
-                   from xml.etree import ElementTree as elementTree
-                   e = open(xmlFile,'r')
-                   #print "xmlFile: ",e
-                   tree = elementTree.parse(e)
-                   e.close()
-                   if "top" in  displayName:
-                       #print "got one:",file
-                       processFile = True
-               except:
-                   #print "failed to get ElementTree, use grep instead" 
-                   try:
-                       e = open(xmlFile,'r')
-                       if "top " in e.read():
-                               processFile = True
-                   except:
-                       print "WARNING: could\'t open xmlFile, skipping: ",xmlFile
-       
-
-           if processFile:
-
-               print "adding ",file," to good files list"
-               goodFiles += [file]
-               ages += [delta]
-               # search for a pattern like /23/expert-monitoring.root
-               # allow last few characters of file to be different...
-               # find last / in file list
-               nextra=3
-               lastSlash  = file.rfind("/")
-               nLastSlash = file[0:lastSlash].rfind("/")
-               print nLastSlash, lastSlash
-               if nLastSlash > -1:
-                   try:
-                       # new rtt structure not integers
-                       # for the moment assume that all subdirectories are summed
-                       #dummy = int(file[nLastSlash+1:lastSlash])
-                       #print "integer value:",dummy
-                       #print  file[0:nLastSlash]
-                       found = False
-                       print "releases so far: ",releases
-                       for release in releases: 
-                           #prresult()
-                           #print "looping over releases"
-                           #print "comparing ",release,file[0:nLastSlash-nextra]
-                           if release == file[0:nLastSlash-nextra]:
-                               found = True
-                       if not found:
-                           if self.verbose:
-                               print "release not found in list"
-                               print  file[0:nLastSlash], file
-                           releases += [ file[0:nLastSlash-nextra]  ]
-                   except:
-                       print "WARNING:  exception could not interpret direcotry structure"
-                       releases +=[file]
-               else:
-                   #this is not appropiate here
-                   #print "WARNING: no directory and/or release sturucture found"
-                   releases +=[file]
-
-       if self.verbose: 
-           print "releases",releases
-#
-#     now make a paired listing of fileList and releases.
-#
-       releaseFileList = []
-       for release in releases:
-           fileList = []
-           oldest =  datetime.timedelta(days=0)
-           for n,file in enumerate(goodFiles):
-              if release in file:
-                 fileList += [file]
-                 if ages[n] > oldest:
-                     oldest =  ages[n]
-           #print 'oldest',oldest,release
-           releaseFileList +=[ [oldest,release,fileList] ] 
-
-       status  = self.success
-       goodReleaseFileList = []
-       for age,release,fileList in releaseFileList:
-           if self.verbose:
-               print "Processing release",release
-               print "fileList:",fileList
-#        
-           goodFileList = []  
-           for file in fileList:
-               if self.onefile(file) == self.error:
-                   print "WARNING: error in file:",file
-                   status = self.error
-               else:
-                   goodFileList += [file]
-    
-         
-           goodReleaseFileList+=[ [age,release,goodFileList] ]
-#
-#          sort list 
-#
-           if not self.refFile:
-               goodReleaseFileList.sort(reverse=True)
-#
-#      need to switch saveComparison so that 
-#      if works from a matrix of releases and goodfile
-#      in the case of multiple files in the same release
-#      it should just sum them....
-#
-       if self.verbose:
-           print "printing results so far"
-           print self.prResults()
-#
-#     only one file given 
-#
-       if len(files) == 1 and not self.compare:
-           self.saveResults()
-       else: 
-           self.saveComparison(goodReleaseFileList)
-
-       return status
+        
+            if self.enhancedBias:
+                processFile = False
+                xmlFile=file.rstrip('/expert-monitoring.root')+'/rttjobinfo.xml'
+                try: 
+                    from xml.etree import ElementTree as elementTree
+                    e = open(xmlFile,'r')
+                    #print "xmlFile: ",e
+                    tree = elementTree.parse(e)
+                    e.close()
+                    if self.enhancedTag in  displayName:
+                    #if "Enhanced" in  displayName:
+                        print "got one:",file
+                        processFile = True
+                except:
+                    #print "failed to get ElementTree, use grep instead" 
+                    try:
+                        e = open(xmlFile,'r')
+                        if self.enhancedTag in e.read():
+                        #if "Enhanced " in e.read():
+                            processFile = True
+                            print "got one",file    
+                    except:
+                        print "WARNING: could\'t open xmlFile, skipping: ",xmlFile
+        
+            if self.top:
+                processFile = False
+                xmlFile=file.rstrip('/expert-monitoring.root')+'/rttjobinfo.xml'
+                try: 
+                    from xml.etree import ElementTree as elementTree
+                    e = open(xmlFile,'r')
+                    #print "xmlFile: ",e
+                    tree = elementTree.parse(e)
+                    e.close()
+                    if "top" in  displayName:
+                        #print "got one:",file
+                        processFile = True
+                except:
+                    #print "failed to get ElementTree, use grep instead" 
+                    try:
+                        e = open(xmlFile,'r')
+                        if "top " in e.read():
+                                processFile = True
+                    except:
+                        print "WARNING: could\'t open xmlFile, skipping: ",xmlFile
+        
+            if processFile:
+        
+                print "adding ",file," to good files list"
+                goodFiles += [file]
+                ages += [delta]
+                # search for a pattern like /23/expert-monitoring.root
+                # allow last few characters of file to be different...
+                # find last / in file list
+                nextra=3
+                lastSlash  = file.rfind("/")
+                nLastSlash = file[0:lastSlash].rfind("/")
+                #print nLastSlash, lastSlash
+                if nLastSlash > -1:
+                    try:
+                        # new rtt structure not integers
+                        # for the moment assume that all subdirectories are summed
+                        #dummy = int(file[nLastSlash+1:lastSlash])
+                        #print "integer value:",dummy
+                        #print  file[0:nLastSlash]
+                        found = False
+                        print "releases so far: ",releases
+                        for release in releases: 
+                            #prresult()
+                            #print "looping over releases"
+                            #print "comparing ",release,file[0:nLastSlash-nextra]
+                            if release == file[0:nLastSlash-nextra]:
+                                found = True
+                        if not found:
+                            if self.verbose:
+                                print "release not found in list"
+                                print  file[0:nLastSlash], file
+                            releases += [ file[0:nLastSlash-nextra]  ]
+                    except:
+                        print "WARNING:  exception could not interpret direcotry structure"
+                        releases +=[file]
+                else:
+                    #this is not appropiate here
+                    #print "WARNING: no directory and/or release sturucture found"
+                    releases +=[file]
+        
+        if self.verbose: 
+            print "releases",releases
+# 
+#       now make a paired listing of fileList and releases.
+# 
+        releaseFileList = []
+        for release in releases:
+            fileList = []
+            oldest =  datetime.timedelta(days=0)
+            for n,file in enumerate(goodFiles):
+               if release in file:
+                  fileList += [file]
+                  if ages[n] > oldest:
+                      oldest =  ages[n]
+            #print 'oldest',oldest,release
+            releaseFileList +=[ [oldest,release,fileList] ] 
+  
+        status  = self.success
+        goodReleaseFileList = []
+        for age,release,fileList in releaseFileList:
+            if self.verbose:
+                print "Processing release",release
+                print "fileList:",fileList
+#         
+            goodFileList = []  
+            for file in fileList:
+                if self.onefile(file) == self.error:
+                    print "WARNING: error in file:",file
+                    status = self.error
+                else:
+                    goodFileList += [file]
+     
+          
+            goodReleaseFileList+=[ [age,release,goodFileList] ]
+# 
+#           sort list 
+# 
+            if not self.refFile:
+                goodReleaseFileList.sort(reverse=True)
+# 
+#       need to switch saveComparison so that 
+#       if works from a matrix of releases and goodfile
+#       in the case of multiple files in the same release
+#       it should just sum them....
+# 
+        if self.verbose:
+            print "printing results so far"
+            print self.prResults()
+# 
+#       only one file given 
+# 
+        if len(files) == 1 and not self.compare:
+            self.saveResults()
+        else: 
+            self.saveComparison(goodReleaseFileList)
+  
+        return status
 
 # This is just for testing outside of the RTT
 if __name__ == "__main__":
