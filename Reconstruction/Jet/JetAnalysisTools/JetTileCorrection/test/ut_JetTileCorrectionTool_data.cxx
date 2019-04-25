@@ -10,7 +10,7 @@ int main()
   std::cout << "Unit test for JetTileCorrectionTool on Data" << std::endl;
   std::cout << std::endl;
 
-  std::string cmd = "JetTileCorrectionTester $ASG_TEST_FILE_DATA 50";
+  std::string cmd = "JetTileCorrectionTester $ASG_TEST_FILE_DATA 0 50";
 
   int ret = system(cmd.c_str());
 
