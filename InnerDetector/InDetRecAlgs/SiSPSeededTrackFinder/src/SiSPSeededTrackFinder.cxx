@@ -58,9 +58,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
       // Setup for Z-histograms
       //  
       if (m_histsize < 100) m_histsize = 100;
-      m_nhistogram.resize(m_histsize);
-      m_zhistogram.resize(m_histsize);
-      m_phistogram.resize(m_histsize);
       m_zstep = static_cast<double>(m_histsize)/(2.*m_zcut);
     } else {
       m_proptool.disable();
@@ -76,7 +73,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, nullptr);
   }
-  m_counterTotal = {};
+  m_counterTotal   = {};
   m_neventsTotal   = 0;
   m_neventsTotalV  = 0;
   m_problemsTotal  = 0;
@@ -110,15 +107,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
     return StatusCode::SUCCESS;
   }
 
-  std::multimap<double, Trk::Track*> qualityTrack;
-
-  // Test is sct clusters collection for given event
-  //
-  bool PIX = true ;
-  bool SCT = true ;
   bool ZVE = false;
-  bool ERR = false;
-
   if (m_useZvertexTool) {
     m_zvertexmaker->newEvent();
     if (not m_zvertexmaker->getVertices().empty()) ZVE = true;
@@ -129,26 +118,27 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
     m_seedsmaker->find3Sp(VZ);
   }
 
+  const bool PIX = true;
+  const bool SCT = true;
   m_trackmaker->newEvent(PIX, SCT);
 
+  bool ERR = false;
+  Counter_t counter{};
+  const InDet::SiSpacePointsSeed* seed = nullptr;
+  std::multimap<double, Trk::Track*> qualityTrack;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  
-  Counter_t counter {};
-
-  const InDet::SiSpacePointsSeed* seed = nullptr;
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
     for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
-    if (ZVE == false and counter[kNSeeds] >= m_maxNumberSeeds) {
+    if (not ZVE and (counter[kNSeeds] >= m_maxNumberSeeds)) {
       ERR = true;
       ++m_problemsTotal;
       break;
     }
   }
-  
   m_trackmaker->endEvent();
 
   // Remove shared tracks with worse quality
@@ -164,12 +154,13 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
   m_counterTotal[kNSeeds] += counter[kNSeeds];
 
-  ZVE == true ? ++m_neventsTotalV : ++m_neventsTotal;
+  if (ZVE) ++m_neventsTotalV;
+  else     ++m_neventsTotal;
 
   if (ERR) {
     outputTracks->clear();
   } else {
-    m_counterTotal[kNTracks]+=counter[kNTracks];
+    m_counterTotal[kNTracks] += counter[kNTracks];
   }
 
   // Print common event information
@@ -177,6 +168,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, &counter);
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -196,41 +188,36 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   // Get beam information and preparation for z -histogramming
   //
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey};
   Trk::PerigeeSurface per(beamSpotHandle->beamPos());
  
-  // Initiate histograms
-  //
-  for (int i=0; i<m_histsize; ++i) {
-    m_nhistogram[i] = 0 ;
-    m_zhistogram[i] = 0.;
-    m_phistogram[i] = 0.;
-  }
-  
-  std::multimap<double, Trk::Track*> qualityTrack;
-
-  // Test is sct clusters collection for given event
-  //
-  bool PIX = true ;
-  bool SCT = true ;
-  bool ERR = false;
   m_seedsmaker->newEvent(0);
   std::list<Trk::Vertex> VZ;
   m_seedsmaker->find3Sp(VZ);
-  m_trackmaker->newEvent(PIX, SCT);
-  double ZB[2];
 
-  // Loop through all seed and reconsrtucted tracks collection preparation
-  //
+  const bool PIX = true ;
+  const bool SCT = true ;
+  m_trackmaker->newEvent(PIX, SCT);
+
+  std::vector<int> nhistogram(m_histsize, 0);
+  std::vector<double> zhistogram(m_histsize, 0.);
+  std::vector<double> phistogram(m_histsize, 0.);
+
+  bool ERR = false;
   Counter_t counter{};
   const InDet::SiSpacePointsSeed* seed = nullptr;
+  std::multimap<double, Trk::Track*> qualityTrack;
+  // Loop through all seed and reconsrtucted tracks collection preparation
+  //
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
     bool firstTrack{true};
     for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
-      if (firstTrack and not m_ITKGeometry) fillZHistogram(t, per);
+      if (firstTrack and not m_ITKGeometry) {
+        fillZHistogram(t, per, nhistogram, zhistogram, phistogram);
+      }
       firstTrack = false;
     }
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
@@ -242,8 +229,9 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   m_seedsmaker->newEvent(1); 
 
+  double ZB[2];
   if (not m_ITKGeometry) {
-    findZvertex(VZ, ZB);
+    findZvertex(VZ, ZB, nhistogram, zhistogram, phistogram);
     m_seedsmaker->find3Sp(VZ, ZB);
   } else {
     m_seedsmaker->find3Sp(VZ);
@@ -282,7 +270,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   if (ERR) {
     outputTracks->clear();
   } else {
-    m_counterTotal[kNTracks]+=counter[kNTracks];
+    m_counterTotal[kNTracks] += counter[kNTracks];
   }
 
   // Print common event information
@@ -309,7 +297,7 @@ StatusCode InDet::SiSPSeededTrackFinder::finalize()
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dump( MSG::Level assign_level, const InDet::SiSPSeededTrackFinder::Counter_t *counter ) const
+MsgStream& InDet::SiSPSeededTrackFinder::dump(MSG::Level assign_level, const InDet::SiSPSeededTrackFinder::Counter_t* counter) const
 {
   msg(assign_level) <<std::endl;
   MsgStream& out_msg=msg();
@@ -323,7 +311,7 @@ MsgStream& InDet::SiSPSeededTrackFinder::dump( MSG::Level assign_level, const In
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out) const
+MsgStream& InDet::SiSPSeededTrackFinder::dumptools(MsgStream& out) const
 {
   int n = 65-m_zvertexmaker.type().size();
   std::string s1; for (int i=0; i<n; ++i) s1.append(" "); s1.append("|");
@@ -363,7 +351,7 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out) const
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dumpevent(MsgStream& out, const InDet::SiSPSeededTrackFinder::Counter_t &counter) const
+MsgStream& InDet::SiSPSeededTrackFinder::dumpevent(MsgStream& out, const InDet::SiSPSeededTrackFinder::Counter_t& counter) const
 {
   out<<"|-------------------------------------------------------------------";
   out<<"---------------------------------|"
@@ -513,7 +501,11 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks(std::multimap<double, Trk:
 // Fill z coordinate histogram
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,Trk::PerigeeSurface& per)
+void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
+                                                  Trk::PerigeeSurface& per,
+                                                  std::vector<int>& nhistogram,
+                                                  std::vector<double>& zhistogram,
+                                                  std::vector<double>& phistogram) const
 {
   
   if (Tr->measurementsOnTrack()->size() < 10) return;
@@ -538,9 +530,9 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,Trk::Peri
   if (fabs(par[0]) > m_imcut) return;
   int z = static_cast<int>((par[1]+m_zcut)*m_zstep);
   if (z >=0 and z < m_histsize) {
-    ++m_nhistogram[z];
-    m_zhistogram[z] += par[1];
-    m_phistogram[z] += pT;
+    ++nhistogram[z];
+    zhistogram[z] += par[1];
+    phistogram[z] += pT;
   }
   
 }
@@ -549,7 +541,11 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,Trk::Peri
 // Find verteex  z coordinates
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV, double* ZB) const
+void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV,
+                                                double* ZB,
+                                                std::vector<int>& nhistogram,
+                                                std::vector<double>& zhistogram,
+                                                std::vector<double>& phistogram) const
 {
   ZB[0] = 1000.;
   ZB[1] =-1000.;
@@ -562,17 +558,17 @@ void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV, doub
 
   for (int i=1; i<imax; ++i) { 
 
-    int n = m_nhistogram[i-1]+m_nhistogram[i]+m_nhistogram[i+1];
+    int n = nhistogram[i-1]+nhistogram[i]+nhistogram[i+1];
 
-    if (n>=nmin and (m_nhistogram[i] >= m_nhistogram[i-1] and m_nhistogram[i] >= m_nhistogram[i+1])) {
+    if (n>=nmin and (nhistogram[i] >= nhistogram[i-1] and nhistogram[i] >= nhistogram[i+1])) {
   
-      double z = (m_zhistogram[i-1]+m_zhistogram[i]+m_zhistogram[i+1])/static_cast<double>(n);
+      double z = (zhistogram[i-1]+zhistogram[i]+zhistogram[i+1])/static_cast<double>(n);
 
       if (z < ZB[0]) ZB[0] = z;
       if (z > ZB[1]) ZB[1] = z;
  
       if (m_useNewStrategy) { 
-	double p = m_phistogram[i-1]+m_phistogram[i]+m_phistogram[i+1];
+	double p = phistogram[i-1]+phistogram[i]+phistogram[i+1];
 	vern.insert(std::make_pair(-n, z));
 	verp.insert(std::make_pair(-p, z));
       }

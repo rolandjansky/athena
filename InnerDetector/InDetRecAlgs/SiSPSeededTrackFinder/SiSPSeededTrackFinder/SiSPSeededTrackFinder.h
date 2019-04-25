@@ -109,9 +109,6 @@ namespace InDet {
     double                         m_pTcut{500};
     double                         m_imcut{2.};
     double                         m_zstep{0.};
-    std::vector<int>               m_nhistogram;
-    std::vector<double>            m_zhistogram;
-    std::vector<double>            m_phistogram;
 
     ///////////////////////////////////////////////////////////////////
     // Protected methods
@@ -124,8 +121,16 @@ namespace InDet {
     bool isGoodEvent() const;
     double trackQuality(const Trk::Track*) const;
     void filterSharedTracks(std::multimap<double, Trk::Track*>&) const;
-    void fillZHistogram(const Trk::Track*, Trk::PerigeeSurface&);
-    void findZvertex(std::list<Trk::Vertex>&, double*) const;
+    void fillZHistogram(const Trk::Track* Tr,
+                        Trk::PerigeeSurface& per,
+                        std::vector<int>& nhistogram,
+                        std::vector<double>& zhistogram,
+                        std::vector<double>& phistogram) const;
+    void findZvertex(std::list<Trk::Vertex>& ZV,
+                     double* ZB,
+                     std::vector<int>& nhistogram,
+                     std::vector<double>& zhistogram,
+                     std::vector<double>& phistogram) const;
     StatusCode oldStrategy();
     StatusCode newStrategy();
     void magneticFieldInit();
