@@ -24,6 +24,12 @@ class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
+        
+        if not Configurable.configurableRun3Behavior:
+            msg = "discoverd Configurable.configurableRun3Behavior=False while working with ComponentAccumulator"
+            self._msg.error(msg)
+            raise ConfigurationError(msg)
+        
         self._sequence=AthSequencer(sequenceName,Sequential=True)    #(Nested) sequence of event processing algorithms per sequence + their private tools
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
@@ -385,9 +391,6 @@ class ComponentAccumulator(object):
         if not other._isMergable:
             raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
 
-        if not Configurable.configurableRun3Behavior:
-            raise ConfigurationError("discoverd Configurable.configurableRun3Behavior=False while working woth ComponentAccumulator")
-
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
         #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
@@ -463,7 +466,7 @@ class ComponentAccumulator(object):
 
 
     def appendToGlobals(self):
-
+        self.wasMerged()
         #Cache old configurable behavior
         oldstat=Configurable.configurableRun3Behavior
 
