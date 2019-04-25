@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -116,13 +116,13 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   }
   ATH_CHECK( m_Pixel_clcontainerKey.initialize(m_selectPixels) );
 
-  if (m_SpacePointContainer_SCTKey.key().empty()){
+  if (m_selectSCTs && m_SpacePointContainer_SCTKey.key().empty()){
     ATH_MSG_FATAL( "No name set for SCT space points");
     return StatusCode::FAILURE;
   }
   ATH_CHECK( m_SpacePointContainer_SCTKey.initialize(m_selectSCTs) );
 
-  if (m_SpacePointContainerPixelKey.key().empty()){
+  if (m_selectPixels && m_SpacePointContainerPixelKey.key().empty()){
     ATH_MSG_FATAL( "No name set for Pixels space points");
     return StatusCode::FAILURE;
   }
