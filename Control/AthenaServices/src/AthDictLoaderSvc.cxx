@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthDictLoaderSvc.cxx 
@@ -17,7 +17,7 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/System.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 /////////////////////////////////////////////////////////////////// 

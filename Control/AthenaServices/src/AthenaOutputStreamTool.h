@@ -70,7 +70,7 @@ public:
 
    /// Stream out a vector of objects
    ///   Must convert to DataObject, e.g.
-   ///   #include "SGTools/StorableConversions.h"
+   ///   #include "AthenaKernel/StorableConversions.h"
    ///     T* obj = xxx;
    ///     DataObject* dataObject = SG::asStorable(obj);
    typedef std::vector<DataObject*> DataObjectVec;
