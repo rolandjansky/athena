@@ -88,7 +88,6 @@ class sTgcDigitMaker {
      Calculates intrinsic time response according to incident angle of a track based on time response parameters
   */
   float timeJitter(float inAngle_time) const;
-  float getNoiseFactor(float inAngle_space) const; 
 
   /**
      Determines whether a hit is detected or not.
@@ -169,7 +168,8 @@ class sTgcDigitMaker {
   double m_GausMean;
   double m_GausSigma;
   double m_CrossTalk;
-  double m_noiseFactor;
+  double m_StripResolution;
+  double m_ChargeSpreadFactor;
 
  protected:
   //Declaring private message stream member.

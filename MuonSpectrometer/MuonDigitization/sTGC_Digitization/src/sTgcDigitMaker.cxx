@@ -67,7 +67,8 @@ sTgcDigitMaker::sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonD
   m_GausSigma               = 0.1885;//mm; VMM response from Oct/Nov 2013 test beam
   m_IntegralTimeOfElectr    = 20.00; // ns
   m_CrossTalk               = 0.03; 
-  m_noiseFactor             = 0.;
+  m_StripResolution         = 0.07; // Angular strip resolution parameter
+  m_ChargeSpreadFactor      = 0.;
   m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads
 }
 
@@ -261,6 +262,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
 
   Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*GPOS;
+
   Amg::Vector2D posOnSurf_strip(hitOnSurface_strip.x(),hitOnSurface_strip.y());
   bool insideBounds = SURF_STRIP.insideBounds(posOnSurf_strip);
   if(!insideBounds) { 
@@ -285,6 +287,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   }
 
   int NumberOfStrips = detEl->numberOfStrips(newId); 
+  double stripHalfWidth = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
@@ -293,92 +296,72 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
-  m_noiseFactor = getNoiseFactor(inAngle_space);
-
-  //ATH_MSG_VERBOSE(" New hit " << m_idHelper->print_to_string(newId) << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" );
-  //ATH_MSG_VERBOSE(" charge_spread : posOnSurf_strip.x() =  " << posOnSurf_strip.x() );
+  // Charge Spread including tan(theta) resolution term.
+  double tan_theta = GLODIRE.perp()/GLODIRE.z();
+  // The angle dependance on strip resolution goes as tan^2(angle)
+  // We add the resolution in quadrature following sTGC test beam papers
+  m_ChargeSpreadFactor = m_StripResolution*sqrt(1+12.*tan_theta*tan_theta);
 
   int stripnum = -1;
   for(int neighbor=0; neighbor<=3; neighbor++){  // spread the charge to 7 strips for the current algorithm
     stripnum = stripNumber+neighbor;
     if(stripnum>=1&&stripnum<=NumberOfStrips){
       newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
-      if(!isValid) continue;
+      if(isValid) {
+        Amg::Vector2D locpos(0,0);
+        if( !detEl->stripPosition(newId,locpos)){
+          ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        }
 
-      Amg::Vector2D locpos(0,0);
-      if( !detEl->stripPosition(newId,locpos)){
-        ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
-      }
-      //ATH_MSG_VERBOSE(" New hit " << m_idHelper->print_to_string(newId) << " locpos " << locpos << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" );
-      ////??? waiting for Sharka's update
-      //const MuonStripDesign design = detEl->getDesign(newId);
-      //if( !design ) {
-      //        ATH_MSG_WARNING("Failed to obtain strip design for identifier " 
-      //        << m_idHelper->print_to_string(newId) );
-      //}
-      //double stripHalfWidth = design->StripWidth() / 2.;
-      float stripHalfWidth = 2.7 / 2.; 
-      float xmax = locpos.x() + stripHalfWidth;
-      float xmin = locpos.x() - stripHalfWidth;
-      float charge = charge_spread->Integral(xmin, xmax);
-      charge = CLHEP::RandGauss::shoot(m_engine, charge, m_noiseFactor*charge);
+        float xmax = locpos.x() + stripHalfWidth;
+        float xmin = locpos.x() - stripHalfWidth;
+        float charge = charge_spread->Integral(xmin, xmax);
+        charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-      //ATH_MSG_VERBOSE(" nearby strip " << m_idHelper->print_to_string(newId) << "locpos.x = " << locpos.x() << "  locpos.y = " << locpos.y() );
-
-      addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
-
-      //************************************** introduce cross talk ************************************************
-      for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors 
-        if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-          newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-          if(!isValid) continue;
-          addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
-        } 
-        if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-          newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-          if(!isValid) continue;
-          addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
-        } 
-      }// end of introduce cross talk
+          addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
+          //************************************** introduce cross talk ************************************************
+          for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
+            if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
+              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+            }
+            if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
+              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+            }
+          }// end of introduce cross talk
+      } // end isValid
     }// end of when stripnum = stripNumber+neighbor
  
     if(neighbor==0) continue;
-    stripnum = stripNumber-neighbor; 
+    stripnum = stripNumber-neighbor;
     if(stripnum>=1&&stripnum<=NumberOfStrips){
-      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum);
+      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
+      if(isValid) {
+        Amg::Vector2D locpos(0,0);
+        if( !detEl->stripPosition(newId,locpos)){
+          ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        }
+        float xmax = locpos.x() + stripHalfWidth;
+        float xmin = locpos.x() - stripHalfWidth;
+        float charge = charge_spread->Integral(xmin, xmax);
+        charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-      Amg::Vector2D locpos(0,0);
-      if( !detEl->stripPosition(newId,locpos)){
-        ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
-      }
-      ////??? waiting for Sharka's update
-      //const MuonStripDesign* design = getDesign(newId);
-      //if( !design ) {
-      //        ATH_MSG_WARNING("Failed to obtain strip design for identifier " 
-      //        << m_idHelper->print_to_string(newId) );
-      //}
-      //double stripHalfWidth = design->StripWidth() / 2.;
-      float stripHalfWidth = 2.7 / 2.; 
-      float xmax = locpos.x() + stripHalfWidth;
-      float xmin = locpos.x() - stripHalfWidth;
-      float charge = charge_spread->Integral(xmin, xmax);
-      charge = CLHEP::RandGauss::shoot(m_engine, charge, m_noiseFactor*charge);
+          addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
 
-      addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
-
-      //************************************** introduce cross talk ************************************************
-      for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors 
-        if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-          newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk);
-          addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
-        } 
-        if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-          newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk);
-          addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
-        } 
-      }// end of introduce cross talk
+          //************************************** introduce cross talk ************************************************
+          for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
+            if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
+             newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
+             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+            }
+            if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
+              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+            }
+          }// end of introduce cross talk
+      } // end isValid
     }// end of when stripnum = stripNumber-neighbor
-
   }//end for spread the charge to 5 strips 
 
   delete charge_spread;
@@ -519,17 +502,6 @@ void sTgcDigitMaker::readFileOfTimeJitter()
     i++;
   }
   ifs.close();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-float sTgcDigitMaker::getNoiseFactor(float inAngle_space) const
-{
-  float noiseFactor = 0.0;
-  if     (inAngle_space<10) noiseFactor = 0.003*inAngle_space + 0.04;
-  else if(inAngle_space<20) noiseFactor = 0.002*inAngle_space + 0.05;
-  else                      noiseFactor = 0.09;
- 
-  return noiseFactor;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
