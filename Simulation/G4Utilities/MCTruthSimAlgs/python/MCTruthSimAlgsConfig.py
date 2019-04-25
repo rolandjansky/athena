@@ -301,18 +301,18 @@ def MergeRecoTimingObjTool(name="MergeRecoTimingObjTool", **kwargs):
 def MergeGenericMuonSimHitCollTool(name="MergeGenericMuonSimHitCollTool", **kwargs):
     return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
 
-def MergeMMSimHitCollTool(name="MergeMMSimHitCollTool", **kwargs):
+def MergeMicromegasSimHitCollTool(name="MergeMicromegasSimHitCollTool", **kwargs):
     kwargs.setdefault("SimHitContainerNames", ["MicromegasSensitiveDetector"])
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -250)
         kwargs.setdefault("LastXing",   200)
-    return CfgMgr.MergeMMSimHitCollTool(name, **kwargs)
+    return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
 
-def MergesTGCSimHitCollTool(name="MergesTGCSimHitCollTool", **kwargs):
+def MergeSTGCSimHitCollTool(name="MergeSTGCSimHitCollTool", **kwargs):
     kwargs.setdefault("SimHitContainerNames", ["sTGCSensitiveDetector"])
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -50)
         kwargs.setdefault("LastXing",   75)
-    return CfgMgr.MergesTGCSimHitCollTool(name, **kwargs)
+    return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
 
 ############################################################################
