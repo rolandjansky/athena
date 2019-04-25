@@ -29,9 +29,11 @@ class SCT_ReadCalibDataCondAlg : public AthReentrantAlgorithm
  public:
   SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_ReadCalibDataCondAlg() = default;
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
   enum Feature {GAIN=0, NOISE=1, NFEATURES=2};

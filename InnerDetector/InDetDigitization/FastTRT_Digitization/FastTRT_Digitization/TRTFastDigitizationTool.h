@@ -19,7 +19,7 @@
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 
 #include "GaudiKernel/RndmGenerators.h"
@@ -116,7 +116,7 @@ private:
   ToolHandle< ITRT_DriftFunctionTool > m_trtDriftFunctionTool;
   bool m_useTrtElectronPidTool;                                           // false: use Tina's parametrization
   ToolHandle< Trk::ITRT_ElectronPidTool > m_trtElectronPidTool;
-  ServiceHandle< ITRT_StrawStatusSummarySvc > m_trtStrawStatusSummarySvc; // Argon / Xenon
+  ToolHandle< ITRT_StrawStatusSummaryTool > m_trtStrawStatusSummaryTool; // Argon / Xenon
   ServiceHandle< PileUpMergeSvc > m_mergeSvc;                             // PileUp Merge service
   ServiceHandle< IAtRndmGenSvc > m_atRndmGenSvc;                          // Random number service
   CLHEP::HepRandomEngine *m_randomEngine;

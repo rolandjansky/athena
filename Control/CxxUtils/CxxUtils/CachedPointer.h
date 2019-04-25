@@ -53,11 +53,12 @@ namespace CxxUtils {
  * As an added check, we require that the compiler say that atomic
  * pointers are always lock-free.
  */
+template <class T>
 union CachedPointer
 {
 public:
   /// The stored pointer type.
-  typedef const void* pointer_t;
+  typedef const T* pointer_t;
 
 
   /// Default constructor.  Sets the element to null.

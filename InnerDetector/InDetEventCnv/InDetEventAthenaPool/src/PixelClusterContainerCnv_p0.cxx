@@ -47,7 +47,7 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
 InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(PixelClusterContainer_p0* persObj, MsgStream& log) {
 
-  std::unique_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()) );
+  std::unique_ptr<InDet::PixelClusterContainer> trans(std::make_unique<InDet::PixelClusterContainer>(m_pixId->wafer_hash_max()) );
   MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
 
   for (InDet::PixelClusterCollection* dcColl : *persObj) {

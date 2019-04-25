@@ -54,7 +54,7 @@ atlas_add_component( PixelConditionsTools
 if( NOT SIMULATIONBASE )
   atlas_add_test( PixelConditionsConfig_test
                   SCRIPT test/PixelConditionsConfig_test.py
-                  PROPERTIES TIMEOUT 30 )
+                  PROPERTIES TIMEOUT 300 )
 endif()
 
 # Install files from the package:

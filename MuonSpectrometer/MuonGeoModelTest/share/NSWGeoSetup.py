@@ -43,10 +43,9 @@ MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 Agdd2GeoSvc = AGDDtoGeoSvc()
 
-if not "NSWAGDDTool/NewSmallWheel" in Agdd2GeoSvc.Builders:
+if not "NSWAGDDTool/NewSmallWheel" in Agdd2GeoSvc.Builders.__str__():
     from AthenaCommon import CfgGetter
-    ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-    Agdd2GeoSvc.Builders += ["NSWAGDDTool/NewSmallWheel"]
+    Agdd2GeoSvc.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
 
 theApp.CreateSvc += ["AGDDtoGeoSvc"]
 ServiceMgr += Agdd2GeoSvc

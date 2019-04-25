@@ -22,8 +22,6 @@ DecisionSvc::DecisionSvc(const std::string& name,
 #endif
   m_algstateSvc("AlgExecStateSvc",name)
 {
-  declareProperty("SaveDecisions", m_extend = false, "Set to true to add streaming decisions to an attributeList");
-  declareProperty("AttributeListKey", m_attListKey = "SimpleTag", "StoreGate key of AttributeList to extend");
 }
 
 DecisionSvc::~DecisionSvc()
@@ -54,7 +52,7 @@ DecisionSvc::initialize()
   // Must listen to EndEvent (why?)
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   ATH_CHECK( incSvc.retrieve() );
-  incSvc->addListener(this, "EndEvent", 100);
+  //incSvc->addListener(this, "EndEvent", 100);
 
   ATH_CHECK(m_evtStore.retrieve());
 
@@ -356,37 +354,6 @@ DecisionSvc::handle(const Incident& inc)
   }
 
   ATH_MSG_DEBUG("handle() " << inc.type() << " for file: " << fileName);
-
-  // Check whether to extend attribute list
-  if (m_extend) {
-    std::string suffix("Decisions");
-    ATH_MSG_DEBUG("Adding stream decisions to " << m_attListKey+suffix);
-    // Look for attribute list created for mini-EventInfo
-    const AthenaAttributeList* attlist;
-    if (m_evtStore->retrieve(attlist,m_attListKey).isSuccess()) {
-      ATH_MSG_DEBUG("Found att list with " << m_attListKey);
-    } else {
-      ATH_MSG_ERROR("Did not find event info att list " << m_attListKey << " in event store");
-      return;  // exit if no original to extend
-    }
-
-    // Build new attribute list for modification
-    AthenaAttributeList* newone = new AthenaAttributeList(attlist->specification());
-    newone->copyData(*attlist);
-
-    // Now loop over stream definitions and add decisions
-    auto streams = this->getStreams();
-    for (auto it  = streams.begin(); 
-              it != streams.end(); ++it) {
-      newone->extend(*it,"bool");
-      (*newone)[*it].data<bool>() = this->isEventAccepted(*it);
-      ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << m_attListKey+suffix);
-    }
-    // record new attribute list with old key + suffix
-    if (m_evtStore->record(newone,m_attListKey+suffix).isFailure()) {
-      ATH_MSG_ERROR("Unable to record att list " << m_attListKey+suffix);
-    }
-  }
 
   return;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PFTRACKSELECTOR_H
 #define PFTRACKSELECTOR_H
@@ -8,8 +8,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "eflowRec/eflowRecTrack.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "Particle/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -54,6 +56,9 @@ private:
   SG::WriteHandleKey<eflowRecTrackContainer> m_eflowRecTracksWriteHandleKey{this,"eflowRecTracksOutputName","eflowRecTracks","WriteHandleKey for the eflowRecTrackContainer to write out"};
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
+
+  /** ReadCondHandleKey for SCT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */  
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /** ToolHandle for track extrapolation to calorimeter tool */
   ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool{this,"trackExtrapolatorTool","Trk::ParticleCaloExtensionTool","ToolHandle for track extrapolation to calorimeter tool"};

@@ -4,7 +4,8 @@
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
-
+#include "AthenaMonitoring/MonitoredScalar.h"
+#include "AthenaMonitoring/MonitoredGroup.h"
 #include "GaudiKernel/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;
@@ -62,6 +63,10 @@ StatusCode RoRSeqFilter::initialize()
   
   ATH_MSG_DEBUG( "mergeInputs is " << m_mergeInputs);
 
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -72,17 +77,31 @@ StatusCode RoRSeqFilter::finalize() {
 StatusCode RoRSeqFilter::execute() {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
+  auto inputStat = Monitored::Scalar("counts", 0 ); // n-inputs + 1 for execution counter
+  auto mon = Monitored::Group( m_monTool, inputStat );
+  mon.fill();
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
   //std::vector<SG::ReadHandle<DecisionContainer>> inputHandles;
   //std::vector<SG::WriteHandle<DecisionContainer>> outputHandles;
 
   bool validInputs=false;
+  int counter = 1; // entries from 2 (note ++ below) used for inputs
   for ( auto inputHandle: inputHandles ) {
+    counter++;
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
+      inputStat = counter;
+      mon.fill();
     }
   }
+  if ( validInputs ) {
+    inputStat = 1;
+    mon.fill();
+  }
+  
+    
+  
   if (!validInputs) {
     setFilterPassed(false);
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );

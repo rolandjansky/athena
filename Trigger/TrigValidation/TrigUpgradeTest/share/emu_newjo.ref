@@ -1,0 +1,20 @@
+TrigSignatureMo...   INFO HLT_e5                        2         2         1         1         1
+TrigSignatureMo...   INFO HLT_e5 decisions                                  2         2
+TrigSignatureMo...   INFO HLT_e5_e8                     2         2         1         0         1
+TrigSignatureMo...   INFO HLT_e5_e8 decisions                               6         0
+TrigSignatureMo...   INFO HLT_e5_v2                     0         0         0         0         0
+TrigSignatureMo...   INFO HLT_e5_v2 decisions                               0         0
+TrigSignatureMo...   INFO HLT_e5_v3                     1         1         1         1         1
+TrigSignatureMo...   INFO HLT_e5_v3 decisions                               2         2
+TrigSignatureMo...   INFO HLT_e8                        4         4         3         3         3
+TrigSignatureMo...   INFO HLT_e8 decisions                                  5         5
+TrigSignatureMo...   INFO HLT_g5                        2         2         1         0         1
+TrigSignatureMo...   INFO HLT_g5 decisions                                  2         0
+TrigSignatureMo...   INFO HLT_mu20                      1         1         0         0         0
+TrigSignatureMo...   INFO HLT_mu20 decisions                                0         0
+TrigSignatureMo...   INFO HLT_mu8                       2         2         2         2         2
+TrigSignatureMo...   INFO HLT_mu8 decisions                                 2         2
+TrigSignatureMo...   INFO HLT_mu8_1step                 2         2         2         0         2
+TrigSignatureMo...   INFO HLT_mu8_1step decisions                           2         0
+TrigSignatureMo...   INFO HLT_mu8_e8                    1         1         1         1         1
+TrigSignatureMo...   INFO HLT_mu8_e8 decisions                              4         4

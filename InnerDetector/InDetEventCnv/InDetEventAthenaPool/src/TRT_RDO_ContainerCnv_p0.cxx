@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006 
@@ -13,11 +13,11 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "CreateTransientTemplate.h"
+
 
 //================================================================
 TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+  std::unique_ptr<TRT_RDO_Container> trans(std::make_unique<TRT_RDO_Container>(m_trtId->straw_layer_hash_max()));
 
   MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   

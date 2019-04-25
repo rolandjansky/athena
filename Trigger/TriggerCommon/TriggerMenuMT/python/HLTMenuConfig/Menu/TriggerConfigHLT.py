@@ -11,14 +11,14 @@ import sys
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerConfigHLT' )
 
-class TriggerConfigHLT:
+class TriggerConfigHLT(object):
 
     sCurrentTriggerConfig = None
     def currentTriggerConfig():
         return TriggerConfigHLT.sCurrentTriggerConfig
     currentTriggerConfig = staticmethod(currentTriggerConfig)
 
-    def __init__(self, hltfile=None):
+    def __init__(self, hltfile=None, signaturesOverwritten=False):
         self.menuName = 'TestMenu'
         self.__HLTFile = hltfile
         
@@ -33,6 +33,10 @@ class TriggerConfigHLT:
         self.theHLTChains      = []
         self.theSeqLists       = []
         self.theSeqDict        = {} # dict by Seq output TE
+
+        if type(signaturesOverwritten)!=bool:
+            log.error('Wrong type for signaturesOverwritten. Received %s but expected bool', type(signaturesOverwritten))
+        self.signaturesOverwritten = signaturesOverwritten
 
         TriggerConfigHLT.sCurrentTriggerConfig = self
 
@@ -93,6 +97,6 @@ def getConfFromChainName(chainName, allChainDicts = None):
         sys.exit("ERROR, in getConfFromChainName: Wrong chain configuration") 
         return [chainName]
     else:
-        print "TriggerConfigHLT.getConfFromChainName: Called chain " + chainName + " and hypoTool conf "+ str(chainPartNames)
+        log.info("TriggerConfigHLT.getConfFromChainName: Called chain %s and hypoTool conf %s", chainName, chainPartNames)
         return chainPartNames
 

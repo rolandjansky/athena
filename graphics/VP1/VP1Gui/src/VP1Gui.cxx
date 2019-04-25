@@ -133,7 +133,7 @@ bool VP1Gui::argumentsAreValid() const
 
       // For the https mode check if the platform supports SSL
       if(m_d->singleEventSource.startsWith("https://") 
-	 && !QSslSocket::supportsSsl()) {
+	 && ! (QSslSocket::supportsSsl()) ) {
 	VP1Msg::message("VP1ExecutionScheduler::init ERROR: Unable to retrieve events over Https. The platform does not support SSL");
 	return false;
       }
@@ -208,8 +208,6 @@ void VP1Gui::cleanup()
 bool VP1Gui::executeNewEvent( const int& run, const uint64_t& event, const unsigned& triggerType, const unsigned& time )
 {
   VP1Msg::messageDebug("Examining new event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )");
-
-
 
   bool b = m_d->the_scheduler->executeNewEvent(run,event,triggerType,time);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,7 +16,7 @@
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaReHadEnFex.h"
+#include "EgammaReHadEnFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include <math.h>
 
@@ -42,22 +42,12 @@ EgammaReHadEnFex::EgammaReHadEnFex(const std::string & type, const std::string &
 		   {
 }
 
-EgammaReHadEnFex::~EgammaReHadEnFex(){
-}
-
 StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi,
 				   const CaloDetDescrElement*& /*caloDDE*/,
-                                   const EventContext* context ) const { 
+                                   const EventContext& context ) const {
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
-	m_error=0x0;
-
-#ifndef NDEBUG
-  if ( msg().level() <= MSG::DEBUG ) 
-        msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endmsg;
-#endif
-  ATH_CHECK( context != nullptr );
 
   double deta = 0.;           // eta difference current cell - seed
   double dphi = 0.;           // phi difference current cell - seed
@@ -94,7 +84,7 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         LArTT_Selector<LArCellCont> sel;
 	LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
-        m_dataSvc->loadCollections( *context, roi, TTHEC, sampling, sel );
+        m_dataSvc->loadCollections( context, roi, TTHEC, sampling, sel );
         iBegin = sel.begin();
         iEnd = sel.end();
         // Finished to access Collection
@@ -158,7 +148,7 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	
         TileCellCollection seltile;
 	TileCellCollection::const_iterator itBegin, itEnd, itt;
-        m_dataSvc->loadCollections( *context, roi, seltile );
+        m_dataSvc->loadCollections( context, roi, seltile );
         itBegin = seltile.begin();
         itt = itBegin;
         itEnd = seltile.end();

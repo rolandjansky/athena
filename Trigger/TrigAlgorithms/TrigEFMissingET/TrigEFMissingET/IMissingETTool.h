@@ -1,10 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEFMISSINGET_IMISSINGETTOOL_H
 #define TRIGEFMISSINGET_IMISSINGETTOOL_H 1
 
+/********************************************************************
+
+NAME:     IMissingETTool.h
+PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
+AUTHOR:   Gabriel Gallardo
+CREATED:  September 2018
+
+PURPOSE:  Interface for MET trigger tools in AthenaMT
+
+ ********************************************************************/
+
+
 #include "GaudiKernel/IAlgTool.h"
+#include "TrigTimeAlgs/ITrigTimerSvc.h"
 
 #include "TrigEFMissingET/EFMissingETHelper.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
@@ -22,13 +35,21 @@ public:
 
   /**
    * a method to update the met object (and met helper object)
-   * The API deliberately does not include EventContext as it is only needed 
-   * in one implementation when input is not taken from the regular store. 
    **/
   virtual StatusCode update( xAOD::TrigMissingET *met,
-			     TrigEFMissingEtHelper *metHelper ) const = 0;
+			     TrigEFMissingEtHelper *metHelper,
+           const EventContext& ctx ) const = 0;
 
 protected:
+
+  int m_fextype;            //!< Fex type
+
+  ITrigTimerSvc* m_timersvc;    //!< Timer service
+  TrigTimer*     m_timer[4][3]; //!< (EM, HEC, Tile, FCAL) x (RegionSelector, LoadCollections, loop)
+  TrigTimer*     m_glob_timer;  //!< total time
+  std::string    m_FexName;     //!< name of the parent Fex
+
+  
  /** definition of the meaning for the component flag bits
   **/
  static const unsigned short m_maskProcessing         = 0x0001 ; // bit  0 Component is being processed

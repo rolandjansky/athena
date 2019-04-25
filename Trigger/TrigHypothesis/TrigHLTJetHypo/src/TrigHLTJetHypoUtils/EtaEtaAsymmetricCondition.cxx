@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtAsymmetricCondition.h"
@@ -12,8 +12,10 @@
 
 EtaEtAsymmetricCondition::EtaEtAsymmetricCondition(double etaMin, 
                                                    double etaMax, 
-                                                   double threshold): 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){}
+                                                   double threshold,
+                                                   bool /*debug*/): 
+  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){
+}
 
 
 bool EtaEtAsymmetricCondition::isSatisfied(const pHypoJet& ip) const {

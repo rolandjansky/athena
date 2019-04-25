@@ -4,7 +4,7 @@ __doc__ = "ToolFactories to instantiate all egammaTools with default configurati
 __author__ = "Bruno Lenzi"
 
 import egammaToolsConf
-from egammaRec.Factories import FcnWrapper, ToolFactory, FullNameWrapper
+from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from RecExConfig.RecFlags import rec

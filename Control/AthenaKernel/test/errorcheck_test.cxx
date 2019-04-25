@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: errorcheck_test.cxx,v 1.6 2009-04-09 15:11:18 ssnyder Exp $
 /**
  * @file  errorcheck_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +12,7 @@
 #undef NDEBUG
 
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/AthStatusCode.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Algorithm.h"
@@ -199,6 +199,13 @@ int test1g()
   return 0;
 }
 
+StatusCode test1h()
+{
+  StatusCode sc1 (Athena::Status::TIMEOUT);
+  CHECK_WITH_CONTEXT( sc1, "algtimeout" );
+  return StatusCode (StatusCode::SUCCESS);
+}
+
 StatusCode test1()
 {
   // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
@@ -224,6 +231,7 @@ StatusCode test1()
   assert( test1e().isFailure() );
   assert( test1f().isFailure() );
   assert( test1g()==-1 );
+  assert( test1h().isFailure() );
   assert( algtest.test1().isFailure() );
   assert( algtooltest.test1().isFailure() );
   assert( servtest.test1().isFailure() );
@@ -262,6 +270,52 @@ void test3 (const std::string& = "", int = 0)
   REPORT_MESSAGE_WITH_CONTEXT (MSG::INFO, "test3") << "test3" << endmsg;
 }
 
+void test_checking()
+{
+  errorcheck::ReportMessage::hideFunctionNames (true);
+
+  // Test the error reporting macro
+  {
+    StatusCode sc1;
+    StatusCode sc2;
+    auto check = [&]() -> StatusCode { CHECK_FAILED(sc1, "test_checking", sc1, sc2); };
+    StatusCode sc = check();
+    assert( sc1.checked() );     // macro checks the StatusCode
+    assert( sc2.checked() );     // sc2 copied on return, i.e. checked
+    assert( not sc.checked() );  // the returned copy of sc2 is unchecked
+  }
+  // Test the CHECK macro
+  {
+    auto check = [](StatusCode& sc1, StatusCode& sc2) -> StatusCode {
+                   CHECK_WITH_CONTEXT(sc1, "test_checking", sc2);
+                   return StatusCode::SUCCESS;
+                 };
+    // Test CHECK macro on success
+    {
+      StatusCode sc1;
+      StatusCode sc2;
+      StatusCode sc = check(sc1, sc2);
+      assert( sc1.checked() );     // macro checks the StatusCode
+      assert( not sc2.checked() ); // on success the macro does not return sc2
+      assert( not sc.checked() );  // the returned copy of sc2 is unchecked
+    }
+    // Test CHECK macro on failure
+    {
+      StatusCode sc1(StatusCode::FAILURE);
+      StatusCode sc2;
+      StatusCode sc = check(sc1, sc2);
+      assert( sc1.checked() );     // macro checks the StatusCode
+      assert( sc2.checked() );     // on failure, sc2 copied on return, i.e. checked
+      assert( not sc.checked() );  // the returned copy of sc2 is unchecked
+    }
+  }
+  // Test REPORT macro
+  {
+    StatusCode sc(StatusCode::FAILURE);
+    REPORT_ERROR_WITH_CONTEXT(sc, "test_checking");
+    assert( sc.checked() );
+  }
+}
 
 int main()
 {
@@ -270,5 +324,6 @@ int main()
   test1();
   test2();
   test3();
+  test_checking();
   return 0;
 }

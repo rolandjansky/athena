@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetAuxContainer_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
@@ -262,6 +262,10 @@ namespace xAOD {
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
     //AUX_VARIABLE( pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+
+    // RNN tau ID
+    AUX_VARIABLE( RNNJetScore );
+    AUX_VARIABLE( RNNJetScoreSigTrans ); 
     
   }
   

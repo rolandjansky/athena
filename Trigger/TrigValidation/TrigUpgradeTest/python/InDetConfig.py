@@ -17,12 +17,12 @@ def InDetIDCCacheCreatorCfg():
   acc = ComponentAccumulator()
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
   InDetCacheCreatorTrig = InDet__CacheCreator(name = "InDetCacheCreatorTrig",
-                                       Pixel_ClusterKey   = InDetCacheNames.Pixel_ClusterKey,
-                                       SCT_ClusterKey     = InDetCacheNames.SCT_ClusterKey,
-                                       SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
-                                       SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
-                                       SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
-                                       PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
+                                              Pixel_ClusterKey   = InDetCacheNames.Pixel_ClusterKey,
+                                              SCT_ClusterKey     = InDetCacheNames.SCT_ClusterKey,
+                                              SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
+                                              SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
+                                              SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
+                                              PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
@@ -41,7 +41,6 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
 
-  from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
   dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
 
@@ -92,16 +91,16 @@ def TrigInDetCondConfig( flags ):
 
   from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
   acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
-                       DCSConditionsTool = dcsTool))
+                                       DCSConditionsTool = dcsTool))
   from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
   acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
 
 
   from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
   acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
-                                      SiConditionsTool = sctSiliconConditionsTool,
-                                      UseMagFieldSvc = True,
-                                      UseMagFieldDcs = False))
+                                           SiConditionsTool = sctSiliconConditionsTool,
+                                           UseMagFieldSvc = True,
+                                           UseMagFieldDcs = False))
   from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
   SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
   SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
@@ -125,18 +124,18 @@ def TrigInDetCondConfig( flags ):
   PixelTDAQInstance = "TDAQ_ONL"
   acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
 
-  PixelHVFolder = "/PIXEL/DCS/HV"
-  PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
-  PixelDBInstance = "DCS_OFL"
-
-  acc.merge(addFolders(flags, PixelHVFolder, PixelDBInstance, className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder))
+  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey="/PIXEL/DCS/HV"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
+  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey="/PIXEL/DCS/TEMPERATURE"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+  acc.addCondAlgo(PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
   acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
@@ -144,11 +143,11 @@ def TrigInDetCondConfig( flags ):
   PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
   PixelDeadMapInstance = "PIXEL_OFL"
 
-  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
   acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
+  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder, UseCalibConditions=False))
 
   from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
   acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
@@ -160,9 +159,9 @@ def TrigInDetCondConfig( flags ):
 
   from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
   acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
-                                          SiPropertiesTool=TrigSiPropertiesTool,
-                                          UseMagFieldSvc = True,
-                                          UseMagFieldDcs = False))
+                                             SiPropertiesTool=TrigSiPropertiesTool,
+                                             UseMagFieldSvc = True,
+                                             UseMagFieldDcs = False))
 
   from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
   TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
@@ -174,9 +173,8 @@ def TrigInDetCondConfig( flags ):
 
 
   from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-  mfsc, mag_field_svc = MagneticFieldSvcCfg(flags)
+  mfsc = MagneticFieldSvcCfg(flags)
   acc.merge( mfsc )
-  acc.addService(mag_field_svc)
   return acc
 
 def TrigInDetConfig( flags, roisKey="EMRoIs" ):
@@ -205,7 +203,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                      RDOKey       = InDetKeys.PixelRDOs(),
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
-                                                     #OutputLevel = INFO)
+
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = roisKey
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
@@ -221,15 +219,15 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
     InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
-                                                        Decoder = InDetSCTRodDecoder)
+                                                         Decoder = InDetSCTRodDecoder)
     acc.addPublicTool(InDetSCTRawDataProviderTool)
 
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
     InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
-                                                RDOKey       = InDetKeys.SCT_RDOs(),
-                                                ProviderTool = InDetSCTRawDataProviderTool, )
-                                                #OutputLevel = INFO)
+                                                 RDOKey       = InDetKeys.SCT_RDOs(),
+                                                 ProviderTool = InDetSCTRawDataProviderTool, )
+
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
@@ -259,7 +257,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
     InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
-                                                          Decoder = InDetTRTRodDecoder)
+                                                         Decoder = InDetTRTRodDecoder)
     acc.addPublicTool(InDetTRTRawDataProviderTool)
 
 
@@ -267,7 +265,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
     InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
                                                  RDOKey       = "TRT_RDOs",
-                                                  ProviderTool = InDetTRTRawDataProviderTool)
+                                                 ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
     InDetTRTRawDataProvider.RoIs = roisKey
 
@@ -275,10 +273,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
 
   #Pixel clusterisation
-
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-      UsePixelCalibCondDB  = False)
+  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool")
 
   acc.addPublicTool(InDetClusterMakerTool)
 
@@ -304,7 +300,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
-                                                        ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
+                                                        ClustersName            = "PixelTrigClusters",)
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = roisKey
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
@@ -377,7 +373,6 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                                                     SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
-                                                                    #OutputLevel=INFO)
 
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
 
@@ -409,9 +404,6 @@ def indetInViewRecoCfg( flags, viewMakerName ):
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
   algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs )
-  from AthenaCommon.Constants import DEBUG
-  for a in algAcc._sequence.getChildren():
-    a.OutputLevel=DEBUG
 
   reco.mergeReco( algAcc )  
   return reco
@@ -419,7 +411,6 @@ def indetInViewRecoCfg( flags, viewMakerName ):
   
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    from AthenaCommon.CFElements import parOR, seqOR, seqAND
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -428,9 +419,6 @@ if __name__ == "__main__":
     #ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2018-13"
     ConfigFlags.lock()
 
-    from AthenaCommon.Constants import INFO,DEBUG
-
-
     acc = ComponentAccumulator()
 
     nThreads=1
@@ -438,7 +426,6 @@ if __name__ == "__main__":
     from StoreGate.StoreGateConf import SG__HiveMgrSvc
     eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
     eventDataSvc.NSlots = nThreads
-    eventDataSvc.OutputLevel = DEBUG
     acc.addService( eventDataSvc )
     #from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
     #acc.merge( MainServicesThreadedCfg( ConfigFlags ) )
@@ -453,8 +440,6 @@ if __name__ == "__main__":
     from RegionSelector.RegSelConfig import regSelCfg
     rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )
-    acc.addService(regSel)
-
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )

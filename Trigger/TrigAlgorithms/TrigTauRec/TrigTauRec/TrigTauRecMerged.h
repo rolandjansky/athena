@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -22,7 +22,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/ITauToolBase.h"
-//#include "tauRecTools/TauJetRNNEvaluator.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -209,8 +209,7 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
   //  RNN ID monitoring
   // retrieved from tool handle, if tool exists
-  // needs migration of RNN tools to master
-  //TauJetRNNEvaluator* m_rnn_evaluator;
+  TauJetRNNEvaluator* m_rnn_evaluator;
 
   float m_RNN_scalar_ptRatioEflowApprox; 
   float m_RNN_scalar_mEflowApprox; 

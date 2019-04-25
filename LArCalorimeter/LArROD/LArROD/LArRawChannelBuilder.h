@@ -19,12 +19,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"
@@ -47,7 +47,6 @@ private:
   //Services & Tools 
   ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
   const LArOnlineID* m_onlineHelper;
   //LArRoI_Map* m_roiMap;
   //LArRawOrdering m_larRawOrdering; 
@@ -103,7 +102,6 @@ private:
   
   int   m_nEvents;       // Total number of processed events ;
   float m_aveChannels;   // Average number of readout channels per event
-  bool  m_hvcorr;
   
   //Time ranges for OFC application
   double m_SamplingPeriodeUpperLimit,m_SamplingPeriodeLowerLimit;

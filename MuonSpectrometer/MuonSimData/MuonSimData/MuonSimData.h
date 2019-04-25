@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -68,8 +68,8 @@ public:
     MuonSimData();
     MuonSimData (const std::vector< Deposit >& deposits, int simDataWord = 0);
     MuonSimData (std::vector< Deposit >&& deposits, int simDataWord = 0);
-    MuonSimData (const MuonSimData& other);
-    virtual ~MuonSimData();
+    MuonSimData (const MuonSimData& other) = default;
+   ~MuonSimData() = default;
     int word() const;                       // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
     const std::vector< Deposit >& getdeposits() const;

@@ -16,7 +16,6 @@ s/TTree [0-9]\\\\{3\\\\}[0-9]*/TTree ????/g
 s/^.*Py:Athena /Athena    /g
 s/-[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]0/-0/g
 s/=[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]0/=0/g
-s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]00*//g
 s/\\\\[00000000/[/g
 s/-000000000/-0/g
 s/=00000000/=/g
@@ -24,6 +23,7 @@ s/ ffffffff/ /g
 s/20[23]/20?/g
 s/INFO CLID = 222376821, key = Stream[12]/INFO CLID = 222376821, key = StreamX/g
 s/0x[0-9a-f]\\\\{7,12\\\\}/0x????/g
+s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]00*//g
 s/ROOT_TreeIndex/ROOT_Tree/g
 EOF
 

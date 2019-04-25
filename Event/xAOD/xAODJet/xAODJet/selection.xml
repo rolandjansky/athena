@@ -26,16 +26,17 @@
 
   
   <class name="std::pair<std::string,std::vector<const xAOD::IParticle*> >" />
-  <class name="std::pair<std::string,std::vector<float> >" />
   <class name="std::pair<std::string,std::vector<std::vector<int> > >" />
-  <class name="std::pair<std::string,std::vector<std::vector<float> > >" />
+  <!--pair<string,vector<float> >, pair<string,vector<vector<float> > >,
+      and associated pair_base if existing. -->
+  <class pattern="std::*pair*<*string*vector<float*"/>
   
 
   <class name="xAOD::JetAttribute" />
 
 
   <!-- <class name="std::vector<const xAOD::IParticle* >" />  Is this
-       existing somehwere else ?  -->
+       existing somewhere else ?  -->
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

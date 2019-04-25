@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "TRT_ConditionsData/ActiveFraction.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 /**
  * A tool to be used for trt segment pre-selection
@@ -17,7 +18,6 @@
  * April 2009
  */
 
-class ITRT_ActiveFractionSvc;
 
 namespace InDet{
 
@@ -39,8 +39,7 @@ namespace InDet{
       
     private:
       
-      ServiceHandle<ITRT_ActiveFractionSvc>       m_trtCondSvc;   //!< TRT active fraction service
-
+      SG::ReadCondHandleKey<TRTCond::ActiveFraction> m_strawReadKey{this,"ActiveWriteKey","ActiveFraction","ActiveFraction in-key"};
       /** Properties for track selection:all cuts are ANDed */
       int  m_minOffset;  //!< Minimum number of TRT drit circles required
       bool m_param;      //!< Use the new or the old parameterization

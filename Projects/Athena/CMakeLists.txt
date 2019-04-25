@@ -26,9 +26,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-02-00" CACHE STRING
+    set( TDAQ-COMMON_VERSION "03-03-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-02-00" CACHE STRING
+    set( TDAQ_VERSION "08-02-01" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -67,6 +67,9 @@ endforeach()
 unset( _external )
 unset( _externals )
 
+# Make the local CMake files visible to AtlasCMake.
+list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
+
 # Set up CTest:
 atlas_ctest_setup()
 
@@ -74,7 +77,7 @@ atlas_ctest_setup()
 atlas_project( Athena ${ATHENA_PROJECT_VERSION}
    USE AthenaExternals ${AthenaExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   FORTRAN )
+   LANGUAGES C CXX Fortran )
 
 # Install the external configurations:
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
@@ -95,9 +98,10 @@ if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
 endif()
 
 # Now generate and install the installed setup files:
-lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/env_setup_install.sh
+lcg_generate_env(
+   SH_FILE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    REPLACE ${_replacements} )
-install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Configure and install the post-configuration file:
@@ -112,9 +116,9 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
 string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
    TDAQ_ATROOT "${TDAQ_ATROOT}" )
 
-configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
-   ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:

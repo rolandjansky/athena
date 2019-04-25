@@ -44,8 +44,10 @@ StatusCode LArGainThresholds2Ntuple::stop() {
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
-     lower=febConfig->lowerGainThreshold(hwid);
-     upper=febConfig->upperGainThreshold(hwid);
+     short lower_v, upper_v;
+     febConfig->thresholds (hwid, lower_v, upper_v);
+     lower = lower_v;
+     upper = upper_v;
 
      fillFromIdentifier(hwid);
      

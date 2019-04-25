@@ -23,7 +23,6 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -129,10 +128,8 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_calculateSignificance(false),
     m_calculateIsolation(false),
     m_calculateLArHVFraction(false),
-    m_usePileUpNoise(true),
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
-    m_noiseTool("CaloNoiseTool"),
     m_larHVFraction("LArHVFraction",this),
     m_absOpt(false) 
 {
@@ -159,10 +156,8 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   declareProperty("MinRLateral",m_minRLateral);
   declareProperty("MinLLongitudinal",m_minLLongitudinal);
   declareProperty("MinBadLArQuality",m_minBadLArQuality);
-  declareProperty("UsePileUpNoise",m_usePileUpNoise);
   // use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
 
   /// Not used anymore (with xAOD), but required to when configured from 
@@ -249,16 +244,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   CHECK(m_caloDepthTool.retrieve());
 
   if (m_calculateSignificance) { 
-    if(m_noiseTool.retrieve().isFailure()){
-      msg(MSG::WARNING)
-	  << "Unable to find Noise Tool" << endmsg;
-    }  
-    else {
-      msg(MSG::INFO) << "Noise Tool retrieved" << endmsg;
-    }
-  }
-  else {
-    m_noiseTool.disable();
+    ATH_CHECK(m_noiseCDOKey.initialize());
   }
 
   if (m_calculateLArHVFraction) { 
@@ -308,6 +294,13 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
   typedef std::pair<clusterIdx_t, clusterIdx_t> clusterPair_t;
   std::vector<clusterPair_t> clusterIdx;
   const clusterIdx_t noCluster = std::numeric_limits<clusterIdx_t>::max();
+
+  const CaloNoise* noise=nullptr;
+  if (m_calculateSignificance) {
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
+    noise=*noiseHdl;
+  }
+
 
   // Counters for number of empty and non-empty neighbor cells per sampling layer
   // Only used when cluster isolation moment is calculated.
@@ -445,23 +438,10 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	}
       
 	if ( m_calculateSignificance ) {
-	  double sigma = 0;
-	  if ( m_usePileUpNoise ) {
-	    if(m_twoGaussianNoise) {
-	      sigma = m_noiseTool->getEffectiveSigma(pCell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::TOTALNOISE);
-	    }
-	    else {
-	      sigma = m_noiseTool->getNoise(pCell,ICalorimeterNoiseTool::TOTALNOISE);
-	    }
-	  }
-	  else {
-	    if(m_twoGaussianNoise) {
-	      sigma = m_noiseTool->getEffectiveSigma(pCell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::ELECTRONICNOISE);
-	    }
-	    else {
-	      sigma = m_noiseTool->getNoise(pCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-	    }
-	  }
+	  const float sigma = m_twoGaussianNoise ?\
+	    noise->getEffectiveSigma(pCell->ID(),pCell->gain(),pCell->energy()) : \
+	    noise->getNoise(pCell->ID(),pCell->gain());
+
 	  sumSig2 += sigma*sigma;
 	  // use geomtery weighted energy of cell for leading cell significance
 	  double Sig = (sigma>0?ene*weight/sigma:0);

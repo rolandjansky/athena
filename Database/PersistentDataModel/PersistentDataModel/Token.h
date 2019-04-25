@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODEL_TOKEN_H
@@ -100,6 +100,9 @@ public:
    const Token& set(Token* pToken) const;
    /// Set all the data part of the token
    const Token& setData(Token* pToken) const;
+
+   /// expose Token instance counter for debugging
+   static int numInstances();
 
 private:
    /// Reference count

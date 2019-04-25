@@ -10,6 +10,7 @@ def _createCfgFlags():
     acf=AthConfigFlags()
 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # fromer global.InputFiles
+    acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
@@ -36,8 +37,7 @@ def _createCfgFlags():
     # replace global.Beam*
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
     acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
-    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : (GetFileMD(prevFlags.Input.Files)["/Digitization/Parameters"]["numberOfCollisions"] if prevFlags.Input.isMC \
-                                                                   else (2. if prevFlags.Beam.Type=='collisions' else 0.))) # former global.NumberOfCollisions
+    acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : 2. if prevFlags.Beam.Type=='collisions' else 0.) # former global.NumberOfCollisions
     acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
@@ -47,7 +47,7 @@ def _createCfgFlags():
 
     acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
     acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myROD.pool.root')
+    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')

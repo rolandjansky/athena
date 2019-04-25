@@ -31,10 +31,6 @@ sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetTrigClusterMakerTool = \
     InDet__ClusterMakerTool( name = "InDetTrigClusterMakerTool",
-                             UsePixelCalibCondDB = False,  #simpler setup for EFID
-                             #UsePixelCalibCondDB = True,  #simpler setup for EFID
-                             #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
-                             #UseLorentzAngleCorrections = False
                              PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
                              SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )
@@ -711,6 +707,13 @@ if InDetTrigFlags.loadSummaryTool():
   #
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
+  from AthenaCommon.GlobalFlags import globalflags
+  # Straw status DB Tool
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+  InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
+
+
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
@@ -719,7 +722,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                        TestBLayerTool = None,
                                                                        PixelToTPIDTool= InDetTrigPixelToTPIDTool,
                                                                        DoSharedHits  = False,
-                                                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                        useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                        useTRT        = DetFlags.haveRIO.TRT_on())
@@ -740,34 +743,34 @@ if InDetTrigFlags.loadSummaryTool():
      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
   if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
             conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector")
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector",className='CondAttrListVec')
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTVectors") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTVectors")):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors")
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors",className='CondAttrListVec')
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue")
- 
- #    from AthenaCommon.GlobalFlags import globalflags
-  #    if globalflags.DataSource() == 'data':
-  #      conddb.addOverride("/TRT/Onl/Calib/PID_vector"  ,"TRTOnlCalibPID_vector-ES1-UPD1-00-00-01")
-     #else:
-     #  conddb.addOverride("/TRT/Onl/Calib/PID_vector","TRTCalibPID_vector_MC_OnSetMC_CorrMC_noZR_00-01")
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
+
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
-  from AthenaCommon.GlobalFlags import globalflags
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+  # Calibration DB Tool
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
+                                    isGEANT4=(globalflags.DataSource == 'geant4'))
 
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrigTRT_LocalOccupancy",
-                                                          isTrigger=True,
+  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
+                                                          isTrigger = True,
                                                           TRT_RDOContainerName="TRT_RDOs_EF",
-                                                          TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
-                                                          )
+                                                          TRTCalDbTool = InDetTRTCalDbTool,
+                                                          TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
+
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
-                                                                TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                                                TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
                                                                 OccupancyUsedInPID = True,
                                                                 isData = (globalflags.DataSource == 'data'))
 
@@ -775,6 +778,8 @@ if InDetTrigFlags.loadSummaryTool():
   if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigTRT_ElectronPidTool
 
+
+ 
   #
   # Configurable version of TrkTrackSummaryTool
   #
@@ -805,8 +810,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
                                                                                    TestBLayerTool=InDetTrigTestBLayerTool,
                                                                                    PixelToTPIDTool=InDetTrigPixelToTPIDTool,
-                                                                                   TRTStrawSummarySvc = TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
-                                                                                   )
+                                                                                   TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -856,13 +860,9 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
 # TRT segment minimum number of drift circles tool
 #
 
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
-InDetTrigTRT_ActiveFractionSvc = TRT_ConditionsSetup.instanceName("InDetTRTActiveFractionSvc")
-
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
 InDetTrigTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCut',
-  TrtConditionsSvc = InDetTrigTRT_ActiveFractionSvc,
   MinOffsetDCs     = 5,
   UseNewParameterization = True,
   UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default
@@ -874,7 +874,6 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCutForPatt',
-  TrtConditionsSvc = InDetTrigTRT_ActiveFractionSvc,
   MinOffsetDCs     = 5,
   UseNewParameterization = InDetTrigCutValues.useNewParameterizationTRT(),
   UseActiveFractionSvc   = True #DetFlags.haveRIO.TRT_on()  # Use Thomas's new parameterization by default

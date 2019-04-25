@@ -138,7 +138,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
                 
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []

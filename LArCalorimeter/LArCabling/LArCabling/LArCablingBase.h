@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -16,6 +16,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloCell_Base_ID.h"
 #include "LArIdentifier/LArOnlineID_Base.h" //FIXME need BASE ID
+#include "CxxUtils/checker_macros.h"
 
 class AthenaAttributeList;
 
@@ -28,7 +29,7 @@ class AthenaAttributeList;
  
 */
 
-class LArCablingBase : public AthAlgTool {
+class ATLAS_NOT_THREAD_SAFE LArCablingBase : public AthAlgTool {
 
 public:
   

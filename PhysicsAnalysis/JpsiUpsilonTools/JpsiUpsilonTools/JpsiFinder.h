@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -15,28 +15,19 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "AthContainers/DataVector.h"
-#include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "HepPDT/ParticleDataTable.hh"
-
+#include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "JpsiUpsilonTools/ICandidateSearch.h"
+#include "StoreGate/ReadHandleKey.h"
 
-#include <vector>
-#include <cmath>
-#include <string>
-#include <map>
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
     class IVertexFitter;
-//    class VxCandidate;
-//    class TrackParticleBase;
-//    class VxTrackAtVertex;
-//    class RecVertex;
     class TrkV0VertexFitter;
     class ITrackSelectorTool;
-    class V0Tools;
-//    class ExtendedVxCandidate;
 }
 
 namespace InDet { class VertexPointEstimator; }
@@ -61,27 +52,28 @@ namespace Analysis {
         MuonTypes muonTypes;
     };
     
-    class JpsiFinder:  virtual public AthAlgTool
+    class JpsiFinder:  public Analysis::ICandidateSearch, public AthAlgTool
     {
     public:
         JpsiFinder(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiFinder();
-        StatusCode initialize();
-        StatusCode finalize();
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiFinder;}
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer);
-        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::TrackParticle*>);
-        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::Muon*>);
-        std::vector<JpsiCandidate> getPairs2Colls(std::vector<const xAOD::TrackParticle*>,std::vector<const xAOD::Muon*>, bool);
-        double getInvariantMass(JpsiCandidate,std::vector<double> );
-        std::vector<JpsiCandidate> selectCharges(std::vector<JpsiCandidate> , std::string);
-        xAOD::Vertex* fit(std::vector<const xAOD::TrackParticle*>,const xAOD::TrackParticleContainer* importedTrackCollection);
-        bool passesMCPCuts(const xAOD::Muon*);
-        bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*);
+
+        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) override;
+        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
+        std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::Muon*>&) const;
+        std::vector<JpsiCandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Muon*>&, bool) const;
+        double getInvariantMass(const JpsiCandidate&, const std::vector<double>& ) const;
+        std::vector<JpsiCandidate> selectCharges(const std::vector<JpsiCandidate>&) const;
+        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection) const;
+        bool passesMCPCuts(const xAOD::Muon*) const;
+        bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*) const;
         TVector3 trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
         //-------------------------------------------------------------------------------------
         
@@ -109,14 +101,12 @@ namespace Analysis {
         bool m_oppChOnly;
         bool m_sameChOnly;
         bool m_allChCombs;
-        std::string m_muonCollectionKey;
-        std::string m_TrkParticleCollection;
-        std::vector<std::string> m_MuonTrackKeys;
+        SG::ReadHandleKey<xAOD::MuonContainer> m_muonCollectionKey{this, "muonCollectionKey", "StacoMuonCollection"};
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleCollection {this, "TrackParticleCollection", "TrackParticleCandidate" };
+        SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_MuonTrackKeys;
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
-        ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
-        ToolHandle < InDet::ConversionFinderUtils > m_helpertool;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
         bool m_mcpCuts;
         bool m_doTagAndProbe;

@@ -19,7 +19,8 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICondition.h"
-
+#include <vector>
+#include <string>
 
 class DijetMTCondition: public ICondition{
  public:
@@ -29,17 +30,18 @@ class DijetMTCondition: public ICondition{
                    double detaMin,
                    double detaMax,
                    double dphiMin,
-                   double dphiMax
+                   double dphiMax,
+                   bool debug=false
                  );
 
-  ~DijetMTCondition() override {}
+  virtual ~DijetMTCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
   
-  std::string toString() const noexcept override;
-
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory  () noexcept override;
  private:
 
   bool passJetCuts(pHypoJet, pHypoJet) const;
@@ -56,6 +58,11 @@ class DijetMTCondition: public ICondition{
   double m_dphiMin;
   double m_dphiMax;
 
+  bool m_debug;
+  // If debug flag, store the cut variables for each call (maybe > 1 calls
+  // to the condition per event).
+  typedef std::vector<std::pair<std::string, double>> CallHistory;
+  std::unique_ptr<std::vector<CallHistory>> m_history;
 };
 
 #endif

@@ -140,13 +140,11 @@ if DetFlags.Muon_on():
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()
     from AthenaCommon import CfgGetter
-    if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
-        ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
-        AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+    if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders.__str__():
+        AGDD2Geo.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
     if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-        if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
-            ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-            AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+        if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
+            AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
     theApp.CreateSvc += ["AGDDtoGeoSvc"]
     ServiceMgr += AGDD2Geo
 

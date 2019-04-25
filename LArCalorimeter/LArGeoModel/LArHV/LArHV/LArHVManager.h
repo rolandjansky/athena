@@ -1,48 +1,50 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24
-#define LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24
-class EMBHVManager;
-class EMECHVManager;
+#ifndef LARHV_LARHVMANAGER_H
+#define LARHV_LARHVMANAGER_H
+
 class HECHVManager;
 class FCALHVManager;
 class EMBPresamplerHVManager;
 class EMECPresamplerHVManager;
 
 #include "LArHV/EMECHVManager.h"
+#include "LArHV/EMBHVManager.h"
 
 #include "IOVSvc/IOVSvc.h"
 #include "StoreGate/DataHandle.h"
  
-// This class provides access to the High Voltage throughout the LAr. 
-// High voltage conditions can also be accessed through the readout
-// Geometry, if appropriate.
-
+/**
+ * @class LArHVManager
+ *
+ * @brief This class provides access to the High Voltage throughout the LAr. 
+ * High voltage conditions can also be accessed through the readout
+ * Geometry, if appropriate.
+ */
 
 class LArHVManager
 {
   public:
-
   
     typedef EMECHVManager::IOType IOType;
   
     // Constructor
     // 
-    LArHVManager(const EMBHVManager  *embHv, const EMECHVManager *emecHvInner, const EMECHVManager *emecHvOuter, const HECHVManager *hecHv, const FCALHVManager *fcalHv, const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
+    LArHVManager(const HECHVManager *hecHv, const FCALHVManager *fcalHv, const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
     
     //  Destructor
     virtual ~LArHVManager();
     
     // Returns the EMBHVManager
-    const EMBHVManager *getEMBHVManager() const;
+    const EMBHVManager& getEMBHVManager() const;
 
     // Returns the Barrel Presampler Manager:
     const EMBPresamplerHVManager *getEMBPresamplerHVManager() const;
   
     // Returns the EMECHVManager
-    const EMECHVManager *getEMECHVManager(IOType IO) const;
+    const EMECHVManager& getEMECHVManager(IOType IO) const;
   
     // Returns the Endcap Presampler Manager:
     const EMECPresamplerHVManager *getEMECPresamplerHVManager() const;
@@ -64,9 +66,9 @@ class LArHVManager
   LArHVManager(const LArHVManager& right);
   
 
-  const EMBHVManager            *m_embHV;
-  const EMECHVManager           *m_emecHVInner;
-  const EMECHVManager           *m_emecHVOuter;
+  EMBHVManager   m_embHV;
+  EMECHVManager  m_emecHVInner;
+  EMECHVManager  m_emecHVOuter;
   const HECHVManager            *m_hecHV;
   const FCALHVManager           *m_fcalHV;
   const EMBPresamplerHVManager  *m_embPreHV;
@@ -77,4 +79,4 @@ class LArHVManager
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(LArHVManager, 203332428, 1) 
 
-#endif /* LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24 */
+#endif 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -30,6 +30,7 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloHVCorrections.h"
@@ -48,7 +49,6 @@
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 
 #include "L1CaloHVScalesMon.h"
 // ============================================================================
@@ -64,7 +64,6 @@ L1CaloHVScalesMon::L1CaloHVScalesMon(const std::string & type,
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-    m_LArHVCorrTool("LArHVCorrTool"),
     m_lvl1Helper(0),
     m_l1CondSvc("L1CaloCondSvc", name),
     m_ttSvc("CaloTriggerTowerService"),
@@ -84,7 +83,6 @@ L1CaloHVScalesMon::L1CaloHVScalesMon(const std::string & type,
     m_h_hadDisabled(0)
 /*---------------------------------------------------*/
 {
-  declareProperty("LArHVCorrTool", m_LArHVCorrTool);
   declareProperty("CaloCellContainer", m_caloCellContainerName = "AllCalo");
   declareProperty("xAODTriggerTowerContainer", 
                    m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
@@ -111,82 +109,23 @@ StatusCode L1CaloHVScalesMon:: initialize()
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endmsg;
 
-  StatusCode sc;
-  
-  sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure()) return sc;
-
-  sc = m_cells2tt.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endmsg;
-    return sc;
-  }
-
-  sc = m_larEnergy.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloLArTowerEnergy" << endmsg;
-    return sc;
-  }
-
-  sc = m_ttIdTools.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endmsg;
-    return sc;
-  }
-
-  sc = m_ttTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endmsg;
-    return sc;
-  }
-
-  sc = m_errorTool.retrieve();
-  if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
-    return sc;
-  }
-
-  sc = m_histTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
-    return sc;
-  }
-
-  sc = m_LArHVCorrTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool LArHVCorrTool" << endmsg;
-    return sc;
-  }
-
-  // Get LVL1 idhelper from detector store
-  const CaloLVL1_ID* lvl1_id = 0;
-  sc = detStore()->retrieve(lvl1_id, "CaloLVL1_ID");
-  if (sc.isFailure() || !lvl1_id) {
-    msg(MSG::ERROR) << "Could not get CaloLVL1_ID helper !" << endmsg;
-    return sc;
-  }
-  else {
-    //msg(MSG::DEBUG) << " Found the CaloLVL1_ID helper. " << endmsg;
-    m_lvl1Helper = (CaloLVL1_ID*) lvl1_id;
-  }
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
+  ATH_CHECK( m_cells2tt.retrieve() );
+  ATH_CHECK( m_larEnergy.retrieve() );
+  ATH_CHECK( m_ttIdTools.retrieve() );
+  ATH_CHECK( m_ttTool.retrieve() );
+  ATH_CHECK( m_errorTool.retrieve() );
+  ATH_CHECK( m_histTool.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_lvl1Helper, "CaloLVL1_ID") );
 
   if (m_hvDifference) {
-    // L1Calo conditions service
-    sc = m_l1CondSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve L1CaloCondSvc" << endmsg;
-      return sc;
-    }
-
-    // Retrieve cabling & tt services
-    sc = m_ttSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve CaloTriggerTowerService Tool" << endmsg;
-      return sc;
-    }
+    ATH_CHECK( m_l1CondSvc.retrieve() );
+    ATH_CHECK( m_ttSvc.retrieve() );
   }
+
+  ATH_CHECK( m_scaleCorrKey.initialize() );
+  ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -429,6 +368,11 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   // ================= CaloCells  ============================================
   // =========================================================================
   
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
+  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+
   CaloCellContainer::const_iterator CaloCellIterator    = caloCellContainer->begin();
   CaloCellContainer::const_iterator CaloCellIteratorEnd = caloCellContainer->end();
   
@@ -452,7 +396,8 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
       else sample = (sample-12)%3;
       const int layer = m_lvl1Helper->sampling(ttId1);
       const Identifier cellId(caloCell->ID());
-      const double scale = m_LArHVCorrTool->Scale(cellId);
+      HWIdentifier hwid = cabling->createSignalChannelID(cellId);
+      const double scale = scaleCorr->HVScaleCorr(hwid) * onlineScaleCorr->HVScaleCorr(hwid);
       if (debug && scale < 1.) {
         msg(MSG::DEBUG) << " Current Mean Scale " << scale << " for sampling " << sampling
                         << " eta/phi " << eta << "/" << phi << endmsg;

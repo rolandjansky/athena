@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileL2 creation from TileRawChannel
@@ -52,7 +52,12 @@ class TileL2FromRawChGetter ( Configured )  :
         self._TileRawChannelToL2Handle = theTileRawChannelToL2 ;
 
         # sets output key  
-        theTileRawChannelToL2.TileL2Container=self.outputKey()        
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            theTileRawChannelToL2.TileL2Container = overlayFlags.bkgPrefix() + self.outputKey()
+        else:
+            theTileRawChannelToL2.TileL2Container = self.outputKey()
 
 
         # register output in objKeyStore

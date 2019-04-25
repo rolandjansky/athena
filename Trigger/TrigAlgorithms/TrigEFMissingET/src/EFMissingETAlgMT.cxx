@@ -1,6 +1,21 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/********************************************************************
+
+NAME:     EFMissingETFromJetsMT.cxx
+PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
+AUTHOR:   Gabriel Gallardo
+CREATED:  Feb 19, 2018
+
+BASED ON: EFMissingETFromJets.cxx
+AUTHORS:  Florian U. Bernlochner, Doug Schaefer, Justin Chiu
+
+
+PURPOSE:  Updates TrigMissingETHelper using info from jets
+ ********************************************************************/
+
 #include <cmath>
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 #include "TrigEFMissingET/EFMissingETHelper.h"
@@ -57,8 +72,8 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   
   loopTimer.start();
   for ( auto& t: m_metTools ) {
-    ATH_MSG_DEBUG( "Invoking tool " << t->name() << " to update the MET obejct" );
-    t->update( met, &metHelper );
+    ATH_MSG_DEBUG( "Invoking tool " << t->name() << " to update the MET object" );
+    t->update( met, &metHelper, context );
   }
   loopTimer.stop();
 
@@ -82,7 +97,7 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   auto EF_XS        = Monitored::Scalar( "EF_XS", toLinGeV( std::hypot( met->ex(), met->ey() ) ) / toLinGeV( met->sumEt() ) );
   auto EF_MET_phi   = Monitored::Scalar( "EF_MET_phi",   std::atan2( met->ey(), met->ex() ) );
  
-  ATH_MSG_INFO("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
+  ATH_MSG_DEBUG("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
 
   auto monitorIt = Monitored::Group( m_monTool,
 					    totalTimer, loopTimer,

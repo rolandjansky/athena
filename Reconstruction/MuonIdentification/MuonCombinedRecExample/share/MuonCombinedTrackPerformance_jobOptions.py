@@ -11,22 +11,25 @@ from MuonTrackPerformance.MuonTrackPerformanceConf import MuonTrackPerformanceAl
 
 if muonCombinedRecFlags.doxAOD():  
   topSequence += MuonTrackPerformanceAlg("ExtrapolatedMuonPerformanceAlg",
-                                         TrackInputLocation = "ExtrapolatedMuonTracks",
+                                         TrackInputLocation = "",
                                          DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
                                          DoTruth = rec.doTruth(),
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                         TrackType = 4,
                                          IsCombined = False )
   topSequence += MuonTrackPerformanceAlg("CombinedMuonPerformanceAlg",
-                                         TrackInputLocation = "CombinedMuonTracks",
+                                         TrackInputLocation = "",
                                          DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
                                          DoTruth = rec.doTruth(),
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                         TrackType = 3,
                                          IsCombined = True )
   topSequence += MuonTrackPerformanceAlg("MSOnlyExtrapolatedMuonPerformanceAlg",
-                                         TrackInputLocation = "MSOnlyExtrapolatedMuonTracks",
+                                         TrackInputLocation = "",
                                          DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
                                          DoTruth = rec.doTruth(),
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                         TrackType = 5,
                                          IsCombined = False )
   if muonRecFlags.doNSWNewThirdChain():
     topSequence.ExtrapolatedMuonPerformanceAlg.useNSW=True
@@ -35,19 +38,22 @@ if muonCombinedRecFlags.doxAOD():
 
   if muonCombinedRecFlags.doMuGirlLowBeta():
     topSequence += MuonTrackPerformanceAlg("CombinedStauPerformanceAlg",
-                                           TrackInputLocation = "CombinedStauTracks",
+                                           TrackInputLocation = "",
                                            DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
                                            DoTruth = rec.doTruth(),
                                            DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
-                                           IsCombined = True )
-    topSequence += MuonTrackPerformanceAlg("ExtrapolatedStauPerformanceAlg",
-                                           TrackInputLocation = "ExtrapolatedStauTracks",
-                                           DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
-                                           DoTruth = rec.doTruth(),
-                                           DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
-                                           IsCombined = False )
+                                           TrackType = 3,
+                                           IsCombined = True,
+                                           doStau = True)
+    #no MuGirlStau extrapolated tracks at the moment
+    #topSequence += MuonTrackPerformanceAlg("ExtrapolatedStauPerformanceAlg",
+                                           #TrackInputLocation = "ExtrapolatedStauTracks",
+                                           #DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
+                                           #DoTruth = rec.doTruth(),
+                                           #DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                           #IsCombined = False )
     if muonRecFlags.doNSWNewThirdChain():
-      topSequence.ExtrapolatedStauPerformanceAlg.useNSW=True
+      #topSequence.ExtrapolatedStauPerformanceAlg.useNSW=True
       topSequence.CombinedStauPerformanceAlg.useNSW=True
 
 

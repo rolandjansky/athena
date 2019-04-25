@@ -27,9 +27,11 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         # --- SiLorentzAngleTool
         from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+        PixelConfigCondAlg.UseCalibConditions = False
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
-                                                               UsePixelCalibCondDB = False,
                                                                PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                                                                )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_ETAETASYMMETRICCONDITION_H
@@ -26,15 +26,19 @@ namespace HypoJet{
 
 class EtaEtAsymmetricCondition: public ICondition{
  public:
-  EtaEtAsymmetricCondition(double etaMin, double etaMax, double threshold);
-  ~EtaEtAsymmetricCondition() override {}
+  EtaEtAsymmetricCondition(double etaMin,
+                           double etaMax,
+                           double threshold,
+                           bool debug);
+  virtual ~EtaEtAsymmetricCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   bool isSatisfied(const pHypoJet&) const;
 
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
 
-  std::string toString() const noexcept override;
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory() noexcept override {}
 
  private:
 

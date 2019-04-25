@@ -1,16 +1,15 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 test_strings = [
-    'ijet([(10et, 0eta320)])',
-     'ijet([(10et, 0eta320)(20et, 0eta320)])',
-    # 'or([] ijet([10et]) and([] ijet([20et]) ijet([30et])))',
-    'or([] ijet([(10et)]) ijet([(20et)(40et)]))',
-    'and([] ijet([(10et)]) ijet([(20et)]))',
-    'not([] ijet([(10et)]) )',
-    'not([] and([] ijet([(40et, 0eta320)]) ijet([(100et, 0eta320)])))',
-    'or([] not([] ijet([(40et, 0eta320)])) not([] ijet([(100et, 0eta320)])))',
-    'or([] and([] ijet([(40et, 0eta320)]) ijet([(40et, 0eta320)])) not([] ijet([(100et, 0eta320)])))',
-
+    'simple([(10et, 0eta320)])',
+     'simple([(10et, 0eta320)(20et, 0eta320)])',
+    # 'or([] simple([10et]) and([] simple([20et]) simple([30et])))',
+    'or([] simple([(10et)]) simple([(20et)(40et)]))',
+    'and([] simple([(10et)]) simple([(20et)]))',
+    'not([] simple([(10et)]) )',
+    'not([] and([] simple([(40et, 0eta320)]) simple([(100et, 0eta320)])))',
+    'or([] not([] simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
+    'or([] and([] simple([(40et, 0eta320)]) simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
 
 
 """
@@ -38,7 +37,8 @@ partition
           partition  # passes on 2 sum to regroup to single jets
           (
             [() (1)]
-            ijet     # apply aoverlapping mod, et cuts
+
+            simple     # apply overlapping mod, et cuts
             (
               [(30width50, 30et) (35width45, 40et)]
             )
@@ -48,25 +48,14 @@ partition
     )
   )
                
-  ijet([(p320etap500, 100et) (n500etan320)]),
+  simple([(p320etap500, 100et) (n500etan320)]),
 )""",
 
-
-#     """cascade(
-#    [800m900]             # conditions for cascade (only one here)
-#      dijet(              # first daughter scenario
-#        [ 80m90]          # condition(s) for first daughter scenario
-#         ijet([10et])     # grandaughter scenario 1 for first daugh scen.
-#         ijet([20et])     # grandaughter scenario 2 for first daugh scen.
-#           )              # end of first dijet scenario 
-#      dijet(              # second daughter scenario
-#        [85m95]
-#          ijet([30et]) 
-#          ijet([40et])
-#            )             # end of second dijet scenario
-#    )                     # end of cascade scenario
-#    """
-
-    'and([] ijet([(50et)(70et)]) dijet([(900mass, 26dphi)]))',
-    'and([]simple([(50et)(70et)])dijet([(900m,26dphi)]))',
+    'and([] simple([(50et)(70et)]) dijet([(900mass, 26dphi)]))',
+    'and([]simple([(50et)(70et)])combgen([(2)]dijet([(900mass,26dphi)]) simple([(10et)(20et)])))',
+    'and([]simple([(81et)(81et)])combgen([(2)(50et)(70et)]dijet([(34mass,26dphi)])))',
+    'simple([(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)])',
 ]
+
+if __name__ == '__main__':
+    print 'There are %d test cases' % len(test_strings)

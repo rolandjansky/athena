@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -13,12 +13,6 @@ from TriggerMenu.menu.MenuUtils import setupTopoStartFrom
 from AthenaCommon.SystemOfUnits import mm
 
 from TriggerMenu.tau.TauDef import L2EFChain_tau as L2EFChain_tau
-try:
-    from TriggerMenu.tau.TauDefIdTest import L2EFChain_tau as L2EFChain_tau_IdTest
-except:
-    log.error('generateTauChainDefs: Problems when importing TauDefIdTest.')
-    import traceback
-    log.info(traceback.print_exc())
 
 from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs
 
@@ -37,13 +31,8 @@ def generateChainDefs(chainDict):
 
     myProvider = TauHypoProvider()
 
-    
-
     for subChainDict in listOfChainDicts:
-        if "IdTest" in subChainDict["chainParts"]["addInfo"]:
-            Tau = L2EFChain_tau_IdTest(subChainDict, myProvider)
-        else:
-            Tau = L2EFChain_tau(subChainDict, myProvider)
+        Tau = L2EFChain_tau(subChainDict, myProvider)
  
         listOfChainDefs += [Tau.generateHLTChainDef()]
 

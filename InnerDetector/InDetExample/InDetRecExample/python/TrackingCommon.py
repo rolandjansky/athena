@@ -1,10 +1,14 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrackingCommon')
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AlgSequence import AthSequencer
     cond_seq=AthSequencer("AthCondSeq")
     for seq in [AlgSequence(),cond_seq] :
-        print 'DEBUG createAndAddCondAlg match ?  %s == %s ? %s ' % ( dir(seq),the_name,hasattr(seq,the_name) )
+        log.debug('createAndAddCondAlg match ?  %s == %s ? %s ', dir(seq), the_name, hasattr(seq,the_name) )
         if hasattr(seq,the_name) :
             if seq.getName() != "AthCondSeq" :
                 raise Exception('Algorithm already in a sequnece but not the conditions seqence')
@@ -66,16 +70,16 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
 
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "/Indet/TrkErrorScaling" ):
-        print 'DEBUG request /Indet/TrkErrorScaling '
+        log.debug('request /Indet/TrkErrorScaling')
         conddb.addFolderSplitOnline('INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling', className="CondAttrListCollection")
     else :
-        print 'DEBUG folder /Indet/TrkErrorScaling already requested.'
+        log.debug('folder /Indet/TrkErrorScaling already requested.')
     for elm in conddb.iovdbsvc.Folders :
-        print 'DEBUG IOVDbSvc folder %s' % elm
+        log.debug('IOVDbSvc folder %s', elm)
 
 
     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import RIO_OnTrackErrorScalingCondAlg
-    if the_name == None :
+    if the_name is None :
         return RIO_OnTrackErrorScalingCondAlg( **setDefaults(kwargs,
                                                              ReadKey             = "/Indet/TrkErrorScaling",
                                                              ErrorScalingType    = error_scaling_type,
@@ -95,7 +99,7 @@ def getEventInfoKey() :
 
     isData = (globalflags.DataSource == 'data')
 
-    eventInfoKey = "ByteStreamEventInfo"
+    eventInfoKey = "EventInfo"
     if not isData:
         eventInfoKey = "McEventInfo"
     if globalflags.isOverlay() and isData :
@@ -114,7 +118,7 @@ def getTRT_DriftCircleOnTrackTool() :
         from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackTool
         tool = InDet__TRT_DriftCircleOnTrackTool( EventInfoKey      = getEventInfoKey(),
                                                   TRTErrorScalingKey = '/Indet/TrkErrorScalingTRT')
-        print 'DEBUG default name = %s' % (tool.getName())
+        log.debug('default name = %s', tool.getName())
         ToolSvc += tool
         return tool
     else :

@@ -55,6 +55,7 @@
 #include "VP1Base/SoCooperativeSelection.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 
 #include "VP1Utils/VP1DetInfo.h"
 
@@ -393,7 +394,7 @@ void VP1TrackSystem::systemerase()
     
   m_d->totmomgev = Amg::Vector3D(0,0,0);
 
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     if (AssociatedObjectHandleBase::numberOfInstances()!=0)
       message("Warning: "+str(AssociatedObjectHandleBase::numberOfInstances())
         +" instances of AssociatedObjectHandleBase alive at end of systemerase(). "

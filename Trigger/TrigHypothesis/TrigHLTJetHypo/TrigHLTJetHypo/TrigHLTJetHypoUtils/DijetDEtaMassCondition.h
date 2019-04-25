@@ -30,13 +30,14 @@ class DijetDEtaMassCondition: public ICondition{
                          const std::vector<double>& massMaxs);
 
   
-  ~DijetDEtaMassCondition() override {}
+  virtual ~DijetDEtaMassCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
   
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
   
-  std::string toString() const noexcept override;
+  virtual std::string toString() const noexcept override;
+  virtual void resetHistory() noexcept override {}
 
  private:
 

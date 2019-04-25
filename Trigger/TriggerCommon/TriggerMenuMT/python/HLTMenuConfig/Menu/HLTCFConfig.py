@@ -8,16 +8,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, s
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 
 import sys
-from AthenaCommon.Constants import VERBOSE
 log = logging.getLogger('HLTCFConfig')
-log.setLevel( VERBOSE )
 
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    summary = TriggerSummaryAlg( name, OutputLevel = 2 )
+    summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
     return summary
@@ -65,7 +63,6 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         ath_sequence = menuseq.sequence.Alg
         name = ath_sequence.name()
-        print('5555555 ATH SEQUENCE NAME ---- ', name)
         if name in already_connected:
             log.debug("AthSequencer %s already in the Tree, not added again",name)
         else:
@@ -132,7 +129,7 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
-    hltTop = seqOR("hltTop")
+    hltTop = seqOR("HLTTop")
  
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -148,16 +145,24 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     hltTop += summary
 
     # add signature monitor
-    from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
+    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
     hypos = collectHypos(steps)
+    filters = collectFilters(steps)
+    viewMakers = collectViewMakers(steps)
+    decObj = collectDecisionObjects( hypos, filters, l1decoder[0] )
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
-    summaryAcc.appendToGlobals()
+    summaryAcc.appendToGlobals()    
     
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
-    monAcc.appendToGlobals()    
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
+    monAcc.appendToGlobals()
     hltTop += monAlg
     
+    # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
+    hltTop += edmAlg
+        
     topSequence += hltTop
 
 
@@ -189,11 +194,11 @@ def matrixDisplay( allSeq ):
     log.debug( "="*90 )    
     for sname, seq in mx[1].iteritems():
         guessChainName = '_'.join( sname.split( "_" )[1:] )
-        log.debug( " Reco chain: %s: %s" % ( guessChainName.rjust(longestName),  __nextSteps( 1, sname ) ) )
-        log.debug( " "+ " ".join( __getHyposOfStep( seq ) ) )
+        log.debug( " Reco chain: %s: %s", guessChainName.rjust(longestName),  __nextSteps( 1, sname ) )
+        log.debug( " %s", " ".join( __getHyposOfStep( seq ) ) )
         log.debug( "" )
         
-    log.debug( "="*90 )
+    log.debug( "%s", "="*90 )
     log.debug( "" )
 
         
@@ -205,6 +210,10 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
     HLTNodeName= HLTNode.name()
+
+    if len(chains) == 0:
+        log.info("Configuring empty decisionTree")
+        return []
 
     # find nsteps
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
@@ -258,10 +267,10 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
                     for out in seq.outputs:
                         if pre_filter_name in out:
                             filter_input.append(out)
-                            log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
+                            log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
 
             if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
-                log.error("ERROR: Filter for step %s has %d inputs! One is expected"%(chain_step.name, len(filter_input)))
+                log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
                 sys.exit("ERROR, in configuration of sequence "+seq.name)
                     
 
@@ -282,7 +291,7 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
             log.debug(sfilter.getChains())
 
             if len(chain.steps) == nstep+1:  
-                log.debug("Adding finalDecisions for chain %s at step %d:"%(chain.name, nstep+1))
+                log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
@@ -319,7 +328,7 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts):
 
 
 
-    log.debug("finalDecisions: %s" %str( finalDecisions) )
+    log.debug("finalDecisions: %s", finalDecisions)
     all_DataFlow_to_dot(HLTNodeName, allSeq_list)
 
     # matrix display
@@ -439,7 +448,7 @@ def findFilter(filter_name, cfseqList):
       """
       searches for a filter, with given name, in the CF sequence list of this step
       """
-      log.debug( "findFilter: filter name %s" % filter_name )
+      log.debug( "findFilter: filter name %s", filter_name )
       foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
       if len(foundFilters) > 1:
           log.error("found %d filters  with name %s", len( foundFilters ), filter_name)

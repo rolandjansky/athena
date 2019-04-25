@@ -5,30 +5,36 @@
 #include <map>
 #include <mutex>
 #include <algorithm>
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
 
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
+
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramDef.h"
 
+#include "HistogramFiller/HistogramFillerFactory.h"
+
 using namespace Monitored;
 
-
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent) {
-}
+  : AthAlgTool(type, name, parent) { }
+
+GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+
   if ( not m_explicitBooking ) {
     ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();
   }
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode GenericMonitoringTool::book() {
 
@@ -43,7 +49,7 @@ StatusCode GenericMonitoringTool::book() {
 
   ATH_MSG_DEBUG("Booking histograms in path: " << m_histoPath.value());
 
-  HistogramFillerFactory factory(m_histSvc, m_histoPath);
+  HistogramFillerFactory factory(this, m_histoPath);
 
   m_fillers.reserve(m_histograms.size());
   for (const std::string& item : m_histograms) {
@@ -51,9 +57,9 @@ StatusCode GenericMonitoringTool::book() {
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
-        HistogramFiller* filler = factory.create(def);
+        std::shared_ptr<HistogramFiller> filler(factory.create(def));
         
-        if (filler != nullptr) {
+        if (filler) {
             m_fillers.push_back(filler);
         } else {
           ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
@@ -76,12 +82,12 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
-  std::vector<HistogramFiller*> result;
+std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
+  std::vector<std::shared_ptr<HistogramFiller>> result;
 
   for (auto filler : m_fillers) {
     auto fillerVariables = filler->histogramVariablesNames();
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
+    std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
 
     for (auto fillerVariable : fillerVariables) {
       for (auto monValue : monitoredVariables) {
@@ -97,7 +103,7 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
       continue;
     }
 
-    HistogramFiller* fillerCopy = filler->clone();
+    std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
     fillerCopy->setMonitoredVariables(variables);
     result.push_back(fillerCopy);
   }
@@ -105,6 +111,6 @@ std::vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(std::v
   return result;
 }
 
-void GenericMonitoringTool::setPath( const std::string& newPath ) {
-  m_histoPath = newPath;
+uint32_t GenericMonitoringTool::lumiBlock() {
+  return Gaudi::Hive::currentContext().eventID().lumi_block();
 }

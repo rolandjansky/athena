@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscSimData.h
@@ -50,8 +50,8 @@ public:
   CscSimData();
   CscSimData (const std::vector<Deposit>& deposits, int simDataWord =0);
   CscSimData (      std::vector<Deposit>&& deposits, int simDataWord =0);
-  CscSimData (const CscSimData& rhs);
-  virtual ~CscSimData();
+  CscSimData (const CscSimData& rhs) = default;
+  ~CscSimData() = default;
   int word() const;                       // Get the packed simdata word
   void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
   const std::vector< Deposit >& getdeposits() const;

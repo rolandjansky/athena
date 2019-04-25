@@ -5,6 +5,7 @@
 #ifndef _TrkVKalVrtCore_TrkVKalUtils_H
 #define _TrkVKalVrtCore_TrkVKalUtils_H
 #include <math.h>
+#include <algorithm>
 
 namespace Trk {
 
@@ -18,7 +19,7 @@ namespace Trk {
   struct VectMOM { double Px; double Py; double Pz; double E; };
 
   inline void cfdcopy(double *source, double *target, int n)
-    {   for(int i=0; i<n; i++) target[i]=source[i]; }
+    {  std::copy(source, source + n, target); }
 
   inline double cfddist3D(double *V1, double *V2)
     { return sqrt( (V2[0]-V1[0])*(V2[0]-V1[0]) + (V2[1]-V1[1])*(V2[1]-V1[1]) + (V2[2]-V1[2])*(V2[2]-V1[2]) ); }

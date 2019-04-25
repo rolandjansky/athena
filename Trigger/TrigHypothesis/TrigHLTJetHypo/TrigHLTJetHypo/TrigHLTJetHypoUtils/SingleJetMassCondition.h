@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_SINGLEJETMASSCONDITION_H
@@ -23,15 +23,20 @@
 
 class SingleJetMassCondition: public EtaEtCondition{
  public:
-  SingleJetMassCondition(double etaMin, double etaMax, double threshold, double massMin, double massMax);
-  ~SingleJetMassCondition() override {}
+  SingleJetMassCondition(double etaMin,
+                         double etaMax,
+                         double threshold,
+                         double massMin,
+                         double massMax,
+                         bool debug);
+  virtual ~SingleJetMassCondition() override {}
 
-  bool isSatisfied(const HypoJetVector&) const override;
-  bool isSatisfied(const pHypoJet&) const;
+  virtual bool isSatisfied(const HypoJetVector&) const override;
+  virtual bool isSatisfied(const pHypoJet&) const;
 
-  double orderingParameter() const noexcept override;
+  virtual double orderingParameter() const noexcept override;
 
-  std::string toString() const noexcept override;
+  virtual std::string toString() const noexcept override;
 
  private:
 

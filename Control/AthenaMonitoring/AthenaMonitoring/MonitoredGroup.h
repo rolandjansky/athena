@@ -9,13 +9,13 @@
 #include <string>
 #include <vector>
 
+#include "GaudiKernel/ToolHandle.h"
+
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/HistogramFiller.h"
 #include "AthenaMonitoring/IMonitoredVariable.h"
-#include "GaudiKernel/ToolHandle.h"
 
 namespace Monitored {
-
   /**
    * @brief Group local monitoring quantities and retain correlation when filling histograms
    *
@@ -40,21 +40,15 @@ namespace Monitored {
      * @param monitoredGroup  list of variables to be monitored
      **/
     template <typename... T>
-    Group(const ToolHandle<GenericMonitoringTool>& tool, T&&... monitoredGroup) :
-        m_tool(tool),
+    Group(const ToolHandle<GenericMonitoringTool>& tool, T&&... monitoredGroup) 
+      : m_tool(tool),
         m_autoFill(true),
         m_monitoredGroup{monitoredGroup...},
-        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup)
-                                            : std::vector<HistogramFiller*>())
-    {}
+        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
 
-    virtual ~Group()
-    {
+    virtual ~Group() {
       if (m_autoFill) {
         fill();
-      }
-      for (auto filler : m_histogramsFillers) {
-        delete filler;
       }
     }
 
@@ -76,9 +70,9 @@ namespace Monitored {
      * \endcode
      *
      **/
-    virtual void fill()
-    {
+    virtual void fill() {
       setAutoFill(false);
+
       for (auto filler : m_histogramsFillers) {
         filler->fill();
       }
@@ -97,12 +91,11 @@ namespace Monitored {
     ToolHandle<GenericMonitoringTool> m_tool;
     bool m_autoFill;
     const std::vector<std::reference_wrapper<IMonitoredVariable>> m_monitoredGroup;
-    const std::vector<HistogramFiller*> m_histogramsFillers;
+    const std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_histogramsFillers;
   };
 
   template <typename... T>
-  void fill(const ToolHandle<GenericMonitoringTool>& tool, T&&... variables)
-  {
+  void fill(const ToolHandle<GenericMonitoringTool>& tool, T&&... variables) {
     if (!tool.empty()) {
       for (auto filler : tool->getHistogramsFillers({std::forward<T>(variables)...})) {
         filler->fill();

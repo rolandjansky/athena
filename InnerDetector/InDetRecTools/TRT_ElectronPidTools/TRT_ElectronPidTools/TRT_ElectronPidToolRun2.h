@@ -14,18 +14,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TRT_ElectronPidTools/ITRT_ElectronToTTool.h"
+#include "TRT_ConditionsData/HTcalculator.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
-//#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
 #include <vector>
 #include <string>
@@ -39,12 +38,8 @@ namespace InDet{
 	class ITRT_LocalOccupancy;
 }
 
+class ITRT_StrawSummaryTool;
 
-// Troels (Sep 2014):
-class ITRT_StrawSummarySvc;
-
-
-//class IChronoStatSvc;
 class ITRT_ToT_dEdx;
 
 namespace Trk {
@@ -106,21 +101,10 @@ namespace InDet
     //double GetD(double R_track) const;
 
   private:
-    // Update of database entries.
-    StatusCode update( IOVSVC_CALLBACK_ARGS );        
-    //
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    /** Probability functions used in calculation */
-    // Also used extenally by the Atlfast simulation to get pHT:
-    //virtual double probHT(double momentum, Trk::ParticleHypothesis, int HitPart, double HitDepth, double TrkAnodeDist, double eta, double phi);
-    
-    // //possibly used by Atlfast in the future
-    //virtual double probToT(double momentum, Trk::ParticleHypothesis, int ToT, double TrkAnodeDist, double eta);
     
     bool m_DATA;
 
-    //Check valid TRT straw:
+      //Check valid TRT straw:
     bool CheckGeometry(int BEC, int Layer, int Strawlayer) const;
 
     //Turn the Bitpattern into a human readable string
@@ -130,28 +114,18 @@ namespace InDet
     int CountLTBitPattern(unsigned int bitpattern);
     int CountHTBitPattern(unsigned int bitpattern);
 
-    //    IChronoStatSvc  *m_timingProfile;
-
- 
+    double inline sqr(double a) {return a*a;} 
 
     const TRT_ID*              m_trtId;               // TRT ID helper (identifying barrel/wheels and global position)
     const InDetDD::TRT_DetectorManager* m_TRTdetMgr;  // TRT detector manager (to get ID helper)
-    // StoreGateSvc*              p_detstore;            // Detector store.
     Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
-    public:
-     class HTcalculator;
-    private:
-     HTcalculator & m_HTcalc;
-
-    public:
-     class StorePIDinfo;
-
     ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
     ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool
-    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc;
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool;
+    SG::ReadCondHandleKey<HTcalculator> m_HTReadKey{this,"HTcalculator","HTcalculator","HTcalculator in-key"};
 
    }; 
 } // end of namespace

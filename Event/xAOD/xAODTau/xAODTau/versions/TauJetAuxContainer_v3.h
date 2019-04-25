@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H
@@ -315,8 +315,9 @@ namespace xAOD {
     std::vector< float > PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
     std::vector< float > PanTau_BDTVar_Charged_HLV_SumM;
 
-    
-    
+    // RNN tau ID
+    std::vector< float > RNNJetScore;
+    std::vector< float > RNNJetScoreSigTrans;
     
   }; // class TauJetAuxContainer_v3
 

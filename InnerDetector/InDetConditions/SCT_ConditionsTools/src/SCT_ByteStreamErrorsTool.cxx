@@ -34,9 +34,7 @@ SCT_ByteStreamErrorsTool::initialize() {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
   StatusCode sc{StatusCode::SUCCESS};
 
-  for (int errorType{0}; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
-    m_bsErrors[errorType].clear();
-  }
+  m_bsErrors.clear();
 
   sc = detStore()->retrieve(m_sct_id, "SCT_ID") ;
   if (sc.isFailure()) {
@@ -47,7 +45,7 @@ SCT_ByteStreamErrorsTool::initialize() {
 
   sc = m_config.retrieve() ;
   if (sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsSvc!");
+    ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsTool!");
     return StatusCode::FAILURE;
   } 
   
@@ -117,13 +115,16 @@ SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
  
 bool 
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
-  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash, ctx)) return false;
+  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* errorSets{getErrorSets(ctx)};
+
+  if (m_checkRODSimulatedData and 
+      isRODSimulatedData(elementIdHash, ctx, &(errorSets->at(SCT_ByteStreamErrors::RODSimulatedData)))) {
+    return false;
+  }
   
   bool result{true};
-
   for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
-    const std::set<IdentifierHash>* errorSet{getErrorSet(badError, ctx)};
-    result = (errorSet->count(elementIdHash)==0);
+    result = (errorSets->at(badError).count(elementIdHash)==0);
     if (not result) return result;
   }
   
@@ -273,7 +274,7 @@ void
 SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
   for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
-    m_bsErrors[errType][ctx.slot()].clear();
+    m_bsErrors[ctx.slot()][errType].clear();
   }
   return;
 }
@@ -293,7 +294,7 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fillData in getErrorSet fails");
     }
-    return &m_bsErrors[errorType][ctx.slot()];
+    return &m_bsErrors[ctx.slot()][errorType];
   }
   return nullptr;
 }
@@ -302,6 +303,28 @@ const std::set<IdentifierHash>*
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getErrorSet(errorType, ctx);
+}
+
+/** The accessor method that can be used by clients to 
+ * retrieve sets of IdHashes of wafers.
+ * e.g. for isGood method.
+ */
+
+const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>*
+SCT_ByteStreamErrorsTool::getErrorSets(const EventContext& ctx) const {
+  std::lock_guard<std::recursive_mutex> lock{m_mutex};
+  StatusCode sc{fillData(ctx)};
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("fillData in getErrorSet fails");
+    return nullptr;
+  }
+  return &m_bsErrors[ctx.slot()];
+}
+
+const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>*
+SCT_ByteStreamErrorsTool::getErrorSets() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return getErrorSets(ctx);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -318,16 +341,14 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   EventContext::ContextEvt_t evt{ctx.evt()};
   
   if (slot<m_cache.size() and m_cache[slot]==evt) {
-    // Cache isvalid
+    // Cache is valid
     return StatusCode::SUCCESS;
   }
 
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};  
   if (slot>=m_cache.size()) {
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
-    for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
-      m_bsErrors[errType].resize(slot+1);
-    }
+    m_bsErrors.resize(slot+1);
     m_tempMaskedChips.resize(slot+1);
     m_abcdErrorChips.resize(slot+1);
   }
@@ -375,12 +396,12 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
         /// However, ABCDError_Chip0-ABCDError_Chip5 and TempMaskedChip0-TempMaskedChip5 are not common for two links.
         if (side==0) {
           IdentifierHash otherSide{IdentifierHash(elt->first  + 1)};
-          addError(otherSide,elt->second, ctx);
-          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy" << otherSide);
+          addError(otherSide, elt->second, ctx);
+          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
         } else if (side==1) {
           IdentifierHash otherSide{IdentifierHash(elt->first  - 1)};
-          addError(otherSide,elt->second, ctx);
-          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy" << otherSide);
+          addError(otherSide, elt->second, ctx);
+          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
         }
       }
     }
@@ -398,7 +419,7 @@ void
 SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
   std::lock_guard<std::recursive_mutex> lock{m_mutex};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    m_bsErrors[errorType][ctx.slot()].insert(id);
+    m_bsErrors[ctx.slot()][errorType].insert(id);
   }
 }
 
@@ -421,8 +442,11 @@ SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
-SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
-  const std::set<IdentifierHash>* errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx,
+                                             const std::set<IdentifierHash>* errorSet) const {
+  if (errorSet==nullptr) {
+    errorSet = getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx);
+  }
   return (errorSet->count(elementIdHash)!=0);
 }
 

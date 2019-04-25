@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTTimeCorrection.h"
@@ -15,7 +15,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "GaudiKernel/IService.h"
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
@@ -47,7 +46,7 @@ void TRTTimeCorrection::Initialize() {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTTimeCorrection::Initialize()" << endmsg;
 
   if ( (m_getT0FromData) && (m_trtcaldbsvc.retrieve().isFailure()) ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Could not find TRT_CalDbSvc => cannot use t0 of data." << endmsg;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Could not find TRT_CalDbTool => cannot use t0 of data." << endmsg;
     m_getT0FromData=false;
   }
 

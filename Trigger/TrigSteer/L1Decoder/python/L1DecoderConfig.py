@@ -30,8 +30,8 @@ def L1DecoderCfg(flags):
 
 
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg    
-    acc.mergeAll( TGCCablingConfigCfg( flags ) )
-    acc.mergeAll( RPCCablingConfigCfg( flags ) )
+    acc.merge( TGCCablingConfigCfg( flags ) )
+    acc.merge( RPCCablingConfigCfg( flags ) )
     decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = recordable("L1MU"),
                                                       OutputTrigRoIs = recordable("MURoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
@@ -41,6 +41,10 @@ def L1DecoderCfg(flags):
 
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
+
+    # Add the algorithm producing the input RoIBResult
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg
+    acc.merge( RoIBResultDecoderCfg(flags) )
 
     return acc,decoderAlg
 

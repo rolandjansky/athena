@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -57,10 +57,10 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ESDEDMSet', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2016-01')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
 
     # geometry version used by HLT online
-    flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2015-04-00-00')
+    flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
 
     # configuration tune for various years of Run2 (why string?)
     flags.addFlag('Trigger.run2Config', '2018')

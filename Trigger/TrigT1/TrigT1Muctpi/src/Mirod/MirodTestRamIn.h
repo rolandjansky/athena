@@ -52,7 +52,7 @@ class MirodTestRamIn {
   /**
    * The destructor of MirodTestRamIn
    */
-  ~MirodTestRamIn();
+  ~MirodTestRamIn() = default;
 
  private:
 

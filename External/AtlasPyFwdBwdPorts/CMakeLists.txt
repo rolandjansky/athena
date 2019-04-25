@@ -38,13 +38,14 @@ function( _setup_python_package name file md5 )
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo
       "Configuring the build of ${name}"
       ${_patchCmd}
-      BUILD_COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      BUILD_COMMAND
+      ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
       python setup.py ${ARG_EXTRA_ARGS} build
       INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_PYTHON_OUTPUT_DIRECTORY}
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
       python setup.py ${ARG_EXTRA_ARGS} install
       --prefix ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
       --exec-prefix ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
@@ -100,7 +101,13 @@ _setup_python_package( pyflakes
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.6.0.tar.gz
    178485aed0799655d0cbf2e3bdcfaddc
-   DEPENDS pyflakes pycodestyle mccabe
+   DEPENDS pyflakes pycodestyle mccabe enum34
+   SINGLE_VERSION )
+
+# Install enum34:
+_setup_python_package( enum34
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/enum34-1.1.6.tar.gz
+   5f13a0841a61f7fc295c514490d120d0
    SINGLE_VERSION )
 
 # Install mccabe:

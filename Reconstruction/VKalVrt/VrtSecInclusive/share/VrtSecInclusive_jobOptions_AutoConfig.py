@@ -32,8 +32,8 @@ jp.AthenaCommonFlags.FilesInput = [
 
 from RecExConfig.RecFlags import rec
 
-# get inputFileSummary - will use it to extract info for MC/DATA
-from RecExConfig.InputFilePeeker import inputFileSummary
+# get MetaReader - will use it to extract info for MC/DATA
+from PyUtils.MetaReaderPeeker import metadata
 
 # import the data types 
 import EventKernel.ParticleDataType
@@ -86,9 +86,8 @@ topSequence.VrtSecInclusive.DoTruth = False
 if rec.readESD():
     topSequence.VrtSecInclusive.MCEventContainer = "TruthEvent"
 
-if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+if 'IS_SIMULATION' in metadata['eventTypes']:
     topSequence.VrtSecInclusive.DoTruth=True
-
 
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",

@@ -1,5 +1,16 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import AuditorSvc
@@ -95,6 +106,11 @@ SCT_ConditionsSummaryTool.ConditionsTools=[sct_ModuleVetoToolSetup.getTool().get
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 job+= SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCT_ConditionsSummaryTestAlg.Cardinality = numThreads
 
 import AthenaCommon.AtlasUnixGeneratorJob
 

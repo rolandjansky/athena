@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -193,9 +193,10 @@ void MuonPRD_MultiTruthMaker::addPrepRawDatum(SG::WriteHandle<PRD_MultiTruthColl
           // But may be not for the typically small RDO/PRD ratio.
           typedef PRD_MultiTruthCollection::iterator truthiter;
           std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
+          const auto& pl = particleLink; // Work around problem with clang 6.0.1
           if(r.second == std::find_if(r.first, r.second,
-                                      [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
-                                        return prd_to_truth.second == particleLink;
+                                      [ pl ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
+                                        return prd_to_truth.second == pl;
                                       } )) {
             prdTruth->insert(std::make_pair(prd->identify(), particleLink));
           }

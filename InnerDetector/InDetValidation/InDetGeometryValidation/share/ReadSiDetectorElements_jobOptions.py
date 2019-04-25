@@ -60,11 +60,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Pixel
 #
 # Load DCS service
-from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-pixelDCSConditionsToolSetup.setup()
-pixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
 from SiPropertiesTool.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+
 pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
 pixelSiPropertiesToolSetup.setup()
 pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
@@ -75,7 +72,7 @@ pixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 ReadPixelElements.UseConditionsTools = True
 ReadPixelElements.SiLorentzAngleTool = pixelLorentzAngleTool
 ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
-ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
+ReadPixelElements.SiConditionsTool   = None
 
 #
 # SCT
@@ -101,7 +98,6 @@ ReadSCTElements.DetEleCollKey = "SCT_DetectorElementCollection"
 
 print ReadPixelElements
 print pixelLorentzAngleTool
-print pixelDCSConditionsTool
 print pixelSiPropertiesTool
 
 print ReadSCTElements

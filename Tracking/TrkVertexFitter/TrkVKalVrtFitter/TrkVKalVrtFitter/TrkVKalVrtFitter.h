@@ -62,7 +62,7 @@ namespace Trk{
     std::vector<VertexID> mergedIN;       //  vertices attached to current
     int indexInSimpleCascade;
     cascadeV(){ vID=-999; outPointingV=0; mergedTO=0; indexInSimpleCascade=0;};
-   ~cascadeV(){};
+   ~cascadeV() = default;
   };
   
 
@@ -75,8 +75,8 @@ namespace Trk{
     friend class VKalExtPropagator;
     public:
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
         TrkVKalVrtFitter(const std::string& t, const std::string& name, const IInterface*  parent);
         virtual ~TrkVKalVrtFitter(); 
@@ -133,22 +133,22 @@ namespace Trk{
 //
         VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-				   double massConstraint = 0.);
+				   double massConstraint = 0.) override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-				   double massConstraint = 0.);
+				   double massConstraint = 0.) override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-		             const  std::vector<VertexID> precedingVertices,
-				   double massConstraint = 0.);
-        VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false );
+		             const  std::vector<VertexID> &precedingVertices,
+				   double massConstraint = 0.) override;
+        VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) override;
 
         StatusCode  addMassConstraint(VertexID Vertex,
                                       const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
-                                      const std::vector<VertexID> verticesInConstraint, 
-				      double massConstraint );
+                                      const std::vector<VertexID> &verticesInConstraint, 
+				      double massConstraint ) override;
 
 //------ Personal VKalVrt staff
 

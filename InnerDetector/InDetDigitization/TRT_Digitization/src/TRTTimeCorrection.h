@@ -11,13 +11,14 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/Identifier.h"
 
+
 namespace InDetDD {
   class TRT_DetectorManager;
 }
 
 class TRTDigSettings;
-class TRT_ID;
 class ITRT_CalDbSvc;
+class TRT_ID;
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

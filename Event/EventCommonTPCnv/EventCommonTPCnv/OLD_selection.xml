@@ -4,6 +4,7 @@
 
   <class name="INav4MomAssocs_p2" id="8040BEAA-BC65-43B8-B468-A7157C89ACB3" />
   <class name="INav4MomAssocs_p2::Assocs_t" />
-  <class name="INav4MomAssocs_p2::AssocElem_t" />
+  <!-- pick up INav4MomAssocs_p2::AssocElem_t and associated pair_base -->
+  <class pattern="std::*pair*<ElementLink_p2<unsigned int>,*"/>
 
 </lcgdict>

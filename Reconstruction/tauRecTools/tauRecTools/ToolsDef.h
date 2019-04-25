@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauProcessorTool.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 
 REGISTER_TOOL(TauCalibrateLC)
 REGISTER_TOOL(TauCommonCalcVars)
@@ -37,3 +38,4 @@ REGISTER_TOOL(TauJetBDTEvaluator)
 REGISTER_TOOL(TauEleOLRDecorator)
 REGISTER_TOOL(TauIDVarCalculator)
 REGISTER_TOOL(TauProcessorTool)
+REGISTER_TOOL(TauJetRNNEvaluator)

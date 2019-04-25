@@ -9,11 +9,11 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
+// SCT ntuple container type
+#include "InDetRawData/SCT_RDO_Container.h"
 // StoreGate Data Handle Key
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-// SCT ntuple container type
-#include "InDetRawData/SCT_RDO_Container.h"
 // xAOD container type
 #include "xAODTracking/SCTRawHitValidationContainer.h"
 
@@ -28,12 +28,14 @@ class SCT_RawDataToxAOD : public AthReentrantAlgorithm {
 public:
   SCT_RawDataToxAOD(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode execute(const EventContext& ctx) const;
-  StatusCode finalize();
+  virtual StatusCode initialize();
+  virtual StatusCode execute(const EventContext& ctx) const;
+  virtual StatusCode finalize();
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
 private:
-  const SCT_ID* m_SCTHelper;
+  const SCT_ID* m_SCTHelper{nullptr};
 
   SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerName{this, "SctRdoContainer", "SCT_RDOs"};
   SG::WriteHandleKey<xAOD::SCTRawHitValidationContainer> m_xAodRawHitContainerName{this, "SctxAodRawHitContainer", "SCT_RawHits"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTNOISE_H
@@ -12,13 +12,13 @@
 #include "TRTDigit.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 class TRTDigCondBase;
 class TRTElectronicsProcessing;
 class TRTElectronicsNoise;
-class IAtRndmGenSvc;
 #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Random/RandomEngine.h"
 class Identifier;
@@ -50,7 +50,7 @@ public:
 	    TRTElectronicsNoise * electronicsnoise,
 	    const TRT_ID* trt_id,
 	    int UseGasMix,
-	    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
+	    ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
 	  );
 
   /**
@@ -213,7 +213,7 @@ public:
 
   unsigned int getRegion(int hitID,const TRT_ID* trt_id);
   int m_UseGasMix;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // need for Argon
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // need for Argon
 
 };
 

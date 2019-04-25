@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
 
@@ -12,7 +12,8 @@ def SCT_TestCablingAlgCfg(configFlags):
     cfg.merge(SCT_CablingCondAlgCfg(configFlags))
 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    geoCfg,gms=GeoModelCfg(configFlags)
+    geoCfg=GeoModelCfg(configFlags)
+    gms=geoCfg.getPrimary()
     cfg.merge(geoCfg)
 
     from AthenaCommon.Constants import INFO

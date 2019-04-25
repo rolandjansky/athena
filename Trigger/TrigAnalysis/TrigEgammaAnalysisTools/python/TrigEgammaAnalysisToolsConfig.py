@@ -32,6 +32,7 @@ LooseLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTLoose
 MediumLHSelector                  = CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHSelector")
 TightLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
 VeryLooseLHSelector               = CfgMgr.AsgElectronLikelihoodTool("T0HLTVeryLooseLHSelector")
+MediumLHHISelector                  = CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHHISelector")
 
 # see the configuration calib paths below
 LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
@@ -42,6 +43,7 @@ LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20
 MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
 TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
 VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+MediumLHHISelector.ConfigFile     = "ElectronPhotonSelectorTools/offline/mc15_20160907_HI/ElectronLikelihoodMediumOfflineConfig2016_HI.conf"
 
 
 
@@ -53,6 +55,7 @@ ToolSvc+=LooseLHSelector
 ToolSvc+=MediumLHSelector
 ToolSvc+=TightLHSelector
 ToolSvc+=VeryLooseLHSelector
+ToolSvc+=MediumLHHISelector
 
 
 #from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
@@ -123,7 +126,7 @@ TrigEgammaNavTPAnalysisTool = PublicToolFactory(TrigEgammaAnalysisToolsConf.Trig
         isEMResultNames=["Tight","Medium","Loose"],
         LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,MediumLHHISelector], 
         ZeeLowerMass=80,
         ZeeUpperMass=100,
         OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
@@ -155,7 +158,7 @@ TrigEgammaNavTPJpsieeAnalysisTool = PublicToolFactory(TrigEgammaAnalysisToolsCon
         isEMResultNames=["Tight","Medium","Loose"],
         LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,MediumLHHISelector], 
         ZeeLowerMass=2,
         ZeeUpperMass=5,
         OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
@@ -184,7 +187,7 @@ TrigEgammaNavAnalysisTool = PublicToolFactory(TrigEgammaAnalysisToolsConf.TrigEg
         #EmulationTool=EmulationTool,
         Tools=[EfficiencyTool,ResolutionTool,DistTool],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,MediumLHHISelector], 
         ElectronLHVLooseTool=VeryLooseLHSelector,
         IsEMLabels=IneffLabels,
         TriggerList=monitoring_electron + monitoring_photon,
@@ -311,7 +314,7 @@ def getEventSelectionTool(runFlag):
           HLTElectronLikelihoodSelector=HLTLikelihoodSelectorList,
           HLTElectronIsEMSelector=HLTIsEMSelectorList,
           ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-          ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+          ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,MediumLHHISelector], 
  
           )
   

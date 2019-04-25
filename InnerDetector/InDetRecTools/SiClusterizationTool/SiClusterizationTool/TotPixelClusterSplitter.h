@@ -15,8 +15,10 @@
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "InDetIdentifier/PixelID.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class IPixelCalibSvc;
 template <class T> class ServiceHandle;
 
 namespace InDet
@@ -79,7 +81,11 @@ namespace InDet
 
       enum SplitType { PhiSplit = 0, EtaSplit = 1, NoSplit = 2 };
 
-      ServiceHandle<IPixelCalibSvc> m_calibSvc;
+      ServiceHandle<IPixelCablingSvc>  m_pixelCabling
+         {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+
+      SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+         {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
       /** Minimum number of pixels in cluster to consider splitting. */
       unsigned int m_minPixels;

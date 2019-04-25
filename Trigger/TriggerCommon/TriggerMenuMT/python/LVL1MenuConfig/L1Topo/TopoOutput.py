@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 class TopoOutput(object):
@@ -22,11 +22,10 @@ class TopoOutput(object):
 
 
 
-from collections import namedtuple
 class TriggerLine(object):
 
     import re
-    multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+    multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
 
     def __init__(self, trigger, cable, bit, clock, fpga, ordinal, firstbit):
         """

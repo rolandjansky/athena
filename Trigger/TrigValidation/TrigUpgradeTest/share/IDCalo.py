@@ -1,15 +1,11 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-isData = False
-if globalflags.InputFormat.is_bytestream():
-  isData = True
 
 # ----------------------------------------------------------------
 # Setup Views
@@ -34,12 +30,8 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-  InDetTrigFlags.doPixelClusterSplitting = False
-  
-  # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-  include("InDetRecExample/InDetRecConditionsAccess.py")
-
+  from TrigUpgradeTest.InDetSetup import inDetSetup
+  inDetSetup()
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
   (viewAlgs, eventAlgs) = makeInDetAlgs()
@@ -49,7 +41,6 @@ if TriggerFlags.doID:
   theTrigFastTrackFinder_eGamma = TrigFastTrackFinder_eGamma()
   theTrigFastTrackFinder_eGamma.isRoI_Seeded = True
   theTrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  #theTrigFastTrackFinder_eGamma.OutputLevel=VERBOSE
   viewAlgs.append(theTrigFastTrackFinder_eGamma)
 
   for eventAlg in eventAlgs:
@@ -145,10 +136,9 @@ if TriggerFlags.doID:
 
 if TriggerFlags.doCalo:
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-  
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-  algo=T2CaloEgamma_FastAlgo("testFastAlgo")
-  algo.OutputLevel=VERBOSE
+
+  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+  algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
 
   algo.RoIs="EMViewRoIs"
   allViewAlgorithms += algo

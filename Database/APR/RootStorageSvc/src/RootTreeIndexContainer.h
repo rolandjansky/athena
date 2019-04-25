@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
 #ifndef POOL_ROOTTREEINDEXCONTAINER_H
@@ -43,18 +43,17 @@ namespace pool {
       virtual long long int nextRecordId();
 
       /// Find object by object identifier and load it into memory
-      /** @param  call      [IN]   Callback to load data
-      * @param  oid      [OUT]   Object OID
-      * @param  mode      [IN]   Object access mode
-      *
-      * @return Status code indicating success or failure.
-      */
-      virtual DbStatus loadObject(DataCallBack* call,
-                                Token::OID_t& oid,
-                                DbAccessMode  mode);
+      /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
+        * @param  shape     [IN]   Object type
+        * @param  oid      [OUT]   Object OID
+        *
+        * @return Status code indicating success or failure.
+        */
+      virtual DbStatus loadObject( void** ptr, ShapeH shape, 
+                                   Token::OID_t& oid);
       
       /// Commit single entry to container
-      virtual DbStatus writeObject(TransactionStack::value_type& entry);
+      virtual DbStatus writeObject(ActionList::value_type&);
 
       /// Execute Transaction action
       virtual DbStatus transAct(Transaction::Action action);

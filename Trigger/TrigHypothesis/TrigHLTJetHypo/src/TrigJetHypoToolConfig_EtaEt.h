@@ -14,13 +14,13 @@
 
 
 #include "ITrigJetHypoToolConfig.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+#include "./ConditionsDefsMT.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+#include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
@@ -39,7 +39,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
   virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
-  virtual Conditions getConditions() const override;
+  virtual ConditionsMT getConditions() const override;
 
  private:
   
@@ -54,12 +54,12 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
   Gaudi::Property<std::vector<int>>
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
-    
+      
 
 
 
   virtual StatusCode checkVals()  const override;
- 
+
  // Monitored variables...
  /*
   declareMonitoredVariable("NJet", m_njet);

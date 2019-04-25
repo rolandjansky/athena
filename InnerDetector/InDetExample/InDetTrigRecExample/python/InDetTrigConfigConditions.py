@@ -110,8 +110,8 @@ class PixelConditionsServicesSetup:
     ############################
     # DeadMap Conditions Setup #
     ############################
+    PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
     if self.usePixMap:
-      PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
       if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
 
@@ -123,7 +123,8 @@ class PixelConditionsServicesSetup:
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadMap=self.usePixMap,
-                                    ReadDeadMapKey=PixelDeadMapFolder)
+                                    ReadDeadMapKey=PixelDeadMapFolder,
+                                    UseCalibConditions=True)
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
@@ -143,18 +144,12 @@ class PixelConditionsServicesSetup:
     #####################
     # Calibration Setup #
     #####################
-    from AthenaCommon.AppMgr import ServiceMgr,theApp
-    from IOVDbSvc.CondDB import conddb
-    if not self.onlineMode:
-      from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-      PixelCalibSvc = PixelCalibSvc(name=self.instanceName('PixelCalibSvc'))
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+      conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
 
-      if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-
-      if self._print: print PixelCalibSvc
-
-      svcMgr += PixelCalibSvc
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+      condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco",className="DetCondCFloat") 
@@ -200,7 +195,6 @@ class PixelConditionsServicesSetup:
     TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
     ToolSvc += TrigPixelLorentzAngleTool
-
 
   def instanceName(self, toolname):
     return self.prefix+toolname
@@ -531,6 +525,37 @@ class TRTConditionsServicesSetup:
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
+    # Straw status tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                            isGEANT4 = self._isMC)
+    # Alive straws algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
+    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      isGEANT4 = self._isMC)
+    # Active Fraction algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
+    TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+
+
+    # HT probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
+    TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
+
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawCondAlg"):
+        condSeq += TRTStrawCondAlg
+    if not hasattr(condSeq, "TRTActiveCondAlg"):
+        condSeq += TRTActiveCondAlg
+    # Condition algorithms for Pid
+    if not hasattr(condSeq, "TRTHTCondAlg"):
+        condSeq += TRTHTCondAlg
 
 
     from AthenaCommon.GlobalFlags import globalflags
@@ -593,12 +618,6 @@ class TRTConditionsServicesSetup:
     ServiceMgr += InDetTRTConditionsSummaryService
     if self._print:
       print InDetTRTConditionsSummaryService 
-
-    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
-    InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name=self.instanceName("InDetTRTActiveFractionSvc"),
-                                                       #missing link to TRTSummarySvc
-                                                       )
-    ServiceMgr += InDetTRT_ActiveFractionSvc
 
 
   def instanceName(self, toolname):

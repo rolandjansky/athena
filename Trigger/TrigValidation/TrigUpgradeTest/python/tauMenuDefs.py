@@ -1,83 +1,103 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Include import include
-from AthenaCommon.Constants import VERBOSE,DEBUG
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True
-InDetFlags.doPrimaryVertex3DFinding = False
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-#include("InDetRecExample/InDetRecConditionsAccess.py")
-from InDetRecExample.InDetKeys import InDetKeys
-
-# menu components
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-# ===============================================================================================
-#      First step - Calo Roi Updater
-# ===============================================================================================
-
-from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMakerMT_tau
-cellMaker = TrigCaloCellMakerMT_tau("CaloCellMakerTau")
-cellMaker.OutputLevel=DEBUG
-
-from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-clusMaker = TrigCaloClusterMakerMT_topo("CaloClusMakerTopo")
-clusMaker.OutputLevel=VERBOSE
-
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
+# menu components   
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from TrigUpgradeTest.tauDefs import tauCaloSequence
 
-fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMakerTau", OutputLevel=VERBOSE)
-fastCaloViewsMaker.ViewFallThrough = True
-fastCaloViewsMaker.RoIsLink = "initialRoI"
-fastCaloViewsMaker.InViewRoIs = "TAUCaloRoIs"
-fastCaloViewsMaker.Views = "TAUCaloViews"
-fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgsTau"
-cellMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
-CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
-CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
+# ====================================================================================================  
+#    Get MenuSequences
+# ==================================================================================================== 
 
-from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
-CaloRoiUpdater = TrigTauCaloRoiUpdaterMT("CaloRoiUpdater")
-CaloRoiUpdater.OutputLevel  = DEBUG
-CaloRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-CaloRoiUpdater.RoIOutputKey = "RoiForTau"
+def getTauSequence( step ):
+    if step == "calo":
+        return tauCaloMenuSequence("Tau")
+    if step == "track_core":
+        return tauCoreTrackSequence()
+    return None
 
-from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnly
-caloRec = TrigTauRecMerged_TauCaloOnly()
-caloRec.OutputLevel  = DEBUG
-caloRec.RoIInputKey = "RoiForTau"
-caloRec.L1RoIKey    = "TAUCaloRoIs"
-caloRec.clustersKey = "caloclusters"
-caloRec.TrigTauRecOutputKey = "taujets"
+# ===============================================================================================
+#      Fist step - tau calo
+# ===============================================================================================
 
-fastCaloInViewAlgs  = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater,caloRec])
-fastCaloAthSequence = seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
+def tauCaloMenuSequence(name):
+    (sequence, tauCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauCaloSequence,ConfigFlags)
 
-from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlgMT
-fastCaloHypo = TrigTauCaloHypoAlgMT("TauGenericHypoMT")
-fastCaloHypo.OutputLevel = DEBUG
+    # hypo
+    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlgMT
+    theTauCaloHypo = TrigTauCaloHypoAlgMT(name+"L2CaloHypo")
+    theTauCaloHypo.taujets     = sequenceOut
 
-from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromDict
+    from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromDict
 
-def tauCaloSequence():
-    return  MenuSequence( Sequence    = fastCaloAthSequence,
-                          Maker       = fastCaloViewsMaker,
-                          Hypo        = fastCaloHypo,
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = tauCaloViewsMaker,
+                          Hypo        = theTauCaloHypo,
                           HypoToolGen = TrigL2TauHypoToolFromDict )
+
+# ===============================================================================================
+#      Second step - fast tracking
+# ===============================================================================================
+
+def tauCoreTrackSequence():
+
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs("TauCore")
+
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_TauCore
+
+    theFTFCore = TrigFastTrackFinder_TauCore()
+    theFTFCore.isRoI_Seeded = True
+    viewAlgs.append(theFTFCore)
+
+
+    # A simple algorithm to confirm that data has been inherited from parent view
+    # Required to satisfy data dependencies
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier")
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+taujets')]
+    viewAlgs.append(ViewVerify)
+
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
+    TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
+    TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
+    TrackRoiUpdater.RoIOutputKey = "RoiForID2"
+    TrackRoiUpdater.fastTracksKey = "TrigFastTrackFinder_Tracks"
+
+    l2TauViewsMaker = EventViewCreatorAlgorithm("l2TauViewsMaker")
+    l2TauViewsMaker.RoIsLink = "roi" # -||-
+    l2TauViewsMaker.InViewRoIs = "TCoreRoIs" # contract with the fastCalo
+    l2TauViewsMaker.Views = "TAUIDViews"
+    l2TauViewsMaker.ViewFallThrough = True
+
+
+    for viewAlg in viewAlgs:
+       if "RoIs" in viewAlg.properties():
+         viewAlg.RoIs = l2TauViewsMaker.InViewRoIs
+       if "roiCollectionName" in viewAlg.properties():
+         viewAlg.roiCollectionName = l2TauViewsMaker.InViewRoIs
+    TrackRoiUpdater.RoIInputKey = l2TauViewsMaker.InViewRoIs
+
+    tauInViewAlgs = parOR("tauInViewAlgs", viewAlgs + [ TrackRoiUpdater ])
+
+    l2TauViewsMaker.ViewNodeName = "tauInViewAlgs"
+
+    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", eventAlgs + [l2TauViewsMaker, tauInViewAlgs ] )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
+    fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg")
+    fastTrkHypo.trackcollection = TrackRoiUpdater.fastTracksKey
+
+    from TrigTauHypo.TrigTrackPreSelHypoTool import TrigTauTrackHypoToolFromDict
+
+    return  MenuSequence( Sequence    = tauCoreTrkAthSequence,
+                          Maker       = l2TauViewsMaker,
+                          Hypo        = fastTrkHypo,
+                          HypoToolGen = TrigTauTrackHypoToolFromDict )

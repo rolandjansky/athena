@@ -1,12 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Help.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Basic end-user help."""
 
+from __future__ import print_function
+
 import os
-from Logging import logging
+from AthenaCommon.Logging import logging
 
 
 ### data ---------------------------------------------------------------------
@@ -56,27 +58,27 @@ class Help:
       while choice != 'q':
        # handle user choice
          if choice == 'l':        # list available topics
-            print "\nAvailable topics:"
+            print ("\nAvailable topics:")
             for index in range(len(current.sub)):
-               print "      (%d) %s" % (index+1,current.sub[index].title)
-            print
+               print ("      (%d) %s" % (index+1,current.sub[index].title))
+            print()
          elif choice == 'p':      # perform topic action
             if current.action:
                import __main__, StringIO
                for line in StringIO.StringIO( current.action ).readlines():
                   line = line[:-1]
-                  print '==>', line
+                  print ('==>', line)
                   if line:
                      exec( line, __main__.__dict__, __main__.__dict__ )
-               print
+               print()
          elif choice == 'w':
             if current.web:
                os.system( 'lynx %s' % current.web )
          else:
             try:
                current = current.sub[int(choice)-1]
-               print "\n --- " + current.title + " --- \n"
-               print current.text
+               print ("\n --- " + current.title + " --- \n")
+               print (current.text)
             except (IndexError,ValueError):
                pass
 
@@ -87,7 +89,7 @@ class Help:
                 (current.web and ' w for web,' or ''))
             choice = raw_input( text )
          except (KeyboardInterrupt,EOFError):
-            print
+            print()
             break
 
 help = Help()

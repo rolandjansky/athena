@@ -11,7 +11,6 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteeringEvent/HLTResult.h"
-#include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
@@ -44,17 +43,6 @@
 #else
 #   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
 #endif
-
-/// Unique interface ID of the tool that identifies it to the framweork
-static const InterfaceID IID_IRoIBResultByteStreamTool( "RoIBResultByteStreamTool", 2, 0 );
- 
-/**
- * This function is needed by the framework to know what kind of tool
- * this is.
- */
-const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
-  return IID_IRoIBResultByteStreamTool;
-}
  
 ////////////////////////////////////////////////////////////////////////////
 
@@ -157,9 +145,6 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
 
  m_map_TrgNamesToHistGroups["L1_ALFA_ANY_A_EMPTY"] = 11;
  m_map_TrgNamesToHistGroups["L1_ALFA_ANY_C_EMPTY"] = 11;
-
-
-  //declareInterface< RoIBResultByteStreamTool >( this );
 
 }
 

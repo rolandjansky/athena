@@ -92,7 +92,6 @@ namespace Ringer{
       Ringer::RingerReader m_reader;
       
   
-      double      m_etCut;
       double      m_lumiCut;
   
       bool m_useTrack;

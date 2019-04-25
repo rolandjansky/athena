@@ -30,8 +30,7 @@ LArHVScaleCorrCondAlg::LArHVScaleCorrCondAlg(const std::string& name, ISvcLocato
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),	
-    m_electrodeID(nullptr),
-    m_calodetdescrmgr(nullptr)
+    m_electrodeID(nullptr)
 {
 
   m_deltatupdate = 0;
@@ -61,8 +60,6 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
   m_larem_id   = m_calocell_id->em_idHelper();
   m_larhec_id   = m_calocell_id->hec_idHelper();
   m_larfcal_id   = m_calocell_id->fcal_idHelper();
-
-  ATH_CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
   ATH_CHECK(detStore()->retrieve(m_electrodeID));
 
@@ -255,7 +252,10 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 					   std::vector<float> &vScale, const LArHVData *hvdata, 
 					   const ILArHVScaleCorr *onlHVCorr, const LArOnOffIdMapping* cabling) const {
 
-  
+
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   unsigned nChannelsUpdates=0;
 
   HASHRANGEVEC::const_iterator rit=hashranges.begin();
@@ -275,7 +275,7 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 
       unsigned int subdet=99;
       unsigned int layer=99;
-      const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(oflHash);
+      const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(oflHash);
       if (!calodde) {
 	ATH_MSG_WARNING( "No DDE found for cell " << oflHash );
         continue;

@@ -93,7 +93,6 @@ options.setdefault('Extrapolator', atlasExtrapolator)
 from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
 trackToVertex = Reco__TrackToVertex(**options)
 InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
-                                             TrackToVertexTool = trackToVertex,
                                              OutputLevel      = 4,
                                              tracksName       = tracksName )
 
@@ -107,8 +106,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTRatioNoiseMonTool
 InDetSCTRatioNoiseMonTool = SCTRatioNoiseMonTool ( name        = "InDetSCTRatioNoiseMonTool",
-                                                   OutputLevel = 4,
-                                                   doTrigger   = doTriggger )
+                                                   OutputLevel = 4 )
 
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTRatioNoiseMonTool

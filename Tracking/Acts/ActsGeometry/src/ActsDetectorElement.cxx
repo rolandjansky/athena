@@ -59,8 +59,7 @@ ActsDetectorElement::ActsDetectorElement(
 
     m_bounds = rectangleBounds;
 
-    m_surface
-      = std::make_shared<const Acts::PlaneSurface>(rectangleBounds, *this);
+    m_surface = Acts::Surface::makeShared<Acts::PlaneSurface>(rectangleBounds, *this);
 
   } else if (boundsType == Trk::SurfaceBounds::Trapezoid) {
 
@@ -78,8 +77,7 @@ ActsDetectorElement::ActsDetectorElement(
 
     m_bounds = trapezoidBounds;
 
-    m_surface
-      = std::make_shared<const Acts::PlaneSurface>(trapezoidBounds, *this);
+    m_surface = Acts::Surface::makeShared<Acts::PlaneSurface>(trapezoidBounds, *this);
 
   } else {
     throw std::domain_error("ActsDetectorElement does not support this surface type");
@@ -118,8 +116,7 @@ ActsDetectorElement::ActsDetectorElement(
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
   m_bounds = lineBounds;
 
-  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this);
-  m_surface = straw;
+  m_surface = Acts::Surface::makeShared<Acts::StrawSurface>(lineBounds, *this);
 }
 
 IdentityHelper 

@@ -24,7 +24,6 @@
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"

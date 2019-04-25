@@ -4,34 +4,12 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
-from InDetRecExample.InDetKeys import InDetKeys
-
-# provide a minimal menu information
-if globalflags.InputFormat.is_bytestream():
-   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
+from TrigUpgradeTest.InDetSetup import inDetSetup
+inDetSetup()
 
 CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_e5_etcut":  "L1_EM3",
@@ -39,11 +17,11 @@ CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
                      "HLT_2e3_etcut": "L1_2EM3",
                      "HLT_e3_e5_etcut":"L1_2EM3"}
 
-topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
-topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
 
  
 
@@ -59,11 +37,11 @@ def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
    __l1RoIDecisions = "RerunL1EM" if rerun else "L1EM"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
+   
+   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+   clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )   
 
-   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-   #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
-   clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
-   clusterMaker.OutputLevel=VERBOSE
+
    clusterMaker.ClustersName=clustersKey
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
@@ -71,9 +49,7 @@ def createFastCaloSequence(rerun=False):
    #from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
    #trigL2CaloRingerFexMT = init_ringer()
    #trigL2CaloRingerFexMT.ClustersKey = clusterMaker.ClustersName
-   #trigL2CaloRingerFexMT.OutputLevel = DEBUG    
-   
-   
+
    #fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker, trigL2CaloRingerFexMT ])
    fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
    
@@ -82,9 +58,8 @@ def createFastCaloSequence(rerun=False):
    filterL1RoIsAlg.Input = [__l1RoIDecisions]
    filterL1RoIsAlg.Output = ["Filtered"+__l1RoIDecisions]
    filterL1RoIsAlg.Chains = testChains
-   filterL1RoIsAlg.OutputLevel = DEBUG
 
-   fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
+   fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker")
    fastCaloViewsMaker.ViewFallThrough = True
    fastCaloViewsMaker.InputMakerInputDecisions =  [ __forViewDecsions ]
    fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -97,17 +72,12 @@ def createFastCaloSequence(rerun=False):
    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
    fastCaloHypo = TrigL2CaloHypoAlgMT( __prefix+"L2CaloHypo" )
-   fastCaloHypo.OutputLevel = DEBUG
    fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions[0] #   __l1RoIDecisions
 #   fastCaloHypo.Views = fastCaloViewsMaker.Views
    fastCaloHypo.CaloClusters = clusterMaker.ClustersName
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
    fastCaloHypo.HypoOutputDecisions = __prefix+"EgammaCaloDecisions"
    fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c,c ) for c in testChains ]
-
-   for t in fastCaloHypo.HypoTools:
-      t.OutputLevel = DEBUG
-
    fastCaloSequence = seqAND( __prefix+"fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, fastCaloHypo ])
    #if rerun: 
    #   return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )
@@ -129,7 +99,6 @@ viewAlgs.append(theFTF)
 # Required to satisfy data dependencies
 ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
 ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+clustersKey)]
-ViewVerify.OutputLevel = DEBUG
 viewAlgs.append(ViewVerify)
 
 TrackParticlesName = "HLT_xAOD_TrackParticleContainer_L2ElectronTracks"
@@ -143,7 +112,6 @@ theElectronFex= L2ElectronFex_1()
 theElectronFex.TrigEMClusterName = clustersKey
 theElectronFex.TrackParticlesName = TrackParticlesName
 theElectronFex.ElectronsName=  "HLT_xAOD__TrigElectronContainer_L2ElectronFex" #"Electrons"
-theElectronFex.OutputLevel=VERBOSE
 
 
 
@@ -152,10 +120,9 @@ caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").HypoOutputDecisi
 filterCaloRoIsAlg.Input = [caloHypoDecisions]
 filterCaloRoIsAlg.Output = ["Filtered" + caloHypoDecisions]
 filterCaloRoIsAlg.Chains = testChains
-filterCaloRoIsAlg.OutputLevel = DEBUG
 
 
-l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
 # topSequence += l2ElectronViewsMaker
 l2ElectronViewsMaker.InputMakerInputDecisions = [ filterCaloRoIsAlg.Output[0] ] # output of L2CaloHypo
 l2ElectronViewsMaker.RoIsLink = "roi" # -||-
@@ -183,16 +150,8 @@ theElectronHypo.RunInView=True
 theElectronHypo.HypoInputDecisions = "L2ElectronLinks"
 theElectronHypo.HypoOutputDecisions = "ElectronL2Decisions"
 theElectronHypo.Electrons = theElectronFex.ElectronsName
-
-theElectronHypo.OutputLevel = VERBOSE
-print 'kkk', theElectronHypo
-
 theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c,c ) for c in testChains ]
 
-for t in theElectronHypo.HypoTools:
-  t.OutputLevel = VERBOSE
-# topSequence += theElectronHypo
-# InDetCacheCreatorTrigViews,
 electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs, theElectronHypo ] )
 egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence ] )
 
@@ -204,10 +163,9 @@ electronHypoDecisions = findAlgorithm(egammaIDStep, "TrigL2ElectronHypoAlgMT").H
 filterL2ElectronRoIsAlg.Input = [electronHypoDecisions]
 filterL2ElectronRoIsAlg.Output = ["Filtered" + electronHypoDecisions]
 filterL2ElectronRoIsAlg.Chains = testChains
-filterL2ElectronRoIsAlg.OutputLevel = DEBUG
 
 
-efClusterViewsMaker = EventViewCreatorAlgorithm("efClusterViewsMaker", OutputLevel=DEBUG)
+efClusterViewsMaker = EventViewCreatorAlgorithm("efClusterViewsMaker")
 efClusterViewsMaker.InputMakerInputDecisions = [ filterL2ElectronRoIsAlg.Output[0] ] # output of L2CaloHypo
 efClusterViewsMaker.RoIsLink = "roi" # -||-
 efClusterViewsMaker.InViewRoIs = "CaloRoIs" # contract with the fastCalo
@@ -230,7 +188,6 @@ from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
 summaryStep0.InputDecision = "L1DecoderSummary"
 summaryStep0.FinalDecisions = [ caloHypoDecisions ]
-summaryStep0.OutputLevel = DEBUG
 
 
 step0 = parOR("step0", [ egammaCaloStep, summaryStep0 ] )
@@ -247,29 +204,35 @@ summary.InputDecision = "L1DecoderSummary"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTEDMCreatorAlg
-egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
-egammaViewsMerger.TrigCompositeContainer = [ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
+egammaCaloViewsMerger = HLTEDMCreator("egammaCaloViewsMerger", FixLinks=True)
+egammaCaloViewsMerger.TrigCompositeContainer = ["EgammaCaloDecisions"]
 
-egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
-egammaViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
+egammaCaloViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
+egammaCaloViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
+egammaCaloViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
-# this merging directive causes the issue
-egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
-egammaViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
+#[ "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
-egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
-egammaViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
-egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
+egammaElectronViewsMerger = HLTEDMCreator("egammaelectronViewsMerger", FixLinks=True)
+egammaElectronViewsMerger.TrigCompositeContainer = ["ElectronL2Decisions"]
+egammaElectronViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaElectronViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
+egammaElectronViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
+egammaElectronViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaElectronViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
+egammaElectronViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
 
-egammaViewsMerger.OutputLevel = VERBOSE
 
-svcMgr.StoreGateSvc.OutputLevel = INFO
+decisionsNotPointingtoViews = [ "filterCaloRoIsAlg",  "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "L1DecoderSummary", "JRoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
+
+gapsFiller =  HLTEDMCreator("GapsFiller") # no links fixing
+gapsFiller.TrigCompositeContainer = decisionsNotPointingtoViews
 
 
 edmMakerAlg = HLTEDMCreatorAlg("EDMMaker")
-edmMakerAlg.OutputTools = [ egammaViewsMerger ]
+edmMakerAlg.OutputTools = [ egammaCaloViewsMerger, egammaElectronViewsMerger, gapsFiller ]
+
+
 
 
 step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
@@ -287,9 +250,9 @@ steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = list( set( topSequence.L1DecoderTest.ChainToCTPMapping.keys() ) )
+mon.ChainsList = list( set( topSequence.L1Decoder.ChainToCTPMapping.keys() ) )
 #mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-mon.OutputLevel = DEBUG
+
 
 step1Collector = DecisionCollectorTool("Step1Collector")
 step1Collector.Decisions = ["EgammaCaloDecisions"]
@@ -309,9 +272,12 @@ topSequence.remove( StreamESD )
 def addTC(name):   
    StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
 
-for tc in egammaViewsMerger.TrigCompositeContainer:
-   addTC( "remap_" + tc )
+     
+for tc in decisionsNotPointingtoViews + ["EgammaCaloDecisions", "ElectronL2Decisions"]:
+   addTC( tc )
 
+      
+   
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
                         "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
@@ -322,7 +288,6 @@ StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronCo
                         "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
 StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
-
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#EMRoIs" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#JRoIs" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
@@ -338,8 +303,6 @@ from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, H
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
-summMaker.OutputLevel=DEBUG
-print summMaker
 
 ################################################################################
 # test online HLT Result maker
@@ -347,36 +310,32 @@ print summMaker
 from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
 
 serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
-serialiser.OutputLevel=VERBOSE
 serialiser.addCollectionListToMainResult([
-   "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-   "xAOD::TrigCompositeAuxContainer_v2#remap_EgammaCaloDecisionsAux.",
+   "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+   "xAOD::TrigCompositeAuxContainer_v2#EgammaCaloDecisionsAux.remap_linkCollKeys.remap_linkCollIndices",
+   "xAOD::TrigCompositeContainer_v1#ElectronL2Decisions",
+   "xAOD::TrigCompositeAuxContainer_v2#ElectronL2DecisionsAux.remap_linkCollKeys.remap_linkCollIndices",
    "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
    "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
    "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
    "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ])
 
-print serialiser
-
-
 
 streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
 
 stmaker = StreamTagMakerTool()
-stmaker.OutputLevel = DEBUG
 stmaker.ChainDecisions = "HLTSummary"
 stmaker.ChainToStream = dict( [(c, streamPhysicsMain) for c in testChains ] )
 stmaker.ChainToStream["HLT_e5_etcut"] = streamPhotonPerf
 bitsmaker = TriggerBitsMakerTool()
 bitsmaker.ChainDecisions = "HLTSummary"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
-bitsmaker.OutputLevel = DEBUG
 
 hltResultMakerTool =  HLTResultMTMaker("MKTool")
 hltResultMakerTool.MakerTools = [ stmaker, bitsmaker, serialiser ]
-hltResultMakerTool.OutputLevel = DEBUG
+hltResultMakerTool.OutputLevel = DEBUG    # want to monitor EDM size
 
 hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
@@ -398,15 +357,10 @@ hltResultMakerAlg.ResultMaker = hltResultMakerTool
 from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
 deserialiser = TriggerEDMDeserialiserAlg()
 deserialiser.Prefix="SERIALISED_"
-deserialiser.OutputLevel=DEBUG
 
 # # add prefix + remove version to class name
 l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
-StreamESD.ItemList += l
-
-
-
-
+#StreamESD.ItemList += l
 
 
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
@@ -416,15 +370,11 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames = ["ROIB::RoIBResult/RoIBResult", 
 
 from ByteStreamCnvSvc import WriteByteStream
 streamBS = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
-streamBS.OutputLevel=DEBUG
-ServiceMgr.ByteStreamCnvSvc.OutputLevel = VERBOSE
 ServiceMgr.ByteStreamCnvSvc.IsSimulation = False
 ServiceMgr.ByteStreamCnvSvc.InitCnvs += ["HLT::HLTResultMT"]
 streamBS.ItemList += ["HLT::HLTResultMT#HLTResultMT"]
 
 svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-svcMgr.ByteStreamEventStorageOutputSvc.OutputLevel = VERBOSE
-
 
 
 
@@ -462,7 +412,7 @@ ServiceMgr += AuditorSvc()
 
 # This triggers the L1 decoder to signal the start of processing, 
 # and the HLT summary alg to signal end of processing and handle the writing of data.
-topSequence.L1DecoderTest.EnableCostMonitoring = True
+topSequence.L1Decoder.EnableCostMonitoring = True
 summMaker.EnableCostMonitoring = True
 
 # Write out the data at the end
@@ -475,9 +425,3 @@ from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
 print("Dump of serviceMgr")
 dumpSequence(ServiceMgr)
-
-
-
-
-#print theElectronFex
-#print ViewVerify

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes:
@@ -14,9 +14,7 @@
 #include "TrigT1Result/RoIBResult.h"
 
 // Gaudi includes:
-#include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 // TDAQ includes:
 #include "eformat/SourceIdentifier.h"
@@ -26,17 +24,7 @@
 #include <sstream>
 
 using DataType = OFFLINE_FRAGMENTS_NAMESPACE::PointerType;
-
-/// Unique interface ID of the tool that identifies it to the framweork
-static const InterfaceID IID_IRoIBResultByteStreamTool( "RoIBResultByteStreamTool", 2, 0 );
-
-/**
- * This function is needed by the framework to know what kind of tool
- * this is.
- */
-const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
-  return IID_IRoIBResultByteStreamTool;
-}
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /**
  * The constructor takes care of correctly constructing the base class and
@@ -44,18 +32,7 @@ const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
  */
 RoIBResultByteStreamTool::RoIBResultByteStreamTool( const std::string& type, const std::string& name,
                                                     const IInterface* parent )
-  : AthAlgTool( type, name, parent ) {
-
-  declareInterface< RoIBResultByteStreamTool >( this );
-
-}
-
-/**
- * The destructor doesn't do anything.
- */
-RoIBResultByteStreamTool::~RoIBResultByteStreamTool() {
-
-}
+  : AthAlgTool( type, name, parent ) {}
 
 /**
  * @brief Initialise the tool
@@ -63,6 +40,8 @@ RoIBResultByteStreamTool::~RoIBResultByteStreamTool() {
  * Fill the vector of configured ROB IDs and print the module IDs to debug message stream
  */
 StatusCode RoIBResultByteStreamTool::initialize() {
+  ATH_MSG_DEBUG("Initialising RoIBResultByteStreamTool");
+
   std::vector<eformat::helper::SourceIdentifier> configuredROBSIDs;
   std::ostringstream str;
   ATH_MSG_DEBUG("Configured module IDs for:");
@@ -105,14 +84,6 @@ StatusCode RoIBResultByteStreamTool::initialize() {
   }
 
   return StatusCode::SUCCESS;
-}
-
-/**
- * The function finalises the base class.
- */
-StatusCode RoIBResultByteStreamTool::finalize() {
-
-  return AlgTool::finalize();
 }
 
 /**
@@ -218,9 +189,9 @@ StatusCode RoIBResultByteStreamTool::convert( ROIB::RoIBResult* result, RawEvent
  *
  * This is called from the decoder algorithm RoIBResultByteStreamDecoderAlg
  */
-StatusCode RoIBResultByteStreamTool::convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+StatusCode RoIBResultByteStreamTool::convert(const std::vector<const ROBFragment*>& vrobf,
                                              ROIB::RoIBResult& resultToFill) const {
-  ATH_MSG_DEBUG("executing convert() from ROBFragments to RDO");
+  ATH_MSG_DEBUG("Executing convert() from ROBFragments to RDO");
 
   // Create all RDOs
   ROIB::CTPResult cTPResult;
@@ -237,137 +208,149 @@ StatusCode RoIBResultByteStreamTool::convert(const std::vector<const OFFLINE_FRA
   bool l1TopoFound = false;
 
   // Loop over ROB fragments
-  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* p_robf : vrobf) {
-    const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robf = *p_robf;
+  for (const ROBFragment* p_robf : vrobf) {
+    const ROBFragment& robf = *p_robf;
     eformat::helper::SourceIdentifier rodSID(robf.rod_source_id());
     eformat::SubDetector rodSubdetId = rodSID.subdetector_id();
     uint16_t rodModuleId = rodSID.module_id();
 
-    // -------------------------------------------------------------------------
-    // CTP
-    // -------------------------------------------------------------------------
-    if (rodSubdetId == eformat::TDAQ_CTP) {
-      // Check if the current ROD module ID matches the configured CTP module ID.
-      // Accept also ctpModuleId=0 to catch the early data with the old CTP firmware, which assigns 0x770000 to both
-      // DAQ and LVL2 ROD fragment - for this data we readout always multiple bunches for the DAQ ROD, therefore
-      // rodFragSize=46 should identify the LVL2 ROD fragment
-      if (rodModuleId != m_ctpModuleID && rodModuleId != 0) continue;
-      if (rodModuleId == 0 && robf.rod_fragment_size_word() != 46) continue;
+    switch (rodSubdetId) {
+      // -----------------------------------------------------------------------
+      // CTP
+      // -----------------------------------------------------------------------
+      case eformat::TDAQ_CTP: {
+        // Check if the current ROD module ID matches the configured CTP module ID.
+        // Accept also ctpModuleId=0 to catch the early data with the old CTP firmware, which assigns 0x770000 to both
+        // DAQ and LVL2 ROD fragment - for this data we readout always multiple bunches for the DAQ ROD, therefore
+        // rodFragSize=46 should identify the LVL2 ROD fragment
+        if (rodModuleId != m_ctpModuleID && rodModuleId != 0) continue;
+        if (rodModuleId == 0 && robf.rod_fragment_size_word() != 46) continue;
 
-      // Flag as found
-      cTPFound = true;
-      ATH_MSG_DEBUG("   Found CTP ROB with source ID " << MSG::hex << rodSID.code() << MSG::dec);
+        // Flag as found
+        cTPFound = true;
+        ATH_MSG_DEBUG("   Found CTP ROD with source ID " << MSG::hex << rodSID.code() << MSG::dec);
 
-      // Extract the data
-      DataStatus status;
-      ROIB::Header header = roibHeader(robf, status);
-      std::vector<ROIB::CTPRoI> content = roibContent<ROIB::CTPRoI>(robf);
-      ROIB::Trailer trailer = roibTrailer(status, content.size());
+        // Extract the data
+        DataStatus status;
+        ROIB::Header header = roibHeader(robf, status);
+        std::vector<ROIB::CTPRoI> content = roibContent<ROIB::CTPRoI>(robf);
+        ROIB::Trailer trailer = roibTrailer(status, content.size());
 
-      // Extract the CTP version number
-      const uint32_t* rod;
-      robf.rod_start(rod);
-      unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift) & CTPdataformat::CTPFormatVersionMask);
+        // Extract the CTP version number
+        const uint32_t* rod;
+        robf.rod_start(rod);
+        unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift) & CTPdataformat::CTPFormatVersionMask);
 
-      // Create CTPResult object
-      cTPResult = ROIB::CTPResult(ctpVersionNumber, header, trailer, content);
-    }
+        // Create CTPResult object
+        cTPResult = ROIB::CTPResult(ctpVersionNumber, header, trailer, content);
+        break;
+      }
 
-    // -------------------------------------------------------------------------
-    // MUCTPI
-    // -------------------------------------------------------------------------
-    if (rodSubdetId == eformat::TDAQ_MUON_CTP_INTERFACE) {
-      // Check if the current ROD module ID matches the configured MuCTPI module ID
-      if (rodModuleId != m_muCTPIModuleID) continue;
+      // -----------------------------------------------------------------------
+      // MUCTPI
+      // -----------------------------------------------------------------------
+      case eformat::TDAQ_MUON_CTP_INTERFACE: {
+        // Check if the current ROD module ID matches the configured MuCTPI module ID
+        if (rodModuleId != m_muCTPIModuleID) continue;
 
-      // Flag as found
-      muCTPIFound = true;
-      ATH_MSG_DEBUG("   Found MuCTPI ROB with source ID " << MSG::hex << rodSID.code() << MSG::dec);
+        // Flag as found
+        muCTPIFound = true;
+        ATH_MSG_DEBUG("   Found MuCTPI ROD with source ID " << MSG::hex << rodSID.code() << MSG::dec);
 
-      // Extract the data
-      DataStatus status;
-      ROIB::Header header = roibHeader(robf, status);
-      std::vector<ROIB::MuCTPIRoI> content = roibContent<ROIB::MuCTPIRoI>(robf);
-      ROIB::Trailer trailer = roibTrailer(status, content.size());
+        // Extract the data
+        DataStatus status;
+        ROIB::Header header = roibHeader(robf, status);
+        std::vector<ROIB::MuCTPIRoI> content = roibContent<ROIB::MuCTPIRoI>(robf);
+        ROIB::Trailer trailer = roibTrailer(status, content.size());
 
-      // Create MuCTPIResult object
-      muCTPIResult = ROIB::MuCTPIResult(header, trailer, content);
-    }
+        // Create MuCTPIResult object
+        muCTPIResult = ROIB::MuCTPIResult(header, trailer, content);
+        break;
+      }
 
-    // -------------------------------------------------------------------------
-    // Jet/Energy
-    // -------------------------------------------------------------------------
-    if (rodSubdetId == eformat::TDAQ_CALO_JET_PROC_ROI) {
-      // Check if the current ROD module ID matches the configured Jet/Energy module IDs
-      auto it = std::find(m_jetModuleID.begin(), m_jetModuleID.end(), rodModuleId);
-      if (it == m_jetModuleID.end()) continue;
-      size_t index = static_cast<size_t>(std::distance(m_jetModuleID.begin(), it));
+      // -----------------------------------------------------------------------
+      // Jet/Energy
+      // -----------------------------------------------------------------------
+      case eformat::TDAQ_CALO_JET_PROC_ROI: {
+        // Check if the current ROD module ID matches the configured Jet/Energy module IDs
+        auto it = std::find(m_jetModuleID.begin(), m_jetModuleID.end(), rodModuleId);
+        if (it == m_jetModuleID.end()) continue;
+        size_t index = static_cast<size_t>(std::distance(m_jetModuleID.begin(), it));
 
-      // Flag as found
-      jetEnergyFound[index] = true;
-      ATH_MSG_DEBUG("   Found Jet/Energy ROB with source ID " << MSG::hex << rodSID.code() << MSG::dec);
+        // Flag as found
+        jetEnergyFound[index] = true;
+        ATH_MSG_DEBUG("   Found Jet/Energy ROD with source ID " << MSG::hex << rodSID.code() << MSG::dec);
 
-      // Extract the data
-      DataStatus status;
-      ROIB::Header header = roibHeader(robf, status);
-      std::vector<ROIB::JetEnergyRoI> content = roibContent<ROIB::JetEnergyRoI>(robf);
-      ROIB::Trailer trailer = roibTrailer(status, content.size());
+        // Extract the data
+        DataStatus status;
+        ROIB::Header header = roibHeader(robf, status);
+        std::vector<ROIB::JetEnergyRoI> content = roibContent<ROIB::JetEnergyRoI>(robf);
+        ROIB::Trailer trailer = roibTrailer(status, content.size());
 
-      // Create JetEnergyResult object
-      jetEnergyResult[index] = ROIB::JetEnergyResult(header, trailer, content);
-    }
+        // Create JetEnergyResult object
+        jetEnergyResult[index] = ROIB::JetEnergyResult(header, trailer, content);
+        break;
+      }
 
-    // -------------------------------------------------------------------------
-    // EM/Tau
-    // -------------------------------------------------------------------------
-    if (rodSubdetId == eformat::TDAQ_CALO_CLUSTER_PROC_ROI) {
-      // Check if the current ROD module ID matches the configured EM/Tau module IDs
-      auto it = std::find(m_emModuleID.begin(), m_emModuleID.end(), rodModuleId);
-      if (it == m_emModuleID.end()) continue;
-      size_t index = static_cast<size_t>(std::distance(m_emModuleID.begin(), it));
+      // -----------------------------------------------------------------------
+      // EM/Tau
+      // -----------------------------------------------------------------------
+      case eformat::TDAQ_CALO_CLUSTER_PROC_ROI: {
+        // Check if the current ROD module ID matches the configured EM/Tau module IDs
+        auto it = std::find(m_emModuleID.begin(), m_emModuleID.end(), rodModuleId);
+        if (it == m_emModuleID.end()) continue;
+        size_t index = static_cast<size_t>(std::distance(m_emModuleID.begin(), it));
 
-      // Flag as found
-      eMTauFound[index] = true;
-      ATH_MSG_DEBUG("   Found EM/Tau ROB with source ID " << MSG::hex << rodSID.code() << MSG::dec);
+        // Flag as found
+        eMTauFound[index] = true;
+        ATH_MSG_DEBUG("   Found EM/Tau ROD with source ID " << MSG::hex << rodSID.code() << MSG::dec);
 
-      // Extract the data
-      DataStatus status;
-      ROIB::Header header = roibHeader(robf, status);
-      std::vector<ROIB::EMTauRoI> content = roibContent<ROIB::EMTauRoI>(robf);
-      ROIB::Trailer trailer = roibTrailer(status, content.size());
+        // Extract the data
+        DataStatus status;
+        ROIB::Header header = roibHeader(robf, status);
+        std::vector<ROIB::EMTauRoI> content = roibContent<ROIB::EMTauRoI>(robf);
+        ROIB::Trailer trailer = roibTrailer(status, content.size());
 
-      // Create EMTauResult object
-      eMTauResult[index] = ROIB::EMTauResult(header, trailer, content);
-    }
+        // Create EMTauResult object
+        eMTauResult[index] = ROIB::EMTauResult(header, trailer, content);
+        break;
+      }
 
-    // -------------------------------------------------------------------------
-    // L1Topo
-    // -------------------------------------------------------------------------
-    if (rodSubdetId == eformat::TDAQ_CALO_TOPO_PROC) {
-      // Check if the current ROD module ID matches the configured L1Topo module IDs
-      auto it = std::find(m_l1TopoModuleID.begin(), m_l1TopoModuleID.end(), rodModuleId);
-      if (it == m_l1TopoModuleID.end()) continue;
+      // -----------------------------------------------------------------------
+      // L1Topo
+      // -----------------------------------------------------------------------
+      case eformat::TDAQ_CALO_TOPO_PROC: {
+        // Check if the current ROD module ID matches the configured L1Topo module IDs
+        auto it = std::find(m_l1TopoModuleID.begin(), m_l1TopoModuleID.end(), rodModuleId);
+        if (it == m_l1TopoModuleID.end()) continue;
 
-      // Flag as found
-      l1TopoFound = true;
-      ATH_MSG_DEBUG("   Found L1Topo ROB with source ID " << MSG::hex << rodSID.code() << MSG::dec);
+        // Flag as found
+        l1TopoFound = true;
+        ATH_MSG_DEBUG("   Found L1Topo ROD with source ID " << MSG::hex << rodSID.code() << MSG::dec);
 
-      // Extract the data
-      DataStatus status;
-      ROIB::Header header = roibHeader(robf, status);
-      L1TopoRDO content = l1topoContent(robf);
-      ROIB::Trailer trailer = roibTrailer(status, content.getDataWords().size());
+        // Extract the data
+        DataStatus status;
+        ROIB::Header header = roibHeader(robf, status);
+        L1TopoRDO content = l1topoContent(robf);
+        ROIB::Trailer trailer = roibTrailer(status, content.getDataWords().size());
 
-      // Set status words
-      content.setStatusWords({status.status_word, status.status_info});
+        // Set status words
+        content.setStatusWords({status.status_word, status.status_info});
 
-      // Flag errors in RDO
-      if (status.status_word != 0) content.setError(L1Topo::Error::SLINK_STATUS_ERROR);
-      if (status.rob_error) content.setError(L1Topo::Error::ROB_ERROR);
-      if (status.rod_error) content.setError(L1Topo::Error::ROD_ERROR);
+        // Flag errors in RDO
+        if (status.status_word != 0) content.setError(L1Topo::Error::SLINK_STATUS_ERROR);
+        if (status.rob_error) content.setError(L1Topo::Error::ROB_ERROR);
+        if (status.rod_error) content.setError(L1Topo::Error::ROD_ERROR);
 
-      // Create L1TopoResult object
-      l1TopoResult.push_back(ROIB::L1TopoResult(header, trailer, content));
+        // Create L1TopoResult object
+        l1TopoResult.push_back(ROIB::L1TopoResult(header, trailer, content));
+        break;
+      }
+
+      default: {
+        ATH_MSG_DEBUG("Skipping ROD with SubDetID " << rodSID.human_detector());
+        break;
+      }
     }
 
   } // End of loop over all ROB fragments
@@ -389,7 +372,7 @@ StatusCode RoIBResultByteStreamTool::convert(const std::vector<const OFFLINE_FRA
   return StatusCode::SUCCESS;
 }
 
-ROIB::Header RoIBResultByteStreamTool::roibHeader(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& rob,
+ROIB::Header RoIBResultByteStreamTool::roibHeader(const ROBFragment& rob,
                                                   DataStatus& dataStatus) const {
   // Get format version and event number of fragment
   uint32_t formatVersion = rob.rod_version();
@@ -456,7 +439,7 @@ ROIB::Trailer RoIBResultByteStreamTool::roibTrailer(const DataStatus& dataStatus
   return ROIB::Trailer(words);
 }
 
-template<typename RoIType> std::vector<RoIType> RoIBResultByteStreamTool::roibContent(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& rob) const {
+template<typename RoIType> std::vector<RoIType> RoIBResultByteStreamTool::roibContent(const ROBFragment& rob) const {
   uint32_t ndata = rob.rod_ndata();
   DataType data;
   rob.rod_data(data);
@@ -472,7 +455,7 @@ template<typename RoIType> std::vector<RoIType> RoIBResultByteStreamTool::roibCo
   return content;
 }
 
-L1TopoRDO RoIBResultByteStreamTool::l1topoContent(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& rob) const {
+L1TopoRDO RoIBResultByteStreamTool::l1topoContent(const ROBFragment& rob) const {
   uint32_t ndata = rob.rod_ndata();
   DataType data;
   rob.rod_data(data);

@@ -99,7 +99,6 @@ private:
 
   const CaloCell_ID* m_cellIdHelper;
   const LArFCAL_ID* m_larFCalId;
-  const CaloDetDescrManager* m_theManager;
 
   LArFCalTowerStore m_cellStore;
 };

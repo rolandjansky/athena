@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT, TrigMissingETHypoToolMT
 
@@ -80,7 +80,7 @@ def TrigMETPufitHypoToolFromName(name, conf):
 def TrigMETPufitHypoToolFromName(name, conf):
     return MissingETHypoToolMT(name, alg='pufit')
 
-def TrigMETMhtHypoToolFromName(name, conf):
+def TrigMETJetHypoToolFromName(name, conf):
     return MissingETHypoToolMT(name, alg='mht')
 
 

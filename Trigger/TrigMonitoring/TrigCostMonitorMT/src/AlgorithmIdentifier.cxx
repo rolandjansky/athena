@@ -11,7 +11,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 AlgorithmIdentifier::AlgorithmIdentifier() :
-  m_context(nullptr),
+  m_context(),
   m_msg(nullptr),
   m_caller(""), 
   m_store(""),
@@ -22,7 +22,7 @@ AlgorithmIdentifier::AlgorithmIdentifier() :
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 AlgorithmIdentifier::AlgorithmIdentifier(const EventContext& context, const std::string& caller, const std::string& storeName, MsgStream& msg, const int16_t viewID) :
-  m_context(&context),
+  m_context(context),
   m_msg(&msg),
   m_caller(caller), 
   m_store(storeName),
@@ -45,8 +45,9 @@ TrigConf::HLTHash AlgorithmIdentifier::storeHash() const {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode AlgorithmIdentifier::isValid() const {
-  if (m_context == nullptr || m_msg == nullptr) return StatusCode::FAILURE;
-  if (m_hash == 0) return StatusCode::FAILURE;
+  if (!m_context.valid() || !m_msg || !m_hash) {
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 

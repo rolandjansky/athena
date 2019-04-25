@@ -18,7 +18,16 @@
 
 namespace xAOD {
 
-  const std::string TrigComposite_v1::s_collectionSuffix = "__COLL";
+  const std::string TrigComposite_v1::s_collectionSuffix{"__COLL"};
+
+  // Note: These definitions shadow those in TrigCompositeUtils.py
+  const std::string TrigComposite_v1::s_initialRoIString{"initialRoI"};
+  const std::string TrigComposite_v1::s_initialRecRoIString{"initialRecRoI"};
+  const std::string TrigComposite_v1::s_roiString{"roi"};
+  const std::string TrigComposite_v1::s_viewString{"view"};
+  const std::string TrigComposite_v1::s_featureString{"feature"};
+  const std::string TrigComposite_v1::s_seedString{"seed"};
+
   bool TrigComposite_v1::s_throwOnCopyError = false; 
 
   TrigComposite_v1::TrigComposite_v1() {
@@ -69,10 +78,6 @@ namespace xAOD {
     if (newName == "") {
       newName = name;
     }
-    if (newName == "self") {
-      if (s_throwOnCopyError) throw std::runtime_error("Cannot copy the 'self' link in a logical way.");
-      return false;
-    }
     bool didCopy = false;
     // Check for the existence of single link
     std::vector<std::string>::const_iterator locationIt;
@@ -100,10 +105,6 @@ namespace xAOD {
     if (newName == "") {
       newName = name;
     }
-    if (newName == "self") {
-      if (s_throwOnCopyError) throw std::runtime_error("It does not make sense for the 'self' link to be in a collection. There can be only one.");
-      return false;
-    }
     const std::string mangledName = name + s_collectionSuffix;
     const std::string mangledNewName = newName + s_collectionSuffix;
     if (other.hasObjectLink(mangledName)) {
@@ -130,8 +131,6 @@ namespace xAOD {
   bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {
     bool didCopy = false;
     for (const std::string& name : other.linkColNames()) {
-      // Cannot copy any 'self' link(s) as *this does not know its own location in its parent container
-      if (name == "self" || name == "self" + s_collectionSuffix) continue;
       // Check we don't have one (or more) entries with this raw name (raw = might be mangled).
       if (this->hasObjectLink(name)) continue;
       // Check if the link is for a single object or collection of objects by looking for the mangled suffix

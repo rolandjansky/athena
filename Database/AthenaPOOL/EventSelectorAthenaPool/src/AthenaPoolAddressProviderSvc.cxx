@@ -20,6 +20,8 @@
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/IClassIDSvc.h"
 
 #include <vector>
@@ -33,7 +35,7 @@ AthenaPoolAddressProviderSvc::AthenaPoolAddressProviderSvc(const std::string& na
 	m_guid() {
    declareProperty("DataHeaderKey",       m_dataHeaderKey = "EventSelector");
    declareProperty("DataHeaderIterator",  m_dataHeaderIterator = true);
-   declareProperty("SecondaryAttrListKey",    m_secondaryAttrListKey = "");
+   declareProperty("AttributeListKey",    m_attrListKey = "");
 }
 //________________________________________________________________________________
 AthenaPoolAddressProviderSvc::~AthenaPoolAddressProviderSvc() {
@@ -93,12 +95,8 @@ StatusCode AthenaPoolAddressProviderSvc::preLoadAddresses(StoreID::type storeID,
       ATH_MSG_ERROR("Cannot get DetectorStore.");
       return(StatusCode::FAILURE);
    }
-   const DataHandle<DataHeader> dataHeader;
-   if (!detectorStoreSvc->contains<DataHeader>("CondProxyProvider")) {
-      ATH_MSG_DEBUG("Cannot find DataHeader in DetectorStore.");
-      return(StatusCode::SUCCESS);
-   }
-   if (!detectorStoreSvc->retrieve(dataHeader, "CondProxyProvider").isSuccess()) {
+   SG::ReadHandle<DataHeader> dataHeader("CondProxyProvider", detectorStoreSvc->name());
+   if (!dataHeader.isValid()) {
       ATH_MSG_DEBUG("Cannot retrieve DataHeader from DetectorStore.");
       return(StatusCode::SUCCESS);
    }
@@ -127,6 +125,7 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
 
    Guid thisFile = Guid::null();
    long int oid2 = 0L;
+   const DataHeader* dataHeader = nullptr;
    if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
       const SG::DataProxy* dhProxy = eventStore()->proxy(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey.value());
       if (dhProxy != nullptr && dhProxy->address() != nullptr) {
@@ -135,42 +134,40 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
          thisFile = token.dbID();
          oid2 = token.oid().second;
       }
+      SG::ReadHandle<DataHeader> copiedDataHeader(thisFile.toString(), m_metaDataStore->name());
+      if (copiedDataHeader.isValid()) {
+         dataHeader = copiedDataHeader.cptr();
+      }
    }
-   const DataHandle<DataHeader> dataHeader;
-   if (thisFile == Guid::null() || oid2 == 0L || thisFile != m_guid) { // New file (or reading DataHeader)
-      if (!eventStore()->retrieve(dataHeader, m_dataHeaderKey.value()).isSuccess() || !dataHeader.isValid()) {
+   if (dataHeader == nullptr) { // New file (or reading DataHeader)
+      SG::ReadHandle<DataHeader> eventDataHeader(m_dataHeaderKey.value(), eventStore()->name());
+      if (!eventDataHeader.isValid()) {
          ATH_MSG_ERROR("Cannot retrieve DataHeader from StoreGate: " << m_dataHeaderKey);
          return(StatusCode::FAILURE);
       }
+      dataHeader = eventDataHeader.cptr();
       if (m_dataHeaderIterator) {
-         const DataHeader* dataHeaderCopy = new DataHeader(*dataHeader.cptr());
-         if (m_metaDataStore->record(dataHeaderCopy, thisFile.toString()).isFailure()) {
+         std::unique_ptr<DataHeader> dataHeaderCopy(new DataHeader(*eventDataHeader.cptr()));
+         SG::WriteHandle<DataHeader> wh(thisFile.toString(), m_metaDataStore->name());
+         if (!wh.record(std::move(dataHeaderCopy)).isSuccess()) {
             ATH_MSG_WARNING("Can't copy event DataHeader to MetaData store.");
-         }
-      }
-   } else {
-      if (m_metaDataStore->retrieve(dataHeader, thisFile.toString()).isFailure()) {
-         ATH_MSG_WARNING("Can't get event DataHeader from MetaData store.");
-         if (!eventStore()->retrieve(dataHeader, m_dataHeaderKey.value()).isSuccess() || !dataHeader.isValid()) {
-            ATH_MSG_ERROR("Cannot retrieve DataHeader from StoreGate: " << m_dataHeaderKey);
-            return(StatusCode::FAILURE);
          }
       }
    }
    // second data header
-   if (m_secondaryAttrListKey.value() != "") {
+   if (m_attrListKey.value() != "") {
       const DataHandle<AthenaAttributeList> attrList;
       std::string tokenStr;
-      if (eventStore()->retrieve(attrList, m_secondaryAttrListKey.value()).isSuccess()) {
+      if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
          try {
-            tokenStr = (*attrList)["eventRef"].data<std::string>();
-            ATH_MSG_DEBUG("found SecondaryAthenaAttribute, name = eventRef = " << tokenStr);
+            tokenStr = (*attrList)["eventRef_secondary"].data<std::string>();
+            ATH_MSG_DEBUG("found AthenaAttribute, name = eventRef_secondary = " << tokenStr);
          } catch (std::exception &e) {
             ATH_MSG_ERROR(e.what());
             return (StatusCode::FAILURE);
          }
       } else {
-         ATH_MSG_ERROR("Cannot find AthenaAttribute, key = " << m_secondaryAttrListKey.value());
+         ATH_MSG_ERROR("Cannot find AthenaAttribute, key = " << m_attrListKey.value());
          return (StatusCode::FAILURE);
       }
       IOpaqueAddress* iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "SecondaryEventSelector");

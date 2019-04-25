@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -30,6 +32,7 @@
 #include "GaudiKernel/EventContext.h"
 
 ///STL includes
+#include <array>
 #include <atomic>
 #include <map>
 #include <mutex>
@@ -65,13 +68,17 @@ public:
   const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   const std::set<IdentifierHash>* getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
+  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
+  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const override; // Used by SCTRawDataProviderTool and others
+
   virtual unsigned int tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override;
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
   virtual bool isRODSimulatedData(const EventContext& ctx) const override; // Internally used
   virtual bool isRODSimulatedData() const override; // Internally used
-  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx,
+                                  const std::set<IdentifierHash>* errorSet=nullptr) const override;
   virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const override;
   virtual bool isHVOn(const EventContext& ctx) const override; // Not used
   virtual bool isHVOn() const override; // Not used
@@ -91,7 +98,7 @@ private:
 
   BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
 
-  mutable std::vector<std::set<IdentifierHash>> m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES] ATLAS_THREAD_SAFE; // Used by getErrorSet, addError, resetSets
+  mutable std::vector<std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>> m_bsErrors ATLAS_THREAD_SAFE; // Used by getErrorSet, addError, resetSets
 
   mutable std::vector<std::map<Identifier, unsigned int>> m_tempMaskedChips ATLAS_THREAD_SAFE;
   mutable std::vector<std::map<Identifier, unsigned int>> m_abcdErrorChips ATLAS_THREAD_SAFE;

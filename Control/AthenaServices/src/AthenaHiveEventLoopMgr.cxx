@@ -116,6 +116,8 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
   declareProperty("FakeTimestampInterval", m_timeStampInt = 1,
                   "timestamp interval between events when creating Events "
                   "without an EventSelector");
+  declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
+                  "In case of DoubleEventSelector use event number from secondary input");
 
   m_scheduledStop = false;
 
@@ -1108,25 +1110,69 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext& ctx){
       return -1;
     } 
     
-    // Retrieve the Event object
-    sc = eventStore()->retrieve(pEvent);
-    if( !sc.isSuccess() ) {
-      // Try to get the xAOD::EventInfo
-      const xAOD::EventInfo* pXEvent{nullptr};
-      sc = eventStore()->retrieve(pXEvent);
-      if( !sc.isSuccess() ) {
-	error() << "Unable to retrieve Event root object" << endmsg;
-	return -1;
+    // Read the attribute list
+    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>("Input");
+    if ( pAttrList != nullptr && pAttrList->size() > 6 ) { // Try making EventID-only EventInfo object from in-file TAG
+      try {
+        unsigned int runNumber = (*pAttrList)["RunNumber"].data<unsigned int>();
+        unsigned long long eventNumber = (*pAttrList)["EventNumber"].data<unsigned long long>();
+        unsigned int eventTime = (*pAttrList)["EventTime"].data<unsigned int>();
+        unsigned int eventTimeNS = (*pAttrList)["EventTimeNanoSec"].data<unsigned int>();
+        unsigned int lumiBlock = (*pAttrList)["LumiBlockN"].data<unsigned int>();
+        unsigned int bunchId = (*pAttrList)["BunchId"].data<unsigned int>();
+    
+        // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
+        if ( m_useSecondaryEventNumber ) {
+            if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
+                fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
+                return -1;
+            }
+            if ( pAttrList->exists("EventNumber_secondary") ) {
+                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+            }
+            else {
+                // try legacy EventInfo if secondary input did not have attribute list
+                // primary input should not have this EventInfo type
+                const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
+                if (pEventSecondary) {
+                    eventNumber = pEventSecondary->event_ID()->event_number();
+                }
+                else {
+                    fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
+                    return -1;
+                }
+            }
+        }
+    
+        auto pEventPtr = std::make_unique<EventInfo>
+          (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), nullptr);
+        pEvent = pEventPtr.release();
+      } catch (...) {
       }
-      // Build the old-style Event Info object for those clients that still need it
-      std::unique_ptr<EventInfo> pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(pXEvent))
-									      , new EventType(eventTypeFromxAOD(pXEvent)));
-      pEvent = pEventPtr.get();
-      sc = eventStore()->record(std::move(pEventPtr),"");
-      if( !sc.isSuccess() )  {
-	error() << "Error declaring event data object" << endmsg;
-	return -1;
-      }
+    }
+    
+    if (!pEvent) {
+        // Retrieve the Event object
+        sc = eventStore()->retrieve(pEvent);
+        if( !sc.isSuccess() ) {
+         
+          // Try to get the xAOD::EventInfo
+          const xAOD::EventInfo* pXEvent{nullptr};
+          sc = eventStore()->retrieve(pXEvent);
+          if( !sc.isSuccess() ) {
+    	error() << "Unable to retrieve Event root object" << endmsg;
+    	return -1;
+          }
+          // Build the old-style Event Info object for those clients that still need it
+          std::unique_ptr<EventInfo> pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(pXEvent))
+    									      , new EventType(eventTypeFromxAOD(pXEvent)));
+          pEvent = pEventPtr.get();
+          sc = eventStore()->record(std::move(pEventPtr),"");
+          if( !sc.isSuccess() )  {
+    	error() << "Error declaring event data object" << endmsg;
+    	return -1;
+          }
+        }
     }
 
     m_pEvent = pEvent;
@@ -1248,17 +1294,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     EventID::number_type n_run(0);
     EventID::number_type n_evt(0);
 
-    const EventInfo* pEvent(0);
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
-      if (eventStore()->retrieve(pEvent).isFailure()) {
-        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
-	delete thisFinishedEvtContext;
-	fail = true;
-	continue;
-      } else {
-	n_run = pEvent->event_ID()->run_number();
-	n_evt = pEvent->event_ID()->event_number();
-      }
+      n_run = thisFinishedEvtContext->eventID().run_number();
+      n_evt = thisFinishedEvtContext->eventID().event_number();
     } else {
       error() << "DrainSched: unable to select store "
 	      << thisFinishedEvtContext->slot() << endmsg;

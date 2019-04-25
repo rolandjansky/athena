@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/AthStatusCode.h"
@@ -12,9 +12,9 @@ struct StatusCategory : StatusCode::Category {
   std::string message(StatusCode::code_t code) const override {
     switch (static_cast<Athena::Status>(code)) {
     case Status::TIMEOUT:
-      return "TIMEOUT";
+      return "Athena::Status::TIMEOUT";
     case Status::MISSING_DATA:
-      return "MISSING_DATA";
+      return "Athena::Status::MISSING_DATA";
     default:
       return StatusCode::default_category().message(code);
     }

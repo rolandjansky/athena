@@ -5,9 +5,7 @@
 #include "SCT_CalibModuleListTool.h"
 
 SCT_CalibModuleListTool::SCT_CalibModuleListTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_pSCTHelper{nullptr},
-  m_IOVDbSvc{"IOVDbSvc", name}
+  base_class(type, name, parent)
 {
 }
 

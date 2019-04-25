@@ -1,9 +1,8 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import DEBUG,VERBOSE
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def l2PhotonAlgCfg( flags ):
@@ -11,10 +10,9 @@ def l2PhotonAlgCfg( flags ):
     from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
 
     photonFex= L2PhotonFex_1()
-    photonFex.TrigEMClusterName = "L2CaloEMClusters"
-    photonFex.PhotonsName = recordable("L2Photons")
+    photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
+    photonFex.PhotonsName = recordable("HLT_L2Photons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
-    photonFex.OutputLevel=DEBUG
 
     return acc, photonFex
 
@@ -27,8 +25,7 @@ def l2PhotonRecoCfg( flags ):
     import AthenaCommon.CfgMgr as CfgMgr
 
     moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")
-    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloEMClusters') ]
-    moveClusters.OutputLevel = DEBUG
+    moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters') ]
     reco.addRecoAlg( moveClusters )
 
     algAcc, alg = l2PhotonAlgCfg( flags )
@@ -43,7 +40,6 @@ def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
     l2PhotonHypo = TrigL2PhotonHypoAlgMT()
     l2PhotonHypo.Photons = Photons
     l2PhotonHypo.RunInView = RunInView
-    l2PhotonHypo.OutputLevel = VERBOSE
 
     return l2PhotonHypo
 
@@ -81,7 +77,6 @@ def generatePhotonsCfg( flags ):
     l2PhotonHypo = TrigL2PhotonHypoAlgMT()
     l2PhotonHypo.Photons = "L2Photons"
     l2PhotonHypo.RunInView=True
-    l2PhotonHypo.OutputLevel = VERBOSE
 
     from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 

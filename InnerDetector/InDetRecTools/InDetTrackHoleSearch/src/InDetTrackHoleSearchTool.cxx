@@ -908,27 +908,21 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 
   if (perigee) {
 
-    Trk::TrackStateOnSurfaceComparisonFunction* CompFunc = 
-      new Trk::TrackStateOnSurfaceComparisonFunction(perigee->momentum());
+    Trk::TrackStateOnSurfaceComparisonFunction CompFunc(perigee->momentum());
   
     // we always have to sort holes in 
-    // if (!is_sorted(trackTSOS->begin(),trackTSOS->end(), *CompFunc)) {
+    // if (!is_sorted(trackTSOS->begin(),trackTSOS->end(), CompFunc)) {
       
     if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
       /* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
          not 100% transitive comparison functor.
-         DataVector doesn't have stable sort, so we need to tamper with
-         its vector content in order to avoid sort to get caught in DV full
-         object ownership */
+      */
       ATH_MSG_DEBUG("sorting vector with stable_sort ");
-      std::vector<const Trk::TrackStateOnSurface*>* PtrVector
-        = const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&trackTSOS->stdcont());
-      stable_sort(PtrVector->begin(), PtrVector->end(), *CompFunc);
+      stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
     } else {
-      trackTSOS->sort(*CompFunc); // respects DV object ownership
+      trackTSOS->sort(CompFunc); // respects DV object ownership
     }
 
-    delete CompFunc;
   }
 
   // create copy of track

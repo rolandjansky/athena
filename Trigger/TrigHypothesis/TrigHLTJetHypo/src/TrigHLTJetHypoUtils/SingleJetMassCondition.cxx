@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetMassCondition.h"
@@ -15,8 +15,11 @@ SingleJetMassCondition::SingleJetMassCondition(
         double etaMax, 
         double threshold,
         double massMin,
-        double massMax) : EtaEtCondition(etaMin, etaMax, threshold),
-m_massMin(massMin),m_massMax(massMax){}
+        double massMax,
+        bool debug) : EtaEtCondition(etaMin, etaMax, threshold, debug),
+                      m_massMin(massMin),
+                      m_massMax(massMax){
+}
 
 
 bool SingleJetMassCondition::isSatisfied(const pHypoJet& ip) const {

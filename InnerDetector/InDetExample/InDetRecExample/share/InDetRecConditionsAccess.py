@@ -60,15 +60,15 @@ if DetFlags.haveRIO.pixel_on():
         print InDetPixelConditionsSummaryTool
 
  
-    # Load pixel calibration service
-    if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/PIXEL/PixCalib'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-        InDetPixelCalibSvc = PixelCalibSvc()
-        ServiceMgr += InDetPixelCalibSvc
-        if InDetFlags.doPrintConfigurables():
-            print InDetPixelCalibSvc
+    #####################
+    # Calibration Setup #
+    #####################
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     # Load Pixel BS errors service
     if not (globalflags.DataSource=='geant4'):
@@ -246,7 +246,8 @@ if DetFlags.haveRIO.SCT_on():
                                                           sct_FlaggedConditionToolSetup.getTool().getFullName(),
                                                           sct_MonitorConditionsToolSetup.getTool().getFullName(),
                                                           sct_ReadCalibDataToolSetup.getTool().getFullName()]
-
+        if InDetFlags.useSctDCS():
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
@@ -272,7 +273,7 @@ if DetFlags.haveRIO.SCT_on():
 
     forceUseDB = False
     forceUseGeoModel = False
-    if InDetFlags.useSctDCS():
+    if InDetFlags.useSctDCS() or athenaCommonFlags.isOnline():
         # Force Lorentz angle calculation to use DCS for data
         # (Not actually using DCS yet but rather temperature and voltage from joboptions.)
         if (globalflags.DataSource() == 'data'):
@@ -348,13 +349,12 @@ if DetFlags.haveRIO.TRT_on():
 
 		# Added for run2. Clean the unsed ones!!!
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
-
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector",className='CondAttrListVec')
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors",className='CondAttrListVec')
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
 
     #
@@ -366,7 +366,7 @@ if DetFlags.haveRIO.TRT_on():
         if (conddb.dbdata == "CONDBR2"):
             tdaqFolder = '/TDAQ/Resources/ATLAS/TRT/Robins'
         # TDAQ Enabled Service (only for monitoring on data)
-        conddb.addFolder('TDAQ_ONL',tdaqFolder)
+        conddb.addFolder('TDAQ_ONL',tdaqFolder,className='CondAttrListCollection')
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DAQ_ConditionsSvc
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc
@@ -389,6 +389,41 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTStrawStatusSummarySvc
     InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
+
+    # Straw status tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                                                            isGEANT4 = useOldStyle)
+    # Alive straws algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
+    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      isGEANT4 = useOldStyle)
+    # Active Fraction algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
+    TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
+                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+
+    # HT probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
+    TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
+
+    # dEdx probability algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
+    TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
+
+    # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawCondAlg"):
+        condSeq += TRTStrawCondAlg
+    if not hasattr(condSeq, "TRTActiveCondAlg"):
+        condSeq += TRTActiveCondAlg
+
+    # Condition algorithms for Pid
+    if not hasattr(condSeq, "TRTHTCondAlg"):
+        condSeq += TRTHTCondAlg
+    if not hasattr(condSeq, "TRTToTCondAlg"):
+        condSeq += TRTToTCondAlg
+
     
     # Services which only run on raw data
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
@@ -425,9 +460,4 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTConditionsSummaryService 
 
-    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
-    InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name = "InDetTRTActiveFractionSvc")
-
-    ServiceMgr += InDetTRT_ActiveFractionSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetTRT_ActiveFractionSvc
+        

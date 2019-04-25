@@ -27,7 +27,7 @@
 // InDetSimEvent
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 
-class ITRT_StrawStatusSummarySvc;
+class ITRT_StrawStatusSummaryTool;
 class TRT_ID;
 class StoreGateSvc;
 
@@ -90,7 +90,7 @@ namespace iFatras {
       std::string                               m_trtIdHelperName;              //!< where to find the SCT helper
       const TRT_ID*                             m_trtIdHelper;                  //!< TRT ID helper 
       
-      ServiceHandle<ITRT_StrawStatusSummarySvc> m_trtStatusSummarySvc;          //!< Handle to TRT conditions service
+      ToolHandle<ITRT_StrawStatusSummaryTool> m_trtStatusSummaryTool;          //!< Handle to TRT conditions service
       bool                                      m_useConditionsSvc;
                                                                                     
         

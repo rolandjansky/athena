@@ -211,11 +211,13 @@ QStringList VertexHandle::clicked() const
   QStringList l;
   l << "--Vertex:";
   l << VertexHandle::baseInfo();
-  try {
-    l<< "Has "<<VP1Msg::str(m_d->vertex->vxTrackAtVertex ().size()) <<" associated tracks.";
-  } catch ( SG::ExcBadAuxVar& ) {
-    l<<"Vertex is missing links to tracks!";
-  }
+  #ifndef BUILDVP1LIGHT
+    try {
+      l<< "Has "<<VP1Msg::str(m_d->vertex->vxTrackAtVertex ().size()) <<" associated tracks.";
+    } catch ( SG::ExcBadAuxVar& ) {
+      l<<"Vertex is missing links to tracks!";
+    }
+  #endif
   return l;
 }
 

@@ -18,15 +18,12 @@
 #include "LArHV/LArHVManager.h"
 #include "LArHV/EMBHVManager.h"
 #include "LArHV/EMECHVModule.h"
-#include "LArHV/EMECHVModuleConstLink.h"
-#include "LArHV/EMBHVElectrodeConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVManager.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
@@ -62,7 +59,6 @@
 // constructor 
 LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthReentrantAlgorithm(name,pSvcLocator),
-    m_calodetdescrmgr(nullptr),
     m_larem_id(nullptr),
     m_larhec_id(nullptr),
     m_larfcal_id(nullptr),
@@ -88,8 +84,6 @@ StatusCode LArHVCondAlg::initialize(){
   m_larem_id   = idHelper->em_idHelper();
   m_larhec_id   = idHelper->hec_idHelper();
   m_larfcal_id   = idHelper->fcal_idHelper();
-
-  ATH_CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
   ATH_CHECK(detStore()->retrieve(m_electrodeID));
 
@@ -360,6 +354,9 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
   LArHVData::currMap &currmap = hvdata->m_current;
   std::set<Identifier> &updatedCells = hvdata->m_updatedCells;
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   std::vector<unsigned int> listElec;
 
   updatedCells.clear();
@@ -382,7 +379,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
            listElec = getElecList(id,pathologies);
           }
          }
-         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
          unsigned int nelec = cell->getNumElectrodes();
@@ -391,14 +388,14 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          double wt = 1./ngap;
          v.clear(); ihv.clear();
          for (unsigned int i=0;i<nelec;i++) {
-             const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+             const EMBHVElectrode& electrode = cell->getElectrode(i);
              //std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
              //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(igap));
+                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap));
                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                    ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(igap)<<" in LArHVData mapping !!!");
+                    ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap)<<" in LArHVData mapping !!!");
                     return StatusCode::FAILURE;
                  }
                  unsigned idx = itrLine - hvlineidx.begin(); 
@@ -426,7 +423,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          currmap.insert(std::make_pair(id,ihv));
       } else if (abs(m_larem_id->barrel_ec(id))==1 && m_larem_id->sampling(id) == 0) { // EMBPS
 
-         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
  
@@ -457,7 +454,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
           }
          }
  
-         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
          unsigned int nelec = cell->getNumElectrodes();
@@ -465,14 +462,14 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          unsigned int ngap = 2*nelec;
          double wt = 1./ngap;
          for (unsigned int i=0;i<nelec;i++) {
-             const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
+             const EMECHVElectrode& electrode = cell->getElectrode(i);
            //  std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
            //     " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
            //     " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(igap));
+                 const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap));
                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                   ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(igap)<<" in LArHVData mapping !!!");
+                   ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(igap)<<" in LArHVData mapping !!!");
                    return StatusCode::FAILURE;
                  }
                  unsigned idx = itrLine - hvlineidx.begin(); 
@@ -496,7 +493,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
  
       } else if (abs(m_larem_id->barrel_ec(id))>1 &&  m_larem_id->sampling(id)==0) { // EMECPS
 
-         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+         const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
  
@@ -558,7 +555,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
       listElec = getElecList(id, pathologies);
      }
     }
-    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(calodetdescrmgr->get_element(id));
     if (!hecElement) std::abort();
     const HECCellConstLink cell = hecElement->getHECCell();
     unsigned int nsubgaps = cell->getNumSubgaps();
@@ -624,7 +621,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
         listElec = getElecList(id, pathologies);
        }
       }
-      const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(calodetdescrmgr->get_element(id));
       if (!fcalElement) std::abort();
       const FCALTile* tile = fcalElement->getFCALTile();
       //std::cout << " --- in FCAL cell id " << m_larfcal_id->show_to_string(id) << std::endl;
@@ -788,16 +785,16 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
     
     // accordion calorimeter
     float HVnominal = HV_nominal("EMB",0.);
-    const EMBHVManager* hvManager_EMB=manager->getEMBHVManager();
+    const EMBHVManager& hvManager_EMB=manager->getEMBHVManager();
     
-    for (unsigned int iSide=hvManager_EMB->beginSideIndex();iSide<hvManager_EMB->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMB->beginPhiIndex();iPhi<hvManager_EMB->endPhiIndex();iPhi++) {
-	for (unsigned int iSector=hvManager_EMB->beginSectorIndex();iSector<hvManager_EMB->endSectorIndex();iSector++) {
-	  for (unsigned int iEta=hvManager_EMB->beginEtaIndex();iEta<hvManager_EMB->endEtaIndex();iEta++) { //0 to 7
-	    EMBHVModuleConstLink hvMod = hvManager_EMB->getHVModule(iSide,iEta,iPhi,iSector);
+    for (unsigned int iSide=hvManager_EMB.beginSideIndex();iSide<hvManager_EMB.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMB.beginPhiIndex();iPhi<hvManager_EMB.endPhiIndex();iPhi++) {
+	for (unsigned int iSector=hvManager_EMB.beginSectorIndex();iSector<hvManager_EMB.endSectorIndex();iSector++) {
+	  for (unsigned int iEta=hvManager_EMB.beginEtaIndex();iEta<hvManager_EMB.endEtaIndex();iEta++) { //0 to 7
+	    const EMBHVModule& hvMod = hvManager_EMB.getHVModule(iSide,iEta,iPhi,iSector);
 
-            float eta_min=hvMod->getEtaMin();
-            float eta_max=hvMod->getEtaMax();
+            float eta_min=hvMod.getEtaMin();
+            float eta_max=hvMod.getEtaMax();
 
             ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " << iEta);
 	    float phi_min=+30.,phi_max=-30.;
@@ -805,20 +802,20 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 	    bool are_previous_HV_affected=false;
             bool are_previous_HV_dead=false;
 	    for (unsigned int ielec=0;ielec<32;ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-	      EMBHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+	      const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(iGap));
+                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
                 //unsigned idx = itrLine - hvlineidx.begin(); 
 		hv[iGap]=voltage[itrLine - hvlineidx.begin()];
 	      } //end for iGap
 
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode->getPhi() << " "<< hv[0] << " " << hv[1] );
+              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " "<< hv[0] << " " << hv[1] );
 
 	      //take decisions according to all the gaps HV :
               bool isDead=false;
@@ -845,26 +842,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   ATH_MSG_DEBUG(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_dead = true;
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG(" extend dead region " << phi_min << " " << phi_max);
                  }
               }
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   ATH_MSG_DEBUG(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_affected = true;
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG(" extend affected region " << phi_min << " " << phi_max);
                  }
               }
@@ -942,19 +939,19 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
 
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
       
-    const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::OUTER);
+    const EMECHVManager& hvManager_EMEC_OUT=manager->getEMECHVManager(EMECHVModule::OUTER);
 
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-	for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-	  for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-	    EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
+    for (unsigned int iSide=hvManager_EMEC_OUT.beginSideIndex();iSide<hvManager_EMEC_OUT.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_OUT.beginPhiIndex();iPhi<hvManager_EMEC_OUT.endPhiIndex();iPhi++) {
+	for (unsigned int iSector=hvManager_EMEC_OUT.beginSectorIndex();iSector<hvManager_EMEC_OUT.endSectorIndex();iSector++) {
+	  for (unsigned int iEta=hvManager_EMEC_OUT.beginEtaIndex();iEta<hvManager_EMEC_OUT.endEtaIndex();iEta++) {
+	    const EMECHVModule& hvMod=hvManager_EMEC_OUT.getHVModule(iSide,iEta,iPhi,iSector);
 
-            float etaMod = 0.5*(fabs(hvMod->getEtaMin())+fabs(hvMod->getEtaMax()));
+            float etaMod = 0.5*(fabs(hvMod.getEtaMin())+fabs(hvMod.getEtaMax()));
             float HVnominal = HV_nominal("EMEC",etaMod);
 
-            float eta_min=hvMod->getEtaMin();
-            float eta_max=hvMod->getEtaMax();
+            float eta_min=hvMod.getEtaMin();
+            float eta_max=hvMod.getEtaMax();
 
             ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
                           << iEta << " eta_min , eta_max " << eta_min << " " << eta_max );
@@ -964,14 +961,14 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
 
 	    bool are_previous_HV_affected=false;
             bool are_previous_HV_dead=false;
-	    for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-	      EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+	    for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
+	      const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(iGap));
+                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
                   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                     ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(iGap)<<" in LArHVData !!!");
+                     ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
                      return StatusCode::FAILURE;
                   }
 		  hv[iGap]=voltage[itrLine - hvlineidx.begin()];
@@ -983,7 +980,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
               if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
               bool isAffected=false;
               if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode->getPhi() << " " << hv[0] 
+              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " " << hv[0] 
                             << " " << hv[1] << " " << " isDead/isAffected " << isDead << " " << isAffected );
           
               // end previous dead region
@@ -1004,26 +1001,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_dead = true;
                   ATH_MSG_DEBUG(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG("  extend affected region " << phi_min << " " << phi_max);
                  }
               }
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_affected = true;
                   ATH_MSG_DEBUG(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG(" extend affected region " << phi_min << " " << phi_max);
                  }
               }
@@ -1102,19 +1099,19 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
   ATH_MSG_DEBUG(" start loop over EMEC_INNER ");
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
 
-    const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::INNER);
+    const EMECHVManager& hvManager_EMEC_IN=manager->getEMECHVManager(EMECHVModule::INNER);
 
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-	for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-	  for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-	    EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
+    for (unsigned int iSide=hvManager_EMEC_IN.beginSideIndex();iSide<hvManager_EMEC_IN.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_IN.beginPhiIndex();iPhi<hvManager_EMEC_IN.endPhiIndex();iPhi++) {
+	for (unsigned int iSector=hvManager_EMEC_IN.beginSectorIndex();iSector<hvManager_EMEC_IN.endSectorIndex();iSector++) {
+	  for (unsigned int iEta=hvManager_EMEC_IN.beginEtaIndex();iEta<hvManager_EMEC_IN.endEtaIndex();iEta++) {
+	    const EMECHVModule& hvMod=hvManager_EMEC_IN.getHVModule(iSide,iEta,iPhi,iSector);
 
-            float etaMod = 0.5*(fabs(hvMod->getEtaMin())+fabs(hvMod->getEtaMax()));
+            float etaMod = 0.5*(fabs(hvMod.getEtaMin())+fabs(hvMod.getEtaMax()));
             float HVnominal = HV_nominal("EMEC",etaMod);
 
-            float eta_min = hvMod->getEtaMin();
-            float eta_max = hvMod->getEtaMax();
+            float eta_min = hvMod.getEtaMin();
+            float eta_max = hvMod.getEtaMax();
 
             ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
                           << iEta << " eta_min , eta_max " << eta_min << " " << eta_max);
@@ -1123,14 +1120,14 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
 
 	    bool are_previous_HV_affected=0;
 	    bool are_previous_HV_dead=0;
-	    for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { 
-	      EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+	    for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { 
+	      const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { 
-                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode->hvLineNo(iGap));
+                  const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap));
                   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                     ATH_MSG_ERROR("Do not have hvline: "<<electrode->hvLineNo(iGap)<<" in LArHVData !!!");
+                     ATH_MSG_ERROR("Do not have hvline: "<<electrode.hvLineNo(iGap)<<" in LArHVData !!!");
                      return StatusCode::FAILURE;
                   }
 		  hv[iGap]=voltage[itrLine - hvlineidx.begin()];
@@ -1142,7 +1139,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
               if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
               bool isAffected=false;
               if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode->getPhi() << " "
+              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " "
                             << hv[0] << " " << hv[1] << " " << " isDead, isAffected " 
                             << isDead << " " << isAffected);
           
@@ -1164,26 +1161,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
 
               if (isDead) {
                  if (!are_previous_HV_dead) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   ATH_MSG_DEBUG(" -- start dead region " << phi_min << " " << phi_max);
                   are_previous_HV_dead = true;
                  }
                  else {
-                  extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                  extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                   ATH_MSG_DEBUG("  extend dead region " << phi_min << " " << phi_max);
                  }
               }
 
               if (isAffected) {
                  if (!are_previous_HV_affected) {
-                  phi_min=CaloPhiRange::fix(electrode->getPhi()-1e-4);
-                  phi_max=CaloPhiRange::fix(electrode->getPhi()+1e-4);
+                  phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
+                  phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_affected = true;
                   ATH_MSG_DEBUG(" -- start affected region " << phi_min << " " << phi_max);
                  }
                  else {
-                   extendPhiRegion(electrode->getPhi(),phi_min,phi_max);
+                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
                    ATH_MSG_DEBUG("  extend affected region " << phi_min << " " << phi_max);
                  }
               }
@@ -1365,6 +1362,9 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
 StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, const LArBadFebCont* bfCont, const LArOnOffIdMapping* cabling) const { //store informations on the missing Febs w/ range of eta, phi, layer
   ATH_MSG_INFO ( "updateMethod()" );
   
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   std::vector<HWIdentifier>::const_iterator febid_it=m_onlineID->feb_begin();
   std::vector<HWIdentifier>::const_iterator febid_end_it=m_onlineID->feb_end();
 
@@ -1391,7 +1391,7 @@ StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, cons
 
 	if (cabling->isOnlineConnected(channelId)) {
 	  Identifier offlineId=cabling->cnvToIdentifier(channelId);
-	  const CaloDetDescrElement* caloddElement=m_calodetdescrmgr->get_element(offlineId);
+	  const CaloDetDescrElement* caloddElement=calodetdescrmgr->get_element(offlineId);
 	  
 	  CaloCell_ID::CaloSample current_layer=caloddElement->getSampling(); // calo layer
 	  float current_eta=caloddElement->eta();

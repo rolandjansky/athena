@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   AthenaCommon/python/ConcurrencyFlags.py
@@ -7,6 +7,8 @@
 """
 #
 #
+from __future__ import with_statement, print_function
+
 __author__  = 'Charles Leggett'
 __version__="$Revision: 1.0 $"
 __doc__="concurrency flags "
@@ -17,8 +19,8 @@ __doc__="concurrency flags "
 #=======================================================================
 # imports
 #=======================================================================
-from JobProperties import JobProperty, JobPropertyContainer
-from JobProperties import jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
 
 class NumProcs(JobProperty):
     """ Flag to indicate number of parallel workers"
@@ -31,12 +33,13 @@ class NumProcs(JobProperty):
         if (self.get_Value() == -1):
             self.set_Value( multiprocessing.cpu_count() )
         elif ( self.get_Value() < -1 ) :
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.fatal("nprocs cannot be < -1")
-            import sys, ExitCodes
+            import sys
+            from AthenaCommon import ExitCodes
             sys.exit(ExitCodes.CONFIGURATION_ERROR)
         elif (self.get_Value() > multiprocessing.cpu_count()):
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.warning("nprocs is larger than core count [%s]!", 
                         multiprocessing.cpu_count())
             
@@ -53,15 +56,17 @@ class NumThreads(JobProperty):
         try:
             import GaudiHive  # noqa: F401
         except ImportError:
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.fatal("GaudiHive not in release - can't use --threads parameter")
-            import sys, ExitCodes
+            import sys
+            from AthenaCommon import ExitCodes
             sys.exit(ExitCodes.IMPORT_ERROR)
 
         if (self.get_Value() < 0):
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.fatal("Number of threads [%s] cannot be negative",self.get_Value())
-            import sys, ExitCodes
+            import sys
+            from AthenaCommon import ExitCodes
             sys.exit(ExitCodes.CONFIGURATION_ERROR)
 
         return
@@ -78,15 +83,17 @@ class NumConcurrentEvents(JobProperty):
         try:
             import GaudiHive  # noqa: F401
         except ImportError:
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.fatal("GaudiHive not in release - can't use --concurrent-events parameter")
-            import sys, ExitCodes
+            import sys
+            from AthenaCommon import ExitCodes
             sys.exit(ExitCodes.IMPORT_ERROR)
 
         if (self.get_Value() < 0):
-            from Logging import log
+            from AthenaCommon.Logging import log
             log.fatal("Number of concurrent events [%s] cannot be negative",self.get_Value())
-            import sys, ExitCodes
+            import sys
+            from AthenaCommon import ExitCodes
             sys.exit(ExitCodes.CONFIGURATION_ERROR)
 
         return

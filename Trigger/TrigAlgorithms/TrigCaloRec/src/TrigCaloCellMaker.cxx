@@ -38,7 +38,7 @@
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
 
 //
 class ISvcLocator;

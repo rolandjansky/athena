@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -49,7 +49,7 @@ class TrigElectron_p2
     m_cl_e_frac_S2(-999.9),
     m_cl_e_frac_S3(-999.9)
     {}
-  virtual ~TrigElectron_p2() {}
+  virtual ~TrigElectron_p2() = default;
   friend class TrigElectronCnv_p2;
   
   //private:

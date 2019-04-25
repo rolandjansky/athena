@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """CPS addition  """
 
@@ -12,13 +12,13 @@ def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
 
     for cpsGroup, chainNames in groups.iteritems():
         if "RATE" not in cpsGroup:
-            log.error('Following group do not start for RATE [%s]' %cpsGroup)
+            log.error('Following group do not start for RATE [%s]', cpsGroup)
         for chainName in chainNames:
             if chainName not in signatures:
                 if not signatureOverwritten:
-                    log.error('Signature %s not registered to TriggerPythonConfig' % chainName)
+                    log.error('Signature %s not registered to TriggerPythonConfig', chainName)
                 else:
-                    log.warning('Signature %s not registered to TriggerPythonConfig' % chainName)
+                    log.warning('Signature %s not registered to TriggerPythonConfig', chainName)
                 continue
 
             if level == 'HLT':

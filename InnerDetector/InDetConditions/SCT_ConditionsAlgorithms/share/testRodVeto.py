@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -86,6 +87,10 @@ sct_RODVetoToolSetup.getAlg().BadRODIds = [0x240100, 0x240030]
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg(SCT_RODVetoTool=sct_RODVetoToolSetup.getTool())
 
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCT_RODVetoTestAlg.Cardinality = numThreads
 
 import AthenaCommon.AtlasUnixGeneratorJob
 sct_RODVetoToolSetup.getTool().OutputLevel=VERBOSE

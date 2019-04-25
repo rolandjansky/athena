@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTPROCESSINGOFSTRAW_H
@@ -25,7 +25,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 class TRTDigit;
 class TRTTimeCorrection;
@@ -96,7 +96,8 @@ public:
 		     bool emulationKrflag,
                      CLHEP::HepRandomEngine* rndmEngine,
                      CLHEP::HepRandomEngine* elecProcRndmEngine,
-                     CLHEP::HepRandomEngine* elecNoiseRndmEngine );
+                     CLHEP::HepRandomEngine* elecNoiseRndmEngine,
+                     CLHEP::HepRandomEngine* paiRndmEngine );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
@@ -198,7 +199,8 @@ private:
 			     const double& postz,
 			     std::vector<cluster>& clusterlist,
 			     int strawGasType,
-                             CLHEP::HepRandomEngine* rndmEngine);
+                             CLHEP::HepRandomEngine* rndmEngine,
+                             CLHEP::HepRandomEngine* paiRndmEngine);
   /**
    * Transform the ioniation clusters along the particle trajectory inside a
    * straw to energy deposits (i.e. potential fluctuations) reaching the

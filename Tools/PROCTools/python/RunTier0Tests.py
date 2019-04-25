@@ -204,8 +204,8 @@ def GetReleaseSetup(isCImode=False):
 
     current_nightly = os.environ['AtlasBuildStamp']
     release_base=os.environ['AtlasBuildBranch']
-    release_head=os.environ['Athena_VERSION']
-    platform=os.environ['Athena_PLATFORM']
+    release_head=os.environ['AtlasVersion']
+    platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
@@ -575,6 +575,11 @@ def main():
                       dest="overlay_flag",
                       default=False,
                       help="overlay will run the Digi_tf.py overlay test")
+    parser.add_option("--pileup",
+                      action="store_true",
+                      dest="pileup_flag",
+                      default=False,
+                      help="will run digi+reco with pile-up")
     parser.add_option("-p",
                       "--patched",
                       action="store_true",
@@ -605,6 +610,7 @@ def main():
     RunOverlay      = options.overlay_flag
     RunFast         = options.fast_flag
     RunPatchedOnly  = options.patched_flag
+    RunPileUp       = options.pileup_flag
     CleanRunHeadDir = options.cleanDir
     r2aMode         = options.r2a_flag
     trigRun2Config  = options.trigRun2Config_flag    
@@ -675,6 +681,10 @@ def main():
         elif RunOverlay:
             qTestsToRun = {
             'overlay-d1498':[ 'OverlayPool' ]
+            }
+        elif RunPileUp:
+            qTestsToRun = { 
+            'q440':[ 'HITtoRDO', 'RAWtoESD', 'ESDtoAOD', 'AODtoTAG' ]
             }
         elif r2aMode:
             qTestsToRun = { 
@@ -817,6 +827,9 @@ def main():
             elif RunOverlay:
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
+            elif RunPileUp:
+                if not RunFrozenTier0PolicyTest(q,"AOD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
             else:
                 if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
@@ -826,7 +839,7 @@ def main():
 
             if RunPatchedOnly: continue  # Performance checks against static references not possible
     
-            if 'q221' in q: 
+            if 'q221' in q or 'q440' in q: 
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
                     All_Tests_Passed = False
             

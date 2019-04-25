@@ -43,6 +43,21 @@ public:
   StatusCode decide(const Input& input) const;
 
 private:
+  // ------------------------- Types -------------------------------------------
+  ///  ROB request instruction description
+  struct ROBRequestInstruction {
+    /// Constructor from string key in the ROBAccessDict property
+    ROBRequestInstruction(std::string_view str);
+    /// String form for debug print-outs
+    const std::string toString() const;
+    /// Type of instruction
+    enum Type {INVALID, ADD, GET, COL} type = INVALID;
+    /// Flag switching requests of a random sub-sample of the ROB list
+    bool isRandom = false;
+    /// Size of random request
+    size_t nRandom = 0;
+  };
+
   // ------------------------- Properties --------------------------------------
   Gaudi::Property<double> m_acceptRate {
     this, "RandomAcceptRate", -1,
@@ -60,11 +75,14 @@ private:
     this, "BurnTimeRandomly", true,
     "If true, burn time per cycle is a random value from uniform distribution between 0 and the given value"
   };
-  Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDict {
+  Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDictProp {
     this, "ROBAccessDict", {},
-    "List of prefetch/retrieve operations with given ROB IDs."
-    "The string key has to contain :ADD: (prefetch), :GET: (retrieve), or :COL: (full event building)."
-    "The value is a vector of corresponding ROB IDs."
+    "Dictionary of prefetch/retrieve operations with given ROB IDs. The value is a vector of ROB IDs. "
+    "The string key has to contain :ADD: (prefetch), :GET: (retrieve), or :COL: (full event building). :ADD: and :GET: "
+    "may be also appended with :RNDX: where X is an integer. In this case, random X ROBs will be prefetched/retrieved "
+    "from the provided list, e.g. :GET:RND10: retrieves 10 random ROBs from the list. Otherwise the full list is used. "
+    "Note std::map is sorted by std::less<std::string>, so starting the key with a number may be needed to enforce "
+    "ordering, e.g. '01 :ADD:RND10:'."
   };
   Gaudi::Property<unsigned int> m_timeBetweenRobReqMillisec {
     this, "TimeBetweenROBReqMillisec", 0,
@@ -93,6 +111,8 @@ private:
   HLT::Identifier m_decisionId;
   /// WriteHandleKey array for collections specified in the CreateRandomData property
   SG::WriteHandleKeyArray<xAOD::TrigCompositeContainer> m_randomDataWHK;
+  /// Ordered map of ROB request instructions filled from ROBAccessDict property at initialisation
+  std::vector<std::pair<ROBRequestInstruction,std::vector<uint32_t>>> m_robAccessDict;
 };
 
 #endif // TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H

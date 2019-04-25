@@ -167,16 +167,8 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   }
   
   if( m_timeCorrectionType == COSMICS_TOF ){
-    if( m_tofTool.empty() ) {
-      ATH_MSG_ERROR( "The time of flight tool is not configured. Please check your configuration" );
-      return StatusCode::FAILURE;
-    }
-    if( m_tofTool.retrieve().isSuccess() ){
-      ATH_MSG_DEBUG("Retrieved " << m_tofTool );
-    }else{
-      ATH_MSG_ERROR( "Could not get " << m_tofTool );
-      return StatusCode::FAILURE;
-    }
+    if( m_tofTool.empty() ) ATH_MSG_DEBUG("no TOF tool, TOF will be calculated directly from T0 shift provided");
+    else ATH_CHECK(m_tofTool.retrieve());
     if( !m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection) ){
       ATH_MSG_WARNING( "Detected bad default configuration, using Cosmic TOF witout time of flight corrections does not work" );
     }
@@ -200,6 +192,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
                                                                                          const MdtPrepData& mdtPrd,
                                                                                          const Amg::Vector3D& GP, 
                                                                                          const Amg::Vector3D* GD,
+											 float t0Shift,
                                                                                          const MuonDriftCircleErrorStrategy* strategy ) const
 {
   const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
@@ -262,7 +255,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
   inputData.trackDirection = GD;
   inputData.nominalWireSurface = nominalSurf;
   inputData.wireSurface = saggedSurf;
-  CalibrationOutput calibOutput = getLocalMeasurement( mdtPrd, GP, GD,inputData, myStrategy ); 
+  CalibrationOutput calibOutput = getLocalMeasurement( mdtPrd, GP, GD,inputData, myStrategy, t0Shift );
   // This basically determines the error etc and is where the bulk of the work is done.
   
   // hack to determine whether we are before or after the spectrum, until we sort this out properly 
@@ -365,7 +358,8 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
                                                         const Amg::Vector3D& gpos,
                                                         const Amg::Vector3D* /**gdir*/,
                                                         MdtCalibrationSvcInput& inputData,
-                                                        const MuonDriftCircleErrorStrategy* strategy ) const
+                                                        const MuonDriftCircleErrorStrategy* strategy,
+							float t0Shift) const
 {
   const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
   
@@ -416,7 +410,8 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
         break;
       case COSMICS_TOF:
         // case for normal cosmic data with rpc trigger or simulation including TOF
-        inputData.tof = m_tofTool->timeOfFlight( DC.identify(), gpos );
+        if(!m_tofTool.empty()) inputData.tof = m_tofTool->timeOfFlight( DC.identify(), gpos );
+	else inputData.tof=t0Shift+gpos.mag()/299.792458;
         ATH_MSG_VERBOSE( " running in COSMICS_TOF mode, tof: " << inputData.tof );
         break;
       default:
@@ -504,7 +499,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
     return 0;
   }
   
-  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum(),strategy);
+  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum(),0,strategy);
 }
 
 

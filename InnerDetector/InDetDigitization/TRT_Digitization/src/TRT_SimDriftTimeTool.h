@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class IAtRndmGenSvc;
 
 class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTimeTool
 {

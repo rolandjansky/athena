@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,9 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
@@ -26,7 +29,6 @@ class StatusCode;
 class TH2F_LW;
 
 
-class ILArHVCorrTool;
 class CaloCell;
 class CaloLVL1_ID;
 class L1CaloCondSvc;
@@ -101,7 +103,6 @@ class TrigT1CaloLWHistogramTool;
  *  <tr><td> @c LVL1::IL1CaloCells2TriggerTowers </td><td> @copydoc m_cells2tt      </td></tr>
  *  <tr><td> @c LVL1::IL1CaloLArTowerEnergy      </td><td> @copydoc m_larEnergy     </td></tr>
  *  <tr><td> @c LVL1::IL1CaloTTIdTools           </td><td> @copydoc m_ttIdTools     </td></tr>
- *  <tr><td> @c ILArHVCorrTool                   </td><td> @copydoc m_LArHVCorrTool </td></tr>
  *  <tr><td> @c L1CaloCondSvc                    </td><td> @copydoc m_l1CondSvc     </td></tr>
  *  <tr><td> @c CaloTriggerTowerService          </td><td> @copydoc m_ttSvc         </td></tr>
  *  </table>
@@ -110,7 +111,6 @@ class TrigT1CaloLWHistogramTool;
  *
  *  <table>
  *  <tr><th> Property                 </th><th> Description                          </th></tr>
- *  <tr><td> @c LArHVCorrTool         </td><td> @copydoc m_LArHVCorrTool             </td></tr>
  *  <tr><td> @c CaloCellContainer     </td><td> @copydoc m_caloCellContainerName     </td></tr>
  *  <tr><td> @c TriggerTowerContainer </td><td> @copydoc m_TriggerTowerContainerName </td></tr>
  *  <tr><td> @c PathInRootFile        </td><td> @copydoc m_PathInRootFile            </td></tr>
@@ -163,14 +163,20 @@ private:
   ToolHandle<LVL1::IL1CaloLArTowerEnergy>      m_larEnergy;
   /// Tool for Identifier to eta/phi mappings
   ToolHandle<LVL1::IL1CaloTTIdTools>           m_ttIdTools;
-  /// Tool for current CaloCell HV corrections
-  ToolHandle<ILArHVCorrTool>                   m_LArHVCorrTool;
-  /// LVL1 ID helper
+  /// Current CaloCell HV corrections
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  /// LVL1 ID helper1
   const CaloLVL1_ID*                           m_lvl1Helper;
   /// L1Calo conditions service
   ServiceHandle<L1CaloCondSvc>                 m_l1CondSvc;
   /// Cabling & tt service for ID to receiver mappings
   ToolHandle<CaloTriggerTowerService>          m_ttSvc;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+  { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
 
   /// CaloCellContainer StoreGate key
   std::string m_caloCellContainerName;

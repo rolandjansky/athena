@@ -47,6 +47,7 @@ atlas_add_test( ProxyProviderSvc_test
    SOURCES test/ProxyProviderSvc_test.cxx
    LINK_LIBRARIES TestTools ToyConversionLib AthenaKernel SGTools StoreGateLib
    GaudiKernel
+   PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "${PPSoptignore}^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^JobOptionsSvc +INFO|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG|^ServiceManager +DEBUG|Service base class initialized successfully|found service|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

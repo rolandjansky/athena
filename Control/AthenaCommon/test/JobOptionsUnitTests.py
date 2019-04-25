@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
 """Unit tests for verifying setting of Gaudi/Athena job properties setting.
@@ -37,7 +37,7 @@ class JobOptionsTestBase( unittest.TestCase ):
          assert( len(JobOptionsSvc.getProperties( client )) == 0 ),\
            '%s still has %d properties' %\
            (client,len(JobOptionsSvc.getProperties( client )))
-      del client
+         del client
 
 
 ### setting of basic properties (a la HelloWorld) ============================
@@ -89,7 +89,7 @@ class BasicConfigurableWorkingsTestCase( unittest.TestCase ):
       seq = AlgSequence( name + 'Sequence' )
       seq += HelloWorld
       getattr(seq,name).MyDouble = 2.71828
-      exec 'del seq.%s' % name
+      exec ('del seq.%s' % name)
       seq.setup()
 
       self.assert_( name not in JobOptionsSvc.getClients() )
@@ -167,7 +167,7 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       self.assertEqual( HelloWorld.MyDict,
          {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} )
       self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyDict',
-         "{'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'}" ) )
+         {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} ) )
       self.assertEqual( HelloWorld.MyTable, [(1, 1), (2, 4), (3, 9), (4, 16)] )
       self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyTable',
          "[(1, 1), (2, 4), (3, 9), (4, 16)]" ) )

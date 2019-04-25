@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -55,13 +57,20 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
   /** Execute */
   virtual StatusCode execute(const EventContext& ctx) const override;
 
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
+
  private:
 
   /** Region Selector service for Athena. */
-  ServiceHandle<IRegSelSvc> m_regionSelector;     
+  ServiceHandle<IRegSelSvc> m_regionSelector{this,
+                                             "RegSelSvc",
+                                             "RegSelSvc"};
 
   /** ROB Data Provider for accessing ROB data. */ 
-  ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
+  ServiceHandle<IROBDataProviderSvc> m_robDataProvider{this,
+                                                       "ROBDataProviderSvc",
+                                                       "ROBDataProviderSvc"};
 
   /** Tool to fill Collections of SCT RDO Containers. */
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, 
@@ -77,7 +86,7 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */ 
-  const SCT_ID* m_sctID; 
+  const SCT_ID* m_sctID{nullptr};
 
   /** Boolean to determine if SCT Raw Data Provider should be run in RoI seeded mode. */
   BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};

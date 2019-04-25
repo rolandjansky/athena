@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JpsiExample.cxx
@@ -9,7 +9,6 @@
 
 #include "JpsiUpsilonTools/JpsiExample.h"
 
-#include "TrkParametersBase/ParametersBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
@@ -125,10 +124,10 @@ StatusCode JpsiExample::execute() {
 
   // Read in the Jpsis from StoreGate 
   const xAOD::VertexContainer*    jpsiContainer(0);
-  const xAOD::VertexAuxContainer* jpsiAuxContainer(0);
-  StatusCode sc  = evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey);
-  StatusCode sc2 = evtStore()->retrieve(jpsiAuxContainer, m_JpsiCandidatesKey+"Aux.");
-  if (sc.isFailure() || !jpsiContainer || sc2.isFailure() || !jpsiAuxContainer) {
+  SG::ReadHandle<xAOD::VertexContainer> handle(m_JpsiCandidatesKey);
+  jpsiContainer = handle.cptr();
+
+  if (!jpsiContainer) {
     ATH_MSG_ERROR("No Jpsi Container Found, skipping event");
     return StatusCode::RECOVERABLE;
   } else {
@@ -380,7 +379,7 @@ TLorentzVector JpsiExample::origTrack4Momentum(const xAOD::Vertex * vxCandidate,
 // invariantMassError: returns invariant mass error
 // ---------------------------------------------------------------------------------
 
-double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const
+double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, const std::vector<double> &masses) const
 {
   uint NTrk = vxCandidate->vxTrackAtVertex().size();
   if (masses.size() != NTrk) {
@@ -402,7 +401,7 @@ double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, std::vec
 // massErrorVKalVrt: returns invariant mass error for vertex created by VKalVrtFitter
 // ---------------------------------------------------------------------------------
 
-double JpsiExample::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+double JpsiExample::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
 {
   unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
   

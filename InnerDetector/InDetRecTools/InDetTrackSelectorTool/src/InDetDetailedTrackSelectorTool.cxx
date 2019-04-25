@@ -38,12 +38,12 @@ namespace InDet
   // ---------------------------------------------------------------------
   InDetDetailedTrackSelectorTool::InDetDetailedTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p)
     : AthAlgTool(t,n,p)
-    , m_trackSumTool("Trk::TrackSummaryTool")
-    , m_extrapolator("Trk::Extrapolator")
+    , m_trackSumTool("Trk::TrackSummaryTool", this)
+    , m_extrapolator("Trk::Extrapolator", this)
     , m_iBeamCondSvc ("BeamCondSvc",n)
     , m_magFieldSvc("AtlasFieldSvc",n)
-    , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool")
-    , m_inDetTestBLayerTool("")
+    , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool", this)
+    , m_inDetTestBLayerTool("", this)
     , m_trackSumToolAvailable(true)
     , m_usePtDependentCuts(false)
 

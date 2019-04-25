@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -49,7 +49,7 @@ class LArWaveCumul : public LArWave {
 		 double dt,
 		 unsigned flag=0);
 
-    virtual ~LArWaveCumul();
+    virtual ~LArWaveCumul() = default;
     //@}
 
     /// \name accumulation  accessors
@@ -132,10 +132,6 @@ LArWaveCumul::LArWaveCumul(unsigned nSamples,
     m_errors.resize(nSamples,0) ; 
     m_triggers.resize(nSamples,0) ;
 }
-
-inline
-LArWaveCumul::~LArWaveCumul() 
-{}
 
 inline
 const std::vector<double>& 

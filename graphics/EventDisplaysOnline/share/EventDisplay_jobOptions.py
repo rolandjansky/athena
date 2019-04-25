@@ -149,7 +149,6 @@ include ("RecExOnline/RecExOnline_jobOptions.py")
 ToolSvc.InDetPixelRodDecoder.OutputLevel = ERROR
 
 rec.abortOnUncheckedStatusCode = False
-rec.abortOnErrorMessage=False
 
 include ("EventDisplaysOnline/JiveXMLServer_jobOptions.py")
 include ("EventDisplaysOnline/Atlantis_jobOptions.py")

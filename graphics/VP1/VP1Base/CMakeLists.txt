@@ -9,9 +9,22 @@
 atlas_subdir( VP1Base )
 
 # Set up the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC DetectorDescription/GeoPrimitives
-   PRIVATE graphics/VP1/VP1HEPVis )
+atlas_depends_on_subdirs( PUBLIC 
+                          DetectorDescription/GeoPrimitives
+    	                  Event/xAOD/xAODBase
+                          PRIVATE 
+                          graphics/VP1/VP1HEPVis )
+
+# Get OS version
+atlas_os_id( _os _isValid )
+if( NOT _isValid )
+   message( WARNING "Could not determine OS name!" )
+   return()
+endif()
+message ( STATUS "  > Compiling on ${_os}" ) 
+
+# Set up the build of Coin3D:
+# Select which version to use:
 
 # Find the external dependencies:
 find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport Widgets )

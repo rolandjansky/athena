@@ -147,6 +147,9 @@ protected:
   /// Default is to clear the store at the end of the event
   StringProperty m_clearStorePolicy;
 
+  /// read event number from secondary input
+  bool m_useSecondaryEventNumber;
+
   /// property update handler:set the clear-store policy value and check its
   /// value.
   void setClearStorePolicy(Property& clearStorePolicy);

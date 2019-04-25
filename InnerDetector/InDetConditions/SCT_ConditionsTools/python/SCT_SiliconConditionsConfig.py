@@ -14,21 +14,17 @@ def SCT_SiliconConditionsToolCfg(flags, name="SCT_SiliconConditionsTool", **kwar
     return SCT_SiliconConditionsTool(name, **kwargs)
 
 def SCT_SiliconConditionsCfg(flags, name="SCT_Silicon", **kwargs):
-    """Return configured ComponentAccumulator and tool for SCT_SiliconConditions
+    """Return a ComponentAccumulator configured for SiliconConditions DB
 
-    SiConditionsTool and/or DCSConditionsTool may be provided in kwargs
+    DCSConditionsTool may be provided in kwargs
     """
     acc = ComponentAccumulator()
-    tool = kwargs.get("SiConditionsTool", SCT_SiliconConditionsToolCfg(flags))
-    if tool.UseDB:
-        CondArgs = {}
-        if "DCSConditionsTool" in kwargs:
-            DCSConditionsTool = kwargs["DCSConditionsTool"]
-            CondArgs["UseState"] = DCSConditionsTool.ReadAllDBFolders
-            CondArgs["DCSConditionsTool"] = DCSConditionsTool
-        hvAlg = SCT_SiliconHVCondAlg(name=name + "HVCondAlg", **CondArgs)
-        tempAlg = SCT_SiliconTempCondAlg(name=name + "TempCondAlg", **CondArgs)
-        acc.addCondAlgo(hvAlg)
-        acc.addCondAlgo(tempAlg)
-    return acc, tool
+    CondArgs = {}
+    DCSConditionsTool = kwargs.get("DCSConditionsTool")
+    if DCSConditionsTool:
+        CondArgs["UseState"] = DCSConditionsTool.ReadAllDBFolders
+        CondArgs["DCSConditionsTool"] = DCSConditionsTool
+    acc.addCondAlgo(SCT_SiliconHVCondAlg(name=name + "HVCondAlg", **CondArgs))
+    acc.addCondAlgo(SCT_SiliconTempCondAlg(name=name + "TempCondAlg", **CondArgs))
+    return acc
 

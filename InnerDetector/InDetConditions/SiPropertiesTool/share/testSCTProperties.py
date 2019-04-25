@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -88,6 +89,11 @@ sct_SiPropertiesToolSetup.setup()
 # Set up SCTSiPropertiesTestAlg
 from SiPropertiesTool.SiPropertiesToolConf import SCTSiPropertiesTestAlg
 job += SCTSiPropertiesTestAlg(SCTPropertiesTool=sct_SiPropertiesToolSetup.getTool())
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    job.SCTSiPropertiesTestAlg.Cardinality = numThreads
 
 # Prepare EventSelector
 import AthenaCommon.AtlasUnixGeneratorJob

@@ -4,7 +4,8 @@ import AthenaCommon.AtlasUnixStandardJob
 # Thread-specific setup
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+numThreads = jobproperties.ConcurrencyFlags.NumThreads()
+if numThreads > 0:
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -80,6 +81,11 @@ job+= SCT_MonitorConditionsTestAlg(SCT_MonitorConditionsTool=SCT_MonitorConditio
 
 SCT_MonitorTest=job.SCT_MonitorConditionsTestAlg
 SCT_MonitorTest.OutputLevel  = 2
+
+if numThreads >= 2:
+    from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
+    sctCondAlgCardinality.set(numThreads)
+    SCT_MonitorTest.Cardinality = numThreads
 
 #--------------------------------------------------------------
 # Load IOVDbSvc

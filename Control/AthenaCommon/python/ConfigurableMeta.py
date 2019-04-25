@@ -1,9 +1,12 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurableMeta.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
+from __future__ import print_function
+
 import weakref
+import six
 from AthenaCommon import Logging, PropertyProxy
 
 
@@ -25,7 +28,7 @@ class ConfigurableMeta( type ):
       by using PropertyProxy descriptors rather than the default ones."""
 
    def __new__( self, name, bases, dct ):
-    # enfore use of classmethod for getType() and setDefaults()
+    # enforce use of classmethod for getType() and setDefaults()
       if 'getType' in dct and not isinstance( dct[ 'getType' ], classmethod ):
          dct[ 'getType' ] = classmethod( dct[ 'getType' ] )
 
@@ -47,13 +50,14 @@ class ConfigurableMeta( type ):
 
          for meth, nArgs in meths.items():
             try:
-               f = getattr( newclass, meth ).im_func
+               f = six.get_unbound_function(getattr( newclass, meth ))
             except AttributeError:
                raise NotImplementedError("%s is missing in class %s" % (meth,str(newclass)))
 
           # in addition, verify the number of arguments w/o defaults
-            nargcount = f.func_code.co_argcount
-            ndefaults = f.func_defaults and len(f.func_defaults) or 0
+            nargcount = six.get_function_code(f).co_argcount
+            dflts = six.get_function_defaults(f)
+            ndefaults = dflts and len(dflts) or 0
             if not nargcount - ndefaults <= nArgs <= nargcount:
                raise TypeError("%s.%s requires exactly %d arguments" % (newclass,meth,nArgs))
 

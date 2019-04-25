@@ -34,7 +34,7 @@ atlas_add_component( SCT_ModuleDistortions
 
 atlas_add_test( TestSCT_DistortionsTool
                 SCRIPT athena.py --threads=5 SCT_ModuleDistortions/TestSCT_DistortionsTool.py
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
 # Install files from the package:

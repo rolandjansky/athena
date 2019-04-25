@@ -9,6 +9,8 @@ atlas_subdir( TrigCommon )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( bin/athenaHLT.py )
+atlas_install_scripts( bin/athenaHLT-select-PEB-stream.py )
+atlas_install_scripts( bin/ros2rob_from_partition.py )
 
 # Aliases:
 atlas_add_alias( athenaHLT "athenaHLT.py" )

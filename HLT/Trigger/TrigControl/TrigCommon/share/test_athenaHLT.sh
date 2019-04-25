@@ -24,5 +24,5 @@ detmask="00000000000000000001fffffffffff7"
 # Run only config stage (exit immediately via interactive mode) and filter final ptree
 # If there was a failure, the exit code will be non-zero
 log=test_athenaHLT-${BASHPID}
-echo "e" | athenaHLT.py --file ${file} --detector-mask ${detmask} --run-number ${run} --sor-time ${sortime} --interactive ${test_options} &> $log
+echo "e" | athenaHLT.py --stdcmalloc --file ${file} --detector-mask ${detmask} --run-number ${run} --sor-time ${sortime} --interactive ${test_options} &> $log
 cat $log | sed -n '/<Configuration>/,/<\/Magnets>/p;/<\/Magnets>/q' | grep '<' | grep -v 'LogRoot'

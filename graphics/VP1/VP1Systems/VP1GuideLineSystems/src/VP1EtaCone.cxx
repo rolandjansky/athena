@@ -21,7 +21,13 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoRotationXYZ.h>
 
-#include "GaudiKernel/SystemOfUnits.h"
+#ifdef BUILDVP1LIGHT
+  #include "CLHEP/Units/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS CLHEP
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units
+#endif
 
 //____________________________________________________________________
 class VP1EtaCone::Imp {
@@ -96,7 +102,7 @@ void VP1EtaCone::Imp::ensureInit3DObjects()
   for ( int i = 0;i<2;++i){
     SoRotationXYZ * xf = new SoRotationXYZ();
     xf->axis=SoRotationXYZ::X;
-    xf->angle = i==0 ? 90.0*Gaudi::Units::deg : -90*Gaudi::Units::deg;
+    xf->angle = i==0 ? 90.0*SYSTEM_OF_UNITS::deg : -90*SYSTEM_OF_UNITS::deg;
     SoTranslation  * xl = new SoTranslation();
     SoCone * cone = new SoCone();
     SoTranslation  * innerxl = new SoTranslation();
@@ -165,7 +171,7 @@ void VP1EtaCone::Imp::updateFields()
   innercone2->bottomRadius = bottomRadius;
   innercone2->height = -coneHeight;
   //To avoid render flicker from the overlapping cones, we move the inner cone slightly away from origo:
-  const double epsilon = 0.50*Gaudi::Units::mm;
+  const double epsilon = 0.50*SYSTEM_OF_UNITS::mm;
   innertrans1->translation.setValue(0, coneHeight/2+1.001*coneHeight/2+epsilon, 0);
   innertrans2->translation.setValue(0, coneHeight/2+1.001*coneHeight/2+epsilon, 0);
 

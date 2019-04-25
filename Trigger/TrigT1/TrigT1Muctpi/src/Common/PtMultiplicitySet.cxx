@@ -47,15 +47,6 @@ namespace LVL1MUCTPI {
 
    }
 
-   PtMultiplicitySet& PtMultiplicitySet::operator=( const PtMultiplicitySet& a ) {
-
-      for( unsigned int i = 0; i < MAX_NUMBER_OF_THRESHOLDS; ++i ) {
-         m_multiplicity_pt[ i ] = a.m_multiplicity_pt[ i ];
-      }
-      return *this;
-
-   }
-
    PtMultiplicitySet& PtMultiplicitySet::operator+=( const PtMultiplicitySet& a) {
 
       // No check is performed for the "correctness" of the input PtMultiplicitySet,

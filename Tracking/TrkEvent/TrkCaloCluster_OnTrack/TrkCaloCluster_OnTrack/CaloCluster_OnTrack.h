@@ -10,8 +10,7 @@
 #include "EventPrimitives/EventPrimitives.h"  
 #include "GeoPrimitives/GeoPrimitives.h" 
 
-
-#include <ostream>
+#include <iosfwd>
 class MsgStream;
 
 namespace Trk {
@@ -58,7 +57,6 @@ namespace Trk {
       - interface from MeasurementBase */
       virtual const Amg::Vector3D& globalPosition() const;
 
-      
       /** Extended method to get the EnergyLoss */
       virtual const Trk::EnergyLoss* energyLoss() const;
 
@@ -71,13 +69,13 @@ namespace Trk {
 
     protected:
       /** Surface associated to the measurement*/
-      mutable const Surface* m_surface;
+      const Surface* m_surface;
       
       /** global position of the cluster hit*/
-      mutable const Amg::Vector3D* m_globalpos;
+      const Amg::Vector3D* m_globalpos;
       
       /** Energy Loss */
-      mutable const Trk::EnergyLoss* m_eloss;
+      const Trk::EnergyLoss* m_eloss;
       
 
   };//End of Class

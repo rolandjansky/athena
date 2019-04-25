@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCONDITIONSDATA_STRAWSTATUS_H
@@ -21,7 +21,7 @@ namespace TRTCond
       /** constructor */ 
       StrawStatus(unsigned int mystatus) : m_status(mystatus){};
       /** destructor */
-      virtual ~StrawStatus() {}
+      virtual ~StrawStatus() = default;
       /** set status */
       void setstatus(unsigned int i) { m_status = i ; }
       /** get status */

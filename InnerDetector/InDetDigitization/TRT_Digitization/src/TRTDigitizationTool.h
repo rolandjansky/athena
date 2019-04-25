@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGITIZATIONTOOL_H
@@ -20,6 +20,7 @@
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
@@ -35,7 +36,7 @@ class TRTElectronicsProcessing;
 class TRTDigCondBase;
 class TRTNoise;
 class ITRT_StrawNeighbourSvc;
-class ITRT_StrawStatusSummarySvc;
+class ITRT_StrawStatusSummaryTool;
 
 namespace CLHEP{
   class HepRandomEngine;
@@ -112,7 +113,8 @@ private:
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                           CLHEP::HepRandomEngine *elecNoiseRndmEngine);
+                           CLHEP::HepRandomEngine *elecNoiseRndmEngine,
+                           CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
   // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
@@ -124,6 +126,7 @@ private:
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
   std::string m_dataObjectName; /**< Name of the hits collections */
+  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */
   SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
@@ -168,7 +171,7 @@ private:
 
   int m_UseGasMix;
   double m_cosmicEventPhase;     // local replacement for the comTime service
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc;
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
   IntegerProperty m_vetoThisBarcode;
 
 };

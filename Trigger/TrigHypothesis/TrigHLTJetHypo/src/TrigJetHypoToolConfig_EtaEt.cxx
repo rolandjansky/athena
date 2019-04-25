@@ -14,9 +14,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsSorter.h"
-
+#include "./conditionsFactoryMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
@@ -48,13 +46,11 @@ StatusCode TrigJetHypoToolConfig_EtaEt::initialize() {
 
 
 
-Conditions TrigJetHypoToolConfig_EtaEt::getConditions() const {
-  auto conditions = conditionsFactoryEtaEt(m_etaMins,
-                                           m_etaMaxs,
-                                           m_EtThresholds,
-                                           m_asymmetricEtas);
-  std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
-  
+ConditionsMT TrigJetHypoToolConfig_EtaEt::getConditions() const {
+  auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
+                                             m_etaMaxs,
+                                             m_EtThresholds,
+                                             m_asymmetricEtas);
   return conditions;
 }
 

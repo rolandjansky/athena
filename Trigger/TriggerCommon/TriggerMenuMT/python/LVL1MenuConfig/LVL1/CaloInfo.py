@@ -1,12 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Lvl1MenuUtil import log
 from Lvl1MenuUtil import oldStyle
 from Limits import CaloLimits
 
-class Isolation:
+class Isolation(object):
 
-    class Parametrization:
+    class Parametrization(object):
         def __init__(self, isobit, offset, slope, mincut, upperlimit, etamin, etamax, priority):
             self.isobit     = int(isobit)
             self.offset     = int(offset)
@@ -24,7 +24,7 @@ class Isolation:
                 ( self.isobit, self.offset, self.slope, self.mincut, self.upperlimit, self.etamin, self.etamax, self.priority )
             return s
 
-    class IsoGroup:
+    class IsoGroup(object):
         def __init__(self):
             self.parameterizations = []
 
@@ -41,7 +41,7 @@ class Isolation:
         self.isolation = {'EMIsoForEMthr': Isolation.IsoGroup(), 'HAIsoForEMthr': Isolation.IsoGroup(), 'EMIsoForTAUthr': Isolation.IsoGroup()}
 
     def __getitem__(self,k):
-        if not k in self.isolation:
+        if k not in self.isolation:
             raise RuntimeError("Isolation group %s doesn't exist. Should be one of %s" % (k, ','.join(self.isolation.keys())) )
         return self.isolation[k]
         
@@ -64,17 +64,17 @@ class MinimumTOBPt(object):
         self.etamax     = int(etamax)
         self.priority   = int(priority)
         self.window     = int(window)
-        if not self.thrtype in [ "JETS", "JETL", "EM", "TAU"]:
+        if self.thrtype not in [ "JETS", "JETL", "EM", "TAU"]:
             raise RuntimeError("Unknown type %s for Minimum TOB PT, must be JETS, JETL, EM, or TAU")
         
 
     def xml(self, ind=1, step=2):
         window = ' window="%i"' % self.window if self.thrtype.startswith("JET") else ""
         s = ind * step * ' ' + '<MinimumTOBPt thrtype="%s"%s ptmin="%i" etamin="%i" etamax="%i" priority="%i"/>\n' % \
-             ( self.thrtype, window, self.ptmin, self.etamin, self.etamax, self.priority )
+            ( self.thrtype, window, self.ptmin, self.etamin, self.etamax, self.priority )
         return s
 
-class CaloInfo:
+class CaloInfo(object):
             
     AverageOfThr = 1
     LowerThr = 2
@@ -107,8 +107,8 @@ class CaloInfo:
 
     def setXsParams( self, **args ):
         for k in args:
-            if not k in self.xsParams:
-                raise RuntimeError, "'%s' is not a MET significance parameter" %  k
+            if k not in self.xsParams:
+                raise RuntimeError("'%s' is not a MET significance parameter" % k)
             self.xsParams[k]  = args[k]
 
     def xml(self, ind=1, step=2):
@@ -165,14 +165,14 @@ class CaloInfo:
         l1_thrs = triggerConfigLvl1.menu.thresholds
         jet_thresholds  = l1_thrs.allThresholdsOf('JET')
         fjet_thresholds = l1_thrs.allThresholdsOf('JF')
-        log.debug('N jet thresholds: %d (8 expected)' % len(jet_thresholds))
-        log.debug('N fjet thresholds: %d (4 expected)' % len(fjet_thresholds))
+        log.debug('N jet thresholds: %d (8 expected)', len(jet_thresholds))
+        log.debug('N fjet thresholds: %d (4 expected)', len(fjet_thresholds))
 
         jthr, fjthr           = [1023]*8, [1023]*4
         jet_names, fjet_names = ['---']*8, ['---']*4
 
         for j in jet_thresholds:
-            log.debug('jet threshold %s: %d' % (j.name, j.thresholdInGeV()))
+            log.debug('jet threshold %s: %d', j.name, j.thresholdInGeV())
             jthr[j.mapping] = j.thresholdInGeV()
             jet_names[j.mapping] = j.name
 
@@ -183,14 +183,14 @@ class CaloInfo:
             for tv in tvalues:
                 if tv.priority > priority:
                     threshold_value = tv.value
-            log.debug('fjet threshold %s: %d' % (j.name, threshold_value))
+            log.debug('fjet threshold %s: %d', j.name, threshold_value)
             fjthr.append(threshold_value)
             fjthr[j.mapping] = threshold_value
             fjet_names[j.mapping] = j.name
         #
 
-        log.debug('Jet thresholds: %s' % ' '.join(jet_names))
-        log.debug('Fjet thresholds: %s' % ' '.join(fjet_names))
+        log.debug('Jet thresholds: %s', ' '.join(jet_names))
+        log.debug('Fjet thresholds: %s', ' '.join(fjet_names))
 
         if len(jthr) <= 8:
             w = thr2weights(jthr)

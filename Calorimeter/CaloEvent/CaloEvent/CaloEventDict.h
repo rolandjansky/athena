@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -62,6 +62,8 @@ namespace CaloDict{
 
     ElementLink<CaloShowerContainer>                     m_link4;
     std::pair<ElementLink<CaloShowerContainer>,double>   m_pair4;
+
+    std::pair<unsigned int,double>                       m_pair5;
 
     Navigable<CaloCellLinkContainer,double>              m_navCellLink;
     Navigable<CaloClusterContainer,double>               m_navCluster;

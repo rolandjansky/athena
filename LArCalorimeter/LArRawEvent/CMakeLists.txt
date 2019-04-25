@@ -10,9 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
                           Control/AthContainers
-                          DetectorDescription/Identifier
-                          PRIVATE
-                          Control/SGTools )
+                          DetectorDescription/Identifier )
 
 # External dependencies:
 find_package( CLHEP )
@@ -26,11 +24,11 @@ atlas_add_library( LArRawEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers Identifier
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel )
 
 atlas_add_dictionary( LArRawEventDict
                       LArRawEvent/LArRawEventDict.h
                       LArRawEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthContainers Identifier SGTools LArRawEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthContainers Identifier AthenaKernel LArRawEvent )
 

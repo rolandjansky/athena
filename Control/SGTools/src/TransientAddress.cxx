@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/TransientAddress.h"
@@ -59,8 +59,8 @@ TransientAddress::TransientAddress(CLID id, const std::string& key,
 
 
 TransientAddress::TransientAddress (const TransientAddress& other)
-  : m_clid (other.m_clid),
-    m_sgkey (other.m_sgkey),
+  : m_clid (static_cast<CLID>(other.m_clid)),
+    m_sgkey (static_cast<sgkey_t>(other.m_sgkey)),
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
@@ -75,8 +75,8 @@ TransientAddress::TransientAddress (const TransientAddress& other)
 
 
 TransientAddress::TransientAddress (TransientAddress&& other)
-  : m_clid (other.m_clid),
-    m_sgkey (other.m_sgkey),
+  : m_clid (static_cast<CLID>(other.m_clid)),
+    m_sgkey (static_cast<sgkey_t>(other.m_sgkey)),
     m_storeID (other.m_storeID),
     m_clearAddress (other.m_clearAddress),
     m_consultProvider (other.m_consultProvider),
@@ -100,7 +100,7 @@ TransientAddress::~TransientAddress()
 TransientAddress& TransientAddress::operator= (const TransientAddress& other)
 {
   if (this != &other) {
-    m_clid = other.m_clid;
+    m_clid = static_cast<CLID>(other.m_clid);
     m_name = other.m_name;
     m_transientID = other.m_transientID;
     m_transientAlias = other.m_transientAlias;
@@ -108,7 +108,7 @@ TransientAddress& TransientAddress::operator= (const TransientAddress& other)
     m_consultProvider = other.m_consultProvider;
     m_pAddressProvider = other.m_pAddressProvider;
     m_storeID = other.m_storeID;
-    m_sgkey = other.m_sgkey;
+    m_sgkey = static_cast<sgkey_t>(other.m_sgkey);
 
     setAddress (other.m_address);
   }
@@ -119,7 +119,7 @@ TransientAddress& TransientAddress::operator= (const TransientAddress& other)
 TransientAddress& TransientAddress::operator= (TransientAddress&& other)
 {
   if (this != &other) {
-    m_clid = other.m_clid;
+    m_clid = static_cast<CLID>(other.m_clid);
     m_name = std::move (other.m_name);
     m_transientID = std::move (other.m_transientID);
     m_transientAlias = std::move (other.m_transientAlias);
@@ -127,7 +127,7 @@ TransientAddress& TransientAddress::operator= (TransientAddress&& other)
     m_consultProvider = other.m_consultProvider;
     m_pAddressProvider = other.m_pAddressProvider;
     m_storeID = other.m_storeID;
-    m_sgkey = other.m_sgkey;
+    m_sgkey = static_cast<sgkey_t>(other.m_sgkey);
 
     m_address = other.m_address;
     other.m_address = nullptr;

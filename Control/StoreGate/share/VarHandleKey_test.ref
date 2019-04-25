@@ -15,5 +15,5 @@ VarHandleKey::assign failure: SG::ExcBadHandleKey: Bad key format for VarHandleK
 ClassIDSvc           INFO  getRegistryEntries: read 904 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: FooSvc
-                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot initialize a Read/Write/Update handle with a null key.
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: FooSvc
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot initialize a Read/Write/Update handle with a null key.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/InputMakerBase.h"
@@ -122,9 +122,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     } // loop over input decisions
 
     ATH_MSG_DEBUG( "Filled output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    for (auto i : *outDecisions) msg() << i << " ";
-    msg() << endmsg;
-    outputIndex++;         
+    outputIndex++;
   } // end of first loop over input keys
 
   return StatusCode::SUCCESS;
@@ -132,7 +130,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
 
 
 
-StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
+void InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -169,7 +167,6 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
       }  
     }
   }
-  return StatusCode::SUCCESS;
 }
 
 

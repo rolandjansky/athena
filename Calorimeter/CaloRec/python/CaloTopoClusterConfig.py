@@ -6,8 +6,7 @@ from AthenaCommon.Constants import VERBOSE
 
 def caloTopoCoolFolderCfg(configFlags):
     result=ComponentAccumulator()
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    result.mergeAll(IOVDbSvcCfg(configFlags))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     # rely on global tag for both MC and data; do not specify folder tags
     # use CALO_OFL only for GEO>=18
     hadCalibFolders = [
@@ -239,8 +238,7 @@ def getTopoCalibMoments(configFlags):
 
 def caloTopoCoolFolderCfg(configFlags):
     result=ComponentAccumulator()
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    result.mergeAll(IOVDbSvcCfg(configFlags))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     # rely on global tag for both MC and data; do not specify folder tags
     # use CALO_OFL only for GEO>=18
     hadCalibFolders = [

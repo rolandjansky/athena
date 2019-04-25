@@ -29,8 +29,8 @@ CaloCellContainerCorrectorTool::CaloCellContainerCorrectorTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :base_class(type, name, parent),
-   m_caloSelection(false)
-{
+   m_cellCorrectionTools(this),
+   m_caloSelection(false) {
   declareProperty("CaloNums",m_caloNums);
   declareProperty("CellCorrectionToolNames",m_cellCorrectionTools);
   m_caloNums.clear();

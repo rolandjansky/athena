@@ -102,7 +102,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320'],
+    'etaRange'     : ['0eta320', '320eta490', '0eta240'],
     'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : [],
@@ -127,7 +127,7 @@ JetChainParts = {
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'trkopt'       : [],
-    'hypoScenario' : ['simple', 'vbenf'],
+    'hypoScenario' : ['simple', 'vbenf', 'vbenfSEP30etSEP34mass35SEP50fbet'],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
@@ -188,7 +188,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550', ],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb'],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar',],
     'reccalibInfo'   : [],
@@ -794,9 +794,10 @@ def getSignatureNameFromToken(chainpart):
     theToken = max(theMatchingTokens, key=len) # gets the longest string in t
     if len(theMatchingTokens)>0:
         if len(theMatchingTokens)>1:
-            logSignatureDict.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.' % (theMatchingTokens,chainpart,theToken))            
+            logSignatureDict.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
+                                  theMatchingTokens,chainpart,theToken)
         return reverseSliceIDDict[theToken]
-    logSignatureDict.error('No signature matching chain part %s was found.' % (chainpart))
+    logSignatureDict.error('No signature matching chain part %s was found.', chainpart)
     return False
 
 

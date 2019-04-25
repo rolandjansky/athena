@@ -31,12 +31,10 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
     m_highestGain(),
     m_WithOF(true),
     m_atlas_id(nullptr),
-    m_calo_id_man(nullptr),
     m_lar_em_id(nullptr),
     m_lar_hec_id(nullptr),
     m_lar_fcal_id(nullptr),
     m_tile_id(nullptr),
-    m_calo_dd_man(nullptr),
     m_calocell_id(nullptr),
     m_cablingService("LArCablingLegacyService"),
     m_tileInfoName("TileInfo"),
@@ -132,15 +130,12 @@ CaloNoiseTool::initialize()
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  
   //retrieves helpers for LArCalorimeter
 
-  m_calo_dd_man = CaloDetDescrManager::instance();
-  m_calo_id_man = m_calo_dd_man->getCalo_Mgr();
+  ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
   
-  m_lar_em_id   = m_calo_id_man->getEM_ID();
-  m_lar_hec_id  = m_calo_id_man->getHEC_ID();
-  m_lar_fcal_id = m_calo_id_man->getFCAL_ID();
-
-  //FIXME
-  m_tile_id = m_calo_id_man->getTileID();
+  m_lar_em_id   = m_calocell_id->em_idHelper();
+  m_lar_hec_id  = m_calocell_id->hec_idHelper();
+  m_lar_fcal_id = m_calocell_id->fcal_idHelper();
+  m_tile_id = m_calocell_id->tile_idHelper();
   
   if (m_tile_id==nullptr)
   {
@@ -149,10 +144,6 @@ CaloNoiseTool::initialize()
   } 
     
   
-  //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  //retrieves helpers for Calorimeter
-  m_calocell_id = m_calo_dd_man->getCaloCell_ID();
-
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //set calohash maximums
   m_LArHashMax =0;
@@ -2080,15 +2071,6 @@ CaloNoiseTool::adc2mev(const CaloDetDescrElement* caloDDE,
   }  
   return factor;
 }
-
-//////////////////////////////////////////////////
-
-float 
-CaloNoiseTool::adc2mev(const Identifier& id,const CaloGain::CaloGain gain)
-{
-  return adc2mev(m_calo_dd_man->get_element(id),gain);
-}
-
 
 
 void CaloNoiseTool::handle(const Incident&) {

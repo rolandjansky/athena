@@ -26,12 +26,14 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include <atomic>
 
-class IPixelCalibSvc;
 template <class T> class ServiceHandle;
 class Identifier;
 class StatusCode;
@@ -142,15 +144,26 @@ public:
  
 private:
 
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+
+  SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+  {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
+
+  SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+  {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
+  {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool
+  {this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+
   //  mutable MsgStream m_log;
-  bool m_calibrateCharge;
   mutable std::atomic_bool m_issueErrorA;
   mutable std::atomic_bool m_forceErrorStrategy1A;
   mutable std::atomic_bool m_issueErrorB;
   mutable std::atomic_bool m_forceErrorStrategy1B;
-  ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
-  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization

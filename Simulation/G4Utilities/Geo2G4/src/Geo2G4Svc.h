@@ -10,8 +10,12 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 
+#include "Geo2G4AssemblyFactory.h"
+#include "Geo2G4AssemblyVolume.h"
+
 #include <string>
 #include <map>
+#include <memory>
 
 class VolumeBuilder;
 typedef std::map< std::string, VolumeBuilder*,std::less<std::string> > BuilderMap;
@@ -40,6 +44,7 @@ private:
   VolumeBuilder *m_defaultBuilder;
   BuilderMap m_builders ;
   bool m_getTopTransform;
+  std::unique_ptr<Geo2G4AssemblyFactory> m_G4AssemblyFactory;
 };
 
 #endif

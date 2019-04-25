@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackPerformance/MuonTrackPerformanceAlg.h"
@@ -71,6 +71,8 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   declareProperty("LowMomentumThreshold",m_momentumCut = 2000. );
   declareProperty("DoSegments",m_doSegments = false );
   declareProperty("useNSW",m_doNSW=false);
+  declareProperty("doStau",m_doStau=false);
+  declareProperty("TrackType",m_trackType=2);
   declareProperty("ProduceEventListMissedTracks", m_doEventListMissed = 0, "0: off, 1: two station, 2: + one station" );
   declareProperty("ProduceEventListIncompleteTracks", m_doEventListIncomplete = 0, "0: off, 1: missing precision layer, 2: +missing chamber" );
   declareProperty("ProduceEventListFakeTracks", m_doEventListFake = 0, "0: off, 1: high pt, 2: +low pt, 3: +SL" );
@@ -120,11 +122,12 @@ StatusCode MuonTrackPerformanceAlg::initialize()
     msg(MSG::DEBUG) << endmsg;
   }
 
-  ATH_CHECK(m_trackKey.initialize());
+  if(!m_trackKey.key().empty()) ATH_CHECK(m_trackKey.initialize());
+  else ATH_CHECK(m_muons.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
 
   ATH_CHECK(m_mcEventColl.initialize(m_doTruth));
-  if(m_doNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+  if(!m_doNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
   if(m_doTruth) ATH_CHECK(m_muonSimData.initialize());
   ATH_CHECK(m_cscSimData.initialize(m_doTruth && !m_doNSW));
   ATH_CHECK(m_trackRecord.initialize(m_doTruth));
@@ -219,23 +222,79 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
 
 bool MuonTrackPerformanceAlg::handleTracks() {
 
-  SG::ReadHandle<TrackCollection> trackCollection(m_trackKey);
-  if (!trackCollection.isValid() ) {
-    *m_log << MSG::WARNING << " Could not find tracks at " << m_trackKey.key() <<endmsg;
-    return false;
-  }else{
-    if( m_debug ) *m_log << MSG::DEBUG << " Retrieved tracks "  << trackCollection->size() << endmsg;
+  std::unique_ptr<TrackCollection> allTracks(new TrackCollection());
+  if(!m_trackKey.key().empty()){ //MS tracks
+    SG::ReadHandle<TrackCollection> trackCol(m_trackKey);
+    if (!trackCol.isValid() ) {
+      ATH_MSG_WARNING(" Could not find tracks at " << m_trackKey.key());
+      return false;
+    }
+    m_trackTypeString = m_trackKey.key();
+    ATH_MSG_DEBUG( " Retrieved " << trackCol->size()<<" tracks from "<<trackCol.key());
+    m_ntracks += trackCol->size();
+
+    if( m_doTruth ) {
+      handleTrackTruth(*trackCol);
+    }
+
+    if( (m_debug || m_doSummary >= 2) && !m_doTruth ) {
+      doSummary(*trackCol);
+    }
   }
+  else{
+    SG::ReadHandle<xAOD::MuonContainer> muons(m_muons);
+    if(!muons.isValid()){
+      ATH_MSG_WARNING("could not find muons");
+      return false;
+    }
+    if(m_doStau) m_trackTypeString="MuGirlStauCombinedTracks";
+    else{
+      if(m_isCombined) m_trackTypeString="CombinedMuonTracks";
+      else{
+	if(m_trackType==(int)xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) m_trackTypeString="MSOnlyExtrapolatedMuonTracks";
+	else m_trackTypeString="ExtrapolatedMuonTracks";
+      }
+    }
+    for(auto muon : *muons){
+      if(!m_doStau){
+	//if combined and not stau, only take MuidCo and MuGirl
+	if(m_isCombined && muon->author()!=1 && muon->author()!=6) continue;
+	if(!m_isCombined){
+	  //only MuidCo, MuidSA, and STACO will have MSOnlyExtrapolated tracks
+	  if(m_trackType==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5 && muon->author()!=2) continue;
+	  //MuGirl should also have ME tracks
+	  if(m_trackType==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle && muon->author()!=1 && muon->author()!=5 && muon->author()!=2 && muon->author()!=6) continue;
+	}
+      }
+      else{
+	//only staus
+	if(muon->author()!=7) continue;
+      }
+      //TrackCollection is a DataVector so allTracks takes ownership of these copies
+      const xAOD::TrackParticle* tp=muon->trackParticle((xAOD::Muon::TrackParticleType)m_trackType);
+      if(!tp){
+	//possible that MS-only track doesn't exist for combined muon, if initial extrapolation fails but combined fit succeeds
+	//otherwise, the track particle should be there, throw a warning
+	if(m_trackType==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) 
+	  ATH_MSG_DEBUG("no track particle of type "<<m_trackType<<" for muon with author "<<muon->author()<<" and pT "<<muon->pt());
+	else ATH_MSG_WARNING("no track particle of type "<<m_trackType<<" for muon with author "<<muon->author()<<" and pT "<<muon->pt());
+	continue;
+      }
+      if(tp->track()){
+	m_ntracks++;
+	allTracks->push_back(new Trk::Track(*tp->track()));
+      }
+      else ATH_MSG_WARNING("no track for this trackParticle, skipping");
+    }
+    ATH_MSG_DEBUG("got "<<allTracks->size()<<" tracks");
 
-  m_ntracks += trackCollection->size();
-
-
-  if( m_doTruth ) {
-    handleTrackTruth(*trackCollection);
-  }
-
-  if( (m_debug || m_doSummary >= 2) && !m_doTruth ) {
-    doSummary(*trackCollection);
+    if( m_doTruth ) {
+      handleTrackTruth(*allTracks.get());
+    }
+    
+    if( (m_debug || m_doSummary >= 2) && !m_doTruth ) {
+      doSummary(*allTracks.get());
+    }
   }
 
   return true;
@@ -571,7 +630,7 @@ StatusCode MuonTrackPerformanceAlg::finalize()
   //write to file
   if (m_writeToFile){
     std::string outfile = "trkPerformance_";
-    outfile.append(m_trackKey.key());
+    outfile.append(m_trackTypeString);
     outfile.append(".txt");
     m_fileOutput.open(outfile.c_str(), std::ios::trunc);
 
@@ -967,7 +1026,7 @@ std::string MuonTrackPerformanceAlg::printTrackCounters( bool doSecondaries ) co
   double evScale = m_nevents != 0 ? 1./m_nevents : 1.;
 
   sout << std::endl;
-  sout << "Summarizing results for track collection " << m_trackKey.key() << "  " << m_nevents << " events: " << std::endl
+  sout << "Summarizing results for track collection " << m_trackTypeString << "  " << m_nevents << " events: " << std::endl
        << "  number of tracks                           " << std::setw(12) << m_ntracks << "   average per event " << m_ntracks*evScale;
 
   if( m_doTruth ){

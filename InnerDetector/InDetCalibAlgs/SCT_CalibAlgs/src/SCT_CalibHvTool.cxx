@@ -29,21 +29,9 @@ namespace {
 }
 
 SCT_CalibHvTool::SCT_CalibHvTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_pSCTHelper{nullptr},
-  m_sct_waferHash{0},
-  m_sct_numHitsInWafer{0},
-  m_maxq{100},
-  m_phvtripPrevTime{0},
-  m_phvtripFirstTime{0},
-  m_absolutetriplimit{0},
-  m_relativetriplimit{0},
-  m_tq{0},
-  m_evt{0},
-  m_outputLowHits{false},
-  m_lowHitCut{100}
-  {
-  }
+  base_class(type, name, parent)
+{
+}
 
 StatusCode
 SCT_CalibHvTool::initialize() {

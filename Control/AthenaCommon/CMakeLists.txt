@@ -14,15 +14,17 @@ atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py 
                           share/zeroJO.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py)
-atlas_install_scripts( share/athena.py share/athena_preload.sh share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
+atlas_install_scripts( share/athena.py share/athena3.py share/athena_preload.sh share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
 atlas_install_runtime(share/*.pkl)
 
 # Aliases:
 atlas_add_alias( athena "athena.py" )
 
 atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh
+                PROPERTIES TIMEOUT 300
                 EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in|built on" )
 atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh
+                PROPERTIES TIMEOUT 300
                 EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
 atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh 
                 EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
@@ -35,6 +37,7 @@ atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFEleme
 
 atlas_add_test( GenerateBootstrapTest
    SCRIPT test/test_gen_bootstrap.sh
+   PROPERTIES TIMEOUT 300
    #ignore location of bootstrap file and whether it was already downloaded
    EXTRA_PATTERNS ".*copy bootstrap.*pkl|.*\/share\/bootstrap.*pkl|File.*exists in the current directory|^Willing to acquire"
    )

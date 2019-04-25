@@ -12,7 +12,8 @@ def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
 
     # get the GeoModelSvc and add MuonDetectorTool
-    gmsAcc,gms=GeoModelCfg(flags )
+    gmsAcc=GeoModelCfg(flags )
+    gms=gmsAcc.getPrimary()
     acc.merge(gmsAcc)
 
     detTool = MuonDetectorTool()
@@ -37,17 +38,15 @@ def MuonGeoModelCfg(flags):
             ## Additional material in the muon system
             AGDD2Geo = AGDDtoGeoSvc()
             muonAGDDTool = MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
-            acc.addPublicTool(muonAGDDTool)
             AGDD2Geo.Builders += [ muonAGDDTool ]
             if flags.GeoModel.Run=="RUN3" or flags.GeoModel.Run=="RUN4":
                 nswAGDDTool = NSWAGDDTool("NewSmallWheel", Locked=False)
                 nswAGDDTool.Volumes = ["NewSmallWheel"]
                 nswAGDDTool.DefaultDetector = "Muon"
-                acc.addPublicTool(nswAGDDTool)
+                AGDD2Geo.Builders += [ nswAGDDTool ]
             acc.addService(AGDD2Geo)
 
     gms.DetectorTools += [ detTool ]
-    acc.addService(gms)
 
     # Temporary, until we move to services/private tools
     acc.addPublicTool( Muon__MuonIdHelperTool() )

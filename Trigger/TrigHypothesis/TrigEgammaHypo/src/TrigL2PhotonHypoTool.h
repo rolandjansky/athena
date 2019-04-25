@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOTOOL_H 1
@@ -57,8 +57,6 @@ class TrigL2PhotonHypoTool : virtual public ::AthAlgTool
   HLT::Identifier m_decisionId;
 
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to photons ( false ) or RoIs ( false ), relevant only in when multiplicity > 1" };
-
-  Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, ( do not even check ), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property<bool>  m_etCutOnly{ this, "EtCutOnly", true, "" };
   Gaudi::Property< std::vector<double> >  m_etabin{ this,  "EtaBins", {0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47}, "Eta bins" };

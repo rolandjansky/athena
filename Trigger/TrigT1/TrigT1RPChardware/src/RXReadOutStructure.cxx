@@ -40,9 +40,6 @@ RXReadOutStructure::RXReadOutStructure(ubit16 inputData, RXReadOutStructure::Dat
 decodeFragment(inputData, m_field);
 }//end-of-RXReadOutStructure::RXReadOutStructure()
 //----------------------------------------------------------------------------//
-RXReadOutStructure::~RXReadOutStructure() {
-}//end-of-RXReadOutStructure::~RXReadOutStructure
-//----------------------------------------------------------------------------//
 void RXReadOutStructure::setInit() {
   m_field     = 'U';
   m_word      =0xffff;

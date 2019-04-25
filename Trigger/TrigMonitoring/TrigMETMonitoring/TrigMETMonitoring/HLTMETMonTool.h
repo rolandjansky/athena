@@ -127,6 +127,8 @@ private:
   std::string m_hlt_mhtem_met_key; 
   std::string m_hlt_trkmht_met_key; 
   std::string m_hlt_trkmhtFTK_met_key; 
+  std::string m_hlt_trktc_met_key; 
+  std::string m_hlt_trktcFTK_met_key; 
   std::string m_hlt_topocl_met_key; 
   std::string m_hlt_topocl_PS_met_key; 
   std::string m_hlt_topocl_PUC_met_key; 
@@ -143,9 +145,9 @@ private:
   
   std::vector<std::string> m_compNames, m_bitNames;
 
-  // for the efficiencies                                                                                                    
+  // for the efficiencies
   std::string m_denominator_trigger;
-  std::string m_numerator_trigger[4];                                                       
+  std::string m_numerator_trigger[4];                                           
 
   // for MET significance
   float m_sigOffset;

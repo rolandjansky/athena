@@ -76,7 +76,6 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   // other members:
   
-  const CaloDetDescrManager* m_calodetdescrmgr;
   const LArEM_ID* m_larem_id;
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;

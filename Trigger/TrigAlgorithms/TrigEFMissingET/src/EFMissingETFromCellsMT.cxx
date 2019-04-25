@@ -7,7 +7,7 @@
 
 // TrigEFMissingET includes
 #include "TrigEFMissingET/IMissingETTool.h"
-#include "TrigEFMissingET/EFMissingETFromCellsMT.h"
+#include "EFMissingETFromCellsMT.h"
 
 
 EFMissingETFromCellsMT::EFMissingETFromCellsMT( const std::string& type, 
@@ -32,17 +32,16 @@ StatusCode EFMissingETFromCellsMT::initialize()
 }
 
 StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
-					   TrigEFMissingEtHelper *metHelper ) const {
+					   TrigEFMissingEtHelper *metHelper,
+             const EventContext& ctx ) const {
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  auto caloCellsHandle = SG::makeHandle( m_cellsKey );
+  auto caloCellsHandle = SG::makeHandle( m_cellsKey, ctx );
 
   auto loopTimer = Monitored::Timer( "TIME_Loop" );
   auto countUsedCells = Monitored::Scalar<unsigned>( "UsedCells", 0 );
 
   // now it is time to iterate over the cells
-  ATH_MSG_INFO("About to loop over cells from CellMET");
   int nCells(0), nZeroCells(0);
   for ( const CaloCell* cell: *caloCellsHandle ) {
     nCells++;

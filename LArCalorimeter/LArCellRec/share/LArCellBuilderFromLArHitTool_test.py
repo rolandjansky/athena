@@ -130,7 +130,6 @@ class TestAlg (Alg):
 
     def initialize (self):
         ROOT.ICaloCellMakerTool
-        print 'mgr', self.detStore['CaloMgr']
         self.tools1 = Tools ('tool1')
         self.tools2 = Tools ('tool2')
         self.tools3 = Tools ('tool3')

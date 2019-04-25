@@ -83,13 +83,13 @@ StatusCode TRTOverlay::initialize()
   // Retrieve TRT local occupancy tool
   CHECK(m_TRT_LocalOccupancyTool.retrieve());
 
-  if (!m_TRTStrawSummarySvc.empty()) {
-    if (m_TRTStrawSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+  if (!m_TRTStrawSummaryTool.empty()) {
+    if (m_TRTStrawSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG( "Retrieved tool " << m_TRTStrawSummarySvc );
+      ATH_MSG_DEBUG( "Retrieved tool " << m_TRTStrawSummaryTool );
     }
   }
 
@@ -312,8 +312,8 @@ void TRTOverlay::mergeCollections(TRT_RDO_Collection *bkgCollection,
 
             // Determine what type of straw was hit
             bool isXenonStraw = false;
-            if (!m_TRTStrawSummarySvc.empty()) {
-              if (m_TRTStrawSummarySvc->getStatusHT(rdoId) == TRTCond::StrawStatus::Good) {
+            if (!m_TRTStrawSummaryTool.empty()) {
+              if (m_TRTStrawSummaryTool->getStatusHT(rdoId) == TRTCond::StrawStatus::Good) {
                 isXenonStraw = true;
               }
             }

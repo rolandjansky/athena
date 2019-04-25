@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -36,6 +38,9 @@ class SCTEventFlagWriter : public AthReentrantAlgorithm
 
   /** Execute */
   virtual StatusCode execute(const EventContext& ctx) const override;
+
+  /** Make this algorithm clonable. */
+  virtual bool isClonable() const override { return true; };
 
  private:
 

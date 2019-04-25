@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 769198 2016-08-22 13:52:03Z ssnyder $
 
 # The name of the package:
 atlas_subdir( pyAMI )
@@ -26,13 +25,14 @@ function( _setup_python_package name file md5 )
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo
       "Configuring the build of ${name}"
-      BUILD_COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      BUILD_COMMAND
+      ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
       python setup.py build
       INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_PYTHON_OUTPUT_DIRECTORY}
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
       python setup.py install --prefix ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
       --exec-prefix ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
       --root /

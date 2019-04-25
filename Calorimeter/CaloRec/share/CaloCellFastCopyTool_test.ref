@@ -60,8 +60,8 @@ CopyToolTest[13]    DEBUG Accepted calo samplings: 17;
 CopyToolTest[13]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[13]    DEBUG CaloCell hash max: 187652
 CopyToolTest[13]    DEBUG Number of accepted hashes: 0
-CopyToolTest[13]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[13]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+CopyToolTest[13]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code FAILURE: Can't copy to a non-const view container.
+CopyToolTest[13]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code FAILURE: dispatchCopy (srcCont.cptr(), theCont)
 StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[14]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[14]     INFO In initialize 
@@ -69,8 +69,8 @@ CopyToolTest[14]    DEBUG Accepted calo samplings: 17;
 CopyToolTest[14]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[14]    DEBUG CaloCell hash max: 187652
 CopyToolTest[14]    DEBUG Number of accepted hashes: 512
-CopyToolTest[14]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[14]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+CopyToolTest[14]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code FAILURE: Can't copy to a non-const view container.
+CopyToolTest[14]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code FAILURE: dispatchCopy (srcCont.cptr(), theCont)
 StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[15]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[15]     INFO In initialize 
@@ -78,8 +78,8 @@ CopyToolTest[15]    DEBUG Accepted calo samplings: 17;
 CopyToolTest[15]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[15]    DEBUG CaloCell hash max: 187652
 CopyToolTest[15]    DEBUG Number of accepted hashes: 0
-CopyToolTest[15]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[15]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+CopyToolTest[15]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:335 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code FAILURE: Can't copy to a non-const view container.
+CopyToolTest[15]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code FAILURE: dispatchCopy (srcCont.cptr(), theCont)
 StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[16]    DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[16]     INFO In initialize 
@@ -87,8 +87,8 @@ CopyToolTest[16]    DEBUG Accepted calo samplings: 17;
 CopyToolTest[16]    DEBUG Accepted sub calos: 3; 
 CopyToolTest[16]    DEBUG CaloCell hash max: 187652
 CopyToolTest[16]    DEBUG Number of accepted hashes: 512
-CopyToolTest[16]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code 0: Can't copy to a non-const view container.
-CopyToolTest[16]    FATAL /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code 0: dispatchCopy (srcCont.cptr(), theCont)
+CopyToolTest[16]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:324 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*) const): code FAILURE: Can't copy to a non-const view container.
+CopyToolTest[16]    ERROR /usatlas/u/snyder/usatlasdata/atlas-master-mt/Calorimeter/CaloRec/src/CaloCellFastCopyTool.cxx:117 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*, const EventContext&) const): code FAILURE: dispatchCopy (srcCont.cptr(), theCont)
 StoreGateSvc_Impl   DEBUG Retrieved const pointer to object AllCalo  of type CaloCellContainer(CLID 2802)
 CopyToolTest[5]     DEBUG Property update for OutputLevel : new value = 1
 CopyToolTest[5]      INFO In initialize 

@@ -32,7 +32,7 @@ def collectHypos( steps ):
                     __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
                     hypos[stepSeq.name()].append( alg )
                 else:
-                    __log.info("DID NOT FIND HYPO" + alg.name())
+                    __log.verbose("Not a hypo" + alg.name())
     return hypos
 
 def __decisionsFromHypo( hypo ):
@@ -41,6 +41,20 @@ def __decisionsFromHypo( hypo ):
         return hypo.MultiplicitiesMap.keys(), hypo.HypoOutputDecisions[0]
     else: # regular hypos
         return [ t.name() for t in hypo.HypoTools ], hypo.HypoOutputDecisions
+
+
+def collectViewMakers( steps ):
+    """ collect all view maker algorithms in the configuration """
+    makers = set() # map with name, instance and encompasing recoSequence
+    for stepSeq in steps.getChildren():
+        for recoSeq in stepSeq.getChildren():
+            algsInSeq = flatAlgorithmSequences( recoSeq )
+            for seq,algs in algsInSeq.iteritems():
+                for alg in algs:
+                    if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
+                        makers.add(alg)
+    __log.info("Found View Makers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
+    return list(makers)
 
 
 
@@ -76,9 +90,12 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s " % (hypoAlg.getName(), str(hypoAlg.HypoInputDecisions), str(hypoAlg.HypoOutputDecisions) ) )
-            __log.debug( "and hypo tools %s " % (str( [ t.getName() for t in hypoAlg.HypoTools ] ) ) )
-            decisionObjects.add( hypoAlg.HypoInputDecisions )
-            decisionObjects.add( hypoAlg.HypoOutputDecisions )
+            if isinstance( hypoAlg.HypoInputDecisions, list):
+                [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
+                [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
+            else:
+                decisionObjects.add( hypoAlg.HypoInputDecisions )
+                decisionObjects.add( hypoAlg.HypoOutputDecisions )
 
     __log.info("Collecting decision obejcts from filters")
     for step, stepFilters in filters.iteritems():
@@ -112,7 +129,7 @@ def triggerSummaryCfg(flags, hypos):
 
 
 
-def triggerMonitoringCfg(flags, hypos, l1Decoder):
+def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     """
     Configures components needed for monitoring chains
     """
@@ -142,6 +159,11 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
     allChains.update( l1Decoder.ChainToCTPMapping.keys() )
     mon.ChainsList = list( allChains )
+    
+    from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
+    [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
+
+    
     return acc, mon
 
 def triggerOutputStreamCfg( flags, decObj, outputType ):
@@ -170,33 +192,113 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
 
     return acc
 
-def triggerAddMissingEDMCfg( flags, decObj ):
+def triggerBSOutputCfg( flags, decObj ):
+    """
+    Configure output to be saved in BS
+    """
+    acc = ComponentAccumulator()
 
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
-    EDMFillerAlg.InputDecision  = "L1DecoderSummary"
 
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    DecisionObjectsFiller = HLTEDMCreator("DecisionObjectsFiller")
-    DecisionObjectsFiller.TrigCompositeContainer = list(decObj)
-    EDMFillerAlg.OutputTools += [ DecisionObjectsFiller ]
 
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList, persistent
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg # , StreamTagMakerTool, TriggerBitsMakerTool     # TODO add config of these two
+    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
+    
+    serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
+    for coll in decObj:
+        serialiser.addCollectionListToMainResult( [ "{}#remap_{}".format( persistent("xAOD::TrigCompositeContainer"), coll ),
+                                                    "{}#remap_{}Aux.".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
+
+    # EDM
+    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTList )    
+    for item in EDMCollectionsToRecord:
+        typeName, collName = item[0].split("#")
+        serialisedTypeColl="{}#{}".format(persistent(typeName), collName)
+        __log.info( "Serialising {}".format( serialisedTypeColl ) ) 
+        serialiser.addCollectionListToMainResult( [ serialisedTypeColl ] )
+        
+        
+    # not configuring the two tools below now as we soon will change method to configure them (via TrigConfigSvc)
+    #stmaker                       = StreamTagMakerTool()
+    #bitsmaker                     = TriggerBitsMakerTool()
+    
+    
+    hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool") # want short nme to see in the log
+    hltResultMakerTool.MakerTools = [ serialiser ] #, stmaker, bitsmaker ] 
+    hltResultMakerAlg             = HLTResultMTMakerAlg()
+    hltResultMakerAlg.ResultMaker = hltResultMakerTool
+    acc.addEventAlgo( hltResultMakerAlg )
+
+    return acc
+
+
+def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
+
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-    collectionsThatNeedMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTList )
-    for c in collectionsThatNeedMerging:
-        tool = HLTEDMCreator(c[0].split("#")[1]+"merger")
-        ctype, cname = c[0].split("#")
-        ctype = ctype.split(":")[-1]
-        viewsColl = c[3].split(":")[-1]
-        setattr(tool, ctype+"Views", [ viewsColl ] )
-        setattr(tool, ctype+"InViews", [ cname ] )
-        setattr(tool, ctype, [ cname ] )
-        EDMFillerAlg.OutputTools += [ tool ]
-#egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
-#egammaViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
-#egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
-    return EDMFillerAlg
+    alg = HLTEDMCreatorAlg("EDMCreatorAlg")
+
+    # configure views merging
+    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTList )
+    __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
+    # group by the view collection name/(the view maker algorithm in practice)
+    from collections import defaultdict
+    groupedByView = defaultdict(list)
+    [ groupedByView[c[3]].append( c ) for c in needMerging ]
+
+    for view, colls in groupedByView.iteritems():
+        viewCollName = view.split(":")[1]
+        tool = HLTEDMCreator( "{}Merger".format( viewCollName ) )
+        for coll in colls:  # see the content in TrigEDMConfigRun3
+            collType, collName = coll[0].split("#")
+            collType = collType.split(":")[-1]
+            viewsColl = coll[3].split(":")[-1]
+            setattr(tool, collType+"Views", [ viewsColl ] )
+            setattr(tool, collType+"InViews", [ collName ] )
+            setattr(tool, collType, [ collName ] )
+            producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
+            if len(producer) == 0:
+                __log.info("The producer of the {} not in the menu".format( viewsColl ) )
+                continue
+            if len(producer) > 1:
+                for pr in producer[1:]:
+                    if pr != producer[0]:
+                        __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
+                        continue
+
+            producer = producer[0]
+            tool.TrigCompositeContainer = producer.InputMakerOutputDecisions
+            tool.FixLinks = True
+        alg.OutputTools += [ tool ]
+
+
+    if len(edmSet) != 0:
+        tool = HLTEDMCreator( "GapFiller" )
+        from collections import defaultdict
+        groupedByType = defaultdict( list )
+    
+        # scan the EDM
+        for el in TriggerHLTList:
+            if not any([ outputType in el[1].split() for outputType in edmSet ]):
+                continue
+            collType, collName = el[0].split("#")
+            if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
+                continue
+            groupedByType[collType].append( collName )    
+
+        for collType, collNameList in groupedByType.iteritems():
+            propName = collType.split(":")[-1]
+            if hasattr( tool, propName ):
+                setattr( tool, propName, collNameList )
+            else:
+                __log.info("The {} is not going to be added if missing".format( collType ))
+
+        # append all decision objects
+        tool.TrigCompositeContainer += list(decObj)
+        alg.OutputTools += [tool]
+        
+    return alg
 
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):
@@ -239,13 +341,13 @@ def triggerRunCfg( flags, menu=None ):
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )
     filters = collectFilters( HLTSteps )
-
+    
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc )
 
     #once menu is included we should configure monitoring here as below
 
-    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
+    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
@@ -257,19 +359,26 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.merge( menuAcc )
 
-    # output
-    # if any output stream is requested, schedule "gap" filling algorithm
-    if flags.Output.ESDFileName != "" or flags.Output.AODFileName != "":
-        acc.addEventAlgo( triggerAddMissingEDMCfg( flags, decObj ), sequenceName= "HLTTop" )
+    
+    # configure components need to normalise output before writing out
+    viewMakers = collectViewMakers( HLTSteps )
+    edmSet = []
 
-    # configure streams
     if flags.Output.ESDFileName != "":
         acc.merge( triggerOutputStreamCfg( flags, decObj, "ESD" ) )
+        edmSet.append('ESD')
 
     if flags.Output.AODFileName != "":
         acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
+        edmSet.append('AOD')
+        
+    if any( (flags.Output.ESDFileName != "" , flags.Output.AODFileName != "", flags.Trigger.writeBS) ):
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( edmSet , hypos, viewMakers, decObj )
+        acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )
 
-
+    # configure actual streams
+    if flags.Trigger.writeBS:
+        acc.merge( triggerBSOutputCfg( flags, decObj ) )
 
     return acc
 

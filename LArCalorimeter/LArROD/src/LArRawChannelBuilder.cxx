@@ -18,6 +18,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 #include <math.h>
@@ -31,7 +32,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
   AthAlgorithm(name, pSvcLocator),
   m_OFCTool("LArOFCTool"),
   m_adc2mevTool("LArADC2MeVTool/LArADC2MeVToolDefault"),
-  m_hvCorrTool("LArHVCorrTool"),
   m_onlineHelper(NULL),
   //m_roiMap("LArRoI_Map"),
   m_useTDC(false),
@@ -84,7 +84,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
  declareProperty("ShapeMode",                 m_shapeMode=0); 
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
- declareProperty("HVcorr",                    m_hvcorr=false);
  declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
  declareProperty("OFCTool",                   m_OFCTool);
  declareProperty("firstSample",               m_firstSample,"  first sample used in shape");
@@ -113,10 +112,6 @@ StatusCode LArRawChannelBuilder::initialize()
   }
   
   ATH_CHECK( m_cablingKey.initialize() );
-
-  if (m_hvcorr) {
-    ATH_CHECK( m_hvCorrTool.retrieve() );
-  }
 
 
   //Set counters for errors and warnings to zero
@@ -470,14 +465,6 @@ StatusCode LArRawChannelBuilder::execute()
        ADCPeakPower*=ADCPeak;
       }
 
-// HV correction
-
-    if (m_hvcorr) {
-// HV tool
-       float hvCorr = m_hvCorrTool->Scale(chid);
-       energy = energy*hvCorr;
-    }
-  
     //Check if energy is above threshold for time & quality calculation
     if (energy>m_Ecut) {
       highE++;

@@ -1,0 +1,16 @@
+#
+# File setting up some basic properties for the installed analysis releases.
+#
+
+# This is a standalone project, so set the appropriate compile flags:
+add_definitions( -DROOTCORE )
+add_definitions( -DXAOD_STANDALONE )
+add_definitions( -DXAOD_ANALYSIS )
+
+# And some variables for CMake as well:
+set( ROOTCORE TRUE CACHE BOOL
+   "Flag specifying that this is a \"RootCore\" release" )
+set( XAOD_STANDALONE TRUE CACHE BOOL
+   "Flag specifying that this is a standalone build" )
+set( XAOD_ANALYSIS TRUE CACHE BOOL
+   "Flag specifying that this is an analysis release" )

@@ -19,6 +19,7 @@
 #include "VP1TrackSystems/SimBarCode.h"
 #include "VP1TrackSystems/TrackSystemController.h"
 #include "VP1Base/IVP1System.h"
+#include "VP1Base/VP1Msg.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1ParticleData.h"
 
@@ -182,7 +183,7 @@ bool TrackCollHandle_SimulationTracks::Imp::loadHitLists(std::map<SimBarCode,Sim
   theclass->messageVerbose( "Searching " + str( hitLists.size() ) + " lists of sim. hits.");
   addHitCollections<SimulationHitCollection>(hitLists);
 
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose( "Found " + str( hitLists.size() ) + " lists of sim. hits.");
 
   //Time to assign all simhits with known pdg code a charge:

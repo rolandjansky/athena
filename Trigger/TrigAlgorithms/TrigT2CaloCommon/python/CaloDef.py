@@ -1,4 +1,4 @@
-from AthenaCommon.Constants import ERROR, DEBUG
+from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
@@ -16,7 +16,7 @@ def setMinimalCaloSetup() :
 ########################
 
 def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
-   setMinimalCaloSetup();
+   setMinimalCaloSetup()
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
    algo=HLTCaloCellMaker(name)
@@ -25,7 +25,7 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='Cells
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
    algo.OutputLevel=OutputLevel
    algo.CellsName=outputEDM
-   return algo;
+   return algo
 
 def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
@@ -34,12 +34,20 @@ def _algoHLTTopoCluster(inputEDM="CellsClusters", OutputLevel=ERROR) :
    algo.OutputLevel=OutputLevel
    return algo
 
+def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR) :
+   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+   algo = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=True, cells=inputEDM)
+   algo.CaloClusters="caloclusters"
+   algo.OutputLevel=OutputLevel
+   return algo
+
 def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
-    setMinimalCaloSetup();
+    setMinimalCaloSetup()
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
     algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg")
     algo.RoIs=inputEDM
-    algo.ClustersName="L2CaloClusters" # defalut value, added for debugging
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    algo.ClustersName=recordable("HLT_L2CaloEMClusters")
     algo.OutputLevel=OutputLevel
     return algo
 
@@ -49,7 +57,7 @@ def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
 ####################################
 
 def fastCaloRecoSequence(InViewRoIs):
-    fastCaloAlg = _algoL2Egamma(OutputLevel=DEBUG,inputEDM=InViewRoIs)
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs)
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -57,7 +65,7 @@ def fastCaloRecoSequence(InViewRoIs):
 
 def fastCaloEVCreator():   
     InViewRoIs="EMCaloRoIs"     
-    fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
+    fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
@@ -83,10 +91,10 @@ def createFastCaloSequence(EMRoIDecisions):
 ###################################
 
 def clusterFSInputMaker( ):
-  """ Creates the inputMaker for FS in menu"""
+  """Creates the inputMaker for FS in menu"""
   RoIs = 'FSJETRoI'
   from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-  InputMakerAlg = InputMakerForRoI("clusterFSInputMaker", OutputLevel = DEBUG, RoIsLink="initialRoI")
+  InputMakerAlg = InputMakerForRoI("clusterFSInputMaker", RoIsLink="initialRoI")
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 
@@ -95,7 +103,7 @@ def HLTCellMaker(RoIs='FSJETRoI'):
     # in standalone mode: FSRoI
     CellsClusters = 'CaloCells'
     # setting this value does not work: 'CellsClusters'
-    cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM=RoIs, outputEDM=CellsClusters, RoIMode=True, OutputLevel=DEBUG)
+    cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM=RoIs, outputEDM=CellsClusters, RoIMode=True)
     return cellMakerAlgo
 
 def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
@@ -106,10 +114,12 @@ def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
  
 def HLTFSTopoRecoSequence(RoIs='FSJETRoI'):
     cellMake = HLTCellMaker(RoIs)
-    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName, OutputLevel=DEBUG) 
+    topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMake.CellsName)
     RecoSequence = parOR("TopoClusterRecoSequence", [cellMake, topoClusterMaker])
-    print topoClusterMaker
-    for tool in topoClusterMaker.ClusterMakerTools:
-        print tool
+    return (RecoSequence, topoClusterMaker.CaloClusters)
 
+def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
+    cellMake = HLTCellMaker(RoIs)
+    topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMake.CellsName)
+    RecoSequence = parOR("LCTopoClusterRecoSequence",[cellMake,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

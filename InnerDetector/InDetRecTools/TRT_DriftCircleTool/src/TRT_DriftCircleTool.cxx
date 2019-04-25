@@ -24,9 +24,7 @@
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
-//#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-//#include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -42,7 +40,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
 						const IInterface*  p ):
   AthAlgTool(t,n,p),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
-  m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
+  m_ConditionsSummary("TRT_StrawStatusSummaryTool",this),
   m_useConditionsStatus(false),
   m_useConditionsHTStatus(false),
   m_useToTCorrection(false),

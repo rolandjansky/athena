@@ -53,8 +53,9 @@ function( atlas_run_lowestunprescaled )
       ${CMAKE_CURRENT_BINARY_DIR}/unprescaled.attempted.stamp
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
-      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
-      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateUnprescaledLists.py ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
+      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateUnprescaledLists.py
+      ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled
       COMMAND ${CMAKE_COMMAND} -E touch
       ${CMAKE_CURRENT_BINARY_DIR}/unprescaled.stamp
       DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
@@ -74,7 +75,7 @@ function( atlas_run_lowestunprescaled )
                         COMMAND ${CMAKE_COMMAND} -E make_directory
                         ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled )
                      execute_process(
-                        COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+                        COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
                         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateUnprescaledLists.py
                         ${CMAKE_CURRENT_BINARY_DIR}/LowestUnprescaledLists/unprescaled )
                   endif()" )

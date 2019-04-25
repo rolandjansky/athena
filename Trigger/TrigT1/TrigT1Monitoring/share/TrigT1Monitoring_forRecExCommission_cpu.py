@@ -81,9 +81,7 @@ if l1caloRawMon:
         #ToolSvc += CalorimeterL1CaloMonTool
         L1Man0A.AthenaMonTools += [ CalorimeterL1CaloMonTool ]
         # HV corrections
-        from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-        theLArHVCorrTool = LArHVCorrToolDefault()
-        ToolSvc += theLArHVCorrTool
+        from LArConditionsCommon import LArHVDB
         include("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py")
         # Check reference database is available, if not don't try to read it
         dbpath = "/afs/cern.ch/user/l/l1ccalib/w0/DaemonData/reference/hvcorrections.sqlite"
@@ -98,7 +96,6 @@ if l1caloRawMon:
         from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloHVScalesMon
         L1CaloHVScalesMonTool = LVL1__L1CaloHVScalesMon(
             name = "L1CaloHVScalesMonTool",
-            LArHVCorrTool = theLArHVCorrTool,
             DoHVDifference = doHV,
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
            )

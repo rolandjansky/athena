@@ -131,8 +131,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupLHCfChains()
       elif 'alfaidpeb' in self.chainPart['purpose']:
         self.setupALFAIDChains()
-      elif 'larpebj' in self.chainPart['purpose']:
-        self.setupLarPEBChains()
       elif 'l1satmon' in self.chainPart['purpose']:
         self.setupL1SaturatedMon()
       elif 'zdcpeb' in self.chainPart['purpose']:
@@ -343,34 +341,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
        'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo'+suffix ), 
        }
 
-   ###########################################################################
-   # LarPEB chains
-   ###########################################################################
-   def setupLarPEBChains(self):
-
-     threshold=self.chainName.split("_")[0].replace("conej","")
-     from TrigT2CaloJet.TrigT2CaloJetConfig import T2CaloJet_Jet_noCalib_noiseCut
-     from TrigCaloHypo.TrigCaloHypoConfig import L2JetHypo
-     from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC
-     from TrigDetCalib.TrigDetCalibConfig import EtaHypo_FCAL
-     from TrigDetCalib.TrigDetCalibConfig import LArL2ROBListWriter
-     theL2JetFex = T2CaloJet_Jet_noCalib_noiseCut()
-     theL2JetHypo = L2JetHypo('L2JetHypo_j'+threshold,l2_thr=int(threshold)*GeV)
-     theEtaHypo = EtaHypo_FCAL('EtaHypo_FCAL_fj'+threshold+'_larcalib') if "31ETA49" in self.L2InputTE else EtaHypo_HEC('EtaHypo_HEC_fj'+threshold+'_larcalib')
-     theLArL2ROB = LArL2ROBListWriter('LArL2ROBListWriter_larcalib_j'+threshold)
-     self.L2sequenceList += [[self.L2InputTE,
-                              [theL2JetFex],
-                              'L2_larpeb_step1']]
-     self.L2sequenceList += [[['L2_larpeb_step1'],[theL2JetHypo,theEtaHypo],'L2_larpeb_step2']]
-     self.L2sequenceList += [[['L2_larpeb_step2'],[theLArL2ROB],'L2_larpeb_step3']]
-     self.L2signatureList += [ [['L2_larpeb_step1']*self.mult] ]
-     self.L2signatureList += [ [['L2_larpeb_step2']*self.mult] ]
-     self.L2signatureList += [ [['L2_larpeb_step3']*self.mult] ]
-     self.TErenamingDict = { 'L2_larpeb_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetCalo'),
-                             'L2_larpeb_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetCaloHypo'),
-                             'L2_larpeb_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetEtaHypo'), 
-                             }
-     
    ###########################################################################
    # L1Saturated Monitored chains
    ###########################################################################

@@ -68,9 +68,11 @@ def RecoFix_Init():
         # determine which is the previous verion of the AODFix
         ##################
         # is it better to do this or to look at GlobalFlags?
-        from RecExConfig.InputFilePeeker import inputFileSummary
+
+        from PyUtils.MetaReaderPeeker import metadata
         try:
-            prevAODFix=inputFileSummary['tag_info']['AODFixVersion']
+            prevAODFix = metadata['/TagInfo']['AODFixVersion']
+
             if prevAODFix.startswith("AODFix_"):
                 prevAODFix=prevAODFix[7:]
                 prevAODFix=prevAODFix.split("_")[0]

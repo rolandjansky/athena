@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.h,v 1.4 2009-05-20 20:48:51 ssnyder Exp $
@@ -30,6 +30,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloRec/Blob2ToolConstants.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+
+#include "CaloConditions/CaloAffectedRegionInfoVec.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class StoreGateSvc;
 class MsgStream;
@@ -379,6 +382,10 @@ private:
   /// Public AlgTool to convert COOL inline data into ToolConstants objects
   ToolHandle<Blob2ToolConstants> m_coolInlineTool;
 
+  // FIXME: Dependencies don't get propagated from dynamically-created
+  // correction tools.  Hardcode this dependency as a workaround.
+  SG::ReadCondHandleKey<CaloAffectedRegionInfoVec> m_affKey{this,
+     "LArAffectedRegionKey", "LArAffectedRegionInfo", "SG key for affected regions cond object"};
 };
 
 

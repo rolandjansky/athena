@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 L1Topo specific flags
 """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerJobOpts.CommonSignatureHelper import AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger('TriggerMenu.L1TopoFlags.py')

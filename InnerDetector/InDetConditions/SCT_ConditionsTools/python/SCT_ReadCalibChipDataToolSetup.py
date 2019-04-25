@@ -70,7 +70,7 @@ class SCT_ReadCalibChipDataToolSetup:
             from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipGainCondAlg
             condSeq += SCT_ReadCalibChipGainCondAlg(name = self.gainAlgName,
                                                     ReadKey=self.gainFolder)
-        self.alg = getattr(condSeq, self.gainAlgName)
+        self.gainAlg = getattr(condSeq, self.gainAlgName)
 
     def setTool(self):
         if self.tool is None:

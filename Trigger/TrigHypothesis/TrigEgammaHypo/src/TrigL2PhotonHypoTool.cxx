@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -186,8 +186,7 @@ bool TrigL2PhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,
 
 StatusCode TrigL2PhotonHypoTool::inclusiveSelection( std::vector<PhotonInfo>& input ) const {
   for ( auto i: input ) {
-    if ( m_respectPreviousDecision 
-	 and ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue; // the decision was negative or not even made in previous stage
+    if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
 
     auto objDecision = decideOnSingleObject( i.photon, 0 );
     if ( objDecision == true ) {

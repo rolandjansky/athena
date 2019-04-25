@@ -24,7 +24,7 @@ User's support: for all requests and reports, feel free to file a JIRA ticket on
 
 Mailing list - feel free to send us any questions about VP1 and related topics: https://atlas-vp1.web.cern.ch/atlas-vp1/home/contacts/
 
-
+ 
 ### Event display approvals
 
 For event displays which are not part of any physics paper and which you want to use for public usage (press release, multimedia, conference, talk, ...), you can ask an express approval on this dedicated JIRA project: https://its.cern.ch/jira/projects/ATLDISPLAY/summary

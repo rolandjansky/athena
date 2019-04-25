@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
@@ -10,8 +10,12 @@
 #include <TLorentzVector.h>
 
 
-EtaEtCondition::EtaEtCondition(double etaMin, double etaMax, double threshold): 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){}
+EtaEtCondition::EtaEtCondition(double etaMin,
+                               double etaMax,
+                               double threshold,
+                               bool /*debug*/): 
+  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){
+}
 
 
 bool EtaEtCondition::isSatisfied(const pHypoJet& ip) const {
