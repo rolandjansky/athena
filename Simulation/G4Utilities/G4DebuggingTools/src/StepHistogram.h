@@ -92,6 +92,8 @@ namespace G4UA{
       HistoMapMap_t histoMapMap2D_vol_RZ;
       HistoMapMap_t histoMapMap2D_mat_RZ;
       HistoMapMap_t histoMapMap2D_prc_RZ;
+      HistoMapMap_t histoMapMap2D_vol_RZ_E;
+      HistoMapMap_t histoMapMap2D_mat_RZ_E;
 
       // rather complicated function that merges two maps
       void mergeMaps(HistoMapMap_t &selfMap, HistoMapMap_t refMap);
