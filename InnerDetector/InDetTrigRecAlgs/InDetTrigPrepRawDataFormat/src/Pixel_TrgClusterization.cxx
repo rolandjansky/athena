@@ -416,8 +416,6 @@ namespace InDet{
       //       (the ByteStreamConvertors are called here).
       
       
-      
-      
       if (scdec.isSuccess()){
 	//check for recoverable errors
 	
@@ -425,18 +423,16 @@ namespace InDet{
 	
 	int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
 	
-	for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
 	  int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
 	  n_err_total += n_errors;
 	  bsErrors[idx] = n_errors;
 	}
 	
-	
 	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 	
 	if (n_err_total){
-	  for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
-	    //	  m_PixBSErr.push_back(bsErrors[idx]);
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
 	    if (bsErrors[idx])
 	      m_PixBSErr.push_back(idx);
 	    if(msgLvl(MSG::DEBUG))
