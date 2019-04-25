@@ -58,7 +58,7 @@ protected:
   /** Very useful function to check about the Cluster structure.
   It prints out a grid of cells eta and phi positions and energies.
   Only exist in DEBUG versions of the code. */
-  void PrintCluster(const double energyFromAlg, const int nCaloType, const int nCaloSamp,
+  void PrintCluster(const double /*energyFromAlg*/, const int /*nCaloType*/, const int /*nCaloSamp*/,
                     const CaloSampling::CaloSample, const CaloSampling::CaloSample) const
   {}
 #endif
