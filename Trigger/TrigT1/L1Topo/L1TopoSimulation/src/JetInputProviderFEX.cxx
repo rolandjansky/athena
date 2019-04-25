@@ -17,6 +17,8 @@
 #include <iomanip>
 #include <algorithm>
 
+#include "GaudiKernel/PhysicalConstants.h"
+
 using namespace std;
 using namespace LVL1;
 
@@ -92,7 +94,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << ", word = " << hex << topoData->roiWord() << dec
 		   );     
     
-    TCS::JetTOB jet( topoData->et8x8()/1000, topoData->et4x4()/1000, topoData->eta(), topoData->phi(), topoData->roiWord() );
+    TCS::JetTOB jet( topoData->et8x8()/Gaudi::Units::GeV, topoData->et4x4()/Gaudi::Units::GeV, topoData->eta(), topoData->phi(), topoData->roiWord() );
     jet.setEtaDouble( topoData->eta() );
     jet.setPhiDouble( topoData->phi() );
     inputEvent.addJet( jet );
