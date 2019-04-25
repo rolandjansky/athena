@@ -72,7 +72,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100',
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA90', 'HA100',
         # ATR-19437
         # 3 x new TAU1
         'eTAU12', 'eTAU12IM', 'eTAU20', 
@@ -459,7 +459,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU5", "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
-        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU90", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY",
         'L1_eTAU12', 'L1_eTAU100',
 
@@ -983,6 +983,7 @@ def defineMenu():
         'L1_TAU30' : 53,
         'L1_TAU40' : 54,
         'L1_TAU60' : 55,
+        'L1_TAU90' : 222,
         'L1_TAU100' : 52,
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
