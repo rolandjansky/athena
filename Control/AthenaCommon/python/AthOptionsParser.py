@@ -26,7 +26,7 @@ _userlongopts = [
     "batch", "interactive", "no-display", "debug=", "command=", "help",
     "loglevel=", "showincludes", "trace=", "check-properties",
     "version",
-    "leak-check=", "leak-check-execute", "delete-check=", "heapmon",
+    "leak-check=", "leak-check-execute", "delete-check=",
     "perfmon", "pmon=", "repeat-evts=", "profile-python=",
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
@@ -69,7 +69,6 @@ Accepted command line options:
                                            This disables the use of tcmalloc.
      --delete-check=<stage>           ...  perform double delete checking.
                                            This disables the use of tcmalloc.
-     --heapmon                        ...  enable heap fragmentation profiling tool, HeapMon 
      --profile-python=<file>.pkl|txt  ...  profile python code, dump in <file>.pkl|txt
  -c, --command                        ...  one-liner, runs before any scripts
  -h, --help                           ...  print this help message
@@ -152,7 +151,6 @@ def parse(chk_tcmalloc=True):
     opts.config_dump_file = None # not used by default
     opts.do_leak_chk = False     # default is not to do any leak checking
     opts.memchk_mode = ''        # no mode selected by default 
-    opts.do_heap_mon = False     # default is not to do any heap monitoring
     opts.profile_python = None   # set to file name to collect and dump python profile
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
     opts.threads = 0             # enable AthenaMT if >= 1
@@ -305,9 +303,6 @@ def parse(chk_tcmalloc=True):
             else:
                 print ("disabling Hephaestus leak check as it is incompatible with tcmalloc")
 
-        elif opt in ("--heapmon",):
-            opts.do_heap_mon = True
-            
         elif opt in ("--profile-python",):
             pos = arg.rfind('.')
             if pos < 0 or (arg[pos+1:] != "txt" and arg[pos+1:] != "pkl"):
