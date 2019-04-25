@@ -9,12 +9,13 @@ atlas_subdir( InDetV0Finder )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthContainers
+                          Control/CxxUtils
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetConversionFinderTools
                           Reconstruction/RecoTools/ITrackToVertex
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Event/xAOD/xAODTracking
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkV0Fitter

@@ -7,12 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HepPDT/ParticleDataTable.hh"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
+#include "StoreGate/ReadDecorHandleKey.h"
 
 class TFile;
 class TTree;
@@ -85,7 +84,9 @@ private:
   TTree* m_auxTree; // Tree for auxilliary n-tuple
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_JpsiCandidatesKey; //!< Name of J/psi container
-
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPX;
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPY;
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPZ;
 
 };
  
