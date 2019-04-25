@@ -38,8 +38,8 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
                                     const CaloDetDescrElement*& caloDDE,
                                     const EventContext& context) const
 {
-  bool cluster_in_barrel = true;
-  if (caloDDE) cluster_in_barrel = caloDDE->is_lar_em_barrel();
+  bool clusterInBarrel = true;
+  if (caloDDE) clusterInBarrel = caloDDE->is_lar_em_barrel();
 
   ATH_MSG_DEBUG("in execute(TrigEMCluster &)");
 
@@ -47,10 +47,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
   int sampling = 0;
 
   LArTT_Selector<LArCellCont> sel;
-  LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
-  iBegin = sel.begin();
-  iEnd = sel.end();
 
   double deta = 0.; // eta difference current cell - seed
   double dphi = 0.; // phi difference current cell - seed
@@ -67,10 +64,9 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
   int ncells = 0;
 
-  for (it = iBegin; it != iEnd; ++it) { // Should be revised for London scheme
+  for (const LArCell* larcell : sel) { // Should be revised for London scheme
     ncells++;
 
-    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -82,9 +78,9 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
     if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
     // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
-    bool condition37 = cluster_in_barrel &&
+    bool condition37 = clusterInBarrel &&
                        ((deta <= 0.0375 + 0.0005) && (dphi <= 0.0875 + 0.0005));
-    bool condition55 = (!cluster_in_barrel) &&
+    bool condition55 = (!clusterInBarrel) &&
                        ((deta <= 0.0625 + 0.0005) && (dphi <= 0.0625 + 0.0005));
 
     if (condition37 || condition55) {
@@ -100,9 +96,10 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
 #ifndef NDEBUG
   // This will internaly define normal, narrow and large clusters
-  if (msgLvl(MSG::ERROR)) {
-    if (m_geometryTool->EtaPhiRange(0, 0, energyEta, energyPhi))
+  if (msgLvl(MSG::DEBUG)) {
+    if (m_geometryTool->EtaPhiRange(0, 0, energyEta, energyPhi)) {
       ATH_MSG_ERROR("problems with EtaPhiRange");
+    }
     PrintCluster(totalEnergy, 0, 0, CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
   }
 #endif
@@ -112,17 +109,14 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
   LArTT_Selector<LArCellCont> sel3;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel3) );
-  iBegin = sel3.begin();
-  iEnd = sel3.end();
   /*
           if ( m_saveCells ){
              m_data->storeCells(iBegin,iEnd,*m_CaloCellContPoint,m_cellkeepthr);
           }
   */
 
-  for (it = iBegin; it != iEnd; ++it) { // Should be revised for London scheme
+  for (const LArCell* larcell : sel3) { // Should be revised for London scheme
     ncells++;
-    const LArCell* larcell = (*it);
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -134,8 +128,8 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
     if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
 
     // 3x7 means three cells per 7 in the second layer 0.025*3/2, 0.025*7/2, for instance
-    bool condition37 = cluster_in_barrel && ((deta <= 0.0375 + 0.001) && (dphi <= 0.0875 + 0.001));
-    bool condition55 = (!cluster_in_barrel) &&
+    bool condition37 = clusterInBarrel && ((deta <= 0.0375 + 0.001) && (dphi <= 0.0875 + 0.001));
+    bool condition55 = (!clusterInBarrel) &&
                        ((deta <= 0.0625 + 0.001) && (dphi <= 0.0625 + 0.001));
 
     if (condition37 || condition55) {
@@ -161,10 +155,10 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
 #ifndef NDEBUG
   // This will internaly define normal, narrow and large clusters
-  if (msgLvl(MSG::ERROR)) {
-    if (m_geometryTool->EtaPhiRange(0, 3, energyEta, energyPhi))
+  if (msgLvl(MSG::DEBUG)) {
+    if (m_geometryTool->EtaPhiRange(0, 3, energyEta, energyPhi)) {
       ATH_MSG_ERROR("problems with EtaPhiRange");
-
+    }
     PrintCluster(totalEnergy, 0, 3, CaloSampling::EMB3, CaloSampling::EME3);
   }
 #endif

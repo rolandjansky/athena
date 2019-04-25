@@ -42,10 +42,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   int sampling = 1;
 
   LArTT_Selector<LArCellCont> sel;
-  LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
-  iBegin = sel.begin();
-  iEnd = sel.end();
 
   double totalEnergy = 0;
   double etaEnergyS1 = 0;
@@ -181,13 +178,10 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     // z_phicell[iii]=0.;
   }
 
-  double deta = 0.; // eta difference current cell - seed
-  double dphi = 0.; // phi difference current cell - seed
   int ncells = 0;
 
-  for (it = iBegin; it != iEnd; ++it) { // Should be revised for London scheme
+  for (const LArCell* larcell : sel) { // Should be revised for London scheme
     ncells++;
-    const LArCell* larcell = (*it);
     double etaCell = larcell->caloDDE()->eta_raw();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -196,7 +190,6 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
       double eta_cell = etaCell; // SRA
       // double eta_cell = larcell->eta(); //SRA
-      int ieta; // SRA
 
       // begin SRA mod
       if (eta_cell >= z_etamin && eta_cell <= z_etamax) {
@@ -204,6 +197,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
         double phi_cell0 = larcell->phi();
         double phi_cell = proxim(phi_cell0, z_phi);
         if (phi_cell >= z_phimin && phi_cell <= z_phimax) {
+          int ieta; // SRA
           if (icrk == 0) {
             // single region
             ieta = (int)rint((eta_cell - etanew) * inv_dgra) + 20;
@@ -237,8 +231,8 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     }     // endif for veto of clusters in crack outside acceptance
 
     // Find the standard em cluster energy (3*7 cell, now sampling 1)
-    deta = fabs(etaCell - energyEta);
-    dphi = fabs(phiCell - energyPhi);
+    double deta = fabs(etaCell - energyEta);
+    double dphi = fabs(phiCell - energyPhi);
     if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
 
     bool condition37 = cluster_in_barrel && (deta <= 0.0375 && dphi <= 0.0875);
@@ -360,9 +354,10 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   rtrigEmCluster.setRawEnergy(rtrigEmCluster.rawEnergy() + totalEnergy);
 
 #ifndef NDEBUG
-  if (msg().level() <= MSG::DEBUG) {
-    if (m_geometryTool->EtaPhiRange(0, 1, energyEta, energyPhi))
-      msg() << MSG::ERROR << "problems with EtaPhiRange" << endmsg;
+  if (msgLvl(MSG::DEBUG)) {
+    if (m_geometryTool->EtaPhiRange(0, 1, energyEta, energyPhi)) {
+      ATH_MSG_ERROR("problems with EtaPhiRange");
+    }
     PrintCluster(totalEnergy, 0, 1, CaloSampling::EMB1, CaloSampling::EME1);
   }
 #endif

@@ -25,8 +25,6 @@ class ISvcLocator;
 
 T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator),
-    m_roiCollection("OutputRoIs"),
-    m_trigEmClusterCollection("CaloClusters"),
     m_regionSelector("RegSelSvc", name)
 {}
 
@@ -41,28 +39,19 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
 
 StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
-  SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection =
-      SG::WriteHandle<xAOD::TrigEMClusterContainer>(m_clusterContainerKey, context);
-  ATH_CHECK(
-      trigEmClusterCollection.record(CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(),
-                                     CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>()));
+  SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection(m_clusterContainerKey, context);
+  ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
+                                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
-  auto roisHandle = SG::makeHandle(m_roiCollectionKey);
-  const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
-  if (!roiCollection) {
+  auto roisHandle = SG::makeHandle(m_roiCollectionKey, context);
+  if (!roisHandle.isValid()) {
     ATH_MSG_DEBUG("no RoI");
     return StatusCode::SUCCESS;
   }
 
-  const TrigRoiDescriptor* roiDescriptor = 0;
-
-  // datahandle
-  TrigRoiDescriptorCollection::const_iterator roiCollectionIt = roiCollection->begin();
-  for (; roiCollectionIt != roiCollection->end(); ++roiCollectionIt) {
-    roiDescriptor = *roiCollectionIt;
-
+  trigEmClusterCollection->reserve(roisHandle->size());
+  for (const TrigRoiDescriptor* roiDescriptor : *roisHandle) {
     float etaL1, phiL1;
-    // End LVL1 part
     double etamin, etamax, phimin, phimax;
     if ((m_l1eta < -9.9) && (m_l1phi < -9.9)) {
       etamin = std::max(-2.5, roiDescriptor->eta() - m_etaWidth);
@@ -85,13 +74,11 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       phiL1 = m_l1phi;
     }
 
-    TrigRoiDescriptor newroi(roiDescriptor->eta(), etamin, etamax, roiDescriptor->phi(), phimin,
-                             phimax);
+    TrigRoiDescriptor newroi(roiDescriptor->eta(), etamin, etamax,
+                             roiDescriptor->phi(), phimin, phimax);
 
-    ATH_MSG_DEBUG(" etamin = " << etamin <<
-                  " etamax = " << etamax <<
-                  " phimin = " << phimin <<
-                  " phimax = " << phimax);
+    ATH_MSG_DEBUG(" etamin = " << etamin << " etamax = " << etamax <<
+                  " phimin = " << phimin << " phimax = " << phimax);
 
     xAOD::TrigEMCluster* ptrigEmCluster = new xAOD::TrigEMCluster();
     trigEmClusterCollection->push_back(ptrigEmCluster);
@@ -127,16 +114,12 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     // change the size, so we should be careful about *which* roi descriptor
     // we save, and *which* "roiWord" (if any) we store if we need to use it
     // again
-    (*ptrigEmCluster).setRoIword(roiDescriptor->roiWord());
-    const CaloDetDescrElement* caloDDE = 0;
+    ptrigEmCluster->setRoIword(roiDescriptor->roiWord());
+    const CaloDetDescrElement* caloDDE = nullptr;
 
-    ToolHandleArray<IReAlgToolCalo>::const_iterator it = m_emAlgTools.begin();
     uint32_t error = 0;
-    for (; it < m_emAlgTools.end(); it++) {
-      if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, context).isFailure()) {
-        ATH_MSG_WARNING("T2Calo AlgToolEgamma returned Failure");
-        return StatusCode::FAILURE;
-      }
+    for (const auto& tool : m_emAlgTools) {
+      ATH_CHECK( tool->execute(*ptrigEmCluster, newroi, caloDDE, context) );
     }
     //  // support to new monitoring
     /*
@@ -183,20 +166,20 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     // Print out Cluster produced
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG(" Values of Cluster produced: ");
-      ATH_MSG_DEBUG(" REGTEST: emEnergy = " << (*ptrigEmCluster).energy());
-      ATH_MSG_DEBUG(" REGTEST: hadEnergy = " << (*ptrigEmCluster).ehad1());
-      ATH_MSG_DEBUG(" REGTEST: e237= " << (*ptrigEmCluster).e237());
-      ATH_MSG_DEBUG(" REGTEST: e277= " << (*ptrigEmCluster).e277());
-      ATH_MSG_DEBUG(" REGTEST: clusterWidth = " << (*ptrigEmCluster).weta2());
-      ATH_MSG_DEBUG(" REGTEST: frac73 = " << (*ptrigEmCluster).fracs1());
-      ATH_MSG_DEBUG(" REGTEST: e233 = " << (*ptrigEmCluster).e233());
-      ATH_MSG_DEBUG(" REGTEST: wstot = " << (*ptrigEmCluster).wstot());
-      ATH_MSG_DEBUG(" REGTEST: eta = " << (*ptrigEmCluster).eta());
-      ATH_MSG_DEBUG(" REGTEST: phi = " << (*ptrigEmCluster).phi());
-      ATH_MSG_DEBUG(" REGTEST: Eta1 = " << (*ptrigEmCluster).eta1());
+      ATH_MSG_DEBUG(" REGTEST: emEnergy = " << ptrigEmCluster->energy());
+      ATH_MSG_DEBUG(" REGTEST: hadEnergy = " << ptrigEmCluster->ehad1());
+      ATH_MSG_DEBUG(" REGTEST: e237= " << ptrigEmCluster->e237());
+      ATH_MSG_DEBUG(" REGTEST: e277= " << ptrigEmCluster->e277());
+      ATH_MSG_DEBUG(" REGTEST: clusterWidth = " << ptrigEmCluster->weta2());
+      ATH_MSG_DEBUG(" REGTEST: frac73 = " << ptrigEmCluster->fracs1());
+      ATH_MSG_DEBUG(" REGTEST: e233 = " << ptrigEmCluster->e233());
+      ATH_MSG_DEBUG(" REGTEST: wstot = " << ptrigEmCluster->wstot());
+      ATH_MSG_DEBUG(" REGTEST: eta = " << ptrigEmCluster->eta());
+      ATH_MSG_DEBUG(" REGTEST: phi = " << ptrigEmCluster->phi());
+      ATH_MSG_DEBUG(" REGTEST: Eta1 = " << ptrigEmCluster->eta1());
       ATH_MSG_DEBUG(" REGTEST: calZ0 = " << calZ0);
-      ATH_MSG_DEBUG(" REGTEST: quality = " << (*ptrigEmCluster).clusterQuality());
-      ATH_MSG_DEBUG(std::hex << " REGTEST: roiWord = 0x" << (*ptrigEmCluster).RoIword()
+      ATH_MSG_DEBUG(" REGTEST: quality = " << ptrigEmCluster->clusterQuality());
+      ATH_MSG_DEBUG(std::hex << " REGTEST: roiWord = 0x" << ptrigEmCluster->RoIword()
                              << std::dec);
     }
 

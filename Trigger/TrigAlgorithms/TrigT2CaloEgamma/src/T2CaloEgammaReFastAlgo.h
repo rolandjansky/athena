@@ -46,9 +46,6 @@ public:
   // float calculateZ0(const float etaLayer1, const float etaLayer2);
 
 private:
-  SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;
-  SG::WriteHandle<xAOD::TrigEMClusterContainer> m_trigEmClusterCollection;
-  SG::WriteHandle<xAOD::TrigEMClusterAuxContainer> m_trigEmClusterAuxCollection;
   ServiceHandle<IRegSelSvc> m_regionSelector;
 
   // Properties:

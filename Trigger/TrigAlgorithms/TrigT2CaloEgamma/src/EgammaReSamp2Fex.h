@@ -43,9 +43,9 @@ class EgammaReSamp2Fex: public IReAlgToolCalo {
   private:
     inline double etaSizeLArEMSamp2(const double eta, const int calo) const;
     inline double phiSizeLArEMSamp2(const double eta, const int calo) const;
-    float m_maxHotCellDeta;
-    float m_maxHotCellDphi;
 
+    Gaudi::Property<float> m_maxHotCellDeta{this, "MaxDetaHotCell", 1.0};
+    Gaudi::Property<float> m_maxHotCellDphi{this, "MaxDphiHotCell", 1.0};
 };
 
 inline double EgammaReSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{

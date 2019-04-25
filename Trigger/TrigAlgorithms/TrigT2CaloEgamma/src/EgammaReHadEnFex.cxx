@@ -18,26 +18,6 @@
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include <math.h>
 
-inline double check_tilemin(const double x)
-{
-  const double dphi = 0.09817477;
-  const double oneoverdphi = 1.0 / 0.09817477;
-  if (x >= 0)
-    return (dphi * ceilf(x * oneoverdphi)) + 0.01;
-  else
-    return (-dphi * floorf(-x * oneoverdphi)) + 0.01;
-}
-
-inline double check_tilemax(const double x)
-{
-  const double dphi = 0.09817477;
-  const double oneoverdphi = 1.0 / 0.09817477;
-  if (x >= 0)
-    return (dphi * floorf(x * oneoverdphi)) - 0.01;
-  else
-    return (-dphi * ceilf(-x * oneoverdphi)) - 0.01;
-}
-
 EgammaReHadEnFex::EgammaReHadEnFex(const std::string& type, const std::string& name,
                                    const IInterface* parent) :
     IReAlgToolCalo(type, name, parent)
@@ -66,15 +46,11 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   for (unsigned int sampling = 0; sampling < 3; sampling++) {
 
     LArTT_Selector<LArCellCont> sel;
-    LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
     ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTHEC, sampling, sel) );
-    iBegin = sel.begin();
-    iEnd = sel.end();
 
-    for (it = iBegin; it != iEnd; ++it) {
+    for (const LArCell* larcell : sel) {
 
       ncells++;
-      const LArCell* larcell = (*it);
       double etaCell = larcell->eta();
       double phiCell = larcell->phi();
       double energyCell = larcell->energy();
@@ -98,36 +74,26 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   } // End sampling loop
 #ifndef NDEBUG
-  if (msg().level() <= MSG::DEBUG) {
-    for (int sampling = 0; sampling < 3; sampling++)
-      if (m_geometryTool->EtaPhiRange(1, sampling, energyEta, energyPhi))
-        msg() << MSG::ERROR << "problems with EtaPhiRange" << endmsg;
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC0), 1, 0, CaloSampling::HEC0,
-                 CaloSampling::HEC0);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC1), 1, 1, CaloSampling::HEC1,
-                 CaloSampling::HEC1);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC2), 1, 2, CaloSampling::HEC2,
-                 CaloSampling::HEC2);
+  if (msgLvl(MSG::DEBUG)) {
+    for (int sampling = 0; sampling < 3; sampling++) {
+      if (m_geometryTool->EtaPhiRange(1, sampling, energyEta, energyPhi)) {
+        ATH_MSG_ERROR("problems with EtaPhiRange");
+      }
+    }
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC0), 1, 0, CaloSampling::HEC0, CaloSampling::HEC0);
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC1), 1, 1, CaloSampling::HEC1, CaloSampling::HEC1);
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC2), 1, 2, CaloSampling::HEC2, CaloSampling::HEC2);
   }
 #endif
 
   // Next TILECAL
-  // Needs some fix for RS
-
-  // MS       phimin=check_tilemin(phimin);
-  // MS       phimax=check_tilemax(phimax);
 
   TileCellCollection seltile;
-  TileCellCollection::const_iterator itBegin, itEnd, itt;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, seltile) );
-  itBegin = seltile.begin();
-  itt = itBegin;
-  itEnd = seltile.end();
 
-  for (; itt != itEnd; ++itt) { // loop over cells
+  for (const TileCell* tilecell : seltile) { // loop over cells
 
     ncells++;
-    const TileCell* tilecell = (*itt);
     double etaCell = tilecell->eta();
     double phiCell = tilecell->phi();
     double energyCell = tilecell->energy();
@@ -153,15 +119,12 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   rtrigEmCluster.setNCells(ncells + rtrigEmCluster.nCells());
 
 #ifndef NDEBUG
-  if (msg().level() <= MSG::DEBUG) {
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar0) +
-                     rtrigEmCluster.energy(CaloSampling::TileExt0),
+  if (msgLvl(MSG::DEBUG)) {
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar0) + rtrigEmCluster.energy(CaloSampling::TileExt0),
                  1, 0, CaloSampling::TileBar0, CaloSampling::TileExt0);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar1) +
-                     rtrigEmCluster.energy(CaloSampling::TileExt1),
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar1) + rtrigEmCluster.energy(CaloSampling::TileExt1),
                  1, 1, CaloSampling::TileBar1, CaloSampling::TileExt1);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar2) +
-                     rtrigEmCluster.energy(CaloSampling::TileExt2),
+    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar2) + rtrigEmCluster.energy(CaloSampling::TileExt2),
                  1, 2, CaloSampling::TileBar2, CaloSampling::TileExt2);
   }
 #endif

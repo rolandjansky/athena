@@ -23,9 +23,6 @@ EgammaReSamp2Fex::EgammaReSamp2Fex(const std::string& type, const std::string& n
                                    const IInterface* parent) :
     IReAlgToolCalo(type, name, parent)
 {
-  // By default no restriction is applied
-  declareProperty("MaxDetaHotCell", m_maxHotCellDeta = 1.0);
-  declareProperty("MaxDphiHotCell", m_maxHotCellDphi = 1.0);
 }
 
 StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
@@ -38,10 +35,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   int sampling = 2;
 
   LArTT_Selector<LArCellCont> sel;
-  LArTT_Selector<LArCellCont>::const_iterator iBegin, iEnd, it;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
-  iBegin = sel.begin();
-  iEnd = sel.end();
 
   double energyEta = 0.;
   double energyPhi = 0.;
@@ -71,11 +65,9 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   float phiL1 = rtrigEmCluster.phi();
 
   const LArEM_ID* emID = m_larMgr->getEM_ID();
-  const LArCell* larcell;
-  const LArCell* seedCell = NULL;
-  const LArCell* hotCell = NULL;
-  for (it = iBegin; it != iEnd; ++it) {
-    larcell = (*it);
+  const LArCell* seedCell = nullptr;
+  const LArCell* hotCell = nullptr;
+  for (const LArCell* larcell : sel) {
     if (larcell->energy() > seedEnergy) { // Hottest cell seach
       float deta = std::abs(etaL1 - larcell->eta());
       if (deta < m_maxHotCellDeta) { // Eta check is faster. Do it First
@@ -90,7 +82,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     }     // End of if energy
     ncells++;
   }
-  if (seedCell != NULL) {
+  if (seedCell != nullptr) {
     seedEta = seedCell->eta();
     seedPhi = seedCell->phi();
     // For the S-shape correction, we store the caloDDE of the hottest cell
@@ -104,8 +96,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   }
 
   std::map<const LArCell*, float> windows;
-  for (it = iBegin; it != iEnd; ++it) {
-    larcell = (*it);
+  for (const LArCell* larcell : sel) {
     float deta = std::abs(seedEta - larcell->eta());
     if (deta < 0.025 + 0.002) { // Eta check is faster. Do it First
       float dphi = std::abs(seedPhi - larcell->phi());
@@ -119,9 +110,8 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     }     // End of deta check
     ncells++;
   }
-  for (it = iBegin; it != iEnd; ++it) {
 
-    const LArCell* larcell = (*it);
+  for (const LArCell* larcell : sel) {
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->et();
@@ -129,10 +119,9 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     // Find position of current cell w.r.t. seed
     float deta = fabs(etaCell - seedEta);
     if (deta > 0.05 + 0.002) continue;
-    for (std::map<const LArCell*, float>::iterator witer = windows.begin(); witer != windows.end();
-         ++witer) {
-      float deta1 = fabs(etaCell - witer->first->eta());
-      float dphi = fabs(phiCell - witer->first->phi());
+    for (auto& [cell, energy] : windows) {
+      float deta1 = fabs(etaCell - cell->eta());
+      float dphi = fabs(phiCell - cell->phi());
       if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
 
       // Electromagnetic measurements, done by layer
@@ -156,21 +145,20 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
       int nCellsPhi = 5;
       if (deta1 <= 0.5 * double(nCellsEta - 1) * cellSizeEta + 0.01 &&
           dphi <= 0.5 * double(nCellsPhi - 1) * cellSizePhi + 0.01) {
-        witer->second += energyCell;
+        energy += energyCell;
       } // End of do the 3*5 stuff
     }   // End of windows map loop
   }     // end of the loop
 
   float max = -999;
-  for (std::map<const LArCell*, float>::const_iterator witer = windows.begin();
-       witer != windows.end(); ++witer) {
-    if (witer->second > max) {
-      max = witer->second;
-      seedCell = witer->first;
+  for (auto const& [cell, energy] : windows) {
+    if (energy > max) {
+      max = energy;
+      seedCell = cell;
     }
   }
 
-  if (seedCell != NULL) {
+  if (seedCell != nullptr) {
     seedEta = seedCell->eta();
     seedPhi = seedCell->phi();
     // For the S-shape correction, we store the caloDDE of the hottest cell
@@ -198,15 +186,11 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   int nCellsPhi = 0;              // size of cell array in phi
   double deta = 0.;               // eta difference current cell - seed
   double dphi = 0.;               // phi difference current cell - seed
-  double detaH = 0.;              // eta difference current cell - seed
-  double dphiH = 0.;              // phi difference current cell - seed
 
   double totalEnergy = 0;
   CaloSampling::CaloSample samp;
 
-  for (it = iBegin; it != iEnd; ++it) {
-
-    const LArCell* larcell = (*it);
+  for (const LArCell* larcell : sel) {
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -216,8 +200,8 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     dphi = fabs(phiCell - seedPhi);
     if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
 
-    detaH = fabs(etaCell - hotEta);
-    dphiH = fabs(phiCell - hotPhi);
+    double detaH = fabs(etaCell - hotEta); // eta difference current cell - seed
+    double dphiH = fabs(phiCell - hotPhi); // phi difference current cell - seed
     if (dphiH > M_PI) dphiH = 2. * M_PI - dphiH; // wrap 0 -> 6.28
 
     // Electromagnetic measurements, done by layer
@@ -318,11 +302,11 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   // Normalise energy weighted angles and calculate values
 
-  // SRA phi wrap-around
-  double AvgNegPhi = 0.;
-  double AvgPosPhi = 0.;
-
   if ((energy37Lay2PosPhi + energy37Lay2NegPhi) > 0.) { // dont divide by zero
+    // SRA phi wrap-around
+    double AvgNegPhi = 0.;
+    double AvgPosPhi = 0.;
+
     energyEta /= (energy37Lay2PosPhi + energy37Lay2NegPhi);
 
     if (energy37Lay2NegPhi > 0.) {
@@ -370,9 +354,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     energyPhi = 0.;
   }
 
-  for (it = iBegin; it != iEnd; ++it) {
-
-    const LArCell* larcell = (*it);
+  for (const LArCell* larcell : sel) {
     double etaCell = larcell->eta();
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
@@ -449,8 +431,9 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 #ifndef NDEBUG
   // This will internaly define normal, narrow and large clusters
   if (msgLvl(MSG::DEBUG)) {
-    if (m_geometryTool->EtaPhiRange(0, 2, energyEta, energyPhi))
+    if (m_geometryTool->EtaPhiRange(0, 2, energyEta, energyPhi)) {
       ATH_MSG_ERROR("problems with EtaPhiRange");
+    }
     ATH_MSG_DEBUG("totalEnergy" << totalEnergy);
     PrintCluster(totalEnergy, 0, 2, CaloSampling::EMB2, CaloSampling::EME2);
   }
