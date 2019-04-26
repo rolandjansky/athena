@@ -74,7 +74,13 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/SurfaceCollection.h"
 
+// Path resolver
+#include "PathResolver/PathResolver.h"
+
+
 #include <time.h>
+#include <TFile.h>
+#include <TH1.h>
 
 using namespace InDetDD;
 using namespace InDet;
@@ -128,6 +134,7 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_mergeCluster(true),
   m_splitClusters(0),
   m_acceptDiagonalClusters(true),
+  m_ineffSF_filename("FastSiDigitization/fast_pixel_inefficiency_SF.root"),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
   m_ambiguitiesMap(nullptr),
   m_pixelCalibSvc("PixelCalibSvc", name),
@@ -165,12 +172,15 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixDiffShiftEndCY", m_pixDiffShiftEndCY);
   declareProperty("InefficiencySF", m_inefficiencySF);
   declareProperty("ThrConverted", m_ThrConverted);
+  declareProperty("ineffSF_filename", m_ineffSF_filename);
 }
 
 PixelFastDigitizationTool::~PixelFastDigitizationTool() {
   if(m_pixelClusterMap) {
     delete m_pixelClusterMap;
   }
+  Ineff_scale_factors.clear();
+  m_ineffSF_histograms.clear();
 }
 
 // Initialize method:
@@ -245,6 +255,12 @@ StatusCode PixelFastDigitizationTool::initialize()
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG ( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
+  }
+  
+  m_ineffSF_histograms = {"low_pileup","med_pileup","high_pileup"};
+  if ( ReadInefficiencyScaleFactor(m_ineffSF_filename,m_ineffSF_histograms).isFailure() ){
+    ATH_MSG_ERROR ( "Unable to retrieve the inefficiency scale factor ");
+    return StatusCode::FAILURE;
   }
   
   return StatusCode::SUCCESS;
@@ -902,24 +918,30 @@ StatusCode PixelFastDigitizationTool::digitize()
     } // end hit while
      
      //check inefficiency SF
-     //std::cout<<"PixelDetElClusterMap.size() before SF "<<PixelDetElClusterMap.size()<<std::endl;
+     std::cout<<"PixelDetElClusterMap.size() before SF "<<PixelDetElClusterMap.size()<<std::endl;
     //Apply an eta dependent inefficiency SF
-    if (m_inefficiencySF != 0 ){
+    if (m_inefficiencySF > 0.0 ){
        
 	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();)
 	{
-    Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
-    double random= rand()% 1000 / 1000.0;
-    //std::cout<<random<<std::endl;
-	  if  ( random < m_inefficiencySF ){
-	    PixelDetElClusterMap.erase(clusIter);
-      InDet::PixelCluster* currentCluster = clusIter->second;
-      m_pixPrdTruth->erase(currentCluster->identify());
-      delete currentCluster;
+	   Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
+	   InDet::PixelCluster* currentCluster = clusIter->second;
+	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
+	   double random= rand()% 1000 / 1000.0;
+	    //std::cout<<random<<std::endl;
+	   double mu=rand()% 50;
+	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),mu,isBarrel);
+	   //std::cout<<"InefficiencySF "<<inefficiencySF<<std::endl;
+	   //std::cout<<"fabs(globalPosition.eta()) "<<fabs(currentCluster->globalPosition().eta())<<std::endl;
+	   //std::cout<<"mu "<<mu<<std::endl;
+	   if  ( random < inefficiencySF ){
+	      PixelDetElClusterMap.erase(clusIter);
+	      m_pixPrdTruth->erase(currentCluster->identify());
 	  }
+	  delete currentCluster;
 	}
     }  
-     //std::cout<<"PixelDetElClusterMap.size() after SF "<<PixelDetElClusterMap.size()<<std::endl;
+     std::cout<<"PixelDetElClusterMap.size() after SF "<<PixelDetElClusterMap.size()<<std::endl;
     
       (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
 
@@ -942,6 +964,7 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
 
     std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range;
     range = m_pixelClusterMap->equal_range(i->first);
+   
 
     Pixel_detElement_RIO_map::iterator firstDetElem;
     firstDetElem = range.first;
@@ -954,21 +977,24 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
     clusterCollection = new InDet::PixelClusterCollection(waferID);
     clusterCollection->setIdentifier(detElement->identify());
 
-
+    std::cout<<"New cluster collection "<< std::endl;
+    int i=0;
     for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-
+      
+      std::cout<<"Clusters in this detector element "<<i<<std::endl ;
       InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
       pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
       clusterCollection->push_back(pixelCluster);
+      i++;
 
     }
 
 
     if (clusterCollection) {
       if (clusterCollection->size() != 0) {
-        ATH_MSG_DEBUG ( "Filling ambiguities map" );
-        m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_manager,*m_ambiguitiesMap);
-        ATH_MSG_DEBUG ( "Ambiguities map: " << m_ambiguitiesMap->size() << " elements" );
+         ATH_MSG_DEBUG ( "Filling ambiguities map" );
+         m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_manager,*m_ambiguitiesMap);
+         ATH_MSG_DEBUG ( "Ambiguities map: " << m_ambiguitiesMap->size() << " elements" );
         if ((m_pixelClusterContainer->addCollection(clusterCollection, waferID)).isFailure()){
           ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
         }
@@ -1168,4 +1194,70 @@ void PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, He
   localExit.setX(localExitX);
   localExit.setY(localExitY);
 
+}
+
+StatusCode PixelFastDigitizationTool::ReadInefficiencyScaleFactor(std::string filename, std::vector<std::string> histonames)
+{
+    std::string fullpath = PathResolverFindCalibFile(filename);
+  
+    TFile* file = new TFile();
+    file=file->Open(fullpath.c_str(),"READ");
+    if (!file->IsOpen())
+    {
+        std::string error="The file "+fullpath+" wasn't found or is impossible to open";
+        ATH_MSG_ERROR(error);
+        return StatusCode::FAILURE;
+    }
+    else {
+      file->ls();
+      std::string info="The file "+fullpath+ " found and opened";
+      ATH_MSG_INFO(info);
+    }
+    //Define detector sectors
+    std::vector<std::string> sectors={"barrel","endcap"};
+    // Find the histogram by name
+    for (auto histoname: histonames){
+      for (auto sector: sectors){
+	std::string full_histoname="pixel/"+sector+"/"+histoname;
+	TH1F* h = (TH1F*) file->Get(full_histoname.c_str());
+	if (!h)
+	{
+	  std::string error="The histogram "+full_histoname+" wasn't found";
+	  ATH_MSG_ERROR(error);
+	  return StatusCode::FAILURE;
+	}
+	h->SetDirectory(0);
+	Ineff_scale_factors[sector+"_"+histoname]=h;
+      }
+    } 
+    
+    
+    file->Close(); 
+    delete file;
+    return StatusCode::SUCCESS;
+}
+
+double PixelFastDigitizationTool::RetrieveInefficiencySF(double eta,double mu, bool isBarrel){
+  
+ std::string pileup_level;
+ if (mu < 20.){
+  pileup_level="low_pileup";}
+ else if( mu < 35.){
+  pileup_level="med_pileup";
+ }
+ else{
+  pileup_level="high_pileup"; 
+ }
+ 
+ if( isBarrel){
+   pileup_level="barrel_"+pileup_level;
+ }
+ else{
+   pileup_level="endcap_"+pileup_level;
+ }
+   
+  //Ineff_scale_factors[pileup_level]->Print();
+  int bin =  Ineff_scale_factors[pileup_level]->FindBin(eta);
+  //std::cout<<"pileup_level "<<pileup_level<<" bin "<<bin<<std::endl;
+  return (Ineff_scale_factors[pileup_level]->GetBinContent(bin) - 1);
 }

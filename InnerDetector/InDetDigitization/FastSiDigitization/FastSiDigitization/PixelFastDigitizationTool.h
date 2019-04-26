@@ -51,6 +51,7 @@
 #include "TrkDigEvent/DigitizationModule.h"
 #include "TrkDigInterfaces/IModuleStepper.h"
 
+#include <TH1F.h>
 
 class PixelID;
 class IModuleDistortionsTool;
@@ -156,11 +157,15 @@ private:
   bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
   short m_splitClusters; //!< merging parameter used to define two clusters as neighbour >  
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >  
+  std::string                           m_ineffSF_filename;//Name of the file containing the maps with the inefficiency SF, as a function of eta and mu
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
   ServiceHandle<IPixelCalibSvc>         m_pixelCalibSvc;
 
   bool m_needsMcEventCollHelper;
+  
+  std::vector<std::string> m_ineffSF_histograms;
+  std::map<std::string,TH1F*> Ineff_scale_factors;
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
@@ -177,8 +182,8 @@ private:
  Amg::Vector3D CalculateIntersection(const Amg::Vector3D & Point, const Amg::Vector3D & Direction, Amg::Vector2D PlaneBorder, double halfthickness) const;
  void Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
   //   void addSDO( const DiodeCollectionPtr& collection );
-
-
+ StatusCode ReadInefficiencyScaleFactor(std::string filename, std::vector<std::string> histonames);
+ double RetrieveInefficiencySF(double eta,double mu, bool isBarrel);
 
 };
 
