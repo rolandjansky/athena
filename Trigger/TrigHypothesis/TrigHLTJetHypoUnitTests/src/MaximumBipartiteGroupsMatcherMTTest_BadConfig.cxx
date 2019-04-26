@@ -108,7 +108,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_BadConfig, bad0){
   */
 
   auto out = std::make_unique<std::ofstream>(nullptr);
-  if (m_debug){out.reset(new std::ofstream("BadConfig.log"));}
+  if (m_debug){out.reset(new std::ofstream("BadConfig_bad0.log"));}
 
   std::vector<double> detaMins{3.6, 5.5};
   
@@ -129,7 +129,53 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_BadConfig, bad0){
   auto jets = makeHypoJets(etas);
   EXPECT_TRUE(jets.size() == 4);
   if(m_debug){
-    for(const auto & j: jets){*out<<j<<'\n';}
+    for(const auto & j: jets){*out<< j << " " << j->toString() <<'\n';}
+  }
+  EXPECT_TRUE(m_conditions.size() == 2);
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  EXPECT_TRUE(groups.size() == 6);
+  auto visitor = std::unique_ptr<IConditionVisitor>();
+  visitor.reset(new ConditionDebugVisitor);
+  
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+
+  if(out){
+    *out << "dumping visitor\n";
+    *out << visitor->toString();   
+  }
+  
+  for(auto j : jets){delete j;}
+  EXPECT_TRUE(pass);
+}
+
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest_BadConfig, bad1){
+  /* (j0, j3) -> c0
+     (j0, j1) -> c1
+     Passes, but should fail as j0 is shared.
+  */
+
+  auto out = std::make_unique<std::ofstream>(nullptr);
+  if (m_debug){out.reset(new std::ofstream("BadConfig_bad1.log"));}
+
+  std::vector<double> detaMins{3.6, 5.5};
+  
+  std::vector<double> detaMaxs{4.5, 6.5};
+  makeConditions(detaMins, detaMaxs);
+
+
+  if(out){
+    for(const auto& c : m_conditions){*out << c.toString();}
+  }
+
+  std::vector<double> etas{-5.0, 1.0, -1.0, -2.5};
+  EXPECT_TRUE(etas.size() == 4);
+  
+  auto jets = makeHypoJets(etas);
+  EXPECT_TRUE(jets.size() == 4);
+  if(m_debug){
+    for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
   }
   EXPECT_TRUE(m_conditions.size() == 2);
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
