@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h> /* atan2 */
@@ -18,6 +18,7 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
+#include "GaudiKernel/PhysicalConstants.h"
 
 using namespace std;
 using namespace LVL1;
@@ -40,7 +41,7 @@ EnergyInputProviderFEX::initialize() {
 
    CHECK(m_histSvc.retrieve());
 
-   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "EnergyInputProvider");
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "EnergyInputProviderFEX");
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
@@ -88,7 +89,7 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
 		 );
 
   //doing this differently compared to what mentioned in the twiki https://twiki.cern.ch/twiki/bin/viewauth/Atlas/L1CaloUpgradeSimulation
-  TCS::MetTOB met( -(m_gFEXMET->energyX()), -(m_gFEXMET->energyY()), m_gFEXMET->energyT() );
+  TCS::MetTOB met( -(m_gFEXMET->energyX()/Gaudi::Units::GeV), -(m_gFEXMET->energyY()/Gaudi::Units::GeV), m_gFEXMET->energyT()/Gaudi::Units::GeV );
   inputEvent.setMET( met );
   m_hPt->Fill(met.Et());
   m_hPhi->Fill( atan2(met.Ey(),met.Ex()) );
