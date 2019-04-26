@@ -134,12 +134,13 @@ LVL1ConfigSvc::initialize() {
    //
    // Check if we have a valid trigger menu:
    //
-   if( Verifyer::verify( m_ctpConfig->menu(), msg() ) ) {
-      ATH_MSG_ERROR("Loaded trigger menu fails verification");
-      return StatusCode::FAILURE;
-   } else {
-      ATH_MSG_DEBUG("Loaded trigger menu passed verification");
-   }
+   ATH_MSG_INFO("Disabled L1 menu verification for Run-3 studies");
+//    if( Verifyer::verify( m_ctpConfig->menu(), msg() ) ) {
+//       ATH_MSG_ERROR("Loaded trigger menu fails verification");
+//       return StatusCode::FAILURE;
+//    } else {
+//       ATH_MSG_DEBUG("Loaded trigger menu passed verification");
+//    }
 
    ATH_MSG_DEBUG("Dumping LVL1 configuration");
 

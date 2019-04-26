@@ -36,14 +36,14 @@ unsigned int TSU::Kinematics::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const 
 unsigned int TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
 
   auto bit_cosheta = TSU::L1TopoDataTypes<19,7>(TSU::Hyperbolic::Cosh.at(abs(tob1->eta() - tob2->eta())));
-  //In case of EM objects the phi angle goes between 0 and 64 while all other are between -32 and 32, applying a shift to keep delta-phi in the allowed range. 
+  //In case of EM objects / jets / taus the phi angle goes between 0 and 64 while muons are between -32 and 32, applying a shift to keep delta-phi in the allowed range. 
   int phi_tob1 = tob1->phi();
   int phi_tob2 = tob2->phi();
   //those cases should happen only in mixed EM/jets/tau plus mu triggers, if both phi's are in [0,2pi] will not get in
-  if ( abs(phi_tob1-phi_tob2)>64 )
+  if ( abs(phi_tob1-phi_tob2)>=64 )
     {
-      if(phi_tob1 > 32) phi_tob1 = phi_tob1-64;
-      if(phi_tob2 > 32) phi_tob2 = phi_tob2-64;
+      if(phi_tob1 >= 32) phi_tob1 = phi_tob1-64;
+      if(phi_tob2 >= 32) phi_tob2 = phi_tob2-64;
     }
   auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs( phi_tob1 - phi_tob2 )));
   TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());

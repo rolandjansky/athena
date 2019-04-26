@@ -164,6 +164,81 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
   return ok;
 }
 
+bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
+
+  vector<ifstream*> electrodes(3);
+
+  electrodes[0]=new ifstream(filename1);
+  electrodes[1]=new ifstream(filename2);
+  electrodes[2]=new ifstream(filename3);
+
+
+  int    thisTubeId;
+  int    thisTubeI;
+  int    thisTubeJ;
+  //int    thisTubeID;
+  //int    thisTubeMod;
+  double thisTubeX;
+  double thisTubeY;
+  TString tubeName;
+
+  //int second_column;
+  string seventh_column;
+  string eight_column;
+  int ninth_column;
+
+
+
+
+
+  int i;
+  for(int imodule=1;imodule<=3;imodule++){
+
+    i=0;
+    while(1){
+
+      (*electrodes[imodule-1]) >> tubeName;
+      if(electrodes[imodule-1]->eof())break;
+      (*electrodes[imodule-1]) >> thisTubeId; // ?????
+      (*electrodes[imodule-1]) >> thisTubeI;
+      (*electrodes[imodule-1]) >> thisTubeJ;
+      (*electrodes[imodule-1]) >> thisTubeX;
+      (*electrodes[imodule-1]) >> thisTubeY;
+      (*electrodes[imodule-1]) >> seventh_column;
+      (*electrodes[imodule-1]) >> eight_column;
+      (*electrodes[imodule-1]) >> ninth_column;
+
+      tubeName.ReplaceAll("'","");
+      string tubeNamestring=tubeName.Data();
+
+      std::istringstream tileStream1(std::string(tubeNamestring,1,1));
+      std::istringstream tileStream2(std::string(tubeNamestring,3,2));
+      std::istringstream tileStream3(std::string(tubeNamestring,6,3));
+      int a1=0,a2=0,a3=0;
+      if (tileStream1) tileStream1 >> a1;
+      if (tileStream2) tileStream2 >> a2;
+      if (tileStream3) tileStream3 >> a3;
+
+      stringstream s;
+
+
+      m_FCal_ChannelMap.add_tube(tubeNamestring, imodule, thisTubeId, thisTubeI,thisTubeJ, thisTubeX, thisTubeY,seventh_column);
+      
+      i++;
+    }
+  }
+
+
+  m_FCal_ChannelMap.finish(); // Creates maps
+  
+  for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
+  electrodes.clear();
+
+  this->calculateFCalRminRmax();
+  return this->checkFCalGeometryConsistency();
+
+}
+
 void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	
 	stringstream ss;

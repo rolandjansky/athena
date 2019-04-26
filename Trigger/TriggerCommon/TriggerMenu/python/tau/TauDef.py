@@ -42,7 +42,8 @@ from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 def L1InputTE(name):
     tmpte = name.split('_')[1]
     #tmpte = 'HA'+tmpte.strip('TAU')
-    tmpte = tmpte.replace("TAU", "HA");
+    if 'eTAU' not in tmpte:
+        tmpte = tmpte.replace("TAU", "HA");
     log.debug('L1 input TE : %s', tmpte)
     return tmpte
 

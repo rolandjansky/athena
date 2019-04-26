@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -8,16 +8,12 @@
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 
-
 #include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
-#include "TrigT1NSWSimTools/PadUtil.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
-
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -27,15 +23,18 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
 
 #include "TTree.h"
+#include "TVector3.h"
+#include <functional>
+#include <algorithm>
 #include <map>
 #include <utility>
+
 
 
 namespace NSWL1 {
@@ -45,7 +44,6 @@ namespace NSWL1 {
         std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;
 
-        // constructor
         PadHits(Identifier id, std::shared_ptr<PadOfflineData> p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
     };
 
@@ -239,13 +237,6 @@ namespace NSWL1 {
                 PadOfflineData* pad_offline = dynamic_cast<PadOfflineData*>( pd.get() );
                 m_validation_tree.fill_hit_global_pos(pad_gpos);
                 m_validation_tree.fill_offlineid_info(*pad_offline, bin_offset);
-
-                std::pair<int,int> old_id(-999, -999), new_id(-999, -999);
-                if(determine_pad_indices_with_old_algo(*pad_offline, pad_gpos, old_id, msg())) {
-                    old_id = std::make_pair(old_id.first   + bin_offset, old_id.second  + bin_offset);
-                    new_id = std::make_pair(pd->padEtaId() + bin_offset, pd->padPhiId() + bin_offset);
-                }
-                m_validation_tree.fill_matched_old_id_new_id(old_id, new_id);
             }
         }
     }
@@ -329,23 +320,13 @@ namespace NSWL1 {
         sTgcDigitContainer::const_iterator it_e = digit_container->end();
         ATH_MSG_DEBUG("retrieved sTGC Digit Container with size "<<digit_container->digit_size());
 
+        //int pad_hit_number = 0;
         std::vector<PadHits> pad_hits;
         for(; it!=it_e; ++it) {
             const sTgcDigitCollection* coll = *it;
             ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
             for (unsigned int item=0; item<coll->size(); item++) {
                 const sTgcDigit* digit = coll->at(item);
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // ASM - 01/3/2017 - testing timing 
-                //pad_hit_number++;
-                //print_digit(digit);
-                //double delayed_time = 0.0;
-                //uint16_t BCtag = 0x0;
-                //if(determine_delay_and_bc(digit, pad_hit_number, delayed_time, BCtag)){
-                //    Identifier Id = digit->identify();
-                //    PadOfflineData* pad = new PadOfflineData(Id, delayed_time, BCtag, m_sTgcIdHelper);
-                //    pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
-                //}
                 if(digit) { 
                     if(is_pad_digit(digit)) {
                         Identifier Id = digit->identify();
@@ -353,22 +334,18 @@ namespace NSWL1 {
                         uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
                         if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) { 
                             print_digit(digit);
+                            //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            //S.I
+                            //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
                             auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
+                            //S.I
                         }
                     }
                 } 
-                //////////////////////////////////////////////////////////////////////////////////////////
             } //for(item)
         } // for(it)
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        //// ASM - 01/3/2017 - testing timing 
-        ////// apply the other VMM functionalities
-        //print_pad_time(pad_hits, "Before VMM dead time");
-        //if(m_applyVMM_DeadTime) simulateDeadTime(pad_hits);
-        //print_pad_time(pad_hits, "After VMM dead time");
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         store_pads(pad_hits);
         print_pad_cache();
@@ -414,7 +391,6 @@ namespace NSWL1 {
         // vector are already ordered in time so check for dead time overlap.
         PAD_MAP_IT it = channel_map.begin();
         while ( it!=channel_map.end() ) {
-            
             std::vector<PadHits>& hits = (*it).second;
             std::vector<PadHits>::iterator p_next = hits.begin();
             std::vector<PadHits>::iterator p = p_next++;
@@ -570,8 +546,6 @@ namespace NSWL1 {
     void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
     {
         for (unsigned int i=0; i<pad_hits.size(); i++) {
-            ////////////////////
-            // ASM-2017-06-21
             const std::vector<std::shared_ptr<PadData>>& pads = m_pad_cache.at(pad_hits[i].t_cache_index);
             bool fill = pads.size() == 0 ? true : false;
             for(unsigned int p=0; p<pads.size(); p++)  {
@@ -585,7 +559,6 @@ namespace NSWL1 {
             if( fill ) {
                 m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
             }
-            ////////////////////
         }
     }
     //------------------------------------------------------------------------------
@@ -624,7 +597,7 @@ namespace NSWL1 {
         for (size_t i=0; i<pad_hits.size(); i++)
             ATH_MSG_DEBUG("pad hit "<<i<<" has time "<< pad_hits[i].t_pad->time());
     }
-    //------------------------------------------------------------------------------
+
     void PadTdsOfflineTool::print_pad_cache() const
     {
         if ( msgLvl(MSG::DEBUG) ) {
@@ -641,6 +614,5 @@ namespace NSWL1 {
             }
         }
     }
-    //------------------------------------------------------------------------------
 
 } // NSWL1
