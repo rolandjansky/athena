@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxStoreWrapper.cxx 695881 2015-09-21 08:47:05Z will $
 
 // Gaudi/Athena include(s):
 #include "SGTools/DataProxy.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
