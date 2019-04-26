@@ -1991,9 +1991,6 @@ namespace VKalVrtAthena {
     impactParameters.clear();
     impactParErrors.clear();
     
-    //impactParameters.reserve(TrkParameter::k_nTP);
-    //impactParErrors.reserve(TrkParameterUnc::k_nTPU);
-
     if( m_jp.trkExtrapolator==1 ){
       m_fitSvc->VKalGetImpact(trk, vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
     }
@@ -2004,6 +2001,7 @@ namespace VKalVrtAthena {
       impactParameters.push_back(sv_perigee->parameters() [Trk::z0]);
       impactParErrors.push_back((*sv_perigee->covariance())( Trk::d0, Trk::d0 ));
       impactParErrors.push_back((*sv_perigee->covariance())( Trk::z0, Trk::z0 ));
+      delete sv_perigee;
     }
     else{
       ATH_MSG_WARNING( " > " << __FUNCTION__ << ": Unknown track extrapolator " << m_jp.trkExtrapolator   );
