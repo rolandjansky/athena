@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+#from AthenaCommon import CfgMgr
 
-from AthenaCommon import CfgMgr
+from  G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
 
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -36,7 +38,7 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
-def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
+def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
@@ -85,4 +87,53 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
 
-    return CfgMgr.G4AtlasAlg(name, **kwargs)
+    return G4AtlasAlg(name, **kwargs)
+
+
+
+
+
+
+if __name__ == '__main__':
+  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  import os
+
+  # Set up logging and config behaviour
+  from AthenaCommon.Logging import log
+  from AthenaCommon.Constants import DEBUG
+  from AthenaCommon.Configurable import Configurable
+  log.setLevel(DEBUG)
+  Configurable.configurableRun3Behavior = 1
+
+
+  #import config flags
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  
+  from AthenaConfiguration.TestDefaults import defaultTestFiles
+  inputDir = defaultTestFiles.d
+  ConfigFlags.Input.Files = defaultTestFiles.EVNT
+
+  # Finalize 
+  ConfigFlags.lock()
+
+  ## Initialize a new component accumulator
+  cfg = ComponentAccumulator()
+
+  #add the algorithm
+  Alg  = G4AtlasAlgCfg(ConfigFlags)
+  cfg.addEventAlgo(Alg) #Event algo?
+  #cfg.merge(acc)
+  #cfg.addPublicTool(Alg)
+
+
+  cfg.printConfig(withDetails=True, summariseProps = True)
+  ConfigFlags.dump()
+
+  f=open("test.pkl","w")
+  cfg.store(f) 
+  f.close()
+
+
+
+  print cfg._publicTools
+  print "-----------------finished----------------------"
