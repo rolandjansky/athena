@@ -202,7 +202,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':0.,
 				     'j0_ftk_jvt015et45':20.,
 				     'j0_ftk_4jvt015et15':0.,
-				     'j0_ftk_4jvt015et45':20.}
+				     'j0_ftk_4jvt015et45':20.,
+				     'j0_perf_L1jJ100':0.,
+				     'j0_perf_L14jJ15':0.,
+				     'j260_L1jJ100':150.,
+				     '6j45_L14jJ15':20.}
     
   hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
                                      'j0_perf_ftk_L1RD0FILLED': 2.5,
@@ -240,7 +244,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':3.2,
 				     'j0_ftk_jvt015et45':3.2,
 				     'j0_ftk_4jvt015et15':3.2,
-				     'j0_ftk_4jvt015et45':3.2}
+				     'j0_ftk_4jvt015et45':3.2,
+				     'j0_perf_L1jJ100':3.2,
+				     'j0_perf_L14jJ15':3.2,
+				     'j260_L1jJ100':3.2,
+				     '6j45_L14jJ15':3.2}
 
   
   hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
@@ -279,7 +287,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':0.,
 				     'j0_ftk_jvt015et45':0.,
 				     'j0_ftk_4jvt015et15':0.,
-				     'j0_ftk_4jvt015et45':0.}
+				     'j0_ftk_4jvt015et45':0.,
+				     'j0_perf_L1jJ100':0.,
+				     'j0_perf_L14jJ15':0.,
+				     'j260_L1jJ100':0.,
+				     '6j45_L14jJ15':0.}
   
   
   hlt_hltJetn                    = { 'j0_perf_L1RD0FILLED': 1,
@@ -318,7 +330,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':1,
 				     'j0_ftk_jvt015et45':1,
 				     'j0_ftk_4jvt015et15':4,
-				     'j0_ftk_4jvt015et45':4}
+				     'j0_ftk_4jvt015et45':4,
+				     'j0_perf_L1jJ100':1,
+				     'j0_perf_L14jJ15':1,
+				     'j260_L1jJ100':1,
+				     '6j45_L14jJ15':6}
 
   
   hlt_hltContainers              = { 'j0_perf_L1RD0FILLED':'a4tcemsubjesISFS',
@@ -358,7 +374,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':'a4tcemsubjesISFSftk',
 				     'j0_ftk_jvt015et45':'a4tcemsubjesISFSftk',
 				     'j0_ftk_4jvt015et15':'a4tcemsubjesISFSftk',
-				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk'}
+				     'j0_ftk_4jvt015et45':'a4tcemsubjesISFSftk',
+				     'j0_perf_L1jJ100':'a4tcemsubjesISFS',
+				     'j0_perf_L14jJ15':'a4tcemsubjesISFS',
+				     'j260_L1jJ100':'a4tcemsubjesISFS',
+				     '6j45_L14jJ15':'a4tcemsubjesISFS'}
                 
 # Offline 
   hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
@@ -398,7 +418,11 @@ if (pp) or (mc):
 				     'j0_ftk_jvt015et15':0.,
 				     'j0_ftk_jvt015et45':20.,
 				     'j0_ftk_4jvt015et15':0.,
-				     'j0_ftk_4jvt015et45':20.}
+				     'j0_ftk_4jvt015et45':20.,
+				     'j0_perf_L1jJ100':0.,
+				     'j0_perf_L14jJ15':0.,
+				     'j260_L1jJ100':150.,
+				     '6j45_L14jJ15':20.}
 
 
 ############################################# HI Config #########################################################
