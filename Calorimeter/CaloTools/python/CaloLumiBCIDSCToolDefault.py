@@ -23,7 +23,7 @@ def CaloLumiBCIDSCToolDefault(name='CaloLumiBCIDSCToolDefault'):
       from IOVDbSvc.CondDB import conddb
       conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Shape")
       conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/MinBias")
-      conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/MinBiasAverage<tag>LARElecCalibMCSCMinBiasAverage-000</tag>")
+      conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/LArPileupAverage<tag>LARElecCalibMCSCLArPileupAverage-IOVDEP-00</tag>")
       theTool = CaloLumiBCIDTool(name,
                       isMC=True,
                       isSC=True,

@@ -42,7 +42,11 @@ monitoring_jet = ['j35',
                   'j0_ftk_jvt015et15',
                   'j0_ftk_jvt015et45',
                   'j0_ftk_4jvt015et15',
-                  'j0_ftk_4jvt015et45']
+                  'j0_ftk_4jvt015et45',
+                  'j0_perf_L1jJ100',
+                  'j0_perf_L14jJ15',
+                  'j260_L1jJ100',
+                  '6j45_L14jJ15']
 
 primary_l1jet = ['L1_J10',
                  'L1_TE50',
@@ -83,7 +87,11 @@ primary_jet = ['j35',
                'j0_ftk_jvt015et15',
                'j0_ftk_jvt015et45',
                'j0_ftk_4jvt015et15',
-               'j0_ftk_4jvt015et45']
+               'j0_ftk_4jvt015et45',
+               'j0_perf_L1jJ100',
+               'j0_perf_L14jJ15',
+               'j260_L1jJ100',
+               '6j45_L14jJ15']
 
 ########################## pp Config ###############################################
 
@@ -127,7 +135,11 @@ monitoring_jet_pp = ['j35',
                      'j0_ftk_jvt015et15',
                      'j0_ftk_jvt015et45',
                      'j0_ftk_4jvt015et15',
-                     'j0_ftk_4jvt015et45']
+                     'j0_ftk_4jvt015et45',
+                     'j0_perf_L1jJ100',
+                     'j0_perf_L14jJ15',
+                     'j260_L1jJ100',
+                     '6j45_L14jJ15']
 
 primary_l1jet_pp = ['L1_J10',
                     'L1_TE50',
@@ -168,7 +180,11 @@ primary_jet_pp = ['j35',
                   'j0_ftk_jvt015et15',
                   'j0_ftk_jvt015et45',
                   'j0_ftk_4jvt015et15',
-                  'j0_ftk_4jvt015et45']
+                  'j0_ftk_4jvt015et45',
+                  'j0_perf_L1jJ100',
+                  'j0_perf_L14jJ15',
+                  'j260_L1jJ100',
+                  '6j45_L14jJ15']
 
 
 ########################## validation Config ###############################################
@@ -214,7 +230,11 @@ monitoring_jet_validation = ['j35',
                              'j0_ftk_jvt015et15',
                              'j0_ftk_jvt015et45',
                              'j0_ftk_4jvt015et15',
-                             'j0_ftk_4jvt015et45']
+                             'j0_ftk_4jvt015et45',
+                             'j0_perf_L1jJ100',
+                             'j0_perf_L14jJ15',
+                             'j260_L1jJ100',
+                             '6j45_L14jJ15']
 
 
 primary_l1jet_validation = ['L1_J10',
@@ -257,7 +277,11 @@ primary_jet_validation = ['j35',
                           'j0_ftk_jvt015et15',
                           'j0_ftk_jvt015et45',
                           'j0_ftk_4jvt015et15',
-                          'j0_ftk_4jvt015et45']
+                          'j0_ftk_4jvt015et45',
+                          'j0_perf_L1jJ100',
+                          'j0_perf_L14jJ15',
+                          'j260_L1jJ100',
+                          '6j45_L14jJ15']
 
 ######################## Cosmics Config ############################################
 

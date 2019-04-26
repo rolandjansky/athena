@@ -72,7 +72,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100',
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA90', 'HA100',
         # ATR-19437
         # 3 x new TAU1
         'eTAU12', 'eTAU12IM', 'eTAU20', 
@@ -459,7 +459,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU5", "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
-        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU90", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY",
         'L1_eTAU12', 'L1_eTAU100',
 
@@ -618,6 +618,7 @@ def defineMenu():
         'L1_EM12_XS20', 'L1_EM15_XS30',
         
         # TE
+        'L1_TE5',
         #"L1_TE3",                                                        
         #                        "L1_TE45",                "L1_TE55",        "L1_TE60",        "L1_TE65",
         #      "L1_TE60", "L1_TE70",
@@ -651,6 +652,7 @@ def defineMenu():
         "L1_RD1_EMPTY",
 #        'L1_RD0_FIRSTEMPTY', 
         'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD2_FILLED',
 
         #LUCID
 #        'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
@@ -981,6 +983,7 @@ def defineMenu():
         'L1_TAU30' : 53,
         'L1_TAU40' : 54,
         'L1_TAU60' : 55,
+        'L1_TAU90' : 222,
         'L1_TAU100' : 52,
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
@@ -1048,7 +1051,7 @@ def defineMenu():
         'L1_J85' : 99,
         'L1_J100' : 100,
         'L1_J120' : 101,
-        'L1_J400' : 195,
+        'L1_J400' : 197,
         'L1_jJ100' : 36,
         'L1_2jJ50_gXERHO40' : 166,
         'L1_3jJ15.0ETA25_gXERHO40' : 167,
@@ -1123,7 +1126,7 @@ def defineMenu():
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
-
+        'L1_TE5' : 180,
 
 #        'L1_MBTS_1_VTE2' : 160,
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
@@ -1138,7 +1141,7 @@ def defineMenu():
         'L1_2J50_XE40' : 175,
         'L1_J40_XE60' : 176,
         'L1_MU10_2J20' : 278,
-        'L1_MU20_J50' : 180, 
+        'L1_MU20_J50' : 198, 
         'L1_TAU60_2TAU40' : 458,
         'L1_MU10_2J15_J20' : 255,
         
@@ -1177,6 +1180,7 @@ def defineMenu():
         'L1_RD0_UNPAIRED_ISO' : 201,
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_EMPTY' : 204,
+        'L1_RD2_FILLED' : 239,
 #        'L1_RD0_FIRSTEMPTY' : 209,
 #        'L1_LUCID_A_C_EMPTY' : 215,
 #        'L1_LUCID_A_C_UNPAIRED_ISO' : 216,

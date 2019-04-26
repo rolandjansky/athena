@@ -5,7 +5,7 @@ echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 ### DEFAULTS
 
 if [ -z ${MENU} ]; then
-  export MENU="MC_pp_v7_TriggerValidation_mc_prescale"
+  export MENU="MC_pp_v8"
 fi
 
 if [ -z ${EVENTS} ]; then
@@ -24,7 +24,7 @@ if [ -z ${JOB_LOG} ]; then
   export JOB_LOG="athena.log"
 fi
 
-if [ -z ${EXTRA} ]; then
+if [ -z "${EXTRA}" ]; then
   export EXTRA="extraPython=False;"
 fi
 
@@ -57,11 +57,11 @@ else
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000065.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000235.pool.root.1"]'
 fi
 
-trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
-
 ######################################
 
+echo "Running athena command:"
 if [[ $INPUT == 'data' ]]; then
+  (set -x
   athena.py -b -c \
   "setMenu=\"${MENU}\";\
   BSRDOInput=${DS};\
@@ -69,8 +69,10 @@ if [[ $INPUT == 'data' ]]; then
   ${EXTRA}\
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
-  ${JOBOPTION} &> ${JOB_LOG}
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 else
+  (set -x
   athena.py -b -c \
   "enableCostMonitoring=${COST_MONITORING};\
   RunningRTT=True;\
@@ -82,14 +84,13 @@ else
   ${EXTRA}\
   LVL1OutputLevel=WARNING;\
   HLTOutputLevel=WARNING;" \
-  ${JOBOPTION} &> ${JOB_LOG}
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 fi
 
 ######################################
 
-COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
-echo ${COMMAND} > command.txt
-echo "Command to reproduce:"
-envsubst < command.txt
+export ATH_RETURN=$?
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME}"
+

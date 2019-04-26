@@ -19,6 +19,7 @@
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 
 //need to include the following, since its a typedef and can't be forward declared.
@@ -124,6 +125,19 @@ namespace Trk {
       void storeTrkDistanceMapdR(const TrackCollection& tracks,
                                  std::vector<const Trk::Track*> &refit_tracks_out );
       
+      /** refit Tracks that are in the region of interest and removes inner hits that are wrongly assigned*/
+      void removeInnerHits(std::vector<const Trk::MeasurementBase*>& measurements) const;
+      const Trk::Track* refitTracksFromB(const Trk::Track* track,double fitQualityOriginal) const;
+     
+      /** see if we are in the region of interest for B tracks*/
+      bool decideIfInHighPtBROI(const Trk::Track*);
+
+      /** Check if the cluster is compatible with a hadronic cluster*/
+      bool isHadCaloCompatible(const Trk::TrackParameters& Tp) const;
+
+      /** Load the clusters to see if they are compatibles with ROI*/
+      void reloadHadROIs();
+
       /**  Find SiS Tracks that share hits in the track score map*/
       void overlapppingTracks();
      
@@ -137,6 +151,8 @@ namespace Trk {
 
 
       Trk::Track *fit(std::vector<const Trk::PrepRawData*> &raw,
+      			const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
+      Trk::Track *fit(std::vector<const Trk::MeasurementBase*> &measurements,
       			const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
       template<typename... Args>
       Trk::Track *fit(const Track &track, Args... args) const;
@@ -168,6 +184,18 @@ namespace Trk {
 
       /** suppress Track Fit */ 
       bool m_suppressTrackFit;
+
+      /** variables to decide if we are in a ROI */
+      bool m_useHClusSeed;
+      float m_minPtBjetROI;
+      float m_phiWidth;
+      float m_etaWidth;
+      std::string m_inputHadClusterContainerName;
+
+      std::vector<double>   m_hadF;
+      std::vector<double>   m_hadE;
+      std::vector<double>   m_hadR;
+      std::vector<double>   m_hadZ;
 
       /** control material effects (0=non-interacting, 1=pion, 2=electron, 3=muon, 4=pion) read in as an integer 
       read in as an integer and convert to particle hypothesis */
@@ -205,6 +233,10 @@ namespace Trk {
       /**Association tool - used to work out which (if any) PRDs are shared between 
        tracks */ 
       ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
+      
+      /**These allow us to retrieve the helpers*/
+      const PixelID* m_pixelId;
+      const AtlasDetectorID* m_idHelper;
       
       /** unsorted container of track and track scores.*/
       TrackScoreMap m_trackScoreTrackMap;
@@ -289,7 +321,6 @@ namespace Trk {
       bool isSharedTrack( const Track* track);
       bool isTrueTrack( const Track* track);
 
-      const PixelID* m_pixelId;
 
       void addTrackToMap(Trk::Track* Tr);
       void findSharedTrueTracks(const TrackCollection* recTracks);    
@@ -335,6 +366,27 @@ namespace Trk {
              new_track=nullptr;
          }
          return new_track;
+      }
+
+      inline
+      Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(std::vector<const Trk::MeasurementBase*> &measurements, const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const
+      {
+        Trk::Track *new_track=nullptr;
+        for ( const ToolHandle<ITrackFitter> &a_fitter : m_fitterTool) {
+           delete new_track;
+           new_track=nullptr;
+           new_track =  a_fitter->fit(measurements, param, flag, hypo);
+           if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+              return new_track;
+           }
+           ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
+        }
+        ATH_MSG_WARNING( "None of the " <<  m_fitterTool.size() << " track fitter(s) produced a track with a valid covariance matrix." );
+        if (m_rejectInvalidTracks) {
+          delete new_track;
+          new_track=nullptr;
+        }
+        return new_track;
       }
 
       template<typename... Args>

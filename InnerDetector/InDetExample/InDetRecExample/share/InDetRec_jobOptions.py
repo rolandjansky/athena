@@ -138,11 +138,11 @@ else:
 
     # ------------------------------------------------------------
     # 
-    # -----------ROI seeding for SSS seeds
+    # -----------ROI seeding for SSS seeds or Ambi
     #
     # ------------------------------------------------------------
     #
-    if InDetFlags.doHadCaloSeededSSS() and DetFlags.detdescr.Calo_allOn():
+    if (InDetFlags.doHadCaloSeededSSS() or InDetFlags.doCaloSeededAmbi() or InDetFlags.doCaloSeededRefit()) and DetFlags.detdescr.Calo_allOn():
       include ("InDetRecExample/InDetRecHadCaloSeededROISelection.py")
 
     # ------------------------------------------------------------
@@ -1047,10 +1047,11 @@ else:
             InDetKeys.UnslimmedTracksTruth     = InDetKeys.PseudoTracksTruth()
             # add as the combined ID collection
             InputCombinedInDetTracks = [ InDetKeys.PseudoTracks() ]
+            if InDetFlags.doTRTStandalone():
+               InputCombinedInDetTracks += [InDetRecTRTStandalone.TRTStandaloneTracks() ]
         if InDetFlags.doSplitReco() :
             InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
-
-
+           
         # add final output for statistics
         TrackCollectionKeys      += [ InDetKeys.PseudoTracks() ]
         TrackCollectionTruthKeys += [ InDetKeys.PseudoTracksTruth() ]

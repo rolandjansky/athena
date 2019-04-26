@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCHitsTestTool.h"
@@ -16,8 +16,8 @@
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -43,15 +43,15 @@ StatusCode sTGCHitsTestTool::processEvent() {
   CHECK(executeCheckEventInfo());
 
    if (m_DosTGCTest) {
-    const DataHandle<GenericMuonSimHitCollection> p_collection;
+    const DataHandle<sTGCSimHitCollection> p_collection;
     CHECK(evtStore()->retrieve(p_collection,"sTGCSensitiveDetector"));
-    for (GenericMuonSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) { 
+    for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) { 
       Amg::Vector3D u = (*i_hit).globalPosition();
       CHECK(executeFillHistos(u));
       
       
       sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();	
-      int simId = (*i_hit).GenericId();
+      int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
       
       static std::string TS11("TS11");

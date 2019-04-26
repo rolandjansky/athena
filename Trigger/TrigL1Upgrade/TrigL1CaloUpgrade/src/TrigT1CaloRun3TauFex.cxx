@@ -44,8 +44,6 @@ TrigT1CaloRun3TauFex::TrigT1CaloRun3TauFex( const std::string& name, ISvcLocator
 */
 TrigT1CaloRun3TauFex::~TrigT1CaloRun3TauFex(){
 	// finish base class
-	delete acc_clusterET;
-	delete acc_clusterIso;
 }
 
 StatusCode TrigT1CaloRun3TauFex::initialize(){
@@ -87,6 +85,8 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 		m_histFile->Write();
 		m_histFile->Close();
 	}
+	delete acc_clusterET;
+	delete acc_clusterIso;
 	return StatusCode::SUCCESS;
 }
 

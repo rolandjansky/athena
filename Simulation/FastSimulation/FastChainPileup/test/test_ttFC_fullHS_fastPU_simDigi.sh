@@ -6,7 +6,6 @@
 # Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 #
 # specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
 

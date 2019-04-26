@@ -41,7 +41,7 @@ _func_to_modify_signatures = None
 class GenerateMenu:   
     
     def overwriteSignaturesWith(f):
-        log.info('In overwriteSignaturesWith ')
+        log.debug('In overwriteSignaturesWith ')
         global _func_to_modify_signatures
         if _func_to_modify_signatures != None:
             log.warning('Updating the function to modify signatures from %s to %s'\
@@ -49,7 +49,7 @@ class GenerateMenu:
         _func_to_modify_signatures = f
 
     def overwriteMenuWith(f):
-        log.info('In overwriteSignaturesWith ')
+        log.debug('In overwriteSignaturesWith ')
         global _func_to_modify_the_menu
         if _func_to_modify_the_menu != None:
             log.warning('Updating the function to modify the menu from %s to %s'\
@@ -633,12 +633,11 @@ class GenerateMenu:
 
         #Do TOPO on Combined chains
         if self.doCombinedChains:
-            log.info('doTopo for combined chain = %s' % str(doTopo))
-            log.info(theChainDef)
+            if doTopo:
+                log.info('doTopo for combined chain = %s' % str(doTopo))
             if doTopo:
                 log.info('run generateCombinedChainDefs')
                 theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
-                log.info(theChainDef)        
         return theChainDef
 
     
@@ -982,7 +981,7 @@ class GenerateMenu:
                                                  ( self.trigConfL1.inputFile if self.trigConfL1.inputFile!=None else self.trigConfL1.outputFile,
                                                    self.triggerPythonConfig.getHLTConfigFile(),
                                                    "TriggerMenu/menu_check_exceptions.xml") )
-        print output
+        #print output
   
         # this does test the triggertype (JS)
         #for bit in xrange(8):

@@ -1052,6 +1052,46 @@
   </region>
 
   <region group="mdt">
+    <range field="stationName" value="EIL" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi" values="1 5" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="12" />
+  </region>
+  
+  <region group="mdt">
+    <range field="stationName" value="EIL" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi" values="2 3 4 7" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="54" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EIL" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi" values="6 8" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="42" />
+  </region>
+  
+  <region group="mdt">
+    <range field="stationName" value="EIL" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi" values="1 5" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="42" />
+  </region>
+
+  <region group="mdt">
     <range field="stationName" value="EEL" />
     <range field="stationEta" values="-1 1" />
     <range field="stationPhi" values="1 2 4 5 6 7 8" />

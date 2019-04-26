@@ -1,5 +1,8 @@
 #!/bin/sh
 # syntax: trigtest_checkcounts.C <tolerance> <reference file> <level: BOTH, EF, L2, HLT>
+
+echo "Command: "`basename $0` $@
+
 tol=$1
 ref=$2 
 if [ $# -eq 3 ]; then

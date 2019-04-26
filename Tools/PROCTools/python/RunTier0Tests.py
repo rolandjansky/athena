@@ -204,8 +204,8 @@ def GetReleaseSetup(isCImode=False):
 
     current_nightly = os.environ['AtlasBuildStamp']
     release_base=os.environ['AtlasBuildBranch']
-    release_head=os.environ['Athena_VERSION']
-    platform=os.environ['Athena_PLATFORM']
+    release_head=os.environ['AtlasVersion']
+    platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time

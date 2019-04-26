@@ -46,14 +46,14 @@ TrigT1CaloEFex::~TrigT1CaloEFex(){
 
 StatusCode TrigT1CaloEFex::initialize(){
   
-  // Initialize accessors
-  Run3eFEXIsolation_REta       = new SG::AuxElement::Accessor<float>("Run3REta");
-  Run3eFEXIsolation_RHad       = new SG::AuxElement::Accessor<float>("Run3RHad");
-  pass_Run3eFEXIsolation_REta  = new SG::AuxElement::Accessor<int>("PassRun3REta");
-  pass_Run3eFEXIsolation_RHad  = new SG::AuxElement::Accessor<int>("PassRun3RHad");
-  pass_Run3eFEXIsolation_wstot = new SG::AuxElement::Accessor<int>("PassRun3wstot");
-  pass_Run3eFEX_clusterEnergy  = new SG::AuxElement::Accessor<int>("PassRun3ClusterEnergy");
-  
+	// Initialize accessors
+	Run3eFEXIsolation_REta       = new SG::AuxElement::Accessor<float>("Run3REta");
+	Run3eFEXIsolation_REtaL12    = new SG::AuxElement::Accessor<float>("Run3REtaL12");
+	Run3eFEXIsolation_RHad       = new SG::AuxElement::Accessor<float>("Run3RHad");
+	pass_Run3eFEXIsolation_REta  = new SG::AuxElement::Accessor<int>("PassRun3REta");
+	pass_Run3eFEXIsolation_RHad  = new SG::AuxElement::Accessor<int>("PassRun3RHad");
+	pass_Run3eFEXIsolation_wstot = new SG::AuxElement::Accessor<int>("PassRun3wstot");
+	pass_Run3eFEX_clusterEnergy  = new SG::AuxElement::Accessor<int>("PassRun3ClusterEnergy");
 
 	if ( TrigT1CaloBaseFex::initialize().isFailure() ) return StatusCode::FAILURE;
         MsgStream msg(msgSvc(), name());
@@ -135,6 +135,8 @@ StatusCode TrigT1CaloEFex::execute(){
 		  if (ithCluster[6] > -999) cl->setEhad1( ithCluster[6] );
 		  cl->setE233( ithCluster[7] );
 		  cl->setE237( ithCluster[8] );
+		  if (!m_use_REtaL12) (*Run3eFEXIsolation_REtaL12)(*cl) = -1;
+		  else (*Run3eFEXIsolation_REtaL12)(*cl) = ithCluster[9];
 		  // check if cluster fulfills all selection criteria, trivial if m_apply_BaseLineCuts = true
 		  if ( m_apply_BaseLineCuts ){
 			  (*pass_Run3eFEXIsolation_REta)(*cl)  = 1;
