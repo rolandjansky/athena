@@ -50,13 +50,15 @@ class BackgroundWordFiller : public AthAlgorithm
   SG::ReadHandleKey<BcmCollisionTime> m_bcmCollisionTimeKey{this,"BcmCollisionTimeKey","BcmCollisionTime","Key for BcmCollisionTime"};
 
   /** ReadHandleKey for RawInfoSummaryForTag */
-  SG::ReadHandleKey<RawInfoSummaryForTag> m_rawIngoSummaryForTagKey{this,"RawInfoSummaryForTagKey","RawInfoSummaryForTag","Key for RawInfoSummaryForTag"};
+  SG::ReadHandleKey<RawInfoSummaryForTag> m_rawInfoSummaryForTagKey{this,"RawInfoSummaryForTagKey","RawInfoSummaryForTag","Key for RawInfoSummaryForTag"};
 
   /** ReadHandleKey for TileCellContainer */
   SG::ReadHandleKey<TileCellContainer> m_tileCellContainerKey{this,"TileCellContainerKey","MBTSContainer","Key for TileCellContainer"};
 
   /** ReadHandleKey for LArCollisionTime */
   SG::ReadHandleKey<LArCollisionTime> m_lArCollisionTimeKey{this,"LArCollisionTimeKey","LArCollisionTime","Key for LArCollisionTime"};
+
+  Gaudi::Property<bool> m_isMC{this, "IsMC", false, "Sets whether we should expect MC objects"};
   
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;
@@ -75,7 +77,6 @@ class BackgroundWordFiller : public AthAlgorithm
   int m_MBTSBeamVeto_TimeCut;
   float m_MBTSBeamVeto_ThresholdCut;
   const uint8_t m_MBTSmask, m_MBTSpattern;
-  std::string m_mbtsContainerName;
 
   int m_LArEC_SideCut;
   float m_LArECTimeDiffCol_Cut;
