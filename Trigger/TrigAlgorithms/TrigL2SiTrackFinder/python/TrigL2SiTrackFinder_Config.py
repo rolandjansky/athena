@@ -10,12 +10,13 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
 
 from TrigInDetRecoTools.TrigInDetRecoTools_Config import TrigL2PattRecoStrategyFactory
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 strFactory = TrigL2PattRecoStrategyFactory()
 
 from AthenaCommon.AppMgr import ToolSvc
 
-ospTool = ConfiguredOnlineSpacePointProviderTool(doBS=True)
+ospTool = ConfiguredOnlineSpacePointProviderTool(doBS=TriggerFlags.doTransientByteStream())
 trtTool = TrigTRT_TrackExtensionTool(OfflineClusters=False, PtCut=2500.0)
 trackFitter = TrigInDetTrackFitter(OfflineClusters=False)
 resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
