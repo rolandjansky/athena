@@ -925,20 +925,19 @@ StatusCode PixelFastDigitizationTool::digitize()
 	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();)
 	{
 	   Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
-	   InDet::PixelCluster* currentCluster = clusIter->second;
+           InDet::PixelCluster* currentCluster = clusIter->second;
 	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
-	   double random= rand()% 1000 / 1000.0;
-	    //std::cout<<random<<std::endl;
-	   double mu=rand()% 50;
+	   double random= rand()%1000/1000.0;
+
+	   double mu=rand()%50;
 	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),mu,isBarrel);
-	   //std::cout<<"InefficiencySF "<<inefficiencySF<<std::endl;
-	   //std::cout<<"fabs(globalPosition.eta()) "<<fabs(currentCluster->globalPosition().eta())<<std::endl;
-	   //std::cout<<"mu "<<mu<<std::endl;
+// 	   std::cout<<"InefficiencySF "<<m_inefficiencySF<<std::endl;
+	   //std::cout<<"fabs(globalPosition.eta()) "<<fabs(currentCluster->globalPosition().eta())<<std::endl
 	   if  ( random < inefficiencySF ){
-	      PixelDetElClusterMap.erase(clusIter);
 	      m_pixPrdTruth->erase(currentCluster->identify());
+	      delete currentCluster;
+	      PixelDetElClusterMap.erase(clusIter);
 	  }
-	  delete currentCluster;
 	}
     }  
      std::cout<<"PixelDetElClusterMap.size() after SF "<<PixelDetElClusterMap.size()<<std::endl;
