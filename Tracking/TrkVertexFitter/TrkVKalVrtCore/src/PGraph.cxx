@@ -1,31 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+#include "TrkVKalVrtCore/PGraph.h"
+
 
 namespace Trk {
 
-int pgraphm_(long int *weit, long int *edges, long int *nodes, 
-	long int *set, long int *nptr, long int *nth)
+int PGraph::pgraphm_(long int *weit, long int *edges, long int *nodes, 
+	long int *set, long int *nptr, long int *nth) noexcept
 {
 
     /* Builtin functions */
 //  void s_stop(char *, ftnlen);
 
     /* Local variables */
-    static short int teit[999000]	/* was [2][499500] */, sett[499500];
-    static long int vset[1000], wset[1000];
-    static long int tabnr;
-    static long int lteit[1000], lweit, lsett[1000];
-    static long int lvset, lwset,choice;
-
     long int node=0, maxl,i__1;
     long int k1,k2,ind,nlink[1000];
     long int i__, k, l, ndmap[1000];
 
-    void trevni_(long int *, long int *, long int *, long int *, long int *, long int *);
 
 
-#define teit_ref(a_1,a_2) teit[(a_2)*2 + a_1 - 3]
+
+#define teit_ref(a_1,a_2) m_teit[(a_2)*2 + a_1 - 3]
 #define weit_ref(a_1,a_2) weit[(a_2)*2 + a_1]
 
 
@@ -89,7 +85,7 @@ int pgraphm_(long int *weit, long int *edges, long int *nodes,
 	goto L999;
     }
     if (*nptr > 0) {
-	switch (choice) {
+	switch (m_choice) {
 	    case 1:  goto L10;
 	    case 2:  goto L20;
 	    case 3:  goto L999;
@@ -98,12 +94,12 @@ int pgraphm_(long int *weit, long int *edges, long int *nodes,
     if (*nodes == 1 || *edges == 0) {
 	goto L900;
     }
-    lweit = *edges;
-    tabnr = 1;
-    lwset = 0;
-    lvset = 0;
-    lteit[0] = 0;
-    lsett[0] = 0;
+    m_lweit = *edges;
+    m_tabnr = 1;
+    m_lwset = 0;
+    m_lvset = 0;
+    m_lteit[0] = 0;
+    m_lsett[0] = 0;
 
 /* Add a node to the VSET list. Select first NODE with the largest */
 /* number of links. This can be time-consuming, time about NODES^3. */
@@ -118,7 +114,7 @@ L888:
 /* L61: */
 	nlink[i__ - 1] = 0;
     }
-    i__1 = lweit;
+    i__1 = m_lweit;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	k = weit_ref(1, i__);
 	l = weit_ref(2, i__);
@@ -141,8 +137,8 @@ L888:
 
 /* ***   STEP2 */
 
-    ++lvset;
-    vset[lvset - 1] = node;
+    ++m_lvset;
+    m_vset[m_lvset - 1] = node;
 
 /* ***   STEP 3 + 4 */
 /* WSET() - list of nodes connected with selected NODE. */
@@ -154,18 +150,18 @@ L888:
 
 /*      K1 = 0 */
 /*      K2 = 0 */
-    ind = lteit[tabnr - 1];
-    i__1 = lweit;
+    ind = m_lteit[m_tabnr - 1];
+    i__1 = m_lweit;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	k = weit_ref(1, i__);
 	l = weit_ref(2, i__);
 	if (k == node) {
-	    ++lwset;
-	    wset[lwset - 1] = l;
+	    ++m_lwset;
+	    m_wset[m_lwset - 1] = l;
 /*         K2 = K2 + 1 */
 	} else if (l == node) {
-	    ++lwset;
-	    wset[lwset - 1] = k;
+	    ++m_lwset;
+	    m_wset[m_lwset - 1] = k;
 /*         K2 = K2 + 1 */
 	} else {
 	    ++ind;
@@ -175,8 +171,8 @@ L888:
 	}
 /* L2: */
     }
-    k1 = ind - lteit[tabnr - 1];
-    k2 = lweit - k1;
+    k1 = ind - m_lteit[m_tabnr - 1];
+    k2 = m_lweit - k1;
 /* --   Note that IND.GT.EDGES is possible. */
     if (ind > 499500) {
 	return 1;
@@ -186,11 +182,11 @@ L888:
 	goto L300;
     }
 /* -- */
-    ind = lsett[tabnr - 1];
-    i__1 = lvset;
+    ind = m_lsett[m_tabnr - 1];
+    i__1 = m_lvset;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	++ind;
-	sett[ind - 1] = (short int) vset[i__ - 1];
+	m_sett[ind - 1] = (short int) m_vset[i__ - 1];
 /* L51: */
     }
     if (ind > 499500) {
@@ -200,13 +196,13 @@ L888:
 
 /* ***   STEP 5 */
 
-    ++tabnr;
-    if (tabnr > *nodes) {
+    ++m_tabnr;
+    if (m_tabnr > *nodes) {
 	return 3;
 //	s_stop("PGRAPH: LSETT stack overflow", 28L);
     }
-    lsett[tabnr - 1] = lsett[tabnr - 2] + lvset;
-    lteit[tabnr - 1] = lteit[tabnr - 2] + k1;
+    m_lsett[m_tabnr - 1] = m_lsett[m_tabnr - 2] + m_lvset;
+    m_lteit[m_tabnr - 1] = m_lteit[m_tabnr - 2] + k1;
 
 /* Replace WEIT by the set of edges which are NOT connected with nodes */
 /* in WSET (and in VSET too). If there are no such edges, then WSET is */
@@ -232,14 +228,14 @@ L888:
 /* L26: */
 	ndmap[i__ - 1] = 0;
     }
-    i__1 = lwset;
-    for (i__ = lwset - k2 + 1; i__ <= i__1; ++i__) {
+    i__1 = m_lwset;
+    for (i__ = m_lwset - k2 + 1; i__ <= i__1; ++i__) {
 /* L27: */
-	ndmap[wset[i__ - 1] - 1] = 1;
+	ndmap[m_wset[i__ - 1] - 1] = 1;
     }
     k1 = 0;
-    i__1 = lteit[tabnr - 1];
-    for (i__ = lteit[tabnr - 2] + 1; i__ <= i__1; ++i__) {
+    i__1 = m_lteit[m_tabnr - 1];
+    for (i__ = m_lteit[m_tabnr - 2] + 1; i__ <= i__1; ++i__) {
 	k = teit_ref(1, i__);
 	l = teit_ref(2, i__);
 	if (ndmap[k - 1] + ndmap[l - 1] == 0) {
@@ -256,13 +252,13 @@ L888:
 	goto L10;
     }
 /* ---- */
-    i__1 = lwset;
+    i__1 = m_lwset;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L50: */
-	vset[i__ - 1] = wset[i__ - 1];
+	m_vset[i__ - 1] = m_wset[i__ - 1];
     }
-    lvset = lwset;
-    lweit = k1;
+    m_lvset = m_lwset;
+    m_lweit = k1;
     goto L888;
 
 /*  THE STATEMENTS 300 ... 20 RETURN THE SOLUTIONS IN V AND W. */
@@ -273,35 +269,35 @@ L888:
 /** Do not returt set complement; do not return solutions shorter than NTH.*/
 
 L300:
-    if (*nodes - lvset < *nth) {
+    if (*nodes - m_lvset < *nth) {
 	goto L10;
     }
-    trevni_(vset, &lvset, &set[1], nodes, nptr, ndmap);
+    trevni_(m_vset, &m_lvset, &set[1], nodes, nptr, ndmap);
 /*     DO 41 I = 1,LVSET ; NPTR = NPTR + 1 ; 41 SET(NPTR) = VSET(I) */
-    choice = 1;
+    m_choice = 1;
     return 0;
 
 L10:
-    if (*nodes - lwset < *nth) {
+    if (*nodes - m_lwset < *nth) {
 	goto L20;
     }
-    trevni_(wset, &lwset, &set[1], nodes, nptr, ndmap);
+    trevni_(m_wset, &m_lwset, &set[1], nodes, nptr, ndmap);
 /*     DO 40 I = 1,LWSET ; NPTR = NPTR + 1 ; 40 SET(NPTR) = WSET(I) */
-    choice = 2;
+    m_choice = 2;
     return 0;
 
 /* ***   STEP 6. Go back one level, exit if we are at the first level. */
 
 L20:
-    if (tabnr == 1) {
+    if (m_tabnr == 1) {
 	goto L999;
     }
-    lweit = lteit[tabnr - 1] - lteit[tabnr - 2];
-    lwset = lsett[tabnr - 1] - lsett[tabnr - 2];
-    lvset = lwset;
-    --tabnr;
-    ind = lteit[tabnr - 1];
-    i__1 = lweit;
+    m_lweit = m_lteit[m_tabnr - 1] - m_lteit[m_tabnr - 2];
+    m_lwset = m_lsett[m_tabnr - 1] - m_lsett[m_tabnr - 2];
+    m_lvset = m_lwset;
+    --m_tabnr;
+    ind = m_lteit[m_tabnr - 1];
+    i__1 = m_lweit;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	++ind;
 	weit_ref(1, i__) = teit_ref(1, ind);
@@ -314,13 +310,13 @@ L20:
 /*       NLINK(L) = NLINK(L) + 1 */
 /* L21: */
     }
-    ind = lsett[tabnr - 1];
-    i__1 = lwset;
+    ind = m_lsett[m_tabnr - 1];
+    i__1 = m_lwset;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	++ind;
-	l = sett[ind - 1];
-	wset[i__ - 1] = l;
-	vset[i__ - 1] = l;
+	l = m_sett[ind - 1];
+	m_wset[i__ - 1] = l;
+	m_vset[i__ - 1] = l;
 /* L22: */
     }
     goto L888;
@@ -332,7 +328,7 @@ L900:
 	set[i__] = i__;
     }
     *nptr = *nodes;
-    choice = 3;
+    m_choice = 3;
     return 0;
 /* ---- */
 L999:
@@ -344,8 +340,8 @@ L999:
 #undef teit_ref
 
 
- void trevni_(long int *from, long int *length, long int *to, 
-	long int *maxv, long int *newlng, long int *work)
+ void PGraph::trevni_(long int *from, long int *length, long int *to, 
+	long int *maxv, long int *newlng, long int *work) noexcept
 {
      long int i__1, i__, k;
 

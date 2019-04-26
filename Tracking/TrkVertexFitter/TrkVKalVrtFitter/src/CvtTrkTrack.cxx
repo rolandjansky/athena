@@ -19,7 +19,7 @@
 
 namespace Trk{
 
-    extern vkalPropagator  myPropagator;
+    extern const vkalPropagator  myPropagator;
 
 //--------------------------------------------------------------------
 //  Extract TrkTracks

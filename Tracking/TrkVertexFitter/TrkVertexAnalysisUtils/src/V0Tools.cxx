@@ -58,46 +58,42 @@ namespace Trk
   }
 
 
-  xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
+  const xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
   {
-    xAOD::Vertex* v0(0);
-    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
+    const xAOD::Vertex* v0(0);
+    const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
     if ((acc(*vxCandidate)).isValid()) {
-      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
-      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+      v0 = *(acc(*vxCandidate));
     }
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) const
+  const xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) const
   {
-    xAOD::Vertex* v0(0);
-    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
+    const xAOD::Vertex* v0(0);
+    const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
     if ((acc(*vxCandidate)).isValid()) {
-      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
-      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+      v0 = *(acc(*vxCandidate));
     }
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) const
+  const xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) const
   {
-    xAOD::Vertex* v0(0);
-    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
+    const xAOD::Vertex* v0(0);
+    const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
     if ((acc(*vxCandidate)).isValid()) {
-      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
-      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+      v0 = *(acc(*vxCandidate));
     }
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) const
+  const xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) const
   {
-    xAOD::Vertex* v0(0);
-    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
+    const xAOD::Vertex* v0(0);
+    const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
     if ((acc(*vxCandidate)).isValid()) {
-      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
-      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+      v0 = *(acc(*vxCandidate));
     }
     return v0;
   }

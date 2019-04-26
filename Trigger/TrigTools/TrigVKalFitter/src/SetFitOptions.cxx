@@ -9,15 +9,6 @@
 #include<iostream>
 
 
-namespace Trk {
-   extern void prcfit(long int *,double *,double* ,
-                      double* , double* , double* );           
-   extern void setmasscnst_(long int* , long int* , double* );
-   extern void vksetIterationNum(long int Iter);
-   extern void vksetIterationPrec(double Prec);
-   extern void vksetRobustness(long int Rob);
-}
-
 //
 // Option setting for VKalVrt core
 //
@@ -68,7 +59,7 @@ void TrigVKalFitter::VKalVrtSetOptions(long int ntrk)
       m_TrackCharge.clear();
    }
    //---
-   Trk::prcfit(&ntrk,m_wm,&MFit,&m_BMAG,m_VrtCst,m_CovVrtCst);
+   m_coreFit.prcfit(&ntrk,m_wm,&MFit,&m_BMAG,m_VrtCst,m_CovVrtCst);
    //---
    //   Additional change of settings 
    //---
@@ -78,19 +69,19 @@ void TrigVKalFitter::VKalVrtSetOptions(long int ntrk)
          long int NTrk=m_PartMassCnstTrk[ic].size();
          for(int it=0; it<NTrk; it++) Index[it]=m_PartMassCnstTrk[ic][it];
          double CnstMass= (double) m_PartMassCnst[ic];
-         Trk::setmasscnst_(&NTrk,Index,&CnstMass);
+         m_coreFit.setmasscnst_(&NTrk,Index,&CnstMass);
       }
    }
    //---
    if(m_IterationNumber > 0) {
-      Trk::vksetIterationNum(int(m_IterationNumber));
+      m_coreFit.vksetIterationNum(int(m_IterationNumber));
    }
    //---
    if(m_IterationPrecision > 0.) {
-      Trk::vksetIterationPrec(double(m_IterationPrecision));
+      m_coreFit.vksetIterationPrec(double(m_IterationPrecision));
    }
    //---
-   if(m_Robustness > 0) Trk::vksetRobustness( Rob );
+   if(m_Robustness > 0) m_coreFit.vksetRobustness( Rob );
 
 }
 
@@ -118,7 +109,7 @@ void TrigVKalFitter::setMassForConstraint(double MASS)
 void TrigVKalFitter::setMassForConstraint(double MASS, std::vector<int> TrkIndex)
 {  
    m_PartMassCnst.push_back(MASS);
-   m_PartMassCnstTrk.push_back(TrkIndex);
+   m_PartMassCnstTrk.push_back(std::move(TrkIndex));
 }
 
 void TrigVKalFitter::setMomCovCalc(int TYPE)
