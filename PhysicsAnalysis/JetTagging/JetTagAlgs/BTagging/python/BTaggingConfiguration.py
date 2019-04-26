@@ -505,14 +505,18 @@ class Configuration:
               suf = self.GeneralToolSuffix()
               return path.replace('/','_').split('.')[0] + suf
 
-          # add the RNN tool
+          # add the pre-tag tools
           from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
               FlavorTagDiscriminants__DL2Tool as DL2Tool,
+              FlavorTagDiscriminants__BTagMuonAugmenterTool as MuonTool,
               FlavorTagDiscriminants__BTagAugmenterTool as AugTool)
           from os.path import splitext, basename
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap:
               print '##DAN## found pretag match for jc {}'.format(jetcol)
+              aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
+              ToolSvc += aug
+              options['preBtagToolModifiers'].append(aug)
               for nn_file in preTagDL2JetToTrainingMap[jetcol]:
                   rnn = DL2Tool(
                       name=get_training_name(nn_file),
