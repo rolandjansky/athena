@@ -899,6 +899,9 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4',
         ]
     
 
@@ -1393,6 +1396,9 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4' : 199,
 
 }
 

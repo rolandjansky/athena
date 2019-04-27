@@ -1638,6 +1638,10 @@ class ItemDef:
             LVL1MenuItem('L1_DPHI-M70-2EM10I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM10his6 & physcond)  # noqa: F821
             LVL1MenuItem('L1_DPHI-M70-2EM12I' ).setLogic( TOPO_0INVM70_27DPHI32_EM10his1_EM12his6 & physcond)  # noqa: F821
 
+        #ATR-19510
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            LVL1MenuItem('L1_DY-BOX-2MU4' ).setLogic( TOPO_2DR99_2MU4ab & physcond)  # noqa: F821
+
 
         #if (('Physics_HI_v3' not in TriggerFlags.triggerMenuSetup()) and ('MC_HI_v3' not in TriggerFlags.triggerMenuSetup())):
             # Topo items (keep them all together)
@@ -1665,6 +1669,7 @@ class ItemDef:
                     LVL1MenuItem("L1_2MU4-BO"     ).setLogic( TOPO_MULT_CMU4ab.x(2) & physcond)    # noqa: F821
                     LVL1MenuItem("L1_2MU6-BO"     ).setLogic( TOPO_MULT_CMU6ab.x(2) & MU6.x(2) & physcond)    # noqa: F821
                     LVL1MenuItem("L1_MU6MU4-BO").setLogic( TOPO_MULT_CMU4ab.x(2) & TOPO_MULT_CMU6ab & MU6 & physcond)    # noqa: F821
+
 
                     # B-jet
                     LVL1MenuItem('L1_BTAG-MU4J15').setLogic( TOPO_0DR04_MU4ab_CJ15ab & physcond)    # noqa: F821
