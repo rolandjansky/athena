@@ -71,7 +71,18 @@ namespace FlavorTagDiscriminants {
       OutNode node;
       for (const std::string& element: out_node.second.labels) {
         std::string name = node_name + "_" + element;
-        node.emplace_back(element, OutputDecorator(name));
+        // for the spring 2019 retraining campaign we're stuck with
+        // doubles. Hopefully at some point we can move to using
+        // floats.
+        if (schema == EDMSchema::FEB_2019) {
+          SG::AuxElement::Decorator<double> d(name);
+          node.emplace_back(
+            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
+        } else {
+          SG::AuxElement::Decorator<float> d(name);
+          node.emplace_back(
+            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
+        }
       }
       m_decorators[node_name] = node;
     }
@@ -108,7 +119,7 @@ namespace FlavorTagDiscriminants {
       // the second argument to compute(...) is for sequences
       auto out_vals = m_graph->compute(nodes, seqs, dec.first);
       for (const auto& node: dec.second) {
-        node.second(*jet.btagging()) = out_vals.at(node.first);
+        node.second(*jet.btagging(), out_vals.at(node.first));
       }
     }
   }

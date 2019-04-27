@@ -60,7 +60,7 @@ namespace FlavorTagDiscriminants {
       type_regexes = {
         {".*_isDefaults"_r, EDMType::UCHAR},
         {"(IP[23]D_|SV[12]_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
-        {"(rnnip|iprnn)_p(b|c|u|tau)"_r, EDMType::FLOAT},
+        {"(rnnip|iprnn)_p(b|c|u|tau)"_r, EDMType::DOUBLE}, // TODO: to float
         {"(minimum|maximum|average)TrackRelativeEta"_r, EDMType::FLOAT},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_[Nn].*"_r, EDMType::INT},
         {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},

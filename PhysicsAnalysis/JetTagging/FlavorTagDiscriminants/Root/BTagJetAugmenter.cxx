@@ -80,7 +80,7 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
   typedef SG::AuxElement::Decorator<double> ADD;
   typedef SG::AuxElement::Decorator<char> ADC;
   typedef SG::AuxElement::Decorator<int> ADI;
-  if (s == EDMSchema::FEB_2019) {
+  if (s != EDMSchema::WINTER_2018) {
     pt_uncalib = ADD("pt_btagJes");
     eta_uncalib = ADD("eta_btagJes");
     abs_eta_uncalib = ADD("absEta_btagJes");
