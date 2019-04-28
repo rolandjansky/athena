@@ -66,7 +66,11 @@ StatusCode SmoothedWZTagger::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    if ( m_calibarea.compare("Local") == 0 ) {
+      configPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/"+m_configFile).c_str());      
+    } else {
+      configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    }
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -113,7 +117,11 @@ StatusCode SmoothedWZTagger::initialize(){
       m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
       m_weightFlavors = configReader.GetValue("WeightFlavors", "");
       m_truthLabelDecorationName = configReader.GetValue("TruthLabelDecorationName", "");
-      m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/SmoothedWZTaggers/"+m_weightFileName).c_str());
+      if ( m_calibarea.compare("Local") == 0 ){
+	m_weightConfigPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/SmoothedWZTaggers/"+m_weightFileName).c_str());      
+      } else {
+	m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/SmoothedWZTaggers/"+m_weightFileName).c_str());
+      }
     }
   }
   else { // no config file
