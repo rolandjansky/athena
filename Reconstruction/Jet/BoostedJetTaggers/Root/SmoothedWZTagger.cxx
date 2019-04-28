@@ -46,7 +46,7 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   declareProperty( "WeightFile",                m_weightFileName = "");
   declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
   declareProperty( "WeightFlavors",             m_weightFlavors = "");
-  declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "WTopContainmentTruthLabel");
+  declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "FatjetTruthLabel");
   declareProperty( "TruthJetContainerName",   m_truthJetContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
   declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
   declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
@@ -359,12 +359,12 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   if ( m_calcSF && m_decorate ){
     if ( m_accept ) {
       // pass tagger
-      SG::AuxElement::ConstAccessor<WTopLabel> WTopContainmentTruthLabel(m_truthLabelDecorationName);
+      SG::AuxElement::ConstAccessor<FatjetTruthLabel> FatjetTruthLabel(m_truthLabelDecorationName);
       try{
-	WTopContainmentTruthLabel(jet);
+	FatjetTruthLabel(jet);
 	m_dec_weight(jet) = getWeight(jet);
       } catch (...) {
-	ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"WTopContainmentTruthLabel\" to your jet before calling tag(..)");
+	ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"FatjetTruthLabel\" to your jet before calling tag(..)");
       }
     }else{
       m_dec_weight(jet) = 1.0;
@@ -380,11 +380,11 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
   if ( jet.pt() < 200e3 || fabs(jet.eta())>2.0 ) return 1.0;
   
   std::string truthLabelStr;
-  WTopLabel jetContainment=jet.auxdata<WTopLabel>(m_truthLabelDecorationName);
-  if( jetContainment==WTopLabel::t ){
+  FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
+  if( jetContainment==FatjetTruthLabel::t ){
     truthLabelStr="t_qqb";
-  }else if( jetContainment==WTopLabel::W || jetContainment==WTopLabel::Z){
-    truthLabelStr="W_qq";
+  }else if( jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::Z){
+    truthLabelStr="V_qq";
   }else{
     truthLabelStr="q";
   }

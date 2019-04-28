@@ -263,7 +263,7 @@ int main( int argc, char* argv[] ) {
       m = (*jet_itr)->m();
       eta = (*jet_itr)->eta();
       sf = (*jet_itr)->auxdata<float>("SmoothWContained50_SF");
-      truthLabel = (int)(*jet_itr)->auxdata<WTopLabel>("WTopContainmentTruthLabel");
+      truthLabel = (int)(*jet_itr)->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
 
       bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
       validForUncTool &= (m/pt >= 0 && m/pt <= 1);

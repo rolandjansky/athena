@@ -4,7 +4,7 @@
 
 #include "JetUncertainties/LogPtMassUncertaintyComponent.h"
 #include "JetUncertainties/Helpers.h"
-#include "BoostedJetTaggers/WTopLabel.h"
+#include "BoostedJetTaggers/FatjetTruthLabel.h"
 
 namespace jet
 {
@@ -26,7 +26,7 @@ LogPtMassUncertaintyComponent::LogPtMassUncertaintyComponent(const std::string& 
 LogPtMassUncertaintyComponent::LogPtMassUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
     , m_massDef(component.massDef)
-    , m_label(component.WTopTruthLabel)
+    , m_label(component.FatjetTruthLabelForSF)
 {
     ATH_MSG_DEBUG(Form("Creating LogPtMassUncertaintyComponent named %s",m_uncHistName.Data()));
 }
@@ -58,15 +58,15 @@ bool LogPtMassUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const 
 
 double LogPtMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    static SG::AuxElement::Accessor<WTopLabel> accLabel("WTopContainmentTruthLabel");
+    static SG::AuxElement::Accessor<FatjetTruthLabel> accLabel("FatjetTruthLabel");
     if ( !accLabel.isAvailable(jet) ){
-      ATH_MSG_ERROR("WTopContainmentTruthLabel is not decorrated to the jet. Please call BoostedJetTaggers tag() function before calling this function.");
+      ATH_MSG_ERROR("FatjetTruthLabel is not decorrated to the jet. Please call BoostedJetTaggers tag() function before calling this function.");
     }
-    WTopLabel jetFlavorLabel=accLabel(jet);
+    FatjetTruthLabel jetFlavorLabel=accLabel(jet);
 
-    if ( (m_label=="t_qqb" && jetFlavorLabel!=WTopLabel::t) ||
-	 (m_label=="W_qq" && jetFlavorLabel!=WTopLabel::W && jetFlavorLabel!=WTopLabel::Z) ||
-	 (m_label=="q" && (jetFlavorLabel==WTopLabel::t || jetFlavorLabel==WTopLabel::W || jetFlavorLabel==WTopLabel::Z)) ) {
+    if ( (m_label=="t_qqb" && jetFlavorLabel!=FatjetTruthLabel::t) ||
+	 (m_label=="V_qq" && jetFlavorLabel!=FatjetTruthLabel::W && jetFlavorLabel!=FatjetTruthLabel::Z) ||
+	 (m_label=="q" && (jetFlavorLabel==FatjetTruthLabel::t || jetFlavorLabel==FatjetTruthLabel::W || jetFlavorLabel==FatjetTruthLabel::Z)) ) {
       // if the type of uncertainty is not match to the jet truth label, return 0% uncertainty
       return 0.0;
     }

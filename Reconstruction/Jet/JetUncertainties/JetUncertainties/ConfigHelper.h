@@ -45,7 +45,7 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
-        TString WTopTruthLabel;
+        TString FatjetTruthLabelForSF;
 
         // Derived values to parse from the raw values
         CompParametrization::TypeEnum parametrization;

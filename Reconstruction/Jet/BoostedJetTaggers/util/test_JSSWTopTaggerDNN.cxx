@@ -157,6 +157,7 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
+  m_Tagger.setProperty("CalibArea", "Local");
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
   //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
@@ -198,7 +199,7 @@ int main( int argc, char* argv[] ) {
 
       const Root::TAccept& res = m_Tagger->tag( *jet ); 
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
-      truthLabel = (int)jet->auxdata<WTopLabel>("WTopContainmentTruthLabel");
+      truthLabel = (int)jet->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
 
       pass = res;
       sf = jet->auxdata<float>("DNNTaggerTopQuark80_SF");
