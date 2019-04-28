@@ -1473,6 +1473,8 @@ protected:
   std::pair<bool, bool> isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge);
   bool isPromptMuon(int type, int origin);
 
+  int filterBranches(const top::TreeManager*, const std::string& variable);
+
   ClassDef(top::EventSaverFlatNtuple, 0);
 };
 

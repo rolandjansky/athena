@@ -76,12 +76,13 @@ namespace DerivationFramework {
       bool m_reqLArError;
       bool m_reqTrigger;
       bool m_reqPreselection;
+      bool m_incMergedElectron;
       bool m_incSingleElectron;
       bool m_incDoubleElectron;
       bool m_incSingleMuon;
       bool m_incDoubleMuon;          
       bool m_incDoubleElectronPhoton;
-      bool m_incMergedElectron;
+      bool m_incMergedElectronPhoton;
       bool m_incHighPtElectronPhoton;
       bool m_incTwoPhotons;
       bool m_reqKinematic;
@@ -120,6 +121,7 @@ namespace DerivationFramework {
       ///// FUNCTIONS
 
       // Cuts
+      bool   SubcutOneMergedElectron() const;
       bool   SubcutGoodRunList() const;
       bool   SubcutLArError() const;
       bool   SubcutTrigger() const;
@@ -164,6 +166,7 @@ namespace DerivationFramework {
       mutable unsigned int n_passSinglePhotonDoubleElectronPreselect;
       mutable unsigned int n_passSinglePhotonMergedElectronPreselect;
       mutable unsigned int n_passHighPtPhotonMergedElectronPreselect;
+      mutable unsigned int n_passSingleMergedElectronPreselect;
       mutable unsigned int n_passKinematic;
       mutable unsigned int n_passQuality;
       mutable unsigned int n_passIsolation;

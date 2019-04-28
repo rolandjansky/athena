@@ -18,7 +18,7 @@ namespace {
       }
     }
     throw std::logic_error(
-      "no regex match found for input variable " + var_name);
+      "no regex match found for input variable '" + var_name + "'");
   }
 }
 
@@ -47,20 +47,22 @@ namespace FlavorTagDiscriminants {
                                  lwt::rep::all));
     }
     for (const auto& input: inputs) {
-      auto filler = get_filler(input.name, input.type, input.default_flag);
-      m_getters.push_back(filler);
+      auto filler = get::varFromJet(input.name, input.type,
+                                        input.default_flag);
+      m_varsFromJet.push_back(filler);
     }
 
     // set up sequence inputs
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
-      TrackSequenceGetter track_getter(track_cfg.order,
+      TrackSequenceBuilder track_getter(track_cfg.order,
                                        track_cfg.selection,
                                        schema);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        track_getter.sequence_getters.push_back(get_seq_getter(input_cfg));
+        track_getter.sequencesFromTracks.push_back(
+          get::seqFromTracks(input_cfg, schema));
       }
-      m_track_getters.push_back(track_getter);
+      m_trackSequenceBuilders.push_back(track_getter);
     }
 
     // set up outputs
@@ -77,7 +79,7 @@ namespace FlavorTagDiscriminants {
   void DL2::decorate(const xAOD::Jet& jet) const {
     using namespace internal;
     std::vector<NamedVar> vvec;
-    for (const auto& getter: m_getters) {
+    for (const auto& getter: m_varsFromJet) {
       vvec.push_back(getter(jet));
     }
     std::map<std::string, std::map<std::string, double> > nodes;
@@ -93,10 +95,10 @@ namespace FlavorTagDiscriminants {
 
     // add track sequences
     std::map<std::string,std::map<std::string, std::vector<double>>> seqs;
-    for (const auto& getter: m_track_getters) {
-      Tracks sorted_tracks = getter.getter(jet);
-      for (const auto& seq_getter: getter.sequence_getters) {
-        seqs[getter.name].insert(seq_getter(jet, sorted_tracks));
+    for (const auto& builder: m_trackSequenceBuilders) {
+      Tracks sorted_tracks = builder.tracksFromJet(jet);
+      for (const auto& seq_builder: builder.sequencesFromTracks) {
+        seqs[builder.name].insert(seq_builder(jet, sorted_tracks));
       }
     }
 
@@ -111,10 +113,10 @@ namespace FlavorTagDiscriminants {
     }
   }
 
-  DL2::TrackSequenceGetter::TrackSequenceGetter(SortOrder order,
-                                                TrackSelection selection,
-                                                EDMSchema schema):
-    getter(order, selection, schema)
+  DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
+                                                  TrackSelection selection,
+                                                  EDMSchema schema):
+    tracksFromJet(order, selection, schema)
   {
   }
 
@@ -165,24 +167,24 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TrackGetter::TrackGetter(SortOrder order, TrackSelection selection,
+    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection,
                              EDMSchema schema):
-      m_track_associator("BTagTrackToJetAssociator"),
-      m_sort_var_getter(get_track_sort(order, schema)),
-      m_select_function(get_track_select(selection, schema))
+      m_trackAssociator("BTagTrackToJetAssociator"),
+      m_trackSortVar(get::trackSortVar(order, schema)),
+      m_trackFilter(get::trackFilter(selection, schema))
     {
     }
-    Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
+    Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
       const xAOD::BTagging *btagging = jet.btagging();
       if (!btagging) throw std::runtime_error("can't find btagging object");
       std::vector<std::pair<double, const xAOD::TrackParticle*>> tracks;
-      for (const auto &link : m_track_associator(*btagging)) {
+      for (const auto &link : m_trackAssociator(*btagging)) {
         if(!link.isValid()) {
           throw std::logic_error("invalid track link");
         }
         const xAOD::TrackParticle *tp = *link;
-        if (m_select_function(tp)) {
-          tracks.push_back({m_sort_var_getter(tp, jet), tp});
+        if (m_trackFilter(tp)) {
+          tracks.push_back({m_trackSortVar(tp, jet), tp});
         };
       }
       std::sort(tracks.begin(), tracks.end(), std::greater<>());
@@ -195,108 +197,111 @@ namespace FlavorTagDiscriminants {
     // ______________________________________________________________________
     // Internal utility functions
     //
-    Getter get_filler(std::string name, EDMType type,
-                      std::string default_flag) {
-      if(default_flag.size() == 0 || name==default_flag)
-      {
-        switch (type) {
-        case EDMType::INT: return BVarGetterNoDefault<int>(name);
-        case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
-        case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
-        case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
-        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
-        default: {
-          throw std::logic_error("Unknown EDM type");
+    namespace get {
+      VarFromJet varFromJet(const std::string& name, EDMType type,
+                            const std::string& default_flag) {
+        if(default_flag.size() == 0 || name==default_flag)
+        {
+          switch (type) {
+          case EDMType::INT: return BVarGetterNoDefault<int>(name);
+          case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
+          case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
+          case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
+          case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+          default: {
+            throw std::logic_error("Unknown EDM type");
+          }
+          }
+        }
+        else{
+          switch (type) {
+          case EDMType::INT: return BVarGetter<int>(name, default_flag);
+          case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
+          case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
+          case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
+          case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+          default: {
+            throw std::logic_error("Unknown EDM type");
+          }
+          }
         }
       }
-      }
-      else{
-        switch (type) {
-        case EDMType::INT: return BVarGetter<int>(name, default_flag);
-        case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
-        case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
-        case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
-        case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
+      TrackSortVar trackSortVar(SortOrder order, EDMSchema schema) {
+        typedef xAOD::TrackParticle Tp;
+        typedef xAOD::Jet Jet;
+        typedef SG::AuxElement AE;
+        BTagTrackAugmenter aug(schema);
+        switch(order) {
+        case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
+          return [aug](const Tp* tp, const Jet&) {
+                   return std::abs(aug.d0(*tp) / aug.d0Uncertainty(*tp));
+                 };
+        case SortOrder::D0_SIGNIFICANCE_DESCENDING:
+          return [aug](const Tp* tp, const Jet& j) {
+                   return aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
+                 };
+        case SortOrder::PT_DESCENDING:
+          return [](const Tp* tp, const Jet&) {return tp->pt();};
         default: {
-          throw std::logic_error("Unknown EDM type");
-      }
-      }
-    }
-    }
-    TrackSortVar get_track_sort(SortOrder order, EDMSchema schema) {
-      typedef xAOD::TrackParticle Tp;
-      typedef xAOD::Jet Jet;
-      typedef SG::AuxElement AE;
-      BTagTrackAugmenter aug(schema);
-      switch(order) {
-      case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
-        return [aug](const Tp* tp, const Jet&) {
-                 return std::abs(aug.d0(*tp) / aug.d0Uncertainty(*tp));
-               };
-      case SortOrder::D0_SIGNIFICANCE_DESCENDING:
-        return [aug](const Tp* tp, const Jet& j) {
-                 return aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
-               };
-      case SortOrder::PT_DESCENDING:
-        return [](const Tp* tp, const Jet&) {return tp->pt();};
-      default: {
           throw std::logic_error("Unknown sort function");
         }
+        }
+      } // end of track sort getter
+      TrackFilter trackFilter(TrackSelection selection,
+                              EDMSchema schema) {
+        typedef xAOD::TrackParticle Tp;
+        typedef SG::AuxElement AE;
+        BTagTrackAugmenter aug(schema);
+        AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
+        AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
+        AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
+        AE::ConstAccessor<unsigned char> pix_dead("numberOfPixelDeadSensors");
+        AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
+        AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
+        AE::ConstAccessor<unsigned char> sct_shared("numberOfSCTSharedHits");
+        AE::ConstAccessor<unsigned char> sct_dead("numberOfSCTDeadSensors");
+        switch (selection) {
+        case TrackSelection::ALL: return [](const Tp*) {return true;};
+          // the following numbers come from Nicole, Dec 2018:
+          // pt > 1 GeV
+          // abs(d0) < 1 mm
+          // abs(z0 sin(theta)) < 1.5 mm
+          // >= 7 si hits
+          // <= 2 si holes
+          // <= 1 pix holes
+        case TrackSelection::IP3D_2018:
+          return [=](const Tp* tp) {
+                   // from the track selector tool
+                   if (std::abs(tp->eta()) > 2.5) return false;
+                   double n_module_shared = (
+                     pix_shared(*tp) + sct_shared(*tp) / 2);
+                   if (n_module_shared > 1) return false;
+                   if (tp->pt() <= 1e3) return false;
+                   if (std::abs(aug.d0(*tp)) >= 1.0) return false;
+                   if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
+                   if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp)
+                       + sct_dead(*tp) < 7) return false;
+                   if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
+                   if (pix_holes(*tp) > 1) return false;
+                   return true;
+                 };
+        default:
+          throw std::logic_error("unknown track selection function");
+        }
       }
-    } // end of track sort getter
-    TrackSelect get_track_select(TrackSelection selection,
-                                 EDMSchema schema) {
-      typedef xAOD::TrackParticle Tp;
-      typedef SG::AuxElement AE;
-      BTagTrackAugmenter aug(schema);
-      AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
-      AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
-      AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
-      AE::ConstAccessor<unsigned char> pix_dead("numberOfPixelDeadSensors");
-      AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
-      AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
-      AE::ConstAccessor<unsigned char> sct_shared("numberOfSCTSharedHits");
-      AE::ConstAccessor<unsigned char> sct_dead("numberOfSCTDeadSensors");
-      switch (selection) {
-      case TrackSelection::ALL: return [](const Tp*) {return true;};
-        // the following numbers come from Nicole, Dec 2018:
-        // pt > 1 GeV
-        // abs(d0) < 1 mm
-        // abs(z0 sin(theta)) < 1.5 mm
-        // >= 7 si hits
-        // <= 2 si holes
-        // <= 1 pix holes
-      case TrackSelection::IP3D_2018:
-        return [=](const Tp* tp) {
-                 // from the track selector tool
-                 if (std::abs(tp->eta()) > 2.5) return false;
-                 double n_module_shared = (
-                   pix_shared(*tp) + sct_shared(*tp) / 2);
-                 if (n_module_shared > 1) return false;
-                 if (tp->pt() <= 1e3) return false;
-                 if (std::abs(aug.d0(*tp)) >= 1.0) return false;
-                 if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
-                 if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp) + sct_dead(*tp) < 7) return false;
-                 if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
-                 if (pix_holes(*tp) > 1) return false;
-                 return true;
-               };
-      default:
-        throw std::logic_error("unknown track selection function");
-      }
-    }
 
-    SeqGetter get_seq_getter(const DL2TrackInputConfig& cfg) {
-      switch (cfg.type) {
-      case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
-      case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-      case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
-      default: {
-        throw std::logic_error("Unknown EDM type");
+      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg,
+                                  EDMSchema s) {
+        switch (cfg.type) {
+        case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
+        case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
+        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name, s);
+        default: {
+          throw std::logic_error("Unknown EDM type");
+        }
+        }
       }
-      }
-    }
-
+    } // end of get namespace
   } // end of internal namespace
 
 }

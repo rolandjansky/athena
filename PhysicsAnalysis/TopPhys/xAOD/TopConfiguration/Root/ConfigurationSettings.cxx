@@ -77,7 +77,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
-                                               "Default (does nothing on forward jets), fJVT (apply fJVT cut if pT<50GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
+                                               "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
     registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.", "19000.");
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
@@ -96,6 +96,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "False");
     registerParameter("JetJERSmearingModel","All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)","Simple");
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
+    registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
     
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");
@@ -206,6 +207,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FirstEvent", "The number of events that you want to skip (for testing). If 0 then no events are skipped.", "0");
     registerParameter("PerfStats"," I/O Performance printouts. None, Summary or Full" , "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
+    registerParameter("FilterBranches", "Comma separated list of names of the branches that will be removed from the output", " ");
 
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
@@ -313,7 +315,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
-    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
+    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");

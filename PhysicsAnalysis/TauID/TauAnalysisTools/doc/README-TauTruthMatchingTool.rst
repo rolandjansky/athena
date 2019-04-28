@@ -7,6 +7,8 @@ TauTruthMatchingTool
 
 .. contents:: Table of contents
 
+**NOTE:** There was a bug in the truth tau logic for unstable decay products in releases 21.2.68 and earlier. Depending on the MC generator this led to too low visible truth momenta in some events. This was fixed in 21.2.69 with this merge request: https://gitlab.cern.ch/atlas/athena/merge_requests/22105
+   
 **NOTE:** checkout the NEW `FAQ`_, especially `Is there an easy way to find out the truth type and origin of the truth particle? <README-TauTruthMatchingTool.rst#question-is-there-an-easy-way-to-find-out-the-truth-type-and-origin-of-the-truth-particle>`_.
    
 ------------

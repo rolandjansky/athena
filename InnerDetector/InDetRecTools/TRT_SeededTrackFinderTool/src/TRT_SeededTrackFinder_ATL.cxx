@@ -245,7 +245,10 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::finalize()
 MsgStream&  InDet::TRT_SeededTrackFinder_ATL::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)
+    return dumpevent(out);
+  else
+    return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1092,7 +1095,8 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::list<const Trk::Sp
   int m = 0;
   for(; t[0]!=te; ++t[0]) {
     if (m==30) return false;
-    if( (*t[0]).first != prd[0] ) break; trk[0][m++] = (*t[0]).second; 
+    if( (*t[0]).first != prd[0] ) break;
+    trk[0][m++] = (*t[0]).second; 
     if(m==200) break;
   } 
 
@@ -1150,7 +1154,8 @@ bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::list<const Trk::SpaceP
 
     int m = 0;
     for(tt=t[0]; tt!=te; ++tt) {
-      if( (*tt).first != prd[0] ) break; trk[0][m++] = (*tt).second; 
+      if( (*tt).first != prd[0] ) break;
+      trk[0][m++] = (*tt).second; 
       if(m==200) break;
     } 
     
@@ -1181,8 +1186,10 @@ bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::list<const Trk::SpaceP
       if((*tt).second->trackStateOnSurfaces()->size() >= 10) {++h; break;}
     }
   }
-  if(h) return false; return true;
-
+  if(h)
+    return false;
+  else
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////

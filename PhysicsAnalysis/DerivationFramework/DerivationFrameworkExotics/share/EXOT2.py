@@ -105,8 +105,12 @@ replaceAODReducedJets(reducedJetList,exot2Seq,"EXOT2")
 # redo ghost association
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
 if DerivationFrameworkIsMonteCarlo :
-
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot2Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=exot2Seq, algname="JetPtAssociationAlg")
+
+#b-tagging for pflow jets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot2Seq) 
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -125,13 +129,15 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT2SlimmingHelper = SlimmingHelper("EXOT2SlimmingHelper")
 EXOT2SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow"
                                        ]
 TrigJetCleaningVars = '.ECPSFraction.N90Constituents.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.Timing.GhostTruthAssociationFraction'
 TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
-EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m",
-                                      "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,
-                                      "PrimaryVertices.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks"
+
+EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m","AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,"PrimaryVertices.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks"
                                       ]
+
 EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     "TruthParticles",
                                     "LVL1JetRoIs",
@@ -139,6 +145,8 @@ EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                                     "HLT_xAOD__JetContainer_GSCJet",
                                    ]
+#PFlow b-tagging
+EXOT2SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
 
 EXOT2SlimmingHelper.AppendContentToStream(EXOT2Stream)
 

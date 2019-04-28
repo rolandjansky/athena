@@ -23,8 +23,6 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1.h>
-#include <xAODEventInfo/EventInfo.h>
-#include <xAODEventInfo/EventAuxInfo.h>
 #include <xAODRootAccess/Init.h>
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/TStore.h>

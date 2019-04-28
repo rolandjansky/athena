@@ -81,9 +81,8 @@ namespace EL
     for (Job::outputIter out = m_job->job.outputBegin(),
 	   end = m_job->job.outputEnd(); out != end; ++ out)
     {
-      Detail::OutputStreamData data;
-      data.m_writer =
-        out->output()->makeWriter (m_segment->sampleName, m_segment->segmentName, ".root");
+      Detail::OutputStreamData data {
+        out->output()->makeWriter (m_segment->sampleName, m_segment->segmentName, ".root")};
       ANA_CHECK_THROW (addOutputStream (out->label(), std::move (data)));
     }
  

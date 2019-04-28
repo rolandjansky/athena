@@ -47,6 +47,7 @@ public:
   double d0(const xAOD::TrackParticle &track) const;
   double d0Uncertainty(const xAOD::TrackParticle &track) const;
   double z0SinTheta(const xAOD::TrackParticle &track) const;
+  double z0SinThetaUncertainty(const xAOD::TrackParticle &track) const;
 
   BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
 private:

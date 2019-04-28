@@ -46,7 +46,7 @@ def GetConditionsFromMetaData() :
     from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
     
     #Set physics stream
-    if physics_stream=='MinBias':
+    if physics_stream=='MinBias' or physics_stream=='CC' or physics_stream=='PC':
       HIDerivationFlags.doMinBiasSelection = True
     else:
       HIDerivationFlags.doMinBiasSelection = False

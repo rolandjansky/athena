@@ -46,8 +46,9 @@ void JetManager::setContainers(std::string jet_container,std::string bTag_contai
   std::get< EventElement::JET >( m_containers )  = jet_container;
   std::get< EventElement::BTAG >( m_containers ) = bTag_container;
 }
-void JetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key) {
+void JetManager::setKeys(std::string jet_Key,std::string btag_Key,std::string primaryVertex_key,std::string trackParticle_key) {
   std::get< EventElement::JET >( m_keys )          = jet_Key;
+  std::get< EventElement::BTAG >( m_keys )         = btag_Key;
   std::get< EventElement::PRIM_VTX >( m_keys )     = primaryVertex_key;
   std::get< EventElement::TRK_PARTICLE >( m_keys ) = trackParticle_key;
 }
@@ -87,41 +88,45 @@ StatusCode JetManager::retrieveByNavigation() {
 }
 
 template<typename T> bool JetManager::getFromCombo(std::unique_ptr< DataVector< T > > &output,const Trig::Combination& combo,std::string key) {
-  const DataVector< T > *tmpContainer = nullptr;
-  const std::vector< Trig::Feature< DataVector<T> > > tmpFeatures = combo.containerFeature< DataVector<T> >(key.c_str());
-  
-  if (tmpFeatures.size())
-    tmpContainer = tmpFeatures[0].cptr();
-  if (tmpContainer == nullptr)
-    return false;
-  
-  T* toBeAdded = new T();
-  output->push_back( toBeAdded );
-  *toBeAdded = *tmpContainer->at(0);
+  const std::vector< Trig::Feature< DataVector<T> > > tmpFeatures = combo.containerFeature< DataVector<T> >( key.c_str() );
+
+  for ( const Trig::Feature< DataVector<T> >& feature : tmpFeatures ) {
+    const DataVector< T > *tmpContainer = nullptr;
+    tmpContainer = feature.cptr();
+
+    if (tmpContainer == nullptr)
+      return false;
+
+    T* toBeAdded = new T();
+    output->push_back( toBeAdded );
+    *toBeAdded = *tmpContainer->at(0);
+  }
 
   return true;
 }
 
 bool JetManager::getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticleContainer > >& tpContainers,const Trig::Combination& combo,std::string key) {
-  std::unique_ptr< xAOD::TrackParticleContainer > trackParticles( new xAOD::TrackParticleContainer() );
-  std::unique_ptr< xAOD::AuxContainerBase > trackParticlesAux( new xAOD::AuxContainerBase );
-  trackParticles->setStore( trackParticlesAux.release() );
-
-  const xAOD::TrackParticleContainer *tmpTrackContainer = nullptr;
   const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > trackParticleContainerFeatures = combo.containerFeature<xAOD::TrackParticleContainer>( key.c_str() );
 
-  if (trackParticleContainerFeatures.size())
-    tmpTrackContainer = trackParticleContainerFeatures[0].cptr();
-  if (tmpTrackContainer == nullptr)
-    return false;
+  for ( const Trig::Feature< xAOD::TrackParticleContainer >& feature : trackParticleContainerFeatures ) {
+    std::unique_ptr< xAOD::TrackParticleContainer > trackParticles( new xAOD::TrackParticleContainer() );
+    std::unique_ptr< xAOD::AuxContainerBase > trackParticlesAux( new xAOD::AuxContainerBase );
+    trackParticles->setStore( trackParticlesAux.release() );
 
-  for ( const xAOD::TrackParticle* el : *tmpTrackContainer ) {
-    xAOD::TrackParticle *particle = new xAOD::TrackParticle();
-    trackParticles->push_back( particle );
-    *particle = *el;
+    const xAOD::TrackParticleContainer *tmpTrackContainer = nullptr;
+    tmpTrackContainer = feature.cptr();
+    if (tmpTrackContainer == nullptr)
+      return false;
+
+    for ( const xAOD::TrackParticle* el : *tmpTrackContainer ) {
+      xAOD::TrackParticle *particle = new xAOD::TrackParticle();
+      trackParticles->push_back( particle );
+      *particle = *el;
+    }
+
+    tpContainers.push_back( std::move( trackParticles ) ); 
   }
 
-  tpContainers.push_back( std::move( trackParticles ) );
   return true;
 }
 
@@ -141,6 +146,7 @@ StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
     std::unique_ptr< TrigBtagEmulationJet >& out = m_outputJets.at(i);
     const xAOD::BTagging *btag = m_btagging_Containers->at(i);
 
+    const double mv2c00 = Trig::retrieveAuxDataConst< double >( btag,"MV2c00_discriminant",-99. );
     const double mv2c10 = Trig::retrieveAuxDataConst< double >( btag,"MV2c10_discriminant",-99. );
     const double mv2c20 = Trig::retrieveAuxDataConst< double >( btag,"MV2c20_discriminant",-99. );
 
@@ -150,6 +156,7 @@ StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
     if(combw/(1+combw)<1) comb=-1.0*TMath::Log10(1-(combw/(1+combw)));
 
     if (!useNavigation || !tagOffline) {
+      out->weights( "MV2c00",mv2c00 );
       out->weights( "MV2c10",mv2c10 );
       out->weights( "MV2c20",mv2c20 );
     }
@@ -282,12 +289,15 @@ StatusCode JetManager::retagOffline() {
     }
 
     // Get weights
+    double mv2c00=-1000;
     double mv2c10=-1000;
     double mv2c20=-1000;
+    output_btag->variable<double>("MV2c00","discriminant",mv2c00);
     output_btag->variable<double>("MV2c10","discriminant",mv2c10);
     output_btag->variable<double>("MV2c20","discriminant",mv2c20);
 
     // Save weights
+    (*out)->weights( "MV2c00",mv2c10 );    
     (*out)->weights( "MV2c10",mv2c10 );    
     (*out)->weights( "MV2c20",mv2c20 );
 
@@ -306,7 +316,7 @@ std::vector< std::unique_ptr< TrigBtagEmulationJet > > JetManager::getJets() {
   for ( std::unique_ptr< TrigBtagEmulationJet >& el : m_outputJets )
     output.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet(*el) ) );
 
-  return output;
+  return std::move( output );
 }
 
 
@@ -315,6 +325,7 @@ JetManager& JetManager::merge(const std::unique_ptr< JetManager >& other,double 
 JetManager& JetManager::merge( std::unique_ptr< xAOD::JetContainer >& jets, double minPt, double maxPt) {
   for ( const xAOD::Jet* jet : *jets.get() ) {
     std::unique_ptr< TrigBtagEmulationJet > backupJet( new TrigBtagEmulationJet( msg(),jet ) );
+    backupJet->weights( "MV2c00" ,-1 );
     backupJet->weights( "MV2c10" ,-1 );
     backupJet->weights( "MV2c20" ,-1 );
     backupJet->weights( "IP3DSV1",-1000 );
@@ -443,9 +454,10 @@ StatusCode JetManager::retrieveByContainer() {
   for (const xAOD::BTagging *bjet : *theBTaggingContainer) {
     // Check if BTagging object is of the required type 
     bool selectOffline  = (m_chain.find("off")!=std::string::npos);
+    const double mv2c00 = Trig::retrieveAuxDataConst< double >( bjet,"MV2c00_discriminant",0. );
     const double mv2c10 = Trig::retrieveAuxDataConst< double >( bjet,"MV2c10_discriminant",0. );
     const double mv2c20 = Trig::retrieveAuxDataConst< double >( bjet,"MV2c20_discriminant",0. );
-    if ((selectOffline && mv2c20==0 && mv2c10==0) || (!selectOffline && (mv2c20!=0 || mv2c10!=0)) ) continue;
+    if ((selectOffline && mv2c20==0 && mv2c10==0 && mv2c00==0) || (!selectOffline && (mv2c20!=0 || mv2c10!=0 || mv2c00!=0)) ) continue;
 
     // Get address of linked Jet and type of link  
     bool goodLink=false;

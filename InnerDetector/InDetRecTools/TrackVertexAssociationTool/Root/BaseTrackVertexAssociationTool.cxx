@@ -104,12 +104,6 @@ bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
 {
   // ATH_MSG_DEBUG("<###### Enter: isMatch() function ######>");
 
-  if (&vx == NULL) {
-    // this should never happen because vx is a reference
-    ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
-    return false;
-  }
-
   if (vx.vertexType() == xAOD::VxType::NoVtx) {
     // ATH_MSG_DEBUG(
     //     "The Vertex is a fake one, will not do track-vertex association");

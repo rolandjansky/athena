@@ -16,6 +16,8 @@ else()
       PUBLIC
       Control/AthenaBaseComps
       Control/AthToolSupport/AsgTools
+      Control/StoreGate
+      GaudiKernel
       PRIVATE
       PhysicsAnalysis/D3PDTools/RootCoreUtils )
 endif()
@@ -36,7 +38,7 @@ else()
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES AthenaBaseComps AsgTools
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools StoreGateLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils )
 endif()
 
@@ -57,5 +59,5 @@ if( XAOD_STANDALONE )
       SCRIPT python -m unittest AnaAlgorithm.AlgSequence )
 else()
    atlas_install_python_modules( python/__init__.py python/DualUseConfig.py
-      python/AlgSequence.py python/AnaAlgSequence.py python/Logging.py )
+      python/AlgSequence.py python/AnaAlgSequence.py python/AnaAlgorithmMeta.py python/Logging.py )
 endif()

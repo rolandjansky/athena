@@ -93,6 +93,9 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
 
 }
 
+BTagJetAugmenter::~BTagJetAugmenter() = default;
+BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
+
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
   const xAOD::BTagging& btag = *jet.btagging();

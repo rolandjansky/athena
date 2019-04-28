@@ -235,11 +235,11 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
         alg.efficiencyTool.WorkingPoint = 'Medium'
         alg.selection = 'jvt_selection'
-        alg.efficiency = 'jvt_efficiency'
-        # Disable efficiency decorations if running on data
+        alg.scaleFactorDecoration = 'jvt_effSF'
+        # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if dataType == 'data':
-            alg.efficiency = ''
+            alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
@@ -254,11 +254,11 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
-        alg.efficiency = 'fjvt_efficiency'
-        # Disable efficiency decorations if running on data
+        alg.scaleFactorDecoration = 'fjvt_effSF'
+        # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if dataType == 'data':
-            alg.efficiency = ''
+            alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_fjvt'

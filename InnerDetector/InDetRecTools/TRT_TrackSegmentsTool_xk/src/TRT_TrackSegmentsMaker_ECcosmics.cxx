@@ -1716,7 +1716,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ECcosmics::next()
 {
-  if(m_segiterator!=m_segments.end()) return (*m_segiterator++); return 0;
+  return (m_segiterator!=m_segments.end()) ? (*m_segiterator++) : 0;
 }
 
 ///////////////////////////////////////////////////////////////////

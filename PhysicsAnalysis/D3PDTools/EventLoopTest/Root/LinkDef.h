@@ -15,5 +15,6 @@
 #pragma link C++ class EL::UnitTestAlg1+;
 #pragma link C++ class EL::UnitTestAlg2+;
 #pragma link C++ class EL::UnitTestAlg3+;
+#pragma link C++ class EL::UnitTestAlg4+;
 
 #endif

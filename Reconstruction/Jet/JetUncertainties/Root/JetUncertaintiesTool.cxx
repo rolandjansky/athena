@@ -68,7 +68,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("CalibArea-06")
+    , m_calibArea("CalibArea-07")
     , m_path("")
     , m_analysisFile("")
     , m_analysisHistPattern("")
@@ -505,7 +505,7 @@ StatusCode JetUncertaintiesTool::initialize()
     // Attempt to read in nominal resolution information
     // There may be no such information - this is perfectly normal
     m_resHelper = new ResolutionHelper(m_name+"_RH",m_jetDef);
-    if(m_resHelper->initialize(settings,histFile).isFailure())
+    if(m_resHelper->initialize(settings,histFile,m_mcType.c_str()).isFailure())
         return StatusCode::FAILURE;
 
     // Prepare for reading components and groups
@@ -2416,8 +2416,9 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
     // We have the smearing factor, so prepare to smear
     // If the user specified a seed, then use it
-    // If not, then use the jet's phi times 10^5
-    const long long int seed = m_userSeed != 0 ? m_userSeed : 1.e+5*fabs(jet.phi());
+    // If not, then use the jet's phi times 1*10^5 in MC, 1.23*10^5 in (pseudo-)data
+    // Difference in seed between allows for easy use of pseudo-data
+    const long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
     m_rand.SetSeed(seed);
 
     // Calculate and return the smearing factor

@@ -197,6 +197,7 @@ namespace top{
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
+    m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
 
     m_largeRJetPtcut(25000.),
@@ -563,31 +564,42 @@ namespace top{
       // check if you are running over AFII samples
       // only check the configuration file if the AodMetaData is not instatiated
       if(m_aodMetaData->valid()){
-	try{
-	  auto simulatorName     = m_aodMetaData->get("/Simulation/Parameters","Simulator");
-	  bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
-	  std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " << aodMetaDataIsAFII << std::endl;
-	  this->setIsAFII(aodMetaDataIsAFII);
-	  auto generatorsName     = m_aodMetaData->get("/TagInfo","generators");
-	  std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
-	  this->setGenerators(generatorsName);
-	  auto AMITagName     = m_aodMetaData->get("/TagInfo","AMITag");
-	  std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
-	  this->setAMITag(AMITagName);
-	}
-	catch(std::logic_error aodMetaDataError){
-	  std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
-	  std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
-	  this->ReadIsAFII(settings);
-	  std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+        try{
+          auto simulatorName     = m_aodMetaData->get("/Simulation/Parameters","Simulator");
+          bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
+          std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " << aodMetaDataIsAFII << std::endl;
+          this->setIsAFII(aodMetaDataIsAFII);
+          auto generatorsName     = m_aodMetaData->get("/TagInfo","generators");
+          std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+          this->setGenerators(generatorsName);
+          auto AMITagName     = m_aodMetaData->get("/TagInfo","AMITag");
+          std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+          this->setAMITag(AMITagName);
+        }
+        catch(std::logic_error aodMetaDataError){
+          std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
+          std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
+          this->ReadIsAFII(settings);
+          std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
           this->setGenerators("unknown");
           this->setAMITag("unknown");
-	}
+        }
       }
       else{
-	this->ReadIsAFII(settings);
+        this->ReadIsAFII(settings);
       }
 
+    }
+
+    // Get list of branches to be filtered
+    if (settings->value("FilterBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterBranches"), branches, ",");
+
+      if (branches.size() == 0){
+        std::cout << "WARNING: You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring" << std::endl;
+      }
+      this->setFilterBranches(branches);
     }
 
     // Force recomputation of CP variables?
@@ -671,12 +683,7 @@ namespace top{
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    // Print out a warning for FCHighPtCaloOnly
-    if (this->electronIsolation() == "FCHighPtCaloOnly" || this->electronIsolationLoose() == "FCHighPtCaloOnly"){
-      std::cout << "TopConfig - ElectronIsolation - FCHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
-    }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
-
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
 
@@ -785,6 +792,15 @@ namespace top{
       this->m_useVarRCJetAdditionalSubstructure = true;
     else
       this->m_useVarRCJetAdditionalSubstructure = false;
+
+    if (settings->value("StoreJetTruthLabels") == "False") {
+      this->jetStoreTruthLabels( false );
+    } else if (settings->value("StoreJetTruthLabels") == "True") {
+      this->jetStoreTruthLabels( true );
+    } else {
+      std::cout << "WARNING TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True" << std::endl;
+      this->jetStoreTruthLabels( true );
+    }
 
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));

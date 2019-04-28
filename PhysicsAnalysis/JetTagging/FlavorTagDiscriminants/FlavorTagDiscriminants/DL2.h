@@ -93,11 +93,11 @@ namespace FlavorTagDiscriminants {
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     typedef std::function<double(const xAOD::TrackParticle*,
                                  const xAOD::Jet&)> TrackSortVar;
-    typedef std::function<bool(const xAOD::TrackParticle*)> TrackSelect;
+    typedef std::function<bool(const xAOD::TrackParticle*)> TrackFilter;
 
     // getter functions
-    typedef std::function<NamedVar(const Jet&)> Getter;
-    typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqGetter;
+    typedef std::function<NamedVar(const Jet&)> VarFromJet;
+    typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
     // Getter functions
@@ -150,17 +150,17 @@ namespace FlavorTagDiscriminants {
 
     // The track getter is responsible for getting the tracks from the
     // jet applying a selection, and then sorting the tracks.
-    class TrackGetter
+    class TracksFromJet
     {
     public:
-      TrackGetter(SortOrder, TrackSelection, EDMSchema);
+      TracksFromJet(SortOrder, TrackSelection, EDMSchema);
       Tracks operator()(const xAOD::Jet& jet) const;
     private:
       typedef SG::AuxElement AE;
       typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
-      AE::ConstAccessor<TrackLinks> m_track_associator;
-      TrackSortVar m_sort_var_getter;
-      TrackSelect m_select_function;
+      AE::ConstAccessor<TrackLinks> m_trackAssociator;
+      TrackSortVar m_trackSortVar;
+      TrackFilter m_trackFilter;
     };
 
     // The sequence getter takes in tracks and calculates arrays of
@@ -185,7 +185,7 @@ namespace FlavorTagDiscriminants {
         return {m_name, seq};
       }
     };
-  }
+  } // end internal namespace
   class DL2
   {
   public:
@@ -195,29 +195,34 @@ namespace FlavorTagDiscriminants {
         EDMSchema = EDMSchema::WINTER_2018);
     void decorate(const xAOD::Jet& jet) const;
   private:
-    struct TrackSequenceGetter {
-      TrackSequenceGetter(SortOrder, TrackSelection, EDMSchema);
+    struct TrackSequenceBuilder {
+      TrackSequenceBuilder(SortOrder, TrackSelection, EDMSchema);
       std::string name;
-      internal::TrackGetter getter;
-      std::vector<internal::SeqGetter> sequence_getters;
+      internal::TracksFromJet tracksFromJet;
+      std::vector<internal::SeqFromTracks> sequencesFromTracks;
     };
     typedef SG::AuxElement::Decorator<float> OutputDecorator;
     typedef std::vector<std::pair<std::string, OutputDecorator > > OutNode;
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
-    std::vector<internal::Getter> m_getters;
-    std::vector<TrackSequenceGetter> m_track_getters;
+    std::vector<internal::VarFromJet> m_varsFromJet;
+    std::vector<TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, OutNode> m_decorators;
   };
 
   //
   // Filler functions
   namespace internal {
-    Getter get_filler(std::string name, EDMType, std::string default_flag);
-    TrackSortVar get_track_sort(SortOrder, EDMSchema);
-    TrackSelect get_track_select(TrackSelection, EDMSchema);
-    SeqGetter get_seq_getter(const DL2TrackInputConfig&);
+    // factory functions to produce callable objects that build inputs
+    namespace get {
+      VarFromJet varFromJet(const std::string& name,
+                            EDMType,
+                            const std::string& defaultflag);
+      TrackSortVar trackSortVar(SortOrder, EDMSchema);
+      TrackFilter trackFilter(TrackSelection, EDMSchema);
+      SeqFromTracks seqFromTracks(const DL2TrackInputConfig&, EDMSchema);
+    }
   }
 }
 #endif

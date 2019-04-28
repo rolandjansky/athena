@@ -51,6 +51,7 @@ namespace CP {
     declareProperty("CorrectionFileName", m_rootFileName="JetTileCorrection/JetTile_pFile_010216.root", "Parametrization file");
     declareProperty("MaskedRegionsMap", m_bd_dead_mapFile="JetTileCorrection/Tile_maskedDB_Run2.conf", "Masked regions DB file");
     declareProperty("UserMaskedRegions", m_v_user_dead, "List of (ad-hoc) TileCal dead modules"); //array of extra dead modules 
+    declareProperty("isMC", m_isMC, "Set to 1 if it is MC, set to 0 if it is data");
   }
 
   JetTileCorrectionTool :: ~JetTileCorrectionTool()
@@ -67,20 +68,20 @@ namespace CP {
     ATH_MSG_INFO( "Initialising..." );
 
 #ifdef XAOD_STANDALONE
-    // Retrieve the event information (check if MC or data)
-    const xAOD::EventInfo* ei(0);
-    ATH_CHECK( evtStore()->retrieve( ei, "EventInfo" ) );
-
-    m_isMC = ei->eventType( xAOD::EventInfo::IS_SIMULATION );
+    if (m_isMC > 1) m_isMC = 1;
 #else
     // Retrieve the metadata (check if MC or data)
     std::string projectName = "";
     ATH_CHECK( AthAnalysisHelper::retrieveMetadata("/TagInfo", "project_name", projectName, inputMetaStore() ) );
-    if ( projectName == "IS_SIMULATION" ) m_isMC = true;
-    else if (projectName.compare(0, 4, "data") == 0 ) m_isMC = false;
+    if ( projectName == "IS_SIMULATION" ) m_isMC = 1;
+    else if (projectName.compare(0, 4, "data") == 0 ) m_isMC = 0;
     ATH_MSG_INFO("Set up JetTileCorrectionTool -- this is MC? " << m_isMC);
 #endif
 
+    if (m_isMC < 0) {
+      ATH_MSG_FATAL("Set up JetTileCorrectionTool -- isMC flag was not set to 0 or 1, please, update your jobOptions");
+      return StatusCode::FAILURE;
+    }
 
     //set RJET
     setRJET( (float) RJET );

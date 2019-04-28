@@ -53,6 +53,7 @@ dataLabel = "data18"
 truthLabel = "mc15"
 delayedStreamLabel = "data16DELAYED"
 blsStreamLabel = "data17BPHYSLS"
+mcFileBPHY20 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.16471215._000010.pool.root.1"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileBPHY19 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.15110756._002435.pool.root.1"
 mcFileBPHY14 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.13151497._000097.pool.root.1"
@@ -156,6 +157,8 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         elif formatName=='BPHY20':
+            generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
          elif formatName=='JETM5':
             generateText(formatName,dataLabel,dataFileZeroBias,False,False,"-1")
          elif formatName=='HION4':
@@ -179,6 +182,8 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,mcLabel,mcFileBPHY19,False,True,"5000")
          elif formatName=="BPHY14":
             generateText(formatName,mcLabel,mcFileBPHY14,False,True,"-1")
+         elif formatName=="BPHY20":
+            generateText(formatName,mcLabel,mcFileBPHY20,False,True,"5000")
          else: generateText(formatName,mcLabel,mcFile,False,True,"-1")
 
 if (makeTruthDAODs):

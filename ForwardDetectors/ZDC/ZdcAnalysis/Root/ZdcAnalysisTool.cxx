@@ -16,9 +16,9 @@
 
 namespace ZDC
 {
-  
-  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) 
-    : asg::AsgTool(name), m_name(name), m_init(false), 
+
+  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
+    : asg::AsgTool(name), m_name(name), m_init(false),
       m_writeAux(false), m_eventReady(false),
       m_runNumber(0), m_lumiBlock(0)
       {
@@ -28,67 +28,70 @@ namespace ZDC
 	declareProperty("LowGainOnly",m_lowGainOnly=false);
 	declareProperty("WriteAux",m_writeAux=true);
 	declareProperty("AuxSuffix",m_auxSuffix="");
-	
+
 	// The following job properties enable/disable and affect the calibration of the ZDC energies
 	//
 	declareProperty("DoCalib",m_doCalib=true);
+	declareProperty("DoTrigEff",m_doTrigEff=true);
 	declareProperty("DoTimeCalib",m_doTimeCalib=true);
 	declareProperty("ZdcAnalysisConfigPath",m_zdcAnalysisConfigPath="$ROOTCOREBIN/data/ZdcAnalysis","ZDC Analysis config file path");
 	//declareProperty("ForceCalibRun",m_forceCalibRun=287931); // last run of Pb+Pb 2015
 	declareProperty("ForceCalibRun",m_forceCalibRun=-1); // last run of Pb+Pb 2015
 	declareProperty("ForceCalibLB",m_forceCalibLB=814); // last LB of Pb+Pb 2015
-	
+
 	// The following parameters are primarily used for the "default" configuration, but also may be
 	//   use to modify/tailor other configurations
 	//
-	declareProperty("NumSampl", m_numSample = 7); 
-	declareProperty("DeltaTSample", m_deltaTSample = 25); 
-	declareProperty("Presample", m_presample = 0); 
-	declareProperty("CombineDelay", m_combineDelay = false); 
-	declareProperty("DelayDeltaT", m_delayDeltaT = -12.5); 
-	
+	declareProperty("NumSampl", m_numSample = 7);
+	declareProperty("DeltaTSample", m_deltaTSample = 25);
+	declareProperty("Presample", m_presample = 0);
+	declareProperty("CombineDelay", m_combineDelay = false);
+	declareProperty("DelayDeltaT", m_delayDeltaT = -12.5);
+
 	declareProperty("PeakSample", m_peakSample = 2);
 	declareProperty("Peak2ndDerivThresh", m_Peak2ndDerivThresh = 10);
-	
+
 	declareProperty("T0", m_t0 = 50);
 	declareProperty("Tau1", m_tau1 = 5);
 	declareProperty("Tau2", m_tau2 = 25);
 	declareProperty("FixTau1", m_fixTau1 = false);
 	declareProperty("FixTau2", m_fixTau2 = false);
-	
+
 	declareProperty("DeltaTCut", m_deltaTCut = 25);
 	declareProperty("ChisqRatioCut", m_ChisqRatioCut = 10);
-	
+
 	//ATH_MSG_INFO("Creating ZdcAnalysisoTool named " << m_name);
 	//ATH_MSG_INFO("ZDC config file path " << m_zdcAnalysisConfigPath);
-	
+
       }
-  
+
   ZdcAnalysisTool::~ZdcAnalysisTool()
   {
     ATH_MSG_DEBUG("Deleting ZdcAnalysisTool named " << m_name);
     //SafeDelete( m_zdcDataAnalyzer );
   }
-  
+
   void ZdcAnalysisTool::initializeTriggerEffs(unsigned int runNumber)
   {
+    if (!m_doTrigEff) return;
+
     if (!m_zdcTriggerEfficiency)
       {
 	ATH_MSG_INFO("Creating new ZDCTriggerEfficiency");
 	m_zdcTriggerEfficiency.reset (new ZDCTriggerEfficiency());
       }
-    
+
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/"+m_zdcTriggerEffParamsFileName) );
     ANA_MSG_VERBOSE ("Found trigger config file " << filename);
     ATH_MSG_INFO("Opening trigger efficiency file " << filename);
-    
+
     std::unique_ptr<TFile> file (TFile::Open(filename.c_str(), "READ"));
-    if (file == nullptr || file->IsZombie()) 
+    if (file == nullptr || file->IsZombie())
       {
 	ATH_MSG_WARNING("No trigger efficiencies at "  << filename);
 	return;
       }
-    
+
     //file->Print();
 
     ATH_MSG_INFO("Reading in trigger efficiencies");
@@ -96,20 +99,20 @@ namespace ZDC
     std::stringstream Aalpha_name;
     Aalpha_name<<"A_alpha_"<<runNumber;
     TSpline3* par_A_alpha = (TSpline3*)file->GetObjectChecked(Aalpha_name.str().c_str(),"TSpline3");
-    
+
     if (!par_A_alpha)
       {
 	ATH_MSG_WARNING("No trigger efficiencies for run number " << runNumber);
 	m_doCalib = false;
       }
-    
+
     std::stringstream Abeta_name;
     Abeta_name<<"A_beta_"<<runNumber;
     TSpline3* par_A_beta = (TSpline3*)file->GetObjectChecked(Abeta_name.str().c_str(),"TSpline3");
     std::stringstream Atheta_name;
     Atheta_name<<"A_theta_"<<runNumber;
     TSpline3* par_A_theta = (TSpline3*)file->GetObjectChecked(Atheta_name.str().c_str(),"TSpline3");
-    
+
     std::stringstream Calpha_name;
     Calpha_name<<"C_alpha_"<<runNumber;
     TSpline3* par_C_alpha = (TSpline3*)file->GetObjectChecked(Calpha_name.str().c_str(),"TSpline3");
@@ -119,7 +122,7 @@ namespace ZDC
     std::stringstream Ctheta_name;
     Ctheta_name<<"C_theta_"<<runNumber;
     TSpline3* par_C_theta = (TSpline3*)file->GetObjectChecked(Ctheta_name.str().c_str(),"TSpline3");
-    
+
     std::stringstream Err_Aalpha_name;
     Err_Aalpha_name<<"A_alpha_error_"<<runNumber;
     TSpline3* parErr_A_alpha = (TSpline3*)file->GetObjectChecked(Err_Aalpha_name.str().c_str(),"TSpline3");
@@ -129,7 +132,7 @@ namespace ZDC
     std::stringstream Err_Atheta_name;
     Err_Atheta_name<<"A_theta_error_"<<runNumber;
     TSpline3* parErr_A_theta = (TSpline3*)file->GetObjectChecked(Err_Atheta_name.str().c_str(),"TSpline3");
-    
+
     std::stringstream Err_Calpha_name;
     Err_Calpha_name<<"C_alpha_error_"<<runNumber;
     TSpline3* parErr_C_alpha = (TSpline3*)file->GetObjectChecked(Err_Calpha_name.str().c_str(),"TSpline3");
@@ -139,8 +142,8 @@ namespace ZDC
     std::stringstream Err_Ctheta_name;
     Err_Ctheta_name<<"C_theta_error_"<<runNumber;
     TSpline3* parErr_C_theta = (TSpline3*)file->GetObjectChecked(Err_Ctheta_name.str().c_str(),"TSpline3");
-    
-    
+
+
     std::stringstream Cov_A_alpha_beta_name;
     Cov_A_alpha_beta_name<<"cov_A_alpha_beta_"<<runNumber;
     TSpline3* cov_A_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_A_alpha_beta_name.str().c_str(),"TSpline3");
@@ -150,7 +153,7 @@ namespace ZDC
     std::stringstream Cov_A_beta_theta_name;
     Cov_A_beta_theta_name<<"cov_A_beta_theta_"<<runNumber;
     TSpline3* cov_A_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_A_beta_theta_name.str().c_str(),"TSpline3");
-    
+
     std::stringstream Cov_C_alpha_beta_name;
     Cov_C_alpha_beta_name<<"cov_C_alpha_beta_"<<runNumber;
     TSpline3* cov_C_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_C_alpha_beta_name.str().c_str(),"TSpline3");
@@ -160,13 +163,13 @@ namespace ZDC
     std::stringstream Cov_C_beta_theta_name;
     Cov_C_beta_theta_name<<"cov_C_beta_theta_"<<runNumber;
     TSpline3* cov_C_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_C_beta_theta_name.str().c_str(),"TSpline3");
-    
+
     std::array<std::vector<TSpline3*>, 2> effparams;
     std::array<std::vector<TSpline3*>, 2> effparamErrors;
     std::array<std::vector<TSpline3*>, 2> effparamsCorrCoeffs;
     //side0: C; side1: A
-    effparams[0] = {par_C_alpha, par_C_beta, par_C_theta};	
-    effparams[1] = {par_A_alpha, par_A_beta, par_A_theta};	
+    effparams[0] = {par_C_alpha, par_C_beta, par_C_theta};
+    effparams[1] = {par_A_alpha, par_A_beta, par_A_theta};
     effparamErrors[0] = {parErr_C_alpha, parErr_C_beta, parErr_C_theta};
     effparamErrors[1] = {parErr_A_alpha, parErr_A_beta, parErr_A_theta};
     effparamsCorrCoeffs[0] = {cov_C_alpha_beta, cov_C_alpha_theta, cov_C_beta_theta};
@@ -176,11 +179,11 @@ namespace ZDC
 
     m_zdcTriggerEfficiency->SetEffParamsAndErrors(effparams, effparamErrors);
     m_zdcTriggerEfficiency->SetEffParamCorrCoeffs(effparamsCorrCoeffs);
-    
+
     return;
-    
+
   }
-  
+
   std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
   {
     // We rely completely on the default parameters specified in the job properties to control:
@@ -188,7 +191,7 @@ namespace ZDC
     //   frequency (more precisely, time/sample)
     //   which sample to use as the pre-sample
     //   where to expact the maxim of the peak (min 2nd derivative)
-    //   thresholds on the 2nd derivative for valid pulses 
+    //   thresholds on the 2nd derivative for valid pulses
     //   whether to fix the tau values in the pulse fitting
     //   the default tau values
     //   the nominal T0
@@ -201,7 +204,7 @@ namespace ZDC
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
     ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
-    
+
     for (size_t side : {0, 1}) {
       for (size_t module : {0, 1, 2, 3}) {
 	fixTau1Arr[side][module] = m_fixTau1;
@@ -250,36 +253,49 @@ namespace ZDC
     //   For now, we continue to use hard-coded values for the maximum and minimum ADC values
     //   For now we also use the FermiExp pulse model.
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr, tau2Arr, peak2ndDerivMinSamples, t0;
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
-    ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
+    ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
-    
+
     //  For now we allow the tau values to be controlled by the job properties until they are better determined
     //
     const int peakSample = 5;
     const float peak2ndDerivThreshHG = -12;
     const float peak2ndDerivThreshLG = -10;
-    const float tau1 = 4.5;
-    const float tau2 = 22.;
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {4.000, 3.380, 3.661, 3.679,
+                                                    4.472, 4.656, 3.871, 4.061
+                                                    };
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {22,    24.81, 24.48, 24.45,
+                                                    24.17, 24.22, 25.46, 24.45
+                                                    };
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {70.00, 72.74, 73.09, 72.25,
+                                                 75.11, 74.94, 73.93, 74.45
+                                                };
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {70.00, 73.41, 74.27, 73.30,
+                                                 76.28, 76.07, 74.98, 76.54
+                                                };
+
+    // Delta T0 cut
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = { -6, -5, -5, -5, -5, -5, -5, -5};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = { -6, -5, -5, -5, -5, -5, -5, -5};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
 
 
     for (size_t side : {0, 1}) {
-      for (size_t module : {0, 1, 2, 3}) {
-	fixTau1Arr[side][module] = m_fixTau1;
-	fixTau2Arr[side][module] = m_fixTau2;
-	tau1Arr[side][module] = tau1;
-	tau2Arr[side][module] = tau2;
+        for (size_t module : {0, 1, 2, 3}) {
+            fixTau1Arr[side][module] = true;
+            fixTau2Arr[side][module] = true;
 
-	peak2ndDerivMinSamples[side][module] = peakSample;
-	peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
-	peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
+	        peak2ndDerivMinSamples[side][module] = peakSample;
+	        peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
+	        peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
 
-	t0[side][module] = m_t0;
-	deltaT0CutLow[side][module] = -m_deltaTCut;
-	deltaT0CutHigh[side][module] = m_deltaTCut;
-	chisqDivAmpCut[side][module] = m_ChisqRatioCut;
-      }
+	        chisqDivAmpCut[side][module] = 15;
+        }
     }
 
     //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
@@ -292,7 +308,7 @@ namespace ZDC
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 0, "FermiExpLinear", peak2ndDerivMinSamples,
                                                                           peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -304,8 +320,8 @@ namespace ZDC
     zdcDataAnalyzer->DisableModule(0,0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
-    zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0, t0);
-    zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
+    zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
+    zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
     // We allow the combineDelay to be controlled by the properties
     //
@@ -314,6 +330,7 @@ namespace ZDC
     ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
+    zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting
     //  }
 
     return zdcDataAnalyzer;
@@ -329,7 +346,7 @@ namespace ZDC
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
     ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
-    
+
     //  For now we allow the tau values to be controlled by the job properties until they are better determined
     //
     const int peakSample = 5;
@@ -400,7 +417,7 @@ namespace ZDC
 
     //  We use per-module delays to handle the delayed-undelayed swap on EMC
     //
-    ZDCDataAnalyzer::ZDCModuleFloatArray delayDeltaTs = {{{{12.5, -12.5, -12.5, -12.5}}, 
+    ZDCDataAnalyzer::ZDCModuleFloatArray delayDeltaTs = {{{{12.5, -12.5, -12.5, -12.5}},
 							  {{-12.5, -12.5, -12.5, -12.5}}}};
 
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
@@ -438,7 +455,7 @@ namespace ZDC
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
-    // Set Tau and nominal timing offsets                                                                                                                          
+    // Set Tau and nominal timing offsets
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
 
     bool fixTau1 = true;
@@ -525,7 +542,7 @@ namespace ZDC
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{950, 950, 950, 950}}, {{950, 950, 950, 950}}}};
 
-    // Set Tau and nominal timing offsets                                                                                                                          
+    // Set Tau and nominal timing offsets
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
 
     bool fixTau1 = true;
@@ -546,7 +563,7 @@ namespace ZDC
 
     ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{{44.24, 40.35, 49.3, 36.0}},
 						  {{36.0, 31.1, 40.75, 30.5}}}};
-					       
+
     ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{{42.65, 38.5, 47.4, 34}},
 						  {{33.7, 29.9, 39.0, 29.3}}}};
 
@@ -619,7 +636,7 @@ namespace ZDC
 
     if (m_forceCalibRun>-1) {
       ATH_MSG_INFO("CAREFUL: forcing calibration run/LB =" << m_forceCalibRun << "/" << m_forceCalibLB);
-    
+
       if (m_forceCalibLB < 0) {
 	ATH_MSG_ERROR("Invalid settings: Forced run > 0 but lumi block < 0");
 	return StatusCode::FAILURE;
@@ -634,7 +651,7 @@ namespace ZDC
     else if (m_configuration == "PbPb2015") {
       initialize80MHz();
       initialize40MHz();
-    
+
       m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz; // default
     }
     else if (m_configuration == "pPb2016") {
@@ -662,9 +679,9 @@ namespace ZDC
     ATH_MSG_INFO("DoCalib: "<<m_doCalib);
     ATH_MSG_INFO("ForceCalibRun: "<<m_forceCalibRun);
     ATH_MSG_INFO("ForceCalibLB: "<<m_forceCalibLB);
-    ATH_MSG_INFO("NumSampl: "<<m_numSample); 
-    ATH_MSG_INFO("DeltaTSample: "<<m_deltaTSample); 
-    ATH_MSG_INFO("Presample: "<<m_presample); 
+    ATH_MSG_INFO("NumSampl: "<<m_numSample);
+    ATH_MSG_INFO("DeltaTSample: "<<m_deltaTSample);
+    ATH_MSG_INFO("Presample: "<<m_presample);
     ATH_MSG_INFO("PeakSample: "<<m_peakSample);
     ATH_MSG_INFO("Peak2ndDerivThresh: "<<m_Peak2ndDerivThresh);
 
@@ -706,18 +723,18 @@ namespace ZDC
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)  
+  StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
   {
-    ATH_MSG_DEBUG("Processing ZDC module S/T/M/C = " 
-		  << module.side() << " " 
-		  << module.type() << " " 
-		  << module.zdcModule() << " " 
-		  << module.channel() 
+    ATH_MSG_DEBUG("Processing ZDC module S/T/M/C = "
+		  << module.side() << " "
+		  << module.type() << " "
+		  << module.zdcModule() << " "
+		  << module.channel()
 		  );
     const std::vector<unsigned short>* adc0;
     const std::vector<unsigned short>* adc1;
 
-  
+
     if (module.type()==0 && module.zdcModule()==0 && m_flipEMDelay) // flip delay/non-delay for EM big tube
       {
 	adc0 = &(*(module.TTg0d1Link()))->adc();
@@ -755,7 +772,7 @@ namespace ZDC
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) 
+  StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer)
   {
     if (!m_eventReady)
       {
@@ -771,22 +788,22 @@ namespace ZDC
     unsigned int thisRunNumber = eventInfo->runNumber();
     if (thisRunNumber != m_runNumber) {
       ATH_MSG_DEBUG("ZDC analysis tool will be configured for run " << thisRunNumber);
-      
+
       ATH_CHECK(configureNewRun(thisRunNumber)); // ALWAYS check methods that return StatusCode
 
       ATH_MSG_DEBUG("Setting up calibrations");
 
       if (m_doCalib) {
-	// 
+	//
 	// Check for calibration override
 	//
 	unsigned int calibRunNumber = thisRunNumber;
 	if (m_forceCalibRun > -1) calibRunNumber = m_forceCalibRun;
 
 	setEnergyCalibrations(calibRunNumber);
-	initializeTriggerEffs(calibRunNumber); // if energy calibrations fail to load, then so will trigger efficiencies
+	if (m_doTrigEff) initializeTriggerEffs(calibRunNumber); // if energy calibrations fail to load, then so will trigger efficiencies
 	if (m_doTimeCalib) setTimeCalibrations(calibRunNumber);
-      }  
+      }
 
       m_runNumber = thisRunNumber;
     }
@@ -810,9 +827,9 @@ namespace ZDC
     ATH_MSG_DEBUG("Processing modules");
     for (const auto zdcModule : moduleContainer)
       {
-      
+
 	if (zdcModule->type()==1) continue;
-	
+
 	if (zdcModule->zdcModule()==0 && m_flipEMDelay) // flip delay/non-delay for 2015 ONLY
 	  {
 	    adcUndelayLG = &(*(zdcModule->TTg0d1Link()))->adc();
@@ -835,7 +852,7 @@ namespace ZDC
 
 	std::copy(adcUndelayLG->begin(), adcUndelayLG->end(), LGUndelADCSamples.begin());
 	std::copy(adcUndelayHG->begin(), adcUndelayHG->end(), HGUndelADCSamples.begin());
-      
+
 	int side = (zdcModule->side()==-1) ? 0 : 1 ;
 
 	//std::cout << "LG: ";for (int i = 0;i<7;i++){std::cout<<LGADCSamples.at(i)<< " ";};std::cout<<std::endl;
@@ -855,18 +872,18 @@ namespace ZDC
 	  //   see the initialization sections for similar inversion on the sign of the pedestal difference
 	  //
 
-	  m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+	  m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),
 						HGUndelADCSamples, LGUndelADCSamples,
 						HGDelayADCSamples, LGDelayADCSamples);
 
 	    /*
 	  if (m_delayDeltaT > 0) {
-	    m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+	    m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),
 						  HGUndelADCSamples, LGUndelADCSamples,
 						  HGDelayADCSamples, LGDelayADCSamples);
 	  }
 	  else {
-	    m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+	    m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),
 						  HGDelayADCSamples, LGDelayADCSamples,
 						  HGUndelADCSamples, LGUndelADCSamples);
 	  }
@@ -875,11 +892,11 @@ namespace ZDC
       }
 
     ATH_MSG_DEBUG("Finishing event processing");
-  
+
     m_zdcDataAnalyzer->FinishEvent();
 
     ATH_MSG_DEBUG("Adding variables");
-  
+
     for (const auto zdcModule : moduleContainer)
       {
 
@@ -903,21 +920,23 @@ namespace ZDC
 	  zdcModule->auxdecor<unsigned int>("Status" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleStatus(side, mod);
 	  zdcModule->auxdecor<float>("Amplitude" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleAmplitude(side, mod);
 	  zdcModule->auxdecor<float>("Time" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleTime(side, mod);
-	
+
 	  const ZDCPulseAnalyzer* pulseAna_p = m_zdcDataAnalyzer->GetPulseAnalyzer(side, mod);
-	  zdcModule->auxdecor<float>("Chisq" + m_auxSuffix) = pulseAna_p->GetChisq();      
+	  zdcModule->auxdecor<float>("Chisq" + m_auxSuffix) = pulseAna_p->GetChisq();
 	  zdcModule->auxdecor<float>("FitAmp" + m_auxSuffix) = pulseAna_p->GetFitAmplitude();
 	  zdcModule->auxdecor<float>("FitAmpError" + m_auxSuffix) = pulseAna_p->GetAmpError();
 	  zdcModule->auxdecor<float>("FitT0" + m_auxSuffix) = pulseAna_p->GetFitT0();
 	  zdcModule->auxdecor<float>("BkgdMaxFraction" + m_auxSuffix) = pulseAna_p->GetBkgdMaxFraction();
 	  zdcModule->auxdecor<float>("PreSampleAmp" + m_auxSuffix) = pulseAna_p->GetPreSampleAmp();
-	  //zdcModule->auxdecor<float>("Presample" + m_auxSuffix) = pulseAna_p->GetPresample();
+	  zdcModule->auxdecor<float>("Presample" + m_auxSuffix) = pulseAna_p->GetPresample();
+	  zdcModule->auxdecor<float>("MinDeriv2nd" + m_auxSuffix) = pulseAna_p->GetMinDeriv2nd();
+
 	}
-        ANA_MSG_VERBOSE ("side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
+        ANA_MSG_VERBOSE ("side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy")
                          << " should be " << m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod));
       }
 
-    // Record sum objects  
+    // Record sum objects
 
     //xAOD::ZdcModuleContainer* newModuleContainer = new xAOD::ZdcModuleContainer();
     //xAOD::ZdcModuleAuxContainer* newModuleAuxContainer = new xAOD::ZdcModuleAuxContainer() ;
@@ -937,7 +956,7 @@ namespace ZDC
 	zdc_sum->auxdecor<float>("CalibEnergy") = calibEnergy;
 	float calibEnergyErr = getCalibModuleSumErr(iside);
 	zdc_sum->auxdecor<float>("CalibEnergyErr") = calibEnergyErr;
-	
+
 	float uncalibSum = getUncalibModuleSum(iside);
 	zdc_sum->auxdecor<float>("UncalibSum") = uncalibSum;
 	float uncalibSumErr = getUncalibModuleSumErr(iside);
@@ -978,7 +997,7 @@ namespace ZDC
       ANA_MSG_ERROR ("failed to open file: " << filename);
       throw std::runtime_error ("failed to open file " + filename);
     }
-  
+
     std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> splines;
 
     for (int iside=0;iside<2;iside++)
@@ -1006,7 +1025,7 @@ namespace ZDC
       }
     fCalib->Close();
     if (m_doCalib) m_zdcDataAnalyzer->LoadEnergyCalibrations(std::move(splines));
-  
+
     return;
   }
 
@@ -1060,7 +1079,7 @@ namespace ZDC
       }
   }
 
-  StatusCode ZdcAnalysisTool::reprocessZdc() 
+  StatusCode ZdcAnalysisTool::reprocessZdc()
   {
     if (!m_init)
       {
@@ -1096,7 +1115,7 @@ namespace ZDC
     time = max_index*deltaT;
     qual = 1.;
 
-    if(max_index==-1) 
+    if(max_index==-1)
       {
 	qual=0.;
 	return false;
@@ -1106,7 +1125,7 @@ namespace ZDC
   }
 
   bool ZdcAnalysisTool::sigprocSincInterp(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual)
-  {    
+  {
     size_t nsamp = adc.size();
     float presamp = adc.at(0);
     m_tf1SincInterp->SetParameter(0,deltaT);
@@ -1220,8 +1239,8 @@ namespace ZDC
 
   double ZdcAnalysisTool::getTriggerEfficiency(int side)
   {
-    if (!m_doCalib) return -1;
-  
+    if (!m_doTrigEff) return -1;
+
     m_zdcTriggerEfficiency->UpdatelumiBlock(m_lumiBlock);
     float adcSum = getModuleSum(side);
     double eff = m_zdcTriggerEfficiency->GetEfficiency(side, adcSum);
@@ -1231,7 +1250,7 @@ namespace ZDC
   double ZdcAnalysisTool::getTriggerEfficiencyUncertainty(int side)
   {
     if (!m_doCalib) return -1;
-  
+
     m_zdcTriggerEfficiency->UpdatelumiBlock(m_lumiBlock);
     float adcSum = getModuleSum(side);
     std::pair<double, double> eff_pair = m_zdcTriggerEfficiency->GetEfficiencyAndError(msg(), side, adcSum);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -247,12 +247,10 @@ namespace xAOD {
       // Go back to the original directory:
       dir->cd();
 
-      // It can happen with a TChain input that at this point the TEvent
-      // object doesn't actually have the correct file open. This should address
-      // the issue:
-      if( ( ! event.m_inTree ) && ( event.getEntry( 0 ) < 0 ) ) {
+      // Make sure that the first file/event is loaded at this point.
+      if( event.getEntry( 0 ) < 0 ) {
          ::Error( "xAOD::MakeTransientTree",
-                  XAOD_MESSAGE( "Internal logic error detected" ) );
+                  XAOD_MESSAGE( "Couldn't load first event" ) );
          return 0;
       }
 

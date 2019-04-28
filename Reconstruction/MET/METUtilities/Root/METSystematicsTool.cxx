@@ -743,6 +743,13 @@ namespace met {
     ptHard.mpx  *= 1./(double(m_units)) ;
     ptHard.mpy  *= 1./(double(m_units)) ;
     ptHard.sumet*= 1./(double(m_units)) ;
+    
+    // protect from zero pthard. protects against an empty pthard for the soft term systematic
+    if(ptHard.sumet<1.0e-6){
+      ptHard.sumet=1.0e-6;
+      ptHard.mpx=1.0e-6;
+      ptHard.mpy=0.0;
+    }
 
     return ptHard;
   }

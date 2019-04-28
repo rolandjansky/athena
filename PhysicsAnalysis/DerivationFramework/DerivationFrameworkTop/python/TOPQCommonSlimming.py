@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ slimming
@@ -26,6 +26,18 @@ def setup(TOPQname, stream):
 
   TOPQSlimmingHelper = SlimmingHelper(TOPQname + "SlimmingHelper")
 
+  #=====================================================
+  # ADD BTagging_AntiKt4EMPFlow COLLECTION TO DICTIONARY
+  #=====================================================
+  TOPQSlimmingHelper.AppendToDictionary = {
+    "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer",
+    "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
+    "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
+    }
+
   #================================
   # SMART SLIMMING
   #================================
@@ -41,7 +53,7 @@ def setup(TOPQname, stream):
   # for jets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
   # for TOPQDERIV-62
-  if TOPQname == 'TOPQ1':
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
   
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
@@ -54,6 +66,11 @@ def setup(TOPQname, stream):
   # see TOPQDERIV70
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+
+  # Xbb tagger extra variables
+  if TOPQname == 'TOPQ1':
+    from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+    TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
@@ -123,6 +140,7 @@ def setup(TOPQname, stream):
   if DFisMC:
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthDressedWZJets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles  
@@ -139,7 +157,7 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.StaticContent += TOPQStaticContent
   
   # for TOPQDERIV-69
-  if TOPQname == 'TOPQ1':
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
 
   if DFisMC:
@@ -191,18 +209,6 @@ def setup(TOPQname, stream):
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )
-
-  #=====================================================
-  # ADD BTagging_AntiKt4EMPFlow COLLECTION TO DICTIONARY
-  #=====================================================
-  TOPQSlimmingHelper.AppendToDictionary = {
-    "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer", 
-    "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
-    "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
-    "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
-    }
 
   #================================
   # THIS NEEDS TO BE THE LAST LINE
