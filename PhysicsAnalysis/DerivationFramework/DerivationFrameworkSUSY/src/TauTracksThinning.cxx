@@ -65,7 +65,7 @@ namespace DerivationFramework {
 	ATH_MSG_INFO( "Associated ID track particles collection " << m_IDtracksSGKey
 		      << " will be thinned accordingly" );
       
-      // Set up the text-parsing machinery for selectiong the taus directly
+      // Set up the text-parsing machinery for selecting the taus directly
       // according to user cuts
       if( m_selectionString != "" ) {
          m_parser.reset( new ExpressionParserHelper( evtStore() ) );
