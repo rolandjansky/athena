@@ -34,7 +34,7 @@
 
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetInterface/IJetSelector.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 using namespace std;

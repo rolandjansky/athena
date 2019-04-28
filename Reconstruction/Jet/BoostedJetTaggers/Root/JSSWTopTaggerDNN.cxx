@@ -199,12 +199,11 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  std::cout << "a " << m_calibarea_keras << " " << m_calibarea << std::endl; // aaa
   if( m_calibarea_keras.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea.compare("Local")==0){
+  else if(m_calibarea_keras.compare("Local")==0){
     std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
