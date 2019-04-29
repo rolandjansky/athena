@@ -18,9 +18,7 @@ def VxInternalEdmFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accJetFitterFullLinearizedTrackFactory = JetFitterFullLinearizedTrackFactoryCfg('JetFitterFullLinearizedTrackFactory')
-        jetFitterFullLinearizedTrackFactory = accJetFitterFullLinearizedTrackFactory.popPrivateTools()
-        acc.merge(accJetFitterFullLinearizedTrackFactory)
+        jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(JetFitterFullLinearizedTrackFactoryCfg('JetFitterFullLinearizedTrkFactory'))
         defaults = {
                      'LinearizedTrackFactory'  : jetFitterFullLinearizedTrackFactory, }
         for option in defaults:

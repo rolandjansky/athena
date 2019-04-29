@@ -61,7 +61,7 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, Ve
       
       if 'SoftMu' in TaggerList:
           from JetTagTools.SoftMuonTagConfig import SoftMuonTagCfg
-          accSoftMu = SoftMuonTagCfg(ConfigFlags, 'SoftMu')
+          accSoftMu = SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag')
           softmutool = accSoftMu.popPrivateTools()
           acc.merge(accSoftMu)
           tagToolList.append(softmutool)

@@ -46,15 +46,11 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
                   "InANDNInShared", "PixShared", "SctShared",
                   "InANDNInSplit", "PixSplit",
                   "Good"]
-            accBTagTrackToVertexIPEstimator = BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator')
-            trackToVertexIPEstimator = accBTagTrackToVertexIPEstimator.popPrivateTools()
-            acc.merge(accBTagTrackToVertexIPEstimator)
+            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
             svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
             trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
             trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
-            accLikelihood = NewLikelihoodToolCfg('IP3DNewLikelihoodTool', 'IP3D')
-            likelihood = accLikelihood.popPrivateTools()
-            acc.merge(accLikelihood)
+            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg('IP3DNewLikelihoodTool', 'IP3D'))
             inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
             trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
 
@@ -71,7 +67,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'SecVxFinderName'                  : 'SV1',
                      'storeTrackParticles': True,
                      'storeTrackParameters': True,
-                     'storeIpValues': False,
+                     'storeIpValues': True,
                      'LikelihoodTool'                   : likelihood,
                      'trackSelectorTool'                : trackSelectorTool,
                      'SVForIPTool'                      : svForIPTool,
