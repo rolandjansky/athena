@@ -15,13 +15,6 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
-def MuonSimpleAmbiProcessorTool( name='MuonSimpleAmbiProcessorTool', **kwargs): 
-    kwargs.setdefault("DropDouble", False )
-    kwargs.setdefault("DisableSorting", True )
-    kwargs.setdefault("ScoringTool", getPublicTool("MuonTrackScoringTool") )
-    kwargs.setdefault("SelectionTool", getPublicTool("MuonAmbiSelectionTool") )
-    return CfgMgr.Trk__TrackSelectionProcessorTool(name,**kwargs)
-
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs): 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("pTMin", 500 )

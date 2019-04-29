@@ -69,7 +69,6 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorT
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTrackSummaryTool","MuonCombinedTrackSummaryTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.MuonSimpleAmbiProcessorTool","MuonSimpleAmbiProcessorTool")
 
 #addTool("MuonCombinedRecExample.CombinedMuonTrackSummary.CombinedMuonTrackSummary","CombinedMuonTrackSummary")
 
