@@ -52,8 +52,7 @@ TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvc
   :AthAlgorithm(name, pSvcLocator),
    m_tools(this),
    m_endtools(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-   m_beamSpotSvc("BeamCondSvc", name)
+   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
@@ -115,12 +114,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   }
 
   // Retrieve beam conditions
-  if(m_beamSpotSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve Beamspot service");
-  } 
-  else {
-    ATH_MSG_WARNING("Successfully retrieved Beamspot service");
-  }
+  CHECK(m_beamSpotKey.initialize());
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -291,17 +285,18 @@ StatusCode TrigTauRecMergedMT::execute()
   theBeamspot.makePrivateStore();
   const xAOD::Vertex* ptrBeamspot = nullptr;
 
-  if(m_beamSpotSvc){
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  if(beamSpotHandle.isValid()){
 	
     // Alter the position of the vertex
-    theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+    theBeamspot.setPosition(beamSpotHandle->beamPos());
 	
     beamspot_x=theBeamspot.x();
     beamspot_y=theBeamspot.y();
     beamspot_z=theBeamspot.z();
 
     // Create a AmgSymMatrix to alter the vertex covariance mat.
-    AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+    const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
     theBeamspot.setCovariancePosition(cov);
 
     ptrBeamspot = &theBeamspot;
@@ -384,7 +379,7 @@ StatusCode TrigTauRecMergedMT::execute()
   m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
   m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
   if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
   if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
 

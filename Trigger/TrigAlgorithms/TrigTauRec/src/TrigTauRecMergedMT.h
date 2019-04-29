@@ -36,7 +36,7 @@
 #include "tauRecTools/ITauToolBase.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -93,8 +93,8 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
-  /** Beam spot service */
-  ServiceHandle<IBeamCondSvc>  m_beamSpotSvc;
+  /** Beam spot Object */
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;

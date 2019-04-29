@@ -9,7 +9,6 @@ atlas_subdir( TrigTauRec )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/BeamSpotConditionsData
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           LumiBlock/LumiBlockComps
                           Reconstruction/tauRecTools
                           Trigger/TrigEvent/TrigParticle
