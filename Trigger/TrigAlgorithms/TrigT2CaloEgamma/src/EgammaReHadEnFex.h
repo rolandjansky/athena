@@ -18,6 +18,8 @@
 #define TRIGT2CALOEGAMMA_EGAMMAHADENFEXRE_H
 
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
+#include "CaloEvent/CaloBCIDAverage.h"
+#include "StoreGate/ReadHandleKey.h"
 
 /** Feature extraction Tool for LVL2 Calo. Hadronic EndCaps
 	and Tile Calorimeter. All Samples */
@@ -25,6 +27,10 @@ class EgammaReHadEnFex: public IReAlgToolCalo {
 public:
     EgammaReHadEnFex(const std::string & type, const std::string & name, 
                      const IInterface* parent);
+
+
+    virtual StatusCode initialize() override;
+
 
     /** @brief execute feature extraction for the EM Calorimeter
     *   second layer 
@@ -35,6 +41,11 @@ public:
                                const IRoiDescriptor& roi,
                                const CaloDetDescrElement*& caloDDE,
                                const EventContext& context) const override;
+
+
+private:
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+  { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 

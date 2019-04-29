@@ -16,6 +16,8 @@
 
 #include "EgammaReSamp1Fex.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "StoreGate/ReadHandle.h"
+
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
@@ -29,6 +31,16 @@ EgammaReSamp1Fex::EgammaReSamp1Fex(const std::string& type, const std::string& n
     IReAlgToolCalo(type, name, parent)
 {}
 
+
+StatusCode EgammaReSamp1Fex::initialize()
+{
+  ATH_CHECK( IReAlgToolCalo::initialize() );
+  ATH_CHECK( m_bcidAvgKey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
+
 StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
                                      const CaloDetDescrElement*& caloDDE,
                                      const EventContext& context) const
@@ -38,11 +50,13 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   ATH_MSG_DEBUG("in execute(TrigEMCluster &)");
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+
   // Region Selector, sampling 1
   int sampling = 1;
 
   LArTT_Selector<LArCellCont> sel;
-  ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
+  ATH_CHECK( m_dataSvc->loadCollections(context, avg.cptr(), roi, TTEM, sampling, sel) );
 
   double totalEnergy = 0;
   double etaEnergyS1 = 0;

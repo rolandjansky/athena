@@ -18,6 +18,9 @@
 #define TRIGT2CALOEGAMMA_EGAMMAEMENFEXRE_H
 
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "CaloEvent/CaloBCIDAverage.h"
+
 
 /** Feature extraction Tool for LVL2 Calo. EM Presampler and
 	third EM Calorimeter sample. */
@@ -28,6 +31,10 @@ class EgammaReEmEnFex: public IReAlgToolCalo {
 
     virtual ~EgammaReEmEnFex();
 
+
+    virtual StatusCode initialize() override;
+
+
     /** @brief execute feature extraction for the EM Calorimeter
     *   second layer 
     *   @param[out] rtrigEmCluster is the output cluster.
@@ -37,6 +44,11 @@ class EgammaReEmEnFex: public IReAlgToolCalo {
                                const IRoiDescriptor& roi,
                                const CaloDetDescrElement*& caloDDE,
                                const EventContext& context) const override;
+
+
+private:
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+  { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 #endif
