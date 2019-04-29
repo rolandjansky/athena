@@ -12,6 +12,7 @@
 #include "ZdcAnalysis/ZDCDataAnalyzer.h"
 #include "ZdcAnalysis/ZDCTriggerEfficiency.h"
 #include "ZdcAnalysis/IZdcAnalysisTool.h"
+#include "ZdcAnalysis/ZDCMsg.h"
 
 #include "TF1.h"
 #include "TMath.h"
@@ -21,10 +22,10 @@ namespace ZDC
 
 class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 {
-  
+
   ASG_TOOL_CLASS(ZdcAnalysisTool, ZDC::IZdcAnalysisTool)
-  
- public:
+
+public:
   ZdcAnalysisTool(const std::string& name);
   virtual ~ZdcAnalysisTool() override;
 
@@ -73,7 +74,41 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 
   const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer.get();}
 
- private:
+  static void SetDebugLevel(int debugLevel = 0)
+  {
+    _debugLevel = debugLevel;
+  }
+
+  static bool MessageFunc(unsigned int level, std::string message)
+  {
+    if (level == ZDCMsg::Fatal) {
+      std::cout << message << std::endl;
+      throw;
+    }
+
+    if (level <= (unsigned int) _debugLevel) {
+      // if (message != "") std::cout << message << std::endl;
+      // if (message != "") ATH_MSG_INFO(message);
+      return true;
+    }
+    else return false;
+  }
+
+  void Dump_setting() {
+    if (_debugLevel > 2) {
+      ATH_MSG_INFO("========================================================================================================================");
+      for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 4; j++) {
+          ATH_MSG_INFO("-------------------------------------------------------------------------------------------------------------------");
+          ATH_MSG_INFO("Side: " << i << ", Module: " << j);
+          m_zdcDataAnalyzer->GetPulseAnalyzer(i, j)->Dump_setting();
+        }
+      }
+      ATH_MSG_INFO("========================================================================================================================");
+    }
+  }
+
+private:
   // Private methods
   //
   std::unique_ptr<ZDCDataAnalyzer> initializeDefault();
@@ -113,7 +148,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   int m_forceCalibLB;
 
   //  Parameters that control the pulse fitting analysis
-  //	
+  //
   unsigned int m_numSample;
   float m_deltaTSample;
   unsigned int m_presample;
@@ -137,6 +172,8 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
 
 
   std::shared_ptr<ZDCTriggerEfficiency> m_zdcTriggerEfficiency;
+
+  static int _debugLevel;
 
 };
 
