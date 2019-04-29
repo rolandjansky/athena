@@ -1,13 +1,13 @@
-"""Define methods to configure PixelConditionsSummary
+"""Define a function to configure PixelConditionsSummaryCfg
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
 from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
+from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
 
 def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     """Return configured ComponentAccumulator and tool for PixelDCSConditions"""
@@ -27,9 +27,7 @@ def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
         acc.merge(addFolders(flags, PixelDeadMapFolder, "PIXEL_OFL","CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixMapOverlay",
                                         "/PIXEL/PixMapOverlay", "CondAttrListCollection"))
-    acc.addCondAlgo(PixelConfigCondAlg(name=name + "CondAlg", 
-                                       UseDeadMap=kwargs["UseDeadMap"],
-                                       ReadDeadMapKey=PixelDeadMapFolder))
-    tool = PixelConditionsSummaryTool(name=name + "Tool", **kwargs)
-    return acc, tool
+    acc.merge(PixelConfigCondAlgCfg(flags, UseDeadMap=kwargs["UseDeadMap"], ReadDeadMapKey=PixelDeadMapFolder))
+    acc.setPrivateTools(PixelConditionsSummaryTool(name=name + "Tool", **kwargs))
+    return acc
 

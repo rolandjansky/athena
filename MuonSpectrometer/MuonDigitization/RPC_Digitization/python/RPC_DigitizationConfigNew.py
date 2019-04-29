@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
@@ -16,6 +17,10 @@ def RPC_FirstXing():
 
 def RPC_LastXing():
     return 125
+
+def RPC_ItemList():
+    """Return list of item names needed for RPC output"""
+    return ["MuonSimDataCollection#*", "RpcPadContainer#*"]
 
 def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for RPC"""
@@ -80,6 +85,8 @@ def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 
 def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
@@ -98,6 +105,8 @@ def RPC_OverlayDigitizerCfg(flags, name="RPC_OverlayDigitizer", **kwargs):
     acc = MuonGeoModelCfg(flags)
     tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
+    acc.addEventAlgo(RPC_Digitizer(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", RPC_ItemList()))
     return acc
 

@@ -1,20 +1,29 @@
 #!/usr/bin/env python
-"""Run tests on BCM_DigitizationConfigNew.py
+"""Run tests on SCT_DigitizationConfigNew.py
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 import sys
-import os
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from PixelDigitization.PixelDigitizationConfigNew import (
+    ChargeCollProbSvcCfg, EnergyDepositionToolCfg, SensorSimPlanarToolCfg, SensorSim3DToolCfg,
+    BarrelRD53SimToolCfg, EndcapRD53SimToolCfg, BarrelFEI4SimToolCfg, DBMFEI4SimToolCfg,
+    BarrelFEI3SimToolCfg, EndcapFEI3SimToolCfg, PixelDigitizationBasicToolCfg, PixelDigitizationToolCfg,
+    PixelGeantinoTruthDigitizationToolCfg, PixelDigitizationHSToolCfg, PixelDigitizationPUToolCfg,
+    PixelDigitizationSplitNoMergePUToolCfg, PixelDigitizationOverlayToolCfg, PixelRangeCfg,
+    PixelDigitizationHSCfg, PixelDigitizationPUCfg, PixelDigitizationOverlayCfg,
+)
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
-from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -23,15 +32,17 @@ Configurable.configurableRun3Behavior = True
 ConfigFlags.join(createDigitizationCfgFlags())
 ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.Input.Files = defaultTestFiles.HITS
-ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
+ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
+ConfigFlags.GeoModel.Type = "BrlIncl4.0_ref"
+ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
-acc.merge(BCM_DigitizationCfg(ConfigFlags))
+acc.merge(PixelDigitizationHSCfg(ConfigFlags))
 # Dump config
-acc.getService("StoreGateSvc").Dump=True
+acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
 acc.printConfig(withDetails=True)
 ConfigFlags.dump()

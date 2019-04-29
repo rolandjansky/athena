@@ -14,6 +14,7 @@ from SCT_Digitization.SCT_DigitizationConf import (
     SCT_Digitization,
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
@@ -30,6 +31,10 @@ def SCT_FirstXing():
 
 def SCT_LastXing():
     return 25
+
+def SCT_ItemList():
+    """Return list of item names needed for SCT output"""
+    return ["InDet::SiClusterContainer#*", "SCT_RDO_Container#*"]
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return a ComponentAccumulator with common SCT digitization tool config"""
@@ -235,6 +240,8 @@ def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
         kwargs["DigitizationTool"] = tool
     alg = SCT_Digitization(name, **kwargs)
     acc.addEventAlgo(alg)
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
     return acc
 
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
