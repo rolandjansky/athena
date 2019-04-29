@@ -15,6 +15,13 @@ def _createCfgFlags():
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
 
+    def _inputCollections(inputFile):
+        rawCollections = GetFileMD(inputFile).get("SGKeys").split()
+        collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
+        return collections
+
+    acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
+
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
     acf.addFlag('Concurrency.NumConcurrentEvents', 0)
