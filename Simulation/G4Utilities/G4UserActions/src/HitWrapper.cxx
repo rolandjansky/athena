@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -16,7 +16,8 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 /** for nSW */
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
@@ -46,8 +47,8 @@ namespace G4UA
     SG::WriteHandle<TGCSimHitCollection> tgc("TGC_Hits");
     SG::WriteHandle<RPCSimHitCollection> rpc("RPC_Hits");
     /** for nSW */
-    SG::WriteHandle<GenericMuonSimHitCollection> mmhits("MicromegasSensitiveDetector");
-    SG::WriteHandle<GenericMuonSimHitCollection> stgc("sTGCSensitiveDetector");
+    SG::WriteHandle<MMSimHitCollection> mmhits("MicromegasSensitiveDetector");
+    SG::WriteHandle<sTGCSimHitCollection> stgc("sTGCSensitiveDetector");
 
     if (!csc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
     else {
@@ -96,7 +97,7 @@ namespace G4UA
     else {
       //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
       //GenericMuonSimHitCollection *mm = const_cast< GenericMuonSimHitCollection * > (&(*mmC));
-      for (GenericMuonSimHitCollection::iterator hit=mmhits->begin();hit!=mmhits->end();++hit){
+      for (MMSimHitCollection::iterator hit=mmhits->begin();hit!=mmhits->end();++hit){
 	//std::cout << "Wrapping GenericMuon hit with time " << (*hit).globalTime() << std::endl;
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
@@ -106,7 +107,7 @@ namespace G4UA
     else {
       //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
       //GenericMuonSimHitCollection *stgc = const_cast< GenericMuonSimHitCollection * > (&(*stgcC));
-      for (GenericMuonSimHitCollection::iterator hit=stgc->begin();hit!=stgc->end();++hit){
+      for (sTGCSimHitCollection::iterator hit=stgc->begin();hit!=stgc->end();++hit){
 	//std::cout << "Wrapping GenericMuon hit with time " << (*hit).globalTime() << std::endl;
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
