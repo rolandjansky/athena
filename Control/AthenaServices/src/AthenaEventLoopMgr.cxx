@@ -49,7 +49,6 @@
 #include "AthenaEventLoopMgr.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 
-#include "CxxUtils/make_unique.h"
 
 //=========================================================================
 // Standard Constructor
@@ -667,7 +666,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
             }
         }
     
-        pEventPtr = CxxUtils::make_unique<EventInfo>
+        pEventPtr = std::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();
 
@@ -705,7 +704,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 	  return StatusCode::FAILURE;
 	}
 	// Record the old-style object for those clients that still need it
-	pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+	pEventPtr = std::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
 	pEvent = pEventPtr.get();
 	eventID=*(pEvent->event_ID());
 	StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
@@ -719,7 +718,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   else 
   {
     // With no iterator it's up to us to create an EventInfo
-    pEventPtr = CxxUtils::make_unique<EventInfo>
+    pEventPtr = std::make_unique<EventInfo>
       (new EventID(1,m_nevt), new EventType());
     pEvent = pEventPtr.get();
     pEventPtr->event_ID()->set_lumi_block( m_nevt );

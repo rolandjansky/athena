@@ -20,14 +20,13 @@
 #include "AthenaKernel/IAthenaOutputTool.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IItemListSvc.h"
-#include "CxxUtils/make_unique.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
@@ -661,7 +660,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                      ptr = dbb->object();
                    }
                    auto altbucket =
-                     CxxUtils::make_unique<AltDataBucket>
+                     std::make_unique<AltDataBucket>
                        (ptr, item.id(),
                         *CLIDRegistry::CLIDToTypeinfo (item.id()),
                         *itemProxy);
