@@ -745,7 +745,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
     // If any of the derivatives prior to the peak (as determined by the 2nd derivative) are significantly positive
     //   then we have a peaked pre-pulse
     //
-    if (m_samplesDeriv[isampl] < (m_maxADCValue - m_minADCValue + 1) * 0.02) {
+    if (m_samplesDeriv[isampl] > (m_maxADCValue - m_minADCValue + 1) * 0.02) {
 
       //
       //  Put a threshold on the derivative as a fraction of the difference between max and min so that
