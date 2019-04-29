@@ -90,6 +90,9 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
+  , m_RUN2(false)
+  , m_RUN2plus(false)
+  , m_E1_TOWER(10)
 {
   declareInterface<TileCellBuilderFromHit>( this );
 
@@ -188,6 +191,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   m_cabling = TileCablingService::getInstance();
   m_RUN2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+  m_RUN2plus = m_cabling->isRun2PlusCabling();
 
   if (m_RUN2 && !m_E4prContainerKey.key().empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
@@ -611,12 +615,12 @@ TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStat
         << drawer2+1 << " status " << chan1 << "/" << chan2 << " "
         << (chStatus1.isBad()?"bad":"good") << "/"
         << (chStatus2.isBad()?"bad":"good") << "/"
-        << ((m_RUN2)?" RUN2 cabling": "RUN1 cabling")
+        << ((m_RUN2plus)?" RUN2+ cabling": "RUN1 cabling")
         << std::endl;
       }
 #endif
       if (chan1 == 4) {
-        if (m_RUN2 || !chStatus1.isBad()) {
+        if (m_RUN2plus || !chStatus1.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan1 was " << pCell->ene1() << " changing to half of " << pCell->ene2()
@@ -629,7 +633,7 @@ TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStat
           --drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
-        if (m_RUN2 || !chStatus2.isBad()) {
+        if (m_RUN2plus || !chStatus2.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan2 was " << pCell->ene2() << " changing to half of " << pCell->ene1()
@@ -965,9 +969,9 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
                                 ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
           , overflow, underflow, overfit);
 
-      if (E1_CELL && m_RUN2) {
+      if (E1_CELL && m_RUN2plus) {
 
-        int drawer2 = m_cabling->E1_merged_with_run2(ros,drawer);
+        int drawer2 = m_cabling->E1_merged_with_run2plus(ros,drawer);
         if (drawer2 != 0) { // Raw channel split into two E1 cells for Run 2.
           Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, m_E1_TOWER, TileID::SAMP_E);
           int index2 = m_tileID->cell_hash(cell_id2);
