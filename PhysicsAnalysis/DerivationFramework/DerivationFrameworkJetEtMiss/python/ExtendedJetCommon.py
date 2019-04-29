@@ -615,7 +615,6 @@ eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
 eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
-eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 
 ##################################################################
 # Helper to add origin corrected clusters
