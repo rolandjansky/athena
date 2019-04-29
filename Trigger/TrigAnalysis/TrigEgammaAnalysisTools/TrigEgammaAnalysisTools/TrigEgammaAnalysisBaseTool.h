@@ -37,6 +37,9 @@
 #include "xAODCaloRings/CaloRings.h"                   
 #include "xAODCaloRings/CaloRingsContainer.h"          
 #include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -121,8 +124,14 @@ private:
   ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
   ToolHandle<ITrigEgammaPlotTool> m_plot;
 
+
 protected:
   // Methods
+  ///*! Offline isEM Selectors */
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
+  /*! Offline LH Selectors */
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
+  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;
   /*! Simple setter to pick up correct probe PID for given trigger */
   void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Split double object trigger in two simple object trigger */
