@@ -24,7 +24,7 @@ namespace Muon {
     :
     AthAlgTool(type, name, parent),
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
-    m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_ambiTool("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
