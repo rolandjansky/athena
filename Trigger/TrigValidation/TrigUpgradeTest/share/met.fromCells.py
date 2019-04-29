@@ -34,18 +34,17 @@ topSequence += cellMakerAlgo
 # Add EFMissingETFrom** algorithm
 #################################################
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT, EFMissingETFromHelper
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT, EFMissingETFromHelperMT, EFMissingETFlagsMT
 
 cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
 cellTool.CellsCollection = "cells"
 
-helperTool = EFMissingETFromHelper("theHelperTool") 
+helperTool = EFMissingETFromHelperMT("theHelperTool") 
+flagTool = EFMissingETFlagsMT("theFlagsTool") 
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 metAlg.METContainerKey="HLT_MET"
-
-metAlg.METTools=[ cellTool ]
-metAlg.HelperTool= helperTool 
+metAlg.METTools=[ cellTool, helperTool, flagTool ]
 
 metMon = GenericMonitoringTool("METMonTool")
 metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
