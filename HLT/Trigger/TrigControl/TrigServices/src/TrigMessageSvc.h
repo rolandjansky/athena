@@ -13,6 +13,9 @@
 #include <string>
 #include <vector>
 
+#include <TH1I.h>
+#include <TH2I.h>
+
 #include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Message.h"
@@ -28,6 +31,8 @@
 
 // Forward declarations
 class ISvcLocator;
+class TH1I;
+class TH2I;
 
 /**@class TrigMessageSvc
  * @brief MessageSvc used by the HLT applications
@@ -54,6 +59,8 @@ public:
 
   virtual StatusCode reinitialize() override;
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
 
   virtual void reportMessage(const Message& message) override;
@@ -108,10 +115,8 @@ private:
   Gaudi::Property<bool> m_stats{this, "showStats", false, "Show message statistics"};
   Gaudi::Property<unsigned int> m_statLevel{this, "statLevel", 0,
                                             "Show total message statistics for >= level"};
-  Gaudi::Property<unsigned int> m_statLevelRun{this, "statLevelRun", 0,
-                                               "Show per-run statistics for messages >= level"};
-  Gaudi::Property<bool> m_resetStats{this, "resetStatsAtBeginRun", false,
-                                     "Reset message statistics at BeginRun"};
+  Gaudi::Property<unsigned int> m_publishLevel{this, "publishLevel", MSG::INFO,
+                                               "Publish message statistics for this and higher message levels"};
   Gaudi::Property<unsigned int> m_eventIDLevel{this, "printEventIDLevel", MSG::NIL,
                                                "Print event ID for this and higher message levels"};
   Gaudi::Property<bool> m_color{this, "useColors", false,
@@ -176,8 +181,11 @@ private:
   std::array<int, MSG::NUM_LEVELS> m_msgCount;   ///< counts per level
   std::map<size_t, unsigned int> m_msgHashCount; ///< counts per message hash
 
-  bool m_running{false};    ///< are we in running state?
+  bool m_doPublish{false};  ///< are we publishing message statistics?
   bool m_doSuppress{false}; ///< is suppression currently enabled?
+
+  TH1I* m_msgCountHist{nullptr};    ///< Message counting per level histogram
+  TH2I* m_msgCountSrcHist{nullptr}; ///< Message counting per message source
 
   mutable std::recursive_mutex m_reportMutex;       ///< mutex for printing
   mutable std::recursive_mutex m_thresholdMapMutex; /// (@see MsgStream::doOutput).
@@ -187,6 +195,7 @@ private:
   bool passErsFilter(const std::string& source, const std::vector<std::string>& filter) const;
   void i_reportMessage(const Message& msg, int outputLevel);
   void i_reportERS(const Message& msg) const;
+  void bookHistograms();
 };
 
 #endif

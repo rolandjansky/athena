@@ -48,7 +48,6 @@ def setupMessageSvc():
    # Message suppression
    MessageSvc.enableSuppression    = False
    MessageSvc.suppressRunningOnly  = True
-   MessageSvc.resetStatsAtBeginRun = True
 
    # 0 = no suppression, negative = log-suppression, positive = normal suppression
    # Do not rely on the defaultLimit property, always set each limit separately
@@ -68,7 +67,6 @@ def setupMessageSvc():
    # show summary statistics of messages in finalize
    MessageSvc.showStats = True
    MessageSvc.statLevel = WARNING
-   MessageSvc.statLevelRun = VERBOSE
 
 # online ROB data provider service
 from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
