@@ -40,15 +40,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const std::string& name, const IInterface* pInterface ) :
   AthAlgTool(type,name,pInterface),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
   m_cellContainer(0),
   m_solenoidRadius(1280)
   //m_solenoidHalfLength(2900)
 {
   declareInterface<ITrackDepositInCaloTool>(this);
-  declareProperty("ExtrapolatorHandle", m_extrapolator );   
   declareProperty("doExtrapolation",m_doExtr = true);
   declareProperty("doEDeposHist",m_doHist = false);
   declareProperty("DebugMode", m_debugMode = false);

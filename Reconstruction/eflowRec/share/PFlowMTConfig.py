@@ -5,8 +5,12 @@ topSequence += PFLeptonSelector
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
 from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
+TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 

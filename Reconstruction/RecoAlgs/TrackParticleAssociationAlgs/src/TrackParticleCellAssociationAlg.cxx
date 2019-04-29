@@ -11,7 +11,7 @@
 
 TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool") {
+  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this) {
 
   declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool);
   declareProperty("PtCut", m_ptCut = 25000. );
