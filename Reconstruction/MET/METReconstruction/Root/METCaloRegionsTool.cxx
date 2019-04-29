@@ -19,7 +19,7 @@
 #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
 #else
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
 #endif
 
 namespace met {
@@ -54,18 +54,10 @@ namespace met {
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
     AsgTool(name)
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    ,m_caloNoiseTool("CaloNoiseToolDefault")
-    #endif
   {
     declareProperty( "InputCollection", m_input_data_key            );
     declareProperty( "UseCells"       , m_calo_useCells      = true );
     declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
-    #endif
   }
 
   // Destructor
@@ -82,13 +74,7 @@ namespace met {
     StatusCode sc = StatusCode::SUCCESS;
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
-    sc = m_caloNoiseTool.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING("Unable to find tool for CaloNoiseTool");
-    }
-    else {
-      ATH_MSG_INFO("CaloNoiseTool retrieved");
-    }
+    ATH_CHECK( m_noiseCDOKey.initialize() );
     #endif
 
     return sc;
@@ -249,6 +235,8 @@ namespace met {
     #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     ATH_MSG_WARNING("Cell information is only available in athena framework");
     #else
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    const CaloNoise* noiseCDO=*noiseHdl;
     // Loop over all cells
     for( CaloCellContainer::const_iterator iCell=caloCellContainer->begin();
        iCell!=caloCellContainer->end(); ++iCell ) {
@@ -278,7 +266,7 @@ namespace met {
         #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
         double noise_cell = 0;
         #else
-        double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));
+        double noise_cell = noiseCDO->getNoise((*iCell)->ID(),(*iCell)->gain());
         #endif
         // All cells
         metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),
