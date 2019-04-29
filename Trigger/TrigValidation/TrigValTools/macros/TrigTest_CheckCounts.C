@@ -38,7 +38,7 @@
 
 void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string level)
 {
-    Bool_t debug = 0;  
+   Int_t debug = 0; // can be 0,1 (progress), or 2 (detail)
     Int_t ncheck = 0;
     TString *hnames[5];
     TString *hanames[5];
@@ -47,11 +47,13 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
     
     if(!(level=="L2"||level=="EF"||level=="BOTH"||level=="HLT")){
         cout << "checkcounts: ERROR : Invalid trigger level given as input: " << level << endl;
-        cout << "Next time please choose between: L2,EF,HLT and BOTH - goodbye! "<< endl;
+        cout << "Please choose between: L2,EF,HLT and BOTH - goodbye! "<< endl;
         exit(-1);
     }
-    
-    TFile *rf = new TFile("expert-monitoring.root");
+
+    TString filename = "expert-monitoring.root";
+
+    TFile *rf = new TFile(filename);
     if(rf->IsZombie()){
         cout << "checkcounts: ERROR : Unable to open expert-monitoring.root" << endl;
         exit(-1);
@@ -64,13 +66,30 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
         exit(-1);
     }
     
-    TDirectory *l1_dir_cur =  rf->GetDirectory("../CTPSimulation");///L1ItemsAV");
-    TDirectory *l1_dir_ref = ref->GetDirectory("../CTPSimulation");///L1ItemsAV");
-    bool run_l1=0;
-    if((l1_dir_cur)&&(l1_dir_ref)) run_l1=1;
+    TString     l1Source = "CTPSimulation";
+    TDirectory *l1_dir_cur = (TDirectory*)rf ->Get(l1Source);
+    TDirectory *l1_dir_ref = (TDirectory*)ref->Get(l1Source);
+
+    if ( l1_dir_cur == nullptr ) {
+       l1Source = "CTPEmulation";
+       l1_dir_cur = (TDirectory*) rf->Get(l1Source);
+       l1_dir_ref = (TDirectory*)ref->Get(l1Source);
+    }
+
+    bool run_l1 = (l1_dir_cur != nullptr);
     
-    
-    
+    if(run_l1) {
+       cout << "For L1 will use counts from " << l1Source << endl; 
+    } else {
+       cout << "Neither CTPSimulation nor CTPEmulation found, will not be able to check L1 counts" << endl; 
+    }
+
+    if ( run_l1 && !l1_dir_ref ) {
+       cout << "Bad reference file: " << reffile << ", does not contain the directory: " << l1Source << endl;
+       cout << "Will disable L1 check" << endl;
+       run_l1 = false;
+    }
+
     ///this is option for possible direct calls of levels
     if(level=="L2"||level=="EF"||level=="HLT"){
         hnames[0] =new TString("ChainAcceptance");
@@ -87,12 +106,19 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
         ncheck =2;
         
         if(run_l1) {
-            hnames[2] =new TString("L1ItemsAV");
-            hanames[2]=new TString("L1ItemsAV");
-            fnames[2] =new TString("CTPSimulation");
-            ncheck =3;
+           fnames[2] = &l1Source;
+           if( l1Source == "CTPSimulation" ) {
+              hnames[2] =new TString("L1ItemsAV");
+              hanames[2]=new TString("L1ItemsAV");
+           } else {
+              hnames[2] =new TString("output/TAVbyName");
+              hanames[2]=new TString("output/TAVbyName");
+           }
+           ncheck =3;
+           cout << "Checking L1 and " << level << " trigger counts" << endl;
+        } else {
+           cout << "Checking " << level << " trigger counts" << endl;
         }
-        cout << "Checking " << level << " trigger counts" << endl;
     }
     
     if(level=="BOTH"){   // "BOTH"
@@ -112,12 +138,19 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             fnames[1] =new TString("TrigSteer_HLT");
             ncheck =2;
             if(run_l1) {
-                hnames[2] =new TString("L1ItemsAV");
-                hanames[2]=new TString("L1ItemsAV");
-                fnames[2] =new TString("CTPSimulation");
-                ncheck =3;
+               fnames[2] = &l1Source;
+               if( l1Source == "CTPSimulation" ) {
+                  hnames[2] =new TString("L1ItemsAV");
+                  hanames[2]=new TString("L1ItemsAV");
+               } else {
+                  hnames[2] =new TString("output/TAVbyName");
+                  hanames[2]=new TString("output/TAVbyName");
+               }
+               ncheck =3;
+               cout << "Checking L1 and HLT trigger counts" << endl;
+            } else {
+               cout << "Checking HLT trigger counts" << endl;
             }
-            cout << "Checking HLT trigger counts" << endl;
         } else {
             //cout << "TrigLevel BOTH was given -- please ignore the following info line if this is a release < 18 "<< endl; 
             //cout << "TrigSteer_HLT does not exist in expert-monitoring.root --> falling back to L2 and EF check" << endl;
@@ -146,12 +179,19 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             fnames[3] =new TString("TrigSteer_EF");
             ncheck =4;
             if(run_l1) {
-                hnames[4] =new TString("L1ItemsAV");
-                hanames[4]=new TString("L1ItemsAV");
-                fnames[4] =new TString("CTPSimulation");
-                ncheck =5;
+               fnames[4] = &l1Source;
+               if( l1Source == "CTPSimulation" ) {
+                  hnames[4] =new TString("L1ItemsAV");
+                  hanames[4]=new TString("L1ItemsAV");
+               } else {
+                  hnames[4] =new TString("output/TAVbyName");
+                  hanames[4]=new TString("output/TAVbyName");
+               }
+               ncheck =5;
+               cout << "Checking L1, L2 and EF trigger counts " << endl;
+            } else {
+               cout << "Checking L2 and EF trigger counts " << endl;
             }
-            cout << "Checking L2 and EF trigger counts " << endl;
         }
     } //end if(level=="BOTH")
     
@@ -164,14 +204,11 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
     //check if any TrigSteer directory exists - and also if they are the correct one(s) 
     TDirectory *hlt_dir_ref = ref->GetDirectory("TrigSteer_HLT");
     TDirectory *hlt_dir_cur =  rf->GetDirectory("TrigSteer_HLT");
-    
     TDirectory *ef_dir_ref = ref->GetDirectory("TrigSteer_EF");
     TDirectory *ef_dir_cur =  rf->GetDirectory("TrigSteer_EF");
     TDirectory *l2_dir_ref = ref->GetDirectory("TrigSteer_L2");
     TDirectory *l2_dir_cur =  rf->GetDirectory("TrigSteer_L2");
-    //        TDirectory *l1_dir_cur =  rf->GetDirectory("../CTPSimulation");///L1ItemsAV");
-    //        TDirectory *l1_dir_ref = ref->GetDirectory("../CTPSimulation");///L1ItemsAV");
-    
+
     if(level=="L2"){ 
         if(!(l2_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
         if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
@@ -183,15 +220,12 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
         if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
     }
     if(level=="HLT"){
-        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: CTPSimulation " << endl; 
-        //            if((l1_dir_cur)) cout << "good reference file: " << reffile << " : Does  contain the directory: CTPSimulation " << endl; 
+       if( !l1_dir_ref ) cout << "Bad reference file: " << reffile << " : Does not contain the directory: " << l1Source << endl; 
         if(!(hlt_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
         if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
         if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
     }
     if(level=="BOTH"){
-        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: CTPSimulation " << endl; 
-        //            if((l1_dir_cur)) cout << "good reference file: " << reffile << " : Does  contain the directory: CTPSimulation " << endl; 
         //check for existence of TrigSteer_HLT in either of the 2 files
         if(!(hlt_dir_ref)||!(hlt_dir_cur)){ //not found -> check for L2 and EF TrigSteer_ directories
             if(!(l2_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
@@ -215,7 +249,15 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
     }
     // all seems fine with the 2 files lets go on then ... 
     
-    
+
+
+
+
+
+
+    //
+    // Run the tests
+    //
     TString **xlabels;  
     Double_t *newbc;
     Double_t *oldbc;
@@ -227,7 +269,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
     Double_t nrnold = 0.;
     for(Int_t index=0; index<ncheck; index++)
     {
-        
+       cout << endl << "==============" << endl << "Test #" << index << " on " << *hnames[index] << endl;
         rf = new TFile("expert-monitoring.root");
         if( rf->IsZombie()){
             cout << "checkcounts test warning: Unable to open expert-monitoring.root file" << endl;
@@ -238,41 +280,46 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
         TH1 *tchain;
         TString* hname  = hnames[index];
         if(debug){
-            cout << "looking for " << *hname << endl;
+           cout << "looking for histogram " << *hname << " in directory " << *fname << "";
         }
         gDirectory->GetObject(*hname,tchain);
-        if(tchain==0)
+        if(tchain) { 
+           cout << " => found" << endl;
+        } else {
+           cout << " => not found" << endl;
+        }
+        if(tchain==0 && (*hanames[index] != *hname) )
         {
             //look for alternate names
             hname = hanames[index];
             if(debug){
-                cout << "looking for alternate " << *hname << endl;
+               cout << "looking for alternate histogram " << *hname << " in directory " << *fname << endl;
             }
             gDirectory->GetObject(*hname,tchain);
-            if(tchain==0)
-            {
-                cout << "checkcounts test info : no " << *hname 
-                << " in expert-monitoring.root" << endl;      
-                continue;
-            }   
+            if(tchain) { 
+               cout << " => found" << endl;
+            } else {
+               cout << " => also not found" << endl;
+            }
         }
-        cout << endl << *hname << " in directory " << *fname << endl << endl;
+        if(tchain == nullptr) {
+           cout << "As no histogram was found, will continue with the next check" << endl;
+           continue;
+        }
+
         nbins = tchain->GetNbinsX()+1;
-        
-        if(debug) 
-        {
-            cout << "bins in test: " << nbins << endl;
-        }
+        cout << "bins in test histogram: " << nbins << endl;
+
         newbc = new Double_t[nbins+EXT_BNS];
         oldbc = new Double_t[nbins+EXT_BNS];
         
-        #if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,0)
-        //new code for root 6                                                                                                                                                                             
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,0)
+        // new code for root 6
         TString* xlabels[nbins+EXT_BNS];
-        #else
-        //old code for root 5                                                                                                                                                                       
+#else
+        // old code for root 5
         TString* xlabels= new TString[nbins+EXT_BNS];
-        #endif
+#endif
         
         manam = new Bool_t[nbins];
         for(Int_t i=0; i<nbins+EXT_BNS; i++)
@@ -284,41 +331,31 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
                 manam[i]=false;
             }
         }
-        for(Int_t i=0; i<nbins+EXT_BNS; i++)
-        {    
-            
-            newbc[i]=0.;
-            oldbc[i]=0.;
+        for(Int_t i=0; i<nbins+EXT_BNS; i++) {    
+           newbc[i]=0.;
+           oldbc[i]=0.;
         }
         
-        for(Int_t i=0; i<nbins; i++) newbc[i]=tchain->GetBinContent(i);
+        for(Int_t i=0; i<nbins; i++) 
+           newbc[i]=tchain->GetBinContent(i);
+
+        // Get the number of events for this test
         TH1 *echist;
         gDirectory->GetObject("NInitialRoIsPerEvent",echist);  
-        if (*fname=="CTPSimulation"){
+        if (*fname=="CTPSimulation" || *fname=="CTPEmulation"){
             const char * olddir ;
             olddir = gDirectory->GetPath() ;
             gDirectory->GetObject("../"+(*fnames[0])+"/NInitialRoIsPerEvent",echist);   
             gDirectory->cd(olddir);
         }
-        // look for old sytle names if new one is not there
-        //        if(echist == 0 ){
-        //            `    if(fname->Contains("_EF"))
-        //                `   {
-        //                    gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
-        //                }            
-        //            if(fname->Contains("_L2"))
-        //            {
-        //                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
-        //            }
-        if(echist==0)
-        {    
+        if( echist==0 ) {    
             cout << "checkcounts FAILURE : can't determine number of events processed" << endl;      
             continue;
         }
-        //        } 
         nrnnew=echist->GetEntries();
-        cout << "Number of events processed in test: " << nrnnew << endl;               
+        cout << "Number of events in test: " << nrnnew << endl;               
         rf->Close();
+
         TFile *orf = new TFile(reffile.c_str());
         if( orf->IsZombie()){
             cout << "checkcounts test warning: Unable to open reference file" 
@@ -346,7 +383,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             }
         }     
         Int_t onbins = otchain->GetNbinsX()+1;
-        if(debug){ cout << "bins in reference: " << onbins << endl; }
+        cout << "bins in reference histogram: " << onbins << endl;
         if(nbins != onbins)
         {     
             cout << "Different number of bins in histos! Test: " << nbins << " ref: " << onbins << endl;
@@ -357,7 +394,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             Int_t bi = -1;
             TString *obna = new TString(otchain->GetXaxis()->GetBinLabel(i));
             while (obna->Contains(" ")) obna->Chop();
-            if( debug ){ cout << i << "reference bin label: " << *obna << endl; }
+            if( debug>1 ){ cout << i << "reference bin label: " << *obna << endl; }
             for(Int_t si=0; si<nbins+nexlb; si++)
             {
                 if(xlabels[si]->CompareTo(*obna) == 0) bi=si;   
@@ -381,23 +418,13 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             }
         }
         gDirectory->GetObject("NInitialRoIsPerEvent",echist); 
-        if (*fname=="CTPSimulation"){
+        if (*fname=="CTPSimulation" || *fname=="CTPEmulation" ){
             const char * olddir ;
             olddir = gDirectory->GetPath() ;
             gDirectory->GetObject("../"+(*fnames[0])+"/NInitialRoIsPerEvent",echist);    
             gDirectory->cd(olddir);
         }
         
-        // look for old sytle names if new one is not there
-        //        if(echist == 0 ){
-        //            if(fname->Contains("_EF"))
-        //            {
-        //                gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
-        //            }            
-        //            if(fname->Contains("_L2"))
-        //            {
-        //                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
-        //            }
         if(echist==0){
             cout << "failed to find number of events in reference" << endl;
             continue;
@@ -412,12 +439,15 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             Int_t nbad=0;
             for(Int_t i=0; i<nbins; i++)
             {
-                Int_t cndif = 0;
-                if(debug){ cout << i << "reference: " << oldbc[i] << "test: " << newbc[i] << endl; }  
-                cndif =  newbc[i]-oldbc[i];      
+                Int_t cndif = newbc[i]-oldbc[i];
+                if( debug>1 ) {
+                   cout << i << " reference: " << oldbc[i] << " test: " << newbc[i] << endl; 
+                }
                 if((cndif < -toler) || (cndif > toler)) nbad++;
                 else ngood++;
             }
+
+
             if(nbad !=0)
             { 
                 cout << "checkcounts test warning : trigger counts outside tolerance: " << endl;     
@@ -450,7 +480,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
                         cout << *label<< setw(10) << oldbc[i] << setw(10) << "no data"  << endl;
                     }       
                 } // end for(Int_t i=1; i<nbins+nexlb; i++)
-                //if(toler > 0 ){
+
                 if( hname->Contains("TE") ){
                     cout << "TE (trigger element)" << endl;
                     cout << "Fraction inside tolerance: " 
@@ -463,7 +493,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
                     <<  ngood+nbad << endl;
                 }
                 cout << "----------------------------------------------------------------" << endl;
-                //}
+
             }// end if(nbad !=0)
             else
             {
