@@ -21,7 +21,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: AOD.pool.root.checkFile0
 # art-output: AOD.pool.root.checkFiletrigSize.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_rdotoaod_grid"
 export COST_MONITORING="False"
