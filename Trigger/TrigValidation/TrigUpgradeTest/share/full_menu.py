@@ -133,17 +133,22 @@ if opt.doJetSlice == True:
     step3=ChainStep("Step3_jet", [jetSeq3])
     jetSeq4 = jetMenuSequence("LCWSubJESIS", "TrigJetHypoAlgMT4")
     step4=ChainStep("Step4_jet", [jetSeq4])
+    jetSeq5 = jetMenuSequence("a10LCWSubJESJMS", "TrigJetHypoAlgMT5")
+    step5=ChainStep("Step5_jet", [jetSeq5])
     
 
     # don't forget the commas -.-
 	# damn commas
 	   # raaaargh
     jetChains  = [
-        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
+        #Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
         Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step1]  ),
+        #Chain(name='HLT_j45_0eta240',  Seed="L1_J20",  ChainSteps=[step1]  ),
         Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step2]  ),
         Chain(name='HLT_j45_nojcalib', Seed="L1_J20",  ChainSteps=[step3]  ),
-        Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step4]  )
+        Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step4]  ),
+        Chain(name='HLT_5j70_0eta240',  Seed="L1_J20",  ChainSteps=[step1]  ), # 5j70_0eta240_L14J15
+        Chain(name='HLT_j100_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step5]  ),
         ]
 
     testChains += jetChains

@@ -21,19 +21,24 @@ def jetAthSequence(ConfigFlags):
     jetDefinition = ConfigFlags.jetdefinition
 
     if jetDefinition=="EMTopoSubJESIS":
-    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigSubJESIS:"+dataOrMC)
+    	(recoSequence, sequenceOut) = jetRecoSequence("Calib:TrigSubJESIS:"+dataOrMC)
     elif jetDefinition=="EMTopoSubJES":
-    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("Calib:TrigSubJES:"+dataOrMC)
+    	(recoSequence, sequenceOut) = jetRecoSequence("Calib:TrigSubJES:"+dataOrMC)
     elif jetDefinition=="EMTopoNoCalib":
-    	(recoSequence, sequenceOut) = jetRecoSequenceEMTopo("")
+    	(recoSequence, sequenceOut) = jetRecoSequence("")
     elif jetDefinition=="LCWSubJESIS": # call for LC sequence
-    	(recoSequence, sequenceOut) = jetRecoSequenceLCW("Calib:TrigSubJESIS:"+dataOrMC)
+    	(recoSequence, sequenceOut) = jetRecoSequence("Calib:TrigSubJESIS:"+dataOrMC, jetConstitName = "LC")
+    elif jetDefinition=="a10LCWSubJESJMS":
+    	#(recoSequence, sequenceOut) = jetRecoSequence("Calib:TrigSubJESJMS:"+dataOrMC, jetAlgoName = 'a10', jetConstitName = "LC")
+    	(recoSequence, sequenceOut) = jetRecoSequence("", jetAlgoName = 'a10', jetConstitName = "LC")
+    elif jetDefinition=="a10rSubJESIS":
+    	(recoSequence, sequenceOut) = jetRecoSequence("Calib:TrigSubJESIS:"+dataOrMC, jetAlgoName = 'a10r')
 
     JetAthSequence =  seqAND("jetAthSequence_"+jetDefinition,[InputMakerAlg, recoSequence ])
     return (JetAthSequence, InputMakerAlg, sequenceOut)
 
     
-def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
+def jetRecoSequence( calibString, jetConstitName = 'EM', jetAlgoName = 'a4', RoIs = 'FSJETRoI'):
 
     calibSeq = ""
     dataType = "data" # FIXME
@@ -41,31 +46,38 @@ def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
         calibSeq = calibString.split(":")[1]
         dataType = calibString.split(":")[2]
 
-    cellMakerAlgo = _getHLTCellMakerAlgoForJets("cellMaker", RoIs, OutputLevel=ERROR) 
-    topoClusterMakerAlgo = _getHLTTopoClusterMakerAlgoForJets( "topoClusterMaker", inputEDM=cellMakerAlgo.CellsName, OutputLevel=ERROR)
+    radius = 0.4
+    if jetAlgoName == 'a10':
+        radius = 1.0
 
-    caloMakerSequence = parOR("TopoClusterRecoSequence"+calibSeq, [cellMakerAlgo, topoClusterMakerAlgo]) 
+    doLC=False
+    if jetConstitName=="LC": 
+        doLC=True
+
+    cellMakerAlgo = _getHLTCellMakerAlgoForJets("cellMaker"+jetConstitName, RoIs, outputEDM='CaloCells'+jetConstitName, OutputLevel=ERROR) 
+    topoClusterMakerAlgo = _getHLTTopoClusterMakerAlgoForJets( "topoClusterMaker"+jetConstitName, inputEDM=cellMakerAlgo.CellsName, doLC=doLC, OutputLevel=ERROR)
+
+    caloMakerSequence = parOR("TopoClusterRecoSequence"+jetConstitName+calibSeq, [cellMakerAlgo, topoClusterMakerAlgo]) 
     caloclusters = topoClusterMakerAlgo.CaloClusters
 
     from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType, JetModifier
   
     #hardcoded jet collection for now 
     # chosen jet collection
-    jetsFullName = "TrigAntiKt4EMTopo"+calibSeq
+    jetsFullName = "TrigAntiKt"+jetConstitName+calibSeq
     trigMinPt = 7e3 # FIXME : two different values for ptminfilter?
-    TrigEMTopo = JetConstit( xAODType.CaloCluster, ["EM"])
-    TrigEMTopo.ptmin = 2e3
-    #TrigEMTopo.ptminfilter = 15e3
-    TrigEMTopo.ptminfilter = trigMinPt
-    TrigAntiKt4EMTopo = JetDefinition( "AntiKt", 0.4, TrigEMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
-    #TrigAntiKt4EMTopo.modifiers = ["Sort"] + clustermods 
+    trigJetConstit = JetConstit( xAODType.CaloCluster, [jetConstitName]) # 'EM' or 'LC' for trigger jets
+    trigJetConstit.ptmin = 2e3
+    #trigJetConstit.ptminfilter = 15e3
+    trigJetConstit.ptminfilter = trigMinPt
+    trigJetDef = JetDefinition( "AntiKt", radius, trigJetConstit, ptmin=trigMinPt,ptminfilter=trigMinPt)
+    #trigJetDef.modifiers = ["Sort"] + clustermods 
     #if calibString:
-    #    TrigAntiKt4EMTopo.modifiers= [calibString] + TrigAntiKt4EMTopo.modifiers
-    TrigAntiKt4EMTopo.isTrigger = True #FIXME : no longer needed since confire CalubTool here?
-    jetDefinition = TrigAntiKt4EMTopo
+    #    trigJetDef.modifiers= [calibString] + trigJetDef.modifiers
+    trigJetDef.isTrigger = True #FIXME : no longer needed since configure CalibTool here?
 
     from JetRecConfig import JetRecConfig
-    #deps = JetRecConfig.resolveDependencies( jetDefinition )
+    #deps = JetRecConfig.resolveDependencies( trigJetDef )
 
     modList = [ (JetModifier("JetCaloEnergies", "jetens"), '') ]
     modList += [ (JetModifier("JetSorter","jetsort"), '') ]
@@ -73,44 +85,64 @@ def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
     #deps["mods"] = deps_mod_tmp
     if calibString:
    	 from JetCalibTools import JetCalibToolsConfig
-   	 jetCalibTool = JetCalibToolsConfig.getJetCalibTool( jetDefinition.basename, calibSeq, dataType )
+   	 jetCalibTool = JetCalibToolsConfig.getJetCalibTool( trigJetDef.basename, calibSeq, dataType )
    	 modList += [(JetModifier("JetCalibrationTool", jetCalibTool.name()), calibSeq+':'+dataType)]
-    #jetFilterTool = _getJetFilterTool(TrigEMTopo.ptminfilter)
-    modList += [ ( JetModifier("JetFilterTool","jetptfilter"), str(int(TrigEMTopo.ptminfilter)))  ]
+    #jetFilterTool = _getJetFilterTool(trigJetConstit.ptminfilter)
+    modList += [ ( JetModifier("JetFilterTool","jetptfilter"), str(int(trigJetConstit.ptminfilter)))  ]
 
     print("modList: ", modList)
 
-    constit = TrigEMTopo
-    constit.rawname = caloclusters
-    print("constit.rawname = ", constit.rawname )
-    print("constit.inputname = ", constit.inputname )
-    constitAlg = _getConstitAlg( constit )
+    trigJetConstit.rawname = caloclusters
+    print("trigJetConstit.rawname = ", trigJetConstit.rawname )
+    print("trigJetConstit.inputname = ", trigJetConstit.inputname )
+    constitAlg = _getConstitAlg( trigJetConstit )
     jetRecoSequence = parOR( "JetRecSeq_"+jetsFullName, [constitAlg])
 
-    constitPJAlg = _getConstitPJGAlg( constit )
+    constitPJAlg = _getConstitPJGAlg( trigJetConstit )
     constitPJKey = constitPJAlg.PJGetter.OutputContainer
 
     pjs = [constitPJKey]
 
     jetRecoSequence += constitPJAlg 
         
-    eventShapeAlg = _getEventShapeAlg( constit, constitPJKey )
+    eventShapeAlg = _getEventShapeAlg( trigJetConstit, constitPJKey )
     jetRecoSequence += eventShapeAlg                    
 
     # Schedule the ghost PseudoJetGetterAlgs # FIXME : not needed.
-    ghostList  = []
-    for ghostdef in ghostList:
-        print("ghostdef = ", ghostdef)
-        ghostPJAlg = _getGhostPJGAlg( ghostdef )
-        jetRecoSequence += ghostPJAlg
-        ghostPJKey = ghostPJAlg.PJGetter.OutputContainer
-        pjs.append( ghostPJKey )
+    #ghostList  = []
+    #for ghostdef in ghostList:
+    #    print("ghostdef = ", ghostdef)
+    #    ghostPJAlg = _getGhostPJGAlg( ghostdef )
+    #    jetRecoSequence += ghostPJAlg
+    #    ghostPJKey = ghostPJAlg.PJGetter.OutputContainer
+    #    pjs.append( ghostPJKey )
 
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
-    jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDefinition, pjs, modList)
+    jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, trigJetDef, pjs, modList)
 
     jetRecoSequence += jetRecAlg
+
+    if jetAlgoName == 'a10r':
+
+        a10rJetsFullName = "a10rJets"
+        a10rJetConstit = JetConstit( xAODType.Jet, [])
+        trigAntiKt10rJetDef = JetDefinition( "AntiKt", 1.0, a10rJetConstit)
+
+        a10rmodList= []
+        a10rJetConstit.rawname = jetsFullName 
+        print("a10rJetConstit.rawname = ", a10rJetConstit.rawname )
+        print("a10rconstitPJAlg.inputname = ", a10rJetConstit.inputname )
+        a10rconstitPJAlg = _getConstitPJGAlg( a10rJetConstit )
+        a10rconstitPJKey = a10rconstitPJAlg.PJGetter.OutputContainer
+
+        print "INFO: output psj container for reclustered jets = ", a10rconstitPJKey
+
+        a10rpjs = [a10rconstitPJKey]
+        a10rjetRecAlg = JetRecConfig.getJetAlgorithm(a10rJetsFullName, trigAntiKt10rJetDef, a10rpjs, a10rmodList)
+
+        jetRecoSequence += a10rjetRecAlg
+        #jetsFullName = reclusteredJetsFullName
 
     sequenceOut = jetsFullName
 
@@ -120,88 +152,6 @@ def jetRecoSequenceEMTopo(calibString, RoIs = 'FSJETRoI'):
     #jetRecoFullSequence = seqAND("fullJetSeq_"+jetsFullName, [caloMakerSequence, jetRecoSequence]) 
     jetRecoFullSequence = caloMakerSequence
     #jetRecoFullSequence = jetRecoSequence
-
-    return (jetRecoFullSequence,sequenceOut)
-
-def jetRecoSequenceLCW(calibString, RoIs = 'FSJETRoI'):
-
-    calibSeq = ""
-    dataType = "data"
-    if calibString:
-        calibSeq = calibString.split(":")[1]
-        dataType = calibString.split(":")[2]
-
-    cellMakerAlgo = _getHLTCellMakerAlgoForJets("cellMakerLC", RoIs, outputEDM='CaloCellsLC', OutputLevel=ERROR) 
-    topoClusterMakerAlgo = _getHLTTopoClusterMakerAlgoForJets( "topoClusterMakerLC", inputEDM=cellMakerAlgo.CellsName, doLC=True, OutputLevel=ERROR)
-
-    caloMakerSequence = parOR("TopoClusterRecoSequenceLC"+calibSeq, [cellMakerAlgo, topoClusterMakerAlgo]) 
-    caloclusters = topoClusterMakerAlgo.CaloClusters
-
-    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType, JetModifier
-  
-    #hardcoded jet collection for now 
-    # chosen jet collection
-    jetsFullName = "TrigAntiKt4LCW"+calibSeq
-    trigMinPt = 7e3
-    TrigLCW = JetConstit( xAODType.CaloCluster, ["LC"])
-    TrigLCW.ptmin = 2e3
-    #TrigLCW.ptminfilter = 15e3
-    TrigLCW.ptminfilter = trigMinPt
-    TrigAntiKt4LCW = JetDefinition( "AntiKt", 0.4, TrigLCW, ptmin=trigMinPt,ptminfilter=trigMinPt)
-    #TrigAntiKt4LCW.modifiers = ["Sort"] + clustermods 
-    TrigAntiKt4LCW.isTrigger = True
-    jetDefinition = TrigAntiKt4LCW
-
-    from JetRecConfig import JetRecConfig
-
-    modList = [ (JetModifier("JetCaloEnergies", "jetens"), '') ]
-    modList += [ (JetModifier("JetSorter","jetsort"), '') ]
-    if calibString:
-   	 from JetCalibTools import JetCalibToolsConfig
-   	 jetCalibTool = JetCalibToolsConfig.getJetCalibTool( jetDefinition.basename, calibSeq, dataType )
-   	 modList += [(JetModifier("JetCalibrationTool", jetCalibTool.name()), calibSeq+':'+dataType)]
-    #jetFilterTool = _getJetFilterTool(TrigLCW.ptminfilter)
-    modList += [ ( JetModifier("JetFilterTool","jetptfilter"), str(int(TrigLCW.ptminfilter)))  ]
-
-    print("modList: ", modList)
-
-    constit = TrigLCW
-    constit.rawname = caloclusters
-    print("constit.rawname = ", constit.rawname )
-    print("constit.inputname = ", constit.inputname )
-    constitAlg = _getConstitAlg( constit )
-    jetRecoSequence = parOR( "JetRecSeq_"+jetsFullName, [constitAlg])
-
-    constitPJAlg = _getConstitPJGAlg( constit )
-    constitPJKey = constitPJAlg.PJGetter.OutputContainer
-
-    pjs = [constitPJKey]
-
-    jetRecoSequence += constitPJAlg 
-        
-    eventShapeAlg = _getEventShapeAlg( constit, constitPJKey )
-    jetRecoSequence += eventShapeAlg                    
-
-    # Schedule the ghost PseudoJetGetterAlgs
-    ghostList = [] # FIXME
-    for ghostdef in ghostList:
-        print("ghostdef = ", ghostdef)
-        ghostPJAlg = _getGhostPJGAlg( ghostdef )
-        jetRecoSequence += ghostPJAlg
-        ghostPJKey = ghostPJAlg.PJGetter.OutputContainer
-        pjs.append( ghostPJKey )
-
-    # Generate a JetAlgorithm to run the jet finding and modifiers
-    # (via a JetRecTool instance).
-    jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDefinition, pjs, modList)
-
-    jetRecoSequence += jetRecAlg
-
-    sequenceOut = jetsFullName
-
-    caloMakerSequence += jetRecoSequence
-
-    jetRecoFullSequence = caloMakerSequence
 
     return (jetRecoFullSequence,sequenceOut)
 
