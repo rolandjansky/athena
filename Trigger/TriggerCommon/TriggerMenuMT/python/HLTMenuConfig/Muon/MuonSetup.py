@@ -530,6 +530,7 @@ def muEFSARecoSequence( RoIs, name ):
 
 
 def muEFCBRecoSequence( RoIs, name ):
+  global TrackParticlesName
 
   from AthenaCommon.AppMgr import ToolSvc
   import AthenaCommon.CfgGetter as CfgGetter
@@ -565,7 +566,6 @@ def muEFCBRecoSequence( RoIs, name ):
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
   else:
-    global TrackParticlesName
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
