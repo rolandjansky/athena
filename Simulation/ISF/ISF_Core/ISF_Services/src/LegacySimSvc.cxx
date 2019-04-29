@@ -1,42 +1,36 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
-#include "FastCaloSimSvc.h"
+#include "LegacySimSvc.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 
 /** Constructor **/
-ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
+ISF::LegacySimSvc::LegacySimSvc(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc)
 {
 }
 
-ISF::FastCaloSimSvc::~FastCaloSimSvc()
-{}
-
 /** framework methods */
-StatusCode ISF::FastCaloSimSvc::initialize()
+StatusCode ISF::LegacySimSvc::initialize()
 {
-  ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing ...");
-
   ATH_CHECK ( m_simulatorTool.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloSimSvc::setupEvent()
+StatusCode ISF::LegacySimSvc::setupEvent()
 {
   return m_simulatorTool->setupEventST();
 }
 
-StatusCode ISF::FastCaloSimSvc::releaseEvent()
+StatusCode ISF::LegacySimSvc::releaseEvent()
 {
   return m_simulatorTool->releaseEventST();
 }
 
 /** Simulation Call */
-StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp, McEventCollection* mcEventCollection)
+StatusCode ISF::LegacySimSvc::simulate(const ISF::ISFParticle& isfp, McEventCollection* mcEventCollection)
 {
   ISF::ISFParticleContainer secondaries;
   ATH_CHECK(m_simulatorTool->simulate(isfp, secondaries, mcEventCollection));
