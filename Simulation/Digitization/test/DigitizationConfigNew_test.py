@@ -12,8 +12,6 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
