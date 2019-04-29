@@ -699,6 +699,9 @@ ps_perform_list = [
     'tau80_medium1_tracktwoMVA_L1TAU60',
     'e5_lhmedium_nod0',
     'e5_lhloose_nod0_idperf',
+    'mu20_ivarmedium_mu6noL1',
+    'mu20_ivarmedium_mu4noL1',
+    'mu20_ivarmedium_mu2noL1',
     ]
 if TriggerFlags.doFTK():
     ps_perform_list += [
