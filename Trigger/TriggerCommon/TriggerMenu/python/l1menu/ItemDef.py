@@ -534,6 +534,7 @@ class ItemDef:
 
         #FTK items
         LVL1MenuItem('L1_4J15_FTK'   ).setLogic( J15.x(4)    & physcond).setTriggerType(TT.ftk)
+        LVL1MenuItem('L1_4J20_FTK'   ).setLogic( J20.x(4)    & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_4J15.0ETA25_FTK' ).setLogic( J150ETA25.x(4) & physcond).setTriggerType(TT.ftk) 
         LVL1MenuItem('L1_J100_FTK'  ).setLogic( J100 & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_J15_FTK'   ).setLogic( J15  & physcond).setTriggerType(TT.ftk)
