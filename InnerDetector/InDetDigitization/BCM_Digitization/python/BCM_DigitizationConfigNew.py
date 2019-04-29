@@ -58,8 +58,9 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
 def BCM_DigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with configured BCM_Digitization algorithm"""
     acc = PixelGeometryCfg(flags)
-    tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
-    kwargs.setdefault("DigitizationTool", tool)
+    if "DigitizationTool" not in kwargs:
+        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
+        kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
     return acc
 

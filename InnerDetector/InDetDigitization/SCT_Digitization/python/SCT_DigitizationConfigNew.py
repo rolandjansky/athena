@@ -48,14 +48,10 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
         kwargs.setdefault("LastXing", SCT_LastXing() )
     tool = SCT_DigitizationTool(name, **kwargs)
     # attach ToolHandles
-    frontAcc = SCT_FrontEndCfg(flags)
-    tool.FrontEnd = frontAcc.popPrivateTools()
-    surfAcc = SCT_SurfaceChargesGeneratorCfg(flags)
-    tool.SurfaceChargesGenerator = surfAcc.popPrivateTools()
+    tool.FrontEnd = acc.popToolsAndMerge(SCT_FrontEndCfg(flags))
+    tool.SurfaceChargesGenerator = acc.popToolsAndMerge(SCT_SurfaceChargesGeneratorCfg(flags))
     tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
     acc.setPrivateTools(tool)
-    acc.merge(frontAcc) 
-    acc.merge(surfAcc)
     return acc
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
@@ -95,9 +91,8 @@ def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**k
         kwargs.setdefault("OutputObjectName", flags.Overlay.Legacy.EventStore + "+SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.Legacy.EventStore + "+SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    tacc=SCT_DigitizationCommonCfg(flags, name, **kwargs)
-    acc.setPrivateTools(tacc.popPrivateTools())
-    acc.merge(tacc)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
     return acc
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
@@ -145,20 +140,15 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     # experimental SCT_DetailedSurfaceChargesGenerator config dropped here
     tool = SCT_SurfaceChargesGenerator(name, **kwargs)
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
-    DCSCondAcc = SCT_DCSConditionsCfg(flags)
-    DCSCondTool = DCSCondAcc.popPrivateTools()
+    DCSCondTool = acc.popToolsAndMerge(SCT_DCSConditionsCfg(flags))
     SiliCondTool = SCT_SiliconConditionsToolCfg(flags)
     SiliCondAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSCondTool)
     SiliPropsAcc = SCT_SiPropertiesCfg(flags, SiConditionsTool=SiliCondTool)
-    LorentzAcc = SCT_LorentzAngleCfg(flags)
-    tool.SiConditionsTool = SiliCondTool
-    tool.SiPropertiesTool = SiliPropsAcc.popPrivateTools()
-    tool.LorentzAngleTool = LorentzAcc.popPrivateTools()
-    acc.setPrivateTools(tool)
-    acc.merge(DCSCondAcc)
     acc.merge(SiliCondAcc)
-    acc.merge(SiliPropsAcc)
-    acc.merge(LorentzAcc)
+    tool.SiConditionsTool = SiliCondTool
+    tool.SiPropertiesTool = acc.popToolsAndMerge(SiliPropsAcc)
+    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+    acc.setPrivateTools(tool)
     return acc
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
@@ -241,9 +231,8 @@ def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
     """Return a ComponentAccumulator with toolCfg type SCT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
-        toolAcc = toolCfg(flags)
-        kwargs["DigitizationTool"] = toolAcc.popPrivateTools()
-        acc.merge(toolAcc)
+        tool = acc.popToolsAndMerge(toolCfg(flags))
+        kwargs["DigitizationTool"] = tool
     alg = SCT_Digitization(name, **kwargs)
     acc.addEventAlgo(alg)
     return acc
