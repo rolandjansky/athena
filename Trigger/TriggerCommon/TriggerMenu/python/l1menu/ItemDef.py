@@ -1640,7 +1640,7 @@ class ItemDef:
 
         #ATR-19510
         if '_v8' in TriggerFlags.triggerMenuSetup():
-            LVL1MenuItem('L1_DY-BOX-2MU4' ).setLogic( TOPO_2DR99_2MU4ab & physcond)  # noqa: F821
+            LVL1MenuItem('L1_DY-BOX-2MU4' ).setLogic( TOPO_5DETA99_5DPHI99_2MU4ab & MU4.x(2) & physcond)  # noqa: F821
 
 
         #if (('Physics_HI_v3' not in TriggerFlags.triggerMenuSetup()) and ('MC_HI_v3' not in TriggerFlags.triggerMenuSetup())):
