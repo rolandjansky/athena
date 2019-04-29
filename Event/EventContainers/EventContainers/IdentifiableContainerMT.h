@@ -262,7 +262,7 @@ public:
 
     /// Looks in the cache to see if item already exists if not it returns false,
     /// If it does exist it incorporates it into the IDC view but changing the mask.
-    virtual bool tryFetch(IdentifierHash hashId) override final;
+    virtual bool tryAddFromCache(IdentifierHash hashId) override final;
 
     /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
     /// If cache doesn't have an IMAKER then this fails.
@@ -324,7 +324,7 @@ public:
        IDC_WriteHandle lock;
        lock.m_hashId = hash;
        lock.m_IDC_ptr = this;
-       lock.m_alreadyPresent = IdentifiableContainerBase::tryFetch(hash, lock);
+       lock.m_alreadyPresent = IdentifiableContainerBase::tryAddFromCache(hash, lock);
        return lock;
     }
 };
@@ -406,9 +406,9 @@ IdentifiableContainerMT<T>::fetchOrCreate(const std::vector<IdentifierHash> &has
 
 template < class T>
 bool
-IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
+IdentifiableContainerMT<T>::tryAddFromCache(IdentifierHash hashId)
 {
-    return IdentifiableContainerBase::tryFetch(hashId);
+    return IdentifiableContainerBase::tryAddFromCache(hashId);
 }
 
 template < class T >

@@ -26,8 +26,8 @@ protected:
     std::vector<IdentifierHash> GetAllCurrentHashes() const;
 
     void Wait() const;
-    bool tryFetch(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock);
-    bool tryFetch(IdentifierHash hashId);
+    bool tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock);
+    bool tryAddFromCache(IdentifierHash hashId);
     void cleanup();
     size_t numberOfCollections() const;
     void ResetMask();
