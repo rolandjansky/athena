@@ -119,6 +119,7 @@ jobproperties.Beam.beamType = 'collisions'
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
+TriggerFlags.doCaloOffsetCorrection = False
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
