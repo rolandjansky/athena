@@ -301,7 +301,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   const bool useLLP = (LooseBadLLP == m_cutLevel); // LLP cleaning cannot use emf...
   const bool isTrigger = (LooseBadTrigger == m_cutLevel); // trigger cannot use chf
   const bool useSuperLLP = (SuperLooseBadLLP == m_cutLevel); // other LLP cleaning...
-  if (!useLLP) {
+  if (!useLLP || !useSuperLLP) {
     if(!isTrigger && emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return m_accept;
     if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
   }
