@@ -131,6 +131,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             tool->setEmulation(getEmulation());
             tool->setPVertex(getNPVtx(), getNGoodVertex());
             tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
+            ATH_MSG_DEBUG("TE Tool...");
             if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }

@@ -32,9 +32,6 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 
 namespace Trig{
@@ -98,12 +95,7 @@ private:
   // Offline ++ selectors
   // In python order will matter. Should always be tight, medium, loose
   // Order no longer important since using a map
-  ///*! Offline isEM Selectors */
-  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
-  /*! Offline LH Selectors */
-  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
 
-  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Event Wise offline PhotonContainer Access and end iterator */
