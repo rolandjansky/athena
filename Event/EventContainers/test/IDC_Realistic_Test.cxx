@@ -220,7 +220,7 @@ public:
 
         for(size_t i =RoIStart ; i < RoIEnd; i++) {
             c.fills++;
-            bool cacheh = container.tryFetch(i);
+            bool cacheh = container.tryAddFromCache(i);
             if(cacheh) {
                 c.cachehit++;
                 continue;

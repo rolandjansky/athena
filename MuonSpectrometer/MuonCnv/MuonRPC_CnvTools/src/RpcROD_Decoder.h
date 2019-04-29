@@ -517,7 +517,7 @@ namespace Muon
         // Note that this means different threads may decode the same data if processing simultaneously
         // However, only one will be written to the cache using the lock
         
-        bool alreadyPresent = rdoIdc.tryFetch( it );
+        bool alreadyPresent = rdoIdc.tryAddFromCache( it );
         
         if(alreadyPresent){
           ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(it) << " converting is skipped!");

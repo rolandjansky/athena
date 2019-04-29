@@ -47,10 +47,10 @@
     m_waitNeeded.store(false);
   }
 
-  bool IdentifiableContainerBase::tryFetch(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock)
+  bool IdentifiableContainerBase::tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock)
   {
     if(!m_OnlineMode){
-       return tryFetch(hashId);//No point calling expensive lock method
+       return tryAddFromCache(hashId);//No point calling expensive lock method
     }
     int flag = m_cacheLink->tryLock(hashId, lock, m_waitlist);
     //Relaxed since this should not be running in threaded situation.
@@ -62,7 +62,7 @@
     return false;
   }
 
-  bool IdentifiableContainerBase::tryFetch(IdentifierHash hashId)
+  bool IdentifiableContainerBase::tryAddFromCache(IdentifierHash hashId)
   {
     auto ptr = m_cacheLink->find(hashId);
     if(ptr==nullptr){
