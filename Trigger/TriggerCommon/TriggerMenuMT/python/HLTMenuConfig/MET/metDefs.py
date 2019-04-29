@@ -23,10 +23,10 @@ def metCellRecoSequence():
     #################################################
     # Add EFMissingETAlg and associated tools
     #################################################
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
+    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelperMT, EFMissingETFlagsMT
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    helperTool = EFMissingETFromHelper("theHelperTool")
-    metAlg.HelperTool= helperTool 
+    helperTool = EFMissingETFromHelperMT("theHelperTool")
+    flagsTool = EFMissingETFlagsMT("theFlagsTool")
     metAlg.METContainerKey = "HLT_MET"
     
     #///////////////////////////////////////////
@@ -59,6 +59,8 @@ def metCellRecoSequence():
 
     
     metAlg.METTools.append(cellTool)
+    metAlg.METTools.append(helperTool)
+    metAlg.METTools.append(flagsTool)
 
     metCellRecoSequence += metAlg
 
@@ -84,10 +86,9 @@ def metClusterRecoSequence():
     #################################################
     # Add EFMissingETAlg and associated tools
     #################################################
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
+    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelperMT
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    helperTool = EFMissingETFromHelper("theHelperTool")
-    metAlg.HelperTool= helperTool 
+    helperTool = EFMissingETFromHelperMT("theHelperTool")
     metAlg.METContainerKey = "HLT_MET"
     
         #///////////////////////////////////////////
@@ -120,6 +121,7 @@ def metClusterRecoSequence():
 
     
     metAlg.METTools.append(clusterTool)
+    metAlg.METTools.append(helperTool)
 
     metClusterRecoSequence += metAlg
 
@@ -144,10 +146,9 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     #################################################
     # Add EFMissingETAlg and associated tools
     #################################################
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelper
+    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelperMT
     metAlg = EFMissingETAlgMT( name="EFMET" )
-    helperTool = EFMissingETFromHelper("theHelperTool")
-    metAlg.HelperTool= helperTool 
+    helperTool = EFMissingETFromHelperMT("theHelperTool")
     metAlg.METContainerKey = "HLT_MET_mht"
     
     #///////////////////////////////////////////
@@ -180,6 +181,7 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     mhtTool.JetsCollection=JetsName
     
     metAlg.METTools.append(mhtTool)
+    metAlg.METTools.append(helperTool)
 
     recoSequence += metAlg
 
