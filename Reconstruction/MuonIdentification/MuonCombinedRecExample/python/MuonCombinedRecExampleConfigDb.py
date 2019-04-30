@@ -36,7 +36,7 @@ addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagTool")
 addTool("Rec::MuonMomentumBalanceSignificanceTool","MuonMomentumBalanceSignificanceTool")
 addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignificanceTool")
-addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "ParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
+addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonMaterialProviderTool")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")

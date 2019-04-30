@@ -39,7 +39,7 @@ def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     kwargs.setdefault("ExtrapolatorHandle",       AtlasExtrapolator() )
-    kwargs.setdefault("ParticleCaloExtensionTool",       MuonParticleCaloExtensionTool )
+    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 

@@ -76,6 +76,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     getPublicTool("MuonCaloParticleCreator")
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
+    kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
     # kwargs.setdefault("CaloNoiseTool", getPublicTool("CaloNoiseToolDefault") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 

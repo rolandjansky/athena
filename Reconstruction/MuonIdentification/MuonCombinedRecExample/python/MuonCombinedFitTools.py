@@ -185,9 +185,10 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
 
 def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from AthenaCommon.AppMgr import ToolSvc
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
-    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = pcExtensionTool)
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     ToolSvc += caloCellAssociationTool
   
     muonCaloEnergyTool = Rec__MuonCaloEnergyTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"),
