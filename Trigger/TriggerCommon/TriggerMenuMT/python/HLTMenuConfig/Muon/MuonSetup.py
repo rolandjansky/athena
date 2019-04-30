@@ -10,6 +10,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
 muEFSAInfo = "Muons"
+muEFCBInfo = "MuonsCB"
 muL2ISInfo = "MuonL2ISInfo"
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 
@@ -654,7 +655,7 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.MuonCreatorTool=thecreatortoolCB
   themuoncbcreatoralg.MakeClusters=False
   themuoncbcreatoralg.ClusterContainerName=""
-  themuoncbcreatoralg.MuonContainerLocation = "CBMuons"
+  themuoncbcreatoralg.MuonContainerLocation = muEFCBInfo
   themuoncbcreatoralg.SegmentContainerName = "CBSegments"
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
@@ -675,3 +676,47 @@ def muEFCBRecoSequence( RoIs, name ):
 
 
   return muEFCBRecoSequence, eventAlgs, sequenceOut
+
+
+def efmuisoRecoSequence( RoIs ):
+
+  from AthenaCommon.CFElements import parOR
+
+  efmuisoRecoSequence = parOR("efmuIsoViewNode")
+
+  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  (viewAlgs, eventAlgs) = makeInDetAlgs("MuonIso")
+
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonIso
+  theFTF_Muon = TrigFastTrackFinder_MuonIso()
+  theFTF_Muon.isRoI_Seeded = True
+  viewAlgs.append(theFTF_Muon)
+
+  #TrackParticlesName = ""
+  for viewAlg in viewAlgs:
+    efmuisoRecoSequence += viewAlg
+    if "RoIs" in viewAlg.properties():
+      viewAlg.RoIs = RoIs
+    if "roiCollectionName" in viewAlg.properties():
+      viewAlg.roiCollectionName = RoIs
+
+  #Precision Tracking
+  PTAlgs = [] #List of precision tracking algs
+  PTTracks = [] #List of TrackCollectionKeys
+  PTTrackParticles = [] #List of TrackParticleKeys
+  
+  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso")
+
+  # set up algs
+  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
+  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso")
+  trigEFmuIso.MuonEFContainer = muEFCBInfo
+  trackParticles = PTTrackParticles[-1]
+  trigEFmuIso.IdTrackParticles = trackParticles
+
+  efmuisoRecoSequence += trigEFmuIso
+
+  sequenceOut = trigEFmuIso.MuonContName
+
+  return efmuisoRecoSequence, sequenceOut

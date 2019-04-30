@@ -315,6 +315,51 @@ def muIsoSequence():
                          Maker       = l2muIsoViewsMaker,
                          Hypo        = trigmuIsoHypo,
                          HypoToolGen = TrigMuisoHypoToolFromDict )
+
+
+
+######################
+### efMuiso step ###
+######################
+def muEFIsoAlgSequence(ConfigFlags):
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
+    efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("efmuIsoViewsMaker")
+    efmuIsoViewsMaker.ViewFallThrough = True
+    efmuIsoViewsMaker.ViewPerRoI = True
+    efmuIsoViewsMaker.RoIsLink = "roi" # -||-
+    efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs" # contract with the consumer
+    efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
+    efmuIsoViewsMaker.InViewMuons = "MuonsIso"
+    efmuIsoViewsMaker.MuonsLink = "feature"
+    efmuIsoViewsMaker.RoIEtaWidth=0.15
+    efmuIsoViewsMaker.RoIPhiWidth=0.15
+
+    ### get EF reco sequence ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence
+    efmuisoRecoSequence, sequenceOut = efmuisoRecoSequence( efmuIsoViewsMaker.InViewRoIs )
+ 
+    efmuIsoViewsMaker.ViewNodeName = efmuisoRecoSequence.name()
+     
+    ### Define a Sequence to run for muIso ### 
+    efmuIsoSequence = seqAND("efmuIsoSequence", [ efmuIsoViewsMaker, efmuisoRecoSequence ] )
+
+    return (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut)
+
+def muEFIsoSequence():
+ 
+    (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags)
+
+    # set up hypo    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoAlg
+    trigmuefIsoHypo = TrigMuonEFTrackIsolationHypoAlg("EFMuisoHypoAlg")
+    trigmuefIsoHypo.EFMuonsName = sequenceOut
+   
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFTrackIsolationHypoToolFromDict
+
+    return MenuSequence( Sequence    = efmuIsoSequence,
+                         Maker       = efmuIsoViewsMaker,
+                         Hypo        = trigmuefIsoHypo,
+                         HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict )
   
   
 ######################
