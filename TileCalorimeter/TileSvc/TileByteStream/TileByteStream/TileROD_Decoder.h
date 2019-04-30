@@ -35,6 +35,7 @@
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileL2Algs/TileL2Builder.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -57,7 +58,6 @@
 
 class TileRawChannelBuilder;
 class TileCellBuilder;
-class TileL2Builder;
 class TileHid2RESrcID;
 
 namespace TileROD_Helper {
@@ -526,13 +526,15 @@ class TileROD_Decoder: public AthAlgTool {
     float m_allowedTimeMax; //!< set amp to zero if time is above allowed time max
 
     ToolHandle<TileCondToolTiming> m_tileToolTiming{this,
-          "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
+        "TileCondToolTiming", "TileCondToolTiming", "Tile timing tool"};
     ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool{this,
-          "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OFC tool"};
+        "TileCondToolOfcCool", "TileCondToolOfcCool", "Tile OFC tool"};
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
-          "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
-	        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+    ToolHandle<TileL2Builder> m_L2Builder{this,
+        "TileL2Builder", "TileL2Builder", "Tile L2 builder tool"};
 
     // OFWeights for different units and different drawers:
     // every element contains OFC for single drawer and one of 4 different units
@@ -577,10 +579,6 @@ class TileROD_Decoder: public AthAlgTool {
 
     int m_maxWarningPrint;
     int m_maxErrorPrint;
-
-    // Pointer to TileL2Builder
-    const TileL2Builder* m_L2Builder;
-    std::string m_TileDefaultL2Builder;
 
     mutable std::atomic<int> m_WarningCounter;
     mutable std::atomic<int> m_ErrorCounter;
