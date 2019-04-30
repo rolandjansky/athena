@@ -161,8 +161,10 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
-                                                ProviderTool = MuonTgcRawDataProviderTool )
+  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider" + postFix,                                                
+                                                ProviderTool = MuonTgcRawDataProviderTool,
+                                                DoSeededDecoding = not forFullScan,
+                                                RoIs             = "MURoIs" )
 
   eventAlgs_MuonPRD.append( TgcRawDataProvider )
   eventAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
