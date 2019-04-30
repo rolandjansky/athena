@@ -21,7 +21,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest.new
 
-export NAME="mc_pp_v7_primaries_ftk_build"
+export NAME="physics_pp_v7_primaries_ftk_build"
 export MENU="Physics_pp_v7_primaries"
 export INPUT="ftk"
 export EVENTS="5"
