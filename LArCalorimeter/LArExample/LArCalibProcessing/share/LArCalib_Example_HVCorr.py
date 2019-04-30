@@ -132,17 +132,6 @@ include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 from LArConditionsCommon import LArHVDB #Sets HV Cabling and DCS Database folders
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
 
-from LArCondUtils.LArCondUtilsConf import LArHVToolDB
-theLArHVToolDB = LArHVToolDB("LArHVToolDB")
-ToolSvc += theLArHVToolDB
-
-from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
-theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
-theLArHVCorrTool.keyOutput = keyOutput
-theLArHVCorrTool.folderName= LArHVScaleCorrFolder
-theLArHVCorrTool.HVTool = theLArHVToolDB
-ToolSvc += theLArHVCorrTool
-
 from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
 theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")
 topSequence += theLArHVCorrMaker
