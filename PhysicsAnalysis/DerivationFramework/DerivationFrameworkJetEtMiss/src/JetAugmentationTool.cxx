@@ -9,6 +9,8 @@
 //
 
 #include "JetAugmentationTool.h"
+#include "xAODEventInfo/EventInfo.h"
+#include <xAODTruth/TruthParticle.h>
 #include "xAODCore/ShallowCopy.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
@@ -45,6 +47,7 @@ namespace DerivationFramework {
     dec_AssociatedNTracks(0),
     dec_AssociatedTracksWidth(0),
     dec_AssociatedTracksC1(0),
+    dec_AssociatedNTruthCharged(0),
     m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -130,6 +133,7 @@ namespace DerivationFramework {
       dec_AssociatedNTracks     = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
       dec_AssociatedTracksWidth = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksWidth");
       dec_AssociatedTracksC1    = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksC1");
+      dec_AssociatedNTruthCharged = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTruthCharged");
     } // now works
 
 
@@ -183,6 +187,7 @@ namespace DerivationFramework {
 	delete dec_AssociatedNTracks;
 	delete dec_AssociatedTracksWidth;
         delete dec_AssociatedTracksC1;
+	delete dec_AssociatedNTruthCharged;
       }
     
     if(m_decorateorigincorrection){
@@ -395,15 +400,62 @@ namespace DerivationFramework {
           if(SumTracks_pTs>0.) TracksC1 = TracksC1 / ( pow(SumTracks_pTs, 2.) );
 	  else TracksC1 = -1.;
 
-	  (*dec_AssociatedNTracks)(jet_orig)     = nTracksCount;
-	  (*dec_AssociatedTracksWidth)(jet_orig) = TracksWidth;
-          (*dec_AssociatedTracksC1)(jet_orig)    = TracksC1;
+	  // Add truth variables for QG tagging
+	  const xAOD::EventInfo* eventInfo = nullptr;
+	  ATH_CHECK(evtStore()->retrieve(eventInfo));
+	  bool isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+	  int tntrk = 0;
+	  if(isMC){
+	    const xAOD::Jet* tjet=nullptr;
+	    if(jet->isAvailable< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink") ){
+	      ATH_MSG_DEBUG("Accessing GhostTruthAssociationLink: is available");
+	      if(jet->auxdata< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink").isValid() ){
+		ATH_MSG_DEBUG("Accessing GhostTruthAssociationLink: is valid");
+		ElementLink<xAOD::JetContainer> truthlink = jet->auxdata< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
+		if(truthlink)
+		  tjet = * truthlink;
+		else{
+		  ATH_MSG_DEBUG("Skipping...truth link is broken");
+		}//endelse NULL pointer
+	      }
+	      else {
+		ATH_MSG_DEBUG("Invalid truth link: setting weight to 1");
+	      } //endelse isValid
+	    } //endif isAvailable
+	    else {
+	      ATH_MSG_WARNING("Cannot access truth Link: setting weight to 1");
+	    }//endelse isAvailable
 
+	    if(tjet){
+	      for (size_t ind = 0; ind < tjet->numConstituents(); ind++) {
+		const xAOD::TruthParticle *part = static_cast<const xAOD::TruthParticle*>(tjet->rawConstituent(ind));
+		
+		// dont count invalid truth particles
+		if (!part) continue;
+		// require the particle in the final state
+		if( ! (part->status() == 1) ) continue;
+		// require that the particle type (e.g. production type) be valid (e.g. not primaries)
+		if ((part->barcode())>2e5) continue;
+		// pt>500 MeV
+		if( ! (part->pt()>500.) )  continue;
+		// charged
+		if( !(part->isCharged()) ) continue;
+		double pt = part->pt();
+		if( pt>500 ) tntrk++;
+	      }
+	    }
+	    }// end truth QG tagging
+  
+
+	  (*dec_AssociatedNTracks)(jet_orig)       = nTracksCount;
+	  (*dec_AssociatedTracksWidth)(jet_orig)   = TracksWidth;
+          (*dec_AssociatedTracksC1)(jet_orig)      = TracksC1;
+	  (*dec_AssociatedNTruthCharged)(jet_orig) = tntrk;
 	}// end if m_decorateQGVariables
 
     }//end loop on jets copies
 
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
   }//end addBranches
 
 }
