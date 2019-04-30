@@ -524,6 +524,7 @@ if isMC:
 else:
   ToolSvc += BunchCrossingTool( "LHC" )
 
+# BC ID info
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BCDistanceAugmentationTool
 
 EXOT5BCDistanceAugmentationTool = DerivationFramework__BCDistanceAugmentationTool(name="EXOT5BCDistanceAugmentationTool")
@@ -543,8 +544,10 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
 
-# QGTaggerTool ###
-#addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
+# Augment AntiKt4 jets with QG tagging variables
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg")
 
 #========================================
 # Add the containers to the output stream
