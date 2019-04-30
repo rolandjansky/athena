@@ -2333,19 +2333,6 @@ class WriteDAOD_TRUTH3Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRUTH3Stream)
 listAODtoDPD.append(WriteDAOD_TRUTH3Stream.StreamName)
 
-class WriteDAOD_TRUTH8Stream (JobProperty):
-     """TRUTH8 derivation"""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamDAOD_TRUTH8'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "DerivationFrameworkMCTruth/TRUTH8.py"
-     pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRUTH8Stream)
-listAODtoDPD.append(WriteDAOD_TRUTH8Stream.StreamName)
-
 class WriteDAOD_TRUTH4Stream (JobProperty):
      """TRUTH4 derivation"""
      statusOn = True
