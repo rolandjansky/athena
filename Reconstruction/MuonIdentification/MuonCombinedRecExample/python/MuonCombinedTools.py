@@ -76,19 +76,7 @@ def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
     return CfgMgr.MuonCombined__InDetCandidateTool(name,**kwargs)
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
-    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
-
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-    kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
-
-    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = pcExtensionTool)
-    muonCaloEnergyTool = Rec__MuonCaloEnergyTool(ParticleCaloExtensionTool = pcExtensionTool,
-                                                 ParticleCaloCellAssociationTool = caloCellAssociationTool)
-
-    materialProviderTool = Trk__TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool);
-    kwargs.setdefault("CaloMaterialProvider", materialProviderTool)
+    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
 
     getPublicTool("MuonMomentumBalanceSignificanceTool")
     getPublicTool("MuonScatteringAngleSignificanceTool")
@@ -120,4 +108,8 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
-                     
+def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
+    kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
+  
+    return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
+                      
