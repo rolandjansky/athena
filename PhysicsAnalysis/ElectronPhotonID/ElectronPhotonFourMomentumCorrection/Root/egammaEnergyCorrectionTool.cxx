@@ -655,15 +655,15 @@ namespace AtlasRoot {
 
     else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved 
              or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_PRE 
-             or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or  m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_TESModel == egEnergyCorr::es2018_R21_v0) {//add release 21 here for now
+             or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or  m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_esmodel == egEnergyCorr::es2018_R21_v0) {//add release 21 here for now
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      if (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 || m_TESModel == egEnergyCorr::es2018_R21_v0)
+      if (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0)
         m_resolution_tool.reset(new eg_resolution("run2_R21_v1"));
       else 
         m_resolution_tool.reset(new eg_resolution("run2_pre"));
       
-      if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_TESModel == egEnergyCorr::es2018_R21_v0){
+      if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_esmodel == egEnergyCorr::es2018_R21_v0){
         m_aPSNom.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr); 
         m_daPSb12.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12")));        m_daPSb12->SetDirectory(nullptr); 
         m_daPSCor.reset( dynamic_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                    m_daPSCor->SetDirectory(nullptr);
