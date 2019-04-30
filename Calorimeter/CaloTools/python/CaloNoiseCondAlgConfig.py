@@ -117,9 +117,12 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             log.info("Configuring CaloNoiseCondAlg for Run1 real data processing")
             #The noise for runs before 2012 is a different folder:
             theCaloNoiseAlg.CaloNoiseFolder="/CALO/Ofl/Noise/CellNoise"
-            theCaloNoiseAlg.LArNoiseFolder=""
-            theCaloNoiseAlg.TileNoiseFolder=""
+            theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
+            theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             result.merge(addFolders(configFlags,"/CALO/Ofl/Noise/CellNoise","CALO_OFL",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection"))
+
             
         pass #end of real data case
     
