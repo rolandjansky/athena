@@ -109,9 +109,9 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
   bool ZVE = false;
   if (m_useZvertexTool) {
-    m_zvertexmaker->newEvent();
-    if (not m_zvertexmaker->getVertices().empty()) ZVE = true;
-    m_seedsmaker->find3Sp(m_zvertexmaker->getVertices());
+    std::list<Trk::Vertex> vertices = std::move(m_zvertexmaker->newEvent());
+    if (not vertices.empty()) ZVE = true;
+    m_seedsmaker->find3Sp(vertices);
   } else {
     m_seedsmaker->newEvent(-1);
     std::list<Trk::Vertex> VZ;
