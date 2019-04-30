@@ -485,8 +485,8 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);
   } else {
     CP::JetJvtEfficiency* jetJvtTool = new CP::JetJvtEfficiency(jvt_tool_name);
-    // Medium WP default for EM or LC jets or PFlow jets (no longer special option)
-    top::check(jetJvtTool->setProperty("WorkingPoint", "Medium"),
+    // Default WP now sets PFlow WP to Tight and EMTopo to Medium
+    top::check(jetJvtTool->setProperty("WorkingPoint", "Default"),
                 "Failed to set JVT WP");
     top::check(jetJvtTool->setProperty("SFFile", JVT_SFFile),
                 "Failed to set JVT SFFile name");
