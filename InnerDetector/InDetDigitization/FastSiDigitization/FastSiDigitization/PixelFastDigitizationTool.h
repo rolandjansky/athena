@@ -46,7 +46,6 @@
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
-
 //New digi
 #include "TrkDigEvent/DigitizationModule.h"
 #include "TrkDigInterfaces/IModuleStepper.h"
@@ -93,8 +92,6 @@ public:
   StatusCode mergeEvent();
   StatusCode digitize();
   StatusCode createAndStoreRIOs();
-
- 
 
 
 private:
@@ -153,6 +150,8 @@ private:
   double                                m_pixDiffShiftEndCY; //Shift of the track to improve cluster size description
   double 				m_inefficiencySF; // Inefficiency scale factor applied to reduce the HIT efficiency on pixel clusters
   double                                m_ThrConverted;
+ 
+  double                                m_mu_val;
   
   bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
   short m_splitClusters; //!< merging parameter used to define two clusters as neighbour >  
@@ -184,6 +183,7 @@ private:
   //   void addSDO( const DiodeCollectionPtr& collection );
  StatusCode ReadInefficiencyScaleFactor(std::string filename, std::vector<std::string> histonames);
  double RetrieveInefficiencySF(double eta,double mu, bool isBarrel);
+ 
 
 };
 

@@ -401,6 +401,12 @@ StatusCode PixelFastDigitizationTool::processAllSubEvents() {
     ++iColl;
   }
   m_thpcsi = &thpcsi;
+  
+  //Get mu value
+  const EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo)) {
+    m_mu_val = eventInfo->averageInteractionsPerCrossing();
+  }
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
   if(this->digitize().isFailure()) {
@@ -482,7 +488,13 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
   }
 
   m_ambiguitiesMap =new PixelGangedClusterAmbiguities();
-
+  
+  const EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo)) {
+    m_mu_val = eventInfo->averageInteractionsPerCrossing();
+  }
+  
+  
   if (m_thpcsi != 0) {
     if(digitize().isFailure()) {
       ATH_MSG_FATAL ( "Pixel digitize method failed!" );
@@ -918,21 +930,19 @@ StatusCode PixelFastDigitizationTool::digitize()
     } // end hit while
      
      //check inefficiency SF
-     std::cout<<"PixelDetElClusterMap.size() before SF "<<PixelDetElClusterMap.size()<<std::endl;
-    //Apply an eta dependent inefficiency SF
     if (m_inefficiencySF > 0.0 ){
        
 	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();)
 	{
+	   
 	   Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
            InDet::PixelCluster* currentCluster = clusIter->second;
 	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
 	   double random= rand()%1000/1000.0;
+	   
+	   //Apply an eta and mu dependent inefficiency SF
+	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),m_mu_val,isBarrel);
 
-	   double mu=rand()%50;
-	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),mu,isBarrel);
-// 	   std::cout<<"InefficiencySF "<<m_inefficiencySF<<std::endl;
-	   //std::cout<<"fabs(globalPosition.eta()) "<<fabs(currentCluster->globalPosition().eta())<<std::endl
 	   if  ( random < inefficiencySF ){
 	      m_pixPrdTruth->erase(currentCluster->identify());
 	      delete currentCluster;
@@ -940,7 +950,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 	  }
 	}
     }  
-     std::cout<<"PixelDetElClusterMap.size() after SF "<<PixelDetElClusterMap.size()<<std::endl;
     
       (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
 
@@ -976,11 +985,8 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
     clusterCollection = new InDet::PixelClusterCollection(waferID);
     clusterCollection->setIdentifier(detElement->identify());
 
-    std::cout<<"New cluster collection "<< std::endl;
     int i=0;
     for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-      
-      std::cout<<"Clusters in this detector element "<<i<<std::endl ;
       InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
       pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
       clusterCollection->push_back(pixelCluster);
