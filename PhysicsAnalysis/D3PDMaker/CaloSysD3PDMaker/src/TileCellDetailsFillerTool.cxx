@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -32,7 +32,7 @@ namespace D3PD{
       m_tilehwid(0),
       m_cabling(0),
       m_tileBadChanTool("TileBadChanTool"),
-      m_run2(false),
+      m_run2plus(false),
       m_notRealE1run2{{}}
     {
         declareProperty("SaveCellDetails",    m_saveCellDetails = true);
@@ -54,12 +54,12 @@ namespace D3PD{
       CHECK( detStore->retrieve(m_tilehwid) );
       CHECK( m_tileBadChanTool.retrieve() );
       m_cabling = TileCablingService::getInstance();
-      m_run2 = m_cabling->isRun2Cabling();
+      m_run2plus = m_cabling->isRun2PlusCabling();
 
-      if (m_run2) {
+      if (m_run2plus) {
         for (int ros = 3; ros < 5; ++ros) {
           for (int drawer = 0; drawer < 64; ++drawer) {
-            int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
+            int drawer2 = m_cabling->E1_merged_with_run2plus(ros, drawer);
             m_notRealE1run2[ros - 3][drawer2] = (drawer2 != 0);
           }
         }
@@ -135,7 +135,7 @@ namespace D3PD{
                     if ( log.level() < MSG::DEBUG ) log << MSG::VERBOSE << " adc_id1 " << m_tilehwid->to_string(adc_id) << " hash " << hash1 << " " << gain1 << endmsg;
                     partition = m_tilehwid->ros(adc_id);
                     chan1 = m_tilehwid->channel(adc_id);
-                    if (m_run2 && partition > 2 && chan1 == E1_CHANNEL && m_notRealE1run2[partition - 3][module]) chan1 = -E1_CHANNEL;
+                    if (m_run2plus && partition > 2 && chan1 == E1_CHANNEL && m_notRealE1run2[partition - 3][module]) chan1 = -E1_CHANNEL;
                     pmt1  = m_cabling->channel2hole(partition,chan1);
                     bad1 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
                 }
