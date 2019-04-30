@@ -87,13 +87,13 @@ def corruptionTestPool(filename, verbose=False):
 
 # @brief Check BS file for corruption
 def corruptionTestBS(filename):
-    # First try AtlListBSEvents.exe -c %filename:
-    cmd = ['AtlListBSEvents.exe', '-c', filename]
+    # First try AtlListBSEvents -c %filename:
+    cmd = ['AtlListBSEvents', '-c', filename]
     p = Popen(cmd, shell=False, stdout=PIPE, stderr=STDOUT, close_fds=True)
     while p.poll() is None:
         line = p.stdout.readline()
         if line:
-            msg.info("AtlListBSEvents.exe Report: %s" % line.strip())
+            msg.info("AtlListBSEvents Report: %s" % line.strip())
     rc = p.returncode
     return rc
 
