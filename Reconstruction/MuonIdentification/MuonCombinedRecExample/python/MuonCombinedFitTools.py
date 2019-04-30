@@ -101,15 +101,8 @@ def MuidCaloEnergyMeas( name='MuidCaloEnergyMeas', **kwargs ):
     kwargs.setdefault("CaloParamTool", getPublicTool("MuidCaloEnergyParam") )
 
     if DetFlags.haveRIO.Calo_on():
-        from AthenaCommon.AppMgr    import ToolSvc
-        import CaloTools.CaloNoiseToolDefault as cntd
-        ToolSvc += cntd.CaloNoiseToolDefault()
-        kwargs.setdefault("CaloNoiseTool", ToolSvc.CaloNoiseToolDefault )
         kwargs.setdefault("CellContainerLocation" , "AllCalo" )
         kwargs.setdefault("NoiseThresInSigmas"    , 4. )
-    else:
-        kwargs.setdefault("CaloNoiseTool", '' )
-        kwargs.setdefault("UseCaloNoiseTool", False )
     return CfgMgr.Rec__MuidCaloEnergyMeas(name,**kwargs)
            
 def MuidCaloEnergyTool( name='MuidCaloEnergyTool', **kwargs ):
