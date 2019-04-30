@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-## Trig_tf_reco.py - based on PyJobTransforms/Reco_tf.py now stored here:
+## TrigMT_tf_reco.py - based on PyJobTransforms/Reco_tf.py now stored here:
 ## https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/RecJobTransforms/trunk/scripts
 
 import sys
@@ -45,7 +45,7 @@ def getTransform():
     #BSRDOtoRAW is new option for trigger transform
     #now setup to run athenaHLT, so TODO is to remove:
     #writeBS BSRDOInput EvtMax from AthenaCommon...  athenaCommonFlags....
-    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py', # should be updated if we want to test the other JO
+    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py', 
                                      exe = 'athenaHLT.py',
                                      substep = 'b2r', tryDropAndReload = False,
                                      inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
@@ -131,7 +131,7 @@ def getTransform():
 #        
 #    except ImportError:
 #        msg.warning('Failed to import simulation/digitisation arguments. These substeps will not be available.')
-
+    
     #now add specific trigger arguments
     #  putting this last makes them appear last in the help so easier to find
     addTriggerArgs(trf.parser)
@@ -233,61 +233,7 @@ def addDebugArgs(parser):
     parser.add_argument('--outputHIST_DEBUGSTREAMMONFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='Output DEBUGSTREAMMON file', group='Debug')    
-
-
-
     
-#below commented out after cleanup to latest reco_tf as don't believe needed
-#    
-# This is copied from Digi_tf, but should be in a loadable module
-#def addDigiArgs(parser):
-#    # Use arggroup to get these arguments in their own sub-section (of --help)
-#    parser.defineArgGroup('Digi', 'Digitisation specific options')
-#    parser.add_argument('--inputHitsFile', nargs='+',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='hits'),
-#                        help='Input HITS file', group='Digi')
-#    parser.add_argument('--outputRDOFile', nargs='+',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', runarg=True, type='rdo'),
-#                        help='Output RDO file', group='Digi')
-#    parser.add_argument('--digiSeedOffset1',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-#                        help='Offset for first random seed', group='Digi')
-#    parser.add_argument('--digiSeedOffset2',                                                             
-#                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-#                        help='Offset for second random seed', group='Digi')
-#    parser.add_argument('--digiRndmSvc',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), ##STRING CHOICES ARG,
-#                        help='Random Number Service to use.', group='Digi' )
-#    parser.add_argument('--samplingFractionDbTag',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-#                        help='This argument can be used to override the PhysicsList retrieved from the Simulation metadata. This information is used in the LAr sampling fraction data base tag used by LArfSamplG4Phys.', group='Digi')
-#    parser.add_argument('--doAllNoise',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-#                        help='Overall control of noise simulation during digitization - useful for overlay jobs, will set doCaloNoise, doMuonNoise, doInDetNoise digitizationFlags.', group='Digi')
-#    parser.add_argument('--AddCaloDigi',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-#                        help='Save Calo Digits too, not just RawChannels.', group='Digi')
-#    parser.add_argument('--triggerConfig',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True),
-#                        help='Trigger Configuration String.', group='Digi')
-#    parser.add_argument('--DataRunNumber',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-#                        help='Override existing run number with this value - deprecated?', group='Digi')
-#    parser.add_argument('--jobNumber',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-#                        help='The number of this job in the current RunDependentSimulation task.', group='Digi')
-#    parser.add_argument('--LowPtMinbiasHitsFile',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='hits', executor=['HITtoRDO']),
-#                        help='Files with low Pt hits', group='Digi')
-#    parser.add_argument('--HighPtMinbiasHitsFile',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='hits', executor=['HITtoRDO']),
-#                        help='Files with high Pt hits', group='Digi')
-#    parser.add_argument('--numberOfLowPtMinBias',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
-#                        help='Number of low Pt minbias events', group='Digi')
-#    parser.add_argument('--numberOfHighPtMinBias',
-#                        type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
-#                        help='Number of high Pt minbias events', group='Digi')
 
 if __name__ == '__main__':
     main()
