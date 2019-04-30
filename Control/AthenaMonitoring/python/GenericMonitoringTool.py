@@ -3,6 +3,7 @@
 #
 
 from AthenaCommon.Logging import logging
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
@@ -36,6 +37,10 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     if title is None:
         title = varname
+
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
+        log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
+        return ""
 
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:

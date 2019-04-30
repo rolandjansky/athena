@@ -53,6 +53,10 @@ StatusCode GenericMonitoringTool::book() {
 
   m_fillers.reserve(m_histograms.size());
   for (const std::string& item : m_histograms) {
+    if (item.empty()) {
+      ATH_MSG_DEBUG( "Skipping empty histogram definition" );
+      continue;
+    }
     ATH_MSG_DEBUG( "Configuring monitoring for: " << item );
     HistogramDef def = HistogramDef::parse(item);
 
