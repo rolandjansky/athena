@@ -1335,6 +1335,7 @@ class Configuration:
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
               if (JetCollection == "AntiKt4EMPFlow"):
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
                 self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
                 self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
               else:

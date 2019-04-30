@@ -29,11 +29,13 @@ StandAloneJetBTaggerAlg::StandAloneJetBTaggerAlg(const std::string& n, ISvcLocat
   //m_BTagName(""),
   m_JetCollectionName(""),
   m_suffix(""),
+  m_dupPFlow(false),
   m_JetBTaggerTool("Analysis::JetBTaggerTool")
 {
   declareProperty( "JetBTaggerTool", m_JetBTaggerTool);
-  declareProperty( "JetCollectionName", m_JetCollectionName );
   declareProperty( "outputCollectionSuffix", m_suffix );
+  declareProperty( "JetCollectionName", m_JetCollectionName );
+  declareProperty( "DuplicatePFlow", m_dupPFlow);
 }
 
 StandAloneJetBTaggerAlg::~StandAloneJetBTaggerAlg()
@@ -69,7 +71,7 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       }
       //Check if Jet collection already not tagged
       if (!evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName)) {
-        if (m_JetCollectionName != "AntiKt4EMPFlowJets") {
+        if ((m_JetCollectionName != "AntiKt4EMPFlowJets") || !m_dupPFlow) {
           ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName );
 	  if (evtStore()->contains<xAOD::JetAuxContainer>(m_JetCollectionName+"Aux.")) {
 	    if (overwrite<xAOD::JetContainer, xAOD::JetAuxContainer>(m_JetCollectionName).isFailure()) {

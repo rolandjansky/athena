@@ -127,6 +127,8 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   bool pflow = false;
   std::string jetName = m_JetName;
   if (m_JetName == "AntiKt4EMPFlow") {
+    //check if we are tagging AntiKt4EMPFlow only once
+
     std::string pflowBTaggingContName = bTaggingContName + "_201810";
     //if PFlow jets already tagged with 201810 tuning, do the one with 201903 tuning
     if (evtStore()->contains<xAOD::BTaggingContainer > ( pflowBTaggingContName)) {
@@ -136,12 +138,18 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       pflow = true;
     }
     else {
-      bTaggingContName += "_201810";
-      jetName += "_BTagging201810";
-      pflow = true;
+      if (evtStore()->contains<xAOD::JetContainer> (m_JetName + "Jets_BTagging201810")) {
+        ATH_MSG_DEBUG("#BTAG# BTagging container " << pflowBTaggingContName << " not in store, pflow tune scenario");
+        bTaggingContName += "_201810";
+        jetName += "_BTagging201810";
+        pflow = true;
+      }
+      else { //we tag AntiKt4EMPFlow only once
+        ATH_MSG_DEBUG("#BTAG# BTagging container " << bTaggingContName << " not in store, emtopo tune scenario");
+      }
     }
   }
- 
+
   std::vector<xAOD::BTagging *> btagsList;
   xAOD::BTaggingContainer * bTaggingContainer(0);
   // xAOD::BTaggingAuxContainer * bTaggingAuxContainer(0);
