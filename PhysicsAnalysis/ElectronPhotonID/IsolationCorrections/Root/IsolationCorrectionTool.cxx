@@ -132,7 +132,7 @@ namespace CP {
       ATH_MSG_INFO(" Path found = "<<filename);
       std::unique_ptr<TFile> f(new TFile(filename.c_str(), "READ"));
 
-      m_gZeta20Nom = (TGraph*)f->Get("zeta_20_COMBINED_UP")->Clone();
+      m_gZeta20Nom = (TGraph*)f->Get("zeta_20")->Clone();
       m_gZeta20Up = (TGraph*)f->Get("zeta_20_COMBINED_UP")->Clone();
       m_gZeta20Down = (TGraph*)f->Get("zeta_20_COMBINED_DOWN")->Clone();
     }
