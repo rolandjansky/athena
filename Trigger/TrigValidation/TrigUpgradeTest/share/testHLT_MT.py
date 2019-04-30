@@ -272,6 +272,7 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.EnableVerboseViews( True )
 
 # EventInfo creation if needed
 from RecExConfig.ObjKeyStore import objKeyStore
