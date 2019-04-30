@@ -4,6 +4,7 @@
   <namespace name="ORUtils" />
   <class name="ORUtils::IOverlapTool" />
   <class name="ORUtils::IOverlapRemovalTool" />
+  <class name="ORUtils::IParticleAssociator" />
   <class name="ORUtils::BaseOverlapTool" />
   <class name="ORUtils::OverlapRemovalTool" />
   <class name="ORUtils::DeltaROverlapTool" />
