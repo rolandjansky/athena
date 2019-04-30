@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,8 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
 
 // Identifier
 #include "Identifier/Identifier.h"
@@ -107,8 +108,8 @@ namespace iFatras
       RPCSimHitCollection                  *m_rpcSimHitCollection;
       TGCSimHitCollection                  *m_tgcSimHitCollection;
       CSCSimHitCollection                  *m_cscSimHitCollection;
-      GenericMuonSimHitCollection          *m_mmSimHitCollection;
-      GenericMuonSimHitCollection          *m_stgcSimHitCollection;
+      MMSimHitCollection          	   *m_mmSimHitCollection;
+      sTGCSimHitCollection          	   *m_stgcSimHitCollection;
       std::string                          m_mdtCollectionName;
       std::string                          m_rpcCollectionName;
       std::string                          m_tgcCollectionName;
