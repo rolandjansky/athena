@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,8 +12,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
@@ -23,7 +23,6 @@
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthContainers/ViewVector.h"
 #include "CxxUtils/no_sanitize_undefined.h"
-#include "CxxUtils/make_unique.h"
 
 #include <memory>
 
@@ -90,7 +89,7 @@ template <class DV>
 ViewVector<DV>* prepareForWrite (ViewVector<DV>* d,
                                  std::unique_ptr<ViewVector<DV> >& holder)
 {
-  holder = CxxUtils::make_unique<ViewVector<DV> > (*d);
+  holder = std::make_unique<ViewVector<DV> > (*d);
   holder->setClearOnPersistent();
   return holder.get();
 }
