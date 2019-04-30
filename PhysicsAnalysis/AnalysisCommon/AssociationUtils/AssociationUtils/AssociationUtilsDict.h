@@ -7,6 +7,7 @@
 
 #include "AssociationUtils/IOverlapTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
+#include "AssociationUtils/IObjectAssociator.h"
 #include "AssociationUtils/OverlapRemovalTool.h"
 #include "AssociationUtils/BaseOverlapTool.h"
 #include "AssociationUtils/DeltaROverlapTool.h"
