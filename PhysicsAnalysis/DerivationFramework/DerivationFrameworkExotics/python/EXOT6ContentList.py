@@ -7,12 +7,13 @@ EXOT6SmartContent = [
     "InDetTrackParticles",
     "PrimaryVertices",
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo",
-    "AntiKt4LCTopoJets",
+    "MET_Reference_AntiKt4EMPFlow",
+    "AntiKt4EMPFlowJets",
     "AntiKt4EMTopoJets",
     "AntiKt4TruthJets",
     "TauJets",
-    "BTagging_AntiKt4EMTopo"
+    "BTagging_AntiKt4EMTopo",
+    "BTagging_AntiKt4EMPFlow"
 ]
 
 EXOT6AllVariablesContent = [
@@ -32,6 +33,8 @@ EXOT6ExtraVariables = [
     "TauNeutralParticleFlowObjects.pt.eta.phi.m",
     "TauChargedParticleFlowObjects.pt.eta.phi.m",
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount",
+  "HLT_xAOD__JetContainer_a4tcemsubjesISFS.pt.eta.phi.m", 
+  "HLT_xAOD__PhotonContainer_egamma_Photons.pt.eta.phi"
 ]
 
 EXOT6UnslimmedContent = [

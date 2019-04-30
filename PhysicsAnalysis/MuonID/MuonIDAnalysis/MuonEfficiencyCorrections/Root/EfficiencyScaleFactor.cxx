@@ -18,7 +18,7 @@ namespace CP {
             m_measurement(ref_tool.measurement()),
             m_syst_name(syst_name),
             m_is_up(syst_type_bitmap & EffiCollection::UpVariation),
-            m_is_lowpt(syst_type_bitmap & EffiCollection::CentralLowPt ||  syst_type_bitmap & EffiCollection::CaloLowPt),
+            m_is_lowpt(syst_type_bitmap & EffiCollection::JPsiAnalysis),
             m_respond_to_kineDepSyst(syst_type_bitmap & EffiCollection::PtDependent),
             m_seperateBinSyst(syst_type_bitmap & EffiCollection::UnCorrelated),
             m_sf(),
@@ -55,7 +55,7 @@ namespace CP {
         m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
         m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
         m_sf = ReadHistFromFile("SF", f.get(), time_unit);
-        /// Nominal set loaded nothing needs to be done further
+        /// Nominal set loaded nothing needs to be done further      
         if (syst_name.empty()) return;
         
         
@@ -118,25 +118,35 @@ namespace CP {
         syst_loader(m_mc_eff,"MC_Eff");
         
         /// Thus far there're no kinematic dependent systematics for low-pt
-        if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
+        if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central()) ||
+        (file == ref_tool.filename_Calo() && ref_tool.filename_Calo() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
         /// As well  as for the high-eta  range.
        
         /// Load the pt_dependent systematics if needed
-        if (!m_respond_to_kineDepSyst) return;
-        
+        if (!m_respond_to_kineDepSyst){
+             return;
+        }
         // Load the systematic of the bad veto
         if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
             TDirectory* SystDir = nullptr;
             f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
             m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
+            if (!m_sf_KineDepsys->initialize()){
+                Error("EfficiencyScaleFactor()", "Pt dependent systematic could not be loaded");
+                m_sf_KineDepsys.reset();
+            }
             return;
         }
         /// That one needs to be named properly in the future
+        
         m_sf_KineDepsys = std::make_unique<PtKinematicSystHandler>(ReadHistFromFile(Form("SF_PtFlatness_1%s", m_is_up?"UP" :"DN"), f.get(), time_unit), ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
+      
         /// Use the approach from the old sacle-factor file
-        if(!m_sf_KineDepsys->initialize()){           
+        if(!m_sf_KineDepsys->initialize()){    
             m_sf_KineDepsys = std::make_unique<PrimodialPtSystematic>(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit));
-        }        
+        }
+        m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);            
     }
     EfficiencyScaleFactor::EfficiencyScaleFactor(const MuonEfficiencyScaleFactors& ref_tool,
                                   const std::string &file, 

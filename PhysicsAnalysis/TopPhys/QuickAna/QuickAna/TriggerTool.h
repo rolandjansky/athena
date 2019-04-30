@@ -166,8 +166,6 @@ namespace ana
     std::string m_trigList;
     std::string m_groupName;
     std::string m_muon_trig_str;
-    bool m_matchEl;
-    bool m_matchMu;
     /// Is using AF2?
     bool m_isAF2;
     /// Is using data?

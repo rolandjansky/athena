@@ -281,8 +281,8 @@ namespace CP {
     }
 
 
-    if(m_Tdata == MCAST::DataType::Data15 ||  m_Tdata == MCAST::DataType::Data16 ){
-      m_StatCombPtThreshold=300.0;
+    if(m_Tdata == MCAST::DataType::Data15 ||  m_Tdata == MCAST::DataType::Data16 || m_Tdata == MCAST::DataType::Data17 ||  m_Tdata == MCAST::DataType::Data18){
+      m_StatCombPtThreshold=300.0;// Setting stat combination threshold for full Run 2 data, in case it's used
     }
 
     if(m_useStatComb){
@@ -328,7 +328,7 @@ namespace CP {
       }
       // R21 corrections: full run 2 with uniform treatment of 2015+2016, 2017, 2018 data. 
       // it includes MC phase-space correction, 30x30 bins for good stat, iterations set 4, for minimal RMS
-      else if (m_SagittaRelease.compare("sagittaBiasDataAll_03_02_19")==0){
+      else if (m_SagittaRelease.find("sagittaBiasDataAll_03_02_19") != std::string::npos){
         m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4);
       }
 
@@ -1519,6 +1519,9 @@ namespace CP {
     }
     else if( data == "Data17" ) {
       m_Tdata = MCAST::DataType::Data17;
+    }
+    else if( data == "Data18" ) {
+      m_Tdata = MCAST::DataType::Data18;
     }
     else {
       ATH_MSG_ERROR( "Unrecognized value for SetData" );

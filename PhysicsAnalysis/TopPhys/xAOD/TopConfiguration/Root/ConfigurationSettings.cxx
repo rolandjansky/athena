@@ -68,7 +68,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None","FCTight_FixedRad");
     registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -77,8 +77,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
-                                               "Default (does nothing on forward jets), fJVT (apply fJVT cut if pT<50GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
-    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 17 GeV.", "17000.");
+                                               "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).", "Default");
+    registerParameter("JetPtGhostTracks", "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.", "19000.");
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
@@ -96,6 +96,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "False");
     registerParameter("JetJERSmearingModel","All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)","Simple");
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
+    registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
     
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");
@@ -206,6 +207,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FirstEvent", "The number of events that you want to skip (for testing). If 0 then no events are skipped.", "0");
     registerParameter("PerfStats"," I/O Performance printouts. None, Summary or Full" , "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
+    registerParameter("FilterBranches", "Comma separated list of names of the branches that will be removed from the output", " ");
 
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
@@ -307,12 +309,13 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
     registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
+    registerParameter("PRWPeriodAssignments", "Specify period number assignments to run numbers ranges in this form: \"XXX:XXX:XXX\", where XXX are runnumbers, first number is the associated run number, second number is the period block start, the third number is the period block end. You can pass any number of these sets (total number of provided RunNumbers needs to be divisible by 3). Default is used if not specified", " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
-    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
+    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
@@ -351,10 +354,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
 
     registerParameter("UseGlobalLeptonTriggerSF", "Switch to activate event-level trigger scale factors allowing multiple OR of single-, di-, tri- lepton triggers, True or False (default False)", "False");
-    registerParameter("ElectronTriggers",         "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("ElectronTriggersLoose",    "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("MuonTriggers",             "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
-    registerParameter("MuonTriggersLoose",        "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)","None");
+    registerParameter("GlobalTriggers",           "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("GlobalTriggersLoose",      "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("ElectronTriggers",         "Deprecated, use GlobalTriggers instead.", "None");
+    registerParameter("ElectronTriggersLoose",    "Deprecated, use GlobalTriggersLoose instead.", "None");
+    registerParameter("MuonTriggers",             "Deprecated, use GlobalTriggers instead.", "None");
+    registerParameter("MuonTriggersLoose",        "Deprecated, use GlobalTriggersLoose instead.", "None");
 
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
 }

@@ -289,7 +289,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
                                       "BTagging_AntiKt2Track.MV2c10_discriminant",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
-                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
+                                      "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount",
                                       "PrimaryVertices.covariance",
                                       "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                       ]

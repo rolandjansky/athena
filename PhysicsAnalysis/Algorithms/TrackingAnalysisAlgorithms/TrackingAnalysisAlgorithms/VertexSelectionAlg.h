@@ -45,9 +45,9 @@ namespace CP {
       /// Event store key of the vertex container
       std::string m_vertexKey;
       /// Number of vertices required in the event
-      int m_minVertices;
+      unsigned m_minVertices;
       /// Number of track particles required per vertex
-      int m_minTracks;
+      unsigned m_minTracks;
 
       /// @}
 

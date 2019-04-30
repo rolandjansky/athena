@@ -188,6 +188,11 @@ namespace ST {
       return StatusCode::FAILURE;
     }
 
+    if (m_fatJets.empty()) {
+      ATH_MSG_ERROR("JetFatCalibTool was not initialized for largeR jet!!");
+      return StatusCode::FAILURE;
+    }
+
     std::string jetkey_tmp = jetkey;
     if (jetkey.empty()) {
       jetkey_tmp = m_fatJets;
@@ -219,7 +224,7 @@ namespace ST {
       //...
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
-      if ( doLargeRdecorations ){
+      if ( doLargeRdecorations && !m_WtagConfig.empty() && !m_ZtagConfig.empty()){
         dec_wtagged(*jet) = m_WTaggerTool->keep(*jet);
         dec_ztagged(*jet) = m_ZTaggerTool->keep(*jet);
       }
@@ -257,6 +262,11 @@ namespace ST {
     std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(calibjets);
     copy = shallowcopy.first;
     copyaux = shallowcopy.second;
+
+    bool setLinks = xAOD::setOriginalObjectLink(calibjets, *copy);
+    if (!setLinks) {
+      ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
+    }
 
     // ghost associate the muons to the jets (needed by MET muon-jet OR later)
     ATH_MSG_VERBOSE("Run muon-to-jet ghost association");

@@ -61,6 +61,7 @@ namespace CP
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyScaleFactorTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -78,22 +79,25 @@ namespace CP
         ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
         for (xAOD::Muon *muon : *muons)
         {
-          if (m_scaleFactorAccessor) {
-            float sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getEfficiencyScaleFactor (*muon, sf, eventInfo));
-            (*m_scaleFactorAccessor) (*muon) = sf;
-          }
+          if (m_preselection.getBool (*muon))
+          {
+            if (m_scaleFactorAccessor) {
+              float sf = 0;
+              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getEfficiencyScaleFactor (*muon, sf, eventInfo));
+              (*m_scaleFactorAccessor) (*muon) = sf;
+            }
 
-          if (m_mcEfficiencyAccessor) {
-            float eff = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
-            (*m_mcEfficiencyAccessor) (*muon) = eff;
-          }
+            if (m_mcEfficiencyAccessor) {
+              float eff = 0;
+              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
+              (*m_mcEfficiencyAccessor) (*muon) = eff;
+            }
 
-          if (m_dataEfficiencyAccessor) {
-            float eff = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
-            (*m_dataEfficiencyAccessor) (*muon) = eff;
+            if (m_dataEfficiencyAccessor) {
+              float eff = 0;
+              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
+              (*m_dataEfficiencyAccessor) (*muon) = eff;
+            }
           }
         }
         return StatusCode::SUCCESS;

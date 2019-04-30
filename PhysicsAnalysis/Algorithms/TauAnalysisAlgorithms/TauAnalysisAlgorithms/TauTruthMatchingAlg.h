@@ -11,6 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <TauAnalysisTools/ITauTruthMatchingTool.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODTau/TauJetContainer.h>
@@ -47,6 +48,11 @@ namespace CP
   private:
     SysCopyHandle<xAOD::TauJetContainer> m_tauHandle {
       this, "taus", "TauJets", "the tau collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
   };
 }
 

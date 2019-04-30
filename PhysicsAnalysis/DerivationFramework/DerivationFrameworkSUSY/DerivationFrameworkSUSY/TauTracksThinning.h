@@ -56,6 +56,8 @@ namespace DerivationFramework {
       std::string m_tauSGKey;
       /// SG key of the tau tracks container to use
       std::string m_tracksSGKey = "TauTracks";
+      /// SG key of the ID track particle container to use (optional)
+      std::string m_IDtracksSGKey;
       /// Selection string to use with the expression evaluation
       std::string m_selectionString;
       /// Flag for using @c IThinningSvc::Operator::And (instead of "or")

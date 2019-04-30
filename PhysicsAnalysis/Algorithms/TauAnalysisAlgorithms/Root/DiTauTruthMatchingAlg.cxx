@@ -35,6 +35,7 @@ namespace CP
     ANA_CHECK (m_matchingTool.retrieve());
     m_systematicsList.addHandle (m_tauHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -47,7 +48,12 @@ namespace CP
         xAOD::DiTauJetContainer *taus = nullptr;
         ANA_CHECK (m_tauHandle.getCopy (taus, sys));
         for (xAOD::DiTauJet *tau : *taus)
-          m_matchingTool->applyTruthMatch (*tau);
+        {
+          if (m_preselection.getBool (*tau))
+          {
+            m_matchingTool->applyTruthMatch (*tau);
+          }
+        }
         return StatusCode::SUCCESS;
       });
   }

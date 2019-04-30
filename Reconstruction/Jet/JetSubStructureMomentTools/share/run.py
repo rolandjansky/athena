@@ -177,14 +177,12 @@ if 1:
   ToolSvc += EnergyCorrelatorTool("energycorrelator")
   energycorrelator = ToolSvc.energycorrelator
   #energycorrelator.Beta = 0.5
-  #energycorrelator.IncludeBeta2 = True
   #energycorrelator.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelator]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
   ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
   energycorrelatorratios = ToolSvc.energycorrelatorratios
-  #energycorrelatorratios.IncludeBeta2 = True
   #energycorrelatorratios.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelatorratios]
   

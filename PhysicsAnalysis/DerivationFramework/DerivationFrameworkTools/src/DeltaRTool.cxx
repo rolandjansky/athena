@@ -132,7 +132,7 @@ namespace DerivationFramework {
         }
     }
 
-    // Double loop to get the pairs for which the mass should be calculated	
+    // Double loop to get the pairs for which the deltaRs should be calculated	
     std::vector<std::vector<int> > pairs;
     if (!secondContainer) {
       unsigned int outerIt, innerIt;
@@ -160,13 +160,13 @@ namespace DerivationFramework {
       }
     }
 
-    // Loop over the pairs; calculate the mass; put into vector and return
+    // Loop over the pairs; calculate the deltaR; put into vector and return
     std::vector<std::vector<int> >::iterator pairIt;
     for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
       unsigned int first = (*pairIt)[0];
       unsigned int second = (*pairIt)[1];
       if (!secondContainer) {
-	float phi1f = ((*particles)[first])->p4().Phi(); float phi2f = ((*particles)[second])->p4().Phi();
+        float phi1f = ((*particles)[first])->p4().Phi(); float phi2f = ((*particles)[second])->p4().Phi();
         float eta1f = ((*particles)[first])->p4().Eta(); float eta2f = ((*particles)[second])->p4().Eta();
         float deltaR = calculateDeltaR(phi1f,phi2f,eta1f,eta2f);
         deltaRs->push_back(deltaR);

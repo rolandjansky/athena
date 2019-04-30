@@ -177,7 +177,7 @@ namespace TrigConf {
         float tmpPS;
         float tmpDiff;
         // If the number is larger than 2^24 ret -1.
-        if (std::abs(tmpN) <= NMASK) {
+        if (unsigned (std::abs(tmpN)) <= NMASK) {
             // if psF is Int, ret psF.
             if (tmpN == psF) {
                 ret = (int64_t) psF;

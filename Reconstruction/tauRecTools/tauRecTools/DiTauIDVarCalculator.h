@@ -115,7 +115,7 @@ private:
   int subjetLeadElectronID(const xAOD::DiTauJet& XDiTau, int iSubjet) const;
 
   // steering variables
-  float m_dMaxDeltaR;
+  // float m_dMaxDeltaR;
   std::string m_sDiTauContainerName;
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;

@@ -17,8 +17,8 @@ TaggerType: TopQuark
 
 DecorationName: TopoclusterTopTaggerTopQuark
 
-CalibArea: BoostedJetTaggers/TopoclusterTopTagger/Boost2017/
-#CalibArea: Local
+CalibAreaKeras: BoostedJetTaggers/TopoclusterTopTagger/Boost2017/
+#CalibAreaKeras: Local
 
 KerasConfigFile:  TopoclusterTopTaggerDNN_Training_20170712.json
 

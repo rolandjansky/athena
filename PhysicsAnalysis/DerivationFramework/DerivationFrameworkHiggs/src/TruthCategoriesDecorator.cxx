@@ -121,16 +121,16 @@ namespace DerivationFramework {
 
   // Save a TLV as 4 floats
   void TruthCategoriesDecorator::decorateFourVec(const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4) const {
-    eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()/CLHEP::GeV;
+    eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()*CLHEP::GeV;
     eventInfo->auxdecor<float>((prefix+"_eta").Data()) = p4.Eta();
     eventInfo->auxdecor<float>((prefix+"_phi").Data()) = p4.Phi();
-    eventInfo->auxdecor<float>((prefix+"_m").Data())   = p4.M()/CLHEP::GeV;
+    eventInfo->auxdecor<float>((prefix+"_m").Data())   = p4.M()*CLHEP::GeV;
   }
 
   // Save a vector of TLVs as vectors of float
   void TruthCategoriesDecorator::decorateFourVecs(const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s) const {
     std::vector<float> pt, eta, phi, mass;
-    for (auto p4:p4s) { pt.push_back(p4.Pt()/CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()/CLHEP::GeV); }
+    for (auto p4:p4s) { pt.push_back(p4.Pt()*CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()*CLHEP::GeV); }
     eventInfo->auxdecor<std::vector<float> >((prefix+"_pt").Data())  = pt;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_eta").Data()) = eta;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_phi").Data()) = phi;
@@ -181,18 +181,33 @@ namespace DerivationFramework {
     eventInfo->auxdecor<int>("HTXS_errorCode")  = (int)htxs->errorCode;
     eventInfo->auxdecor<int>("HTXS_Stage0_Category") = (int)htxs->stage0_cat;
 
+    // Stage-1 binning
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs->stage1_cat_pTjet25GeV;
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs->stage1_cat_pTjet30GeV;
 
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
 
+    // Stage-1.1 binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet25") = (int)htxs->stage1_1_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet30") = (int)htxs->stage1_1_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet30") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet25") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type,true);
+
+    // Stage-1.1 finer binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet25") = (int)htxs->stage1_1_fine_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet30") = (int)htxs->stage1_1_fine_cat_pTjet30GeV;
+
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet30") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet25") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type,true);
+
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs->jets25.size();
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs->jets30.size();
     
 
     // At the very least, save the Higgs boson pT
-    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()/CLHEP::GeV;
+    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()*CLHEP::GeV;
 
     if (m_detailLevel>0) {
       // The Higgs and the associated V (last instances prior to decay)

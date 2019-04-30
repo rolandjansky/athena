@@ -5,8 +5,10 @@
 #include "TopCPTools/TopTriggerCPTools.h"
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 // Top includes
 #include "TopConfiguration/TopConfig.h"
@@ -20,10 +22,12 @@
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "TrigTauMatching/TrigTauMatching.h"
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
+#include "TrigGlobalEfficiencyCorrection/ImportData.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
 #include "PATCore/PATCoreEnums.h"
+#include "xAODBase/ObjectType.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
 
@@ -118,16 +122,68 @@ StatusCode TriggerCPTools::initialize() {
 }
 
 StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
+  StatusCode statusCode = StatusCode::SUCCESS;
+
+  // utilities for TrigGlobEffCorr::ImportData
+  TrigGlobEffCorr::ImportData triggerData;
+  top::check( triggerData.importTriggers(), "failed to import trigger data" );
+  auto const & triggerDict = triggerData.getDictionary();
+  std::unordered_map<std::string, TrigGlobEffCorr::ImportData::TrigDef> triggerDefs;
+  for (auto&& kv : triggerData.getTriggerDefs()) {
+    auto it = triggerDict.find(kv.first);
+    if (it != triggerDict.end()) {
+      triggerDefs[it->second] = kv.second;
+    }
+  }
+  auto getTriggerLegs = [&](std::unordered_map<std::string, std::vector<std::string>> const & triggerCombination, std::unordered_map<std::string, std::set<std::string>> & electronLegsByPeriod) {
+      for (auto&& kv : triggerCombination) {
+        std::string const & period = kv.first;
+        for (auto const & trigKey : kv.second) {
+          auto triggerDefsIt = triggerDefs.find(trigKey);
+          if (triggerDefsIt == triggerDefs.end()) {
+            statusCode = StatusCode::FAILURE;
+            ATH_MSG_ERROR("unrecognized trigger `" << trigKey << "'");
+            continue;
+          }
+          auto const & trigDef = triggerDefsIt->second;
+          for (auto const & leg : trigDef.leg) {
+            if (!leg)
+              continue;
+            std::string const & legname = triggerDict.at(leg);
+            bool ok = true;
+            xAOD::Type::ObjectType legtype = triggerData.associatedLeptonFlavour(legname, ok);
+            if (!ok) {
+              statusCode = StatusCode::FAILURE;
+              ATH_MSG_ERROR("could not determine object type for trigger leg `" << legname << "'");
+              continue;
+            }
+            switch (legtype) {
+            case xAOD::Type::Electron:
+              electronLegsByPeriod[period].insert(legname);
+              break;
+            case xAOD::Type::Muon:
+              break;
+            default:
+              statusCode = StatusCode::FAILURE;
+              ATH_MSG_ERROR("trigger leg `" << legname << "' has unsupported object type `" << legtype << "'");
+              continue;
+            }
+          }
+        }
+      }
+    };
   
   // Get trigger strings from configuration
   std::map<std::string,std::string> triggerCombination, triggerCombinationLoose;
   std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
   std::unordered_map<std::string, std::vector<std::string>> const emptymap;
   std::unordered_map<std::string, std::vector<std::string>> const &
-       electronTriggerCombination = (m_config->doTightEvents() ? m_config->getGlobalTriggerElectronTriggers() : emptymap),
-       muonTriggerCombination = (m_config->doTightEvents() ? m_config->getGlobalTriggerMuonTriggers() : emptymap),
-       electronTriggerCombinationLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggerElectronTriggersLoose() : emptymap),
-       muonTriggerCombinationLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggerMuonTriggersLoose() : emptymap);
+       triggersByPeriod = (m_config->doTightEvents() ? m_config->getGlobalTriggers() : emptymap),
+       triggersByPeriodLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggersLoose() : emptymap);
+
+  std::unordered_map<std::string, std::set<std::string>> electronLegsByPeriod, electronLegsByPeriodLoose;
+  getTriggerLegs(triggersByPeriod, electronLegsByPeriod);
+  getTriggerLegs(triggersByPeriodLoose, electronLegsByPeriodLoose);
 
   // Get quality
   std::string electronID, electronIDLoose, electronIsolation, electronIsolationLoose, muonQuality, muonQualityLoose;
@@ -152,7 +208,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   int nTools = 0;
 
   // Loop over the triggers found (electrons - tight)
-  for(auto& y_t : electronTriggerCombination){
+  for(auto& y_t : electronLegsByPeriod){
     std::string year = y_t.first;
     for(auto& trigKey : y_t.second){
       nTools++;
@@ -187,7 +243,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 
   // Loop over the triggers found (electrons - loose) 
   nTools = 0;
-  for(auto& y_t : electronTriggerCombinationLoose){
+  for(auto& y_t : electronLegsByPeriodLoose){
     std::string year = y_t.first;
     for(auto& trigKey : y_t.second){
       nTools++;
@@ -252,9 +308,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     }
   }
 
-  // Construct the trigger combinations from  the electron and muon trigger combinations
-  // Electron triggers (tight)
-  for(auto& key : electronTriggerCombination){
+  for(auto& key : triggersByPeriod){
     if(triggerCombination.find(key.first) == triggerCombination.end()){
       triggerCombination[key.first] = "";
     }
@@ -263,29 +317,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     }
     triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
   }
-  // Muon triggers (tight)
-  for(auto& key : muonTriggerCombination){
-    if(triggerCombination.find(key.first) == triggerCombination.end()){
-      triggerCombination[key.first] = "";
-    }
-    else{
-      triggerCombination[key.first] += " || ";
-    }
-    triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
-  }
-
-  // Electron triggers (loose)                                                       
-  for(auto& key : electronTriggerCombinationLoose){
-    if(triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()){
-      triggerCombinationLoose[key.first] = "";
-    }
-    else{
-      triggerCombinationLoose[key.first] += " || ";
-    }
-    triggerCombinationLoose[key.first] += boost::algorithm::join(key.second, " || ");
-  }
-  // Muon triggers (loose)                                                   
-  for(auto& key : muonTriggerCombinationLoose){
+  for(auto& key : triggersByPeriodLoose){
     if(triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()){
       triggerCombinationLoose[key.first] = "";
     }
@@ -330,7 +362,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   // Set information about systematics inside TopConfig
   m_config->setGlobalTriggerConfiguration(electronSystematics, muonSystematics, electronToolNames, muonToolNames);
 
-  return StatusCode::SUCCESS;
+  return statusCode;
 }
 
 std::string TriggerCPTools::mapWorkingPoints(const std::string& type) {

@@ -268,10 +268,6 @@ int main( int argc, char* argv[] ) {
     // create a shallow copy of the muons container
     std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
 
-    // iterate over our shallow copy
-    xAOD::MuonContainer::iterator muonSC_itr = ( muons_shallowCopy.first)->begin();
-    xAOD::MuonContainer::iterator muonSC_end = ( muons_shallowCopy.first)->end();
-
     xAOD::MuonContainer* muonsCorr = muons_shallowCopy.first;
 
     //::: Loop over systematics

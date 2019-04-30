@@ -67,6 +67,7 @@ namespace CP
 
     m_systematicsList.addHandle (m_particlesHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -110,41 +111,44 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
-          m_accept.clear();
-          std::size_t cutIndex {0};
-
-          const xAOD::TrackParticle *track {nullptr};
-          if (const xAOD::Muon *muon = dynamic_cast<xAOD::Muon*>(particle))
-            track = muon->primaryTrackParticle();
-          else if (const xAOD::Electron *electron = dynamic_cast<xAOD::Electron*>(particle))
-            track = electron->trackParticle();
-          else
+          if (m_preselection.getBool (*particle))
           {
-            ANA_MSG_ERROR ("failed to cast input to electron or muon");
-            return StatusCode::FAILURE;
-          }
+            m_accept.clear();
+            std::size_t cutIndex {0};
 
-          m_accept.setCutResult (cutIndex ++, track != nullptr);
-          if (track != nullptr)
-          {
-            if (m_maxD0Significance > 0)
+            const xAOD::TrackParticle *track {nullptr};
+            if (const xAOD::Muon *muon = dynamic_cast<xAOD::Muon*>(particle))
+              track = muon->primaryTrackParticle();
+            else if (const xAOD::Electron *electron = dynamic_cast<xAOD::Electron*>(particle))
+              track = electron->trackParticle();
+            else
             {
-              const float d0sig = xAOD::TrackingHelpers::d0significance
-                (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
-                 eventInfo->beamPosSigmaXY());
-              m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+              ANA_MSG_ERROR ("failed to cast input to electron or muon");
+              return StatusCode::FAILURE;
             }
-            if (m_maxDeltaZ0SinTheta > 0)
-            {
-              const double vertex_z = primaryVertex ? primaryVertex->z() : 0;
-              const float deltaZ0SinTheta
-                = (track->z0() + track->vz() - vertex_z) * sin (particle->p4().Theta());
-              m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
-            }
-          }
 
-          m_selectionAccessor->setBits
-            (*particle, selectionFromAccept (m_accept));
+            m_accept.setCutResult (cutIndex ++, track != nullptr);
+            if (track != nullptr)
+            {
+              if (m_maxD0Significance > 0)
+              {
+                const float d0sig = xAOD::TrackingHelpers::d0significance
+                  (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
+                   eventInfo->beamPosSigmaXY());
+                m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+              }
+              if (m_maxDeltaZ0SinTheta > 0)
+              {
+                const double vertex_z = primaryVertex ? primaryVertex->z() : 0;
+                const float deltaZ0SinTheta
+                  = (track->z0() + track->vz() - vertex_z) * sin (particle->p4().Theta());
+                m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
+              }
+            }
+
+            m_selectionAccessor->setBits
+              (*particle, selectionFromAccept (m_accept));
+          }
         }
         return StatusCode::SUCCESS;
       });

@@ -118,7 +118,7 @@ namespace xAOD {
         m_inTree( 0 ), m_inTreeMissing( kFALSE ),
         m_inChain( 0 ), m_inChainTracker( 0 ),
         m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_entry( -1 ), m_outTree( 0 ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
         m_inputEventFormat(), m_outputEventFormat( 0 ),
@@ -151,7 +151,7 @@ namespace xAOD {
         m_inTree( 0 ), m_inTreeMissing( kFALSE ),
         m_inChain( 0 ), m_inChainTracker( 0 ),
         m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_entry( -1 ), m_outTree( 0 ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
         m_inputEventFormat(), m_outputEventFormat( 0 ),
@@ -187,7 +187,7 @@ namespace xAOD {
         m_inTree( 0 ), m_inTreeMissing( kFALSE ),
         m_inChain( 0 ), m_inChainTracker( 0 ),
         m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_entry( -1 ), m_outTree( 0 ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
         m_inputEventFormat(), m_outputEventFormat( 0 ),
@@ -369,8 +369,9 @@ namespace xAOD {
       }
       m_inputMetaObjects.clear();
 
-      // Reset the internal flag:
+      // Reset the internal flags:
       m_inTreeMissing = kFALSE;
+      m_entry = -1;
 
       // Make sure we return to the current directory:
       TDirectoryReset dr;
@@ -1238,8 +1239,8 @@ namespace xAOD {
       // If we have a chain as input:
       if( m_inChain ) {
          // Make sure that the correct tree is loaded:
-         m_entry = m_inChain->LoadTree( entry );
-         if( m_entry < 0 ) {
+         const ::Long64_t fileEntry = m_inChain->LoadTree( entry );
+         if( fileEntry < 0 ) {
             ::Error( "xAOD::TEvent::getEntry",
                      XAOD_MESSAGE( "Failure in loading entry %i from the "
                                    "input chain" ),
@@ -1264,6 +1265,8 @@ namespace xAOD {
                return -1;
             }
          }
+         // Restore the previously received entry number.
+         m_entry = fileEntry;
       }
       // If we have a regular file/tree as input:
       else {
@@ -1924,7 +1927,8 @@ namespace xAOD {
       }
 
       // A sanity check before checking for an object from the input file:
-      if( ( ! m_inTree ) && ( ! metadata ) ) {
+      if( ( ( ! m_inTree ) || ( m_entry < 0 ) ) &&
+          ( ! metadata ) ) {
          return 0;
       }
       if( ( ! m_inMetaTree ) && metadata ) {

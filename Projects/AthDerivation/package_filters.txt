@@ -270,7 +270,9 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
-+ Reconstruction/HeavyIonRec/HIRecExample  
++ Reconstruction/HeavyIonRec/HIRecExample
++ Reconstruction/HeavyIonRec/HIGlobal
++ Reconstruction/HeavyIonRec/HIJetRec
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface

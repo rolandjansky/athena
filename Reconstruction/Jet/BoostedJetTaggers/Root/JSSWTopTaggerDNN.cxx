@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -27,13 +27,12 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "Decoration",   m_decorationName="XX");
     declareProperty( "DecorateJet",  m_decorate = true);
 
-    declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
-    declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
     declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
 
     declareProperty( "TaggerType",    m_tagType="XXX");
 
-    declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/");
+    declareProperty( "CalibArea",      m_calibarea = "");
+    declareProperty( "CalibAreaKeras", m_calibarea_keras = "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/");
     declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
     declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
 
@@ -51,7 +50,8 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( "Using config file : "<< m_configFile );
     // check for the existence of the configuration file
     std::string configPath;
-    configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -76,7 +76,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
     // get the CVMFS calib area where stuff is stored
     // if this is set to "Local" then it will look for the config file in the share space
-    m_calibarea = configReader.GetValue("CalibArea" ,"");
+    m_calibarea_keras = configReader.GetValue("CalibAreaKeras" ,"");
 
     // get the name/path of the JSON config
     m_kerasConfigFileName = configReader.GetValue("KerasConfigFile" ,"");
@@ -89,17 +89,23 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     m_strMassCutHigh = configReader.GetValue("MassCutHigh" ,"");
     m_strScoreCut    = configReader.GetValue("ScoreCut" ,"");
 
+    // get min and max jet pt
+    m_jetPtMin = configReader.GetValue("pTCutLow", 350.0);
+    m_jetPtMax = configReader.GetValue("pTCutHigh", 4000.0);
+
     // get the decoration name
     m_decorationName = configReader.GetValue("DecorationName" ,"");
 
     // print out the configuration parameters for viewing
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea              : "<<m_calibarea );
+    ATH_MSG_INFO( "calibarea_keras        : "<<m_calibarea_keras );
     ATH_MSG_INFO( "kerasConfigFileName    : "<<m_kerasConfigFileName );
     ATH_MSG_INFO( "kerasConfigOutputName  : "<<m_kerasConfigOutputName );
-    ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
+    ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow );
     ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
+    ATH_MSG_INFO( "pTCutLow               : "<<m_jetPtMin );
+    ATH_MSG_INFO( "pTCutHigh              : "<<m_jetPtMax );
     ATH_MSG_INFO( "strScoreCut            : "<<m_strScoreCut );
     ATH_MSG_INFO( "decorationName         : "<<m_decorationName );
 
@@ -148,12 +154,12 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea.empty() ){
+  if( m_calibarea_keras.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea.compare("Local")==0){
-    std::string localCalibArea = "BoostedJetTaggers/share/JSSWTopTaggerDNN/";
+  else if(m_calibarea_keras.compare("Local")==0){
+    std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
     m_kerasConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_kerasConfigFileName);
@@ -162,7 +168,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_kerasConfigFileName).c_str() );
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
   }
 
   // read json file for DNN weights
@@ -242,24 +248,23 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   m_accept.setCutResult( "ValidEtaRange"   , true);
   m_accept.setCutResult( "ValidJetContent" , true);
 
+  // counter for pt range warnings
+  const static int maxNWarn = 10;
+  static int nWarn = 0;
+
   // check basic kinematic selection
   if (std::fabs(jet.eta()) > m_jetEtaMax) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
-  if (jet.pt() < m_jetPtMin) {
+  if (jet.pt()/1.e3 < m_jetPtMin) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeLow", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
-  if (jet.pt() > m_jetPtMax) {
-    ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
+  if (jet.pt()/1.e3 > m_jetPtMax) {
+    if(nWarn++ < maxNWarn) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
+    else ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeHigh", false);
-    if(m_decorate)
-      decorateJet(jet, -1., -1., -1., -666.);
   }
 
   // get the relevant attributes of the jet
@@ -285,7 +290,6 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   ATH_MSG_VERBOSE(": CutsValues : MassWindow=["<<std::to_string(cut_mass_low)<<","<<std::to_string(cut_mass_high)<<"]  ,  scoreCut="<<std::to_string(cut_score) );
   ATH_MSG_VERBOSE(": JetValues  : JetMass="<<std::to_string(jet_mass)<<"  ,  score="<<std::to_string(jet_score) );
 
-
   //set the TAccept depending on whether it is a W/Z or a top tag
   if(m_tagType.compare("WBoson")==0 || m_tagType.compare("ZBoson")==0){
     ATH_MSG_VERBOSE("Determining WZ tag return");
@@ -304,7 +308,7 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
       m_accept.setCutResult( "PassScore"    , true );
   }
 
-  // you should never arrive here
+  // return the TAccept object that you created and filled
   return m_accept;
 }
 

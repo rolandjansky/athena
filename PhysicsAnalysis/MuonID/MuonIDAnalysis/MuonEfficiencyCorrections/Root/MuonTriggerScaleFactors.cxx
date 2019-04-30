@@ -1,15 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
-
-/*
- *  MuonTriggerScaleFactors.cxx
- *
- *  Created on: Oct 22, 2014
- *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- *
- *  Updates for 2016: Jun 20, 2016
- *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <sstream>
@@ -39,9 +29,7 @@ namespace CP {
     }
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
       asg::AsgTool(name),
-
       m_systFilter(),
-
       m_appliedSystematics(nullptr),
       m_fileName(),
       m_efficiencyMap(),
@@ -211,7 +199,6 @@ namespace CP {
         origDir->cd();
         return StatusCode::SUCCESS;
     }
-
     // ==================================================================================
     // == MuonTriggerScaleFactors::initialize()
     // ==================================================================================
@@ -222,8 +209,8 @@ namespace CP {
         ATH_MSG_INFO("CalibrationRelease = '" << m_calibration_version << "'");
         ATH_MSG_INFO("CustomInputFolder = '" << m_custom_dir << "'");
         ATH_MSG_INFO("AllowZeroSF = " << m_allowZeroSF);
-	ATH_MSG_INFO("experimental = " << m_experimental);
-	ATH_MSG_INFO("useRel27 = " << m_useRel207);
+	    ATH_MSG_INFO("experimental = " << m_experimental);
+    	ATH_MSG_INFO("useRel27 = " << m_useRel207);
 
         if (registerSystematics() != CP::SystematicCode::Ok) {
             return StatusCode::FAILURE;
@@ -381,6 +368,11 @@ namespace CP {
         return replica_v;
     }
 
+   bool MuonTriggerScaleFactors::isTriggerSupported(const std::string& trigger) const{
+       TH1_Ptr H1 = getEfficiencyHistogram(trigger, true, "nominal");
+       return H1.get() != nullptr;
+    }
+    
   int MuonTriggerScaleFactors::getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const{
     if(!m_experimental){
       ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");
@@ -491,7 +483,6 @@ namespace CP {
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
-	unsigned int run = getRunNumber();            
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
@@ -608,7 +599,7 @@ namespace CP {
                 configuration.isData = false;
                 configuration.replicaIndex = -1;
                 CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, *mu, muon_trigger_name, mc_err);
-                if (result_mc != CorrectionCode::Ok) return result_data;
+                if (result_mc != CorrectionCode::Ok) return result_mc;
             }
             rate_not_fired_data *= (1. - eff_data);
             rate_not_fired_mc *= (1. - eff_mc);
@@ -680,7 +671,7 @@ namespace CP {
 	configuration.replicaIndex = -1;
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
-	  return result_data;
+	  return result_mc;
 	if (eff_data == 0)
 	  TriggerSF =  0;
         if (fabs(eff_mc) > 0.0001)
@@ -825,7 +816,7 @@ namespace CP {
         }
         if (!acc_rnd.isAvailable(*info)) {
 	  if(m_forceYear == -1 && m_forcePeriod == "")
-            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
+            ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool beforehand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
 	  return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");

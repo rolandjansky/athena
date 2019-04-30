@@ -17,8 +17,8 @@ TaggerType: WBoson
 
 DecorationName: BDTTaggerWBoson50
 
-CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
-#CalibArea: Local
+CalibAreaTMVA: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
+#CalibAreaTMVA: Local
 
 TMVAConfigFile: TMVAClassification_BDTG.W2q_NvarM_pT200to2000GeV.01062017.weights.xml
 

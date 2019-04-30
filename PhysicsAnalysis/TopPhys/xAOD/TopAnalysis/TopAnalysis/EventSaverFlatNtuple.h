@@ -670,6 +670,7 @@ private:
     std::vector<float> m_rcjet_d12_clstr;
     std::vector<float> m_rcjet_d23_clstr;
     std::vector<float> m_rcjet_Qw_clstr;
+    std::vector<float> m_rcjet_nconstituent_clstr;
 
     std::vector<float> m_rcjet_gECF332_clstr;
     std::vector<float> m_rcjet_gECF461_clstr;
@@ -1274,6 +1275,7 @@ protected:
   const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
   const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
   const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
+  const std::vector<float>& rcjet_nconstituent_clstr() const { return m_rcjet_nconstituent_clstr;}
   const std::vector<float>& rcjet_gECF332_clstr() const { return m_rcjet_gECF332_clstr;}
   const std::vector<float>& rcjet_gECF461_clstr() const { return m_rcjet_gECF461_clstr;}
   const std::vector<float>& rcjet_gECF322_clstr() const { return m_rcjet_gECF322_clstr;}
@@ -1470,6 +1472,8 @@ protected:
   // Prompt lepton definition for event saver
   std::pair<bool, bool> isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge);
   bool isPromptMuon(int type, int origin);
+
+  int filterBranches(const top::TreeManager*, const std::string& variable);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

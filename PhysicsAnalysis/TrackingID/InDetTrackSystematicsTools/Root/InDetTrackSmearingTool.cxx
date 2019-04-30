@@ -68,6 +68,8 @@ namespace InDet {
     declareProperty("calibFileIP_dijet_Data17", m_calibFileIP_dijet_Data17 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v20/trackIPAlignTightPrimary_syst_dijet_2017.root");
     declareProperty("runNumber", m_runNumber);
     declareProperty("useDijetMaps", m_useDijetMaps);
+
+    m_firstTime=true;
   }
     
 
@@ -241,8 +243,8 @@ namespace InDet {
  
   CP::CorrectionCode InDetTrackSmearingTool::applyCorrection( xAOD::TrackParticle& track ) {
 
-    if (firstTime) {
-      firstTime = false; // don't try to do this again
+    if (m_firstTime) {
+      m_firstTime = false; // don't try to do this again
       if ( ! firstCall().isSuccess() ) { // this will check the run number
         return CP::CorrectionCode::Error;
       }

@@ -25,12 +25,12 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   AthService(name, pSvcLocator),
   m_pixelDefaults(false),
   m_sctDefaults(false),
-	m_siPropertiesSvc("SiPropertiesSvc",name),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
   m_geoModelSvc("GeoModelSvc", name),
   m_isPixel(true),
+  m_siPropertiesSvc("SiPropertiesSvc",name),
   m_detManager(0)
  
 {

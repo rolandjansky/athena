@@ -69,6 +69,11 @@ namespace Analysis {
             ATH_MSG_FATAL("Invalid configuration");
             return StatusCode::FAILURE;
         }
+        if(m_oppChargesOnly & m_sameChargesOnly){
+            ATH_MSG_FATAL("Invalid configuration");
+            return StatusCode::FAILURE;
+        }
+
         if(m_altMassMuonTracks.empty()){
             m_altMassMuonTracks.assign(2, muMass); //Default to muon mass
         }
@@ -101,6 +106,7 @@ namespace Analysis {
     m_kpiMassHyp(true),
     m_kpMassHyp(false),
     m_oppChargesOnly(true),
+    m_sameChargesOnly(false),
     m_trkThresholdPt(0.0),
     m_trkMaxEta(102.5),
     m_BThresholdPt(0.0),
@@ -140,6 +146,7 @@ namespace Analysis {
         declareProperty("kaonpionHypothesis",m_kpiMassHyp);
         declareProperty("kaonprotonHypothesis",m_kpMassHyp);
 	declareProperty("oppChargesOnly",m_oppChargesOnly);
+	declareProperty("SameChargesOnly",m_sameChargesOnly);
         declareProperty("trkThresholdPt",m_trkThresholdPt);
         declareProperty("trkMaxEta",m_trkMaxEta);
         declareProperty("BThresholdPt",m_BThresholdPt);
@@ -367,7 +374,8 @@ namespace Analysis {
                         continue;
                     
 		    if (m_oppChargesOnly && !oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
-                    
+                    if (m_sameChargesOnly && oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce same charges
+
                     if (m_diTrackPt>0 && JpsiUpsilonCommon::getPt(*trkItr1,*trkItr2) < m_diTrackPt ) continue; // track pair pT cut (daniel Scheirich)
                      
                     // sort the track by charge, putting the positive track first         

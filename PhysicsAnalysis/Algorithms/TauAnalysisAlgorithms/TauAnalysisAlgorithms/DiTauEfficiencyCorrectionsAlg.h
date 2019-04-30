@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,6 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <TauAnalysisTools/IDiTauEfficiencyCorrectionsTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -49,17 +50,22 @@ namespace CP
     SysCopyHandle<xAOD::DiTauJetContainer> m_tauHandle {
       this, "taus", "DiTauJets", "the tau collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the helper for OutOfValidity results
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the tau efficiency
+    /// \brief the decoration for the tau scale factor
   private:
-    std::string m_efficiencyDecoration;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiencyDecoration
+    /// \brief the accessor for \ref m_scaleFactorDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
   };
 }
 

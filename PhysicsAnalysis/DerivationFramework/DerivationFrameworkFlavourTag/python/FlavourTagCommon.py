@@ -138,7 +138,7 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
                                                     JetBTaggerTool=btagger,
                                                     JetCollectionName = jet[0],
                                                     outputCollectionSuffix = suffix_name,
-                                                    DuplicatePFlow = True,
+                                                    DuplicatePFlow = False,
                                                     OutputLevel = 1
                                                     )
             if Sequencer is None:

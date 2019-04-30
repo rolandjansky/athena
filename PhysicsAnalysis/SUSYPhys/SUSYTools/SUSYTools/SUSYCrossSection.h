@@ -12,6 +12,7 @@
 
 // For PMG centralized tool's wrapper tool handles 
 #include "AsgTools/AnaToolHandle.h"
+
 // Lots of function inlining! 
 #include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
 
@@ -27,7 +28,7 @@ unsigned int finalState(const int SUSY_Spart1_pdgId, const int SUSY_Spart2_pdgId
 class CrossSectionDB
 {
 public:
-  CrossSectionDB(const std::string& txtfilenameOrDir = "SUSYTools/data/mc15_13TeV/", bool usePathResolver = false, bool isExtended = false, bool usePMGTool = true);
+  CrossSectionDB(const std::string& txtfilename = "dev/PMGTools/PMGxsecDB_mc16.txt", bool usePathResolver = true, bool isExtended = false, bool usePMGTool = true);
 
   // Load all the information from a file
   void loadFile(const std::string&);

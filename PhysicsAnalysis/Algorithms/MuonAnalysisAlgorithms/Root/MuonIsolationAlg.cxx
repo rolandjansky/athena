@@ -45,6 +45,7 @@ namespace CP
     ANA_CHECK (m_isolationTool.retrieve());
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -58,8 +59,11 @@ namespace CP
         ANA_CHECK (m_muonHandle.getCopy (muons, sys));
         for (xAOD::Muon *muon : *muons)
         {
-          m_isolationAccessor->setBits
-            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+          if (m_preselection.getBool (*muon))
+          {
+            m_isolationAccessor->setBits
+              (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+          }
         }
         return StatusCode::SUCCESS;
       });

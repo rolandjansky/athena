@@ -86,7 +86,6 @@ namespace EL
 
     bool m_b_job_name;
     bool m_b_account;
-    bool m_b_partition;
     bool m_b_run_time;
 
     //

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -12,6 +12,7 @@
 #include <FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -51,25 +52,27 @@ namespace CP
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "Jets", "the jet collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the helper for OutOfValidity results
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the b-tagging efficiency
+    /// \brief the decoration for the b-tagging scale factor
   private:
-    std::string m_efficiencyDecoration;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiencyDecoration
+    /// \brief the accessor for \ref m_scaleFactorDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
 
     /// \brief the decoration for the b-tagging selection
   private:
-    std::string m_selectionDecoration;
-
-    /// \brief the accessor for \ref m_selectionDecoration
-  private:
-    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
+    SelectionReadHandle m_selectionHandle {
+      this, "selectionDecoration", "", "the decoration for the asg selection"};
 
     /// \brief only run the inefficency for all jets
   private:

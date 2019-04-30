@@ -372,6 +372,9 @@ namespace SoftBVrt {
 		
 		const xAOD::TrackParticle* track2 = (*clustertracks)[k];
 		
+		if (track == track2)
+		  continue;
+
 		// calculate 3D track-track distance
 		bool distance_valid = m_trkDistanceFinderTool->CalculateMinimumDistance(track->perigeeParameters(), track2->perigeeParameters());
 		

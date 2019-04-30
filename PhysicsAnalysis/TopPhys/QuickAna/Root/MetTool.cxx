@@ -44,8 +44,6 @@
 // For the fJVT working point
 #include <JetMomentTools/JetForwardJvtTool.h>
 
-static const float GeV = 1000.;
-
 //
 // method implementations
 //

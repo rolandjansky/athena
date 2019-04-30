@@ -113,8 +113,8 @@ namespace met {
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
 
-    StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
-    void AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu);
+    StatusCode AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu);
     void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     StatusCode AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float &avgmu);
     void AddTau     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
@@ -159,6 +159,7 @@ namespace met {
     bool   m_doPhiReso;
     bool   m_applyBias;
     bool   m_jerRun1;
+    bool   m_jerForEMu;
 
     bool m_isDataJet;
     bool m_isDataMuon;
@@ -201,6 +202,7 @@ namespace met {
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;
     std::string m_JetResoAux;
+    std::string m_EMuResoAux;
     std::string m_JetCollection;
   };
 

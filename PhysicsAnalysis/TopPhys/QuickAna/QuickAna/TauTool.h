@@ -214,10 +214,6 @@ namespace ana
 
   private:
 
-    /// @brief Cache the last event number.
-    /// Used to call the CP tool initializeEvent method only once per event.
-    mutable unsigned long long m_lastEventNumber;
-
     // Configuration
 
     /// Toggle writing of tau truth container

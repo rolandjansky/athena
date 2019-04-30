@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #===================================================================================
 # Common file used for TOPQ jet setup
@@ -36,6 +36,24 @@ def addStandardJetsForTop(algseq, outputGroup):
   # *AFTER* the other collections are replaced
   from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
   addDefaultTrimmedJets(algseq, outputGroup)
+
+
+def addNonLargeRJetsForTop(algseq, outputGroup):
+  from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+
+  # Before any custom jet reconstruction, it's good to set up the output list
+  OutputJets[outputGroup] = []
+
+  #=======================================
+  # RESTORE AOD-REDUCED JET COLLECTIONS
+  #=======================================
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+  # Only include those ones that you use. The order in the list is not significant
+  reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                    "AntiKt4PV0TrackJets",
+  ]
+  replaceAODReducedJets(reducedJetList, algseq, outputGroup)
+
 
 #==================
 # CamKt15LCTopoJets
@@ -81,6 +99,13 @@ def addTCCTrimmedJetsForTop(algseq, outputGroup):
 def addVRJetsForTop(algseq):
   from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
   addVRJets(algseq)
+
+#================
+# xbb tagging information
+#================
+def addXbbTaggerInformation(algseq, ToolSvc):
+  from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+  addRecommendedXbbTaggers(algseq, ToolSvc)
 
 #================
 # JET CALIBRATION

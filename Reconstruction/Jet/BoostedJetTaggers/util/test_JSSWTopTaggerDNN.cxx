@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.deriv.DAOD_JETM6.e3749_s3126_r9364_r9315_p3260/DAOD_JETM6.12133401._000005.pool.root.1";
+  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -152,7 +152,8 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat");
+  m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
+  m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
   m_Tagger.retrieve();
 
 
@@ -186,10 +187,11 @@ int main( int argc, char* argv[] ) {
 
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
       const Root::TAccept& res = m_Tagger->tag( *jet );
-      std::cout<<"RunningTag : "<<res<<std::endl;
-      std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
-      std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
-      std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
+      if(verbose) std::cout<<"jet pt              = "<<jet->pt()<<std::endl;
+      if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
+      if(verbose) std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
+      if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
+      if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
 
       pass = res;
 

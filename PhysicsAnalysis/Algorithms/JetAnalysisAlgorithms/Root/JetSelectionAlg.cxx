@@ -37,6 +37,7 @@ namespace CP
     ANA_CHECK (m_selectionTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
 
     if (m_selectionDecoration.empty())
     {
@@ -58,8 +59,11 @@ namespace CP
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
         for (xAOD::Jet *jet : *jets)
         {
-          m_selectionAccessor->setBool
-            (*jet, m_selectionTool->keep(*jet));
+          if (m_preselection.getBool (*jet))
+          {
+            m_selectionAccessor->setBool
+              (*jet, m_selectionTool->keep(*jet));
+          }
         }
         return StatusCode::SUCCESS;
       });

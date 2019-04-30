@@ -23,6 +23,9 @@ using namespace JetSubStructureUtils;
 
 ShowerDeconstruction::ShowerDeconstruction(SignalModel signalModel)
 {
+  // disable warning due to conditionally compiled code
+  (void) signalModel;
+
   m_param = 0;
   m_WModel = 0;
   m_topModel = 0;
@@ -89,6 +92,9 @@ double ShowerDeconstruction::result(const xAOD::Jet &jet)
 
 double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R)
 {
+  // disable warning due to conditionally compiled code
+  (void) jet;
+  (void) R;
 #ifndef NO_SHOWERDECONSTRUCTION
   if(jet.constituents().size() == 0) return -999;
 

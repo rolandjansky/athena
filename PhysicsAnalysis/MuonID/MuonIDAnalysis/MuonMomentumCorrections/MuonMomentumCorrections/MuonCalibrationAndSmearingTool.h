@@ -35,7 +35,7 @@ namespace CP {
 
 namespace MCAST {
 
-  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6}; }
+  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6, Data18=7}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
   namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }

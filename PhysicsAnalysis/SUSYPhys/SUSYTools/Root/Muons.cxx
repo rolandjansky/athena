@@ -94,6 +94,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
+  dec_isolHighPt(input) = false;
   dec_passedHighPtCuts(input) = false;
   dec_passSignalID(input) = false;
        
@@ -197,7 +198,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
-  if (m_doMuIsoSignal) dec_isol(input) = m_isoTool->accept(input);
+  if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
+  if (!m_muIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
   
   ATH_MSG_VERBOSE("FillMuon: passed baseline selection");
@@ -222,9 +224,10 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if ( (!m_doMuIsoSignal) || acc_isol(input)) {
+  if (m_doMuIsoSignal) {
+    if ( !( (acc_isol(input) && input.pt()<m_muIsoHighPtThresh) || (acc_isolHighPt(input) && input.pt()>m_muIsoHighPtThresh)) ) return false;
     ATH_MSG_VERBOSE( "IsSignalMuon: passed isolation");
-  } else return false; //isolation selection with IsoTool
+  } 
 
   //set HighPtMuon decoration
   IsHighPtMuon(input);
@@ -367,19 +370,17 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 
   if (isoSF) {
     float sf_iso(1.);
-    if ( mu.pt() < 4e3 ) {
-      ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Isolation SF is not available for Muon pt < 4GeV. Falling back to SF = 1." );
-      return 1;
-    } 
-    if (m_muonIsolationSFTool.empty()) {
-      ATH_MSG_WARNING(" GetSignalMuonSF: Attempt to retrieve isolation SF for unsupported working point " << m_muIso_WP);
-    } else {
+    if (acc_isolHighPt(mu) && mu.pt()>m_muIsoHighPtThresh) {
+      if (m_muonHighPtIsolationSFTool->getEfficiencyScaleFactor( mu, sf_iso ) == CP::CorrectionCode::OutOfValidityRange) {
+        if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: high-pt Iso getEfficiencyScaleFactor out of validity range");
+      } 
+    } else if (acc_isol(mu) && mu.pt()<m_muIsoHighPtThresh) {
       if (m_muonIsolationSFTool->getEfficiencyScaleFactor( mu, sf_iso ) == CP::CorrectionCode::OutOfValidityRange) {
         if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Iso getEfficiencyScaleFactor out of validity range");
-      }
-      ATH_MSG_VERBOSE( " MuonIso ScaleFactor " << sf_iso );
-      sf *= sf_iso;
+      } 
     }
+    ATH_MSG_VERBOSE( " MuonIso ScaleFactor " << sf_iso );
+    sf *= sf_iso;
   }
 
   dec_effscalefact(mu) = sf;
@@ -391,10 +392,6 @@ double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std
 
   double eff(1.);
 
-  if ( mu.pt() < 4e3 ) {
-    ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Trigger Eff is not available for Muon pt < 4GeV. Falling back to Eff = 1." );
-    return 1;
-  } 
   if (m_muonTriggerSFTool->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
     ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for " << trigExpr );
   }
@@ -504,6 +501,11 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors for systematic var. " << systConfig.name() );
   }
 
+  ret  = m_muonHighPtIsolationSFTool->applySystematicVariation(systConfig);
+  if ( ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure MuonHighPtIsolationScaleFactors for systematic var. " << systConfig.name() );
+  }
+
   ret  = m_muonTriggerSFTool->applySystematicVariation(systConfig);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
@@ -538,6 +540,11 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   }
 
   ret  = m_muonIsolationSFTool->applySystematicVariation(m_currentSyst);
+  if ( ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors back to default.");
+  }
+
+  ret  = m_muonHighPtIsolationSFTool->applySystematicVariation(m_currentSyst);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors back to default.");
   }

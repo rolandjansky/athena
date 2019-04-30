@@ -38,6 +38,7 @@ namespace CP
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_calibrationAndSmearingTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -53,7 +54,10 @@ namespace CP
         ANA_CHECK (m_muonHandle.getCopy (muons, sys));
         for (xAOD::Muon *muon : *muons)
         {
-          ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_calibrationAndSmearingTool->applyCorrection (*muon));
+          if (m_preselection.getBool (*muon))
+          {
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_calibrationAndSmearingTool->applyCorrection (*muon));
+          }
         }
         return StatusCode::SUCCESS;
       });

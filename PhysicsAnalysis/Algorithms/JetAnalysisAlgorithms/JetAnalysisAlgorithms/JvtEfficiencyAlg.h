@@ -12,6 +12,7 @@
 #include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -49,6 +50,11 @@ namespace CP
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the truth jet collection to use
   private:
     std::string m_truthJetsName;
@@ -73,13 +79,13 @@ namespace CP
   private:
     std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
-    /// \brief the decoration for the JVT efficiency
+    /// \brief the decoration for the JVT scale factor
   private:
-    std::string m_efficiency;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiency
+    /// \brief the accessor for \ref m_scaleFactorDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
 
     /// \brief whether to skip efficiency calculation if the selection failed
   private:

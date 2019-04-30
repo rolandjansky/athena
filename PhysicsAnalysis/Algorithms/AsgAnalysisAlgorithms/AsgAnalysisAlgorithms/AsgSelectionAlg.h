@@ -12,6 +12,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PATCore/IAsgSelectionTool.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
@@ -75,6 +76,11 @@ namespace CP
     SysCopyHandle<xAOD::IParticleContainer> m_particlesHandle {
       this, "particles", "", "the asg collection to run on"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the decoration for the asg selection
   private:
     std::string m_selectionDecoration;
@@ -82,6 +88,10 @@ namespace CP
     /// \brief the accessor for \ref m_selectionDecoration
   private:
     std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
+
+    /// \brief the bits to set for an object failing the preselection
+  private:
+    SelectionType m_setOnFail;
   };
 }
 

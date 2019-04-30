@@ -140,6 +140,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
   ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
+  ANA_CHECK( metSignif.setProperty("DoJerForEMu",   false) );
   ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
   if(jetAux!="")
     ANA_CHECK( metSignif.setProperty("JetResoAux", jetAux) );

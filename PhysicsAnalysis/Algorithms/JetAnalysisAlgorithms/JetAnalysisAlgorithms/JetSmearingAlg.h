@@ -11,6 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetResolution/IJERSmearingTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -47,6 +48,11 @@ namespace CP
   private:
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results
   private:

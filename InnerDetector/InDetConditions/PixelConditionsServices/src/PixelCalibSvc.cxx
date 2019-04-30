@@ -31,7 +31,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
+// static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
 
 /*
 static unsigned int rowsPerFEI3    = 164;   // number of rows per FEI3
@@ -44,15 +44,15 @@ static unsigned int rowsPerFEI4 = 336; // number of rows per FEI4
 */
 
 static unsigned int columnsPerFEI50 = 132; // number of columns per FEI5-type 0 (132x672) for barrel layer 0
-static unsigned int rowsPerFEI50 = 672; // number of rows per FEI50
+// static unsigned int rowsPerFEI50 = 672; // number of rows per FEI50
 
 static unsigned int columnsPerFEI52 = 132; // number of columns per FEI5-type 2 (132x672) for barrel layer 1 
-static unsigned int rowsPerFEI52 = 678; // number of rows per FEI52
+// static unsigned int rowsPerFEI52 = 678; // number of rows per FEI52
 static unsigned int rowsFGangedFEI52  =661;   // first ganged pixel row for FEI52
 static unsigned int rowsLGangedFEI52  =671;   // last ganged pixel row for FEI52
 
 static unsigned int columnsPerFEI51 = 80; // number of columns per FEI5-type 1 (80x336) for the rest 
-static unsigned int rowsPerFEI51 = 339; // number of rows per FEI51
+// static unsigned int rowsPerFEI51 = 339; // number of rows per FEI51
 static unsigned int rowsFGangedFEI51  =331;   // first ganged pixel row for FEI51
 static unsigned int rowsLGangedFEI51  =335;   // last ganged pixel row for FEI51
 
@@ -215,10 +215,10 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+  // int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
 
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+  // int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int col;
   int row;
@@ -302,9 +302,9 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+  // int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+  // int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int circ(-1);
   if (isITK) {
@@ -707,8 +707,8 @@ float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
     if (m_specialIBL_correction) {
       //===============================================================================================================
       // Special IBL calibration
-      const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-      const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+      // const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
+      // const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
       if (m_pixid->barrel_ec(pix_id)==0 && m_pixid->layer_disk(pix_id)==0) {  // IBL
         double scaleC = m_specialIBL_chargescale;
         double corrQ = scaleC*1.11*(1.0-(-7.09*1000.0)/(23.72*1000.0+Q)+(-0.22*1000.0)/(-0.42*1000.0+Q));

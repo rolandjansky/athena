@@ -42,7 +42,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 {
 
   // set the cut selection: default is "no cut"
-  setCutLevelPrivate(InDet::CutLevel::NoCut);
+  setCutLevel(InDet::CutLevel::NoCut);
 
 #ifndef XAOD_STANDALONE
   declareInterface<IInDetTrackSelectionTool>(this);
@@ -199,7 +199,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     } else {
       ATH_MSG_INFO( "Cut level set to \"" << it_mapCutLevel->first << "\"." );
       ATH_MSG_INFO( "This will not overwrite other cuts that have been set.");
-      setCutLevelPrivate( it_mapCutLevel->second, false );
+      setCutLevel( it_mapCutLevel->second, false );
     }
   }
 
@@ -893,34 +893,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
 
 #endif // XAOD_ANALYSIS
 
-/// Function to set the cut level within standalone ROOT
-/// 
-/// This function can be used to set the cut selection of the tool to a
-/// pre-defined level, as definied in the twiki for
-/// InDetTrackingPerformanceGuidelines. It is left public for use in
-/// standalone ROOT. In athena, this should be set through the jobOptions
-/// via the "CutLevel" property instead.
-///
-/// @param level The CutLevel enumeration that picks the preset level
-///              to set the cuts to.
-/// @param overwrite A boolean (default true) that indicates whether
-///                  to force an overwrite of each cut. If false, this
-///                  function does not change the cut levels if they
-///                  have been altered from their default (no cut) value.
-///
-void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t overwrite )
-{
-#ifndef XAOD_STANDALONE
-  ATH_MSG_WARNING( "InDetTrackSelectionTool::setCutLevel() is not designed to be called manually in Athena." );
-  ATH_MSG_WARNING( "It may not behave as intended. Instead, configure it in the job options through the CutLevel property." );
-#endif // XAOD_STANDALONE
-  if (m_cutLevel != "") {
-    ATH_MSG_WARNING( "Cut level already set to " << m_cutLevel << ".  Calling setCutLevel() is not expected." );
-  }
-  setCutLevelPrivate(level, overwrite);
-}
-
-void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, Bool_t overwrite)
+void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t overwrite)
 {
   switch (level) {
   case CutLevel::NoCut :
@@ -1001,7 +974,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     }
     break;
   case CutLevel::Loose :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite); // if hard overwrite, reset all cuts first. will do nothing if !overwrite
+    setCutLevel(CutLevel::NoCut, overwrite); // if hard overwrite, reset all cuts first. will do nothing if !overwrite
     // change the cuts if a hard overwrite is asked for or if the cuts are unset
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
@@ -1010,7 +983,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 1;
     break;
   case CutLevel::LoosePrimary :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
+    setCutLevel(CutLevel::NoCut, overwrite); // implement loose cuts first
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
     if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 1;
@@ -1019,7 +992,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_minNSiHitsIfSiSharedHits < 0) m_minNSiHitsIfSiSharedHits = 10;
     break;
   case CutLevel::TightPrimary :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 9;
     if (overwrite || m_maxNSiSharedModules >= LOCAL_MAX_INT) m_maxNSiSharedModules = 1;
@@ -1030,7 +1003,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_minNBothInnermostLayersHits < 0) m_minNBothInnermostLayersHits = 1;
     break;
   case CutLevel::LooseMuon :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite); // reset cuts unless we are doing a soft set
+    setCutLevel(CutLevel::NoCut, overwrite); // reset cuts unless we are doing a soft set
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
     if (overwrite || m_minNSctHits < 0) m_minNSctHits = 5;
     if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
@@ -1040,12 +1013,12 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxTrtOutlierFraction >= LOCAL_MAX_DOUBLE) m_maxTrtOutlierFraction = 0.9;
     break;
   case CutLevel::LooseElectron :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
     break;
   case CutLevel::LooseTau :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_minPt < 0.0) m_minPt = 1000.0;
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 2;
@@ -1053,7 +1026,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxZ0 >= LOCAL_MAX_DOUBLE) m_maxZ0 = 1.5;
     break;
   case CutLevel::MinBias :
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1; // if this is less than 0, it is turned off
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
     if (overwrite || m_minNSctHits < 0) m_minNSctHits = 6;
@@ -1068,7 +1041,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     break;
   case CutLevel::HILoose:
     // HILoose is similar to MinBias, but not identical
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1;
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
@@ -1081,9 +1054,9 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.5;
     break;
   case CutLevel::HITight:
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     // HITight is like HILoose but we require 8 SCT hits and 2 pixel hits
-    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    setCutLevel(CutLevel::NoCut, overwrite);
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
     if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1;
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 2;

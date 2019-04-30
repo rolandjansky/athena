@@ -23,7 +23,7 @@ class ResolutionHelper : public asg::AsgMessaging
     public:
         ResolutionHelper(const std::string& name, const std::string& jetDef);
         ResolutionHelper(const ResolutionHelper& toCopy);
-        virtual StatusCode initialize(TEnv& settings, TFile* histFile);
+        virtual StatusCode initialize(TEnv& settings, TFile* histFile, const TString& MCtype);
         virtual ~ResolutionHelper();
 
         // Information retrieval
@@ -85,7 +85,7 @@ class ResolutionHelper : public asg::AsgMessaging
         CompMassDef::TypeEnum m_mTopNomMassDefMC;
 
         // Helper methods
-        StatusCode parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param, CompMassDef::TypeEnum& massDef);
+        StatusCode parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param, CompMassDef::TypeEnum& massDef,const TString& MCtype);
 
 };
 

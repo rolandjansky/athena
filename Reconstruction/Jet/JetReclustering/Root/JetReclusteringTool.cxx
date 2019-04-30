@@ -43,8 +43,6 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   m_inputJetFilterTool("JetRecTool/JetRec_InputJetFilterTool_" + this->name()),
   m_pseudoJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_" + this->name()),
   m_pseudoGhostTrackJetGetterTool("TrackPseudoJetGetter/PseudoGhostTrackJetGetterTool_" + this->name()),
-  m_pseudoTruthParticleBJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_BTruth_" + this->name()),
-  m_pseudoTruthParticleCJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_CTruth_" + this->name()),
   m_jetFromPseudoJetTool("JetFromPseudojet/JetFromPseudoJetTool_" + this->name()),
   m_jetFinderTool("JetFinder/JetFinderTool_" + this->name()),
   m_reclusterJetTool("JetRecTool/JetRec_JetReclusterTool_" + this->name()),
@@ -59,7 +57,9 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   m_ktSplittingScaleTool("KTSplittingScaleTool/KTSplittingScaleTool_" + this->name()),
   m_dipolarityTool("DipolarityTool/DipolarityTool_" + this->name()),
   m_centerOfMassShapesTool("CenterOfMassShapesTool/CenterOfMassShapesTool_" + this->name()),
-  m_nSubjettinessTool("NSubjettinessTool/NSubjettinessTool_" + this->name())
+  m_nSubjettinessTool("NSubjettinessTool/NSubjettinessTool_" + this->name()),
+  m_pseudoTruthParticleBJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_BTruth_" + this->name()),
+  m_pseudoTruthParticleCJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_CTruth_" + this->name())
 {
 
 

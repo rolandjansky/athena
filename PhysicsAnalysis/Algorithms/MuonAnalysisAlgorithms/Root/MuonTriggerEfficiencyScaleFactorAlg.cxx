@@ -70,6 +70,7 @@ namespace CP
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyScaleFactorTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -91,7 +92,7 @@ namespace CP
 
         for (xAOD::Muon *muon : *muons)
         {
-          if (validEvent)
+          if (validEvent && m_preselection.getBool (*muon))
           {
             if (m_scaleFactorAccessor) {
               double sf = 0;

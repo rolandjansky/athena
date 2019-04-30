@@ -36,7 +36,7 @@ namespace CP {
                 m_maxTopoPolution(1.1),
                 m_ConeSizeVariation(1.2),
                 m_isInitialised(false),
-                m_isCoreSubtracted(false),
+                // m_isCoreSubtracted(false),
                 m_indetTrackParticleLocation("InDetTrackParticles"),
                 m_VertexContainerName("PrimaryVertices"),
                 m_CaloClusterContainerName("CaloCalTopoClusters"),

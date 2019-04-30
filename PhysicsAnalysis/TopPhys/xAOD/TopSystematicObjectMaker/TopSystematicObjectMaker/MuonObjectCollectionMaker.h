@@ -79,6 +79,7 @@ namespace top{
       ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
 
       ///-- Isolation --///
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Gradient;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTightTrackOnly;

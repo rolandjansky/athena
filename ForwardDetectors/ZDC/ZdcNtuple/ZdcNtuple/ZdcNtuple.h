@@ -75,8 +75,8 @@
 //#include "HIEventUtils/HIVertexSelectionTool.h"
 //#include "HIEventUtils/MBTSTimeSelectionTool.h"
 //#include "HIEventUtils/ZdcRecTool.h"
-#include "ZdcAnalysis/ZdcAnalysisTool.h"
-//#include "ZdcAnalysisInterfaces/IZdcAnalysisTool.h"
+//#include "ZdcAnalysis/ZdcAnalysisTool.h"
+#include "ZdcAnalysis/IZdcAnalysisTool.h"
 
 class ZdcNtuple : public EL::AnaAlgorithm
 {
@@ -122,6 +122,9 @@ public:
   bool upc2018;
   bool express2016B;
   bool mboverlay2016;
+
+  bool doZdcCalib;
+  std::string zdcConfig;
 
   std::string outputName; // output for tree
   int outputTreeScaledown; // scaledown factor
@@ -306,6 +309,9 @@ public:
   float t_ZdcModuleCalibTime[2][4];
   float t_ZdcModuleAmpError[2][4];
   float t_ZdcModuleBkgdMaxFraction[2][4];
+  float t_ZdcModuleMinDeriv2nd[2][4];
+  float t_ZdcModulePresample[2][4];
+  float t_ZdcModulePreSampleAmp[2][4];
 
   int   t_nvx;
   float t_vx[3];

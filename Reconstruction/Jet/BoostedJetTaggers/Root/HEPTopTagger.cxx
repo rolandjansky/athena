@@ -127,7 +127,7 @@ namespace HTTxAOD {
 
     , m_TaggerAlgorithm(1)                      // algorithm used INSIDE HEPTopTagger - 0: kt, 1: CA. 2: AntiKt
     // Step 1: Fatjet selection
-    , m_MinFatjetPt(180000.)                    // minimal fatjet pT (for ALL fatjets) [MeV]
+    // , m_MinFatjetPt(180000.)                    // minimal fatjet pT (for ALL fatjets) [MeV]
     , m_MinFatjetM(0.)                          // minimal fatjet mass [MeV]
     , m_MaxFatjetEta(2.5)                       // maximal fatjet eta
     // Step 2: Cuts to find hard substructure

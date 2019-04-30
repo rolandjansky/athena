@@ -164,17 +164,17 @@ int main(int argc, char* argv[])
     std::map<std::string, std::string> triggers;
     triggers["2015"] = 
         "mu20_iloose_L1MU15_OR_mu50"
-        // "|| mu18_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
+        "|| mu18_mu8noL1"
         "|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose"
         "|| 2e12_lhloose_L12EM10VH";
     triggers["2016"] = 
         "mu26_ivarmedium_OR_mu50"
-        // "|| mu22_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
+        "|| mu22_mu8noL1"
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
     std::string only2e24 = 
         "mu26_ivarmedium_OR_mu50"
-        // "|| mu22_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
+        "|| mu22_mu8noL1"
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e24_lhvloose_nod0";
     std::string nominal = only2e24 + "|| 2e17_lhvloose_nod0_L12EM15VHI";
@@ -271,7 +271,7 @@ int main(int argc, char* argv[])
             if(pt < 10e3f) continue;
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27.3e3f : 21e3f)) ++nTrig1L;
-            // and count muons suitable for the hard leg of the dimuon trigger
+            /// and count muons suitable for the hard leg of the dimuon trigger
             if(pt >= (runNumber>290000? 23e3f : 19e3f)) ++nTrig2mu;
 
             myTriggeringMuons.push_back(muon);
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
         /// Events must contain enough leptons to trigger
         if(nTrig1L==0 /// single-lepton trigger
             && myTriggeringElectrons.size()<2 /// dielectron
-            /*&& (nTrig2mu==0 || myTriggeringMuons.size()<2)*/) /// dimuon
+            && (nTrig2mu==0 || myTriggeringMuons.size()<2)) /// dimuon
         {
             continue;
         }

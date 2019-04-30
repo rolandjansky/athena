@@ -17,8 +17,8 @@ TaggerType: WBoson
 
 DecorationName: DNNTaggerWBoson50
 
-CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
-#CalibArea: Local
+CalibAreaKeras: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
+#CalibAreaKeras: Local
 
 KerasConfigFile: 6JuneWTaggingContained.json
 

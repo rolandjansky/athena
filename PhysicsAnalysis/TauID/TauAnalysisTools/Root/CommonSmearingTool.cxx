@@ -91,6 +91,7 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   declareProperty("ApplyMVATES",         m_bApplyMVATES         = true );
   declareProperty("ApplyCombinedTES",    m_bApplyCombinedTES    = false );
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
+  declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
 }
 
 /*
@@ -238,13 +239,17 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   std::string sProng = ConvertProngToString(xTau.nTracks());
 
   double dCorrection = 1.;
-  // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode = getValue("sf"+sProng,
-                                                  xTau,
-                                                  dCorrection);
-  // return correction code if histogram is not available
-  if (tmpCorrectionCode != CP::CorrectionCode::Ok)
-    return tmpCorrectionCode;
+  CP::CorrectionCode tmpCorrectionCode;
+  if (m_bApplyInsituCorrection)
+  {
+    // get standard scale factor
+    tmpCorrectionCode = getValue("sf"+sProng,
+                                                    xTau,
+                                                    dCorrection);
+    // return correction code if histogram is not available
+    if (tmpCorrectionCode != CP::CorrectionCode::Ok)
+      return tmpCorrectionCode;
+  }
 
   // skip further process if systematic set is empty
   if (m_sSystematicSet->size() > 0)

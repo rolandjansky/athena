@@ -118,6 +118,7 @@ protected:
   bool m_bApplyMVATES;
   bool m_bApplyCombinedTES;
   bool m_bApplyMVATESQualityCheck;
+  bool m_bApplyInsituCorrection;
 
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;

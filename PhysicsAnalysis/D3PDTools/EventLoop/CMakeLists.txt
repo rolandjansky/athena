@@ -48,7 +48,10 @@ foreach (source ${util_sources})
   atlas_add_executable (${util} ${source} LINK_LIBRARIES EventLoop)
 endforeach (source ${util_sources})
 
-
+atlas_add_test (EventLoop_gt_OutputStreamData
+      SOURCES test/gt_OutputStreamData.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )

@@ -38,6 +38,7 @@ namespace CP
   {
     m_systematicsList.addHandle (m_inputHandle);
     ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_preselection.initialize());
 
     if (m_selectionNCuts.size() != m_selection.size())
     {
@@ -90,26 +91,29 @@ namespace CP
 
         for (const xAOD::IParticle *particle : *input)
         {
-          bool keep = true;
-          unsigned cutIndex = 1;
-          histIter->second->Fill (0);
-          for (const auto& accessor : m_accessors)
+          if (m_preselection.getBool (*particle))
           {
-            const auto selection = accessor.first->getBits (*particle);
-            for (unsigned index = 0, end = accessor.second;
-                 index != end; ++ index, ++ cutIndex)
+            bool keep = true;
+            unsigned cutIndex = 1;
+            histIter->second->Fill (0);
+            for (const auto& accessor : m_accessors)
             {
-              if (selection & (1 << index))
+              const auto selection = accessor.first->getBits (*particle);
+              for (unsigned index = 0, end = accessor.second;
+                   index != end; ++ index, ++ cutIndex)
               {
-                histIter->second->Fill (cutIndex);
-              } else
-              {
-                keep = false;
-                break;
+                if (selection & (1 << index))
+                {
+                  histIter->second->Fill (cutIndex);
+                } else
+                {
+                  keep = false;
+                  break;
+                }
               }
+              if (!keep)
+                break;
             }
-            if (!keep)
-              break;
           }
         }
 

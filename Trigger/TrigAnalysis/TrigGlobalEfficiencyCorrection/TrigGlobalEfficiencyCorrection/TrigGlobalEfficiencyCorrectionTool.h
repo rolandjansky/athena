@@ -68,7 +68,7 @@ private:
 	};
 	struct TagDecorator
 	{
-		SG::AuxElement::Decorator<char> decorator;
+		SG::AuxElement::ConstAccessor<char> decorator;
 		std::size_t hash;
 		bool suffixed;
 		TagDecorator(const std::string& name, std::size_t hash, bool suffixed) : decorator(name), hash(hash), suffixed(suffixed) {}
@@ -134,7 +134,7 @@ private:
 	bool m_validTrigMatchTool; //!
 	
 	std::vector<TagDecorator> m_leptonTagDecorators; //!
-	SG::AuxElement::Decorator<unsigned int> m_runNumberDecorator; //!
+	SG::AuxElement::ConstAccessor<unsigned int> m_runNumberDecorator; //!
 	std::unique_ptr<TrigGlobEffCorr::Calculator> m_calculator; //!
 	
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;

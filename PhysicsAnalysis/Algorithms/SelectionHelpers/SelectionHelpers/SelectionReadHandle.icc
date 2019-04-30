@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <SelectionHelpers/ISelectionAccessor.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T2> SelectionReadHandle ::
+  SelectionReadHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : m_selection (propertyValue)
+    , m_msg (&owner->msg())
+  {
+    owner->declareProperty (propertyName, m_selection, propertyDescription);
+  }
+
+
+
+  inline bool SelectionReadHandle ::
+  getBool (const SG::AuxElement& element) const
+  {
+    assert (m_accessor);
+    return m_accessor->getBool (element);
+  }
+}

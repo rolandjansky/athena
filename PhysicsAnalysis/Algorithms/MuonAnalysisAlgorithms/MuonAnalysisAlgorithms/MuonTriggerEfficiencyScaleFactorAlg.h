@@ -11,6 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -55,6 +56,11 @@ namespace CP
     SysReadHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the EventInfo we use"};
 
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
+
     /// \brief the helper for OutOfValidity results
   private:
     OutOfValidityHelper m_outOfValidity {this};
@@ -71,7 +77,7 @@ namespace CP
   private:
     uint32_t m_maxRunNumber;
 
-    /// \brief the decoration for the muon efficiency
+    /// \brief the decoration for the muon scale factor
   private:
     std::string m_scaleFactorDecoration;
 

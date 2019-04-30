@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
@@ -11,7 +11,8 @@
 
 #include "TVector3.h"
 
-BTagJetAugmenter::BTagJetAugmenter():
+BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
+  m_use_floats(false),
   pt_uncalib("pt_uncalib"),
   eta_uncalib("eta_uncalib"),
   abs_eta_uncalib("abs_eta_uncalib"),
@@ -61,7 +62,39 @@ BTagJetAugmenter::BTagJetAugmenter():
   smt_mu_pt("SMT_mu_pt"),
   smt_isDefaults("SMT_isDefaults"),
   rnnip_pbIsValid("rnnip_pbIsValid"),
-  rnnip_isDefaults("rnnip_isDefaults") {}
+  rnnip_isDefaults("rnnip_isDefaults"),
+  new_secondaryVtx_m("JetFitterSecondaryVertex_mass"),
+  new_secondaryVtx_E("JetFitterSecondaryVertex_energy"),
+  new_secondaryVtx_EFrac("JetFitterSecondaryVertex_energyFraction"),
+  new_secondaryVtx_min_trk_flightDirRelEta("JetFitterSecondaryVertex_minimumTrackRelativeEta"),
+  new_secondaryVtx_max_trk_flightDirRelEta("JetFitterSecondaryVertex_maximumTrackRelativeEta"),
+  new_secondaryVtx_avg_trk_flightDirRelEta("JetFitterSecondaryVertex_averageTrackRelativeEta"),
+  new_min_trk_flightDirRelEta("minimumTrackRelativeEta"),
+  new_max_trk_flightDirRelEta("maximumTrackRelativeEta"),
+  new_avg_trk_flightDirRelEta("averageTrackRelativeEta")
+{
+  using namespace FlavorTagDiscriminants;
+  typedef SG::AuxElement::ConstAccessor<float> AEF;
+  typedef SG::AuxElement::ConstAccessor<double> AED;
+  typedef SG::AuxElement::Decorator<float> ADF;
+  typedef SG::AuxElement::Decorator<double> ADD;
+  typedef SG::AuxElement::Decorator<char> ADC;
+  typedef SG::AuxElement::Decorator<int> ADI;
+  if (s == EDMSchema::FEB_2019) {
+    pt_uncalib = ADD("pt_btagJes");
+    eta_uncalib = ADD("eta_btagJes");
+    abs_eta_uncalib = ADD("absEta_btagJes");
+    secondaryVtx_isDefaults = ADC("JetFitterSecondaryVertex_isDefaults");
+    secondaryVtx_nTrks = ADI("JetFitterSecondaryVertex_nTracks");
+    secondaryVtx_L3d = ADF("JetFitterSecondaryVertex_displacement3d");
+    secondaryVtx_Lxy = ADF("JetFitterSecondaryVertex_displacement2d");
+    m_use_floats = true;
+  }
+
+}
+
+BTagJetAugmenter::~BTagJetAugmenter() = default;
+BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
@@ -209,23 +242,57 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   }
 
   secondaryVtx_nTrks(btag) = secondaryVtx_track_number;
-  if (secondaryVtx_track_number >= 0) {
-    secondaryVtx_m(btag) = secondaryVtx_4momentum_total.M();
-    secondaryVtx_E(btag) = secondaryVtx_4momentum_total.E();
-    secondaryVtx_EFrac(btag) = secondaryVtx_4momentum_total.E() / track_E_total;
-  } else {
-    secondaryVtx_m(btag) = NAN;
-    secondaryVtx_E(btag) = NAN;
-    secondaryVtx_EFrac(btag) = NAN;
+
+  // Here begins a few blocks where the decoration depends on the
+  // schema. I would like to move a number of values that were
+  // previously stored as double to float.
+  {
+    double m = NAN;
+    double E = NAN;
+    double EFrac = NAN;
+    if (secondaryVtx_track_number >= 0) {
+      m = secondaryVtx_4momentum_total.M();
+      E = secondaryVtx_4momentum_total.E();
+      EFrac = secondaryVtx_4momentum_total.E() / track_E_total;
+    }
+    if (m_use_floats) {
+      new_secondaryVtx_m(btag) = m;
+      new_secondaryVtx_E(btag) = E;
+      new_secondaryVtx_EFrac(btag) = EFrac;
+    } else {
+      secondaryVtx_m(btag) = m;
+      secondaryVtx_E(btag) = E;
+      secondaryVtx_EFrac(btag) = EFrac;
+    }
   }
-  secondaryVtx_min_trk_flightDirRelEta(btag) = secondaryVtx_min_track_flightDirRelEta;
-  secondaryVtx_max_trk_flightDirRelEta(btag) = secondaryVtx_max_track_flightDirRelEta;
-  secondaryVtx_avg_trk_flightDirRelEta(btag) = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
-
-  min_trk_flightDirRelEta(btag) = min_track_flightDirRelEta;
-  max_trk_flightDirRelEta(btag) = max_track_flightDirRelEta;
-  avg_trk_flightDirRelEta(btag) = track_flightDirRelEta_total / track_number;
-
+  {
+    double min = secondaryVtx_min_track_flightDirRelEta;
+    double max = secondaryVtx_max_track_flightDirRelEta;
+    double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
+    if (m_use_floats) {
+      new_secondaryVtx_min_trk_flightDirRelEta(btag) = min;
+      new_secondaryVtx_max_trk_flightDirRelEta(btag) = max;
+      new_secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
+    } else {
+      secondaryVtx_min_trk_flightDirRelEta(btag) = min;
+      secondaryVtx_max_trk_flightDirRelEta(btag) = max;
+      secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
+    }
+  }
+  {
+    double min = min_track_flightDirRelEta;
+    double max = max_track_flightDirRelEta;
+    double avg = track_flightDirRelEta_total / track_number;
+    if (m_use_floats) {
+      new_min_trk_flightDirRelEta(btag) = min;
+      new_max_trk_flightDirRelEta(btag) = max;
+      new_avg_trk_flightDirRelEta(btag) = avg;
+    } else {
+      min_trk_flightDirRelEta(btag) = min;
+      max_trk_flightDirRelEta(btag) = max;
+      avg_trk_flightDirRelEta(btag) = avg;
+    }
+  }
   if (smt_mu_pt(btag) > 0) {
     smt_isDefaults(btag) = 0;
   }  else {

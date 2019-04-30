@@ -233,7 +233,7 @@ namespace asg
 	ANA_CHECK (unpackStringVector (value, myvalue));
 	std::vector<T> myresult;
 	for (std::string subvalue : myvalue) {
-	  T subresult;
+	  T subresult {};
 	  ANA_CHECK (SetStringHelper<T>::set (subvalue, subresult));
 	  myresult.push_back (subresult);
 	}

@@ -12,6 +12,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h>
 #include <EgammaAnalysisAlgorithms/CopyHelpers.h>
+#include <SelectionHelpers/SelectionReadHandle.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -49,6 +50,11 @@ namespace CP
   private:
     SysCopyHandle<xAOD::EgammaContainer> m_egammaHandle {
       this, "egammas", "Electrons", "the egamma collection to run on"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_preselection {
+      this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results
   private:

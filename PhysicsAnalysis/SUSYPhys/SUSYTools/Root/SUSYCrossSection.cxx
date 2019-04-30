@@ -17,7 +17,7 @@
 // Text file i/o
 #include <fstream>
 
-SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended, bool usePMGTool)
+SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilename, bool usePathResolver, bool isExtended, bool usePMGTool)
   : m_pmgxs("")
 {
   setExtended(isExtended);
@@ -27,41 +27,12 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
   m_pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
   m_pmgxs.retrieve().ignore(); // Ignore the status code
   std::vector<std::string> inFiles={};
-  inFiles.push_back( PathResolverFindCalibFile("dev/PMGTools/PMGxsecDB_mc16.txt") );
+  std::string fullPath = usePathResolver ? PathResolverFindCalibFile(txtfilename) : txtfilename;
+  std::ifstream in(fullPath.c_str());
+  if (!in) return;
+  inFiles.push_back(fullPath);
   m_pmgxs->readInfosFromFiles( inFiles );
 
-  if (usePathResolver) {
-    std::string fullPath = PathResolverFindCalibDirectory(txtfilenameOrDir);
-    
-    DIR* dp = opendir(fullPath.c_str());
-    if (dp) {
-      struct dirent * de;
-      while ((de = readdir(dp)) != NULL) {
-        loadFile(fullPath + de->d_name);
-      }
-      if (closedir(dp)!=0){
-        std::cerr << "CrossSectionDB::CrossSectionDB ERROR Problem closing directory" << std::endl;
-      }
-    }
-    else {
-      std::string fullPathToFile = PathResolverFindCalibFile(txtfilenameOrDir);
-      loadFile(fullPathToFile.c_str());
-    }
-  }
-  else {
-    DIR* dp = opendir(txtfilenameOrDir.c_str());
-    if (dp) {
-      struct dirent * de;
-      while ((de = readdir(dp)) != NULL) {
-        loadFile(txtfilenameOrDir + de->d_name);
-      }
-      if (closedir(dp)!=0){
-        std::cerr << "CrossSectionDB::CrossSectionDB ERROR Problem closing directory" << std::endl;
-      }
-    } else {
-      loadFile(txtfilenameOrDir.c_str());
-    }
-  }
 }
 
 void SUSY::CrossSectionDB::loadFile(const std::string& txtfilename){
