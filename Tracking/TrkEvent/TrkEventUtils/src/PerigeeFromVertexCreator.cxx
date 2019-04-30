@@ -9,8 +9,8 @@
 #include "TrkEventUtils/PerigeeFromVertexCreator.h"
 #include <cmath>
 
-double Trk::PerigeeFromVertexCreator::s_unitConversion = -0.3;
-double Trk::PerigeeFromVertexCreator::s_magField       = 2.083;
+const double Trk::PerigeeFromVertexCreator::s_unitConversion = -0.3;
+const double Trk::PerigeeFromVertexCreator::s_magField       = 2.083;
               
 Trk::Perigee Trk::PerigeeFromVertexCreator::createPerigee(Amg::Vector3D& vertex, 
                                                           Amg::Vector3D& momentum, 
