@@ -1,5 +1,5 @@
-""" SLHC_Setup
-    Python module to hold storegate keys of InDet objects.
+""" 
+    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 __author__ =   "A. Salzburger"
@@ -25,6 +25,12 @@ class SLHC_Setup_XMLReader :
 
         import os, shutil
         from PyJobTransformsCore.envutil import find_file_env
+
+        if SLHC_Flags.UseLocalGeometry():
+            print "########################################"
+            print "#######Using Local Geometry Files#######"
+            print "########Only for private testing########"
+            print "########################################"
 
         print "*******************************************************************************************"
         print "*******************************************************************************************"
@@ -74,7 +80,7 @@ class SLHC_Setup_XMLReader :
         dbGeomCursor = AtlasGeoDBInterface.AtlasGeoDBInterface(geoTagName,False)
         dbGeomCursor.ConnectAndBrowseGeoDB()
         dbId,dbXDD,dbParam = dbGeomCursor.GetCurrentLeafContent("PIXXDD")
-        if len(dbId)>0: 
+        if len(dbId)>0 and not SLHC_Flags.UseLocalGeometry(): 
             readXMLfromDB_PIXXDD = True
             #For reference
             #*********************** pixDbId
@@ -99,10 +105,20 @@ class SLHC_Setup_XMLReader :
             stripEndcapLayout = pathName+"/"+str(SCTENDCAPFILE)
 
         else:
+
             pixBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH')
             pixEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH')
             stripBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH')
             stripEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH')
+
+            fileList = [pixBarrelLayout,pixEndcapLayout,stripBarrelLayout,stripEndcapLayout]
+
+            if None in fileList:
+                if SLHC_Flags.UseLocalGeometry():
+                    print 'ERROR: UseLocalGeometry flag set but Xml files not found - did you checkout and compile ITKLayouts?'
+                else:
+                    print 'ERROR: No DB CLOB or local geometry description Xml files found. You are probably running an unsupported layout! Please check your GeoTag or checkout ITKLayouts if you want to develop a new layout locally'
+                exit(1)
 
         ###### Setup XMLreader flags
         print "**** FLAGS **************************************************"
@@ -168,12 +184,12 @@ class SLHC_Setup_XMLReader :
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         ReadStripXMLFromDB = False
         pathToGMX = ""
+        gmxFileName = "ITkStrip.gmx"
         stripDbId,stripDbXDD,stripDbParam = dbGeomCursor.GetCurrentLeafContent("ITKXDD")
-        if len(stripDbId)>0:
+        if len(stripDbId)>0 and not SLHC_Flags.UseLocalGeometry():
             ReadStripXMLFromDB = True
             clobIndex = stripDbParam.index("XMLCLOB")
             pathName = "/".join([os.environ["PWD"],"XML-"+geoTagName])
-            gmxFileName = "ITkStrip.gmx"
             if not os.path.exists(pathName): os.mkdir( pathName, 0755 )
             for key in stripDbXDD.keys():
                 #For reference
@@ -194,7 +210,17 @@ class SLHC_Setup_XMLReader :
             dtdFilePath = find_file_env(str(dtdFileName),'DATAPATH')
             dtdFileCopyPath = pathName+"/"+dtdFileName
             copyfile(dtdFilePath,dtdFileCopyPath)
+        else:
+            stripLocalGmx = find_file_env(str(gmxFileName),'DATAPATH')
+            if stripLocalGmx is None:
+                if SLHC_Flags.UseLocalGeometry():
+                    print 'ERROR: UseLocalGeometry flag set but Gmx files not found - did you checkout and compile ITKLayouts?'
+                else:
+                    'ERROR: No DB CLOB or local geometry description Gmx files found. You are probably running an unsupported layout! Please check your GeoTag or checkout ITKLayouts if you want to develop a new layout locally'
+                exit(1)
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__GMXReaderSvc
+        
+        
         gmxReader = InDet__GMXReaderSvc(name='InDetGMXReaderSvc')
         gmxReader.dictionaryFileName=xmlReader.dictionaryFileName
         gmxReader.addBCL= XMLReaderFlags.addBCL()
