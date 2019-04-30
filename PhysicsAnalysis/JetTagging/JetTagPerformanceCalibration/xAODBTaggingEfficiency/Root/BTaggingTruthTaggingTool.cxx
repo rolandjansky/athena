@@ -9,6 +9,7 @@
 #include "TFile.h"
 
 #include <algorithm>
+#include <numeric>
 
 using std::string;
 
@@ -72,13 +73,14 @@ BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   declareProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV = "",       "(semicolon-separated) names of uncertainties to be excluded from eigenvector decomposition (if used)");
   declareProperty("SystematicsStrategy",             m_systStrategy = "SFEigen", "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
   declareProperty("ConeFlavourLabel",                m_coneFlavourLabel = true, "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
-  declareProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
-
+  declareProperty("OldConeFlavourLabel",             m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
+  declareProperty("CutBenchmark",                    m_cutBenchmark = "FixedCutBEff_70", "if you want to run in continuous you need to fix a benchmark - it does something only if running in Continuous OP");
+  declareProperty("ExcludeSpecificEigens",            m_excludeEV = "" ,    "(semicolon-separated) names of Eigens you want to exclude. in case of continuous some eigenvectors can be ignored to make the computation faster");
 }
 
 StatusCode BTaggingTruthTaggingTool::setEffMapIndex(const std::string& flavour, unsigned int index){
     ANA_CHECK(m_effTool->setMapIndex(flavour, index));
-    if(m_useQuntile){
+    if(m_useQuntile && !m_continuous){
       for(unsigned int iop=0; iop<m_availableOP.size(); iop++){
           ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setMapIndex(flavour, index));
       }
@@ -86,6 +88,11 @@ StatusCode BTaggingTruthTaggingTool::setEffMapIndex(const std::string& flavour, 
     return  StatusCode::SUCCESS;
 }
 
+void BTaggingTruthTaggingTool::setUseSystematics(bool useSystematics){
+  ATH_MSG_DEBUG("setting the use of systematics to: " <<useSystematics);
+  m_useSys = useSystematics;
+  ATH_MSG_DEBUG(" m_useSys = " << m_useSys);
+}
 
 SystematicSet BTaggingTruthTaggingTool::affectingSystematics() const {
   return m_effTool->affectingSystematics();
@@ -150,6 +157,8 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
 
   ANA_CHECK(m_effTool.initialize());
 
+  m_continuous = false;
+
   if(m_OP.find("FlatBEff") != std::string::npos){
     m_availableOP.resize(m_availableOP_fixEff.size());
     m_availableOP=m_availableOP_fixEff;
@@ -157,20 +166,31 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
   else if(m_OP.find("FixedCutBEff") != std::string::npos){
     m_availableOP.resize(m_availableOP_fixCut.size());
     m_availableOP=m_availableOP_fixCut;
-  }else if(m_useQuntile){
-    ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
   }
-
-
+  else if(m_OP.find("Continuous") != std::string::npos){
+    ATH_MSG_INFO("You are running in Continuous and you choosed " << m_cutBenchmark <<" as benchmark" );
+    m_continuous = true;
+    m_availableOP.resize(m_availableOP_fixCut.size());
+    m_availableOP=m_availableOP_fixCut;
+  }
+  else if(m_useQuntile){
+    ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
+    return StatusCode::FAILURE;
+  }
 
   if(m_useQuntile){
-    m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
-    if(m_OperatingPoint_index >= m_availableOP.size()) {
-      ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
+    if(m_continuous){
+      m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_cutBenchmark) - m_availableOP.begin();
+    }
+    else{
+      m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
+      if(m_OperatingPoint_index >= m_availableOP.size()) {
+	ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
+	return StatusCode::FAILURE;
+      }
     }
   }
-
-
+  
   m_eff_syst.clear();
   m_sys_name.clear();
   CP::SystematicSet def_set;
@@ -178,14 +198,18 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
   m_sys_name.push_back("Nominal");
 
   if(m_useSys){
-      CP::SystematicSet systs = m_effTool->affectingSystematics();
-      for (auto syst : systs) {
-        CP::SystematicSet myset;
-        myset.insert(syst);
-        ATH_MSG_DEBUG("Adding systematic " << syst.name() << "to the list ");
-        m_eff_syst.push_back(myset);
-        m_sys_name.push_back(syst.name());
-      }
+    std::vector<std::string> m_excludeEV_vector;
+    if(m_excludeEV != "")
+      m_excludeEV_vector = split(m_excludeEV, ';');
+    CP::SystematicSet systs = m_effTool->affectingSystematics();
+    for (const auto & syst : systs) {
+      CP::SystematicSet myset;
+      if(m_excludeEV_vector.size() != 0 && find(m_excludeEV_vector.begin(), m_excludeEV_vector.end(), syst.name()) != m_excludeEV_vector.end()) continue; //if the systematics is in the list of excluded EV we just ignore it.
+      myset.insert(syst);
+      ATH_MSG_DEBUG("Adding systematic " << syst.name() << "to the list ");
+      m_eff_syst.push_back(myset);
+      m_sys_name.push_back(syst.name());
+    }
   }
   if(m_useQuntile){
     ATH_MSG_INFO("m_useQuntile true");
@@ -197,42 +221,51 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
 
     for(unsigned int iop=0; iop<m_availableOP.size(); iop++){
 
-       std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
+      if(!m_continuous){
+	std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
+	
+	m_effTool_allOP[m_availableOP.at(iop)] = asg::AnaToolHandle<IBTaggingEfficiencyTool>("BTaggingEfficiencyTool/"+toolname,this);
+	
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OperatingPoint", m_availableOP.at(iop)));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("TaggerName",                      m_taggerName));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("JetAuthor",                       m_jetAuthor));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorFileName",             m_SFFile ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("UseDevelopmentFile",              m_useDevFile ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyFileName",              m_EffFile ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorBCalibration",         m_SFBName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorCCalibration",         m_SFCName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorTCalibration",         m_SFTName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionB",           m_EVReductionB ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionC",           m_EVReductionC ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyBCalibrations",         m_EffBName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyCCalibrations",         m_EffCName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyTCalibrations",         m_EffTName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("SystematicsStrategy",             m_systStrategy ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
+	
+	ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].initialize());
+	
+	if(m_OP.find("FixedCutBEff")!= std::string::npos){
+	  TString cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_availableOP.at(iop)+"/cutvalue";
+	  float cutval = ((TVector*) m_inf->Get(cutname))[0](0);
+	  m_binEdges.push_back(cutval);
+	} //FCBEff
+      } //!Continuous
 
-       m_effTool_allOP[m_availableOP.at(iop)] = asg::AnaToolHandle<IBTaggingEfficiencyTool>("BTaggingEfficiencyTool/"+toolname,this);
-
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OperatingPoint", m_availableOP.at(iop)));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("TaggerName",                      m_taggerName));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("JetAuthor",                       m_jetAuthor));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorFileName",             m_SFFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("UseDevelopmentFile",              m_useDevFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyFileName",              m_EffFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorBCalibration",         m_SFBName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorCCalibration",         m_SFCName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorTCalibration",         m_SFTName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionB",           m_EVReductionB ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionC",           m_EVReductionC ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyBCalibrations",         m_EffBName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyCCalibrations",         m_EffCName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyTCalibrations",         m_EffTName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("SystematicsStrategy",             m_systStrategy ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
-
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].initialize());
-
-      if(m_OP.find("FixedCutBEff")!= std::string::npos){
-        TString cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_availableOP.at(iop)+"/cutvalue";
-        float cutval = ((TVector*) m_inf->Get(cutname))[0](0);
-        m_binEdges.push_back(cutval);
-      }
-    }
-
-  }
+      else{
+	if(m_cutBenchmark.find("FixedCutBEff")!= std::string::npos){
+          TString cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_availableOP.at(iop)+"/cutvalue";
+          float cutval = ((TVector*) m_inf->Get(cutname))[0](0);
+          m_binEdges.push_back(cutval);
+	} //FCBEff
+      } //Continuous
+    } //loop
+  } //quantile
 
   return StatusCode::SUCCESS;
 }
@@ -368,8 +401,8 @@ StatusCode BTaggingTruthTaggingTool::GetTruthTagWeights(TRFinfo &trfinf, std::ve
         trfinf.trfwsys_ex[sys].at(ib) *= getPermutationRW(trfinf,false, ib, sys);
         trfinf.trfwsys_in[sys].at(ib) *= getPermutationRW(trfinf,true, ib, sys);
         if(m_useQuntile) {
-    trfinf.trfwsys_ex[sys].at(ib) *= getTagBinsRW(trfinf,false, ib);
-    trfinf.trfwsys_in[sys].at(ib) *= getTagBinsRW(trfinf,true, ib);
+	  trfinf.trfwsys_ex[sys].at(ib) *= getTagBinsRW(trfinf,false, ib);
+	  trfinf.trfwsys_in[sys].at(ib) *= getTagBinsRW(trfinf,true, ib);
         }
       }
     }
@@ -390,12 +423,19 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
     trfinf.rand.SetSeed(rand_seed);
   }
 
-  trfinf.trfwsys_ex.resize(m_eff_syst.size());
-  trfinf.trfwsys_in.resize(m_eff_syst.size());
-
+  unsigned int n_systs = m_eff_syst.size(); 
+  if(m_useSys){
+    trfinf.trfwsys_ex.resize(m_eff_syst.size());
+    trfinf.trfwsys_in.resize(m_eff_syst.size());
+  }
+  else{
+    n_systs = 1; //compute only the nominal
+    trfinf.trfwsys_ex.resize(1);
+    trfinf.trfwsys_in.resize(1);
+  }
   std::vector<double> trf_weight_ex,  trf_weight_in;
 
-  for(unsigned int i =0; i< m_eff_syst.size(); i++){
+  for(unsigned int i =0; i< n_systs; i++){
     trf_weight_ex.clear();
     trf_weight_in.clear();
 
@@ -406,6 +446,7 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
   results.syst_names.clear();
 
   for(unsigned int i=0; i<trfinf.trfwsys_ex.size(); i++){
+  //  for(unsigned int i=0; i<Nsysts; i++){
 
     results.map_trf_weight_ex[m_sys_name.at(i)].resize(trfinf.trfwsys_ex.at(i).size());
     results.map_trf_weight_in[m_sys_name.at(i)].resize(trfinf.trfwsys_in.at(i).size());
@@ -430,7 +471,6 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
   ANA_CHECK(generateRandomTaggerScores(results.trf_bin_in, results.trf_bin_score_in));
   }
   ANA_CHECK(getDirectTaggedJets(trfinf,results.is_tagged));
-
   return StatusCode::SUCCESS;
 
 }
@@ -467,38 +507,62 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
     for(auto op_appo: m_availableOP)
       trfinf.effMC_allOP[op_appo].clear();
   }
-
-  for(unsigned int i=0; i<trfinf.jets.size(); i++){
-    eff=1.;
-
-     CorrectionCode code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff);
-     if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-      ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
-      return StatusCode::FAILURE;
-     }
-
-     trfinf.effMC.push_back(eff);
-
-    if(m_useQuntile){
+  for(size_t i=0; i < trfinf.jets.size(); i++){
+    if(m_continuous){
+      eff=1.;
       // loop on OP
-      for(auto op_appo: m_availableOP){
-           if (op_appo==m_OP) {
-             trfinf.effMC_allOP[op_appo].push_back(eff);
-             continue;
-       }
+      int OP_index = 0;
+      for(const auto & op_appo: m_availableOP){
+	eff_all=1.;
+	//set a dumb value of the truth tag weight to get the different efficiency maps for each bin. to be improved..
+	if(OP_index+1 < (int) m_availableOP.size()){
+	  trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(OP_index)+m_binEdges.at(OP_index+1))/2.; //to-do: make it fancy? random distribution inside the bin probably?
+	}
+	else{
+	  trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(OP_index)+1)/2.; //only for 60% WP
+	}
 
-      eff_all=1.;
-      CorrectionCode code = m_effTool_allOP[op_appo]->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
+	CorrectionCode code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
 
-     if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-      ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
-      return StatusCode::FAILURE;
-     }
+	if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	  ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
+	  return StatusCode::FAILURE;
+	}
+	trfinf.effMC_allOP[op_appo].push_back(eff_all);
+	OP_index++;
 
-
-      trfinf.effMC_allOP[op_appo].push_back(eff_all);
       } // end loop on OP
-    } // if useQuantile
+    } //inside Continuous
+    else{
+      eff=1.;
+      CorrectionCode code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff);
+      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
+	return StatusCode::FAILURE;}
+      
+      trfinf.effMC.push_back(eff);
+      
+      if(m_useQuntile){
+	// loop on OP
+	for(const auto & op_appo: m_availableOP){
+	  
+	  if ( op_appo==m_OP) {
+	    trfinf.effMC_allOP[op_appo].push_back(eff);
+	    continue;
+	  }
+	  
+	  eff_all=1.;
+	  CorrectionCode code = m_effTool_allOP[op_appo]->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
+	  
+	  if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	    ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
+	    return StatusCode::FAILURE;
+	  }
+	  
+	  trfinf.effMC_allOP[op_appo].push_back(eff_all);
+	} // end loop on OP
+      } // if useQuantile
+    } //!useContinuous
   } // end loop on jets
   return StatusCode::SUCCESS;
 }
@@ -508,21 +572,49 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
   ANA_CHECK_SET_TYPE ( StatusCode );
 
   trfinf.eff.clear();
-  trfinf.eff.resize(trfinf.effMC.size());
-  if(m_useQuntile){
-    for(auto op_appo: m_availableOP){
-      trfinf.eff_allOP[op_appo].clear();
-      trfinf.eff_allOP[op_appo].resize(trfinf.effMC.size());
+  if(!m_continuous){
+    trfinf.eff.resize(trfinf.effMC.size());
+    if(m_useQuntile){
+      for(const auto & op_appo: m_availableOP){
+	trfinf.eff_allOP[op_appo].clear();
+	trfinf.eff_allOP[op_appo].resize(trfinf.effMC.size());
+      }
     }
   }
-
-  if(m_ignoreSF && sys==0){
-    for(unsigned int i =0; i< trfinf.effMC.size(); i++){
-      trfinf.eff.at(i)=trfinf.effMC.at(i);
-      if(m_useQuntile){
-  for(auto op_appo: m_availableOP){
-    trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i);
+  else{
+    trfinf.eff.resize(trfinf.effMC_allOP[m_cutBenchmark].size());
+    if(m_useQuntile){
+      for(const auto & op_appo: m_availableOP){
+        trfinf.eff_allOP[op_appo].clear();
+        trfinf.eff_allOP[op_appo].resize(trfinf.effMC_allOP[op_appo].size());
+      }
+    }
   }
+    
+  if(m_ignoreSF && sys==0){
+    if(m_continuous){
+      for(int iop = (int) m_availableOP.size()-1; iop >= 0; iop--) { // loop on the tighter OPs
+	string op_appo = m_availableOP.at(iop);
+	if(!m_useQuntile && op_appo != m_cutBenchmark) continue;  
+	
+	for(size_t ieff =0; ieff< trfinf.eff_allOP[op_appo].size(); ieff++){ //jets
+	  trfinf.eff_allOP[op_appo].at(ieff)= 0;   
+	  for(unsigned int p = iop; p<m_availableOP.size(); p++){ //add all the eff above the WP	   
+	    trfinf.eff_allOP[op_appo].at(ieff)+=trfinf.effMC_allOP[m_availableOP.at(p)].at(ieff);
+	  }
+	  if( op_appo == m_cutBenchmark)
+	    trfinf.eff.at(ieff) = trfinf.eff_allOP[m_cutBenchmark].at(ieff);
+	} //jets
+      } //OP
+    } //continuous
+    else{
+      for(size_t i =0; i< trfinf.effMC.size(); i++){
+	trfinf.eff.at(i)=trfinf.effMC.at(i);
+	if(m_useQuntile){
+	  for(const auto & op_appo: m_availableOP){
+	    trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i);
+	  }
+	}
       }
     }
     return StatusCode::SUCCESS;
@@ -536,55 +628,88 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
   float SF =1.;
   float SF_all =1.;
 
-  if(sys!=0){
-    ANA_CHECK( m_effTool->applySystematicVariation(m_eff_syst[sys]) );
-    if(m_useQuntile){
-      for(auto op_appo: m_availableOP){
+    if(sys!=0 && m_useSys){
+      ATH_MSG_DEBUG("applying the syst: " <<m_sys_name[sys]);
+      ANA_CHECK( m_effTool->applySystematicVariation(m_eff_syst[sys]) );
+    if(m_useQuntile && !m_continuous){
+      for(const auto & op_appo: m_availableOP){
   if (op_appo==m_OP) continue;
   ANA_CHECK( m_effTool_allOP[op_appo]->applySystematicVariation(m_eff_syst[sys]) );
       }
     }
   }
 
-  for(unsigned int i=0; i<trfinf.jets.size(); i++){
-    SF=1.;
-    CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
-    if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-      ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
-      return StatusCode::FAILURE;
-     }
-    trfinf.eff.at(i) = trfinf.effMC.at(i)*SF;
-    if(m_useQuntile){
-      // loop on OP
-      for(auto op_appo: m_availableOP){
-  if (op_appo==m_OP) {
-    trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC.at(i)*SF;
-    continue;
-  }
-  SF_all=1.;
-  CorrectionCode code = m_effTool_allOP[op_appo]->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF_all) ;
-  if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
-      ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
-      return StatusCode::FAILURE;
-  }
+  if(m_continuous){
+    for(int iop = (int) m_availableOP.size()-1; iop >= 0; iop--) {
+      std::string op_appo = m_availableOP.at(iop);
+      if(!m_useQuntile && op_appo != m_cutBenchmark) continue;
+      for(size_t i=0; i<trfinf.jets.size(); i++){
+	SF=1.;
+	//set a dumb value of the truth tag weight to get the different efficiency maps for each bin. to be improved..
+        if(iop+1 < (int) m_availableOP.size()){
+	trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+m_binEdges.at(iop+1))/2.; //to-do: make it fancy? random distribution for the tagger score
+	}
+	else{
+	  trfinf.jets.at(i).vars.jetTagWeight = (m_binEdges.at(iop)+1.)/2.;
+	}	  
+	
+	CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
+	if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	  ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor returned CorrectionCode::Error");
+	  return StatusCode::FAILURE;
+	}
 
-  trfinf.eff_allOP[op_appo].at(i) = trfinf.effMC_allOP[op_appo].at(i)*SF_all;
-      } // end loop on OP
-    } // if useQuantile
-  }
-
+	trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i)*SF;
+      
+      //now sum all the corrected MC Eff together
+	if(iop+1 < (int) m_availableOP.size()){
+	    trfinf.eff_allOP[op_appo].at(i)+=trfinf.eff_allOP[m_availableOP.at(iop+1)].at(i); //they are already corrected for SF
+	}
+	if( op_appo == m_cutBenchmark)
+	  trfinf.eff.at(i) = trfinf.eff_allOP[m_cutBenchmark].at(i);
+      } //jets
+    } //OP
+  } //continuous
+  
+  else{
+    for(unsigned int i=0; i<trfinf.jets.size(); i++){
+      SF=1.;
+      CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
+      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor returned CorrectionCode::Error");
+	return StatusCode::FAILURE;
+      }
+      trfinf.eff.at(i) = trfinf.effMC.at(i)*SF;
+      if(m_useQuntile){
+	// loop on OP
+	for(const auto & op_appo: m_availableOP){
+	  if (op_appo==m_OP) {
+	    trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC.at(i)*SF;
+	    continue;
+	  }
+	  SF_all=1.;
+	  CorrectionCode code = m_effTool_allOP[op_appo]->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF_all) ;
+	  if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
+	    ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor returned CorrectionCode::Error");
+	    return StatusCode::FAILURE;
+	  }
+	  
+	  trfinf.eff_allOP[op_appo].at(i) = trfinf.effMC_allOP[op_appo].at(i)*SF_all;
+	} // end loop on OP
+      } // if useQuantile
+    } //!Continuous
+  } //jets
+  
   CP::SystematicSet defaultSet;
   ANA_CHECK( m_effTool->applySystematicVariation(defaultSet) );
-  if(m_useQuntile){
-    for(auto op_appo: m_availableOP){
+  if(m_useQuntile && !m_continuous){
+    for(const auto & op_appo: m_availableOP){
       ANA_CHECK( m_effTool_allOP[op_appo]->applySystematicVariation(defaultSet) );
     }
   }
-
+  
   return StatusCode::SUCCESS;
 }
-
-
 
 std::vector<std::vector<bool> > BTaggingTruthTaggingTool::generatePermutations(int njets, int tags, int start){
   std::vector<std::vector<bool> > perm;
@@ -659,20 +784,28 @@ StatusCode BTaggingTruthTaggingTool::getTRFweight(TRFinfo &trfinf,unsigned int n
     for(unsigned int i=0; i<limit; i++) { // note: I consider maximum limit tags. It's an approximation
       std::vector<double> weights;
       double sum = 0., w = 0.;
+      trfinf.permsWeight.at(i).clear();
+      trfinf.permsSumWeight.at(i).clear();
+      trfinf.permsWeight.at(i).resize(trfinf.perms[njets].at(i).size());
+      trfinf.permsSumWeight.at(i).resize(trfinf.perms[njets].at(i).size());
+
       // loop on all the permutations with i tags
       for(unsigned int p=0; p<trfinf.perms[njets].at(i).size(); p++) {
-    w = trfWeight(trfinf,trfinf.perms[njets].at(i).at(p));
-    sum+=w;
-    trfinf.permsWeight.at(i).push_back(w);
-    trfinf.permsSumWeight.at(i).push_back(sum);
-  ATH_MSG_DEBUG("nbtag = " << i << "  wei = " << w << "  sum = " << sum);
+	w = trfWeight(trfinf,trfinf.perms[njets].at(i).at(p));
+	sum+=w;
+	//trfinf.permsWeight.at(i).push_back(w); //old way to do it without resizing, keep it for the moment
+	//trfinf.permsSumWeight.at(i).push_back(sum);
+	trfinf.permsWeight.at(i).at(p) = w;
+        trfinf.permsSumWeight.at(i).at(p) = sum;
+
+	ATH_MSG_DEBUG("nbtag = " << i << "  wei = " << w << "  sum = " << sum);
       }
       if(i<limit && i<max) {
   // note: I need to already have the exclusive weights filled to compite the inclusive
-    trfinf.trfwsys_ex[sys].at(i) = sum; // sum of TRF weights for all perm with i b-tags
-    if(i == 0) trfinf.trfwsys_in[sys].at(0) = 1.;
-    else trfinf.trfwsys_in[sys].at(i) = trfinf.trfwsys_in[sys].at(i-1) - trfinf.trfwsys_ex[sys].at(i-1); // P(>=4) = P(>=3) - P(==3)
-  ATH_MSG_DEBUG("i = " << i << "  sum = " << sum << "  TRF in " << trfinf.trfwsys_in[0].at(i) << "  ex = " << trfinf.trfwsys_ex[0].at(i));
+	trfinf.trfwsys_ex[sys].at(i) = sum; // sum of TRF weights for all perm with i b-tags
+	if(i == 0) trfinf.trfwsys_in[sys].at(0) = 1.;
+	else trfinf.trfwsys_in[sys].at(i) = trfinf.trfwsys_in[sys].at(i-1) - trfinf.trfwsys_ex[sys].at(i-1); // P(>=4) = P(>=3) - P(==3)
+	ATH_MSG_DEBUG("i = " << i << "  sum = " << sum << "  TRF in " << trfinf.trfwsys_in[0].at(i) << "  ex = " << trfinf.trfwsys_ex[0].at(i));
       }
     }
     ATH_MSG_DEBUG("before return, nbtag = " << nbtag << "  size de trfinf.trfwsys_in[sys] = " << trfinf.trfwsys_in[sys].size());
@@ -681,12 +814,20 @@ StatusCode BTaggingTruthTaggingTool::getTRFweight(TRFinfo &trfinf,unsigned int n
   else { // exclusive case, only one calculation needed
     std::vector<double> weights;
     double sum = 0., w = 0.;
+    size_t size = trfinf.perms[njets].at(nbtag).size(); 
+    trfinf.permsWeight.at(nbtag).clear();
+    trfinf.permsSumWeight.at(nbtag).clear();    
+    trfinf.permsWeight.at(nbtag).resize(size);
+    trfinf.permsSumWeight.at(nbtag).resize(size);
     // loop on all the permutations with i tags
     for(unsigned int p=0; p<trfinf.perms[njets].at(nbtag).size(); p++) {
+      
       w = trfWeight(trfinf,trfinf.perms[njets].at(nbtag).at(p));
       sum+=w;
-      trfinf.permsWeight.at(nbtag).push_back(w);
-      trfinf.permsSumWeight.at(nbtag).push_back(sum);
+      //      trfinf.permsWeight.at(nbtag).push_back(w); //old way, before resizing: keep it for the moment
+      //      trfinf.permsSumWeight.at(nbtag).push_back(sum);
+      trfinf.permsWeight.at(nbtag).at(p) = w;
+      trfinf.permsSumWeight.at(nbtag).at(p) = sum;
     }
     trfinf.trfwsys_ex[sys].at(nbtag) = sum;
     return StatusCode::SUCCESS;
@@ -765,8 +906,8 @@ StatusCode BTaggingTruthTaggingTool::chooseTagPermutation(TRFinfo &trfinf,unsign
   trfinf.permprob_in.at(nbtag) = trfinf.permsWeight.at(trackPerm.at(ip).first).at(trackPerm.at(ip).second) / trfinf.trfwsys_in[0].at(nbtag);
       }
       else {
-  trfinf.perm_ex.at(nbtag) = trfinf.perms[trfinf.njets].at(trackPerm.at(ip).first).at(trackPerm.at(ip).second);
-  trfinf.permprob_ex.at(nbtag) = trfinf.permsWeight.at(trackPerm.at(ip).first).at(trackPerm.at(ip).second) / trfinf.trfwsys_ex[0].at(nbtag);
+	trfinf.perm_ex.at(nbtag) = trfinf.perms[trfinf.njets].at(trackPerm.at(ip).first).at(trackPerm.at(ip).second);
+	trfinf.permprob_ex.at(nbtag) = trfinf.permsWeight.at(trackPerm.at(ip).first).at(trackPerm.at(ip).second) / trfinf.trfwsys_ex[0].at(nbtag);
       }
       return StatusCode::SUCCESS;
     }
@@ -842,8 +983,8 @@ StatusCode BTaggingTruthTaggingTool::chooseTagBins_cum(TRFinfo &trfinf,std::vect
       double sum=0.;
       incl.clear();
       for(int iop = (int)trfinf.eff_allOP.size()-1; iop >= (int)m_OperatingPoint_index; iop--) { // loop on the tighter OPs
-  sum = trfinf.eff_allOP[m_availableOP.at(iop)][j];
-    incl.push_back(sum);
+	sum = trfinf.eff_allOP[m_availableOP.at(iop)][j];
+	incl.push_back(sum);
       }
       double theX = trfinf.rand.Uniform(sum);
 
@@ -930,7 +1071,7 @@ double BTaggingTruthTaggingTool::getTagBinsConfProb(TRFinfo &trfinf,std::vector<
       }
       // prob *= (eff*SF-exactly-that-bin)/(ef*SF-all-tagged-bins)
       // (eff*SF-exactly-that-bin): eff(==60) = eff(70) - eff(60) --> eff(==5) = eff(4)-eff(5)
-      prob *= (trfinf.eff_allOP[m_availableOP.at(tagws.at(j)-1)][j] - prevBinW) /  (trfinf.eff_allOP[m_availableOP.at(m_OperatingPoint_index)][j]);
+	prob *= (trfinf.eff_allOP[m_availableOP.at(tagws.at(j)-1)][j] - prevBinW) /  (trfinf.eff_allOP[m_availableOP.at(m_OperatingPoint_index)][j]);
       ATH_MSG_DEBUG("prob " << prob);
     }
     else { // untagged
@@ -950,23 +1091,32 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
   std::vector<int> appo;
   for(const auto jet : trfinf.jets) {
     ATH_MSG_DEBUG("pt " << jet.vars.jetPt << "   eta " << jet.vars.jetEta << "   wei " << jet.vars.jetTagWeight);
-    bool is_btagged = m_selTool->accept(jet.vars.jetPt, jet.vars.jetEta, jet.vars.jetTagWeight);
+    bool is_btagged = false;
+    if(!m_continuous)
+      is_btagged = m_selTool->accept(jet.vars.jetPt, jet.vars.jetEta, jet.vars.jetTagWeight);
+    else{
+      int quantile = m_selTool->getQuantile(jet.vars.jetPt, jet.vars.jetEta, jet.vars.jetTagWeight);
+      is_btagged = quantile > (int) m_OperatingPoint_index ? true : false;
+      ATH_MSG_DEBUG("quantile " <<quantile <<" m_OperatingPoint_index " <<m_OperatingPoint_index <<" is_tagged? " <<is_btagged);
+
+    }
+
     ATH_MSG_DEBUG("is tagged? " << is_btagged);
     if(is_btagged) is_tagged.push_back(1);
     else is_tagged.push_back(0);
   }
+
   return StatusCode::SUCCESS;
 }
 
 
 double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
   ANA_CHECK_SET_TYPE (StatusCode);
-
   double SF = 1.;
   std::vector<bool> is_tagged;
   ANA_CHECK( getDirectTaggedJets(trfinf,is_tagged) );
 
-  if(sys!=0) {
+  if(sys!=0 && m_useSys) {
 
     ANA_CHECK( m_effTool->applySystematicVariation(m_eff_syst[sys]) );
   }
@@ -996,7 +1146,7 @@ double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
     }
   }
 
-  if(sys!=0) {  // reset syst to nominal
+  if(sys!=0 && m_useSys) {  // reset syst to nominal
     CP::SystematicSet defaultSet;
 
     ANA_CHECK( m_effTool->applySystematicVariation(defaultSet) );
@@ -1062,6 +1212,34 @@ int BTaggingTruthTaggingTool::ExclusiveConeHadronFlavourLabel (const xAOD::Jet& 
   return label;
 }
 
+// local utility function: trim leading and trailing whitespace in the property strings
+std::string trim(const std::string& str,
+		 const std::string& whitespace = " \t") {
+  const auto strBegin = str.find_first_not_of(whitespace);
+  if (strBegin == std::string::npos)
+    return ""; // no content
+
+  const auto strEnd = str.find_last_not_of(whitespace);
+  const auto strRange = strEnd - strBegin + 1;
+
+  return str.substr(strBegin, strRange);
+}
+
+
+std::vector<std::string> BTaggingTruthTaggingTool::split(const std::string& str, char token) {
+  std::vector<std::string> result;
+  if (str.size() > 0) {
+    std::string::size_type end;
+    std::string tmp(str);
+    do {
+      end = tmp.find(token);
+      std::string entry = trim(tmp.substr(0,end));
+      if (entry.size() > 0) result.push_back(entry);
+      if (end != std::string::npos) tmp = tmp.substr(end+1);
+    } while (end != std::string::npos);
+  }
+  return result;
+}
 
 StatusCode BTaggingTruthTaggingTool::generateRandomTaggerScores(std::vector< std::vector<int> > &quantiles, std::vector< std::vector<double> > &scores){
 
