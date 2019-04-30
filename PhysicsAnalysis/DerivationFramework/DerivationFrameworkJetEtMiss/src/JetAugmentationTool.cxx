@@ -407,23 +407,24 @@ namespace DerivationFramework {
 	  int tntrk = 0;
 	  if(isMC){
 	    const xAOD::Jet* tjet=nullptr;
+	    //tjet = * (jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink"));
 	    if(jet->isAvailable< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink") ){
 	      ATH_MSG_DEBUG("Accessing GhostTruthAssociationLink: is available");
 	      if(jet->auxdata< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink").isValid() ){
-		ATH_MSG_DEBUG("Accessing GhostTruthAssociationLink: is valid");
-		ElementLink<xAOD::JetContainer> truthlink = jet->auxdata< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
-		if(truthlink)
-		  tjet = * truthlink;
-		else{
-		  ATH_MSG_DEBUG("Skipping...truth link is broken");
-		}//endelse NULL pointer
+	    	ATH_MSG_DEBUG("Accessing GhostTruthAssociationLink: is valid");
+	    	ElementLink<xAOD::JetContainer> truthlink = jet->auxdata< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
+	    	if(truthlink)
+	    	  tjet = * truthlink;
+	    	else{
+	    	  ATH_MSG_DEBUG("Skipping...truth link is broken");
+	    	}//endelse NULL pointer
 	      }
 	      else {
-		ATH_MSG_DEBUG("Invalid truth link: setting weight to 1");
+	    	ATH_MSG_DEBUG("Invalid truth link: setting weight to 1");
 	      } //endelse isValid
 	    } //endif isAvailable
 	    else {
-	      ATH_MSG_WARNING("Cannot access truth Link: setting weight to 1");
+	      ATH_MSG_DEBUG("Cannot access truth Link: setting weight to 1");
 	    }//endelse isAvailable
 
 	    if(tjet){
