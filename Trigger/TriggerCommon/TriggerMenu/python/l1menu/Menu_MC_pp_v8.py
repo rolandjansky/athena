@@ -411,6 +411,8 @@ def defineMenu():
         '0INVM70-27DPHI32-EM10his1-EM10his6',
         '0INVM70-27DPHI32-EM10his1-EM12his6',
 
+        #ATR-19510
+        '5DETA99-5DPHI99-2MU4ab',
         ]
 
     
@@ -899,6 +901,9 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4',
         ]
     
 
@@ -1393,6 +1398,9 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4' : 199,
 
 }
 
