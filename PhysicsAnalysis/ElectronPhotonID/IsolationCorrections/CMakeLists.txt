@@ -36,7 +36,7 @@ atlas_add_library( IsolationCorrectionsLib
    IsolationCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS IsolationCorrections
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo xAODEventShape
    xAODPrimitives xAODTracking PATInterfaces PATCoreLib
    PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData)
 

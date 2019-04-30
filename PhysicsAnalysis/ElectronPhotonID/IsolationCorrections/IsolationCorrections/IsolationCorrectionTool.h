@@ -10,6 +10,7 @@
 #include "AsgTools/AsgMessaging.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationCorrections/IsolationCorrection.h"
+#include "TGraph.h"
 
 namespace CP {
 
@@ -69,6 +70,13 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         std::string m_corr_ddsmearing_file;
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;
+
+        bool m_bDoEDParametrizedShift;
+        std::string m_sEDParametrizedShiftInputName;
+        TGraph* m_gZeta20Nom;
+        TGraph* m_gZeta20Up;
+        TGraph* m_gZeta20Down;
+
         bool m_usemetadata;
 	bool m_is_mc;
         bool m_AFII_corr;

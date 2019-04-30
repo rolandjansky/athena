@@ -17,6 +17,9 @@
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #endif //ROOTCORE
 
+#include "TFile.h"
+#include "xAODEventShape/EventShape.h"
+
 namespace CP {
 
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
@@ -34,6 +37,8 @@ namespace CP {
     declareProperty("Correct_etcone",              m_correct_etcone       = false);
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
+    declareProperty("DoEDParamizedShift",     m_bDoEDParametrizedShift = true);
+    declareProperty("EDParametrizedShiftInput",     m_sEDParametrizedShiftInputName = "/ZIH.fast/users/cwiel/EEIso_output/plots/syst/zetas.root");
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -118,6 +123,19 @@ namespace CP {
       m_isol_corr->SetDataMC(m_is_mc);    
     }
 
+    if(m_bDoEDParametrizedShift){
+      std::string filename = PathResolverFindCalibFile( m_sEDParametrizedShiftInputName );
+      if (filename.empty()){
+        ATH_MSG_ERROR ( "Could NOT resolve file name " << m_sEDParametrizedShiftInputName );
+        return StatusCode::FAILURE ;
+      }
+      ATH_MSG_INFO(" Path found = "<<filename);
+      std::unique_ptr<TFile> f(new TFile(filename.c_str(), "READ"));
+
+      m_gZeta20Nom = (TGraph*)f->Get("zeta_20_COMBINED_UP")->Clone();
+      m_gZeta20Up = (TGraph*)f->Get("zeta_20_COMBINED_UP")->Clone();
+      m_gZeta20Down = (TGraph*)f->Get("zeta_20_COMBINED_DOWN")->Clone();
+    }
     return m_isol_corr->initialize();
   }
 
@@ -331,7 +349,27 @@ namespace CP {
       
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
-      if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30 && eg.type() == xAOD::Type::Photon) {
+
+      if(m_bDoEDParametrizedShift && m_is_mc && type == xAOD::Iso::topoetcone20){
+        static SG::AuxElement::Decorator<float> decEDParShift("topoetcone20_EDParShift");
+        static SG::AuxElement::Decorator<float> decEDParShiftUp("topoetcone20_EDParShift_UP");
+        static SG::AuxElement::Decorator<float> decEDParShiftDown("topoetcone20_EDParShift_DOWN");
+        const xAOD::EventShape* edShape;
+        if (evtStore()->retrieve(edShape,"TopoClusterIsoCentralEventShape").isFailure()) {
+          ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoCentralEventShape" << " for isolation correction.");
+          return CP::CorrectionCode::Error;
+        }  
+
+        float abseta = fabs(eg.eta());
+        float rho = edShape->getDensity(xAOD::EventShape::Density);
+        float A = 0.2*0.2*TMath::Pi();
+        ddcorr = A*rho*m_gZeta20Nom->Eval(abseta);
+        decEDParShift(eg) = ddcorr;
+        decEDParShiftUp(eg) = A*rho*m_gZeta20Up->Eval(abseta);
+        decEDParShiftDown(eg) = A*rho*m_gZeta20Down->Eval(abseta);
+        ATH_MSG_VERBOSE( "ddcorr " << ddcorr );
+      }
+      else if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30 && eg.type() == xAOD::Type::Photon) {
 	ddcorr = this->GetDDCorrection(eg,type);
 	if (type == xAOD::Iso::topoetcone20)
 	  decDDcor20(eg) = ddcorr;
