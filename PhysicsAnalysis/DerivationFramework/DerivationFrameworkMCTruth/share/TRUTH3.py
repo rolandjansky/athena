@@ -18,28 +18,28 @@ from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
     from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH8KernelSigAug",
-                                                             AugmentationTools = DecorateSUSYProcess("TRUTH8")
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelSigAug",
+                                                             AugmentationTools = DecorateSUSYProcess("TRUTH3")
                                                              )
 
 #==============================================================================
 # Set up stream
 #==============================================================================
-streamName = derivationFlags.WriteDAOD_TRUTH8Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH8Stream )
-TRUTH8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+streamName = derivationFlags.WriteDAOD_TRUTH3Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH3Stream )
+TRUTH3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Thinning
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH8ThinningSvc", outStreams=[evtStream] )
+svcMgr += createThinningSvc( svcName="TRUTH3ThinningSvc", outStreams=[evtStream] )
 
 #==============================================================================
 # Set up slimming content list here
 #==============================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-TRUTH8SlimmingHelper = SlimmingHelper("TRUTH8SlimmingHelper")
-TRUTH8SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+TRUTH3SlimmingHelper = SlimmingHelper("TRUTH3SlimmingHelper")
+TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                            'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
                                            'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
                                            'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
@@ -56,10 +56,10 @@ TRUTH8SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                            'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                           }
-TRUTH8SlimmingHelper.AllVariables = ["MET_Truth", "MET_TruthRegions", "TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson", "TruthWbosonWithDecayParticles", "TruthWbosonWithDecayVertices"]
-TRUTH8SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor", 
+TRUTH3SlimmingHelper.AllVariables = ["MET_Truth", "MET_TruthRegions", "TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson", "TruthWbosonWithDecayParticles", "TruthWbosonWithDecayVertices"]
+TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor", 
                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
-TRUTH8SlimmingHelper.AppendContentToStream(TRUTH8Stream)
+TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
 # Keep the metadata of course!
-TRUTH8Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
