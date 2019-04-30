@@ -34,7 +34,9 @@ public:
   virtual StatusCode createAndRecord() const override;
 
 protected:
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_incolltrk;        /// Input collection name.
+  /// This will identify the input tracks (and so is templated on TrackParticleContainer).
+  /// We do not declare it as a property to avoid duplication with the base PseudoJetGetter::m_incoll. Instead we'll copy the key from PseudoJetGetter::m_incoll during initialize() (See this function)
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_incolltrk;
 
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_inTVA;
 

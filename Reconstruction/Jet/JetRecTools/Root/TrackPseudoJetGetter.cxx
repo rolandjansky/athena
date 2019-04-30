@@ -21,19 +21,18 @@ using fastjet::PseudoJet;
 TrackPseudoJetGetter::TrackPseudoJetGetter(const std::string &name) 
   : PseudoJetGetter(name) , m_inTVA("JetTrackVtxAssoc") {
   declareProperty("TrackVertexAssociation", m_inTVA, "SG key for the TrackVertexAssociation object");
-  declareProperty("InputContainer", m_incolltrk);
 }
 
 //**********************************************************************
 StatusCode TrackPseudoJetGetter::initialize() {
   ATH_MSG_DEBUG("Initializing...");
-  print();
 
+  ATH_CHECK( PseudoJetGetter::initialize() );
+  ATH_CHECK( m_inTVA.initialize() );
   m_incolltrk = m_incoll.key();
   ATH_CHECK( m_incolltrk.initialize() );
-  ATH_CHECK( m_outcoll.initialize() );
-  ATH_CHECK( m_inTVA.initialize() );
-
+  print();
+  
   return StatusCode::SUCCESS;
 }
 
