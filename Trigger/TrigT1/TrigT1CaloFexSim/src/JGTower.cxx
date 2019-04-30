@@ -38,7 +38,8 @@ bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dph
 }
 
 bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool acceptEqual){
-
+  //DeltaPhi call immediately below. This is now consistent with the correct definition in root: 
+  //https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00456
   float dPhi = deltaPhi(phi1, phi2);
   float dEta = eta1-eta2;
   float dR2 = dPhi*dPhi + dEta*dEta;
@@ -49,8 +50,6 @@ bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool
 }
 
 float deltaPhi(float phi1,float phi2){
-
-  float dphi = fabs(phi1-phi2);
-  if(dphi>TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
-  return dphi;
+  //https://root.cern.ch/doc/master/TLorentzVector_8h_source.html#l00456 
+  return TVector2::Phi_mpi_pi(phi1-phi2);
 }
