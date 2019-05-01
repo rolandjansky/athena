@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -103,7 +103,7 @@ class RpcDataPreparator: public AthAlgTool
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
       SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey{
-	this, "RpcPrepDataContainer", "RPC_Measurements", "Neme of the RPCContainer to read in"};
+       this, "RpcPrepDataContainer", "RPC_Measurements", "Name of the RPCContainer to read in"};
 
       // Declare the keys used to access the data: one for reading and one
       // for writing.
