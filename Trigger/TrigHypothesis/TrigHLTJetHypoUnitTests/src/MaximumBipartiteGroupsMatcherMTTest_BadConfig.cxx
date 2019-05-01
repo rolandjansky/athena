@@ -6,7 +6,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/../src/ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/../src/conditionsFactoryMT.h"
-#include "TrigHLTJetHypo/../src/ConditionDebugVisitor.h"
+#include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
 #include "./MockJetWithLorentzVector.h"
@@ -135,18 +135,14 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_BadConfig, bad0){
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
-  auto visitor = std::unique_ptr<IConditionVisitor>();
-  visitor.reset(new ConditionDebugVisitor);
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+  collector.reset(new DebugInfoCollector("bad0"));
   
-  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+  bool pass = matcher.match(groups.begin(), groups.end(), collector);
+  collector->write();
 
-  if(out){
-    *out << "dumping visitor\n";
-    *out << visitor->toString();   
-  }
-  
   for(auto j : jets){delete j;}
-  EXPECT_TRUE(pass);
+  EXPECT_FALSE(pass);
 }
 
 
@@ -181,18 +177,14 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_BadConfig, bad1){
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
-  auto visitor = std::unique_ptr<IConditionVisitor>();
-  visitor.reset(new ConditionDebugVisitor);
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+  collector.reset(new DebugInfoCollector("bad1"));
   
-  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
-
-  if(out){
-    *out << "dumping visitor\n";
-    *out << visitor->toString();   
-  }
+  bool pass = matcher.match(groups.begin(), groups.end(), collector);
+  collector->write();
   
   for(auto j : jets){delete j;}
-  EXPECT_TRUE(pass);
+  EXPECT_FALSE(pass);
 }
 
 

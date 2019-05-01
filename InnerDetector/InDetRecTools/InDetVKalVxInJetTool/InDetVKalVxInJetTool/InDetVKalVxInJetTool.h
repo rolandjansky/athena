@@ -100,7 +100,8 @@ namespace InDet {
 		     std::vector<const Rec::TrackParticle*>    TrkFromV0;
   };
 
-  class InDetVKalVxInJetTool : public AthAlgTool, virtual public ISecVertexInJetFinder{
+//This tool should not be used in a reentrant algorithm because of the mutable m_NRefPVTrk
+  class ATLAS_NOT_THREAD_SAFE InDetVKalVxInJetTool : public AthAlgTool, virtual public ISecVertexInJetFinder{
 
 
   public:

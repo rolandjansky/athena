@@ -3,7 +3,7 @@
 */
 
 #include "./DijetConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include <sstream>
 #include <stdexcept>
 #include <TLorentzVector.h>
@@ -27,7 +27,7 @@ DijetConditionMT::DijetConditionMT(double massMin,
 
 bool
 DijetConditionMT::isSatisfied(const HypoJetVector& ips,
-                              std::unique_ptr<IConditionVisitor>& visitor) const{
+                              const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
 
   if(ips.size() != 2){
     std::stringstream ss;
@@ -60,7 +60,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   if (m_massMin > mass or mass >= m_massMax){pass = false;}
   if (m_detaMin > adeta or adeta >= m_detaMax){pass = false;}
 
-   if(visitor){
+   if(collector){
      std::stringstream ss;
      const void* address = static_cast<const void*>(this);
      ss << "Condition: " << address << " "
@@ -71,7 +71,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
        ss << address << " ";  
      }
      ss << '\n';
-     visitor->visit(this, ss.str());
+     collector->collect("DijetConditionMT", ss.str());
    }
   return pass;
 

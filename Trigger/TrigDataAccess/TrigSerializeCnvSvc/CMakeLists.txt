@@ -9,7 +9,6 @@ atlas_subdir( TrigSerializeCnvSvc )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthenaBaseComps
-                          Control/SGTools
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
@@ -26,10 +25,10 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigSerializeCnvSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeCnvSvc
-                   LINK_LIBRARIES AthContainers AthenaBaseComps SGTools GaudiKernel StoreGateLib SGtests TrigSerializeResultLib TrigSerializeTPLib
+                   LINK_LIBRARIES AthContainers AthenaBaseComps GaudiKernel StoreGateLib SGtests TrigSerializeResultLib TrigSerializeTPLib
                    PRIVATE_LINK_LIBRARIES AthenaKernel DataModelRoot StorageSvc PersistentDataModel )
 
 atlas_add_component( TrigSerializeCnvSvc
                      src/components/*.cxx
-                     LINK_LIBRARIES AthContainers AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel AthenaKernel DataModelRoot StorageSvc PersistentDataModel TrigSerializeResultLib TrigSerializeTPLib TrigSerializeCnvSvcLib )
+                     LINK_LIBRARIES AthContainers AthenaBaseComps StoreGateLib SGtests GaudiKernel AthenaKernel DataModelRoot StorageSvc PersistentDataModel TrigSerializeResultLib TrigSerializeTPLib TrigSerializeCnvSvcLib )
 

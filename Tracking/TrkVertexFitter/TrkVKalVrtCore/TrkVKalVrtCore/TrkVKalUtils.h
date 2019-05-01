@@ -11,9 +11,9 @@ namespace Trk {
 
   struct Vect3DF{ 
     double X; double Y; double Z;
-    Vect3DF(){ X=Y=Z=0.; }
-    void Set(double arr[3]){ X=arr[0]; Y=arr[1]; Z=arr[2]; }
-    double Dist3D( Vect3DF & v) { return sqrt(pow(X-v.X,2)+pow(Y-v.Y,2)+pow(Z-v.Z,2)); }
+    Vect3DF() noexcept  { X=Y=Z=0.; }
+    void Set(double arr[3]) noexcept { X=arr[0]; Y=arr[1]; Z=arr[2]; }
+    double Dist3D( Vect3DF & v) const noexcept  { return sqrt(pow(X-v.X,2)+pow(Y-v.Y,2)+pow(Z-v.Z,2)); }
   };
 
   struct VectMOM { double Px; double Py; double Pz; double E; };

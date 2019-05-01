@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,54 +35,52 @@ namespace InDet
   */  
 
   class SeedToTrackConversionTool : virtual public ISeedToTrackConversionTool, public AthAlgTool
-    {
-    public:
-      SeedToTrackConversionTool(const std::string&,const std::string&,const IInterface*);
+  {
+  public:
+    SeedToTrackConversionTool(const std::string&,const std::string&,const IInterface*);
 
-       /** default destructor */
-      virtual ~SeedToTrackConversionTool ();
+    /** default destructor */
+    virtual ~SeedToTrackConversionTool() = default;
       
-       /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
-       /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+    /** standard Athena-Algorithm method */
+    virtual StatusCode initialize();
+    /** standard Athena-Algorithm method */
+    virtual StatusCode finalize  ();
 
-      // Main methods for seeds conversion
-      virtual void executeSiSPSeedSegments   (const Trk::TrackParameters*,const int&, const std::list<const Trk::SpacePoint*>&); 
-      //!<seed trackparameters, number of tracks found:m_track.size(), list of spacepoints
-      virtual void newEvent();
-      virtual void newEvent(const Trk::TrackInfo&,const std::string&);
-      virtual void endEvent();
+    // Main methods for seeds conversion
+    virtual void executeSiSPSeedSegments(const Trk::TrackParameters*, const int&, const std::list<const Trk::SpacePoint*>&); 
+    //!<seed trackparameters, number of tracks found:m_track.size(), list of spacepoints
+    virtual void newEvent();
+    virtual void newEvent(const Trk::TrackInfo&,const std::string&);
+    virtual void endEvent();
 
-      //////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    // Print internal tool parameters and status
+    ///////////////////////////////////////////////////////////////////
       
-      virtual MsgStream&    dump(MsgStream&    out) const;
-      virtual std::ostream& dump(std::ostream& out) const;
-      // enter declaration of your interface-defining member functions here
+    virtual MsgStream&    dump(MsgStream&    out) const;
+    virtual std::ostream& dump(std::ostream& out) const;
+    // enter declaration of your interface-defining member functions here
       
-    protected:
-      PublicToolHandle<Trk::IExtrapolator>        m_extrapolator
-         {this,"Extrapolator","Trk::Extrapolator",""}; //!< extrapolator
-      PublicToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator
-         {this,"RIO_OnTrackCreator","Trk::RIO_OnTrackCreator/InDetRotCreator",""}; //!< Creator ROT
-      mutable TrackCollection*              m_seedsegmentsCollection; //!< output collection for seed
-      std::string                           m_seedsegmentsOutput; //!< SiSpSeedSegments Output Collection
-      Trk::TrackInfo                        m_trackinfo     ; //!< TrackInfo for seeds 
-      std::string                           m_patternName   ; //!< Name of the pattern recognition
-      int                                   m_nprint        ; //!< Kind output information
-      int                                   m_totseed       ; //!< number of total seeds in the pass
-      int                                   m_survived      ; //!< number of survived seeds 
+  protected:
+    PublicToolHandle<Trk::IExtrapolator> m_extrapolator
+    {this, "Extrapolator","Trk::Extrapolator", ""}; //!< extrapolator
+    PublicToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator
+    {this, "RIO_OnTrackCreator", "Trk::RIO_OnTrackCreator/InDetRotCreator", ""}; //!< Creator ROT
+    mutable TrackCollection* m_seedsegmentsCollection{nullptr}; //!< output collection for seed
+    std::string m_seedsegmentsOutput{"SiSPSeedSegments"}; //!< SiSpSeedSegments Output Collection
+    Trk::TrackInfo                        m_trackinfo     ; //!< TrackInfo for seeds 
+    StringProperty m_patternName{this, "TrackPatternRecoInfo", "SiSPSeededFinder", "Name of the pattern recognition"};
+    int                                   m_nprint{0}     ; //!< Kind output information
+    int                                   m_totseed{0}    ; //!< number of total seeds in the pass
+    int                                   m_survived{0}   ; //!< number of survived seeds 
       
-      /** member variables for algorithm properties: */
-      // int/double/bool  m_propertyName;
-      MsgStream&    dumpconditions(MsgStream&    out) const;
-      MsgStream&    dumpevent     (MsgStream&    out) const;
-      
-    }; 
-  MsgStream&    operator << (MsgStream&   ,const SeedToTrackConversionTool&);
-  std::ostream& operator << (std::ostream&,const SeedToTrackConversionTool&); 
+    MsgStream& dumpconditions(MsgStream& out) const;
+    MsgStream& dumpevent     (MsgStream& out) const;
+
+  }; 
+  MsgStream&    operator << (MsgStream&   , const SeedToTrackConversionTool&);
+  std::ostream& operator << (std::ostream&, const SeedToTrackConversionTool&); 
 } // end of namespace
 
 #endif 

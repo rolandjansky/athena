@@ -86,8 +86,8 @@ const PseudoJetContainer* MuonSegmentPseudoJetGetter::getC() const {
   
   // record
   SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
-  ATH_MSG_DEBUG("New PseudoJetContainer in event store with extractor: " 
-                << extractor->toString(0));
+  //ATH_MSG_DEBUG("New PseudoJetContainer in event store with extractor: " 
+  //              << extractor->toString(0));
 
   // notify
   if ( ! handle_out.put(std::move(pjcont_ptr))) {

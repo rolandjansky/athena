@@ -7,7 +7,7 @@
 # art-output: *.txt
 # art-output: *.root
 
-export NAME="TrigUpgradeTest_full_menu_grid"
+export NAME="full_menu_grid"
 export INPUT="run2dataFTK" # FTK doesn't matter here - using this dataset because of larger stats
 export EVENTS=1000
 export THREADS=1

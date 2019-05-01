@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool
+from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool, TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool, TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool
 from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AppMgr import ToolSvc
@@ -173,6 +173,18 @@ muFastThresholdsForECWeakBRegion = {
     '50GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
+
+
+# Working points for EF track isolation algorithm
+# syntax is:
+# 'WPname' : cut on 0.3 cone
+# put < 0 for no cut
+trigMuonEFTrkIsoThresholds = {
+    'ivarmedium'      : 0.07, #ivarmedium
+    'ivartight'       : 0.06, #ivartight
+    'ivarverytight'  : 0.04   #ivarverytight
+    }
+
 
 
 def addMonitoring(tool, monClass, name, thresholdHLT ):
@@ -463,6 +475,46 @@ class TrigMuonEFCombinerHypoConfig():
 
         return tool
 
+
+
+def TrigMuonEFTrackIsolationHypoToolFromDict( chainDict ) :
+    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Muon']
+    thresholds = cparts[0]['isoInfo']
+    config = TrigMuonEFTrackIsolationHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    return tool
+
+class TrigMuonEFTrackIsolationHypoConfig() :
+
+    def ConfigurationHypoTool(self, toolName, isoCut):
+
+        tool=TrigMuonEFTrackIsolationHypoTool(toolName)
+
+        try:
+            ptcone03 = trigMuonEFTrkIsoThresholds[ isoCut ]
+
+            self.PtCone02Cut = -1.0
+            self.PtCone03Cut = ptcone03
+            self.AcceptAll = False
+
+            if 'MS' in isoCut:
+                self.RequireCombinedMuon = False
+            else:
+                self.RequireCombinedMuon = True
+
+            self.DoAbsCut = True
+            if 'var' in isoCut :
+                self.useVarIso = True
+            else :
+                self.useVarIso = False                                
+        except LookupError:
+            if(isoCut=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'isoCut = ', isoCut
+                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+        return tool
 
 
 

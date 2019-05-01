@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
 from TrigUpgradeTest.InDetSetup import inDetSetup
 
@@ -42,6 +42,9 @@ def FSmuEFSASequenceCfg(flags):
 
 def FSmuEFCBSequenceCfg(flags):
     return muEFCBFSSequence()
+
+def muEFIsoSequenceCfg(flags):
+    return muEFIsoSequence()
 
 
 ############################################# 
@@ -73,6 +76,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
             "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
             "msonly":[self.getmuFast(), self.getmuEFMS()],
+            "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
         }
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
@@ -139,6 +143,13 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepName = 'Step1_FSmuEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
+        return ChainStep(stepName, [muSeq])
+
+    #---------------------
+    def getmuEFIso(self):
+        stepName = 'Step1_muEFIso'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
         return ChainStep(stepName, [muSeq])
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -122,7 +122,7 @@ int vtcfitc( VKVertex * vk )
 			      + al0[jc].Z * vk->fitVcov[5] * al0[ic].Z;
 
 	    for (it=0; it<NTRK; ++it) {
-                t_trk=vk->tmpArr[it];
+                t_trk=vk->tmpArr[it].get();
 		denom[ic][jc] +=          tf0t[ic][it].X * t_trk->wci[0] * tf0t[jc][it].X 
 					+ tf0t[ic][it].Y * t_trk->wci[1] * tf0t[jc][it].X 
 					+ tf0t[ic][it].Z * t_trk->wci[3] * tf0t[jc][it].X 
@@ -148,7 +148,7 @@ int vtcfitc( VKVertex * vk )
 /*    Solving of system DENOM(i,j)*COEF(j)=ANUM(i) */
 /*            for lagrange couplings               */
 /*-------------------------------------------------*/
-    double * coef = new double[totNC];
+    auto coef = std::make_unique<double[]>(totNC);
     if (totNC == 1) {
 	if (denom[0][0] != 0.) {
 	    coef[0] = anum[0] / denom[0][0];
@@ -156,26 +156,24 @@ int vtcfitc( VKVertex * vk )
 	    coef[0] = 1.e3;
 	}
     } else {
-        double * adenom = new double[totNC*totNC];
-        double * work   = new double[totNC*totNC];
-        double * eigv   = new double[totNC*totNC];
-        double * scale  = new double[totNC];
+        auto adenom = std::make_unique<double[]>(totNC*totNC);
+//        auto work   = std::make_unique<double[]>(totNC*totNC);
+//        auto eigv   = std::make_unique<double[]>(totNC*totNC);
+        auto scale  = std::make_unique<double[]>(totNC);
 	for (ic=0; ic<totNC; ic++) {
 	    for (jc=0; jc<totNC; jc++) {
 		adenom[ic*totNC + jc] = denom[ic][jc];
 	    }
 	}
-	scaleg(adenom, scale,  totNC,  totNC);
+	scaleg(adenom.get(), scale.get(),  totNC,  totNC);
 	//digx(adenom, eigv, work, totNC, 0);
 	//if (eigv[0] <= eigv[totNC-1] * 1.e-10) {
 	//    double sdet = fabs(eigv[0]) + eigv[totNC-1] * 1.e-15;
 	//    for (ic=0; ic<totNC; ++ic) { adenom[ic*totNC + ic] += sdet;}
 	//}
 /* -- INVERT */
-	dsinv(&totNC, adenom, totNC, &IERR);
+	dsinv(&totNC, adenom.get(), totNC, &IERR);
 	if (IERR) {
-          delete[] adenom; delete[] work; delete[] eigv; delete[] scale;
-          delete[] coef;
 	  return IERR;
 	}
 	for (ic=0; ic<totNC; ++ic) {
@@ -186,7 +184,6 @@ int vtcfitc( VKVertex * vk )
 		coef[ic] += adenom[index] * anum[jc];
 	    }
 	}
-        delete[] adenom; delete[] work; delete[] eigv; delete[] scale;
     }
 
 
@@ -218,7 +215,7 @@ int vtcfitc( VKVertex * vk )
 
 /*  new momenta */
     for (it=0; it<NTRK; ++it) {
-        t_trk=vk->tmpArr[it];
+        t_trk=vk->tmpArr[it].get();
 	tmp[0] = 0.;
 	tmp[1] = 0.;
 	tmp[2] = 0.;
@@ -235,7 +232,7 @@ int vtcfitc( VKVertex * vk )
 	}
 
 /*    calculation WCI * TMP */
-        VKTrack * trk = vk->TrackList[it];
+        VKTrack * trk = vk->TrackList[it].get();
 	trk->fitP[0] -=  t_trk->wci[0]*tmp[0] + t_trk->wci[1]*tmp[1] + t_trk->wci[3]*tmp[2];
 	trk->fitP[1] -=  t_trk->wci[1]*tmp[0] + t_trk->wci[2]*tmp[1] + t_trk->wci[4]*tmp[2];
 	double concor =  t_trk->wci[3]*tmp[0] + t_trk->wci[4]*tmp[1] + t_trk->wci[5]*tmp[2];
@@ -244,7 +241,6 @@ int vtcfitc( VKVertex * vk )
 //std::cout<<" Npar="<<trk->fitP[0] <<", "<<trk->fitP[1]<<", "<<trk->fitP[2]<<'\n';
    }
 /* =================================================================== */
-    delete[] coef;
     return 0;
 } 
 

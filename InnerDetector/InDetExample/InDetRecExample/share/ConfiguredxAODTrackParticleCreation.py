@@ -57,6 +57,10 @@ class ConfiguredxAODTrackParticleCreation:
          if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
              xAODTrackParticleCnvAlg.AddTruthLink = True
              xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackTruthCollection
+
+             from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+             xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
+
          elif (InDetFlags.doTruth() and InputTrackTruthCollection == ''):
              print "WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!"
          else:

@@ -910,7 +910,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
     }
   }
 
-  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryFetch(collIDHash)){
+  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryAddFromCache(collIDHash)){
     ATH_MSG_DEBUG("Hash already in collection - cache hit " << collIDHash);
     return 0;
   }

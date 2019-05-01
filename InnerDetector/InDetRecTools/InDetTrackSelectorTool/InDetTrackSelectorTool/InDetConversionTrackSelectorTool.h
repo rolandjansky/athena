@@ -11,7 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "xAODTracking/TrackParticle.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 /**
  * A tool to be used for track preselection in conversion 
  * vertex finding.
@@ -20,7 +20,6 @@
  * June 2008
  */
 
-class IBeamCondSvc;
 
 namespace Trk
 {
@@ -39,21 +38,19 @@ namespace InDet
  
    public:
     
-    StatusCode initialize();
-    
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
     
     InDetConversionTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p); 
  
     ~InDetConversionTrackSelectorTool();
   
     /** Select a Trk::Track  */
-    bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const;
+    virtual bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const override;
   
     /** Select a Trk::TrackParticleBase  */
-    bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const;
+    virtual bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const override;
 
-    bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const ;
+    virtual bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const override;
 
 
     
@@ -64,12 +61,12 @@ namespace InDet
       if( !tp.summaryValue(val,type) ) return 0;
       return val > 0 ? val : 0;
     }
-   
+    
+    Amg::Vector3D getPosOrBeamSpot(const xAOD::Vertex*) const;
    
     ToolHandle <Trk::ITrackSummaryTool>       m_trkSumTool;   //!< Track summary tool
     ToolHandle<Trk::IExtrapolator>            m_extrapolator; //!< Extrapolator tool
-    ServiceHandle<IBeamCondSvc>               m_iBeamCondSvc; //!< pointer to the beam condition service
-
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     /** Properties for track selection:all cuts are ANDed */
     double m_maxSiD0;  //!< Maximal d0 at (0,0,0) for tracks with Si hits
     double m_maxTrtD0; //!< Maximal d0 at (0,0,0) for standalone TRT tracks

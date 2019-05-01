@@ -46,7 +46,7 @@ DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root" ]
+svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" ]
 svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" ]
 svcMgr.DoubleEventSelector.OutputLevel = DEBUG
 

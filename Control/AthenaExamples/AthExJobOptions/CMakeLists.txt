@@ -36,7 +36,7 @@ function (athexjoboptions_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athexjoboptions_${testName}.sh
                   EXTRA_PATTERNS "AutoRetrieveTools"
-                  PROPERTIES TIMEOUT 300
+                  PROPERTIES TIMEOUT 600
                    )
   if( ARG_DEPENDS )
     set_tests_properties( AthExJobOptions_${testName}_ctest

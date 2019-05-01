@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -21,7 +22,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <string>
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class IGroupsMatcherMT{
  public:
@@ -29,9 +30,11 @@ class IGroupsMatcherMT{
   virtual ~IGroupsMatcherMT(){}
   virtual bool match(const HypoJetGroupCIter&,
                      const HypoJetGroupCIter&,
-                     std::unique_ptr<IConditionVisitor>&) = 0;
+                     const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+		     bool debug=false) = 0;
+  
   virtual ConditionsMT getConditions() const noexcept = 0;
-  virtual std::string toString() const noexcept = 0;
+  virtual std::string toString() const = 0;
 };
 
 #endif

@@ -1228,7 +1228,7 @@ class argBSFile(argAthenaFile):
     def _getIntegrity(self, files):
         for fname in files:
             try:
-                rc=call(["AtlListBSEvents.exe", "-c", fname], logger=msg, message="Report by AtlListBSEvents.exe: ", timeout=600)
+                rc=call(["AtlListBSEvents", "-c", fname], logger=msg, message="Report by AtlListBSEvents: ", timeout=600)
             except trfExceptions.TransformTimeoutException:
                 return False
             if rc==0:

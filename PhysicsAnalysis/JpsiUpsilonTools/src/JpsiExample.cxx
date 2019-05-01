@@ -19,6 +19,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TVector3.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 //////////////////////////////////////////////////////////////
 
@@ -31,6 +32,10 @@ JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("muonMass"        , m_muonMass);
   declareProperty("outputNTupleName", m_userFName);
   declareProperty("JpsiCandidates"  ,m_JpsiCandidatesKey = "JpsiCandidates");
+
+  declareProperty("RefTrackPx", m_refPX);
+  declareProperty("RefTrackPy", m_refPY);
+  declareProperty("RefTrackPz", m_refPZ);
 
   // Global Counters; for truth statistics
   m_eventCntr = 0;
@@ -110,7 +115,7 @@ StatusCode JpsiExample::initialize(){
   m_auxTree->Branch("trkOrigPz2", &m_trkOrigPz2);
 
 //  m_auxTree->Branch("rxyError", &m_rxyError);
-
+  ATH_CHECK(m_JpsiCandidatesKey.initialize());
   return StatusCode::SUCCESS;
   
 }
@@ -317,12 +322,13 @@ TVector3 JpsiExample::trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIn
 //    pz = aPerigee->momentum()[Trk::pz];
 //  }
   
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
-  const std::vector<float>& refTrackPx = refTrackPxAcc(*vxCandidate);
-  const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
-  const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hx (m_refPX);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hy (m_refPY);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hz (m_refPZ);
+
+  const std::vector<float>& refTrackPx = hx(*vxCandidate);
+  const std::vector<float>& refTrackPy = hy(*vxCandidate);
+  const std::vector<float>& refTrackPz = hz(*vxCandidate);
 
   if(trkIndex < refTrackPx.size() && refTrackPx.size() == refTrackPy.size() && refTrackPz.size()) {
     px = refTrackPx[trkIndex];

@@ -10,6 +10,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
 muEFSAInfo = "Muons"
+muEFCBInfo = "MuonsCB"
 muL2ISInfo = "MuonL2ISInfo"
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 
@@ -160,8 +161,10 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             RoIs             = "MURoIs")
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
-                                                ProviderTool = MuonTgcRawDataProviderTool )
+  TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider" + postFix,                                                
+                                                ProviderTool = MuonTgcRawDataProviderTool,
+                                                DoSeededDecoding = not forFullScan,
+                                                RoIs             = "MURoIs" )
 
   eventAlgs_MuonPRD.append( TgcRawDataProvider )
   eventAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
@@ -530,6 +533,7 @@ def muEFSARecoSequence( RoIs, name ):
 
 
 def muEFCBRecoSequence( RoIs, name ):
+  global TrackParticlesName
 
   from AthenaCommon.AppMgr import ToolSvc
   import AthenaCommon.CfgGetter as CfgGetter
@@ -565,7 +569,6 @@ def muEFCBRecoSequence( RoIs, name ):
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
   else:
-    global TrackParticlesName
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
@@ -603,7 +606,15 @@ def muEFCBRecoSequence( RoIs, name ):
   trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
-  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles)
+  from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+  from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+  from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonSystemExtensionTool
+  pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+  
+  muonExtTool = Muon__MuonSystemExtensionTool(Extrapolator = AtlasExtrapolator(),
+                                              ParticleCaloExtensionTool = pcExtensionTool)
+
+  theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, MuonSystemExtensionTool=muonExtTool)
 
   #MuonCombinedCandidates
   theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool_"+name, "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
@@ -646,7 +657,7 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.MuonCreatorTool=thecreatortoolCB
   themuoncbcreatoralg.MakeClusters=False
   themuoncbcreatoralg.ClusterContainerName=""
-  themuoncbcreatoralg.MuonContainerLocation = "CBMuons"
+  themuoncbcreatoralg.MuonContainerLocation = muEFCBInfo
   themuoncbcreatoralg.SegmentContainerName = "CBSegments"
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
@@ -667,3 +678,47 @@ def muEFCBRecoSequence( RoIs, name ):
 
 
   return muEFCBRecoSequence, eventAlgs, sequenceOut
+
+
+def efmuisoRecoSequence( RoIs ):
+
+  from AthenaCommon.CFElements import parOR
+
+  efmuisoRecoSequence = parOR("efmuIsoViewNode")
+
+  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  (viewAlgs, eventAlgs) = makeInDetAlgs("MuonIso")
+
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonIso
+  theFTF_Muon = TrigFastTrackFinder_MuonIso()
+  theFTF_Muon.isRoI_Seeded = True
+  viewAlgs.append(theFTF_Muon)
+
+  #TrackParticlesName = ""
+  for viewAlg in viewAlgs:
+    efmuisoRecoSequence += viewAlg
+    if "RoIs" in viewAlg.properties():
+      viewAlg.RoIs = RoIs
+    if "roiCollectionName" in viewAlg.properties():
+      viewAlg.roiCollectionName = RoIs
+
+  #Precision Tracking
+  PTAlgs = [] #List of precision tracking algs
+  PTTracks = [] #List of TrackCollectionKeys
+  PTTrackParticles = [] #List of TrackParticleKeys
+  
+  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso")
+
+  # set up algs
+  from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFTrackIsolationMTConfig
+  trigEFmuIso = TrigMuonEFTrackIsolationMTConfig("TrigEFMuIso")
+  trigEFmuIso.MuonEFContainer = muEFCBInfo
+  trackParticles = PTTrackParticles[-1]
+  trigEFmuIso.IdTrackParticles = trackParticles
+
+  efmuisoRecoSequence += trigEFmuIso
+
+  sequenceOut = trigEFmuIso.MuonContName
+
+  return efmuisoRecoSequence, sequenceOut

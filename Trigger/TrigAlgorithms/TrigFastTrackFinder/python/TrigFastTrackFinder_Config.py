@@ -613,6 +613,10 @@ class TrigFastTrackFinder_MuonFS(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MuonFS"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonFS","Muon")
 
+class TrigFastTrackFinder_MuonIso(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MuonIso"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonIso","Muon")
+
 class TrigFastTrackFinder_eGamma(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_eGamma"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_eGamma","eGamma")

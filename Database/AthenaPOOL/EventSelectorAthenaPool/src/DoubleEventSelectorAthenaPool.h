@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DOUBLEEVENTSELECTORATHENAPOOL_H
@@ -7,7 +7,9 @@
 
 /** @file DoubleEventSelectorAthenaPool.h
  *  @brief This file contains the class definition for the DoubleEventSelectorAthenaPool class.
- *  @author Peter van Gemmeren <gemmeren@anl.gov>
+ *  @author Peter van Gemmeren <gemmeren      -at- anl.gov>
+ *  @author John Detek Chapman <chapman       -at- hep.phy.cam.ac.uk>
+ *  @author Miha Muskinja      <miha.muskinja -at- cern.ch>
  **/
 
 #include "GaudiKernel/IEvtSelector.h"
@@ -157,7 +159,8 @@ private: // internal member functions
                                             long& curCollection, std::vector<int>& numEvt, std::vector<int>& firstEvt,
                                             bool processMetadata, bool throwIncidents = false) const;
   /// Record AttributeList in StoreGate
-  StatusCode recordAttributeList(pool::ICollectionCursor* HeaderIterator, Gaudi::Property<std::string> attrListKey, std::string suffix = "") const;
+  StatusCode recordAllAttributeList() const;
+
   /// Search for event number evtNum.
   int findEvent(int evtNum, std::vector<int>& numEvt, std::vector<int>& firstEvt, const std::vector<std::string>& inputCollections) const;
 
@@ -201,7 +204,7 @@ private: // properties
   Gaudi::Property<std::string> m_derRefName;
   /// AttributeList SG key
   Gaudi::Property<std::string> m_attrListKey;
-  Gaudi::Property<std::string> m_secondaryAttrListKey;
+  Gaudi::Property<std::string> m_secondaryAttrListSuffix;
   /// InputCollections, vector with names of the input collections.
   Gaudi::Property<std::vector<std::string>> m_primaryInputCollectionsProp;
   mutable std::vector<std::string>::const_iterator m_primaryInputCollectionsIterator;

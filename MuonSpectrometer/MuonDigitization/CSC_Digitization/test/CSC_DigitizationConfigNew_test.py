@@ -14,9 +14,6 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-# CSC imports
-from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-from MuonCondSvc.MuonCondSvcConf import CSCCondSummarySvc
 from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderCfg
 
 # Set up logging and new style config

@@ -99,6 +99,9 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     HLT::FexAlgo(name, pSvcLocator),
     m_electronContainerName("egamma_Electrons"),
     m_photonContainerName("egamma_Photons"),
+    m_trackIsolationTool("", this),
+    m_caloCellIsolationTool("", this),
+    m_topoIsolationTool("", this),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
 

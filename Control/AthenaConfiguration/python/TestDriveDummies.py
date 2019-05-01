@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from GaudiKernel.GaudiHandles import  ServiceHandle, PrivateToolHandleArray,PrivateToolHandle, PublicToolHandleArray, PublicToolHandle
 from AthenaCommon.Configurable import Configurable,ConfigurableService, ConfigurableAlgTool
 

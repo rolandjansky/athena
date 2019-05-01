@@ -57,7 +57,7 @@ if( NOT XAOD_STANDALONE )
     SOURCES test/ut_HFORTools_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     LINK_LIBRARIES ${Boost_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccess AthenaBaseComps GaudiKernel HFORToolsLib
-    PROPERTIES TIMEOUT 300 )
+    PROPERTIES TIMEOUT 600 )
 endif()
 
 # Install files from the package:

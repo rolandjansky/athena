@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_MV2TAG_H
@@ -75,7 +75,6 @@ namespace Analysis {
     //const xAOD::Vertex* m_priVtx;
 
     /** reader to define the MVA algorithms */
-    std::map<std::string, const MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 

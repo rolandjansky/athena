@@ -22,7 +22,8 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 /**
    The InDetV0FinderTool reads in the TrackParticle container from StoreGate,
    if useorigin = True only tracks not associated to a primary vertex are used.
@@ -68,8 +69,6 @@
 
 
 /* Forward declarations */
-
-class IBeamCondSvc;
 
 namespace Trk
 {
@@ -174,7 +173,6 @@ namespace InDet
     unsigned int  m_Lambdabar_stored;
     unsigned int  m_Gamma_stored;
 
-    ServiceHandle <IBeamCondSvc> m_beamConditionsService;
 
     void SGError(std::string errService);
 
@@ -195,6 +193,18 @@ namespace InDet
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
 	                                                   "primary vertex container" };
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0LinksDecorkey;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0_ksLinksDecorkey;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0_laLinksDecorkey;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_v0_lbLinksDecorkey;
+
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gfit;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gmass;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gmasserr;
+    SG::WriteDecorHandleKey<xAOD::VertexContainer> m_mDecor_gprob;
+    
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
 
   };
 

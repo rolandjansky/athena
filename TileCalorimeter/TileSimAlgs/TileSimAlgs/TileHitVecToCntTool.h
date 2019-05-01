@@ -111,6 +111,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
 
     std::string m_infoName;                     //!< name of TileInfo object in TES
     bool m_run2;                                //!< if true => RUN2 geometry with E4' and merged E1
+    bool m_run2plus;                            //!< if true => RUN2+ geometry with merged E1 (and E4' in RUN2)
     bool m_pileUp;                              //!< if true => pileup mode is activated
     double m_deltaT;                            //!< minimal time granularity for TileHit
     int m_timeFlag;                             //!< specail options to deal with times of hits for cosmics and TB

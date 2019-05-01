@@ -11,15 +11,16 @@
 class DebugInfoCollector: public ITrigJetHypoInfoCollector {
     
 public:
+  DebugInfoCollector(const std::string& name="Unknown");
   virtual void collect(const std::string&, const std::string&) override;
 
-  std::string toString() const noexcept;
-  void write(std::string, uint32_t run, uint32_t event) const;
-  void write(std::string, std::size_t) const;
+  virtual std::string toString() const override;
+  virtual void write() const override;
 
  private:
   std::map<std::string, std::string> m_info;
-  std::map<std::string, std::size_t> m_calls;  
+  std::map<std::string, std::size_t> m_calls;
+  std::string m_name;
 
 };
 #endif

@@ -23,7 +23,7 @@
 #include <utility>  // std::pair
 #include <set>
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class MaximumBipartiteGroupsMatcherMT:
 virtual public IGroupsMatcherMT {
@@ -39,11 +39,13 @@ public:
   ~MaximumBipartiteGroupsMatcherMT(){}
   bool match(const HypoJetGroupCIter&,
              const HypoJetGroupCIter&,
-             std::unique_ptr<IConditionVisitor>&) override;
+             const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	     bool debug=false) override;
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
 private:
   ConditionsMT m_conditions;
+  bool m_compound;  // true if jet group size >1 
   bool m_pass;
   FlowNetwork m_G;
 };

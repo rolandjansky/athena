@@ -903,10 +903,10 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
     amp = m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, amp, RChUnit, TileRawChannelUnit::MegaElectronVolts);
     int nch = 1;
     
-    if (m_cabling->isRun2Cabling() && (ros > 2)) { // Ext.barrel modules
+    if (m_cabling->isRun2PlusCabling() && (ros > 2)) { // Ext.barrel modules
         
       if (channel == E1_CHANNEL) { // Raw channel -> E1 cell.
-        int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
+        int drawer2 = m_cabling->E1_merged_with_run2plus(ros, drawer);
         if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
           amp /= 2.0F;
           m_ecell_ene[side][drawer2][sample][tower][gg / 3] += amp;

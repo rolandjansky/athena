@@ -190,7 +190,7 @@ MuonChainParts = {
     'threshold'      : '',
     'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],
-    'isoInfo'        : ['ivar',],
+    'isoInfo'        : ['ivar','ivarmedium'],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'hypoInfo'       : [],

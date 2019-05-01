@@ -37,7 +37,9 @@ public:
   ~SingleConditionMatcherMT(){}
   bool match(const HypoJetGroupCIter&,
              const HypoJetGroupCIter&,
-             std::unique_ptr<IConditionVisitor>&) override;
+	     const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	     bool debug) override;
+  
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
 private:

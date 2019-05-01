@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -254,31 +254,33 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     if( m_useZvertexTool ) {
       
       if(doTiming()) m_timerZVertexTool->start();
+
+      std::list<Trk::Vertex> vertices;
       
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,*roi);
+	  vertices = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,*roi));
 	}
 	else {
-	  m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds);
+	  vertices = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds));
 	}
       }
       else{
-	m_zvertexmaker->newEvent();
+	vertices = std::move(m_zvertexmaker->newEvent());
       }
       
       if(doTiming()) m_timerZVertexTool->stop();
       
       if(doTiming()) m_timerSeedsMaker->start();
       
-      m_seedsmaker->find3Sp(m_zvertexmaker->getVertices());
+      m_seedsmaker->find3Sp(vertices);
       
       if(doTiming()) m_timerSeedsMaker->stop();
       
+      m_nZvtx = vertices.size();
       if(m_outputlevel <= 0){ 
-	msg() << MSG::DEBUG << "REGTEST: Number of zvertex found = " << (m_zvertexmaker->getVertices()).size() << endmsg;
+	ATH_MSG_DEBUG("REGTEST: Number of zvertex found = " << m_nZvtx);
       }
-      m_nZvtx = (m_zvertexmaker->getVertices()).size();
     }
     else{
       if(doTiming()) m_timerSeedsMaker->start();

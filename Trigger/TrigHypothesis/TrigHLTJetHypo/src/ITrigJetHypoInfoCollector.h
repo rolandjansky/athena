@@ -10,5 +10,7 @@ class ITrigJetHypoInfoCollector{
     
 public:
   virtual void collect(const std::string&, const std::string&) = 0;
+  virtual std::string toString() const = 0;
+  virtual void write() const = 0;
 };
 #endif
