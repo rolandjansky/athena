@@ -78,7 +78,7 @@ def deduplicateComponent(newComp,comp):
                         continue
                     else:
                         raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
-                                                  (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
+                                                  (comp.getType(),comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                         pass
                     #Case 2: A list of public tools (PublicToolHandleArray) or a list of service (ServiceHandelArray):
                 elif isinstance(oldprop,PublicToolHandleArray) or isinstance(oldprop,ServiceHandleArray):
