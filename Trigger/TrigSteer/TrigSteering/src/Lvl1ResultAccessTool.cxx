@@ -1069,8 +1069,8 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
                   if( ! ignoreThreshold ) {
 
                      ATH_MSG_DEBUG( threshold->name << " is of type " << threshold->type 
-                                    << ( threshold->type == TotalEtRoI ? "TotalEtRoI" : 
-                                         ( threshold->type == MissingEtRoI ? "MissingEtRoI" : METSignificanceRoI) )
+                                    << ( threshold->type == TotalEtRoI ? "TotalEtRoI" :
+                                         ( threshold->type == MissingEtRoI ? "MissingEtRoI" : "METSignificanceRoI") )
                                     << " and etSumType " << etSumType << "(" << (etSumType==0 ? "full range" : "restricted range") << ")");
 
                      roiET.setType(MissingOrTotalEtRoI);
