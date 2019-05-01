@@ -8,11 +8,11 @@ TrigSignatureMoniMT                                INFO HLT_2mu6_L1MU6 decisions
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        0         0         0         18        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        16        0         16        
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        343       47        0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        342       47        0         
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        16        15        0         15        
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        330       45        0         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        329       45        0         
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        15        14        13        0         13        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        265       31        0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        264       31        0         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6           20        20        3         2         2         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6 decisions                     3         2         2         0         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb_L1MU6             20        20        3         2         0         0         2         

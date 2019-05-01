@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -295,14 +295,16 @@ class CaloDetDescrManager_Base
   
   /** @brief translate between the 2 ways to label a sub-detector: 
    */
+  static
   void build_sample (CaloCell_ID::SUBCALO subCalo, bool barrel,
 		     int sampling_or_module,
-		     CaloCell_ID::CaloSample& sample) const;
+		     CaloCell_ID::CaloSample& sample);
   /** @brief translate between the 2 ways to label a sub-detector: 
    */
+  static
   void decode_sample (CaloCell_ID::SUBCALO& subCalo, bool& barrel,
 		      int& sampling_or_module,
-		      CaloCell_ID::CaloSample sample) const;   
+		      CaloCell_ID::CaloSample sample);   
 
 
   // Iterator over detector descriptors.
