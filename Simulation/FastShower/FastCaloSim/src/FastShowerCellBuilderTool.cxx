@@ -2551,16 +2551,13 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 StatusCode FastShowerCellBuilderTool::setupEvent (const EventContext& ctx,
                                                   TRandom3& rndm) const
 {
-  m_rndmSvc->printEngineState(this,m_randomEngineName);
+  if( msgLvl(MSG::VERBOSE) ) { m_rndmSvc->printEngineState(this,m_randomEngineName); }
   unsigned int rseed=0;
   CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine(ctx);
   while(rseed==0) {
     rseed=(unsigned int)( CLHEP::RandFlat::shoot(engine) * std::numeric_limits<unsigned int>::max() );
   }
   rndm.SetSeed(rseed);
-
-  //log<<" seed(rndm="<<rndm.ClassName()<<")="<<rndm.GetSeed();
-  //log<< endmsg;
 
   return StatusCode::SUCCESS;
 }
