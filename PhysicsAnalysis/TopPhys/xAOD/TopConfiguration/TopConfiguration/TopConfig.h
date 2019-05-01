@@ -911,6 +911,14 @@ class TopConfig final {
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
 
+  // Switch to use BadBatmanCleaning
+  inline bool useBadBatmanCleaning() const { return m_useBadBatmanCleaning; }
+  inline void setUseBadBatmanCleaning(const bool value) { m_useBadBatmanCleaning = value; }
+  inline unsigned int badBatmanCleaningMin() const { return m_badBatmanCleaningMin; }
+  inline void setBadBatmanCleaningMin(const unsigned int value) { m_badBatmanCleaningMin = value; }
+  inline unsigned int badBatmanCleaningMax() const { return m_badBatmanCleaningMax; }
+  inline void setBadBatmanCleaningMax(const unsigned int value) { m_badBatmanCleaningMax = value; }
+
   // Switch to use event-level jet cleaning tool for studies
   inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
   inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
@@ -1554,6 +1562,11 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
+
+  // Switch to use BadBatmanCleaning
+  bool m_useBadBatmanCleaning;
+  unsigned int m_badBatmanCleaningMin;
+  unsigned int m_badBatmanCleaningMax;
 
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;

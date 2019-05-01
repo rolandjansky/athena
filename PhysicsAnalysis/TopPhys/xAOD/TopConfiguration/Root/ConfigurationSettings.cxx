@@ -37,7 +37,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("TruthLargeRJetCollectionName", "Name of the Truth Large R Jet container", "None");
 
     registerParameter("applyTTVACut", "Decide if to apply lepton z0/d0 cuts", "True");
-    
+
     registerParameter("GRLDir","Location of GRL File","TopAnalysis");
     registerParameter("GRLFile","Name of GRL File", " ");
 
@@ -98,7 +98,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
-    
+
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
@@ -114,7 +114,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
                       "(alternative not optimized on large-R jet containing a truth top)",
                       "default");
-    
+
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
 
@@ -124,7 +124,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0",   "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",   "False");
     registerParameter("UseRCJetAdditionalSubstructure", "Calculate Additional Reclustered Jet Substructure Variables. Default False",   "False");
-    
+
     registerParameter("UseRCJets",   "Use Reclustered Jets. Default False.", "False");
 
     registerParameter("VarRCJetPt",        "Reclustered Jet (variable-R) pT cut for object selection (in MeV). Default 100000 MeV.", "100000.");
@@ -167,20 +167,20 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "False");
     registerParameter("TauJetConfigFile",
 		      "Config file to configure tau selection. "
-		      "If anything other than 'Default'" 
+		      "If anything other than 'Default'"
 		      "then all cuts are taken from the "
 		      "config file rather than other options.",
 		      "Default");
     registerParameter("TauJetConfigFileLoose",
 		      "Config file to configure loose tau selection. "
-		      "If anything other than 'Default'" 
+		      "If anything other than 'Default'"
 		      "then all cuts are taken from the "
 		      "config file rather than other options.",
 		      "Default");
     registerParameter("ApplyTauMVATES",
                       "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
                       "True");
-    
+
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) " , "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
@@ -193,7 +193,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. (default: False)","False");
     registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
     registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
-    registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
+    registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");
     registerParameter("RecomputeCPVariables", "Run the CP tools to force computation of variables that may already exist in derivations? (default: True)", "True");
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
@@ -347,10 +347,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
 		      "True or False (default False)", "False");
-    
+
     registerParameter("NumberOfBootstrapReplicas", "Define integer number of replicas to be stored with bootstrapping, "
 		      "Default 100", "100");
 
+    registerParameter("UseBadBatmanCleaning", "Switch to turn on BadBatman cleanig.", "False");
+    registerParameter("BadBatmanCleaningRange", "Set a range of RunNumbers where the cleaning is applied in the form of XXXXX:YYYYY", "276262:311481");
     registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
 
     registerParameter("UseGlobalLeptonTriggerSF", "Switch to activate event-level trigger scale factors allowing multiple OR of single-, di-, tri- lepton triggers, True or False (default False)", "False");
