@@ -762,7 +762,7 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
 	    // https://acode-browser.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigT1/TrigT1CaloUtils/src/JetAlgorithm.cxx#0337
 	    int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
 	    int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
-	    multiplicity +=  ( jet->et8x8()/1000. < confThr->triggerThresholdValue( ieta, iphi )->ptcut() ) ? 0 : 1;
+	    multiplicity +=  ( ((unsigned int) (jet->et8x8()/1000.)) > confThr->triggerThresholdValue( ieta, iphi )->ptcut() ) ? 1 : 0;
 	 }
       }
    }
@@ -771,6 +771,7 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
    CHECK( m_histSvc->getHist( histBasePath() + "/multi/jet", h) ); 
    h->Fill(confThr->mapping(), multiplicity);
 
+   ATH_MSG_DEBUG("JET MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 }
 
@@ -787,8 +788,10 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
          int iphi = 0;
          const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue( ieta, iphi );
+         const ClusterThresholdValue *ctv = dynamic_cast<const ClusterThresholdValue *>(thrV);
+         float scale = ctv->caloInfo().globalEmScale();
 
-         bool clusterPasses = ( cl->et() >= thrV->ptcut() ); // need to add cut on isolation and other variables, once available
+         bool clusterPasses = ( ((unsigned int) cl->et()) > thrV->ptcut()*scale ); // need to add cut on isolation and other variables, once available
          multiplicity +=  clusterPasses ? 1 : 0;
       }
    } else {
@@ -842,6 +845,7 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
    TH1 * h { nullptr };
    CHECK( m_histSvc->getHist( histBasePath() + "/multi/em", h) ); h->Fill(confThr->mapping(), multiplicity);
    
+   ATH_MSG_DEBUG("EM MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 }
 
@@ -854,7 +858,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
       const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
       if( m_eFEXTau ) {
          for ( const auto & tau : * m_eFEXTau ) {
-            float eT = accR3ClET(*tau)/1000.; // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
+            unsigned int eT = (unsigned int) (accR3ClET(*tau)/1000.); // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
             //float iso = accR3ClIso(*tau);
             float eta = tau->eta();
             int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
@@ -893,9 +897,9 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
       }
    }
    TH1 * h { nullptr };
-   ATH_MSG_DEBUG("JOERG TAU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    CHECK( m_histSvc->getHist( histBasePath() + "/multi/tau", h) ); h->Fill(confThr->mapping(), multiplicity);
    
+   ATH_MSG_DEBUG("TAU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 }
 
@@ -922,7 +926,7 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
          }
          double missingET = sqrt(energyX*energyX + energyY*energyY);
          const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue( 0, 0 );
-         multiplicity = missingET >= thrV->ptcut() ? 1 : 0;
+         multiplicity = ((unsigned int) missingET) >= thrV->ptcut() ? 1 : 0;
       } else {
          if ( m_energyCTP.isValid() ) {
             if ( confThr->cableName() == "JEP3" || confThr->cableName() == "EN1") {
@@ -988,6 +992,8 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
    } else {
       CHECK( m_histSvc->getHist( histBasePath() + "/multi/xe", h) ); h->Fill(confThr->mapping(), multiplicity);
    }
+
+   ATH_MSG_DEBUG("XE/TE/XS MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 
 }
@@ -1010,6 +1016,7 @@ LVL1CTP::CTPEmulation::calculateMuonMultiplicity( const TrigConf::TriggerThresho
    TH1 * h { nullptr };
    CHECK( m_histSvc->getHist( histBasePath() + "/multi/muon", h) ); h->Fill(confThr->mapping(), multiplicity);
 
+   ATH_MSG_DEBUG("MU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 }
 

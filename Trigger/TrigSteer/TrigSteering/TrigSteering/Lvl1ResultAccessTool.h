@@ -30,6 +30,7 @@
 #include <vector>
 #include <bitset>
 #include <string>
+#include <map>
 
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/EnergySumRoI.h"
@@ -320,6 +321,8 @@ namespace HLT {
       std::vector< ConfigThreshold > m_tauCfg;            //!< vector holding all configured LVL1 TAU thresholds
       std::vector< ConfigJetEThreshold > m_jetCfg;        //!< vector holding all configured LVL1 jet thresholds
 
+      std::map<std::string,unsigned int>  m_metThrCuts; //! map to look up MET threshold by name
+
       std::vector<TrigConf::TriggerThreshold*> m_emtauThresholdsRun2;
       std::vector<TrigConf::TriggerThreshold*> m_emtauThresholdsRun3;
       std::vector<TrigConf::TriggerThreshold*> m_jetThresholdsRun2;
@@ -327,6 +330,11 @@ namespace HLT {
 
       bool addJetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold );
       bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange );
+
+      /**
+       * @brief helper function to add a MET threshold to an JetEnergyRoI if it passes the threshold energy cut 
+       */
+      bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold * thr, unsigned int thrVal);
     
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
    };

@@ -80,12 +80,14 @@ Lvl1Converter::Lvl1Converter(const std::string& name, const std::string& type,
    declareProperty( "muonRoIsLimit", m_muonRoIsLimit = 0,           "Return failure (specific one) if number of MU RoIs > that. 0 means no limit." );
    declareProperty( "ignoreL1Prescales", m_ignoreL1Prescales=false, "If true  L1 prescales are ignored (takes But Before Prescale)");
 
-   declareProperty( "useRun3FEXOutput", m_useRun3FEXOutput=true, "Extracts ROIs with thresholds from ROIBResult and from L1Calo Run3 containers" ); 
+   declareProperty( "useRun3FEXOutput", m_useRun3FEXOutput=false, "Extracts ROIs with thresholds from ROIBResult and from L1Calo Run3 containers" ); 
 }
 
 ErrorCode Lvl1Converter::hltInitialize()
 {
-  
+ 
+   ATH_MSG_INFO("Setup to use Run 3 input TOBs : " << (m_useRun3FEXOutput ? "yes" : "no") );
+ 
   // retrieve Lvl1ResultAccessTool :
   //  StatusCode sc = toolSvc()->retrieveTool("HLT::Lvl1ResultAccessTool", m_lvl1Tool);
 
@@ -505,7 +507,7 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       // reconstruct RoIs
       ATH_MSG_DEBUG("JetEnergy RoIs");
       const std::vector<const xAOD::JetRoIContainer *> & jetContainers = { &*m_jJet, &*m_jLJet, &*m_gJet };
-      const std::vector<std::string> & jetThresholdFilters = {"j", "jL", "g"};
+      const std::vector<std::string> & jetThresholdFilters = {"jJ", "jLJ", "gJ"};
       const std::vector<const xAOD::EnergySumRoI *> & metROIs = { &*m_gFEXMETPufit, &*m_gFEXMETRho, &*m_gFEXMETJwoJ };
       const std::vector<std::string> & metThresholdFilters  = { "gXEPUFIT", "gXERHO", "gXEJWOJ" };
 

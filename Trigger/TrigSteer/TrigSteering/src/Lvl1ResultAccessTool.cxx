@@ -472,6 +472,15 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
            m_useL1JetEnergy = true;
         }
      }
+
+     // build map to look up MET/TE cut value from threshold name
+     for( auto & listOfThrVec : { thresholdConfig->getMissEtVector(), thresholdConfig->getTotEtVector()} ) {
+        for(const TrigConf::TriggerThreshold * thr : listOfThrVec ) {
+           const TrigConf::TriggerThresholdValue * thrV = thr->triggerThresholdValue( 0, 0 );
+           m_metThrCuts[thr->name()] = thrV->ptcut();
+        }
+     }
+
   } // end of Jet/Energy part
 
   ATH_MSG_DEBUG(" Initialize done");
@@ -757,8 +766,8 @@ const std::vector< EMTauRoI >& Lvl1ResultAccessTool::createEMTauThresholds(const
    if (m_useL1Calo) {
 
       // reconstruct RoIs
-      ATH_MSG_DEBUG("Looking for EMTau RoIs");
-      ATH_MSG_DEBUG("----------------------");
+      ATH_MSG_DEBUG("Looking for EMTau RoIs in ROIB::EMTauResult");
+      ATH_MSG_DEBUG("-------------------------------------------");
 
       std::map<std::pair<int,int>, int> emRoI, tau; // (crate,module) : count
 
@@ -829,6 +838,9 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
       return m_emTauRoIs;
    }
 
+   ATH_MSG_DEBUG("Looking for EMTau RoIs in xAOD::TrigEMClusterContainer and xAOD::EmTauRoIContainer");
+   ATH_MSG_DEBUG("----------------------------------------------------------------------------------");
+
    for ( const auto & tau : tauROIs ) {
 
       const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
@@ -849,6 +861,9 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
       LVL1::CoordToHardware converter;
       unsigned int cpCoord = converter.cpCoordinateWord(coord);
       roiword += cpCoord << 16;
+      // isolation
+      uint32_t isolation = 0x1f; // until resolved, set all 5 isolation bits to agree with CTPEmulation
+      roiword += isolation << 8;
       // energy
       unsigned int eTCounts = (unsigned int) (eT/500.); // 1 count is 500MeV in Run 2, tau eT is in MeV
       roiword += eTCounts<256 ? eTCounts : 255; // energy is 8 bits => limit 255
@@ -858,6 +873,8 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
       LVL1::RecEmTauRoI recRoI( roiword, &m_emtauThresholdsRun3 );
       roi.setThresholdMask(recRoI.thresholdPattern());
 
+      ATH_MSG_DEBUG("Tau RoI word: 0x" << MSG::hex << std::setw(8) << roiword << ", threshold pattern 0x" << roi.thresholdMask() << MSG::dec);
+
       for ( const ConfigThreshold & threshold : m_tauCfg) {
          
          // check whether this LVL1 threshold is used by HLT:
@@ -865,7 +882,9 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
 
          roi.addThreshold( &threshold );
          
-         ATH_MSG_DEBUG("creating TAU threshold: "  << threshold.name << " for Run 3 TAU ROI (eFEX) " << eTCounts);
+         ATH_MSG_DEBUG( "adding TAU threshold "  << threshold.name 
+                        << " to Run 3 TAU ROI (eFEX) with counts=" << eTCounts 
+                        << " and eta=" << eta);
       }
 
       m_emTauRoIs.push_back(roi);
@@ -887,6 +906,9 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
       LVL1::CoordToHardware converter;
       unsigned int cpCoord = converter.cpCoordinateWord(coord);
       roiword += cpCoord << 16;
+      // isolation
+      uint32_t isolation = 0x1f; // until resolved, set all 5 isolation bits to agree with CTPEmulation
+      roiword += isolation << 8;
       // energy
       unsigned int eTCounts = (unsigned int) (2*eT); // 1 count is 500MeV in Run 2, em eT is in GeV
       roiword += eTCounts<256 ? eTCounts : 255; // energy is 8 bits => limit 255
@@ -895,6 +917,8 @@ Lvl1ResultAccessTool::createEMTauThresholds(const ROIB::RoIBResult& result,
 
       LVL1::RecEmTauRoI recRoI( roiword, &m_emtauThresholdsRun3 );
       roi.setThresholdMask(recRoI.thresholdPattern());
+
+      ATH_MSG_DEBUG("EM RoI word: 0x" << MSG::hex << std::setw(8) << roiword << ", threshold pattern " << roi.thresholdMask() << MSG::dec);
 
       for ( const ConfigThreshold & threshold : m_emCfg) {
          
@@ -955,7 +979,7 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
 
             unsigned int etSumType = itJetEn->etSumType();
 
-            ATH_MSG_DEBUG("RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
+            ATH_MSG_DEBUG("Run 2 RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
 
             // RoI Type
             LVL1::TrigT1CaloDefs::RoIType roiType = m_jepDecoder->roiType(roIWord);
@@ -978,7 +1002,7 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
                   return m_jetRoIs;
                }
 
-               ATH_MSG_DEBUG( "RoI triplet = 0x" <<  std::hex << std::setw( 8 ) << std::setfill( '0' )
+               ATH_MSG_DEBUG( "Run 2 RoI triplet = 0x" <<  std::hex << std::setw( 8 ) << std::setfill( '0' )
                               << roIWord << " 0x" << roIWord1 << " 0x" << roIWord2 << std::dec);
 
             } else if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {        
@@ -989,7 +1013,7 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
                LVL1::RecJetRoI recRoI( roIWord, &m_jetThresholdsRun2 );
                roi.setThresholdMask(recRoI.thresholdPattern());
 
-               ATH_MSG_DEBUG("Jet RoI threshold pattern: 0x" << std::hex << recRoI.thresholdPattern() << std::dec);
+               ATH_MSG_DEBUG("Jet Run 2 RoI threshold pattern: 0x" << std::hex << recRoI.thresholdPattern() << std::dec);
 
             }
  
@@ -1000,15 +1024,12 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
 
                if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType && (threshold->type == JetRoI || threshold->type == ForwardJetRoI) ) {
 
-                  ATH_MSG_DEBUG(threshold->name << " is of type JetRoI or ForwardJetRoI");
-
                   // plain Jet & ForwardJet RoI
                   //---------------------
                   if ( ! addJetThreshold(roi, &*threshold) ) {
                      ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
                      return  m_jetRoIs;
                   }
-                  ATH_MSG_DEBUG("creating Jet  threshold: " << threshold->name << " for Run 2 Jet ROI");
 
                } else if ( roiType == LVL1::TrigT1CaloDefs::JetEtRoIWordType && threshold->type == JetEtRoI ) {
 
@@ -1020,7 +1041,6 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
                      ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
                      return m_jetRoIs;
                   }
-                  ATH_MSG_DEBUG("creating Jet  threshold: " << threshold->name << " for Run 2 JetET ROI");
 	    
                } else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 && ( threshold->type == TotalEtRoI ||
                                                                                     threshold->type == MissingEtRoI ||
@@ -1048,12 +1068,14 @@ const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThreshol
                   
                   if( ! ignoreThreshold ) {
 
-                     ATH_MSG_DEBUG( threshold->name << " is of type " << threshold->type << " TotalEtRoI (" << TotalEtRoI << ") or MissingEtRoI (" << MissingEtRoI << ") or METSignificanceRoI (" << METSignificanceRoI << ")"
-                                    << " and etSumType " << etSumType << "(" << (etSumType==0?"full range":"restricted range") << ")");
+                     ATH_MSG_DEBUG( threshold->name << " is of type " << threshold->type 
+                                    << ( threshold->type == TotalEtRoI ? "TotalEtRoI" : 
+                                         ( threshold->type == MissingEtRoI ? "MissingEtRoI" : METSignificanceRoI) )
+                                    << " and etSumType " << etSumType << "(" << (etSumType==0 ? "full range" : "restricted range") << ")");
 
                      roiET.setType(MissingOrTotalEtRoI);
 
-                     if ( ! addMetThreshold(roiET, &*threshold, /*isRestrictedRange=*/ false) ) {
+                     if ( ! addMetThreshold(roiET, &*threshold, etSumType==1) ) {
                         ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
                         return m_jetRoIs;
                      }
@@ -1115,15 +1137,20 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
    if (!m_useL1JetEnergy)
       return m_jetRoIs;
 
+   ATH_MSG_DEBUG("Looking for Run 3 JetEnergy RoIs");
+   ATH_MSG_DEBUG("--------------------------------");
+
    uint idx(0);
    for ( const xAOD::JetRoIContainer * jetContainer : jetContainers ) {
-      std::string thrStartWith = jetThresholdFilters[idx++];
+      std::string thrStartsWith = jetThresholdFilters[idx++];
       std::vector<TrigConf::TriggerThreshold*> thresholdsForThisCollection;
       for(auto thr : m_jetThresholdsRun3 ) {
-         if( thr->name().find( thrStartWith ) == 0 ) {
+         if( thr->name().find( thrStartsWith ) == 0 ) {
             thresholdsForThisCollection.push_back(thr);
          }
       }
+      if( thresholdsForThisCollection.size() == 0 ) // no thresholds defined in the menu for this collection 
+         continue;
       for ( const auto & jet : *jetContainer ) {
          float eTLargeWindow = jet->et8x8();
          float eTSmallWindow = jet->et4x4();
@@ -1148,20 +1175,26 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
 
          HLT::JetEnergyRoI roi = HLT::JetEnergyRoI( ROIB::JetEnergyRoI(roiword) );
 
+         ATH_MSG_DEBUG("Run 3 " << thrStartsWith << "et RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roiword << std::dec 
+                       << " small w counts " << eTSmallWindowCounts << ", large w " << eTLargeWindowCounts << ", eta " << eta);
+
          LVL1::RecJetRoI recRoI( roiword, & thresholdsForThisCollection );
          roi.setThresholdMask(recRoI.thresholdPattern());
 
+         ATH_MSG_DEBUG( thrStartsWith << "Run 3 " << thrStartsWith << " Jet RoI threshold pattern: 0x" << std::hex << recRoI.thresholdPattern() << std::dec);
+
          for ( const ConfigJetEThreshold & threshold : m_jetCfg) {
-         
+
+            if( threshold.type != HLT::JetRoI) continue;
+
             // check whether this LVL1 threshold is used by HLT:
             if ( !(threshold.mask & roi.thresholdMask()) ) continue;
 
             if ( ! addJetThreshold(roi, &threshold) ) {
-               ATH_MSG_WARNING("Problem while adding threshold: " << threshold.name << " returning prematurely");
+               ATH_MSG_WARNING("Problem while adding jet threshold: " << threshold.name << " returning prematurely");
                return  m_jetRoIs;
             }
          
-            ATH_MSG_DEBUG("creating Jet threshold: "  << threshold.name << " for Run 3 JET ROI (j/gFEX) " << eTLargeWindowCounts);
          }
 
          m_jetRoIs.push_back(roi);
@@ -1174,9 +1207,9 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
       std::string thrStartsWith = metThresholdFilters[metIdx++];
 
       // https://edms.cern.ch/ui/#!master/navigator/document?D:1381415379:1381415379:subDocs
-      uint32_t roiword0( LVL1::TrigT1CaloDefs::EnergyRoIWordType0 << 29 );
-      uint32_t roiword1( LVL1::TrigT1CaloDefs::EnergyRoIWordType1 << 29 );
-      uint32_t roiword2( LVL1::TrigT1CaloDefs::EnergyRoIWordType2 << 29 );
+      uint32_t roiword0( LVL1::TrigT1CaloDefs::EnergyRoIWordType0 << 29 );  // XS
+      uint32_t roiword1( LVL1::TrigT1CaloDefs::EnergyRoIWordType1 << 29 );  // TE
+      uint32_t roiword2( LVL1::TrigT1CaloDefs::EnergyRoIWordType2 << 29 );  // XE
       
       uint32_t ex = encodeEnergy( energySum->energyX()/1000. );
       uint32_t ey = encodeEnergy( energySum->energyY()/1000. );
@@ -1190,6 +1223,9 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
          return m_jetRoIs;
       }
 
+      ATH_MSG_DEBUG( "Run 3 " << thrStartsWith << " MET RoI triplet = 0x" <<  std::hex << std::setw( 8 ) << std::setfill( '0' )
+                     << roiword0 << " 0x" << std::setw( 8 ) << roiword1 << " 0x" << std::setw( 8 ) << roiword2 << std::dec);
+
       // Loop over possible Jet thresholds
       for ( auto & threshold : m_jetCfg ) {
 
@@ -1200,12 +1236,15 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
          
          roiET.setType(HLT::MissingOrTotalEtRoI);
          
-         if ( ! addMetThreshold(roiET, &threshold, /*isRestrictedRange = */ false) ) {
+         if ( ! addMetThreshold(roiET, &threshold,  m_metThrCuts[threshold.name]) ) {
             ATH_MSG_WARNING("Problem while adding threshold: " << threshold.name << " returning prematurely");
             return m_jetRoIs;
          }
          
       }
+
+      m_jetRoIs.push_back(roiET);
+
    }
    return m_jetRoIs;
 }
@@ -1269,17 +1308,54 @@ bool Lvl1ResultAccessTool::addJetThreshold(HLT::JetEnergyRoI & roi, const Config
    if ( !(threshold->mask & roi.thresholdMask()) ) return true;
   
    if (!roi.setType(threshold->type)) {
-      ATH_MSG_ERROR("Inconsistent threshold types " << roi.type() << " " << threshold->type);
+      ATH_MSG_ERROR("Inconsistent Jet threshold types " << roi.type() << " " << threshold->type);
       return false;
    }
    roi.addThreshold( threshold );
+
+   ATH_MSG_DEBUG("adding Jet threshold: "  << threshold->name << " to JET ROI");
+
    return true;
 }
 
 
-// this is made separate function as it usesses different word for threhold bits (namely word1/2)
-bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange ) {
+bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold * thr, unsigned int thrVal) {
+   
+   bool pass = false;
 
+   if( thr->type == HLT::MissingEtRoI ) {
+      double eX = (double) (roi.word0() & 0x7fff); // energy values are 15bits
+      double eY = (double) (roi.word1() & 0x7fff);
+      double xE = sqrt( eX * eX + eY * eY );
+
+      pass = (xE >= thrVal);
+
+   } else if ( thr->type == HLT::TotalEtRoI ) {
+
+      double tE = (double) (roi.word2() & 0x7fff);
+      pass = (tE >= thrVal);
+
+   } else {
+      ATH_MSG_ERROR("Threshold " << thr->name << " is not implemented for Run 3 MET ROIs");
+      return false;
+   }
+
+   if(pass) {
+      roi.addThreshold( thr );
+      ATH_MSG_DEBUG("adding MET threshold " << thr->name);
+   }
+   
+   return true;
+}
+
+
+
+// this is made separate function as it uses different word for threshold bits (namely word1/2)
+// In the format definition of the EnergyROIs at page 21 of
+// https://edms.cern.ch/ui/#!master/navigator/document?D:1381415379:1381415379:subDocs
+// bits 17-24 contains the XE/TE/XS threshold indices that were passed
+// This function uses the information stored in bits 17-24
+bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange ) {
    uint32_t word(0);
    switch(threshold->type) {
    case METSignificanceRoI: 
@@ -1295,7 +1371,7 @@ bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const Confi
       word = 0;
    }
 
-   uint32_t mask = threshold->mask;
+   uint32_t mask = threshold->mask; // the mask is set from the threshold->mapping number 
 
    if (isRestrictedRange) {
       mask >>= 8;
@@ -1307,12 +1383,12 @@ bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const Confi
 
 
    if (!roi.setType(threshold->type)) {
-      ATH_MSG_ERROR("Inconsistent threshold types " << roi.type() << " " << threshold->type);
+      ATH_MSG_ERROR("Inconsistent MET threshold types " << roi.type() << " " << threshold->type);
       return false;
    }
 
    roi.addThreshold( threshold );
-   ATH_MSG_DEBUG("creating Met threshold: " << threshold->name << " for Run 2 MET ROI");
+   ATH_MSG_DEBUG("adding MET threshold " << threshold->name << "(mask=" << threshold->mask << ")");
 
    return true;
 }

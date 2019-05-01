@@ -10,9 +10,13 @@ class JobSetupPrinter(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         from AthenaCommon.Constants import DEBUG
 
+        from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
+
         topSequence = AlgSequence()
-        topSequence.TrigSteer_HLT.LvlConverterTool.OutputLevel = DEBUG
-        topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.OutputLevel = DEBUG
+        if simflags.EnableDebugOutput():
+            topSequence.CTPEmulation.OutputLevel = DEBUG
+            topSequence.TrigSteer_HLT.LvlConverterTool.OutputLevel = DEBUG
+            topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.OutputLevel = DEBUG
 
         print topSequence.CTPEmulation
         print topSequence.RoIBuilder
