@@ -64,15 +64,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("DoSiliconAssocForwardMuons", True )
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
     
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-
-    from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonSystemExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-
-    muonExtTool = Muon__MuonSystemExtensionTool(Extrapolator = AtlasExtrapolator(),
-                                                ParticleCaloExtensionTool = pcExtensionTool)
-    kwargs.setdefault("MuonSystemExtensionTool", muonExtTool)
+    kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
 
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 

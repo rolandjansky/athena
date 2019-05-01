@@ -31,10 +31,7 @@ def MuTagAmbiguitySolverTool(name='MuTagAmbiguitySolverTool', **kwargs ):
 
 
 def MuonSegmentTagTool( name="MuonSegmentTagTool", **kwargs ):
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-    kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
+    kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool"))
     kwargs.setdefault("MuTagMatchingTool", getPublicTool("MuTagMatchingTool") )
     kwargs.setdefault("MuTagAmbiguitySolverTool", getPublicTool("MuTagAmbiguitySolverTool") )
     return CfgMgr.MuonCombined__MuonSegmentTagTool(name,**kwargs)

@@ -39,7 +39,7 @@ namespace MuonCombined {
     m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbiguityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_layerHashProvider("Muon::MuonLayerHashProviderTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
