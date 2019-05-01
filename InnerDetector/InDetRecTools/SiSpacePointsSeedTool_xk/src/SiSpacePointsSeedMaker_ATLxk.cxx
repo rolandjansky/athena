@@ -71,6 +71,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
 {
   StatusCode sc = AlgTool::initialize();
 
+  ATH_CHECK(m_spacepointsPixel.initialize(m_pixel));
+  ATH_CHECK(m_spacepointsSCT.initialize(m_sct));
+  ATH_CHECK(m_spacepointsOverlap.initialize(m_useOverlap));
+
   // Get beam geometry
   //
   ATH_CHECK(m_beamSpotKey.initialize());
@@ -108,10 +112,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
     m_nprint=0;
     ATH_MSG_DEBUG(*this);
   }
-
-  ATH_CHECK(m_spacepointsPixelKey.initialize(m_pixel));
-  ATH_CHECK(m_spacepointsSCTKey.initialize(m_sct));
-  ATH_CHECK(m_spacepointsOverlapKey.initialize(m_useOverlap));
 
   return sc;
 }
@@ -176,7 +176,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   m_r_first = 0;
   if (!m_dbm && m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixelKey};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -210,7 +210,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   //
   if (!m_dbm && m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCTKey};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -235,7 +235,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
     //
     if (m_useOverlap && !m_checketa) {
 
-      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlapKey};
+      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap};
       if (spacepointsOverlap.isValid()) {
   
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
@@ -260,7 +260,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   //
   if (m_dbm) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixelKey};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -341,7 +341,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if (m_pixel && !vPixel.empty()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixelKey};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
     if ( spacepointsPixel.isValid() ) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -369,7 +369,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if (m_sct && !vSCT.empty()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCTKey};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
     if (spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
@@ -580,15 +580,15 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixelKey.key().size();
+  int n = 42-m_spacepointsPixel.key().size();
   std::string s2;
   for (int i=0; i<n; ++i) s2.append(" ");
   s2.append("|");
-  n     = 42-m_spacepointsSCTKey.key().size();
+  n     = 42-m_spacepointsSCT.key().size();
   std::string s3;
   for (int i=0; i<n; ++i) s3.append(" ");
   s3.append("|");
-  n     = 42-m_spacepointsOverlapKey.key().size();
+  n     = 42-m_spacepointsOverlap.key().size();
   std::string s4;
   for (int i=0; i<n; ++i) s4.append(" ");
   s4.append("|");
@@ -600,11 +600,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out )
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixelKey.key() <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixel.key() <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCTKey.key()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlapKey.key()<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key()<<s4
      <<std::endl;
   out<<"| BeamConditionsService   | "<<m_beamSpotKey.key()<<s5
      <<std::endl;

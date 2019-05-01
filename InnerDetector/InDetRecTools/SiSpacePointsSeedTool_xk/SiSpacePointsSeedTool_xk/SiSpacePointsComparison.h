@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  SiSpacePointsComparison_h
 #define  SiSpacePointsComparison_h
 
-#include "TrkSpacePoint/SpacePoint.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
+#include "TrkSpacePoint/SpacePoint.h"
 
 namespace InDet{
 

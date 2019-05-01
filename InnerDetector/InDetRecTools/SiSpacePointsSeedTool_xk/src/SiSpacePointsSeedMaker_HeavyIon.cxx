@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,10 +12,10 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <ostream>
-#include <iomanip>
-
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_HeavyIon.h"
+
+#include <iomanip>
+#include <ostream>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -23,104 +23,9 @@
 
 InDet::SiSpacePointsSeedMaker_HeavyIon::SiSpacePointsSeedMaker_HeavyIon
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p),
-    m_fieldServiceHandle("AtlasFieldSvc",n),
-  m_spacepointsSCT("SCT_SpacePoints"),
-  m_spacepointsPixel("PixelSpacePoints"),
-  m_spacepointsOverlap("OverlapSpacePoints")
+  : AthAlgTool(t,n,p)
 {
-
-  m_useOverlap= true    ;
-  m_state     = 0       ;
-  m_pixel     = true    ;
-  m_sct       = true    ;
-  m_trigger   = false   ;
-  m_state     = 0       ;
-  m_nspoint   = 2       ;
-  m_mode      = 0       ;
-  m_nlist     = 0       ;
-  m_endlist   = true    ;
-  m_maxsize   = 20000   ;
-  m_ptmin     =  500.   ;
-  m_r1min     = 0.      ; m_r1minv     = 0.  ; 
-  m_r1max     = 600.    ; m_r1maxv     = 60. ;
-  m_r2min     = 0.      ; m_r2minv     = 70. ;
-  m_r2max     = 600.    ; m_r2maxv     = 200.;
-  m_r3min     = 0.      ;
-  m_r3max     = 600.    ;
-  m_drmin     = 10.     ; m_drminv     = 20. ;    
-  m_drmax     = 270.    ;    
-  m_rapcut    = 2.7     ;
-  m_zmin      = -250.   ;
-  m_zmax      = +250.   ;
-  m_dzver     = 5.      ;
-  m_dzdrver   = .02     ;
-  m_diver     = 10.     ;
-  m_diverpps  =  1.7    ;
-  m_diversss  =  1000   ;
-  m_dazmax    = .02     ;
-  m_r_rmax      = 600.    ;
-  m_r_rstep     =  2.     ;
-  m_r_Sorted    = 0       ;
-  m_r_index     = 0       ;
-  m_r_map       = 0       ;    
-  m_maxsizeSP = 4000    ;
-  m_maxOneSize= 6       ;
-  m_SP        = 0       ;
-  m_R         = 0       ;
-  m_Tz        = 0       ;
-  m_Er        = 0       ;
-  m_U         = 0       ;
-  m_V         = 0       ;
-  m_Zo        = 0       ;
-  m_OneSeeds  = 0       ;
-  m_maxNumberVertices = 1;
- 
-  m_xbeam[0]  = 0.      ; m_xbeam[1]= 1.; m_xbeam[2]=0.; m_xbeam[3]=0.;
-  m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
-  m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
-  
-
-//  m_spacepointsSCT         = 0                   ;
-//  m_spacepointsPixel       = 0                   ;
-//  m_spacepointsOverlap     = 0                   ;
-
   declareInterface<ISiSpacePointsSeedMaker>(this);
-
-  declareProperty("usePixel"              ,m_pixel                 );
-  declareProperty("useSCT"                ,m_sct                   );
-  declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("radMax"                ,m_r_rmax                  );
-  declareProperty("radStep"               ,m_r_rstep                 );
-  declareProperty("maxSize"               ,m_maxsize               );
-  declareProperty("maxSizeSP"             ,m_maxsizeSP             );
-  declareProperty("minZ"                  ,m_zmin                  );
-  declareProperty("maxZ"                  ,m_zmax                  );
-  declareProperty("minRadius1"            ,m_r1min                 );
-  declareProperty("minRadius2"            ,m_r2min                 );
-  declareProperty("minRadius3"            ,m_r3min                 );
-  declareProperty("maxRadius1"            ,m_r1max                 );
-  declareProperty("maxRadius2"            ,m_r2max                 );
-  declareProperty("maxRadius3"            ,m_r3max                 );
-  declareProperty("mindRadius"            ,m_drmin                 );
-  declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("minVRadius1"           ,m_r1minv                );
-  declareProperty("maxVRadius1"           ,m_r1maxv                );
-  declareProperty("minVRadius2"           ,m_r2minv                );
-  declareProperty("maxVRadius2"           ,m_r2maxv                );
-  declareProperty("RapidityCut"           ,m_rapcut                );
-  declareProperty("maxdZver"              ,m_dzver                 );
-  declareProperty("maxdZdRver"            ,m_dzdrver               );
-  declareProperty("maxdImpact"            ,m_diver                 );
-  declareProperty("maxdImpactPPS"         ,m_diverpps              );
-  declareProperty("maxdImpactSSS"         ,m_diversss              );
-  declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
-  declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
-  declareProperty("useOverlapSpCollection", m_useOverlap           );
-  declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -163,6 +68,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
 {
   StatusCode sc = AlgTool::initialize(); 
 
+  ATH_CHECK(m_spacepointsPixel.initialize(m_pixel));
+  ATH_CHECK(m_spacepointsSCT.initialize(m_sct));
+  ATH_CHECK(m_spacepointsOverlap.initialize(m_useOverlap));
+
   // Get beam geometry
   //
   ATH_CHECK(m_beamSpotKey.initialize());
@@ -174,7 +83,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
     return StatusCode::FAILURE;
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  m_fieldService = &*m_fieldServiceHandle;
 
   // Build framework
   //
@@ -211,8 +119,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent (int)
 
   double f[3], gP[3] ={10.,10.,0.}; 
 
-  if(m_fieldService->solenoidOn()) {
-    m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+  if(m_fieldServiceHandle->solenoidOn()) {
+    m_fieldServiceHandle->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
   }
   else m_K = 2./(300.* 5. );
 
@@ -225,13 +133,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent (int)
   //
   if(m_pixel) {
 
-//    m_spacepointsPixel = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    if(spacepointsPixel.isValid()) {
 
-    if(m_spacepointsPixel.isValid()) {
-
-      SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
+      SpacePointContainer::const_iterator spc  =  spacepointsPixel->begin();
+      SpacePointContainer::const_iterator spce =  spacepointsPixel->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -256,10 +162,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent (int)
   //
   if(m_sct) {
 
-    if(m_spacepointsSCT.isValid()) {
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    if(spacepointsSCT.isValid()) {
 
-      SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spc  =  spacepointsSCT->begin();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -297,8 +204,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 
   double f[3], gP[3] ={10.,10.,0.}; 
 
-  if(m_fieldService->solenoidOn()) {
-    m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+  if(m_fieldServiceHandle->solenoidOn()) {
+    m_fieldServiceHandle->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
   }
   else m_K = 2./(300.* 5. );
  
@@ -311,12 +218,10 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
   //
   if(m_pixel && vPixel.size()) {
 
-//    m_spacepointsPixel   = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
-    
-    if(m_spacepointsPixel.isValid()) {
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    if(spacepointsPixel.isValid()) {
 
-      SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsPixel->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
@@ -324,7 +229,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
       //
       for(; l!=le; ++l) {
 	
-	SpacePointContainer::const_iterator  w =  m_spacepointsPixel->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsPixel->indexFind((*l));
 	if(w==spce) continue;
 	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
 
@@ -346,12 +251,10 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
   //
   if(m_sct && vSCT.size()) {
 
-//    m_spacepointsSCT     = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    if(spacepointsSCT.isValid()) {
 
-    if(m_spacepointsSCT.isValid()) {
-
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
@@ -359,7 +262,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
 	if(w==spce) continue;
 	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
 
@@ -506,11 +409,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixel.name().size();
+  int n = 42-m_spacepointsPixel.key().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 42-m_spacepointsSCT.name().size();
+  n     = 42-m_spacepointsSCT.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlap.name().size();
+  n     = 42-m_spacepointsOverlap.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_beamSpotKey.key().size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -518,11 +421,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions( MsgStream& ou
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixel.name() <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixel.key() <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.name()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name()<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key()<<s4
      <<std::endl;
   out<<"| BeamConditionsService   | "<<m_beamSpotKey.key()<<s5
      <<std::endl;
