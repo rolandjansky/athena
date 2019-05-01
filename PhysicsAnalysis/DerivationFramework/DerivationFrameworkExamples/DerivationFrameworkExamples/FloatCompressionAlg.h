@@ -55,9 +55,14 @@ namespace DerivationFramework {
       /// Function reseting all the ElementLinks in one specific container
       StatusCode reset( const SG::IConstAuxStore& store,
                         const std::string& key );
+      StatusCode resetVars( const SG::IConstAuxStore& store,
+			    const std::map<std::string, std::vector<std::string>> key );
 
       /// StoreGate keys of the auxiliary objects to be processed
       std::vector< std::string > m_keys;
+
+      /// StoreGate keys of the auxiliary objects to be processed
+      std::vector< std::string > m_vars;
 
       /// Helper class for caching auxiliary ID types
       class AuxIDType {

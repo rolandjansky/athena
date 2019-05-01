@@ -13,6 +13,8 @@ extern "C" {
 #   include <stdint.h>
 }
 
+#include <vector>
+
 namespace xAOD {
 
    /// Class implementing a lossy float compression
@@ -35,6 +37,7 @@ namespace xAOD {
 
       /// Function returning a reduced precision float value
       float reduceFloatPrecision( float value ) const;
+      float reduceFloatPrecision( float value, unsigned int mantissaBits ) const;
 
       /// Type used in the compression
       union floatint_t {
@@ -48,6 +51,8 @@ namespace xAOD {
       /// Bitmask for zeroing out the non-interesting bits
       uint32_t m_mantissaBitmask;
 
+      uint32_t m_mymantissaBitmask;
+
       /// @name Magic numbers
       /// @{
 
@@ -57,6 +62,8 @@ namespace xAOD {
       const uint32_t m_vmax=0x7f7f7fff;
 
       /// @}
+
+     std::vector<uint32_t> m_mantissaBitmasks;
 
    }; // class FloatCompressor
 

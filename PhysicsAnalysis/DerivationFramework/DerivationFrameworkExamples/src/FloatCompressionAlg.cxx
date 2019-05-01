@@ -4,6 +4,7 @@
 
 // System include(s):
 #include <map>
+#include <string>
 
 // Framework include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -27,6 +28,7 @@ namespace DerivationFramework {
       : AthAlgorithm( name, svcLoc ) {
 
       declareProperty( "SGKeys", m_keys );
+      declareProperty( "Vars", m_vars );
    }
 
    StatusCode FloatCompressionAlg::initialize() {
@@ -34,6 +36,7 @@ namespace DerivationFramework {
       // Tell the user what's happening:
      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
      ATH_MSG_DEBUG( "SGKeys = " << m_keys );
+     ATH_MSG_DEBUG( "Varss = " << m_keys );
 
      m_floatCompressor = std::make_unique<xAOD::FloatCompressor>( 7 );
 
@@ -83,11 +86,48 @@ namespace DerivationFramework {
       ATH_MSG_DEBUG( "Number of IConstAuxStore objects retrieved: "
                      << stores.size() );
 
+      // Collect all the variables(s):
+      std::vector< std::pair< const SG::IConstAuxStore*, std::map<std::string, std::vector<std::string>> > > stores_vars;
+      if( m_vars.size() ) {
+	std::map<std::string, std::vector<std::string>> mapOfvars;
+
+         for( const std::string& mykey : m_vars ) {
+	    std::size_t found = mykey.find(".");
+	    std::string key = mykey.substr(0,found+1);
+	    std::string var = mykey.substr(found+1, std::string::npos);
+
+	    std::vector<std::string> myVars;
+	    if (mapOfvars.count(key)) {
+	      myVars = mapOfvars[key];
+	    }
+	    myVars.push_back(var);
+	    mapOfvars[key] = myVars;
+
+         }
+         for( auto& mypair : mapOfvars ) {
+	   const SG::IConstAuxStore* store = 0;
+	   ATH_CHECK( evtStore()->retrieve( store, mypair.first ) );
+	   std::map<std::string, std::vector<std::string>> mymapOfvars;
+	   mymapOfvars[mypair.first] = mypair.second;
+	   stores_vars.push_back( std::make_pair( store, mymapOfvars ));
+	 }
+
+      }
+
+      /*
       // Reset the ElementLinks in all of them:
       for( const auto& storeKey : stores ) {
          ATH_MSG_VERBOSE( "Reseting element links in store: "
                           << storeKey.second );
          ATH_CHECK( reset( *( storeKey.first ), storeKey.second ) );
+      }
+      */
+
+      // Reset the ElementLinks in all of them:
+      for( const auto& storeKey : stores_vars ) {
+         ATH_MSG_VERBOSE( "Reseting element links in store: "
+                          << storeKey.second );
+         ATH_CHECK( resetVars( *( storeKey.first ), storeKey.second ) );
       }
 
       // Return gracefully:
@@ -148,7 +188,7 @@ namespace DerivationFramework {
 	// continue;
 	
       
-	// std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
 	std::string name = reg.getName( auxid );
 
@@ -172,7 +212,8 @@ namespace DerivationFramework {
 	    if (eltPtr) {
 
 	      float val = *(float *) eltPtr;
-	    
+	      std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+
 	      val = m_floatCompressor->reduceFloatPrecision( val );
 	    
 	      *(float *) eltPtr = val;
@@ -183,9 +224,150 @@ namespace DerivationFramework {
 	    
 	    const size_t sz_j = vals.size();
 
-	    for( size_t j = 0; j < sz_j; ++j )
+	    for( size_t j = 0; j < sz_j; ++j ) {
 	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j] );
+	      //std::cout << std::setprecision(15) << "JE vals[" << j << "] = " << vals[j] << std::endl;
+	    }	    
+
+	    // vals.erase( vals.begin()+2, vals.end() );
 	    
+	  }
+	  
+	}
+	
+	continue;
+	       	    
+
+         // If the pointer is null, then something dodgy happened with this
+         // (dynamic) variable.
+         if( ! ptr ) {
+            // Check if this is a static variable. If it is, it's not an error
+            // to get a null pointer for it. Since such a case can only happen
+            // when a new static variable was introduced into the EDM, and we're
+            // reading an old input file that doesn't have this variable in it
+            // yet. Which is an okay scenario.
+            const SG::IAuxStoreIO* storeIO =
+               dynamic_cast< const SG::IAuxStoreIO* >( &store );
+            if( ( ! storeIO ) || ( storeIO->getDynamicAuxIDs().find( auxid ) !=
+                                   storeIO->getDynamicAuxIDs().end() ) ) {
+               REPORT_MESSAGE( MSG::ERROR )
+                  << "Invalid pointer received for variable: " << key
+                  << reg.getName( auxid );
+            } else {
+	        ATH_MSG_DEBUG( "Static variable " << key << reg.getName( auxid )
+                              << " is empty" );
+            }
+            continue;
+         }
+
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+  StatusCode FloatCompressionAlg::resetVars( const SG::IConstAuxStore& store,
+					     const std::map<std::string, std::vector<std::string>> key ) {
+    
+      // If the container is empty, return right away:
+      //if( ! store.size() ) {
+      //   return StatusCode::SUCCESS;
+      //}
+      
+      // Get all the IDs stored in this object:
+      const SG::auxid_set_t& auxids = store.getAuxIDs();
+      
+      // The auxiliary type registry:
+      SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
+
+      // Loop over them:
+      for( SG::auxid_t auxid : auxids ) {
+	
+	const std::string tname =
+	  SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
+
+
+	// Check/cache its type:
+	if( m_typeCache.size() <= auxid ) {
+	  m_typeCache.resize( auxid + 1 );
+	}
+
+	
+	if( ! m_typeCache[ auxid ].isSet ) {
+	    const std::string tname =
+	      SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
+	    
+	    // std::cout << "Kerim " << tname << std::endl;
+
+            static const std::string pat1 = "float";
+            static const std::string pat2 = "std::vector<float>";
+            if( tname.substr( 0, pat1.size() ) == pat1 ) {
+	      m_typeCache[ auxid ].isFloat = true;
+            } else if( tname.substr( 0, pat2.size() ) == pat2 ) {
+	      m_typeCache[ auxid ].isFloatVec = true;
+            }
+            m_typeCache[ auxid ].isSet = true;
+            ATH_MSG_VERBOSE( "Type for \"" << tname << "\": isFloat = "
+                             << m_typeCache[ auxid ].isFloat << ", isFloatVec = "
+                             << m_typeCache[ auxid ].isFloatVec );
+         }
+      
+      
+         // If it's not a float type, then don't bother:
+         //if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec ) )
+	
+	// if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec) )
+	// continue;
+	
+      
+	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+
+	std::string name = reg.getName( auxid );
+
+	// if ( !(name=="NumTrkPt500" || name=="SumPtTrkPt500" || name=="NumTrkPt1000" || name=="TrackWidthPt1000") )
+	// continue;
+   
+	const size_t eltSize = reg.getEltSize( auxid );
+
+	void* ptr = const_cast< void* >( store.getData( auxid ) );
+
+	const size_t sz_i = store.size();
+	
+	
+
+	for( size_t i = 0; i < sz_i; ++i ) {
+	  
+	  void* eltPtr = reinterpret_cast< char* >( ptr ) + i * eltSize;
+
+	  
+	  if (m_typeCache[ auxid ].isFloat) {
+	    if (eltPtr) {
+
+	      float val = *(float *) eltPtr;
+	      for( auto& mykey : key ) {
+		std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		
+		for ( const auto &myvar : mykey.second ) {
+		  if (myvar == reg.getName( auxid )) {
+		    val = m_floatCompressor->reduceFloatPrecision( val, 7 );
+		    std::cout << "JE key " << myvar << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		  }
+		}
+	      }
+
+	      *(float *) eltPtr = val;
+	    }
+	  } else if  (m_typeCache[ auxid ].isFloatVec) {
+
+	    std::vector<float> &vals =  *( reinterpret_cast< std::vector<float>* >( eltPtr ) );
+	    
+	    const size_t sz_j = vals.size();
+
+	    for( size_t j = 0; j < sz_j; ++j ) {
+	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j], 7 );
+	      //std::cout << std::setprecision(15) << "JE vals[" << j << "] = " << vals[j] << std::endl;
+	    }	    
+
 	    // vals.erase( vals.begin()+2, vals.end() );
 	    
 	  }

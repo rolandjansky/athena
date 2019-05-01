@@ -46,6 +46,8 @@ def addAllItemsFromInputExceptExcludeList(streamName,ExcludeList):
     if inputFileSummary['file_type'] == 'pool' :
         fullListTuple = inputFileSummary['eventdata_items']
         for iTuple in fullListTuple :
+            if not iTuple[0]:
+                continue
             item = iTuple[0]+"#"+iTuple[1]
             fullList += [item]
             pass
