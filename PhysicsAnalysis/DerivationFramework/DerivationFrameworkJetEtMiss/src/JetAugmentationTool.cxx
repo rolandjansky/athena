@@ -243,9 +243,11 @@ namespace DerivationFramework {
     bool isMissingPtAssociation = true;
     if( !m_decorateptassociation || jets_copy->size() == 0 || dec_GhostTruthAssociationFraction->isAvailable(*jets_copy->at(0)) ) {
       isMissingPtAssociation = false;
+      //ATH_MSG_WARNING("decoratept: " << !m_decorateptassociation << " copy: " << (jets_copy->size() == 0) << " " << dec_GhostTruthAssociationFraction->isAvailable(*jets_copy->at(0)));
     }
 
     if(m_decorateptassociation && isMissingPtAssociation){
+      ATH_MSG_WARNING("tool running" );
       if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
         ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
@@ -428,26 +430,29 @@ namespace DerivationFramework {
 	    }//endelse isAvailable
 
 	    if(tjet){
+	      ATH_MSG_DEBUG("Truth Jet: " << tjet->numConstituents());
 	      for (size_t ind = 0; ind < tjet->numConstituents(); ind++) {
 		const xAOD::TruthParticle *part = static_cast<const xAOD::TruthParticle*>(tjet->rawConstituent(ind));
-		
+		ATH_MSG_DEBUG("part: " << part );
 		// dont count invalid truth particles
 		if (!part) continue;
 		// require the particle in the final state
+		ATH_MSG_DEBUG("status: " << (part->status()) );
 		if( ! (part->status() == 1) ) continue;
 		// require that the particle type (e.g. production type) be valid (e.g. not primaries)
+		ATH_MSG_DEBUG("barcode: " << (part->barcode()) );
 		if ((part->barcode())>2e5) continue;
 		// pt>500 MeV
+		ATH_MSG_DEBUG("pt: " << (part->pt()) );
 		if( ! (part->pt()>500.) )  continue;
 		// charged
+		ATH_MSG_DEBUG("isCharged: " << (part->isCharged()) );
 		if( !(part->isCharged()) ) continue;
-		double pt = part->pt();
-		if( pt>500 ) tntrk++;
+		tntrk++;
 	      }
 	    }
-	    }// end truth QG tagging
+	  }// end truth QG tagging
   
-
 	  (*dec_AssociatedNTracks)(jet_orig)       = nTracksCount;
 	  (*dec_AssociatedTracksWidth)(jet_orig)   = TracksWidth;
           (*dec_AssociatedTracksC1)(jet_orig)      = TracksC1;

@@ -546,8 +546,10 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg")
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
+#addJetPtAssociation(jetalg="AntiKt4EMTopo",truthjetalg="AntiKt4TruthJets",sequence=exot5Seq,algname="JetPtAssociationToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') #truthjetalg="AntiKt4TruthJets"
 
 #========================================
 # Add the containers to the output stream
