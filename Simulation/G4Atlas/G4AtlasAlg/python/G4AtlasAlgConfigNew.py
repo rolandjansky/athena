@@ -2,6 +2,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #from AthenaCommon import CfgMgr
 
+#todo - think about the flow, do we need if statements?!
+
 from  G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
 
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
@@ -42,28 +44,28 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
-    from G4AtlasApps.SimFlags import simFlags
-    if hasattr(simFlags, 'ReleaseGeoModel') and simFlags.ReleaseGeoModel.statusOn:
+    if ConfigFlags.Sim.ReleaseGeoModel:
         ## Don't drop the GeoModel
-        kwargs.setdefault('ReleaseGeoModel' ,simFlags.ReleaseGeoModel.get_Value())
+        kwargs.setdefault('ReleaseGeoModel' ,ConfigFlags.Sim.ReleaseGeoModel)
 
-    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
+    if ConfigFlags.Sim.RecordFlux:
         ## Record the particle flux during the simulation
-        kwargs.setdefault('RecordFlux' ,simFlags.RecordFlux.get_Value())
+        kwargs.setdefault('RecordFlux' , ConfigFlags.Sim.RecordFlux)
 
-    if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn:
+    if ConfigFlags.Sim.FlagAbortedEvents:
         ## default false
-        kwargs.setdefault('FlagAbortedEvents' ,simFlags.FlagAbortedEvents.get_Value())
-        if simFlags.FlagAbortedEvents.get_Value() and simFlags.KillAbortedEvents.get_Value():
+        kwargs.setdefault('FlagAbortedEvents' ,ConfigFlags.Sim.FlagAbortedEvents)
+        if ConfigFlags.Sim.FlagAbortedEvents and ConfigFlags.Sim.KillAbortedEvents:
             print 'WARNING When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!'
             kwargs.setdefault('KillAbortedEvents' ,False)
-    if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
+    if  ConfigFlags.Sim.KillAbortedEvents:
         ## default true
-        kwargs.setdefault('KillAbortedEvents' ,simFlags.KillAbortedEvents.get_Value())
+        kwargs.setdefault('KillAbortedEvents' ,ConfigFlags.Sim.KillAbortedEvents)
 
-    if hasattr(simFlags, 'RandomSvcMT') and simFlags.RandomSvcMT.statusOn:
+    from RngComps.RandomServices import AthEngines
+    if AthEngines[ConfigFlags.Random.Engine]:
         ## default true
-        kwargs.setdefault('AtRndmGenSvc', simFlags.RandomSvcMT.get_Value())
+        kwargs.setdefault('AtRndmGenSvc', AthEngines[ConfigFlags.Random.Engine])
     kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
@@ -71,7 +73,7 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     kwargs.setdefault('MultiThreading', is_hive)
 
-    kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())
+    kwargs.setdefault('TruthRecordService', ConfigFlags.Sim.TruthStrategy) # TODO need to have manual override (simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
@@ -85,7 +87,7 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     kwargs.setdefault('Verbosities', verbosities)
 
     # Set commands for the G4AtlasAlg
-    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
+    kwargs.setdefault("G4Commands", ConfigFlags.Sim.G4Commands)
 
     return G4AtlasAlg(name, **kwargs)
 
