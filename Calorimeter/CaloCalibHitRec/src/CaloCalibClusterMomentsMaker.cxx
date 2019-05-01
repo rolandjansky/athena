@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -59,7 +59,6 @@ CaloCalibClusterMomentsMaker::CaloCalibClusterMomentsMaker(const std::string& ty
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_calo_dd_man(0),
     m_calo_id(0),
     m_caloDM_ID(0),
     m_caloDmDescrManager(0),
@@ -224,17 +223,11 @@ StatusCode CaloCalibClusterMomentsMaker::initialize()
     m_doDeadEnergySharing = true;
   }
 
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-
   // dead material identifier description manager  
   m_caloDmDescrManager = CaloDmDescrManager::instance(); 
 
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
-
-  //---- initialize the StoreGateSvc ptr ----------------
-
-  ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
+  ATH_CHECK( detStore()->retrieve(m_calo_id, "CaloCell_ID") ); 
+  ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
 
   // initialize distance tables
   for(int jeta = 0;jeta<m_n_eta_out;jeta++) {
@@ -288,6 +281,9 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
                                       xAOD::CaloClusterContainer *theClusColl) const
 {  
   ATH_MSG_DEBUG( "Executing " << name()  );
+
+  const CaloDetDescrManager* calo_dd_man = nullptr;
+  ATH_CHECK( detStore()->retrieve (calo_dd_man, "CaloMgr") );
 
   bool foundAllContainers (true);
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
@@ -489,7 +485,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	    if ( !cellVector[otherSubDet][(unsigned int)myHashId] ) {
 	      // hit is not inside any cluster
 	      const CaloDetDescrElement* myCDDE = 
-                m_calo_dd_man->get_element(myId);
+                calo_dd_man->get_element(myId);
 	      if ( myCDDE ) {
 		int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
 		if ( jeO >= -m_n_eta_out && jeO < m_n_eta_out ) {
