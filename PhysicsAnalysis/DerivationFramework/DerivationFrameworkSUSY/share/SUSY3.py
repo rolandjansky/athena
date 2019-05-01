@@ -89,29 +89,52 @@ SUSY3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += SUSY3TauTPThinningTool
 thinningTools.append(SUSY3TauTPThinningTool)
 
+
 # ------------------------------------------------------------------------------------------------------------------------------------------
 # For tau trigger performance studies
 
-# no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
+import sys
+import PyUtils.AthFile
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon import Logging
+susy3log = Logging.logging.getLogger('SUSY3')
 
-# TauTracks thinning
-from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
-SUSY3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "SUSY3HLTTauTracksThinningTool",
-                                                                       ThinningService = SUSY3ThinningHelper.ThinningSvc(),
-                                                                       TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
-                                                                       TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
-                                                                       IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
-ToolSvc += SUSY3HLTTauTracksThinningTool
-thinningTools.append(SUSY3HLTTauTracksThinningTool)
+thinHLTTau = False
+try:
+  fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
+  RunNumber = fileinfo.infos['run_number'][0]
+  AMITag = fileinfo.infos['metadata']['/TagInfo']['AMITag']
 
-# Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-SUSY3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "SUSY3HLTTauCCThinningTool",
-                                                                         ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
-                                                                         SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
-                                                                         TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
-ToolSvc += SUSY3HLTTauCCThinningTool
-thinningTools.append(SUSY3HLTTauCCThinningTool)
+  if not DerivationFrameworkIsMonteCarlo and RunNumber >= 355261 or DerivationFrameworkIsMonteCarlo and 'r11364' in AMITag:
+    thinHLTTau = True
+  if DerivationFrameworkIsMonteCarlo:
+    susy3log.info("AMITag = {0}, HLT tau thinning = {1}".format(AMITag,thinHLTTau))
+  else:
+    susy3log.info("RunNumber = {0}, HLT tau thinning = {1}".format(RunNumber,thinHLTTau))
+except:
+  susy3log.info("Encountered problem while parsing metadata")
+
+if thinHLTTau:
+  # no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
+  
+  # TauTracks thinning
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
+  SUSY3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "SUSY3HLTTauTracksThinningTool",
+                                                                         ThinningService = SUSY3ThinningHelper.ThinningSvc(),
+                                                                         TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
+                                                                         TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
+                                                                         IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
+  ToolSvc += SUSY3HLTTauTracksThinningTool
+  thinningTools.append(SUSY3HLTTauTracksThinningTool)
+  
+  # Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
+  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+  SUSY3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "SUSY3HLTTauCCThinningTool",
+                                                                           ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
+                                                                           SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
+                                                                           TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
+  ToolSvc += SUSY3HLTTauCCThinningTool
+  thinningTools.append(SUSY3HLTTauCCThinningTool)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -164,11 +187,6 @@ TauBDT = '(TauJets.nTracks == 1 || TauJets.nTracks == 3) && (TauJets.DFCommonTau
 # prepare for RNN Tau ID, JetRNNSigLoose not available yet in DFTau, need to cut on the flattened score
 TauRNN = '(TauJets.nTracks == 1 && TauJets.RNNJetScoreSigTrans>0.15) || (TauJets.nTracks == 3 && TauJets.RNNJetScoreSigTrans>0.25)'
 
-import sys
-import PyUtils.AthFile
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaCommon import Logging
-susy3log = Logging.logging.getLogger('SUSY3')
 useRNN = False
 # RNN ID present in offline reconstruction for Athena-21.0.63 or higher
 try:

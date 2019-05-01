@@ -126,26 +126,48 @@ thinningTools.append(TAUP3TauTPThinningTool)
 # ------------------------------------------------------------------------------------------------------------------------------------------
 # For tau trigger performance studies
 
-# no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
+import sys
+import PyUtils.AthFile
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon import Logging
+taup3log = Logging.logging.getLogger('TAUP3')
 
-# TauTracks thinning
-from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
-TAUP3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "TAUP3HLTTauTracksThinningTool",
-                                                                       ThinningService = "TAUP3ThinningSvc",
-                                                                       TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
-                                                                       TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
-                                                                       IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
-ToolSvc += TAUP3HLTTauTracksThinningTool
-thinningTools.append(TAUP3HLTTauTracksThinningTool)
+thinHLTTau = False
+try:
+  fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
+  RunNumber = fileinfo.infos['run_number'][0]
+  AMITag = fileinfo.infos['metadata']['/TagInfo']['AMITag']
 
-# Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-TAUP3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "TAUP3HLTTauCCThinningTool",
-                                                                         ThinningService         = "TAUP3ThinningSvc",
-                                                                         SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
-                                                                         TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
-ToolSvc += TAUP3HLTTauCCThinningTool
-thinningTools.append(TAUP3HLTTauCCThinningTool)
+  if not DerivationFrameworkIsMonteCarlo and RunNumber >= 355261 or DerivationFrameworkIsMonteCarlo and 'r11364' in AMITag:
+    thinHLTTau = True
+  if DerivationFrameworkIsMonteCarlo:
+    taup3log.info("AMITag = {0}, HLT tau thinning = {1}".format(AMITag,thinHLTTau))
+  else:
+    taup3log.info("RunNumber = {0}, HLT tau thinning = {1}".format(RunNumber,thinHLTTau))
+except:
+  taup3log.info("Encountered problem while parsing metadata")
+
+if thinHLTTau:
+  # no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
+
+  # TauTracks thinning
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
+  TAUP3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "TAUP3HLTTauTracksThinningTool",
+                                                                         ThinningService = "TAUP3ThinningSvc",
+                                                                         TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
+                                                                         TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
+                                                                         IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
+  ToolSvc += TAUP3HLTTauTracksThinningTool
+  thinningTools.append(TAUP3HLTTauTracksThinningTool)
+  
+  # Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
+  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+  TAUP3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "TAUP3HLTTauCCThinningTool",
+                                                                           ThinningService         = "TAUP3ThinningSvc",
+                                                                           SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
+                                                                           TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
+  ToolSvc += TAUP3HLTTauCCThinningTool
+  thinningTools.append(TAUP3HLTTauCCThinningTool)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
