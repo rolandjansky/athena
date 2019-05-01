@@ -505,6 +505,23 @@ def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFr
                 doEvent=False) #Save the event level decoration
     sequence += algCleanVeryLooseLLP
 
+def eventCleanSuperLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_SuperLooseLLP"
+    prefix = "DFCommonJets_"
+    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
+    ecToolSuperLooseLLP = EventCleaningTool('EventCleaningTool_SuperLooseLLP',CleaningLevel='SuperLooseBadLLP')
+    ecToolSuperLooseLLP.JetCleanPrefix = prefix
+    ecToolSuperLooseLLP.JetCleaningTool = getJetCleaningTool("SuperLooseBadLLP")
+    algCleanSuperLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_SuperLooseLLP',
+                            EventCleaningTool=ecToolSuperLooseLLP,
+                            JetCollectionName="AntiKt4EMTopoJets",
+                EventCleanPrefix=prefix,
+                CleaningLevel="SuperLooseBadLLP",
+                doEvent=False) #Save the event level decoration
+    sequence += algCleanSuperLooseLLP
+
 def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
     jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
     algname = "jetalg"+jetname
@@ -596,6 +613,7 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
 
 ##################################################################
