@@ -89,6 +89,7 @@ namespace xAOD {
       nameToTypemap["PFlow"] =                 PFlow;
       nameToTypemap["LCPFlow"] =               LCPFlow;
       nameToTypemap["EMPFlow"] =               EMPFlow;
+      nameToTypemap["Jet"] =                   Jet;
       nameToTypemap["EMCPFlow"] =              EMCPFlow;
       nameToTypemap["TrackCaloCluster"] =      TrackCaloCluster;
       nameToTypemap["EMTopoOriginSK"] =        EMTopoOriginSK;

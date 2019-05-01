@@ -125,30 +125,34 @@ if opt.doMuonSlice == True:
 if opt.doJetSlice == True:
     from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
-    jetSeq1 = jetMenuSequence("EMTopoSubJES", "TrigJetHypoAlgMT1")
-    step1=ChainStep("Step1_jet", [jetSeq1])
-    jetSeq2 = jetMenuSequence("EMTopoSubJESIS", "TrigJetHypoAlgMT2")
-    step2=ChainStep("Step2_jet", [jetSeq2])
-    jetSeq3 = jetMenuSequence("EMTopoNoCalib", "TrigJetHypoAlgMT3")
-    step3=ChainStep("Step3_jet", [jetSeq3])
-    jetSeq4 = jetMenuSequence("LCWSubJESIS", "TrigJetHypoAlgMT4")
-    step4=ChainStep("Step4_jet", [jetSeq4])
-    jetSeq5 = jetMenuSequence("a10LCWSubJESJMS", "TrigJetHypoAlgMT5")
-    step5=ChainStep("Step5_jet", [jetSeq5])
-    
+    jetSeq_a4_emtopo = jetMenuSequence("a4_emtopo_subjesis", "TrigJetHypoAlgMT_a4_emtopo")
+    step_a4_emtopo =ChainStep("Step_jet_a4_emtopo", [jetSeq_a4_emtopo])
 
-    # don't forget the commas -.-
-	# damn commas
-	   # raaaargh
+    jetSeq_a4_emtopo_subjes = jetMenuSequence("a4_emtopo_subjes", "TrigJetHypoAlgMT_a4_emtopo_subjes")
+    step_a4_emtopo_subjes = ChainStep("Step_jet_a4_emtopo_subjes", [jetSeq_a4_emtopo_subjes])
+
+    jetSeq_a4_emtopo_nocalib = jetMenuSequence("a4_emtopo_nocalib", "TrigJetHypoAlgMT_a4_emtopo_nocalib")
+    step_a4_emtopo_nocalib=ChainStep("Step_jet_a4_emtopo_nocalib", [jetSeq_a4_emtopo_nocalib])
+
+    jetSeq_a4_lcw = jetMenuSequence("a4_lcw_subjesis", "TrigJetHypoAlgMT_a4_lcw")
+    step_a4_lcw=ChainStep("Step_jet_a4_lcw", [jetSeq_a4_lcw])
+
+    #jetSeq_a10_lcw_subjes = jetMenuSequence("a10_lcw_subjesjms", "TrigJetHypoAlgMT_a10_lcw_subjes")
+    #step_a10_lcw_subjes=ChainStep("Step_jet_a10_lcw_subjes", [jetSeq_a10_lcw_subjes])
+
+    jetSeq_a10r = jetMenuSequence("a10r_emtopo_subjesis", "TrigJetHypoAlgMT_a10r")
+    step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
+    
     jetChains  = [
-        #Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step1]  ),
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step1]  ),
-        #Chain(name='HLT_j45_0eta240',  Seed="L1_J20",  ChainSteps=[step1]  ),
-        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step2]  ),
-        Chain(name='HLT_j45_nojcalib', Seed="L1_J20",  ChainSteps=[step3]  ),
-        Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step4]  ),
-        Chain(name='HLT_5j70_0eta240',  Seed="L1_J20",  ChainSteps=[step1]  ), # 5j70_0eta240_L14J15
-        Chain(name='HLT_j100_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step5]  ),
+        Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
+        #Chain(name='HLT_j45_0eta240',  Seed="L1_J20",  ChainSteps=[step_a4_default]  ),
+        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step_a4_emtopo_subjes]  ),
+        Chain(name='HLT_j45_nojcalib', Seed="L1_J20",  ChainSteps=[step_a4_emtopo_nocalib]  ),
+        Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step_a4_lcw]  ),
+        #Chain(name='HLT_5j70_0eta240',  Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15
+        #Chain(name='HLT_j100_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_lcw]  ),
+        Chain(name='HLT_j100_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
         ]
 
     testChains += jetChains

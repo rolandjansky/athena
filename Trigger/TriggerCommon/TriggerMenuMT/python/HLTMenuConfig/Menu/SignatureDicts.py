@@ -107,7 +107,7 @@ JetChainParts = {
     'trigType'     : ['j'],
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
-    'recoAlg'      : ['a4', 'a10'],
+    'recoAlg'      : ['a4', 'a10', 'a10r'],
     'dataType'     : ['tc'],
     'calib'        : ['em', 'lcw'],
     'jetCalib'     : ['subjes', 'subjesIS', 'nojcalib'],
