@@ -13,16 +13,10 @@
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileL2Algs/TileL2Builder.h"
 
 // Atlas includes
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "AthenaKernel/errorcheck.h"
-
-// Gaudi includes
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 
 #include <algorithm>
 #include <iomanip>
@@ -56,7 +50,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   
   declareProperty("TileCellEthresholdMeV", m_TileCellEthreshold = -100000.);
   declareProperty("TileDefaultChannelBuilder", m_TileDefaultChannelBuilder = "TileRawChannelBuilderFlatFilter/TileROD_RCBuilder");
-  declareProperty("TileDefaultL2Builder", m_TileDefaultL2Builder = "TileL2Builder/TileROD_L2Builder");
+
   declareProperty("VerboseOutput", m_verbose = false);
   declareProperty("calibrateEnergy", m_calibrateEnergy = true); // convert ADC counts to pCb for RawChannels
   declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
@@ -126,9 +120,6 @@ StatusCode TileROD_Decoder::initialize() {
   m_rc2bytes.setVerbose(m_verbose);
   m_d2Bytes.setVerbose(m_verbose);
   
-  ServiceHandle<IToolSvc> toolSvc("ToolSvc", this->name());
-  ATH_CHECK( toolSvc.retrieve() );
-  
   // retrieve TileHWID helper from det store
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
   
@@ -173,13 +164,10 @@ StatusCode TileROD_Decoder::initialize() {
   m_Rw2Pmt[2].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
   m_Rw2Pmt[3].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
   
-  if (m_TileDefaultL2Builder.size() > 0) {
-    ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultL2Builder );
-    ListItem algL2(m_TileDefaultL2Builder);
-    ATH_CHECK( toolSvc->retrieveTool(algL2.type(), algL2.name(), m_L2Builder, this) );
-    ATH_MSG_DEBUG( "algtool " << m_TileDefaultL2Builder << " created " );
+  if (!m_L2Builder.empty()) {
+    ATH_CHECK( m_L2Builder.retrieve() );
   } else {
-    m_L2Builder = 0;
+    m_L2Builder.disable();
   }
   
   // Initialize
@@ -3009,7 +2997,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
     // return;
   }
   
-  if (DataType >= 3 && counter == 0 && m_L2Builder) {
+  if (DataType >= 3 && counter == 0 && !m_L2Builder.empty()) {
     if (m_L2Builder->process(fragmin, fragmax, &v).isFailure()) {
       ATH_MSG_ERROR( "Failure in " << m_L2Builder );
       return;
