@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
@@ -24,7 +25,9 @@ KnownCosmicsProjects=frozenset(["data08_calocomm","data08_muoncomm","data08_cos"
                                 "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
                                 "data16_calib","data16_calocomm","data16_cos","data16_idcomm","data16_larcomm","data16_muoncomm","data16_tilecomm",
                                 "data17_calib","data17_calocomm","data17_cos","data17_idcomm","data17_larcomm","data17_muoncomm","data17_tilecomm",
-                                "data18_calib","data18_calocomm","data18_cos","data18_idcomm","data18_larcomm","data18_muoncomm","data18_tilecomm"
+                                "data18_calib","data18_calocomm","data18_cos","data18_idcomm","data18_larcomm","data18_muoncomm","data18_tilecomm",
+                                "data19_calib","data19_calocomm","data19_cos","data19_idcomm","data19_larcomm","data19_muoncomm","data19_tilecomm",
+                                "data20_calib","data20_calocomm","data20_cos","data20_idcomm","data20_larcomm","data20_muoncomm","data20_tilecomm",
                                 ])
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
