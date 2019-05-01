@@ -224,7 +224,7 @@ def getJetCleaningTool(cleaningLevel):
 def getJetExternalAssocTool(jetalg, extjetalg, **options):
     jetassoctoolname = 'DFJetExternalAssoc_%s_From_%s' % (jetalg, extjetalg)
     jetassoctool = None
-    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.AppMgr import ToolSvcs
     if hasattr(ToolSvc,jetassoctoolname):
         jetassoctool = getattr(ToolSvc,jetassoctoolname)
     else:
@@ -410,7 +410,7 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 ### Schedule Q/G-tagging decorations ### QGTaggerTool #####
-def addQGTaggerTool(jetalg, sequence, algname ):
+def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
     jetaugtool = getJetAugmentationTool(jetalg)
     if(jetaugtool==None):
         extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
@@ -424,6 +424,15 @@ def addQGTaggerTool(jetalg, sequence, algname ):
         trackselectiontool.CutLevel = "Loose"
         ToolSvc += trackselectiontool
         jetaugtool.TrackSelectionTool = trackselectiontool
+
+    if truthjetalg!=None:
+        jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg+'_'+jetalg
+        if hasattr(ToolSvc,jetptassociationtoolname):
+            jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
+        else:
+            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+            ToolSvc += jetptassociationtool
+            jetaugtool.JetPtAssociationTool = jetptassociationtool
 
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
     applyJetAugmentation(jetalg, algname, sequence, jetaugtool)
