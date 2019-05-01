@@ -86,7 +86,6 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   const LArFCAL_ID*  m_LArFCAL_IDHelper;
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
-  const CaloDetDescrManager* m_CaloDetDescrMgr;
   const ILArPedestal* m_larPedestal;
 
 
@@ -118,7 +117,8 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   std::string sampling_str(int sampling);
 
   // To get physical coordinates
-  StatusCode returnEtaPhiCoord(Identifier offlineID,float& eta,float& phi);
+  StatusCode returnEtaPhiCoord(const CaloDetDescrManager* ddmgr,
+                               Identifier offlineID,float& eta,float& phi);
 
   // Muon Seeds with Digits
   TH2F* m_hMuonMapEMDig; TH2F* m_hMuonMapHECDig; TH2F* m_hMuonMapFCALDig;

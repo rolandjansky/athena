@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -159,7 +159,6 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   m_last_lb = -1;
   m_curr_lb = -1;
 
-  m_calo_description_mgr=nullptr;
   m_hsize=0;
 }
 
@@ -200,12 +199,6 @@ LArRODMonTool::initialize() {
   }
 
   ATH_CHECK(m_cablingKey.initialize());
-
-  sc = detStore()->retrieve(m_calo_description_mgr);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to find CeloDetDescrManager " );
-    return StatusCode::FAILURE;
-  }
 
   if (m_skipKnownProblematicChannels) { 
     sc=m_badChannelMask.retrieve();
@@ -711,6 +704,23 @@ StatusCode LArRODMonTool::fillHistograms() {
   
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer(m_digitContainerKey);
 
+  const CaloDetDescrManager* ddman = nullptr;
+  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+
+  SG::ReadCondHandle<ILArOFC>         ofcHdl{m_keyOFC};
+  const ILArOFC* ofcs=*ofcHdl;
+
+  SG::ReadCondHandle<ILArShape>       shapeHdl{m_keyShape};
+  const ILArShape* shapes=*shapeHdl;
+
+  SG::ReadCondHandle<ILArHVScaleCorr> hvScaleCorrHdl{m_keyHVScaleCorr};
+  const ILArHVScaleCorr* hvScaleCorrs=*hvScaleCorrHdl;
+
+  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
+  const LArADC2MeV* adc2mev=*adc2MeVHdl;
 
   if (m_doCheckSum || m_doRodStatus) {
     FebStatus_Check();
@@ -796,7 +806,11 @@ StatusCode LArRODMonTool::fillHistograms() {
       }
     }
 
-    if ((maxSamples-minSamples) > m_adc_th || m_adc_th <= 0) compareChannels(idDig,(*rcDigIt),(*rcBSIt),dig).ignore();
+    if ((maxSamples-minSamples) > m_adc_th || m_adc_th <= 0) {
+      compareChannels(ddman, cabling, ofcs, shapes,
+                      hvScaleCorrs, pedestals, adc2mev,
+                      idDig,(*rcDigIt),(*rcBSIt),dig).ignore();
+    }
     else {
       if (dig) ATH_MSG_DEBUG( "Samples : "<< maxSamples << " " << minSamples );
     }      
@@ -1017,28 +1031,15 @@ void LArRODMonTool::closeDumpfiles() {
   }
 }
 
-StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
+StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* ddman,
+                                          const LArOnOffIdMapping* cabling,
+                                          const ILArOFC* ofcs,
+                                          const ILArShape* shapes,
+                                          const ILArHVScaleCorr* hvScaleCorrs,
+                                          const ILArPedestal* pedestals,
+                                          const LArADC2MeV* adc2mev,
+                                          const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
   ATH_MSG_DEBUG( " I am entering compareChannels method" );
-
-
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=*cablingHdl;
-
-  SG::ReadCondHandle<ILArOFC>         ofcHdl{m_keyOFC};
-  const ILArOFC* ofcs=*ofcHdl;
-
-  SG::ReadCondHandle<ILArShape>       shapeHdl{m_keyShape};
-  const ILArShape* shapes=*shapeHdl;
-
-  SG::ReadCondHandle<ILArHVScaleCorr> hvScaleCorrHdl{m_keyHVScaleCorr};
-  const ILArHVScaleCorr* hvScaleCorrs=*hvScaleCorrHdl;
-
-  SG::ReadCondHandle<ILArPedestal>    pedestalHdl{m_keyPedestal};
-  const ILArPedestal* pedestals=*pedestalHdl;
-
-  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
-  const LArADC2MeV* adc2mev=*adc2MeVHdl;
-
 
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
   const  int feedthrough_fD = m_LArOnlineIDHelper->feedthrough(chid);
@@ -1232,7 +1233,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
          const float ped = pedestals->pedestal(chid,rcDig.gain());
          ATH_MSG_INFO( "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() );
          const Identifier cellid=cabling->cnvToIdentifier(chid);
-         const CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
+         const CaloDetDescrElement* cellDDE = ddman->get_element(cellid); 
          const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
          ATH_MSG_INFO( "Noise for mu=20: "<<noise);
          ATH_MSG_INFO( "HVScaleCorr: "<<hvscale);
