@@ -11,12 +11,12 @@
 
 #include <stdexcept>
 TransFunctionRecorder::TransFunctionRecorder(const std::type_info & info, TransFunctionPersistifier * persistifier):
-  persistifier(persistifier) {
+  m_persistifier(persistifier) {
   persistifier->add(info, this);
 }
 
 const TransFunctionPersistifier *TransFunctionRecorder::getPersistifier() const {
-  return persistifier;
+  return m_persistifier;
 }
 
 TransFunctionRecorder::~TransFunctionRecorder () {}
