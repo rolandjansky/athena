@@ -120,9 +120,9 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Space points containers
     ///////////////////////////////////////////////////////////////////
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixelKey{this, "SpacePointsPixelName", "PixelSpacePoints"};
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCTKey{this, "SpacePointsSCTName", "SCT_SpacePoints"};
-    SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapKey{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
+    SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
@@ -290,7 +290,7 @@ namespace InDet {
     void newSeed(SiSpacePointForSeed*&, SiSpacePointForSeed*&, float);
 
     void newOneSeed(SiSpacePointForSeed*&, SiSpacePointForSeed*&,
-     SiSpacePointForSeed*&, float, float);
+                    SiSpacePointForSeed*&, float, float);
 
     void newOneSeedWithCurvaturesComparison
     (SiSpacePointForSeed*&, SiSpacePointForSeed*&, float);
