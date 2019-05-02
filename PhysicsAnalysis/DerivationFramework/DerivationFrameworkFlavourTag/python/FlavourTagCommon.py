@@ -138,8 +138,7 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
                                                     JetBTaggerTool=btagger,
                                                     JetCollectionName = jet[0],
                                                     outputCollectionSuffix = suffix_name,
-                                                    DuplicatePFlow = False,
-                                                    OutputLevel = 1
+                                                    DuplicatePFlow = False
                                                     )
             if Sequencer is None:
                 global DerivationFrameworkJob
