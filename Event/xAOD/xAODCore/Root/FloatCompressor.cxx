@@ -40,7 +40,7 @@ namespace xAOD {
       m_mantissaBitmask = ~m_mantissaBitmask;
 
       std::bitset<32> b(m_mantissaBitmask);
-      std::cout << "JE m_mantissaBitmask = " << m_mantissaBitmask << " " << b << std::endl;
+      //std::cout << "JE m_mantissaBitmask = " << m_mantissaBitmask << " " << b << std::endl;
       
       for (int j = 0; j < 16; ++j ) {
 	m_mymantissaBitmask = 0;
@@ -53,9 +53,9 @@ namespace xAOD {
 	// Add it to the vector
 	m_mantissaBitmasks.push_back(m_mymantissaBitmask);
 	b =  m_mymantissaBitmask;
-	std::cout << "JE m_mantissaBitmask = " << j << " " << m_mymantissaBitmask << " " << b << std::endl;
+	//std::cout << "JE m_mantissaBitmask = " << j << " " << m_mymantissaBitmask << " " << b << std::endl;
       }
-      std::cout << "JE m_mantissaBitmasks.size() = "<< m_mantissaBitmasks.size() << std::endl;      
+      //std::cout << "JE m_mantissaBitmasks.size() = "<< m_mantissaBitmasks.size() << std::endl;      
 
    }
 
@@ -78,7 +78,7 @@ namespace xAOD {
       //safety-check if value (omitting the sign-bit) is lower than vmax
       //(avoid overflow)
       if( ( fi.ivalue & 0x7ffffff ) < m_vmax ) {
-         fi.ivalue += m_rounding;
+	fi.ivalue += m_rounding;
       }
 
       // Do the compression:

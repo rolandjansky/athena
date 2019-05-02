@@ -36,7 +36,7 @@ namespace DerivationFramework {
       // Tell the user what's happening:
      ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
      ATH_MSG_DEBUG( "SGKeys = " << m_keys );
-     ATH_MSG_DEBUG( "Varss = " << m_keys );
+     ATH_MSG_DEBUG( "Vars = " << m_vars );
 
      m_floatCompressor = std::make_unique<xAOD::FloatCompressor>( 7 );
 
@@ -348,9 +348,14 @@ namespace DerivationFramework {
 		std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		
 		for ( const auto &myvar : mykey.second ) {
-		  if (myvar == reg.getName( auxid )) {
-		    val = m_floatCompressor->reduceFloatPrecision( val, 7 );
-		    std::cout << "JE key " << myvar << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		  std::size_t found = myvar.find(":");
+		  std::string var = myvar.substr(0,found);
+		  int prec = std::stoi(myvar.substr(found+1, std::string::npos));
+		  //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;		  
+
+		  if (var == reg.getName( auxid )) {
+		    val = m_floatCompressor->reduceFloatPrecision( val, prec );
+		    std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		  }
 		}
 	      }

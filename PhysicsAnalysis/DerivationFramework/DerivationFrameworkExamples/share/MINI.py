@@ -208,6 +208,6 @@ SeqNANO += CfgMgr.DerivationFramework__FloatCompressionAlg("NANOFloatCompression
 #"xTrigDecision",                           
 #"TruthEvents"                           
 ], 
-Vars = [ "AntiKt4EMTopoJetsAux.pt", "AntiKt4EMTopoJetsAux.eta", "AntiKt4EMTopoJetsAux.phi"
+Vars = [ "AntiKt4EMTopoJetsAux.pt:7", "AntiKt4EMTopoJetsAux.eta:16", "AntiKt4EMTopoJetsAux.phi:15",
 
 ])
