@@ -17,6 +17,7 @@
 #include "EgammaReEmEnFex.h"
 #include "T2CalibrationEgamma.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
+#include "StoreGate/ReadHandle.h"
 
 
 EgammaReEmEnFex::EgammaReEmEnFex(const std::string & type, const std::string & name, 
@@ -37,6 +38,13 @@ EgammaReEmEnFex::~EgammaReEmEnFex()
 {
 }
 
+StatusCode EgammaReEmEnFex::initialize()
+{
+  ATH_CHECK( IReAlgToolCalo::initialize() );
+  ATH_CHECK( m_bcidAvgKey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
 StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
                                     const CaloDetDescrElement*& caloDDE,
                                     const EventContext& context) const
@@ -49,8 +57,10 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
   // Region Selector, sampling 0
   int sampling = 0;
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+
   LArTT_Selector<LArCellCont> sel;
-  ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
+  ATH_CHECK( m_dataSvc->loadCollections(context, avg.cptr(), roi, TTEM, sampling, sel) );
 
   double deta = 0.; // eta difference current cell - seed
   double dphi = 0.; // phi difference current cell - seed
@@ -111,7 +121,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
   sampling = 3;
 
   LArTT_Selector<LArCellCont> sel3;
-  ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel3) );
+  ATH_CHECK( m_dataSvc->loadCollections(context, avg.cptr(), roi, TTEM, sampling, sel3) );
   /*
           if ( m_saveCells ){
              m_data->storeCells(iBegin,iEnd,*m_CaloCellContPoint,m_cellkeepthr);

@@ -57,6 +57,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Incident.h"
 #include "ZdcEvent/ZdcDigitsCollection.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 
 // Roi information
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -72,7 +73,6 @@ class LArRoI_Map;
 class IROBDataProviderSvc;
 class StoreGateSvc;
 class T2CaloConfig;
-class ICaloLumiBCIDTool;
 
 /** Class that provides access to data for
     Calorimeter LVL2 Algorithms */
@@ -89,8 +89,7 @@ public:
     m_tiledecoder("TileROD_Decoder/TileROD_Decoder"),
     m_zdcdecoder("ZdcByteStreamReadV1V2Tool/ZdcByteStreamTool"),
     m_zdcrectool("ZdcRecChannelTool/ZdcByteChannelTool"), 
-    m_applyOffsetCorrection(true),
-    m_caloLumiBCIDTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault")
+    m_applyOffsetCorrection(true)
     //m_lumiTool("LuminosityTool")
     //		 m_present_etamin(-10.0),
     //		 m_present_etamax(10.0),
@@ -106,7 +105,6 @@ public:
     declareProperty("ZdcByteStreamReadV1V2Tool",m_zdcdecoder,"ZdcByteStreamReadV1V2Tool for ByteStream Conversion");
     declareProperty("ZdcRecTool",m_zdcrectool,"ZdcRecTool for RawChannel rec");
     declareProperty("ApplyOffsetCorrection",m_applyOffsetCorrection,"Apply offset correction or not (false by default)"); 
-    declareProperty("CaloLumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction"); 
     //declareProperty("LuminosityTool",m_lumiTool,"Luminosity Tool"); 
     // New property for MET slice
     declareProperty("loadFullCollections",  m_usefullcoll=false);
@@ -390,7 +388,6 @@ private:
   ToolHandle<ZdcRecChannelTool> m_zdcrectool;
   /** CaloLumiCorrection */
   bool m_applyOffsetCorrection;
-  ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
   //ToolHandle<ILuminosityTool> m_lumiTool;
   /** robFragments pointers */
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> m_robFrags;
@@ -437,6 +434,9 @@ private:
   uint32_t m_numberOfTileRoses;
 
   TileROD_Decoder::D0CellsHLT m_d0cells;
+
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+  { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 #endif

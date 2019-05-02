@@ -14,18 +14,16 @@
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/ListItem.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "LArElecCalib/ILArMCSymTool.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_caloLumiBCIDTool(nullptr), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
 {}
 
 StatusCode
-LArCellCont::initialize(bool applyOffsetCorrection) {
+LArCellCont::initialize(bool /*applyOffsetCorrection*/) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -95,16 +93,6 @@ if (sc.isFailure()){
    return StatusCode::FAILURE;
  }
 
-ICaloLumiBCIDTool* iclbt=0;
- if ( applyOffsetCorrection ) {
-   if ( toolSvc->retrieveTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault", iclbt).isFailure() ) {
-     std::cout << "could not retrieve the tool" << std::endl;
-   } else {
-     std::cout << "Tool retrieved from within LArCellCont" << std::endl;
-     m_caloLumiBCIDTool= iclbt;
-   }
- }
-
 LArRoI_Map* roiMap;
 if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", roiMap ) )
      {std::cout << " Can't get AlgTool LArRoI_Map " << std::endl;
@@ -135,7 +123,6 @@ std::vector<uint32_t> RobsFromMissingFeb;
 
 //std::map<HWIdentifier,int> m_indexset;
 int count = 0;
-//ToolHandle<ILArMCSymTool>  larmcsym ("LArMCSymTool");
 ILArMCSymTool*  larmcsym;
 if ( (toolSvc->retrieveTool("LArMCSymTool",larmcsym)).isFailure() ) {
     std::cout << "did not managed to retrieve LArMCSymTool" << std::endl;
@@ -307,13 +294,15 @@ LArCellCont::find(const unsigned int& rodid) const{
 	return m_it;
 }
 
-void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
+void LArCellCont::applyBCIDCorrection(const CaloBCIDAverage* avg,
+                                      const unsigned int& rodid)
+{
   int idx = m_hash(rodid);
   m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
   LArCellCollection* col = (*m_it);
   unsigned int itsize = col->size();
   std::vector<int>& hashTab = m_hashSym[idx];
-  if ( !m_BCIDcache ) { updateBCID(); m_BCIDcache=true; m_corrBCIDref = m_corrBCID[0]; }
+  if ( !m_BCIDcache ) { updateBCID(avg); m_BCIDcache=true; m_corrBCIDref = m_corrBCID[0]; }
   for(unsigned int i=0; i< itsize; ++i){
     float cor = m_corrBCIDref[ hashTab[i] ];
     LArCell* cell = col->operator[](i);
@@ -342,26 +331,25 @@ void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned i
   }    
 }
 
-void LArCellCont::updateBCID() {
+void LArCellCont::updateBCID(const CaloBCIDAverage* avg) {
   //std::clock_t startT,endT;
   //startT = clock();
-  int bcid=m_bcid;
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
   int indexsetmax = m_indexset.size();
   //m_corrBCID.resize(1);
-  if ( (m_larCablingSvc == 0) || (m_caloLumiBCIDTool==0) ) return;
-    std::vector<float>& BCID0=m_corrBCID[0];
-    BCID0.resize(indexsetmax+1);
-    std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
-    for( ; beg != end ; ++beg ) {
-      HWIdentifier hwid = (*beg).first;
-      int idx = (*beg).second;
-      if ( idx < (int)BCID0.size() ){
-	Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
-	float corr = m_caloLumiBCIDTool->average(id,bcid);
-	BCID0[idx] = corr;
-      }
-    } // end of HWID
+  if ( (m_larCablingSvc == 0) || (avg==0) ) return;
+  std::vector<float>& BCID0=m_corrBCID[0];
+  BCID0.resize(indexsetmax+1);
+  std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
+  for( ; beg != end ; ++beg ) {
+    HWIdentifier hwid = (*beg).first;
+    int idx = (*beg).second;
+    if ( idx < (int)BCID0.size() ){
+      Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
+      float corr = avg->average(id);
+      BCID0[idx] = corr;
+    }
+  } // end of HWID
   //endT = clock();
   //std::cout << "Total time [ms] " << (double)(endT-startT) << " for " << m_indexset.size() << " x " << maxBCID << std::endl;
   return; 

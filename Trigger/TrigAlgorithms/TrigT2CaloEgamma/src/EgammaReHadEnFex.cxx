@@ -16,12 +16,23 @@
 #include "EgammaReHadEnFex.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
+#include "StoreGate/ReadHandle.h"
 #include <math.h>
 
 EgammaReHadEnFex::EgammaReHadEnFex(const std::string& type, const std::string& name,
                                    const IInterface* parent) :
     IReAlgToolCalo(type, name, parent)
 {}
+
+
+StatusCode EgammaReHadEnFex::initialize()
+{
+  ATH_CHECK( IReAlgToolCalo::initialize() );
+  ATH_CHECK( m_bcidAvgKey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
 
 StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
                                      const CaloDetDescrElement*& /*caloDDE*/,
@@ -43,10 +54,12 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   int ncells = 0;
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+
   for (unsigned int sampling = 0; sampling < 3; sampling++) {
 
     LArTT_Selector<LArCellCont> sel;
-    ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTHEC, sampling, sel) );
+    ATH_CHECK( m_dataSvc->loadCollections(context, avg.cptr(), roi, TTHEC, sampling, sel) );
 
     for (const LArCell* larcell : sel) {
 

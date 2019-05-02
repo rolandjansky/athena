@@ -30,6 +30,7 @@ class ITrigCaloDataAccessSvc: virtual public IService {
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
   virtual StatusCode loadCollections( const EventContext& context,
+                                      const CaloBCIDAverage* avg,
                                       const IRoiDescriptor& roi,
                                       const DETID detId, const int sampling,
                                       LArTT_Selector<LArCellCont>& loadedCells ) = 0;
@@ -82,6 +83,7 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 */
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
+                                           const CaloBCIDAverage* avg,
                                            ConstDataVector<CaloCellContainer>& cont ) = 0;
 
         /* /\** */
