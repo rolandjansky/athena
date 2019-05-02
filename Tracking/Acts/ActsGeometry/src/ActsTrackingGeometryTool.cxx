@@ -40,7 +40,7 @@ ActsTrackingGeometryTool::trackingGeometry() const
   return m_trackingGeometrySvc->trackingGeometry();
 }
 
-const ActsGeometryContext*
+const ActsGeometryContext&
 ActsTrackingGeometryTool::getGeometryContext(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Creating alignment context for event");
@@ -50,7 +50,7 @@ ActsTrackingGeometryTool::getGeometryContext(const EventContext& ctx) const
     ATH_MSG_ERROR("Creating alignment context failed: read cond handle invalid!");
   }
 
-  return *rch;
+  return **rch;
 }
 
 ActsGeometryContext

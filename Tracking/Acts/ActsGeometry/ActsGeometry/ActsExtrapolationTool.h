@@ -65,7 +65,7 @@ public:
 
     Acts::MagneticFieldContext mctx;
     const ActsGeometryContext& gctx
-      = *m_trackingGeometryTool->getGeometryContext(ctx);
+      = m_trackingGeometryTool->getGeometryContext(ctx);
 
     auto anygctx = gctx.any();
 

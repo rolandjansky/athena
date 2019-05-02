@@ -39,7 +39,7 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() const;
 
-  const ActsGeometryContext*
+  const ActsGeometryContext&
   getGeometryContext(const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
   ActsGeometryContext
