@@ -8,6 +8,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 namespace DerivationFramework {
@@ -58,8 +59,11 @@ namespace DerivationFramework {
     //---------------------------------------------//
 
     // Store b, c, s and light truth objects (quarks and hadrons)
-    const xAOD::TruthParticleContainer* truthParticles = 0;
-    ATH_CHECK(evtStore()->retrieve( truthParticles, "TruthParticles" ));
+
+    // Retrieve the truth collections
+    const xAOD::TruthEventContainer* truthEvents(nullptr);
+    CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
+    const xAOD::TruthEvent * event = truthEvents->at(0);
 
     std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
     std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
@@ -68,7 +72,8 @@ namespace DerivationFramework {
     std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
     std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
 
-    for (const xAOD::TruthParticle* truthPart : *truthParticles) {
+    for (size_t p=0; p < event->nTruthParticles(); ++p) {
+      const xAOD::TruthParticle* truthPart = event->truthParticle(p);
       long int pdg = truthPart->pdgId();
       if (truthPart->pt() <= 5000) continue;
 
@@ -104,7 +109,7 @@ namespace DerivationFramework {
 
 
     // Open the input electron container
-    const xAOD::ElectronContainer *inElCont(0);
+    const xAOD::ElectronContainer *inElCont(nullptr);
     ATH_CHECK( evtStore()->retrieve( inElCont, m_inElContName ) );
 
     //Now classify the electrons
@@ -215,7 +220,7 @@ namespace DerivationFramework {
 
 
     // Open the input muon container
-    const xAOD::MuonContainer *inMuCont(0);
+    const xAOD::MuonContainer *inMuCont(nullptr);
     ATH_CHECK( evtStore()->retrieve( inMuCont, m_inMuContName ) );
 
     //Now classify the muons
