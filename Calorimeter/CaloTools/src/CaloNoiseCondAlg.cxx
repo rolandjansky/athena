@@ -236,7 +236,7 @@ StatusCode CaloNoiseCondAlg::execute() {
     } else {
       lumi = attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
     }
-    if (isnan(lumi)) {
+    if (std::isnan(lumi)) {
       ATH_MSG_WARNING( " Luminosity is not a number.. " << m_lumi0 << "  ... set it to 0 "  );
       lumi=0.;
     }
