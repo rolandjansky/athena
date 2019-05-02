@@ -34,7 +34,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigTrackSummaryToolCosmics = \
     Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolCosmics",
                           InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolCosmics,
-                          InDetHoleSearchTool    = InDetTrigHoleSearchTool)
+                          doHolesInDet           = True)
 ToolSvc += InDetTrigTrackSummaryToolCosmics
 if (InDetTrigFlags.doPrintConfigurables()):
   print      InDetTrigTrackSummaryToolCosmics

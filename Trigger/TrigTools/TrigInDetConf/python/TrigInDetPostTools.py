@@ -18,8 +18,8 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 # from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 # InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
 #                                                       InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-#                                                       InDetHoleSearchTool    = None,
 #                                                       doSharedHits           = False,
+#                                                       dhoHolesInDet          = False,
 #                                                       TRT_ElectronPidTool    = None
 #                                                       )
 # ToolSvc += InDetTrigFastTrackSummaryTool
@@ -30,8 +30,8 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 # from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 # InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
 #                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-#                                                                 InDetHoleSearchTool    = InDetTrigHoleSearchTool,
 #                                                                 doSharedHits           = False,
+#                                                                 doHolesInDet           = True,
 #                                                                 TRT_ElectronPidTool    = None
 #                                                       )
 # ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch

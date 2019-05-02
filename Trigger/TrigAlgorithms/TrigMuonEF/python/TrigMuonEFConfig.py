@@ -114,7 +114,7 @@ def TMEF_TrackSummaryTool(name='TMEF_TrackSummaryTool',**kwargs):
     if DetFlags.detdescr.ID_on():
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
         kwargs.setdefault("InDetSummaryHelperTool", InDetTrigTrackSummaryHelperTool)
-        kwargs.setdefault("InDetHoleSearchTool", InDetTrigHoleSearchTool)
+        kwargs.setdefault("doHolesInDet",True)
 
     return CfgMgr.Trk__TrackSummaryTool(name,**kwargs)
 
@@ -267,7 +267,8 @@ def TMEF_TrackBuilderTool(name='TMEF_TrackBuilderTool',extraFlags=None,**kwargs)
 # new tools added by MO
 def TMEF_TrackSummaryToolNoHole(name='TMEF_TrackSummaryToolNoHole',**kwargs):
     sumtool = TMEF_TrackSummaryTool(name, **kwargs)
-    sumtool.InDetHoleSearchTool = None
+    sumtool.doHolesInDet = False
+    # @TODO to switch off hole search should use a prticular InDet...Helper
     return sumtool
 
 def TMEF_TrkToTrackParticleConvTool(name="TMEF_TrkToTrackParticleConvTool",**kwargs):
