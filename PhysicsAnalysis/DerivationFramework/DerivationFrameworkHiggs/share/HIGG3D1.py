@@ -257,7 +257,9 @@ higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 #====================================================================
 augmentationTools=[]
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
-HIGG3D1TruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name = "HIGG3D1TruthDecoratorTool")
+HIGG3D1TruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name = "HIGG3D1TruthDecoratorTool",
+                                                                     OutputLevel       = VERBOSE,
+                                                                     )
 ToolSvc += HIGG3D1TruthDecoratorTool
 augmentationTools.append(HIGG3D1TruthDecoratorTool)
 
@@ -324,6 +326,7 @@ if globalflags.DataSource()=='geant4':
                                                }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
+    HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1TruthDecoratorVariables)
 
 #========================================
 # CREATE THE DERIVATION KERNEL ALGORITHMS

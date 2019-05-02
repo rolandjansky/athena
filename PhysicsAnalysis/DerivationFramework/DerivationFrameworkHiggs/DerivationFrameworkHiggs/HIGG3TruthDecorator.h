@@ -37,6 +37,9 @@ namespace DerivationFramework {
 
     virtual StatusCode addBranches() const;
 
+  private:
+    std::string m_inElContName;
+
   };
 
 }
