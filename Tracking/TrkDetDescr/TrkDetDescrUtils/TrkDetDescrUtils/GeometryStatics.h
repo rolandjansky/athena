@@ -17,22 +17,22 @@ namespace Trk {
 
 // transformations
 
-  static Amg::Transform3D s_idTransform = Amg::Transform3D::Identity();          //!< idendity transformation
-  static Amg::Rotation3D s_idRotation = Amg::Rotation3D::Identity();            //!< idendity rotation
+  alignas(16) static const Amg::Transform3D s_idTransform = Amg::Transform3D::Identity();          //!< idendity transformation
+  alignas(16) static const Amg::Rotation3D s_idRotation = Amg::Rotation3D::Identity();            //!< idendity rotation
   
   // axis system
   
-  static Amg::Vector3D s_xAxis(1,0,0);        //!< global x Axis;
-  static Amg::Vector3D s_yAxis(0,1,0);        //!< global y Axis;
-  static Amg::Vector3D s_zAxis(0,0,1);        //!< global z Axis;
+  alignas(16) static const Amg::Vector3D s_xAxis(1,0,0);        //!< global x Axis;
+  alignas(16) static const Amg::Vector3D s_yAxis(0,1,0);        //!< global y Axis;
+  alignas(16) static const Amg::Vector3D s_zAxis(0,0,1);        //!< global z Axis;
   
   // origin
   
-  static Amg::Vector3D s_origin(0,0,0);       //!< origin position
+  alignas(16) static const Amg::Vector3D s_origin(0,0,0);       //!< origin position
   
-  static double helper[9] = {0.,1.,0.,1.,0.,0.,0.,0.,-1.};
+  static const double helper[9] = {0.,1.,0.,1.,0.,0.,0.,0.,-1.};
   
-  static Amg::RotationMatrix3D s_idRotationZinverse(helper);
+  alignas(16) static const Amg::RotationMatrix3D s_idRotationZinverse(helper);
 
 }
 
