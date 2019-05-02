@@ -136,17 +136,25 @@ const Acts::Transform3D&
 ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 {
   // any cast to known context type
-  const auto& gctx = std::any_cast<const ActsGeometryContext&>(anygctx);
+  const ActsGeometryContext* gctx = std::any_cast<const ActsGeometryContext*>(anygctx);
 
-  if (gctx.nominal) {
-    // We want nominal, mutex for safety.
+  // This is needed for initial geometry construction. At that point, we don't have a
+  // consistent view of the geometry yet, and thus we can't populate an alignment store
+  // at that time.
+  if (gctx->construction) {
+    // this should only happen at initialize (1 thread, but mutex anyway)
     return getDefaultTransformMutexed();
   }
 
-  // no GAS, is this initialization?
-  assert(gctx.alignmentStore != nullptr);
+  // unpack the alignment store from the context
+  const ActsAlignmentStore* alignmentStore = gctx->alignmentStore;
 
-  const Transform3D* cachedTrf = gctx.alignmentStore->getTransform(this);
+  // no GAS, is this initialization?
+  assert(alignmentStore != nullptr);
+
+  // get the correct cached transform
+  const Transform3D* cachedTrf = alignmentStore->getTransform(this);
+
   assert(cachedTrf != nullptr);
 
   return *cachedTrf;

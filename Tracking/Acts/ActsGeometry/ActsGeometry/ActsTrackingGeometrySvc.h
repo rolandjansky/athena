@@ -50,6 +50,12 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override;
 
+  void
+  populateAlignmentStore(ActsAlignmentStore *store) const override;
+
+  const ActsAlignmentStore*
+  getNominalAlignmentStore() const override;
+
 private:
   std::shared_ptr<const Acts::ITrackingVolumeBuilder>
   makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
@@ -63,6 +69,8 @@ private:
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
   const TRT_ID *m_TRT_idHelper;
+
+  std::unique_ptr<const ActsAlignmentStore> m_nominalAlignmentStore{nullptr};
 
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};

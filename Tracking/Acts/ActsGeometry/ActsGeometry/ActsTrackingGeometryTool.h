@@ -22,6 +22,7 @@ namespace Acts {
 class TrackingGeometry;
 }
 
+class ActsGeometryContext;
 class IActsTrackingGeometrySvc;
 
 static const InterfaceID IID_ActsTrackingGeometryTool("ActsTrackingGeometryTool", 1, 0);
@@ -38,15 +39,18 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() const;
 
-  ActsGeometryContext
+  const ActsGeometryContext*
   getGeometryContext(const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+
+  ActsGeometryContext
+  getNominalGeometryContext() const;
 
 
 private:
 
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  SG::ReadCondHandleKey<ActsAlignmentStore> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
+  SG::ReadCondHandleKey<ActsGeometryContext> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
 
 };

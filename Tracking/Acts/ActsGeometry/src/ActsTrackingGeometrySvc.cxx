@@ -112,11 +112,19 @@ ActsTrackingGeometrySvc::initialize()
 
 
   // default geometry context, this is nominal
-  ActsGeometryContext defGctx;
+  ActsGeometryContext constructionContext;
+  constructionContext.construction = true;
 
-  m_trackingGeometry = trackingGeometryBuilder->trackingGeometry(defGctx);
-  //const Acts::TrackingVolume* = m_trackingGeometry->highestTrackingVolume();
+  m_trackingGeometry = trackingGeometryBuilder
+    ->trackingGeometry(constructionContext.any());
 
+  ATH_MSG_VERBOSE("Building nominal alignment store");
+  ActsAlignmentStore* nominalAlignmentStore = new ActsAlignmentStore();
+
+  populateAlignmentStore(nominalAlignmentStore);
+
+  // manage ownership
+  m_nominalAlignmentStore = std::unique_ptr<const ActsAlignmentStore>(nominalAlignmentStore);
 
   ATH_MSG_INFO("Acts TrackingGeometry construction completed");
 
@@ -270,4 +278,22 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
         makeActsAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
 
   return cylinderVolumeBuilder;
+}
+
+void
+ActsTrackingGeometrySvc::populateAlignmentStore(ActsAlignmentStore *store) const
+{
+  // populate the alignment store with all detector elements
+  m_trackingGeometry->visitSurfaces(
+    [store](const Acts::Surface* srf) {
+    const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
+    const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
+    gmde->storeTransform(store);
+  });
+}
+
+const ActsAlignmentStore*
+ActsTrackingGeometrySvc::getNominalAlignmentStore() const
+{
+  return m_nominalAlignmentStore.get();
 }

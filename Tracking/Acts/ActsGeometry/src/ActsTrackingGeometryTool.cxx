@@ -40,19 +40,25 @@ ActsTrackingGeometryTool::trackingGeometry() const
   return m_trackingGeometrySvc->trackingGeometry();
 }
 
-ActsGeometryContext
+const ActsGeometryContext*
 ActsTrackingGeometryTool::getGeometryContext(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Creating alignment context for event");
-  SG::ReadCondHandle<ActsAlignmentStore> rch(m_rchk, ctx);
+  SG::ReadCondHandle<ActsGeometryContext> rch(m_rchk, ctx);
 
   if(!rch.isValid()) {
     ATH_MSG_ERROR("Creating alignment context failed: read cond handle invalid!");
   }
 
+  return *rch;
+}
+
+ActsGeometryContext
+ActsTrackingGeometryTool::getNominalGeometryContext() const
+{
+
   ActsGeometryContext gctx;
-  gctx.alignmentStore = *rch;
+  gctx.alignmentStore = m_trackingGeometrySvc->getNominalAlignmentStore();
 
   return gctx;
-
 }

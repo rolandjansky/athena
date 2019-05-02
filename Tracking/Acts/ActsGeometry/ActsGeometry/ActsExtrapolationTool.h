@@ -64,9 +64,12 @@ public:
     ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
     Acts::MagneticFieldContext mctx;
-    Acts::GeometryContext gctx = m_trackingGeometryTool->getGeometryContext(ctx);
+    const ActsGeometryContext& gctx
+      = *m_trackingGeometryTool->getGeometryContext(ctx);
 
-    Options options(std::cref(gctx), mctx);
+    auto anygctx = gctx.any();
+
+    Options options(anygctx, mctx);
     options.pathLimit = pathLimit;
     bool debug = msg().level() == MSG::VERBOSE;
     options.debug = debug;
@@ -99,8 +102,11 @@ public:
     return steps;
   }
 
-  void
-  prepareAlignment() const;
+  const ActsTrackingGeometryTool*
+  trackingGeometryTool() const
+  {
+    return m_trackingGeometryTool.get();
+  }
 
 private:
   // set up options for propagation

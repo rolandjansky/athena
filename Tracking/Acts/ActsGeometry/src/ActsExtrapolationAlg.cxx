@@ -105,8 +105,10 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 
   if(charge != 0.) {
       // Perigee, no alignment -> default geo context
-      ActsGeometryContext gctx;
-      Acts::BoundParameters startParameters(gctx,
+      ActsGeometryContext gctx
+        = m_extrapolationTool->trackingGeometryTool()->getNominalGeometryContext();
+      auto anygctx = gctx.any();
+      Acts::BoundParameters startParameters(anygctx,
           std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagate(ctx, startParameters);
       m_propStepWriterSvc->write(steps);
