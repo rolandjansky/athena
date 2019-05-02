@@ -39,6 +39,7 @@ namespace DerivationFramework {
 
   private:
     std::string m_inElContName;
+    std::string m_inMuContName;
 
   };
 
