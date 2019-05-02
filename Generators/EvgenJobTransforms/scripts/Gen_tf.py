@@ -127,8 +127,8 @@ substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
             # TODO: trf framework now bans use of exec()...
 
         # copy config files to cwd
-#        FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-        print "The configuration is taken from dir = ", FIRST_DIR
+        FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+#        print "The configuration is taken from dir = ", FIRST_DIR
         configFiles = [f for f in os.listdir(FIRST_DIR) if ( "GRID" in f)]
         if len(configFiles) == 1:
             confFile =  os.path.join(FIRST_DIR, configFiles[0])
