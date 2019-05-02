@@ -234,7 +234,7 @@ public:
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0) {
-    GetWrapperTF1()->SetParameter(2, amp);
+    GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
   }
 

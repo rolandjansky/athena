@@ -149,7 +149,13 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
 
 void ZDCFitExpFermiPrePulse::SetPrePulseT0Range(float tmin, float tmax)
 {
-  GetWrapperTF1()->SetParLimits(3, tmin, tmax);
+  if (tmin > GetTMin()) {
+    GetWrapperTF1()->ReleaseParameter(3);
+    GetWrapperTF1()->SetParLimits(3, tmin, tmax);
+  }
+  else {
+    GetWrapperTF1()->FixParameter(3, tmin * 1.01);
+  }
 }
 
 void ZDCFitExpFermiPrePulse::DoInitialize(float initialAmp, float initialT0)
