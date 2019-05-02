@@ -224,7 +224,7 @@ def getJetCleaningTool(cleaningLevel):
 def getJetExternalAssocTool(jetalg, extjetalg, **options):
     jetassoctoolname = 'DFJetExternalAssoc_%s_From_%s' % (jetalg, extjetalg)
     jetassoctool = None
-    from AthenaCommon.AppMgr import ToolSvcs
+    from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,jetassoctoolname):
         jetassoctool = getattr(ToolSvc,jetassoctoolname)
     else:
