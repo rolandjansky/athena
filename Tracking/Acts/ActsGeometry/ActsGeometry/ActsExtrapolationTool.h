@@ -82,7 +82,7 @@ public:
     std::vector<Acts::detail::Step> steps;
     DebugOutput::result_type debugOutput;
     auto res = boost::apply_visitor(visitor, *m_varProp);
-    if (res.ok()) {
+    if (!res.ok()) {
       ATH_MSG_ERROR("Got error during propagation:" << res.error()
           << ". Returning empty step vector.");
       return {};
@@ -139,7 +139,7 @@ private:
       if (!result.ok()) {
         return result.error();
       }
-      auto propRes = std::move(*result);
+      auto& propRes = *result;
 
       auto steppingResults = propRes.template get<SteppingLogger::result_type>();
       auto debugOutput = propRes.template get<DebugOutput::result_type>();
