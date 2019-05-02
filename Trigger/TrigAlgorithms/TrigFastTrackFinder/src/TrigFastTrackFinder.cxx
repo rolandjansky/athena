@@ -755,7 +755,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
       ++m_nSeeds;
 
-      const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(spList);
+      std::list<Trk::Track*> tracks = std::move(m_trackMaker->getTracks(spList));
 
       for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
         if((*t)) {

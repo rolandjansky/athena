@@ -332,7 +332,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     ++m_nseeds;
     if(m_timers) m_timer[5]->resume();
-    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints())); 
     if(m_timers) m_timer[5]->pause();
     if(m_timers) m_timer[6]->resume();
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -484,7 +484,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     ++m_nseeds;
     if(m_timers) m_timer[5]->resume();
-    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints()));
     if(m_timers) m_timer[5]->pause();
     if(m_timers) m_timer[6]->resume();
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
