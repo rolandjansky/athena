@@ -218,6 +218,11 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
     // Loop on all final particles and 
     // put them all as outgoing from the event vertex
     int ipart = 0;
+    double sumpx = 0;
+    double sumpy = 0;
+    double sumpz = 0;
+    double sumE  = 0;
+
     std::vector<starlightParticle>::const_iterator part =
       (m_event->getParticles())->begin();
     for (part = m_event->getParticles()->begin();
@@ -234,6 +239,12 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	double py = (*part).GetPy();
 	double pz = (*part).GetPz();
 	double e  = (*part).GetE();
+
+        sumpx += px;
+        sumpy += py;
+        sumpz += pz;
+        sumE  += e;
+
 	// mass fix implemented only for muons
 	if(abs(pid)==13) {
           float mass = starlightConstants::muonMass;
@@ -247,6 +258,13 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
       }
     log << MSG::DEBUG
 	<< "Saved " << ipart << " tracks " << endreq;
+
+    if(m_prodParticleId==11 || m_prodParticleId==13 || m_prodParticleId==15) {
+        v1->add_particle_in(new HepMC::GenParticle(CLHEP::HepLorentzVector(sumpx, sumpy, sumpz, sumE),23,2));
+
+    log << MSG::INFO
+        << "=====> added Fake Z->ll;  for outgoing leptons with  PID = "<<  m_prodParticleId << " Total sumE =" << sumE  << endreq;
+        }
 
     // Convert cm->mm and GeV->MeV
     // 
