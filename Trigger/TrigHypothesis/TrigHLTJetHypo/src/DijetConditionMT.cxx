@@ -68,7 +68,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
         <<std::boolalpha << pass <<  " jets: ";
      for(auto ip : ips){
        address = static_cast<const void*>(ip);
-       ss << address << " ";  
+       ss << address << " " << ip->eta() << " ";
      }
      ss << '\n';
      collector->collect("DijetConditionMT", ss.str());

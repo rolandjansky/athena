@@ -27,7 +27,7 @@ std::string DebugInfoCollector::toString() const {
 
 void DebugInfoCollector::write() const{
   auto report = this->toString();
-  std::ofstream out(m_name);
+  std::ofstream out(m_name+".log");
   out << report;   
 }
 

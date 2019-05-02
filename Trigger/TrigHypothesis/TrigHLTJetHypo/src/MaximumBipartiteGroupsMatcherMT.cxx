@@ -80,11 +80,15 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
   std::size_t jetGroupOffset = m_conditions.size();
   std::size_t icond{0};
 
-  int sourceCapacity{0};  // used for viability check before running FF.
+  std::size_t sourceCapacity{0};  // used for viability check before running FF.
   
   for(const auto& cond : m_conditions){
     ++icond;
     bool c_is_satisfied = false;
+    // jetgroup node numbers follow immediately after the condition node
+    // numbers jet each group is considered n times where n is the
+    // number of satisfied groups (alg bails out if there is an unsatisfoed
+    // group).
     std::size_t ijg{jetGroupOffset};
     for (auto jg = groups_b; jg != groups_e; ++jg){
       ++ijg;
@@ -104,7 +108,7 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 	  }
 	}
 
-	// keep track of satisfying groups
+	// keep track of satisfying groups for later expansion.
 	jet_groups[ijg] = &(*jg);  
 	// add condition- group link if condition satisfied
 	edges.push_back(std::make_shared<FlowEdge>(icond,
@@ -129,15 +133,20 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
   }
   if(out){*out << "sent 500\n";}
 
-  std::map<pHypoJet, int> jets;  //contains jets found in groups (nb type order)
+  //contains jets: jet - node for jets found in matching groups (nb type order)
+  std::map<pHypoJet, int> jets; 
 
-  int jnode{jetGroupOffset + (groups_e-groups_b)}; // node = 0 four the source node.
+  // node = 0 for the source node.
+  int jnode{jetGroupOffset + (groups_e-groups_b)};
 
   if(collector){
     collector->collect("MaximumBipartiteGroupsMatcherMT",
-		       "Νο of matched jet groups: " + std::to_string(jet_groups.size()));
+		       "Νο. of matched jet groups: " +
+		       std::to_string(jet_groups.size()) + "\n");
   }
-  
+
+  // now add the jetgroup - jet edges
+  std::size_t sinkCapacity{0};
   for(const auto& jg : jet_groups){
     for(const auto& j : *(jg.second)){
 
@@ -147,6 +156,7 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 	edges.push_back(std::make_shared<FlowEdge>(jg.first,
 						   jnode,
 						   unitCapacity));
+	++sinkCapacity;
 	if(collector){
 	  std::stringstream ss;
 	  ss << jg.first << "->" << jnode << '\n';
@@ -156,6 +166,7 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 	edges.push_back(std::make_shared<FlowEdge>(jg.first,
 						   iter->second,
 						   unitCapacity));
+	++sinkCapacity;
 	if(collector){
 	  std::stringstream ss;
 	  ss << jg.first << "->" << iter->first << '\n';
@@ -163,6 +174,19 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 	}
       }
     }
+  }
+
+  if(sinkCapacity < sourceCapacity){
+    // no hope of matching
+     if(collector){
+       std::string msg =
+	 "source capacity > sink capacity: " +
+	 std::to_string(sourceCapacity) + " " +
+	 std::to_string(sinkCapacity);
+       
+       collector->collect("MaximumBipartiteGroupsMatcherMT", msg);
+     }
+     return false;
   }
 
   if(collector){
@@ -173,6 +197,8 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
   
   int V = jnode + 2;  // now we have all the nodes, can index the sink
   if(out){*out << "sent 600 " << V << '\n';}
+
+  // finally add the jet - sink edges.
   for(const auto j: jets){
     edges.push_back(std::make_shared<FlowEdge>(j.second,
 					       V-1,

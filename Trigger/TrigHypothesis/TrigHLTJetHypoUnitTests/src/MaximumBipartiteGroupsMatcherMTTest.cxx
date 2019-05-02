@@ -55,6 +55,7 @@ public:
 
   ConditionsMT m_conditions;
   int m_nconditions;
+  bool m_debug{true};
 };
 
 HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
@@ -303,10 +304,16 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, fourSelectedJets){
 
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
-  auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  
+  if(m_debug){
+    collector.reset(new DebugInfoCollector("fourSelectedJets"));
+  }
 
-  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+  bool pass = matcher.match(groups.begin(), groups.end(), collector, m_debug);
 
+  if(m_debug){collector->write();}
+  
   EXPECT_TRUE(pass);
 }
 
