@@ -130,7 +130,8 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   //
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
     if (not ZVE and (counter[kNSeeds] >= m_maxNumberSeeds)) {
@@ -212,7 +213,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   while ((seed = m_seedsmaker->next())) {
     ++counter[kNSeeds];
     bool firstTrack{true};
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    std::list<Trk::Track*> trackList = std::move(m_trackmaker->getTracks(seed->spacePoints()));
+    for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
       if (firstTrack and not m_ITKGeometry) {
