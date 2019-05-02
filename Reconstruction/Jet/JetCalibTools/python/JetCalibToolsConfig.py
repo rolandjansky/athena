@@ -47,6 +47,7 @@ fatjetcontexts = {
     "CombinedMass": ("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config","00-04-81","EtaJES_JMS"),
     "CaloMass":     ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TAMass":       ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
+    "TrigSubJES": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
 }
 
 # List AFII config files separately, to avoid needing to specify a different context
@@ -61,7 +62,7 @@ calibcontexts = {
     "AntiKt4EMPFlow":pflowcontexts,
     "AntiKt4EMTopo":topocontexts,
     "AntiKt4LCTopo":topocontexts,
-    #"TrigEMSubJES":topocontexts,
+    "AntiKt10LCTopo":fatjetcontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
     # R-Scan
