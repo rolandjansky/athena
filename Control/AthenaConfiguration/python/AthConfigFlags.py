@@ -239,7 +239,7 @@ class AthConfigFlags(object):
         print("%-15.15s : %30s : %s" % ("Category","Generator name", "Defined in" ))
         for name,gen in sorted(six.iteritems(self._dynaflags)):
             print("%-15.15s : %30s : %s" %
-                  (name, gen.func_name, '/'.join(gen.func_code.co_filename.split('/')[-2:])))
+                  (name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:])))
 
 
     def initAll(self): #Mostly a self-test method
