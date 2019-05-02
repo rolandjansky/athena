@@ -57,59 +57,60 @@ namespace DerivationFramework {
     // Lepton truth flavour decorator as in Run-I  //
     //---------------------------------------------//
 
+    // Store b, c, s and light truth objects (quarks and hadrons)
+    const xAOD::TruthParticleContainer* truthParticles = 0;
+    ATH_CHECK(evtStore()->retrieve( truthParticles, "TruthParticles" ));
+
+    std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
+    std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
+    std::vector<const xAOD::TruthParticle*> sTruth; sTruth.clear();
+    std::vector<const xAOD::TruthParticle*> lTruth; lTruth.clear();
+    std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
+    std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
+
+    for (const xAOD::TruthParticle* truthPart : *truthParticles) {
+      long int pdg = truthPart->pdgId();
+      if (truthPart->pt() <= 5000) continue;
+
+      //Classify the truth particle
+      bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
+      int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
+
+      if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
+      else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
+      else if (q1 == 5) hasBottom = 1; //Bottom baryon
+      else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
+
+      else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
+      else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
+      else if (q1 == 4) hasCharm = 1; //Charmed baryon
+      else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
+
+      else if (q1 == 3) hasStrange = 1; //Strange baryon
+      else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
+      else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
+
+      else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
+      else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
+      else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
+
+      if (hasBottom) bTruth.push_back(truthPart);
+      if (hasCharm) cTruth.push_back(truthPart);
+      if (hasStrange) sTruth.push_back(truthPart);
+      if (hasLight) lTruth.push_back(truthPart);
+      if (fabs(pdg) == 11) eTruth.push_back(truthPart);
+      if (fabs(pdg) == 13) mTruth.push_back(truthPart);
+    }
+
+
     // Open the input electron container
     const xAOD::ElectronContainer *inElCont(0);
     ATH_CHECK( evtStore()->retrieve( inElCont, m_inElContName ) );
 
+    //Now classify the electrons
     for ( const xAOD::Electron* electron : *inElCont) {
       int flavTag = -1;
 
-      // Store b, c, s and light truth objects (quarks and hadrons)
-      const xAOD::TruthParticleContainer* truthParticles = 0;
-      ATH_CHECK(evtStore()->retrieve( truthParticles, "TruthParticles" ));
-      xAOD::TruthParticleContainer::const_iterator truthItr = truthParticles->begin();
-      xAOD::TruthParticleContainer::const_iterator truthItrE = truthParticles->end();
-
-      std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
-      std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
-      std::vector<const xAOD::TruthParticle*> sTruth; sTruth.clear();
-      std::vector<const xAOD::TruthParticle*> lTruth; lTruth.clear();
-      std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
-
-      for (truthItr = truthParticles->begin(); truthItr != truthItrE; ++truthItr) {
-        const xAOD::TruthParticle * part = (*truthItr); long int pdg = part->pdgId();
-        if (part->pt() <= 5000) continue;
-
-        //Classify the truth particle
-        bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
-        int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
-
-        if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
-        else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
-        else if (q1 == 5) hasBottom = 1; //Bottom baryon
-        else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
-
-        else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
-        else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
-        else if (q1 == 4) hasCharm = 1; //Charmed baryon
-        else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
-
-        else if (q1 == 3) hasStrange = 1; //Strange baryon
-        else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
-        else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
-
-        else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
-        else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
-        else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
-
-        if (hasBottom) bTruth.push_back(part);
-        if (hasCharm) cTruth.push_back(part);
-        if (hasStrange) sTruth.push_back(part);
-        if (hasLight) lTruth.push_back(part);
-        if (fabs(pdg) == 11) eTruth.push_back(part);
-      }
-
-      //Now classify the electron
       TLorentzVector elVect; elVect.SetPtEtaPhiE(electron->pt(), electron->eta(), electron->phi(), electron->e());
 
       bool electronBottom = 0; bool electronCharm = 0; bool electronStrange = 0;
@@ -213,71 +214,14 @@ namespace DerivationFramework {
     } // end: loop over electrons for Run1 truth flavour decoration
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     // Open the input muon container
     const xAOD::MuonContainer *inMuCont(0);
     ATH_CHECK( evtStore()->retrieve( inMuCont, m_inMuContName ) );
 
+    //Now classify the muons
     for ( const xAOD::Muon* muon : *inMuCont) {
       int flavTag = -1;
 
-      // Store b, c, s and light truth objects (quarks and hadrons)
-      const xAOD::TruthParticleContainer* truthParticles = 0;
-      ATH_CHECK(evtStore()->retrieve( truthParticles, "TruthParticles" ));
-      xAOD::TruthParticleContainer::const_iterator truthItr = truthParticles->begin();
-      xAOD::TruthParticleContainer::const_iterator truthItrE = truthParticles->end();
-
-      std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
-      std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
-      std::vector<const xAOD::TruthParticle*> sTruth; sTruth.clear();
-      std::vector<const xAOD::TruthParticle*> lTruth; lTruth.clear();
-      std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
-
-      for (truthItr = truthParticles->begin(); truthItr != truthItrE; ++truthItr) {
-        const xAOD::TruthParticle * part = (*truthItr); long int pdg = part->pdgId();
-        if (part->pt() <= 5000) continue;
-
-        //Classify the truth particle
-        bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
-        int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
-
-        if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
-        else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
-        else if (q1 == 5) hasBottom = 1; //Bottom baryon
-        else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
-
-        else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
-        else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
-        else if (q1 == 4) hasCharm = 1; //Charmed baryon
-        else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
-
-        else if (q1 == 3) hasStrange = 1; //Strange baryon
-        else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
-        else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
-
-        else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
-        else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
-        else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
-
-        if (hasBottom) bTruth.push_back(part);
-        if (hasCharm) cTruth.push_back(part);
-        if (hasStrange) sTruth.push_back(part);
-        if (hasLight) lTruth.push_back(part);
-        if (fabs(pdg) == 13) mTruth.push_back(part);
-      }
-
-      //Now classify the muon
       TLorentzVector muVect; muVect.SetPtEtaPhiE(muon->pt(), muon->eta(), muon->phi(), muon->e());
 
       bool muonBottom = 0; bool muonCharm = 0; bool muonStrange = 0;
