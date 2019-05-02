@@ -36,9 +36,15 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
-class ICaloNoiseTool;
-
 class CaloCellContainer;
+
+// MET EDM
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+#else
+#include "CaloConditions/CaloNoise.h"
+#endif
+
+
 
 namespace met{
 
@@ -120,8 +126,7 @@ namespace met{
     // Tool handle for CaloNoiseTool
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
-    // FIXME: mutable
-    mutable ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
+    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
     #endif
   }; 
 
