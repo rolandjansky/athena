@@ -61,7 +61,7 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
     //m_detStore  ("DetectorStore", name),
     m_jos       ("JobOptionsSvc", name),
     m_toolsvc   ("ToolSvc",       name),
-    m_coolInlineTool("Blob2ToolConstants")
+    m_coolInlineTool("Blob2ToolConstants",this)
 {
   declareProperty ("CorrSpecs",     m_corrspecs);
   declareProperty ("KeepList",      m_keeplist);
@@ -100,7 +100,8 @@ StatusCode CaloRunClusterCorrections::initialize()
   registerCallbacks();
 
   ATH_CHECK( m_affKey.initialize() );
-
+  ATH_CHECK( m_LArBCKey.initialize() );
+  ATH_CHECK( m_TileBCKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
