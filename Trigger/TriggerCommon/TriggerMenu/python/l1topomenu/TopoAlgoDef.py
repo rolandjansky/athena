@@ -1928,3 +1928,113 @@ class TopoAlgoDef:
             alg.addvariable('MinDeltaPhi', 27)
             alg.addvariable('MaxDeltaPhi', 32)
             tm.registerAlgo(alg)
+
+
+        #ATR-19720, L1_BPH-8M15-0DR22-2MU6
+        if usev8:
+            toponame = "8INVM15-0DR22-2MU6ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 6)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 22*22)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-2DR15-2MU6
+        if usev8:
+            toponame = "2INVM9-2DR15-2MU6ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 6)
+            alg.addgeneric('DeltaRMin', 2*2)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-0DR15-MU6MU4
+        if usev8:
+            toponame = "2INVM9-0DR15-MU6ab-MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-8M15-0DR22-MU6MU4-BO
+        if usev8:
+            toponame = "8INVM15-0DR22-MU6ab-MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
+            alg.addvariable('MinET1', 6)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 22*22)
+            tm.registerAlgo(alg)
+
+        #ATR-19720, L1_BPH-2M9-0DR15-2MU4
+        if usev8:
+            toponame = "2INVM9-0DR15-2MU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['MUab']
+
+            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 4)
+            alg.addvariable('MinET2', 4)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)

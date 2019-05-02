@@ -96,9 +96,16 @@ def defineMenu():
         TopoOutput( algoname='MULT-CMU4ab',                                 module=1, fpga=0, clock=0, firstbit=11 ), # 2bits
         TopoOutput( algoname='MULT-CMU6ab',                                 module=1, fpga=0, clock=0, firstbit=13 ), # 2bits
         TopoOutput( algoname='FTK-MU10s1',                                  module=1, fpga=0, clock=0, firstbit=15 ),
+
 #ATR-19302: giving compilation issues, add later
         TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM10his6',          module=0, fpga=1, clock=1, firstbit=1 ),
         TopoOutput( algoname='0INVM70-27DPHI32-EM10his1-EM12his6',          module=0, fpga=1, clock=1, firstbit=2 ),
+        #ATR-19720
+        TopoOutput( algoname='8INVM15-0DR22-2MU6ab',                        module=0, fpga=1, clock=1, firstbit=3 ),
+        TopoOutput( algoname='2INVM9-2DR15-2MU6ab',                         module=1, fpga=0, clock=1, firstbit=15 ),
+        TopoOutput( algoname='2INVM9-0DR15-MU6ab-MU4ab',                    module=1, fpga=1, clock=0, firstbit=5 ),
+        TopoOutput( algoname='8INVM15-0DR22-MU6ab-MU4ab',                   module=1, fpga=1, clock=0, firstbit=11 ),
+        TopoOutput( algoname='2INVM9-0DR15-2MU4ab',                         module=0, fpga=1, clock=0, firstbit=13 ),
 
 #        TopoOutput( algoname='2DR15-2CMU4ab',                               module=1, fpga=0, clock=0, firstbit=9 ),
 #        TopoOutput( algoname='2DR15-CMU6ab-CMU4ab',                         module=1, fpga=0, clock=0, firstbit=10 ),
