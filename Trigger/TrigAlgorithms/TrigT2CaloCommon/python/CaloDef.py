@@ -41,10 +41,10 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR) :
    algo.OutputLevel=OutputLevel
    return algo
 
-def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
+def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
     setMinimalCaloSetup()
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg")
+    algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)
     algo.RoIs=inputEDM
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable("HLT_L2CaloEMClusters")
@@ -56,8 +56,8 @@ def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR):
 ##### SEQUENCES
 ####################################
 
-def fastCaloRecoSequence(InViewRoIs):
-    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs)
+def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
+    fastCaloAlg = _algoL2Egamma(inputEDM=InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -74,14 +74,14 @@ def fastCaloEVCreator():
     return (fastCaloViewsMaker, InViewRoIs)
 
 
-def createFastCaloSequence(EMRoIDecisions):
+def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
     """Used for standalone testing"""
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
     # connect to RoIs
     fastCaloViewsMaker.InputMakerInputDecisions =  [ EMRoIDecisions ]         
     fastCaloViewsMaker.InputMakerOutputDecisions = [ EMRoIDecisions + "IMOUTPUT"]
 
-    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs)
+    (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=doRinger, ClustersName=ClustersName, RingerKey=RingerKey)
      
     fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence ])
     return (fastCaloSequence, sequenceOut)
