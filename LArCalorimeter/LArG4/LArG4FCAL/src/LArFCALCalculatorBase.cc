@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArG4BirksLaw.h"
 #include "StoreGate/StoreGate.h"
-//#include "LArG4RunControl/LArG4FCALOptions.h"
+
 // Geant4 includes
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
@@ -135,16 +135,14 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
       for (unsigned int i=0;i<tile->getNumTubes();i++) {
         FCALTubeConstLink tube=tile->getTube(i);
         if (tube->getXLocal() == (*t).second.x() && tube->getYLocal()==(*t).second.y()) {
-          FCALHVLineConstLink line =tube->getHVLine();
-          if (line) {
-            double voltage = line->voltage();
-            //double current = line->current();
-            bool   hvOn    = line->hvOn();
-            if (!hvOn) hdata[0].energy=0.0;
-            hdata[0].energy *= pow((voltage)/2000.0,0.6);
-            tubeFound=true;
-            break;
-          }
+          const FCALHVLine& line =tube->getHVLine();
+	  double voltage = line.voltage();
+	  //double current = line->current();
+	  bool   hvOn    = line.hvOn();
+	  if (!hvOn) hdata[0].energy=0.0;
+	  hdata[0].energy *= pow((voltage)/2000.0,0.6);
+	  tubeFound=true;
+	  break;
         }
       }
       if (!tubeFound)   throw std::runtime_error("FCAL Tube not found (for HV calculation)");

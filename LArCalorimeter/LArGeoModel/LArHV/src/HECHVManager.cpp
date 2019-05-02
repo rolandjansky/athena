@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVManager.h"
-#include "LArHV/HECHVDescriptor.h"
 #include "LArHV/HECHVModule.h"
 #include "LArHV/HECHVSubgap.h"
 #include <cmath>
@@ -27,74 +26,84 @@
 
 class HECHVManager::Clockwork {
 public:
-  HECHVDescriptor *descriptor;
-  HECHVModuleConstLink linkArray[2][32][4];
-  std::atomic<bool>          init{false};
-  std::mutex                 mtx;
+  Clockwork(const HECHVManager* manager) 
+    : descriptor(new HECHVDescriptor(CellBinning(0,2*M_PI,32)))
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iPhi=0; iPhi<32; ++iPhi) {
+	for(int iSampling=0; iSampling<4; ++iSampling) {
+	  moduleArray[iSide][iPhi][iSampling] = new HECHVModule(manager,iSide,iPhi,iSampling);
+	}
+      }
+    }
+  }
+  ~Clockwork()
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iPhi=0; iPhi<32; ++iPhi) {
+	for(int iSampling=0; iSampling<4; ++iSampling) {
+	  delete moduleArray[iSide][iPhi][iSampling];
+	}
+      }
+    }
+    delete descriptor;
+  }
+  HECHVDescriptor*   descriptor;
+  const HECHVModule* moduleArray[2][32][4];
+  std::atomic<bool>  init{false};
+  std::mutex         mtx;
   std::vector<HECHVPayload> payloadArray;     
 };
 
-//##ModelId=47A07A0C016B
-HECHVManager::HECHVManager():m_c(new Clockwork)
+HECHVManager::HECHVManager()
+  : m_c(new Clockwork(this))
 {
-  m_c->descriptor = new HECHVDescriptor(CellBinning(0,2*M_PI,32));
-  m_c->init=false;
 }
 
-
-//##ModelId=47A07A0C0176
-const HECHVDescriptor *HECHVManager::getDescriptor() const
+const HECHVDescriptor& HECHVManager::getDescriptor() const
 {
-  return m_c->descriptor;
+  return *(m_c->descriptor);
 }
 
-//##ModelId=47A07AC901D3
 unsigned int HECHVManager::beginSideIndex() const
 {
   return 0;
 }
 
-//##ModelId=47A07AC901E4
 unsigned int HECHVManager::endSideIndex() const
 {
   return 2;
 }
 
-//##ModelId=47A07A0C01A1
 unsigned int HECHVManager::beginPhiIndex() const
 {
   return 0;
 }
 
-//##ModelId=47A07A0C01AD
 unsigned int HECHVManager::endPhiIndex() const
 {
   return 32;
 }
 
-//##ModelId=47A07A0C01BA
 unsigned int HECHVManager::beginSamplingIndex() const
 {
   return 0;
 }
 
-//##ModelId=47A07A0C01C9
 unsigned int HECHVManager::endSamplingIndex() const
 {
   return 4;
 }
 
-//##ModelId=47A07A0C01D7
-HECHVModuleConstLink HECHVManager::getHVModule(unsigned int iSide, unsigned int iPhi, unsigned int iSampling) const
+const HECHVModule& HECHVManager::getHVModule(unsigned int iSide
+					     , unsigned int iPhi
+					     , unsigned int iSampling) const
 {
-  if (!m_c->linkArray[iSide][iPhi][iSampling]) m_c->linkArray[iSide][iPhi][iSampling]=HECHVModuleConstLink(new HECHVModule(this,iSide, iPhi, iSampling));
-  return m_c->linkArray[iSide][iPhi][iSampling];
+  return *(m_c->moduleArray[iSide][iPhi][iSampling]);
 }
 
-//##ModelId=47A07A0C01E5
 HECHVManager::~HECHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
@@ -200,10 +209,10 @@ void HECHVManager::update() const {
 HECHVPayload *HECHVManager::getPayload(const HECHVSubgap &subgap) const {
   update();
   unsigned int subgapIndex    = subgap.getSubgapIndex();
-  HECHVModuleConstLink module =  subgap.getModule();
-  unsigned int phiIndex       = module->getPhiIndex();
-  unsigned int samplingIndex  = module->getSamplingIndex();
-  unsigned int sideIndex      = module->getSideIndex();
+  const HECHVModule& module   = subgap.getModule();
+  unsigned int phiIndex       = module.getPhiIndex();
+  unsigned int samplingIndex  = module.getSamplingIndex();
+  unsigned int sideIndex      = module.getSideIndex();
   unsigned int index          = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
   return &m_c->payloadArray[index];
 }

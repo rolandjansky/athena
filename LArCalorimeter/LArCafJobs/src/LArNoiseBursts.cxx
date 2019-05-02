@@ -58,10 +58,8 @@
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
-#include "LArHV/HECHVSubgapConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 #include "LArHV/LArHVManager.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -1411,8 +1409,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
     const HECCellConstLink cell = hecElement->getHECCell();
     nsubgaps = cell->getNumSubgaps();
     for(i=0;i<nsubgaps;i++) {
-      const HECHVSubgapConstLink subgap = cell->getSubgap(i);
-      tmplines.push_back(subgap->hvLineNo());
+      const HECHVSubgap& subgap = cell->getSubgap(i);
+      tmplines.push_back(subgap.hvLineNo());
     }
   } else if(m_LArFCAL_IDHelper->is_lar_fcal(id)) { // LAr FCAL
     ATH_MSG_DEBUG ( "LAr HEC");
@@ -1422,7 +1420,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
     const FCALTile* tile = fcalElement->getFCALTile();
     nlines = tile->getNumHVLines();
     for(i=0;i<nlines;i++) {
-      const FCALHVLineConstLink line = tile->getHVLine(i);
+      const FCALHVLine* line = tile->getHVLine(i);
       if(line) tmplines.push_back(line->hvLineNo());
     }   
   } else if(m_LArEM_IDHelper->is_lar_em(id) && m_LArEM_IDHelper->sampling(id)==0) { // Presamplers
