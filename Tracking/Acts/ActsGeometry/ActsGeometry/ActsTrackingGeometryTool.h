@@ -10,9 +10,11 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h" // ReadCondHandleKey wants complete type
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
 
@@ -36,7 +38,9 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() const;
 
-  StatusCode prepareAlignment() const;
+  ActsGeometryContext
+  getGeometryContext(const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+
 
 private:
 

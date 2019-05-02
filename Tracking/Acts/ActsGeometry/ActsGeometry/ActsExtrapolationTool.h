@@ -10,6 +10,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
@@ -56,17 +57,16 @@ public:
 
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
-  propagate(const parameters_t& startParameters,
+  propagate(const EventContext& ctx,
+            const parameters_t& startParameters,
             double pathLimit = std::numeric_limits<double>::max()) const
   {
     ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
     Acts::MagneticFieldContext mctx;
-    ActsGeometryContext gctx; // @TODO: Switch away from default here!
+    Acts::GeometryContext gctx = m_trackingGeometryTool->getGeometryContext(ctx);
 
-    std::any anygctx = gctx;
-
-    Options options(std::cref(anygctx), mctx);
+    Options options(std::cref(gctx), mctx);
     options.pathLimit = pathLimit;
     bool debug = msg().level() == MSG::VERBOSE;
     options.debug = debug;

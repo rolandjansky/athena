@@ -5,9 +5,13 @@
 #ifndef ACTSGEOMETRY_ACTSGEOMETRYCONTEXT_H
 #define ACTSGEOMETRY_ACTSGEOMETRYCONTEXT_H
 
+#include "ActsGeometry/ActsAlignmentStore.h"
+
 struct ActsGeometryContext {
 
   bool nominal{true};
+
+  const ActsAlignmentStore* alignmentStore{nullptr};
 
 };
 

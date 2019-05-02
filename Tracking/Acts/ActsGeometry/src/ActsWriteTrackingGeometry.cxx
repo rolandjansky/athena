@@ -35,7 +35,6 @@ StatusCode ActsWriteTrackingGeometry::initialize() {
 }
 
 StatusCode ActsWriteTrackingGeometry::execute() {
-  ATH_CHECK( m_trackingGeometryTool->prepareAlignment() );
   auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
   // Use nominal context

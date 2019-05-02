@@ -26,14 +26,6 @@ class IActsTrackingGeometrySvc : virtual public IInterface {
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() = 0;
 
-  virtual
-  void 
-  setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) = 0;
-  
-  virtual
-  const ActsAlignmentStore*
-  getAlignmentStore(const EventContext& ctx) const = 0;
-
 };
 
 #endif
