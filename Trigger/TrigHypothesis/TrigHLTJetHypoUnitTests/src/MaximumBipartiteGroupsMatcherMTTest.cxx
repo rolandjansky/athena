@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteGroupsMatcher.h"
+#include "TrigHLTJetHypo/../src//MaximumBipartiteGroupsMatcherMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
+#include "TrigHLTJetHypo/../src/ConditionsDefsMT.h"
+#include "TrigHLTJetHypo/../src/conditionsFactoryMT.h"
+#include "TrigHLTJetHypo/../src/ConditionDebugVisitor.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
 #include "./MockJetWithLorentzVector.h"
@@ -37,9 +38,9 @@ using ::testing::_;
 using ::testing::SetArgReferee;
 
 
-class MaximumBipartiteGroupsMatcherTest: public ::testing::Test {
+class MaximumBipartiteGroupsMatcherMTTest: public ::testing::Test {
 public:
-  MaximumBipartiteGroupsMatcherTest() {
+  MaximumBipartiteGroupsMatcherMTTest() {
 
 
     std::vector<double> etaMins{-1., -1., -1.};
@@ -47,36 +48,36 @@ public:
     std::vector<double> thresholds{100., 120, 140.};
     std::vector<int> asymmetricEtas{0, 0, 0, 0};
 
-    m_conditions = conditionsFactoryEtaEt(etaMins, etaMaxs,
-                                          thresholds, asymmetricEtas);
+    m_conditions = conditionsFactoryEtaEtMT(etaMins, etaMaxs,
+                                            thresholds, asymmetricEtas);
     m_nconditions = m_conditions.size();
   }
 
-  Conditions m_conditions;
+  ConditionsMT m_conditions;
   int m_nconditions;
 };
 
-HypoJetGroupVector makeJetGroups(HypoJetIter b, HypoJetIter e){
+HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
   CombinationsGrouper g(1);  // single jet groups
   return g.group(b, e);
 }
                                  
-TEST_F(MaximumBipartiteGroupsMatcherTest, zeroInputJets){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
 
   HypoJetVector jets;
-  auto groups = makeJetGroups(jets.begin(), jets.end());
-  matcher.match(groups.begin(), groups.end());
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
   
-  EXPECT_FALSE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(0));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(0));
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+  
+  EXPECT_FALSE(pass);
 }
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, tooFewSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
   /* pass fewer jets than indicies. Fails, all jets are bad */
 
   double eta{5};
@@ -89,18 +90,17 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, tooFewSelectedJets){
   MockJetWithLorentzVector jet1{tl};
 
   HypoJetVector jets{&jet0, &jet1};
-  auto groups = makeJetGroups(jets.begin(), jets.end());
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
-  matcher.match(groups.begin(), groups.end());
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
-  EXPECT_FALSE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(0));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(2));
+  EXPECT_FALSE(pass);
 }
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, oneSelectedJet){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   /* 1 jet1 over highest threshold - check good/bad jet list, fail. */
 
   double eta{5};
@@ -130,18 +130,17 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, oneSelectedJet){
   EXPECT_CALL(jet2, et()).Times(m_nconditions);
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  auto groups = makeJetGroups(jets.begin(), jets.end());
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
-  matcher.match(groups.begin(), groups.end());
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
-  EXPECT_FALSE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(1));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(3));
+  EXPECT_FALSE(pass);
 }
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, twoSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, twoSelectedJets){
   /* 2 jets over repsective thresholds - check good/bad jet list, fail. */
 
 
@@ -183,18 +182,17 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, twoSelectedJets){
   EXPECT_CALL(jet2, et()).Times(m_nconditions);
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
-  auto groups = makeJetGroups(jets.begin(), jets.end());
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
-  matcher.match(groups.begin(), groups.end());
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
-  EXPECT_FALSE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(2));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(2));
+  EXPECT_FALSE(pass);
 }
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, threeSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
   /* 3 jets over repsective thresholds - check good/bad jet list, pass.
      Expect no failed jets (alg stops on success) and no checks on the
      unused jet*/
@@ -237,18 +235,17 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, threeSelectedJets){
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
   EXPECT_CALL(jet0, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
-  auto groups = makeJetGroups(jets.begin(), jets.end());
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
-  matcher.match(groups.begin(), groups.end());
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
-  EXPECT_TRUE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(3));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(1));
+  EXPECT_TRUE(pass);
 }
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, fourSelectedJets){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, fourSelectedJets){
   /* 4 jets over repsective thresholds - check good/bad jet list, pass.
      Expect no failed jets (alg stops on success) and no checks on the
      unused jet*/
@@ -290,18 +287,18 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, fourSelectedJets){
   EXPECT_CALL(jet2, et()).Times(m_nconditions);
   EXPECT_CALL(jet3, et()).Times(m_nconditions);
 
-  MaximumBipartiteGroupsMatcher matcher(m_conditions);
-  auto groups = makeJetGroups(jets.begin(), jets.end());
-  matcher.match(groups.begin(), groups.end());
+  MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
-  EXPECT_TRUE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(3));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(1));
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+
+  EXPECT_TRUE(pass);
 }
 
 
 
-TEST_F(MaximumBipartiteGroupsMatcherTest, overlappingEtaRegions){
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, overlappingEtaRegions){
   /* 4 jets over repsective thresholds - check good/bad jet list, pass.
      Expect no failed jets (alg stops on success) and no checks on the
      unused jet*/
@@ -311,8 +308,8 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, overlappingEtaRegions){
   std::vector<double> thresholds{100., 80, 140., 90.};
   std::vector<int> asymmetricEtas{0, 0, 0, 0};
 
-  auto conditions = conditionsFactoryEtaEt(etaMins, etaMaxs,
-                                           thresholds, asymmetricEtas);
+  auto conditions = conditionsFactoryEtaEtMT(etaMins, etaMaxs,
+                                             thresholds, asymmetricEtas);
   int nconditions = conditions.size();
 
   double eta{0.1};
@@ -352,11 +349,11 @@ TEST_F(MaximumBipartiteGroupsMatcherTest, overlappingEtaRegions){
   EXPECT_CALL(jet2, et()).Times(nconditions);
   EXPECT_CALL(jet3, et()).Times(nconditions);
 
-  MaximumBipartiteGroupsMatcher matcher(conditions);
-  auto groups = makeJetGroups(jets.begin(), jets.end());
-  matcher.match(groups.begin(), groups.end());
+  MaximumBipartiteGroupsMatcherMT matcher(conditions);
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
+  
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
-  EXPECT_TRUE(matcher.pass());
-  EXPECT_EQ(matcher.passedJets().size(), static_cast<unsigned int>(4));
-  EXPECT_EQ(matcher.failedJets().size(), static_cast<unsigned int>(0));
+  EXPECT_TRUE(pass);
 }
