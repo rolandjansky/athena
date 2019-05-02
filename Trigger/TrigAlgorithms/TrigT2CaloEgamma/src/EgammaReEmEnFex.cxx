@@ -18,20 +18,23 @@
 #include "T2CalibrationEgamma.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
-EgammaReEmEnFex::EgammaReEmEnFex(const std::string& type, const std::string& name,
-                                 const IInterface* parent) :
-    IReAlgToolCalo(type, name, parent)
-{
-  declareProperty("QlCorrectionLimit", m_limit);
-  declareProperty("QlCorrectionDimension", m_dimension);
-  declareProperty("QlCorrection", m_correction);
-  // Calibration object
-  m_calib = new T2CalibrationEgamma();
+
+EgammaReEmEnFex::EgammaReEmEnFex(const std::string & type, const std::string & name, 
+                   const IInterface* parent): IReAlgToolCalo(type, name, parent)
+		   {
+  declareProperty( "QlCorrectionLimit",
+		    m_limit );
+  declareProperty( "QlCorrectionDimension",
+		    m_dimension );
+  declareProperty( "QlCorrection",
+		    m_correction );
+	// Calibration object
+  m_calib=std::make_unique<T2CalibrationEgamma>();
 }
+
 
 EgammaReEmEnFex::~EgammaReEmEnFex()
 {
-  delete m_calib;
 }
 
 StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,

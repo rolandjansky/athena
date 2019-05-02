@@ -70,6 +70,9 @@ _add_test( met_fromClusters EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromClustersPufit EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromJets EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 
+_add_test( calo_ringer_only_data POST_EXEC_SCRIPT nopost.sh)
+_add_test( ringer_chain POST_EXEC_SCRIPT nopost.sh)
+
 # ART-based tests:
 _add_test( full_menu_build POST_EXEC_SCRIPT "trig-art-result-parser.sh full_menu_build.log \"athena CheckLog RegTest\"" )
 _add_test( newJO_build POST_EXEC_SCRIPT "trig-art-result-parser.sh newJO_build.log \"Configuration athena CheckLog RegTest\"" )
