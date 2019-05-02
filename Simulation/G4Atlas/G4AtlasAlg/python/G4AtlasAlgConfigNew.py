@@ -119,7 +119,7 @@ if __name__ == '__main__':
   ConfigFlags.lock()
 
   ## Initialize a new component accumulator
-  cfg = ComponentAccumulator()
+  cfg = MainServicesSerialCfg()
 
   #add the algorithm
   Alg  = G4AtlasAlgCfg(ConfigFlags)
@@ -127,13 +127,21 @@ if __name__ == '__main__':
   #cfg.merge(acc)
   #cfg.addPublicTool(Alg)
 
-
+  # Dump config
+  cfg.getService("StoreGateSvc").Dump = True
+  cfg.getService("ConditionStore").Dump = True
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
-  f=open("test.pkl","w")
-  cfg.store(f) 
-  f.close()
+
+  # Execute and finish
+  sc = cfg.run(maxEvents=3)
+  # Success should be 0
+  os.sys.exit(not sc.isSuccess())
+
+  #f=open("test.pkl","w")
+  #cfg.store(f) 
+  #f.close()
 
 
 
