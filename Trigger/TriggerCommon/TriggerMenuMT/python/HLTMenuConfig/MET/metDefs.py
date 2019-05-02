@@ -3,7 +3,7 @@
 #
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 from AthenaCommon.CFElements import seqAND 
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def metCellAthSequence(ConfigFlags):
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -27,7 +27,8 @@ def metCellRecoSequence():
     metAlg = EFMissingETAlgMT( name="EFMET" )
     helperTool = EFMissingETFromHelperMT("theHelperTool")
     flagsTool = EFMissingETFlagsMT("theFlagsTool")
-    metAlg.METContainerKey = "HLT_MET"
+    metAlg.METContainerKey = recordable("HLT_MET")
+
     
     #///////////////////////////////////////////
     # Setup monitoring for EFMissingETAlg
@@ -90,6 +91,8 @@ def metClusterRecoSequence():
     metAlg = EFMissingETAlgMT( name="EFMET" )
     helperTool = EFMissingETFromHelperMT("theHelperTool")
     metAlg.METContainerKey = "HLT_MET"
+    metAlg.METContainerKey = recordable("HLT_MET")
+
     
         #///////////////////////////////////////////
         # Setup monitoring for EFMissingETAlg
@@ -149,7 +152,8 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromHelperMT
     metAlg = EFMissingETAlgMT( name="EFMET" )
     helperTool = EFMissingETFromHelperMT("theHelperTool")
-    metAlg.METContainerKey = "HLT_MET_mht"
+    metAlg.METContainerKey = recordable("HLT_MET_mht")
+
     
     #///////////////////////////////////////////
     # Setup monitoring for EFMissingETAlg
