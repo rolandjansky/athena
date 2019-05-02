@@ -74,6 +74,7 @@ namespace DerivationFramework {
 
     for (size_t p=0; p < event->nTruthParticles(); ++p) {
       const xAOD::TruthParticle* truthPart = event->truthParticle(p);
+      if (!truthPart) continue; // Protection against null ptrs
       long int pdg = truthPart->pdgId();
       if (truthPart->pt() <= 5000) continue;
 
