@@ -31,9 +31,17 @@ public:
   MOCK_CONST_METHOD0(et, double());
   MOCK_CONST_METHOD0(rapidity, double());
   TLorentzVector p4() const {return m_lv;}
+  std::string toString() const {
+    double etav = eta();
+    double etv = et();
+    std::string s = "et: " + std::to_string(etv) +
+      " eta: " + std::to_string(etav);
+    return s;
+  }
+
   MOCK_CONST_METHOD0(position, unsigned int());
   MOCK_CONST_METHOD2(getAttribute, bool (const std::string&, float&));
-  MOCK_CONST_METHOD0(toString, std::string());
+  // MOCK_CONST_METHOD0(toString, std::string());
 
  private:
   TLorentzVector m_lv;
