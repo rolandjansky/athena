@@ -252,22 +252,14 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d1Seq)
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-
-#========================================
-# CREATE THE DERIVATION KERNEL ALGORITHMS
-#========================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
-                                                           SkimmingTools = skimmingTools
-                                                           )
-higg3d1PreSeq += higg3d1Seq
-
-higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
-                                                           ThinningTools = thinningTools
-                                                           )
-DerivationFrameworkJob += higg3d1PreSeq
-
-applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
+#====================================================================
+# Truth decoration tool
+#====================================================================
+augmentationTools=[]
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
+HIGG3D1TruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name = "HIGG3D1TruthDecoratorTool")
+ToolSvc += HIGG3D1TruthDecoratorTool
+augmentationTools.append(HIGG3D1TruthDecoratorTool)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -332,6 +324,25 @@ if globalflags.DataSource()=='geant4':
                                                }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
+
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
+                                                           SkimmingTools = skimmingTools
+                                                           )
+higg3d1PreSeq += higg3d1Seq
+
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
+                                                           ThinningTools = thinningTools
+                                                           )
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_augmentation",
+                                                           AugmentationTools = augmentationTools
+                                                           )
+DerivationFrameworkJob += higg3d1PreSeq
+
+applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
 
 # Add Trigger content
 HIGG3D1SlimmingHelper.IncludeMuonTriggerContent = True
