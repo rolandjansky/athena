@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -343,11 +343,11 @@ namespace InDet{
       InDet::SiClusterLink_xk                     m_linkB[10]   ; 
       Trk::NoiseOnSurface                         m_noise       ; 
       const InDet::SiTools_xk*                    m_tools       ; 
-      MagField::IMagFieldSvc*                     m_fieldService;
-      Trk::IPatternParametersUpdator*             m_updatorTool ;
-      Trk::IPatternParametersPropagator*          m_proptool    ;
-      Trk::IPRD_AssociationTool*                  m_assoTool    ; 
-      Trk::IRIO_OnTrackCreator*                   m_riotool     ;
+      const MagField::IMagFieldSvc*               m_fieldService;
+      const Trk::IPatternParametersUpdator*       m_updatorTool ;
+      const Trk::IPatternParametersPropagator*    m_proptool    ;
+      const Trk::IPRD_AssociationTool*            m_assoTool    ; 
+      const Trk::IRIO_OnTrackCreator*             m_riotool     ;
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
 
