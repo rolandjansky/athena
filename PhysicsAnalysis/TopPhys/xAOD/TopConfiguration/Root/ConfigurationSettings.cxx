@@ -60,8 +60,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
     registerParameter("PhotonID","Type of photon. Definition to use : Tight, Loose and None.","Tight");
     registerParameter("PhotonIDLoose","Type of photon for background. Definition to use : Tight, Loose, None.","Loose");
-    registerParameter("PhotonIsolation","Isolation to use : FixedCutTight, FixedCutLoose, None.","FixedCutTight");
-    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTight, FixedCutLoose, None.","FixedCutLoose");
+    registerParameter("PhotonIsolation","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutTight");
+    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutLoose");
     registerParameter("PhotonUseRadiativeZ", "True/False. Set to True to enable photon radiative Z up to 100 GeV.", "False");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
