@@ -128,9 +128,9 @@ namespace InDet{
     // Mutex to protect the contents
     mutable std::mutex m_mutex;
     // Cache to store events for slots
-    mutable std::vector<EventContext::ContextEvt_t> m_cache;
+    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
     // std::vector<SiDetElementsLayer_xk> for each event. This is not const.
-    mutable SiDetElementsLayerVectors_xk m_layerVectors[3];
+    mutable SiDetElementsLayerVectors_xk m_layerVectors[3] ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     ///////////////////////////////////////////////////////////////////
     // Methods
