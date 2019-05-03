@@ -246,6 +246,12 @@ addHbbTagger(higg3d1Seq, ToolSvc)
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d1Seq)
 
 #====================================================================
+# QG tagging
+#====================================================================
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d1Seq,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToolPFAlg")
+
+#====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
 # import the JetTagNonPromptLepton config and add to the private sequence
