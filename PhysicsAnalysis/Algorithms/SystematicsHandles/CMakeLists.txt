@@ -50,3 +50,7 @@ atlas_add_test( cc_SysWriteHandle
 atlas_add_test( cc_SysListHandle
    SOURCES test/cc_SysListHandle.cxx
    LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
+
+atlas_add_test( cc_SysDecorationHandle
+   SOURCES test/cc_SysDecorationHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
