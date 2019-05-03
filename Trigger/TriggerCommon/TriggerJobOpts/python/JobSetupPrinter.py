@@ -14,11 +14,22 @@ class JobSetupPrinter(Configured):
 
         topSequence = AlgSequence()
         if simflags.EnableDebugOutput():
-            topSequence.CTPEmulation.OutputLevel = DEBUG
-            topSequence.TrigSteer_HLT.LvlConverterTool.OutputLevel = DEBUG
-            topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.OutputLevel = DEBUG
+            if hasattr(topSequence,"CTPEmulation"):
+                topSequence.CTPEmulation.OutputLevel = DEBUG
 
-        print topSequence.CTPEmulation
-        print topSequence.RoIBuilder
-        print topSequence.TrigSteer_HLT.LvlConverterTool
+            if hasattr(topSequence,"TrigSteer_HLT"):
+                topSequence.TrigSteer_HLT.LvlConverterTool.OutputLevel = DEBUG
+                topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.OutputLevel = DEBUG
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr.MessageSvc.debugLimit = 100000
+
+        if hasattr(topSequence,"L1Muctpi_on_RDO"):
+            print topSequence.L1Muctpi_on_RDO
+
+        if hasattr(topSequence,"CTPEmulation"):
+            print topSequence.CTPEmulation
+
+        if hasattr(topSequence,"TrigSteer_HLT"):
+            print topSequence.RoIBuilder
+            print topSequence.TrigSteer_HLT.LvlConverterTool
 
