@@ -190,7 +190,7 @@ namespace DerivationFramework {
 	// continue;
 	
       
-	std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
 	std::string name = reg.getName( auxid );
 
@@ -352,8 +352,6 @@ namespace DerivationFramework {
 		for ( auto &myvar : mykey.second ) {
 		  std::string var = myvar.first;
 		  int prec = myvar.second;
-		  //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;		  
-
 		  if (var == reg.getName( auxid )) {
 		    val = m_floatCompressor->reduceFloatPrecision( val, prec );
 		    //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
@@ -365,14 +363,23 @@ namespace DerivationFramework {
 	    }
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
 
-	    std::vector<float> &vals =  *( reinterpret_cast< std::vector<float>* >( eltPtr ) );
-	    
-	    const size_t sz_j = vals.size();
+	    for( auto& mykey : key ) {
+		//std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	      for ( auto &myvar : mykey.second ) {
+		std::string var = myvar.first;
+		int prec = myvar.second;
+		if (var == reg.getName( auxid )) {
 
-	    for( size_t j = 0; j < sz_j; ++j ) {
-	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j], 7 );
-	      //std::cout << std::setprecision(15) << "JE vals[" << j << "] = " << vals[j] << std::endl;
-	    }	    
+		  std::vector<float> &vals =  *( reinterpret_cast< std::vector<float>* >( eltPtr ) );
+		  const size_t sz_j = vals.size();
+
+		  for( size_t j = 0; j < sz_j; ++j ) {
+		    vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j], prec );
+		    //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		  }	    
+		}
+	      }
+	    }
 
 	    // vals.erase( vals.begin()+2, vals.end() );
 	    
