@@ -50,9 +50,9 @@ namespace DerivationFramework {
       return StatusCode::SUCCESS;
     }
 
-    // Define the decorators outside of the loop as a static, such that they
+    // Define the decorators outside of the loop as static, such that they
     // will be fully cached
-    static SG::AuxElement::Decorator<int>  decFlavourTag ("flavourTag");
+    static SG::AuxElement::Decorator<int>  decFlavourTag ("truthFlavourTag");
 
     //---------------------------------------------//
     // Lepton truth flavour decorator as in Run-I  //
