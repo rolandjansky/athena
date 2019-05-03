@@ -272,6 +272,9 @@ private:
     //Store output PDF weights from LHAPDF
     std::unordered_map<std::string, std::vector<float> > m_PDF_eventWeights;
 
+    // Store boosted jet tagger names
+    std::vector<std::string> m_boostedJetTaggersNames;
+
     //some event weights
     float m_weight_mc;
     float m_weight_pileup;
@@ -607,6 +610,8 @@ private:
     std::vector<char> m_ljet_isWTagged_50;
     std::vector<char> m_ljet_isZTagged_80;
     std::vector<char> m_ljet_isZTagged_50;
+    
+    std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1227,6 +1232,9 @@ protected:
   const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
   const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
   const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+  
+  const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() { return m_ljet_isTagged;}
+  const std::vector<char>& ljet_isTagged(std::string taggerName){ return m_ljet_isTagged[taggerName];}
 
   //track jets
   const std::vector<float>& tjet_pt() const { return m_tjet_pt;}

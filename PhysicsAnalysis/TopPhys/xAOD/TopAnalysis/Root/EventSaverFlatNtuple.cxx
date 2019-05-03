@@ -395,6 +395,15 @@ namespace top {
           }
         }
 
+	if (m_config->useLargeRJets()) {
+	  
+	  std::vector<std::pair<std::string, std::string> > boostedJetTaggers= m_config->boostedJetTaggers();
+	  m_boostedJetTaggersNames.resize(boostedJetTaggers.size());
+	  for (unsigned int i=0;i<boostedJetTaggers.size();i++) m_boostedJetTaggersNames[i] = boostedJetTaggers[i].first + "_" + boostedJetTaggers[i].second;
+	  
+	}
+
+
         systematicTree->makeOutputVariable(m_weight_jvt, "weight_jvt");
 
         if (m_config->isSherpa22Vjets())
@@ -815,12 +824,11 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_e,    "ljet_e");
         systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
         systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
-        systematicTree->makeOutputVariable(m_ljet_isTopTagged_50, "ljet_isTopTagged_50");
-        systematicTree->makeOutputVariable(m_ljet_isTopTagged_80, "ljet_isTopTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isWTagged_80, "ljet_isWTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isWTagged_50, "ljet_isWTagged_50");
-        systematicTree->makeOutputVariable(m_ljet_isZTagged_80, "ljet_isZTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isZTagged_50, "ljet_isZTagged_50");
+	
+	for(std::string taggerName : m_boostedJetTaggersNames){
+	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
+	}
+	
       }
 
       //track jets
@@ -2344,18 +2352,16 @@ namespace top {
     //large-R jets
     if (m_config->useLargeRJets()) {
       unsigned int i(0);
-      m_ljet_pt.resize(event.m_largeJets.size());
-      m_ljet_eta.resize(event.m_largeJets.size());
-      m_ljet_phi.resize(event.m_largeJets.size());
-      m_ljet_e.resize(event.m_largeJets.size());
-      m_ljet_m.resize(event.m_largeJets.size());
-      m_ljet_sd12.resize(event.m_largeJets.size());
-      m_ljet_isTopTagged_50.resize(  event.m_largeJets.size() );
-      m_ljet_isTopTagged_80.resize(  event.m_largeJets.size() );
-      m_ljet_isWTagged_80.resize(   event.m_largeJets.size() );
-      m_ljet_isWTagged_50.resize( event.m_largeJets.size() );
-      m_ljet_isZTagged_80.resize(   event.m_largeJets.size() );
-      m_ljet_isZTagged_50.resize( event.m_largeJets.size() );
+      const unsigned int nLargeRJets=event.m_largeJets.size();
+      m_ljet_pt.resize(nLargeRJets);
+      m_ljet_eta.resize(nLargeRJets);
+      m_ljet_phi.resize(nLargeRJets);
+      m_ljet_e.resize(nLargeRJets);
+      m_ljet_m.resize(nLargeRJets);
+      m_ljet_sd12.resize(nLargeRJets);
+      
+      for (std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
@@ -2367,12 +2373,9 @@ namespace top {
         jetPtr->getAttribute("Split12", Split12);
         m_ljet_sd12[i] = Split12;
 
-        try { m_ljet_isTopTagged_50[i]  = jetPtr->getAttribute<char>("isTopTagged_50" );} catch (...) { }
-        try { m_ljet_isTopTagged_80[i]  = jetPtr->getAttribute<char>("isTopTagged_80" );} catch (...) { }
-        try { m_ljet_isWTagged_80[i] = jetPtr->getAttribute<char>("isWTagged_80");} catch (...) { }
-        try { m_ljet_isWTagged_50[i] = jetPtr->getAttribute<char>("isWTagged_50");} catch (...) { }
-        try { m_ljet_isZTagged_80[i] = jetPtr->getAttribute<char>("isZTagged_80"); } catch (...) { }
-        try { m_ljet_isZTagged_50[i] = jetPtr->getAttribute<char>("isZTagged_50"); } catch (...) { }
+	
+	for (std::string& taggerName : m_boostedJetTaggersNames ) try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
+	
 
         ++i;
       }

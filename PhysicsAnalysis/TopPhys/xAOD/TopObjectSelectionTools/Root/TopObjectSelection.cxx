@@ -99,18 +99,18 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
   
   // boosted tagging stuff
   if (m_config->useLargeRJets()) {
-    m_topTag50 = ToolHandle<SmoothedTopTagger>("topTag50");
-    top::check( m_topTag50.retrieve(), "Failed to retrieve 50% top-tagging tool" );
-    m_topTag80 = ToolHandle<SmoothedTopTagger>("topTag80");
-    top::check( m_topTag80.retrieve(), "Failed to retrieve 80% top-tagging tool" );
-    m_WTag50 = ToolHandle<SmoothedWZTagger>("WTag50");
-    top::check( m_WTag50.retrieve(), "Failed to retrieve 50% W-tagging tool" );
-    m_WTag80 = ToolHandle<SmoothedWZTagger>("WTag80");
-    top::check( m_WTag80.retrieve(), "Failed to retrieve 80% W-tagging tool" );
-    m_ZTag50 = ToolHandle<SmoothedWZTagger>("ZTag50");
-    top::check( m_ZTag50.retrieve(), "Failed to retrieve 50% Z-tagging tool" );
-    m_ZTag80 = ToolHandle<SmoothedWZTagger>("ZTag80");
-    top::check( m_ZTag80.retrieve(), "Failed to retrieve 80% Z-tagging tool" );
+
+    std::vector<std::pair<std::string, std::string> > boostedJetTaggers= m_config->boostedJetTaggers();
+    
+    m_boostedJetTaggersNames.resize(boostedJetTaggers.size()); 
+    for(unsigned int i=0;i< boostedJetTaggers.size();i++){
+      std::string fullName=boostedJetTaggers[i].first+"_"+boostedJetTaggers[i].second;
+      m_boostedJetTaggersNames[i]=fullName;
+      
+      m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+      top::check(m_boostedJetTaggers[fullName].retrieve(),"Failed to retrieve "+fullName);
+    }
+    
   }
   
   return StatusCode::SUCCESS;  
@@ -391,20 +391,13 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
-          //decorate with boosted-tagging flags
-          char isTop_80    = m_topTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char isTop_50    = m_topTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Wtagged_80  = m_WTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Wtagged_50  = m_WTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Ztagged_80  = m_ZTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
-          char Ztagged_50  = m_ZTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
-
-          jetPtr->auxdecor<char>("isTopTagged_80")  = isTop_80;
-          jetPtr->auxdecor<char>("isTopTagged_50")  = isTop_50;
-          jetPtr->auxdecor<char>("isWTagged_80")    = Wtagged_80;
-          jetPtr->auxdecor<char>("isWTagged_50")    = Wtagged_50;
-          jetPtr->auxdecor<char>("isZTagged_80")    = Ztagged_80;
-          jetPtr->auxdecor<char>("isZTagged_50")    = Ztagged_50;
+          
+	  //decorate with boosted-tagging flags
+	  for(std::string& name : m_boostedJetTaggersNames){
+	    char isTagged = m_boostedJetTaggers[name]->tag(*jetPtr);
+	    jetPtr->auxdecor<char>("isTagged_"+name) = isTagged;
+	  }
+	  
         }
     }
 }

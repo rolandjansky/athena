@@ -111,10 +111,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
                       "CombMass");
-    registerParameter("LargeRToptaggingConfigFile",
-                      "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
-                      "(alternative not optimized on large-R jet containing a truth top)",
-                      "default");
+    registerParameter("BoostedJetTagging",
+                      "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
+                      " By default, no tagger is used.",
+                      " ");
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
