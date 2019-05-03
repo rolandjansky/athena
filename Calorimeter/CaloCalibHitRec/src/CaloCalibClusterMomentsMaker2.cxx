@@ -413,7 +413,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
 
   // reading particle information for later calcution of calibration enegry fraction caused
   // by particles of different types
-  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey, ctx);
 
   if (doCalibFrac && !truthParticleContainerReadHandle.isValid()){
     ATH_MSG_WARNING("Invalid read handle to TruthParticleContainer with key: " << m_truthParticleContainerKey.key());
