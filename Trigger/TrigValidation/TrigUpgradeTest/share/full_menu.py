@@ -9,9 +9,6 @@ rec.doWriteESD=True
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-#Currently only runs egamma and mu chains but expect to expand
-
-
 ##########################################
 # menu
 ###########################################
@@ -54,7 +51,7 @@ if opt.doElectronSlice == True:
 ##################################################################
 if opt.doPhotonSlice == True:
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TrigUpgradeTest.photonMenuDefs import photonMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import photonMenuSequence
 
     fastCaloStep = fastCaloMenuSequence("Gamma")
     photonstep   = photonMenuSequence()
@@ -109,7 +106,7 @@ if opt.doMuonSlice == True:
 # jet chains
 ##################################################################
 if opt.doJetSlice == True:
-    from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceSetup import jetMenuSequence
 
     jetSeq1 = jetMenuSequence()
     jetstep1=ChainStep("Step1_jet", [jetSeq1])
@@ -135,7 +132,7 @@ if opt.doJetSlice == True:
 # bjet chains
 ##################################################################
 if opt.doBJetSlice == True:
-    from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
+    from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
     step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
     step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])

@@ -26,7 +26,8 @@ svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
-from TrigUpgradeTest.jetDefs import jetRecoSequence
+from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
+
 (jetSequence, jetsKey) = jetRecoSequence( RoIs="FullScanRoIs" )
 topSequence += jetSequence
 

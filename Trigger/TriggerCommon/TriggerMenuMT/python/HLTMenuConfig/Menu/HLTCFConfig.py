@@ -144,9 +144,13 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
+
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
         triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
@@ -162,6 +166,8 @@ def makeHLTTree(HLTChains, triggerConfigHLT = None):
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
     edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
     hltTop += edmAlg
+
+    Configurable.configurableRun3Behavior=0
         
     topSequence += hltTop
 
