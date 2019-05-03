@@ -38,7 +38,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
 
   // make the views
-  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context ); 
   auto viewVector1 = std::make_unique< ViewContainer >();
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
