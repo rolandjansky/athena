@@ -213,7 +213,7 @@ class GenerateMenuMT(object):
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':
                         sigFolder = sig
-                        subSigs = ['Electron',] #'Photon']
+                        subSigs = ['Electron', 'Photon']
                     elif sig in self.calibCosmicMonSigs:
                         sigFolder = 'CalibCosmicMon'
                         subSigs = self.calibCosmicMonSigs
@@ -222,7 +222,7 @@ class GenerateMenuMT(object):
                         subSigs = [sig]
 
                     for ss in subSigs:                        
-                        exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.generate' + ss + 'ChainDefs')                
+                        exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + ss + 'ChainDefs')                
                         self.availableSignatures.append(ss)
 
             except ImportError:
@@ -257,7 +257,7 @@ class GenerateMenuMT(object):
             if currentSig in self.availableSignatures:
                 try:                    
                     log.debug("Trying to get chain config for %s", currentSig)
-                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
+                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
                     chainConfigs = eval(functionToCall)
                 except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)

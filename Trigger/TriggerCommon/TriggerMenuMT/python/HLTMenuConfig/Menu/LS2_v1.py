@@ -17,8 +17,18 @@ def setupMenu():
 
     PhysicsStream="Main"
     SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
+    #MultiMuonGroup = ['RATE:MultiMuon', 'BW:Muon']
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
+    #MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
+    SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
+    #MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
     SingleMETGroup = ['RATE:MET', 'BW:MET']
+    SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+    MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
+    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+    #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
+    #SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
+    #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 
     TriggerFlags.Slices_all_setOff()
 
@@ -38,10 +48,17 @@ def setupMenu():
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
+        # ElectronChains----------
         ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
+        #-------------END OF ElectronChains
+
+        # PhotonChains------------
+        ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        #-------------END OF PhotonChains
+
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -49,11 +66,29 @@ def setupMenu():
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
     ]
 
-    TriggerFlags.CombinedSlice.signatures = []
-    TriggerFlags.JetSlice.signatures = []
-    TriggerFlags.BjetSlice.signatures = [] 
+    TriggerFlags.JetSlice.signatures = [
+        ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),        
+
+        ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup), 
+        ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
+        
+        ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
+        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),       
+
+        ChainProp(name='HLT_5j70_0eta240_L1J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
+
+    ]
+    TriggerFlags.BjetSlice.signatures = [
+        ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
+    ] 
+
     TriggerFlags.TauSlice.signatures = []
     TriggerFlags.BphysicsSlice.signatures = [ ]
+    TriggerFlags.CombinedSlice.signatures = []
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []   
     TriggerFlags.MinBiasSlice.signatures   = []    
