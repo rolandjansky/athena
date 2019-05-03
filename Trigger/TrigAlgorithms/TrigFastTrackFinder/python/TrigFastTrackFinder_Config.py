@@ -517,7 +517,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
             InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
 
 
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder

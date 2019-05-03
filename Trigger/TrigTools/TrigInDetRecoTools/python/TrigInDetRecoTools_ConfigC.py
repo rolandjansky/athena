@@ -56,7 +56,6 @@ class FactoryForStrategyC() :
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
              InDetTrigSiDetElementsRoadMaker_C = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_C')
              InDetTrigSiDetElementsRoadMaker_C.RoadWidth = self.settings[('RoadWidth',instName)]
-             ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
              if DetFlags.haveRIO.SCT_on():
                  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
