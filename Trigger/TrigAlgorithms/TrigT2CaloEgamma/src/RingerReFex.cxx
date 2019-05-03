@@ -29,6 +29,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaMonitoring/Monitored.h"
+#include "StoreGate/ReadHandle.h"
 #include "PhiComps.h"
 using namespace Monitored;
 
@@ -73,6 +74,7 @@ StatusCode RingerReFex::initialize()
 
   ATH_CHECK( m_ringerContainerKey.initialize() );
   ATH_CHECK( m_clusterContainerKey.initialize() );
+  ATH_CHECK( m_bcidAvgKey.initialize() );
 
   m_maxRingsAccumulated = std::accumulate(m_nRings.begin(), m_nRings.end(), 0);
 
@@ -160,6 +162,7 @@ StatusCode RingerReFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
                               const CaloDetDescrElement*& , 
                               const EventContext& context) const
 {
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   
   auto total_time = Monitored::Timer("TIME_total");
@@ -242,7 +245,7 @@ StatusCode RingerReFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       // and the ringg set will be empty. This will effect the ring set 4,5 and 6.
       if( !(!m_useHad && det==TTHEC) ){
       
-        if( m_dataSvc->loadCollections( context, roi, static_cast<DETID>(det), sampling, sel ).isFailure() )
+        if( m_dataSvc->loadCollections( context, avg.cptr() ,roi, static_cast<DETID>(det), sampling, sel ).isFailure() )
         {
           ATH_MSG_ERROR( "Failure while trying to retrieve cell information for the "<< det <<" calorimeter." );
           return StatusCode::FAILURE;
