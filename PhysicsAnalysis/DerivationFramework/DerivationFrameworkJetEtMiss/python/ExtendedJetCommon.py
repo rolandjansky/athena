@@ -411,7 +411,7 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
 
 ### Schedule Q/G-tagging decorations ### QGTaggerTool #####
 def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
-    jetaugtool = getJetAugmentationTool(jetalg)
+    jetaugtool = getJetAugmentationTool(jetalg,'_qgTag')
     if(jetaugtool==None):
         extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
 
