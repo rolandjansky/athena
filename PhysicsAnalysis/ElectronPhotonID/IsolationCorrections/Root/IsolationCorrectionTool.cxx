@@ -38,7 +38,7 @@ namespace CP {
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
     declareProperty("DoEDParamizedShift",     m_bDoEDParametrizedShift = true);
-    declareProperty("EDParametrizedShiftInput",     m_sEDParametrizedShiftInputName = "/ZIH.fast/users/cwiel/EEIso_output/plots/syst/zetas.root");
+    declareProperty("EDParametrizedShiftInput",     m_sEDParametrizedShiftInputName = "IsolationCorrections/zetas.root");
     m_isol_corr = new IsolationCorrection(name);
   }
 
