@@ -1,10 +1,12 @@
 include.block('FTK_RecExample/FTKRec_jobOptions.py')
 
+from FTK_RecExample.FTKJobProperties import FTKFlags
+FTKFlags.init()
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
  
-if rec.doFTK():
+if rec.doFTK() and (globalflags.InputFormat() == 'bytestream' or rec.readRDO):
     from AthenaCommon.GlobalFlags import GlobalFlags
     if rec.doFTK() and globalflags.InputFormat() == 'bytestream':
         ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc")
@@ -39,7 +41,7 @@ if rec.doFTK():
     alg += FTK_RDO_Reader 
     
 
-    if rec.doTruth() and (rec.doWriteAOD() or rec.doWriteESD()):
+    if FTKFlags.doTruthLinks() and rec.doTruth() and (rec.doWriteAOD() or rec.doWriteESD()):
         include ('FTK_RecExample/ConfiguredFTK_TrackTruth.py')
         FTK_TracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollection",
                                                 TracksTruth = "FTK_Tracks_TruthCollection",
@@ -69,28 +71,29 @@ if rec.doFTK():
         FTKRefitTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += FTKRefitTrackParticleCnvAlg
 
-        augmentation_tools = []
-        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (DerivationFramework__TrackParametersForTruthParticles)
-
-        TruthDecor = DerivationFramework__TrackParametersForTruthParticles(
-           name="TruthTPDecor",
-           TruthParticleContainerName="TruthParticles",
-           DecorationPrefix="")
-        augmentation_tools.append(TruthDecor)
-
-        # Set up derivation framework
-        from AthenaCommon import CfgMgr
-        
-        theFTKseq = CfgMgr.AthSequencer("FTKSeq")
-        from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
-            DerivationFramework__CommonAugmentation)
-        
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += DerivationFramework__TrackParametersForTruthParticles('TruthTPDecor')
-        theFTKseq += CfgMgr.DerivationFramework__CommonAugmentation(
-          "TSOS_Kernel",
-          AugmentationTools=augmentation_tools,
-          OutputLevel=INFO)
-        topSequence += theFTKseq
+        if FTKFlags.doDetailedTruth():
+            augmentation_tools = []
+            from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (DerivationFramework__TrackParametersForTruthParticles)
+            
+            TruthDecor = DerivationFramework__TrackParametersForTruthParticles(
+                name="TruthTPDecor",
+                TruthParticleContainerName="TruthParticles",
+                            DecorationPrefix="")
+            augmentation_tools.append(TruthDecor)
+            
+            # Set up derivation framework
+            from AthenaCommon import CfgMgr
+            
+            theFTKseq = CfgMgr.AthSequencer("FTKSeq")
+            from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+                DerivationFramework__CommonAugmentation)
+            
+            from AthenaCommon.AppMgr import ToolSvc
+            ToolSvc += DerivationFramework__TrackParametersForTruthParticles('TruthTPDecor')
+            theFTKseq += CfgMgr.DerivationFramework__CommonAugmentation(
+                "TSOS_Kernel",
+                AugmentationTools=augmentation_tools,
+                OutputLevel=INFO)
+            topSequence += theFTKseq
 
 
