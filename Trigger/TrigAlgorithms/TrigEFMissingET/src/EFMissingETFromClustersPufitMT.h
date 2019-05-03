@@ -71,7 +71,6 @@ class EFMissingETFromClustersPufitMT : public extends<AthAlgTool, IMissingETTool
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersKey { this, "ClustersCollection", "CaloClusters", "Collection containg all clusters" };
 
     xAOD::CaloCluster_v1::State m_clusterstate;
-    TrigEFMissingEtComponent::Component m_metHelperComp;
 
     // pufit variables
     int    m_nphibins;

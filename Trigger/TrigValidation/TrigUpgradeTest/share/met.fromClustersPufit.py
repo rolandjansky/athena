@@ -29,13 +29,13 @@ topSequence += clusterSequence
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromClustersPufitMT, EFMissingETFromHelperMT
 
-clusterTool = EFMissingETFromClustersPufitMT( name="METFromClustersPufitTool" )
-clusterTool.ClustersCollection = clusterContainer
+clusterPufitTool = EFMissingETFromClustersPufitMT( name="METFromClustersPufitTool" )
+clusterPufitTool.ClustersCollection = clusterContainer
 
 helperTool = EFMissingETFromHelperMT("theHelperTool") 
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
-metAlg.METTools=[ clusterTool, helperTool ]
+metAlg.METTools=[ clusterPufitTool, helperTool ]
 metAlg.METContainerKey = "HLT_MET_ClustersPufit"
 
 metMon = GenericMonitoringTool("METMonTool")
