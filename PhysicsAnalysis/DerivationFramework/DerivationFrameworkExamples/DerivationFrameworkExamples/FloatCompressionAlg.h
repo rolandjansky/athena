@@ -56,7 +56,7 @@ namespace DerivationFramework {
       StatusCode reset( const SG::IConstAuxStore& store,
                         const std::string& key );
       StatusCode resetVars( const SG::IConstAuxStore& store,
-			    const std::map<std::string, std::vector<std::string>> key );
+			    const std::map<std::string, std::vector<std::pair<std::string,int>>> key );
 
       /// StoreGate keys of the auxiliary objects to be processed
       std::vector< std::string > m_keys;

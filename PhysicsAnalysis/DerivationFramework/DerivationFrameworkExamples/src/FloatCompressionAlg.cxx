@@ -65,7 +65,6 @@ namespace DerivationFramework {
 	}
     */
 
-
       // Collect all the container(s):
       std::vector< std::pair< const SG::IConstAuxStore*, std::string > > stores;
       if( m_keys.size() ) {
@@ -87,52 +86,55 @@ namespace DerivationFramework {
                      << stores.size() );
 
       // Collect all the variables(s):
-      std::vector< std::pair< const SG::IConstAuxStore*, std::map<std::string, std::vector<std::string>> > > stores_vars;
+      std::vector< std::pair< const SG::IConstAuxStore*, std::map<std::string, std::vector<std::pair<std::string,int>>> > > stores_vars;
       if( m_vars.size() ) {
-	std::map<std::string, std::vector<std::string>> mapOfvars;
+	std::map<std::string, std::vector<std::pair<std::string,int>>> mapOfvars;
+	
+	for( const std::string& mykey : m_vars ) {
+	  // Split container and variable+precision
+	  std::size_t found = mykey.find(".");
+	  std::string key = mykey.substr(0,found+1);
+	  std::string var_prec = mykey.substr(found+1, std::string::npos);	   
+	  // Split variable and precision
+	  found = var_prec.find(":");
+	  std::string var = var_prec.substr(0,found);
+	  int prec = std::stoi(var_prec.substr(found+1, std::string::npos));
+	  // Now store it in a map
+	  std::vector<std::pair<std::string,int>> myVars;
+	  if (mapOfvars.count(key)) {
+	    myVars = mapOfvars[key];
+	  }
+	  myVars.push_back(std::make_pair( var, prec ) );
+	  mapOfvars[key] = myVars;
 
-         for( const std::string& mykey : m_vars ) {
-	    std::size_t found = mykey.find(".");
-	    std::string key = mykey.substr(0,found+1);
-	    std::string var = mykey.substr(found+1, std::string::npos);
-
-	    std::vector<std::string> myVars;
-	    if (mapOfvars.count(key)) {
-	      myVars = mapOfvars[key];
-	    }
-	    myVars.push_back(var);
-	    mapOfvars[key] = myVars;
-
-         }
-         for( auto& mypair : mapOfvars ) {
-	   const SG::IConstAuxStore* store = 0;
-	   ATH_CHECK( evtStore()->retrieve( store, mypair.first ) );
-	   std::map<std::string, std::vector<std::string>> mymapOfvars;
-	   mymapOfvars[mypair.first] = mypair.second;
-	   stores_vars.push_back( std::make_pair( store, mymapOfvars ));
-	 }
-
+	}
+	// Add the StoreGate info to the variable map
+	for( auto& mypair : mapOfvars ) {
+	  const SG::IConstAuxStore* store = 0;
+	  ATH_CHECK( evtStore()->retrieve( store, mypair.first ) );
+	  std::map<std::string, std::vector<std::pair<std::string,int>>> mymapOfvars;
+	  mymapOfvars[mypair.first] = mypair.second;
+	  stores_vars.push_back( std::make_pair( store, mymapOfvars ));
+	}
       }
 
-      /*
-      // Reset the ElementLinks in all of them:
+      // Apply float compression in all the configured AUX containers
       for( const auto& storeKey : stores ) {
          ATH_MSG_VERBOSE( "Reseting element links in store: "
                           << storeKey.second );
          ATH_CHECK( reset( *( storeKey.first ), storeKey.second ) );
       }
-      */
-
-      // Reset the ElementLinks in all of them:
+	       
+      // Apply float compression in the configured AUX variables
       for( const auto& storeKey : stores_vars ) {
          ATH_MSG_VERBOSE( "Reseting element links in store: "
                           << storeKey.second );
          ATH_CHECK( resetVars( *( storeKey.first ), storeKey.second ) );
       }
-
+      
       // Return gracefully:
       return StatusCode::SUCCESS;
-   }
+  }
 
   StatusCode FloatCompressionAlg::reset( const SG::IConstAuxStore& store,
 					 const std::string& key ) {
@@ -188,7 +190,7 @@ namespace DerivationFramework {
 	// continue;
 	
       
-	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
 	std::string name = reg.getName( auxid );
 
@@ -212,7 +214,7 @@ namespace DerivationFramework {
 	    if (eltPtr) {
 
 	      float val = *(float *) eltPtr;
-	      std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	      //std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
 	      val = m_floatCompressor->reduceFloatPrecision( val );
 	    
@@ -267,7 +269,7 @@ namespace DerivationFramework {
    }
 
   StatusCode FloatCompressionAlg::resetVars( const SG::IConstAuxStore& store,
-					     const std::map<std::string, std::vector<std::string>> key ) {
+					     const std::map<std::string, std::vector<std::pair<std::string,int>>> key ) {
     
       // If the container is empty, return right away:
       //if( ! store.size() ) {
@@ -345,17 +347,16 @@ namespace DerivationFramework {
 
 	      float val = *(float *) eltPtr;
 	      for( auto& mykey : key ) {
-		std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		//std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		
-		for ( const auto &myvar : mykey.second ) {
-		  std::size_t found = myvar.find(":");
-		  std::string var = myvar.substr(0,found);
-		  int prec = std::stoi(myvar.substr(found+1, std::string::npos));
+		for ( auto &myvar : mykey.second ) {
+		  std::string var = myvar.first;
+		  int prec = myvar.second;
 		  //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;		  
 
 		  if (var == reg.getName( auxid )) {
 		    val = m_floatCompressor->reduceFloatPrecision( val, prec );
-		    std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+		    //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		  }
 		}
 	      }
