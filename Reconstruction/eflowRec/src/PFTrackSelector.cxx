@@ -18,10 +18,16 @@ StatusCode PFTrackSelector::initialize(){
   ATH_CHECK(m_trackSelectorTool.retrieve());
 
   ATH_CHECK(m_tracksReadHandleKey.initialize());
-  ATH_CHECK(m_electronsReadHandleKey.initialize());
-  ATH_CHECK(m_muonsReadHandleKey.initialize());
   ATH_CHECK(m_vertexKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
+  // Optional readhandlekeys for electrons and muons
+  if(!m_electronsReadHandleKey.key().empty()) {
+    ATH_CHECK(m_electronsReadHandleKey.initialize());
+  }
+  if(!m_muonsReadHandleKey.key().empty()) {
+    ATH_CHECK(m_muonsReadHandleKey.initialize());
+  }
 
   ATH_CHECK(m_eflowRecTracksWriteHandleKey.initialize());
   
@@ -85,6 +91,8 @@ bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
 
 bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 
+  if(m_electronsReadHandleKey.key().empty()) return false;
+
   SG::ReadHandle<xAOD::ElectronContainer> electronsReadHandle(m_electronsReadHandleKey);
   if (electronsReadHandle.isValid()){
 
@@ -114,6 +122,8 @@ bool PFTrackSelector::isElectron(const xAOD::TrackParticle* track){
 }
 
 bool PFTrackSelector::isMuon(const xAOD::TrackParticle* track){
+
+  if(m_muonsReadHandleKey.key().empty()) return false;
 
   SG::ReadHandle<xAOD::MuonContainer> muonsReadHandle(m_muonsReadHandleKey);
   if (muonsReadHandle.isValid()){
