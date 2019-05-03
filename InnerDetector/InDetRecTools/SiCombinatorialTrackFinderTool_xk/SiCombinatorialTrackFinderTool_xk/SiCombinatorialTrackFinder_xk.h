@@ -34,9 +34,10 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <vector>
 
-class MsgStream          ;
+class MsgStream;
 
 namespace InDet {
 
@@ -81,27 +82,27 @@ namespace InDet {
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&);
+	 const TrackQualityCuts&) const;
 
       virtual const std::list<Trk::Track*>& getTracks
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 bool);
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+	 bool) const;
    
-      virtual void newEvent();
-      virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&);
+      virtual void newEvent() const;
+      virtual void newEvent(Trk::TrackInfo, const TrackQualityCuts&) const;
 
-      virtual void endEvent();
+      virtual void endEvent() const;
      
 
       ///////////////////////////////////////////////////////////////////
@@ -146,72 +147,81 @@ namespace InDet {
       BooleanProperty m_useSCT{this, "useSCT", true};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       StringProperty m_pixm{this, "PixManagerLocation", "Pixel", "PIX manager location"};
-      StringProperty m_sctm{this, "SCTManagerLocation", "SCT", "SCT manager location"};
+      StringProperty m_sctm{this, "SCTManagerLocation", "SCT", "SCT manager location"}; // NOT USED
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
 
-      SiTrajectory_xk                m_trajectory    ;  // Track trajector1
-      Trk::TrackInfo                 m_trackinfo     ;
-      InDet::SiTools_xk              m_tools         ;
-      Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
-      std::list<Trk::Track*>         m_tracks        ; // List found tracks
+      // Updated in only initialize
+      int m_outputlevel{0};
+      Trk::MagneticFieldProperties m_fieldprop; // Magnetic field properties
+      std::string m_callbackString;
+
+      // Updated in only mapDetectorElementsProduction
       InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
 
-      int                            m_outputlevel   ;
-      int                            m_nprint        ;  // Kind output information
-      int                            m_inputseeds{0};  // Number input seeds
-      int                            m_goodseeds     ;  // Number accepted seeds
-      int                            m_findtracks{0};  // Number found tracks
-      int                            m_inittracks    ;  // Number initial tracks
-      int                            m_roadbug       ;  // Number wrong DE roads
-      std::string                    m_callbackString;
-
-      bool                           m_pix           ;
-      bool                           m_sct           ;
-      bool                           m_heavyion{false};
-
-      int                            m_cosmicTrack   ;  // Is it cosmic track (0 or 1)
-      int                            m_nclusmin      ; // Min number clusters
-      int                            m_nclusminb     ; // Min number clusters
-      int                            m_nwclusmin     ; // Min number weighted clusters
-      int                            m_nholesmax     ; // Max number holes
-      int                            m_dholesmax     ; // Max holes gap
-      bool                           m_simpleTrack{false};
-      double                         m_pTmin         ; // min pT
-      double                         m_pTminBrem     ; // min pT for brem noise model
-      double                         m_xi2max        ; // max Xi2 for updators
-      double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
-      double                         m_xi2maxlink    ; // max Xi2 for clusters
+      mutable std::mutex m_mutex;
+      mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      struct EventData {
+        SiTrajectory_xk trajectory; // Track trajectory
+        Trk::TrackInfo trackinfo;
+        InDet::SiTools_xk tools;
+        std::list<Trk::Track*> tracks; // List found tracks
+        int nprint{0};  // Kind output information
+        int inputseeds{0}; // Number input seeds
+        int goodseeds{0}; // Number accepted seeds
+        int findtracks{0}; // Number found tracks
+        int inittracks{0}; // Number initial tracks
+        int roadbug{0}; // Number wrong DE roads
+        bool heavyIon{false};
+        int cosmicTrack{0};  // Is it cosmic track (0 or 1)
+        int nclusmin{0}; // Min number clusters
+        int nclusminb{0}; // Min number clusters
+        int nwclusmin{0}; // Min number weighted clusters
+        int nholesmax{0}; // Max number holes
+        int dholesmax{0}; // Max holes gap
+        bool simpleTrack{false};
+        double pTmin{0.}; // min pT
+        double pTminBrem{0.}; // min pT for brem noise model
+        double xi2max{0.}; // max Xi2 for updators
+        double xi2maxNoAdd{0.}; // max Xi2 for clusters
+        double xi2maxlink{0.}; // max Xi2 for clusters
+      };
+      mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
       bool findTrack
-	(const Trk::TrackParameters&, 
+        (EventData& data,
+         const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
 
-      void getTrackQualityCuts(const TrackQualityCuts&);
+      void getTrackQualityCuts(EventData& data, const TrackQualityCuts&) const;
 
-      Trk::Track* convertToTrack();
-      Trk::Track* convertToNextTrack();
+      Trk::Track* convertToTrack(EventData& data) const;
+      Trk::Track* convertToNextTrack(EventData& data) const;
  
       void magneticFieldInit();
 
-      StatusCode mapDetectorElementsProduction(IOVSVC_CALLBACK_ARGS) ;
+      StatusCode mapDetectorElementsProduction(IOVSVC_CALLBACK_ARGS);
 
       bool spacePointsToClusters
 	(const std::list<const Trk::SpacePoint*>&,
-	 std::list<const InDet::SiCluster*>     &) const; 
+	 std::list<const InDet::SiCluster*> &) const; 
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&) const;
 
+      void newEvent(EventData& data) const;
+
+      EventData& getEventData() const;
+
       MsgStream& dumpconditions(MsgStream& out) const;
-      MsgStream& dumpevent     (MsgStream& out) const;
+      MsgStream& dumpevent(EventData& data, MsgStream& out) const;
 
     };
 

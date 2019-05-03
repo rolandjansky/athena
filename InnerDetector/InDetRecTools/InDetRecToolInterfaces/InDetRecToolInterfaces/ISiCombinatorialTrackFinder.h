@@ -62,27 +62,27 @@ namespace InDet {
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&)=0;
+	 const TrackQualityCuts&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracks
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
-	 bool)=0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+	 bool) const =0;
 
-      virtual void newEvent()=0;
-      virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&)=0;
+      virtual void newEvent() const =0;
+      virtual void newEvent(Trk::TrackInfo, const TrackQualityCuts&) const =0;
 
-      virtual void endEvent()=0;
+      virtual void endEvent() const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
