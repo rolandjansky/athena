@@ -6,7 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets,addQGTaggerTool
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -576,6 +576,12 @@ replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 #===================================================================
 # Add flavor tagging to the PFlow Jet collections
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
+
+#====================================================================
+# QG tagging
+#====================================================================
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d3Seq,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d3Seq,algname="QGTaggerToolPFAlg")
 
 #====================================================================
 # Add non-prompt lepton tagging
