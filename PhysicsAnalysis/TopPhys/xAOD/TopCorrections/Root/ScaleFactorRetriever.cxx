@@ -1031,14 +1031,24 @@ namespace top {
 	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_LOWPT_DOWN");
       }
     }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_UP) {
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_TRKISO_UP) {
       if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_TRK_UP")) {
 	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_TRK_UP");
       }
     }
-    if (SFSyst == top::topSFSyst::PHOTON_EFF_LOWPTISO_DOWN) {
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_TRKISO_DOWN) {
       if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_TRK_DOWN")) {
 	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_TRK_DOWN");
+      }
+    }
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_UP) {
+      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_UP")) {
+	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_UP");
+      }
+    }
+    if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_DOWN) {
+      if (x.isAvailable<float>("PH_SF_Iso_"+iso+"_DOWN")) {
+	sf = x.auxdataConst<float>("PH_SF_Iso_"+iso+"_DOWN");
       }
     }
     return sf;

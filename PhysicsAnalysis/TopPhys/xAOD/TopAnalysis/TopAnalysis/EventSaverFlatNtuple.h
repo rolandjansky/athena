@@ -421,6 +421,8 @@ private:
     float m_weight_photonSF_effLowPtIso_DOWN = 0.;
     float m_weight_photonSF_effTrkIso_UP = 0.;
     float m_weight_photonSF_effTrkIso_DOWN = 0.;
+    float m_weight_photonSF_effIso_UP = 0.;
+    float m_weight_photonSF_effIso_DOWN = 0.;
     float m_weight_photonSF_isoDDonoff_UP = 0.;
     float m_weight_photonSF_isoDDonoff_DOWN = 0.;
 
@@ -1082,6 +1084,8 @@ protected:
   const float& weight_photonSF_effLowPtIso_DOWN () const { return m_weight_photonSF_effLowPtIso_DOWN ;}
   const float& weight_photonSF_effTrkIso_UP () const { return m_weight_photonSF_effTrkIso_UP ;}
   const float& weight_photonSF_effTrkIso_DOWN () const { return m_weight_photonSF_effTrkIso_DOWN ;}
+  const float& weight_photonSF_effIso_UP () const { return m_weight_photonSF_effIso_UP ;}
+  const float& weight_photonSF_effIso_DOWN () const { return m_weight_photonSF_effIso_DOWN ;}
   const float& weight_photonSF_isoDDonoff_UP () const { return m_weight_photonSF_isoDDonoff_UP ;}
   const float& weight_photonSF_isoDDonoff_DOWN () const { return m_weight_photonSF_isoDDonoff_DOWN ;}
 
