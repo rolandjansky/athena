@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -216,7 +216,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 	for ( ; viewCollKeyIter != handles.views.end(); ++viewCollKeyIter, ++inViewCollKeyIter ) {
 	  // get the views handle
 
-	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter );
+	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter, context );
 	  if ( viewsHandle.isValid() ) {	    
 	    ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
 	    CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *generator.data.get() ) );
@@ -225,7 +225,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 	  }
 	}      
       }
-      auto writeHandle = SG::makeHandle( writeHandleKey );
+      auto writeHandle = SG::makeHandle( writeHandleKey, context );
       CHECK( generator.record( writeHandle ) );
     }     
   }
