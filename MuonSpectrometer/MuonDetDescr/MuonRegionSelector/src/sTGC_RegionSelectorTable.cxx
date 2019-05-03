@@ -125,6 +125,7 @@ StatusCode sTGC_RegionSelectorTable::createTable() {
       p_IdHelper->get_hash( Id, hashId, &ModuleContext );
 
       const MuonGM::sTgcReadoutElement* mm = p_MuonMgr->getsTgcReadoutElement(Id);
+      if (!mm) continue;
 
       //      std::cout << "stgc station name: " << mm->getStationName() << "\teta: " << mm->getStationEta() << "\tphi: " << mm->getStationPhi() << std::endl; 
   
