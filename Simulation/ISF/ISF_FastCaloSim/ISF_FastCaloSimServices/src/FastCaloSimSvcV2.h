@@ -13,7 +13,6 @@
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
 // Framework includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
 // FastCaloSim includes
@@ -87,8 +86,6 @@ namespace ISF {
       std::string                     m_randomEngineName;
       
       CaloGeometryFromCaloDDM* m_caloGeo;
-
-      MsgStream* m_msg; 
       
       std::string  m_caloCellsOutputName;
   };
