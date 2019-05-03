@@ -356,7 +356,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   m_tempMaskedChips[slot].clear();
   m_abcdErrorChips[slot].clear();
 
-  SG::ReadHandle<InDetBSErrContainer> errCont{m_bsErrContainerName};
+  SG::ReadHandle<InDetBSErrContainer> errCont (m_bsErrContainerName, ctx);
 
   /** When running over ESD files without BSErr container stored, don't 
    * want to flood the user with error messages. Should just have a bunch
