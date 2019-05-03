@@ -19,7 +19,7 @@ namespace CP
 {
   SelectionAccessorChar ::
   SelectionAccessorChar (const std::string& name)
-    : m_accessor (name), m_constAccessor (name)
+    : m_accessor (name), m_constAccessor (name), m_label(name)
   {}
 
 
@@ -60,5 +60,13 @@ namespace CP
            bool selection) const
   {
     m_accessor (element) = selection;
+  }
+
+
+
+  std::string SelectionAccessorChar ::
+  label () const
+  {
+    return m_label;
   }
 }

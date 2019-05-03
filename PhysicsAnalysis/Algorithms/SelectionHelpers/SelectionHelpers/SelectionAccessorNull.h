@@ -44,6 +44,8 @@ namespace CP
     virtual void setBool (SG::AuxElement& element,
                           bool selection) const override;
 
+  public:
+    virtual std::string label () const override;
 
 
     //
