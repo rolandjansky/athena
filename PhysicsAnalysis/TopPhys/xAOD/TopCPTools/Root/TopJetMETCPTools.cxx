@@ -481,12 +481,13 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
     "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root": // pflow jets
     "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";      // default is EM jets
 
+  const std::string JVT_WP = m_config->getJVTWP();
+
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);
   } else {
     CP::JetJvtEfficiency* jetJvtTool = new CP::JetJvtEfficiency(jvt_tool_name);
-    // Default WP now sets PFlow WP to Tight and EMTopo to Medium
-    top::check(jetJvtTool->setProperty("WorkingPoint", "Default"),
+    top::check(jetJvtTool->setProperty("WorkingPoint", JVT_WP),
                 "Failed to set JVT WP");
     top::check(jetJvtTool->setProperty("SFFile", JVT_SFFile),
                 "Failed to set JVT SFFile name");
