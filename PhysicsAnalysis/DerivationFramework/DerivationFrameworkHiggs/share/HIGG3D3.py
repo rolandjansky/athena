@@ -584,21 +584,17 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg3d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-#========================================
-# CREATE THE DERIVATION KERNEL ALGORITHMS
-#========================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-higg3d3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_skimming",
-                                                              SkimmingTools     = skimmingTools,
-                                                              AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool] # needed by skimming
-                                                              )
+#====================================================================
+# Truth decoration tool
+#====================================================================
+augmentationTools=[]
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
+HIGG3D3TruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name = "HIGG3D3TruthDecoratorTool",
+                                                                     OutputLevel       = VERBOSE,
+                                                                     )
+ToolSvc += HIGG3D3TruthDecoratorTool
+augmentationTools.append(HIGG3D3TruthDecoratorTool)
 
-DerivationFrameworkJob += higg3d3PreSeq
-higg3d3PreSeq += higg3d3Seq
-
-higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_thinning",
-                                                           ThinningTools = thinningTools
-                                                           )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -651,6 +647,26 @@ if globalflags.DataSource()=='geant4':
                                                }
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
+    HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3TruthDecoratorVariables)
+
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+higg3d3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_skimming",
+                                                              SkimmingTools     = skimmingTools,
+                                                              AugmentationTools = [HIGG3D3ElJDeltaRTool,HIGG3D3MuJDeltaRTool] # needed by skimming
+                                                              )
+
+DerivationFrameworkJob += higg3d3PreSeq
+higg3d3PreSeq += higg3d3Seq
+
+higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_thinning",
+                                                           ThinningTools = thinningTools
+                                                           )
+higg3d3Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D3Kernel_augmentation",
+                                                           AugmentationTools = augmentationTools
+                                                           )
 
 # Add Trigger content
 HIGG3D3SlimmingHelper.IncludeMuonTriggerContent = True

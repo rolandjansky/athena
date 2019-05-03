@@ -16,6 +16,10 @@ HIGG3D3ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLin
                                "AntiKt4TruthDressedWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink",
                                "AntiKt4EMPFlowJets.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID" ]
 
+HIGG3D3TruthDecoratorVariables = [ "Electrons.flavourTag",
+                                   "Muons.flavourTag",
+                                   ]
+
 HIGG3D3ExtraContainers = [ ]
 
 HIGG3D3ExtraTruthContainers = [ "TruthEvents",
