@@ -4,9 +4,16 @@
 #
 # Trigger ART test execution script based on TriggerTest/test/exec_athena_art_trigger_validation.sh
 #
-echo $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 
 ### DEFAULTS
+
+if [ -z "${NAME}" ]; then
+  testname=$(basename $0)
+  testname=${testname#test_}
+  testname=${testname%.sh}
+  export NAME=${testname}
+fi
+echo $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 
 if [ -z ${EVENTS} ]; then
   export EVENTS="1000"
@@ -37,7 +44,12 @@ if [ -z ${SLOTS} ]; then
 fi
 
 if [ -z ${STDCMATH} ] || [ ${STDCMATH} -eq 0 ]; then
-  export MATHLIBOPT="--imf"
+  if [ -f ${ATLASMKLLIBDIR_PRELOAD}/libimf.so ]; then
+    export MATHLIBOPT="--imf"
+  else
+    echo "!!! WARNING !!! Intel math library is not available, using standard cmath library instead. This may lead to differences in test results."
+    export MATHLIBOPT="--stdcmath"
+  fi
 else
   export MATHLIBOPT="--stdcmath"
 fi
@@ -47,9 +59,13 @@ fi
 if [[ $INPUT == "run2data" ]]; then
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
 elif [[ $INPUT == "run2dataFTK" ]]; then
-    export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1"
+  export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1"
 elif [[ $INPUT == "run2mc_ttbar" ]]; then
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000002.pool.root.1"
+elif [[ $INPUT == "none" ]]; then
+  export DS=""
+elif [[ -f $INPUT ]]; then
+  export DS=${INPUT}
 else
   echo "ERROR: input not defined, cannot run"
   echo "art-result: 1"
@@ -83,6 +99,6 @@ fi
 ######################################
 
 export ATH_RETURN=$?
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${JOB_LOG%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME} with result ${ATH_RETURN}"
 
