@@ -246,7 +246,6 @@ SeqSUSY5 += CfgMgr.DerivationFramework__DerivationKernel(
 addVRJets(SeqSUSY5)
 addRecommendedXbbTaggers(SeqSUSY5, ToolSvc)
 
-
 #====================================================================
 # Prompt Lepton Tagger
 #====================================================================
