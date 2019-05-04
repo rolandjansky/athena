@@ -29,7 +29,8 @@ class JobSetupPrinter(Configured):
         if hasattr(topSequence,"CTPEmulation"):
             print topSequence.CTPEmulation
 
-        if hasattr(topSequence,"TrigSteer_HLT"):
+        if hasattr(topSequence,"RoIBuilder"):
             print topSequence.RoIBuilder
+        if hasattr(topSequence,"TrigSteer_HLT"):
             print topSequence.TrigSteer_HLT.LvlConverterTool
 
