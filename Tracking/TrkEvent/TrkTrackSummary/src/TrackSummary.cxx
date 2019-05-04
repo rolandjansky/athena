@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Summary.cxx  -  description
@@ -13,7 +13,7 @@
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "GaudiKernel/MsgStream.h"
 
-unsigned int Trk::TrackSummary::s_numberOfInstantiations=0;
+std::atomic<unsigned int> Trk::TrackSummary::s_numberOfInstantiations{0};
 const int    Trk::TrackSummary::SummaryTypeNotSet=-1;
 
 Trk::TrackSummary::TrackSummary()

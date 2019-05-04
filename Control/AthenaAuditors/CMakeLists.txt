@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 732183 2016-03-24 13:52:44Z krasznaa $
 ################################################################################
 # Package: AthenaAuditors
 ################################################################################
@@ -29,5 +28,5 @@ atlas_add_component( AthenaAuditors
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${GDB_INCLUDE_DIRS}
    ${LIBUNWIND_INCLUDE_DIRS} ${GPERFTOOLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${GDB_LIBRARIES}
-   ${LIBUNWIND_LIBRARIES} ${ZLIB_LIBRARIES}
+   ${LIBUNWIND_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS}
    AthenaBaseComps CoWTools GaudiKernel xAODEventInfo)

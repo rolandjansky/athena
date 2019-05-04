@@ -130,15 +130,12 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
 
 void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
   // try to apply an option
-  if ( opt.find("kCanRebin") != std::string::npos ) {
-     hist->SetCanExtend(TH1::kAllAxes);
-  } else {
-     hist->SetCanExtend(TH1::kNoAxis);  
-  }
+  const unsigned canExtendPolicy = opt.find("kCanRebin") != std::string::npos ? TH1::kAllAxes : TH1::kNoAxis;
+  hist->SetCanExtend(canExtendPolicy);
+
   // try to apply option to make Sumw2 in histogram
-  if ( opt.find("Sumw2") != std::string::npos ) {
-    hist->Sumw2();
-  }
+  const bool shouldActivateSumw2 = opt.find("Sumw2") != std::string::npos;
+  hist->Sumw2(shouldActivateSumw2);
 }
 
 void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labels) {

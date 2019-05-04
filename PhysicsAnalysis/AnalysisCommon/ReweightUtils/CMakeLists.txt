@@ -70,7 +70,7 @@ atlas_add_test( ut_ParticleScaleFactorTool_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgAnalysisInterfaces
    PATInterfaces xAODEgamma CxxUtils
-   PROPERTIES TIMEOUT 300 )
+   PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

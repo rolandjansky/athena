@@ -373,6 +373,11 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
+    kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
@@ -826,3 +831,28 @@ class TrigMuonEFIDTrackRoiMakerConfig(TrigMuonEFIDTrackRoiMaker):
         montool = TrigMuonEFIDTrackRoiMakerMonitoring()
 
         self.AthenaMonTools = [ montool ]
+
+
+class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFTrackIsolationAlgMT):
+    __slots__ = ()
+
+    def __init__( self, name="TrigMuonEFTrackIsolationMTConfig" ):
+        super( TrigMuonEFTrackIsolationMTConfig, self ).__init__( name )
+
+        # configure the isolation tool
+        TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=True)
+
+        # Isolation tool
+        self.OnlineIsolationTool = TMEF_IsolationTool
+
+        # ID tracks
+        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
+        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
+        self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
+
+        # Only run algo on combined muons
+        self.requireCombinedMuon = True
+
+        # Use offline isolation variables
+        self.useVarIso = True
+        self.MuonContName = "Muons"

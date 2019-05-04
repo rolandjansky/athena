@@ -648,12 +648,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                   continue;
               }
             }
-
-            if(rdoIdc->hasExternalCache() && rdoIdc->tryFetch(offlineIdHash)){
+	    /* TODO, bring it back when IDC friendly
+            if(rdoIdc->hasExternalCache() && rdoIdc->tryAddFromCache(offlineIdHash)){
                 ATH_MSG_DEBUG("Hash already in collection - cache hit " << offlineIdHash);
                 continue;
             }
-
+	    */
             ATH_CHECK(rdoIdc->naughtyRetrieve(offlineIdHash, coll));//Returns null if not present
 
             if(coll==nullptr){

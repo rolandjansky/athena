@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -283,8 +283,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     if(m_timers) m_timer[9]->start();
 
-    m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,roi);
-    VZ = m_zvertexmaker->getVertices();
+    VZ = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,roi));
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();
     if (outputLevel <= MSG::DEBUG) 
@@ -333,7 +332,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     ++m_nseeds;
     if(m_timers) m_timer[5]->resume();
-    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints())); 
     if(m_timers) m_timer[5]->pause();
     if(m_timers) m_timer[6]->resume();
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -439,8 +438,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   if( m_useZvertexTool ) {    
 
     if(m_timers) m_timer[9]->start();
-    m_zvertexmaker->newEvent(); 
-    VZ = m_zvertexmaker->getVertices();
+    VZ = std::move(m_zvertexmaker->newEvent());
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();   
     if (outputLevel <= MSG::DEBUG) 
@@ -486,7 +484,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     ++m_nseeds;
     if(m_timers) m_timer[5]->resume();
-    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints()));
     if(m_timers) m_timer[5]->pause();
     if(m_timers) m_timer[6]->resume();
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {

@@ -37,6 +37,7 @@
 
 /// Forward Declarations ///
 class AtlasDetectorID;
+class IBeamCondSvc;
 class PixelID;
 class SCT_ID;
 class Identifier;
@@ -139,7 +140,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
 
- 
+ bool makeDummyVertex(bool withRefit);
+
  const Trk::RIO_OnTrack* createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
  const Trk::RIO_OnTrack* createSCT_Cluster(const IdentifierHash hash, const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
  
@@ -162,6 +164,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
+
+  ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
+
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
@@ -171,6 +176,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
+
 
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   ToolHandle<Trk::ITrackFitter> m_trackFitter;

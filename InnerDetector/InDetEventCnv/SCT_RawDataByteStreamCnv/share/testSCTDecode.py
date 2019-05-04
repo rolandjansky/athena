@@ -4,6 +4,8 @@
 #
 #==============================================================
 
+doPrint = False
+
 #--------------------------------------------------------------
 # Standard includes
 #--------------------------------------------------------------
@@ -39,7 +41,8 @@ globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="bytestream"
 globalflags.DataSource="data"
-print globalflags
+if doPrint:
+    print globalflags
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -67,7 +70,8 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
-DetFlags.Print()
+if doPrint:
+    DetFlags.Print()
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
@@ -89,17 +93,14 @@ ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 
-# Set up event info cnv alg
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg()
 
 # Set up byte stream converters (SCTRawDataProvider, SCTRawDataProviderTool, SCT_RodDecoder, SCTEventFlagWriter)
 include("InDetRecExample/InDetReadBS_jobOptions.py")
-topSequence.InDetSCTRawDataProvider.OutputLevel = DEBUG
+topSequence.InDetSCTRawDataProvider.OutputLevel = INFO
 topSequence.InDetSCTRawDataProvider.ProviderTool.Decoder.OutputLevel = INFO
-topSequence.InDetSCTEventFlagWriter.OutputLevel = DEBUG
+topSequence.InDetSCTEventFlagWriter.OutputLevel = INFO
 if numThreads >= 2:
     topSequence.InDetSCTRawDataProvider.Cardinality = numThreads
     topSequence.InDetSCTEventFlagWriter.Cardinality = numThreads
@@ -109,8 +110,9 @@ from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
-                                                PixelCalibSvc        = None,
-                                                UsePixelCalibCondDB  = False,
+                                                PixelCablingSvc = None,
+                                                PixelModuleData = "",
+                                                PixelChargeCalibCondData = "",
                                                 PixelLorentzAngleTool = None,
                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 # SCT conditions setups
@@ -124,13 +126,13 @@ sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ConfigurationC
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetSCT_ClusteringTool",
-                                                    OutputLevel = DEBUG,
+                                                    OutputLevel = INFO,
                                                     globalPosAlg = InDetClusterMakerTool,
                                                     timeBins = "01X",
                                                     conditionsTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool())
 from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
 InDetSCT_Clusterization = InDet__SCT_Clusterization(name = "InDetSCT_Clusterization",
-                                                    OutputLevel = DEBUG,
+                                                    OutputLevel = INFO,
                                                     clusteringTool = InDetSCT_ClusteringTool,
                                                     conditionsTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool(),
                                                     DataObjectName = "SCT_RDOs",
@@ -144,11 +146,11 @@ topSequence += InDetSCT_Clusterization
 # Set up SCT AxAOD converters
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_RawDataToxAOD
 xAOD_SCT_RawDataToxAOD = SCT_RawDataToxAOD(name = "SCTxAOD_SCT_RawDataToxAOD",
-                                           OutputLevel = DEBUG)
+                                           OutputLevel = INFO)
 topSequence += xAOD_SCT_RawDataToxAOD
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
 xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD(name = "SCTxAOD_SCT_PrepDataToxAOD",
-                                             OutputLevel = DEBUG,
+                                             OutputLevel = INFO,
                                              UseTruthInfo = False,
                                              WriteSDOs = False)
 topSequence += xAOD_SCT_PrepDataToxAOD
@@ -167,12 +169,39 @@ SCT_ConditionsSummaryTool.ConditionsTools=[sct_ConfigurationConditionsToolSetup.
                                            sct_FlaggedConditionToolSetup.getTool().getFullName()]
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 topSequence += SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)
+if numThreads >= 2:
+    topSequence.SCT_ConditionsSummaryTestAlg.Cardinality = numThreads
+
+# Set up space point formation
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+    from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+    condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
+InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
+InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
+                                                                  SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
+                                                                  PixelsClustersName     = "",
+                                                                  SCT_ClustersName       = "SCT_Clusters",
+                                                                  SpacePointsPixelName   = "",
+                                                                  SpacePointsSCTName     = "SCT_SpacePoints",
+                                                                  SpacePointsOverlapName = "OverlapSpacePoints",
+                                                                  ProcessPixels          = False,
+                                                                  ProcessSCTs            = True,
+                                                                  ProcessOverlaps        = False,
+                                                                  OverrideBeamSpot       = True)
+if numThreads >= 2:
+    InDetSiTrackerSpacePointFinder.Cardinality = numThreads
+topSequence += InDetSiTrackerSpacePointFinder
 
 # Print algorithms
-print topSequence
+if doPrint:
+    print topSequence
 
 # Set the number of events to be processed
-theApp.EvtMax = 20
+theApp.EvtMax = 10
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
@@ -182,4 +211,3 @@ ServiceMgr.MessageSvc.OutputLevel = INFO
 if numThreads >= 2:
     from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
     sctCondAlgCardinality.set(numThreads)
-

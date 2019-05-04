@@ -36,8 +36,14 @@
 #include <QMimeData>
 #include <QDrag>
 
-// ATLAS
-#include "GaudiKernel/SystemOfUnits.h"
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
 
 // Misc
 #include <iostream>
@@ -726,7 +732,7 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
   const bool relative = m_d->ui_customsettings.radioButton_relativeScale->isChecked();
   const bool logscale = m_d->ui_customsettings.checkBox_logscale->isChecked();
 
-  double highestvisibleenergy=0*Gaudi::Units::eV;
+  double highestvisibleenergy=0*SYSTEM_OF_UNITS::eV;
 
 ////  foreach(VP1StdCollection* stdcol, m_d->collWidget->visibleStdCollections()) {
 ////    VP1CaloClusterCollection* col = dynamic_cast<VP1CaloClusterCollection*>(stdcol);
@@ -750,17 +756,16 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 
   ////  }
 
-
   if (m_d->gui_mostEnergetic!=highestvisibleenergy) {
     m_d->gui_mostEnergetic=highestvisibleenergy;
-    m_d->ui_customsettings.label_current_most_energetic->setText("Current value: "+QString::number(m_d->gui_mostEnergetic/Gaudi::Units::GeV,'f',2)+" GeV");
+    m_d->ui_customsettings.label_current_most_energetic->setText("Current value: "+QString::number(m_d->gui_mostEnergetic/SYSTEM_OF_UNITS::GeV,'f',2)+" GeV");
   }
 
-  const double length = (relative ? m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic->value()*Gaudi::Units::m
-			 : m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value()*Gaudi::Units::m );
-  const double energy = relative ? highestvisibleenergy : 10*Gaudi::Units::GeV;
-  const double minscale = 1*Gaudi::Units::mm/(1*Gaudi::Units::GeV);
-  const double maxscale = 1*Gaudi::Units::m/(1*Gaudi::Units::MeV);
+  const double length = (relative ? m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic->value()*SYSTEM_OF_UNITS::m
+			 : m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value()*SYSTEM_OF_UNITS::m );
+  const double energy = relative ? highestvisibleenergy : 10*SYSTEM_OF_UNITS::GeV;
+  const double minscale = 1*SYSTEM_OF_UNITS::mm/(1*SYSTEM_OF_UNITS::GeV);
+  const double maxscale = 1*SYSTEM_OF_UNITS::m/(1*SYSTEM_OF_UNITS::MeV);
   double scl;
   if (energy<=0)
     scl = maxscale;

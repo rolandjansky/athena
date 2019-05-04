@@ -19,18 +19,17 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def PixelGeometryCfg( flags ):
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  acc,geoModelSvc = GeoModelCfg( flags )
+  acc = GeoModelCfg( flags )
+  geoModelSvc=acc.getPrimary()
   from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
   acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
   from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
   pixelDetectorTool = PixelDetectorTool("PixelDetectorTool")
   from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
   bcmTool = InDetDD__BCM_Builder()
-  acc.addPublicTool( bcmTool )
   pixelDetectorTool.BCM_Tool = bcmTool
   from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
   blmTool = InDetDD__BLM_Builder()
-  acc.addPublicTool( blmTool )
   pixelDetectorTool.BLM_Tool = blmTool
   if flags.GeoModel.Run=="RUN4":
       from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC

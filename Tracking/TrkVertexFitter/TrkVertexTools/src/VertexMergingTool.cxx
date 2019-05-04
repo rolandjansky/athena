@@ -5,7 +5,6 @@
 #include "TrkVertexTools/VertexMergingTool.h"
 #include "TrkVertexFitterInterfaces/IVertexWeightCalculator.h" 
 #include "VxVertex/VxTrackAtVertex.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include <vector> 
 
 namespace Trk{
@@ -13,12 +12,10 @@ namespace Trk{
    //constructor
   VertexMergingTool::VertexMergingTool ( const std::string& t, const std::string& n, const IInterface*  p )
           : AthAlgTool ( t,n,p ),
-	    m_iBeamCondSvc("BeamCondSvc",n),
 	    m_iVertexFitter("Trk::AdaptiveVertexFitter"),
             m_useBeamConstraint(false)
   {
     declareInterface<IVertexMergingTool> ( this );
-    declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("useBeamConstraint",m_useBeamConstraint);
   }
@@ -35,20 +32,12 @@ namespace Trk{
       return StatusCode::FAILURE;
     } 
     
-    if (m_iBeamCondSvc.retrieve().isFailure())
-    {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return StatusCode::FAILURE;
-    }
+     ATH_CHECK(m_beamSpotKey.initialize());
     
      ATH_MSG_DEBUG("Re-merging tool initialization successful");
      return StatusCode::SUCCESS;
    }///EndOfInitialize
 
-   StatusCode VertexMergingTool::finalize()
-   {
-     return StatusCode::SUCCESS;
-   }
 
   std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexMergingTool::mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) {
 
@@ -57,10 +46,12 @@ namespace Trk{
     //if beamspot constraint was requested, get it now
     xAOD::Vertex theconstraint;
     if (m_useBeamConstraint) {
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
       theconstraint = xAOD::Vertex(); // Default constructor creates a private store
-      theconstraint.setPosition( m_iBeamCondSvc->beamVtx().position() );
-      theconstraint.setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
-      theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
+      theconstraint.setPosition( beamSpotHandle->beamVtx().position() );
+      theconstraint.setCovariancePosition( beamSpotHandle->beamVtx().covariancePosition() );
+      theconstraint.setFitQuality( beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF() );
     }
 
     //new output containers to be filled

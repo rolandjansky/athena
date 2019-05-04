@@ -42,7 +42,7 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 StatusCode TrigJetHypoToolMT::initialize(){
   CHECK(m_evt.initialize());
   HypoTreeInfoCollector collector;
-  m_helper->getDescription(collector);
+  CHECK(m_helper->getDescription(collector));
   auto s = collector.toString();
   
   for(const auto& l : lineSplitter(s)){

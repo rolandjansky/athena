@@ -4,6 +4,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
 from CSC_Digitization.CSC_DigitizationConf import (
     CscDigitizationTool, CscDigitBuilder,
 )
@@ -33,6 +35,10 @@ def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
         kwargs.setdefault("LastXing",  CSC_LastXing())
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.BkgPrefix + "CSC_SDO")
+    else:
+        kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
     kwargs.setdefault("pedestal", 0.0)
     kwargs.setdefault("WindowLowerOffset", -25.0)
     kwargs.setdefault("WindowUpperOffset",  25.0)
@@ -46,8 +52,10 @@ def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
 
 def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitBuilder algorithm"""
-    acc = CSC_DigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    acc.merge(CscCoolStrSvcCfg(flags))
+    tool = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     return acc
     
@@ -64,8 +72,10 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**k
 
 def CSC_OverlayDigitBuilderCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
     """Return a ComponentAccumulator with CscDigitBuilder algorithm configured for Overlay"""
-    acc = CSC_OverlayDigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    acc.merge(CscCoolStrSvcCfg(flags))
+    tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     return acc
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@
 #ifndef SiSpacePointsProSeedITK_h
 #define SiSpacePointsProSeedITK_h
 
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
+#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 
 namespace InDet {
 

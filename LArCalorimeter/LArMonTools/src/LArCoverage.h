@@ -1,3 +1,4 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -11,7 +12,6 @@
 #ifndef LARMONTOOLS_LARCOVERAGE_H
 #define LARMONTOOLS_LARCOVERAGE_H
 
-#include "SelectAllLArRawChannels.h"
 #include "LArOnlineIDStrHelper.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -22,19 +22,15 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "CaloInterface/ICaloNoiseTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "EventContainers/SelectAllObject.h" 
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
+#include "CaloConditions/CaloNoise.h"
 
 #include <string>
 #include <map>
@@ -74,7 +70,7 @@ class LArCoverage: public ManagedMonitorToolBase
    *  Overwrite dummy method from MonitorToolBase */
   StatusCode procHistograms();
 
- protected:
+private:
 
   // services
   const LArOnlineID* m_LArOnlineIDHelper;
@@ -82,7 +78,6 @@ class LArCoverage: public ManagedMonitorToolBase
   const LArFCAL_ID*  m_LArFCAL_IDHelper;
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
-  const CaloDetDescrManager* m_CaloDetDescrMgr;
 
   LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;
@@ -90,14 +85,11 @@ class LArCoverage: public ManagedMonitorToolBase
   ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel tools */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
- /** Handle to caloNoiseTool */
-  ToolHandle < ICaloNoiseTool > m_caloNoiseTool ;
 
+  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey;
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
-
-
- private:
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
 
   // To retrieve bad channel DB keywords 
   int DBflag(HWIdentifier onID);
@@ -114,14 +106,10 @@ class LArCoverage: public ManagedMonitorToolBase
   void FixEmptyBins();
 
   // Properties
-  std::string m_LArDigitContainerKey;
-  std::string m_channelKey;
-  int m_nsigma;
   int m_nevents;
 
   // Other things
   int m_eventsCounter;
-  std::map<HWIdentifier,int> m_noisycells;
 
   // Coverage Maps 
   TH2I_LW* m_hCoverageEMBA[4];  TH2I_LW* m_hCoverageEMBC[4];   
@@ -144,6 +132,16 @@ class LArCoverage: public ManagedMonitorToolBase
   TH2I_LW*   m_hBadChannelsBarrelC;
   TH2I_LW*   m_hBadChannelsEndcapA;
   TH2I_LW*   m_hBadChannelsEndcapC;
+
+
+  const std::array<CaloGain::CaloGain,CaloCell_Base_ID::NSUBCALO> m_highestGain{ 
+      CaloGain::LARHIGHGAIN,     //LAREM
+      CaloGain::LARMEDIUMGAIN,   //LARHEC
+      CaloGain::LARHIGHGAIN,     //LARFCAL
+      CaloGain::TILEHIGHHIGH,    //TILE
+      CaloGain::LARHIGHGAIN      //LARMINIFCAL   
+	};
+
 
 };
 

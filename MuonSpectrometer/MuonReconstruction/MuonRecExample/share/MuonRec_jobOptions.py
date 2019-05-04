@@ -103,10 +103,11 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool("MCTruthClassifier")
 
    try:
-       from RecExConfig.InputFilePeeker import inputFileSummary
-       truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
+       from PyUtils.MetaReaderPeeker import metadata
+       truthStrategy = metadata['TruthStrategy']
        if truthStrategy in ['MC15','MC18','MC18LLP']:
-           topSequence.MuonTruthDecorationAlg.BarcodeOffset=10000000
+           topSequence.MuonTruthDecorationAlg.BarcodeOffset = 10000000
+
    except:
        print "Failed to read /Simulation/Parameters/ metadata"
        pass
@@ -147,10 +148,10 @@ if muonRecFlags.doStandalone():
             topSequence.MuonStandaloneDetailedTrackTruthMaker.doNSW=True
 
         try:
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
-            if truthStrategy in ['MC15','MC18','MC18LLP']:
-                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset=10000000
+            from PyUtils.MetaReaderPeeker import metadata
+            truthStrategy = metadata['TruthStrategy']
+            if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
+                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
         except:
             print "Failed to read /Simulation/Parameters/ metadata"
             pass

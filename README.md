@@ -1,3 +1,7 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2641997.svg)](https://doi.org/10.5281/zenodo.2641997)
+
+
+
 ATLAS Offline software
 ========================
 
@@ -34,3 +38,4 @@ Links
 - The [software documentation](https://atlassoftwaredocs.web.cern.ch) page has some tutorials etc
 - The git repository is [here](https://gitlab.cern.ch/atlas/athena)
 - And the Doxygen code documentation can be found [here](https://atlas-sw-doxygen.web.cern.ch/atlas-sw-doxygen/atlas_22.0.X-DOX/docs/html/index.html)
+- To cite Athena, you can use the following zenodo [DOI](https://zenodo.org/record/2641997)

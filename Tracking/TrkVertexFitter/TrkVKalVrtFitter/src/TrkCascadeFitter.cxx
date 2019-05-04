@@ -15,7 +15,7 @@
 #include<iostream>
 
 namespace Trk {
-    extern int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+    extern int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    const std::vector< std::vector<int> > &vertexDefinition,
                    const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
@@ -103,7 +103,7 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
       tmpMcnst.Mass     =  massConstraint;
       tmpMcnst.VRT      =  new_vID;
       for(it=0; it<NTRK; it++)tmpMcnst.trkInVrt.push_back(it);
-      m_partMassCnstForCascade.push_back(tmpMcnst);
+      m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
     }
 //
 //
@@ -114,7 +114,7 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
     for(it=0; it<NTRK; it++){
        newV.trkInVrt.push_back(it);
     }
-    m_cascadeVList.push_back(newV);
+    m_cascadeVList.push_back(std::move(newV));
 //--------------------------------------------------------------  
     return new_vID;
 }
@@ -165,7 +165,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
       tmpMcnst.Mass     =  massConstraint;
       tmpMcnst.VRT      =   new_vID;
       for(int it=0; it<NTRK; it++)tmpMcnst.trkInVrt.push_back(it+presentNT);
-      m_partMassCnstForCascade.push_back(tmpMcnst);
+      m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
     }
 //
 //
@@ -174,7 +174,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
     for(int it=0; it<NTRK; it++){
        newV.trkInVrt.push_back(it+presentNT);
     }
-    m_cascadeVList.push_back(newV);
+    m_cascadeVList.push_back(std::move(newV));
 //--------------------------------------------------------------  
     return new_vID;
 }
@@ -326,10 +326,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        unsigned int indexFMP;
        for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) {
 	  if ((*i_ntrk)->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)){
-            if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is discovered. Use it."<<'\n';
+            ATH_MSG_DEBUG("FirstMeasuredPoint on track is discovered. Use it.");
 	    baseInpTrk.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
           }else{
-            if(msgLvl(MSG::INFO))msg()<< "No FirstMeasuredPoint on track in CascadeFitter. Stop fit"<<'\n';
+            ATH_MSG_DEBUG("No FirstMeasuredPoint on track in CascadeFitter. Stop fit");
             { CLEANCASCADE();  return 0; }
           }	      
        }
@@ -471,7 +471,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          //std::cout<<"pse="; for(int I=0; I<(int)indexV.size(); I++)std::cout<<indexV[I]; std::cout<<'\n';
          IERR = setCascadeMassConstraint(*(m_vkalFitControl->getCascadeEvent()), index , indexT, indexV, m_partMassCnstForCascade[ic].Mass); if(IERR)break;
        }
-       msg(MSG::DEBUG)<<"Setting compressed mass constraints ierr="<<IERR<<endmsg;
+       ATH_MSG_DEBUG("Setting compressed mass constraints ierr="<<IERR);
        if(IERR){ CLEANCASCADE(); return 0;}
 //
 //--------------------------- Refit
@@ -587,12 +587,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //
 //-------------------------------------Saving
 //
-    msg(MSG::DEBUG)<<"Now save results" << endmsg;
-    //CLHEP::HepSymMatrix VrtCovMtx(3,0);  
+    ATH_MSG_DEBUG("Now save results");
     Amg::MatrixX VrtCovMtx(3,3);
     Trk::Perigee * measPerigee;
-//    std::vector<Trk::VxCandidate*> vxVrtList;    //VK now is replaced by xAOD::Vertex, see below
-    std::vector<xAOD::Vertex*> xaodVrtList;
+    std::vector<xAOD::Vertex*> xaodVrtList(0);
     double phi, theta, invP, mom, fullChi2=0.;
 
     int NDOF=getCascadeNDoF(); if(NDOFsqueezed) NDOF=NDOFsqueezed; 
@@ -608,19 +606,22 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
       VrtCovMtx(2,1) = VrtCovMtx(1,2);
       double Chi2=0; int NTrInV=0;
       for(it=0; it<(int)m_vertexDefinition[iv].size(); it++) { Chi2 += particleChi2[m_vertexDefinition[iv][it]]; NTrInV++ ;};
-//      Trk::RecVertex * tmpRecV = new Trk::RecVertex(FitVertex, VrtCovMtx, NDOF, Chi2); 
       fullChi2+=Chi2;
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=  xAOD::Vertex creation
+      xAOD::Vertex * tmpXAODVertex=new xAOD::Vertex();
+      tmpXAODVertex->makePrivateStore();
+      tmpXAODVertex->setPosition(FitVertex);
+      tmpXAODVertex->setFitQuality(Chi2, (float)NDOF);
+      std::vector<VxTrackAtVertex> & tmpVTAV=tmpXAODVertex->vxTrackAtVertex();
+      tmpVTAV.clear();
+
       int NRealT=m_vertexDefinition[iv].size();
-    //std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
-      std::vector<Trk::VxTrackAtVertex> tmpVTAV;
-      //VK CLHEP::HepSymMatrix genCOV( m_vertexDefinition[iv].size()*3+3, 0 );   //Migration                       // Fill cov. matrix for vertex
       Amg::MatrixX genCOV( NRealT*3+3, NRealT*3+3 );     // Fill cov. matrix for vertex
       for( it=0; it<NRealT*3+3; it++){                                 // (X,Y,Z,px1,py1,....pxn,pyn,pzn)
         for( jt=0; jt<=it; jt++){                                      // 
            genCOV(it,jt) = genCOV(jt,it) = fittedCovariance[iv][it*(it+1)/2+jt];      // for real tracks only
       } }                                                              // (first in the list)
-      //VK CLHEP::HepMatrix *fullDeriv=0;                                 // full derivative matrix for ExtendedVxCandidate
       Amg::MatrixX *fullDeriv=0;
       if( m_makeExtendedVertex ){
          //VK fullDeriv=new CLHEP::HepMatrix( NRealT*3+3, NRealT*3+3, 0); // matrix is filled by zeros
@@ -640,7 +641,6 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          theta=acos( Pz/mom );
          invP = - m_ich[m_vertexDefinition[iv][it]] / mom;   // Change charge sign according to ATLAS
 //  d(Phi,Theta,InvP)/d(Px,Py,Pz)  -  Perigee vs summary momentum
-         //VK CLHEP::HepMatrix tmpDeriv( 5, NRealT*3+3, 0);                            // matrix is filled by zeros
          Amg::MatrixX tmpDeriv( 5, NRealT*3+3);
 	 tmpDeriv.setZero();                            // matrix is filled by zeros
          tmpDeriv(0,1) = -sin(phi);                     // Space derivatives
@@ -657,60 +657,16 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          tmpDeriv(2+2,3*it+3+0) = -Px/(mom*mom) * invP;  //dInvP/dPx
          tmpDeriv(2+2,3*it+3+1) = -Py/(mom*mom) * invP;  //dInvP/dPy
          tmpDeriv(2+2,3*it+3+2) = -Pz/(mom*mom) * invP;  //dInvP/dPz
-/*/ Old CLHEP---
-         tmpDeriv(1,1) = -sin(phi);                     // Space derivatives
-         tmpDeriv(1,2) =  cos(phi);
-         tmpDeriv(2,1) = -cos(phi)/tan(theta);
-         tmpDeriv(2,2) = -sin(phi)/tan(theta);
-         tmpDeriv(2,3) =  1.;
-         tmpDeriv(2+1,3*it+3+1) = -Py/Pt/Pt;             //dPhi/dPx
-         tmpDeriv(2+1,3*it+3+2) =  Px/Pt/Pt;             //dPhi/dPy
-         tmpDeriv(2+1,3*it+3+3) =  0;                    //dPhi/dPz
-         tmpDeriv(2+2,3*it+3+1) =  Px*Pz/(Pt*mom*mom);   //dTheta/dPx
-         tmpDeriv(2+2,3*it+3+2) =  Py*Pz/(Pt*mom*mom);   //dTheta/dPy
-         tmpDeriv(2+2,3*it+3+3) = -Pt/(mom*mom);         //dTheta/dPz
-         tmpDeriv(2+3,3*it+3+1) = -Px/(mom*mom) * invP;  //dInvP/dPx
-         tmpDeriv(2+3,3*it+3+2) = -Py/(mom*mom) * invP;  //dInvP/dPy
-         tmpDeriv(2+3,3*it+3+3) = -Pz/(mom*mom) * invP;  //dInvP/dPz
-*/
-//----------  Here for CLHEP sub(minrow,maxrow,mincol,maxcol)
-//         if( m_makeExtendedVertex )(*fullDeriv).sub(3*it+3+1,3*it+3+1,tmpDeriv.sub(3,5,3*it+3+1,3*it+3+3));
 //----------  Here for Eigen block(startrow,startcol,sizerow,sizecol)
          if( m_makeExtendedVertex )(*fullDeriv).block(3*it+3+0,3*it+3+0,3,3) = tmpDeriv.block(2,3*it+3+0,3,3);
 //----------
 	 AmgSymMatrix(5) *tmpCovMtx = new AmgSymMatrix(5);                      // New Eigen based EDM
 	 (*tmpCovMtx) = genCOV.similarity(tmpDeriv);                            // New Eigen based EDM
          measPerigee =  new Perigee( 0.,0., phi, theta, invP, PerigeeSurface(FitVertex), tmpCovMtx );  // New Eigen based EDM
-	    //new Trk::ErrorMatrix(new Trk::CovarianceMatrix( genCOV.similarity(tmpDeriv) )) );  //VK Old track EDM 
-//
-//--Trk::VxCandidate---save pointer to VxTrackAtVertex 
-//         Trk::VxTrackAtVertex *tmpPointer = new Trk::VxTrackAtVertex( m_ich[m_vertexDefinition[iv][it]], measPerigee ) ;
-//         ElementLink<Trk::TrackParticleBaseCollection> TEL;  
-//         TEL.setElement( (Trk::TrackParticleBase*) m_partListForCascade[m_vertexDefinition[iv][it]]);
-//         Trk::LinkToTrackParticleBase * ITL = new Trk::LinkToTrackParticleBase(TEL); 
-//         tmpPointer->setOrigTrack(ITL);                                  //pointer to initial TrackParticleBase
-//         tmpPointer->setWeight(1.);
-//         tmpVTAV->push_back( tmpPointer );
-//--xAOD::Vertex--- save VxTrackAtVertex directly 
-         tmpVTAV.emplace_back(  m_ich[m_vertexDefinition[iv][it]], measPerigee ) ;
-       }
-//-------------------------------------------------------------- Trk::VxCandidate creation
-//       Trk::VxCandidate* tmpVx;
-//       if( m_makeExtendedVertex ){
-//  	      Amg::MatrixX *tmpCovMtx = new Amg::MatrixX(NRealT*3+3,NRealT*3+3);                      // New Eigen based EDM
-//              (*tmpCovMtx)=genCOV.similarity(*fullDeriv);
-//              tmpVx = new ExtendedVxCandidate(*tmpRecV,*tmpVTAV, tmpCovMtx  );                  // New Eigen based EDM
-//	              //new ErrorMatrix(new CovarianceMatrix(  genCOV.similarity(*fullDeriv)  ))  ); //VK Old track EDM 
-//	              delete fullDeriv;
-//       }else{ tmpVx = new VxCandidate(*tmpRecV,*tmpVTAV);    }
-//       vxVrtList.push_back(tmpVx);                          //VK Save Trk::VxCandidate
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=  xAOD::Vertex creation
-       xAOD::Vertex * tmpXAODVertex=new xAOD::Vertex();
-       tmpXAODVertex->makePrivateStore();
-       tmpXAODVertex->setPosition(FitVertex);
-       tmpXAODVertex->setFitQuality(Chi2, (float)NDOF);
-       std::vector<float> floatErrMtx;
-       if( m_makeExtendedVertex ) {
+         tmpVTAV.emplace_back( particleChi2[m_vertexDefinition[iv][it]] , measPerigee ) ;
+      }
+      std::vector<float> floatErrMtx;
+      if( m_makeExtendedVertex ) {
   	 Amg::MatrixX tmpCovMtx(NRealT*3+3,NRealT*3+3);                      // New Eigen based EDM
          tmpCovMtx=genCOV.similarity(*fullDeriv);
          floatErrMtx.resize((NRealT*3+3)*(NRealT*3+3+1)/2);
@@ -719,27 +675,25 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
            for(int j=0;j<=i;j++){
                floatErrMtx.at(ivk++)=tmpCovMtx(i,j);
            }
-	 }
-       }else{
+         }
+      }else{
          floatErrMtx.resize(6);
          for(int i=0; i<6; i++) floatErrMtx[i]=covVertices[iv][i];
-       }
-       tmpXAODVertex->setCovariance(floatErrMtx);
-       std::vector<VxTrackAtVertex> & xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
-       xaodVTAV.swap(tmpVTAV);
-       for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
+      }
+      tmpXAODVertex->setCovariance(floatErrMtx);
+      for(int itvk=0; itvk<NRealT; itvk++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;
-	  if(itvk < (int)m_cascadeVList[iv].trkInVrt.size()){
-	    TEL.setElement( m_partListForCascade[ m_cascadeVList[iv].trkInVrt[itvk] ] );
-	  }else{
-	    TEL.setElement( 0 );
-	  }
+          if(itvk < (int)m_cascadeVList[iv].trkInVrt.size()){
+            TEL.setElement( m_partListForCascade[ m_cascadeVList[iv].trkInVrt[itvk] ] );
+          }else{
+            TEL.setElement( 0 );
+          }
           tmpXAODVertex->addTrackAtVertex(TEL,1.);
-       }
-       xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
+      }
+      xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
-       delete fullDeriv;   //Mandatory cleaning
+      delete fullDeriv;   //Mandatory cleaning
     }
 //
 //  Save momenta of all particles including combined at vertex positions
@@ -761,8 +715,8 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
         for( jt=0; jt<=it; jt++){
            COV(it,jt) = COV(jt,it) = fittedCovariance[iv][it*(it+1)/2+jt];
       } }
-      particleMoms.push_back( tmpMoms );
-      particleCovs.push_back( COV );
+      particleMoms.push_back( std::move(tmpMoms) );
+      particleCovs.push_back( std::move(COV) );
       allFitPrt += NTrkF;
     }
 //
@@ -786,7 +740,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //
 //
 //    VxCascadeInfo * recCascade= new VxCascadeInfo(vxVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
-    VxCascadeInfo * recCascade= new VxCascadeInfo(xaodVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
+    VxCascadeInfo * recCascade= new VxCascadeInfo(std::move(xaodVrtList),std::move(particleMoms),std::move(particleCovs), NDOF ,fullChi2);
     recCascade->setFullCascadeCovariance(FULL);
     CLEANCASCADE();
     return recCascade;
@@ -840,7 +794,7 @@ StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
        tmpMcnst.pseudoInVrt.push_back( pseudotracksInConstraint[ivc] );
     }
 
-    m_partMassCnstForCascade.push_back(tmpMcnst);
+    m_partMassCnstForCascade.push_back(std::move(tmpMcnst));
   
     return StatusCode::SUCCESS;
 }

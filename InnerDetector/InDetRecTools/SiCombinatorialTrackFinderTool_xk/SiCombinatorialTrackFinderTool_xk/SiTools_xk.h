@@ -44,14 +44,14 @@ namespace InDet{
       
       const Trk::MagneticFieldProperties& fieldTool  () const {return m_fieldtool  ;}
 
-      Trk::IPatternParametersPropagator*  propTool   () const {return m_proptool   ;}
-      Trk::IPatternParametersUpdator*     updatorTool() const {return m_updatortool;}
-      MagField::IMagFieldSvc*             magfield   () const {return m_fieldService;}  
+      const Trk::IPatternParametersPropagator*  propTool   () const {return m_proptool   ;}
+      const Trk::IPatternParametersUpdator*     updatorTool() const {return m_updatortool;}
+      const MagField::IMagFieldSvc*             magfield   () const {return m_fieldService;}  
 
-      Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
-      Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
-      IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
-      IInDetConditionsTool*               sctcond    () const {return m_sctcond    ;}
+      const Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
+      const Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
+      const IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
+      const IInDetConditionsTool*               sctcond    () const {return m_sctcond    ;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}

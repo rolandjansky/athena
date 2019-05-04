@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FEI4SimTool.h"
@@ -45,6 +45,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
   const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
+  Identifier moduleID = pixelId->wafer_id(chargedDiodes.element()->identify());
 
   int maxFEI4SmallHit = 2;
   int overflowToT     = 16;
@@ -54,6 +55,8 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
+
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   int nSmallHitsFEI4 = 0;
@@ -67,10 +70,13 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    // Apply analogu threshold, timing simulation
-    double th0  = m_pixelCalibSvc->getThreshold(diodeID);
+    int circ = m_pixelCabling->getFE(&diodeID,moduleID);
+    int type = m_pixelCabling->getPixelType(diodeID);
 
-    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    // Apply analogu threshold, timing simulation
+    double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
+
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
     if (charge>threshold) {
       int bunchSim;
@@ -82,7 +88,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       }
 
       if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                  {  SiHelper::SetBunch((*i_chargedDiode).second,bunchSim, &msg()); }
+      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
     } 
     else {
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
@@ -92,8 +98,8 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (barrel_ec!=0 && charge<m_EndcapAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
-    double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
-    double totsig = m_pixelCalibSvc->getTotRes(diodeID,tot);
+    double tot    = calibData->getToT((int)moduleHash, circ, type, charge);
+    double totsig = calibData->getTotRes((int)moduleHash, circ, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,tot,totsig));
 
     const PixelID* pixelId = static_cast<const PixelID*>(chargedDiodes.element()->getIdHelper());

@@ -23,8 +23,10 @@
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
-#include "VP1Utils/VP1SGContentsHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1SGAccessHelper.h"
+  #include "VP1Utils/VP1SGContentsHelper.h"
+#endif // BUILDVP1LIGHT
 
 //Qt
 #include <QStringList>
@@ -42,16 +44,35 @@
 //#include "Inventor/nodes/SoLightModel.h"
 #include <Inventor/nodes/SoTexture2.h>
 
-
 #include "PathResolver/PathResolver.h"
 
+#ifdef BUILDVP1LIGHT
+  #include <QSettings>
+  #include "xAODRootAccess/Init.h"
+  #include "xAODRootAccess/TEvent.h"
+#endif // BUILDVP1LIGHT
 
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
 
 //____________________________________________________________________
-QStringList IParticleCollHandle_Jet::availableCollections( IVP1System*sys )
-{
-  return VP1SGContentsHelper(sys).getKeys<xAOD::JetContainer>();
-}
+#if defined BUILDVP1LIGHT
+  QStringList IParticleCollHandle_Jet::availableCollections( IVP1System*sys )
+  {
+    return sys->getObjectList(xAOD::Type::Jet);
+  }
+#else
+  QStringList IParticleCollHandle_Jet::availableCollections( IVP1System*sys )
+  {
+    return VP1SGContentsHelper(sys).getKeys<xAOD::JetContainer>();
+  }
+#endif // BUILDVP1LIGHT
 
 //____________________________________________________________________
 class IParticleCollHandle_Jet::Imp {
@@ -67,6 +88,9 @@ public:
   IParticleCollHandle_Jet * theclass;
   int updateGUICounter;
   JetCollectionSettingsButton* collSettingsButton;
+  #ifdef BUILDVP1LIGHT
+    QStringList jetList;
+  #endif // BUILDVP1LIGHT
 
   // settings
   double scale = 1.0; // dummy value. The actual default value is set in the IParticleHandle_Jet::Imp class definition.
@@ -278,16 +302,16 @@ void IParticleCollHandle_Jet::setScale(const double& sca)
   if (m_d->scale == sca)
     return;
 
-  m_d->scale = std::max(1*Gaudi::Units::mm/(100*Gaudi::Units::GeV),
-  std::min(99*Gaudi::Units::m/(1*Gaudi::Units::MeV),
+  m_d->scale = std::max(1*SYSTEM_OF_UNITS::mm/(100*SYSTEM_OF_UNITS::GeV),
+  std::min(99*SYSTEM_OF_UNITS::m/(1*SYSTEM_OF_UNITS::MeV),
   //						m_d->collSettingsButton->lengthOf100GeV() * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
-  sca * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
+  sca * SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)));
 
   if (!isLoaded())
     return;
 
-  messageVerbose("Scale change: to "+str(m_d->scale/(Gaudi::Units::m/(100.0 * Gaudi::Units::GeV)))+" m/100GeV. Updating "+str(getHandlesList().count())+" jets");
-  std::cout << "Scale change: d->scale/(Gaudi::Units::m/(100.0*Gaudi::Units::GeV)))" <<  "m/100GeV. Updating " << getHandlesList().count() << " jets" << std::endl;
+  messageVerbose("Scale change: to "+str(m_d->scale/(SYSTEM_OF_UNITS::m/(100.0 * SYSTEM_OF_UNITS::GeV)))+" m/100GeV. Updating "+str(getHandlesList().count())+" jets");
+  std::cout << "Scale change: d->scale/(SYSTEM_OF_UNITS::m/(100.0*SYSTEM_OF_UNITS::GeV)))" <<  "m/100GeV. Updating " << getHandlesList().count() << " jets" << std::endl;
 
   largeChangesBegin();
   handleIterationBegin();
@@ -442,13 +466,32 @@ bool IParticleCollHandle_Jet::load()
   messageVerbose("loading Jet collection");
 
   //Get collection:
-  const xAOD::JetContainer * coll(0);
+  const xAOD::JetContainer * coll(nullptr);
+
+  #if defined BUILDVP1LIGHT
+    // // Get the name of the application:
+    // const char* appName = "VP1Light";
+
+    // // Initialize the environment:
+    // if( !xAOD::Init( appName ).isSuccess() ) {
+    //    message("Failed to execute xAOD::Init");
+    //    return false;
+    // }
+
+    // Retrieve objects from the event
+    if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
+      QString errMsg = "Failed to retrieve " + name();
+      message("Error: Could not retrieve collection with key="+name());
+       return false;
+    }
+  #else
   if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
     message("Error: Could not retrieve Jet collection with key="+name());
     return false;
   } else {
      messageDebug("Jet collection '"+name()+"' loaded");
   }
+  #endif // BUILDVP1LIGHT
 
 
   // // Retrieve the xAOD particles:

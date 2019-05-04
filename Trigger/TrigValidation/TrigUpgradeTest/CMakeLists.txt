@@ -61,13 +61,17 @@ _add_test( decodeBS EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)" PROPERT
 _add_test( calo_only_data EXTRA_PATTERNS "-s .*ERROR.*|FastCaloL2EgammaAlg.*REGTEST*" )
 _add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*" )
 _add_test( emu_newjo EXTRA_PATTERNS "-s TrigSignatureMo.*INFO HLT_.*" )
-_add_test( runMenuTest EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|.*FATAL.*|TrigSignatureMoniMT .*INFO.*" )
+_add_test( runMenuTest EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|(?\!IOVSvcTool).*FATAL.*|TrigSignatureMoniMT .*INFO.*" )
 _add_test( peb EXTRA_PATTERNS "-s obeysLB=.*robs=.*dets = |adds PEBInfo|TriggerSummary.*HLT_.*" )
 _add_test( dataScouting EXTRA_PATTERNS "-s obeysLB=.*robs=.*dets = |adds PEBInfo|TriggerSummary.*HLT_.*|Serialiser.*Type|Serialiser.*ROBFragments with IDs|{module.*words}" )
 _add_test( bjet_menuALLTE EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" )
 _add_test( met_fromCells EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromClusters EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
+_add_test( met_fromClustersPufit EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 _add_test( met_fromJets EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
+
+_add_test( calo_ringer_only_data POST_EXEC_SCRIPT nopost.sh)
+_add_test( ringer_chain POST_EXEC_SCRIPT nopost.sh)
 
 # ART-based tests:
 _add_test( full_menu_build POST_EXEC_SCRIPT "trig-art-result-parser.sh full_menu_build.log \"athena CheckLog RegTest\"" )

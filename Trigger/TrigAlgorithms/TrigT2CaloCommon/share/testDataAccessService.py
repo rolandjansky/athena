@@ -2,6 +2,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.doCaloOffsetCorrection = False
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence

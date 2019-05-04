@@ -33,13 +33,11 @@
 #include <vector>
 
 // Forward declarations
-class IInterface;
 class TH1I;
 class TH1F;
 class TH2F;
 class TProfile2D;
 class TProfile;
-class StatusCode;
 class SCT_ID;
 
 class SCTTracksMonTool : public ManagedMonitorToolBase {
@@ -47,33 +45,26 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   SCTTracksMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
   virtual ~SCTTracksMonTool() = default;
   //initialize
-  virtual StatusCode initialize() final;
+  virtual StatusCode initialize() override final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
   //@{
   ///Book histograms in initialization
-  virtual StatusCode bookHistogramsRecurrent();
-  virtual StatusCode bookHistograms();
+  virtual StatusCode bookHistogramsRecurrent() override final;
+  virtual StatusCode bookHistograms() override final;
   ///Fill histograms in each loop
-  virtual StatusCode fillHistograms() ;
+  virtual StatusCode fillHistograms() override final;
   ///process histograms at the end (we only use 'isEndOfRun')
-  virtual StatusCode procHistograms();
+  virtual StatusCode procHistograms() override final;
   ///helper function used in procHistograms
-  StatusCode checkHists(bool fromFinalize);
+  virtual StatusCode checkHists(bool fromFinalize) override final;
   //@} 
   
  private:
-  //@name typedefs centralised to enable easy changing of types
-  //@{
-  typedef TProfile2D* Prof2_t;
-  typedef TProfile* Prof_t;
-  typedef TH1F* H1_t;
-  typedef TH2F* H2_t;
-  typedef std::vector<Prof2_t> VecProf2_t;
-  typedef std::vector<H1_t> VecH1_t;
-  typedef std::vector<H2_t> VecH2_t;
-  //@}
   ///enumerated constant for the types of level 1 triggers, corresponds to the string m_triggerNames
   enum TriggerTypes {RNDM=0, BPTX, L1CAL, TGC, RPC, MBTS, COSM, CALIB, N_TRIGGER_TYPES };
+
+  ///Abbreviations for level 1 trigger types
+  static const std::string s_triggerNames[N_TRIGGER_TYPES];
 
   // Data members, which are not changed after initialization
   std::string m_stream{"/stat"};
@@ -86,9 +77,6 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   int m_nTracks_pos{0}; // This requires a care in AthenaMT.
   int m_numberOfEvents{0}; // This should be conveted to std::atomic_int in AthenaMT.
 
-  ///Abbreviations for level 1 trigger types
-  static const std::string s_triggerNames[N_TRIGGER_TYPES];
-
   //@name Histograms related members
   //@{
   TH1I* m_nTracks{nullptr};
@@ -98,49 +86,49 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   TH1F* m_totalPull[SCT_Monitoring::N_REGIONS]{};
 
   /// Pointer to 1D histogram of Number of SCT Clusters associated to any Track per Event
-  H1_t m_trk_nclu_totHisto{nullptr};
+  TH1F* m_trk_nclu_totHisto{nullptr};
 
   // Pointer to 1D histogram of number of tracks in each LB
-  H1_t m_tracksPerRegion{nullptr};
+  TH1F* m_tracksPerRegion{nullptr};
 
   //Pointer to profile histogram of track rates
-  Prof_t m_trackRate{nullptr};
+  TProfile* m_trackRate{nullptr};
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Track
-  H1_t m_trk_ncluHisto{nullptr};
+  TH1F* m_trk_ncluHisto{nullptr};
 
   /// Pointer to 1D histogram of Track chi2
-  H1_t m_trk_chi2{nullptr};
+  TH1F* m_trk_chi2{nullptr};
   
-  H1_t m_trk_N{nullptr};
+  TH1F* m_trk_N{nullptr};
 
   /// Pointer to 1D histogram of Track pt
-  H1_t m_trk_pt{nullptr};
+  TH1F* m_trk_pt{nullptr};
 
   /// Pointer to 1D histogram of Track d0
-  H1_t m_trk_d0{nullptr};
+  TH1F* m_trk_d0{nullptr};
 
   /// Pointer to 1D histogram of Track z0
-  H1_t m_trk_z0{nullptr};
+  TH1F* m_trk_z0{nullptr};
 
   /// Pointer to 1D histogram of Track eta
-  H1_t m_trk_eta{nullptr};
+  TH1F* m_trk_eta{nullptr};
   
   /// Pointer to 1D histogram of Track phi
-  H1_t m_trk_phi{nullptr};
+  TH1F* m_trk_phi{nullptr};
 
   /// Vector of pointers to profile histogram of residuals; 1 histo per layer and side
-  VecProf2_t m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TProfile2D*> m_psctresidualsHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to  histogram of residuals RMS; 1 histo per layer and side
-  VecH2_t m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH2F*> m_psctresidualsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to summary histogram of residuals; 1 histo per layer and side
-  VecH1_t m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F*> m_psctresiduals_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to profile histogram of pulls; 1 histo per layer and side
-  VecProf2_t m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TProfile2D*> m_psctpullsHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to  histogram of pulls RMS; 1 histo per layer and side
-  VecH2_t m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH2F*> m_psctpullsRMSHistoVector[SCT_Monitoring::N_REGIONS]{};
   /// Vector of pointers to summary histogram of pulls; 1 histo per layer and side
-  VecH1_t m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F*> m_psctpulls_summaryHistoVector[SCT_Monitoring::N_REGIONS]{};
   //@}
 
   /// Cut on number of SCT hits on track
@@ -194,13 +182,13 @@ class SCTTracksMonTool : public ManagedMonitorToolBase {
   float calculatePull(const float, const float, const float) const;
   
   ///Factory + register for the 2D histos, returns whether successfully registered
-  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector) const;
+  StatusCode h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TH2F*>& storageVector) const;
   
   ///Factory + register for the 2D profiles, returns whether successfully registered
-  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector) const;
+  StatusCode p2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TProfile2D*>& storageVector) const;
   
   ///Factory + register for the 1D histograms, returns whether successfully registered
-  StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, VecH1_t& storageVector) const;
+  StatusCode h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry, std::vector<TH1F*>& storageVector) const;
   //@}
 };
 

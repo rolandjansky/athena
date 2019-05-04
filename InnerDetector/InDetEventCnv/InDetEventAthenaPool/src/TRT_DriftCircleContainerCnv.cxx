@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DriftCircleContainerCnv.h"
@@ -66,9 +66,9 @@ StatusCode TRT_DriftCircleContainerCnv::initialize() {
 
 InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv::createTransient() {
 
-  const pool::Guid   p0_guid("A99630C5-3D7C-4DB4-9E6C-FC3CEF981895"); // before t/p split
-  const pool::Guid   p1_guid("42B48D79-AF4E-4D45-AAA9-A2BA5A033534"); // with TRT_DriftCircle_tlp1
-  const pool::Guid   p2_guid("36195EDE-941C-424B-81A1-E04C867C35D8"); // with TRT_DriftCircle_p2
+  static const pool::Guid   p0_guid("A99630C5-3D7C-4DB4-9E6C-FC3CEF981895"); // before t/p split
+  static const pool::Guid   p1_guid("42B48D79-AF4E-4D45-AAA9-A2BA5A033534"); // with TRT_DriftCircle_tlp1
+  static const pool::Guid   p2_guid("36195EDE-941C-424B-81A1-E04C867C35D8"); // with TRT_DriftCircle_p2
   ATH_MSG_DEBUG("createTransient(): main converter");
   InDet::TRT_DriftCircleContainer* p_collection(0);
   if( compareClassGuid(p2_guid) ) {

@@ -24,10 +24,10 @@ SCT_FlaggedCondDataCnv::createPersistent(SCT_FlaggedCondData* transCont) {
 SCT_FlaggedCondData*
 SCT_FlaggedCondDataCnv::createTransient() {
   MsgStream log(msgSvc(), "SCT_FlaggedCondDataCnv");
-  const pool::Guid p1_guid("0C10E502-F02B-440B-9E8F-6A8C31915D7C");
+  static const pool::Guid p1_guid("0C10E502-F02B-440B-9E8F-6A8C31915D7C");
   if (compareClassGuid(p1_guid)) {
-    /** using auto_ptr ensures deletion of the persistent object */
-    std::auto_ptr<SCT_FlaggedCondData_p1> col_vect( poolReadObject< SCT_FlaggedCondData_p1 >() );
+    /** using unique_ptr ensures deletion of the persistent object */
+    std::unique_ptr<SCT_FlaggedCondData_p1> col_vect( poolReadObject< SCT_FlaggedCondData_p1 >() );
     SCT_FlaggedCondDataCnv_p1 cnv;
     std::unique_ptr<SCT_FlaggedCondData> trasnObj = std::make_unique<SCT_FlaggedCondData>();
     cnv.persToTrans(col_vect.get(), trasnObj.get(), log);

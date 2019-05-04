@@ -31,8 +31,9 @@ AllowedEventBuildingIdentifiers.extend(['dataScoutingElectronTest','pebtestthree
 ##################################################################
 if (doElectron):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
-
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence
+    from TrigUpgradeTest.InDetSetup import inDetSetup
+    
     inDetSetup()
     fastCaloStep= fastCaloMenuSequence("Ele")
     electronStep= electronMenuSequence()
@@ -64,7 +65,7 @@ if (doElectron):
 
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 
 
 ##########################################
@@ -97,7 +98,7 @@ for chain, decisionKey in chainToDecisionKeyDict.iteritems():
 ##########################################
 # EDM Maker
 ##########################################
-l1decoder = getSequence("L1DecoderTest")
+l1decoder = getSequence("L1Decoder")
 hltAllSteps = getSequence("HLTAllSteps")
 from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectViewMakers,collectDecisionObjects,triggerMergeViewsAndAddMissingEDMCfg
 hypos = collectHypos(hltAllSteps)
@@ -105,14 +106,14 @@ filters = collectFilters(hltAllSteps)
 viewMakers = collectViewMakers(hltAllSteps)
 decisionObjects = collectDecisionObjects(hypos,filters,l1decoder)
 edmMakerAlg = triggerMergeViewsAndAddMissingEDMCfg( [], hypos, viewMakers, decisionObjects )
-topSequence.hltTop += edmMakerAlg
+topSequence.HLTTop += edmMakerAlg
 
 # Add Electrons merger (somehow not created by triggerAddMissingEDMCfg above)
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 electronsMerger = HLTEDMCreator("electronsMerger")
 electronsMerger.TrigElectronContainerViews = [ "EMElectronViews" ]
-electronsMerger.TrigElectronContainerInViews = [ "Electrons" ]
-electronsMerger.TrigElectronContainer = [ "Electrons" ]
+electronsMerger.TrigElectronContainerInViews = [ "HLT_L2Electrons" ]
+electronsMerger.TrigElectronContainer = [ "HLT_L2Electrons" ]
 edmMakerAlg.OutputTools += [ electronsMerger ]
 
 # Make a list of HLT decision objects to be added to the ByteStream output
@@ -139,16 +140,16 @@ serialiser.addCollectionListToMainResult(decisionObjectsToRecord)
 
 # Serialise L2 calo clusters (in full result)
 serialiser.addCollectionListToMainResult([
-    "xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters",
-    "xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+    "xAOD::TrigEMClusterContainer_v1#HLT_L2CaloEMClusters",
+    "xAOD::TrigEMClusterAuxContainer_v2#HLT_L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
 ])
 
 # This is the Data Scouting part! Let's add L2 electrons to the main result AND to the "electron DS" result
 from TrigUpgradeTest.pebMenuDefs import dataScoutingResultIDFromName
 electronDSModuleIDs = [serialiser.fullResultID(), dataScoutingResultIDFromName('dataScoutingElectronTest')] # 0 is main (full) result; we get the other ID from the EDM configuration
 serialiser.addCollectionListToResults([
-    "xAOD::TrigElectronContainer_v1#Electrons",
-    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
+    "xAOD::TrigElectronContainer_v1#HLT_L2Electrons",
+    "xAOD::TrigElectronAuxContainer_v1#HLT_L2ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ], electronDSModuleIDs)
 
 ##### Result maker part 2 - stream tags #####
@@ -188,7 +189,7 @@ hltResultMakerTool.OutputLevel = DEBUG
 hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
 hltResultMakerAlg.ResultMaker = hltResultMakerTool
-topSequence.hltTop += hltResultMakerAlg
+topSequence.HLTTop += hltResultMakerAlg
 
 ##########################################
 # Some debug

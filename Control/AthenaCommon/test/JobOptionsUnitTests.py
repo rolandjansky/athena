@@ -89,7 +89,7 @@ class BasicConfigurableWorkingsTestCase( unittest.TestCase ):
       seq = AlgSequence( name + 'Sequence' )
       seq += HelloWorld
       getattr(seq,name).MyDouble = 2.71828
-      exec 'del seq.%s' % name
+      exec ('del seq.%s' % name)
       seq.setup()
 
       self.assert_( name not in JobOptionsSvc.getClients() )
@@ -167,7 +167,7 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       self.assertEqual( HelloWorld.MyDict,
          {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} )
       self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyDict',
-         "{'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'}" ) )
+         {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} ) )
       self.assertEqual( HelloWorld.MyTable, [(1, 1), (2, 4), (3, 9), (4, 16)] )
       self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyTable',
          "[(1, 1), (2, 4), (3, 9), (4, 16)]" ) )

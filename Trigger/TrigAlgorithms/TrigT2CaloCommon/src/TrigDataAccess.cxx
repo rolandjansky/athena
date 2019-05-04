@@ -33,20 +33,20 @@
 
 #include "ByteStreamData/ROBData.h"
 
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigDataAccess.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
-#include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 // Event Incident to get Event Info
 #include "GaudiKernel/IIncidentSvc.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run
@@ -146,26 +146,16 @@ StatusCode TrigDataAccess::initialize()
 	// luminosity tool
 	if ( m_applyOffsetCorrection ) {
 	  ATH_MSG_INFO("Apply BCID/<mu> dependent offset correction");
-	  if ( m_caloLumiBCIDTool.retrieve().isFailure() ) {
-	    ATH_MSG_FATAL("Could not find m_caloLumiBCID");
-	    return StatusCode::FAILURE;
-	  }
-	  //
-	  //if ( m_lumiTool.retrieve().isFailure() ) {
-	  //  (*m_log) << MSG::FATAL << "Could not find m_lumiTool" <<endmsg;
-	  //  return StatusCode::FAILURE;
-	  //} else {
-	  //  std::cout << "Retrieve lumiTool successfully" << std::endl;
-	  //}
 	} else {
 	  ATH_MSG_INFO("No BCID/<mu> dependent offset correction");
-	  m_caloLumiBCIDTool.disable();
 	}
 
         ATH_CHECK(m_lardecoder.retrieve());
         ATH_CHECK(m_tiledecoder.retrieve());
         ATH_CHECK(m_zdcdecoder.retrieve());
         ATH_CHECK(m_zdcrectool.retrieve());
+
+        ATH_CHECK( m_bcidAvgKey.initialize(m_applyOffsetCorrection) );
 
 	return StatusCode::SUCCESS;
 } // End of initialize
@@ -550,6 +540,11 @@ StatusCode TrigDataAccess::LoadCollections (
 		LArTT_Selector<LArCellCont>::const_iterator& Begin,
 		LArTT_Selector<LArCellCont>::const_iterator& End,
 		const unsigned int /*sample*/, bool /*prepare*/) {
+        const CaloBCIDAverage* avg = nullptr;
+        if (m_applyOffsetCorrection) {
+          avg = SG::makeHandle (m_bcidAvgKey).get();
+        }
+
 	if (msgLvl(MSG::VERBOSE)) {
           ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
           for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
@@ -603,7 +598,7 @@ StatusCode TrigDataAccess::LoadCollections (
         	  } else { // End of if small size
         	        m_lardecoder->setRobFrag(m_robFrags[i]);
         	        m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
+		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(avg, source_id);
 		        // Accumulates inferior byte from ROD Decoder
 		        m_error|=m_lardecoder->report_error();
 		  } //roddatasize < 3
@@ -845,6 +840,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 LArTT_Selector<LArCellCont>::const_iterator& Begin,
                 LArTT_Selector<LArCellCont>::const_iterator& End,
                 const DETID detid, bool /*prepare*/) {
+        const CaloBCIDAverage* avg = nullptr;
+        if (m_applyOffsetCorrection) {
+          avg = SG::makeHandle (m_bcidAvgKey).get();
+        }
+
         if (msgLvl(MSG::VERBOSE)) {
           ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
@@ -940,7 +940,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  else {
                         m_lardecoder->setRobFrag(m_robFrags[i]);
                         m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
+		        if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(avg, source_id);
 		        // Accumulates inferior byte from ROD Decoder
                         m_error|=m_lardecoder->report_error();
 		  }
@@ -1204,6 +1204,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
 StatusCode TrigDataAccess::LoadFullCollections (
 		CaloCellContainer::const_iterator& Begin,
                 CaloCellContainer::const_iterator& End){
+        const CaloBCIDAverage* avg = nullptr;
+        if (m_applyOffsetCorrection) {
+          avg = SG::makeHandle (m_bcidAvgKey).get();
+        }
+
         if (msgLvl(MSG::VERBOSE)) {
           ATH_MSG_VERBOSE( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
@@ -1264,7 +1269,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 else {
                       m_lardecoder->setRobFrag(m_robFrags[i]);
                       m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
-		      if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(source_id);
+		      if (m_applyOffsetCorrection) m_larcell->applyBCIDCorrection(avg, source_id);
                       // Accumulates inferior byte from ROD Decoder
                       m_error|=m_lardecoder->report_error();
                 }

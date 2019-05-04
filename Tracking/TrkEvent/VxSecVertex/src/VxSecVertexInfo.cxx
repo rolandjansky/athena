@@ -23,8 +23,8 @@ namespace Trk {
   
   VxSecVertexInfo::VxSecVertexInfo(): m_SVOwnership(false) {}
 
-  VxSecVertexInfo::VxSecVertexInfo(const std::vector<xAOD::Vertex*> & vertices): m_SVOwnership(false) {
-    m_vertices=vertices;//ownership is taken over by the VxSecVertexInfo class!
+  VxSecVertexInfo::VxSecVertexInfo(std::vector<xAOD::Vertex*> vertices): m_vertices(std::move(vertices)), m_SVOwnership(false) {
+
   }
   
   VxSecVertexInfo::~VxSecVertexInfo() {

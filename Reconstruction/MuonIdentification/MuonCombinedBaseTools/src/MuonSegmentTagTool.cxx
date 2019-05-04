@@ -65,7 +65,7 @@ namespace MuonCombined {
 	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
 	p_MuTagMatchingTool               ( "MuTagMatchingTool/MuTagMatchingTool"                          ) ,
 	p_MuTagAmbiguitySolverTool        ( "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"             ) ,
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
 	m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
 	m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
 	m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),

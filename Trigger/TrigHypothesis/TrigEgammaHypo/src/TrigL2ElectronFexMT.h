@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -70,9 +70,9 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
   TrigL2ElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator);
   ~TrigL2ElectronFexMT();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode execute() override;
 
 
  private:
@@ -107,7 +107,7 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
   Gaudi::Property<float> m_RCAL {this,  "RCalBarrelFace",  1470.0*CLHEP::mm , "Radius of inner face of the barrel calorimeter"};
   Gaudi::Property<float> m_ZCAL {this,  "ZCalEndcapFace",     3800.0*CLHEP::mm, "z of the inner face of endcap calorimeter"};
   // Too be changed Public Tools depreciated
-  PublicToolHandle<Trk::IParticleCaloExtensionTool > m_caloExtensionTool {this,  "ParticleCaloExtensionTool",  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool to extrapolate Track to Calo inner surface"};
+  ToolHandle<Trk::IParticleCaloExtensionTool > m_caloExtensionTool {this,  "ParticleCaloExtensionTool",  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool to extrapolate Track to Calo inner surface"};
  
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey { this, 
       "RoIs",                             // property name

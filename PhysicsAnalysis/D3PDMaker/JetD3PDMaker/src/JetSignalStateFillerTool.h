@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -42,7 +42,7 @@ namespace D3PD {
  * So the default settings give (pt, eta, phi, m).
  *
  * FIXME: This tool really should be taking @c I4Momentum as input.
- * But the @c INavigable4Momentum bases haven't been declared to SGTools,
+ * But the @c INavigable4Momentum bases haven't been declared to BaseInfo,
  * so we can't convert from @c INavigable4Momentum to @c I4Momentum.
  * So we use @c INavigable4Momentum for now.
  */

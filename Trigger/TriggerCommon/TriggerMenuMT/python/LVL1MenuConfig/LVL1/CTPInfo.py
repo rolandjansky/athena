@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from BunchGroupSet import BunchGroupSet
 from Lvl1MenuUtil import oldStyle
 
-class CTPInfo:
+class CTPInfo(object):
 
-    class Random:
+    class Random(object):
         def __init__(self, names, cuts):
             self.names = names
             self.cuts  = cuts
@@ -20,7 +20,7 @@ class CTPInfo:
             return ind * step * ' ' + '<Random %s/>\n' % ' '.join(a)
 
 
-    class PrescaledClock:
+    class PrescaledClock(object):
         def __init__(self, name = '', clock1 = 0, clock2 = 0):
             self.name = name
             self.clock1 = clock1

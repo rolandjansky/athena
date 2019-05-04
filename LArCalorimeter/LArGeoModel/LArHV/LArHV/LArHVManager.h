@@ -5,13 +5,13 @@
 #ifndef LARHV_LARHVMANAGER_H
 #define LARHV_LARHVMANAGER_H
 
-class HECHVManager;
-class FCALHVManager;
 class EMBPresamplerHVManager;
 class EMECPresamplerHVManager;
 
-#include "LArHV/EMECHVManager.h"
 #include "LArHV/EMBHVManager.h"
+#include "LArHV/EMECHVManager.h"
+#include "LArHV/HECHVManager.h"
+#include "LArHV/FCALHVManager.h"
 
 #include "IOVSvc/IOVSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -32,7 +32,7 @@ class LArHVManager
   
     // Constructor
     // 
-    LArHVManager(const HECHVManager *hecHv, const FCALHVManager *fcalHv, const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
+    LArHVManager(const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
     
     //  Destructor
     virtual ~LArHVManager();
@@ -50,10 +50,10 @@ class LArHVManager
     const EMECPresamplerHVManager *getEMECPresamplerHVManager() const;
   
     // Returns the HECHVManager
-    const HECHVManager *getHECHVManager() const;
+    const HECHVManager& getHECHVManager() const;
   
     // Returns the FCALHVManager
-    const FCALHVManager *getFCALHVManager() const;
+    const FCALHVManager& getFCALHVManager() const;
     
     void reset() const;
     
@@ -69,8 +69,8 @@ class LArHVManager
   EMBHVManager   m_embHV;
   EMECHVManager  m_emecHVInner;
   EMECHVManager  m_emecHVOuter;
-  const HECHVManager            *m_hecHV;
-  const FCALHVManager           *m_fcalHV;
+  HECHVManager   m_hecHV;
+  FCALHVManager  m_fcalHV;
   const EMBPresamplerHVManager  *m_embPreHV;
   const EMECPresamplerHVManager *m_emecPreHV;
 

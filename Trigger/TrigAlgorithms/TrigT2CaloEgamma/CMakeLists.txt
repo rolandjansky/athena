@@ -26,17 +26,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs )
 
 # Component(s) in the package:
-atlas_add_library( TrigT2CaloEgammaLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigT2CaloEgamma
-                   LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigSteeringEvent TrigT2CaloCommonLib CaloDetDescrLib TrigT2CaloCalibrationLib TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces )
-
 atlas_add_component( TrigT2CaloEgamma
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib TrigT2CaloEgammaLib )
+                     LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
 
+# Python code checking:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

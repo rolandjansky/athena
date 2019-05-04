@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AthenaCommon/python/Debugging.py
 ## @brief py-module to hold a few tools and utilities to help debugging
@@ -6,6 +6,8 @@
 ## @author Sebastien Binet <binet@cern.ch>
 ## $Id: Debugging.py,v 1.1 2008-04-05 03:11:49 binet Exp $
 ###############################################################
+
+from __future__ import print_function
 
 __doc__ = """py-module to hold a few tools and utilities to help debugging
 configurables and/or Athena application.

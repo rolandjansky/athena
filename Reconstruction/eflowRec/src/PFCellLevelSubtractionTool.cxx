@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFCellLevelSubtractionTool.h"
@@ -315,9 +315,9 @@ void PFCellLevelSubtractionTool::performSubtraction() {
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iEFCalOb);
 
-    ATH_MSG_DEBUG("Have got an eflowCaloObject");
-    
     unsigned int nClusters = thisEflowCaloObject->nClusters();
+    ATH_MSG_DEBUG("Have got an eflowCaloObject with " << nClusters << " clusters");
+    
     if (nClusters < 1) {
       continue;
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
@@ -34,8 +34,6 @@
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
 
-class StoreGateSvc;
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -45,17 +43,12 @@ class MuFastDataPreparator: public AthAlgTool
 {
  public:
   
-  static const InterfaceID& interfaceID();
-  
-  MuFastDataPreparator(const std::string& type, 
+  MuFastDataPreparator(const std::string& type,
 		       const std::string& name,
 		       const IInterface*  parent);
-  
-  ~MuFastDataPreparator();
-  
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
-  
+
+  virtual StatusCode initialize() override;
+
  public:
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
@@ -77,9 +70,7 @@ class MuFastDataPreparator: public AthAlgTool
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
 			 TrigL2MuonSA::CscHits&      cscHits);
   
-  BooleanProperty  m_use_mcLUT;
-
-  void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options); 
+  void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
   void setRoadWidthForFailure(double rWidth_RPC_Failed, double rWidth_TGC_Failed);
 
@@ -97,39 +88,28 @@ class MuFastDataPreparator: public AthAlgTool
 
   bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
 
- protected:
-  
-  // Services
-  //ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc;
-  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc {
-  	this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc", "Reconstruction of RPC RoI"};
-
  private:
   
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
+  const MdtIdHelper* m_mdtIdHelper{nullptr};
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
-  const MdtIdHelper* m_mdtIdHelper;
-  
- private:
-  
-  //const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
 
-  // Tools
-  ToolHandle<RpcDataPreparator>  m_rpcDataPreparator;
-  ToolHandle<TgcDataPreparator>  m_tgcDataPreparator;
-  ToolHandle<MdtDataPreparator>  m_mdtDataPreparator;
-  ToolHandle<CscDataPreparator>  m_cscDataPreparator;
-  
-  ToolHandle<RpcRoadDefiner>     m_rpcRoadDefiner;
-  ToolHandle<TgcRoadDefiner>     m_tgcRoadDefiner;
-  ToolHandle<RpcPatFinder>       m_rpcPatFinder;
-  
-  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
+  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
+  ToolHandle<RpcDataPreparator>   m_rpcDataPreparator{this, "RPCDataPreparator", "TrigL2MuonSA::RpcDataPreparator"};
+  ToolHandle<TgcDataPreparator>   m_tgcDataPreparator{this, "TGCDataPreparator", "TrigL2MuonSA::TgcDataPreparator"};
+  ToolHandle<MdtDataPreparator>   m_mdtDataPreparator{this, "MDTDataPreparator", "TrigL2MuonSA::MdtDataPreparator"};
+  ToolHandle<CscDataPreparator>   m_cscDataPreparator{this, "CSCDataPreparator", "TrigL2MuonSA::CscDataPreparator"};
 
-  BooleanProperty m_use_rpc;
+  ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{"TrigL2MuonSA::RpcRoadDefiner"};
+  ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{"TrigL2MuonSA::TgcRoadDefiner"};
+  ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
+  
+  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
 
-  bool m_isRpcFakeRoi;
+  bool m_use_rpc{false};
+  bool m_isRpcFakeRoi{false};
+  bool m_use_mcLUT{false};
 };
   
 } // namespace TrigL2MuonSA

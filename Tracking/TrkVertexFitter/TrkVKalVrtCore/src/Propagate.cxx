@@ -17,7 +17,7 @@
 
 namespace Trk {
 
-extern vkalMagFld      myMagFld;
+extern const vkalMagFld      myMagFld;
 
 
 extern void cfnewp(long int*, double*, double*, double*, double*, double*);

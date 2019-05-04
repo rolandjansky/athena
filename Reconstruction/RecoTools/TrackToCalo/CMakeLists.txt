@@ -56,3 +56,4 @@ atlas_add_component( TrackToCalo
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces TrackCaloClusterRecTools TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloIdentifier CaloUtilsLib AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrackToCaloLib )
 
+atlas_install_python_modules( python/*.py )

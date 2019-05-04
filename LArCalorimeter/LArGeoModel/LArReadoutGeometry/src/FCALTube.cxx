@@ -1,13 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCALTube.h"
 
-
-
 // Constructor
-FCALTube::FCALTube(const FCALTile *tile, FCALHVLineConstLink hvLine, double x, double y):m_tile(tile),m_hvLine(hvLine),m_x(x), m_y(y) {
+FCALTube::FCALTube(const FCALTile *tile
+		   , const FCALHVLine& hvLine
+		   , double x
+		   , double y)
+  : m_tile(tile)
+  , m_hvLine(hvLine)
+  , m_x(x)
+  , m_y(y) 
+{
 }
 
 // Destructor
@@ -30,6 +36,6 @@ const FCALTile *FCALTube::getTile() const {
 }
 
 // Get the High Voltage Line
-FCALHVLineConstLink FCALTube::getHVLine() const {
+const FCALHVLine& FCALTube::getHVLine() const {
   return m_hvLine;
 }

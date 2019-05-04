@@ -5,54 +5,84 @@
 # however there are different set of EDM to stream and different functionalities required
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
-def recordable( name, onlyWarning=False ):
+def recordable( name ):
     """
-    Verify that the name is in the list of recorded objects
-    
-    In Run 2 it was a delicate process to configure correctly what get recorded 
+    Verify that the name is in the list of recorded objects and conform to the name convention
+
+
+    In Run 2 it was a delicate process to configure correctly what get recorded
     as it had to be set in the produce arlgoirhm as well in here in a consistent manner.
-    
+
     For Run 3 every alg input/output key can be crosschecked agains the list of objects to record defined here.
     I.e. in the configuration alg developer would do this:
     from TriggerEDM.TriggerEDMRun3 import recordable
-    
+
     alg.outputKey = recordable("SomeKey")
     If the names are correct the outputKey is assigned with SomeKey, if there is a missmatch an exception is thrown.
     """
 
+    if name in ["HLTSummary", "L1DecoderSummary"] or "L1" in name or "RoI" in name:
+        pass
+    else: #negative filtering
+        if not name.startswith( "HLT_" ):
+            __log.warning( "The collection name {0} does not start with HLT_".format( name ) )
+        if "Aux" in name and not name[-1] != ".":
+            __log.warning( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
 
     for entry in TriggerHLTList:
         if entry[0].split( "#" )[1] == name:
             return name
     msg = "The collection name {0} is not declared to be stored by HLT".format( name )
-    __log.error( msg )
-    raise RuntimeError( msg )
-
+    __log.warning( msg )
+    #raise RuntimeError( msg )
+    return name
 
 TriggerHLTList = [
- 
+
     #framework/steering
+    ('xAOD::TrigCompositeContainer#HLTSummary',           'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#L1DecoderSummary',     'BS ESD AODFULL AODSLIM', 'Steer'),
+
     ('TrigRoiDescriptorCollection#EMRoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#MURoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#METRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#JETRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    
 
-    
-    ('xAOD::TrigCompositeContainer#L1DecoderSummary',     'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1EM',                 'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1MU',                 'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1MET',                'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1J',                  'BS ESD AODFULL AODSLIM', 'Steer'),
 
+    # Egamma
 
-    
-    
-    ('xAOD::TrigEMClusterContainer#L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:FastCaloEMRecoViews'), # last arg specifies in which view container the fragments are
-    ('xAOD::TrigEMClusterAuxContainer#L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
-    ('xAOD::TrigPhotonContainer#L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:L2PhotonRecoViews'),
-    ('xAOD::TrigPhotonAuxContainer#L2PhotonsAux.',              'BS ESD AODFULL', 'Egamma'),
-    
+
+    ('xAOD::TrigEMClusterContainer#HLT_L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
+    ('xAOD::TrigEMClusterAuxContainer#HLT_L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigPhotonContainer#HLT_L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:L2PhotonRecoViews'),
+    ('xAOD::TrigPhotonAuxContainer#HLT_L2PhotonsAux.',              'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrigElectronContainer#HLT_L2Electrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Electron',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.',          'BS ESD AODFULL', 'Egamma'),
+
+
+    # Muon
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Muon',                 'BS ESD AODFULL', 'Muon', 'inViews:EMCombViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonAux.',          'BS ESD AODFULL', 'Muon'),
+
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonFS',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonFSAux.',          'BS ESD AODFULL', 'Muon'),
+
+
+    # MET
+    ('xAOD::TrigMissingETContainer#HLT_MET',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_METAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_MET_mht',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
 ]
@@ -70,7 +100,7 @@ EDMDetails[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClu
 def persistent( transient ):
     """
     Persistent EDM claass, for xAOD it is the actual class version
-    
+
     Uses list defined above. If absent assumes v1
     """
     if transient in EDMDetails:
@@ -80,7 +110,7 @@ def persistent( transient ):
 
 def tpMap():
     """
-    List 
+    List
     """
     l = {}
     for tr in EDMDetails.keys():
@@ -88,7 +118,3 @@ def tpMap():
             continue
         l[tr] = persistent(tr)
     return l
-        
-
-
-        

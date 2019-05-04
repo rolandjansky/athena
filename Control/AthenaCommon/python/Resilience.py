@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # usage treatException(" problem with bla ")
 # catch exception if recConfFlags.AllowIgnoreConfigError otherwise rethrow
@@ -9,12 +9,14 @@
 #      print "doSomethingIntelligent about this exception"
 #      treatException(" failed to something=wrong. Did something intelligent about it")
 
+from __future__ import print_function
+
 def treatException (desc):
-  from AthenaCommonFlags import athenaCommonFlags
+  from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
   if athenaCommonFlags.AllowIgnoreConfigError():
       import traceback
-      print traceback.format_exc()
-      print "ERROR: "+desc
+      traceback.print_exc()
+      print ("ERROR: "+desc)
       return None
   else:
     raise
@@ -34,7 +36,7 @@ def protect (desc, fn, *args, **kw):
 # protectedInclude ("Could not load MakeAODCellsFromCluster!", "CaloRec/MakeAODCellsFromCluster_jobOptions.py")
 # exception is caught optionally
 def protectedInclude (jo):
-  from Include import include
+  from AthenaCommon.Include import include
   return protect ("Could not load " + jo, include, jo)
 
 

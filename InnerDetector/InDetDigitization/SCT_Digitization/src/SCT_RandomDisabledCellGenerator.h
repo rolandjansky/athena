@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -45,11 +47,11 @@ class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDi
   virtual ~SCT_RandomDisabledCellGenerator() = default;
 
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** AlgTool finalize */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
-  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const;
+  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const override;
 
  private:
 
@@ -58,7 +60,7 @@ class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDi
   ///////////////////////////////////////////////////////////////////
  private:
 
-  float m_disableProbability;   // probability that a cell is disabled
+  FloatProperty m_disableProbability{this, "TotalBadChannels", 0.01, "probability that a cell is disabled"};
 
 };
 

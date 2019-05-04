@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/SGTools
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
@@ -26,7 +25,7 @@ atlas_add_component( L1TopoByteStream
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test xAODTrigL1Calo L1TopoRDO )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test xAODTrigL1Calo L1TopoRDO )
 
 # Install files from the package:
 atlas_install_headers( L1TopoByteStream )

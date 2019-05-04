@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ITrigJetHypoToolHelperMT.h"
+#include "ConditionsDefsMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
@@ -21,6 +22,9 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   CombinationsHelperTool(const std::string& type,
                          const std::string& name,
                          const IInterface* parent);
+  
+
+  StatusCode initialize() override;
 
   bool pass(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
 
@@ -28,12 +32,25 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
 
  private:
 
+  // Used to generate helper objects foe TrigHLTJetHelper
+ // from user supplied values
+ ToolHandle<ITrigJetHypoToolConfig> m_config {
+   this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
+
+  // Object to make jet groups. Jet groups
+  // are vectors of jets selected from a jet vector
+  // which is, in this case, the incoming jet vector.
+  std::unique_ptr<IJetGrouper> m_grouper;
+
+  ConditionsMT m_conditions;
+  
    ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
-     this, "children", {}, "list of child decidables"};
-   
+     this, "children", {}, "list of child jet hypo helpers"};
+
+   /* 
   Gaudi::Property<unsigned int>
     m_size{this, "groupSize", {}, "Jet group size"};
-  
+   */
 
   Gaudi::Property<int>
     m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
@@ -46,6 +63,7 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   void collectData(const std::string& setuptime,
                    const std::string& exetime,
                    ITrigJetHypoInfoCollector*,
+                   std::unique_ptr<IConditionVisitor>& cVstr,
                    bool) const;
 
   std::string toString() const;

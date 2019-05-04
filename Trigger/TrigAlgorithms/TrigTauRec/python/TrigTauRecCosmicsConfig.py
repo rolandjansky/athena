@@ -87,10 +87,10 @@ class TrigTauRecCosmics_Tau2012 (TrigTauRecMerged_Tau2012) :
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc +=trigTauCosmicsTrackSelectTool
 
-            self.Tools['TrigTau_TauTrackFinder'].TrackSelectorToolTau = trigTauCosmicsTrackSelectTool
-            self.Tools['TrigTau_TauTrackFinder'].MaxJetDrTau = 9999.0   # CoreTrackDist
-            self.Tools['TrigTau_TauTrackFinder'].MaxJetDrWide = 9999.0   # WideTrackDist
-            self.Tools['TrigTau_TauTrackFinder'].removeTracksOutsideZ0wrtLeadTrk = False
+            self.Tools['TrigTau2012_TauTrackFinder'].TrackSelectorToolTau = trigTauCosmicsTrackSelectTool
+            self.Tools['TrigTau2012_TauTrackFinder'].MaxJetDrTau = 9999.0   # CoreTrackDist
+            self.Tools['TrigTau2012_TauTrackFinder'].MaxJetDrWide = 9999.0   # WideTrackDist
+            self.Tools['TrigTau2012_TauTrackFinder'].removeTracksOutsideZ0wrtLeadTrk = False
             #self.useTauPVTool = False # dont't print out deltaZ0 cuts
 
 

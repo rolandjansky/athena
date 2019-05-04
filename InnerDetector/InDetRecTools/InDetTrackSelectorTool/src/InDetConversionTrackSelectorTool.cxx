@@ -7,7 +7,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 // normal includes
 #include "TrkTrackSummary/TrackSummary.h"
@@ -25,7 +24,6 @@ namespace InDet
  :AthAlgTool(t,n,p),
   m_trkSumTool("Trk::TrackSummaryTool"),
   m_extrapolator("Trk::Extrapolator"),
-  m_iBeamCondSvc ("BeamCondSvc",n),
   m_maxSiD0   (35.),
   m_maxTrtD0 (100.),
   m_maxSiZ0  (200.),
@@ -58,7 +56,6 @@ namespace InDet
    declareProperty("significanceD0_Trt",   m_sD0_Trt);
    declareProperty("significanceZ0_Trt",   m_sZ0_Trt);
    declareProperty("IsConversion",         m_isConv);
-   declareProperty("BeamPositionSvc",      m_iBeamCondSvc);
    declareProperty("PIDonlyForXe",         m_PIDonlyForXe = false,
      "Only check TRT PID if all hits are Xe hits");
  }
@@ -72,18 +69,11 @@ namespace InDet
    ATH_CHECK( m_trkSumTool.retrieve());
    /* Get the extrapolator tool from ToolSvc */
    ATH_CHECK( m_extrapolator.retrieve() );
-   /* Get BeamCondSvc */
-   if (m_iBeamCondSvc.retrieve().isFailure()) {
-     ATH_MSG_INFO( "Could not find BeamCondSvc. Will use (0,0,0) if no vertex is given and extrapolation is needed." );
-   }
+   
+   ATH_CHECK(m_beamSpotKey.initialize());
    return StatusCode::SUCCESS;
  }
     
- StatusCode InDetConversionTrackSelectorTool::finalize()
- {
-  ATH_MSG_DEBUG( "Finalize successful");
-  return StatusCode::SUCCESS;
- }
     
  bool InDetConversionTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vx) const
  {  
@@ -93,10 +83,11 @@ namespace InDet
    const Trk::Vertex* myVertex=vx;    
    //in case no Vertex is provided by the user, beam position will be used if available
    if (not vertexSuppliedByUser) {
-     if (!m_iBeamCondSvc.empty()) {
-       myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     if (beamSpotHandle.isValid()) {
+       myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
      } else {
-       ATH_MSG_WARNING(" Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " );
+       ATH_MSG_WARNING(" Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
      }
    }
@@ -196,10 +187,11 @@ namespace InDet
    const bool vertexSuppliedByUser{vx!=nullptr};
    //in case no Vertex is provided by the user, beam position will be used if available
    if (not vertexSuppliedByUser) {
-     if (!m_iBeamCondSvc.empty()) {
-       myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     if (beamSpotHandle.isValid()) {
+       myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
      } else {
-       ATH_MSG_WARNING( " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " );
+       ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
      }
    }
@@ -288,6 +280,13 @@ namespace InDet
    return pass;
  }
  
+ Amg::Vector3D InDetConversionTrackSelectorTool::getPosOrBeamSpot(const xAOD::Vertex* vertex) const
+ {
+    if(vertex) return vertex->position();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if(beamSpotHandle.isValid()) return beamSpotHandle->beamVtx().position();
+    else return Amg::Vector3D(0,0,0);
+ }
  
    // ---------------------------------------------------------------------
   bool InDetConversionTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const 
@@ -295,7 +294,7 @@ namespace InDet
     bool pass = false;
     const Trk::Perigee& perigee=tp.perigeeParameters();
     //in case no Vertex is provided by the user, beam position will be used if available
-    Trk::PerigeeSurface perigeeSurface( vertex ? vertex->position() : (!m_iBeamCondSvc.empty() ? m_iBeamCondSvc->beamVtx().position() : Amg::Vector3D(0,0,0) ) );
+    Trk::PerigeeSurface perigeeSurface( getPosOrBeamSpot(vertex) );
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(perigee,perigeeSurface,Trk::anyDirection,false,Trk::pion );
     if (extrapolatedParameters==0) {
       ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << "\n" << perigee );

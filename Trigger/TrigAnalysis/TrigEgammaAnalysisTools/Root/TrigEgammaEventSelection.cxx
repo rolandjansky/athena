@@ -271,7 +271,10 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
       // Must be higher than 4 GeV
       if( (getEt(elProbe)) < 4*Gaudi::Units::GeV)  continue;
 
-      if(!TrigEgammaNavTPBaseTool::ApplyElectronPid(elProbe,"LHMedium")) continue;
+      if(!TrigEgammaNavTPBaseTool::ApplyElectronPid(elProbe,"LHMedium")) {
+	  ATH_MSG_DEBUG("Probe deas *not* pass LHMedium. Skipping...");
+	  continue;
+      }
 
       //Must be an easy way with IParticle
       TLorentzVector el1;

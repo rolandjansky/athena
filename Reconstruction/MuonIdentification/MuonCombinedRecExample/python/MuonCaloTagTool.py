@@ -35,13 +35,19 @@ def TrackEnergyInCaloTool( name ='TrackEnergyInCaloTool', **kwargs ):
     return CfgMgr.TrackEnergyInCaloTool(name,**kwargs)
 
 def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
+    kwargs.setdefault("ExtrapolatorHandle",       AtlasExtrapolator() )
+    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
+    kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
-def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
+def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  
     from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
     CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "CaloMuonTagLoose")
     CaloMuonTagLoose.TagMode="Loose"

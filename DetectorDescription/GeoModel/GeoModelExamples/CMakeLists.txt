@@ -20,6 +20,20 @@ find_package( Eigen )
 find_package( GeoModel )
 
 # Component(s) in the package:
+if(BUILDVP1LIGHT)
+    atlas_add_library( GeoModelExamplesLib
+                       src/*.cxx
+                       PUBLIC_HEADERS GeoModelExamples
+                       PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                       PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+                       LINK_LIBRARIES GeoModelUtilities
+                       PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} )
+
+    atlas_add_component( GeoModelExamples
+                         src/components/*.cxx
+                         INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                         LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GeoModelExamplesLib )
+else()
 atlas_add_library( GeoModelExamplesLib
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelExamples
@@ -31,4 +45,6 @@ atlas_add_component( GeoModelExamples
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities StoreGateLib Identifier GaudiKernel GeoModelExamplesLib )
+endif()
+
 

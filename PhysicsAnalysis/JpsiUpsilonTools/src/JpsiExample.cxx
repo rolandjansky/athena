@@ -19,6 +19,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TVector3.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 //////////////////////////////////////////////////////////////
 
@@ -31,6 +32,10 @@ JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("muonMass"        , m_muonMass);
   declareProperty("outputNTupleName", m_userFName);
   declareProperty("JpsiCandidates"  ,m_JpsiCandidatesKey = "JpsiCandidates");
+
+  declareProperty("RefTrackPx", m_refPX);
+  declareProperty("RefTrackPy", m_refPY);
+  declareProperty("RefTrackPz", m_refPZ);
 
   // Global Counters; for truth statistics
   m_eventCntr = 0;
@@ -110,7 +115,7 @@ StatusCode JpsiExample::initialize(){
   m_auxTree->Branch("trkOrigPz2", &m_trkOrigPz2);
 
 //  m_auxTree->Branch("rxyError", &m_rxyError);
-
+  ATH_CHECK(m_JpsiCandidatesKey.initialize());
   return StatusCode::SUCCESS;
   
 }
@@ -124,10 +129,10 @@ StatusCode JpsiExample::execute() {
 
   // Read in the Jpsis from StoreGate 
   const xAOD::VertexContainer*    jpsiContainer(0);
-  const xAOD::VertexAuxContainer* jpsiAuxContainer(0);
-  StatusCode sc  = evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey);
-  StatusCode sc2 = evtStore()->retrieve(jpsiAuxContainer, m_JpsiCandidatesKey+"Aux.");
-  if (sc.isFailure() || !jpsiContainer || sc2.isFailure() || !jpsiAuxContainer) {
+  SG::ReadHandle<xAOD::VertexContainer> handle(m_JpsiCandidatesKey);
+  jpsiContainer = handle.cptr();
+
+  if (!jpsiContainer) {
     ATH_MSG_ERROR("No Jpsi Container Found, skipping event");
     return StatusCode::RECOVERABLE;
   } else {
@@ -317,12 +322,13 @@ TVector3 JpsiExample::trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIn
 //    pz = aPerigee->momentum()[Trk::pz];
 //  }
   
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
-  static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
-  const std::vector<float>& refTrackPx = refTrackPxAcc(*vxCandidate);
-  const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
-  const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hx (m_refPX);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hy (m_refPY);
+  SG::ReadDecorHandle<xAOD::Vertex, std::vector<float>> hz (m_refPZ);
+
+  const std::vector<float>& refTrackPx = hx(*vxCandidate);
+  const std::vector<float>& refTrackPy = hy(*vxCandidate);
+  const std::vector<float>& refTrackPz = hz(*vxCandidate);
 
   if(trkIndex < refTrackPx.size() && refTrackPx.size() == refTrackPy.size() && refTrackPz.size()) {
     px = refTrackPx[trkIndex];
@@ -379,7 +385,7 @@ TLorentzVector JpsiExample::origTrack4Momentum(const xAOD::Vertex * vxCandidate,
 // invariantMassError: returns invariant mass error
 // ---------------------------------------------------------------------------------
 
-double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const
+double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, const std::vector<double> &masses) const
 {
   uint NTrk = vxCandidate->vxTrackAtVertex().size();
   if (masses.size() != NTrk) {
@@ -401,7 +407,7 @@ double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, std::vec
 // massErrorVKalVrt: returns invariant mass error for vertex created by VKalVrtFitter
 // ---------------------------------------------------------------------------------
 
-double JpsiExample::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+double JpsiExample::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
 {
   unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
   

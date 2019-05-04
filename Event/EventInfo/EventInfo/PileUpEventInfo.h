@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* -C++- */
@@ -147,12 +147,10 @@ public:
   std::list<SubEvent> m_subEvents; //FIXME should become a vector
 };
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "SGTools/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( PileUpEventInfo , 2102 , 1 )
 
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 SG_ADD_BASE (PileUpEventInfo, EventInfo);
 
 #endif // EVENTINFO_PILEUPEVENTINFO_H

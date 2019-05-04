@@ -29,10 +29,10 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
+#For LCWeightsTool needs electronic noise
+CaloNoiseCondAlg(noisetype="electronicNoise") 
 
 # configure cell weight calibration
 if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
@@ -66,7 +66,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     # H1Weight = H1ClusterCellWeightTool("H1Weight")
     # H1Weight.CorrectionKey       = "H1ClusterCellWeights"
     # H1Weight.SignalOverNoiseCut  = 2.0
-    # H1Weight.CaloNoiseTool       = theCaloNoiseTool
     # 
     # OOCC     = OutOfClusterCorrectionTool("OOCC")
     # OOCC.CorrectionKey       = "OOCCorrection"
@@ -86,7 +85,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     LCWeight = CaloLCWeightTool("LCWeight")
     LCWeight.CorrectionKey       = "H1ClusterCellWeights"
     LCWeight.SignalOverNoiseCut  = 2.0
-    LCWeight.CaloNoiseTool       = theCaloNoiseTool
     LCWeight.UseHadProbability   = True
 
     LCOut     = CaloLCOutOfClusterTool("LCOut")
@@ -101,7 +99,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     
     #DMTool   = DeadMaterialCorrectionTool2("DMTool")
     #DMTool.HadDMCoeffKey       = "HadDMCoeff2"
-    #DMTool.SignalOverNoiseCut  = 1.0
     #DMTool.ClusterRecoStatus   = 0
     #DMTool.WeightModeDM        = 2 
     #DMTool.CaloNoiseTool       = theCaloNoiseTool
@@ -154,8 +151,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
 TopoMomentsForTaus = CaloClusterMomentsMaker ("TauPi0TopoMoments")
 TopoMomentsForTaus.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 TopoMomentsForTaus.MaxAxisAngle = 20*deg
-TopoMomentsForTaus.CaloNoiseTool = theCaloNoiseTool
-TopoMomentsForTaus.UsePileUpNoise = True
 TopoMomentsForTaus.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 TopoMomentsForTaus.MinBadLArQuality = 4000
 TopoMomentsForTaus.MomentsNames = ["FIRST_PHI"
@@ -228,9 +223,6 @@ TopoClusterForTaus.SeedSamplingNames = [
     "PreSamplerB", "EMB1", "EMB2", # Do we want to use EMB3?
     "PreSamplerE", "EME1", "EME2"  # Do we want to use EME3?
     ]
-TopoClusterForTaus.CaloNoiseTool                     = theCaloNoiseTool
-TopoClusterForTaus.UseCaloNoiseTool                  = True
-TopoClusterForTaus.UsePileUpNoise                    = True
 TopoClusterForTaus.NeighborOption                    = "super3D"
 TopoClusterForTaus.RestrictHECIWandFCalNeighbors     = False
 TopoClusterForTaus.RestrictPSNeighbors               = True

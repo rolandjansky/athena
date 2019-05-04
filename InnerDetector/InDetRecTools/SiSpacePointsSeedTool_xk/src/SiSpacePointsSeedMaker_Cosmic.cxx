@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,11 +12,12 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <ostream>
-#include <iomanip>
+#include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Cosmic.h"
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Cosmic.h"
+
+#include <iomanip>
+#include <ostream>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -24,77 +25,9 @@
 
 InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p)                                         ,
-    m_fieldServiceHandle("AtlasFieldSvc",n), 
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_spacepointsSCT("SCT_SpacePoints"),
-    m_spacepointsPixel("PixelSpacePoints"),
-    m_spacepointsOverlap("OverlapSpacePoints")
+  : AthAlgTool(t,n,p)
 {
-  m_useassoTool = false ;
-  m_useOverlap= false   ;
-  m_state     = 0       ;
-  m_pixel     = true    ;
-  m_sct       = true    ;
-  m_state     = 0       ;
-  m_nspoint   = 2       ;
-  m_mode      = 0       ;
-  m_nlist     = 0       ;
-  m_endlist   = true    ;
-  m_maxsize   = 100     ;
-  m_ptmin     = 500.    ;
-  m_drmin     = 5.      ;
-  m_drmax     = 1000.   ; 
-  m_rapcut    = 2.3     ;
-  m_zmin      = -10000. ;
-  m_zmax      = +10000. ;
-  m_diver     = 10.     ;
-  m_r_rmax      = 600.  ;
-  m_r_rstep     =  5.   ;
-  m_r_Sorted    = 0     ;
-  m_r_index     = 0     ;
-  m_r_map       = 0     ;    
-  m_maxsizeSP = 1500    ;
-  m_SP        = 0       ;
-  m_R         = 0       ;
-  m_Tz        = 0       ;
-  m_Er        = 0       ;
-  m_U         = 0       ;
-  m_V         = 0       ;
-  m_seeds     = 0       ;
-  
-
-//  m_spacepointsSCT         = 0                   ;
-//  m_spacepointsPixel       = 0                   ;
-//  m_spacepointsOverlap     = 0                   ;
-
   declareInterface<ISiSpacePointsSeedMaker>(this);
-
-  declareProperty("AssociationTool"       ,m_assoTool              );
-  declareProperty("usePixel"              ,m_pixel                 );
-  declareProperty("useSCT"                ,m_sct                   );
-  declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("radMax"                ,m_r_rmax                  );
-  declareProperty("radStep"               ,m_r_rstep                 );
-  declareProperty("maxSize"               ,m_maxsize               );
-  declareProperty("maxSizeSP"             ,m_maxsizeSP             );
-  declareProperty("minZ"                  ,m_zmin                  );
-  declareProperty("maxZ"                  ,m_zmax                  );
-  declareProperty("mindRadius"            ,m_drmin                 );
-  declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("RapidityCut"           ,m_rapcut                );
-  declareProperty("maxdImpact"            ,m_diver                 );
-  declareProperty("maxdImpactPPS"         ,m_diverpps              );
-  declareProperty("maxdImpactSSS"         ,m_diversss              );
-  declareProperty("etaMin"                ,m_etamin                );
-  declareProperty("etaMax"                ,m_etamax                );  
-  declareProperty("checkEta"              ,m_checketa              );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
-  declareProperty("useOverlapSpCollection", m_useOverlap           );
-  declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
-  declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -131,6 +64,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::initialize()
 {
   StatusCode sc = AlgTool::initialize(); 
 
+  ATH_CHECK(m_spacepointsPixel.initialize(m_pixel));
+  ATH_CHECK(m_spacepointsSCT.initialize(m_sct));
+  ATH_CHECK(m_spacepointsOverlap.initialize(m_useOverlap));
+
   // Get magnetic field service
   //
   if( !m_fieldServiceHandle.retrieve() ){
@@ -138,7 +75,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::initialize()
     return StatusCode::FAILURE;
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  m_fieldService = &*m_fieldServiceHandle;
 
   // Get tool for track-prd association
   //
@@ -194,13 +130,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
   //
   if(m_pixel) {
 
-//    m_spacepointsPixel = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    if(spacepointsPixel.isValid()) {
 
-    if(m_spacepointsPixel.isValid()) {
-
-      SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
+      SpacePointContainer::const_iterator spc  =  spacepointsPixel->begin();
+      SpacePointContainer::const_iterator spce =  spacepointsPixel->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -227,10 +161,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
   //
   if(m_sct) {
 
-    if(m_spacepointsSCT.isValid()) {
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    if(spacepointsSCT.isValid()) {
 
-      SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spc  =  spacepointsSCT->begin();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -256,12 +191,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
     //
     if(m_useOverlap) {
 
-//      m_spacepointsOverlap = 0;
-//      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-      if(m_spacepointsOverlap.isValid()) {
+      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap};
+      if(spacepointsOverlap.isValid()) {
 	
-	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
-	SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
+	SpacePointOverlapCollection::const_iterator sp  = spacepointsOverlap->begin();
+	SpacePointOverlapCollection::const_iterator spe = spacepointsOverlap->end  ();
 	
 	for (; sp!=spe; ++sp) {
 
@@ -300,12 +234,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   //
   if(m_pixel && vPixel.size()) {
 
-//    m_spacepointsPixel   = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
-    
-    if(m_spacepointsPixel.isValid()) {
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    if(spacepointsPixel.isValid()) {
 
-      SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsPixel->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
@@ -313,7 +245,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
       //
       for(; l!=le; ++l) {
 	
-	SpacePointContainer::const_iterator  w =  m_spacepointsPixel->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsPixel->indexFind((*l));
 	if(w==spce) continue;
 	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
 
@@ -336,12 +268,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   //
   if(m_sct && vSCT.size()) {
 
-//    m_spacepointsSCT     = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    if(spacepointsSCT.isValid()) {
 
-    if(m_spacepointsSCT.isValid()) {
-
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
@@ -349,7 +279,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
 	if(w==spce) continue;
 	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
 
@@ -493,21 +423,21 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixel.name().size();
+  int n = 42-m_spacepointsPixel.key().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 42-m_spacepointsSCT.name().size();
+  n     = 42-m_spacepointsSCT.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlap.name().size();
+  n     = 42-m_spacepointsOverlap.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixel.name() <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixel.key() <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.name()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name() <<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key() <<s4
      <<std::endl;
   out<<"| usePixel                | "
      <<std::setw(12)<<m_pixel 
@@ -849,8 +779,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp()
 
   double f[3], gP[3] ={10.,10.,0.}; 
 
-  if(m_fieldService->solenoidOn()) {
-    m_fieldService->getFieldZR(gP,f); K = 2./(300.*f[2]);
+  if(m_fieldServiceHandle->solenoidOn()) {
+    m_fieldServiceHandle->getFieldZR(gP,f); K = 2./(300.*f[2]);
   }
   if(!K) return production3SpWithoutField();
 

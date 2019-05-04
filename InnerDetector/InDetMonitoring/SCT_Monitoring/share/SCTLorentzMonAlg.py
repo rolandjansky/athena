@@ -106,7 +106,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # # Otherwise, merge with result object and return
     # acc, seq = helper.result()
     # result.merge(acc)
-    # return result, seq
+    # return result
 
 
 if __name__=='__main__':
@@ -139,7 +139,7 @@ if __name__=='__main__':
     geoCfg=AtlasGeometryCfg(ConfigFlags)
     cfg.merge(geoCfg)
 
-    sctLorentzMonAcc,sctLorentzMonAlg = SCTLorentzMonAlgConfig(ConfigFlags)
+    sctLorentzMonAcc = SCTLorentzMonAlgConfig(ConfigFlags)
     
     cfg.merge(sctLorentzMonAcc)
     cfg.run()

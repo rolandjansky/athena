@@ -156,8 +156,6 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         useSCT             = NewTrackingCuts.useSCT(), 
                                                                         SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
-         #InDetSiDetElementsRoadMaker.OutputLevel = VERBOSE
-         ToolSvc += InDetSiDetElementsRoadMaker
          if (InDetFlags.doPrintConfigurables()):
             print      InDetSiDetElementsRoadMaker
          # Condition algorithm for InDet__SiDetElementsRoadMaker_xk

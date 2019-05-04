@@ -195,7 +195,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p3::createTransient(const I
       log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p3 " << endmsg;
      }
     }
-    std::auto_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()));
+    std::unique_ptr<InDet::SCT_ClusterContainer> trans(std::make_unique<InDet::SCT_ClusterContainer>(m_sctId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

@@ -39,9 +39,9 @@ namespace Trk
                                         const std::string& name,
                                         const IInterface* parent)
     :   AthAlgTool(type, name, parent),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_intersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
-    m_spectrometerExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
+    m_intersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
+    m_spectrometerExtrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
     m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
     m_trackingVolumesSvc("Trk::TrackingVolumesSvc/TrackingVolumesSvc", name),
     m_aggregateMaterial(true),

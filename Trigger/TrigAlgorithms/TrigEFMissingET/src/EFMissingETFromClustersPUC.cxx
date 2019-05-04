@@ -389,7 +389,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       // Just store zero energies for the clusters 
       metComp->m_ex = 0.;
       metComp->m_ey = 0.;
-      metComp->m_ey = 0.;
+      metComp->m_ez = 0.;
       metComp->m_sumEt = 0.;
       metComp->m_sumE  = 0.;
       metComp->m_usedChannels += 1;

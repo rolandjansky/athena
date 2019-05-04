@@ -41,7 +41,9 @@
 #include <vector>
 
 // Forward declarations
-class IInterface;
+class ISCT_ConfigurationConditionsTool;
+class SCT_ID;
+
 class TH1F;
 class TH2F;
 class TH1I;
@@ -52,41 +54,26 @@ class TH2I_LW;
 class TProfile;
 class TProfile2D;
 class TProfile_LW;
-class StatusCode;
-class SCT_ID;
-class ISCT_ConfigurationConditionsTool;
 
 class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
  public:
   SCTHitsNoiseMonTool(const std::string& type, const std::string& name,const IInterface* parent); 
   ~SCTHitsNoiseMonTool() = default;
-  virtual StatusCode initialize() final;
+  virtual StatusCode initialize() override final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
   //@{
   ///Book is called at the beginning
-  virtual StatusCode bookHistograms() override;
-  virtual StatusCode bookHistogramsRecurrent() override;
+  virtual StatusCode bookHistograms() override final;
+  virtual StatusCode bookHistogramsRecurrent() override final;
   ///fill is called on each event loop
-  virtual StatusCode fillHistograms() override;
+  virtual StatusCode fillHistograms() override final;
   ///checkHists not currently used
-  virtual StatusCode checkHists(bool fromFinalize) override;
+  virtual StatusCode checkHists(bool fromFinalize) override final;
   ///procHistograms is called at the end
-  virtual StatusCode procHistograms() override;
+  virtual StatusCode procHistograms() override final;
   //@} 
   
  private:
-  typedef TProfile2D* Prof2_t;
-  typedef TProfile_LW* Prof_t;
-  typedef TH1I* H1I_t;
-  typedef TH2I_LW* H2I_t;
-  typedef TH1F_LW* H1_t;
-  typedef TH2F_LW* H2_t;
-  typedef std::vector<Prof2_t> VecProf2_t;
-  typedef std::vector<H1I_t> VecH1I_t;
-  typedef std::vector<H2I_t> VecH2I_t;
-  typedef std::vector<H1_t> VecH1_t;
-  typedef std::vector<H2_t> VecH2_t;
-
   enum Thresholds {thresh100, thresh1000, thresh10000, nThreshes};
   static const double s_thresholds[nThreshes];
   static const std::string s_thresholdNames[nThreshes];
@@ -201,14 +188,14 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   //@name Histograms related members
   //@{
   /// Vector of pointers to hitmaps histograms
-  VecH1_t m_phitmapHistoVector;
+  std::vector<TH1F_LW*> m_phitmapHistoVector;
   
   /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
-  VecH2_t m_phitsHistoVector[SCT_Monitoring::N_REGIONS];
-  VecH2_t m_phitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  VecProf2_t m_pnoiseoccupancymapHistoVector[SCT_Monitoring::N_REGIONS];
-  VecProf2_t m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  VecProf2_t m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS];
+  std::vector<TH2F_LW*> m_phitsHistoVector[SCT_Monitoring::N_REGIONS];
+  std::vector<TH2F_LW*> m_phitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVector[SCT_Monitoring::N_REGIONS];
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS];
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS];
   
   TH1F* m_nSP{nullptr};
   TH1F* m_nHits{nullptr};
@@ -216,12 +203,12 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   TH1F* m_nminHits{nullptr};
 
   //Histograms with hits per luminosity block
-  H1_t m_numHitsPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
+  TH1F_LW* m_numHitsPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
 
   //Histograms with SPs per luminsity block
-  H1_t m_numSPPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
+  TH1F_LW* m_numSPPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
 
-  H2_t m_rioMap{nullptr};
+  TH2F_LW* m_rioMap{nullptr};
   //@}
   //Histograms with NO distribution
   TH1F* m_NO[SCT_Monitoring::N_REGIONS+1]{};
@@ -229,61 +216,61 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
 
   //---- results required no triggers
   // # of hits vs LBs
-  Prof_t m_NallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  Prof_t m_NSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_NallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_NSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
   // NO with hits subtracted by SP
-  Prof_t m_NO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  Prof_t m_NoisyModules_vsLB[nThreshes]{};
+  TProfile_LW* m_NO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  TProfile_LW* m_NoisyModules_vsLB[nThreshes]{};
   
   //---- results required trigger
   // # of hits vs LBs
-  Prof_t m_NallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
-  Prof_t m_NSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_NallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_NSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
   // NO with hits subtracted by SP
-  Prof_t m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  Prof_t m_NoisyModulesTrigger_vsLB[nThreshes]{};
+  TProfile_LW* m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  TProfile_LW* m_NoisyModulesTrigger_vsLB[nThreshes]{};
 
   //Online code- template vector
-  VecH1_t m_pstripmapTemplateVector{};
-  H1_t m_MaxOccupancyStripHist{nullptr};
-  H1_t m_MinOccupancyStripHist{nullptr};
+  std::vector<TH1F_LW*> m_pstripmapTemplateVector{};
+  TH1F_LW* m_MaxOccupancyStripHist{nullptr};
+  TH1F_LW* m_MinOccupancyStripHist{nullptr};
   /// Pointers to histogram of SCT cluster width.
-  H1_t m_clusize{nullptr};
-  H1_t m_clusizeRecent{nullptr};
+  TH1F_LW* m_clusize{nullptr};
+  TH1F_LW* m_clusizeRecent{nullptr};
 
   /// Pointers to histogram of hits as a function of TriggerType.
-  H1_t m_hitsvstrigger{nullptr};
+  TH1F_LW* m_hitsvstrigger{nullptr};
 
   /// Pointers to histogram of hits as a function of L1ID.
-  H1_t m_hitsvsL1ID{nullptr};
+  TH1F_LW* m_hitsvsL1ID{nullptr};
 
   /// Pointers to vector of histograms of SCT cluster width; 1 histo per layer and side.
-  VecH1_t m_clusizeHistoVector[SCT_Monitoring::N_REGIONS]{};
-  VecH1_t m_clusizeHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F_LW*> m_clusizeHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F_LW*> m_clusizeHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Event
   TH1F* m_ncluHisto{nullptr};
 
   /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
-  VecH1_t m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F_LW*> m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{};
 
   //Pointer to histogram of time bin coincidences
-  H2I_t m_coincidenceHist{nullptr};
+  TH2I_LW* m_coincidenceHist{nullptr};
 
-  VecH2_t m_ptrackhitsHistoVector[SCT_Monitoring::N_REGIONS];
-  VecH2_t m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  VecH1_t m_tbinHistoVector[SCT_Monitoring::N_REGIONS]{};
-  VecH1_t m_tbinHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
-  H1_t m_tbinHisto[SCT_Monitoring::N_REGIONS]{};
-  H1_t m_tbinHistoRecent[SCT_Monitoring::N_REGIONS]{};
-  Prof2_t m_tbinfrac[SCT_Monitoring::N_REGIONS][s_commonSize]{};
-  Prof2_t m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{};
-  Prof_t m_tbinfracall{nullptr};
-  Prof_t m_tbinfracVsLB[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH2F_LW*> m_ptrackhitsHistoVector[SCT_Monitoring::N_REGIONS];
+  std::vector<TH2F_LW*> m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
+  std::vector<TH1F_LW*> m_tbinHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TH1F_LW*> m_tbinHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  TH1F_LW* m_tbinHisto[SCT_Monitoring::N_REGIONS]{};
+  TH1F_LW* m_tbinHistoRecent[SCT_Monitoring::N_REGIONS]{};
+  TProfile2D* m_tbinfrac[SCT_Monitoring::N_REGIONS][s_commonSize]{};
+  TProfile2D* m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{};
+  TProfile_LW* m_tbinfracall{nullptr};
+  TProfile_LW* m_tbinfracVsLB[SCT_Monitoring::N_REGIONS]{};
 
-  VecProf2_t m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{};
-  VecProf2_t m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
-  VecProf2_t m_phitoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]{};
 
   //Histograms with HO distribution
   TH1F* m_HO[SCT_Monitoring::N_REGIONS+1]{};
@@ -291,19 +278,19 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
 
   //---- results required no triggers
   // # of hits vs LBs
-  Prof_t m_HallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  Prof_t m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_HallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
   // HO with hits subtracted by SP
-  Prof_t m_HO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  Prof_t m_NoisyModulesWithHO_vsLB[nThreshes]{};
+  TProfile_LW* m_HO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  TProfile_LW* m_NoisyModulesWithHO_vsLB[nThreshes]{};
 
   //---- results required trigger
   // # of hits vs LBs
-  Prof_t m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
-  Prof_t m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
   // HO with hits
-  Prof_t m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  Prof_t m_NoisyModulesWithHOTrigger_vsLB[nThreshes]{};
+  TProfile_LW* m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
+  TProfile_LW* m_NoisyModulesWithHOTrigger_vsLB[nThreshes]{};
 
   StatusCode makeVectorOfTrackRDOIdentifiers();
  
@@ -343,25 +330,25 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   StatusCode resetHitMapHists();
   StatusCode generalHistsandNoise();
 
-  StatusCode resetVecProf2(VecProf2_t hists) const;
-  StatusCode resetVecH2(VecH2_t hists) const;
-  StatusCode resetVecH1(VecH1_t hists) const;
+  StatusCode resetVecProf2(std::vector<TProfile2D*>& hists) const;
+  StatusCode resetVecH2(std::vector<TH2F_LW*>& hists) const;
+  StatusCode resetVecH1(std::vector<TH1F_LW*>& hists) const;
 
-  H1_t h1Factory(const std::string& name, const std::string& title, MonGroup& registry, VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) const;
-  H1_t h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins) const;
+  TH1F_LW* h1Factory(const std::string& name, const std::string& title, MonGroup& registry, std::vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const;
+  TH1F_LW* h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins) const;
 
   TH1F* th1Factory(const std::string& name, const std::string& title, MonGroup& registry, std::vector<TH1F*>& storageVector, const float lo, const float hi, const unsigned int nbins) const;
   TH1F* th1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins) const;
 
-  H2_t h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecH2_t& storageVector) const;
+  TH2F_LW* h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TH2F_LW*>& storageVector) const;
 
-  H2I_t h2IFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
+  TH2I_LW* h2IFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
 
-  Prof2_t prof2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, VecProf2_t& storageVector) const;
-  Prof2_t prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
+  TProfile2D* prof2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TProfile2D*>& storageVector) const;
+  TProfile2D* prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
 
-  Prof_t profFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbin, float lo, float hi) const;
-  Prof_t profFactory(const std::string& name, const std::string& title, MonGroup& registry) const;
+  TProfile_LW* profFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbin, float lo, float hi) const;
+  TProfile_LW* profFactory(const std::string& name, const std::string& title, MonGroup& registry) const;
 
   ///Format the position as a string
   std::string positionString(const Identifier& plane) const;

@@ -27,11 +27,13 @@ class ConditionBridgeMT{
  ConditionBridgeMT(std::shared_ptr<IConditionMT>& condition):
   m_pCondition(condition){}
   
-  bool isSatisfied(const HypoJetVector& ips, IConditionVisitor* v) const{
+  bool isSatisfied(const HypoJetVector& ips,
+                   std::unique_ptr<IConditionVisitor>& v) const{
     return m_pCondition -> isSatisfied(ips, v);
   }
 
-  bool operator()(const HypoJetVector& ips, IConditionVisitor* v) const{
+  bool operator()(const HypoJetVector& ips,
+                  std::unique_ptr<IConditionVisitor> v) const{
     return isSatisfied(ips, v);
   }
 

@@ -22,9 +22,24 @@ athMsgLog = Logging.logging.getLogger('Herwig7Control')
 
 ## \brief Get path to the `share/Herwig` folder
 ##
-
+## Try to get it from the `InstallArea` first.
+## If this fails fall back to `$HERWIG7_PATH/share/Herwig`
+##
 def get_share_path():
 
+  cmt_paths  = os.environ.get("CMAKE_PREFIX_PATH")
+  cmt_config = os.environ.get("BINARY_TAG")
+  
+  # trying to get it from the `InstallArea`
+  for path in cmt_paths.split(':'):
+    path = os.path.join(path, "InstallArea", cmt_config, "share")
+    try:
+      filelist = os.listdir(path)
+    except:
+      filelist = []
+    if "HerwigDefaults.rpo" in filelist: return(path)
+
+  # falling back to `$HERWIG7_PATH`
   path = os.path.join(os.environ['HERWIG7_PATH'], 'share/Herwig')
   if os.path.isfile(os.path.join(path, 'HerwigDefaults.rpo')):
     return(path)
@@ -39,16 +54,14 @@ herwig7_bin_path   = os.path.join(herwig7_path, 'bin')
 herwig7_share_path = get_share_path()
 
 herwig7_binary     = os.path.join(herwig7_bin_path, 'Herwig')
-herwig7_mergegrids = os.path.join(herwig7_bin_path, 'herwig-mergegrids')
 
 
 ## Do the read/run sequence.
 ##
-## This function should provide the build, integrate, mergegrids and run step
-## in one go without creating a gridpack - just pure and direct event generation
+## This function should provide the read and run step in one go
 def run(gen_config):
 
-  ## perform build/integrate/mergegrids sequence
+  ## perform the read step
   do_read(gen_config)
 
   ## start the event generation
@@ -85,7 +98,6 @@ def matchbox_run_gridpack(gen_config, integration_jobs, gridpack_name, cleanup_h
 
     ## create infile from jobOption commands
     write_infile(gen_config)
-    # write_infile(run_name, event_generator, seed, commands)
 
     ## do build/integrate/mergegrids sequence
     xsec, err = do_build_integrate_mergegrids(gen_config, integration_jobs)
@@ -148,6 +160,19 @@ def do_read(gen_config):
   share_path = get_share_path()
   do_step('read', [herwig7_binary, 'read', get_infile_name(gen_config.run_name), '-I', share_path])
 
+## Do the read step and re-use an already existing infile
+def do_read_existing_infile(gen_config):
+
+  ## print start banner including version numbers
+  log(message=start_banner())
+
+  ## copy HerwigDefaults.rpo to the current working directory
+  get_default_repository()
+
+  ## call Herwig7 binary to do the read step
+  share_path = get_share_path()
+  do_step('read', [herwig7_binary, 'read', gen_config.infile_name, '-I', share_path])
+
 
 ## Do the build step
 def do_build(gen_config, integration_jobs):
@@ -163,7 +188,7 @@ def do_build(gen_config, integration_jobs):
 
   ## call the Herwig7 binary to do the build step
   share_path = get_share_path()
-  do_step('build', [herwig7_binary, 'build', get_infile_name(gen_config.run_name), '-I', share_path, '-y'+str(integration_jobs)])
+  do_step('build', [herwig7_binary, 'build', get_infile_name(gen_config.run_name), '-I', share_path, '-y '+str(integration_jobs)])
 
 
 ## Do the integrate step for one specific integration job
@@ -184,7 +209,7 @@ def do_integrate(run_name, integration_job):
 def do_mergegrids(run_name, integration_jobs):
 
   runfile_name = get_runfile_name(run_name)
-  mergegrids_command = [herwig7_mergegrids, runfile_name]
+  mergegrids_command = [herwig7_binary, 'mergegrids', runfile_name]
   # if setupfile_name: mergegrids_command.append('--setupfile='+setupfile_name)
 
   do_step('mergegrids', mergegrids_command)
@@ -265,6 +290,23 @@ def do_run(gen_config, cleanup_herwig_scratch=True):
   ## part of the interface can take over and generate the events
   athMsgLog.info(hw7Utils.ansi_format_info("Returning to the job options and starting the event generation afterwards"))
 
+
+## Do the run step and re-use an already existing runfile
+def do_run_existing_runfile(gen_config):
+
+  ## this is necessary to make Herwig aware of the name of the run file
+  gen_config.genSeq.Herwig7.RunFile = gen_config.runfile_name
+
+  ## overwrite athena's seed for the random number generator
+  if gen_config.runArgs.randomSeed is None:
+    gen_config.genSeq.Herwig7.UseRandomSeedFromGeneratetf = False
+  else:
+    gen_config.genSeq.Herwig7.UseRandomSeedFromGeneratetf = True
+    gen_config.genSeq.Herwig7.RandomSeedFromGeneratetf = gen_config.runArgs.randomSeed
+
+  ## don't break out here so that the job options can be finished and the C++
+  ## part of the interface can take over and generate the events
+  athMsgLog.info(hw7Utils.ansi_format_info("Returning to the job options and starting the event generation afterwards"))
 
 
 # utility functions -----------------------------------------------------------

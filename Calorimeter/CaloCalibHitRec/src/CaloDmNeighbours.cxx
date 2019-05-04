@@ -48,8 +48,7 @@
 CaloDmNeighbours::CaloDmNeighbours() ctor
 ************************************************************************** */
 CaloDmNeighbours::CaloDmNeighbours(const CaloDmDescrManager *dmMgr)
-  : m_caloDetDescrManager(0),
-    m_caloDM_ID(0),
+  : m_caloDM_ID(0),
     m_caloCell_ID(0),
     m_larFcal_ID(0),
     m_larHec_ID(0),
@@ -82,9 +81,6 @@ int CaloDmNeighbours::initialize(std::string DmNeighboursFileName)
         << "Unable to get pointer to StoreGate Service" << endmsg;
     return 1;
   }
-
-  // pointer to detector manager:
-  m_caloDetDescrManager  = CaloDetDescrManager::instance();
 
   sc = m_detStore->retrieve(m_caloDM_ID);
   if (sc.isFailure()) {
@@ -150,7 +146,7 @@ int CaloDmNeighbours::getNeighbours_DmHitsForCaloCell(const Identifier &cell_id,
 {
   neighbourList.clear();
 
-  const CaloDetDescrElement* theCDDE = m_caloDetDescrManager->get_element(cell_id);
+  const CaloDetDescrElement* theCDDE = getMgr()->get_element(cell_id);
   if (!theCDDE) return 1;
   float cell_eta = theCDDE->eta();
   int neta=int((cell_eta - CALOMAP_ETA_MIN)*(1./CALOMAP_DETA));
@@ -790,3 +786,15 @@ int CaloDmNeighbours::make_CaloSample2DmRegion_map()
   return 0;
 }
 
+
+const CaloDetDescrManager* CaloDmNeighbours::getMgr() const
+{
+  const CaloDetDescrManager* p = m_caloDetDescrManager.get();
+  if (!p) {
+    if (m_detStore->retrieve (p, "CaloMgr").isFailure()) {
+      return nullptr;
+    }
+    m_caloDetDescrManager.set (p);
+  }
+  return p;
+}

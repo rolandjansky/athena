@@ -146,7 +146,7 @@ InDet::TRT_DriftCircleContainer* InDet::TRT_DriftCircleContainerCnv_p1::createTr
       log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p1 " << endmsg;
      } 
     }
-    std::auto_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->module_hash_max()));
+    std::unique_ptr<InDet::TRT_DriftCircleContainer> trans(std::make_unique<InDet::TRT_DriftCircleContainer>(m_trtId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

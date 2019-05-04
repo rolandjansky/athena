@@ -5,7 +5,8 @@ from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def ForDetGeometryCfg( ConfigFlags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc,geoModelSvc = GeoModelCfg( ConfigFlags )
+    acc = GeoModelCfg( ConfigFlags )
+    geoModelSvc=acc.getPrimary()
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     # LUCID

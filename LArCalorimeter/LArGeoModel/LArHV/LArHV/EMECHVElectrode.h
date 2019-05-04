@@ -12,6 +12,7 @@ class EMECHVElectrode
  public:
   // The ownership of the EMBHVModule pointer NOT transferred to EMECHVElectrode
   EMECHVElectrode(const EMECHVModule* module, unsigned int iElectrode);
+  ~EMECHVElectrode();
 
   unsigned int getElectrodeIndex() const;
 
@@ -36,8 +37,6 @@ class EMECHVElectrode
   int hvLineNo(int iGap) const;
 
  private:
-  ~EMECHVElectrode();
-
   EMECHVElectrode(const EMECHVElectrode& right);
   EMECHVElectrode& operator=(const EMECHVElectrode& right);
 

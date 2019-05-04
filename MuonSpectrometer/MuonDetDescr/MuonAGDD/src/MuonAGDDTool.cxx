@@ -37,12 +37,7 @@ StatusCode MuonAGDDTool::initialize()
 	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
 	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
 
-	StatusCode result;
-	result = AGDDToolBase::initialize();
-	if (result.isFailure())
-    {
-    	ATH_MSG_FATAL("could not initialize AGDDToolBase!!! ");
-    }
+	ATH_CHECK(AGDDToolBase::initialize());
 
 	// please see more details on regarding the dependency on AMDB on ATLASSIM-3636
 	// and the CMakeLists.txt . the NSWAGDDTool avoids the dependency already
@@ -56,7 +51,8 @@ StatusCode MuonAGDDTool::initialize()
 		theHelper.SetNSWComponents();
 	}
 	
-	return result;
+	ATH_CHECK(construct());
+	return StatusCode::SUCCESS;
 }
 
 StatusCode MuonAGDDTool::construct() 

@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/xAOD/xAODCaloEvent
+                          Control/CxxUtils
                           GaudiKernel
                           PRIVATE
                           Calorimeter/CaloDetDescr
@@ -35,7 +36,7 @@ atlas_add_component( CaloCalibHitRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
 
 # Install files from the package:
 atlas_install_headers( CaloCalibHitRec )

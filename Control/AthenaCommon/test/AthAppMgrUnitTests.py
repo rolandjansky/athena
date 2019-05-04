@@ -27,7 +27,7 @@ class ShutUp(object):
     A little helper class to keep GAUDI app mgr silent...
     """
     def __init__(self):
-        self.save  = file( '/dev/null', 'w' )
+        self.save  = open( '/dev/null', 'w' )
         self.quiet = NamedTemporaryFile( suffix = ".msg.log" )
         os.dup2( sys.stdout.fileno(), self.save.fileno() )
         return

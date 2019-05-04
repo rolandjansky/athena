@@ -11,7 +11,7 @@ import sys
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerConfigHLT' )
 
-class TriggerConfigHLT:
+class TriggerConfigHLT(object):
 
     sCurrentTriggerConfig = None
     def currentTriggerConfig():
@@ -97,6 +97,6 @@ def getConfFromChainName(chainName, allChainDicts = None):
         sys.exit("ERROR, in getConfFromChainName: Wrong chain configuration") 
         return [chainName]
     else:
-        print "TriggerConfigHLT.getConfFromChainName: Called chain " + chainName + " and hypoTool conf "+ str(chainPartNames)
+        log.info("TriggerConfigHLT.getConfFromChainName: Called chain %s and hypoTool conf %s", chainName, chainPartNames)
         return chainPartNames
 

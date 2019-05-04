@@ -2,22 +2,6 @@
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.Include import include
-
-# Set InDet Flags
-def inDetSetup():
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doCaloSeededBrem = False
-    InDetFlags.InDet25nsec = True 
-    InDetFlags.doPrimaryVertex3DFinding = False 
-    InDetFlags.doPrintConfigurables = False
-    InDetFlags.doResolveBackTracks = True 
-    InDetFlags.doSiSPSeededTrackFinder = True
-    InDetFlags.doTRTPhaseCalculation = True
-    InDetFlags.doTRTSeededTrackFinder = True
-    InDetFlags.doTruth = False
-    InDetFlags.init()
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -47,17 +31,6 @@ def bJetStep1Sequence():
 
     from TrigUpgradeTest.jetDefs import jetAthSequence
     (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
-
-     
-    ## # input maker
-    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    ## InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
-    ## InputMakerAlg.RoIs='FSJETRoI'
-
-
-    # Construct jets
-    #from TrigUpgradeTest.jetDefs import jetRecoSequence    
-    #(recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -115,15 +88,6 @@ def bJetStep1SequenceALLTE():
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetAthSequence
     (recoSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,ConfigFlags)
-
-    ## # input maker
-    ## from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-    ## InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
-    ## InputMakerAlg.RoIs='FSJETRoI'
-
-    ## # Construct jets
-    ## from TrigUpgradeTest.jetDefs import jetRecoSequence
-    ## (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
 
     # Start with b-jet-specific algo sequence
     # Construct RoI. Needed input for Fast Tracking
@@ -198,12 +162,16 @@ def bJetStep2Sequence():
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
 
     # Precision Tracking
+    #def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
+    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )
 
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("GSCFexSplitInstance")
     theGSC.RoIs = InputMakerAlg.InViewRoIs
     theGSC.JetKey = InputMakerAlg.InViewJets
+    theGSC.TrackKey = PTTrackParticles[0]
     theGSC.PriVtxKey = "PrimaryVertex"
     theGSC.JetOutputKey = "GSCJets"
 
@@ -221,7 +189,7 @@ def bJetStep2Sequence():
     hypo.ReadFromView = True
 
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg,step2Sequence])
+    BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg] + PTAlgs + [step2Sequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
@@ -238,10 +206,14 @@ def bJetStep2SequenceALLTE():
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
     InputMakerAlg = InputMakerForRoI("BJetInputMaker_step2_ALLTE", RoIsLink="initialRoI")
 #    InputMakerAlg.RoIs="SplitJets" # TMP commenting
+
+    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets" )  
     
     # gsc correction
     from TrigBjetHypo.TrigGSCFexMTConfig import getGSCFexSplitInstance
     theGSC = getGSCFexSplitInstance("GSCFexSplitInstance_ALLTE")
+    theGSC.TrackKey = PTTrackParticles[0]
     theGSC.JetKey = "SplitJets"
     theGSC.JetOutputKey = "GSCJets"
     theGSC.PriVtxKey = "PrimaryVertex"
@@ -255,8 +227,9 @@ def bJetStep2SequenceALLTE():
     hypo.RoILink = "initialRoI"
     hypo.JetLink = "jets"
 
+
     # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence_step2ALLTE",[InputMakerAlg,theGSC])
+    BjetAthSequence = seqAND("BjetAthSequence_step2ALLTE",[InputMakerAlg] + PTAlgs + [theGSC] )
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

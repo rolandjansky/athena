@@ -25,7 +25,7 @@ class skimRawExecutor(scriptExecutor):
         # in the RAW file we are going to skim. This is because the HI workflow
         # will provide millions of events in their filter file, more than acmd.py
         # can cope with.
-        listEvtCommand = ['AtlListBSEvents.exe', '-l']
+        listEvtCommand = ['AtlListBSEvents', '-l']
         listEvtCommand.extend(self.conf.argdict['inputBSFile'].value)
         # For best lookup speed, we store the runnumber/eventnumber in a dictionary (set would also
         # be fast)
@@ -50,7 +50,7 @@ class skimRawExecutor(scriptExecutor):
                     except ValueError, e:
                         msg.warning("Failed to understand this line from AtlListBSEvents: {0}".format(line))
         except subprocess.CalledProcessError, e:
-            errMsg = "Call to AtlListBSEvents.exe failed: {0}".format(e)
+            errMsg = "Call to AtlListBSEvents failed: {0}".format(e)
             msg.error(erMsg)
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_SETUP_FAIL"), errMsg)
         msg.info("Found {0} events as skim candidates in RAW inputs".format(len(rawEventList)))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -32,7 +32,7 @@ class TrigEFBjet_p2 {
     m_xChi2(0.0), m_xSv(0.0),
     m_xmvtx(0.0), m_xevtx(0.0), m_xnvtx(0.0)
     {}
-  virtual ~TrigEFBjet_p2(){}
+  virtual ~TrigEFBjet_p2() = default;
  
   //private:
 

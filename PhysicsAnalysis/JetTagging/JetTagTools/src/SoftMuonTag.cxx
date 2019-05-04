@@ -166,7 +166,6 @@ namespace Analysis
     // prepare readKey for calibration data:
     ATH_CHECK(m_readKey.initialize());
     
-    m_egammaBDTs.clear();
     /** ANDREA **/
 
     /** retrieving ToolSvc: */
@@ -273,7 +272,6 @@ namespace Analysis
   {
     /** ANDREA **/
     ATH_MSG_DEBUG("#BTAG# Finalizing SoftMuonTag.");
-    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     /** ANDREA **/
     return StatusCode::SUCCESS;
   }
@@ -312,16 +310,24 @@ namespace Analysis
       }
     }
 
-    // #1: Preparation of MVA instance using egammaBDT
+    // #1: Preparation of MVA instance using BDT
     ATH_MSG_DEBUG("#BTAG# Jet author for SoftMuon: " << author );
-
-    MVAUtils::BDT *bdt=nullptr; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
 
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
+    //Retrieve BDT from cond object
+    MVAUtils::BDT *bdt(nullptr);
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
+    bdt = readCdo->retrieveBdt("SoftMu",author);
+    if (!bdt) {
+      ATH_MSG_WARNING("#BTAG# No BDT for " << m_taggerNameBase<<" exists in the condition object.. Disabling algorithm.");
+      m_disableAlgo=true;
+      return StatusCode::SUCCESS;
+    }
+
     TObjArray* toa=readCdo->retrieveTObject<TObjArray>("SoftMu",author, m_taggerNameBase+"Calib/"+m_varStrName);
-    TTree *tree = readCdo->retrieveTObject<TTree>("SoftMu",author, m_taggerNameBase+"Calib/"+m_treeName);
     std::string commaSepVars="";
     if (toa) {
       TObjString *tos= nullptr;
@@ -341,21 +347,8 @@ namespace Analysis
     }
     inputVars.push_back(commaSepVars.substr(0,-1));
 
-    ATH_MSG_DEBUG("#BTAG# tree name= "<< tree->GetName() <<" inputVars.size()= "<< inputVars.size());// <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
+    ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
     for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
-
-    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-  
-    if (tree) {
-      ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
-      bdt = new MVAUtils:: BDT(tree);
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-      m_disableAlgo=true;
-      delete bdt;
-      return StatusCode::SUCCESS;
-    }
 
     std::string alias = readCdo->getChannelAlias(author);
     std::vector<float*>  inputPointers; inputPointers.clear();
@@ -368,18 +361,11 @@ namespace Analysis
     if ( inputVars.size()!=nConfgVar or badVariableFound ) {
       ATH_MSG_WARNING("#BTAG# Number of expected variables for SoftMu: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       m_disableAlgo=true;
-      delete bdt;
       return StatusCode::SUCCESS;
     }
  
     bdt->SetPointers(inputPointers);
 
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT!=m_egammaBDTs.end()) {
-      delete it_egammaBDT->second;
-      m_egammaBDTs.erase(it_egammaBDT);
-    }
-    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );  
 
     // Reference only: Fill control histograms and get jet label
     std::string pref = "";
@@ -589,20 +575,9 @@ namespace Analysis
     // #3: Computation of MVA output variable(s)
     /* compute SMT: */
     double smt = -1.1;
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT==m_egammaBDTs.end()) {
-      int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-      if(0==alreadyWarned) {
-	ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
-	m_undefinedReaders.push_back(alias);
-      }
-    }
-    else {
-      if(it_egammaBDT->second) {
-	smt = GetClassResponse(it_egammaBDT->second);//this gives back double
-      }
-      else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
-    } 
+
+    smt = GetClassResponse(bdt);//this gives back double
+
     if (m_sm_dR==10.) smt=-1.1;
     ATH_MSG_DEBUG("#BTAG# SMT weight: " << smt <<", "<<alias<<", "<<author);
 
@@ -615,9 +590,6 @@ namespace Analysis
     BTag->setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/
-
-
-
 
     return  StatusCode::SUCCESS;
   }

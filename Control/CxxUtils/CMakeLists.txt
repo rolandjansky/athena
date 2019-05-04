@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797343 2017-02-15 15:13:34Z ssnyder $
 ################################################################################
 # Package: CxxUtils
 ################################################################################
@@ -20,18 +19,20 @@ atlas_add_library( CxxUtils
    PUBLIC_HEADERS CxxUtils
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES}
-   PRIVATE_LINK_LIBRARIES TestTools )
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} TestTools )
 
 # Additional libraries in the package:
 atlas_add_library( exctrace_collector src/exctrace/exctrace_collector.cxx
-   PUBLIC_HEADERS CxxUtils )
+   PUBLIC_HEADERS CxxUtils
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} )
 
 atlas_add_library( calg src/libcalg/*.c
    PUBLIC_HEADERS CxxUtils )
 
 atlas_add_library( AthDSoCallBacks src/AthDsoCbk.c
    PUBLIC_HEADERS CxxUtils
-   LINK_LIBRARIES calg )
+   LINK_LIBRARIES calg
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} )
 
 # Unit tests in the package:
 atlas_add_test( read_athena_statm_test
@@ -65,7 +66,7 @@ atlas_add_test( BitPackerUnpacker_test
 
 atlas_add_test( stacktrace_test
    SOURCES test/stacktrace_test.cxx
-   LINK_LIBRARIES CxxUtils dl )
+   LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
 
 atlas_add_test( MD5_test
    SOURCES test/MD5_test.cxx

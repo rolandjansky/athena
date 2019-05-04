@@ -131,7 +131,7 @@ def createTriggerFlags():
                         ver2017='v12phiflip_noecorrnogap')( prevFlags.Trigger.run2Config )
     )
     # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersiona',
+    flags.addFlag('Trigger.egamma.calibMVAVersion',
                   lambda prevFlags:
                   __tunes(default='egammaMVACalib/online/v3',
                           ver2016='egammaMVACalib/online/v3',

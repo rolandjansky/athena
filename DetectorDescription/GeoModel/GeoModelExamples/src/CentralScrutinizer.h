@@ -6,7 +6,9 @@
 #define CentralScrutinizer_h 1
 
 #include "GeoModelKernel/GeoVDetectorElement.h"
-#include "Identifier/Identifier.h"
+#ifndef BUILDVP1LIGHT
+    #include "Identifier/Identifier.h"
+#endif
 
 class CentralScrutinizer : public GeoVDetectorElement
 {
@@ -14,7 +16,11 @@ class CentralScrutinizer : public GeoVDetectorElement
   CentralScrutinizer(const GeoVFullPhysVol *fullPhysVol);
   virtual ~CentralScrutinizer() override final;
 
-  Identifier identify() const;
+  #if defined BUILDVP1LIGHT
+  	int identify() const;
+  #else
+  	Identifier identify() const;
+  #endif
 
  private:
   CentralScrutinizer(const CentralScrutinizer &right);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -290,9 +290,8 @@ EventInfo::clID() const
   return classID(); 
 }
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "SGTools/CLASS_DEF.h"
-#endif
+
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( EventInfo , 2101 , 1 )
 
 inline const CLID& 

@@ -120,7 +120,7 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
 
 
 TRTUncompressedHitCollection* TRT_HitCollectionCnv_p2::createTransient(const TRT_HitCollection_p2* persObj, MsgStream &log) {
-  std::auto_ptr<TRTUncompressedHitCollection> trans(new TRTUncompressedHitCollection("DefaultCollectionName",persObj->m_nHits.size()));
+  std::unique_ptr<TRTUncompressedHitCollection> trans(std::make_unique<TRTUncompressedHitCollection>("DefaultCollectionName",persObj->m_nHits.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

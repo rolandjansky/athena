@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaData.h 670157 2015-05-27 11:52:51Z krasznaa $
@@ -22,7 +22,7 @@ CLASS_DEF( xAOD::FileMetaData, 178309087, 1 )
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/MetaCont.h"
 CLASS_DEF( MetaCont<xAOD::FileMetaData> , 178903087 , 1 )
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( MetaCont<xAOD::FileMetaData>, MetaContBase );
 #endif // not XAOD_STANDALONE
 

@@ -6,7 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, RecoFragments
 #----------------------------------------------------------------
 # Base class to configure chain
 #----------------------------------------------------------------
-class ChainConfigurationBase:
+class ChainConfigurationBase(object):
 
     def __init__(self, chainDict):
         

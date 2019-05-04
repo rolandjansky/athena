@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include <atomic>
 #include <vector>
 #include <map>
 
@@ -139,7 +140,7 @@ namespace InDet
       float m_etatol, m_phitol; 
 
       /** number of warnings printed when no track parameters available **/
-      mutable int m_warning;
+      mutable std::atomic_int m_warning;
 
       /** Input: track
 	  Output: changes in mapOfHits (filling it) and hasTRT

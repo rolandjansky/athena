@@ -18,11 +18,12 @@ PURPOSE: Data preparation from FEB Headers (Ex/Ey)
  ********************************************************************/
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
+#include "LArRecEvent/LArFebEnergyCollection.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "IRegionSelector/RegSelEnums.h"
 #include <vector>
 
 class TrigMissingET;

@@ -294,7 +294,12 @@ void IVP13DStandardChannelWidget::Imp::autoSnapshot()
 	unsigned long long eventnumber(0);
 	channel->getRunEvtNumber(runnumber,eventnumber);
 
-	QString snapshotDirName = VP1QtUtils::environmentVariableValue("VP1_SCREENSHOTS_DIR");
+  #if defined BUILDVP1LIGHT
+  	QString snapshotDirName = VP1QtUtils::expertSettingValue("general","ExpertSettings/VP1_SCREENSHOTS_DIR");
+  #else
+    QString snapshotDirName = VP1QtUtils::environmentVariableValue("VP1_SCREENSHOTS_DIR");
+  #endif
+
 	QFileInfo snapshotDir(snapshotDirName);
 	if(!snapshotDir.exists()||!snapshotDir.isDir()||!snapshotDir.isReadable()||!snapshotDir.isWritable()) {
 		channel->message("The directory for storing VP1 snapshots "+snapshotDirName+" either does not exist or is not writable");

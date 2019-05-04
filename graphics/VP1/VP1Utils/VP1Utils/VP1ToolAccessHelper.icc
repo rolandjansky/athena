@@ -2,6 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "VP1Base/VP1Msg.h"
 
 template <class toolT>
 inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandname, bool silent, bool createIfNotExists )
@@ -11,7 +12,7 @@ inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandna
   //keep correct pointers and avoid dynamic casts to null!
   QString typeidstr(typeid(toolT*).name());
 
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("getToolPointer(..) called with tool type/name = "+tooltypeandname
 		   +", with return typeid = "+typeidstr);
   if (!m_toolsvc) {
@@ -72,13 +73,13 @@ inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandna
       message("getToolPointer(..) ERROR: Tool retrieved is not a valid interface!");
       thetool = 0;
     }
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("Returning "+str(thetool)+" tool pointer.");
     //We need the cast to void ptr to work around some WEIRD pointer
     //values introduced by a more straight-forward casting:
     void* voidptr = static_cast<void*>(thetool);
     IAlgTool* algptr = static_cast<IAlgTool*>(voidptr);
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("getToolPointer(..) Storing ptr = "+str(algptr));
     m_toolname2pointer[id] = algptr;
     return thetool;
@@ -95,7 +96,7 @@ inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandna
 	      +" to type "+QString(typeid(toolT*).name())+". Returning 0.");
       return 0;
     }
-    if (verbose())
+    if (VP1Msg::verbose())
       messageVerbose("getToolPointer(..) Retrieved tool pointer ("+str(pointer)+") succesfully");
     return pointer;
   }

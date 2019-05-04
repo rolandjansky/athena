@@ -182,7 +182,22 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
     kwargs.setdefault("Fitter",  getPublicTool("CombinedMuonTrackBuilderFit") )
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
 
-        
+
+def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from AthenaCommon.AppMgr import ToolSvc
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
+    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
+    ToolSvc += caloCellAssociationTool
+  
+    muonCaloEnergyTool = Rec__MuonCaloEnergyTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"),
+                                                 ParticleCaloCellAssociationTool = caloCellAssociationTool)
+
+    ToolSvc += muonCaloEnergyTool
+    materialProviderTool = Trk__TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool);
+    return materialProviderTool
+
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr    import ToolSvc
@@ -209,6 +224,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
     kwargs.setdefault("UseCaloTG"                     , False )
+    kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )
@@ -226,7 +242,6 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     import MuonCombinedRecExample.CombinedMuonTrackSummary
-    from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") )
@@ -251,6 +266,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
     kwargs.setdefault("UseCaloTG"                     , True ) #
+    kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
     
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )

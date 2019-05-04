@@ -44,7 +44,7 @@ CTPToChainMapping = { "HLT_mu6" :  "L1_MU6",
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
-topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
 
 def __mon(finalCollName, stepColls=[]):
     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
@@ -73,24 +73,8 @@ def __mon(finalCollName, stepColls=[]):
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-### workaround to prevent online trigger folders to be enabled ###
-from AthenaCommon.DetFlags import DetFlags
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-from InDetRecExample.InDetKeys import InDetKeys
-
-### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-include("InDetRecExample/InDetRecConditionsAccess.py")
+from TrigUpgradeTest.InDetSetup import inDetSetup
+inDetSetup()
 
 ### Load data from Muon detectors ###
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags

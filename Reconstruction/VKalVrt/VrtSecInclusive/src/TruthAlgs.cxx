@@ -610,7 +610,7 @@ namespace VKalVrtAthena {
   const xAOD::TruthParticle*  VrtSecInclusive::getTrkGenParticle ( const xAOD::TrackParticle *trkPart ) const 
   {
     typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-    static const char* NAME = "truthParticleLink";
+    constexpr const char* NAME = "truthParticleLink";
     if(  ! trkPart->isAvailable< Link_t >( NAME ) ) {
       return 0;
     }

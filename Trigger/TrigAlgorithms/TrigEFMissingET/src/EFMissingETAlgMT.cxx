@@ -34,7 +34,6 @@ StatusCode EFMissingETAlgMT::initialize() {
   CHECK( m_metTools.retrieve() );
   CHECK( m_metContainerKey.initialize() );
   CHECK( m_monTool.retrieve() );
-  CHECK( m_helperTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -77,8 +76,6 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   }
   loopTimer.stop();
 
-  ATH_CHECK( m_helperTool->executeMT(met, &metHelper) );
-
   auto EF_MEx_log = Monitored::Scalar( "EF_MEx_log", toLogGeV( met->ex() ) );
   auto EF_MEy_log = Monitored::Scalar( "EF_MEy_log", toLogGeV( met->ey() ) );
   auto EF_MEz_log = Monitored::Scalar( "EF_MEz_log", toLogGeV( met->ez() ) );
@@ -97,7 +94,7 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
   auto EF_XS        = Monitored::Scalar( "EF_XS", toLinGeV( std::hypot( met->ex(), met->ey() ) ) / toLinGeV( met->sumEt() ) );
   auto EF_MET_phi   = Monitored::Scalar( "EF_MET_phi",   std::atan2( met->ey(), met->ex() ) );
  
-  ATH_MSG_INFO("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
+  ATH_MSG_DEBUG("Event MET: "  << std::hypot( met->ex(), met->ey() ) << " MeV");
 
   auto monitorIt = Monitored::Group( m_monTool,
 					    totalTimer, loopTimer,

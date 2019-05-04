@@ -88,8 +88,7 @@ def all_DataFlow_to_dot(name, step_list):
             # reset the last step
             last_step_hypoNodes =[]
             for cfseq in cfseq_list:
-#                print cfseq.name
-                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))            
+                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
                 step_connections.append(cfseq.filter)                      
                 file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                             +'     node [color=white style=filled]\n'\
@@ -222,7 +221,7 @@ def findDHconnections(nodeA, nodeB):
     if len(dataIntersection) > 0:
         for line in dataIntersection:
             lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-            print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+            #print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
     return lineconnect
     
 

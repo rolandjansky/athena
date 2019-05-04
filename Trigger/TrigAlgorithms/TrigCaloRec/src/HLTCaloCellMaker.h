@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -28,6 +28,7 @@
 #include "CaloEvent/CaloCellContainerVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CaloEvent/CaloConstCellContainer.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TileConditions/TileEMScale.h"
 
@@ -53,6 +54,9 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 
 	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
 	bool m_roiMode;
+
+        SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+        { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 #endif

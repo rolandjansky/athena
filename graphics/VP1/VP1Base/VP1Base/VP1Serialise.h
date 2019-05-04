@@ -18,6 +18,7 @@
 #define VP1PERSISTIFY_H
 
 #include "VP1Base/VP1HelperClassBase.h"
+#include "VP1Base/VP1Msg.h"
 #include <typeinfo>
 #include <QDataStream>
 class VP1EtaPhiCutWidget;
@@ -126,7 +127,7 @@ private:
 
 template <class T>
 void VP1Serialise::save(const T& t) {//Fallback template method
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("Saving "+QString(typeid(T).name())+" via datastream operator");
   *(stream()) << t;
 }

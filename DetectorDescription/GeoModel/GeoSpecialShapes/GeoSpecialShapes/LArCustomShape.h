@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArCustomShape_h
@@ -8,9 +8,11 @@
 #include <string>
 #include <map>
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
+#ifndef XAOD_STANDALONE
+    #include "GaudiKernel/ServiceHandle.h"
+    #include "GaudiKernel/StatusCode.h"
+    #include "StoreGate/StoreGateSvc.h"
+#endif // XAOD_STANDALONE
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
@@ -26,16 +28,17 @@ class LArCustomShape : public GeoShape
 {
 
  public:
+    #ifndef XAOD_STANDALONE
+        typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+    #endif // XAOD_STANDALONE
+  	typedef std::pair<LArG4::LArWheelCalculator_t, int> CalcDef_t;
+  	typedef std::map<std::string,  CalcDef_t> ShapeCalc_typemap;
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  typedef std::pair<LArG4::LArWheelCalculator_t, int> CalcDef_t;
-  typedef std::map<std::string, CalcDef_t> ShapeCalc_typemap;
-
-  /// The custom shape has only one property: a string that contains
-  /// the name of the particular shape.  In the GeoModel->Geant4
-  /// conversion, this name will be matched against a list of custom
-  /// classes that inherit from G4VSolid to get the correct custom
-  /// solid.
+  // The custom shape has only one property: a string that contains
+  // the name of the particular shape.  In the GeoModel->Geant4
+  // conversion, this name will be matched against a list of custom
+  // classes that inherit from G4VSolid to get the correct custom
+  // solid.
   LArCustomShape(const std::string& shapeName);
 
   /// Return the calculator:
@@ -62,20 +65,25 @@ class LArCustomShape : public GeoShape
   /// Executes a GeoShapeAction
   virtual void exec(GeoShapeAction* action) const;
 
+#ifndef XAOD_STANDALONE
   /** @brief The standard @c StoreGateSvc/DetectorStore
     * Returns (kind of) a pointer to the @c StoreGateSvc
     */
-  StoreGateSvc_t& detStore() const;
+   StoreGateSvc_t& detStore() const;
+#endif // XAOD_STANDALONE
 
  protected:
 
   virtual ~LArCustomShape();
 
  private:
+  #if defined XAOD_STANDALONE
+    int createCalculator(const CalcDef_t & cdef);
+  #else // XAOD_STANDALONE
+   StatusCode createCalculator(const CalcDef_t & cdef);
+  #endif
 
-  StatusCode createCalculator(const CalcDef_t & cdef);
-
-  /// Prohibited operations.
+  // Prohibited operations.
   LArCustomShape(const LArCustomShape &right);
   const LArCustomShape & operator=(const LArCustomShape &right);
 
@@ -90,8 +98,10 @@ class LArCustomShape : public GeoShape
   /// The calculator:
   const LArWheelCalculator *m_calculator;
 
-  /// Pointer to StoreGate (detector store by default)
-  mutable StoreGateSvc_t m_detStore;
+   #ifndef XAOD_STANDALONE
+       /// Pointer to StoreGate (detector store by default)
+       mutable StoreGateSvc_t m_detStore;
+   #endif // XAOD_STANDALONE
 
 };
 
@@ -103,8 +113,11 @@ inline ShapeType LArCustomShape::getClassTypeID() {
   return s_classTypeID;
 }
 
-inline ServiceHandle<StoreGateSvc>& LArCustomShape::detStore() const {
-  return m_detStore;
-}
+#ifndef XAOD_STANDALONE
+    inline ServiceHandle<StoreGateSvc>& LArCustomShape::detStore() const  {
+        return m_detStore;
+    }
+#endif // XAOD_STANDALONE
 
-#endif
+
+#endif // LArCustomShape_h

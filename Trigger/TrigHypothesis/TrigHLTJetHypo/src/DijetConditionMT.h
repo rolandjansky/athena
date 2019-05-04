@@ -36,7 +36,7 @@ class DijetConditionMT: public IConditionMT{
   ~DijetConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   IConditionVisitor*) const override;
+                   std::unique_ptr<IConditionVisitor>&) const override;
   
   std::string toString() const noexcept override;
 

@@ -25,7 +25,6 @@
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloTopoTowerAlg.h"
 #include "CxxUtils/make_unique.h"
 #include <string>
@@ -39,7 +38,6 @@ CaloTopoTowerAlg::CaloTopoTowerAlg(const std::string& name,ISvcLocator* pSvcLoca
    m_cellContainerKey("AllCalo"),
    m_towerContainerKey("CmbTower"),
    m_newTowerContainerKey("TopoTower"),
-   m_noiseTool("CaloNoiseToolDefault"),
    m_caloSelection(false)
 { 
 
@@ -53,11 +51,6 @@ CaloTopoTowerAlg::CaloTopoTowerAlg(const std::string& name,ISvcLocator* pSvcLoca
   declareProperty("MinimumCellEnergy",      m_minimumCellEnergy    = -1000000000.0);  
   declareProperty("MinimumClusterEnergy",   m_minimumClusterEnergy = -1000000000.0);  
 
-  // Noise Tool stuff
-  declareProperty("CaloNoiseTool",          m_noiseTool            ,"Tool Handle for noise tool");
-  declareProperty("DefaultNoiseSigma",      m_noiseSigma           = 10.0);
-  declareProperty("UseCaloNoiseTool",       m_useNoiseTool         = true);
-  declareProperty("UsePileUpNoise",         m_usePileUpNoise       = true);
   declareProperty("CellEnergySignificance", m_cellESignificanceThreshold = -1);
   
   // Calo from which to use cells
@@ -90,29 +83,13 @@ StatusCode CaloTopoTowerAlg::initialize()
   // services
   ATH_MSG_INFO( "Initializing CaloTopoTowerAlg"  );
 
-  CHECK(m_cellToClusterMapKey.initialize());
-  CHECK(m_cellContainerKey.initialize());
-  CHECK(m_towerContainerKey.initialize());
-  CHECK(m_newTowerContainerKey.initialize());
+  ATH_CHECK(m_cellToClusterMapKey.initialize());
+  ATH_CHECK(m_cellContainerKey.initialize());
+  ATH_CHECK(m_towerContainerKey.initialize());
+  ATH_CHECK(m_newTowerContainerKey.initialize());
   
+  ATH_CHECK(m_noiseCDOKey.initialize());
 
-
-  // retrieve noise tool from the tool svc
-  if (m_useNoiseTool) {
-    ATH_CHECK( m_noiseTool.retrieve() );
-    ATH_MSG_INFO( "Noise Tool retrieved"  );
-  }
-  else {
-    m_noiseTool.disable();
-  }
-
-  // Report some information regarding the noise tool
-  if ( m_useNoiseTool && m_usePileUpNoise) {
-    ATH_MSG_DEBUG( "Pile-Up Noise from Noise Tool " 
-                   << " is selected! The noise sigma will be the"
-                   << " quadratic sum of the electronics noise and the pile up!"  );
-  }
-  
   m_caloIndices.clear();
   for ( unsigned int iCalos=0; iCalos< m_includedCalos.size(); iCalos++ )
   {
@@ -193,6 +170,11 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG( "Successfully retrieved CaloCell2ClusterMap <"<< cellToClusterMap.name() << ">" );
+
+  /// Get CaloNoise CDO
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
+  const CaloNoise* noise=*noiseHdl;
+
 
   ///+++ consistency: pick up CaloClusterContainer pointer from map
   CaloCell2ClusterMap::const_iterator fClusMap(cellToClusterMap->begin());
@@ -290,11 +272,7 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
       float noiseSigma = 1.0;
       if (m_cellESignificanceThreshold>=0.) {
         // Noise tool to calculate cell energy significance
-        if ( m_useNoiseTool ) {
-          if ( m_usePileUpNoise ) noiseSigma = m_noiseTool->getNoise(cell,ICalorimeterNoiseTool::TOTALNOISE);
-          else noiseSigma = m_noiseTool->getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-        } 
-        else noiseSigma = m_noiseSigma;
+	noiseSigma=noise->getNoise(cell->ID(),cell->gain());
         if ( noiseSigma > 0. ) signedRatio = signedE/noiseSigma;
       }
       

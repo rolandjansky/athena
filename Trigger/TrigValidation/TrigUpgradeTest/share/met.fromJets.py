@@ -26,7 +26,8 @@ svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
-from TrigUpgradeTest.jetDefs import jetRecoSequence
+from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
+
 (jetSequence, jetsKey) = jetRecoSequence( RoIs="FullScanRoIs" )
 topSequence += jetSequence
 
@@ -34,17 +35,16 @@ topSequence += jetSequence
 # Add EFMissingETFrom** algorithm
 #################################################
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT, EFMissingETFromHelper
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT, EFMissingETFromHelperMT
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 
 mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
 mhtTool.JetsCollection = jetsKey
-metAlg.METTools=[ mhtTool ]
 
-helperTool = EFMissingETFromHelper("theHelperTool") 
-metAlg.HelperTool= helperTool 
+helperTool = EFMissingETFromHelperMT("theHelperTool") 
 
+metAlg.METTools=[ mhtTool, helperTool ]
 metAlg.METContainerKey="HLT_MET_mht"
 
 metMon = GenericMonitoringTool("METMonTool")

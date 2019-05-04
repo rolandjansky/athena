@@ -49,14 +49,16 @@ StatusCode TrigCaloDataAccessSvc::finalize() {
 }
 
 
-unsigned int TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context ) {
-
-  return prepareLArFullCollections( context );
-  
+unsigned int
+TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context,
+                                               const CaloBCIDAverage* avg)
+{
+  return prepareLArFullCollections( context, avg );
 }
 
 
 StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
+                                                    const CaloBCIDAverage* avg,
                                                     const IRoiDescriptor& roi,
                                                     const DETID detID,
                                                     const int sampling,
@@ -65,7 +67,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   std::vector<IdentifierHash> requestHashIDs;  
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
-  unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
+  unsigned int sc = prepareLArCollections( context, avg, roi, sampling, detID );
 
   if ( sc ) return StatusCode::FAILURE;
   
@@ -140,6 +142,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 
 
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        const CaloBCIDAverage* avg,
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
 
@@ -153,7 +156,7 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   m_robDataProvider->addROBData( m_vrodid32tile );
   }
 
-  unsigned int sc = prepareLArFullCollections( context );
+  unsigned int sc = prepareLArFullCollections( context, avg );
   if ( sc ) return StatusCode::FAILURE;
 
   sc = prepareTileFullCollections( context );
@@ -172,8 +175,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
 }
 
 
-unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) {
-
+unsigned int
+TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context,
+                                                  const CaloBCIDAverage* avg)
+{
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit() ) {
     return 0x1; // dummy code
@@ -200,7 +205,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
         m_robDataProvider->getROBData( context, vrodid32fullDet, robFrags );      
       }
       
-      status |= convertROBs( robFrags, ( cache->larContainer ) );
+      status |= convertROBs( avg, robFrags, ( cache->larContainer ) );
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
@@ -389,7 +394,8 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   return 0x0;
 }
 
-unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, 
+unsigned int TrigCaloDataAccessSvc::convertROBs( const CaloBCIDAverage* avg,
+                                                 const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, 
                                                LArCellCont* larcell ) {
 
   unsigned int status(0);
@@ -436,7 +442,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 	  // TB the converter has state
 	  status |= (m_larDecoder->report_error());
 
-	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
+	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( avg, sourceID );
 	} 
 	
       }
@@ -528,6 +534,7 @@ void TrigCaloDataAccessSvc::clearMissing( const std::vector<uint32_t>& request,
 
 
 unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
+                                                           const CaloBCIDAverage* avg,
                                                          const IRoiDescriptor& roi,
                                                          const int sampling,
                                                          DETID detector ) {
@@ -562,7 +569,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   // same in prepareLArFullCollections
   cache->larContainer->eventNumber( context.evt() );
   
-  unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
+  unsigned int status = convertROBs( avg, robFrags, ( cache->larContainer ) );
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );

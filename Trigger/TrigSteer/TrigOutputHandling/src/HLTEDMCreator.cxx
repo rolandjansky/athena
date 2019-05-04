@@ -52,11 +52,13 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigElectronContainer ); 
   INIT_XAOD( TrigPhotonContainer );
   INIT_XAOD( TrackParticleContainer );
+  INIT_XAOD( TrigMissingETContainer );
 
   INIT_XAOD( L2StandAloneMuonContainer );
   INIT_XAOD( L2CombinedMuonContainer );
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
+
 
 #undef INIT
 #undef INIT_XAOD
@@ -265,6 +267,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
   CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
+  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer )
 
   CREATE_XAOD( L2StandAloneMuonContainer, L2StandAloneMuonAuxContainer );
   CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );

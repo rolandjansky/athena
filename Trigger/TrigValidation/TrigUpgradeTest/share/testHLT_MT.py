@@ -119,6 +119,7 @@ jobproperties.Beam.beamType = 'collisions'
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
+TriggerFlags.doCaloOffsetCorrection = False
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
@@ -272,6 +273,7 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.EnableVerboseViews( True )
 
 # EventInfo creation if needed
 from RecExConfig.ObjKeyStore import objKeyStore
@@ -481,6 +483,7 @@ if opt.doL1Unpacking:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
 
+
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------
@@ -519,3 +522,12 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print svcMgr
+
+
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior=True
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.lock()
+triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
+Configurable.configurableRun3Behavior=False

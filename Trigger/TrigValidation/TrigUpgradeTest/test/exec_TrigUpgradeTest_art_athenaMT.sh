@@ -46,6 +46,8 @@ fi
 
 if [[ $INPUT == "run2data" ]]; then
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
+elif [[ $INPUT == "run2dataFTK" ]]; then
+    export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1"
 elif [[ $INPUT == "run2mc_ttbar" ]]; then
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000002.pool.root.1"
 else
@@ -61,8 +63,8 @@ if [[ ${FROMPICKLE} == "1" ]]; then
   (set -x
   athena.py \
   ${MATHLIBOPT} \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 else
   echo "Running athena command:"
   (set -x
@@ -70,12 +72,12 @@ else
   ${MATHLIBOPT} \
   --threads ${THREADS} \
   --concurrent-events ${SLOTS} \
-  --filesInput ${DS} \
+  --filesInput "${DS}" \
   --evtMax ${EVENTS} \
   --skipEvents ${SKIPEVENTS} \
   -c "${EXTRA}" \
-  ${JOBOPTION} &> ${JOB_LOG}
-  )
+  ${JOBOPTION} >${JOB_LOG} 2>&1
+  ) 2>&1
 fi
 
 ######################################
