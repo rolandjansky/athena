@@ -20,8 +20,12 @@ class LArHVPathology
   LArHVPathology(const LArHVPathologiesDb* in);
   virtual ~LArHVPathology() {}
 
-  const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &getPathology() const {return const_cast<std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &> (m_v);}
-  std::map<std::pair<Identifier, unsigned int>, std::vector<unsigned short> > &getElecMap() {return m_electIndMap;}
+  const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb>& getPathology() const {
+    return m_v;
+  }
+  std::map<std::pair<Identifier, unsigned int>, std::vector<unsigned short> >&getElecMap() {
+    return m_electIndMap;
+  }
 
  private:
   std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> m_v;
