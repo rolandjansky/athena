@@ -135,8 +135,8 @@ CTPConfig::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) co
          pss.writeXML(xmlfile, indentLevel, indentWidth);
       }
    }
-   menu().writeXMLThresholds(xmlfile, indentLevel, indentWidth);
    menu().writeXMLMonCounters(xmlfile, indentLevel, indentWidth);
+   menu().writeXMLThresholds(xmlfile, indentLevel, indentWidth);
    random().writeXML(xmlfile, indentLevel, indentWidth);
    bunchGroupSet().writeXML(xmlfile, indentLevel, indentWidth);
    prescaledClock().writeXML(xmlfile, indentLevel, indentWidth);

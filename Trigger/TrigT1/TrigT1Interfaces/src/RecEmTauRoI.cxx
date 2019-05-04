@@ -257,7 +257,7 @@ unsigned int RecEmTauRoI::isolation() const {
 }
 
 /** returns bitmask of thresholds passed by RoI */
-unsigned int RecEmTauRoI::thresholdPattern() const { return m_thresholdMask; }
+unsigned long int RecEmTauRoI::thresholdPattern() const { return m_thresholdMask; }
 
 /** returns type of RoI */
 TrigT1CaloDefs::RoIType RecEmTauRoI::roiType() const { return m_type; }

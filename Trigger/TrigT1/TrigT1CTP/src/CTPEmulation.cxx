@@ -15,6 +15,7 @@
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/JetEnergyRoI.h"
+#include "TrigT1CaloUtils/CoordToHardware.h"
 
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
@@ -32,24 +33,6 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    m_histSvc ("THistSvc", name),
    m_configSvc ("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
    m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
-   m_useCTPInput (false),
-   m_gFEXMETPufitLoc ("gXEPUFIT_MET"),
-   m_gFEXMETRhoLoc ("gXERHO_MET"),
-   m_gFEXMETJwoJLoc ("gXEJWOJ_MET"),
-   m_gJetLoc ("gL1Jets"),
-   m_jJetLoc ("jRoundJets"),
-   m_jLJetLoc ("jRoundLargeRJets"),
-   m_eFEXClusterLoc ( "SClusterCl"),
-   m_eFEXTauLoc ( "SClusterTau"),
-   m_muonRoILoc ( "LVL1MuonRoIs" ),
-   m_lgJetRoILoc ( "LVL1JetRoIs" ),
-   m_muonCTPLoc ( LVL1MUCTPI::DEFAULT_MuonCTPLocation ),
-   m_isData ( false ),
-   m_roiOutputLoc ( LVL1CTP::DEFAULT_CTPSLinkLocation ),
-   m_roiOutputLoc_Rerun ( LVL1CTP::DEFAULT_CTPSLinkLocation_Rerun ),
-   m_rdoOutputLoc ( LVL1CTP::DEFAULT_RDOOutputLocation ),
-   m_rdoOutputLoc_Rerun ( LVL1CTP::DEFAULT_RDOOutputLocation_Rerun ),
-   m_histStream("EXPERT"),
    m_itemCountsSumTBP(512,0),
    m_itemCountsSumTAP(512,0),
    m_itemCountsSumTAV(512,0)      
@@ -58,7 +41,8 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "HistogramStream", m_histStream, "Histogram stream name, bound to file by THistSvc");
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger configuration service");
 
-   declareProperty( "UseCTPInputFromData", m_useCTPInput, "Trigger configuration service");
+   declareProperty( "UseCTPInputFromData", m_useCTPInput, "Set true if using CTP input objects from the various L1 simulations");
+   declareProperty( "UseCTPInputFromData", m_useROIBOutput, "Set to true the ROIBResult should be used for Run 2 data (not likely)");
 
    // input data
    declareProperty( "gFEXMETPufitInput", m_gFEXMETPufitLoc, "StoreGate location of gFEX PUfit MET input" );
@@ -69,10 +53,6 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "gJetInput", m_gJetLoc, "StoreGate location of gFEX Jet inputs" );
    declareProperty( "eFEXClusterInput", m_eFEXClusterLoc, "StoreGate location of eFEX Cluster inputs" );
    
-   // input data from ROI
-   declareProperty( "MuonRoIInput", m_muonRoILoc, "StoreGate location of muon RoI inputs" );
-   declareProperty( "LGJetRoIInput", m_lgJetRoILoc, "StoreGate location of muon RoI inputs" );
-
    // muon threshold counts from CTP input recorded in data
    declareProperty( "MuonCTPInput", m_muonCTPLoc, "StoreGate location of Muon inputs" );
    declareProperty( "EmTauCTPLocation", m_emtauCTPLoc, "StoreGate location of EmTau inputs" );
@@ -100,8 +80,10 @@ StatusCode
 LVL1CTP::CTPEmulation::initialize() {
 
    CHECK(m_configSvc.retrieve());
-
-   CHECK(m_lvl1Tool.retrieve());
+   
+   if ( m_useROIBOutput ) {
+      CHECK(m_lvl1Tool.retrieve());
+   }
 
    CHECK(m_histSvc.retrieve());
 
@@ -185,7 +167,9 @@ LVL1CTP::CTPEmulation::beginRun() {
 
    CHECK( bookHists() );
 
-   CHECK( m_lvl1Tool->updateConfig() );
+   if ( m_useROIBOutput ) {
+      CHECK( m_lvl1Tool->updateConfig() );
+   }
 
    return StatusCode::SUCCESS;
 }
@@ -394,31 +378,43 @@ LVL1CTP::CTPEmulation::retrieveCollections() {
 
    // Run 2 ROIs 
    if ( m_isData ) {
-      // they are contained in the ROIBResult when running on data
-      ATH_MSG_DEBUG( "Running on data, going to retrieve ROIBResult" );
+      ATH_MSG_DEBUG( "Running on data" );
 
-      CHECK ( evtStore()->retrieve( m_roibResult ) );
-      ATH_MSG_DEBUG( "Retrieved ROIBResult" );
+      CHECK ( evtStore()->retrieve( m_muctpiCTP, m_muonCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::MuCTPICTP#" << m_muonCTPLoc << "'");
 
-      CHECK ( m_lvl1Tool->updateResult( *m_roibResult, false) );
-      ATH_MSG_DEBUG( "Created ROIs from  ROIBResult" );
+      CHECK ( evtStore()->retrieve( m_emtauCTP, m_emtauCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::EmTauCTP#" << m_emtauCTPLoc << "'");
 
+      CHECK ( evtStore()->retrieve( m_jetCTP, m_jetCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::JetCTP#" << m_jetCTPLoc << "'");
+
+      CHECK ( evtStore()->retrieve( m_energyCTP, m_energyCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::EnergyCTP#" << m_energyCTPLoc << "'");
+
+      // CHECK ( evtStore()->retrieve( m_topoCTP, m_topoCTPLoc ) );
+      // ATH_MSG_DEBUG( "Retrieved 'LVL1::FrontPanelCTP#" << m_topoCTPLoc << "'");
+
+      if ( m_useROIBOutput ) {
+         CHECK ( evtStore()->retrieve( m_roibResult ) );
+         ATH_MSG_DEBUG( "Retrieved ROIBResult" );
+
+         CHECK ( m_lvl1Tool->updateResult( *m_roibResult, false) );
+         ATH_MSG_DEBUG( "Created ROIs from  ROIBResult" );
+      }
    } else {
       ATH_MSG_DEBUG( "Running on MC, going to retrieve simulated L1 objects in CTP format" );
 
       CHECK ( evtStore()->retrieve( m_muctpiCTP, m_muonCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::MuCTPICTP#" << m_muonCTPLoc << "'");
       CHECK ( evtStore()->retrieve( m_emtauCTP, m_emtauCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::EmTauCTP#" << m_emtauCTPLoc << "'");
       CHECK ( evtStore()->retrieve( m_jetCTP, m_jetCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::JetCTP#" << m_jetCTPLoc << "'");
       CHECK ( evtStore()->retrieve( m_energyCTP, m_energyCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::EnergyCTP#" << m_energyCTPLoc << "'");
       CHECK ( evtStore()->retrieve( m_topoCTP, m_topoCTPLoc ) );
-
-      // ATH_MSG_DEBUG( "Running on MC, going to retrieve xAOD collections" );
-
-      // CHECK ( evtStore()->retrieve( m_muonRoIs, m_muonRoILoc ) );
-      // ATH_MSG_DEBUG( "Retrieved Muon ROI container '" << m_muonRoILoc << "' with size " << m_muonRoIs->size());
-
-      // CHECK ( evtStore()->retrieve( m_lgJetRoIs, m_lgJetRoILoc ) );
-      // ATH_MSG_DEBUG( "Retrieved LG Jet container '" << m_lgJetRoILoc << "' with size " << m_lgJetRoIs->size());
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::FrontPanelCTP#" << m_topoCTPLoc << "'");
 
    }
 
@@ -443,7 +439,7 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/taus", h) ); h->Fill(m_eFEXTau->size());
    
    // counts of objects from ROIBResult
-   if( m_isData ) {
+   if ( m_useROIBOutput ) {
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/jetRoIData", h) ); h->Fill(m_lvl1Tool->getJetEnergyRoIs().size());
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/emTauRoIData", h) ); h->Fill(m_lvl1Tool->getEMTauRoIs().size());
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/muonRoIData", h) ); h->Fill(m_lvl1Tool->getMuonRoIs().size());
@@ -518,47 +514,48 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    // ===
 
    // JET
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/eta", h2) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/phi", h3) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/etLarge", h4) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/etSmall", h5) );
-   for ( const HLT::JetEnergyRoI & jetROI : m_lvl1Tool->getJetEnergyRoIs() ) {
+   if ( m_useROIBOutput ) {
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/eta", h2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/phi", h3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/etLarge", h4) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/jet/etSmall", h5) );
+      for ( const HLT::JetEnergyRoI & jetROI : m_lvl1Tool->getJetEnergyRoIs() ) {
 
-      ATH_MSG_DEBUG( "HLT::JetEnergyRoI with word " << jetROI.lvl1RoI().roIWord() 
-		     << " has type "  << jetROI.lvl1RoI().roIType() 
-                     << " and l1roi jet et " << jetROI.lvl1RoI().jetEt() );
+         ATH_MSG_DEBUG( "HLT::JetEnergyRoI with word " << jetROI.lvl1RoI().roIWord() 
+                        << " has type "  << jetROI.lvl1RoI().roIType() 
+                        << " and l1roi jet et " << jetROI.lvl1RoI().jetEt() );
 
-      if( jetROI.lvl1RoI().roIType() != LVL1::TrigT1CaloDefs::JetRoIWordType ) 
-         continue; // not a jet (likely xe)
+         if( jetROI.lvl1RoI().roIType() != LVL1::TrigT1CaloDefs::JetRoIWordType ) 
+            continue; // not a jet (likely xe)
       
-      const ROIB::JetEnergyRoI & l1JetROI = jetROI.lvl1RoI();
+         const ROIB::JetEnergyRoI & l1JetROI = jetROI.lvl1RoI();
 
-      LVL1::CoordinateRange coordRange = m_jetDecoder->coordinate(l1JetROI.roIWord());
-      int ieta = int ( ( coordRange.etaRange().min() + 0.025) / 0.1) +
-	 ( ( coordRange.etaRange().min() + 0.025 > 0) ? 0 : -1);
-      int iphi = int(( coordRange.phiRange().min() + 0.025) * 32 / M_PI);
-      h2->Fill( ieta );
-      h3->Fill( iphi );
-      h4->Fill( l1JetROI.etLarge() );
-      h5->Fill( l1JetROI.etSmall() );
+         LVL1::CoordinateRange coordRange = m_jetDecoder->coordinate(l1JetROI.roIWord());
+         int ieta = int ( ( coordRange.etaRange().min() + 0.025) / 0.1) +
+            ( ( coordRange.etaRange().min() + 0.025 > 0) ? 0 : -1);
+         int iphi = int(( coordRange.phiRange().min() + 0.025) * 32 / M_PI);
+         h2->Fill( ieta );
+         h3->Fill( iphi );
+         h4->Fill( l1JetROI.etLarge() );
+         h5->Fill( l1JetROI.etSmall() );
+      }
    }
 
    // MET
-   if( m_roibResult ) {
+   if ( m_useROIBOutput ) {
       int energyX(0), energyY(0), energyT(0);
       //unsigned int w0, w1, w2;
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/met/xe",    h1) );
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/met/xephi", h2) );
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/met/te",    h3) );
-      LVL1::JEPRoIDecoder conv;
       for( const ROIB::JetEnergyResult & res : m_roibResult->jetEnergyResult() ) {
 	 for( const ROIB::JetEnergyRoI & roi : res.roIVec() ) {
             // RoI word
 	    uint32_t roIWord = roi.roIWord();
 	    // RoI type
-	    int roiType = conv.roiType( roIWord );
+	    int roiType = m_jetDecoder->roiType( roIWord );
 
-            // ATH_MSG_DEBUG("JOERG MET t=" << roiType << " " << roi.roIType() << " w=" << roIWord << " et=" << roi.jetEt()
+            // ATH_MSG_DEBUG("MET t=" << roiType << " " << roi.roIType() << " w=" << roIWord << " et=" << roi.jetEt()
             //               << " etLarge=" << roi.etLarge() << " etSmall=" << roi.etSmall() 
             //               << " eX=" << roi.energyX() << " eY=" << roi.energyY() << " eSum=" << roi.energySum()
             //               << " eTsumType=" << roi.etSumType()
@@ -589,44 +586,27 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
       
    }
 
-   if( m_roibResult ) {
-      { // EMTAU ROIs
-         unsigned int nEMROI(0), nTAUROI(0);
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/et",  h ) );
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/eta", h1) );
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/phi", h2) );
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/et",  h3) );
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/eta", h4) );
-         CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/phi", h5) );
-         for( const ROIB::EMTauResult & res : m_roibResult->eMTauResult() ) {
-            for ( const ROIB::EMTauRoI & roi : res.roIVec() ) {
-               ATH_MSG_DEBUG("JOERG EMTAU roi t=" << roi.roIType() << " et=" << roi.et() << " iso=" << roi.isolation());
-               if( roi.roIType() == LVL1::TrigT1CaloDefs::EMRoIWordType) {
-                  nEMROI++;
-                  h->Fill(roi.et());
-               } else if( roi.roIType() == LVL1::TrigT1CaloDefs::TauRoIWordType) {
-                  nTAUROI++;
-                  h3->Fill(roi.et());
-               }
+   if ( m_useROIBOutput ) {
+      // EMTAU ROIs
+      unsigned int nEMROI(0), nTAUROI(0);
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/et",  h ) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/eta", h1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/em/phi", h2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/et",  h3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/eta", h4) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/roi/tau/phi", h5) );
+      for( const ROIB::EMTauResult & res : m_roibResult->eMTauResult() ) {
+         for ( const ROIB::EMTauRoI & roi : res.roIVec() ) {
+            ATH_MSG_DEBUG("EMTAU roi t=" << roi.roIType() << " et=" << roi.et() << " iso=" << roi.isolation());
+            if( roi.roIType() == LVL1::TrigT1CaloDefs::EMRoIWordType) {
+               nEMROI++;
+               h->Fill(roi.et());
+            } else if( roi.roIType() == LVL1::TrigT1CaloDefs::TauRoIWordType) {
+               nTAUROI++;
+               h3->Fill(roi.et());
             }
          }
       }
-      // for( const ROIB::JetEnergyResult & res : m_roibResult->jetEnergyResult() ) {
-      //    for( const ROIB::JetEnergyRoI & roi : res.roIVec() ) {
-      //       uint32_t roIWord = roi.roIWord();	    
-      //       // RoI type
-      //       LVL1::JEPRoIDecoder conv;
-      //       int roiType = conv.roiType( roIWord );
-      //       ATH_MSG_DEBUG( "Jet RoI, RoIWord = " << MSG::hex << std::setw( 8 )
-      //   		   << roi.roIWord() << MSG::dec << "  type = " << roiType << " " << roi.roIType() 
-      //   		   << " ==? " << LVL1::TrigT1CaloDefs::JetRoIWordType);
-      //       // // Jet ROI
-      //       // if( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {
-      //       // 	  // RecRoI
-      //       // 	  // LVL1::RecJetRoI recRoI( roIWord, &jetThresholds );
-      //       // }
-      //    }
-      // }
    }
 
 
@@ -666,12 +646,10 @@ LVL1CTP::CTPEmulation::extractMultiplicities() const {
 
       // get the multiplicity for each threshold
       unsigned int multiplicity = 0;
-      //thr->print("  ", 4);
       if( ! isNewThreshold(thr) && m_useCTPInput == true ) {
          multiplicity = extractMultiplicitiesFromCTPInputData( thr );
       } else {
          multiplicity = calculateMultiplicity( thr );
-         // ATH_MSG_DEBUG("Threshold " << thr->name() << " has multiplicity " << multiplicity );
       }
 
       m_thrMap->decision( thr )->setValue( multiplicity );
@@ -694,9 +672,7 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
    unsigned int multiplicity = 0;
 
    if( confThr->name().find("J") == 0 ) {
-
-      if( m_isData ) {
-         // Run-2 threshold
+      if( m_useROIBOutput ) {
          for ( const HLT::JetEnergyRoI & jetROI : m_lvl1Tool->getJetEnergyRoIs() ) {
 
             LVL1::TrigT1CaloDefs::RoIType jettype = m_jetDecoder->roiType( jetROI.lvl1RoI().roIWord() );
@@ -757,12 +733,35 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
       }
       if ( dh ) {
 	 for ( const auto & jet : **dh ) {
-	    float eta = jet->eta();
-	    // copied fromm 
+
+            float eta = jet->eta();
+            float phi = jet->phi();
+            if ( phi < 0 ) phi += 2*M_PI;
+            if ( phi >= 2*M_PI ) phi -= 2*M_PI;
+
+            LVL1::Coordinate coord(phi, eta);
+            LVL1::CoordToHardware converter;
+            unsigned int jepCoord = converter.jepCoordinateWord(coord);
+            uint32_t roiword = jepCoord << 19;
+
+            auto coordRange = m_jetDecoder->coordinate(roiword);
+
+            int ieta =
+               int((coordRange.eta() + ((coordRange.eta() > 0.01) ? 0.025 : -0.025)) / 0.1) - 1;
+            // Adjustment due to irregular geometries
+            if (ieta > 24)
+               ieta += 2;
+            int iphi = int((coordRange.phiRange().min() + 0.025) * 32 / M_PI);
+            
+	    // copied from
 	    // https://acode-browser.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigT1/TrigT1CaloUtils/src/JetAlgorithm.cxx#0337
-	    int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-	    int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
-	    multiplicity +=  ( ((unsigned int) (jet->et8x8()/1000.)) > confThr->triggerThresholdValue( ieta, iphi )->ptcut() ) ? 1 : 0;
+	    //int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
+	    //int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
+            bool pass = ((unsigned int) (jet->et8x8()/1000.)) > confThr->triggerThresholdValue( ieta, iphi )->ptcut();
+            if (confThr->name() == "jJ15.31ETA49") {
+               std::cout << "JJJ ieta " << ieta << " iphi " << iphi << " eta " << eta << " phi " << phi << " et " << ((unsigned int) (jet->et8x8()/1000.)) << " thr " << confThr->triggerThresholdValue( ieta, iphi )->ptcut() << ( pass ? "  --> pass" : "") << std::endl;
+            } 
+	    multiplicity += pass ? 1 : 0;
 	 }
       }
    }
@@ -797,7 +796,7 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
    } else {
       // old EM threshold from data
 
-      if ( m_isData ) {
+      if ( false ) {
          if ( m_roibResult ) {
             for( const ROIB::EMTauResult & res : m_roibResult->eMTauResult() ) {
                for ( const ROIB::EMTauRoI & roi : res.roIVec() ) {
@@ -870,7 +869,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
       }
    } else {
       // old TAU threshold
-      if ( m_isData ) {
+      if ( false ) {
          if ( m_roibResult ) {
             for( const ROIB::EMTauResult & res : m_roibResult->eMTauResult() ) {
                for ( const ROIB::EMTauRoI & roi : res.roIVec() ) {
@@ -909,7 +908,7 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
 
    if ( confThr->name().find("XE")==0 ) {
       // old XE
-      if( m_isData ) {
+      if( m_useROIBOutput ) {
          int energyX(0), energyY(0);
          if ( m_roibResult ) {
             for( const ROIB::JetEnergyResult & res : m_roibResult->jetEnergyResult() ) {
@@ -938,17 +937,17 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
       }
    } else if ( confThr->name().find("TE")==0 ) {
       // old TE 
-      if( m_isData ) {
+      if( m_useROIBOutput ) {
          int energyT(0);
          if ( m_roibResult ) {
             bool isRestrictedRangeTE = confThr->name().find("24ETA49") != std::string::npos;
             for( const ROIB::JetEnergyResult & res : m_roibResult->jetEnergyResult() ) {
                for( const ROIB::JetEnergyRoI & roi : res.roIVec() ) {
-                  ATH_MSG_DEBUG("JOERG TE " << roi.etSumType() << "  " << roi.roIType());
+                  ATH_MSG_DEBUG("TE " << roi.etSumType() << "  " << roi.roIType());
                   if( (roi.etSumType() == (isRestrictedRangeTE ? 1 : 0) ) && // pick the correct sumtype 0-all, 1-restricted range
                       roi.roIType() == LVL1::TrigT1CaloDefs::EnergyRoIWordType2 ) { // etSum
                      energyT = m_jetDecoder->energyT( roi.roIWord() );
-                     ATH_MSG_DEBUG("JOERG TE RR " << energyT);
+                     ATH_MSG_DEBUG("TE RR " << energyT);
                   }
                }
             }
@@ -1003,7 +1002,7 @@ LVL1CTP::CTPEmulation::calculateMuonMultiplicity( const TrigConf::TriggerThresho
    unsigned int multiplicity = 0;
 
    // muon
-   if( m_isData ) {
+   if( m_useROIBOutput ) {
       for ( const auto & muon : m_lvl1Tool->getMuonRoIs() ) {
          multiplicity += (muon.lvl1RoI().pt()>= (unsigned int) confThr->mapping()) ? 1 : 0; // TrigT1Result/MuCTPIRoI
       }

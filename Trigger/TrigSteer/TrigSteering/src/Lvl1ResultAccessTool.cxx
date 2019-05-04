@@ -330,7 +330,7 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
         if (tn < 0) {
            ATH_MSG_WARNING("this LVL1 threshold bit position (" << tn << ") is smaller 0, go on w/o this threshold!");
         } else {
-           uint32_t mask= 0x1 << tn; // 8 bits in Run 1, up to 25 in Run 2
+           unsigned long int mask= 0x1L << tn; // 8 bits in Run 1, up to 25 in Run 2, many more (>32) in Run 3
            ATH_MSG_DEBUG("thresholdNumber = " << tn << " .. mask = 0x" << hex << setw( 8 ) << setfill( '0' ) << mask << dec);
            m_jetCfg.push_back( ConfigJetEThreshold( thr->name(), teId, activeHLT, mask, JetRoI) );
            m_useL1JetEnergy = true;
@@ -1196,9 +1196,7 @@ Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result,
             }
          
          }
-
          m_jetRoIs.push_back(roi);
-
       }
    }
    

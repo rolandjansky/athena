@@ -241,7 +241,7 @@ unsigned int RecJetRoI::etSmall() const {
 }
 
 /** returns mask of thresholds passed */
-unsigned int RecJetRoI::thresholdPattern() const { return m_thresholdMask; }
+unsigned long int RecJetRoI::thresholdPattern() const { return m_thresholdMask; }
 
 /** returns TRUE if threshold number <em>threshold_number</em> has been pass
     ed by this ROI. */
