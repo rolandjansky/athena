@@ -15,7 +15,7 @@ import ast
 import collections
 import six
 
-from UnifyProperties import unifySet
+from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
@@ -138,7 +138,7 @@ class ComponentAccumulator(object):
 
         parent += newseq
         algsByName = findAllAlgorithmsByName(newseq)
-        for name, existingAlgs in algsByName.iteritems():
+        for name, existingAlgs in six.iteritems(algsByName):
             startingIndex = 0
             if name not in self._algorithms:
                 firstAlg, parent, idx = existingAlgs[0]
@@ -402,7 +402,7 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
                         algorithmsByName = findAllAlgorithmsByName(c)
-                        for name, existingAlgs in algorithmsByName.iteritems():
+                        for name, existingAlgs in six.iteritems(algorithmsByName):
                             startingIndex = 0
                             if name not in self._algorithms:
                                 firstAlg, parent, idx = existingAlgs[0]
@@ -436,7 +436,7 @@ class ComponentAccumulator(object):
         mergeSequences(destSeq,other._sequence)
 
         # Additional checking and updating other accumulator's algorithms list
-        for name, alg in other._algorithms.iteritems():
+        for name, alg in six.iteritems(other._algorithms):
             if name not in self._algorithms:
                 raise ConfigurationError('Error in merging. Algorithm {} missing in destination accumulator'.format(name))
             other._algorithms[name] = self._algorithms[name]
