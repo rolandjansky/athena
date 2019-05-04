@@ -20,8 +20,9 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include <utility>  // std::pair
-#include <set>
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
+#include <optional>
+#include <map>
 
 class ITrigJetHypoInfoCollector;
 
@@ -48,6 +49,24 @@ private:
   bool m_compound;  // true if jet group size >1 
   bool m_pass;
   FlowNetwork m_G;
+
+  std::vector<std::shared_ptr<FlowEdge>> m_srcToCondEdges;
+
+  std::map<int, pHypoJet> m_nodeToJet; 
+
+
+  std::optional<std::vector<std::vector<int>>>
+    conditionGroupMatches(const HypoJetGroupCIter&,
+			  const HypoJetGroupCIter&,
+			  const std::unique_ptr<ITrigJetHypoInfoCollector>&);
+
+  
+  std::optional<std::vector<std::shared_ptr<FlowEdge>>>
+    make_flowEdges(const HypoJetGroupCIter&,
+		   const HypoJetGroupCIter&,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+		   int&);
+  
 };
 
 #endif
