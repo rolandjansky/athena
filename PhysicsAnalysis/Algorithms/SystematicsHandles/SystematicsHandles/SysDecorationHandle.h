@@ -10,6 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgTools/MsgStream.h>
+#include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <string>
