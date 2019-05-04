@@ -7,12 +7,12 @@
 
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "LArReadoutGeometry/EMBHVPathologies.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
-#include "LArHV/EMBPresamplerHVModule.h"
 #include "LArHV/EMBHVElectrode.h"
 #include <cmath>
 #include "GeoModelKernel/RCBase.h"
 #include <vector>
+
+class EMBPresamplerHVModule;
 
 /**
  * @class EMBCell
@@ -154,7 +154,7 @@ class EMBCell : public RCBase
       /**
        * @Get HVModule (presampler cells)
        */
-      const EMBPresamplerHVModuleConstLink & getPresamplerHVModule () const;
+      const EMBPresamplerHVModule& getPresamplerHVModule () const;
 
 
       /**
@@ -176,7 +176,7 @@ class EMBCell : public RCBase
       // The cell does NOT own the pointers to its electrodes
       mutable std::vector<const EMBHVElectrode*> m_electrode;
 
-      mutable EMBPresamplerHVModuleConstLink m_presamplerModule;
+      mutable const EMBPresamplerHVModule* m_presamplerModule{nullptr};
 
       mutable std::vector<EMBHVPathologiesConstLink> m_hvPathologies;
 

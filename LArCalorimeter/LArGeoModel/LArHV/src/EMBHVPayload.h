@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _EMBHVPayload_h_
-#define _EMBHVPayload_h_
+#ifndef LARHV_EMBHVPAYLOAD_H
+#define LARHV_EMBHVPAYLOAD_H
 #include <iostream>
 struct EMBHVPayload {
   double         voltage[2];

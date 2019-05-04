@@ -19,10 +19,8 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMBPresamplerHVModule.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVManager.h"
 #include "LArHV/EMECPresamplerHVModule.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -165,16 +163,16 @@
       }
     } //EMBHVManager
 
-    const EMBPresamplerHVManager* hvManager_EMBPS=manager->getEMBPresamplerHVManager();
-    for (unsigned int iSide=hvManager_EMBPS->beginSideIndex();iSide<hvManager_EMBPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMBPS->beginPhiIndex();iPhi<hvManager_EMBPS->endPhiIndex();iPhi++) {
-         for (unsigned int iEta=hvManager_EMBPS->beginEtaIndex();iEta<hvManager_EMBPS->endEtaIndex();iEta++) { //0 to 7
-            EMBPresamplerHVModuleConstLink hvMod = hvManager_EMBPS->getHVModule(iSide,iEta,iPhi);
+    const EMBPresamplerHVManager& hvManager_EMBPS=manager->getEMBPresamplerHVManager();
+    for (unsigned int iSide=hvManager_EMBPS.beginSideIndex();iSide<hvManager_EMBPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMBPS.beginPhiIndex();iPhi<hvManager_EMBPS.endPhiIndex();iPhi++) {
+         for (unsigned int iEta=hvManager_EMBPS.beginEtaIndex();iEta<hvManager_EMBPS.endEtaIndex();iEta++) { //0 to 7
+            const EMBPresamplerHVModule& hvMod = hvManager_EMBPS.getHVModule(iSide,iEta,iPhi);
             for (int iGap=0;iGap<2;iGap++) {
-             float hv = hvMod->voltage(iGap);
-             float current =hvMod->current(iGap);
-             float eta = 0.5*(hvMod->getEtaMin()+hvMod->getEtaMax()); 
-             float phi= 0.5*(hvMod->getPhiMin()+hvMod->getPhiMax());
+             float hv = hvMod.voltage(iGap);
+             float current =hvMod.current(iGap);
+             float eta = 0.5*(hvMod.getEtaMin()+hvMod.getEtaMax()); 
+             float phi= 0.5*(hvMod.getPhiMin()+hvMod.getPhiMax());
 
              m_bec=0;
              m_isPresampler=1;
@@ -184,7 +182,7 @@
              m_gap = iGap;
              m_hv = hv; 
              m_current= current;
-             m_hvline = hvMod->hvLineNo(iGap);
+             m_hvline = hvMod.hvLineNo(iGap);
 
              if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -202,15 +200,15 @@
       }
     } //EMBPresampler
 
-    const EMECPresamplerHVManager* hvManager_EMECPS=manager->getEMECPresamplerHVManager();
-    for (unsigned int iSide=hvManager_EMECPS->beginSideIndex();iSide<hvManager_EMECPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMECPS->beginPhiIndex();iPhi<hvManager_EMECPS->endPhiIndex();iPhi++) {
-            EMECPresamplerHVModuleConstLink hvMod = hvManager_EMECPS->getHVModule(iSide,iPhi);
+    const EMECPresamplerHVManager& hvManager_EMECPS=manager->getEMECPresamplerHVManager();
+    for (unsigned int iSide=hvManager_EMECPS.beginSideIndex();iSide<hvManager_EMECPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMECPS.beginPhiIndex();iPhi<hvManager_EMECPS.endPhiIndex();iPhi++) {
+            const EMECPresamplerHVModule& hvMod = hvManager_EMECPS.getHVModule(iSide,iPhi);
             for (int iGap=0;iGap<2;iGap++) {
-             float hv = hvMod->voltage(iGap);
-             float current =hvMod->current(iGap);
-             float eta = 0.5*(hvMod->getEtaMin()+hvMod->getEtaMax());
-             float phi=0.5*(hvMod->getPhiMin()+hvMod->getPhiMax());
+             float hv = hvMod.voltage(iGap);
+             float current =hvMod.current(iGap);
+             float eta = 0.5*(hvMod.getEtaMin()+hvMod.getEtaMax());
+             float phi=0.5*(hvMod.getPhiMin()+hvMod.getPhiMax());
 
              m_bec=1;
              m_isPresampler=1;
@@ -220,7 +218,7 @@
              m_gap = iGap;
              m_hv = hv;   
              m_current= current;
-             m_hvline = hvMod->hvLineNo(iGap);
+             m_hvline = hvMod.hvLineNo(iGap);
 
              if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -473,14 +471,14 @@ std::vector<int> LArHV2Ntuple::GetHVLines(const Identifier& id) {
        const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
        if (!embElement) std::abort();
        const EMBCellConstLink cell = embElement->getEMBCell();
-       const EMBPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
-       for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+       const EMBPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
+       for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
      } else {
        const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
        if (!emecElement) std::abort();
        const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
-       for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
+       for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
      }
    }
  

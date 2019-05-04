@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECPresamplerHVManager.h"
@@ -30,72 +30,66 @@
 
 class EMECPresamplerHVManager::Clockwork {
 public:
-  CellBinning *phiBinning;
-  EMECPresamplerHVModuleConstLink linkArray[2][64]; // not dense
-  std::atomic<bool>          init{false};
-  std::mutex                 mtx;
+  Clockwork(const EMECPresamplerHVManager* manager) {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iPhi=0; iPhi<64; ++iPhi) {
+	moduleArray[iSide][iPhi] = new EMECPresamplerHVModule(manager, iSide, iPhi);
+      }
+    }
+  }
+  ~Clockwork() {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iPhi=0; iPhi<64; ++iPhi) {
+	delete moduleArray[iSide][iPhi];
+      }
+    }    
+  }
+  CellBinning                   phiBinning{0.0, 2*M_PI, 64};
+  const EMECPresamplerHVModule* moduleArray[2][64]; // not dense
+  std::atomic<bool>             init{false};
+  std::mutex                    mtx;
   std::vector<EMECPresamplerHVPayload> payloadArray;
 };
 
-
-//##ModelId=43FBFC0A034F
-EMECPresamplerHVManager::EMECPresamplerHVManager():
-  m_c(new Clockwork)
+EMECPresamplerHVManager::EMECPresamplerHVManager()
+  : m_c(new Clockwork(this))
 {
-  m_c->init=false;
-
-  m_c->phiBinning = new CellBinning(0.0, 2*M_PI, 64);
 }
 
-
-
-//##ModelId=478D1079010F
-const CellBinning *EMECPresamplerHVManager::getPhiBinning() const
-{
-  return m_c->phiBinning;
-}
-
-//##ModelId=478D10790120
-unsigned int EMECPresamplerHVManager::beginPhiIndex() const
-{
-  return getPhiBinning()->getFirstDivisionNumber();
-}
-
-//##ModelId=478D10790129
-unsigned int EMECPresamplerHVManager::endPhiIndex() const
-{
-  return getPhiBinning()->getFirstDivisionNumber() + getPhiBinning()->getNumDivisions();
-}
-
-//##ModelId=478D10790149
-EMECPresamplerHVModuleConstLink EMECPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iPhi) const
-{
-
-  if (!m_c->linkArray[iSide][iPhi]) m_c->linkArray[iSide][iPhi] = EMECPresamplerHVModuleConstLink(new EMECPresamplerHVModule(this, iSide, iPhi));
-  return m_c->linkArray[iSide][iPhi];
-
-}
-
-//##ModelId=478D10790154
 EMECPresamplerHVManager::~EMECPresamplerHVManager()
 {
-  delete m_c->phiBinning;
   delete m_c;
 }
 
+const CellBinning *EMECPresamplerHVManager::getPhiBinning() const
+{
+  return &(m_c->phiBinning);
+}
 
-//##ModelId=47A07A81015E
+unsigned int EMECPresamplerHVManager::beginPhiIndex() const
+{
+  return m_c->phiBinning.getFirstDivisionNumber();
+}
+
+unsigned int EMECPresamplerHVManager::endPhiIndex() const
+{
+  return m_c->phiBinning.getFirstDivisionNumber() + m_c->phiBinning.getNumDivisions();
+}
+
+const EMECPresamplerHVModule& EMECPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iPhi) const
+{
+  return *(m_c->moduleArray[iSide][iPhi]);
+}
+
 unsigned int EMECPresamplerHVManager::beginSideIndex() const
 {
   return 0;
 }
 
-//##ModelId=47A07A81016F
 unsigned int EMECPresamplerHVManager::endSideIndex() const
 {
   return 2;
 }
-
 
 void EMECPresamplerHVManager::update() const {
   std::lock_guard<std::mutex> lock(m_c->mtx);

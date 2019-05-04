@@ -20,12 +20,10 @@
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBPresamplerHVManager.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
 #include "LArHV/HECHVManager.h"
@@ -425,13 +423,13 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
  
-         const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+         const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
  
          double wt = 0.5;
          for (unsigned int igap=0;igap<2;igap++) {
-             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule->hvLineNo(igap));
+             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap));
              if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule->hvLineNo(igap)<<" in LArHVData mapping !!!");
+                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule.hvLineNo(igap)<<" in LArHVData mapping !!!");
                 return StatusCode::FAILURE;
              }
              unsigned idx = itrLine - hvlineidx.begin(); 
@@ -495,13 +493,13 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata, const LArHVData* hvdataO
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
  
-         const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+         const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
  
          double wt = 0.5; 
          for (unsigned int igap=0;igap<2;igap++) {
-             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule->hvLineNo(igap));
+             const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap));
              if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule->hvLineNo(igap)<<" in LArHVData mapping !!!");
+                ATH_MSG_ERROR("Do not have hvline: "<<hvmodule.hvLineNo(igap)<<" in LArHVData mapping !!!");
                 return StatusCode::FAILURE;
              }
              unsigned idx = itrLine - hvlineidx.begin(); 
@@ -882,26 +880,26 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
     } //end for iSide
 
     // barrel presampler
-    const EMBPresamplerHVManager* hvManager_EMBPS=manager->getEMBPresamplerHVManager();
+    const EMBPresamplerHVManager& hvManager_EMBPS=manager->getEMBPresamplerHVManager();
     HVnominal = HV_nominal("EMBPS",0.);
-    for (unsigned int iSide=hvManager_EMBPS->beginSideIndex();iSide<hvManager_EMBPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMBPS->beginPhiIndex();iPhi<hvManager_EMBPS->endPhiIndex();iPhi++) {
-          for (unsigned int iEta=hvManager_EMBPS->beginEtaIndex();iEta<hvManager_EMBPS->endEtaIndex();iEta++) { //0 to 7
-            EMBPresamplerHVModuleConstLink hvMod = hvManager_EMBPS->getHVModule(iSide,iEta,iPhi);
+    for (unsigned int iSide=hvManager_EMBPS.beginSideIndex();iSide<hvManager_EMBPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMBPS.beginPhiIndex();iPhi<hvManager_EMBPS.endPhiIndex();iPhi++) {
+          for (unsigned int iEta=hvManager_EMBPS.beginEtaIndex();iEta<hvManager_EMBPS.endEtaIndex();iEta++) { //0 to 7
+            const EMBPresamplerHVModule& hvMod = hvManager_EMBPS.getHVModule(iSide,iEta,iPhi);
             ATH_MSG_DEBUG("iSide,iPhi,iEta " << iSide << " " << iPhi << " " << iEta);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod->hvLineNo(iGap));
+                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod.hvLineNo(iGap)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
 		hv[iGap]=fabs(voltage[itrLine - hvlineidx.begin()]);
             }
-            float eta_min=hvMod->getEtaMin();
-            float eta_max=hvMod->getEtaMax();
-            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
-            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
+            float eta_min=hvMod.getEtaMin();
+            float eta_max=hvMod.getEtaMax();
+            float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
             ATH_MSG_DEBUG("  HV " <<  hv[0] << " " << hv[1] << " " << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max);
 
             //take decisions according to all the gaps HV :
@@ -1045,24 +1043,24 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
     } //end for iSide
 
     // endcap presampler
-    const EMECPresamplerHVManager* hvManager_EMECPS=manager->getEMECPresamplerHVManager();
+    const EMECPresamplerHVManager& hvManager_EMECPS=manager->getEMECPresamplerHVManager();
     float HVnominal = HV_nominal("EMECPS",0.);
-    for (unsigned int iSide=hvManager_EMECPS->beginSideIndex();iSide<hvManager_EMECPS->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMECPS->beginPhiIndex();iPhi<hvManager_EMECPS->endPhiIndex();iPhi++) {
-            EMECPresamplerHVModuleConstLink hvMod = hvManager_EMECPS->getHVModule(iSide,iPhi);
+    for (unsigned int iSide=hvManager_EMECPS.beginSideIndex();iSide<hvManager_EMECPS.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMECPS.beginPhiIndex();iPhi<hvManager_EMECPS.endPhiIndex();iPhi++) {
+            const EMECPresamplerHVModule& hvMod = hvManager_EMECPS.getHVModule(iSide,iPhi);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod->hvLineNo(iGap));
+                const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap));
                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod->hvLineNo(iGap)<<" in LArHVData !!!");
+                  ATH_MSG_ERROR("Do not have hvline: "<<hvMod.hvLineNo(iGap)<<" in LArHVData !!!");
                   return StatusCode::FAILURE;
                 }
 		hv[iGap]=fabs(voltage[itrLine - hvlineidx.begin()]);
             }
-            float eta_min=hvMod->getEtaMin(); 
-            float eta_max=hvMod->getEtaMax();
-            float phi_min=CaloPhiRange::fix(hvMod->getPhiMin());
-            float phi_max=CaloPhiRange::fix(hvMod->getPhiMax());
+            float eta_min=hvMod.getEtaMin(); 
+            float eta_max=hvMod.getEtaMax();
+            float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
+            float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
             ATH_MSG_DEBUG("iSide,iPhi" << iSide << " " << iPhi << "  HV " <<  hv[0] << " " << hv[1] << " "
                           << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " 
                           << phi_min << " " << phi_max);

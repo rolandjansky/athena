@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _HECHVPayload_h_
-#define _HECHVPayload_h_
+#ifndef LARHV_HECHVPAYLOAD_H
+#define LARHV_HECHVPAYLOAD_H
 #include <iostream>
 struct HECHVPayload {
   double         voltage;
