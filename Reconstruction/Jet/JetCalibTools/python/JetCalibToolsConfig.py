@@ -150,7 +150,7 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     if "JetArea" in calibseq:
         prereqs.append("input:EventDensity")
     prereqs += ["mod:CaloEnergies"]
-    if "GSC" in calibseq and not jetdef.isTrigger:
+    if "GSC" in calibseq:
         prereqs += ["mod:TrackMoments",
                     "ghost:MuonSegment"]
     jetcaliblog.debug("Prereqs for calibseq '{0}': {1}".format(calibseq,str(prereqs)))
