@@ -35,6 +35,7 @@ topSequence += cellMakerAlgo
 #################################################
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT, EFMissingETFromHelperMT, EFMissingETFlagsMT
+from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
 cellTool.CellsCollection = "cells"
@@ -45,23 +46,7 @@ flagTool = EFMissingETFlagsMT("theFlagsTool")
 metAlg = EFMissingETAlgMT( name="EFMET" )
 metAlg.METContainerKey="HLT_MET"
 metAlg.METTools=[ cellTool, helperTool, flagTool ]
-
-metMon = GenericMonitoringTool("METMonTool")
-metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
-from TrigEFMissingET.TrigEFMissingETMonitoring import ( hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log, 
-                                                 hMET_lin, hSumEt_lin, 
-                                                 hXS, hMETPhi, hMETStatus,
-                                                 hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE,
-                                                 hCompEt_lin, hCompSumEt_lin )
-
-metMon.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
-metMon.Histograms += [ hMET_lin, hSumEt_lin ]
-metMon.Histograms += [ hXS, hMETPhi, hMETStatus]
-metMon.Histograms += [ hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE ]
-metMon.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
-
-metAlg.MonTool = metMon
+metAlg.MonTool = getMETMonTool()
 topSequence += metAlg
 
 #################################################
@@ -77,15 +62,6 @@ def makeMETHypoTool():
 hypoAlg = MissingETHypoAlgMT("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
 hypoAlg.METContainerKey=metAlg.METContainerKey
-
-# Not sure how to implement monitoring at the moment. 
-# Left here in case will be useful.
-# Will be removed if not
-'''
-from TrigMissingETHypo.TrigMissingETHypoMonitoringTool import TrigMissingETHypoMonitoringTool
-hypoMon = TrigMissingETHypoMonitoringTool()
-hypoAlg.onlineMonitoring()
-'''
 
 hypoAlg.OutputLevel = DEBUG
 hypoAlg.HypoInputDecisions = "L1MET"
