@@ -396,11 +396,8 @@ namespace top {
         }
 
 	if (m_config->useLargeRJets()) {
-	  
-	  std::vector<std::pair<std::string, std::string> > boostedJetTaggers= m_config->boostedJetTaggers();
-	  m_boostedJetTaggersNames.resize(boostedJetTaggers.size());
-	  for (unsigned int i=0;i<boostedJetTaggers.size();i++) m_boostedJetTaggersNames[i] = boostedJetTaggers[i].first + "_" + boostedJetTaggers[i].second;
-	  
+	  for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
+	    m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
 	}
 
 
@@ -825,7 +822,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
         systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
 	
-	for(std::string taggerName : m_boostedJetTaggersNames){
+	for(const std::string& taggerName : m_boostedJetTaggersNames){
 	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
 	}
 	
@@ -2360,7 +2357,7 @@ namespace top {
       m_ljet_m.resize(nLargeRJets);
       m_ljet_sd12.resize(nLargeRJets);
       
-      for (std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
       
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -2374,8 +2371,9 @@ namespace top {
         m_ljet_sd12[i] = Split12;
 
 	
-	for (std::string& taggerName : m_boostedJetTaggersNames ) try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
-	
+	for (const std::string& taggerName : m_boostedJetTaggersNames ) { 
+	  try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
+	}
 
         ++i;
       }

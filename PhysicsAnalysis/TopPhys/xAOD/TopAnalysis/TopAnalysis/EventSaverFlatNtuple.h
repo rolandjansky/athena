@@ -1233,8 +1233,8 @@ protected:
   const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
   const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
   
-  const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() { return m_ljet_isTagged;}
-  const std::vector<char>& ljet_isTagged(std::string taggerName){ return m_ljet_isTagged[taggerName];}
+  const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() const { return m_ljet_isTagged;}
+  const std::vector<char>& ljet_isTagged(const std::string taggerName) { return m_ljet_isTagged[taggerName];}
 
   //track jets
   const std::vector<float>& tjet_pt() const { return m_tjet_pt;}

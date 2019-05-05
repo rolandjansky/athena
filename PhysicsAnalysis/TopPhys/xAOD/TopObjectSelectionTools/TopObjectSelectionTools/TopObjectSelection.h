@@ -265,7 +265,6 @@ private:
     
     // do decorate the large-R jets with the boosted-tagging flags 
     std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
-    std::vector<std::string> m_boostedJetTaggersNames;
     
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;

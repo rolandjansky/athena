@@ -82,7 +82,7 @@ StatusCode BoostedTaggingCPTools::initialize() {
     
   }
 
-  for(std::pair<std::string, std::string> name : boostedJetTaggers){
+  for(const std::pair<std::string, std::string>& name : boostedJetTaggers){
     
     std::string taggerType = name.first;
     std::string shortName = name.second;

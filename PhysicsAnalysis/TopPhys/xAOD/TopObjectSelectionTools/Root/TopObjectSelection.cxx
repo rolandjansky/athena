@@ -99,14 +99,9 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
   
   // boosted tagging stuff
   if (m_config->useLargeRJets()) {
-
-    std::vector<std::pair<std::string, std::string> > boostedJetTaggers= m_config->boostedJetTaggers();
     
-    m_boostedJetTaggersNames.resize(boostedJetTaggers.size()); 
-    for(unsigned int i=0;i< boostedJetTaggers.size();i++){
-      std::string fullName=boostedJetTaggers[i].first+"_"+boostedJetTaggers[i].second;
-      m_boostedJetTaggersNames[i]=fullName;
-      
+    for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
+      std::string fullName=name.first+"_"+name.second;
       m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
       top::check(m_boostedJetTaggers[fullName].retrieve(),"Failed to retrieve "+fullName);
     }
@@ -393,9 +388,10 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
           }
           
 	  //decorate with boosted-tagging flags
-	  for(std::string& name : m_boostedJetTaggersNames){
-	    char isTagged = m_boostedJetTaggers[name]->tag(*jetPtr);
-	    jetPtr->auxdecor<char>("isTagged_"+name) = isTagged;
+	  for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
+	    std::string fullName=name.first+"_"+name.second;
+	    char isTagged = m_boostedJetTaggers[fullName]->tag(*jetPtr);
+	    jetPtr->auxdecor<char>("isTagged_"+fullName) = isTagged;
 	  }
 	  
         }

@@ -959,12 +959,12 @@ namespace top{
     
     std::vector<std::string> vec_boostedJetTaggers;
     
-    for(std::string x : helpvec_str){
+    for(const std::string& x : helpvec_str){
       std::istringstream istr_boostedJetTaggers(x);
       std::copy( std::istream_iterator<std::string>(istr_boostedJetTaggers),std::istream_iterator<std::string>(), std::back_inserter(vec_boostedJetTaggers) ); 
     }
     
-    for(std::string tagger : vec_boostedJetTaggers) {
+    for(const std::string& tagger : vec_boostedJetTaggers) {
       
       std::vector<std::string> helpvec;
       tokenize(tagger,helpvec,":");
