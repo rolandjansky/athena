@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # TrigMuonEF configurables
 #
@@ -84,14 +84,7 @@ def TMEF_Extrapolator(name='TMEF_Extrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 
 
-def TMEF_CaloEnergyMeas(name='TMEF_CaloEnergyMeas',**kwargs):
-    kwargs.setdefault("CaloNoiseTool","")
-    kwargs.setdefault("UseCaloNoiseTool",False)
-    return CfgMgr.Rec__MuidCaloEnergyMeas(name,**kwargs)
-
-
 def TMEF_CaloEnergyTool(name='TMEF_CaloEnergyTool', **kwargs):
-    kwargs.setdefault("CaloMeasTool","TMEF_CaloEnergyMeas")
     kwargs.setdefault("EnergyLossMeasurement",False)
     kwargs.setdefault("MopParametrization",True)
     return CfgMgr.Rec__MuidCaloEnergyTool(name,**kwargs)
