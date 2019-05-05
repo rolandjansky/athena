@@ -66,9 +66,9 @@ try:
     # MC Channel Number.  Try the standard two spots, and fall back to the run number for evgen
     if 'mc_channel_number' in f.infos and len(f.infos['mc_channel_number'])>0:
         runNumber = f.infos['mc_channel_number'][0]
-    if runNumber<=0 and 'mc_channel_number' in f.infos['tag_info']:
+    elif 'mc_channel_number' in f.infos['tag_info']:
         runNumber = f.infos['tag_info']['mc_channel_number']
-    if runNumber<=0:
+    else:
         runNumber = f.infos['run_number'][0]
     # This is also used for digitization, so protect in case we're there
     if "StreamHITS" in f.infos["stream_names"]:
@@ -181,7 +181,7 @@ if lifetime>0.:
     else:
         addLineToPhysicsConfiguration("DoDecays","1")
         addLineToPhysicsConfiguration("HadronLifeTime", str(lifetime))
-    # If we reading particle records, and the lifetime is short, stop them as well
+    # If we are reading particle records, and the lifetime is short, stop them as well
     if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
         addLineToPhysicsConfiguration("DoDecays","1")
         addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
