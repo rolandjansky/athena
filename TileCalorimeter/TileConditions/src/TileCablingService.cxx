@@ -38,6 +38,7 @@ TileCablingService::TileCablingService()
   , m_E1mergedRun2Plus(128, 0)
   , m_run2(false)
   , m_run2plus(false)
+  , m_run3(false)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_maxGains(TileCalibUtils::MAX_GAIN)
   , m_msg("TileCablingService")
@@ -259,7 +260,8 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
               || type == TileCablingService::RUN2aCabling
               || type == TileCablingService::UpgradeABC);
 
-    m_run2plus = (m_run2 || type == TileCablingService::RUN3Cabling);
+    m_run3 = (type == TileCablingService::RUN3Cabling);
+    m_run2plus = (m_run2 || m_run3);
 
     if (type == TileCablingService::RUN3Cabling) {
       setRun3Merged();

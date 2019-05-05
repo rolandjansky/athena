@@ -1,11 +1,31 @@
-Py:inputFilePeeker    INFO stream_names not present in input bytestream file. Giving default name 'StreamRAW'
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 304
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 663
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               0   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 610
-FillMissingEDM.egammaCreator            0   0     DEBUG The remap_EgammaCaloDecisions already present
+TrigDeserialiser                        0   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
+TrigDeserialiser                        0   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 261
+TrigDeserialiser                        0   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 58
+TrigDeserialiser                        0   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        0   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 605
+TrigDeserialiser                        0   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 126
+TrigDeserialiser                        0   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 100
+TrigDeserialiser                        0   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        0   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 663
+TrigDeserialiser                        0   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 28
+TrigDeserialiser                        0   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        0   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 978
+TrigDeserialiser                        0   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 52
+TrigDeserialiser                        0   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 54
+TrigDeserialiser                        0   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 54
+FillMissingEDM.egammaCreator            0   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            0   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
@@ -14,13 +34,34 @@ FillMissingEDM.egammaCreator            0   0     DEBUG The remap_RerunEMRoIDeci
 FillMissingEDM.egammaCreator            0   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
 FillMissingEDM.egammaCreator            0   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
 FillMissingEDM.egammaCreator            0   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 641
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 1623
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               1   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 2726
-FillMissingEDM.egammaCreator            1   0     DEBUG The remap_EgammaCaloDecisions already present
+TrigDeserialiser                        1   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
+TrigDeserialiser                        1   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 557
+TrigDeserialiser                        1   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 106
+TrigDeserialiser                        1   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 84
+TrigDeserialiser                        1   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        1   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 2273
+TrigDeserialiser                        1   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 390
+TrigDeserialiser                        1   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 276
+TrigDeserialiser                        1   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        1   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
+TrigDeserialiser                        1   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
+TrigDeserialiser                        1   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        1   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 3002
+TrigDeserialiser                        1   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 140
+TrigDeserialiser                        1   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 142
+TrigDeserialiser                        1   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 142
+FillMissingEDM.egammaCreator            1   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            1   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
@@ -29,13 +70,34 @@ FillMissingEDM.egammaCreator            1   0     DEBUG The remap_RerunEMRoIDeci
 FillMissingEDM.egammaCreator            1   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
 FillMissingEDM.egammaCreator            1   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
 FillMissingEDM.egammaCreator            1   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 851
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 2263
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               2   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 1622
-FillMissingEDM.egammaCreator            2   0     DEBUG The remap_EgammaCaloDecisions already present
+TrigDeserialiser                        2   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
+TrigDeserialiser                        2   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 737
+TrigDeserialiser                        2   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 138
+TrigDeserialiser                        2   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 104
+TrigDeserialiser                        2   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        2   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 1969
+TrigDeserialiser                        2   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 354
+TrigDeserialiser                        2   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 252
+TrigDeserialiser                        2   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        2   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 2263
+TrigDeserialiser                        2   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 48
+TrigDeserialiser                        2   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        2   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 2726
+TrigDeserialiser                        2   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 128
+TrigDeserialiser                        2   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 130
+TrigDeserialiser                        2   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 130
+FillMissingEDM.egammaCreator            2   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            2   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
@@ -44,13 +106,34 @@ FillMissingEDM.egammaCreator            2   0     DEBUG The remap_RerunEMRoIDeci
 FillMissingEDM.egammaCreator            2   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
 FillMissingEDM.egammaCreator            2   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
 FillMissingEDM.egammaCreator            2   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 629
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 1623
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               3   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 3186
-FillMissingEDM.egammaCreator            3   0     DEBUG The remap_EgammaCaloDecisions already present
+TrigDeserialiser                        3   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
+TrigDeserialiser                        3   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 545
+TrigDeserialiser                        3   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 106
+TrigDeserialiser                        3   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 84
+TrigDeserialiser                        3   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        3   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 2457
+TrigDeserialiser                        3   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 462
+TrigDeserialiser                        3   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 324
+TrigDeserialiser                        3   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        3   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 1623
+TrigDeserialiser                        3   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 40
+TrigDeserialiser                        3   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        3   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 3554
+TrigDeserialiser                        3   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 164
+TrigDeserialiser                        3   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 166
+TrigDeserialiser                        3   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 166
+FillMissingEDM.egammaCreator            3   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            3   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
@@ -59,13 +142,34 @@ FillMissingEDM.egammaCreator            3   0     DEBUG The remap_RerunEMRoIDeci
 FillMissingEDM.egammaCreator            3   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
 FillMissingEDM.egammaCreator            3   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
 FillMissingEDM.egammaCreator            3   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 419
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 983
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               4   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 886
-FillMissingEDM.egammaCreator            4   0     DEBUG The remap_EgammaCaloDecisions already present
+TrigDeserialiser                        4   0     DEBUG fragment: 1 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: EgammaCaloDecisions size: 69
+TrigDeserialiser                        4   0     DEBUG fragment: 2 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: EgammaCaloDecisionsAux. size: 365
+TrigDeserialiser                        4   0     DEBUG fragment: 3 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 74
+TrigDeserialiser                        4   0     DEBUG fragment: 4 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 64
+TrigDeserialiser                        4   0     DEBUG fragment: 5 type: xAOD::TrigCompositeContainer persistent type: xAOD::TrigCompositeContainer_v1 key: ElectronL2Decisions size: 69
+TrigDeserialiser                        4   0     DEBUG fragment: 6 type: xAOD::TrigCompositeAuxContainer persistent type: xAOD::TrigCompositeAuxContainer_v2 key: ElectronL2DecisionsAux. size: 953
+TrigDeserialiser                        4   0     DEBUG fragment: 7 type: std::vector<std::vector<unsigned int> > persistent type: vector<vector<unsigned int> > key: remap_linkCollKeys size: 174
+TrigDeserialiser                        4   0     DEBUG fragment: 8 type: std::vector<std::vector<unsigned short> > persistent type: vector<vector<unsigned short> > key: remap_linkCollIndices size: 132
+TrigDeserialiser                        4   0     DEBUG fragment: 9 type: xAOD::TrigEMClusterContainer persistent type: xAOD::TrigEMClusterContainer_v1 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClusters size: 69
+TrigDeserialiser                        4   0     DEBUG fragment: 10 type: xAOD::TrigEMClusterAuxContainer persistent type: xAOD::TrigEMClusterAuxContainer_v2 key: HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. size: 983
+TrigDeserialiser                        4   0     DEBUG fragment: 11 type: std::vector<int> persistent type: vector<int> key: viewIndex size: 32
+TrigDeserialiser                        4   0     DEBUG fragment: 12 type: xAOD::TrigElectronContainer persistent type: xAOD::TrigElectronContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFex size: 68
+TrigDeserialiser                        4   0     DEBUG fragment: 13 type: xAOD::TrigElectronAuxContainer persistent type: xAOD::TrigElectronAuxContainer_v1 key: HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. size: 1346
+TrigDeserialiser                        4   0     DEBUG fragment: 14 type: std::vector<float> persistent type: vector<float> key: eta size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 15 type: std::vector<float> persistent type: vector<float> key: phi size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 16 type: std::vector<float> persistent type: vector<float> key: rawEnergy size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 17 type: std::vector<float> persistent type: vector<float> key: rawEt size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 18 type: std::vector<float> persistent type: vector<float> key: rawEta size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 19 type: std::vector<int> persistent type: vector<int> key: nCells size: 68
+TrigDeserialiser                        4   0     DEBUG fragment: 20 type: std::vector<float> persistent type: vector<float> key: energy size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 21 type: std::vector<float> persistent type: vector<float> key: et size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 22 type: std::vector<float> persistent type: vector<float> key: e237 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 23 type: std::vector<float> persistent type: vector<float> key: e277 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 24 type: std::vector<float> persistent type: vector<float> key: fracs1 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 25 type: std::vector<float> persistent type: vector<float> key: weta2 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 26 type: std::vector<float> persistent type: vector<float> key: ehad1 size: 70
+TrigDeserialiser                        4   0     DEBUG fragment: 27 type: std::vector<float> persistent type: vector<float> key: wstot size: 70
+FillMissingEDM.egammaCreator            4   0     DEBUG The remap_EgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_L2CaloLinks was absent, creating it
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
 FillMissingEDM.egammaCreator            4   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
@@ -74,228 +178,3 @@ FillMissingEDM.egammaCreator            4   0     DEBUG The remap_RerunEMRoIDeci
 FillMissingEDM.egammaCreator            4   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
 FillMissingEDM.egammaCreator            4   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
 FillMissingEDM.egammaCreator            4   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 954
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 2583
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               5   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 4474
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            5   0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            5   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            5   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            5   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 308
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 663
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               6   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 1070
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            6   0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            6   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            6   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            6   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 522
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 1303
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               7   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 2910
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            7   0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            7   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            7   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            7   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 427
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 983
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               8   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 702
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            8   0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            8   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            8   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            8   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 183
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 343
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               9   0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 334
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            9   0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            9   0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            9   0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            9   0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 661
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 1623
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               10  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 3370
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            10  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            10  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            10  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            10  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 304
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 663
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               11  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 702
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            11  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            11  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            11  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            11  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 1093
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 2903
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               12  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 3738
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            12  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            12  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            12  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            12  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 431
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 983
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               13  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 2358
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            13  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            13  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            13  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            13  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 308
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 663
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               14  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 610
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            14  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            14  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            14  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            14  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 183
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 343
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               15  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 334
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            15  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            15  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            15  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            15  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 300
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 663
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               16  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 978
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            16  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            16  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            16  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            16  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 431
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 983
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               17  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 1254
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            17  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            17  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            17  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            17  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 427
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 983
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               18  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 702
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            18  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            18  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            18  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            18  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1333228823 xAOD::TrigCompositeContainer xAOD::TrigCompositeContainer_v1 remap_EgammaCaloDecisions 69
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1175586382 xAOD::TrigCompositeAuxContainer xAOD::TrigCompositeAuxContainer_v1 remap_EgammaCaloDecisionsAux. 526
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1264979038 xAOD::TrigEMClusterContainer xAOD::TrigEMClusterContainer_v1 HLT_xAOD__TrigEMClusterContainer_L2CaloClusters 69
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1111649561 xAOD::TrigEMClusterAuxContainer xAOD::TrigEMClusterAuxContainer_v2 HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux. 1303
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1119645201 xAOD::TrigElectronContainer xAOD::TrigElectronContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFex 68
-TriggerEDMDeserialiserAlg               19  0     DEBUG fragment: clid, type, key, size 1180743572 xAOD::TrigElectronAuxContainer xAOD::TrigElectronAuxContainer_v1 HLT_xAOD__TrigElectronContainer_L2ElectronFexAux. 3186
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_EgammaCaloDecisions already present
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_L2CaloLinks was absent, creating it
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_FilteredEgammaCaloDecisions was absent, creating it
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_FilteredEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_EMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            19  0     DEBUG The remap_RerunEMRoIDecisions was absent, creating it
-FillMissingEDM.egammaCreator            19  0     DEBUG The HLT_xAOD__TrigElectronContainer_L2ElectronFex already present
-FillMissingEDM.egammaCreator            19  0     DEBUG The HLT_xAOD__TrigEMClusterContainer_L2CaloClusters already present
-FillMissingEDM.egammaCreator            19  0     DEBUG The HLT_xAOD_TrackParticleContainer_L2ElectronTracks was absent, creating it
