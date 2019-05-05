@@ -48,6 +48,9 @@ StatusCode BoostedTaggingCPTools::initialize() {
   }
   
   
+  top::check(m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ||  m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
+    "Error in BoostedTaggingCPTools: boosted jet taggers are not available for this large-R jet collection.");
+  
   std::unordered_map<std::string,std::string > taggersConfigs;
   std::unordered_map<std::string,std::string > taggersCalibAreas;
   
@@ -57,24 +60,24 @@ StatusCode BoostedTaggingCPTools::initialize() {
   taggersCalibAreas["SmoothedWZTagger"] = "SmoothedWZTaggers/Rel21/";
   
   if( m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets") {
-    taggersConfigs["JSSWTopTaggerDNN:TopQuarkContained50"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat";
-    taggersConfigs["JSSWTopTaggerDNN:TopQuarkContained80"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_80Eff.dat";
-    taggersConfigs["JSSWTopTaggerDNN:TopQuarkInclusive50"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_50Eff.dat";
-    taggersConfigs["JSSWTopTaggerDNN:TopQuarkInclusive80"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat";
+    taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat";
+    taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_80Eff.dat";
+    taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_50Eff.dat";
+    taggersConfigs["JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80"] = "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat";
     
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedWTagger50"] = "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedWTagger80"] = "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothWContained50"] = "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothWContained80"] = "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
     
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedZTagger50"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedZTagger80"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothZContained50"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothZContained80"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
   }
   else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20") {
     
-    taggersConfigs["SmoothedWZTagger:SmoothedWTagger2VarMaxSignificance"] = "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";
-    taggersConfigs["SmoothedWZTagger:SmoothedZTagger2VarMaxSignificance"] = "SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothWContained2VarMaxSig"] = "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothZContained2VarMaxSig"] = "SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";
     
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedWTagger3VarMaxSignificance"] = "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
-    taggersConfigs["SmoothedWZTagger:SmoothedContainedZTagger3VarMaxSignificance"] = "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothW3VarMaxSig"] = "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
+    taggersConfigs["SmoothedWZTagger:SmoothZ3VarMaxSig"] = "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat";
     
     
   }
@@ -86,10 +89,9 @@ StatusCode BoostedTaggingCPTools::initialize() {
     std::string fullName= taggerType + "_" + shortName; // Name to idendify tagger
     std::string origName= taggerType + ":" + shortName; // Original name set in the top config
     
-    std::cout << "taggerName: " << origName << std::endl;
-   
-    top::check(std::find(taggersTypes.begin(),taggersTypes.end(),taggerType)!=taggersTypes.end(),"Error in BoostedTaggingCPTools: Unknown TAGGER_TYPE.");
+    top::check( taggersConfigs.find(origName) != taggersConfigs.end(),("Error in BoostedTaggingCPTools: Unknown tagger in the config file: " + origName).c_str() );
     
+    top::check(std::find(taggersTypes.begin(),taggersTypes.end(),taggerType)!=taggersTypes.end(),"Error in BoostedTaggingCPTools: Unknown TAGGER_TYPE.");
     if(taggerType=="JSSWTopTaggerDNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],JSSWTopTaggerDNN), "Failed to make " + origName );
     else if(taggerType=="SmoothedWZTagger") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],SmoothedWZTagger), "Failed to make " + origName );
     
