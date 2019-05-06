@@ -181,7 +181,7 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
 }
 
 
-const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() {
+const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
     return m_trigDecTool;
 }
 
@@ -294,7 +294,7 @@ double AthMonitorAlgorithm::lbDuration() const {
 }
 
 
-StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) {
+StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) const {
     std::string item;
     std::stringstream ss(line);
 
@@ -310,7 +310,7 @@ StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<s
 }
 
 
-void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) {
+void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) const {
     for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
         std::string& thisName = vTrigChainNames[i];
 
