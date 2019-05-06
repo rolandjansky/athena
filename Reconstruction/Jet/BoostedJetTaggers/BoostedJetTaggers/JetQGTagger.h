@@ -53,10 +53,11 @@ namespace CP {
       virtual StatusCode finalize();
 
       // Implement IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const { return tag(jet, 0); }
+      virtual Root::TAccept tag(const xAOD::Jet& jet) const { return tag(jet, 0, 0); }
+      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const { return tag(jet, pv, 0); }
 
       // Implement IJetQGTagger interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const;
+      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv, int mode) const;
 
       // functions for systematic variations
       bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
@@ -69,6 +70,7 @@ namespace CP {
       JetQGTagger();
       StatusCode getNTrack(const xAOD::Jet * jet, const xAOD::Vertex * pv, int &ntracks) const ;
       StatusCode getNTrackWeight(const xAOD::Jet * jet, double &weight) const ;
+      StatusCode simplegetNTrackWeight(const xAOD::Jet * jet, double &weight) const ;
       // Check a status code and throw an error if it's a failure
       // JBurr: The best solution I could think of quickly to register a failure in a function returning something else
       void checkAndThrow(StatusCode sc, const std::string& message = "") const;
@@ -77,6 +79,10 @@ namespace CP {
 
       TH2D* m_hquark;
       TH2D* m_hgluon;
+
+      //TH2F* m_hquark_reco;
+      //TH2F* m_hgluon_reco;
+      //TH2D* m_reco;
 
       TH2D* m_topo_hquark;
 
@@ -95,6 +101,13 @@ namespace CP {
       TH2D* m_pdf_hgluon_up;
       TH2D* m_pdf_hgluon_down;
 
+      //TH2D* m_trackeff;
+      //TH2D* m_fake;
+      TH2D* m_trackeff_hquark;
+      TH2D* m_trackeff_hgluon;
+      TH2D* m_fake_hquark;
+      TH2D* m_fake_hgluon;
+
       StatusCode loadHist(TH2D *&hist,std::string filename,std::string histname);
 
       std::string m_taggername;
@@ -103,6 +116,8 @@ namespace CP {
       std::string m_expfile;
       std::string m_mefile;
       std::string m_pdffile;
+      std::string m_trackefffile;
+      std::string m_fakefile;
       std::string m_weight_decoration_name;
       std::string m_tagger_decoration_name;
 
