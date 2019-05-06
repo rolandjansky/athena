@@ -2,9 +2,28 @@
 
 from AthenaCommon import Logging
 from ..powheg_RES import PowhegRES
+from ..external import ExternalMadSpin
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
+
+
+
+# Dictionary to convert the PowhegControl decay mode names to the appropriate
+# decay mode numbers understood by Powheg
+#
+# The PowhegControl decay modes with MadSpin in their name use MadSpin to
+# generate the top decays, the others use Powheg
+_decay_mode_lookup = {
+    "t t~ > all [MadSpin]" : "00000", # switch off decays in Powheg and let MadSpin handle them!
+    "t t~ > all": "22222",
+    "t t~ > b j j b~ j j": "00022",
+    "t t~ > b l+ vl b~ l- vl~": "22200",
+    "t t~ > b emu+ vemu b~ emu- vemu~": "22000",
+    "t t~ > semileptonic": "11111",
+    "t t~ > undecayed" : "00000",
+}
+
 
 
 class ttbb(PowhegRES):
@@ -25,11 +44,26 @@ class ttbb(PowhegRES):
         """
         super(ttbb, self).__init__(base_directory, "ttbb", **kwargs)
 
+        # This process needs Athena to be set to run at least two parallel processes
+
+        if self.cores < 2:
+            error_message = """
+                Due to an apparent bug in PowhegBox, this Powheg process (ttbb) requires running at least
+                two (computer) processes in parallel. Please configure Athena to do so, e.g. by setting the
+                environment variable ATHENA_PROC_NUMBER to 2 or a higher number. In Bash, do e.g.: 'export
+                ATHENA_PROC_NUMBER=4'.
+                """
+            raise RuntimeError(" ".join(error_message.split()))
+
+        # Add algorithms to the sequence
+        self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ b b~ [QCD]"))
+
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 
-        ## List of allowed decay modes
-        self.allowed_decay_modes = ["t t~ > all", "t t~ > b j j b~ j j", "t t~ > b l+ vl b~ l- vl~", "t t~ > b emu+ vemu b~ emu- vemu~", "t t~ > semileptonic", "t t~ > undecayed"]
+        # List of allowed decay modes
+        # (The sorting of the list is just to increase readability when it's printed)
+        self.allowed_decay_modes = sorted(_decay_mode_lookup.keys())
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf", 1)
@@ -84,7 +118,7 @@ class ttbb(PowhegRES):
         self.add_keyword("tdec/umass")
         self.add_keyword("tdec/wmass")
         self.add_keyword("tdec/wwidth")
-        self.add_keyword("topdecaymode", "t t~ > all", name="decay_mode")
+        self.add_keyword("topdecaymode", "t t~ > all [MadSpin]", name="decay_mode")
         self.add_keyword("use-old-grid", 1)
         self.add_keyword("use-old-ubound", 1)
         self.add_keyword("withdamp", 1)
@@ -100,16 +134,13 @@ class ttbb(PowhegRES):
             error_message = "Decay mode '{given}' not recognised, valid choices are: '{choices}'!".format(given=self.decay_mode, choices="', '".join(self.allowed_decay_modes))
             logger.warning(error_message)
             raise ValueError(error_message)
-        # Convert to appropriate decay mode numbers for the Powheg input:
-        __decay_mode_lookup = {
-            "t t~ > all": "22222",
-            "t t~ > b j j b~ j j": "00022",
-            "t t~ > b l+ vl b~ l- vl~": "22200",
-            "t t~ > b emu+ vemu b~ emu- vemu~": "22000",
-            "t t~ > semileptonic": "11111",
-            "t t~ > undecayed" : "00000",
-        }
-        self.parameters_by_keyword("topdecaymode")[0].value = __decay_mode_lookup[self.decay_mode]
+
+        # Check if MadSpin decays are requested.
+        # Accordingly, MadSpin will run or not run.
+        if "MadSpin" in self.decay_mode:
+            self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
+
+        self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]
         if "semileptonic" in self.decay_mode:
             # Parameter semileptonic must be set to 1 to actually get semileptonic decays, because the topdecaymode=11111 also allows fully hadronic decays (with one up and one charm quark)
             self.parameters_by_keyword("semileptonic")[0].value = 1
