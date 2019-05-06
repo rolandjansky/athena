@@ -1992,7 +1992,7 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
 
     //Use the error estimate to calculate new step length. h is returned by reference.
     distanceStepped = h; //Store old step length.
-    h = h*std::min( std::max( 0.25, std::pow((m_tolerance / errorEstimate), 0.25)), 4.);
+    h = h*std::min(std::max( 0.25, std::sqrt(std::sqrt(m_tolerance / errorEstimate))), 4.);
 
     //Repeat step with the new step size if error is too big.
     if (errorEstimate > 4.*m_tolerance) continue;
@@ -2267,7 +2267,7 @@ double Trk::STEP_Propagator::dgdlambda( Cache& cache,double l) const
 
   //Bethe-Bloch
   double lnCore = 4.*me*me/(m*m*m*m*I*I*l*l*l*l)/(1.+2.*gamma*me/m+me*me/m*m);
-  double lnCore_deriv = -4.*me*me/(m*m*m*m*I*I) * std::pow( l*l*l*l+2.*gamma*l*l*l*l*me/m+l*l*l*l*me*me/(m*m) ,-2.) *
+  double lnCore_deriv = -4.*me*me/(m*m*m*m*I*I) * std::pow( l*l*l*l+2.*gamma*l*l*l*l*me/m+l*l*l*l*me*me/(m*m) ,-2) *
     (4.*l*l*l+8.*me*l*l*l*gamma/m-2.*me*l/(m*m*m*gamma)+4.*l*l*l*me*me/(m*m));
   double ln_deriv = 2.*l*m*m*log(lnCore) + lnCore_deriv/(lnCore*beta*beta);
   double Bethe_Bloch_deriv = -kaz*ln_deriv;
@@ -2468,7 +2468,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
 
     double MS2 = radiationLengths;
 
-    dLambdads = -cache.m_charge*average_dEds*E/std::pow(momentum, 3);
+    dLambdads = -cache.m_charge*average_dEds*E/(momentum*momentum*momentum);
     remainingPath -= layerThickness;
 
     // simple - step dependent formula
