@@ -338,50 +338,48 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 
 std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 {
-    //
-    //   For now, we continue to use hard-coded values for the maximum and minimum ADC values
-    //   For now we also use the FermiExp pulse model.
-
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr, tau2Arr, peak2ndDerivMinSamples, t0;
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
-    ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
+    ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
     ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
 
-    //  For now we allow the tau values to be controlled by the job properties until they are better determined
-    //
     const int peakSample = 5;
-    //const float peak2ndDerivThreshHG = -12;
-    const float peak2ndDerivThreshHG = -16;
+    const float peak2ndDerivThreshHG = -12;
     const float peak2ndDerivThreshLG = -10;
-    const float tau1 = 4.5;
-    const float tau2 = 22.;
-    //const float defaultT0 = 65;
-    const float defaultT0 = 49;
-    m_deltaTCut = 25;
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {4.000, 3.380, 3.661, 3.679,
+                                                    4.472, 4.656, 3.871, 4.061
+                                                   };
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {22,    24.81, 24.48, 24.45,
+                                                    24.17, 24.22, 25.46, 24.45
+                                                   };
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {70.00, 72.74, 73.09, 72.25,
+                                                 75.11, 74.94, 73.93, 74.45
+                                                };
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {70.00, 73.41, 74.27, 73.30,
+                                                 76.28, 76.07, 74.98, 76.54
+                                                };
+
+    // Delta T0 cut
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = { -6, -5, -5, -5, -5, -5, -5, -5};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = { -6, -5, -5, -5, -5, -5, -5, -5};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
 
     for (size_t side : {0, 1}) {
         for (size_t module : {0, 1, 2, 3}) {
             fixTau1Arr[side][module] = m_fixTau1;
             fixTau2Arr[side][module] = m_fixTau2;
-            tau1Arr[side][module] = tau1;
-            tau2Arr[side][module] = tau2;
 
             peak2ndDerivMinSamples[side][module] = peakSample;
             peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
             peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
 
-            // We have a default T0. Allow job property to override if it differs from default
-            //
-            if (m_t0 - 50 > 1e-3) t0[side][module] = m_t0;
-            else t0[side][module] = defaultT0;
-
-            deltaT0CutLow[side][module] = -m_deltaTCut;
-            deltaT0CutHigh[side][module] = m_deltaTCut;
-            chisqDivAmpCut[side][module] = m_ChisqRatioCut;
+            chisqDivAmpCut[side][module] = 15;
         }
     }
-
-    //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
 
     ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
@@ -397,15 +395,14 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     // Open up tolerances on the position of the peak for now
     //
     zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(1);
-    //zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(4);
 
     // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
     //
     //zdcDataAnalyzer->DisableModule(0,0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
-    zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0, t0);
-    zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
+    zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
+    zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
     // We allow the combineDelay to be controlled by the properties
     //

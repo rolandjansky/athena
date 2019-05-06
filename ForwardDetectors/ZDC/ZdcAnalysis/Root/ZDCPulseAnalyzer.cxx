@@ -886,6 +886,9 @@ void ZDCPulseAnalyzer::DoFit()
   float t0Initial = (m_useLowGain ? m_nominalT0LG : m_nominalT0HG);
 
   ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
+  if (PrePulse()) fitWrapper = m_prePulseFitWrapper;
+
+  fitWrapper->Initialize(ampInitial, t0Initial);
   if (PrePulse()) {
     //
     //
@@ -898,11 +901,6 @@ void ZDCPulseAnalyzer::DoFit()
       (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetPrePulseT0Range(-m_deltaTSample / 2,
           (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance)*m_deltaTSample);
     }
-  }
-
-  fitWrapper->Initialize(ampInitial, t0Initial);
-  if (PrePulse()) {
-    (static_cast<ZDCPrePulseFitWrapper*>(m_prePulseFitWrapper))->SetInitialPrePulse(m_initialPrePulseAmp, m_initialPrePulseT0);
   }
 
   // Now perform the fit
