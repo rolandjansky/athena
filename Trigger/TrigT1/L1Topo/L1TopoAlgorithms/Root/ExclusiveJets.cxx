@@ -133,7 +133,7 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
 		if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		if( parType_t((*tob2)->Et()) <= p_MinET1[i]) continue; // ET cut
 		
-		accept = (xi_1 > p_XiMin[i]*13000.0) && (xi_1 < p_XiMax[i]*13000.0) && (xi_2 > p_XiMin[i]*13000.0) && (xi_2 < p_XiMax[i]*13000.0); //
+		accept = (xi_1 > p_XiMin[i]) && (xi_1 < p_XiMax[i]) && (xi_2 > p_XiMin[i]) && (xi_2 < p_XiMax[i]); //
 		const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
 		const bool fillReject = fillHistos() and not fillAccept;
 		const bool alreadyFilled = decision.bit(i);
@@ -187,7 +187,7 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
 		if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		if( parType_t((*tob2)->Et()) <= p_MinET1[i]) continue; // ET cut
 		
-		accept = (xi_1 > p_XiMin[i]*13000.0) && (xi_1 < p_XiMax[i]*13000.0) && (xi_2 > p_XiMin[i]*13000.0) && (xi_2 < p_XiMax[i]*13000.0); //
+		accept = (xi_1 > p_XiMin[i]) && (xi_1 < p_XiMax[i]) && (xi_2 > p_XiMin[i]) && (xi_2 < p_XiMax[i]); //
 		const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
 		const bool fillReject = fillHistos() and not fillAccept;
 		const bool alreadyFilled = decision.bit(i);
