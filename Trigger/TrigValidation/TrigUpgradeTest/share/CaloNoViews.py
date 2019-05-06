@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 if not 'doHLTCaloTopo' in dir() :
@@ -12,10 +12,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-isData = False
-if globalflags.InputFormat.is_bytestream():
-  isData = True
-
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
@@ -26,12 +22,12 @@ if TriggerFlags.doCalo:
   if ( doHLTCaloTopo ) :
 
      from TrigT2CaloCommon.CaloDef import addHLTCaloCell, addHLTTopoCluster
-     topSequence+=addHLTCaloCell(OutputLevel=DEBUG)    
-     topSequence+=addHLTTopoCluster(OutputLevel=DEBUG)    
+     topSequence+=addHLTCaloCell()
+     topSequence+=addHLTTopoCluster()
 
   if ( doL2Egamma ) :
      from TrigT2CaloCommon.CaloDef import addL2Egamma
-     topSequence+=addL2Egamma(OutputLevel=DEBUG)
+     topSequence+=addL2Egamma()
 
   from AthenaCommon.AlgSequence import dumpMasterSequence
   dumpMasterSequence()

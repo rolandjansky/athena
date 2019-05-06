@@ -5,7 +5,7 @@
 #ifndef TGCTRIGGERDATA_H
 #define TGCTRIGGERDATA_H
 
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <map>

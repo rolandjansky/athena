@@ -26,7 +26,16 @@
 #include "ui_guides_settings_lines_form.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "GaudiKernel/SystemOfUnits.h"
+
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
+
 #include <cmath>
 
 //____________________________________________________________________
@@ -370,19 +379,19 @@ SbColor4f GuideSysController::floorColourAndTransp() const
 //____________________________________________________________________
 double GuideSysController::floorExtent() const
 {
-  return m_d->ui_floorandletters.doubleSpinBox_floorextent->value()*Gaudi::Units::m;
+  return m_d->ui_floorandletters.doubleSpinBox_floorextent->value()*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
 double GuideSysController::floorSpacing() const
 {
-  return m_d->ui_floorandletters.doubleSpinBox_floorspacing->value()*Gaudi::Units::m;
+  return m_d->ui_floorandletters.doubleSpinBox_floorspacing->value()*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
 double GuideSysController::floorHeight() const
 {
-  return m_d->ui_floorandletters.doubleSpinBox_floorheight->value()*Gaudi::Units::m;
+  return m_d->ui_floorandletters.doubleSpinBox_floorheight->value()*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
@@ -399,7 +408,7 @@ double GuideSysController::lettersZPos() const
   int nmax; double distmax;
   if (!VP1Floor::calcParsFromExtentAndSpacing( (VP1HelperClassBase*)this, floorExtent(), floorSpacing(), VP1Floor::nMax(), nmax, distmax )) {
     nmax = 10;
-    distmax = 10*Gaudi::Units::m;
+    distmax = 10*SYSTEM_OF_UNITS::m;
     message("lettersZPos  ERROR: Problems calculating floor nmax/distmax.");
   }
   return distmax*1.1;
@@ -408,7 +417,7 @@ double GuideSysController::lettersZPos() const
 //____________________________________________________________________
 double GuideSysController::lettersVerticalPos() const
 {
-  return floorHeight()+1.5*Gaudi::Units::m;
+  return floorHeight()+1.5*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
@@ -420,17 +429,16 @@ bool GuideSysController::showAxes() const
 //____________________________________________________________________
 double GuideSysController::axesLength() const
 {
-  return m_d->ui_axes.doubleSpinBox_axes_lengths_m->value()*Gaudi::Units::m *
+  return m_d->ui_axes.doubleSpinBox_axes_lengths_m->value()*SYSTEM_OF_UNITS::m *
     (m_d->ui_axes.checkBox_axes_shownegativeparts->isChecked()?-1.0:1.0);
 }
 
 //____________________________________________________________________
 SbVec3f GuideSysController::axesPosition() const
 {
-  return SbVec3f(m_d->ui_axes.doubleSpinBox_axes_xpos_m->value()*Gaudi::Units::m,
-		 m_d->ui_axes.doubleSpinBox_axes_ypos_m->value()*Gaudi::Units::m,
-		 m_d->ui_axes.doubleSpinBox_axes_zpos_m->value()*Gaudi::Units::m);
-
+  return SbVec3f(m_d->ui_axes.doubleSpinBox_axes_xpos_m->value()*SYSTEM_OF_UNITS::m,
+         m_d->ui_axes.doubleSpinBox_axes_ypos_m->value()*SYSTEM_OF_UNITS::m,
+         m_d->ui_axes.doubleSpinBox_axes_zpos_m->value()*SYSTEM_OF_UNITS::m);
 }
 
 //____________________________________________________________________
@@ -462,13 +470,13 @@ SbColor4f GuideSysController::gridColourAndTransp() const
 //____________________________________________________________________
 double GuideSysController::gridSpacing() const
 {
-  return m_d->ui_grid.doubleSpinBox_gridspacing->value()*Gaudi::Units::m;
+  return m_d->ui_grid.doubleSpinBox_gridspacing->value()*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
 double GuideSysController::gridExtent() const
 {
-  return m_d->ui_grid.doubleSpinBox_gridextent->value()*Gaudi::Units::m;
+  return m_d->ui_grid.doubleSpinBox_gridextent->value()*SYSTEM_OF_UNITS::m;
 }
 
 //____________________________________________________________________
@@ -513,7 +521,7 @@ double GuideSysController::etaConeValue3() const
 //____________________________________________________________________
 double GuideSysController::etaExtent() const
 {
-  return m_d->ui_etacones.doubleSpinBox_etaconeextent->value() * Gaudi::Units::m
+  return m_d->ui_etacones.doubleSpinBox_etaconeextent->value() * SYSTEM_OF_UNITS::m
     * (m_d->ui_etacones.radioButton_etaconeextentisr->isChecked() ? 1.0 : -1.0);
 }
 
@@ -537,7 +545,7 @@ SbVec3f GuideSysController::lineDirection() const
 //____________________________________________________________________
 double GuideSysController::lineLength() const
 {
-  return m_d->ui_lines.doubleSpinBox_length->value() * Gaudi::Units::m;
+  return m_d->ui_lines.doubleSpinBox_length->value() * SYSTEM_OF_UNITS::m;
 }
 
 //_____________________________________________________________________________________

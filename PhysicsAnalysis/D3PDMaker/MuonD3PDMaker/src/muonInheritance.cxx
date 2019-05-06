@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,7 @@
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 #include "EventKernel/INavigable4Momentum.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 SG_ADD_BASE (TrigMuonEF,          SG_VIRTUAL(INavigable4Momentum));
 SG_ADD_BASE (CombinedMuonFeature, SG_VIRTUAL(INavigable4Momentum));

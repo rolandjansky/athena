@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -14,9 +14,10 @@
 
 #ifndef SiSpacePointForSeed_h
 #define SiSpacePointForSeed_h
-#include "TrkSpacePoint/SpacePoint.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+
 #include "InDetPrepRawData/SiCluster.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSurfaces/Surface.h"
 
 namespace InDet {

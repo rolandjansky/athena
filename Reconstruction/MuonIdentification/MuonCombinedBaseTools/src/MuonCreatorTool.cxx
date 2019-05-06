@@ -87,9 +87,9 @@ namespace MuonCombined {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
-    m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+    m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
-    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonSimpleAmbiProcessorTool"),
+    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
     m_muonDressingTool("MuonCombined::MuonDressingTool/MuonDressingTool"),
     m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignificanceTool"),
@@ -98,7 +98,7 @@ namespace MuonCombined {
     m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"),
     m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
     m_caloNoiseTool(""),
-    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
+    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
     m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
     m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery")
 

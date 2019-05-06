@@ -1,8 +1,7 @@
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg,  HLTTest__TestHypoAlg,  HLTTest__TestHypoTool, HLTTest__TestComboHypoAlg
-from AthenaCommon.Constants import VERBOSE,DEBUG
-from TrigUpgradeTest.HLTSignatureHypoTools import *
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
+from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, MuTest2HypoTool, ElTestHypoTool, GammTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
-from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 UseThisLinkName="initialRoI"
@@ -11,10 +10,10 @@ UseThisLinkName="initialRoI"
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerForInitialRoIAlg(name):
-    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, RoIsLink="initialRoI", LinkName="initialRoI")
+    return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName="initialRoI")
 
 def InputMakerForFeatureAlg(name):
-    return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, RoIsLink="initialRoI", LinkName=UseThisLinkName)
+    return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName=UseThisLinkName)
 
 # here define the sequences from the signatures
 # signatures do this:
@@ -28,10 +27,10 @@ def InputMakerForFeatureAlg(name):
 
 
 def muMSRecAlg(name, FileName="noreco.dat"):
-    return HLTTest__TestRecoAlg(name=name, FileName=FileName, OutputLevel = DEBUG)
+    return HLTTest__TestRecoAlg(name=name, FileName=FileName)
 
 def MuHypo(name):
-    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName, OutputLevel = DEBUG)
+    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
     
 
@@ -77,10 +76,10 @@ def muStep2MenuSequence(name):
 ## ##########################
 
 def CaloClustering(name,  FileName="noreco.dat"):
-    return HLTTest__TestRecoAlg(name=name, FileName=FileName, OutputLevel = DEBUG)
+    return HLTTest__TestRecoAlg(name=name, FileName=FileName)
 
 def ElGamHypo(name):
-    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName, OutputLevel = DEBUG)
+    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName)
 
 
 
@@ -110,7 +109,6 @@ def gammStep1MenuSequence(name):
 
 #step2
 def elStep2Sequence(ConfigFlags, name):
-#    print "FPDEBUG Running elStep2Sequence with flags %s and name %s"%(ConfigFlags, name)
     elIM2= InputMakerForFeatureAlg(name=name+"Step2ElInputMaker")
     elIM2.Output=name+'elIM2_out'
 

@@ -110,8 +110,8 @@ class PixelConditionsServicesSetup:
     ############################
     # DeadMap Conditions Setup #
     ############################
+    PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
     if self.usePixMap:
-      PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
       if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
 
@@ -123,7 +123,8 @@ class PixelConditionsServicesSetup:
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadMap=self.usePixMap,
-                                    ReadDeadMapKey=PixelDeadMapFolder)
+                                    ReadDeadMapKey=PixelDeadMapFolder,
+                                    UseCalibConditions=True)
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
@@ -143,18 +144,12 @@ class PixelConditionsServicesSetup:
     #####################
     # Calibration Setup #
     #####################
-    from AthenaCommon.AppMgr import ServiceMgr,theApp
-    from IOVDbSvc.CondDB import conddb
-    if not self.onlineMode:
-      from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-      PixelCalibSvc = PixelCalibSvc(name=self.instanceName('PixelCalibSvc'))
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+      conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
 
-      if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-
-      if self._print: print PixelCalibSvc
-
-      svcMgr += PixelCalibSvc
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+      condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco",className="DetCondCFloat") 
@@ -200,7 +195,6 @@ class PixelConditionsServicesSetup:
     TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
     ToolSvc += TrigPixelLorentzAngleTool
-
 
   def instanceName(self, toolname):
     return self.prefix+toolname

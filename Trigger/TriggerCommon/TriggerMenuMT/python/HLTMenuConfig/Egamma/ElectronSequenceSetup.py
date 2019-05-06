@@ -2,8 +2,6 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Include import include
-from AthenaCommon.Constants import VERBOSE,DEBUG
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -11,30 +9,13 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-
-def inDetSetup():
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doCaloSeededBrem = False
-    InDetFlags.InDet25nsec = True 
-    InDetFlags.doPrimaryVertex3DFinding = False 
-    InDetFlags.doPrintConfigurables = False
-    InDetFlags.doResolveBackTracks = True 
-    InDetFlags.doSiSPSeededTrackFinder = True
-    InDetFlags.doTRTPhaseCalculation = True
-    InDetFlags.doTRTSeededTrackFinder = True
-    InDetFlags.doTruth = False
-    InDetFlags.init()
-
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def electronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs()
+    (viewAlgs, eventAlgs) = makeInDetAlgs( separateTrackParticleCreator="_Electron")
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 
     theFTF = TrigFastTrackFinder_eGamma()
@@ -47,12 +28,11 @@ def electronSequence(ConfigFlags):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
-    ViewVerify.OutputLevel = DEBUG
     viewAlgs.append(ViewVerify)
     
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
-        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
       
       
@@ -60,11 +40,10 @@ def electronSequence(ConfigFlags):
     theElectronFex= L2ElectronFex_1()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName="Electrons"
-    theElectronFex.OutputLevel=VERBOSE
+    theElectronFex.ElectronsName=recordable("HLT_L2Electrons")
 
     # EVCreator:
-    l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+    l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker")
     l2ElectronViewsMaker.RoIsLink = "roi" # -||-
     l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
     l2ElectronViewsMaker.Views = "EMElectronViews"
@@ -96,7 +75,6 @@ def electronMenuSequence():
     theElectronHypo.Electrons = sequenceOut
 
     theElectronHypo.RunInView=True
-    theElectronHypo.OutputLevel = VERBOSE
 
     from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromDict
 

@@ -1,48 +1,51 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_HECDETECTORMANAGER_H
 #define LARREADOUTGEOMETRY_HECDETECTORMANAGER_H
+
 #include "AthenaKernel/CLASS_DEF.h"
 #include "LArReadoutGeometry/HECLongBlock.h"
+#include "LArHV/HECHVManager.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
+
 class HECDetDescr;
 class HECDetectorRegion;
-class HECHVManager;
-/**
- *     @brief A manager class providing access to readout geometry information
- *     for the hadronic endcap calorimeter.
- */
 
 /**
- *	A manager for the HEC.  Provides access to:  HEC
- *	Regions, Descriptors to HEC Regions, Longitudinal HEC
- *	blocks, and top level physical volumes (or tree tops).
+ * @class HECDetectorManager
+ *
+ * @brief A manager class providing access to readout geometry information
+ * for the hadronic endcap calorimeter.
+ *
+ * A manager for the HEC.  Provides access to:  HEC
+ * Regions, Descriptors to HEC Regions, Longitudinal HEC
+ * blocks, and top level physical volumes (or tree tops).
  */
 
 class HECDetectorManager : public GeoVDetectorManager  
 {
   
  public:
-
+  
   typedef std::vector<const HECLongBlock *>::const_iterator BlockConstIterator;
   typedef std::vector<const HECDetectorRegion  *>::const_iterator DetectorRegionConstIterator;
   typedef HECDetectorRegion const * HECDetRegionArray[2][4][2];
   
-
+  
  public:
-    
+  
   
   /**
    * @brief Constructor
    */
-  HECDetectorManager(bool isTestBeam=false);
+  HECDetectorManager(const HECHVManager* hvManager=nullptr, bool isTestBeam=false);
   
   /**
    * @brief Destructor
    */
-  ~HECDetectorManager();
+  virtual ~HECDetectorManager() override;
       
   /**
    * @brief	Iterate over detector regions
@@ -67,12 +70,12 @@ class HECDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
       
   /**
    * @brief	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
       
   /**
    * @brief	Iterate over blocks.
@@ -102,7 +105,7 @@ class HECDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
 
       
   /**
@@ -124,7 +127,7 @@ class HECDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Get the HV Manager
    */
-  const HECHVManager * getHVManager() const;
+  const HECHVManager& getHVManager() const;
 
 
  private:
@@ -160,7 +163,7 @@ class HECDetectorManager : public GeoVDetectorManager
   double m_focalToRef1;
   double m_focalToRef2;
 
-  mutable const HECHVManager * m_HVManager;
+  const HECHVManager* m_HVManager;
 
   bool m_isTestBeam;
 

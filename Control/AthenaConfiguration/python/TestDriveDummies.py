@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from GaudiKernel.GaudiHandles import  ServiceHandle, PrivateToolHandleArray
+
+from __future__ import print_function
+
+from GaudiKernel.GaudiHandles import  ServiceHandle, PrivateToolHandleArray,PrivateToolHandle, PublicToolHandleArray, PublicToolHandle
 from AthenaCommon.Configurable import Configurable,ConfigurableService, ConfigurableAlgTool
 
 
@@ -14,6 +17,10 @@ class dummyService(ConfigurableService):
     'AuditReinitialize' : False, # bool
     'AuditRestart' : False, # bool
     'SomeTools' : PrivateToolHandleArray([]), # GaudiHandleArray
+    'OneTool' : PrivateToolHandle(''), # GaudiHandle
+    'SomePublicTools' : PublicToolHandleArray([]), # GaudiHandleArray
+    'OnePublicTool' :  PublicToolHandle(''), 
+    'AnotherService' : ServiceHandle(''),
     'AString' : '', #str  
     'AList' : [ ]
   }

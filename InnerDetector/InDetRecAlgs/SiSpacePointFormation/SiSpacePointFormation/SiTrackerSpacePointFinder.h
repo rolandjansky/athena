@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -98,6 +100,9 @@ namespace InDet {
     StatusCode execute (const EventContext& ctx) const override;
 
     StatusCode finalize() override;
+
+    /** Make this algorithm clonable. */
+    virtual bool isClonable() const override { return true; };
 
   private:
     // methods

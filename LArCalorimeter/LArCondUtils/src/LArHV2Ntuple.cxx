@@ -12,12 +12,9 @@
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECHVModule.h"
-#include "LArHV/EMECHVModuleConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/HECHVManager.h"
 #include "LArHV/HECHVModule.h"
-#include "LArHV/HECHVModuleConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -242,19 +239,19 @@
 
 
 
-    const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::OUTER);
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-        for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-          for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-            EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
-            float eta=0.5*(hvMod->getEtaMin()+hvMod->getEtaMax());
-            for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-              EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+    const EMECHVManager& hvManager_EMEC_OUT=manager->getEMECHVManager(EMECHVModule::OUTER);
+    for (unsigned int iSide=hvManager_EMEC_OUT.beginSideIndex();iSide<hvManager_EMEC_OUT.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_OUT.beginPhiIndex();iPhi<hvManager_EMEC_OUT.endPhiIndex();iPhi++) {
+        for (unsigned int iSector=hvManager_EMEC_OUT.beginSectorIndex();iSector<hvManager_EMEC_OUT.endSectorIndex();iSector++) {
+          for (unsigned int iEta=hvManager_EMEC_OUT.beginEtaIndex();iEta<hvManager_EMEC_OUT.endEtaIndex();iEta++) {
+            const EMECHVModule& hvMod=hvManager_EMEC_OUT.getHVModule(iSide,iEta,iPhi,iSector);
+            float eta=0.5*(hvMod.getEtaMin()+hvMod.getEtaMax());
+            for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { //use hvMod.getNumElectrodes when bug is corrected
+              const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
               for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                float hv=electrode->voltage(iGap);
-                float current = electrode->current(iGap);
-                float phi = electrode->getPhi();
+                float hv=electrode.voltage(iGap);
+                float current = electrode.current(iGap);
+                float phi = electrode.getPhi();
 
                 m_bec=1;
                 m_isPresampler=0;
@@ -264,7 +261,7 @@
                 m_gap = iGap;
                 m_hv = hv;
                 m_current= current;
-                m_hvline = electrode->hvLineNo(iGap);
+                m_hvline = electrode.hvLineNo(iGap);
 
                 if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -284,19 +281,19 @@
       }
     }//EMEC Outer
 
-    hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::INNER);
-    for (unsigned int iSide=hvManager_EMEC->beginSideIndex();iSide<hvManager_EMEC->endSideIndex();iSide++) { // loop over HV modules
-      for (unsigned int iPhi=hvManager_EMEC->beginPhiIndex();iPhi<hvManager_EMEC->endPhiIndex();iPhi++) {
-        for (unsigned int iSector=hvManager_EMEC->beginSectorIndex();iSector<hvManager_EMEC->endSectorIndex();iSector++) {
-          for (unsigned int iEta=hvManager_EMEC->beginEtaIndex();iEta<hvManager_EMEC->endEtaIndex();iEta++) {
-            EMECHVModuleConstLink hvMod=hvManager_EMEC->getHVModule(iSide,iEta,iPhi,iSector);
-            float eta=0.5*(hvMod->getEtaMin()+hvMod->getEtaMax());
-            for (unsigned int ielec=0;ielec<hvMod->getNumElectrodes();ielec++) { //use hvMod->getNumElectrodes when bug is corrected
-              EMECHVElectrodeConstLink electrode = hvMod->getElectrode(ielec);
+    const EMECHVManager& hvManager_EMEC_IN=manager->getEMECHVManager(EMECHVModule::INNER);
+    for (unsigned int iSide=hvManager_EMEC_IN.beginSideIndex();iSide<hvManager_EMEC_IN.endSideIndex();iSide++) { // loop over HV modules
+      for (unsigned int iPhi=hvManager_EMEC_IN.beginPhiIndex();iPhi<hvManager_EMEC_IN.endPhiIndex();iPhi++) {
+        for (unsigned int iSector=hvManager_EMEC_IN.beginSectorIndex();iSector<hvManager_EMEC_IN.endSectorIndex();iSector++) {
+          for (unsigned int iEta=hvManager_EMEC_IN.beginEtaIndex();iEta<hvManager_EMEC_IN.endEtaIndex();iEta++) {
+            const EMECHVModule& hvMod=hvManager_EMEC_IN.getHVModule(iSide,iEta,iPhi,iSector);
+            float eta=0.5*(hvMod.getEtaMin()+hvMod.getEtaMax());
+            for (unsigned int ielec=0;ielec<hvMod.getNumElectrodes();ielec++) { //use hvMod.getNumElectrodes when bug is corrected
+              const EMECHVElectrode& electrode = hvMod.getElectrode(ielec);
               for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                float hv=electrode->voltage(iGap);
-                float current = electrode->current(iGap);
-                float phi = electrode->getPhi();
+                float hv=electrode.voltage(iGap);
+                float current = electrode.current(iGap);
+                float phi = electrode.getPhi();
             
                 m_bec=2;
                 m_isPresampler=0;
@@ -306,7 +303,7 @@
                 m_gap = iGap;
                 m_hv = hv;
                 m_current= current;
-                m_hvline = electrode->hvLineNo(iGap);
+                m_hvline = electrode.hvLineNo(iGap);
 
                 if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
@@ -326,14 +323,14 @@
       }
     }// EMEC Inner
 
-    const HECHVManager* hvManager_HEC=manager->getHECHVManager();
+    const HECHVManager& hvManager_HEC=manager->getHECHVManager();
     float etamax_layer[4]={3.3,3.1,3.1,3.3};
     float etamin_layer[4]={1.5,1.5,1.6,1.7};
 
     
-    for (unsigned int iSide=hvManager_HEC->beginSideIndex();iSide<hvManager_HEC->endSideIndex();iSide++) { // loop over HV modules      
-      for (unsigned int iPhi=hvManager_HEC->beginPhiIndex();iPhi<hvManager_HEC->endPhiIndex();iPhi++) {
-        for (unsigned int iSampling=hvManager_HEC->beginSamplingIndex();iSampling<hvManager_HEC->endSamplingIndex();iSampling++) {
+    for (unsigned int iSide=hvManager_HEC.beginSideIndex();iSide<hvManager_HEC.endSideIndex();iSide++) { // loop over HV modules      
+      for (unsigned int iPhi=hvManager_HEC.beginPhiIndex();iPhi<hvManager_HEC.endPhiIndex();iPhi++) {
+        for (unsigned int iSampling=hvManager_HEC.beginSamplingIndex();iSampling<hvManager_HEC.endSamplingIndex();iSampling++) {
           float eta_min,eta_max;
           if (iSide==1) {
            eta_min = etamin_layer[iSampling];
@@ -343,13 +340,13 @@
            eta_max = -1.*etamin_layer[iSampling];
          }
          float eta = 0.5*(eta_min+eta_max);
-         HECHVModuleConstLink hvMod = hvManager_HEC->getHVModule(iSide,iPhi,iSampling);
-         float phi = 0.5*(hvMod->getPhiMin()+hvMod->getPhiMax());
+         const HECHVModule& hvMod = hvManager_HEC.getHVModule(iSide,iPhi,iSampling);
+         float phi = 0.5*(hvMod.getPhiMin()+hvMod.getPhiMax());
 
-         for (unsigned int iGap=0;iGap<hvMod->getNumSubgaps();iGap++) {//HEC : 4 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-            HECHVSubgapConstLink subgap=hvMod->getSubgap(iGap);
-            float hv = subgap->voltage();
-            float current = subgap->current();
+         for (unsigned int iGap=0;iGap<hvMod.getNumSubgaps();iGap++) {//HEC : 4 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
+            const HECHVSubgap& subgap=hvMod.getSubgap(iGap);
+            float hv = subgap.voltage();
+            float current = subgap.current();
             m_bec = 10+iSampling;
             m_isPresampler=0;
             m_eta=eta;
@@ -358,7 +355,7 @@
             m_gap = iGap;
             m_hv=hv;
             m_current=current;
-            m_hvline = subgap->hvLineNo();
+            m_hvline = subgap.hvLineNo();
             if(m_addcells) {
                   for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
                      m_barrelec=m_onlId->barrel_ec(m_hvonlId_map[m_hvline][i]);
@@ -374,16 +371,16 @@
      }
    }//HECHVManager 
 
-   const FCALHVManager *hvManager_FCAL=manager->getFCALHVManager();
-   for (unsigned int iSide=hvManager_FCAL->beginSideIndex();iSide<hvManager_FCAL->endSideIndex();iSide++) { // loop over HV modules
+   const FCALHVManager& hvManager_FCAL=manager->getFCALHVManager();
+   for (unsigned int iSide=hvManager_FCAL.beginSideIndex();iSide<hvManager_FCAL.endSideIndex();iSide++) { // loop over HV modules
        float eta_min=3.1,eta_max=4.9;
        if (iSide==0) { eta_min=-4.9; eta_max=-3.1; }
 
        float eta = 0.5*(eta_min+eta_max);
-       for (unsigned int iSampling=hvManager_FCAL->beginSamplingIndex();iSampling<hvManager_FCAL->endSamplingIndex();iSampling++) {
-            for (unsigned int iSector=hvManager_FCAL->beginSectorIndex(iSampling);iSector<hvManager_FCAL->endSectorIndex(iSampling);iSector++) {
+       for (unsigned int iSampling=hvManager_FCAL.beginSamplingIndex();iSampling<hvManager_FCAL.endSamplingIndex();iSampling++) {
+            for (unsigned int iSector=hvManager_FCAL.beginSectorIndex(iSampling);iSector<hvManager_FCAL.endSectorIndex(iSampling);iSector++) {
  
-                 FCALHVModuleConstLink hvMod = hvManager_FCAL->getHVModule(iSide,iSector,iSampling);
+                 const FCALHVModule& hvMod = hvManager_FCAL.getHVModule(iSide,iSector,iSampling);
                  //std::cout << " FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " << iSector << std::endl;
                  //std::cout << "   HV nominal " << HVnominal << std::endl;
   
@@ -395,10 +392,10 @@
                  float phi_max = CaloPhiRange::fix(dphi+phi_min);
                  float phi = 0.5*(phi_min+phi_max);
          
-                 for (unsigned int iLine=0;iLine<hvMod->getNumHVLines();iLine++) {
-                     FCALHVLineConstLink hvline = hvMod->getHVLine(iLine);
-                     float hv = hvline->voltage();
-                     float current = hvline->current();
+                 for (unsigned int iLine=0;iLine<hvMod.getNumHVLines();iLine++) {
+                     const FCALHVLine& hvline = hvMod.getHVLine(iLine);
+                     float hv = hvline.voltage();
+                     float current = hvline.current();
                      m_bec = 14+iSampling;
                      m_isPresampler=0;
                      m_eta=eta;
@@ -407,7 +404,7 @@
                      m_gap = iLine;
                      m_hv=hv;
                      m_current=current;
-                     m_hvline = hvline->hvLineNo();
+                     m_hvline = hvline.hvLineNo();
                      if(m_addcells) {
                        for(unsigned i=0; i<m_hvonlId_map[m_hvline].size(); ++i) {
                          m_barrelec=m_onlId->barrel_ec(m_hvonlId_map[m_hvline][i]);
@@ -449,8 +446,8 @@ std::vector<int> LArHV2Ntuple::GetHVLines(const Identifier& id) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
        unsigned int nelec = cell->getNumElectrodes();
        for (unsigned int i=0;i<nelec;i++) {
-         const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-         for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+         const EMECHVElectrode& electrode = cell->getElectrode(i);
+         for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
        }
      }
    } else if (m_caloId->is_hec(id)) { // LAr HEC
@@ -459,25 +456,17 @@ std::vector<int> LArHV2Ntuple::GetHVLines(const Identifier& id) {
      const HECCellConstLink cell = hecElement->getHECCell();
      unsigned int nsubgaps = cell->getNumSubgaps();
      for (unsigned int igap=0;igap<nsubgaps;igap++) {
-       const HECHVSubgapConstLink subgap = cell->getSubgap(igap);
-       hv.insert(subgap->hvLineNo());
+       const HECHVSubgap& subgap = cell->getSubgap(igap);
+       hv.insert(subgap.hvLineNo());
      }
    } else if (m_caloId->is_fcal(id)) { // LAr FCAL
      const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
      if (!fcalElement) std::abort();
      const FCALTile* tile = fcalElement->getFCALTile();
      unsigned int nlines = tile->getNumHVLines();
-     unsigned int nlines_found=0;
      for (unsigned int i=0;i<nlines;i++) {
-       const FCALHVLineConstLink line = tile->getHVLine(i);
-       if (line) nlines_found++;
-     }
-     if ( nlines_found>0 ) {
-       for (unsigned int i=0;i<nlines;i++) {
-         const FCALHVLineConstLink line = tile->getHVLine(i);
-         if (!line) continue;
-         hv.insert(line->hvLineNo());
-       }
+       const FCALHVLine* line = tile->getHVLine(i);
+       if (line) hv.insert(line->hvLineNo());
      }
    } else if (m_caloId->is_em(id) && m_caloId->sampling(id)==0) { // Presamplers
      if (abs(m_caloId->em_idHelper()->barrel_ec(id))==1) {

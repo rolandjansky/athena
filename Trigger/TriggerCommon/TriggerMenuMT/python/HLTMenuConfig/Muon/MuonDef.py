@@ -12,8 +12,9 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, inDetSetup
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
+from TrigUpgradeTest.InDetSetup import inDetSetup
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -42,6 +43,9 @@ def FSmuEFSASequenceCfg(flags):
 def FSmuEFCBSequenceCfg(flags):
     return muEFCBFSSequence()
 
+def muEFIsoSequenceCfg(flags):
+    return muEFIsoSequence()
+
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -65,36 +69,21 @@ class MuonChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
+        stepDictionary = {
+            "":(self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB()),
+            "fast":[self.getmuFast()],
+            "Comb":[self.getmuFast(), self.getmuComb()],
+            "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
+            "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
+            "msonly":[self.getmuFast(), self.getmuEFMS()],
+            "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
+        }
 
-        #--- First: 'nominal chain of type': mu
-        if        not self.chainPart['extra'] \
-              and not self.chainPart['FSinfo'] :
-            chainSteps += [self.getmuFast()]
-            chainSteps += [self.getmuComb()]
+        key = self.chainPart['extra']+self.chainPart['isoInfo']
+        steps=stepDictionary[key]
+        for step in steps:
+            chainSteps+=[step]
 
-            #--- with isolation ---
-            if 'ivar' in self.chainPart['isoInfo']:
-                chainSteps += [self.getmuIso()]
-            else:
-                chainSteps += [self.getmuEFSA()]
-                chainSteps += [self.getmuEFCB()]
-                
-        #--- combined ----
-        elif 'Comb' in self.chainPart['extra']:
-            chainSteps += [self.getmuFast()]
-            chainSteps += [self.getmuComb()]
-
-        #--- noL1 seed ---
-        elif 'noL1' in self.chainPart['extra']:
-            chainSteps += [self.getFSmuEFSA()]
-            chainSteps += [self.getFSmuEFCB()]
-            
-        #--- fast setup ---
-        elif 'fast' in self.chainPart['extra']:
-            chainSteps += [self.getmuFast()]
-
-        else:
-            raise RuntimeError("Chain configuration unknown for chain: " + self.chainName )
     
         myChain = self.buildChain(chainSteps)
         return myChain
@@ -122,11 +111,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return ChainStep(stepName, [muSeq])
 
     # --------------------
-    #def getmuEFMS(self):
-    #    stepName = 'Step1_muEFMS'
-    #    log.debug("Configuring step " + stepName)
-    #    muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
-    #    return ChainStep(stepName, [muSeq])
+    def getmuEFMS(self):
+        stepName = 'Step1_muEFMS'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve( muEFMSSequenceCfg, None)
+        return ChainStep(stepName, [muSeq])
 
     # --------------------
     def getmuIso(self):
@@ -154,6 +143,13 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepName = 'Step1_FSmuEFCB'
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( FSmuEFCBSequenceCfg, None)
+        return ChainStep(stepName, [muSeq])
+
+    #---------------------
+    def getmuEFIso(self):
+        stepName = 'Step1_muEFIso'
+        log.debug("Configuring step " + stepName)
+        muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
         return ChainStep(stepName, [muSeq])
 
 

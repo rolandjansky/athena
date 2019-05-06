@@ -62,7 +62,6 @@ InDetTrigSiDetElementsRoadMakerLowPt = \
                                      useSCT       = DetFlags.haveRIO.SCT_on(),
                                      RoadWidth    = EFIDTrackingCutsLowPt.RoadWidth()
                                      )
-ToolSvc += InDetTrigSiDetElementsRoadMakerLowPt
 # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
 if DetFlags.haveRIO.SCT_on():
   from AthenaCommon.AlgSequence import AthSequencer

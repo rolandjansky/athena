@@ -39,7 +39,7 @@ namespace Trk {
      public:
        VKalVrtControl(const VKalVrtControlBase &);
        VKalVrtControl(const VKalVrtControl & src);              //copy
-      ~VKalVrtControl();
+      ~VKalVrtControl() = default;
 
      public:
 
@@ -59,26 +59,30 @@ namespace Trk {
        void setUsePassNear(int);
 
        void renewCascadeEvent(CascadeEvent *);
-       CascadeEvent * getCascadeEvent() const;
+       //Only edit the CascadeEvent in the same thread it was created in
+       const CascadeEvent * getCascadeEvent() const{ return m_cascadeEvent;};
+       CascadeEvent * getCascadeEvent() { return m_cascadeEvent;};
        void renewFullCovariance(double *);
-       double * getFullCovariance() const;
-
+       //Only edit the covariance in the same thread it was created.
+       const double * getFullCovariance () const { return m_fullCovariance.get(); }
+       double * getFullCovariance () { return m_fullCovariance.get(); }
        void setVertexMass(double mass) { m_vrtMassTot=mass;}
        void setVrtMassError(double error) { m_vrtMassError=error;}
        double getVertexMass() { return m_vrtMassTot;}
        double getVrtMassError() {return m_vrtMassError;}
 
-       ForCFT vk_forcft;
+
 
      private:
 
-       double * m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
+       std::unique_ptr<double[]> m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
                                     // (x,y,z,px_0,py_0,pz_0,....,px_n,py_n,pz_n)
                                     // in symmetric form
        double m_vrtMassTot;
        double m_vrtMassError;
        CascadeEvent * m_cascadeEvent=nullptr;       
-
+     public:
+       ForCFT vk_forcft;
   };
 
 } // end of namespace bracket

@@ -96,18 +96,8 @@ def CaloNoiseToolCfg(configFlags):
             theLArHVToolDB = LArHVToolDB("LArHVToolDB")
             result.addPublicTool( theLArHVToolDB )
 
-            from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
-            theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
-            theLArHVCorrTool.keyOutput = "LArHVScaleCorr"
-            theLArHVCorrTool.folderName= "/LAR/ElecCalibFlat/HVScaleCorr"
-            theLArHVCorrTool.doTdrift = False
-            theLArHVCorrTool.DeltaTupdate = 0
-            theLArHVCorrTool.HVTool = theLArHVToolDB
-            result.addPublicTool( theLArHVCorrTool )
-
             from LArCellRec.LArCellRecConf import LArCellHVCorr
             theLArCellHVCorr = LArCellHVCorr("LArCellHVCorr")
-            theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
             result.addPublicTool( theLArCellHVCorr )
 
             caloNoiseToolDB.RescaleForHV=True

@@ -146,7 +146,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
    /// Digit scale for calorimeter trigger
    const float caloTrigScale =
-      InvGeV * m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
+      GeV / m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get EmTau Thresholds from configSvc. Also fill a map of threshold names while
@@ -270,7 +270,7 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
 
    // Digit scale for calorimeter trigger
    const float caloTrigScale =
-      InvGeV * m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+      GeV / m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get Jet/Energy Thresholds from configSvc. Also fill maps of threshold names while

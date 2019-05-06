@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeTrackRecordCollTool.h"
@@ -7,7 +7,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TrackRecord/TrackRecordCollection.h"
 
 MergeTrackRecordCollTool::MergeTrackRecordCollTool(const std::string& type,
                                                    const std::string& name,
@@ -17,6 +16,13 @@ MergeTrackRecordCollTool::MergeTrackRecordCollTool(const std::string& type,
   m_firstSubEvent(true)
 {
   declareProperty("TrackRecordCollKey", m_trRecCollKey=std::string("MuonEntryLayer"));
+}
+
+StatusCode MergeTrackRecordCollTool::initialize()
+{
+  ATH_MSG_DEBUG( "initialize()" );
+  ATH_CHECK( m_outputKey.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MergeTrackRecordCollTool::prepareEvent(unsigned int nInputEvents)
@@ -41,12 +47,17 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
 	if (m_pMergeSvc->retrieveSingleSubEvtData(m_trRecCollKey.value(), oldColl,
 						  bunchXing, bSubEvents).isSuccess())
 	    {
-	      TrackRecordCollection* newColl = new TrackRecordCollection();
+        SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey);
+        ATH_CHECK(outputCollection.record(std::make_unique<TrackRecordCollection>()));
+        if (!outputCollection.isValid()) {
+          ATH_MSG_ERROR("Could not record output TrackRecordCollection " << outputCollection.name() << " to store " << outputCollection.store());
+          return StatusCode::FAILURE;
+        }
+
 	      for(auto trcit : *oldColl)
-		{
-		  newColl->push_back( TrackRecord(trcit) );
-		}
-	      CHECK(evtStore()->record(newColl, m_trRecCollKey));
+        {
+          outputCollection->push_back( TrackRecord(trcit) );
+        }
 	      ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
 	      m_firstSubEvent=false;
 	    }
@@ -93,14 +104,19 @@ StatusCode MergeTrackRecordCollTool::processAllSubEvents()
         {
           //FIXME we are forced to do a deep copy
           const TrackRecordCollection &oldColl=*(truthList.begin())->second;
-          TrackRecordCollection *newColl = new TrackRecordCollection();
+
+          SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey);
+          ATH_CHECK(outputCollection.record(std::make_unique<TrackRecordCollection>()));
+          if (!outputCollection.isValid()) {
+            ATH_MSG_ERROR("Could not record output TrackRecordCollection " << outputCollection.name() << " to store " << outputCollection.store());
+            return StatusCode::FAILURE;
+          }
 
           for (auto trcit : oldColl)
             {
-              newColl->push_back( TrackRecord(trcit) );
+              outputCollection->push_back( TrackRecord(trcit) );
             }
 
-          CHECK(evtStore()->record(newColl, m_trRecCollKey));
           ATH_MSG_DEBUG ( "processAllSubEvents: copied original event TrackRecordCollection" );
         }
       else

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.cxx,v 1.7 2009-05-20 20:48:52 ssnyder Exp $
@@ -61,7 +61,7 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
     //m_detStore  ("DetectorStore", name),
     m_jos       ("JobOptionsSvc", name),
     m_toolsvc   ("ToolSvc",       name),
-    m_coolInlineTool("Blob2ToolConstants")
+    m_coolInlineTool("Blob2ToolConstants",this)
 {
   declareProperty ("CorrSpecs",     m_corrspecs);
   declareProperty ("KeepList",      m_keeplist);
@@ -99,6 +99,9 @@ StatusCode CaloRunClusterCorrections::initialize()
   // cause a crash.
   registerCallbacks();
 
+  ATH_CHECK( m_affKey.initialize() );
+  ATH_CHECK( m_LArBCKey.initialize() );
+  ATH_CHECK( m_TileBCKey.initialize() );
   return StatusCode::SUCCESS;
 }
 

@@ -45,7 +45,6 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
   :base_class(type, name, parent),
    m_priority(1000), 
    m_caloNum(),
-   m_calo_dd_man(nullptr),
    m_caloCID(nullptr),
    m_atlas_id(nullptr),
    m_emID(nullptr),
@@ -121,16 +120,10 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
   
   // initialize detector description pointers:
 
-  // pointer to detector manager:
-  // m_lar_dd_man = LArDetDescrManager::instance(); 
-
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-
-  m_caloCID = m_calo_dd_man->getCaloCell_ID();
-  const CaloIdManager* caloCIM = m_calo_dd_man->getCalo_Mgr();
-  m_emID = caloCIM->getEM_ID();
-  m_hecID = caloCIM->getHEC_ID();
-  m_fcalID = caloCIM->getFCAL_ID();
+  ATH_CHECK( detStore()->retrieve (m_caloCID, "CaloCell_ID") );
+  m_emID = m_caloCID->em_idHelper();
+  m_hecID = m_caloCID->hec_idHelper();
+  m_fcalID = m_caloCID->fcal_idHelper();
 
 
   if (m_LArRegion == "LAr_EM" || 
@@ -373,6 +366,9 @@ StatusCode
 LArCellBuilderFromLArHitTool::process ( CaloCellContainer* theCellContainer,
                                         const EventContext& ctx) const
 {
+  const CaloDetDescrManager* calo_dd_man = nullptr;
+  ATH_CHECK( detStore()->retrieve (calo_dd_man, "CaloMgr") );
+
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling(*cablingHdl);
 
@@ -446,8 +442,8 @@ LArCellBuilderFromLArHitTool::process ( CaloCellContainer* theCellContainer,
 	  const double t  = hit->time(); 
 	  const double q  = 1. ;	  
 	  // note that gain is estimated inside MakeTheCell
-	  // because caloDDE is needed
-	  MakeTheCell(theCellContainer,id,e,t,q);     
+          const CaloDetDescrElement* caloDDE = calo_dd_man->get_element(id);
+	  MakeTheCell(theCellContainer,caloDDE,e,t,q);     
 	}	
 
     }//end of loop on cells   
@@ -610,13 +606,11 @@ LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* cellcoll,
 
 // estimate the gain as well
 void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* cellcoll, 
-                                               const Identifier& id,
+                                               const CaloDetDescrElement* caloDDE,
                                                const double e,const double t,
                                                const double q) const
   
 {  
-  const CaloDetDescrElement* caloDDE=m_calo_dd_man->get_element(id);
-
   //estimate the gain
   const CaloGain::CaloGain g=
     m_noisetool->estimatedGain(caloDDE,e,ICaloNoiseToolStep::RAWCHANNELS);  
@@ -631,6 +625,9 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermanentCollection()
 {
   m_cellPermanentCollection.clear();
    
+  const CaloDetDescrManager* calo_dd_man = nullptr;
+  ATH_CHECK( detStore()->retrieve (calo_dd_man, "CaloMgr") );
+
   //resize to correct size and rest to zero
   IdentifierHash caloCellMin, caloCellMax ;
   m_caloCID->calo_cell_hash_range(m_caloNum,caloCellMin,caloCellMax);
@@ -644,7 +641,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermanentCollection()
   long nFilled =0 ;
 
   for (const CaloDetDescrElement* caloDDE :
-         m_calo_dd_man->element_range (m_caloNum))
+         calo_dd_man->element_range (m_caloNum))
   {
     ++index;
     

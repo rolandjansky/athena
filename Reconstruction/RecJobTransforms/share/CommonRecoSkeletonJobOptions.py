@@ -5,7 +5,6 @@
 # RecJobTransforms by Graeme Stewart, February 2014                  #
 #                                                                    #
 ######################################################################
-# $Id: CommonRecoSkeletonJobOptions.py 654930 2015-03-18 06:53:24Z graemes $
 ######################################################################
 
 include.block("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
@@ -31,7 +30,6 @@ rec.AutoConfiguration=['everything']
 
 #production options
 rec.Production=True
-rec.abortOnErrorMessage=False
 
 ## max/skip events
 if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )

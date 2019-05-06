@@ -1,36 +1,29 @@
 """Instantiates AlgTools from parameters stored in a node instance"""
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from TrigHLTJetHypo.TrigHLTJetHypoConf import (TrigJetHypoToolConfig_simple,
-                                               TrigJetHypoToolConfig_dijet,
-                                               NotHelperTool,
-                                               AndHelperTool,
-                                               OrHelperTool,
-                                               TrigJetHypoToolHelperMT,
-                                               CombinationsHelperTool,)
-
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
+from TrigHLTJetHypo.TrigHLTJetHypoConf import (
+    TrigJetHypoToolConfig_simple,
+    TrigJetHypoToolConfig_dijet,
+    NotHelperTool,
+    AndHelperTool,
+    OrHelperTool,
+    TrigJetHypoToolHelperMT,
+    CombinationsHelperTool,
+    TrigJetHypoToolConfig_combgen,
+)
 
 class ToolSetter(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
-    def __init__(self, name, debug):
+    def __init__(self, name):
 
-        # flag to be sent to the relevant C++ objects
-        self.debug = debug
-        
         self.tool_factories = {
             'simple': [TrigJetHypoToolConfig_simple, 0],
             'not': [NotHelperTool, 0],
             'and': [AndHelperTool, 0],
             'or': [OrHelperTool, 0],
             'dijet': [TrigJetHypoToolConfig_dijet, 0],
-            'combgen': [CombinationsHelperTool, 0],
+            'combgen': [TrigJetHypoToolConfig_combgen, 0],
             }
 
         self.mod_router = {
@@ -95,15 +88,17 @@ class ToolSetter(object):
         name = '%s_%d' % (scen, sn)
         self.tool_factories[scen][1] += 1
 
-        tool = klass(name=name)
+        config_tool = klass(name=name+'_config')
+        [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
 
-        tool.groupSize = node.conf_attrs['groupSize']
-        tool.children = [child.tool for child in node.children]
+        helper_tool = CombinationsHelperTool(name=name+'_helper')
+        helper_tool.HypoConfigurer = config_tool
+        helper_tool.children = [child.tool for child in node.children]
 
-        tool.node_id = node.node_id
-        tool.parent_id = node.parent_id
+        helper_tool.node_id = node.node_id
+        helper_tool.parent_id = node.parent_id
 
-        node.tool = tool
+        node.tool = helper_tool
 
 
     def mod_simple(self, node):
@@ -118,12 +113,9 @@ class ToolSetter(object):
 
         config_tool = klass(name=name+'_config')
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        config_tool.debug = self.debug  # affects Conditions etc
         
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
-        helper_tool.OutputLevel = DEBUG
-
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
 
@@ -141,7 +133,6 @@ class ToolSetter(object):
 
         config_tool = klass(name=name+'_config')
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        config_tool.debug = self.debug  # affects Conditions etc
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
 

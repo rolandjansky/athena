@@ -21,7 +21,7 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
 ElectronPidTools()
 PhotonPidTools()
 
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
+from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector, AsgElectronLikelihoodTool
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
 # Offline selectors -- taken from latest conf
@@ -32,6 +32,7 @@ LooseLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTLoose
 MediumLHSelector                  = CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHSelector")
 TightLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
 VeryLooseLHSelector               = CfgMgr.AsgElectronLikelihoodTool("T0HLTVeryLooseLHSelector")
+# MediumLHHISelector                  = CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHHISelector")
 
 # see the configuration calib paths below
 LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
@@ -42,6 +43,7 @@ LooseLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20
 MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
 TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
 VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+# MediumLHHISelector.ConfigFile     = "ElectronPhotonSelectorTools/offline/mc15_20160907_HI/ElectronLikelihoodMediumOfflineConfig2016_HI.conf"
 
 
 
@@ -53,6 +55,7 @@ ToolSvc+=LooseLHSelector
 ToolSvc+=MediumLHSelector
 ToolSvc+=TightLHSelector
 ToolSvc+=VeryLooseLHSelector
+# ToolSvc+=MediumLHHISelector
 
 
 #from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
@@ -74,6 +77,7 @@ from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron, m
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
 
 EgammaMatchTool = Trig__TrigEgammaMatchingTool()
+EgammaMatchTool.OutputLevel=2
 ToolSvc += EgammaMatchTool
 
 # Plot Tool sets the base path for histograms of all tools

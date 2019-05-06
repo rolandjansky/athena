@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigT2CaloCommon_TestCaloDataAccess_h
 #define TrigT2CaloCommon_TestCaloDataAccess_h
@@ -8,6 +8,8 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
+#include "CaloEvent/CaloBCIDAverage.h"
+#include "StoreGate/ReadHandleKey.h"
 
 
 /**
@@ -32,7 +34,10 @@ class TestCaloDataAccess
   TestCaloDataAccess();
   void emulateRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
   void emulateFixedRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
-  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc; 
+  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
+  { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 
   int m_nFixedRoIs;
   bool m_emulateRoIs;

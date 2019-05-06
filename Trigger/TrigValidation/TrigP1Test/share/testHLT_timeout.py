@@ -24,15 +24,14 @@ topSequence += xAODMaker__EventInfoCnvAlg()
 # L1 result decoding
 ################################################################################
 
-# Configure BS converter and address provider for RoIBResult decoding
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.ByteStreamCnvSvc.GetDetectorMask = True
-svcMgr.ByteStreamCnvSvc.InitCnvs += [ "ROIB::RoIBResult" ]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
+# Configure RoIBResult decoding (input to L1Decoder)
+from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
+topSequence += RoIBResultByteStreamDecoderAlg()
 
 # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
 # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
 from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += LVL1ConfigSvc()
 
 # Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
@@ -65,15 +64,15 @@ hypo = MTCalibPebHypoAlg()
 hypo.HypoInputDecisions = "HLTChains"
 hypo.HypoOutputDecisions = "MTCalibPebDecisions"
 
-# Chain 1 - high accept rate, sleeps for up to 2 seconds
+# Chain 1 - 100% accept rate, sleeps for up to 2 seconds
 hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
-hypoTool1.RandomAcceptRate = 0.75
+hypoTool1.RandomAcceptRate = 1.0
 hypoTool1.BurnTimePerCycleMillisec = 200
 hypoTool1.NumBurnCycles = 10
 
-# Chain 2 - lower accept rate, sleeps for up to 3 seconds
+# Chain 2 - 100% accept rate, sleeps for up to 3 seconds
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
-hypoTool2.RandomAcceptRate = 0.25
+hypoTool2.RandomAcceptRate = 1.0
 hypoTool2.BurnTimePerCycleMillisec = 600
 hypoTool2.NumBurnCycles = 5
 

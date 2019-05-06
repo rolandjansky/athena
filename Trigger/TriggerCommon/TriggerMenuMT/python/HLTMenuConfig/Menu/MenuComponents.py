@@ -2,17 +2,15 @@
 
 import sys, re, copy
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE,DEBUG
 log = logging.getLogger('MenuComponents')
-log.setLevel( VERBOSE )
-logLevel=DEBUG
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaCommon.CFElements import parOR, seqAND
 
 
-class Node():
-    """ base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
+class Node(object):
+    """base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
     def __init__(self, Alg):
         self.name = ("%sNode")%( Alg.name())
         self.Alg=Alg
@@ -113,7 +111,7 @@ class AlgNode(Node):
         return "Alg::%s  [%s] -> [%s]"%(self.Alg.name(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
-class HypoToolConf():
+class HypoToolConf(object):
     """ Class to group info on hypotools"""
     def __init__(self, hypoToolGen):
         self.hypoToolGen = hypoToolGen
@@ -145,7 +143,6 @@ class HypoAlgNode(AlgNode):
         self.previous=[]
 
     def addHypoTool (self, hypoToolConf):
-        print "here", hypoToolConf.chainDict
         if hypoToolConf.chainDict['chainName'] not in self.tools:
             ## HypoTools are private, so need to be created when added to the Alg
             ## this incantation may seem strange, however it is the only one which works
@@ -175,7 +172,7 @@ class SequenceFilterNode(AlgNode):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
 
     def setChains(self, name):
-        log.debug("Adding Chain %s to filter %s"%(name, self.Alg.name()))
+        log.debug("Adding Chain %s to filter %s", name, self.Alg.name())
         return self.setPar("Chains", name)
 
     def getChains(self):
@@ -187,7 +184,7 @@ class SequenceFilterNode(AlgNode):
 
 class RoRSequenceFilterNode(SequenceFilterNode):
     def __init__(self, name):
-        Alg= RoRSeqFilter(name, OutputLevel = logLevel)
+        Alg= RoRSeqFilter(name)
         SequenceFilterNode.__init__(self,  Alg, 'Input', 'Output')
 
 
@@ -196,26 +193,22 @@ class InputMakerNode(AlgNode):
     def __init__(self, Alg):
         assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + Alg.name()
         AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
-        Alg.OutputLevel = logLevel
 
 
 from DecisionHandling.DecisionHandlingConf import ComboHypo
 class ComboMaker(AlgNode):
     def __init__(self, name):
         Alg = ComboHypo(name)
-        log.debug("Making combo Alg %s"%name)
+        log.debug("Making combo Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
-        Alg.OutputLevel = logLevel
         self.prop="MultiplicitiesMap"
 
 
     def addChain(self, chain):
-        log.debug("ComboMaker %s adding chain %s"%(self.Alg.name(),chain))
+        log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chain)
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
         dictDecoding = DictFromChainName.DictFromChainName()
         allMultis = dictDecoding.getChainMultFromName(chain)
-        print "chain ", chain
-        print "WOOF allMultis", allMultis
         newdict = {chain : allMultis}
 
         for i in range(1, len(allMultis)):
@@ -255,14 +248,14 @@ def isFilterAlg(alg):
 ##########################################################
 
 
-class MenuSequence():
+class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
-        self.maker        = InputMakerNode( Alg = Maker )
+        self._maker       = InputMakerNode( Alg = Maker )
         self.hypoToolConf = HypoToolConf( HypoToolGen ) if HypoToolGen else None
-        self.hypo         = HypoAlgNode( Alg = Hypo )
+        self._hypo        = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
@@ -270,8 +263,24 @@ class MenuSequence():
         self.ca = CA
 
     def replaceHypoForCombo(self, HypoAlg):
-        log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
-        self.hypo= HypoAlgNode( Alg=HypoAlg )
+        log.debug("set new Hypo %s for combo sequence %s ", HypoAlg.name(), self.name)
+        self._hypo = HypoAlgNode( Alg=HypoAlg )
+
+    @property
+    def maker(self):
+        if self.ca is not None:
+            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+            self._maker.Alg = makerAlg
+            # return InputMakerNode(Alg=makerAlg)
+        return self._maker
+
+    @property
+    def hypo(self):
+        if self.ca is not None:
+            hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
+            self._hypo.Alg = hypoAlg
+            # return HypoAlgNode(Alg=hypoAlg)
+        return self._hypo
 
     def connectToFilter(self, outfilter):
         """ Sets the input and output of the hypo, and links to the input maker """
@@ -327,7 +336,7 @@ def DoMapSeedToL1Decoder(seed):
 
 #################################################
 
-class Chain:
+class Chain(object):
     """Basic class to define the trigger menu """
     def __init__(self, name, Seed, ChainSteps=[]):
         self.name = name
@@ -344,15 +353,14 @@ class Chain:
                 mult=1
             else: 
                 mult=int(mult)
-#            print mult,single
-            for m in range(0,mult): 
+            for m in range(0,mult):
                 self.vseeds.append(single)
 
         # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
         self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
-        log.debug("Chain " + name + " with seeds: %s "%str( self.vseeds))
+        log.debug("Chain %s with seeds: %s ", name, self.vseeds)
 
         for step in self.steps:
             if step.isCombo:
@@ -369,7 +377,7 @@ class Chain:
                 for step in self.steps:
                     seq=step.sequences[nseq]
                     seq.seed ="L1"+filter(lambda x: x.isalpha(), seed)
-                    log.debug( "Chain %s adding seed %s to sequence %d in step %s"%(self.name, seq.seed, nseq, step.name))
+                    log.debug( "Chain %s adding seed %s to sequence %d in step %s", self.name, seq.seed, nseq, step.name )
                 nseq+=1
 
         else:
@@ -382,10 +390,9 @@ class Chain:
         from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getChainDictFromChainName
         chainDict = getChainDictFromChainName(self.name, allChainDicts)
 
-        print "got here", chainDict
         for step in self.steps:
             if len(chainDict['chainParts']) != len(step.sequences):
-                log.error("Error in step %s: found %d chain parts and %d sequences"%(step.name, len(chainDict['chainParts']), len(step.sequences)))
+                log.error("Error in step %s: found %d chain parts and %d sequences", step.name, len(chainDict['chainParts']), len(step.sequences))
                 sys.exit("ERROR, in chain configuration")
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
@@ -398,7 +405,7 @@ class Chain:
                 seq.hypo.addHypoTool(seq.hypoToolConf)
 
 
-class CFSequence():
+class CFSequence(object):
     """Class to describe the ChainStep + filter
 
     """
@@ -413,7 +420,7 @@ class CFSequence():
         the filter is connected only once (to avoid multiple DH links)
         """
 
-        log.debug("CFSequence: Connect Filter %s with menuSequences of step %s"%(self.filter.Alg.name(), self.step.name))
+        log.debug("CFSequence: Connect Filter %s with menuSequences of step %s", self.filter.Alg.name(), self.step.name)
         filter_output = self.filter.getOutputList()
         if len(filter_output) == 0:
             log.error("ERROR, no filter outputs are set!")
@@ -421,7 +428,7 @@ class CFSequence():
 
         # check whether the number of filter outputs are the same as the number of sequences in the step
         if len(filter_output) != len(self.step.sequences):
-            log.error("Found %d filter outputs and %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
+            log.error("Found %d filter outputs and %d MenuSequences in Step %s", len(self.filter.getOutputList()), len(self.step.sequences), self.step.name)
             sys.exit("ERROR: Found %d filter outputs differnt from %d MenuSequences in Step %s"%( len(self.filter.getOutputList()), len(self.step.sequences), self.step.name))
 
 
@@ -445,13 +452,13 @@ class CFSequence():
         for seq in self.step.sequences:
             combo_input=seq.hypo.getOutputList()[0]
             self.step.combo.addInput(combo_input)
-            log.debug("Adding inputs %s to combo %s"%(combo_input, self.step.combo.Alg.name()))
+            log.debug("Adding inputs %s to combo %s", combo_input, self.step.combo.Alg.name())
             # inputs are the output decisions of the hypos of the sequences
             # outputs are the modified name of input deciions that need to be connected to the next filter
             combo_output="combo_%s"%combo_input
             self.step.combo.addOutput(combo_output)
             seq.outputs.append(combo_output)
-            log.debug("Adding outputs %s to combo %s"%(combo_output, self.step.combo.Alg.name()))
+            log.debug("Adding outputs %s to combo %s", combo_output, self.step.combo.Alg.name())
 
 
     def __str__(self):
@@ -459,7 +466,7 @@ class CFSequence():
             self.filter, self.step )
 
 
-class ChainStep:
+class ChainStep(object):
     """Class to describe one step of a chain; if more than one menuSequence, then the step is combo"""
     def __init__(self, name,  Sequences=[]):
         self.name = name
@@ -515,14 +522,12 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            from AthenaCommon.Constants import DEBUG
             self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView",
-                                                          OutputLevel=DEBUG)
+                                                          ViewNodeName    = name+"InView")
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name() )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
@@ -556,7 +561,7 @@ class InViewReco( ComponentAccumulator ):
         return self.viewMakerAlg
 
 
-class RecoFragmentsPool:
+class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """
     fragments = {}
     @classmethod
@@ -571,12 +576,17 @@ class RecoFragmentsPool:
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **kwargs )
             cls.fragments[requestHash] = recoFragment
-            log.debug( "created reconstruction fragment using function: %s" % creator.func_name )
+            log.debug( "created reconstruction fragment using function: %s", creator.func_name )
             return recoFragment
         else:
-            log.debug( "reconstruction fragment that would be created from %s is taken from the cache" % creator.func_name )
+            log.debug( "reconstruction fragment that would be created from %s is taken from the cache", creator.func_name )
             return cls.fragments[requestHash]
 
 
 def getChainStepName(chainName, stepNumber):
     return '{}_step{}'.format(chainName, stepNumber)
+
+def createStepView(stepName):
+    stepReco = parOR(CFNaming.stepRecoName(stepName))
+    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
+    return stepReco, stepView

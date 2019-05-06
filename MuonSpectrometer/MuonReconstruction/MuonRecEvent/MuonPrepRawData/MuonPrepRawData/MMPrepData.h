@@ -67,6 +67,9 @@ namespace Muon
     /** @brief Destructor: */
     virtual ~MMPrepData();
 
+    /** @brief set microTPC parameters */
+    void setMicroTPC(double angle, double chisqProb);
+
     /** @brief Returns the global position*/
     const Amg::Vector3D& globalPosition() const;
 
@@ -79,6 +82,12 @@ namespace Muon
 
     /** @brief Returns the ADC counts */
     int charge() const;
+
+    /** @brief Returns the microTPC angle */
+    double angle() const;
+
+    /** @brief Returns the microTPC chisq Prob. */
+    double chisqProb() const;
 
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
@@ -96,6 +105,10 @@ namespace Muon
 
     /** @brief measured charge */
     int m_charge;
+
+    /** @angle and chisquare from micro-TPC fit */
+    double m_angle;
+    double m_chisqProb;
 
   };
 
@@ -120,6 +133,16 @@ namespace Muon
   inline int MMPrepData::charge() const 
   {
     return m_charge;
+  }
+
+  inline double MMPrepData::angle() const 
+  {
+    return m_angle;
+  }
+
+  inline double MMPrepData::chisqProb() const 
+  {
+    return m_chisqProb;
   }
 
 }

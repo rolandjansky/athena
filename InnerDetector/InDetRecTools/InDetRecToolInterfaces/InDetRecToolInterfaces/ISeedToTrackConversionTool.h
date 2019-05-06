@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,10 +27,10 @@ namespace InDet
   public:
     static const InterfaceID& interfaceID( ) ;
     virtual StatusCode initialize ()=0;
-    virtual StatusCode finalize   ()=0;
-    virtual void executeSiSPSeedSegments(const Trk::TrackParameters*,const int&, const std::list<const Trk::SpacePoint*>&)=0;
-    virtual void newEvent(const Trk::TrackInfo&, const std::string&)=0;
-    virtual void endEvent()=0;
+    virtual StatusCode finalize()=0;
+    virtual void executeSiSPSeedSegments(const Trk::TrackParameters*,const int&, const std::list<const Trk::SpacePoint*>&) const =0;
+    virtual void newEvent(const Trk::TrackInfo&, const std::string&) const =0;
+    virtual void endEvent() const =0;
 
     //////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status

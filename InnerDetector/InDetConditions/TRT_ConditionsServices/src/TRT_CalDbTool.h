@@ -55,16 +55,16 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   // methods to access calibration data
 
   /// get T0 for an identifier
-  float getT0( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual float getT0( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get an rtrelation for an identifier
-  const TRTCond::RtRelation* getRtRelation( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getRtRelation( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get errors for an identifier
-  const TRTCond::RtRelation* getErrors( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getErrors( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
 
   /// get errors for an identifier
-  const TRTCond::RtRelation* getSlopes( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const;
+  virtual const TRTCond::RtRelation* getSlopes( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const override;
   
   /// get a drift radius for a given leading edge time
   virtual double driftRadius(const double& time, float& t0, const Identifier& ident, bool& found) const override;
@@ -76,7 +76,7 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   virtual double driftSlope(const double& time, const Identifier& ident, bool& found) const override;
 
   /// create an TRTCond::ExpandedIdentifier from a TRTID identifier
-  TRTCond::ExpandedIdentifier trtcondid( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW) const;
+  virtual TRTCond::ExpandedIdentifier trtcondid( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW) const override;
 
   
 
@@ -104,10 +104,10 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   mutable Gaudi::Hive::ContextSpecificPtr<const RtRelationContainer> m_condSlope;
 
   ///  ReadHandle  keys
-  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","/TRT/Calib/RT","r-t relation in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","/TRT/Calib/errors2d","error on r in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","/TRT/Calib/slopes","slope of error in-key"};
-  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","/TRT/Calib/T0","t0 in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtFolderName","/TRT/Calib/RT","r-t relation in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorFolderName","/TRT/Calib/errors2d","error on r in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"ErrorSlopeFolderName","/TRT/Calib/slopes","slope of error in-key"};
+  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0FolderName","/TRT/Calib/T0","t0 in-key"};
 
   /// Used in simulation jobs
   bool m_isGEANT4;

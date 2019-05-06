@@ -517,7 +517,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
             InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
 
 
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
@@ -612,6 +611,10 @@ class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_MuonFS(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MuonFS"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonFS","Muon")
+
+class TrigFastTrackFinder_MuonIso(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MuonIso"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonIso","Muon")
 
 class TrigFastTrackFinder_eGamma(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_eGamma"):

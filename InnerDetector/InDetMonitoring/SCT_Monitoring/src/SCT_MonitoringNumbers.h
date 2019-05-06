@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*@file SCTHitsNoiseMonTool.cxx
@@ -16,7 +18,7 @@ namespace SCT_Monitoring{
   ///Possible values of the 'BEC' (Barrel or EndCap) value
   enum Bec{ ENDCAP_C=-2, BARREL=0, ENDCAP_A=2, N_REGIONS=3, GENERAL=3, INVALID_SYSTEM=4};
   ///Array for conversion of an array index to a Bec
-  const Bec index2BecArray[]={ENDCAP_C, BARREL, ENDCAP_A, GENERAL};
+  static const Bec index2BecArray[]={ENDCAP_C, BARREL, ENDCAP_A, GENERAL};
   ///Conversion  bec->index
   inline unsigned int bec2Index(const int becVal) {
     return (becVal/2) + 1;
@@ -45,18 +47,18 @@ namespace SCT_Monitoring{
     N_SIDES = 2
   };
   
-  const int n_layers[] = {N_DISKS, N_BARRELS, N_DISKS, 2 * N_DISKS + N_BARRELS};
-  const int n_etabins[] = {N_ETA_BINS_EC, N_ETA_BINS, N_ETA_BINS_EC};
-  const int n_phibins[] = {N_PHI_BINS_EC, N_PHI_BINS, N_PHI_BINS_EC};
-  const int f_etabin[] = {FIRST_ETA_BIN_EC, FIRST_ETA_BIN, FIRST_ETA_BIN_EC};
-  const int l_etabin[] = {LAST_ETA_BIN_EC, LAST_ETA_BIN, LAST_ETA_BIN_EC};
-  const int f_phibin[] = {FIRST_PHI_BIN_EC, FIRST_PHI_BIN, FIRST_PHI_BIN_EC};
-  const int l_phibin[] = {LAST_PHI_BIN_EC, LAST_PHI_BIN, LAST_PHI_BIN_EC};
-  const int n_mod[] = {N_MOD_ENDCAPS, N_MOD_BARREL, N_MOD_ENDCAPS, N_MOD_BARREL + 2 * N_MOD_ENDCAPS};
-  const int f_mod[] = {FIRST_MOD_EC, FIRST_MOD_B, FIRST_MOD_EA};
-  const TString layerName[] = {" disk ", " layer ", " disk "};
-  const TString subDetName[] = {"Endcap C", "Barrel", "Endcap A", "General"};
-  const TString subDetNameShort[] = {"EC", "B", "EA", "ALL"};
+  static const int n_layers[] = {N_DISKS, N_BARRELS, N_DISKS, 2 * N_DISKS + N_BARRELS};
+  static const int n_etabins[] = {N_ETA_BINS_EC, N_ETA_BINS, N_ETA_BINS_EC};
+  static const int n_phibins[] = {N_PHI_BINS_EC, N_PHI_BINS, N_PHI_BINS_EC};
+  static const int f_etabin[] = {FIRST_ETA_BIN_EC, FIRST_ETA_BIN, FIRST_ETA_BIN_EC};
+  static const int l_etabin[] = {LAST_ETA_BIN_EC, LAST_ETA_BIN, LAST_ETA_BIN_EC};
+  static const int f_phibin[] = {FIRST_PHI_BIN_EC, FIRST_PHI_BIN, FIRST_PHI_BIN_EC};
+  static const int l_phibin[] = {LAST_PHI_BIN_EC, LAST_PHI_BIN, LAST_PHI_BIN_EC};
+  static const int n_mod[] = {N_MOD_ENDCAPS, N_MOD_BARREL, N_MOD_ENDCAPS, N_MOD_BARREL + 2 * N_MOD_ENDCAPS};
+  static const int f_mod[] = {FIRST_MOD_EC, FIRST_MOD_B, FIRST_MOD_EA};
+  static const TString layerName[] = {" disk ", " layer ", " disk "};
+  static const TString subDetName[] = {"Endcap C", "Barrel", "Endcap A", "General"};
+  static const TString subDetNameShort[] = {"EC", "B", "EA", "ALL"};
   
   static const long NBINS_LBs = 3000;
   

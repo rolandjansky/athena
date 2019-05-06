@@ -20,7 +20,9 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Settings.h"
 #include "VP1Base/IVP1System.h"
-#include "VP1Utils/VP1JobConfigInfo.h"
+#ifndef BUILDVP1LIGHT
+    #include "VP1Utils/VP1JobConfigInfo.h"
+#endif
 
 #include "ui_geometrysystemcontroller.h"
 #include "ui_settings_display_form.h"
@@ -87,6 +89,7 @@ GeoSysController::GeoSysController(IVP1System * sys)
   m_d->pickStyle = new SoPickStyle;
   m_d->pickStyle->ref();
 
+  #ifndef BUILDVP1LIGHT
   //Possibly hide parts of gui, depending on job configuration:
   if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
     m_d->ui.groupBox_innerdetector->setVisible(false);
@@ -114,6 +117,7 @@ GeoSysController::GeoSysController(IVP1System * sys)
     m_d->ui_muon.groupBox_muonchamberconfig->setVisible(VP1JobConfigInfo::hasMuonGeometry());
     m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(VP1JobConfigInfo::hasMuonGeometry());
   }
+  #endif
 
 
   m_d->zappedVolumeListModel = new ZappedVolumeListModel(m_d->ui_iconisedvols.listView_iconisedvolumes);

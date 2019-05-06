@@ -3,9 +3,9 @@
 */
 
 #include "JetTagTools/RNNIPTag.h"
-#include "JetTagCalibration/LightweightNeuralNetwork.h"
-#include "JetTagCalibration/parse_json.h"
-#include "JetTagCalibration/Exceptions.h"
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"

@@ -25,38 +25,7 @@ union RawWord {
 
 SCT_RodDecoder::SCT_RodDecoder(const std::string& type, const std::string& name,
                                const IInterface* parent) :
-  base_class(type, name, parent),
-  m_sctID{nullptr},
-  m_singleCondHitNumber{0},
-  m_pairedCondHitNumber{0},
-  m_firstExpHitNumber{0},
-  m_evenExpHitNumber{0},
-  m_lastExpHitNumber{0},
-  m_headNumber{0},
-  m_trailerNumber{0},
-  m_headErrorBCID{0},
-  m_headErrorLvl1ID{0},
-  m_headErrorTimeout{0},
-  m_headErrorFormatter{0},
-  m_headErrorPreamble{0},
-  m_trailerErrorOverflow{0},
-  m_trailerErrorLimit{0},
-  m_trailerErrorBit{0},
-  m_configDataBit{0},
-  m_flagErrorBit{0},
-  m_condHit1Error{0},
-  m_condHit2Error{0},
-  m_chipNumberError{0},
-  m_unknownDataFormat{0},
-  m_nHits{0},
-  m_nRDOs{0},
-  m_maskedLinkNumber{0},
-  m_maskedRODNumber{0},
-  m_rodClockErrorNumber{0},
-  m_truncatedRODNumber{0},
-  m_numMissingLinkHeader{0},
-  m_numUnknownOfflineID{0},
-  m_swapPhiReadoutDirection{}
+  base_class(type, name, parent)
 {
 }
 
@@ -339,7 +308,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
           // Chip number == (data16[n]>>11)&0x7
           // Chip side == (data16[n]>>14)&0x1
           // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
-          chip = ((data16[n]>>11)&0x7); 
+          chip = ((data16[n]>>11)&0x7);
           side = ((data16[n]>>14)&0x1);
           strip = chip*128 + ((data16[n]>>4)&0x7F);
           timeBin = 0x2; // Assuming timeBin is 010 in super-condensed mode
@@ -363,7 +332,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -380,7 +349,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -403,7 +372,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
             } 
             else {
-              saved[oldSide*768+oldStrip] = rdoMade; 
+              saved[oldSide*768+oldStrip] = rdoMade;
             }
             oldStrip = strip;
             oldSide = side;
@@ -418,7 +387,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
           // Chip number == (data16[n]>>11)&0x7
           // Chip side == (data16[n]>>14)&0x1
           // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
-          chip = ((data16[n]>>11)&0x7); 
+          chip = ((data16[n]>>11)&0x7);
           side = ((data16[n]>>14)&0x1);
           strip = chip*128 + ((data16[n]>>4)&0x7F);
           timeBin = 0x2; // Assuming timeBin is 010 in condensed mode
@@ -441,7 +410,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -458,7 +427,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -481,7 +450,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -515,7 +484,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[oldSide*768+oldStrip] = rdoMade; 
+                saved[oldSide*768+oldStrip] = rdoMade;
               }
               oldStrip = strip;
               oldSide = side;
@@ -546,13 +515,13 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
           // For example if data16[n]>>11)0xF = 0101 => chip5 or chip5 on side0, data16[n]>>11)0xF = 1101 => chip13 or chip5 on side1
           if (not (data16[n]&0x8)) {  // 1st hit cluster expanded
             m_firstExpHitNumber++;
-            chip = ((data16[n]>>11)&0x7);  
+            chip = ((data16[n]>>11)&0x7);
             side = ((data16[n]>>14)&0x1);
             strip = chip*128 + ((data16[n]>>4)&0x7F);
             timeBin = data16[n]&0x7; // Real way for obtaining timeBin info
       
             if (chip>5) {
-              ATH_MSG_DEBUG("Expanded hit: First hit xxx ERROR chip Nb = " << chip << " > 5");   
+              ATH_MSG_DEBUG("Expanded hit: First hit xxx ERROR chip Nb = " << chip << " > 5");
               m_chipNumberError++;
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               continue;
@@ -566,7 +535,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
             if ((side==0) and ((linkNumber%2)!=0)) {
               linkNumber--;
             }
-            onlineID = ((robID & 0xFFFFFF) | (linkNumber << 24)); 
+            onlineID = ((robID & 0xFFFFFF) | (linkNumber << 24));
             groupSize =  1;
             const int rdoMade{makeRDO(strip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
             if (rdoMade == -1) {
@@ -574,7 +543,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
               addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
             } 
             else {
-              saved[side*768+strip] = rdoMade; 
+              saved[side*768+strip] = rdoMade;
             }
             groupSize = 0;
           } 
@@ -588,7 +557,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
               }
               m_evenExpHitNumber++;
               if (chip>5) {
-                ATH_MSG_DEBUG("Expanded Hit: paired hits xxx ERROR chip Nb = " << chip << " > 5");  
+                ATH_MSG_DEBUG("Expanded Hit: paired hits xxx ERROR chip Nb = " << chip << " > 5");
                 m_chipNumberError++;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
                 continue;
@@ -621,7 +590,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
             else { // Last hit of the cluster
               m_lastExpHitNumber++;
               if (chip>5) {
-                ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " > 5");  
+                ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " > 5");
                 m_chipNumberError++;
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
                 continue;
@@ -635,9 +604,9 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                 addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
               } 
               else {
-                saved[side*768+strip] = rdoMade; 
+                saved[side*768+strip] = rdoMade;
               }
-              groupSize = 0; 
+              groupSize = 0;
             }
           }
         } // End expanded mode
@@ -650,13 +619,13 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   
         m_headNumber++;
         if (saved[side*768+strip]==false and oldStrip>=0) {
-          const int rdoMade{makeRDO(strip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)}; 
+          const int rdoMade{makeRDO(strip, groupSize, timeBin, onlineID, errors, rdoIDCont, cache, errorHit)};
           if (rdoMade == -1) {
             sc=StatusCode::RECOVERABLE;
             addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
           } 
           else {
-            saved[side*768+strip] = rdoMade; 
+            saved[side*768+strip] = rdoMade;
           }
         }
   
@@ -674,7 +643,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
         // This is the real calculation for the offline
         linkNumber = (((rodlinkNumber >>4)&0x7)*12+(rodlinkNumber &0xF));
-        onlineID = ((robID & 0xFFFFFF)|(linkNumber << 24));     
+        onlineID = ((robID & 0xFFFFFF)|(linkNumber << 24));
         if ((onlineID ==0) or (linkNumber > 95)) {
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
           sc=StatusCode::RECOVERABLE;
@@ -689,7 +658,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
         if (data16[n] >> 7 & 0x1) {
           ATH_MSG_DEBUG("Masked link " << onlineID << " " << currentLinkIDHash);
           addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::MaskedLink, errs);
-          sc=StatusCode::RECOVERABLE; 
+          sc=StatusCode::RECOVERABLE;
         }
         if (data16[n]&0x800) {
           ATH_MSG_DEBUG("    Header: xxx TimeOut Error " << currentLinkIDHash);
@@ -785,7 +754,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
           // 12 means chips 11, 0-5 are temporarily masked. 
           setFirstTempMaskedChip(currentLinkIDHash, (data16[n] & 0xF), errs);
         }
-        continue; 
+        continue;
       }
       
       // FlaggedABCD error
@@ -793,7 +762,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
       // 000: FlaggedABCD error: xxxxxxx not used, FFFF: chip, EEE: error code
       else if (((data16[n]>>13)&0x7) == 0x0) {
         chip = ((data16[n]>>3)&0xF);
-        abcError = data16[n]&0x7; 
+        abcError = data16[n]&0x7;
         // No data should appear for that chip but how do we want to transmit this information?
         IdentifierHash flagIDHash{0};
         if (onlineID == 0) {
@@ -883,7 +852,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
       addSingleError(currentLinkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
     } 
     else {
-      saved[side*768+strip] = rdoMade; 
+      saved[side*768+strip] = rdoMade;
     }
   }
 
@@ -941,7 +910,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
     }
   }
 
-  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryFetch(collIDHash)){
+  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryAddFromCache(collIDHash)){
     ATH_MSG_DEBUG("Hash already in collection - cache hit " << collIDHash);
     return 0;
   }

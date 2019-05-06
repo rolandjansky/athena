@@ -30,7 +30,7 @@ atlas_add_library( ByteStreamData
    src/ByteStreamMetadata.cxx
    PUBLIC_HEADERS ByteStreamData
    ${extra_inc}
-   LINK_LIBRARIES AthContainers ${extra_lib} )
+   LINK_LIBRARIES AthenaKernel AthContainers ${extra_lib} )
 
 atlas_add_library( ByteStreamData_test
    src/ROBData_t.cxx

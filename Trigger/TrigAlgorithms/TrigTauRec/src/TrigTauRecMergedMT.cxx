@@ -52,8 +52,7 @@ TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvc
   :AthAlgorithm(name, pSvcLocator),
    m_tools(this),
    m_endtools(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-   m_beamSpotSvc("BeamCondSvc", name)
+   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
@@ -115,12 +114,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   }
 
   // Retrieve beam conditions
-  if(m_beamSpotSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve Beamspot service");
-  } 
-  else {
-    ATH_MSG_WARNING("Successfully retrieved Beamspot service");
-  }
+  CHECK(m_beamSpotKey.initialize());
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -132,7 +126,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   CHECK( m_clustersKey.initialize()        );
   CHECK( m_tracksKey.initialize()          );
   CHECK( m_vertexKey.initialize()          );
-  CHECK( m_trigTauJetKey.initialize()      );
+  CHECK( m_trigTauJetKey.initialize(SG::AllowEmpty) );
   CHECK( m_trigtauSeedOutKey.initialize()  );
   CHECK( m_trigtauRecOutKey.initialize()   );
   CHECK( m_trigtauTrkOutKey.initialize()   );
@@ -291,17 +285,18 @@ StatusCode TrigTauRecMergedMT::execute()
   theBeamspot.makePrivateStore();
   const xAOD::Vertex* ptrBeamspot = nullptr;
 
-  if(m_beamSpotSvc){
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  if(beamSpotHandle.isValid()){
 	
     // Alter the position of the vertex
-    theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+    theBeamspot.setPosition(beamSpotHandle->beamPos());
 	
     beamspot_x=theBeamspot.x();
     beamspot_y=theBeamspot.y();
     beamspot_z=theBeamspot.z();
 
     // Create a AmgSymMatrix to alter the vertex covariance mat.
-    AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+    const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
     theBeamspot.setCovariancePosition(cov);
 
     ptrBeamspot = &theBeamspot;
@@ -384,7 +379,7 @@ StatusCode TrigTauRecMergedMT::execute()
   m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
   m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
   if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
   if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
 
@@ -553,12 +548,14 @@ StatusCode TrigTauRecMergedMT::execute()
     if(dPhi<-M_PI) dPhi += 2.0*M_PI;
     if(dPhi>M_PI)  dPhi -= 2.0*M_PI;
 
-    std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
+    //std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
 
     // get TauJetContainer
-    SG::ReadHandle< xAOD::TauJetContainer > TJContainerHandle = SG::makeHandle( m_trigTauJetKey,ctx );
-    const xAOD::TauJetContainer *tempCaloOnlyCont=TJContainerHandle.get();
-    tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
+    const xAOD::TauJetContainer *tempCaloOnlyCont=nullptr;
+    if (!m_trigTauJetKey.empty()) {
+      tempCaloOnlyCont = SG::makeHandle( m_trigTauJetKey,ctx ).get();
+    }
+    //tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
 
     /*if( !tempCaloOnlyContVec.isValid()){
 

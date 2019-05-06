@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,10 +8,10 @@
  * This file provides @ref TruthFilters that can be used with the
  * @ref TruthInverters.
  */
-
-
 #ifndef TRUTHCOLLECTIONFILTER_H
 #define TRUTHCOLLECTIONFILTER_H
+
+#include <atomic>
 
 namespace Trk {
 
@@ -86,9 +86,9 @@ namespace Trk {
   private:
     BasicTruthCollectionFilter<TruthCollection> m_basicFilter;
     double m_probabilityCut;
-    mutable unsigned m_numTruthTotal;
-    mutable unsigned m_numTruthInvalid;
-    mutable unsigned m_numTruthNoVtx;
+    std::atomic_ulong m_numTruthTotal;
+    std::atomic_ulong m_numTruthInvalid;
+    std::atomic_ulong m_numTruthNoVtx;
   };
 
   template<class OStream, class TruthCollection>

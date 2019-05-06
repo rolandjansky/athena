@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -77,6 +77,10 @@ class CaloDetDescriptor : public Identifiable
   /** @brief print the contents
    */
   virtual void print() const;
+
+  /** @brief dump contents to a stream.
+   */
+  void dump(std::ostream& os) const;
 
   /** @brief set number of calo depths
       @param n_calo_depth [IN} number of depths

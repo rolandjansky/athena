@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ MuidMatchMaker::MuidMatchMaker (const std::string&	type,
 				const std::string&	name, 
 				const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_ambiguityProcessor	("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+	m_ambiguityProcessor	("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
 	m_caloEnergyParam	("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam"),
 	m_caloTSOS		("Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface"),
 	m_intersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),

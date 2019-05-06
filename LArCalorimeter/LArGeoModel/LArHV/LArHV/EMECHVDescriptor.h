@@ -1,59 +1,40 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EMECHVDESCRIPTOR_H_HEADER_INCLUDED_A53E30B4
-#define EMECHVDESCRIPTOR_H_HEADER_INCLUDED_A53E30B4
+#ifndef LARHV_EMECHVDESCRIPTOR_H
+#define LARHV_EMECHVDESCRIPTOR_H
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/CellPartitioning.h"
-//##ModelId=478D135F006C
+
 class EMECHVDescriptor
 {
-  public:
-    //##ModelId=478D138C01BE
-    virtual ~EMECHVDescriptor();
+ public:
+  EMECHVDescriptor(const CellPartitioning &etaBinning, const CellBinning &phiBinning, const CellBinning &sectorBinning);
+  ~EMECHVDescriptor();
 
-    //##ModelId=478D138C01CA
-    const CellPartitioning &getEtaBinning() const
-    {
-      return m_etaBinning;
-    }
+  const CellPartitioning &getEtaBinning() const
+  {
+    return m_etaBinning;
+  }
+  
+  const CellBinning &getPhiBinning() const
+  {
+    return m_phiBinning;
+  }
 
-    //##ModelId=478D138C01D5
-    const CellBinning &getPhiBinning() const
-    {
-      return m_phiBinning;
-    }
+  const CellBinning &getSectorBinning() const
+  {
+    return m_sectorBinning;
+  }
 
-    // Constructor
-    //##ModelId=478D138C0214
-    EMECHVDescriptor(const CellPartitioning &etaBinning, const CellBinning &phiBinning, const CellBinning &sectorBinning);
+ private:
+  EMECHVDescriptor(const EMECHVDescriptor& right);
+  EMECHVDescriptor& operator=(const EMECHVDescriptor& right);
 
-    //##ModelId=43FC51F00276
-    const CellBinning &getSectorBinning() const
-    {
-      return m_sectorBinning;
-    }
-
-
-  private:
-
-    //##ModelId=478D138C01DF
-    EMECHVDescriptor(const EMECHVDescriptor& right);
-
-    //##ModelId=478D138C01F4
-    EMECHVDescriptor& operator=(const EMECHVDescriptor& right);
-    //##ModelId=478D5F730160
-    const CellPartitioning m_etaBinning;
-    //##ModelId=478D5FC5018F
-    const CellBinning m_phiBinning;
-    //##ModelId=43FBFE39000C
-    const CellBinning m_sectorBinning;
-
-
-
+  const CellPartitioning m_etaBinning;
+  const CellBinning m_phiBinning;
+  const CellBinning m_sectorBinning;
 };
 
-
-
-#endif /* EMECHVDESCRIPTOR_H_HEADER_INCLUDED_A53E30B4 */
+#endif

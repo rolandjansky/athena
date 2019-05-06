@@ -1,18 +1,38 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
+import imp
 
 
+def _addFlagsCategory (acf, name, generator, modName = None):
+    if modName is not None:
+        try:
+            imp.find_module(modName)
+        except ImportError:
+            return None
+    return acf.addFlagsCategory (name, generator)
+
+        
 def _createCfgFlags():
 
     acf=AthConfigFlags()
 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # fromer global.InputFiles
+    acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
+
+    def _inputCollections(inputFile):
+        rawCollections = GetFileMD(inputFile).get("SGKeys").split()
+        collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
+        return collections
+
+    acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
@@ -46,7 +66,7 @@ def _createCfgFlags():
 
     acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
     acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myROD.pool.root')
+    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
@@ -61,7 +81,7 @@ def _createCfgFlags():
     def __simulation():
         from G4AtlasApps.SimConfigFlags import createSimConfigFlags
         return createSimConfigFlags()
-    acf.addFlagsCategory( "Sim", __simulation )
+    _addFlagsCategory (acf, "Sim", __simulation, 'G4AtlasApps' )
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
@@ -81,7 +101,7 @@ def _createCfgFlags():
     def __lar():
         from LArConfiguration.LArConfigFlags import createLArConfigFlags
         return createLArConfigFlags()
-    acf.addFlagsCategory( "LAr", __lar ) 
+    _addFlagsCategory(acf, "LAr", __lar, 'LArConfiguration' ) 
 
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
@@ -101,24 +121,24 @@ def _createCfgFlags():
     def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
         return createTriggerFlags()
-    acf.addFlagsCategory( "Trigger", __trigger )
+    _addFlagsCategory(acf, "Trigger", __trigger, 'TriggerJobOpts' )
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
-    acf.addFlagsCategory( "Muon", __muon )
+    _addFlagsCategory(acf, "Muon", __muon, 'MuonConfig' )
 
     def __egamma():
         from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
         return createEgammaConfigFlags()
-    acf.addFlagsCategory( "Egamma", __egamma )
+    _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
         dqf = createDQConfigFlags()
         dqf.join( createComplexDQConfigFlags() )
         return dqf
-    acf.addFlagsCategory("DQ", __dq )
+    _addFlagsCategory(acf, "DQ", __dq, 'AthenaMonitoring' )
 
     return acf
 

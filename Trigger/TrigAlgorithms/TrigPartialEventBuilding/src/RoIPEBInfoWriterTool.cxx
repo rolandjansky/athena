@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "RoIPEBInfoWriterTool.h"
+#include "GaudiKernel/PhysicalConstants.h" // for Gaudi::Units::twopi
+#include <algorithm>
+#include <unordered_map>
+#include <string_view>
+
+// =============================================================================
+
+RoIPEBInfoWriterTool::RoIPEBInfoWriterTool(const std::string& type, const std::string& name, const IInterface* parent)
+: PEBInfoWriterToolBase(type,name,parent) {}
+
+// =============================================================================
+
+StatusCode RoIPEBInfoWriterTool::initialize() {
+  ATH_MSG_DEBUG("Initialising RoIPEBInfoWriterTool/" << name());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+
+  m_extraPebInfo.robs.insert(m_extraROBs.begin(), m_extraROBs.end());
+  m_extraPebInfo.subdets.insert(m_extraSubDets.begin(), m_extraSubDets.end());
+  ATH_MSG_DEBUG("Extra PEBInfo attached to every passed event: " << m_extraPebInfo);
+
+  // Ugly solution - need to translate strings into enums. Wouldn't be needed if DETID enum was accessible from python.
+  const std::unordered_map<std::string_view,DETID> detNameDict = {
+    {"PIXEL",   DETID::PIXEL},
+    {"SCT",     DETID::SCT},
+    {"TRT",     DETID::TRT},
+    {"LAR",     DETID::LAR},
+    {"TTEM",    DETID::TTEM},
+    {"TTHEC",   DETID::TTHEC},
+    {"TILE",    DETID::TILE},
+    {"MDT",     DETID::MDT},
+    {"RPC",     DETID::RPC},
+    {"TGC",     DETID::TGC},
+    {"CSC",     DETID::CSC},
+    {"FCALEM",  DETID::FCALEM},
+    {"FCALHAD", DETID::FCALHAD},
+    {"FTK",     DETID::FTK},
+    {"MM",      DETID::MM},
+    {"STGC",    DETID::STGC},
+  };
+  for (std::string_view name : m_detNames) {
+    if (name=="All") {
+      for (const auto& p : detNameDict) m_dets.insert(p.second);
+      break;
+    }
+    const auto it = detNameDict.find(name);
+    if (it==detNameDict.cend()) {
+      ATH_MSG_ERROR("The detector name " << name << " cannot be translated into RegSelEnum DETID");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Adding " << name << "=" << it->second << " to detector list");
+    m_dets.insert(it->second);
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+
+PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfoWriterToolBase::Input& input) const {
+  // Create output PEBInfo starting from the static extra PEBInfo
+  PEBInfo pebi = m_extraPebInfo;
+
+  if (!input.roi) {
+    ATH_MSG_DEBUG("No RoI descriptor in the input for decision, skipping this decision");
+    return pebi;
+  }
+  ATH_MSG_DEBUG("Processing RoI " << *(input.roi));
+
+  float eta = input.roi->eta();
+  float etaMin = eta - m_etaWidth;
+  float etaMax = eta + m_etaWidth;
+  // Stop further execution if RoI is entirely outside the max |eta| range
+  if (etaMin > m_etaEdge || etaMax < -m_etaEdge) {
+    ATH_MSG_DEBUG("The eta range (" << etaMin << ", " << etaMax << ") is outside |eta|<" << m_etaEdge
+                  << " - skipping this RoI");
+    return pebi;
+  }
+  // Restrict the eta range
+  etaMin = std::max(-m_etaEdge.value(), etaMin);
+  etaMax = std::min( m_etaEdge.value(), etaMin);
+
+  float phi = input.roi->eta();
+  float phiMin = std::remainder(phi-m_phiWidth, Gaudi::Units::twopi); // range (-pi, pi)
+  float phiMax = std::remainder(phi+m_phiWidth, Gaudi::Units::twopi); // range (-pi, pi)
+
+  TrigRoiDescriptor roiForPEB(eta, etaMin, etaMax, phi, phiMin, phiMax);
+
+  for (const DETID detid : m_dets) {
+    std::vector<uint32_t> detROBs;
+    m_regionSelector->DetROBIDListUint(detid, roiForPEB, detROBs);
+    pebi.robs.insert(detROBs.begin(),detROBs.end());
+  }
+
+  ATH_MSG_DEBUG("Created PEBInfo = " << pebi);
+  return pebi;
+}

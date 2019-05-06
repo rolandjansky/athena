@@ -12,6 +12,10 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+ParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
 # ---------------------------------------------------------------
 # class for common setups (like monitoring)
 class L2ElectronFexBase(TrigL2ElectronFexMT):
@@ -30,6 +34,8 @@ class L2ElectronFexBase(TrigL2ElectronFexMT):
         self.CaloTrackdPHI = 0.5
         self.CaloTrackdEoverPLow  = 0.0
         self.CaloTrackdEoverPHigh = 999.0
+
+        self.ParticleCaloExtensionTool = ParticleCaloExtensionTool
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():

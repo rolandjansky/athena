@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMECCell.h"
@@ -20,9 +20,9 @@ unsigned int EMECCell::getNumElectrodes() const {
   return m_electrode.size();
 }
 
-const EMECHVElectrodeConstLink & EMECCell::getElectrode (unsigned int i) const {
+const EMECHVElectrode& EMECCell::getElectrode (unsigned int i) const {
   if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  return m_electrode[i];
+  return *(m_electrode[i]);
 }
 
 const EMECPresamplerHVModuleConstLink & EMECCell::getPresamplerHVModule () const {
@@ -50,14 +50,14 @@ void EMECCell::initHV() const {
     EMECHVModule::IOType iotype = eta < 2.5 ? EMECHVModule::OUTER : EMECHVModule::INNER;
     //std::cout << "in  EMECCell::initHV()   eta,type " << eta << " " << iotype << std::endl;
     
-    const EMECHVManager *hvManager=getDescriptor()->getManager()->getHVManager(iotype);
+    const EMECHVManager& hvManager=getDescriptor()->getManager()->getHVManager(iotype);
     double phiLower = getPhiMinNominal();
     double phiUpper = getPhiMaxNominal();
     double phiMid=(phiLower+phiUpper)/2.0;
     
-    const CellPartitioning & etaBinning=hvManager->getDescriptor()->getEtaBinning();
-    const CellBinning & phiBinning=hvManager->getDescriptor()->getPhiBinning();
-    const CellBinning & sectorBinning=hvManager->getDescriptor()->getSectorBinning();
+    const CellPartitioning & etaBinning=hvManager.getDescriptor().getEtaBinning();
+    const CellBinning & phiBinning=hvManager.getDescriptor().getPhiBinning();
+    const CellBinning & sectorBinning=hvManager.getDescriptor().getSectorBinning();
     unsigned int iEta=0;
     for (unsigned int i=etaBinning.getFirstDivisionNumber();i<=etaBinning.getFirstDivisionNumber()+etaBinning.getNumDivisions();i++) {
       if (eta>=etaBinning.binLower(i) && eta<=etaBinning.binUpper(i)) {
@@ -86,11 +86,11 @@ void EMECCell::initHV() const {
     
     
     
-    EMECHVModuleConstLink hvMod = hvManager->getHVModule(iSide,iEta,iPhi,iSector);  
+    const EMECHVModule& hvMod = hvManager.getHVModule(iSide,iEta,iPhi,iSector);  
     //std::cout <<   " hvMod << " << hvMod << std::endl;
     for (unsigned int iElectrode=iOffset;iElectrode<iOffset+NE;iElectrode++) {
-      EMECHVElectrodeConstLink hvElec = hvMod->getElectrode(iElectrode);
-      m_electrode.push_back(hvElec);
+      const EMECHVElectrode& hvElec = hvMod.getElectrode(iElectrode);
+      m_electrode.push_back(&hvElec);
     }
     
   } 

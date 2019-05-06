@@ -5,20 +5,21 @@
 #ifndef _TrkVKalVrtCore_TrkVKalUtils_H
 #define _TrkVKalVrtCore_TrkVKalUtils_H
 #include <math.h>
+#include <algorithm>
 
 namespace Trk {
 
   struct Vect3DF{ 
     double X; double Y; double Z;
-    Vect3DF(){ X=Y=Z=0.; }
-    void Set(double arr[3]){ X=arr[0]; Y=arr[1]; Z=arr[2]; }
-    double Dist3D( Vect3DF & v) { return sqrt(pow(X-v.X,2)+pow(Y-v.Y,2)+pow(Z-v.Z,2)); }
+    Vect3DF() noexcept  { X=Y=Z=0.; }
+    void Set(double arr[3]) noexcept { X=arr[0]; Y=arr[1]; Z=arr[2]; }
+    double Dist3D( Vect3DF & v) const noexcept  { return sqrt(pow(X-v.X,2)+pow(Y-v.Y,2)+pow(Z-v.Z,2)); }
   };
 
   struct VectMOM { double Px; double Py; double Pz; double E; };
 
   inline void cfdcopy(double *source, double *target, int n)
-    {   for(int i=0; i<n; i++) target[i]=source[i]; }
+    {  std::copy(source, source + n, target); }
 
   inline double cfddist3D(double *V1, double *V2)
     { return sqrt( (V2[0]-V1[0])*(V2[0]-V1[0]) + (V2[1]-V1[1])*(V2[1]-V1[1]) + (V2[2]-V1[2])*(V2[2]-V1[2]) ); }

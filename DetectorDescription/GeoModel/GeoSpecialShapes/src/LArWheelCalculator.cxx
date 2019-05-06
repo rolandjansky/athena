@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArWheelCalculator 19-Apr-2001 Bill Seligman
@@ -9,20 +9,22 @@
 #include <climits>
 #include <cassert>
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PhysicalConstants.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
+#ifndef BUILDVP1LIGHT
+    #include "GaudiKernel/ISvcLocator.h"
+    #include "GaudiKernel/Bootstrap.h"
+    #include "GaudiKernel/MsgStream.h"
+    #include "GaudiKernel/PhysicalConstants.h"
+    #include "GeoModelInterfaces/IGeoModelSvc.h"
+    #include "RDBAccessSvc/IRDBRecord.h"
+    #include "RDBAccessSvc/IRDBRecordset.h"
+    #include "RDBAccessSvc/IRDBAccessSvc.h"
+    #include "./LArWheelCalculator_Impl/RDBParamReader.h"
+    #include "./LArWheelCalculator_Impl/RDBParamRecords.h"
+#endif
+
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "RDBAccessSvc/IRDBRecord.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
-
-#include "./LArWheelCalculator_Impl/RDBParamReader.h"
-#include "./LArWheelCalculator_Impl/RDBParamRecords.h"
 
 #include "./LArWheelCalculator_Impl/DistanceCalculatorFactory.h"
 #include "./LArWheelCalculator_Impl/FanCalculatorFactory.h"
@@ -130,7 +132,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   // Access source of detector parameters.
   msg << MSG::VERBOSE
       << "initializing data members from DB..." << endmsg;
-
+#ifndef BUILDVP1LIGHT
   IGeoModelSvc *geoModel;
   IRDBAccessSvc* rdbAccess;
 
@@ -210,6 +212,27 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
       << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
       << "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
       << endmsg;
+#endif
+#ifdef BUILDVP1LIGHT //FIXME: check all this!!!
+  double m_zWheelRefPoint = 999;// / cm
+  double m_dMechFocaltoWRP = 999;// / cm << " [cm]" << std::endl
+  double m_dElecFocaltoWRP = 999;//      : " << m_dElecFocaltoWRP / cm << " [cm]" << std::endl
+  double m_HalfGapBetweenWheels = 999;// : " << m_HalfGapBetweenWheels / cm << " [cm]" << std::endl
+  double m_rOuterCutoff = 999;//         : " << m_rOuterCutoff / cm << " [cm]" << std::endl
+  double m_zWheelFrontFace = 999;//      : " << m_zWheelFrontFace / cm << " [cm]" << std::endl
+  double m_zWheelBackFace = 999;//       : " << m_zWheelBackFace / cm << " [cm]" << std::endl
+  double m_zShift = 999;//               : " << m_zShift / cm << " [cm]" << std::endl
+  double m_phiRotation = true;//? "true": "false") << std::endl
+  double m_eta_low = 999;//
+  double m_eta_mid = 999;//
+  double m_eta_hi = 999;//
+
+  double m_WheelThickness = 999;//       : " << m_WheelThickness / cm << " [cm]" << std::endl
+  double m_dWRPtoFrontFace = 999;//      : " << m_dWRPtoFrontFace / cm << " [cm]"
+#endif
+
+
+
 
   // Constructor initializes the geometry.
 

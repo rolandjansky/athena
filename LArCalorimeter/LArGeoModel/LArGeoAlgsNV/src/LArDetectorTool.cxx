@@ -28,9 +28,6 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "LArHV/LArHVManager.h"
-#include "LArHV/EMECHVManager.h"
-#include "LArHV/HECHVManager.h"
-#include "LArHV/FCALHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMECPresamplerHVManager.h"
 
@@ -73,14 +70,10 @@ LArDetectorToolNV::~LArDetectorToolNV()
 StatusCode LArDetectorToolNV::create()
 { 
   // Initialize the HV System:
-  const EMECHVManager *emecHVI= new EMECHVManager(EMECHVModule::INNER);
-  const EMECHVManager *emecHVO= new EMECHVManager(EMECHVModule::OUTER);
-  const HECHVManager *hecHV   = new HECHVManager();
-  const FCALHVManager *fcalHV= new FCALHVManager();
   const EMBPresamplerHVManager *embPSHV = new EMBPresamplerHVManager();
   const EMECPresamplerHVManager *emecPSHV = new EMECPresamplerHVManager();
 
-  LArHVManager *hvManager= new LArHVManager(emecHVI, emecHVO, hecHV, fcalHV,embPSHV, emecPSHV);
+  LArHVManager *hvManager= new LArHVManager(embPSHV, emecPSHV);
 
   ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));  
 

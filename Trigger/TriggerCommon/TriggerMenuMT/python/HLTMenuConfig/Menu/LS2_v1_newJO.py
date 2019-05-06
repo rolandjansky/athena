@@ -56,9 +56,11 @@ def setupMenu(flags):
 
 if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaCommon.Constants import VERBOSE
     from AthenaCommon.Logging import logging
-    logging.getLogger('ComponentAccumulator').setLevel(7)
-    
+    log = logging.getLogger('ComponentAccumulator')
+    log.setLevel(VERBOSE)
+
     acc = ComponentAccumulator()
 
     from AthenaCommon.Configurable import Configurable
@@ -83,7 +85,7 @@ if __name__ == "__main__":
     for seq, algs in fs.iteritems():
         for alg in algs:
             if 'HypoTools' in alg.getProperties():
-                print alg.getName(), [ t.getFullName() for t in alg.HypoTools ]
+                log.verbose("%s %s", alg.getName(), [ t.getFullName() for t in alg.HypoTools ])
 
     f = open('newJOMenu.pkl', 'wb')
     acc.store(f)

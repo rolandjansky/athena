@@ -6,7 +6,9 @@
 atlas_subdir( EventSelectorAthenaPool )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
+atlas_depends_on_subdirs( 
+                          PUBLIC
+                          PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
@@ -27,11 +29,10 @@ atlas_add_component( EventSelectorAthenaPool
                      src/CondProxyProvider.cxx
                      src/DoubleEventSelectorAthenaPool.cxx
                      src/EventSelectorAthenaPool.cxx
-                     src/StreamSelectorTool.cxx
                      src/PoolCollectionConverter.cxx
                      src/registerKeys.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests CollectionBase PersistencySvc AthenaPoolCnvSvcLib AthenaPoolUtilities PersistentDataModel GaudiKernel )
 
 # Install files from the package:

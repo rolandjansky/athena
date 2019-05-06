@@ -57,7 +57,7 @@ public:
 
 
    virtual long positionInBlock();
-   virtual long getBlockIterator(const std::string fileName);
+   virtual std::pair<long,std::string> getBlockIterator(const std::string fileName);
    void         closeBlockIterator(bool clearMetadata=true);
    bool         setSequentialRead();
    bool         ready();

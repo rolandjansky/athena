@@ -54,15 +54,12 @@
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
-#include "LArHV/HECHVSubgapConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 #include "LArHV/LArHVManager.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -1400,8 +1397,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       nelec = cell->getNumElectrodes();
       //ngap = 2*nelec;
       for(i=0;i<nelec;i++) {
-	      const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-	      for(igap=0;igap<2;igap++) tmplines.push_back(electrode->hvLineNo(igap));
+	      const EMECHVElectrode& electrode = cell->getElectrode(i);
+	      for(igap=0;igap<2;igap++) tmplines.push_back(electrode.hvLineNo(igap));
       }      
     }
   } else if(m_LArHEC_IDHelper->is_lar_hec(id)) { // LAr HEC
@@ -1412,8 +1409,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
     const HECCellConstLink cell = hecElement->getHECCell();
     nsubgaps = cell->getNumSubgaps();
     for(i=0;i<nsubgaps;i++) {
-      const HECHVSubgapConstLink subgap = cell->getSubgap(i);
-      tmplines.push_back(subgap->hvLineNo());
+      const HECHVSubgap& subgap = cell->getSubgap(i);
+      tmplines.push_back(subgap.hvLineNo());
     }
   } else if(m_LArFCAL_IDHelper->is_lar_fcal(id)) { // LAr FCAL
     ATH_MSG_DEBUG ( "LAr HEC");
@@ -1423,7 +1420,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
     const FCALTile* tile = fcalElement->getFCALTile();
     nlines = tile->getNumHVLines();
     for(i=0;i<nlines;i++) {
-      const FCALHVLineConstLink line = tile->getHVLine(i);
+      const FCALHVLine* line = tile->getHVLine(i);
       if(line) tmplines.push_back(line->hvLineNo());
     }   
   } else if(m_LArEM_IDHelper->is_lar_em(id) && m_LArEM_IDHelper->sampling(id)==0) { // Presamplers

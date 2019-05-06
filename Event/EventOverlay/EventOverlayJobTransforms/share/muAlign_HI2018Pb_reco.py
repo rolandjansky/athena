@@ -25,13 +25,12 @@ conddb.blockFolder("/TRT/Calib/MC/T0")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/MC/T0","TrtCalibT0-R2-MC-run2-scenario1_04-03",force=True,forceData=True)
 conddb.addMarkup("/TRT/Calib/MC/T0","<forceRunNumber>313000</forceRunNumber>")
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTMCCalibDBSvc=TRT_CalDbSvc(name="TRTMCCalibDBSvc",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",ErrorSlopeFolderName="/TRT/Calib/slopes",ErrorFolderName ="/TRT/Calib/errors2d")
-ServiceMgr += TRTMCCalibDBSvc
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",isGEANT4=True)
 
 #This would add another trtdriftfuntiontool, using the new trtcaldb
 ToolSvc.InDetTRT_DriftFunctionTool.IsOverlay=True
-ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBSvc
+ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBTool
 
 if "EOJT_noLorentz" in globals():
     print "EOJT_noLorentz found in globals(), so not doing Lorentz corrections"

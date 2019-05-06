@@ -36,7 +36,6 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
    m_addDeadOTX(true),
    m_initialDataPoolSize(-1),
    m_nTotalCells(0),
-   m_caloDDM(nullptr),
    m_cablingKey("LArOnOffIdMap"),
    m_onlineID(nullptr),
    m_caloCID(nullptr),
@@ -62,11 +61,8 @@ StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
 
   ATH_CHECK(m_rawChannelsKey.initialize());
 
-  ATH_MSG_DEBUG("Accesssing CaloDetDescrManager");
-  m_caloDDM = CaloDetDescrManager::instance() ;
-
   ATH_MSG_DEBUG("Accesssing CaloCellID");
-  m_caloCID = m_caloDDM->getCaloCell_ID();
+  ATH_CHECK( detStore()->retrieve (m_caloCID, "CaloCell_ID") );
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
@@ -127,7 +123,10 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
    }
    else
      ATH_MSG_DEBUG("Got " << nRawChannels << " LArRawChannels");
-   
+
+   const CaloDetDescrManager* caloDDM = nullptr;
+   ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
+
 
   unsigned nCellsAdded=0;
   std::bitset<CaloCell_ID::NSUBCALO> includedSubcalos;
@@ -153,7 +152,7 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
     if ( cabling->isOnlineConnected(hwid)) {
       const Identifier id=cabling->cnvToIdentifier(hwid);
       const IdentifierHash hashid= m_caloCID->calo_cell_hash(id);
-      const CaloDetDescrElement * theDDE=m_caloDDM->get_element(hashid);
+      const CaloDetDescrElement * theDDE=caloDDM->get_element(hashid);
         
       LArCell *pCell   = pool.nextElementPtr();
 
@@ -196,7 +195,7 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
 	  if ( cabling->isOnlineConnected(hwid)) {
 	    const Identifier id=cabling->cnvToIdentifier(hwid);
 	    const IdentifierHash hashid= m_caloCID->calo_cell_hash(id);
-	    const CaloDetDescrElement * theDDE=m_caloDDM->get_element(hashid);
+	    const CaloDetDescrElement * theDDE=caloDDM->get_element(hashid);
 	    LArCell *pCell   = pool.nextElementPtr();
 	    *pCell = LArCell (theDDE,
 			      id,

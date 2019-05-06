@@ -2,13 +2,11 @@
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
-from AthenaCommon.Constants import DEBUG, VERBOSE
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 
 log = logging.getLogger('EmuStepProcessingConfig')
-log.setLevel(VERBOSE)
 
 
 def generateL1DecoderAndChains():
@@ -72,7 +70,7 @@ def generateL1DecoderAndChains():
     from TrigUpgradeTest.TestUtils import writeEmulationFiles
     writeEmulationFiles(data)
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 
 
     doMuon=True
@@ -140,7 +138,7 @@ def generateL1DecoderAndChains():
         CombChains =[
             Chain(name='HLT_mu8_e8',  Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [muStep1, elStep1]), ChainStep("Step2_mu_em",  [muStep2, elStep2])] ),
             Chain(name='HLT_e5_e8',   Seed="L1_2EM3",    ChainSteps=[ ChainStep("Step1_2em",[elStep1, elStep1]) ])
-            ]
+        ]
 
         HLTChains += CombChains
         for c in CombChains:
@@ -160,21 +158,21 @@ def generateL1DecoderAndChains():
 
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
-    l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
+    l1Decoder = L1Decoder( RoIBResult="" )
     l1Decoder.prescaler.EventInfo=""
     l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
-    ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
+    ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
     emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
     emUnpacker.Decisions="L1EM"
     log.debug("EMRoIsUnpackingTool enables chians:")
     log.debug(emUnpacker.ThresholdToChainMapping)
 
-    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
+    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
     muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
     muUnpacker.Decisions="L1MU"
     log.debug("MURoIsUnpackingTool enables chians:")

@@ -294,7 +294,8 @@ public:
 protected:
     // Using the new way to declare JO properties: Gaudi::Property<int> m_myProperty {this,"MyProperty",0};
     ToolHandleArray<GenericMonitoringTool> m_tools {this,"GMTools",{}}; ///< Array of Generic Monitoring Tools
-    ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this,"TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
+    // Keep TDT public until final decision from trigger on interface
+    PublicToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this, "TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
     ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list
     ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}}; ///< Array of Data Quality filter tools
 

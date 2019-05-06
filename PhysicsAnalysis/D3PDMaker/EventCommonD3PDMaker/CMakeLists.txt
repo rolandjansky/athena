@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/Navigation
-                          Control/SGTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/IOVDbDataModel
                           Event/EventBookkeeperMetaData
@@ -36,7 +35,7 @@ atlas_add_component( EventCommonD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Navigation SGTools AthenaPoolUtilities IOVDbDataModel EventBookkeeperMetaData EventKernel FourMomUtils NavFourMom xAODBase xAODEventInfo GaudiKernel LumiBlockCompsLib ParticleEvent D3PDMakerUtils JetEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Navigation AthenaPoolUtilities IOVDbDataModel EventBookkeeperMetaData EventKernel FourMomUtils NavFourMom xAODBase xAODEventInfo GaudiKernel LumiBlockCompsLib ParticleEvent D3PDMakerUtils JetEvent )
 
 # Install files from the package:
 atlas_install_headers( EventCommonD3PDMaker )

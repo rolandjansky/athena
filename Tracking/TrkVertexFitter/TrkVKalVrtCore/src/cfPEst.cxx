@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/Propagator.h"
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
+extern const vkalPropagator  myPropagator;
 
 void cfpest(int ntrk, double *xyz, long int *ich, double (*parst)[5], double (*parf)[3])
 {

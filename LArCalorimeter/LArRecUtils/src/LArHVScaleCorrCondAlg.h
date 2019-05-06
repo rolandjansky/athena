@@ -52,7 +52,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   const LArHEC_ID*      m_larhec_id;	
   const LArFCAL_ID*     m_larfcal_id;	
   const LArElectrodeID* m_electrodeID;  
-  const CaloDetDescrManager* m_calodetdescrmgr;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"} ;  
   SG::ReadCondHandleKey<LArHVData> m_hvKey {this, "keyHVdata", "LArHVData", "Input key for HV data from DCS"};

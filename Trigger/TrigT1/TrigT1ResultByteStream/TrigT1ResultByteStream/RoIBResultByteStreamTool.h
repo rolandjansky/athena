@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_H
@@ -47,21 +45,18 @@ public:
   RoIBResultByteStreamTool( const std::string& type, const std::string& name,
                             const IInterface* parent );
   /// Default destructor
-  virtual ~RoIBResultByteStreamTool();
-
-  /// AlgTool InterfaceID
-  static const InterfaceID& interfaceID();
+  virtual ~RoIBResultByteStreamTool() = default;
 
   /// Function to initialise the tool
-  virtual StatusCode initialize();
-  /// Function to finalise the tool
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
 
   /// Convert ROB fragments to RoIBResult
   StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
                       ROIB::RoIBResult& resultToFill ) const;
   /// Convert ROB fragments to RoIBResult (legacy Run-2 interface)
-  template< class ROBF > StatusCode convert( const std::vector< ROBF >& robs, ROIB::RoIBResult*& cont );
+  template< class ROBF > [[deprecated("Use the non-template version instead")]]
+  StatusCode convert( const std::vector< ROBF >& robs, ROIB::RoIBResult*& cont ) const;
+
   /// Convert RoIBResult to ByteStream
   StatusCode convert( ROIB::RoIBResult* cont, RawEventWrite* re );
 
@@ -149,7 +144,8 @@ private:
 // Implementation of the legacy template method has to be included in the header file to avoid linking errors
 template< class ROBF >
 StatusCode RoIBResultByteStreamTool::convert(const std::vector< ROBF >& robs,
-                                             ROIB::RoIBResult*& result ) {
+                                             ROIB::RoIBResult*& result ) const {
+  ATH_MSG_WARNING("This convert method is deprecated! Use the non-template version instead");
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vrobf;
   for (const ROBF& robf : robs) vrobf.push_back(&robf);
   return convert(vrobf,*result);

@@ -8,56 +8,53 @@
 class EMBHVManager;
 class EMBHVElectrode;
 
+/**
+ * @class EMBHVModule
+ *
+ * @brief Describes one HV Module within the EMB
+ *
+ * It owns the pointers to HV Electrodes
+ */
+
 class EMBHVModule
 {
-  public:
-    EMBHVModule(const EMBHVManager *manager
-		, unsigned int iSide
-		, unsigned int iEta
-		, unsigned int iPhi
-		, unsigned int iSector);
+ public:
+  // The ownership of the EMBHVManager pointer NOT transferred to EMBHVModule
+  EMBHVModule(const EMBHVManager *manager
+	      , unsigned int iSide
+	      , unsigned int iEta
+	      , unsigned int iPhi
+	      , unsigned int iSector);
+  ~EMBHVModule();  
 
-    // Destructor
-    virtual ~EMBHVModule();
+  unsigned int getEtaIndex() const;
+  unsigned int getPhiIndex() const;
+  unsigned int getSectorIndex() const;
+  
+  unsigned int getNumElectrodes() const { return 64; }
+  
+  // Gets an electrode
+  const EMBHVElectrode& getElectrode(unsigned int iElectrode) const;
 
-    // Get eta Index
-    unsigned int getEtaIndex() const;
+  // Side Index (0=Negative, 1=Positive)
+  unsigned int getSideIndex() const;
+  
+  double getEtaMin() const;
+  double getEtaMax() const;
+  double getPhiMin() const;
+  double getPhiMax() const;
+  
+  const EMBHVManager& getManager() const;
 
-    // Get phi index
-    unsigned int getPhiIndex() const;
-
-    // Get sector index
-    unsigned int getSectorIndex() const;
-
-    // Get num electrodes
-    unsigned int getNumElectrodes() const
-    {
-      return 64;
-    }
-
-    // Gets an electrode
-    const EMBHVElectrode& getElectrode(unsigned int iElectrode) const;
-
-    // Side Index (0=Negative, 1=Positive)
-    unsigned int getSideIndex() const;
-
-    double getEtaMin() const;
-    double getEtaMax() const;
-    double getPhiMin() const;
-    double getPhiMax() const;
-
-    const EMBHVManager& getManager() const;
-
-  private:
-    // Illegal operation
-    EMBHVModule& operator=(const EMBHVModule& right);
-    // Illegal operation
-    EMBHVModule(const EMBHVModule& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
-    friend class ImaginaryFriend;
+ private:
+  
+  EMBHVModule& operator=(const EMBHVModule& right);
+  EMBHVModule(const EMBHVModule& right);
+  
+  class Clockwork;
+  Clockwork *m_c;
+  
+  friend class ImaginaryFriend;
 };
 
 #endif

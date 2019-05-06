@@ -10,25 +10,25 @@
 
 namespace Trk {
 
-extern vkalMagFld      myMagFld;
+extern const vkalMagFld      myMagFld;
 
-extern std::vector<double> getIniParticleMom( VKTrack *, VKTrack *);
-extern std::vector<double> getIniParticleMom( VKTrack *, double );
+extern std::array<double, 4> getIniParticleMom( const VKTrack *, const VKTrack *);
+extern std::array<double, 4> getIniParticleMom( const VKTrack *, double );
 
 //  Add to system matrix the derivatives due to pseudotrack constraints
 //
 //
 int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEvent & cascadeEvent_)
 {
-   VKVertex * vk=0;
+
    int iv,it,ivnext;
-   double * DerivC = new double[NPar];
-   double * DerivP = new double[NPar];
-   double * DerivT = new double[NPar];
+   auto DerivC = std::make_unique<double[]>(NPar);
+   auto DerivP = std::make_unique<double[]>(NPar);
+   auto DerivT = std::make_unique<double[]>(NPar);
 //
    std::vector<double> vMagFld; double vBx,vBy,vBz;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-      vk = cascadeEvent_.cascadeVertexList[iv];
+      VKVertex * vk = cascadeEvent_.cascadeVertexList[iv].get();
       myMagFld.getMagFld(vk->refIterV[0]+vk->iniV[0], vk->refIterV[1]+vk->iniV[1], vk->refIterV[2]+vk->iniV[2],vBx,vBy,vBz,(vk->vk_fitterControl).get());
       vMagFld.push_back(vBz);  // fill mag.fields for all vertices
    }
@@ -37,11 +37,11 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
       int indCombTrk=-1;
       int iniPosTrk=0;                              /* Start of track part of vertex in global matrix */
       int posCombTrk=0;                             /* Conbined track position in global matrix */
-      vk = cascadeEvent_.cascadeVertexList[iv];
+      VKVertex* vk = cascadeEvent_.cascadeVertexList[iv].get();
       if(vk->nextCascadeVrt){                           //next vertex exists
 	ivnext=-1;                                      //index of next vertex in common structure
-        for(int ivt=0;ivt<cascadeEvent_.cascadeNV;ivt++)if(vk->nextCascadeVrt==cascadeEvent_.cascadeVertexList[ivt])ivnext=ivt; 
-        if(ivnext<0){delete[] DerivC; delete[] DerivP; delete[] DerivT; return -1;};  //error in cascade
+        for(int ivt=0;ivt<cascadeEvent_.cascadeNV;ivt++)if(vk->nextCascadeVrt==cascadeEvent_.cascadeVertexList[ivt].get())ivnext=ivt; 
+        if(ivnext<0){return -1;};  //error in cascade
 //
         int NV=vk->nextCascadeVrt->includedVrt.size();
         if(NV>0){
@@ -53,14 +53,14 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
           iniPosTrk  =cascadeEvent_.matrixPnt[iv]+3;  /*Start of track part of vertex in global matrix */
           posCombTrk =cascadeEvent_.matrixPnt[ivnext]+3+3*indCombTrk;  /*Get position in global matrix */
         } 
-        if(posCombTrk==0 || iniPosTrk==0) {delete[] DerivC; delete[] DerivP; delete[] DerivT; return -1;}  //ERROR  in cascade structure somewhere....
+        if(posCombTrk==0 || iniPosTrk==0) {return -1;}  //ERROR  in cascade structure somewhere....
 //
 // Momentum of pseudo track in next vertex
         for(int ivt=0; ivt<NPar; ivt++)DerivC[ivt]=DerivP[ivt]=DerivT[ivt]=0.;
         DerivC[posCombTrk+2]=-1.;
         DerivT[posCombTrk+0]=-1.;
         DerivP[posCombTrk+1]=-1.;
-        std::vector<double> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk], vMagFld[ivnext] ); // INI for pseudo
+        std::array<double, 4> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk].get(), vMagFld[ivnext] ); // INI for pseudo
 	double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                                              // INI for pseudo
         double ptsum=sqrt(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1]);
         double sinth2sum=(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1])/(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1] + ppsum[2]*ppsum[2]);
@@ -69,7 +69,7 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
 // Momenta+Derivatives of tracks in vertex itself
 	double tpx,tpy; tpx=tpy=0;
         for(it=0; it<(int)vk->TrackList.size(); it++){
-          std::vector<double> pp =    getIniParticleMom( vk->TrackList[it], vMagFld[iv]);
+          std::array<double, 4> pp =    getIniParticleMom( vk->TrackList[it].get(), vMagFld[iv]);
 	  double curv=vk->TrackList[it]->iniP[2];
           double pt=sqrt(pp[0]*pp[0] + pp[1]*pp[1]);
           double cth=pp[2]/pt;
@@ -99,14 +99,13 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
         for(it=0; it<NPar; it++) fullMtx[ (NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv  ) + it*NPar] = DerivT[it];
         for(it=0; it<NPar; it++) fullMtx[ (NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv+1) + it*NPar] = DerivP[it];
         for(it=0; it<NPar; it++) fullMtx[ (NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv+2) + it*NPar] = DerivC[it];
-        VKTrack* cmbt=vk->nextCascadeVrt->TrackList[indCombTrk];
+        VKTrack* cmbt=vk->nextCascadeVrt->TrackList[indCombTrk].get();
         LSide[ NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv  ] = cmbt->iniP[0]-cmbt->Perig[2];
         LSide[ NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv+1] = cmbt->iniP[1]-cmbt->Perig[3];
         LSide[ NPar-3*(cascadeEvent_.cascadeNV-1)+3*iv+2] = cmbt->iniP[2]-cmbt->Perig[4];
       }
 
    } //end of vertex cycle
-   delete[] DerivC;  delete[] DerivP; delete[] DerivT;
    return 0;  //All ok
 }
 //---------------------------------------------------------------------------
@@ -123,7 +122,7 @@ VKTrack * getCombinedVTrack(VKVertex * vk)
     if(itv<0) return 0;                               // Not found in list
 
     int totNT = vk->nextCascadeVrt->TrackList.size();
-    return vk->nextCascadeVrt->TrackList[totNT - NV + itv]; // pointer to combined track in next vertex
+    return vk->nextCascadeVrt->TrackList[totNT - NV + itv].get(); // pointer to combined track in next vertex
 }
 
 
@@ -141,7 +140,7 @@ int getCascadeNPar(CascadeEvent & cascadeEvent_, int Type=0)
   int NTrk=0;
   int NCnst=0;
   for( int iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      NTrk += vk->TrackList.size();
      for(int ic=0; ic<(int)vk->ConstraintList.size();ic++) NCnst += vk->ConstraintList[ic]->NCDim;
   }
@@ -159,11 +158,11 @@ void setFittedParameters(double * result, std::vector<int> & matrixPnt, CascadeE
    int iv,it,Pnt;
    double Chi2=0.;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      Pnt=matrixPnt[iv];    // start of vertex parameters
      vk->fitV[0]=result[Pnt]; vk->fitV[1]=result[Pnt+1]; vk->fitV[2]=result[Pnt+2];
      for( it=0; it<(int)vk->TrackList.size(); it++){
-        VKTrack * trk=vk->TrackList[it];
+        VKTrack * trk=vk->TrackList[it].get();
         trk->fitP[0]=trk->iniP[0]+result[Pnt+3+it*3 + 0];
         trk->fitP[1]=trk->iniP[1]+result[Pnt+3+it*3 + 1];
         trk->fitP[2]=trk->iniP[2]+result[Pnt+3+it*3 + 2];
@@ -179,24 +178,24 @@ void setFittedMatrices(double * COVFIT, long int MATRIXSIZE,
                        CascadeEvent & cascadeEvent_)
 {
    int iv, Pnt, ic, ir, vrtMtxSize, count;
-   std::vector<double> Res;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      Pnt=matrixPnt[iv];    // start of vertex parameters
      vrtMtxSize=3+vk->TrackList.size()*3;         //size of matrix for given vertex
-     Res.resize(vrtMtxSize*(vrtMtxSize+1)/2); count=0;
+     std::vector<double> Res(vrtMtxSize*(vrtMtxSize+1)/2);
+     count=0;
      for (int col=0; col<vrtMtxSize; col++){
        for (int row=0; row<=col; row++){
           ic=Pnt+col; ir=Pnt+row;
           Res[count]=COVFIT[ic*MATRIXSIZE + ir]; count++;
        }
      }
-     covarCascade.push_back(Res);
+     covarCascade.emplace_back(std::move(Res));
    }
 }
 //
 // Symmetrical indexing (I*(I+1)/2+J) is valid ONLY if I>=J  
-std::vector<double> transformCovar(int NPar, double **Deriv, std::vector<double> covarI )
+std::vector<double> transformCovar(int NPar, double **Deriv, const std::vector<double> &covarI )
 {
       std::vector<double> covarO(NPar*(NPar+1)/2, 0.);
       int ii,ij,oi,oj, indexO, indexI;
@@ -212,16 +211,16 @@ std::vector<double> transformCovar(int NPar, double **Deriv, std::vector<double>
 }
 
 
-void addCrossVertexDeriv(CascadeEvent & cascadeEvent_, double * ader, long int MATRIXSIZE, std::vector<int> & matrixPnt)
+void addCrossVertexDeriv(CascadeEvent & cascadeEvent_, double * ader, long int MATRIXSIZE, const std::vector<int> & matrixPnt)
 {
    int iv,ivn;
    //for( iv=0; iv<cascadeEvent_.cascadeNV; iv++)std::cout<<matrixPnt[iv]<<", ";std::cout<<'\n';
 
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      if(!vk->nextCascadeVrt)continue;                        //no pointing
      for( ivn=iv; ivn<cascadeEvent_.cascadeNV; ivn++){
-        if(vk->nextCascadeVrt == cascadeEvent_.cascadeVertexList[ivn]) break;    //vertex found
+        if(vk->nextCascadeVrt == cascadeEvent_.cascadeVertexList[ivn].get()) break;    //vertex found
      }
      if( ivn == cascadeEvent_.cascadeNV ) continue;  // no found vertex
 //

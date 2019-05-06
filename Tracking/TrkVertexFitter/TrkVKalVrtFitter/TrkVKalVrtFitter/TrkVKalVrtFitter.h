@@ -37,7 +37,7 @@ namespace Trk{
 
   class VKalVrtControl;
 
-  enum { NTrMaxVFit=300 };
+  enum { NTrMaxVFit=200 };
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;
@@ -62,12 +62,12 @@ namespace Trk{
     std::vector<VertexID> mergedIN;       //  vertices attached to current
     int indexInSimpleCascade;
     cascadeV(){ vID=-999; outPointingV=0; mergedTO=0; indexInSimpleCascade=0;};
-   ~cascadeV(){};
+   ~cascadeV() = default;
   };
   
 
 //------------------------------------------------------------------------
-
+  //Tool should not be used reentrantly or used publically
   class TrkVKalVrtFitter : public AthAlgTool, virtual public IVertexFitter,
                                               virtual public ITrkVKalVrtFitter,
 					      virtual public IVertexCascadeFitter
@@ -75,8 +75,8 @@ namespace Trk{
     friend class VKalExtPropagator;
     public:
 
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
         TrkVKalVrtFitter(const std::string& t, const std::string& name, const IInterface*  parent);
         virtual ~TrkVKalVrtFitter(); 
@@ -133,22 +133,22 @@ namespace Trk{
 //
         VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-				   double massConstraint = 0.);
+				   double massConstraint = 0.) override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-				   double massConstraint = 0.);
+				   double massConstraint = 0.) override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
-		             const  std::vector<VertexID> precedingVertices,
-				   double massConstraint = 0.);
-        VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false );
+		             const  std::vector<VertexID> &precedingVertices,
+				   double massConstraint = 0.) override;
+        VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) override;
 
         StatusCode  addMassConstraint(VertexID Vertex,
                                       const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
-                                      const std::vector<VertexID> verticesInConstraint, 
-				      double massConstraint );
+                                      const std::vector<VertexID> &verticesInConstraint, 
+				      double massConstraint ) override;
 
 //------ Personal VKalVrt staff
 
@@ -391,7 +391,8 @@ namespace Trk{
         void VKalVrtConfigureFitterCore(int NTRK);
         void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& );
 
-        int VKalVrtFit3(  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
+        //This is safe as long as the tool is not called from multiple threads or reentrantly
+        int VKalVrtFit3 (  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
 	                   long int& Charge, dvect& ErrorMatrix, dvect& Chi2PerTrk, 
                            std::vector< std::vector<double> >& TrkAtVrt, double& Chi2 );
 

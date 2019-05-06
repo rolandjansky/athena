@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,34 +53,6 @@ TrigL2Bphys::TrigL2Bphys(int roi, float eta, float phi, pType particleType,  flo
   m_fity(-99.),  m_fitz(-99.),  m_secondaryDecay(), m_trackVector()
 {}
 
-
-
-// copy constructor
-TrigL2Bphys::TrigL2Bphys(const TrigL2Bphys& te) 
-{
-  m_roiID      = te.m_roiID;
-  m_particleType = te.m_particleType;
-  m_eta        = te.m_eta;
-  m_phi        = te.m_phi;
-  m_mass      = te.m_mass;
-  m_fitmass      = te.m_fitmass;
-  m_fitchi2      = te.m_fitchi2;
-  m_fitndof      = te.m_fitndof;
-  m_fitx      = te.m_fitx;
-  m_fity      = te.m_fity;
-  m_fitz      = te.m_fitz;
-    
-  for (unsigned int i=0; i<(te.m_trackVector).size(); ++i){
-    m_trackVector.push_back( (te.m_trackVector).at(i));
-  }
-  m_secondaryDecay     = te.m_secondaryDecay;   
-}
-
-// destructor
-TrigL2Bphys::~TrigL2Bphys() 
-{
-
-}
 
 
 void TrigL2Bphys::addTrack(const ElementLink<TrigInDetTrackCollection>& track)

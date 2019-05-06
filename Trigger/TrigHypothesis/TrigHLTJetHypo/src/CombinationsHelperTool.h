@@ -10,12 +10,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ITrigJetHypoToolHelperMT.h"
+#include "ConditionsDefsMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-#include "./Timer.h"
-
-class ITrigJetHypoHelperVisitor;
+class ITrigJetInfoCollector;
 
 class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  public:
@@ -23,21 +22,35 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   CombinationsHelperTool(const std::string& type,
                          const std::string& name,
                          const IInterface* parent);
+  
 
-  bool pass(HypoJetVector&) override;
+  StatusCode initialize() override;
 
-  virtual void accept(ITrigJetHypoHelperVisitor&) override;
-  std::string toStringAndResetHistory();
+  bool pass(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
+
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
 
+  // Used to generate helper objects foe TrigHLTJetHelper
+ // from user supplied values
+ ToolHandle<ITrigJetHypoToolConfig> m_config {
+   this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
+
+  // Object to make jet groups. Jet groups
+  // are vectors of jets selected from a jet vector
+  // which is, in this case, the incoming jet vector.
+  std::unique_ptr<IJetGrouper> m_grouper;
+
+  ConditionsMT m_conditions;
+  
    ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
-     this, "children", {}, "list of child decidables"};
-   
+     this, "children", {}, "list of child jet hypo helpers"};
+
+   /* 
   Gaudi::Property<unsigned int>
     m_size{this, "groupSize", {}, "Jet group size"};
-  
-  bool testGroup(HypoJetVector&) const;
+   */
 
   Gaudi::Property<int>
     m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
@@ -45,16 +58,15 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
-  bool m_pass;
+
+  bool testGroup(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
+  void collectData(const std::string& setuptime,
+                   const std::string& exetime,
+                   ITrigJetHypoInfoCollector*,
+                   std::unique_ptr<IConditionVisitor>& cVstr,
+                   bool) const;
 
   std::string toString() const;
-
-  // use timers through pointers in order to update from const pass() 
-  std::unique_ptr<JetTrigTimer> m_totalTimer;
-  std::unique_ptr<JetTrigTimer> m_setupTimer;
-  std::unique_ptr<JetTrigTimer> m_extraTimer;
-  std::unique_ptr<JetTrigTimer> m_extraTimer1;
-
 
 };
 #endif

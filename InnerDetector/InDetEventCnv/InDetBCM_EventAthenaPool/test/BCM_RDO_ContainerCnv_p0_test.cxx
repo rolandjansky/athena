@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -70,7 +70,7 @@ void test1()
     auto coll = CxxUtils::make_unique<BCM_RDO_Collection> (543+o1);
     for (int j=0; j<i; j++) {
       int o2 = o1 + j*20;
-      coll->push_back (new BCM_RawData (123+o2, 234+o2));
+      coll->push_back (std::make_unique<BCM_RawData> (123+o2, 234+o2));
     }
     trans1.push_back (std::move(coll));
   }

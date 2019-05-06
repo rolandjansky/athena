@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/IRegionSelector
                           DetectorDescription/RoiDescriptor
+			  InnerDetector/InDetConditions/InDetBeamSpotService
                           Event/EventInfo
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/PixelConditionsServices

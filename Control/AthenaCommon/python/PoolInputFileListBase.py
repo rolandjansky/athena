@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file AthenaCommon/python/PoolInputFileListBase.py
 ## @brief base class for POOL input file list properties
 ##
 
+from __future__ import print_function
+
 import os
 import sys
-from JobProperties import JobProperty
+from AthenaCommon.JobProperties import JobProperty
 
 class PoolInputFileListBase(JobProperty):
     """base class for POOL input file list properties. Its call back will register each file in the list using pool_insertFileToCatalog"""

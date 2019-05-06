@@ -4,8 +4,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the RpcDigitizationTool.
@@ -29,6 +31,14 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", RPC_FirstXing())
         kwargs.setdefault("LastXing", RPC_LastXing())
+    kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "RPC_SDO")
+    # folder for RPCCondSummarySvc
+    acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL"))
+    # config
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    
     # kwargs.setdefault("PatchForRpcTimeShift", 9.6875)  
@@ -66,8 +76,9 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
 
 def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
     """Return a ComponentAccumulator with configured RpcDigitization algorithm"""
-    acc = RPC_DigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
     return acc
 
@@ -84,8 +95,9 @@ def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs)
 
 def RPC_OverlayDigitizerCfg(flags, name="RPC_OverlayDigitizer", **kwargs):
     """Return a ComponentAccumulator with RpcDigitization algorithm configured for Overlay"""
-    acc = RPC_OverlayDigitizationToolCfg(flags)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = MuonGeoModelCfg(flags)
+    tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
     return acc
 

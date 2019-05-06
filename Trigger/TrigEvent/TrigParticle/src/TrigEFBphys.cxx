@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,11 +52,6 @@ TrigEFBphys::TrigEFBphys(int roi, float eta, float phi, pType particleType,
   m_secondaryDecay(sDecay), m_trackVector(0)
 {}
 
-
-// destructor
-TrigEFBphys::~TrigEFBphys() 
-{
-}
 
 void TrigEFBphys::addTrack(const ElementLink<Rec::TrackParticleContainer>& track)
 {

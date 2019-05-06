@@ -769,7 +769,7 @@ namespace Trk{
 
 
    //now set links to xAOD::TrackParticles directly in the xAOD::Vertex
-   unsigned int VTAVsize = fittedVertex->vxTrackAtVertex().size();
+   unsigned int VTAVsize = (fittedVertex && fittedVertex->vxTrackAtVertexAvailable()) ? fittedVertex->vxTrackAtVertex().size() : 0 ;
    for (unsigned int i = 0 ; i < VTAVsize ; ++i)
    {
      Trk::VxTrackAtVertex* VTAV = &( fittedVertex->vxTrackAtVertex().at(i) );

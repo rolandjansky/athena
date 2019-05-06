@@ -10,24 +10,16 @@
 #include "LArHV/EMECPresamplerHVManager.h"
 #include "LArHV/LArHVManager.h"
 
-LArHVManager::LArHVManager(const EMECHVManager *emecHVInner
-			   , const EMECHVManager *emecHVOuter
-			   , const HECHVManager *hecHV
-			   , const FCALHVManager *fcalHV
-			   , const EMBPresamplerHVManager *embPreHV
+LArHVManager::LArHVManager(const EMBPresamplerHVManager *embPreHV
 			   , const EMECPresamplerHVManager *emecPreHV)
   : m_embHV()
-  , m_emecHVInner(emecHVInner)
-  , m_emecHVOuter(emecHVOuter)
-  , m_hecHV(hecHV)
-  , m_fcalHV(fcalHV)
+  , m_emecHVInner(EMECHVModule::INNER)
+  , m_emecHVOuter(EMECHVModule::OUTER)
+  , m_hecHV()
+  , m_fcalHV()
   , m_embPreHV(embPreHV)
   , m_emecPreHV(emecPreHV)
 {
-  if (m_emecHVInner) m_emecHVInner->ref();
-  if (m_emecHVOuter) m_emecHVOuter->ref();
-  if (m_hecHV)  m_hecHV->ref();
-  if (m_fcalHV) m_fcalHV->ref();
   if (m_embPreHV)  m_embPreHV->ref();
   if (m_emecPreHV) m_emecPreHV->ref();
 
@@ -36,10 +28,10 @@ LArHVManager::LArHVManager(const EMECHVManager *emecHVInner
 void LArHVManager::reset() const
 {
   m_embHV.reset();
-  if (m_emecHVInner) m_emecHVInner->reset();
-  if (m_emecHVOuter) m_emecHVOuter->reset();
-  if (m_hecHV)  m_hecHV->reset();
-  if (m_fcalHV) m_fcalHV->reset();
+  m_emecHVInner.reset();
+  m_emecHVOuter.reset();
+  m_hecHV.reset();
+  m_fcalHV.reset();
   if (m_embPreHV)  m_embPreHV->reset();
   if (m_emecPreHV) m_emecPreHV->reset(); 
  return;
@@ -48,10 +40,6 @@ void LArHVManager::reset() const
 
 LArHVManager::~LArHVManager()
 {
-  if (m_emecHVInner) m_emecHVInner->unref();
-  if (m_emecHVOuter) m_emecHVOuter->unref();
-  if (m_hecHV)  m_hecHV->unref();
-  if (m_fcalHV) m_fcalHV->unref();
   if (m_embPreHV)  m_embPreHV->unref();
   if (m_emecPreHV) m_emecPreHV->unref();
 
@@ -62,19 +50,17 @@ const EMBHVManager& LArHVManager::getEMBHVManager() const
   return m_embHV;
 }
 
-const EMECHVManager *LArHVManager::getEMECHVManager(IOType IO) const
+const EMECHVManager& LArHVManager::getEMECHVManager(IOType IO) const
 {
-  if (IO==EMECHVModule::INNER) return m_emecHVInner;
-  if (IO==EMECHVModule::OUTER) return m_emecHVOuter;
-  return NULL;
+  return IO==EMECHVModule::INNER ? m_emecHVInner : m_emecHVOuter;
 }
 
-const HECHVManager *LArHVManager::getHECHVManager() const
+const HECHVManager& LArHVManager::getHECHVManager() const
 {
   return m_hecHV;
 }
 
-const FCALHVManager *LArHVManager::getFCALHVManager() const
+const FCALHVManager& LArHVManager::getFCALHVManager() const
 {
   return m_fcalHV;
 }

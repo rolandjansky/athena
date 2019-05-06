@@ -36,7 +36,7 @@ inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) {
 
 TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvcLocator)
     : HLT::FexAlgo(name, pSvcLocator),
-    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
+      m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this)
 {
     declareProperty( "AcceptAll",            m_acceptAll  = false );
     declareProperty( "ClusEt",              m_clusEtthr = 20.0*CLHEP::GeV );

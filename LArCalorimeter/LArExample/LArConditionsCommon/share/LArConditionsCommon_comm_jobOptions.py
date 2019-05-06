@@ -118,6 +118,10 @@ if (haveElecCalibInline):
     addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondFlatAlg, sqlDB)
     # TEMPORARY
     theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
+else:
+    # In Run-1 it's used also, an ESD2AOD is not covered so far, so adding it here
+    if rec.readESD():
+      addLArFolder ('LAR_ONL', 'HVScaleCorr', 'LArHVScaleCorrComplete')
 
 
 #Load Electronic Calibration folders:

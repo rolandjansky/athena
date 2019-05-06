@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
+#include <random>
 #include "tbb/parallel_reduce.h"
 #include "tbb/blocked_range.h"
 #include "TestTools/expect.h"
@@ -10,40 +11,9 @@
 #include "TrigT2CaloCommon/LArCellCont.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloEvent/CaloConstCellContainer.h"
+#include "StoreGate/ReadHandle.h"
 #include "TestCaloDataAccess.h"
 #include <sys/time.h>
-
-// little code to generate random numbers
-// in gaussian form instead of uniform distribution
-// used to generate RoIs. mu=mediam; sigma;
-double randn (double mu, double sigma)
-{
-  double U1, U2, W, mult;
-  static double X1, X2;
-  static int call = 0;
- 
-  if (call == 1)
-    {
-      call = !call;
-      return (mu + sigma * (double) X2);
-    }
- 
-  do
-    {
-      U1 = -1 + ((double) rand () / RAND_MAX) * 2;
-      U2 = -1 + ((double) rand () / RAND_MAX) * 2;
-      W = pow (U1, 2) + pow (U2, 2);
-    }
-  while (W >= 1 || W == 0);
- 
-  mult = sqrt ((-2 * log (W)) / W);
-  X1 = U1 * mult;
-  X2 = U2 * mult;
- 
-  call = !call;
- 
-  return (mu + sigma * (double) X1);
-}
 
 
 #define DIFF(_name, _a, _b) if ( _a != _b )				\
@@ -59,10 +29,13 @@ double randn (double mu, double sigma)
 
 class AskForRoI : public ParallelCallTest {
 public:
-  AskForRoI( const EventContext& context, const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
+  AskForRoI( const EventContext& context,
+             const CaloBCIDAverage* avg,
+             const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
 	     MsgStream& msg,
 	     const TrigRoiDescriptor& roi ) 
     : m_context( context ),
+      m_avg( avg ),
       m_svc( svc ),
       m_msg( msg ),
       m_roi ( roi ) {
@@ -80,13 +53,13 @@ public:
     else{
       // keep this for test reasons
       //usleep (5000);
-      return m_svc->loadCollections( m_context, m_roi, TTEM, 2, sel );    
+      return m_svc->loadCollections( m_context, m_avg, m_roi, TTEM, 2, sel );    
     }
   }
 
   StatusCode request( ConstDataVector<CaloCellContainer>& c ) const {
     if ( m_roi.isFullscan() ){
-      return m_svc->loadFullCollections( m_context, c );
+      return m_svc->loadFullCollections( m_context, m_avg, c );
     }
     else{
       std::cout << "wrong RoI descriptor used for FS" << std::endl;
@@ -211,6 +184,7 @@ public:
 
 private:
   const EventContext& m_context;
+  const CaloBCIDAverage* m_avg;
   const ServiceHandle<ITrigCaloDataAccessSvc>& m_svc;
   MsgStream& m_msg;
   MsgStream& msg(){ return m_msg; }
@@ -244,41 +218,50 @@ TestCaloDataAccess::~TestCaloDataAccess() {}
 
 StatusCode TestCaloDataAccess::initialize() {
   CHECK( m_dataAccessSvc.retrieve() );
+  CHECK( m_bcidAvgKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const{
 
-  double RoI_phi1 = M_PI*(-1.0 + ((double) rand () / RAND_MAX) * 2);
-  double RoI_eta1 = randn(0,1.7);
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+
+  std::default_random_engine generator;
+  std::normal_distribution<double> N1(0.0, 1.7);
+  std::normal_distribution<double> N2(0.0, 0.2);
+  std::uniform_real_distribution<double> U(0.0, 1.0);
+  std::uniform_real_distribution<double> Uphi(-M_PI, M_PI);
+
+  double RoI_phi1 = Uphi(generator);
+  double RoI_eta1 = N1(generator);
   if ( RoI_eta1 < -2.5 ) RoI_eta1 = -2.5;
   if ( RoI_eta1 >  2.5 ) RoI_eta1 = 2.5;
-  double chance = ((double) rand () / RAND_MAX);
+  double chance = U(generator);
   double width = 0.1;
   TrigRoiDescriptor roi( RoI_eta1, RoI_eta1-width, RoI_eta1+width, // eta
 			 RoI_phi1, RoI_phi1-width, RoI_phi1+width, // phi
 			 0 );
-  AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+  AskForRoI* afr = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), roi );
   allRoIs.push_back( afr );
 
-  chance = ((double) rand () / RAND_MAX);
+  chance = U(generator);
   if ( chance > 0.6 ) {
-    double RoI_eta2 = -RoI_eta1 + randn(0,0.2);
-    double RoI_phi2 = -RoI_phi1 + randn(0,0.2);
+    double RoI_eta2 = -RoI_eta1 + N2(generator);
+    double RoI_phi2 = -RoI_phi1 + N2(generator);
     if ( RoI_eta2 < -2.5 ) RoI_eta2 = -2.5;
     if ( RoI_eta2 >  2.5 ) RoI_eta2 = 2.5;
     TrigRoiDescriptor roi( RoI_eta2, RoI_eta2-width, RoI_eta2+width, // eta
 			   RoI_phi2, RoI_phi2-width, RoI_phi2+width, // phi
 			   0 );
-    AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+    AskForRoI* afr = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), roi );
     allRoIs.push_back( afr );
   }
 
   for(int i=0;i<10;i++){
-    chance = ((double) rand () / RAND_MAX);
+    chance = U(generator);
     if ( chance > 0.75 ) {
-      double RoI_phi3 = M_PI*(-1.0 + ((double) rand () / RAND_MAX) * 2);
-      double RoI_eta3 = randn(0,1.7);
+      double RoI_phi3 = Uphi(generator);
+      double RoI_eta3 = N1(generator);
       if ( RoI_eta3 < -2.5 ) RoI_eta3 = -2.5;
       if ( RoI_eta3 >  2.5 ) RoI_eta3 = 2.5;
       width = 0.1;
@@ -286,15 +269,15 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
       TrigRoiDescriptor roi( RoI_eta3, RoI_eta3-width, RoI_eta3+width, // eta
                              RoI_phi3, RoI_phi3-width, RoI_phi3+width, // phi
                              0 );
-      AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+      AskForRoI* afr = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), roi );
       allRoIs.push_back( afr );
     }
   }
 
-  chance = ((double) rand () / RAND_MAX);
+  chance = U(generator);
   if ( chance > 0.6 ) {
     TrigRoiDescriptor roi( true );
-    AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+    AskForRoI* afr = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), roi );
     allRoIs.push_back( afr );
   }
 
@@ -302,6 +285,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
 
 void TestCaloDataAccess::emulateFixedRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const{
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   std::vector<TrigRoiDescriptor> rois;
   TrigRoiDescriptor roi1( 0.7, 0.7-0.1, 0.7+0.1, // eta
 			  0.1, 0.1-0.1, 0.1+0.1, // phi
@@ -321,10 +305,10 @@ void TestCaloDataAccess::emulateFixedRoIs( const EventContext& context, std::vec
   rois.push_back(roi4);
   TrigRoiDescriptor roi5( true );
   for( int i=0;i<std::min(m_nFixedRoIs,4);++i) {
-    AskForRoI* t1 = new AskForRoI( context, m_dataAccessSvc, msg(), rois[i]);
+    AskForRoI* t1 = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), rois[i]);
     allRoIs.push_back(t1);
   }
-  AskForRoI* t6 = new AskForRoI( context, m_dataAccessSvc, msg(), roi5);  // FS
+  AskForRoI* t6 = new AskForRoI( context, avg.cptr(), m_dataAccessSvc, msg(), roi5);  // FS
   allRoIs.push_back(t6);
 
 

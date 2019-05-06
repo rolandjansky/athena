@@ -27,7 +27,7 @@ struct AlgorithmIdentifier {
   TrigConf::HLTHash storeHash() const;
   StatusCode isValid() const;
 
-  const EventContext* m_context; //!< Convenience reference to the context.
+  const EventContext m_context; //!< Convenience copy of the context.
   MsgStream* m_msg;  //!< Convenience reference to the msg service.
   const std::string m_caller; //!< Name of the algorithm
   const std::string m_store; //!< Name of the algorithm's store. e.g. '0_StoreGateSvc_Impl' for the main store.

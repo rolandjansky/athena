@@ -2,11 +2,12 @@
 
 # self test of ComponentAccumulator
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from __future__ import print_function
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
+from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaCommon.CFElements import findSubSequence,findAlgorithm
+from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms
 from AthenaCommon.Configurable import Configurable, ConfigurablePyAlgorithm # guinea pig algorithms
-from AthenaCommon.CFElements import seqAND, seqOR, parOR
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG, INFO
 
@@ -41,7 +42,7 @@ class TestComponentAccumulator( unittest.TestCase ):
             result,algs=AlgsConf1( flags )
             acc.merge(result)
             a = Algo("Algo3")
-            print "algo3 when created", id(a)
+            print("algo3 when created %s" % id(a))
             algs.append(a)
             return acc,algs
 
@@ -74,11 +75,13 @@ class TestComponentAccumulator( unittest.TestCase ):
         accNA1=AlgsConf4(dummyCfgFlags)
         acc.merge(accNA1[0])
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
-        acc.store(open("testFile.pkl", "w"))
+        outf = open("testFile.pkl", "wb")
+        acc.store(outf)
+        outf.close()
         self.acc = acc
 
 
-    def test_algorihmsAreAdded( self ):
+    def test_algorithmsAreAdded( self ):
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo1", 1).name(), "Algo1", "Algorithm not added to a top sequence" )
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo2", 1).name(),  "Algo2", "Algorithm not added to a top sequence" )
         self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo3", 1).name(), "Algo3", "Algorithm not added to a top sequence" )
@@ -97,22 +100,22 @@ class TestComponentAccumulator( unittest.TestCase ):
 
     def test_readBackConfiguration( self ):
         import pickle
-        with open( "testFile.pkl" ) as f:
-            s = pickle.load( f )
-            self.assertIsNotNone( s, "The pickle has no content")
+        f = open('testFile.pkl', 'rb')
+        s = pickle.load( f )
+        self.assertIsNotNone( s, "The pickle has no content")
 
     def test_foreach_component( self ):
         from AthenaCommon.Logging import logging
         logging.getLogger('foreach_component').setLevel(DEBUG)
-        algo3 = self.acc.getEventAlgo("Algo3")        
+        algo3 = self.acc.getEventAlgo("Algo3")
         algo3.OutputLevel = INFO
         self.acc.foreach_component("*/Algo3").OutputLevel = DEBUG # restet to debug level
         self.assertEqual( algo3.OutputLevel, DEBUG, "wrong OutputLevel value for Algo3")
-        self.acc.foreach_component("*sub2*/*").OutputLevel = INFO 
+        self.acc.foreach_component("*sub2*/*").OutputLevel = INFO
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
-        
+
 
 class TestHLTCF( unittest.TestCase ):
     def runTest( self ):
@@ -131,9 +134,11 @@ class TestHLTCF( unittest.TestCase ):
         acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
         acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
 
-        acc.store(open("testFile2.pkl", "w"))
+        fout = open("testFile2.pkl", "wb")
+        acc.store(fout)
+        fout.close()
         import pickle
-        f = open("testFile2.pkl")
+        f = open("testFile2.pkl", 'rb')
         s = pickle.load(f)
         f.close()
         self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
@@ -170,14 +175,16 @@ class MultipleParentsInSequences( unittest.TestCase ):
         self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithms are cloned" )
         self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), recoAlg, "Clone of the original inserted in sequence" )
 
-        accTop.store( open("dummy.pkl", "w") )
+        fout = open("dummy.pkl", "wb")
+        accTop.store( fout )
+        fout.close()
         import pickle
         # check if the recording did not harm the sequences
-        with open("dummy.pkl") as f:
+        with open("dummy.pkl", 'rb') as f:
             s = pickle.load( f )
-            self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
-            self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
-            self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
+            self.assertEqual( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
+            self.assertEqual( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
+            self.assertEqual( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )
 
 class ForbidRecursiveSequences( unittest.TestCase ):
     def runTest( self ):
@@ -213,7 +220,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             accTop.addSequence(seq2, parentName = "seq1")
             accTop.addSequence(seq2_again, parentName = "seq1")
             accTop.wasMerged()
-            
+
 
         #Can't add a sequence with the same name two steps below itself, e.g.
         # \__ AthAlgSeq (seq: PAR AND)
@@ -291,16 +298,15 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         ca = ComponentAccumulator()
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm,ConfigurableAlgTool
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
-        
-        self.assertIsNotNone( ca.getEventAlgo(), "Found single alg")
+
         self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
-# no idea why this assersts do not recognise exceptions        
-#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2")) 
-        
+# no idea why this assersts do not recognise exceptions
+#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
+
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg2"))
 
         self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
-        self.assertEquals( len(ca.getEventAlgos()), 2 , "Found single alg")
+        self.assertEqual( len(ca.getEventAlgos()), 2 , "Found single alg")
  #       self.assertRaises(ConfigurationError, ca.getEventAlgo(), "Single Alg API ambiguity")
 
         class Tool(ConfigurableAlgTool):
@@ -328,6 +334,20 @@ class TestDeduplication( unittest.TestCase ):
         self.assertIn("/bar",result2.getService("IOVDbSvc").Folders)
         self.assertIn("/foo",result2.getService("IOVDbSvc").Folders)
 
+        #The merge should be also updated the result1
+        self.assertIn("/bar",result1.getService("IOVDbSvc").Folders)
+        self.assertIn("/foo",result1.getService("IOVDbSvc").Folders)
+        
+        svc3=IOVDbSvc(Folders=["/barrr"])
+        result2.addService(svc3)
+        self.assertIn("/foo",svc3.Folders)
+        self.assertIn("/barrr",result2.getService("IOVDbSvc").Folders)
+
+        #The IOVDbSvc in the componentAccumulator is the same instance than the one we have here
+        #Modifying svc3 touches also the ComponentAccumulator
+        svc3.Folders+=["/fooo"]
+        self.assertIn("/fooo",result2.getService("IOVDbSvc").Folders)
+
 
         #Trickier case: Recursive de-duplication of properties of tools in a Tool-handle array
         from AthenaConfiguration.TestDriveDummies import dummyService, dummyTool
@@ -344,20 +364,21 @@ class TestDeduplication( unittest.TestCase ):
                                         SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
                                     )
                        )
-    
+
         self.assertEqual(len(result3._services),1) #Verify that we have only one service
 
 
         #Add a service with a different name
         result3.addService(dummyService("NewService", AString="blabla",
                                         AList=["new1","new2"],
+                                        OneTool=dummyTool("tool2"),
                                         SomeTools=[dummyTool("tool1",BList=["lt1","lt2"]),],
                                     )
                        )
-        
+      
         self.assertEqual(len(result3._services),2)
-        
-        
+      
+      
         #Add the same service again, with a sightly differently configured private tool:
         result3.addService(dummyService(AString="bla",
                                         AList=["l1","l3"],
@@ -369,6 +390,88 @@ class TestDeduplication( unittest.TestCase ):
         self.assertEqual(set(result3.getService("dummyService").SomeTools[0].BList),set(["lt1","lt2","lt3","lt4"]))
         self.assertEqual(set(result3.getService("dummyService").AList),set(["l1","l2","l3"]))
         
+        with  self.assertRaises(DeduplicationFailed):
+            result3.addService(dummyService(AString="blaOther"))
+
+
+class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
+
+    def setUp(self):
+        Configurable.configurableRun3Behavior=1
+
+    def test_algorithms_merging(self):
+
+        class MergeableAlgorithm( ConfigurablePyAlgorithm ):
+            def __init__( self, name, **kwargs ):
+                super( ConfigurablePyAlgorithm, self ).__init__( name )
+                self._jobOptName = name
+
+                for n, v in kwargs.items():
+                    setattr(self, n, v)
+
+                self._set_attributes = kwargs.keys()
+
+            def getValuedProperties(self):
+                d = {}
+                for attrib in self._set_attributes:
+                    d[attrib] = getattr(self, attrib)
+                return d
+
+            def __eq__(self,rhs):
+                if self is rhs:
+                    return True
+                if not rhs or not isinstance(rhs,Configurable) or self.getFullName() != rhs.getFullName():
+                    return False
+                for attr, value in self.getValuedProperties().items():
+                    if getattr(rhs, attr) != value:
+                        return False
+                return True
+
+            def __ne__(self,rhs):
+                return not self.__eq__(rhs)
+
+        ca = ComponentAccumulator()
+
+        seq1 = seqAND("seq1")
+        innerSeq1 = seqAND("innerSeq1")
+        level2Seq1 = seqAND("level2Seq1")
+
+        seq2 = seqAND("seq2")
+        innerSeq2 = seqAND("innerSeq2")
+
+        firstAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input1"], InputMakerOutputDecisions=["output1"])
+
+        ca.addSequence(seq1)
+        ca.addSequence(innerSeq1, parentName=seq1.name())
+        ca.addSequence(level2Seq1, parentName=innerSeq1.name())
+        ca.addEventAlgo(firstAlg, sequenceName=level2Seq1.name())
+
+        ca.addSequence(seq2)
+        ca.addSequence(innerSeq2, parentName=seq2.name())
+
+        innerSeqCopy = seqAND("innerSeq2")
+        level2SeqCopy = seqAND("level2Seq2")
+
+        secondAlg = MergeableAlgorithm("alg1", InputMakerInputDecisions=["input2"], InputMakerOutputDecisions=["output2"])
+
+        secondCa = ComponentAccumulator()
+        secondCa.addSequence(innerSeqCopy)
+        secondCa.addSequence(level2SeqCopy, parentName=innerSeqCopy.name())
+        secondCa.addEventAlgo(secondAlg, sequenceName=level2SeqCopy.name())
+
+        ca.merge(secondCa)
+
+        foundAlgs = findAllAlgorithms(ca.getSequence(), 'alg1')
+
+        self.assertEqual(len(foundAlgs), 2)
+
+        self.assertEqual(set(foundAlgs[0].InputMakerInputDecisions), {"input1", "input2"})
+        self.assertEqual(set(foundAlgs[0].InputMakerOutputDecisions), {"output1", "output2"})
+        self.assertEqual(set(foundAlgs[1].InputMakerInputDecisions), {"input1", "input2"})
+        self.assertEqual(set(foundAlgs[1].InputMakerOutputDecisions), {"output1", "output2"})
+
+        ca.printConfig()
+        ca.wasMerged()
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ def CaloFillRectangularClusterCfg(flags):
     from CaloClusterCorrection.CaloClusterCorrectionConf import CaloFillRectangularCluster
     caloFillRectangularCluster = CaloFillRectangularCluster(eta_size = 5,
                                                             phi_size = 7,
-                                                            cells_name = flags.Egamma.Keys.Input.Cells)
+                                                            cells_name = flags.Egamma.Keys.Input.CaloCells)
 
     result.setPrivateTools(caloFillRectangularCluster)
     return result

@@ -139,10 +139,10 @@ std::string TrigEFMissingEtComponent::ComponentToName(const Component c)
     case JETE2:      name="JETE2";        break;
 
     // 39    Topo. cluster Fit              
-    case TCPUC:      name="TCPUC";        break;
+    case TCPufit:    name="TCPufit";      break;
 
     // 40    Topo. cluster Fit -- uncorrected                         
-    case TCPUCUnc:   name="TCPUCUnc";     break;
+    case TCPufitUnc: name="TCPufitUnc";   break;
 
     // 41    Muons                         
     case Muons:      name="Muons";        break;

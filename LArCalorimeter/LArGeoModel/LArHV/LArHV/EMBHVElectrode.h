@@ -9,46 +9,36 @@ class EMBHVModule;
 
 class EMBHVElectrode
 {
-  public:
-    // Constructor
-    EMBHVElectrode(const EMBHVModule* module, unsigned int iElectrode);
+ public:
+  // The ownership of the EMBHVModule pointer NOT transferred to EMBHVElectrode
+  EMBHVElectrode(const EMBHVModule* module, unsigned int iElectrode);
+  ~EMBHVElectrode();
 
-    // Destructor
-    virtual ~EMBHVElectrode();
+  // Returns the index of this electrode.
+  unsigned int getElectrodeIndex() const;
+  
+  // returns a reference to the module that owns this electrode.
+  const EMBHVModule& getModule() const;
 
-    // Returns the index of this electrode.
-    unsigned int getElectrodeIndex() const;
+  double getPhi() const;
 
-    // returns a pointer to the module that owns this electrode.
-    const EMBHVModule& getModule() const;
-
-    double getPhi() const;
-
-    // HV Status
-    bool hvOn(int iGap) const;
+  // HV Status
+  bool hvOn(int iGap) const;
     
-    // Voltage
-    double voltage(int iGap) const;
+  double voltage(int iGap) const;
+  double current(int iGap) const;
 
-    // Current
-    double current(int iGap) const;
+  int hvLineNo(int iGap) const;
 
-    // HVLine no
-    int hvLineNo(int iGap) const;
+  // Voltage and current at the same tine.:
+  void voltage_current(int iGap, double& v, double& i) const;
 
-    // Voltage and current at the same tine.:
-    void voltage_current(int iGap, double& v, double& i) const;
+ private:
+  EMBHVElectrode(const EMBHVElectrode& right);
+  EMBHVElectrode& operator=(const EMBHVElectrode& right);
 
-
-  private:
-    // Illegal operation
-    EMBHVElectrode(const EMBHVElectrode& right);
-
-    // Illegal operation
-    EMBHVElectrode& operator=(const EMBHVElectrode& right);
-
-    class Clockwork;
-    Clockwork *m_c;
+  class Clockwork;
+  Clockwork *m_c;
 };
 
 #endif 

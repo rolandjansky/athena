@@ -6,23 +6,20 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
     stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE
 
 log = logging.getLogger('HLTCFConfig_newJO')
-log.setLevel( VERBOSE )
-
 
 def printStepsMatrix(matrix):
-    print('----- Steps matrix ------')
+    print('----- Steps matrix ------') # noqa: ATL901
     for nstep in matrix:
-        print('step {}:'.format(nstep))
+        print('step {}:'.format(nstep)) # noqa: ATL901
         for chainName in matrix[nstep]:
             namesInCell = map(lambda el: el.name, matrix[nstep][chainName])
-            print('---- {}: {}'.format(chainName, namesInCell))
-    print('-------------------------')
+            print('---- {}: {}'.format(chainName, namesInCell))  # noqa: ATL901
+    print('-------------------------')  # noqa: ATL901
 
 
 def generateDecisionTree(chains):
@@ -80,9 +77,9 @@ def generateDecisionTree(chains):
             sfilter = buildFilter(filterName, filter_input)
             filterAcc.addEventAlgo(sfilter.Alg, sequenceName = stepFilterNodeName)
 
-            stepReco = parOR('{}{}'.format(chainStep.name, CFNaming.RECO_POSTFIX))
-            stepView = seqAND('{}{}'.format(chainStep.name, CFNaming.VIEW_POSTFIX), [stepReco])
+            stepReco, stepView = createStepView(chainStep.name)
             viewWithFilter = seqAND(chainStep.name, [sfilter.Alg, stepView])
+
             recoAcc.addSequence(viewWithFilter, parentName = stepRecoNodeName)
 
             stepsAcc = ComponentAccumulator()
@@ -99,12 +96,11 @@ def generateDecisionTree(chains):
                     if seq.ca is None:
                         raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
                     stepsAcc.merge( seq.ca )
-                    recoAcc.addEventAlgo(seq.hypo.Alg, sequenceName = stepView.getName())
                 if step.isCombo:
-                    recoAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
+                    stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
                 sfilter.setChains(chain.name)
 
-            recoAcc.merge(stepsAcc, sequenceName = stepReco.getName())
+            recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())
 
             for sequence in chainStep.sequences:
                 stepDecisions += sequence.outputs
@@ -113,7 +109,7 @@ def generateDecisionTree(chains):
         acc.merge(recoAcc, sequenceName = mainSequenceName)
 
         summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
-        acc.addSequence(summary, parentName = mainSequenceName)
+        acc.addEventAlgo(summary, sequenceName = mainSequenceName)
 
         allCFSequences.append(CFSequences)
 

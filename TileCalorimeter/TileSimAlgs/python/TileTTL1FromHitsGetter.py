@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileTTL1 creation from TileHit
@@ -56,7 +56,14 @@ class TileTTL1FromHitsGetter ( Configured )  :
         theTileHitToTTL1.TileInfoName="TileInfo"
 
         # sets output key  
-        theTileHitToTTL1.TileTTL1Container=self.outputKey()        
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            theTileHitToTTL1.TileTTL1Container = overlayFlags.bkgPrefix() + self.outputKey()
+            theTileHitToTTL1.TileMBTSTTL1Container = overlayFlags.bkgPrefix() + "TileTTL1MBTS"
+        else:
+            theTileHitToTTL1.TileTTL1Container = self.outputKey()
+            theTileHitToTTL1.TileMBTSTTL1Container = "TileTTL1MBTS"
 
 
         # register output in objKeyStore

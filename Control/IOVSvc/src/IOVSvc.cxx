@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -466,6 +466,8 @@ StatusCode
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key, 
                        IOVRange& range, std::string& tag, IOpaqueAddress*& ioa) const { 
 
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
+
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
     msg() << MSG::ERROR << "getRangeFromDB: proxy for " 
@@ -483,6 +485,8 @@ StatusCode
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
                        const IOVTime& time, IOVRange& range, 
                        std::string& tag, IOpaqueAddress*& ioa) const {
+
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
@@ -863,8 +867,6 @@ StatusCode
 IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id, 
                       const EventIDBase& now) {
   
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
-
   ATH_MSG_DEBUG("createCondObj:  id: " << id << "  t: " << now << "  valid: "
                 << ccb->valid(now));
 
@@ -910,7 +912,9 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     }
   }
 
-  if (ccb->proxy() == nullptr) { 
+  if (ccb->proxy() == nullptr) {
+    // nb. We don't want to be holding the IOVSvc lock here,
+    // as SGImplSvc can call to IOVSvc with the store lock held.
     SG::DataProxy* dp = p_detStore->proxy (id.clid(), sgKey);
     ATH_MSG_DEBUG( " found DataProxy " << dp << " for " << id );
     ccb->setProxy(dp);

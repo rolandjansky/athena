@@ -117,7 +117,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_acceptDiagonalClusters(true),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
   m_ambiguitiesMap(nullptr),
-  m_pixelCalibSvc("PixelCalibSvc", name),
   m_digitizationStepper("Trk::PlanarModuleStepper")
 {
   declareInterface<IPixelFastDigitizationTool>(this);
@@ -164,7 +163,8 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_MSG_DEBUG ( "PixelDigitizationTool::initialize()" );
 
-  CHECK(m_pixelCalibSvc.retrieve());
+  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_chargeDataKey.initialize());
 
   //locate the AtRndmGenSvc and initialize our local ptr
   if (!m_rndmSvc.retrieve().isSuccess())
@@ -514,6 +514,8 @@ StatusCode PixelFastDigitizationTool::digitize()
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
@@ -546,6 +548,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       const IdentifierHash waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
 
+      Identifier moduleID = m_pixel_ID->wafer_id(hitSiDetElement->identify());
 
       const int trkn = hit->trackNumber();
 
@@ -608,7 +611,13 @@ StatusCode PixelFastDigitizationTool::digitize()
       bool ExitValid(exitCellId.isValid());
 
       double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
-      double th0  = double(m_pixelCalibSvc->getThreshold(hitId))/m_ThrConverted; //test?
+
+      Identifier diodeID = hitId;
+      int circ = m_pixelCabling->getFE(&diodeID,moduleID);
+      int type = m_pixelCabling->getPixelType(diodeID);
+
+      double th0 = calibData->getAnalogThreshold((int)waferID,circ,type)/m_ThrConverted;
+
       //        if (old_th != th0) std::cout<<"converted threshold "<<th0<<std::endl, old_th= th0;
 
       //Avoid to store pixels with 0 ToT

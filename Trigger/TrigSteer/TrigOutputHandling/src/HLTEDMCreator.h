@@ -13,7 +13,7 @@
 
 // OutputHandling includes
 #include "DecisionHandling/IHLTOutputTool.h"
-
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "AthViews/View.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -30,6 +30,8 @@
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
@@ -68,8 +70,12 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
  private: 
 
   HLTEDMCreator();
-  Gaudi::Property<std::string> m_remapKey{ this, "RemapKey", "remap_", "Prefix for remapped collections"};
-  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", true, "Fix links that may be pointing objects in views"};
+  Gaudi::Property<bool> m_fixLinks{ this, "FixLinks", false, "Fix links that may be pointing objects in views"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint32_t> > m_remapLinkCollKeys{ this, "DoNotSet_RemapLinkCollKeys", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+  SG::WriteDecorHandleKeyArray<xAOD::TrigCompositeContainer, std::vector<uint16_t> > m_remapLinkColIndices{ this, "DoNotSet_RemapLinkCollIndices", {}, "Do not set, it is configured accordingly to FixLinks & TC output property"};
+
+  Gaudi::Property<bool> m_dumpSGBefore{ this, "dumpSGBefore", false, "Dump SG content before the merging"}; // for debugging 
+  Gaudi::Property<bool> m_dumpSGAfter { this, "dumpSGAfter", false, "Dump SG content after the merging"};
 
 #define DEF_VIEWS(__TYPE) \
   SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
@@ -94,7 +100,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigElectronContainer );
   DEF_XAOD_KEY( TrigPhotonContainer );
   DEF_XAOD_KEY( TrackParticleContainer );
-
+  DEF_XAOD_KEY( TrigMissingETContainer );
   DEF_XAOD_KEY( L2StandAloneMuonContainer );
   DEF_XAOD_KEY( L2CombinedMuonContainer );
   DEF_XAOD_KEY( L2IsoMuonContainer );

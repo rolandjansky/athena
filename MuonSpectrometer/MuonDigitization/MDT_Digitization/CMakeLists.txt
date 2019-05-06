@@ -43,7 +43,7 @@ atlas_add_component( MDT_Digitization
 
 atlas_add_test( MDT_DigitizationConfigNew_test
                 SCRIPT test/MDT_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
+                PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
 atlas_install_headers( MDT_Digitization )

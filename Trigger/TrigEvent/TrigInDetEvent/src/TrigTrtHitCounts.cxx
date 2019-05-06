@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigTrtHitCounts.h"
@@ -31,11 +31,6 @@ TrigTrtHitCounts::TrigTrtHitCounts(TrigHisto1D&& endcapC,
     m_barrel(std::move(barrel)),
     m_endcapA(std::move(endcapA))
 {
-}
-
-//---------------------------------------------------------------
-
-TrigTrtHitCounts::~TrigTrtHitCounts() {
 }
 
 //---------------------------------------------------------------

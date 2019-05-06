@@ -2,6 +2,8 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
+addAlgorithm("OverlayCommonAlgs.OverlayCommonAlgsConfig.getEventInfoOverlay", "EventInfoOverlay")
+
 addAlgorithm("OverlayCommonAlgs.OverlayCommonAlgsConfig.getCopyCaloCalibrationHitContainer", "CopyCaloCalibrationHitContainer")
 addAlgorithm("OverlayCommonAlgs.OverlayCommonAlgsConfig.getCopyInTimeJetTruthInfo", "CopyInTimeJetTruthInfo")
 addAlgorithm("OverlayCommonAlgs.OverlayCommonAlgsConfig.getCopyOutOfTimeJetTruthInfo", "CopyOutOfTimeJetTruthInfo")

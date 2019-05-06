@@ -30,6 +30,8 @@ fi
 export ROOTCOMP_CMD="rootcomp.py --pdf --noRoot"
 export ROOTCOMP_LOG="rootcompout.log"
 
+printenv >> printenv_post.log
+
 ###
 echo $(date "+%FT%H:%M %Z")"     Checking for athenaHLT log"
 if [ -f ${JOB_athenaHLT_LOG} ]; then
@@ -39,12 +41,9 @@ else
    echo "art-result: 1 ${NAME}.MissingLog"
 fi
 
-# mother process exit code
-grep "art-result:" ${JOB_athenaHLT_LOG}
-
-echo $(date "+%FT%H:%M %Z")"     Checking for timeouts in child processes"
+echo $(date "+%FT%H:%M %Z")"     Checking for crashes and timeouts in child processes"
 if [ -f ${JOB_athenaHLT_LOG} ]; then
-   checkTimeut=`grep "CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
+   checkTimeut=`grep "ERROR Caught signal 15|CRITICAL stopped by user interrupt|ERROR Keyboard interruption caught|Signal handler: Killing [0-9]+ with 15" ${JOB_athenaHLT_LOG}`
    if [[ -z "${checkTimeut}" ]]; then
      echo "art-result: 0 ${NAME}.ChildTimeout"
    else
@@ -52,11 +51,22 @@ if [ -f ${JOB_athenaHLT_LOG} ]; then
      echo ${checkTimeut}
      echo "art-result: 1 ${NAME}.ChildTimeout"
    fi
+   checkCrash=`grep "Child pid=[0-9]* exited with signal"  ${JOB_athenaHLT_LOG} | grep  -v "exited with signal[[:space:]]*0"`
+   if [[ -z "${checkCrash}" ]]; then
+     echo "art-result: 0 ${NAME}.ChildCrash"
+   else
+     echo "Crash found: "
+     echo ${checkCrash}
+     echo "art-result: 1 ${NAME}.ChildCrash"
+   fi
+   # TODO: add check that all children exited normally
 fi 
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
-echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+if [ -z ${ART_SKIP_CHECKLOG} ]; then
+  echo $(date "+%FT%H:%M %Z")"     Running checklog"
+  timeout 1m check_log.pl --config checklogTrigP1Test.conf --showexcludestats ${JOB_athenaHLT_LOG} 2>&1 | tee -a checklog.log
+  echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckLog"
+fi
 
 # TODO
 # add check_statuscode.py ${JOB_LOG}
@@ -68,39 +78,44 @@ if [ -f ntuple.pmon.gz ]; then
   timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
 fi 
 
-if [ -f expert-monitoring.root ]; then
-  echo $(date "+%FT%H:%M %Z")"     Running chainDump"
-  timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
-  echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
-  export COUNT_EXIT=0
-  if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-    echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
-    (( COUNT_EXIT = COUNT_EXIT || 1 ))
-  fi
-  if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-    echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
-    (( COUNT_EXIT = COUNT_EXIT || 1 ))
-  fi
-  if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
-    echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
-    (( COUNT_EXIT = COUNT_EXIT || 1 ))
-  fi
-  echo "art-result: ${COUNT_EXIT} ${NAME}.ZeroCounts"
+if [ -z ${ART_NO_COUNT} ]; then
+  if [ -f expert-monitoring.root ]; then
+    echo $(date "+%FT%H:%M %Z")"     Running chainDump"
+    timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
-  if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
-    echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-    timeout 10m ${ROOTCOMP_CMD} ${REF_FOLDER}/expert-monitoring.root 2>&1 | tee -a ${ROOTCOMP_LOG}
-    echo "art-result: ${PIPESTATUS[0]} ${NAME}.RootComp"
-    echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
-    timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT 2>&1 | tee -a checkcountout.log
-    echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckCounts"
+    echo $(date "+%FT%H:%M %Z")"     Running check for zero L1, HLT or TE counts"
+    export COUNT_EXIT=0
+    if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+      echo "L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt"
+      (( COUNT_EXIT = COUNT_EXIT || 1 ))
+    fi
+    if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+      echo "HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt"
+      (( COUNT_EXIT = COUNT_EXIT || 1 ))
+    fi
+    if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then
+      echo "HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt"
+      (( COUNT_EXIT = COUNT_EXIT || 1 ))
+    fi
+    echo "art-result: ${COUNT_EXIT} ${NAME}.ZeroCounts"
+
+    if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
+      echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
+      timeout 10m ${ROOTCOMP_CMD} ${REF_FOLDER}/expert-monitoring.root 2>&1 | tee -a ${ROOTCOMP_LOG}
+      echo "art-result: ${PIPESTATUS[0]} ${NAME}.RootComp"
+      echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
+      timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT 2>&1 | tee -a checkcountout.log
+      echo "art-result: ${PIPESTATUS[0]} ${NAME}.CheckCounts"
+    else
+      echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+      echo "art-result: 1 ${NAME}.MissingCountRef"
+    fi
+
   else
-    echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+    echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file found. Skipping chainDump.py, RootComp and CheckCounts"
+    echo "art-result: 2 ${NAME}.ZeroCounts"
   fi
-
-else
-  echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file found. Skipping chainDump.py, RootComp and CheckCounts"
 fi
 
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}

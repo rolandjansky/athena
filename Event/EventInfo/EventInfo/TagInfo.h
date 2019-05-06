@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_TAGINFO_H
@@ -113,9 +113,7 @@ private:
     std::string         m_myTag;
 };
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "SGTools/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TagInfo , 61780915 , 1 )
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

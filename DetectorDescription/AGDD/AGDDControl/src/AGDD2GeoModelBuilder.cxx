@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
@@ -518,7 +518,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 
 	if (!v->GetVolume())
 	{
-		// std::cout<<"CreateComposition: Logical Volume "<<v->GetName()<<std::endl;
+		std::cout<<"CreateComposition: Logical Volume "<<v->GetName()<<std::endl;
 		GeoLogVol *a=new GeoLogVol(v->GetName(),fakeVol,ether);
 		GeoPhysVol *a_phys=new GeoPhysVol(a);
 		v->SetVolume(a_phys);
@@ -528,8 +528,10 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 			AGDDPositioner* pos=v->GetDaughter(i);
 			AGDDVolume *vol=pos->GetVolume();
 			const std::string volName = vol->GetName();
+	
+            std::cout << "---> Daughter: " << volName << std::endl;
 			
-			bool isDetElement=vol->IsSensitiveVolume();
+            bool isDetElement=vol->IsSensitiveVolume();
 			AGDDDetector *d=0;
 			AGDDDetectorPositioner *p=0;
 			std::string detFullTag="";

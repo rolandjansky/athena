@@ -5,14 +5,13 @@
 #ifndef LARHV_LARHVMANAGER_H
 #define LARHV_LARHVMANAGER_H
 
-class EMECHVManager;
-class HECHVManager;
-class FCALHVManager;
 class EMBPresamplerHVManager;
 class EMECPresamplerHVManager;
 
-#include "LArHV/EMECHVManager.h"
 #include "LArHV/EMBHVManager.h"
+#include "LArHV/EMECHVManager.h"
+#include "LArHV/HECHVManager.h"
+#include "LArHV/FCALHVManager.h"
 
 #include "IOVSvc/IOVSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -33,7 +32,7 @@ class LArHVManager
   
     // Constructor
     // 
-    LArHVManager(const EMECHVManager *emecHvInner, const EMECHVManager *emecHvOuter, const HECHVManager *hecHv, const FCALHVManager *fcalHv, const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
+    LArHVManager(const EMBPresamplerHVManager *embPreManager, const EMECPresamplerHVManager *emecPreManager);
     
     //  Destructor
     virtual ~LArHVManager();
@@ -45,16 +44,16 @@ class LArHVManager
     const EMBPresamplerHVManager *getEMBPresamplerHVManager() const;
   
     // Returns the EMECHVManager
-    const EMECHVManager *getEMECHVManager(IOType IO) const;
+    const EMECHVManager& getEMECHVManager(IOType IO) const;
   
     // Returns the Endcap Presampler Manager:
     const EMECPresamplerHVManager *getEMECPresamplerHVManager() const;
   
     // Returns the HECHVManager
-    const HECHVManager *getHECHVManager() const;
+    const HECHVManager& getHECHVManager() const;
   
     // Returns the FCALHVManager
-    const FCALHVManager *getFCALHVManager() const;
+    const FCALHVManager& getFCALHVManager() const;
     
     void reset() const;
     
@@ -67,11 +66,11 @@ class LArHVManager
   LArHVManager(const LArHVManager& right);
   
 
-  EMBHVManager m_embHV;
-  const EMECHVManager           *m_emecHVInner;
-  const EMECHVManager           *m_emecHVOuter;
-  const HECHVManager            *m_hecHV;
-  const FCALHVManager           *m_fcalHV;
+  EMBHVManager   m_embHV;
+  EMECHVManager  m_emecHVInner;
+  EMECHVManager  m_emecHVOuter;
+  HECHVManager   m_hecHV;
+  FCALHVManager  m_fcalHV;
   const EMBPresamplerHVManager  *m_embPreHV;
   const EMECPresamplerHVManager *m_emecPreHV;
 
@@ -80,4 +79,4 @@ class LArHVManager
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(LArHVManager, 203332428, 1) 
 
-#endif /* LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24 */
+#endif 

@@ -12,7 +12,7 @@ from FastChainPileup.FastChain_jobProperties import FastChain_Flags
 def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
     kwargs.setdefault("SimulatorTool",  'ISF_FastCaloTool')
     kwargs.setdefault("Identifier",     'FastCaloSim')
-    return CfgMgr.ISF__FastCaloSimSvc(name, **kwargs )
+    return CfgMgr.ISF__LegacySimSvc(name, **kwargs )
 
 #### Pileup FastCaloSim
 def getFastCaloSimPileupSvc(name="ISF_FastCaloSimPileupSvc", **kwargs):

@@ -10,7 +10,7 @@ from RecExConfig.Configured import Configured
 
 from egammaRec import egammaKeys
 from egammaAlgs import egammaAlgsConf
-from egammaRec.Factories import AlgFactory, FcnWrapper, FullNameWrapper
+from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 from egammaTools.egammaToolsFactories import egammaOQFlagsBuilder, EMFourMomBuilder, LooseForwardElectronSelector, MediumForwardElectronSelector, TightForwardElectronSelector
@@ -29,7 +29,7 @@ egammaForwardBuilder = AlgFactory( egammaAlgsConf.egammaForwardBuilder,
                                    ClusterContainerName=egammaKeys.outputFwdClusterKey(),
                                    
                                    # Tools
-                                   ObjectQualityToolName = FullNameWrapper( egammaOQFlagsBuilder ),
+                                   ObjectQualityTool = egammaOQFlagsBuilder,
                                    FourMomBuilderTool = EMFourMomBuilder,
                                   
                                    # Flags and other properties

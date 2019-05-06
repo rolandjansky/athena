@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFolders
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolders
 from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
 
 def _larCablingCfg(configFlags,algo,folder):
     result=ComponentAccumulator()
+
+    result.merge(IOVDbSvcCfg(configFlags))
 
     #MC folder-tag hack (See also ATCONDDB-49)
     tagsperFolder={"/LAR/Identifier/OnOffIdMap":"LARIdentifierOnOffIdMap-012",

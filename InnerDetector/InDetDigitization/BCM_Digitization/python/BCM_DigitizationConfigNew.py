@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from RngComps.RandomServices import RNG, AthEngines
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from BCM_Digitization.BCM_DigitizationConf import BCM_DigitizationTool, BCM_Digitization
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -29,8 +30,12 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc = RNG(flags.Random.Engine)
     kwargs.setdefault("RndmSvc", "AthRNGSvc")
     kwargs.setdefault("HitCollName", "BCMHits")
-    kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
-    kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
+    if flags.Digitization.PileUpPremixing:
+        kwargs.setdefault("OutputRDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", flags.Overlay.BkgPrefix + "BCM_SDO_Map")
+    else:
+        kwargs.setdefault("OutputRDOKey", "BCM_RDOs")
+        kwargs.setdefault("OutputSDOKey", "BCM_SDO_Map")
     if flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("ModNoise", [90.82] * 8)
     else:
@@ -52,8 +57,10 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
 
 def BCM_DigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with configured BCM_Digitization algorithm"""
-    acc = BCM_DigitizationToolCfg(flags, **kwargs)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = PixelGeometryCfg(flags)
+    if "DigitizationTool" not in kwargs:
+        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
+        kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
     return acc
 
@@ -64,8 +71,9 @@ def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **
 
 def BCM_OverlayDigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with BCM_Digitization algorithm configured for Overlay"""
-    acc = BCM_OverlayDigitizationToolCfg(flags, **kwargs)
-    kwargs.setdefault("DigitizationTool", acc.popPrivateTools())
+    acc = PixelGeometryCfg(flags)
+    tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags, **kwargs))
+    kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
     return acc
 

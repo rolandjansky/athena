@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -62,8 +62,6 @@ class CaloTopoClusterSplitter: public AthAlgTool, virtual public CaloClusterColl
   virtual StatusCode initialize() override;
 
  private: 
-  
-  const CaloDetDescrManager* m_calo_dd_man; 
   
   const CaloCell_ID* m_calo_id;
 

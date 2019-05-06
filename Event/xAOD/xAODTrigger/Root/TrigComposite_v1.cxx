@@ -18,7 +18,16 @@
 
 namespace xAOD {
 
-  const std::string TrigComposite_v1::s_collectionSuffix = "__COLL";
+  const std::string TrigComposite_v1::s_collectionSuffix{"__COLL"};
+
+  // Note: These definitions shadow those in TrigCompositeUtils.py
+  const std::string TrigComposite_v1::s_initialRoIString{"initialRoI"};
+  const std::string TrigComposite_v1::s_initialRecRoIString{"initialRecRoI"};
+  const std::string TrigComposite_v1::s_roiString{"roi"};
+  const std::string TrigComposite_v1::s_viewString{"view"};
+  const std::string TrigComposite_v1::s_featureString{"feature"};
+  const std::string TrigComposite_v1::s_seedString{"seed"};
+
   bool TrigComposite_v1::s_throwOnCopyError = false; 
 
   TrigComposite_v1::TrigComposite_v1() {

@@ -108,7 +108,13 @@ void VP1CoordinateAxes::Imp::ensureInit3DObjects()
   overall_translation = new SoTranslation;
 
   sep->addChild(overall_translation);
-  const bool alternativeRep = VP1QtUtils::environmentVariableIsOn("VP1_GUIDES_SPHERE_INSTEAD_OF_COORDAXES");
+
+  #if defined BUILDVP1LIGHT
+    const bool alternativeRep = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_GUIDES_SPHERE_INSTEAD_OF_COORDAXES");
+  #else
+    const bool alternativeRep = VP1QtUtils::environmentVariableIsOn("VP1_GUIDES_SPHERE_INSTEAD_OF_COORDAXES");
+  #endif
+
   if (alternativeRep) {
     sep->addChild(materialXAxis);
     alternative_Sphere = new SoSphere;

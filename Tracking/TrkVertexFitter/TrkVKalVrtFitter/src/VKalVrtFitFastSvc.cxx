@@ -8,7 +8,7 @@
 //-------------------------------------------------
 //
 #include<iostream>
-#include<list>
+#include<vector>
 #include "TrkTrack/TrackInfo.h"
 
 
@@ -50,7 +50,7 @@ namespace Trk{
 //
     double out[3];
     int i,j;
-    std::list<double> xx,yy,zz;
+    std::vector<double> xx,yy,zz;
     Vertex[0]=Vertex[1]=Vertex[2]=0.;
 //
 //
@@ -69,9 +69,11 @@ namespace Trk{
 	  }
 	}
 	int n=xx.size();
-	xx.sort(); yy.sort(); zz.sort();
+	std::sort(xx.begin(), xx.end());
+	std::sort(yy.begin(), yy.end());
+	std::sort(zz.begin(), zz.end());
 
-	std::list<double>::iterator it1,it2;
+	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
 	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
 	out[0]=0.5*( (*it1) + (*it2) );
@@ -115,7 +117,7 @@ namespace Trk{
 //
     double out[3];
     int i,j;
-    std::list<double> xx,yy,zz;
+    std::vector<double> xx,yy,zz;
     Vertex[0]=Vertex[1]=Vertex[2]=0.;
 //
 //
@@ -134,9 +136,11 @@ namespace Trk{
 	  }
 	}
 	int n=xx.size();
-	xx.sort(); yy.sort(); zz.sort();
+	std::sort(xx.begin(), xx.end());
+	std::sort(yy.begin(), yy.end());
+	std::sort(zz.begin(), zz.end());
 
-	std::list<double>::iterator it1,it2;
+	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
 	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
 	out[0]=0.5*( (*it1) + (*it2) );
@@ -180,7 +184,7 @@ namespace Trk{
 //
     double out[3];
     int i,j;
-    std::list<double> xx,yy,zz;
+    std::vector<double> xx,yy,zz;
     Vertex[0]=Vertex[1]=Vertex[2]=0.;
 //
 //
@@ -199,9 +203,11 @@ namespace Trk{
 	  }
 	}
 	int n=xx.size();
-	xx.sort(); yy.sort(); zz.sort();
+	std::sort(xx.begin(), xx.end());
+	std::sort(yy.begin(), yy.end());
+	std::sort(zz.begin(), zz.end());
 
-	std::list<double>::iterator it1,it2;
+	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
 	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
 	out[0]=0.5*( (*it1) + (*it2) );
@@ -245,7 +251,7 @@ namespace Trk{
 //
     double out[3];
     int i,j;
-    std::list<double> xx,yy,zz;
+    std::vector<double> xx,yy,zz;
     Vertex[0]=Vertex[1]=Vertex[2]=0.;
 //
 //
@@ -264,9 +270,11 @@ namespace Trk{
 	  }
 	}
 	int n=xx.size();
-	xx.sort(); yy.sort(); zz.sort();
+	std::sort(xx.begin(), xx.end());
+	std::sort(yy.begin(), yy.end());
+	std::sort(zz.begin(), zz.end());
 
-	std::list<double>::iterator it1,it2;
+	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
 	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
 	out[0]=0.5*( (*it1) + (*it2) );

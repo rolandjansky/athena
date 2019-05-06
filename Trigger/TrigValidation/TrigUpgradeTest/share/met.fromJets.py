@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-OutputLevel=WARNING
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -19,7 +18,6 @@ mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title
 
 svcMgr += TrigCaloDataAccessSvc()
 svcMgr.TrigCaloDataAccessSvc.MonTool = mon
-svcMgr.TrigCaloDataAccessSvc.OutputLevel=WARNING
 
 
 #################################################
@@ -28,7 +26,8 @@ svcMgr.TrigCaloDataAccessSvc.OutputLevel=WARNING
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
-from TrigUpgradeTest.jetDefs import jetRecoSequence
+from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceDefs import jetRecoSequence
+
 (jetSequence, jetsKey) = jetRecoSequence( RoIs="FullScanRoIs" )
 topSequence += jetSequence
 
@@ -36,37 +35,20 @@ topSequence += jetSequence
 # Add EFMissingETFrom** algorithm
 #################################################
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT, EFMissingETFromHelper
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromJetsMT, EFMissingETFromHelperMT
+from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 
 mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
 mhtTool.JetsCollection = jetsKey
-mhtTool.OutputLevel=DEBUG
-metAlg.METTools=[ mhtTool ]
 
-helperTool = EFMissingETFromHelper("theHelperTool") 
-metAlg.HelperTool= helperTool 
+helperTool = EFMissingETFromHelperMT("theHelperTool") 
 
-metAlg.OutputLevel=DEBUG
+metAlg.METTools=[ mhtTool, helperTool ]
 metAlg.METContainerKey="HLT_MET_mht"
+metAlg.MonTool = getMETMonTool()
 
-metMon = GenericMonitoringTool("METMonTool")
-metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
-from TrigEFMissingET.TrigEFMissingETMonitoring import ( hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log, 
-                                                 hMET_lin, hSumEt_lin, 
-                                                 hXS, hMETPhi, hMETStatus,
-                                                 hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE,
-                                                 hCompEt_lin, hCompSumEt_lin )
-
-metMon.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
-metMon.Histograms += [ hMET_lin, hSumEt_lin ]
-metMon.Histograms += [ hXS, hMETPhi, hMETStatus]
-metMon.Histograms += [ hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE ]
-metMon.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
-
-metAlg.MonTool = metMon
 topSequence += metAlg
 
 #################################################
@@ -81,11 +63,9 @@ def makeMETHypoTool():
 
 hypoAlg = MissingETHypoAlgMT("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
-for t in hypoAlg.HypoTools:
-    t.OutputLevel=VERBOSE
 hypoAlg.METContainerKey=metAlg.METContainerKey
 
-hypoAlg.OutputLevel=DEBUG
+hypoAlg.OutputLevel = DEBUG
 hypoAlg.HypoInputDecisions = "L1MET"
 hypoAlg.HypoOutputDecisions = "EFMETDecisions"
 topSequence += hypoAlg

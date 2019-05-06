@@ -48,16 +48,16 @@ class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSum
 
 
  /// access to the status
-  int getStatus(Identifier offlineId) const;
-  int getStatusPermanent(Identifier offlineId) const;
-  int getStatusHT(Identifier offlineId) const;
-  bool get_status(Identifier offlineId) const;
-  bool get_statusHT(Identifier offlineId) const;
+  virtual int getStatus(Identifier offlineId) const override;
+  virtual int getStatusPermanent(Identifier offlineId) const override;
+  virtual int getStatusHT(Identifier offlineId) const override;
+  virtual bool get_status(Identifier offlineId) const override;
+  virtual bool get_statusHT(Identifier offlineId) const override;
 
 
-  const StrawStatusContainer* getStrawStatusContainer() const;
-  const StrawStatusContainer* getStrawStatusPermanentContainer() const;
-  const StrawStatusContainer* getStrawStatusHTContainer() const;
+  virtual const StrawStatusContainer* getStrawStatusContainer() const override;
+  virtual const StrawStatusContainer* getStrawStatusPermanentContainer() const override;
+  virtual const StrawStatusContainer* getStrawStatusHTContainer() const override;
 
 
  private:

@@ -15,13 +15,6 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
-def MuonSimpleAmbiProcessorTool( name='MuonSimpleAmbiProcessorTool', **kwargs): 
-    kwargs.setdefault("DropDouble", False )
-    kwargs.setdefault("DisableSorting", True )
-    kwargs.setdefault("ScoringTool", getPublicTool("MuonTrackScoringTool") )
-    kwargs.setdefault("SelectionTool", getPublicTool("MuonAmbiSelectionTool") )
-    return CfgMgr.Trk__TrackSelectionProcessorTool(name,**kwargs)
-
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs): 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("pTMin", 500 )
@@ -76,11 +69,14 @@ def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
     return CfgMgr.MuonCombined__InDetCandidateTool(name,**kwargs)
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
+    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
+
     getPublicTool("MuonMomentumBalanceSignificanceTool")
     getPublicTool("MuonScatteringAngleSignificanceTool")
     getPublicTool("MuonCaloParticleCreator")
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
+    kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
     # kwargs.setdefault("CaloNoiseTool", getPublicTool("CaloNoiseToolDefault") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
@@ -106,4 +102,8 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
-                     
+def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
+    kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
+  
+    return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
+                      

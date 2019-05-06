@@ -103,8 +103,8 @@ def getAssociator(config,suffix,doPFlow=False,
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
+    #if not hasattr(ToolSvc,tool.name()):
+    #   ToolSvc += tool
     return tool
 
 #################################################################################
@@ -182,9 +182,15 @@ class METAssocConfig:
         if not hasattr(ToolSvc,self.trkisotool.name()):
             ToolSvc += self.trkisotool
 
+        from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool		
+	from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+	CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+	CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
-                                                          addCaloExtensionDecoration=False)
+                                                          addCaloExtensionDecoration=False,
+                                                          ParticleCaloExtensionTool = CaloExtensionTool,
+                                                          ParticleCaloCellAssociationTool = CaloCellAssocTool)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 

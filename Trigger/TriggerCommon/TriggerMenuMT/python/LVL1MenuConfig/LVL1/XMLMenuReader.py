@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
 from Lvl1MenuItems import LVL1MenuItem
@@ -8,7 +8,7 @@ from PrescaleHelper import getCutFromPrescale
 from Logic import Logic
 from Lvl1Condition import Lvl1InternalTrigger, ThrCondition
 from CaloInfo import MinimumTOBPt
-from Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 
 from AthenaCommon.Logging import logging
@@ -43,7 +43,7 @@ def readLogic( logicElement, thresholdMap ):
 
 def readMenuFromXML(l1menu, filename):
 
-    log.info("Reading L1 menu from %s" % filename)
+    log.info("Reading L1 menu from %s", filename)
     l1menu.l1menuFromXML = True
 
     from XMLReader import L1MenuXMLReader
@@ -120,7 +120,7 @@ def readMenuFromXML(l1menu, filename):
             for xV in x.TriggerThresholdValues:
                 try:
                     value = int(xV['thresholdval'])
-                except:
+                except Exception:
                     value = float(xV['thresholdval'])
 
                 thrVal = ThresholdValue(thrtype = xV['type'], value = value,
@@ -211,7 +211,7 @@ def readMenuFromXML(l1menu, filename):
     try:
         l1menu.CaloInfo.setGlobalEmScale(float(ci['global_em_scale']))
         l1menu.CaloInfo.setGlobalJetScale(float(ci['global_jet_scale']))
-    except:
+    except Exception:
         pass # will resolve itself once we have the em and jet scales in all XML
 
     if hasattr(reader.LVL1Config.CaloInfo,"JetWeights"): # new CaloInfo have no more JetWeights

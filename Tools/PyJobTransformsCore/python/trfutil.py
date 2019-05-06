@@ -1046,19 +1046,19 @@ def corruptionTestROOT( filename, file_type ):
 
 
 def corruptionTestBS( filename, file_type,logger):
-    #First try AtlListBSEvents.exe -c %filename:
-    cmd = 'AtlListBSEvents.exe -c %s ' % filename
+    #First try AtlListBSEvents -c %filename:
+    cmd = 'AtlListBSEvents -c %s ' % filename
     p = Popen(cmd,shell=True,stdout=PIPE,stderr=PIPE,close_fds=True)
     while p.poll() is None:
       line = p.stdout.readline()
       if line:
-        logger.info("AtlListBSEvents.exe Report: %s" % line.strip())
+        logger.info("AtlListBSEvents Report: %s" % line.strip())
     rc = p.returncode
     if rc == 0:
       return rc
     #AltListBSEvents.exe failed, fall back to PyDumper
     else:
-      logger.info("AtlListBSEvents.exe failed to validate %s, Using the (slower) PyDumper method " %filename)
+      logger.info("AtlListBSEvents failed to validate %s, Using the (slower) PyDumper method " %filename)
       cmdSnippet = os.linesep.join( [
           "from sys import exit",
           "import os",

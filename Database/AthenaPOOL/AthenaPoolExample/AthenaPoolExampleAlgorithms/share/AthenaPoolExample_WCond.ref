@@ -163,7 +163,7 @@ ReadData            DEBUG Data Deps for ReadData
   + INPUT   ( 'ExampleTrackContainer' , 'StoreGateSvc+MyTracks' ) 
 WriteCond           DEBUG Property update for OutputLevel : new value = 2
 WriteCond            INFO in initialize()
-AthenaPoolAddre...  DEBUG Cannot find DataHeader in DetectorStore.
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 WriteCond           DEBUG input handles: 1
 WriteCond           DEBUG output handles: 0
 WriteCond           DEBUG Data Deps for WriteCond

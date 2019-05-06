@@ -15,7 +15,7 @@ class PadReadOutStructure : public RPCReadOut {
  public:
   PadReadOutStructure();
   PadReadOutStructure(ubit16 inputData);
-  ~PadReadOutStructure() {};
+  ~PadReadOutStructure() = default;
 
   void setInit();
   //

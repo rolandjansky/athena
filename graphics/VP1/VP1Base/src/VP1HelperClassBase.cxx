@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,7 @@ static std::map<VP1HelperClassBase*,QString> vp1helperclassbase_instanceMap;//in
 VP1HelperClassBase::VP1HelperClassBase(IVP1System * sys, QString helpername)
   : m_helpername(helpername), m_system(sys)
 {
-  if (verbose()) {
+  if(VP1Msg::verbose()){
     messageVerbose("base constructor ("+str(this)+")"+(m_system?" system = "+m_system->name():QString("")));
     vp1helperclassbase_instanceMap[this] = (m_system?m_system->name():QString(""));
   }
@@ -37,7 +37,7 @@ VP1HelperClassBase::VP1HelperClassBase(IVP1System * sys, QString helpername)
 //____________________________________________________________________
 VP1HelperClassBase::~VP1HelperClassBase()
 {
-  if (verbose()) {
+  if(VP1Msg::verbose()){
     messageVerbose("base destructor ("+str(this)+")"+(m_system?" system = "+m_system->name():QString("")));
     std::map<VP1HelperClassBase*,QString>::iterator it = vp1helperclassbase_instanceMap.find(this);
     if (it!=vp1helperclassbase_instanceMap.end())
@@ -63,7 +63,9 @@ void VP1HelperClassBase::message( const QString& str ) const
 
 //____________________________________________________________________
 void VP1HelperClassBase::messageDebug( const QString& str ) const
-{
+{  
+  if (!VP1Msg::debug())
+    return;
   std::string sysstring(m_system ? " in "+m_system->name().toStdString() : std::string(""));
   if (m_helpername.isEmpty()) {
     std::cout<<VP1Msg::prefix_debug()<<" [helper"<<sysstring<<"]: "<<str.toStdString()<<std::endl;
@@ -75,7 +77,7 @@ void VP1HelperClassBase::messageDebug( const QString& str ) const
 //____________________________________________________________________
 void VP1HelperClassBase::messageVerbose( const QString& str ) const
 {
-  if (!verbose())
+  if (!VP1Msg::verbose())
     return;
   std::string sysstring(m_system ? " in "+m_system->name().toStdString() : std::string(""));
   if (m_helpername.isEmpty()) {
@@ -100,6 +102,8 @@ void VP1HelperClassBase::message(const QStringList& l, const QString& addtoend )
 //____________________________________________________________________
 void VP1HelperClassBase::messageDebug(const QStringList& l, const QString& addtoend ) const
 {
+  if (!VP1Msg::debug())
+    return;
   if (addtoend.isEmpty()) {
     foreach(QString s, l)
       messageDebug(s);
@@ -112,7 +116,7 @@ void VP1HelperClassBase::messageDebug(const QStringList& l, const QString& addto
 //____________________________________________________________________
 void VP1HelperClassBase::messageVerbose(const QStringList& l, const QString& addtoend ) const
 {
-  if (!verbose())
+  if (!VP1Msg::verbose())
     return;
   if (addtoend.isEmpty()) {
     foreach(QString s, l)
@@ -142,6 +146,8 @@ void VP1HelperClassBase::message( const QString& addtostart, const QStringList& 
 //____________________________________________________________________
 void VP1HelperClassBase::messageDebug(const QString& addtostart, const QStringList& l, const QString& addtoend ) const
 {
+  if (!VP1Msg::debug())
+    return;
   if (addtostart.isEmpty()) {
     messageDebug(l,addtoend);
     return;
@@ -158,7 +164,7 @@ void VP1HelperClassBase::messageDebug(const QString& addtostart, const QStringLi
 //____________________________________________________________________
 void VP1HelperClassBase::messageVerbose(const QString& addtostart, const QStringList& l, const QString& addtoend ) const
 {
-  if (!verbose())
+  if (!VP1Msg::verbose())
     return;
   if (addtostart.isEmpty()) {
     messageVerbose(l,addtoend);
@@ -191,6 +197,7 @@ void VP1HelperClassBase::warnUndeletedInstances()
 void VP1HelperClassBase::setSystemBasePointer(IVP1System*sys)
 {
   m_system = sys;
-  if (verbose())
+  if (VP1Msg::verbose()){
     vp1helperclassbase_instanceMap[this] = (m_system?m_system->name():QString(""));
+  }
 }

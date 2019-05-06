@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // ================================================
 // OverlayRun2TriggerTowerMaker class Implementation
@@ -905,7 +905,7 @@ namespace LVL1 {
     ATH_MSG_INFO("Found " << inputTTs->size() << " input TriggerTowers");
 
     for(const auto& tower : *inputTTs) {
-      auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
+      xAOD::TriggerTower* t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
       *t = *tower;
     }
 
@@ -1029,7 +1029,7 @@ namespace LVL1 {
       }
 
       // Create TriggerTower
-      auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
+      xAOD::TriggerTower* t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
       t->setCoolId(coolId.id());
       t->setEta(eta);
       t->setPhi(phi);
@@ -1087,7 +1087,7 @@ namespace LVL1 {
         // Create TriggerTower
         // m_xaodTowers->push_back(new xAOD::TriggerTower);
         // auto t = m_xaodTowers->back();
-        auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
+        xAOD::TriggerTower* t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
         t->setCoolId(channelId(tower_eta, tower_phi, 1).id());
         t->setEta(tower_eta);
         t->setPhi(tower_phi);

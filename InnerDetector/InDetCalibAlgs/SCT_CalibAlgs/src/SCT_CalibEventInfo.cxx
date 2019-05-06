@@ -16,30 +16,12 @@
 
 #include "CoralBase/TimeStamp.h"
 
-#include <limits>
-
 namespace {
-  const int INTMIN{std::numeric_limits<int>::min()};
-  const int INTMAX{std::numeric_limits<int>::max()};
   const long long oneBillion{1000000000LL};
 }
 
 SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_timeStampBegin{INTMAX},
-  m_tsBeginString{""},
-  m_tsEndString{""},
-  m_timeStampEnd{INTMIN},
-  m_duration{0},
-  m_LBBegin{INTMAX},
-  m_LBEnd{INTMIN},
-  m_numLB{0},
-  m_source{"UNKNOWN"},
-  m_runNumber{0},
-  m_lumiBlock{0},
-  m_timeStamp{0},
-  m_bunchCrossing{0},
-  m_counter{0}
+  base_class(type, name, parent)
 {
 }
 

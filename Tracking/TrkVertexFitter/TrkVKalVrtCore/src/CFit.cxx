@@ -19,14 +19,12 @@ namespace Trk {
 //propagation in it.
 // No writable data members ==> thread-safe
 //=========================================================
-vkalMagFld      myMagFld;
-vkalPropagator  myPropagator;
+extern const vkalMagFld      myMagFld;
+extern const vkalPropagator  myPropagator;
+const vkalMagFld myMagFld = vkalMagFld();
+const vkalPropagator myPropagator = vkalPropagator();
 
-
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-
-void printT(double p[], double e[], std::string name){
+void printT(double p[], double e[], const std::string &name){
   std::cout<<name<<p[0]<<", "<<p[1]<<", "<<p[2]<<", "<<p[3]<<", "<<p[4]<<'\n';
   std::cout<<e[0]<<'\n';
   std::cout<<e[1]<<", "<<e[2]<<'\n';
@@ -114,10 +112,10 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
     vk->TrackList.resize(NTRK);
     for (int tk=0; tk<NTRK ; tk++) {
        long int TrkID=tk;
-       vk->TrackList[tk]= new VKTrack(TrkID, &inp_Trk5[tk][0], &inp_CovTrk5[tk][0], vk, vrtForCFT.wm[tk]);
+       vk->TrackList[tk]= std::make_unique< VKTrack >(TrkID, &inp_Trk5[tk][0], &inp_CovTrk5[tk][0], vk, vrtForCFT.wm[tk]);
      //printT(&inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , "Input track:");
      //std::cout<<(*vk->TrackList[tk]);
-       vk->tmpArr[tk]=new TWRK();
+       vk->tmpArr[tk]= std::make_unique< TWRK > ();
        vk->TrackList[tk]->Charge = ich[tk];           // Charge coinsides with sign of curvature
     }
 
@@ -129,7 +127,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
 /*           Initial value                                 */
 /* --------------------------------------------------------*/
     for(int tk=0; tk<NTRK; tk++){
-      VKTrack *trk = vk->TrackList[tk]; 
+      VKTrack *trk = vk->TrackList[tk].get(); 
       trk->iniP[0]=trk->cnstP[0]=trk->fitP[0]=par0[tk][0];   //initial guess
       trk->iniP[1]=trk->cnstP[1]=trk->fitP[1]=par0[tk][1];
       trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=par0[tk][2];
@@ -152,7 +150,7 @@ bool checkPosition(VKVertex * vk, double vertex[3]){
 extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = 0);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
 extern void cfmasserr(VKVertex* , int*, double, double*, double*);
-extern std::vector<double> getFitParticleMom( VKTrack *, double);
+extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
 int fitVertex(VKVertex * vk) 
 {
@@ -198,18 +196,18 @@ int fitVertex(VKVertex * vk)
        if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic][tk] )index.push_back(tk); }
-           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
+           vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
         }
       }
       //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
     }
     if( vrtForCFT.usePointingCnst==1 ){  //3Dpointing
-      vk->ConstraintList.push_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, false));
+      vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, false));
       //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
     }
     if( vrtForCFT.usePointingCnst==2 ){  //Z pointing
       VKPointConstraint *temp = new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, true);
-      vk->ConstraintList.push_back(temp);
+      vk->ConstraintList.emplace_back(temp);
       //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
     }
     if ( vrtForCFT.useAprioriVrt ) {
@@ -219,11 +217,11 @@ int fitVertex(VKVertex * vk)
         cfdcopy(vrtForCFT.vrt, vk->apriorV,   3);
         cfdcopy(      aermd, vk->apriorVWGT,6);
     }
-    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.push_back(new VKPhiConstraint( NTRK, vk));
-    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.push_back(new VKThetaConstraint( NTRK, vk));
+    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.emplace_back(new VKPhiConstraint( NTRK, vk));
+    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.emplace_back(new VKThetaConstraint( NTRK, vk));
     if ( vrtForCFT.usePlaneCnst ){
       if( vrtForCFT.Ap+vrtForCFT.Bp+vrtForCFT.Cp != 0.){
-        vk->ConstraintList.push_back(new VKPlaneConstraint( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
+        vk->ConstraintList.emplace_back(new VKPlaneConstraint( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
       }
     }
 //
@@ -273,7 +271,7 @@ int fitVertex(VKVertex * vk)
 	  double targV[3]={newVrtXYZ[0],newVrtXYZ[1],newVrtXYZ[2]};  //Temporary to avoid overwriting
 	  for (tk = 0; tk < NTRK; ++tk) {
 //std::cout<<__func__<<" propagate trk="<<tk<<" X,Y,Z="<<targV[0]<<","<<targV[1]<<","<<targV[2]<<'\n';
-            myPropagator.Propagate(vk->TrackList[tk], vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get());
+            myPropagator.Propagate(vk->TrackList[tk].get(), vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get());
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
  	    if(eig5<1.e-15 ){ 
@@ -312,13 +310,13 @@ int fitVertex(VKVertex * vk)
 /*                    - apply protection against charge sign change      */
 /*-----------------------------------------------------------------------*/
 	for (tk = 0; tk < NTRK; ++tk){
-	    trk = vk->TrackList[tk]; protectCurvatureSign( trk->refPerig[4], trk->fitP[2] , trk->WgtM);
+	    trk = vk->TrackList[tk].get(); protectCurvatureSign( trk->refPerig[4], trk->fitP[2] , trk->WgtM);
         }
 /*--------------------------------  Now the fit itself -----------------*/
 	if (vrtForCFT.irob != 0) {robtest(vk, 0);}  // ROBUSTIFICATION new data structure
 	if (vrtForCFT.irob != 0) {robtest(vk, 1);}  // ROBUSTIFICATION new data structure
         for( tk=0; tk<NTRK; tk++){
-	  trk = vk->TrackList[tk]; 
+	  trk = vk->TrackList[tk].get(); 
 	  trk->iniP[0]=trk->cnstP[0]=trk->fitP[0];   //use fitted track parameters as initial guess
 	  trk->iniP[1]=trk->cnstP[1]=trk->fitP[1];
 	  trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]; 
@@ -357,7 +355,7 @@ int fitVertex(VKVertex * vk)
 	  }
 
           for( tk=0; tk<NTRK; tk++){
-	    trk = vk->TrackList[tk]; 
+	    trk = vk->TrackList[tk].get(); 
 	    trk->iniP[0]=trk->cnstP[0]=trk->fitP[0];   //use fitted track parameters as initial guess
 	    trk->iniP[1]=trk->cnstP[1]=trk->fitP[1];
 	    trk->iniP[2]=trk->cnstP[2]=trk->fitP[2];
@@ -381,7 +379,7 @@ int fitVertex(VKVertex * vk)
 /*  Test of convergence */
 	chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
-        double PrecLimit = min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
+        double PrecLimit = std::min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
 //std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
 	if ((chi2df < PrecLimit) && (vShift < 0.001) && it>1 && (cnstRemnants<ConstraintAccuracy)){
 	   double dstFromExtrapPnt=sqrt(vk->fitV[0]*vk->fitV[0] + vk->fitV[1]*vk->fitV[1]+ vk->fitV[2]*vk->fitV[2]);
@@ -391,8 +389,8 @@ int fitVertex(VKVertex * vk)
            }
 	   break;
         }
-	chi2min = min(chi2min,chi22s);
-	if ((chi2min*100. < chi22s) && (chi22s>max( (2*NTRK-3)*10., 100.)) && (it>5)){
+	chi2min = std::min(chi2min,chi22s);
+	if ((chi2min*100. < chi22s) && (chi22s>std::max( (2*NTRK-3)*10., 100.)) && (it>5)){
 	   //std::cout<<" DIVERGENCE="<<chi22s<<" Ratio="<<chi22s/chi2min<<'\n';
            IERR = -5; return IERR;           /* Divergence. Stop fit */
         }
@@ -472,11 +470,11 @@ int fitVertex(VKVertex * vk)
     MainVRT->vk_fitterControl->vk_forcft.localbmag = myMagFld.getMagFld(xyzfit,(MainVRT->vk_fitterControl).get());
     chi2 = 0.;
     for (int tk = 0; tk < NTRK; tk++) {
-        VKTrack * trk = MainVRT->TrackList[tk];
+        VKTrack * trk = MainVRT->TrackList[tk].get();
 	chi2   += trk->Chi2;
 	chi2tr[tk] = trk->Chi2;
         cfdcopy( trk->fitP, &parfs[tk][0], 3);
-        std::vector<double> pp = getFitParticleMom( trk, MainVRT->vk_fitterControl->vk_forcft.localbmag );
+        std::array<double, 4> pp = getFitParticleMom( trk, MainVRT->vk_fitterControl->vk_forcft.localbmag );
         ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
     cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance

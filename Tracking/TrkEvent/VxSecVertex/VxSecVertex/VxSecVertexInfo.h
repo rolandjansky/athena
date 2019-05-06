@@ -48,7 +48,7 @@ namespace Trk {
     /* constructor with list of VxCandidate. The VxSecVertexInfo takes 
        care of the ownership of the VxCandidate*. Don't delete them 
        afterwards */
-    VxSecVertexInfo(const std::vector<xAOD::Vertex*> &);
+    VxSecVertexInfo(std::vector<xAOD::Vertex*> );
 
     /* clone method */
     virtual VxSecVertexInfo* clone() const;
@@ -58,9 +58,11 @@ namespace Trk {
     
     /* Copy constructor */
     VxSecVertexInfo(const VxSecVertexInfo &);
-    
+    VxSecVertexInfo(VxSecVertexInfo &&) noexcept = default;
+
     /* Assignment operator */
     VxSecVertexInfo& operator= (const VxSecVertexInfo &);
+    VxSecVertexInfo& operator= (VxSecVertexInfo &&) noexcept = default;
 
     /* get the list of Vertices */
     const std::vector<xAOD::Vertex*> & vertices() const;

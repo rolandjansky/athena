@@ -272,6 +272,8 @@ void test3 (const std::string& = "", int = 0)
 
 void test_checking()
 {
+  errorcheck::ReportMessage::hideFunctionNames (true);
+
   // Test the error reporting macro
   {
     StatusCode sc1;

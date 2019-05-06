@@ -94,7 +94,7 @@ class SCTCalib : public AthAlgorithm {
          n_BSErrorType = 15, firstBSErrorType = 0, lastBSErrorType = 14
   };
 
-  const SCT_ID*                                               m_pSCTHelper;
+  const SCT_ID*                                               m_pSCTHelper{nullptr};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::ReadHandleKey<EventInfo>                                m_eventInfoKey{this, "EventInfoKey", "ByteStreamEventInfo"};
 
@@ -230,17 +230,17 @@ class SCTCalib : public AthAlgorithm {
   StringProperty m_LorentzAngleSummaryFile{this, "LorentzAngleSummaryFile", "LorentzAngleSummaryFile.xml", "Output XML for summary of lorentz angle"};
 
   // Event related
-  int m_numOfLBsProcessed;
-  unsigned long long m_numberOfEvents;
-  unsigned long long m_numberOfEventsHist; // For number of events from HIST
+  int m_numOfLBsProcessed{0};
+  unsigned long long m_numberOfEvents{0};
+  unsigned long long m_numberOfEventsHist{0}; // For number of events from HIST
   std::string        m_utcBegin;
   std::string        m_utcEnd;
-  int                m_LBRange;
+  int                m_LBRange{-999};
   IOVTime            m_iovStart;
   IOVTime            m_iovStop;
 
   // Input
-  TFile*  m_inputHist;    // Monitoring histograms
+  TFile*  m_inputHist{nullptr};    // Monitoring histograms
   bool    m_readHIST;   // True if HIST is used
 
   // Histograms
@@ -299,7 +299,7 @@ class SCTCalib : public AthAlgorithm {
   StatusCode
     writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
                           const std::map<Identifier, std::set<Identifier>>& moduleListNew,
-                          const std::map<Identifier, std::set<Identifier>>& moduleListRef) const;
+                          const std::map<Identifier, std::set<Identifier>>& moduleListRef);
   std::string
     getStripList(const std::set<Identifier>& stripIdList) const;
 

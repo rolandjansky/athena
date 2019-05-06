@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,11 +9,11 @@
 
 // Include files
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArElecCalib/ILArHVCorrTool.h"
-
-//#include "LArIdentifier/LArOnlineID.h"
 
 class LArOnlineID;
 
@@ -27,21 +27,29 @@ class LArHVCorrMaker : public AthAlgorithm
   LArHVCorrMaker(const std::string & name, ISvcLocator * pSvcLocator);
 
   // Destructor
-  ~LArHVCorrMaker();
+  virtual ~LArHVCorrMaker();
 
   // Algorithm initialization   
-  StatusCode initialize(); 
+  virtual StatusCode initialize() override;
 
   // Algorithm execution
-  StatusCode execute();
+  virtual StatusCode execute() override;
 
   // Algorithm finalization
-  StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
   
  private:
   const LArOnlineID*        m_lar_on_id;
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
+  std::string m_keyOutput;
+  std::string m_folderName;
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
+  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+  { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
+  
 };
 
 #endif

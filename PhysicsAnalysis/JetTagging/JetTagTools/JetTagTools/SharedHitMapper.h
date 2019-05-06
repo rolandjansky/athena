@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKINGTOOLS_SHAREDHITMAPPER_H
@@ -75,9 +75,6 @@ class SharedHitTrackAssoc {
   private:
     Assoc m_assocs;
 };
-#ifndef TOOLS_CLASSID_TRAITS_H
-#include "SGTools/ClassID_traits.h"
-#endif
-// call me !
+#include "AthenaKernel/ClassID_traits.h"
 CLASS_DEF(SharedHitTrackAssoc, 491827624, 0)
 #endif // TRACKINGTOOLS_SHAREDHITMAPPER_H

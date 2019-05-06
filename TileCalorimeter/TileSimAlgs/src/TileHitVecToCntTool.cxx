@@ -55,6 +55,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     : PileUpToolBase(type,name,parent)
     , m_infoName("TileInfo")
     , m_run2(false)
+    , m_run2plus(false)
     , m_pileUp(false)
     , m_deltaT(1.0 * Gaudi::Units::nanosecond)
     , m_timeFlag(0)
@@ -119,6 +120,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   m_cabling = m_cablingSvc->cablingService();
 
   m_run2 = m_cabling->isRun2Cabling();
+  m_run2plus = m_cabling->isRun2PlusCabling();
 
   for (int i = 0; i < 7; ++i) {
     Identifier pmt_id;
@@ -200,8 +202,7 @@ StatusCode TileHitVecToCntTool::initialize() {
       if (m_run2){
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
         m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS + N_E4PRIME_CELLS);
-      }
-      else{
+      } else {
         m_allHits.resize(m_mbtsOffset + N_MBTS_CELLS);
         m_allHits_DigiHSTruth.resize(m_mbtsOffset + N_MBTS_CELLS);
       }
@@ -296,7 +297,7 @@ StatusCode TileHitVecToCntTool::initialize() {
     }
   }
 
-  if (m_run2) {
+  if (m_run2plus) {
     const TileHWID* tileHWID;
     CHECK(detStore()->retrieve(tileHWID));
 
@@ -309,8 +310,8 @@ StatusCode TileHitVecToCntTool::initialize() {
       for (int drawer = 0; drawer < 64; ++drawer) {
         int frag_id = tileHWID->frag(ros, drawer);
         IdentifierHash frag_hash = m_fragHashFunc(frag_id);
-        m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2(ros, drawer) != 0);
-        m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2(drawer));
+        m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2plus(ros, drawer) != 0);
+        m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2plus(drawer));
       }
     }
     ATH_MSG_INFO("Number of E1 cell to be merged: " << std::count (m_E1merged.begin(), m_E1merged.end(), true));
@@ -941,7 +942,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     //                    << " eHitTot=" << eHitTot );
   }
 
-  if (m_run2) {
+  if (m_run2plus) {
     // Merge MBTS and E1 where it is needed.
 
     for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {

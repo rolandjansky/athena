@@ -28,7 +28,6 @@
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
 #include "MuidInterfaces/IMuidCaloEnergyParam.h"
 #include "MuidInterfaces/IMuidTrackIsolation.h"
-#include "RecoToolInterfaces/IMuonCaloEnergyTool.h"
 
 //#define DEBUGON //To activate printout for TSOS lists at various stages
 // for line-by-line debugging
@@ -65,7 +64,6 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_caloMeasTool		("Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas"),
 	m_caloParamTool		("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam"),
 	m_trackIsolationTool	("Rec::MuidTrackIsolation/MuidTrackIsolation"),
-	m_muonCaloEnergyTool    ("Rec::MuonCaloEnergyTool/MuonCaloEnergyTool"),	
 	m_DetID(0),
 	m_calorimeterVolume(0),
 	m_indetVolume(0),

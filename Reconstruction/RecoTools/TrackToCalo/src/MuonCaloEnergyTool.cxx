@@ -25,8 +25,8 @@ namespace Rec {
 
   MuonCaloEnergyTool::MuonCaloEnergyTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
-    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-    m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+    m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCaloParticleCreator"),
     m_caloNoiseTool("CaloNoiseToolDefault"),
     m_sigmasAboveNoise(4.),

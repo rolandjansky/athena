@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
 #define TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
@@ -10,6 +10,7 @@
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileL2Container.h"
+#include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
@@ -29,6 +30,7 @@ class ITrigCaloDataAccessSvc: virtual public IService {
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
   virtual StatusCode loadCollections( const EventContext& context,
+                                      const CaloBCIDAverage* avg,
                                       const IRoiDescriptor& roi,
                                       const DETID detId, const int sampling,
                                       LArTT_Selector<LArCellCont>& loadedCells ) = 0;
@@ -81,6 +83,7 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 */
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
+                                           const CaloBCIDAverage* avg,
                                            ConstDataVector<CaloCellContainer>& cont ) = 0;
 
         /* /\** */

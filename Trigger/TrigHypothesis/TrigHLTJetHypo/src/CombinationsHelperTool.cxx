@@ -4,91 +4,160 @@
 
 #include "./CombinationsHelperTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
-#include "./ITrigJetHypoHelperVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "./nodeIDPrinter.h"
+#include "./JetTrigTimer.h"
+#include "./ConditionDebugVisitor.h"
 
 #include <sstream>
 
 CombinationsHelperTool::CombinationsHelperTool(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent) :
-  base_class(type, name, parent),
-  m_totalTimer(std::make_unique<JetTrigTimer>()),
-  m_setupTimer(std::make_unique<JetTrigTimer>()),
-  m_extraTimer(std::make_unique<JetTrigTimer>()),
-  m_extraTimer1(std::make_unique<JetTrigTimer>()){
+  base_class(type, name, parent){
 
 }
 
-bool CombinationsHelperTool::pass(HypoJetVector& jets) {
+StatusCode CombinationsHelperTool::initialize() {
+
+  m_conditions = m_config->getConditions();
+  m_grouper  = std::move(m_config->getJetGrouper());
+
+  return StatusCode::SUCCESS;
+}
+
+
+void
+CombinationsHelperTool::collectData(const std::string& setuptime,
+                                    const std::string& exetime,
+                                    ITrigJetHypoInfoCollector* collector,
+                                    std::unique_ptr<IConditionVisitor>& cVstr,
+
+                                    bool pass) const {
+  if(!collector){return;}
+  auto helperInfo = nodeIDPrinter(name(),
+                                  m_nodeID,
+                                  m_parentNodeID,
+                                  pass,
+                                  exetime + setuptime
+                                  );
+
+
+  helperInfo += cVstr->toString();
+
+  collector->collect(name(), helperInfo);
+}
+
+
+struct HypoJetSelector{
+  // Selector jets according to OR of ocnditions objects.
+  // This predicate is intended to be used with an STL algorithm
+  HypoJetSelector(const ConditionsMT& c,
+                  std::unique_ptr<IConditionVisitor>&v ):m_conditions(c),
+                                                         m_visitor(v){
+  }
+  
+  bool operator()(pHypoJet j){
+    std::vector<pHypoJet> v{j};
+    for(const auto& c : m_conditions)
+      {
+        if (c.isSatisfied(v, m_visitor))  // there is a satisfied condition
+          {
+            return true;
+          }
+      }
+    
+    return false;   // no condition  satisfied
+  }
+  ConditionsMT m_conditions;
+  std::unique_ptr<IConditionVisitor>& m_visitor;
+};
+
+ 
+bool CombinationsHelperTool::pass(HypoJetVector& jets,
+                                  ITrigJetHypoInfoCollector* collector) const {
   /* seek first jet group that passes all children  */
   
   // create vector of vector of jets
-  m_totalTimer -> start();
-  m_setupTimer -> start();
+
+  JetTrigTimer exeTimer;
+  JetTrigTimer setupTimer;
+
+  setupTimer.start();
+
+  std::unique_ptr<IConditionVisitor> cVisitor(nullptr); 
+  if (collector){
+    cVisitor.reset(new ConditionDebugVisitor);
+  }
   
-  auto b = jets.begin();
-  auto e = jets.end();
-  auto grouper = CombinationsGrouper(m_size);
-  auto jetGroups = grouper.group(b, e);
+  HypoJetSelector selector(m_conditions, cVisitor);
+
+  // use conditions objects to select jets
+  auto end_iter = std::partition(jets.begin(),
+                                 jets.end(),
+                                 selector);
+  
+  // auto grouper = CombinationsGrouper(m_size);
+  auto begin = jets.begin();
+  auto jetGroups = m_grouper->group(begin, end_iter);
 
   ATH_MSG_DEBUG("No of groups" << jetGroups.size());
-  m_pass = true;
-  m_setupTimer -> stop();
 
-  for(auto& jets : jetGroups){
-    if (testGroup(jets)){
-      m_pass = true;
-      m_totalTimer->stop();
-      return m_pass;
+  bool pass = true;
+  setupTimer.stop();
+  exeTimer.start();
+
+  for(auto& gjets : jetGroups){
+    if (testGroup(gjets, collector)){
+      pass = true;
+      exeTimer.stop();
+      collectData(setupTimer.readAndReset(),
+                  exeTimer.readAndReset(),
+                  collector,
+                  cVisitor,
+                  pass);
+      
+      return pass;
     }
   }
   
-  m_pass = false;
-  m_totalTimer->stop();
-  return m_pass;
+  pass = false;
+  exeTimer.stop();
+  collectData(setupTimer.readAndReset(),
+              exeTimer.readAndReset(),
+              collector,
+              cVisitor,
+              pass);
+  
+  return pass;
 }
 
 
 
-bool CombinationsHelperTool::testGroup(HypoJetVector& jets) const{
-  m_extraTimer->start();
+bool
+CombinationsHelperTool::testGroup(HypoJetVector& jets,
+                                  ITrigJetHypoInfoCollector* collector) const {
   for(auto child : m_children){
-    m_extraTimer1->start();
-    auto childPass =  child->pass(jets);
-    m_extraTimer1->stop();
+    auto childPass =  child->pass(jets, collector);
     if (!childPass){
-      m_extraTimer->stop();
       return false;}
   }
 
-  m_extraTimer->stop();
   return true;
 }
  
 
 std::string CombinationsHelperTool::toString() const{
   std::stringstream ss;
-  ss << nodeIDPrinter(name(), m_nodeID, m_parentNodeID, m_pass,
-                      m_totalTimer->readAndReset());
-  ss  << "size " << m_size << " setup time: "
-      <<m_setupTimer->readAndReset()
-      <<" extra time " << m_extraTimer->readAndReset()
-      <<" extra time1 " << m_extraTimer1->readAndReset()
-      <<'\n';
-  return ss.str();
+  return nodeIDPrinter(name(), m_nodeID, m_parentNodeID);
 }
 
-
-std::string CombinationsHelperTool::toStringAndResetHistory() {
-  auto result = toString();
-  return result;
-}
-
-
-void CombinationsHelperTool::accept(ITrigJetHypoHelperVisitor& v){
-  v.visit(this);
-  for(const auto child: m_children){
-    child->accept(v);
+StatusCode
+CombinationsHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
+  c.collect(name(), toString());
+  StatusCode sc;
+  for(auto child : m_children){
+    sc = sc & child->getDescription(c);
   }
+  return sc;
 }

@@ -1,8 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence
 from AthenaCommon.Configurable import ConfigurableAlgTool
 from GaudiKernel.GaudiHandles import PrivateToolHandle, PrivateToolHandleArray
+import six
+
+msg = logging.getLogger('PropSetterProxy')
+
 class PropSetterProxy(object):
    __compPaths = {}
    __scannedCA = None
@@ -15,24 +20,26 @@ class PropSetterProxy(object):
        if name.startswith("_PropSetterProxy"):
            return super(PropSetterProxy, self).__setattr__(name, value)
 
-       msg = logging.getLogger('foreach_component')
        if name != "OutputLevel":
            msg.warning( "Only OutputLevel is allowed to be changed with the foreach_component at the moment"  )
            return
 
        
        import fnmatch
-       for component_path, component in PropSetterProxy.__compPaths.iteritems():
+       for component_path, component in six.iteritems(PropSetterProxy.__compPaths):
            if fnmatch.fnmatch( component_path, self.__path ):
                if name in component.getProperties():
                    try:
                        setattr( component, name, value )
-                       msg.info( "Set property: %s to value %s of component %s because it matched %s " % ( name, str(value), component_path, self.__path )   )
-                   except Exception, ex:
-                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s" % ( name, str(value), component_path, self.__path, str(ex) )   )
+                       msg.info( "Set property: %s to value %s of component %s because it matched %s ",
+                                 name, str(value), component_path, self.__path )
+                   except Exception as ex:
+                       msg.warning( "Failed to set property: %s to value %s of component %s because it matched %s, reason: %s",
+                                    name, str(value), component_path, self.__path, str(ex) )
                        pass
                else:
-                   msg.warning( "No such a property: %s in component %s, tried to set it because it matched %s" % ( name, component_path, self.__path )   )
+                   msg.warning( "No such property: %s in component %s, tried to set it because it matched %s",
+                                name, component_path, self.__path )
 
 
    def __findComponents(self, ca):
@@ -53,7 +60,7 @@ class PropSetterProxy(object):
            def __nestAlg(startpath, comp): # it actually dives inside the algorithms and (sub) tools               
                if comp.getName() == "":
                    return
-               for name, value in comp.getProperties().iteritems():
+               for name, value in six.iteritems(comp.getProperties()):
                    if isinstance( value, ConfigurableAlgTool ) or isinstance( value, PrivateToolHandle ):
                        __add( startpath+"/"+name+"/"+value.getFullName(), value )
                        __nestAlg( startpath+"/"+name+"/"+value.getName(), value )

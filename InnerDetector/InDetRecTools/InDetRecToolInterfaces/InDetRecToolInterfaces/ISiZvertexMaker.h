@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -57,17 +59,11 @@ namespace InDet{
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual void newEvent()=0;
-      virtual void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
-      virtual void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&)=0;
-
-      ///////////////////////////////////////////////////////////////////
-      // Methods for primary vertices production
-      ///////////////////////////////////////////////////////////////////
-
-      virtual const std::list<Trk::Vertex>&  getVertices ()=0;
+      virtual std::list<Trk::Vertex> newEvent()=0;
+      virtual std::list<Trk::Vertex> newRegion
+      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
+      virtual std::list<Trk::Vertex> newRegion
+      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&)=0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

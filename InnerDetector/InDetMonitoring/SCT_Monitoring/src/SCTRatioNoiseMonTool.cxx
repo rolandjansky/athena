@@ -30,7 +30,6 @@
 #include "TF1.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TH2I.h"
 #include "TMath.h"
 #include "TProfile2D.h"
 #include "TProfile2D.h"
@@ -60,10 +59,10 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
     }
   }
 
-  const string names[N_REGIONS] = {
+  static const string names[N_REGIONS] = {
     "Endcap C", "Barrel", "Endcap A"
   };
-  const string abbreviations[N_REGIONS] = {
+  static const string abbreviations[N_REGIONS] = {
     "ECC", "Bar", "ECA"
   };
 } // end of anonymous namespace
@@ -79,118 +78,7 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
 SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string& type,
                                            const string& name,
                                            const IInterface* parent) :
-  ManagedMonitorToolBase(type, name, parent),
-  m_numberOfEvents{0},
-  m_nNoSides_ev{},
-  m_nOneSide_ev{},
-  m_nTwoSide_ev{},
-  m_nNoSidesBarrel_ev{},
-  m_nOneSideBarrel_ev{},
-  m_nTwoSideBarrel_ev{},
-  m_nNonGoodModulesBarrel_ev{},
-  m_nNoSidesEndcapA_ev{},
-  m_nOneSideEndcapA_ev{},
-  m_nTwoSideEndcapA_ev{},
-  m_nNonGoodModulesEndcapA_ev{},
-  m_nNoSidesEndcapC_ev{},
-  m_nOneSideEndcapC_ev{},
-  m_nTwoSideEndcapC_ev{},
-  m_nNonGoodModulesEndcapC_ev{},
-  m_pnoiseoccupancymapHistoVectorECC{},
-  m_pnoiseoccupancymapHistoVectorECCSide0{},
-  m_pnoiseoccupancymapHistoVectorECCSide1{},
-  m_pnoiseoccupancymapHistoVectorBAR{},
-  m_pnoiseoccupancymapHistoVectorBARSide0{},
-  m_pnoiseoccupancymapHistoVectorBARSide1{},
-  m_pnoiseoccupancymapHistoVectorECA{},
-  m_pnoiseoccupancymapHistoVectorECASide0{},
-  m_pnoiseoccupancymapHistoVectorECASide1{},
-  m_d1{0},
-  m_n1{0},
-  m_n1Barrel{},
-  m_n1EndcapA{},
-  m_n1EndcapC{},
-  m_d1Barrel{},
-  m_d1EndcapA{},
-  m_d1EndcapC{},
-  m_noSidesHit{false},
-  m_oneSideHit{false},
-  m_twoSidesHit{false},
-  m_correct_TimeBin{false},
-  m_nNoSides{},
-  m_nOneSide{},
-  m_nOneSide0{},
-  m_nOneSide1{},
-  m_nTwoSide{},
-  m_nLink0{},
-  m_nLink1{},
-  m_nLayer{},
-  m_nEta{},
-  m_nPhi{},
-  m_nNonGoodModule{},
-  m_current_lb{0},
-  m_last_reset_lb{0},
-  m_set_timebin{-1},
-  m_tbin{-1},
-  m_modNum{0} ,
-  m_ratio{-1.0},
-  m_ratioside0{-1.0},
-  m_ratioside1{-1.0},
-  m_nNoSides_lb{},
-  m_nOneSide_lb{},
-  m_noisyM{},
-  // General histograms
-  m_NOEV{nullptr},
-  m_NOEVBAR{},
-  m_NOEVECC{},
-  m_NOEVECA{},
-  m_NOEV_RDO{},
-  m_NOEV_Eventnum{},
-  m_side{nullptr},
-  m_num_RDO{},
-  m_NZ1{nullptr},
-  m_N11{nullptr},
-  m_N21{nullptr},
-  m_NZ1BAR{},
-  m_N11BAR{},
-  m_N21BAR{},
-  m_NZ1BAR_vsLB{},
-  m_N11BAR_vsLB{},
-  m_NZ1ECC{},
-  m_N11ECC{},
-  m_N21ECC{},
-  m_NZ1ECC_vsLB{},
-  m_N11ECC_vsLB{},
-  m_NZ1ECA{},
-  m_N11ECA{},
-  m_N21ECA{},
-  m_NZ1ECA_vsLB{},
-  m_N11ECA_vsLB{},
-  m_NO{nullptr},
-  m_NOSide{nullptr},
-  m_NO_vsLB{nullptr},
-  m_NoisyModules_vsLB{nullptr},
-  m_NOBAR{nullptr},
-  m_NOBARSide{nullptr},
-  m_NOEC{nullptr},
-  m_NOECSide{nullptr},
-  m_NOECASide{nullptr},
-  m_NOECCSide{nullptr},
-  m_NOEC_Outer{nullptr},
-  m_NOEC_ShortMiddle{nullptr},
-  m_NOEC_Inner{nullptr},
-  m_NOEC_Middle{nullptr},
-  m_NOBAR_layer{},
-  m_NOBAR_layer_vsLB{},
-  m_NOECC_disk{},
-  m_NOECC_disk_vsLB{},
-  m_NOECA_disk{},
-  m_NOECA_disk_vsLB{},
-  m_numberHitsinBarrel{},
-  m_NZ1_vs_modnum{nullptr},
-  m_N11_vs_modnum{nullptr},
-  m_path{""},
-  m_pSCTHelper{nullptr} {
+  ManagedMonitorToolBase(type, name, parent) {
   for (bool& i: m_goodModules) i = true;
 }
 
@@ -256,7 +144,6 @@ SCTRatioNoiseMonTool::fillHistograms() {
 
   // Declare Time Bin
   m_set_timebin = 4;
-  m_tbin = -1;
 
   // Declaring Counting variables
   m_nNoSides_ev = 0;
@@ -325,22 +212,25 @@ SCTRatioNoiseMonTool::fillHistograms() {
       for (const SCT_RDORawData* rdo: *rd) {
         count_SCT_RDO++;
         const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
+        int tbin{-1};
+        int groupSize{1};
         if (rdo3) {
-          m_tbin = (rdo3)->getTimeBin();
+          tbin = (rdo3)->getTimeBin();
+          groupSize = (rdo3)->getGroupSize();
         }
-        if (timeBinInPattern(m_tbin, XIX) and goodModule) {
+        if (timeBinInPattern(tbin, XIX) and goodModule) {
           // fill hit info in barrel
           if (thisBec == 0) {
             int layer{thisLayerDisk};
-            m_numberHitsinBarrel[layer]->Fill(thisPhi, 1.);
+            m_numberHitsinBarrel[layer]->Fill(thisPhi, groupSize);
           }
 
           if (thisSide == 1) {
-            m_nLink1[m_modNum] += 1;
-            m_side->Fill(1);
+            m_nLink1[m_modNum] += groupSize;
+            m_side->Fill(1, groupSize);
           } else {
-            m_nLink0[m_modNum] += 1;
-            m_side->Fill(3);
+            m_nLink0[m_modNum] += groupSize;
+            m_side->Fill(3, groupSize);
           }
         }
       }
@@ -435,10 +325,10 @@ SCTRatioNoiseMonTool::fillHistograms() {
         }
       }
 
-      const int NumModBarrelLayer[N_BARRELS] = {
+      static const int NumModBarrelLayer[N_BARRELS] = {
         384, 480, 576, 672
       };
-      const int NumModEndcapDisk[N_DISKS] = {
+      static const int NumModEndcapDisk[N_DISKS] = {
         92, 132, 132, 132, 132, 132, 92, 92, 52
       };
 
@@ -820,27 +710,27 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
     m_N11_vs_modnum = h1Factory("h_N11_vs_modnum", "Num of OneSide hits vs module number", RatioNoise, 0, 4088, 4088);
     m_N11_vs_modnum->SetTitle("ModuleNumber vs Num of OneSide Hits; Module Number; Num of OneSide Hits");
 
-    const string paths[N_REGIONS] = {
+    static const string paths[N_REGIONS] = {
       "SCT/SCTEC/RatioNoise", "SCT/SCTB/RatioNoise", "SCT/SCTEA/RatioNoise"
     };
-    const string paths_hits[N_REGIONS] = {
+    static const string paths_hits[N_REGIONS] = {
       "SCT/SCTEC/RatioNoise/numOfHits", "SCT/SCTB/RatioNoise/numOfHits", "SCT/SCTEA/RatioNoise/numOfHits"
     };
-    const unsigned int limits[N_REGIONS] = {
+    static const unsigned int limits[N_REGIONS] = {
       N_DISKS, N_BARRELS, N_DISKS
     };
-    VecProf2_t* storageVectors[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectors[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECC, &m_pnoiseoccupancymapHistoVectorBAR, &m_pnoiseoccupancymapHistoVectorECA
     };
-    VecProf2_t* storageVectorsSide0[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectorsSide0[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECCSide0, &m_pnoiseoccupancymapHistoVectorBARSide0,
       &m_pnoiseoccupancymapHistoVectorECASide0
     };
-    VecProf2_t* storageVectorsSide1[N_REGIONS] = {
+    vector<TProfile2D*>* storageVectorsSide1[N_REGIONS] = {
       &m_pnoiseoccupancymapHistoVectorECCSide1, &m_pnoiseoccupancymapHistoVectorBARSide1,
       &m_pnoiseoccupancymapHistoVectorECASide1
     };
-    const int bec[N_REGIONS] = {
+    static const int bec[N_REGIONS] = {
       -2, 0, 2
     };
 
@@ -995,10 +885,10 @@ SCTRatioNoiseMonTool::bookRatioNoiseHistos() {
   return StatusCode::SUCCESS;
 }
 
-SCTRatioNoiseMonTool::Prof_t
+TProfile*
 SCTRatioNoiseMonTool::pFactory(const string& name, const string& title, MonGroup& registry, const float lo,
-                               const float hi, const unsigned int nbins) {
-  Prof_t tmp{new TProfile(name.c_str(), title.c_str(), nbins, lo, hi)};
+                               const float hi, const unsigned int nbins) const {
+  TProfile* tmp{new TProfile(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -1007,10 +897,10 @@ SCTRatioNoiseMonTool::pFactory(const string& name, const string& title, MonGroup
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H1_t
+TH1F_LW*
 SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry, const float lo,
-                                const float hi, const unsigned int nbins) {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
+                                const float hi, const unsigned int nbins) const {
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -1019,11 +909,11 @@ SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H2_t
+TH2F_LW*
 SCTRatioNoiseMonTool::h2Factory(const string& name, const string& title, MonGroup& registry, const float lo_x,
                                 const float hi_x, const unsigned int nbins_x, const float lo_y, const float hi_y,
-                                const unsigned int nbins_y) {
-  H2_t tmp{TH2F_LW::create(name.c_str(), title.c_str(), nbins_x, lo_x, hi_x, nbins_y, lo_y, hi_y)};
+                                const unsigned int nbins_y) const {
+  TH2F_LW* tmp{TH2F_LW::create(name.c_str(), title.c_str(), nbins_x, lo_x, hi_x, nbins_y, lo_y, hi_y)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -1032,10 +922,10 @@ SCTRatioNoiseMonTool::h2Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::H1_t
+TH1F_LW*
 SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry,
-                                VecH1_t& storageVector, const float lo, const float hi, const unsigned int nbins) {
-  H1_t tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
+                                vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const {
+  TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), nbins, lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 
   if (not success) {
@@ -1045,9 +935,9 @@ SCTRatioNoiseMonTool::h1Factory(const string& name, const string& title, MonGrou
   return success ? tmp : nullptr;
 }
 
-SCTRatioNoiseMonTool::Prof2_t
+TProfile2D*
 SCTRatioNoiseMonTool::prof2Factory(const string& name, const string& title, const unsigned int& bec,
-                                   MonGroup& registry, VecProf2_t& storageVector) {
+                                   MonGroup& registry, vector<TProfile2D*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN},
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, 
       nEta{N_ETA_BINS}, nPhi{N_PHI_BINS};
@@ -1060,7 +950,7 @@ SCTRatioNoiseMonTool::prof2Factory(const string& name, const string& title, cons
     nEta = N_ETA_BINS_EC;
     nPhi = N_PHI_BINS_EC;
   }
-  Prof2_t tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
+  TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5}};
   tmp->SetXTitle("Index in the direction of #eta");
   tmp->SetYTitle("Index in the direction of #phi");
   bool success{registry.regHist(tmp).isSuccess()};
@@ -1072,34 +962,31 @@ SCTRatioNoiseMonTool::prof2Factory(const string& name, const string& title, cons
 }
 
 float
-SCTRatioNoiseMonTool::calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide) {
-  float div, rat;
-
-  if (numberZeroSide != 0.) {
-    div = numberOneSide / numberZeroSide;
-    rat = (div / (div + 2.)) / N_STRIPS;
+SCTRatioNoiseMonTool::calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide,
+                                                              const float numberZeroSide) const {
+  if (numberZeroSide != 0.f) {
+    float div{numberOneSide / numberZeroSide};
+    float rat{(div / (div + 2.f)) / N_STRIPS};
     return rat;
   } else {
-    return -1.;
+    return -1.f;
   }
 }
 
 float
 SCTRatioNoiseMonTool::calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide,
-                                                                     const float numberZeroSide) {
-  float div, rat;
-
-  if (numberZeroSide != 0.) {
-    div = numberOneSide / numberZeroSide;
-    rat = (div / (div + 1.)) / N_STRIPS;
+                                                                     const float numberZeroSide) const {
+  if (numberZeroSide != 0.f) {
+    float div{numberOneSide / numberZeroSide};
+    float rat{(div / (div + 1.f)) / N_STRIPS};
     return rat;
   } else {
-    return -1.;
+    return -1.f;
   }
 }
 
 bool
-SCTRatioNoiseMonTool::isEndcapC(const int moduleNumber) {
+SCTRatioNoiseMonTool::isEndcapC(const int moduleNumber) const {
   bool moduleinEndcapC{false};
 
   if ((0 <= moduleNumber) and (moduleNumber < f_mod[BARREL_INDEX])) {
@@ -1109,7 +996,7 @@ SCTRatioNoiseMonTool::isEndcapC(const int moduleNumber) {
 }
 
 bool
-SCTRatioNoiseMonTool::isBarrel(const int moduleNumber) {
+SCTRatioNoiseMonTool::isBarrel(const int moduleNumber) const {
   bool moduleinBarrel{false};
 
   if ((f_mod[BARREL_INDEX] <= moduleNumber) and (moduleNumber < f_mod[ENDCAP_A_INDEX])) {
@@ -1119,7 +1006,7 @@ SCTRatioNoiseMonTool::isBarrel(const int moduleNumber) {
 }
 
 bool
-SCTRatioNoiseMonTool::isEndcapA(const int moduleNumber) {
+SCTRatioNoiseMonTool::isEndcapA(const int moduleNumber) const {
   bool moduleinEndcapA{false};
 
   if ((f_mod[ENDCAP_A_INDEX] <= moduleNumber) and (moduleNumber < n_mod[GENERAL_INDEX])) {
@@ -1129,7 +1016,7 @@ SCTRatioNoiseMonTool::isEndcapA(const int moduleNumber) {
 }
 
 bool
-SCTRatioNoiseMonTool::isEndcap(const int moduleNumber) {
+SCTRatioNoiseMonTool::isEndcap(const int moduleNumber) const {
   bool moduleinEndcap{false};
 
   if ((0 <= moduleNumber) and (moduleNumber < f_mod[BARREL_INDEX])) {

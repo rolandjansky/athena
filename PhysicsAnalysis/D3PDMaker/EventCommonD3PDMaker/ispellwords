@@ -536,7 +536,6 @@ TBranch
 GenParticle
 const
 LArParameterization
-SGTools
 IOVDbSvc
 jacob
 ndof

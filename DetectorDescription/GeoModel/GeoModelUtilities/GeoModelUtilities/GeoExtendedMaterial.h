@@ -6,9 +6,18 @@
 #define GeoExtendedMaterial_h 1
 
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GaudiKernel/PhysicalConstants.h"
 
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
+
+// Physical constants
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::STP_Temperature'
+#else
+  #include "GaudiKernel/PhysicalConstants.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::STP_Temperature'
+#endif
+
 
 enum GeoMaterialState { stateUndefined, stateSolid, stateLiquid, stateGas };
 
@@ -18,8 +27,8 @@ class GeoExtendedMaterial : public GeoMaterial
   GeoExtendedMaterial(const std::string &Name,
 		      double Density,
 		      GeoMaterialState State = stateUndefined,
-		      double Temperature = Gaudi::Units::STP_Temperature,
-		      double Pressure  = Gaudi::Units::STP_Pressure);
+		      double Temperature = SYSTEM_OF_UNITS::STP_Temperature,
+		      double Pressure  = SYSTEM_OF_UNITS::STP_Pressure);
   
   virtual ~GeoExtendedMaterial();
   

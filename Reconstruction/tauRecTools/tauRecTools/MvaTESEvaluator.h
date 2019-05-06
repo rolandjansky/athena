@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLSDEV_MVATESEVALUATOR_H
@@ -43,9 +43,6 @@ class MvaTESEvaluator
 
   std::map<TString, float*> m_availableVars; //!< addresses of the floats below
   
-  // HACK HACK HACK: Use to get nVtxPU, AuxElement::ConstAccessor doesn't work
-  const xAOD::VertexContainer* m_xVertexContainer; //!
-  
   // MVA input variables (provide all variables in float)
   float m_mu; //!
   float m_nVtxPU; //!
@@ -75,7 +72,10 @@ class MvaTESEvaluator
   float m_truthDecayMode; //!
   float m_PanTau_DecayMode; //!
 
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+  // for online calibration
+  float m_etaDetectorAxis; //!
+  float m_upsilon_cluster; //!
+  float m_lead_cluster_frac; //!
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

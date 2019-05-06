@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_DECODER_H
@@ -517,7 +517,7 @@ namespace Muon
         // Note that this means different threads may decode the same data if processing simultaneously
         // However, only one will be written to the cache using the lock
         
-        bool alreadyPresent = rdoIdc.tryFetch( it );
+        bool alreadyPresent = rdoIdc.tryAddFromCache( it );
         
         if(alreadyPresent){
           ATH_MSG_DEBUG ( "RPC RDO collection already exist with collection hash = " << static_cast<unsigned int>(it) << " converting is skipped!");
@@ -562,7 +562,7 @@ namespace Muon
         }
         else{
           // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-          StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>(it.second) ) );
+          StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>(it.second) );
 
           if(status_lock != StatusCode::SUCCESS)
           {
@@ -609,7 +609,7 @@ namespace Muon
         
         // Here need to implement writing for all the other fill methods
         // Take the pointer and pass ownership to unique_ptr and pass to the IDC_WriteHandle
-        StatusCode status_lock = lock.addOrDelete( std::move( std::unique_ptr<RpcPad>( coll ) ) );
+        StatusCode status_lock = lock.addOrDelete( std::unique_ptr<RpcPad>( coll ) );
 
         // add collection into IDC
         if(status_lock != StatusCode::SUCCESS)

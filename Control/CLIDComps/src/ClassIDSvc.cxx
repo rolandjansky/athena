@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  /* distance */
@@ -18,7 +18,7 @@
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/checker_macros.h"
 

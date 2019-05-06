@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 def writeEmulationFiles(data):
@@ -41,18 +41,18 @@ def applyMenu(l1decoder ):
 # L1Decoder for bytestream
 from L1Decoder.L1DecoderConf import L1Decoder
 class L1DecoderTest(L1Decoder) :
-    def __init__(self, name='L1DecoderTest', *args, **kwargs):
+    def __init__(self, name='L1Decoder', *args, **kwargs):
         super(L1DecoderTest, self).__init__(name, *args, **kwargs)
         
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
+        from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import TAURoIsUnpackingTool, JRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
         from TrigEDMConfig.TriggerEDMRun3 import recordable
         # CTP unpacker
 
-        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
+        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                        ForceEnableAllChains = True)
 
 
@@ -62,7 +62,7 @@ class L1DecoderTest(L1Decoder) :
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
           
-            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                                 Decisions = recordable("L1EM"),
                                                 OutputTrigRoIs = recordable("EMRoIs"),
                                                 MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
@@ -74,19 +74,19 @@ class L1DecoderTest(L1Decoder) :
                                                                Decisions="RerunL1EM" 
                                                                ) ]
 
-            metUnpacker = METRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+            metUnpacker = METRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                                Decisions = recordable("L1MET"))
 
             self.roiUnpackers += [metUnpacker]
 
-            tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+            tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                              Decisions = "L1TAU",
                                              OutputTrigRoIs = "TAURoIs")
 
             tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
             self.roiUnpackers += [tauUnpacker]
 
-            jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+            jUnpacker = JRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                              Decisions = recordable("L1J"),
                                              OutputTrigRoIs = recordable("JETRoI") )
 
@@ -96,7 +96,7 @@ class L1DecoderTest(L1Decoder) :
 
         # MU unpacker
         if TriggerFlags.doMuon():
-            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                              Decisions = recordable("L1MU"),
                                              OutputTrigRoIs = recordable("MURoIs"))
 
@@ -107,7 +107,6 @@ class L1DecoderTest(L1Decoder) :
                                                                 Decisions="RerunL1MU"
                                                                 ) ]
         self.L1DecoderSummaryKey = "L1DecoderSummary"
-
 
 # L1 emulation for RDO
 class L1EmulationTest(L1Decoder) :
@@ -131,7 +130,7 @@ class L1EmulationTest(L1Decoder) :
 
         from TrigUpgradeTest.TestUtils import writeEmulationFiles
         writeEmulationFiles(data)
-        ctpUnpacker = CTPUnpackingEmulationTool(OutputLevel = self.OutputLevel,
+        ctpUnpacker = CTPUnpackingEmulationTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
                                                 ForceEnableAllChains = True)
         self.ctpUnpacker = ctpUnpacker
         self += ctpUnpacker
@@ -148,7 +147,7 @@ class L1EmulationTest(L1Decoder) :
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = "EMRoIs",
-                                                    OutputLevel = self.OutputLevel)
+                                                    OutputLevel = self.getDefaultProperty("OutputLevel"))
             emUnpacker.ThresholdToChainMapping = ['EM7 : HLT_e20', 
                                                   'EM7 : HLT_e8', 
                                                   'EM7 : HLT_mu8_e8']
@@ -161,7 +160,7 @@ class L1EmulationTest(L1Decoder) :
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = "MURoIs",
-                                                    OutputLevel=self.OutputLevel)
+                                                    OutputLevel=self.getDefaultProperty("OutputLevel"))
             muUnpacker.ThresholdToChainMapping =  ['MU10 : HLT_mu20', 
                                                    'MU6 : HLT_mu81step', 
                                                    'MU6 : HLT_mu8', 

@@ -13,8 +13,10 @@
 #include "NotHelperTool.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "./ITrigJetHypoHelperVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "./nodeIDPrinter.h"
+#include "./JetTrigTimer.h"
+
 #include <sstream>
 
 NotHelperTool::NotHelperTool(const std::string& type,
@@ -23,32 +25,36 @@ NotHelperTool::NotHelperTool(const std::string& type,
   base_class(type, name, parent){
 }
 
-bool NotHelperTool::pass(HypoJetVector& jets) {
+bool NotHelperTool::pass(HypoJetVector& jets,
+                         ITrigJetHypoInfoCollector* collector) const {
   ATH_MSG_DEBUG("NotHelperTool::pass... " << jets.size() << " jets");
 
-  ++m_nCalls;
+  JetTrigTimer timer;
+  if(collector){
+    timer.start();
+  }
   
-  m_pass =  ! m_hypoTool->pass(jets);
-  return m_pass;
+  auto pass =  !m_hypoTool->pass(jets, collector);
+  if (collector){
+    timer.stop();
+    collector->collect(name(), nodeIDPrinter(name(),
+                                             m_nodeID,
+                                             m_parentNodeID,
+                                             pass,
+                                             timer.readAndReset()));
+  }
+
+  return pass;
 }
 
 std::string NotHelperTool::toString() const{
-  std::stringstream ss;
-  ss << nodeIDPrinter(name(), m_nodeID, m_parentNodeID, m_pass)
-     << " calls since last reset: " << m_nCalls << '\n';
-  return ss.str();
+  return nodeIDPrinter(name(), m_nodeID, m_parentNodeID);                     
 }
 
 
-void NotHelperTool::accept(ITrigJetHypoHelperVisitor& v) {
-   m_hypoTool->accept(v);
-}
-
-void NotHelperTool::resetHistory() {m_nCalls = 0;}
 
 
-std::string NotHelperTool::toStringAndResetHistory() {
-  auto result = toString();
-  resetHistory();
-  return result;
+StatusCode NotHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
+  c.collect(name(), toString());
+  return m_hypoTool->getDescription(c);
 }

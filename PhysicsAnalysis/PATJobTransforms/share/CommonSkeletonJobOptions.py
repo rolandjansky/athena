@@ -27,7 +27,6 @@ rec.AutoConfiguration=['everything']
 
 #production options
 rec.Production=True
-rec.abortOnErrorMessage=False
 
 ## max/skip events
 if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )

@@ -64,7 +64,6 @@ m_numberOfWordsInFragment+=1;
 //----------------------------------------------------------------------------//
 void RXReadOut::makeBody() {
 PadReadOut *PADFragment[s_numberOfPads]={0};
-PadReadOutStructure PROS;
 ubit16 numberOfPadWords=0;
 ubit16 i;
 DISP<<" RXReadOut makeBody "<<endl;
@@ -75,7 +74,7 @@ for(i=0; i<s_numberOfPads; i++) {
  if(*(m_PROlist+i)) {
   DISP<<" getting Header from PAD "<<endl;
   DISP_DEBUG;
-  PROS = (*(m_PROlist+i))->getHeader();
+  PadReadOutStructure PROS ((*(m_PROlist+i))->getHeader());
   ubit16 padid = PROS.padid();
   numberOfPadWords=(*(m_PROlist+i))->numberOfFragmentWords();
   DISP<<" getHeader from RXReadOut done "<<endl 

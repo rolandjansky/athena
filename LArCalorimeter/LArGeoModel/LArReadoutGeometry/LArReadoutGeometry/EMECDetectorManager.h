@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECDETECTORMANAGER_H
@@ -10,21 +10,21 @@
 #include "LArHV/EMECPresamplerHVManager.h"
 class EMECDetDescr;
 class EMECDetectorRegion;
-/**
- *     @brief A manager class providing access to readout geometry information
- *     for the electromagnetic endcap calorimeter.
- */
 
 /**
- *	The EMECDetectorManager provides access to EMEC Regions,
- *	to Descriptors for EMEC regions, to the physical volumes
- *	(tree tops) within the EMEC, and to a number of
- *	important engineering numbers (like the focal lengths)
- *	within the EMEC.
+ * @class EMECDetectorManager
+ *
+ * @brief A manager class providing access to readout geometry information
+ *  for the electromagnetic endcap calorimeter.
+ *
+ *  The EMECDetectorManager provides access to EMEC Regions,
+ *  to Descriptors for EMEC regions, to the physical volumes
+ *  (tree tops) within the EMEC, and to a number of
+ *  important engineering numbers (like the focal lengths)
+ *  within the EMEC.
  *  
+ * The ownership of EMECHVManager pointers NOT trasferred to EMECDetectorManager
  */
-
-
 
 class EMECDetectorManager : public GeoVDetectorManager  
 {
@@ -41,12 +41,13 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief  Constructor
    */
-  EMECDetectorManager();
+  EMECDetectorManager(const EMECHVManager* hvManagerInner=nullptr
+		      , const EMECHVManager* hvManagerOuter=nullptr);
 
   /**
    * @brief  Destructor
    */
-  ~EMECDetectorManager();
+  virtual ~EMECDetectorManager() override;
       
   /**
    * @brief 	Iterate over detector regions
@@ -71,12 +72,12 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
       
   /**
    * @brief 	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
       
   /**
    * @brief 	This provides the distance in CLHEP::mm from the Focal Plane to
@@ -167,12 +168,12 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
 
   /**
    * @brief 	Get the HV Managers
    */
-  const EMECHVManager * getHVManager(EMECHVManager::IOType io) const;
+  const EMECHVManager& getHVManager(EMECHVManager::IOType io) const;
 
   /**
    * @brief 	Get the HV Manager (presampler)

@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -65,13 +67,13 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   
   /** For bookkeeping of decoded ROBs */
-  mutable std::set<uint32_t> m_robIDSet ATLAS_THREAD_SAFE;
+  mutable std::set<uint32_t> m_robIDSet ATLAS_THREAD_SAFE {};
 
   /** Number of decode errors encountered in decoding. 
       Turning off error message after 100 errors are counted */
-  mutable std::atomic_int m_decodeErrCount;
+  mutable std::atomic_int m_decodeErrCount{0};
 
-  mutable std::mutex m_mutex;
+  mutable std::mutex m_mutex{};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H

@@ -12,11 +12,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/CxxUtils
                           Event/EventPrimitives
                           Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/VxVertex )
 

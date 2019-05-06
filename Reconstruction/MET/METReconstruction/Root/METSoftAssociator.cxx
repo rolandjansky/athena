@@ -27,12 +27,12 @@ namespace met {
   METSoftAssociator::METSoftAssociator(const std::string& name) :
     AsgTool(name),
     METAssociator(name),
-    m_lcmodclus_key(""),
-    m_emmodclus_key("")
+    m_lcmodclus_key("LCOriginTopoClusters"),
+    m_emmodclus_key("EMOriginTopoClusters")
   {
     declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
-    declareProperty("LCModClusterKey",   m_lcmodclus = "LCOriginTopoClusters");
-    declareProperty("EMModClusterKey",   m_emmodclus = "EMOriginTopoClusters");
+    declareProperty("LCModClusterKey",   m_lcmodclus_key);
+    declareProperty("EMModClusterKey",   m_emmodclus_key);
   }
 
   // Destructor
@@ -46,9 +46,7 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
-    ATH_CHECK( m_lcmodclus_key.assign(m_lcmodclus));
     ATH_CHECK( m_lcmodclus_key.initialize());
-    ATH_CHECK( m_emmodclus_key.assign(m_emmodclus));
     ATH_CHECK( m_emmodclus_key.initialize());
 
     return StatusCode::SUCCESS;

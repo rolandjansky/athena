@@ -11,8 +11,9 @@
 // ********************************************************************
 
 #include "OrHelperTool.h"
-#include "./ITrigJetHypoHelperVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "./nodeIDPrinter.h"
+#include "./JetTrigTimer.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include <sstream>
@@ -24,41 +25,42 @@ OrHelperTool::OrHelperTool(const std::string& type,
 }
 
 
-bool OrHelperTool::pass(HypoJetVector& jets) {
+bool OrHelperTool::pass(HypoJetVector& jets,
+                        ITrigJetHypoInfoCollector* collector) const {
   ATH_MSG_DEBUG("OrHelperTool::pass... " << jets.size() << " jets");
-  ++m_nCalls;
+
+ JetTrigTimer timer;
+  if(collector){
+       timer.start();
+  }
   
-  m_pass = m_lhs->pass(jets);
-  if (m_pass){
+  bool pass = m_lhs->pass(jets, collector);
+  if (pass){
     ATH_MSG_DEBUG("LHS passed");
-    return m_pass;
+    return pass;
   } else {
-    m_pass = m_rhs->pass(jets);
-    ATH_MSG_DEBUG("RHS " <<std::boolalpha << m_pass);
+    pass = m_rhs->pass(jets, collector);
+    ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
   }    
 
-  return m_pass;
+  if (collector){
+    timer.stop();
+    collector->collect(name(), nodeIDPrinter(name(),
+                                             m_nodeID,
+                                             m_parentNodeID,
+                                             pass,
+                                             timer.readAndReset()));
+  }
+  
+  return pass;
 }
 
 std::string OrHelperTool::toString() const{
-  std::stringstream ss;
-  ss << nodeIDPrinter(name(), m_nodeID, m_parentNodeID, m_pass)
-     << " calls since last reset: " << m_nCalls << '\n';
-
-  return ss.str();
-
+  return nodeIDPrinter(name(), m_nodeID, m_parentNodeID);
 }
 
-void OrHelperTool::accept(ITrigJetHypoHelperVisitor& v){
-  v.visit(this);
-  m_lhs->accept(v);
-  m_rhs->accept(v);
-}
 
-void OrHelperTool::resetHistory() {m_nCalls = 0;}
-
-std::string OrHelperTool::toStringAndResetHistory() {
-  auto result = toString();
-  resetHistory();
-  return result;
+StatusCode OrHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
+  c.collect(name(), toString());
+  return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }

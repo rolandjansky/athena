@@ -52,30 +52,32 @@ namespace Trk {
     VxCascadeInfo();
 
     /* constructor */
-    VxCascadeInfo(const std::vector<xAOD::Vertex*> & vertices,
-                  const std::vector<std::vector<TLorentzVector> > & moms,
-                              const std::vector< Amg::MatrixX >   & covs,
+    VxCascadeInfo(std::vector<xAOD::Vertex*>  vertices,
+                  std::vector<std::vector<TLorentzVector> >  moms,
+                              std::vector< Amg::MatrixX >    covs,
 			       int nDoF, double Chi2);
 
 
     /* copy constructor */
     VxCascadeInfo(const VxCascadeInfo &);
+    VxCascadeInfo(VxCascadeInfo &&) noexcept = default;
 
     /* clone method */
     //virtual VxCascadeInfo* clone() const;
 	
     /* assignment operator */
     VxCascadeInfo operator= (const VxCascadeInfo &);
-    
+    VxCascadeInfo& operator= (VxCascadeInfo &&) noexcept = default;
+
     /* destructor */
     ~VxCascadeInfo();
 
 
     /* get list of particle momenta at vertices */
-    const std::vector< std::vector<TLorentzVector> >   & getParticleMoms() const ;
-    const std::vector< Amg::MatrixX >                    & getCovariance() const ;
-    int                                                  nDoF() const;
-    double                                               fitChi2() const;
+    const std::vector< std::vector<TLorentzVector> >   & getParticleMoms() const  { return m_particleMomAtVertex;}
+    const std::vector< Amg::MatrixX >                    & getCovariance() const  { return m_covarianceAtVertex; }
+    int                                                  nDoF() const      {     return m_nDoF;     }
+    double                                               fitChi2() const   {     return m_fullChi2; }
     void                                                 setFullCascadeCovariance(const Amg::MatrixX &);
 
 

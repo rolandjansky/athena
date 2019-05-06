@@ -1,4 +1,4 @@
-#include "MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool.h"
+#include "../MuonTrackSummaryHelperTool.h"
 #include "../MuonHitSummaryTool.h"
 
 using namespace Muon;

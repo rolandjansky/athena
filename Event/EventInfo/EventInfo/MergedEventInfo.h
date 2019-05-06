@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_MERGEDEVENTINFO_H
@@ -105,9 +105,7 @@ MergedEventInfo::clID() const
   return classID(); 
 }
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "SGTools/CLASS_DEF.h"
-#endif
+# include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( MergedEventInfo , 220174395 , 1 )
 
 inline const CLID& 

@@ -36,7 +36,8 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
         m_detElemsfromDetNodes(false),
         m_compact_ids_only(false),
         m_do_checks(false),
-        m_do_neighbours(true)
+        m_do_neighbours(true),
+        m_useCSC(true)
 {
     declareProperty("DetectorManagers",            m_detMgrs);
     declareProperty("DetectorNodes",   	           m_detNodes );
@@ -50,6 +51,7 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
     declareProperty("CompactIDsOnly",              m_compact_ids_only);
     declareProperty("DoIdChecks",                  m_do_checks);
     declareProperty("DoInitNeighbours",            m_do_neighbours);
+    declareProperty("UseCSC",                      m_useCSC);
 
     declareProperty("AtlasIDFileName",             m_idDictATLASName);
     declareProperty("InDetIDFileName",             m_idDictInDetName);
@@ -195,8 +197,10 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(4170, "MDTIDHELPER");
     if (status != StatusCode::SUCCESS) return status;
-    status =  addToDetStore(4171, "CSCIDHELPER");
-    if (status != StatusCode::SUCCESS) return status;
+    if (m_useCSC) {
+        status =  addToDetStore(4171, "CSCIDHELPER");
+        if (status != StatusCode::SUCCESS) return status;
+    }
     status =  addToDetStore(4172, "RPCIDHELPER");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(4173, "TGCIDHELPER");

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -36,6 +36,7 @@
 #	Combined   
 #	Unknown    <-- should be temporary until you figure out what to classify it as
 
+from __future__ import print_function
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
 #####################
@@ -87,7 +88,9 @@ UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "to
 
 UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
-                    "TauJetVtxFraction" ]
+                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster", "ClustersMeanSecondLambda", "ClustersMeanEMProbability", 
+                    "ClustersMeanCenterLambda", "ClustersMeanPresamplerFrac", "mu", "nVtxPU", "ClustersMeanFirstEngDens", "nModifiedIsolationTracks",
+                    "NUMWIDETRACK", "NUMTRACK", "MU", "absipSigLeadTrk" ]
 
 UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
                  "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
@@ -110,7 +113,7 @@ RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
 UnusedMuonVariables = ["ET_Core","ET_EMCore","d0_staco","z0_staco","CT_ET_Core","ET_HECCore",
                         "ET_TileCore","CT_EL_Type","phi0_staco","theta_staco","isEndcapGoodLayers",
-                        "isSmallGoodSectors","qOverP_staco","qOverPErr_staco",
+                        "isSmallGoodSectors","qOverP_staco","segmentsOnTrack","qOverPErr_staco",
                         "nUnspoiledCscHits","innerClosePrecisionHits","outerClosePrecisionHits",
                         "FSR_CandidateEnergy","middleClosePrecisionHits","CT_ET_LRLikelihood",
                         "extendedClosePrecisionHits","numEnergyLossPerTrack","numberOfGoodPrecisionLayers",
@@ -151,29 +154,29 @@ TriggerHLTList = [
     ('TrigMonConfig#HLT_OPI_HLT_monitoring_config',                        'BS',                      'Steer'),
     ('TrigMonEvent#HLT_OPI_HLT_monitoring_event',                          'BS',                      'Steer'), 
 
-    ('xAOD::TrigCompositeContainer#HLT_ExpressInfo_HLT',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::TrigCompositeAuxContainer#HLT_ExpressInfo_HLTAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::TrigCompositeContainer#HLT_L1TopoComposite',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoCompositeAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::TrigCompositeContainer#HLT_L1TopoMET',                         'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoMETAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeContainer#HLT_ExpressInfo_HLT',                   'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeAuxContainer#HLT_ExpressInfo_HLTAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeContainer#HLT_L1TopoComposite',                   'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoCompositeAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeContainer#HLT_L1TopoMET',                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoMETAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
 
-    ('xAOD::TrigCompositeContainer#HLT_MuonRoICluster',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Combined'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_MuonRoIClusterAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Combined'),
+    ('xAOD::TrigCompositeContainer#HLT_MuonRoICluster',                   'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Combined'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_MuonRoIClusterAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Combined'),
 
     ('xAOD::TrigCompositeContainer#HLT_MuonCalibrationStream', 		   'DS',	 	      'Muon'),
     ('xAOD::TrigCompositeAuxContainer#HLT_MuonCalibrationStreamAux.',      'DS', 		      'Muon'),
 
-    ('xAOD::EmTauRoIContainer#HLT_L1TopoEM',                               'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::EmTauRoIAuxContainer#HLT_L1TopoEMAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::EmTauRoIContainer#HLT_L1TopoTau',                              'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::EmTauRoIAuxContainer#HLT_L1TopoTauAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
+    ('xAOD::EmTauRoIContainer#HLT_L1TopoEM',                               'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::EmTauRoIAuxContainer#HLT_L1TopoEMAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::EmTauRoIContainer#HLT_L1TopoTau',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::EmTauRoIAuxContainer#HLT_L1TopoTauAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
 
-    ('xAOD::MuonRoIContainer#HLT_L1TopoMuon',                              'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::MuonRoIAuxContainer#HLT_L1TopoMuonAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
+    ('xAOD::MuonRoIContainer#HLT_L1TopoMuon',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::MuonRoIAuxContainer#HLT_L1TopoMuonAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
 
-    ('xAOD::JetRoIContainer#HLT_L1TopoJet',                                'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
-    ('xAOD::JetRoIAuxContainer#HLT_L1TopoJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
+    ('xAOD::JetRoIContainer#HLT_L1TopoJet',                                'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
+    ('xAOD::JetRoIAuxContainer#HLT_L1TopoJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
 
     #calo
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL', 'Calo'), 
@@ -188,6 +191,10 @@ TriggerHLTList = [
     #egamma
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+
+    ('xAOD::ElectronContainer#HLT_egamma_Iso_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_Iso_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
     ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
@@ -213,29 +220,34 @@ TriggerHLTList = [
     ('xAOD::TrigEMClusterAuxContainer#HLT_TrigT2CaloEgammaAux.',    'BS ESD AODFULL AODSLIM', 'Egamma'), 
     ('xAOD::TrigRingerRings#HLT_TrigT2CaloEgamma',                  'BS ESD AODFULL AODSLIM', 'Egamma'), 
     ('xAOD::TrigRingerRingsAuxContainer#HLT_TrigT2CaloEgammaAux.',  'BS ESD AODFULL AODSLIM', 'Egamma'), 
-    ('xAOD::TrigRNNOutput#HLT_TrigRingerNeuralFex',                 'BS ESD AODFULL', 'Egamma'), 
-    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigRingerNeuralFexAux.', 'BS ESD AODFULL', 'Egamma'),   
+
+    ('xAOD::TrigRNNOutput#HLT_TrigRingerNeuralFex',                 'BS ESD AODFULL AODSLIM', 'Egamma'), 
+    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigRingerNeuralFexAux.', 'BS ESD AODFULL AODSLIM', 'Egamma'),   
+
     ('xAOD::TrigRNNOutput#HLT_TrigTRTHTCounts', 		    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrigEFDielectronMassFex',                   'BS ESD AODFULL AODSLIM',  'Egamma'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigEFDielectronMassFexAux.',            'BS ESD AODFULL AODSLIM',  'Egamma'),
+
+    ('xAOD::TrackParticleContainer#HLT_GSFTrigTrackParticles',                     'BS ESD AODFULL AODSLIM',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_GSFTrigTrackParticlesAux'+RemoveIDVariables,     'BS ESD AODFULL AODSLIM',  'Egamma'),
     
     #bphys
-    ('xAOD::TrigBphysContainer#HLT_EFBMuMuFex',                               'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuFexAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFBMuMuXFex',                              'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuXFexAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFDsPhiPiFex',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFDsPhiPiFexAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFMuPairs',                                'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFMuPairsAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFTrackMass',                              'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFTrackMassAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFMultiMuFex',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFMultiMuFexAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysContainer#HLT_EFBMuMuXFex_X',                               'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
-    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuXFex_XAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFBMuMuFex',                               'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuFexAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFBMuMuXFex',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuXFexAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFDsPhiPiFex',                             'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFDsPhiPiFexAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFMuPairs',                                'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFMuPairsAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFTrackMass',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFTrackMassAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFMultiMuFex',                             'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFMultiMuFexAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFBMuMuXFex_X',                            'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuXFex_XAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Bphys'),
 
     ('xAOD::TrigBphysContainer#HLT_L2BMuMuFex',                                  'BS ESD AODFULL AODSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_L2BMuMuFexAux.',                           'BS ESD AODFULL AODSLIM', 'Bphys'),
@@ -298,21 +310,24 @@ TriggerHLTList = [
     ('xAOD::L2IsoMuonAuxContainer#HLT_MuonL2ISInfoAux.',                        'BS ESD AODFULL',                'Muon'), #fp
 
     #MuonEFInfo
-    ('xAOD::MuonContainer#HLT_MuonEFInfo',                                         'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_MuonEFInfoAux'+RemoveMuonVariables,               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
+
+    ('xAOD::MuonContainer#HLT_MuonEFInfo',                                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',                'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonEFInfoAux.',                                  'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',                'Muon'),
+
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_CombTrackParticles',             'BS ESD AODFULL AODSLIM',                'Muon'),#fp
     ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM','Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_ExtrapTrackParticles',           'BS ESD AODFULL AODSLIM',                'Muon'),#fp
     ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
 
-    ('xAOD::MuonContainer#HLT_MuonEFInfo_FullScan',                                         'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_MuonEFInfo_FullScanAux.',                                                               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
+    ('xAOD::MuonContainer#HLT_MuonEFInfo_FullScan',                                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',     'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonEFInfo_FullScanAux.',                                  'BS ESD AODFULL AODSLIM AODVERYSLIM',                'Muon'),
+
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_ExtrapTrackParticles_FullScan',           'BS ESD AODFULL AODSLIM',                'Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_CombTrackParticles_FullScan',             'BS ESD AODFULL AODSLIM',                'Muon'),#fp
     ('xAOD::MuonContainer#HLT_MuonEFInfo_MSonlyTrackParticles_FullScan',                    'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_ExtrapTrackParticles_FullScanAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
     ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_CombTrackParticles_FullScanAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM','Muon'),#fp
-    ('xAOD::MuonAuxContainer#HLT_MuonEFInfo_MSonlyTrackParticles_FullScanAux.',                                          'BS ESD AODFULL AODSLIM',                'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonEFInfo_MSonlyTrackParticles_FullScanAux.',                           'BS ESD AODFULL AODSLIM',                'Muon'),
 
 
     #eMuonEFInfo
@@ -353,7 +368,15 @@ TriggerHLTList = [
     ('xAOD::TrigMissingET#HLT_EFMissingET_Fex_2sidednoiseSupp_PUC',             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUCAux.',      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mhtAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mhtAux.',             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocltrk_PUC_nojcalib',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocltrk_PUC_nojcalibAux.',      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocltrk_PUC_nojcalib',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocltrk_PUC_nojcalibAux.',      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocltrk_PUC_em_nojcalib',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocltrk_PUC_em_nojcalibAux.',   'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocltrk_PUC_nojcalib',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocltrk_PUC_nojcalibAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
@@ -362,11 +385,19 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmhtFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht_em',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mht_emAux.',             'BS ESD AODFULL AODSLIM',                'MET'),
+
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktcFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcAux.',             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktcFTK',                          'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcFTKAux.',          'BS ESD AODFULL AODSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigL2MissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigL2MissingET_FEBAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
@@ -401,11 +432,12 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTF'  ,       'BS ESD AODFULL',          'MET'),
 
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrig',      'BS ESD AODFULL AODSLIM',  'Egamma'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrig',          'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrig',          'BS ESD AODFULL AODSLIM AODBLSSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_IDTrig',           'BS ESD AODFULL',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_IDTrig',          'BS ESD AODFULL AODSLIM',  'Bjet'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrig',      'BS ESD AODFULL AODSLIM',  'Bphys'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrig',      'BS ESD AODFULL AODSLIM AODBLSSLIM',  'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_FTF',         'BS ESD AODFULL',  'Bphys'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_BphysHighPt_IDTrig',   'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
 
     #FTK
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTK',             'BS ESD AODFULL AODSLIM',  'Muon'),
@@ -420,8 +452,8 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig', 'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig',  'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig', 'BS ESD AODFULL AODSLIM',  'Bjet'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTK',             'BS ESD AODFULL AODSLIM',  'Jet'),
-    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTKRefit',             'BS ESD AODFULL AODSLIM',  'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTK',         'BS ESD AODFULL AODSLIM',  'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTKRefit',    'BS ESD AODFULL AODSLIM',  'Jet'),
 
     #EF tracking
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_EFIDAux'+RemoveIDVariables,             'BS ESD AODFULL',          'Bjet'),
@@ -468,11 +500,12 @@ TriggerHLTList = [
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrigAux'+RemoveIDVariables,  'BS ESD AODFULL AODSLIM',  'Bjet'),
 
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL AODSLIM',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrigAux'+RemoveIDVariables,           'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrigAux'+RemoveIDVariables,           'BS ESD AODFULL AODSLIM AODBLSSLIM',  'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_IDTrigAux'+RemoveIDVariables,            'BS ESD AODFULL',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_IDTrigAux'+RemoveIDVariables,           'BS ESD AODFULL AODSLIM',  'Bjet'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL AODSLIM',  'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL AODSLIM AODBLSSLIM',  'Bphys'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_FTFAux'+RemoveIDVariables,          'BS ESD AODFULL',  'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_BphysHighPt_IDTrigAux'+RemoveIDVariables,    'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
 
     #jets
     ('xAOD::JetContainer#HLT_TrigHLTJetDSSelectorCollection',            'DS ESD AODFULL', 'Jet'),
@@ -583,6 +616,12 @@ TriggerHLTList = [
     # R=0.3 HI jets
     ('xAOD::JetContainer#HLT_a3ionemsubjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    # R=0.4 HI jets with insitu calibration
+    ('xAOD::JetContainer#HLT_a4ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    # R=0.3 HI jets with insitu calibration
+    ('xAOD::JetContainer#HLT_a3ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     
     # 2016 EM Calibration
     ('xAOD::JetContainer#HLT_a4tcemsubjesISFS',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
@@ -610,9 +649,11 @@ TriggerHLTList = [
     ('xAOD::JetContainer#HLT_a4sktclcwnojcalibFS',                       'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4sktclcwnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
 
-    # SoftKiller
-    ('xAOD::JetContainer#HLT_a4_sktclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a4_sktclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
+    #-----This had been removed in 21.3, keeping here for potential backwards compatibility but commented out for now
+    # SoftKiller 
+    #('xAOD::JetContainer#HLT_a4_sktclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
+    #('xAOD::JetTrigAuxContainer#HLT_a4_sktclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
+    #----------------
 
     #GSC
     ('xAOD::JetContainer#HLT_GSCJet', 						'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
@@ -668,20 +709,20 @@ TriggerHLTList = [
 
     # start of L2+EF list
 
-#   ('TrigPassBits#HLT_passbits',                                         'BS ESD AODFULL AODSLIM', 'Steer'),
+#   ('TrigPassBits#HLT_passbits',                                         'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Steer'),
 
    ('xAOD::TrigPassBits#HLT_passbits',                 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
    ('xAOD::TrigPassBitsAuxContainer#HLT_passbitsAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
 
     # rois == L2 List
     ('TrigRoiDescriptor#HLT',                                             'BS ESD',                 'Steer'),
-    ('TrigRoiDescriptor#HLT_forID',                                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tracking'),
-    ('TrigRoiDescriptor#HLT_forID1',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tracking'),
-    ('TrigRoiDescriptor#HLT_forID2',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tracking'),
-    ('TrigRoiDescriptor#HLT_forID3',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tracking'),
-    ('TrigRoiDescriptor#HLT_forMS',                                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Muon'),
-    ('TrigRoiDescriptor#HLT_initialRoI',                                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
-    ('TrigRoiDescriptor#HLT_secondaryRoI_L2',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
+    ('TrigRoiDescriptor#HLT_forID',                                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forID1',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forID2',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forID3',                                      'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forMS',                                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Muon'),
+    ('TrigRoiDescriptor#HLT_initialRoI',                                  'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('TrigRoiDescriptor#HLT_secondaryRoI_L2',                             'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('TrigRoiDescriptor#HLT_T2TauFinal',                                  '',                       'Tau'),
     #    ('TrigRoiDescriptor#HLT_TrigT2CaloEgamma',                            'BS ESD',                 'Egamma'), 
     ('TrigRoiDescriptor#HLT_TrigT2CaloJet',                               'BS ESD',                 'Jet'),
@@ -896,31 +937,31 @@ TriggerHLTList = [
 
 TriggerResultsList=[
     ('TrigDec::TrigDecision#TrigDecision' ,           '', 'Steer'),#still needed for Run2?
-    ('xAOD::TrigDecision#xTrigDecision' ,             'ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
-    ('xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.',   'ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
-    ('xAOD::TrigConfKeys#TrigConfKeys' ,              'ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
+    ('xAOD::TrigDecision#xTrigDecision' ,             'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigConfKeys#TrigConfKeys' ,              'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     #    ('HLT::HLTResult#HLTResult_L2',                    'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     #    ('HLT::HLTResult#HLTResult_EF' ,                   'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     ('HLT::HLTResult#HLTResult_HLT',                  'ESD', 'Steer'),
-    ('xAOD::TrigNavigation#TrigNavigation' ,          'ESD AODFULL AODSLIM AODVERYSLIM', 'Steer'),
-    ('xAOD::TrigNavigationAuxInfo#TrigNavigationAux.','ESD AODFULL AODSLIM AODVERYSLIM', 'Steer')
+    ('xAOD::TrigNavigation#TrigNavigation' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::TrigNavigationAuxInfo#TrigNavigationAux.','ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer')
     ]
 
 
 TriggerLvl1List=[
-    ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,          'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' ,   'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::EmTauRoIContainer#LVL1EmTauRoIs' ,        'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux.' , 'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::JetRoIContainer#LVL1JetRoIs' ,            'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::JetRoIAuxContainer#LVL1JetRoIsAux.' ,     'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::JetEtRoI#LVL1JetEtRoI' ,                  'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.' ,       'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,          'ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
-    ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.','ESD AODFULL AODSLIM AODVERYSLIM', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' ,   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EmTauRoIContainer#LVL1EmTauRoIs' ,        'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux.' , 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::JetRoIContainer#LVL1JetRoIs' ,            'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::JetRoIAuxContainer#LVL1JetRoIsAux.' ,     'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::JetEtRoI#LVL1JetEtRoI' ,                  'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.' ,       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+    ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.','ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
-    ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD AODFULL', 'L1'),
-    ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD AODFULL', 'L1'),
+    ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD AODFULL AODBLSSLIM', 'L1'),
+    ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD AODFULL AODBLSSLIM', 'L1'),
 
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
@@ -1683,7 +1724,7 @@ def getTriggerEDMSlimList(key):
     for k,v in _edmList.items():
         newnames = []
         for el in v:
-            if 'Aux' in el and '.-' in el:
+            if 'Aux' in el: #and '.-' in el:
                 newnames+=[el.split('.')[0]+'.-']
             else:
                 newnames+=[el]
@@ -1952,7 +1993,7 @@ def getARATypesRenaming():
                     # Duplicate entry; ok.
                     continue
                 else:
-                    print "ERROR types/keys will catch ", t, " ", key
+                    print ("ERROR types/keys will catch ", t, " ", key)
                 continue
             else:
                 obj = t                    
@@ -1962,7 +2003,7 @@ def getARATypesRenaming():
                 # form the branch name
                 bname = key+'_'+EDMDetails[t]['typealias']
                         
-                #print 'type/key : ',key, '/', obj, ' to be aliased to: ', bname
+                #print ('type/key : ',key, '/', obj, ' to be aliased to: ', bname)
                 renames[(key, obj)] = bname
             
     return renames

@@ -162,7 +162,7 @@ namespace xAOD {
 } // namespace xAOD
 
 #ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 SG_BASE (xAOD::IParticle, SG::AuxElement);
 #endif // not XAOD_STANDALONE
 

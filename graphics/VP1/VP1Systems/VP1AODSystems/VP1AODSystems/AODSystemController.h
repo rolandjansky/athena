@@ -20,7 +20,9 @@
 
 #include "VP1Base/VP1Controller.h"
 #include <QFlags>
-#include "GaudiKernel/ServiceHandle.h"
+#ifndef BUILDVP1LIGHT
+    #include "GaudiKernel/ServiceHandle.h"
+#endif
 
 class SoMaterial;
 class SoDrawStyle;

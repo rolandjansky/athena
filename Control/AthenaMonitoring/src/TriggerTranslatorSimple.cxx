@@ -21,7 +21,7 @@ StatusCode TriggerTranslatorToolSimple::initialize() {
   std::vector<std::string> junk;
   //m_trigmap[""] = junk;
   for(const auto item : m_trigmap_property) {
-    ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second << std::endl );
+    ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second );
     std::vector<std::string> triggers;
     boost::split(triggers, item.second, boost::is_any_of(","));
     m_trigmap[item.first] = triggers;

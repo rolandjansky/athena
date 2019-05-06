@@ -38,7 +38,3 @@ atlas_add_component( MuonTrackSummaryHelperTool
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonPrepRawData TrkGeometry TrkEventPrimitives TrkTrackSummary TrkToolInterfaces StoreGateLib SGtests Identifier MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkExInterfaces )
-
-# Install files from the package:
-atlas_install_headers( MuonTrackSummaryHelperTool )
-

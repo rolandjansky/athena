@@ -17,6 +17,7 @@
 #include <string>
 
 class IClassIDSvc;
+class IDecisionSvc;
 class IConversionSvc;
 class StoreGateSvc;
 class DataHeader;
@@ -69,7 +70,7 @@ public:
 
    /// Stream out a vector of objects
    ///   Must convert to DataObject, e.g.
-   ///   #include "SGTools/StorableConversions.h"
+   ///   #include "AthenaKernel/StorableConversions.h"
    ///     T* obj = xxx;
    ///     DataObject* dataObject = SG::asStorable(obj);
    typedef std::vector<DataObject*> DataObjectVec;
@@ -93,12 +94,16 @@ private:
    StringProperty  m_containerNameHint{ this, "TopLevelContainerName", "0", "naming hint policy for top level POOL container: default = \"0\""};
    StringProperty  m_branchNameHint{ this, "SubLevelBranchName", "0", "naming hint policy for POOL branching: default = \"0\"" };
    SG::ReadHandleKey<AthenaAttributeList>  m_attrListKey{this, "AttributeListKey", "", "optional key for AttributeList to be written as part of the DataHeader: default = \"\""};
+   //SG::WriteHandleKey<AthenaAttributeList>  m_attrListWrite{this, "AttributeListWrite", "", "optional key for AttributeList to be written as part of the DataHeader: default = <AttributeListKey>+\"Decisions\""};
+   std::string  m_attrListWrite{""};
 
    ServiceHandle<StoreGateSvc>   m_store{ this, "Store", "StoreGateSvc/DetectorStore", "Pointer to the data store"};
    /// Keep reference to the data conversion service
    ServiceHandle<IConversionSvc> m_conversionSvc;
    /// Ref to ClassIDSvc to convert type name to clid
    ServiceHandle<IClassIDSvc>    m_clidSvc;
+   /// Ref to DecisionSvc
+   ServiceHandle<IDecisionSvc>   m_decSvc;
    /// Current DataHeader for streamed objects
    DataHeader*     m_dataHeader;
    /// Name of DataHeader key
@@ -107,7 +112,9 @@ private:
    bool            m_connectionOpen;
    /// Flag as to whether to extend provenance via the DataHeader
    bool            m_extendProvenanceRecord;
-
+   /// Flag to extend attribute list with stream flags from DecisionSvc
+   bool m_extend;
+   
    /// set of skipped item keys, because of missing CLID
    std::set<std::string> m_skippedItems;
 };

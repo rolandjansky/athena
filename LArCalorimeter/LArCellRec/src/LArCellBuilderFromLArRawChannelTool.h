@@ -99,7 +99,6 @@ private:
   unsigned m_nTotalCells;                   //!< Number of cells, set in Initialize()
 
 
-  const CaloDetDescrManager* m_caloDDM;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
   const LArOnlineID* m_onlineID;
   const CaloCell_ID*  m_caloCID;

@@ -379,14 +379,16 @@ StatusCode EventSelectorByteStream::openNewRun() const {
    }
    std::string blockname = *m_inputCollectionsIterator;
    // try to open a file, if failure go to next FIXME: PVG: silient failure?
-   long nev = m_eventSource->getBlockIterator(blockname);
+   //long nev = m_eventSource->getBlockIterator(blockname);
+   auto nevguid = m_eventSource->getBlockIterator(blockname);
+   long nev = nevguid.first;
    if (nev == -1) {
       ATH_MSG_FATAL("Unable to access file " << *m_inputCollectionsIterator << ", stopping here");
       throw ByteStreamExceptions::fileAccessError();
    }
    // Fire the incident
    if (!m_beginFileFired) {
-     FileIncident beginInputFileIncident(name(), "BeginInputFile", "BSF:" + *m_inputCollectionsIterator);
+     FileIncident beginInputFileIncident(name(), "BeginInputFile", "BSF:" + *m_inputCollectionsIterator,nevguid.second);
      m_incidentSvc->fireIncident(beginInputFileIncident);
      //m_beginFileFired = true;   // Should go here, but can't because IEvtSelector next is const
    }
@@ -693,7 +695,8 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
       std::string fileName = m_inputCollectionsProp.value()[fileNum];
       m_fileCount = fileNum;
       // Open the correct file
-      long nev = m_eventSource->getBlockIterator(fileName);
+      auto nevguid = m_eventSource->getBlockIterator(fileName);
+      long nev = nevguid.first;
       if (nev == -1) {
          ATH_MSG_FATAL("Unable to open file with seeked event " << evtNum << " file " << fileName);
          return StatusCode::FAILURE;
@@ -849,7 +852,8 @@ int EventSelectorByteStream::findEvent(int evtNum) const {
       // if file not opened yet, check it
       if (m_numEvt[i] == -1) {
          std::string fileName = m_inputCollectionsProp.value()[i];
-         int nev = m_eventSource->getBlockIterator(fileName);
+         auto nevguid = m_eventSource->getBlockIterator(fileName);
+         long nev = nevguid.first;
          // if failure on file open, exit
          if (nev==-1) {
             break;

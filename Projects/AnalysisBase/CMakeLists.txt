@@ -17,18 +17,13 @@ unset( _version )
 # This project is built on top of AnalysisBaseExternals:
 find_package( AnalysisBaseExternals REQUIRED )
 
-# Find Python. This is needed because AnalysisBaseExternals sets up
-# a wrong value for PYTHONHOME. And nothing in AnalysisBase builds
-# against Python to correct it.
-find_package( PythonInterp )
-
 # Set up the build/runtime environment:
-set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR} )
+set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
+   "Path to AnalysisBaseReleaseEnvironmentConfig.cmake" )
 find_package( AnalysisBaseReleaseEnvironment REQUIRED )
 
-# Add the directory to the global include path, where the project
-# will create the RootCore/Packages.h header:
-include_directories( ${CMAKE_BINARY_DIR}/RootCore/include )
+# Make the local CMake files visible to AtlasCMake.
+list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 
 # Set up CTest:
 atlas_ctest_setup()
@@ -39,9 +34,9 @@ atlas_project( AnalysisBase ${ANALYSISBASE_PROJECT_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Configure and install the post-configuration file:
-configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
-   ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Generate replacement rules for the installed paths:
@@ -59,9 +54,9 @@ endif()
 lcg_generate_env(
    SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 lcg_generate_env(
-   SH_FILE ${CMAKE_BINARY_DIR}/env_setup_install.sh
+   SH_FILE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    REPLACE ${_replacements} )
-install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Set up the release packaging:

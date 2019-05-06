@@ -192,7 +192,8 @@ class TileCellBuilderFromHit
                         int ros, int drawer, bool count_over, bool good_time, bool good_ener,
         bool overflow, bool underflow, bool good_overflowfit) const; //!< method to compute the cell quality bits
 
-    int m_RUN2;
+    bool m_RUN2;
+    bool m_RUN2plus;
     int m_E1_TOWER;
 
     static const int NSIDE = 2;

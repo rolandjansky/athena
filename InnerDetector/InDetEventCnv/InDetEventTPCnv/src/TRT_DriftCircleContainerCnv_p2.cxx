@@ -197,7 +197,7 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p2::createTransient
       return nullptr; // if m_trtId not initialized return null pointer instead of dereferencing it later
      }
     }
-    std::auto_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->straw_layer_hash_max()));
+    std::unique_ptr<InDet::TRT_DriftCircleContainer> trans(std::make_unique<InDet::TRT_DriftCircleContainer>(m_trtId->straw_layer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

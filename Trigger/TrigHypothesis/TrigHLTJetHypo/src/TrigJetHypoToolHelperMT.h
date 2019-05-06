@@ -10,8 +10,9 @@
  * Initial jet removal from incomming container is done using the ICleaner predicates.
  * The surviving jets are grouped into subsets by the IJetGroup object.
  *
- * The IMatcher objector owns a set of Conditions objects. The MAtcher determines 
- * wether the container of jet groups satisfies the Conditions. If so,
+ * The IMatcher objector owns a set of Conditions objects. 
+ * The Matcher determines 
+ * whether the container of jet groups satisfies the Conditions. If so,
  * the event passes, otherwise it fails.
  *
  */
@@ -21,15 +22,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleanerTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IGroupsMatcher.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+#include "./IGroupsMatcherMT.h"
+#include "./ConditionsDefsMT.h"
 
 #include "ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 
-#include "./Timer.h"
-
-class ITrigJetHypoHelperVisitor;
+class ITrigJetHypoInfoCollector;
 
 class TrigJetHypoToolHelperMT:
 public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
@@ -40,11 +39,10 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                           const IInterface* parent);
 
   StatusCode initialize() override;
-  bool  pass(HypoJetVector&);
-  
-  virtual void accept(ITrigJetHypoHelperVisitor&) override;
+  bool  pass(HypoJetVector&,
+             ITrigJetHypoInfoCollector*) const;
 
-  std::string toStringAndResetHistory();
+  virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
 
@@ -54,15 +52,11 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   std::unique_ptr<IJetGrouper> m_grouper;
 
   // Object that matchs jet groups with Conditions
-  std::unique_ptr<IGroupsMatcher> m_matcher;
+  std::unique_ptr<IGroupsMatcherMT> m_matcher;
 
   // Bridge objects to ICleaner predicate function objects to allow polymorphic
   // pointers to be used with the STL (pass by value).
   ToolHandleArray<ICleanerTool> m_cleaners;
-
-
-  // Paraphanalia needed for the Jet Hypo Helper class:
-  Conditions m_conditions;
 
   ///////////////////////////////
 
@@ -80,12 +74,13 @@ Gaudi::Property<int>
 Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
 
- bool m_pass;
+
+ void collectData(const std::string& exetime,
+                  ITrigJetHypoInfoCollector* collector,
+                  std::unique_ptr<IConditionVisitor>&,
+                  bool pass) const;
 
  std::string toString() const;
- void resetHistory();
-
- std::unique_ptr<JetTrigTimer> m_timer;
 };
 
 #endif

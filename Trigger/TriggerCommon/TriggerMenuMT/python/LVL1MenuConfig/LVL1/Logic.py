@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __all__ = ['Logic', 'Not']
 
-from copy import copy,deepcopy
+from copy import copy
 
 from Lvl1MenuUtil import log
 
@@ -91,7 +91,7 @@ class Logic(object):
     def __str__(self):
         s = ''
         if self.logic == Logic.NONE:
-            if len(self.subConditions)==0 and self.condition!=None:
+            if len(self.subConditions)==0 and self.condition is not None:
                 return str(self.condition)
             if len(self.subConditions)==1:
                 return str(self.subConditions[0])
@@ -105,17 +105,18 @@ class Logic(object):
                     return '!'+str(self.subConditions[0])
                 else:
                     return '!('+str(self.subConditions[0]) + ')'
-            log.error('Logic NOT must have exactly one element but has %i' % len(self.subConditions))
+            log.error('Logic NOT must have exactly one element but has %i', len(self.subConditions))
             return ''
 
         if self.logic == Logic.AND or self.logic == Logic.OR:
             s = ''
             if len(self.subConditions)<=1:
-                log.error('Logic AND/OR must have more than one sub element but has %i: %r' % (len(self.subConditions), self.subConditions))
+                log.error('Logic AND/OR must have more than one sub element but has %i: %r', len(self.subConditions), self.subConditions)
                 return ''
             else:
                 for (i, a) in enumerate(self.subConditions):
-                    if i > 0: s += self.logic
+                    if i > 0:
+                        s += self.logic
                     if(a.logic == Logic.NONE or a.logic == Logic.NOT):
                         s += str(a)
                     else:
@@ -125,7 +126,7 @@ class Logic(object):
 
     def thresholdNames(self, include_bgrp=False):
         names = set([])
-        if self.condition!=None:
+        if self.condition is not None:
             from Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_bgrp:
@@ -140,7 +141,7 @@ class Logic(object):
 
     def conditions(self, include_internal=False):
         cond = set([])
-        if self.condition!=None:
+        if self.condition is not None:
             from Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_internal:
@@ -184,13 +185,13 @@ class Logic(object):
 
         else:
             log.error('Unknown node in LVL1 item logic')
-            log.error('  ==> sublogic = %s' % self.logic)
-            log.error('  ==> # subConditions = %i' % len(self.subConditions))
+            log.error('  ==> sublogic = %s', self.logic)
+            log.error('  ==> # subConditions = %i', len(self.subConditions))
 
 
     def printIt(self):
         for a in self.subConditions:
-            if a.logic==a.NONE and a.condition!=None:
+            if a.logic==a.NONE and a.condition is not None:
                 log.info('subCondition :', str(a.condition))
             else:
                 log.info('subCondition :', a.printIt())

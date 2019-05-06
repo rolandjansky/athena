@@ -20,15 +20,12 @@
 #include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
-#include "LArHV/EMECHVElectrodeConstLink.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
-#include "LArHV/HECHVSubgapConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 
 #include "LArHV/LArHVManager.h"
@@ -213,8 +210,8 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       const EMECCellConstLink cell = emecElement->getEMECCell();
       unsigned int nelec = cell->getNumElectrodes();
       for (unsigned int i=0;i<nelec;i++) {
-        const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+        const EMECHVElectrode& electrode = cell->getElectrode(i);
+        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
       }
     }
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
@@ -223,25 +220,17 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
     const HECCellConstLink cell = hecElement->getHECCell();
     unsigned int nsubgaps = cell->getNumSubgaps();
     for (unsigned int igap=0;igap<nsubgaps;igap++) {
-      const HECHVSubgapConstLink subgap = cell->getSubgap(igap);
-      hv.insert(subgap->hvLineNo());
+      const HECHVSubgap& subgap = cell->getSubgap(igap);
+      hv.insert(subgap.hvLineNo());
     }
   } else if (m_larfcal_id->is_lar_fcal(id)) { // LAr FCAL
     const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
     if (!fcalElement) std::abort();
     const FCALTile* tile = fcalElement->getFCALTile();
     unsigned int nlines = tile->getNumHVLines();
-    unsigned int nlines_found=0;
     for (unsigned int i=0;i<nlines;i++) {
-      const FCALHVLineConstLink line = tile->getHVLine(i);
-      if (line) nlines_found++;
-    }
-    if ( nlines_found>0 ) {
-      for (unsigned int i=0;i<nlines;i++) {
-        const FCALHVLineConstLink line = tile->getHVLine(i);
-        if (!line) continue;
-        hv.insert(line->hvLineNo());
-      }
+      const FCALHVLine* line = tile->getHVLine(i);
+      if(line) hv.insert(line->hvLineNo());
     }
   } else if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)==0) { // Presamplers
     if (abs(m_larem_id->barrel_ec(id))==1) {
