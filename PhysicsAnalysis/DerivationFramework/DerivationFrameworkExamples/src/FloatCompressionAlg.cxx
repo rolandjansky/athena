@@ -73,7 +73,7 @@ namespace DerivationFramework {
             ATH_CHECK( evtStore()->retrieve( store, key ) );
             stores.push_back( std::make_pair( store, key ) );
          }
-      } else {
+      } /*else {
          SG::ConstIterator< SG::IConstAuxStore > begin, end;
          ATH_CHECK( evtStore()->retrieve( begin, end ) );
          for( auto itr = begin; itr != end; ++itr ) {
@@ -81,7 +81,7 @@ namespace DerivationFramework {
             ATH_CHECK( evtStore()->retrieve( store, itr.key() ) );
             stores.push_back( std::make_pair( store, itr.key() ) );
          }
-      }
+	 } */
       ATH_MSG_DEBUG( "Number of IConstAuxStore objects retrieved: "
                      << stores.size() );
 

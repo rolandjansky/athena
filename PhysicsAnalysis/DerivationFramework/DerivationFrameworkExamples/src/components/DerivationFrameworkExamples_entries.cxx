@@ -11,13 +11,13 @@ DECLARE_TOOL_FACTORY( SkimmingToolExample )
 DECLARE_TOOL_FACTORY( ThinningToolExample )
 DECLARE_TOOL_FACTORY( AugmentationToolExample )
 DECLARE_TOOL_FACTORY( NANOThinningTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( DerivationFramework, FloatCompressionAlg )
+DECLARE_ALGORITHM_FACTORY(FloatCompressionAlg )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkExamples ) {
    DECLARE_TOOL( SkimmingToolExample )
    DECLARE_TOOL( ThinningToolExample )
    DECLARE_TOOL( AugmentationToolExample )
    DECLARE_TOOL( NANOThinningTool )
-   DECLARE_NAMESPACE_ALGORITHM( DerivationFramework, FloatCompressionAlg )
+   DECLARE_ALGORITHM( FloatCompressionAlg )
 }
 
