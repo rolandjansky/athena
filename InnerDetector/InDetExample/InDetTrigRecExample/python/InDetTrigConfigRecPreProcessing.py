@@ -14,9 +14,15 @@
 #EF_SCTRDOKey="SCT_RDOs"
 #EF_TRTRDOKey="TRT_RDOs"
 
+
 EF_PixRDOKey="PixelRDOs_EF"
 EF_SCTRDOKey="SCT_RDOs_EF"
 EF_TRTRDOKey="TRT_RDOs_EF"
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+if not TriggerFlags.doTransientByteStream():
+   EF_PixRDOKey="PixelRDOs"
+
+
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("EFID")
@@ -45,6 +51,7 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
                                                                    Decoder = InDetTrigPixelRodDecoder)
       ToolSvc += InDetTrigPixelRawDataProviderTool
 
+      
       from InDetTrigRawDataProvider.InDetTrigRawDataProviderConf import InDet__TrigPixRawDataProvider
 
       InDetTrigPixRawDataProvider = \
@@ -82,7 +89,8 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       self.clusteringTool          = InDetTrigMergedPixelsTool
       self.gangedAmbiguitiesFinder = InDetTrigPixelGangedAmbiguitiesFinder
       self.Pixel_RDOContainerName  = EF_PixRDOKey
-
+      self.skipBSDecoding = not TriggerFlags.doTransientByteStream() 
+      
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]
       self.PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',type)]
