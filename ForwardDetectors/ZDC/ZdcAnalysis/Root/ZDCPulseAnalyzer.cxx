@@ -227,6 +227,9 @@ void ZDCPulseAnalyzer::Reset()
   m_lastHGOverFlowSample  = -999;
   m_firstHGOverFlowSample = 999;
 
+  m_initialPrePulseT0  = -10;
+  m_initialPrePulseAmp = 5;
+
   m_samplesSub.clear();
   m_samplesDeriv.clear();
   m_samplesDeriv2nd.clear();
@@ -884,6 +887,8 @@ void ZDCPulseAnalyzer::DoFit()
   //
   float ampInitial = m_maxADCValue - m_minADCValue;
   float t0Initial = (m_useLowGain ? m_nominalT0LG : m_nominalT0HG);
+
+  if (ampInitial < 5) ampInitial = 5.1;
 
   ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
   if (PrePulse()) fitWrapper = m_prePulseFitWrapper;
