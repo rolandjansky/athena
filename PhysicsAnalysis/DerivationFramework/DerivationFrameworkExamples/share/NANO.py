@@ -338,35 +338,6 @@ print( jetSequence ) # For debugging
 
 SeqNANO += jetSequence
 
-# Float compression
-
-SeqNANO += CfgMgr.DerivationFramework__FloatCompressionAlg("NANOFloatCompression", SGKeys=[#"TruthPhotonsAux.",
-                                                                                           #"AnalysisJets_NOSYSAux.",
-                                                                                           #"AnalysisElectrons_NOSYSAux.",
-                                                                                           #"AnalysisPhotons_NOSYSAux.",
-                                                                                           #"AnalysisTauJets_NOSYSAux.",
-                                                                                           #"AnalysisMuons_NOSYSAux.",
-                                                                                           "TrigNavigationAux.",
-                                                                                           #"TauTracksAux.",
-
-                                                                                           "AntiKt4TruthJetsAux.",
-                                                                                           "LVL1EnergySumRoIAux.",
-                                                                                           "EventInfoAux.",
-                                                                                           "LVL1JetEtRoIAux.",
-                                                                                           "xTrigDecisionAux.",
-                                                                                           "METAssoc_AntiKt4EMTopoAux.",
-
-"AnalysisElectrons_NOSYSAux.", "AnalysisJets_NOSYSAux.", "AnalysisMuons_NOSYSAux.", "AnalysisPhotons_NOSYSAux.", "AnalysisTauJets_NOSYSAux.", "BTagging_AntiKt4EMTopoAux.", "CaloCalTopoClustersAux.", "CombinedMuonTrackParticlesAux.", 
-#"ExtrapolatedMuonTrackParticlesAux.", 
-"GSFTrackParticlesAux.", 
-#"HLT_xAOD__BTaggingContainer_HLTBjetFexAux.", 
-"HLT_xAOD__ElectronContainer_egamma_ElectronsAux.", "HLT_xAOD__JetContainer_EFJetAux.", "HLT_xAOD__JetContainer_GSCJetAux.", "HLT_xAOD__JetContainer_SplitJetAux.", "HLT_xAOD__JetContainer_a10r_tcemsubjesFSAux.", "HLT_xAOD__JetContainer_a10r_tcemsubjesISFSAux.", "HLT_xAOD__JetContainer_a10tclcwsubjesFSAux.", "HLT_xAOD__JetContainer_a10ttclcwjesFSAux.", "HLT_xAOD__JetContainer_a4tcemsubjesFSAux.", "HLT_xAOD__JetContainer_a4tcemsubjesISFSAux.", "HLT_xAOD__MuonContainer_MuonEFInfoAux.", "HLT_xAOD__MuonContainer_MuonEFInfo_FullScanAux.", "HLT_xAOD__PhotonContainer_egamma_PhotonsAux.", 
-#"HLT_xAOD__TauJetContainer_TrigTauRecMergedAux.", 
-"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_IDTrigAux.", "HLT_xAOD__TrigBphysContainer_EFBMuMuFexAux.", "HLT_xAOD__TrigBphysContainer_EFBMuMuXFexAux.", "HLT_xAOD__TrigBphysContainer_EFMultiMuFexAux.", "HLT_xAOD__TrigBphysContainer_EFTrackMassAux.", "HLT_xAOD__TrigBphysContainer_L2BMuMuFexAux.", "HLT_xAOD__TrigMissingETContainer_TrigEFMissingETAux.", "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mhtAux.", "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUCAux.", "HLT_xAOD__VertexContainer_EFHistoPrmVtxAux.", "HLT_xAOD__VertexContainer_xPrimVxAux.", "InDetTrackParticlesAux.", "LVL1EmTauRoIsAux.", "LVL1JetRoIsAux.", "LVL1MuonRoIsAux.", "MET_Core_AntiKt4EMTopoAux.", "MET_TrackAux.", "MET_TruthAux.", "MuonSpectrometerTrackParticlesAux.", "PrimaryVerticesAux.", "TauTracksAux.", "TruthBSMAux.", "TruthBosonAux.", "TruthElectronsAux.", "TruthEventsAux.", "TruthMuonsAux.", "TruthNeutrinosAux.", "TruthPhotonsAux.", "TruthTausAux.", "TruthTopAux.", "egammaClustersAux."
-
-])
-
-
 #==============================================================================
 # SUSY skimming selection
 #==============================================================================
