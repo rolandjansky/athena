@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/ 
- 
+*/  
 #include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
@@ -50,9 +49,10 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     }
 }
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
+  m_schema(schema),
   m_bXMLdefined(true)
 {
 
@@ -215,6 +215,7 @@ unsigned int PixelSimpleServiceXMLHelper::numElements() const
 
 int PixelSimpleServiceXMLHelper::getServiceIndex( std::string srvName) const
 {
+
   int srvIndex = getChildValue_Index("SimpleService",
 				     m_schema.volName().c_str(),
 				     -1,

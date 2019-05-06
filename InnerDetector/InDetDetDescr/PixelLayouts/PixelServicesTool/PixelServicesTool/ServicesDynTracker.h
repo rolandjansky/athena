@@ -53,10 +53,10 @@ public:
   void setServiceDynVolumes( const std::vector<ServiceDynVolume*> vc) {m_volumes=vc;}
 
   // methods called by Builder 
-  void constructBarrelLayer( double radius, double zHalfLength, 
+  void constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 			     DetTypeDyn::Type type, int num, int iStaveTmp,int nstaves, const std::string& suffix,
 			     int nModulesPerStave, int nChipsPerModule);
-  void constructBarrelLayer( double radius, double zHalfLength, 
+  void constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 			     DetTypeDyn::Type type, int num, int iStaveTmp, int nstaves, const std::string& suffix,
 			     std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule);
   void constructEndcapLayer( double zpos, double rmin, double rmax, 

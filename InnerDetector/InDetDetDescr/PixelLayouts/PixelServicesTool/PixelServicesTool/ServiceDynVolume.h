@@ -4,11 +4,13 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #ifndef ServiceDynVolume_H
 #define ServiceDynVolume_H
 
+#define _USE_MATH_DEFINES
 //#include "InDetServMatGeoModel/LinearService.h"
 #include "PixelServicesTool/ServiceDynMaterial.h"
 
 #include <vector>
 #include <string>
+#include <cmath>
 
 class ServicesDynLayer;
 
@@ -16,11 +18,12 @@ class ServiceDynVolume {
 public:
 
   enum Shape {Cylinder, Disk};
+  enum Routing {Z, R, Phi};
 
   typedef std::vector<const ServicesDynLayer*>   LayerContainer;
 
-  ServiceDynVolume( Shape sh, double rmin, double rmax, double zmin, double zmax, const std::string& name) :
-    m_shape(sh), m_rMin( rmin), m_rMax(rmax), m_zMin(zmin), m_zMax(zmax), m_name(name),
+ ServiceDynVolume( Shape sh, Routing routing, double rmin, double rmax, double zmin, double zmax, const std::string& name) :
+  m_shape(sh), m_routing(routing), m_rMin( rmin), m_rMax(rmax), m_zMin(zmin), m_zMax(zmax), m_name(name),
     m_layers(), m_endingLayer(0), m_previous(0), m_next(0) {}
 
   /// Add a layer the services of which are routed through this volume
@@ -40,8 +43,9 @@ public:
   }
 
   void addEosServices( const ServicesDynLayer* l);
-
+  
   Shape shape() const {return m_shape;}
+  Routing routing() const {return m_routing;}
   double zPos() const {return 0.5*(m_zMin+m_zMax);}
   double rMin() const {return m_rMin;}
   double rMax() const {return m_rMax;}
@@ -55,8 +59,14 @@ public:
   }
 
   double length() const {
-    if (shape() == Cylinder) return zMax()-zMin();
-    else                     return rMax() - rMin();
+    if (routing() == Routing::Z) return zMax()-zMin();
+    else if (routing() == Routing::R) return rMax()-rMin();
+    else if (routing() == Routing::Phi) return M_PI*(rMax()+rMin())/2.;
+    else return 0.;
+  }
+
+  double volume() const{
+    return M_PI*fabs( (zMax()-zMin()) * (rMax()*rMax()-rMin()*rMin()) );
   }
 
   const std::string& name() const {return m_name;}
@@ -93,6 +103,7 @@ public:
 private:
 
   Shape m_shape;
+  Routing m_routing;
   double m_rMin;
   double m_rMax;
   double m_zMin;

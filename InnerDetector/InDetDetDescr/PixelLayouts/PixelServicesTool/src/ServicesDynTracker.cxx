@@ -45,12 +45,12 @@ ServicesDynTracker::~ServicesDynTracker()
 
 }
 
-void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, 
+void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 					       DetTypeDyn::Type type,  int layerNum, int staveTmpNum,
 					       int nstaves, const std::string& suffix,
 					       int nModulesPerStave, int nChipsPerModule)
 {
-   ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, nstaves,
+  ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, staveZOffset, nstaves,
 						type, DetTypeDyn::Barrel, layerNum, staveTmpNum, suffix,
 						nModulesPerStave, nChipsPerModule);
 
@@ -75,12 +75,12 @@ void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength
    }
 }
 
-void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, 
+void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 					       DetTypeDyn::Type type, int layerNum, int staveTmpNum,
 					       int nstaves, const std::string& suffix,
 					       std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule)
 {
-   ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, nstaves,
+  ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, staveZOffset, nstaves,
 						type, DetTypeDyn::Barrel, layerNum, staveTmpNum, suffix,
 						nModulesPerStave, nChipsPerModule);
    
@@ -192,12 +192,7 @@ void ServicesDynTracker::finaliseServices()
 	layerMat.multiply( layer.nStaves()); // scale from one stave to full layer
 	
 	// add cooling, with possibility for manifilding
-	staveConverter.addCooling( layer.type(), layer.part(), layer.number(), layer.nStaves(), layerMat);
-	
-// 	if(msgLvl(MSG::DEBUG)){
-// 	  msg(MSG::DEBUG) <<"Dumping services for layer " << layer.number()<< endreq;
-// 	  layerMat.dump(cout);
-// 	}
+	staveConverter.addCooling( layer.type(), layer.part(), layer.number(), layer.nStaves(), layerMat);	
 	layerMaterial[*il] = layerMat;
       }
       result.push_back( layerMat);

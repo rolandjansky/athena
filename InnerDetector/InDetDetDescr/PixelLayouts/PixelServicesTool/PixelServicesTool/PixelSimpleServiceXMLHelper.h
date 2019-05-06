@@ -14,7 +14,7 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
 
  public:
   PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
-  PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(std::string envFileName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
 
     double rmin(int index) const;

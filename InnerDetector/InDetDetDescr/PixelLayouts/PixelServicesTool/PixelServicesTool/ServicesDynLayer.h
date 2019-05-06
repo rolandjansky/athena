@@ -14,12 +14,12 @@ class ServicesDynLayer {
 public:
 
   /// constructor for barrel layers
-  ServicesDynLayer( double radius, double halfLength, int nStaves,
+  ServicesDynLayer( double radius, double halfLength, double staveZOffset, int nStaves,
 		    DetTypeDyn::Type type, DetTypeDyn::Part part, int numLay, int numStaveTmp,
 		    const std::string& suffix,
 		    int nModulesPerStave, int nChipsPerModule);
 
-  ServicesDynLayer( double radius, double halfLength, int nStaves,
+  ServicesDynLayer( double radius, double halfLength, double staveZOffset, int nStaves,
 		    DetTypeDyn::Type type, DetTypeDyn::Part part, int numLay, int numStaveTmp,
 		    const std::string& suffix,
 		    std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule);
@@ -43,6 +43,7 @@ public:
   double zMax() const {return m_zPos+m_halfLength; }
 
   double halfLength() const {return m_halfLength;}
+  double staveZOffset() const {return m_staveZOffset;}
   int nStaves() const { return m_nStaves;}
   DetTypeDyn::Type type() const {return m_type;}
   DetTypeDyn::Part part() const {return m_part;}
@@ -71,6 +72,7 @@ private:
   double               m_rMin;
   double               m_rMax;
   double               m_halfLength;
+  double               m_staveZOffset;
   int                  m_nStaves;
   DetTypeDyn::Type        m_type;
   DetTypeDyn::Part        m_part;

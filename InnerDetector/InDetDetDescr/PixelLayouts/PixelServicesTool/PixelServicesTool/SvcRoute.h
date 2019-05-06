@@ -5,11 +5,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #define SvcRoute_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "PixelServicesTool/ServiceDynVolume.h"
 
 #include <vector>
 #include <string>
-
-class ServiceDynVolume;
 
 class SvcRoute {
 public:
@@ -21,8 +20,8 @@ public:
   virtual ServiceDynVolume* exitVolume( bool ascending, const Athena::MsgStreamMember& msg) const ;
 
   
-  SvcRoute(): m_exitVolume(0) {}
-  SvcRoute( const std::string& name): m_exitVolume(0), m_name(name) {}
+ SvcRoute(): m_exitVolume(0) {}
+ SvcRoute( ServiceDynVolume::Routing routing, const std::string& name): m_exitVolume(0), m_name(name), m_routing(routing) {}
 
   virtual ~SvcRoute() {}
 
@@ -30,7 +29,7 @@ public:
 
   virtual double exit() const = 0;
 
-  //virtual int direction() = 0;
+  ServiceDynVolume::Routing routing() const {return m_routing;}
 
   virtual SvcRoute* nextRoute() const = 0;
 
@@ -55,6 +54,7 @@ private:
   
   ServiceDynVolume* m_exitVolume;
   std::string    m_name;
+  ServiceDynVolume::Routing  m_routing;
 
 };
 

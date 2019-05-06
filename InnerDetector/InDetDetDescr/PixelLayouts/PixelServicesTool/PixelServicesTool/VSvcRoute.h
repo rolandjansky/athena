@@ -7,17 +7,14 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "SvcRoute.h"
 #include <vector>
 
-class ServiceDynVolume;
-
 class VSvcRoute : public SvcRoute {
-public:
+ public:
 
   typedef std::vector<ServiceDynVolume*>   VolumeContainer;
-
-  VSvcRoute() : SvcRoute() {}
-    VSvcRoute( double z, double rmi, double rma, double rexit, const std::string& name):
-      SvcRoute(name), 
-      m_zPos(z), m_rMin(rmi), m_rMax(rma), m_rExit(rexit), m_next(0){}
+  
+ VSvcRoute() : SvcRoute() {}
+ VSvcRoute( double z, double rmi, double rma, double rexit, ServiceDynVolume::Routing routing, const std::string& name):
+  SvcRoute(routing, name), m_zPos(z), m_rMin(rmi), m_rMax(rma), m_rExit(rexit), m_next(0){}
       
   double rMin() const {return m_rMin;}
   double rMax() const {return m_rMax;}
