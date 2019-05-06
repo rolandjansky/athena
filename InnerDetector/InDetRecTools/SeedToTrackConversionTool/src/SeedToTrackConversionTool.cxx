@@ -10,6 +10,7 @@
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
+#include "StoreGate/WriteHandle.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include <iomanip>
@@ -49,6 +50,8 @@ StatusCode InDet::SeedToTrackConversionTool::initialize()
     ATH_MSG_VERBOSE( "initialize() Retrieved service " << m_rotcreator);
   }  
 
+  ATH_CHECK(m_seedsegmentsOutput.initialize());
+
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -60,25 +63,24 @@ StatusCode InDet::SeedToTrackConversionTool::finalize()
   return AlgTool::finalize();
 }
 
-void InDet::SeedToTrackConversionTool::newEvent()
+void InDet::SeedToTrackConversionTool::newEvent(const Trk::TrackInfo& info, const std::string& patternName) const
 {
-  m_seedsegmentsCollection = new TrackCollection;
+  EventData& data{getEventData()};
+  data.m_seedSegmentsCollection = std::make_unique<TrackCollection>();
   m_totseed = 0;
   m_survived = 0;
-}
 
-void InDet::SeedToTrackConversionTool::newEvent(const Trk::TrackInfo& info, const std::string& patternName)
-{
-  newEvent();
-  m_trackinfo = info;
-  m_patternName = patternName;
-  if (static_cast<int>(m_patternName.value().find("Forward"))>-1) {
-    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ForwardTracks);
+  data.m_trackInfo = info;
+  data.m_patternName = patternName;
+  if (static_cast<int>(data.m_patternName.find("Forward"))>-1) {
+    data.m_trackInfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ForwardTracks);
   }
 }
 
-void InDet::SeedToTrackConversionTool::endEvent()
+void InDet::SeedToTrackConversionTool::endEvent() const
 {
+  EventData& data{getEventData()};
+
   // Print event information
   //
   if (msgLevel()<=0) {
@@ -86,32 +88,17 @@ void InDet::SeedToTrackConversionTool::endEvent()
     ATH_MSG_DEBUG(*this);
   }
 
-  const TrackCollection* inputTracks = nullptr;
-
-  if (evtStore()->retrieve(inputTracks, m_seedsegmentsOutput) && inputTracks) {
-    for (const Trk::Track* t: *inputTracks) {
-      m_seedsegmentsCollection->push_back(new Trk::Track(*t));
-    }
-
-    ATH_MSG_INFO("Check SiSPSeedSegments Collection " << m_seedsegmentsCollection->size() <<
-                 " inputTracks: " << inputTracks->size() << 
-                 " trackinfo: " << m_trackinfo);
-    StatusCode s = evtStore()->overwrite(m_seedsegmentsCollection, m_seedsegmentsOutput, true);
-    if (s.isFailure()) {
-      ATH_MSG_ERROR("Could not overwrite converted SiSPSeedSegments tracks");
-    }
-  } else {
-    ATH_MSG_INFO(" Check SiSPSeedSegments Collection " << m_seedsegmentsCollection->size() << " trackinfo: "
-                 << m_trackinfo);
-    StatusCode s = evtStore()->record(m_seedsegmentsCollection, m_seedsegmentsOutput, true);
-    if (s.isFailure()) {
-      ATH_MSG_ERROR("Could not save converted SiSPSeedSegments tracks");
-    }
+  ATH_MSG_INFO(" Check SiSPSeedSegments Collection " << data.m_seedSegmentsCollection->size() << " trackinfo: "
+               << data.m_trackInfo);
+  SG::WriteHandle<TrackCollection> seedsegmentsOutput{m_seedsegmentsOutput};
+  if (seedsegmentsOutput.record(std::move(data.m_seedSegmentsCollection)).isFailure()) {
+    ATH_MSG_ERROR("Could not save converted SiSPSeedSegments tracks");
   }
 }
 
-void  InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(const Trk::TrackParameters* Tp, const int& mtrk, const std::list<const Trk::SpacePoint*>& Sp)
+void  InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(const Trk::TrackParameters* Tp, const int& mtrk, const std::list<const Trk::SpacePoint*>& Sp) const
 {
+  EventData& data{getEventData()};
   ++m_totseed; // accumulate all seeds
   if (mtrk>0) ++m_survived; // survided seeds 
   std::vector<const Trk::PrepRawData*> prdsInSp;
@@ -146,12 +133,11 @@ void  InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(const Trk::Track
         }
       }
     }
-    Trk::TrackInfo trkinfo = m_trackinfo;
     if (mtrk>0) { // survived seeds set as
-      trkinfo.setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
+      data.m_trackInfo.setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
     }
-    Trk::Track* t = new Trk::Track(trkinfo, traj, 0);
-    if (t) m_seedsegmentsCollection->push_back(t);
+    Trk::Track* t = new Trk::Track(data.m_trackInfo, traj, 0);
+    if (t) data.m_seedSegmentsCollection->push_back(t);
   }
 }
 
@@ -165,17 +151,39 @@ MsgStream& InDet::SeedToTrackConversionTool::dump(MsgStream& out) const
   if (m_nprint) dumpevent(out);
   return dumpconditions(out);
 }
- 
+
+InDet::SeedToTrackConversionTool::EventData& InDet::SeedToTrackConversionTool::getEventData() const
+{
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cache.size()) { // Need to extend vectors
+    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
+    m_eventData.resize(slot+1);
+  }
+  if (m_cache[slot]!=evt) { // New event
+    m_cache[slot] = evt;
+    // Initialization
+    delete m_eventData[slot].m_seedSegmentsCollection.release();
+    m_eventData[slot].m_trackInfo = Trk::TrackInfo();
+    m_eventData[slot].m_patternName = "";
+  }
+  return m_eventData[slot];
+}
+
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 MsgStream& InDet::SeedToTrackConversionTool::dumpconditions(MsgStream& out) const
 {
+  EventData& data{getEventData()};
   out << "|----------------------------------------------------------------------"
       << "-------------------|"
       << std::endl;
   out << "| Output Collection Name   | " << m_seedsegmentsOutput << std::endl;
-  out << "} Name of pattern recognition | " << m_patternName << std::endl;
+  out << "} Name of pattern recognition | " << data.m_patternName << std::endl;
   out << "|----------------------------------------------------------------------"
       << "-------------------|"
       << std::endl;
@@ -187,9 +195,10 @@ MsgStream& InDet::SeedToTrackConversionTool::dumpconditions(MsgStream& out) cons
 
 MsgStream& InDet::SeedToTrackConversionTool::dumpevent(MsgStream& out) const
 {
+  EventData& data{getEventData()};
   out << "|---------------------------------------------------------------------|"
       << std::endl;
-  out << "| Name of SeedFinder          | " << m_patternName
+  out << "| Name of SeedFinder          | " << data.m_patternName
       << "                              | " << std::endl;
   out << "| Number of All seeds         | " << std::setw(12) << m_totseed 
       << "                              | " << std::endl;
