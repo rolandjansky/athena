@@ -2,7 +2,6 @@
 
 # art-description: Trig_reco_tf with current T0 config, EDMCheck on ESD and AOD  
 # art-type: build
-# art-include: 21.3/Athena
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/AthenaP1

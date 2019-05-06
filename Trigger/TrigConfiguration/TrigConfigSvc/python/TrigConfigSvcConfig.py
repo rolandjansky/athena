@@ -11,9 +11,7 @@ from string import find, split
 from os.path import exists, join, abspath
 
 from AthenaCommon.Logging import logging  # loads logger
-from PyUtils.Decorators import memoize
 
-@memoize
 def findFileInXMLPATH(filename):
     """ Use XMLPATH to find files (cache result through memoize decorator)"""
 

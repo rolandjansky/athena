@@ -1980,7 +1980,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const Identifie
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
 
-    double eta = -std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.));
+    double eta = std::fabs(std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.)));
 
 
     if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){

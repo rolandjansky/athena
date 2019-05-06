@@ -108,7 +108,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', '1')
         #alg.addgeneric('DoEtaCut', '1')
         tm.registerAlgo(alg)
-                
+
         alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortTAU)
@@ -180,6 +180,20 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', _etamax)
         alg.addgeneric('DoEtaCut', 0)
         tm.registerAlgo(alg) 
+
+        #input list needed for ATR-18824
+        if usev8:
+            alg = AlgConf.JetSort( name = 'FJjs', inputs = 'JetTobArray', outputs = 'FJjs', algoId = currentAlgoId); currentAlgoId += 1
+
+            alg.addgeneric('InputWidth',  HW.InputWidthJET)
+            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
+            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
+            alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
+            alg.addvariable('MinEta', 0)
+            alg.addvariable('MaxEta', _etamax)
+            alg.addgeneric('DoEtaCut', 0)
+            tm.registerAlgo(alg)
+
         
         # Sorted J lists:
         for jet_type in ['AJ', 'FJ']:
@@ -1182,7 +1196,14 @@ class TopoAlgoDef:
 
         # DISAMB 3 lists with DR cut to 2nd and 3rd lists
 
-        algolist=[
+        if usev8:
+            algolist=[
+               {"disamb": 1, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28},
+               {"disamb": 2, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, # 2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi
+               {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 25}, # 1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi
+            ]
+        else:
+            algolist=[
                {"disamb": 1, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, 
                {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, # 1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi
                {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 25}, # 1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi
@@ -1720,4 +1741,186 @@ class TopoAlgoDef:
             alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
 
             tm.registerAlgo(alg)
-            
+
+
+        #ATR-19355  
+        if usev8: 
+            toponame = "0INVM10-3MU4ab"      # noqa: F821
+            log.info("Define %s" % toponame)
+
+            inputList = 'MUab'
+
+            alg = AlgConf.InvariantMassThreeTOBsIncl( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addgeneric('RequireOneBarrel', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MinET1', 4)
+            tm.registerAlgo(alg)
+
+
+
+        #ATR-18815
+        if usev8:
+            toponame = "0INVM10-0DR15-EM8abi-MU10ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['EMabi','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MinET1', 8)
+            alg.addvariable('MinET2', 10)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addgeneric('DeltaRMin', 0)
+            alg.addgeneric('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+        #ATR-18815
+        if usev8:
+            toponame = "0INVM10-0DR15-EM12abi-MU6ab"
+            log.info("Define %s" % toponame)
+
+            inputList = ['EMabi','MUab']
+
+            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MinET1', 12)
+            alg.addvariable('MinET2', 6)
+            alg.addgeneric('ApplyEtaCut', 0)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addvariable('DeltaRMin', 0)
+            alg.addvariable('DeltaRMax', 15*15)
+            tm.registerAlgo(alg)
+
+
+
+        #ATR-18824
+        if usev8:
+            toponame = "60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49"
+            log.info("Define %s" % toponame)
+
+            inputList = ['EMabhi','FJjs']
+
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+
+
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortJET)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob2', 6)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 60*60)
+            alg.addvariable('MaxMSqr', 9999)
+            alg.addvariable('MinET1', 15)
+            alg.addvariable('MinET2', 15)
+            alg.addgeneric('ApplyEtaCut', 1)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MinEta2', 23)
+            alg.addvariable('MaxEta2', 49)
+            alg.addvariable('MinDeltaPhi', 04)
+            alg.addvariable('MaxDeltaPhi', 32)
+
+            tm.registerAlgo(alg)
+
+
+        #ATR-18824
+        if usev8:
+            toponame = "60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49"
+            log.info("Define %s" % toponame)
+
+            inputList = ['EMabhi','FJjs']
+
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+
+
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortJET)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob2', 6)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 60*60)
+            alg.addvariable('MaxMSqr', 9999)
+            alg.addvariable('MinET1', 15)
+            alg.addvariable('MinET2', 15)
+            alg.addgeneric('ApplyEtaCut', 1)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MinEta2', 23)
+            alg.addvariable('MaxEta2', 49)
+            alg.addvariable('MinDeltaPhi', 25)
+            alg.addvariable('MaxDeltaPhi', 32)
+
+            tm.registerAlgo(alg)
+
+
+
+        #ATR-19302: giving compilation issues, add later
+        if usev8:
+            toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
+            log.info("Define %s" % toponame)
+            inputList = ['EMshi','EMshi']
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob1', 1)
+            alg.addgeneric('MaxTob2', 6)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
+            alg.addvariable('MinET1', 10)
+            alg.addvariable('MinET2', 10)
+            alg.addgeneric('ApplyEtaCut', 1)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addvariable('MinDeltaPhi', 27)
+            alg.addvariable('MaxDeltaPhi', 32)
+            tm.registerAlgo(alg)
+
+
+        if usev8:
+            toponame = "0INVM70-27DPHI32-EM10his1-EM12his6"
+            log.info("Define %s" % toponame)
+            inputList = ['EMshi','EMshi']
+            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob1', 1)
+            alg.addgeneric('MaxTob2', 6)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 0)
+            alg.addvariable('MaxMSqr', (70*_emscale_for_decision)*(70*_emscale_for_decision))
+            alg.addvariable('MinET1', 10)
+            alg.addvariable('MinET2', 12)
+            alg.addgeneric('ApplyEtaCut', 1)
+            alg.addvariable('MinEta1', 0)
+            alg.addvariable('MaxEta1', 9999)
+            alg.addvariable('MinEta2', 0)
+            alg.addvariable('MaxEta2', 9999)
+            alg.addvariable('MinDeltaPhi', 27)
+            alg.addvariable('MaxDeltaPhi', 32)
+            tm.registerAlgo(alg)

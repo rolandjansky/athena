@@ -109,10 +109,12 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
 #############################################################################
 def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
+  from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataTool
   return Muon__MmRdoToPrepDataTool(name,**kwargs)
 
 def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleSTgcClusterBuilderTool")
+  from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataTool
   return Muon__sTgcRdoToPrepDataTool(name,**kwargs)
 
 ### algorithms for other technologies can use C++ defaults

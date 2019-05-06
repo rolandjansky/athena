@@ -18,11 +18,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
+                          Event/xAOD/xAODTrigCalo
                           Tools/PathResolver
                           Trigger/TrigConfiguration/TrigConfStorage
                           Trigger/TrigT1/L1Topo/L1TopoConfig
                           Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result )
+                          Trigger/TrigT1/TrigT1Result
+			  Trigger/TrigSteer/TrigSteering )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

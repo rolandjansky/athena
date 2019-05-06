@@ -2,7 +2,6 @@
 
 # art-description: athenaHLT on data without FTK sim but with Physics_pp_v8 menu and FTK chains
 # art-type: build
-# art-include: 21.3/Athena
 
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"

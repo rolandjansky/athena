@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,18 +51,32 @@ SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::str
   m_numberOfCharges(10),
   m_diffusionConstant(.0),
   m_doRadDamage(true),
-  m_fluence(5), 
   m_trappingTimeElectrons(0.),
-  m_trappingTimeHoles(0.)
+  m_trappingTimeHoles(0.),
+  m_fluence(5), 
+  m_fluenceB(-1),       //e14 neq/cm^2  //if negative do not use interpolation maps
+  m_fluence1(-1),       //if negative do not use interpolation maps but maps precomputed for benchmark indicated in fluence
+  m_fluence2(-1), 
+  m_voltage (-1),       //Volt
+  m_voltageB(-1),       
+  m_voltage1(-1), 
+  m_voltage2(-1) 
 { 
-  declareProperty("RadDamageUtil",   m_radDamageUtil, "Rad Damage utility");
-  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelPlanar");
-  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
-  declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for PixelPlanar");
-  declareProperty("doRadDamage",   m_doRadDamage, "doRadDmaage bool: should be flag");
-  declareProperty("fluence",   m_fluence, "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018");
+  declareProperty("RadDamageUtil",      m_radDamageUtil, "Rad Damage utility");
+  declareProperty("numberOfSteps",      m_numberOfSteps,"Geant4:number of steps for PixelPlanar");
+  declareProperty("numberOfCharges",    m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
+  declareProperty("diffusionConstant",  m_diffusionConstant,"Geant4:Diffusion Constant for PixelPlanar");
+  declareProperty("doRadDamage",        m_doRadDamage, "doRadDmaage bool: should be flag");
   declareProperty("trappingTimeElectrons", m_trappingTimeElectrons, "Characteristic time till electron is trapped [ns]");
-  declareProperty("trappingTimeHoles", m_trappingTimeHoles, "Characteristic time till hole is trapped [ns]");
+  declareProperty("trappingTimeHoles",  m_trappingTimeHoles, "Characteristic time till hole is trapped [ns]");
+  declareProperty("fluence",            m_fluence,  "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018");
+  declareProperty("fluenceB",           m_fluenceB, "fluence detector has recieved in neqcm2 at the B layer.");
+  declareProperty("fluence1",           m_fluence1, "fluence detector has recieved in neqcm2 at the layer 1.");
+  declareProperty("fluence2",           m_fluence2, "fluence detector has recieved in neqcm2 at the layer 2.");
+  declareProperty("voltage",            m_voltage,  "this is the bias voltage applied to the IBL - if not set use values from applied at benchmark points according to fluence");
+  declareProperty("voltageB",           m_voltageB, "bias voltage applied to the B layer.");
+  declareProperty("voltage1",           m_voltage1, "bias voltage applied to the layer 1.");
+  declareProperty("voltage2",           m_voltage2, "bias voltage applied to the layer 2.");
 }
 
 class DetCondCFloat;
@@ -86,74 +100,113 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_trappingTimeElectrons = trappingTimes.first;
     m_trappingTimeHoles = trappingTimes.second;
   }
+    //If any fluence or voltage initialized negative use benchmark maps and not interpolation
+    bool doInterpolateEfield = (m_fluence > 0. && m_fluenceB > 0.  && m_fluence1 > 0. && m_fluence2 > 0. && m_voltage > 0. && m_voltageB > 0.  && m_voltage1 > 0. && m_voltage2 > 0.);
+    std::vector<std::string> mapsPath_list;
+    std::vector<std::string> TCADpath_list;
 
-  std::vector<std::string> mapsPath_list;
+    // Use all TCAD E field files in this directory for creating E field via interpolation (pruned filed excluded) 
+    std::string iblFiles        = PathResolverFindCalibDirectory("PixelDigitization/TCAD_IBL_efields/fei4-200um/");
+    std::string sensorFiles     = PathResolverFindCalibDirectory("PixelDigitization/TCAD_Blayer_efields/fei4-250um/");
 
+    // For each layer one configuration
+    TCADpath_list = {iblFiles, sensorFiles, sensorFiles, sensorFiles};           //IBL - 200um sensor depth, B layer - 20um, layer 1, layer 2
+//    Replpicate the sesensorFiles files to afs/GroupData https://twiki.cern.ch/twiki/bin/view/AtlasComputing/PathResolver
+//    If you want only certain TCAD E field files to be used to create an interpolated E field, hand over a list like these instead of the directory
+//    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/ibl_TCAD_EfieldProfiles.txt"   );
+//    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/blayer_TCAD_EfieldProfiles.txt");
+//    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/blayer_TCAD_EfieldProfiles.txt");
+//    TCADpath_list.push_back(PathResolverFindCalibFile("PixelDigitization/blayer_TCAD_EfieldProfiles.txt");
+    
   if(m_fluence==0){
 
   }
   else if(m_fluence==1){
-
+    ATH_MSG_INFO("Use benchmark point 1!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel                                                                                                  
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel
 
-    fluence_layers.push_back(1e-10);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(3e13);
-    fluence_layers.push_back(2e13);
+    m_fluence_layers.push_back(1e-10);
+    m_fluence_layers.push_back(7e13);
+    m_fluence_layers.push_back(3e13);
+    m_fluence_layers.push_back(2e13);
 
+    m_voltage_layers.push_back(80);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
   }
   else if(m_fluence==2){
+    ATH_MSG_INFO("Use benchmark point 2!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl1e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.2e14.root") );                                                                                                            
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl5e13.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );
 
-    fluence_layers.push_back(1e14);
-    fluence_layers.push_back(1.2e14);
-    fluence_layers.push_back(5e13);
-    fluence_layers.push_back(3e13);
+    m_fluence_layers.push_back(1e14);
+    m_fluence_layers.push_back(1.2e14);
+    m_fluence_layers.push_back(5e13);
+    m_fluence_layers.push_back(3e13);
 
+    m_voltage_layers.push_back(80);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
   }else if(m_fluence==3){
-
+    ATH_MSG_INFO("Use benchmark point 3!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl2e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.7e14.root") );                                                                                                            
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
-    fluence_layers.push_back(2e14);
-    fluence_layers.push_back(1.7e14);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(4e13);
+    m_fluence_layers.push_back(2e14);
+    m_fluence_layers.push_back(1.7e14);
+    m_fluence_layers.push_back(7e13);
+    m_fluence_layers.push_back(4e13);
 
+    m_voltage_layers.push_back(80);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(150);
   }else if(m_fluence==4){
+    ATH_MSG_INFO("Use benchmark point 4!");
 
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_150V_fl2e14.root") );
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1.7e14.root") );                                                                                                            
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl7e13.root") );
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
-    fluence_layers.push_back(2e14);
-    fluence_layers.push_back(1.7e14);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(4e13);
+    m_fluence_layers.push_back(2e14);
+    m_fluence_layers.push_back(1.7e14);
+    m_fluence_layers.push_back(7e13);
+    m_fluence_layers.push_back(4e13);
 
+    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(150);
   }else if(m_fluence==5){
+    ATH_MSG_INFO("Use benchmark point 5!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_350V_fl5e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl3.1e14.root") );                                                                                                            
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl1.3e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl8e13.root") );
 
-    fluence_layers.push_back(5e14);
-    fluence_layers.push_back(3.1e14);
-    fluence_layers.push_back(1.3e14);
-    fluence_layers.push_back(8e13);
+    m_fluence_layers.push_back(5e14);
+    m_fluence_layers.push_back(3.1e14);
+    m_fluence_layers.push_back(1.3e14);
+    m_fluence_layers.push_back(8e13);
 
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(150);
   }else if(m_fluence==6){
+    ATH_MSG_INFO("Use benchmark point 6!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_400V_fl8_7e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_400V_fl4_6e14.root") );
@@ -161,12 +214,17 @@ StatusCode SensorSimPlanarTool::initialize() {
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl2_1e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1_3e14.root") );
 
-    fluence_layers.push_back(8.7e14);
-    fluence_layers.push_back(4.6e14);
-    fluence_layers.push_back(2.1e14);
-    fluence_layers.push_back(1.3e14);
+    m_fluence_layers.push_back(8.7e14);
+    m_fluence_layers.push_back(4.6e14);
+    m_fluence_layers.push_back(2.1e14);
+    m_fluence_layers.push_back(1.3e14);
 
+    m_voltage_layers.push_back(400);
+    m_voltage_layers.push_back(400);
+    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(150);
   }else if(m_fluence==7){
+    ATH_MSG_INFO("Use benchmark point 7!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_endLHC.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_blayer_endLHC.root") );
@@ -174,27 +232,70 @@ StatusCode SensorSimPlanarTool::initialize() {
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L1_endLHC.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L2_endLHC.root") );
 
-    fluence_layers.push_back(2*8.7e14);
-    fluence_layers.push_back(2*4.6e14);
-    fluence_layers.push_back(2*2.1e14);
-    fluence_layers.push_back(2*1.3e14);
+    m_fluence_layers.push_back(2*8.7e14);
+    m_fluence_layers.push_back(2*4.6e14);
+    m_fluence_layers.push_back(2*2.1e14);
+    m_fluence_layers.push_back(2*1.3e14);
 
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(150);
   }
-  
+ 
+    if(mapsPath_list.size()==0 ){
+        if(doInterpolateEfield){
+            ATH_MSG_INFO("No benchmark value set for fluence. Use interpolation.");
+            mapsPath_list.clear();
+            m_fluence_layers.clear();  
+            m_voltage_layers.clear();
+            //Set up default maps for ramoMap,
+            //but retrieve Efield from interpolation as well as Lorentz, time and distance map from E field
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel 
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel 
+            mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel 
+            m_fluence_layers.push_back(m_fluence*1e14);
+            m_fluence_layers.push_back(m_fluenceB*1e14);
+            m_fluence_layers.push_back(m_fluence1*1e14);
+            m_fluence_layers.push_back(m_fluence2*1e14);
+            
+            m_voltage_layers.push_back(m_voltage);
+            m_voltage_layers.push_back(m_voltageB);
+            m_voltage_layers.push_back(m_voltage1);
+            m_voltage_layers.push_back(m_voltage2);
+        }else{
+            ATH_MSG_WARNING("m_fluence could not match becnhmark value but interpolation not indicated.");
+            return StatusCode::FAILURE; 
+        }
+    }else{
+        if(!doInterpolateEfield){
+            ATH_MSG_INFO("m_fluence set to becnhmark value. Use becnhmark values for all layers.");
+        }else{
+            ATH_MSG_WARNING("m_fluence set to benchmark value. Fluence and bias voltage for all layers overwritten accordingly.");
+        }
+    }
+    
+    ATH_MSG_INFO("ibl       : Phi=" << m_fluence_layers.at(0) << "e14neq/cm2 U="<< m_voltage_layers.at(0) << "V");
+    ATH_MSG_INFO("B layer   : Phi=" << m_fluence_layers.at(1) << "e14neq/cm2 U="<< m_voltage_layers.at(1) << "V");
+    ATH_MSG_INFO("layer 1   : Phi=" << m_fluence_layers.at(2) << "e14neq/cm2 U="<< m_voltage_layers.at(2) << "V");
+    ATH_MSG_INFO("layer 2   : Phi=" << m_fluence_layers.at(3) << "e14neq/cm2 U="<< m_voltage_layers.at(3) << "V");
+
   // *****************************
   // *** Setup Maps ****
   // *****************************
   //TODO This is only temporary until remotely stored maps and locally generated maps can be implemented 
-      
+  //E field already implemented: needs fluence and bias voltage given as Property m_fluence, m_fluenceB, ...,  m_fluence1, ...
   for(unsigned int i=0; i<mapsPath_list.size(); i++){
 
-    ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i));
+    ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
+    if(doInterpolateEfield)ATH_MSG_INFO("Create E field via interpolation based on files from: " << TCADpath_list.at(i));
     //std::unique_ptr<TFile>  mapsFile=std::make_unique<TFile>( (mapsPath_list.at(i)).c_str() ); //this is the ramo potential.
     TFile* mapsFile=new TFile( (mapsPath_list.at(i)).c_str() ); //this is the ramo potential.
 
     std::pair<int, int> Layer;  // index for layer/end cap position
-    Layer.first=0;  //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at Layer.first=1
-    Layer.second=i; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
+    Layer.first=0;              //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at Layer.first=1
+    Layer.second=i;             //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
     //IBL Barrel doesn't exist. So the possible idexes should be: 0-0, 0-1, 0-2, 0-3, 1-1, 1-2, 1-3
 
     //Setup ramo weighting field map
@@ -203,53 +304,73 @@ StatusCode SensorSimPlanarTool::initialize() {
     ramoPotentialMap_hold=(TH3F*)mapsFile->Get("hramomap1");
     if (ramoPotentialMap_hold==0) ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo3d");
     if (ramoPotentialMap_hold==0){
-    ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
-    return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
-    //TODO
-    //     CHECK(m_radDamageUtil->generateRamoMap( ramoPotentialMap, p_design_dummy ));
+        ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
+        ATH_MSG_WARNING("Not implemented yet - exit");
+        return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
+        //TODO -- is actually implemented?!
+        //     CHECK(m_radDamageUtil->generateRamoMap( ramoPotentialMap, p_design_dummy ));
     }
-    //ramoPotentialMap.push_back(ramoPotentialMap_hold);
     ramoPotentialMap[Layer]=ramoPotentialMap_hold;
-    fluence_layersMaps[Layer]=fluence_layers.at(i);
+    m_fluence_layersMaps[Layer]=m_fluence_layers.at(i);
     //Now setup the E-field.
     TH1F* eFieldMap_hold;
-    eFieldMap_hold=0;
-    eFieldMap_hold=(TH1F*)mapsFile->Get("hEfield1D");
-    if (eFieldMap_hold == 0){ 
-    ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
-    return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
-    //TODO
-    // CHECK(m_radDamageUtil->generateEfieldMap( eFieldMap, p_design_dummy ));
+    eFieldMap_hold= new TH1F() ;
+    if(doInterpolateEfield){
+        //ATH_MSG_INFO("Generating E field maps using interpolation.");
+        CHECK(m_radDamageUtil->generateEfieldMap( eFieldMap_hold, NULL, m_fluence_layers.at(i), m_voltage_layers.at(i), i, TCADpath_list.at(i), true));
+    }else{
+        //precomputed map
+        eFieldMap_hold=(TH1F*)mapsFile->Get("hEfield1D"); 
     }
+
+    if (eFieldMap_hold == 0){ 
+         ATH_MSG_INFO("Unable to load sensor e-field map.");
+         return StatusCode::FAILURE;
+     }
     //eFieldMap.push_back(eFieldMap_hold);
     eFieldMap[Layer]=eFieldMap_hold;
 
-    TH2F* lorentzMap_e_hold;
-    TH2F* lorentzMap_h_hold;
-    TH2F* distanceMap_h_hold;
-    TH2F* distanceMap_e_hold;
-    TH1F* timeMap_e_hold;
-    TH1F* timeMap_h_hold;
+    TH2F* lorentzMap_e_hold    =new TH2F() ;
+    TH2F* lorentzMap_h_hold    =new TH2F() ;
+    TH2F* distanceMap_h_hold   =new TH2F() ;
+    TH2F* distanceMap_e_hold   =new TH2F() ;
+    TH1F* timeMap_e_hold       =new TH1F() ;
+    TH1F* timeMap_h_hold       =new TH1F() ;
 
-    lorentzMap_e_hold=0;
-    lorentzMap_h_hold=0;
-    distanceMap_e_hold=0;
-    distanceMap_h_hold=0;
-    timeMap_e_hold=0;
-    timeMap_h_hold=0;
-    lorentzMap_e_hold=(TH2F*)mapsFile->Get("lorentz_map_e");
-    lorentzMap_h_hold=(TH2F*)mapsFile->Get("lorentz_map_h");
-    distanceMap_h_hold=(TH2F*)mapsFile->Get("hdistance");
-    distanceMap_e_hold=(TH2F*)mapsFile->Get("edistance");
-    timeMap_e_hold=(TH1F*)mapsFile->Get("etimes");
-    timeMap_h_hold=(TH1F*)mapsFile->Get("htimes");
-    //Now, determine the time to reach the electrode and the trapping position.
-    if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0 || lorentzMap_e_hold == 0 || lorentzMap_h_hold == 0){
     
-      ATH_MSG_INFO("Unable to load at least one of teh distance/time/Lorentz angle maps, so generating all using approximations.");
-      return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
-      //TODO
-      //CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e, distanceMap_h, timeMap_e, timeMap_h, lorentzMap_e, lorentzMap_h, eFieldMap, p_design_dummy ));
+    
+    if(doInterpolateEfield){
+        CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e_hold, distanceMap_h_hold, timeMap_e_hold, timeMap_h_hold, lorentzMap_e_hold, lorentzMap_h_hold, eFieldMap_hold, NULL ));
+        // For debugging and documentation: uncomment to save different maps which are based on the interpolated E field
+        if(m_radDamageUtil->m_saveDebugMaps){
+            TString prename = "map_layer_";
+            prename += i;
+            prename += "distance_e.root";
+            distanceMap_e_hold->SaveAs(prename);
+            prename.ReplaceAll("_e", "_h");
+            distanceMap_h_hold->SaveAs(prename);
+            prename.ReplaceAll("distance","time");
+            timeMap_h_hold->SaveAs(prename);
+            prename.ReplaceAll( "_h","_e");
+            timeMap_e_hold->SaveAs(prename);
+            prename.ReplaceAll("time", "lorentz");
+            lorentzMap_e_hold->SaveAs(prename);
+            prename.ReplaceAll( "_e","_h");
+            lorentzMap_h_hold->SaveAs(prename);
+        }
+    }else{
+        //retrieve precomputed maps
+        lorentzMap_e_hold=(TH2F*)mapsFile->Get("lorentz_map_e");
+        lorentzMap_h_hold=(TH2F*)mapsFile->Get("lorentz_map_h");
+        distanceMap_h_hold=(TH2F*)mapsFile->Get("hdistance");
+        distanceMap_e_hold=(TH2F*)mapsFile->Get("edistance");
+        timeMap_e_hold=(TH1F*)mapsFile->Get("etimes");
+        timeMap_h_hold=(TH1F*)mapsFile->Get("htimes");
+    }
+    //Safetycheck
+    if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0 || lorentzMap_e_hold == 0 || lorentzMap_h_hold == 0){
+        ATH_MSG_INFO("Unable to load at least one of the distance/time/Lorentz angle maps.");
+        return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
     }
     lorentzMap_e[Layer]=lorentzMap_e_hold;
     lorentzMap_h[Layer]=lorentzMap_h_hold;
@@ -257,7 +378,6 @@ StatusCode SensorSimPlanarTool::initialize() {
     distanceMap_h[Layer]=distanceMap_h_hold;
     timeMap_e[Layer]=timeMap_e_hold;
     timeMap_h[Layer]=timeMap_h_hold;
-    
   }
   return StatusCode::SUCCESS;
 }
@@ -296,7 +416,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
                                       //IBL Barrel doesn't exist. So the possible idexes should be: 0-0, 0-1, 0-2, 0-3, 1-1, 1-2, 1-3
 
     if(m_doRadDamage && isBarrel && m_fluence>0){
-     std::pair<double,double> trappingTimes = m_radDamageUtil->getTrappingTimes( fluence_layersMaps[Layer] );
+     std::pair<double,double> trappingTimes = m_radDamageUtil->getTrappingTimes( m_fluence_layersMaps[Layer] );
      m_trappingTimeElectrons = trappingTimes.first;
      m_trappingTimeHoles = trappingTimes.second;
     }

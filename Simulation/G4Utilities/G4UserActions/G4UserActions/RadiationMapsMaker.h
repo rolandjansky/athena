@@ -51,6 +51,16 @@ namespace G4UA
 	
 	double phiMinZoom = -180.; // degrees
 	double phiMaxZoom =  180.; // degrees
+
+	// neutron spectra
+	int nBinslogEn  =  90;   
+	double logEMinn = -11.; // min log10(E_kin/MeV) 
+	double logEMaxn =   7.; // max log10(E_kin/MeV) 
+
+	// particle spectra for gamma,e^+/-,mu^+/-,pi^+/-,p,rest
+	int nBinslogEo  = 45;   
+	double logEMino = -2.; // min log10(E_kin/MeV) 
+	double logEMaxo =  7.; // max log10(E_kin/MeV) 
       };
 
 
@@ -117,6 +127,57 @@ namespace G4UA
         /// vector to normalize the volume fraction in 3d
 	std::vector<double> m_3d_norm;
 
+	// particle spectra
+
+	// neutrons
+	
+        /// vector of neutron spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_neut_spec;
+        /// vector of neutron spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_neut_spec;
+
+	// gamma
+	
+        /// vector of gamma spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_gamm_spec;
+        /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_gamm_spec;
+
+	// e^+/-
+	
+        /// vector of e^+/- spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_elec_spec;
+        /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_elec_spec;
+
+	// mu^+/-
+	
+        /// vector of mu^+/- spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_muon_spec;
+        /// vector of mu^+/- spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_muon_spec;
+
+	// pi^+/-
+	
+        /// vector of pi^+/- spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_pion_spec;
+        /// vector of pi^+/- spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_pion_spec;
+
+	// proton
+	
+        /// vector of proton spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_prot_spec;
+        /// vector of proton spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_prot_spec;
+
+	// rest
+	
+        /// vector of other particle spectra in log10(E/MeV) bins and the zoom 2d grid
+	std::vector<double> m_rz_rest_spec;
+        /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
+	std::vector<double> m_full_rz_rest_spec;
+	
 	void merge(const Report& maps);
       };
 

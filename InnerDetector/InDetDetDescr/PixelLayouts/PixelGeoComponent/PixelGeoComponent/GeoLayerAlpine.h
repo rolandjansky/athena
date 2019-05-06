@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDet_GeoLayerAlpine_H
@@ -20,7 +20,6 @@ namespace InDet {
   
   class GeoLayerAlpine : public GeoComponent {
     
-    //  class GeoLayerAlpine : public GeoLayerSector {
   public:
     
     GeoLayerAlpine( GeoFullPhysVol* vol);
@@ -53,8 +52,7 @@ namespace InDet {
     const GeoFullPhysVol* getGeoFullPhysVol(int iStave, int iModule) const;
     double getModuleHalfSizeInPhi(int iStave,int iModule,int iSide) const;
     double getModuleHalfSizeInEta(int iStave,int iModule,int iSide) const;
-    const HepGeom::Transform3D& getBarrelModuleTransform3D(int iStave,int iModule) const;
-    const HepGeom::Transform3D& getEndcapModuleTransform3D(int iStave,int iModule, int iSide) const;
+   
     std::string getBarrelModuleName(int iStave,int iModule) const;
     std::string getEndcapModuleName(int iStave,int iModule, int iSide) const;
     
@@ -67,7 +65,6 @@ namespace InDet {
     virtual void placeStave( GeoStaveAlpine& stave, const HepGeom::Transform3D& transform, int number);
     virtual void removeAllStaveSupports();
     virtual void removeAllFoamModules();
-    //    virtual void switchAllFoamModulesGeoPhysVol(GeoPhysVol *vol, std::string type);
 
     /// barrel module length 
     double barrelModuleLength(int iSector=0) const;
@@ -103,8 +100,6 @@ namespace InDet {
     double getBarrelStaveLength(int iStave) const;
     double getEndcapStaveWidth(int iStave, int iSide) const;
     double getEndcapStaveLength(int iStave, int iSide) const;
-    const HepGeom::Transform3D& getBarrelStaveTransform3D(int iStave) const;
-    const HepGeom::Transform3D& getEndcapStaveTransform3D(int iStave, int iSide) const;
 
   private:
 

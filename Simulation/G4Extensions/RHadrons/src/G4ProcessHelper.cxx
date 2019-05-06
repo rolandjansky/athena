@@ -113,10 +113,18 @@ G4ProcessHelper::G4ProcessHelper()
   G4cout<<"Gamma = "<<gamma/CLHEP::GeV<<" GeV"<<G4endl;
   G4cout<<"Amplitude = "<<amplitude/CLHEP::millibarn<<" millibarn"<<G4endl;
   G4cout<<"ReggeSuppression = "<<100*suppressionfactor<<" %"<<G4endl;
-  G4cout<<"HadronLifeTime = "<<hadronlifetime; if (doDecays) G4cout<<" ns"<<G4endl; else G4cout<<" s"<<G4endl;
+  G4cout<<"HadronLifeTime = "<<hadronlifetime;
+  if (doDecays) G4cout<<" ns"<<G4endl;
+  else G4cout<<" s"<<G4endl;
   G4cout<<"ReggeModel = "<< reggemodel <<G4endl;
   G4cout<<"Mixing = "<< mixing*100 <<" %"<<G4endl;
   G4cout<<"DoDecays = "<< doDecays << G4endl;
+
+  if ((!doDecays && hadronlifetime>0.) ||
+      (doDecays && hadronlifetime<=0.) ){
+    G4cout << "WARNING: Inconsistent treatment of R-Hadron properties! Lifetime of " << hadronlifetime
+           << " and doDecays= " << doDecays << G4endl;
+  }
 
   checkfraction = 0;
   n_22 = 0;

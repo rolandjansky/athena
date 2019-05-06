@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -221,25 +221,25 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
              delete m_cscSimHitCollection; m_cscSimHitCollection=0;
         }
       }
-      if ( evtStore()->contains<GenericMuonSimHitCollection>(m_mmCollectionName) ){
+      if ( evtStore()->contains<MMSimHitCollection>(m_mmCollectionName) ){
 	if ( (evtStore()->retrieve(m_mmSimHitCollection , m_mmCollectionName)).isFailure() )
-	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve GenericMuonSimHitCollection " << m_mmCollectionName);
+	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve MMSimHitCollection " << m_mmCollectionName);
 	// (b)     if no ... try to create it      
       } else {
-	m_mmSimHitCollection = new GenericMuonSimHitCollection( m_mmCollectionName);
+	m_mmSimHitCollection = new MMSimHitCollection( m_mmCollectionName);
 	if ( (evtStore()->record(m_mmSimHitCollection, m_mmCollectionName, true)).isFailure() ) {
-             ATH_MSG_ERROR( "[ --- ] Unable to record GenericMuonSimHitCollection " << m_mmCollectionName);
+             ATH_MSG_ERROR( "[ --- ] Unable to record MMSimHitCollection " << m_mmCollectionName);
              delete m_mmSimHitCollection; m_mmSimHitCollection=0;
         }
       }
-      if ( evtStore()->contains<GenericMuonSimHitCollection>(m_stgcCollectionName) ){
+      if ( evtStore()->contains<sTGCSimHitCollection>(m_stgcCollectionName) ){
 	if ( (evtStore()->retrieve(m_stgcSimHitCollection , m_stgcCollectionName)).isFailure() )
-	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve GenericMuonSimHitCollection " << m_stgcCollectionName);
+	  ATH_MSG_ERROR( "[ --- ] Unable to retrieve sTGCSimHitCollection " << m_stgcCollectionName);
 	// (b)     if no ... try to create it      
       } else {
-	m_stgcSimHitCollection = new GenericMuonSimHitCollection( m_stgcCollectionName);
+	m_stgcSimHitCollection = new sTGCSimHitCollection( m_stgcCollectionName);
 	if ( (evtStore()->record(m_stgcSimHitCollection, m_stgcCollectionName, true)).isFailure() ) {
-             ATH_MSG_ERROR( "[ --- ] Unable to record GenericMuonSimHitCollection " << m_stgcCollectionName);
+             ATH_MSG_ERROR( "[ --- ] Unable to record sTGCSimHitCollection " << m_stgcCollectionName);
              delete m_stgcSimHitCollection; m_stgcSimHitCollection=0;
         }
       }
@@ -274,24 +274,26 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       // hit ID
       int simID = offIdToSimId(id);
       // local position : at MTG layer ( corresponds to the middle of the gas gap ) 
-      const Amg::Vector3D locPos= currLay->surfaceRepresentation().transform().inverse()*parm->position();
       //Trk::GlobalPosition locPosRot = HepGeom::RotateY3D(M_PI)*HepGeom::RotateZ3D(+M_PI/2.)*currLay->surfaceRepresentation().transform().inverse()*parm->position();
-      //std::cout << "local,local rotated:" << locPos<<"," << locPosRot << std::endl;
+      //std::cout << "local rotated:" << locPosRot << std::endl;
       // generating particle info
       double mom  = parm->momentum().mag();
       double mass = isp.mass();
       double eKin = sqrt( mom*mom+mass*mass) - mass;
       // the rest of information needs adjustment once full sim hits available
       double energyDeposit = 1.;
-      double stepLength = 1.;
       const Amg::Vector3D pos=parm->position();
       const Amg::Vector3D unitMom=parm->momentum().normalized();
-      GenericMuonSimHit nswHit = GenericMuonSimHit(simID,timeInfo,timeInfo, pos, locPos, pos, locPos, 
-						   isp.pdgCode(),eKin,unitMom, 
-						   energyDeposit,stepLength, isp.barcode()) ;
+
+      MMSimHit nswMMHit = MMSimHit(simID,timeInfo, pos, 
+				 isp.pdgCode(),eKin,unitMom, 
+				 energyDeposit, isp.barcode()) ;
+      sTGCSimHit nswsTGCHit = sTGCSimHit(simID,timeInfo, pos, 
+				     isp.pdgCode(), unitMom, 
+				     energyDeposit, isp.barcode()) ;
       
-      if ( m_muonMgr->mmIdHelper()->is_mm(id) )  m_mmSimHitCollection->Insert(nswHit); 
-      else  m_stgcSimHitCollection->Insert(nswHit); 
+      if ( m_muonMgr->mmIdHelper()->is_mm(id) )  m_mmSimHitCollection->Insert(nswMMHit); 
+      else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
          
@@ -302,7 +304,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
         const MuonGM::MMReadoutElement* mm=m_muonMgr->getMMReadoutElement(id);
         if (mm) {
           Trk::GlobalPosition g2re = mm->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<"MM local position:MTG,MRG:"<< locPos <<","<<g2re<<std::endl;
 	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<mm->center(id)<< std::endl;
 	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
 	  int nCh = mm->stripNumber(lp,id);
@@ -314,7 +315,6 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
         const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(id);
 	if (stgc) {
 	  Trk::GlobalPosition g2re = stgc->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<"STGC local position:MTG,MRG:"<< locPos<<","<<g2re<<std::endl;
 	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
 	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<stgc->center(id)<<"," <<m_muonMgr->stgcIdHelper()->channelType(id)<<  std::endl;
 	  int nCh = stgc->stripNumber(lp,id);

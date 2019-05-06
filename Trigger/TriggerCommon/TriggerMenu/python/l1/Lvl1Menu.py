@@ -148,6 +148,8 @@ class Lvl1Menu:
             conditions = item.conditions()
             for c in conditions:
                 log.debug("Item %s has threshold %s on cable %s with multiplicity %i" % (item, c.threshold, c.threshold.cableinfo, c.multiplicity) )
+                if c.threshold.cableinfo == None: # new thresholds don't have a cable info yet
+                    continue
                 maxAllowMult = {1 : 1, 2 : 3, 3 : 7} [c.threshold.cableinfo.bitnum]
                 if c.multiplicity > maxAllowMult:
                     log.error("Item %s has condition %s. Threshold %s is on cable %s which allows maximum multiplicity %i" %

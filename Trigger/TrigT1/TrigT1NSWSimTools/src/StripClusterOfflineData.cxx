@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,6 +9,8 @@
 namespace NSWL1 {
 
   StripClusterOfflineData::StripClusterOfflineData(int bandId,
+                           int bcid,
+                           int phiId,
 						   int isSmall,
 						   int moduleId,
 						   int sectorId,
@@ -20,6 +22,8 @@ namespace NSWL1 {
 						   float globY,
 						   float globZ) : StripClusterData(),
 								  m_bandId(bandId),
+								  m_bcid(bcid),
+								  m_phiId(phiId),
 								  m_isSmall(isSmall),
 								  m_moduleId(moduleId),
 								  m_sectorId(sectorId),

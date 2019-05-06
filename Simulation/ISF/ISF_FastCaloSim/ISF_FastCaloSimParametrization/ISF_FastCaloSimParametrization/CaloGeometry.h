@@ -66,10 +66,9 @@ class CaloGeometry : virtual public ICaloGeometry {
 
     TGraph*  DrawGeoSampleForPhi0(int sample, int calocol, bool print=false);
     TCanvas* DrawGeoForPhi0();
+    
     FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
     void SetFCal_ChannelMap(const FCAL_ChannelMap* fcal_ChannnelMap){m_FCal_ChannelMap=*fcal_ChannnelMap;}
-    
-    virtual bool LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3); // Initialize m_FCal_ChannelMap
     void calculateFCalRminRmax();
     virtual bool checkFCalGeometryConsistency();
     virtual void PrintMapInfo(int i, int j);
