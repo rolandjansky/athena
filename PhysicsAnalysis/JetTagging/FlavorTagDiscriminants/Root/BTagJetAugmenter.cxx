@@ -98,7 +98,9 @@ BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   pt_uncalib(btag) = uncalibrated_jet.pt();
   eta_uncalib(btag) = uncalibrated_jet.eta();
@@ -109,7 +111,9 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrat
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   if (ip2d_weightBOfTracks(btag).size() > 0) {
     ip2d_isDefaults(btag) = 0;
