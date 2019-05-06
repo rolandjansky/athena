@@ -47,7 +47,9 @@ namespace DerivationFramework {
     dec_AssociatedNTracks(0),
     dec_AssociatedTracksWidth(0),
     dec_AssociatedTracksC1(0),
-    dec_AssociatedNTruthCharged(0),
+    dec_Associated_truthjet_nCharged(0),
+    dec_Associated_truthjet_pt(0),
+    dec_Associated_truthjet_eta(0),
     m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -133,7 +135,9 @@ namespace DerivationFramework {
       dec_AssociatedNTracks     = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
       dec_AssociatedTracksWidth = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksWidth");
       dec_AssociatedTracksC1    = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_TracksC1");
-      dec_AssociatedNTruthCharged = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTruthCharged");
+      dec_Associated_truthjet_nCharged = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_truthjet_nCharged");
+      dec_Associated_truthjet_pt       = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_truthjet_pt");
+      dec_Associated_truthjet_eta      = new SG::AuxElement::Decorator<float>(m_momentPrefix + "QGTagger_truthjet_eta");
     } // now works
 
 
@@ -187,7 +191,9 @@ namespace DerivationFramework {
 	delete dec_AssociatedNTracks;
 	delete dec_AssociatedTracksWidth;
         delete dec_AssociatedTracksC1;
-	delete dec_AssociatedNTruthCharged;
+	delete dec_Associated_truthjet_nCharged;
+	delete dec_Associated_truthjet_pt;
+	delete dec_Associated_truthjet_eta;
       }
     
     if(m_decorateorigincorrection){
@@ -247,7 +253,7 @@ namespace DerivationFramework {
     }
 
     if(m_decorateptassociation && isMissingPtAssociation){
-      ATH_MSG_WARNING("tool running" );
+      ATH_MSG_DEBUG("tool running" );
       if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
         ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
@@ -407,6 +413,8 @@ namespace DerivationFramework {
 	  ATH_CHECK(evtStore()->retrieve(eventInfo));
 	  bool isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 	  int tntrk = 0;
+	  float truthjet_pt  = -999.0;
+	  float truthjet_eta = -999.0;
 	  if(isMC){
 	    const xAOD::Jet* tjet=nullptr;
 	    //tjet = * (jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink"));
@@ -431,6 +439,10 @@ namespace DerivationFramework {
 
 	    if(tjet){
 	      ATH_MSG_DEBUG("Truth Jet: " << tjet->numConstituents());
+
+	      truthjet_pt  = tjet->pt();
+	      truthjet_eta = tjet->eta();
+
 	      for (size_t ind = 0; ind < tjet->numConstituents(); ind++) {
 		const xAOD::TruthParticle *part = static_cast<const xAOD::TruthParticle*>(tjet->rawConstituent(ind));
 		ATH_MSG_DEBUG("part: " << part );
@@ -456,7 +468,9 @@ namespace DerivationFramework {
 	  (*dec_AssociatedNTracks)(jet_orig)       = nTracksCount;
 	  (*dec_AssociatedTracksWidth)(jet_orig)   = TracksWidth;
           (*dec_AssociatedTracksC1)(jet_orig)      = TracksC1;
-	  (*dec_AssociatedNTruthCharged)(jet_orig) = tntrk;
+	  (*dec_Associated_truthjet_nCharged)(jet_orig) = tntrk;
+	  (*dec_Associated_truthjet_pt)(jet_orig)       = truthjet_pt;
+	  (*dec_Associated_truthjet_eta)(jet_orig)      = truthjet_eta;
 	}// end if m_decorateQGVariables
 
     }//end loop on jets copies

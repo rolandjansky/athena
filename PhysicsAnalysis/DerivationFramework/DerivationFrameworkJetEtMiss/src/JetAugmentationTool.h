@@ -93,7 +93,9 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<int>* dec_AssociatedNTracks;
     SG::AuxElement::Decorator<float>* dec_AssociatedTracksWidth;
     SG::AuxElement::Decorator<float>* dec_AssociatedTracksC1;
-    SG::AuxElement::Decorator<int>* dec_AssociatedNTruthCharged;
+    SG::AuxElement::Decorator<int>*   dec_Associated_truthjet_nCharged;
+    SG::AuxElement::Decorator<float>* dec_Associated_truthjet_pt;
+    SG::AuxElement::Decorator<float>* dec_Associated_truthjet_eta;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
   };
