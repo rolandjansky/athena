@@ -18,22 +18,12 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
-#include "StoreGate/ReadHandle.h"
 
 EgammaReSamp2Fex::EgammaReSamp2Fex(const std::string& type, const std::string& name,
                                    const IInterface* parent) :
     IReAlgToolCalo(type, name, parent)
 {
 }
-
-
-StatusCode EgammaReSamp2Fex::initialize()
-{
-  ATH_CHECK( IReAlgToolCalo::initialize() );
-  ATH_CHECK( m_bcidAvgKey.initialize() );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
                                      const CaloDetDescrElement*& caloDDE,
@@ -44,10 +34,8 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   // Region Selector, sampling 2
   int sampling = 2;
 
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-
   LArTT_Selector<LArCellCont> sel;
-  ATH_CHECK( m_dataSvc->loadCollections(context, avg.cptr(), roi, TTEM, sampling, sel) );
+  ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
 
   double energyEta = 0.;
   double energyPhi = 0.;
