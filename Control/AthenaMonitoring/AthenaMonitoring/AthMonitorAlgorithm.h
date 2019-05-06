@@ -196,7 +196,7 @@ public:
      * 
      * @return m_trigDecTool
      */
-    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool();
+    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
 
 
     /** 
@@ -277,7 +277,7 @@ public:
      * @param result The parsed output vector of strings.
      * @return StatusCode
      */
-    virtual StatusCode parseList( const std::string& line, std::vector<std::string>& result );
+    virtual StatusCode parseList( const std::string& line, std::vector<std::string>& result ) const;
 
 
     /**
@@ -288,7 +288,7 @@ public:
      * 
      * @param vTrigChainNames A vector of triggers which is modified.
      */
-    virtual void unpackTriggerCategories( std::vector<std::string>& vTrigChainNames );
+    virtual void unpackTriggerCategories( std::vector<std::string>& vTrigChainNames ) const;
 
 
 protected:
