@@ -34,6 +34,7 @@
 #include <array>
 #include <iosfwd>
 #include <list>
+#include <vector>
 
 class MsgStream;
 
@@ -66,22 +67,22 @@ namespace InDet{
       (const std::string&,const std::string&,const IInterface*);
       virtual ~SiTrackMaker_xk() = default;
       virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize();
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for local track finding
       ///////////////////////////////////////////////////////////////////
       
       virtual std::list<Trk::Track*>
-      getTracks(const std::list<const Trk::SpacePoint*>&);
+      getTracks(const std::list<const Trk::SpacePoint*>& Sp) const;
 
       virtual std::list<Trk::Track*>
-      getTracks(const Trk::TrackParameters&,const std::list<Amg::Vector3D>&);
+      getTracks(const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const;
 
-      virtual void newEvent    (bool,bool);
-      virtual void newTrigEvent(bool,bool);
+      virtual void newEvent(bool PIX, bool SCT) const;
+      virtual void newTrigEvent(bool PIX, bool SCT) const;
 
-      virtual void endEvent();
+      virtual void endEvent() const;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -140,74 +141,79 @@ namespace InDet{
       DoubleProperty m_etaWidth{this, "etaWidth", 0.3};
 
       // Updated only in initialize method
-      Trk::TrackInfo                 m_trackinfo     ;
-      bool                           m_heavyion{false}; // Is it heavy ion events
-      Trk::MagneticFieldMode         m_fieldModeEnum{Trk::FullField};
+      Trk::TrackInfo m_trackinfo     ;
+      bool m_heavyion{false}; // Is it heavy ion events
+      Trk::MagneticFieldMode m_fieldModeEnum{Trk::FullField};
 
-      // Counters
-      int                            m_inputseeds{0}; // Number input seeds
-      int                            m_goodseeds{0}; // Number good  seeds
-      int                            m_findtracks{0};  // Numbe found tracks
+      mutable std::mutex m_mutex;
+      mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+      struct EventData { // To hold event dependent data
+        // Counters
+        int inputseeds{0}; // Number input seeds
+        int goodseeds{0}; // Number good seeds
+        int findtracks{0}; // Numbe found tracks
 
-      // Flag for dump method
-      int                            m_nprint{}; // Kind output information
+        // Flag for dump method
+        int nprint{0}; // Kind output information
 
-      // Updated by many methods
-      std::multimap<const Trk::PrepRawData*, const Trk::Track*> m_clusterTrack;
+        // Updated by many methods
+        std::multimap<const Trk::PrepRawData*, const Trk::Track*> clusterTrack;
+        std::array<double, 9> par;
 
-      // Updated only by newEvent and newTrigEvent methods
-      bool                           m_pix{false};
-      bool                           m_sct{false};
+        // Updated only by newEvent and newTrigEvent methods
+        bool pix{false};
+        bool sct{false};
 
-      // Updated ony by newEvent method
-      std::list<double>              m_caloF         ;
-      std::list<double>              m_caloR         ;
-      std::list<double>              m_caloZ         ;
-      std::list<double>              m_hadF          ;
-      std::list<double>              m_hadR          ;
-      std::list<double>              m_hadZ          ;
-      double m_xybeam[2]                             ;
+        // Updated only by getTracks
+        bool dbm{false};
 
-      // Caches for the getTracks method with two arguments.
-      // These have to be dropped.
-      bool m_dbm{false};
-      std::array<double, 9> m_par;
+        // Updated only by newEvent method
+        std::list<double> caloF;
+        std::list<double> caloR;
+        std::list<double> caloZ;
+        std::list<double> hadF;
+        std::list<double> hadR;
+        std::list<double> hadZ;
+        double xybeam[2]{0., 0.};
+      };
+      mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
- 
-      const Trk::TrackParameters* getAtaPlane(bool,
-                                              const std::list<const Trk::SpacePoint*>&,
-                                              std::array<double, 9>& par) const;
-      const Trk::TrackParameters* getAtaPlaneDBM(const std::list<const Trk::SpacePoint*>&,
-                                                 std::array<double, 9>& par) const;
+      const Trk::TrackParameters* getAtaPlane(EventData& data,
+                                              bool sss,
+                                              const std::list<const Trk::SpacePoint*>& SP) const;
+      const Trk::TrackParameters* getAtaPlaneDBM(EventData& data,
+                                                 const std::list<const Trk::SpacePoint*>& SP) const;
 
-      bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
-                           double*,double*,double*) const;
+      bool globalPositions(const Trk::SpacePoint* s0,
+                           const Trk::SpacePoint* s1,
+                           const Trk::SpacePoint* s2,
+                           double* p0,
+                           double* p1,
+                           double* p2) const;
+      bool globalPosition(const Trk::SpacePoint* sp, double* dir, double* p) const;
+      void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
+      InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
+      void detectorElementsSelection(EventData& data,
+                                     std::list<const InDetDD::SiDetectorElement*>& DE) const;
+      bool newSeed(EventData& data, const std::list<const Trk::SpacePoint*>& Sp) const;
+      bool isNewTrack(EventData& data, Trk::Track* Tr) const;
+      bool isCaloCompatible(EventData& data) const;
+      bool isHadCaloCompatible(EventData& data) const;
+      bool isDBMSeeds(const Trk::SpacePoint* s) const;
+      void clusterTrackMap(EventData& data, Trk::Track* Tr) const;
 
-      bool globalPosition(const Trk::SpacePoint*,double*,double*) const;
-      void globalDirections(double*,double*,double*,double*,double*,double*) const;
-      InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack);
-       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&, bool dbm) const;
-      bool newSeed    (const std::list<const Trk::SpacePoint*>&);
-      bool isNewTrack(Trk::Track*,
-                      const std::multimap<const Trk::PrepRawData*,
-                                          const Trk::Track*>& clusterTrack) const;
-      bool isCaloCompatible(const std::array<double, 9>& par) const;
-      bool isHadCaloCompatible(const std::array<double, 9>& par) const;
-      bool isDBMSeeds(const Trk::SpacePoint*) const;
-      void clusterTrackMap(Trk::Track*,
-                           std::multimap<const Trk::PrepRawData*,
-                                         const Trk::Track*>& clusterTrack) const;
+      EventData& getEventData() const;
 
-      MsgStream& dumpconditions(MsgStream&    out) const;
-      MsgStream& dumpevent     (MsgStream&    out) const;
+      MsgStream& dumpconditions(MsgStream& out) const;
+      MsgStream& dumpevent(EventData& data, MsgStream& out) const;
     };
 
-    MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
-    std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
+    MsgStream&    operator << (MsgStream& sl, const SiTrackMaker_xk& se);
+    std::ostream& operator << (std::ostream& sl, const SiTrackMaker_xk& se); 
 
 } // end of name space
 
