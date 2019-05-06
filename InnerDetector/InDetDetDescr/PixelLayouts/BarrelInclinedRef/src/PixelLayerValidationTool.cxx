@@ -410,7 +410,7 @@ void PixelLayerValidationTool::printInfo(const GeoVPhysVol* vol, int iLayer) con
       svcRadThick.push_back(dx0);
     }
 
-   
+    
     phi +=deltaPhi;
 
 
@@ -452,6 +452,7 @@ void PixelLayerValidationTool::printInfo(const GeoVPhysVol* vol, int iLayer) con
  
 
   int svcBins = barrelModuleNumber+2*endcapModuleNumber+1;
+  msg(MSG::WARNING) << " This histogram uses a variable length array to define bins! Must be fixed..."<<endreq;
   m_dInX0_svc  = new TH1F("dInX0_svc","Service material thickness ",svcBins,bins);
   StatusCode sc = m_thistSvc->regHist("/VALID/ModRadThick", m_dInX0_svc);
 
