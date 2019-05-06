@@ -262,10 +262,8 @@ higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 # Truth decoration tool
 #====================================================================
 augmentationTools=[]
-from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
-HIGG3D1TruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name = "HIGG3D1TruthDecoratorTool",
-                                                                     OutputLevel       = VERBOSE,
-                                                                     )
+from DerivationFrameworkHiggs.HIGG3DxAugmentation import getHIGG3TruthDecoratorTool
+HIGG3D1TruthDecoratorTool = getHIGG3TruthDecoratorTool(toolNamePrefix = "HIGG3D1")
 ToolSvc += HIGG3D1TruthDecoratorTool
 augmentationTools.append(HIGG3D1TruthDecoratorTool)
 
