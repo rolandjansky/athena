@@ -41,6 +41,7 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
+    result = ComponentAccumulator()
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
@@ -62,10 +63,14 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
         ## default true
         kwargs.setdefault('KillAbortedEvents' ,ConfigFlags.Sim.KillAbortedEvents)
 
-    from RngComps.RandomServices import AthEngines
+    from RngComps.RandomServices import AthEngines,  Ranecu
     if AthEngines[ConfigFlags.Random.Engine]:
-        ## default true
-        kwargs.setdefault('AtRndmGenSvc', AthEngines[ConfigFlags.Random.Engine])
+        #old style:
+        #kwargs.setdefault('AtRndmGenSvc', AthEngines[ConfigFlags.Random.Engine])
+
+        ## default true        
+        acc =  Ranecu(ConfigFlags.Random.Engine)
+        result.merge(acc)
     kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
@@ -89,7 +94,7 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", ConfigFlags.Sim.G4Commands)
 
-    return G4AtlasAlg(name, **kwargs)
+    return result, G4AtlasAlg(name, **kwargs)
 
 
 
@@ -122,7 +127,7 @@ if __name__ == '__main__':
   cfg = MainServicesSerialCfg()
 
   #add the algorithm
-  Alg  = G4AtlasAlgCfg(ConfigFlags)
+  acc, Alg  = G4AtlasAlgCfg(ConfigFlags)
   cfg.addEventAlgo(Alg) #Event algo?
   #cfg.merge(acc)
   #cfg.addPublicTool(Alg)
