@@ -65,15 +65,21 @@ namespace Trk{
       virtual ~VertexOnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      VertexOnTrack* clone() const;
+      VertexOnTrack* clone() const override;
 
       /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
-      const PerigeeSurface& associatedSurface() const;
+      virtual const PerigeeSurface& associatedSurface() const override;
 
       /**Interface method to get the global Position
       - interface from MeasurementBase */
-      const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D& globalPosition() const override;
+
+      /** Extended method checking the type*/
+      virtual bool type(MeasurementBaseType::Type type) const override {
+        return (type==MeasurementBaseType::VertexOnTrack);
+      }
+
 
       /**returns the some information about this VertexOnTrack. */
       virtual MsgStream&    dump( MsgStream& out ) const;

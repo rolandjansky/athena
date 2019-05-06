@@ -69,18 +69,23 @@ namespace Trk{
     double phi() const ;
 	
     /**Interface method to get the associated Surface*/
-    const Surface& associatedSurface() const;
+    virtual const Surface& associatedSurface() const override;
        
     /**Interface method to get the global Position*/
-    const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
        
     /** Clone */
-    virtual SpacePoint* clone() const = 0;       
+    virtual SpacePoint* clone() const override = 0;       
+
+    /** Extended method checking the type*/
+    virtual bool type(MeasurementBaseType::Type type) const override {
+      return (type==MeasurementBaseType::SpacePoint);
+    }
 
     /**Interface method for output, to be overloaded by child classes* */
-    virtual MsgStream&    dump( MsgStream& out ) const =0 ;  
+    virtual MsgStream&    dump( MsgStream& out ) const override =0 ;  
     /**Interface method for output, to be overloaded by child classes* */
-    virtual std::ostream& dump( std::ostream& out ) const =0 ;
+    virtual std::ostream& dump( std::ostream& out ) const override=0 ;
 
   protected:
     const std::pair<const PrepRawData*, const PrepRawData*> *m_clusList;

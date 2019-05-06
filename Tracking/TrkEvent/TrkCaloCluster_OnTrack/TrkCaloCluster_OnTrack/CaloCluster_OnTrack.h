@@ -47,24 +47,29 @@ namespace Trk {
       virtual ~CaloCluster_OnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      virtual CaloCluster_OnTrack* clone() const;
+      virtual CaloCluster_OnTrack* clone() const override;
             
       /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
-      virtual const Surface& associatedSurface() const;
+      virtual const Surface& associatedSurface() const override final;
      
       /** Interface method to get the global Position
       - interface from MeasurementBase */
-      virtual const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D& globalPosition() const override ;
 
       /** Extended method to get the EnergyLoss */
-      virtual const Trk::EnergyLoss* energyLoss() const;
+      const Trk::EnergyLoss* energyLoss() const;
+
+      /** Extended method checking the type*/
+       virtual bool type(MeasurementBaseType::Type type) const override {
+         return (type==MeasurementBaseType::CaloCluster_OnTrack);
+       }
 
       /**returns the some information about this RIO_OnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const;  
+      virtual MsgStream&    dump( MsgStream& out ) const override;  
 
       /**returns the some information about this RIO_OnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
  
 
     protected:
