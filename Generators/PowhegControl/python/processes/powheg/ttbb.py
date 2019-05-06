@@ -44,16 +44,16 @@ class ttbb(PowhegRES):
         """
         super(ttbb, self).__init__(base_directory, "ttbb", **kwargs)
 
-        # This process needs Athena to be set to run at least two parallel processes
-
+        # This process' integration needs Athena to be set to run at least two parallel processes
+        # Advise the user about this here:
         if self.cores < 2:
-            error_message = """
-                Due to an apparent bug in PowhegBox, this Powheg process (ttbb) requires running at least
-                two (computer) processes in parallel. Please configure Athena to do so, e.g. by setting the
-                environment variable ATHENA_PROC_NUMBER to 2 or a higher number. In Bash, do e.g.: 'export
-                ATHENA_PROC_NUMBER=4'.
+            info_message = """
+                Due to an apparent bug in PowhegBox, the *INTEGRATION* for this Powheg process (ttbb)
+                requires running at least two (computer) processes in parallel. Please configure Athena
+                to do so, e.g. by setting the environment variable ATHENA_PROC_NUMBER to 2 or a higher
+                number. In Bash, do e.g.: 'export ATHENA_PROC_NUMBER=4'.
                 """
-            raise RuntimeError(" ".join(error_message.split()))
+            logger.info(info_message)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ b b~ [QCD]"))
