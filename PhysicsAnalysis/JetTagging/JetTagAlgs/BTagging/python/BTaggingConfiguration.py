@@ -1378,7 +1378,7 @@ class Configuration:
       output: The tool."""
       options = dict(options)
       options['name'] = name
-      options['OutputLevel'] = 2
+      #options['OutputLevel'] = 2
       options.setdefault('BTagAssociation', BTaggingFlags.doStandardAssoc)
       from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
       tool = Analysis__BTagTrackAssociation(**options)
