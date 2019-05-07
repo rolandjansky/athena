@@ -81,6 +81,19 @@ namespace CP
               ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
               m_dataEfficiencyDecoration.set (*muon, eff, sys);
             }
+          } else
+          {
+            if (m_scaleFactorDecoration) {
+              m_scaleFactorDecoration.set (*muon, 1, sys);
+            }
+
+            if (m_mcEfficiencyDecoration) {
+              m_mcEfficiencyDecoration.set (*muon, 1, sys);
+            }
+
+            if (m_dataEfficiencyDecoration) {
+              m_dataEfficiencyDecoration.set (*muon, 1, sys);
+            }
           }
         }
         return StatusCode::SUCCESS;
