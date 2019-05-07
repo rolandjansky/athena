@@ -61,13 +61,13 @@ StatusCode GenericMonitoringTool::book() {
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
-        std::shared_ptr<HistogramFiller> filler(factory.create(def));
-        
-        if (filler) {
-            m_fillers.push_back(filler);
-        } else {
-          ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
-        }
+      std::shared_ptr<HistogramFiller> filler(factory.create(def));
+
+      if (filler) {
+        m_fillers.push_back(filler);
+      } else {
+        ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
+      }
     } else {
       ATH_MSG_ERROR( "Unparsable histogram definition: " << item );
       return StatusCode::FAILURE;
@@ -90,13 +90,27 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
   for (auto filler : m_fillers) {
+    // Find the associated monitored variable for each histogram's variable(s)
     auto fillerVariables = filler->histogramVariablesNames();
+
     std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
 
     for (auto fillerVariable : fillerVariables) {
       for (auto monValue : monitoredVariables) {
         if (fillerVariable.compare(monValue.get().name()) == 0) {
           variables.push_back(monValue);
+          break;
+        }
+      }
+    }
+
+    // Find the weight variable in the list of monitored variables
+    auto fillerWeight = filler->histogramWeightName();
+    Monitored::IMonitoredVariable* weight = nullptr;
+    if ( fillerWeight != "" ) {
+      for (auto monValue : monitoredVariables) {
+        if (fillerWeight.compare(monValue.get().name()) == 0) {
+          weight = &monValue.get();
           break;
         }
       }
@@ -109,6 +123,7 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
 
     std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
     fillerCopy->setMonitoredVariables(variables);
+    fillerCopy->setMonitoredWeight(weight);
     result.push_back(fillerCopy);
   }
 

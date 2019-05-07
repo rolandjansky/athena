@@ -8,6 +8,7 @@
 #include "TH1.h"
 
 #include "AthenaMonitoring/HistogramFiller.h"
+#include <boost/range/combine.hpp>
 
 namespace Monitored {
   /**
@@ -27,10 +28,22 @@ namespace Monitored {
 
       auto histogram = this->histogram<TH1>();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      for (auto value : valuesVector) {
-        histogram->Fill(value);
+      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector.size() ) {
+        // When using weights, get the weight vector and fill
+        auto weightVector = m_monWeight->getVectorRepresentation();
+        double value,weight;
+        for (const auto& zipped : boost::combine(valuesVector,weightVector)) {
+          boost::tie(value,weight) = zipped;
+          histogram->Fill(value,weight);
+        }
+      } else {
+        // Otherwise, simply loop over the values and fill
+        for (auto value : valuesVector) {
+          histogram->Fill(value);
+        }
       }
 
       return std::size(valuesVector);
