@@ -20,6 +20,11 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+// EDM includes
+#include "xAODTruth/TruthParticleFwd.h"
+#include "xAODBase/IParticle.h"
+#include "xAODMissingET/MissingETContainer.h"
+
 namespace DerivationFramework {
 
   class HIGG3TruthDecorator : public AthAlgTool, public IAugmentationTool {
@@ -38,11 +43,49 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
+
+    /// @name Private helper functions
+
+    /// Check if a truth partice decays to itself
+    bool decayIntoItself(const xAOD::TruthParticle* part, int status=-1)  const;
+
+    /// See if the truth particle is the last of its kind
+    const xAOD::TruthParticle* lastOfKind(const xAOD::TruthParticle* part)  const;
+
+    /// See if the truth particle is the first of its kind
+    const xAOD::TruthParticle* firstOfKind(const xAOD::TruthParticle* part)  const;
+
+    /// Helper to recursively print info of a decay chain
+    void printRecursively(const xAOD::TruthParticle* part, std::string preVal="")  const;
+
+    /// Check for particles from W bosons
+    bool isFromW( const xAOD::TruthParticle* part, const std::vector<const xAOD::TruthParticle*>& Wlist)  const;
+
+    /// Sum the four-momenta of all daughter neutrinos of the given particle
+    TLorentzVector sumDaughterNeutrinos(const xAOD::TruthParticle *part)  const;
+
+    /// Check if the given particle overlaps in DeltaR with any of the list
+    bool checkOverlap(const xAOD::IParticle* part, std::vector<const xAOD::TruthParticle* > list)  const;
+
+    /// Check if the given particle overlaps in DeltaR with any of the list
+    bool checkOverlap(const xAOD::IParticle* part, std::vector<TLorentzVector > list)  const;
+
+    ///Calculate TruthMT
+    double calculateMT(const xAOD::TruthParticle *lep1, const xAOD::TruthParticle *lep2, const xAOD::MissingET* met)  const;
+    /// @}
+
+  private:
+
+    /// @name The properties that can be defined via the python job options
+    /// @{
+
     std::string m_inElContName;
     std::string m_inMuContName;
 
     bool m_isSherpa;
     bool m_isPowPy8EvtGen;
+
+    /// @}
 
   };
 

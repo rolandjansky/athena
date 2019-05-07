@@ -11,12 +11,15 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
+// Helper includes
+#include "FourMomUtils/xAODP4Helpers.h"
+
 namespace DerivationFramework {
 
   // Constructor
-  DerivationFramework::HIGG3TruthDecorator::HIGG3TruthDecorator(const std::string& t,
-                                            const std::string& n,
-                                            const IInterface* p) : 
+  HIGG3TruthDecorator::HIGG3TruthDecorator(const std::string& t,
+                                           const std::string& n,
+                                           const IInterface* p) :
     AthAlgTool(t, n, p)
   {
 
@@ -29,7 +32,7 @@ namespace DerivationFramework {
   }
 
   // Destructor
-  DerivationFramework::HIGG3TruthDecorator::~HIGG3TruthDecorator() {
+  HIGG3TruthDecorator::~HIGG3TruthDecorator() {
   }
 
   StatusCode HIGG3TruthDecorator::initialize() {
@@ -70,6 +73,124 @@ namespace DerivationFramework {
     const xAOD::TruthEventContainer* truthEvents(nullptr);
     CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
     const xAOD::TruthEvent * event = truthEvents->at(0);
+
+    std::vector<const xAOD::TruthParticle* > m_interestingLeptons;
+    std::vector<const xAOD::TruthParticle* > ORLeptons;
+    std::vector<const xAOD::TruthParticle* > m_interestingParticles;
+    std::vector<const xAOD::TruthParticle* > m_neutrinosFromW;
+    std::vector<const xAOD::TruthParticle* > m_leptonsFromW;
+    int Nz=0;
+    int Nem =0;
+    int Ntau=0;
+    int NeDirect=0;
+    int NmDirect=0;
+    int Nnu =0;
+    int Nem_acc=0;
+
+    // if this is a sample where the neutrinos and the leptons have the same flavour (so this will be undistinguishable WW/ZZ events),
+    //when this is !=0, this can only be a ZZ event
+    int CountSherpaLepton=0;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // this part is from Pere on H removal in WWW events
+    int abs_pdgId;
+    int abs_parent_pdgId;
+    int nWlep=0;
+    int nWnu=0;
+    int nWparents=0;
+    std::map<float,TLorentzVector> Wbosons;
+
+    //// this is for the OR removal between W+jets and W+gamma samples
+    bool hasPhoton=false;
+    std::vector<const xAOD::TruthParticle* > photons;
+    std::vector<const xAOD::TruthParticle* > leptonsFromWZwithTau;
+
+    // For the truth Higgs bosons
+    std::vector<const xAOD::TruthParticle* > higgsBosons;
+
+    // Define some containers of selected objects that are needed for the VBF mjj flag
+    std::vector<const xAOD::TruthParticle* > MCTruthPhotonList;
+    std::vector<const xAOD::TruthParticle* > MCTruthElectronList;
+    std::vector<TLorentzVector > MCTruthTauList;
+
+    // Get the truth particles from the event and loop over them
+    std::vector<float> ptLoss;
+    for(size_t p = 0; p < event->nTruthParticles(); p++) {
+      const xAOD::TruthParticle* truthPart = event->truthParticle(p);
+      if ( !truthPart ) continue;
+      if ( truthPart->barcode()>2e5 ) break;
+      const int pdg       = truthPart->pdgId();
+      const int absPdg    = std::abs(pdg);
+      const int status    = truthPart->status();
+      const double pt     = truthPart->pt();
+      double eta = 999999.0;
+      if ( pt > 0.1 ) eta = truthPart->eta();
+      const double absEta = std::abs(eta);
+      const xAOD::TruthVertex* decvtx = truthPart->decayVtx();
+
+
+      // Select everything that is needed to get the VBF mjj variable correctly
+
+      // Photons
+      if ( absPdg == 22 && status == 1 && pt >= 15000.0 && absEta <= 5.0  ) {
+        MCTruthPhotonList.push_back( truthPart ) ;
+      }
+
+      // Electrons
+      if ( absPdg == 11 && status == 1 && pt >= 15000.0 && absEta <= 5.0 ) {
+        MCTruthElectronList.push_back( truthPart ) ;
+      }
+
+      // Taus
+      if ( absPdg == 15 && status != 3 ) {
+        const xAOD::TruthParticle* tau = truthPart;
+        const xAOD::TruthVertex* taudecvtx = tau->decayVtx();
+        int leptonic = 0;
+
+        if (taudecvtx && taudecvtx->nOutgoingParticles()>0 ) {
+          for ( std::size_t chil=0; chil<taudecvtx->nOutgoingParticles(); chil++) {
+            const xAOD::TruthParticle* testTau = taudecvtx->outgoingParticle(chil);
+            if (testTau==0) {
+              ATH_MSG_DEBUG(" Found child of tau lepton with NULL pointer!!!!");
+              leptonic = -999;
+              continue;
+            }
+            const int childAbsPdg = std::abs(testTau->pdgId());
+            if ( childAbsPdg == 12  ) {
+              leptonic = 1;
+            }
+            if ( childAbsPdg == 14  ) {
+              leptonic = 2;
+            }
+            if ( childAbsPdg == 15  ) {
+              leptonic = 11;
+            }
+          }
+        }
+
+        if (leptonic == 0) {
+          TLorentzVector nutau  = this->sumDaughterNeutrinos( tau );
+          TLorentzVector tauvis( tau->px() - nutau.Px(),
+                                 tau->py() - nutau.Py(),
+                                 tau->pz() - nutau.Pz(),
+                                 tau->e()  - nutau.E()  );
+
+          if ( tauvis.Pt() >= 15000.0 && std::abs(tauvis.PseudoRapidity()) <= 5.0 ) {
+            MCTruthTauList.push_back( tauvis ) ;
+          }
+        }
+      } // Done with the stuff for the VBF mjj
+
+    } // end loop over all truth particles
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 
     //---------------------------------------------//
     // Lepton truth flavour decorator as in Run-I  //
@@ -342,21 +463,204 @@ namespace DerivationFramework {
 
     } // end: loop over muons for Run1 truth flavour decoration
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     return StatusCode::SUCCESS;
+  } // end: addBranches() method
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //// some helper function
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  bool HIGG3TruthDecorator::decayIntoItself(const xAOD::TruthParticle* part, int status) const {
+    if (!part) return false;
+    const int partPDG = part->pdgId();
+    const xAOD::TruthVertex* decvtx = part->decayVtx();
+    if ( !decvtx )                         return false;
+    if ( decvtx->nOutgoingParticles()==0 ) return false;
+
+    for (unsigned int chil=0; chil<decvtx->nOutgoingParticles(); ++chil) {
+      const xAOD::TruthParticle* child = decvtx->outgoingParticle(chil);
+      if (!child) continue;
+      const int barcode = child->barcode();
+      if ( barcode>=2e5 ) continue;
+      const int PDG = child->pdgId();
+      if ( status==-1 ) {
+        if ( PDG==partPDG ) return true;
+      } else {
+        if ( PDG==partPDG && child->status()==status) return true;
+      }
+    }
+    return false;
   }
 
-}
+
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const xAOD::TruthParticle* HIGG3TruthDecorator::lastOfKind(const xAOD::TruthParticle* part) const {
+    if (!part) return nullptr;
+    const int partPDG = part->pdgId();
+    const xAOD::TruthVertex* decvtx = part->decayVtx();
+    if ( !decvtx ) return part;
+    if ( decvtx->nOutgoingParticles()==0 ) return part;
+
+    for (unsigned int chil=0; chil<decvtx->nOutgoingParticles(); chil++) {
+      const xAOD::TruthParticle* childPart = decvtx->outgoingParticle(chil);
+      if (!childPart) continue;
+      const int barcode = childPart->barcode();
+      if ( barcode >= 2e5 ) continue;
+      const int PDG = childPart->pdgId();
+      if ( PDG == partPDG ) return lastOfKind(childPart);
+    }
+    return part;
+  }
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const xAOD::TruthParticle* HIGG3TruthDecorator::firstOfKind(const xAOD::TruthParticle* part) const {
+    if (!part) return nullptr;
+    int partPDG = part->pdgId();
+    const xAOD::TruthVertex* prodvtx = part->prodVtx();
+    if ( !prodvtx ) return part;
+    const std::size_t nInParts = prodvtx->nIncomingParticles();
+    if ( nInParts == 0 ) return part;
+
+    if ( nInParts==1 ) {
+      const xAOD::TruthParticle* inPart = prodvtx->incomingParticle(0);
+      if (!inPart) return part;
+      const int motherPDG = inPart->pdgId();
+      if ( partPDG!=motherPDG ) return part;
+      return firstOfKind(inPart);
+    } else { //needed for Sherpa
+      for (unsigned int moth=0; moth<nInParts; moth++) {
+        const xAOD::TruthParticle* inMother = prodvtx->incomingParticle(moth);
+        if (!inMother) continue;
+        const int motherPDG = inMother->pdgId();
+        if ( partPDG != motherPDG ) continue;
+        if ( inMother->status()==11 ) return inMother;
+      }
+    }
+    return part;
+  }
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void HIGG3TruthDecorator::printRecursively(const xAOD::TruthParticle* part, std::string preVal) const {
+    if (!part) return;
+    const xAOD::TruthVertex* decvtx = part->decayVtx();
+    if ( !decvtx ) return ;
+    const std::size_t nOutParts = decvtx->nOutgoingParticles();
+    if ( nOutParts==0 ) return ;
+
+    for (unsigned int chil=0; chil<nOutParts; chil++) {
+      const xAOD::TruthParticle* childPart = decvtx->outgoingParticle(chil);
+      if (!childPart) continue;
+      const int barcode = childPart->barcode();
+      if ( barcode>=2e5 ) continue;
+      printRecursively(childPart, preVal+" ");
+    }
+    return ;
+  }
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  bool HIGG3TruthDecorator::isFromW( const xAOD::TruthParticle* part, const std::vector<  const xAOD::TruthParticle*>& Wlist) const {
+    if (!part) return false;
+    const xAOD::TruthParticle* tmpPart = firstOfKind(part);
+    for ( unsigned int iP=0; iP<Wlist.size(); ++iP) {
+      if ( tmpPart==Wlist.at(iP) ) return true;
+    }
+    return false;
+  }
+
+
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  TLorentzVector HIGG3TruthDecorator::sumDaughterNeutrinos(const xAOD::TruthParticle *part) const {
+    TLorentzVector nu(0,0,0,0);
+    if ( ( abs( part->pdgId() ) == 12 ) || ( abs( part->pdgId() ) == 14 ) || ( abs( part->pdgId() ) == 16 ) ) {
+      nu.SetPx(part->px());
+      nu.SetPy(part->py());
+      nu.SetPz(part->pz());
+      nu.SetE(part->e());
+      return nu;
+    }
+
+    if ( part->hasDecayVtx() == 0 ) return nu;
+    const xAOD::TruthVertex* decvtx = part->decayVtx();
+    const std::size_t nOutParts = decvtx->nOutgoingParticles();
+    for ( unsigned int chil=0; chil<nOutParts; ++chil) {
+      // Protect against null pointer. This should not happen though.
+      // Maybe, if that is the case for a tau decay, sum the visible parts and
+      // subtract those from the full tau instead?
+      const xAOD::TruthParticle* childPart = decvtx->outgoingParticle(chil);
+      if (!childPart){ continue; }
+      nu += sumDaughterNeutrinos( childPart );
+    }
+    return nu;
+  }
+
+
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  bool HIGG3TruthDecorator::checkOverlap(const xAOD::IParticle* part, std::vector<const xAOD::TruthParticle* > list) const {
+    if (!part) return false;
+    for (std::size_t i = 0; i < list.size(); ++i) {
+      const xAOD::TruthParticle* truthPart = list[i];
+      const double pt = truthPart->pt();
+      if (pt > 15000.0) {
+        if ( xAOD::P4Helpers::isInDeltaR(*part, *truthPart, 0.3) ) return true;
+      }
+    }
+    return false;
+  }
+
+
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  bool HIGG3TruthDecorator::checkOverlap(const xAOD::IParticle* part, std::vector<TLorentzVector > list) const {
+    if (!part) return false;
+    const double maxDeltaR2 = 0.3*0.3;
+    for (size_t i = 0; i < list.size(); ++i) {
+      const TLorentzVector& partB = list[i];
+      const double pt = partB.Pt();
+      if (pt > 15000.0) {
+        const double phi      = partB.Phi();
+        const double rapidity = partB.PseudoRapidity();
+        if ( xAOD::P4Helpers::deltaR2(*part,rapidity,phi) < maxDeltaR2 ) return true;
+      }
+    }
+    return false;
+  }
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  double HIGG3TruthDecorator::calculateMT( const xAOD::TruthParticle *lep1, const xAOD::TruthParticle *lep2, const xAOD::MissingET* missET ) const {
+    const double mpx( missET->mpx() );
+    const double mpy( missET->mpy() );
+    const double met( missET->met() );
+    TLorentzVector l1 = lep1->p4();
+    TLorentzVector l2 = lep2->p4();
+    TLorentzVector leptons = l1+l2;
+
+    // Now, actually calculate the result (in two parts)
+    const double px( leptons.Px() );
+    const double py( leptons.Py() );
+    const double part2 = (px+mpx)*(px+mpx) + (py+mpy)*(py+mpy);
+    double mll2( leptons.M2() );
+    // This is needed for rare cases when the TLorentzVector.M2 returns negative values
+    mll2 = mll2 < 0.0 ? -mll2 : mll2;
+    const double etll( std::sqrt( (px*px + py*py) + mll2 ) );
+    const double part1( (etll+met)*(etll+met) );
+
+    // One last sanity check
+    if ( part1 < part2 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got an invalid mt calculation");
+    }
+    return std::sqrt( part1 - part2 );
+  }
+
+} // end: DerivationFramework namespace
