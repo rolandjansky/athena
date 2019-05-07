@@ -109,6 +109,7 @@ if opt.doJetSlice == True:
     #from TriggerMenuMT.HLTMenuConfig.Jet.JetSequenceSetup import jetMenuSequence
     from TrigUpgradeTest.jetMenuDefs import jetMenuSequence
 
+    # small-R jets, different calibrations
     jetSeq_a4_emtopo = jetMenuSequence("a4_emtopo_subjesis", "TrigJetHypoAlgMT_a4_emtopo")
     step_a4_emtopo =ChainStep("Step_jet_a4_emtopo", [jetSeq_a4_emtopo])
 
@@ -121,6 +122,7 @@ if opt.doJetSlice == True:
     jetSeq_a4_lcw = jetMenuSequence("a4_lcw_subjesis", "TrigJetHypoAlgMT_a4_lcw")
     step_a4_lcw=ChainStep("Step_jet_a4_lcw", [jetSeq_a4_lcw])
 
+    # large-R jets
     jetSeq_a10_lcw_subjes = jetMenuSequence("a10_lcw_subjes", "TrigJetHypoAlgMT_a10_lcw_subjes")
     step_a10_lcw_subjes=ChainStep("Step_jet_a10_subjes_lcw", [jetSeq_a10_lcw_subjes])
 
@@ -128,14 +130,12 @@ if opt.doJetSlice == True:
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        #Chain(name='HLT_j85',  Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j45', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j45_subjes', Seed="L1_J20",  ChainSteps=[step_a4_emtopo_subjes]  ),
-        Chain(name='HLT_j45_nojcalib', Seed="L1_J20",  ChainSteps=[step_a4_emtopo_nocalib]  ),
-        Chain(name='HLT_j45_lcw', Seed="L1_J20",  ChainSteps=[step_a4_lcw]  ),
-        Chain(name='HLT_5j70_0eta240',  Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15
-        Chain(name='HLT_j100_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_lcw_subjes]  ),
-        Chain(name='HLT_j100_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
+        Chain(name='HLT_j420', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j260_320eta490', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J100",  ChainSteps=[step_a10_lcw_subjes]  ),
+        Chain(name='HLT_j460_a10r', Seed="L1_J100",  ChainSteps=[step_a10r]  ),
+        Chain(name='HLT_3j200', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported) 
         ]
 
     testChains += jetChains
