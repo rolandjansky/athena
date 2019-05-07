@@ -66,7 +66,10 @@ def jetRecoSequence(  jetDefString , RoIs = 'FSJETRoI'):
     from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType, JetModifier
   
     # chosen jet collection
-    jetsFullName = "TrigAntiKt"+jetConstitName+calibSeq
+    prefix = "TrigAntiKt4"
+    if "a10_" in jetDefString:
+        prefix = "TrigAntiKt10"
+    jetsFullName = prefix+jetConstitName+calibSeq
     trigJetConstit = JetConstit( xAODType.CaloCluster, [jetConstitName]) # 'EM' or 'LC' for trigger jets
     trigJetConstit.istrigger = False
     trigJetConstit.ptmin = 2e3
@@ -107,7 +110,7 @@ def jetRecoSequence(  jetDefString , RoIs = 'FSJETRoI'):
     # check if asked for reclustering
     if 'a10r' in jetDefString:
 
-        a10rJetsFullName = "a10rJets"
+        a10rJetsFullName = "TrigAntiKt10rSubJESIS"
         a10rJetConstit = JetConstit( xAODType.Jet, [])
         trigAntiKt10rJetDef = JetDefinition( "AntiKt", 1.0, a10rJetConstit)
 
