@@ -586,14 +586,6 @@ namespace top {
                                                "weight_photonSF_ID_DOWN");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso,
                                                "weight_photonSF_effIso");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effLowPtIso_UP,
-                                               "weight_photonSF_effLowPtIso_UP");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effLowPtIso_DOWN,
-                                               "weight_photonSF_effLowPtIso_DOWN");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effTrkIso_UP,
-                                               "weight_photonSF_effTrkIso_UP");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effTrkIso_DOWN,
-                                               "weight_photonSF_effTrkIso_DOWN");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_UP,
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
@@ -1789,10 +1781,6 @@ namespace top {
           m_weight_photonSF_ID_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_UP);
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO);
-          m_weight_photonSF_effLowPtIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_LOWPTISO_UP);
-          m_weight_photonSF_effLowPtIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_LOWPTISO_DOWN);
-          m_weight_photonSF_effTrkIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRKISO_UP);
-          m_weight_photonSF_effTrkIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRKISO_DOWN);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
         }
