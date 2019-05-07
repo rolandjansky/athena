@@ -687,12 +687,12 @@ class ConfiguredNewTrackingCuts :
     if mode == "PixelPrdAssociation":
       self.__extension        = "PixelPrdAssociation" # this runs after NewTracking
       self.__minPT            = 5.0 * Units.GeV
-      self.__minClusters      = 3
+      self.__minClusters      = 4
       self.__maxHoles         = 0
       self.__maxPixelHoles    = 0
       self.__maxSctHoles      = 0
       self.__maxDoubleHoles   = 0
-      self.__minSiNotShared   = 0
+      self.__minSiNotShared   = 3
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
@@ -701,6 +701,10 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = True
       self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
+
+      if self.__indetflags.doImprovedPixelPrdAssociation():
+        self.__minClusters      = 3
+        self.__minSiNotShared   = 0
 
     if mode == "PixelFourLayer":
       self.__extension        = "PixelFourLayer" # this runs after NewTracking
