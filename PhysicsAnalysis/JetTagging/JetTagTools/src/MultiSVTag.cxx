@@ -115,11 +115,12 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string jetName){
+  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag, const std::string &jetName){
 
     /** author to know which jet algorithm: */
-    std::string author = jetName;
+    std::string author;
     if (m_doForcedCalib) author = m_ForcedCalibName;
+    else author = jetName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....
     std::string alias = m_calibrationTool->channelAlias(author);//why this gives always the same?

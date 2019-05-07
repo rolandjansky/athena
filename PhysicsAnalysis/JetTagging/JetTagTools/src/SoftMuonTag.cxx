@@ -289,7 +289,7 @@ namespace Analysis
   }
 
 
-  StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
+  StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 

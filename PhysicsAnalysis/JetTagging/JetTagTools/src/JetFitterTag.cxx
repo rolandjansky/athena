@@ -154,14 +154,15 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetFitterTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
+  StatusCode JetFitterTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
     /** author to know which jet algorithm: */
-    std::string jetauthor = jetName;
+    std::string jetauthor;
 
     if (m_doForcedCalib) {
       jetauthor = m_ForcedCalibName;
-    } 
+    }
+    else jetauthor = jetName;
 
     double jetpT = jetToTag.pt();
     double jeteta = jetToTag.eta();

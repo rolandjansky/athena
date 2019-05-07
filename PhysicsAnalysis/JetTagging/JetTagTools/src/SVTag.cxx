@@ -195,11 +195,12 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName) {
+  StatusCode SVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
     /** author to know which jet algorithm: */
-    std::string author = jetName;
+    std::string author;
     if (m_doForcedCalib) author = m_ForcedCalibName;
+    else author = jetName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */

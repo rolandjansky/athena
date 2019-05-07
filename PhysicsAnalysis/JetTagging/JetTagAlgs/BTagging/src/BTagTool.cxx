@@ -94,7 +94,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string jetName, const xAOD::Vertex* vtx) {
+  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName, const xAOD::Vertex* vtx) {
 
     ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
 		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
