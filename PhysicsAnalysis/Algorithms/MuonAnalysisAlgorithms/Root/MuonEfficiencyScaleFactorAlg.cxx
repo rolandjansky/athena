@@ -84,15 +84,15 @@ namespace CP
           } else
           {
             if (m_scaleFactorDecoration) {
-              m_scaleFactorDecoration.set (*muon, 1, sys);
+              m_scaleFactorDecoration.set (*muon, invalidScaleFactor(), sys);
             }
 
             if (m_mcEfficiencyDecoration) {
-              m_mcEfficiencyDecoration.set (*muon, 1, sys);
+              m_mcEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
             }
 
             if (m_dataEfficiencyDecoration) {
-              m_dataEfficiencyDecoration.set (*muon, 1, sys);
+              m_dataEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
             }
           }
         }
