@@ -23,6 +23,15 @@ namespace CP
 {
   class SystematicSet;
 
+  /// \brief the decoration value to use if there is no valid scale
+  /// factor decoration
+  constexpr float invalidScaleFactor () {return -1;}
+
+  /// \brief the decoration value to use if there is no valid
+  /// efficiency decoration
+  constexpr float invalidEfficiency () {return -1;}
+
+
   /// \brief a data handle for reading systematics varied input data
 
   template<typename T> class SysDecorationHandle final : public ISysHandleBase
