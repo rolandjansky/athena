@@ -22,7 +22,7 @@
 #include "GaudiKernel/DataObject.h"
 #include "EventContainers/IdentifiableContainerBase.h"
 #include "EventContainers/IDC_WriteHandleBase.h"
-
+#include "CxxUtils/AthUnlikelyMacros.h"
 //const_iterator and indexFind are provided for backwards compatability. they are not optimal
 /*
 IT is faster to iterate over the container with this method:
@@ -65,14 +65,14 @@ public:
            Swap(*this, other);
         }
         StatusCode addOrDelete(std::unique_ptr<T> ptr, bool &deleted){
-           if(m_IDC_ptr==nullptr) return StatusCode::FAILURE;
+           if(ATH_UNLIKELY(m_IDC_ptr==nullptr)) return StatusCode::FAILURE;
            StatusCode sc = m_IDC_ptr->addOrDelete(std::move(ptr), m_hashId, deleted);
            IDC_WriteHandleBase::ReleaseLock();
            m_alreadyPresent = true;
            return sc;
         }
         StatusCode addOrDelete(std::unique_ptr<T> ptr){
-           if(m_IDC_ptr==nullptr) return StatusCode::FAILURE;
+           if(ATH_UNLIKELY(m_IDC_ptr==nullptr)) return StatusCode::FAILURE;
            StatusCode sc = m_IDC_ptr->addOrDelete(std::move(ptr), m_hashId);
            IDC_WriteHandleBase::ReleaseLock();
            m_alreadyPresent = true;
@@ -373,7 +373,7 @@ StatusCode
 IdentifiableContainerMT<T>::addCollection(const T* coll, IdentifierHash hashId)
 {
     // update m_hashids
-    if (! castCache()->add(hashId, coll)) return StatusCode::FAILURE;
+    if (ATH_UNLIKELY(! castCache()->add(hashId, coll))) return StatusCode::FAILURE;
     m_mask[hashId] = true;
     return StatusCode::SUCCESS;
 
@@ -415,7 +415,7 @@ template < class T >
 StatusCode 
 IdentifiableContainerMT<T>::naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const
 {
-   if(m_OnlineMode) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
+   if(ATH_UNLIKELY(m_OnlineMode)) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
    else {
       collToRetrieve = const_cast< T* > (castCache()->find(hashId));//collToRetrieve can be null on success
       return StatusCode::SUCCESS;
@@ -426,7 +426,7 @@ template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
 {
-    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
     bool added = castCache()->add(hashId, std::move(ptr));
     m_mask[hashId] = true;
     if(added) {
@@ -440,7 +440,7 @@ template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId, bool &deleted)
 {
-    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
     bool added = castCache()->add(hashId, std::move(ptr));
     m_mask[hashId] = true;
     deleted = !added;
