@@ -20,6 +20,29 @@ cluster_list = [
 
 
 ]
+
+cluster_list_photon = [
+    {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterConvPhotonTRTTRT', 'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+]
+
+photon_cluster_list = [
+     {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterConvPhotonTRTTRT', 'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+
+]
+
+
 electron_comparison_list = [
     {'name': 'showerShapesAll', 'title': 'Shower Shape - Inclusive'},
     {'name': 'showerShapes10GeV', 'title': 'Shower Shape - 10 GeV'},
@@ -122,11 +145,14 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
             make_ratio_plot(h_base, h_nightly, folder['title'], result_file)
 
 
-def make_profile_plots(f_base, f_nightly, result_file):
+def make_profile_plots(f_base, f_nightly, result_file, particle_type):
 
-    for i, folder in enumerate(cluster_list):
+    cluster_list_to_loop = cluster_list
+
+    if particle_type == "gamma": cluster_list_to_loop = cluster_list + cluster_list_photon
+
+    for i, folder in enumerate(cluster_list_to_loop):
         for histo in get_key_names(f_nightly, folder['name']):
-            print(histo)
             if '2D' not in histo:
                 continue
             h_base = f_base.Get(folder['name'] + '/' + histo)
@@ -136,7 +162,10 @@ def make_profile_plots(f_base, f_nightly, result_file):
             h_base_profile.SetDirectory(0)
             h_nightly_profile.SetDirectory(0)
 
-            make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, "Mean E_{raw}/E_{truth}")
+            y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
+            h_base_profile.SetTitle("")
+
+            make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
 
 
@@ -317,7 +346,7 @@ if __name__ == '__main__':
 
     make_comparison_plots(particle_type, baseline_file, nightly_file, output_file)
 
-    make_profile_plots(baseline_file, nightly_file, output_file)
+    make_profile_plots(baseline_file, nightly_file, output_file, particle_type)
 
 
     if particle_type == 'gamma':
