@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloG4_EscapedEnergyRegistry_H
@@ -10,6 +10,10 @@
 
 #include <map>
 
+#include <thread>
+#ifdef G4MULTITHREADED
+#  include "tbb/concurrent_unordered_map.h"
+#endif
 namespace CaloG4
 {
 
@@ -30,6 +34,15 @@ namespace CaloG4
   /// Since there's only one registry, this class uses the singleton
   /// pattern.
   ///
+  /// UPDATE:
+  ///
+  ///12-Apr-2019 Marilena Bandieramonte
+  ///
+  /// This singleton class was not thread-safe.
+  /// Added the #ifdef G4MULTITHREADED directive to handle
+  /// the multithreaded case. One instance of the class will be created
+  /// per each thread and stored in a tbb::concurrent_unordered_map that
+  /// is hashed with the threadID number.
   class EscapedEnergyRegistry
   {
   public:
@@ -57,7 +70,18 @@ namespace CaloG4
     typedef m_processingMap_t::iterator                           m_processingMap_ptr_t;
     typedef m_processingMap_t::const_iterator                     m_processingMap_const_ptr_t;
     m_processingMap_t                                             m_processingMap;
-
+#ifdef G4MULTITHREADED
+     // Thread-to-EscapeEnergyRegistry concurrent map type
+    using EERThreadMap_t = tbb::concurrent_unordered_map< std::thread::id, EscapedEnergyRegistry*, std::hash<std::thread::id> >;
+    // Concurrent map of EERs, one for each thread
+    static EERThreadMap_t m_EERThreadMap;
+    // @brief Search inside m_EERThreadMap the element with the current threadID 
+    // and return it or return a null pointer if the element is not found
+    static EscapedEnergyRegistry* getEER();
+    // @brief Insert the current EER in m_EERThreadMap and 
+    // associate it with the current threadID
+    static EscapedEnergyRegistry* setEER();
+#endif
   };
 
 } // namespace CaloG4
