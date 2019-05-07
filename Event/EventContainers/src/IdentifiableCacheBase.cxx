@@ -20,8 +20,8 @@
 
 namespace EventContainers {
 
-static const void* INVALID = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
-static const void* ABORTED = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
+const void* const INVALID = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
+const void* const ABORTED = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
 
 IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
                                               const IMaker* maker)
