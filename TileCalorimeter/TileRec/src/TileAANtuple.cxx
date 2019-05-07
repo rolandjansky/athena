@@ -153,6 +153,10 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tMF()
 , m_chi2MF()
 , m_pedMF()
+, m_eWiener()
+, m_tWiener()
+, m_pedWiener()
+, m_chi2Wiener()
 , m_ROD_GlobalCRC()
 , m_ROD_BCID()
 , m_ROD_DMUBCIDErr()
@@ -220,6 +224,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainer = "");      //
+  declareProperty("TileRawChannelContainerWiener", m_wienerRawChannelContainer = "");      //
   declareProperty("TileMuRcvRawChannelContainer", m_tileMuRcvRawChannelContainer = "MuRcvRawChCnt");// TMDB
   declareProperty("TileMuRcvDigitsContainer", m_tileMuRcvDigitsContainer = "MuRcvDigitsCnt");// TMDB
   declareProperty("TileMuRcvContainer", m_tileMuRcvContainer = "TileMuRcvCnt");// TMDB
@@ -448,14 +453,15 @@ StatusCode TileAANtuple::execute() {
   
   // store TileRawChannels
   // start from DSP channels - so we can find out what is the DSP units
-  empty &= storeRawChannels(m_dspRawChannelContainer,  m_eDsp,  m_tDsp,  m_chi2Dsp, m_pedDsp, true ).isFailure();
-  empty &= storeRawChannels(m_rawChannelContainer,     m_ene,   m_time,  m_chi2,    m_ped,    false).isFailure();
-  empty &= storeMFRawChannels(m_mfRawChannelContainer, m_eMF,   m_tMF,   m_chi2MF,  m_pedMF,  false).isFailure();
-  empty &= storeRawChannels(m_fitRawChannelContainer,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
-  empty &= storeRawChannels(m_fitcRawChannelContainer, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
-  empty &= storeRawChannels(m_optRawChannelContainer,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
-  empty &= storeRawChannels(m_qieRawChannelContainer,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
-  empty &= storeRawChannels(m_of1RawChannelContainer,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
+  empty &= storeRawChannels(m_dspRawChannelContainer,    m_eDsp,     m_tDsp,     m_chi2Dsp,    m_pedDsp,    true ).isFailure();
+  empty &= storeRawChannels(m_rawChannelContainer,       m_ene,      m_time,     m_chi2,       m_ped,       false).isFailure();
+  empty &= storeMFRawChannels(m_mfRawChannelContainer,   m_eMF,      m_tMF,      m_chi2MF,     m_pedMF,     false).isFailure();
+  empty &= storeRawChannels(m_fitRawChannelContainer,    m_eFit,     m_tFit,     m_chi2Fit,    m_pedFit,    false).isFailure();
+  empty &= storeRawChannels(m_fitcRawChannelContainer,   m_eFitc,    m_tFitc,    m_chi2Fitc,   m_pedFitc,   false).isFailure();
+  empty &= storeRawChannels(m_optRawChannelContainer,    m_eOpt,     m_tOpt,     m_chi2Opt,    m_pedOpt,    false).isFailure();
+  empty &= storeRawChannels(m_qieRawChannelContainer,    m_eQIE,     m_tQIE,     m_chi2QIE,    m_pedQIE,    false).isFailure();
+  empty &= storeRawChannels(m_of1RawChannelContainer,    m_eOF1,     m_tOF1,     m_chi2OF1,    m_pedOF1,    false).isFailure();
+  empty &= storeRawChannels(m_wienerRawChannelContainer, m_eWiener,  m_tWiener,  m_chi2Wiener, m_pedWiener, false).isFailure();
   
   // store TMDB data
   //
@@ -2061,6 +2067,13 @@ void TileAANtuple::DIGI_addBranch(void)
       m_ntuplePtr->Branch(NAME2("chi2MF",f_suf), m_chi2MF[ir],     NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedMF",f_suf),  m_pedMF[ir],      NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
     }
+
+    if (m_wienerRawChannelContainer.size() > 0) {
+      m_ntuplePtr->Branch(NAME2("eWiener",f_suf),    m_eWiener[ir],        NAME3("eWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("tWiener",f_suf),    m_tWiener[ir],        NAME3("tWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("pedWiener",f_suf),  m_pedWiener[ir],    NAME3("pedWiener",f_suf,"[4][64][48]/F")); // float
+      m_ntuplePtr->Branch(NAME2("chi2Wiener",f_suf), m_chi2Wiener[ir],  NAME3("chi2Wiener",f_suf,"[4][64][48]/F")); // float
+    }
     
     if (m_bsInput) {
       if (i == imin) { // common for low and high gain
@@ -2189,6 +2202,13 @@ void TileAANtuple::DIGI_clearBranch(void) {
     CLEAR2(m_tMF, size);
     CLEAR2(m_chi2MF, size);
     CLEAR2(m_pedMF, size);
+  }
+
+  if (m_wienerRawChannelContainer.size() > 0) {
+    CLEAR2(m_eWiener, size);
+    CLEAR2(m_tWiener, size);
+    CLEAR2(m_pedWiener, size);
+    CLEAR2(m_chi2Wiener, size);
   }
   
   if (m_bsInput) {
