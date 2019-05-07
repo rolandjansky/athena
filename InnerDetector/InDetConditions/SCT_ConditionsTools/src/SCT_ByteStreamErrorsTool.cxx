@@ -347,7 +347,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};  
   if (slot>=m_cache.size()) {
-    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+    m_cache.resize(slot+1, invalidValue);
     m_bsErrors.resize(slot+1);
     m_tempMaskedChips.resize(slot+1);
     m_abcdErrorChips.resize(slot+1);
@@ -406,6 +406,9 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
       }
     }
   }
+
+  m_cache[slot] = evt;
+
   return StatusCode::SUCCESS;
 }
 
