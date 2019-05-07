@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -112,10 +112,10 @@ CaloClusterCorrection::setProperty (const Property& p)
 }
 
 
-StatusCode CaloClusterCorrection::execute(const EventContext& /*ctx*/,
+StatusCode CaloClusterCorrection::execute(const EventContext& ctx,
                                           CaloCluster *cluster) const
 {
-  this->makeCorrection(Gaudi::Hive::currentContext(), cluster);
+  this->makeCorrection(ctx, cluster);
 
 #if 0
   ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endmsg);
