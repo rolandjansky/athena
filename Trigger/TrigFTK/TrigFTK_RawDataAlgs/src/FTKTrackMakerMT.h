@@ -96,8 +96,8 @@ private:
   Gaudi::Property<double> m_pTscaleFactor{this,"pTscaleFactor", 1., "ScaleFactor for FTK pT"};
   Gaudi::Property<std::vector<float> > m_pixelBarrelPhiOffsets{this,"PixelBarrelPhiOffsets",{0.,0.,0.,0.}," Pixel Barrel Phi Offsets in mm" };
   Gaudi::Property<std::vector<float> > m_pixelBarrelEtaOffsets{this,"PixelBarrelEtaOffsets",{0.,0.,0.,0.}," Pixel Barrel Eta Offsets in mm" };
-  Gaudi::Property<std::vector<float> > m_pixelEndCapPhiOffsets{this,"PixelBarrelPhiOffsets",{0.,0.,0.}," Pixel EndCap Phi Offsets in mm" };
-  Gaudi::Property<std::vector<float> > m_pixelEndCapEtaOffsets{this,"PixelBarrelEtaOffsets",{0.,0.,0.}," Pixel EndCap Eta Offsets in mm" };
+  Gaudi::Property<std::vector<float> > m_pixelEndCapPhiOffsets{this,"PixelEndCapPhiOffsets",{0.,0.,0.}," Pixel EndCap Phi Offsets in mm" };
+  Gaudi::Property<std::vector<float> > m_pixelEndCapEtaOffsets{this,"PixelEndCapEtaOffsets",{0.,0.,0.}," Pixel EndCap Eta Offsets in mm" };
   Gaudi::Property<bool> m_correctPixelClusters {this,"CorrectPixelClusters",true,"Correct Pixel cluster positions using the ROTcreatorTool"};
   Gaudi::Property<bool> m_correctSCTClusters {this,"CorrectSCTClusters",true,"Correct SCT cluster positions using the ROTcreatorTool"};
   Gaudi::Property<bool> m_broadPixelErrors{this,"setBroadPixelClusterOnTrackErrors",false," set isBroad as parameter of PixelClusterOnTrack"};
