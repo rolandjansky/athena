@@ -24,7 +24,8 @@ namespace DerivationFramework {
 
     declareProperty( "InputElectronContainerName", m_inElContName  = "Electrons" );
     declareProperty( "InputMuonContainerName", m_inMuContName  = "Muons" );
-    declareProperty( "IsSherpa", m_isSherpa );
+    declareProperty( "IsSherpa", m_isSherpa = false );
+    declareProperty( "isPowPy8EvtGen", m_isPowPy8EvtGen = false );
   }
 
   // Destructor
@@ -33,10 +34,14 @@ namespace DerivationFramework {
 
   StatusCode HIGG3TruthDecorator::initialize() {
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
+
+
+
     // Print the configuration to the log file
     ATH_MSG_DEBUG( "Using InputElectronContainerName: " << m_inElContName );
     ATH_MSG_DEBUG( "Using InputMuonContainerName: " << m_inMuContName );
     ATH_MSG_DEBUG( "Using IsSherpa: " << m_isSherpa );
+    ATH_MSG_DEBUG( "Using isPowPy8EvtGen: " << m_isPowPy8EvtGen );
 
     return StatusCode::SUCCESS;
   }

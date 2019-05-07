@@ -42,6 +42,7 @@ namespace DerivationFramework {
     std::string m_inMuContName;
 
     bool m_isSherpa;
+    bool m_isPowPy8EvtGen;
 
   };
 

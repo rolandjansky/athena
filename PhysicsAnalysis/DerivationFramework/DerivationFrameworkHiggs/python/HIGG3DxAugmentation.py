@@ -21,10 +21,12 @@ def getHIGG3TruthDecoratorTool(toolNamePrefix = "HIGG3DX"):
     f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
     # Sherpa needs some special treatment
     isFromSherpa = True
+    isFromPowPy8EvtGen = False
     try:
         generator = f.fileinfos['metadata']['/TagInfo']['generators']
         logger.info("Generator name: %s" % generator)
         if "Powheg" in generator or "MadGraph" in generator or "McAtNlo" in generator: isFromSherpa = False
+        if "Powheg+Pythia8+EvtGen" in generator: isFromPowPy8EvtGen = True
     except:
         try:
             logger.info("Trying to infer generator type from MC channel number...")
@@ -45,9 +47,10 @@ def getHIGG3TruthDecoratorTool(toolNamePrefix = "HIGG3DX"):
 
     toolName = toolNamePrefix+"TruthDecoratorTool"
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
-    HIGG3DTruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name        = toolName,
-                                                                        OutputLevel = VERBOSE,
-                                                                        IsSherpa    = isFromSherpa,
+    HIGG3DTruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name          = toolName,
+                                                                        OutputLevel   = VERBOSE,
+                                                                        IsSherpa      = isFromSherpa,
+                                                                        isPowPy8EvtGen = isFromPowPy8EvtGen,
                                                                         )
     logger.info("Created HIGG3TruthDecorator with name {}".format(toolName))
     return HIGG3DTruthDecoratorTool
