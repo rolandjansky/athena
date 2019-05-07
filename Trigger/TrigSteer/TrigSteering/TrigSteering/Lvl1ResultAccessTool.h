@@ -30,6 +30,13 @@
 #include <vector>
 #include <bitset>
 #include <string>
+#include <map>
+
+#include "xAODTrigger/JetRoIContainer.h"
+#include "xAODTrigger/EnergySumRoI.h"
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigger/EmTauRoIContainer.h"
 
 // forward declarations
 namespace TrigConf {
@@ -86,7 +93,16 @@ namespace HLT {
 
       virtual const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result) = 0;
       virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) = 0;
+      virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result,
+                                                                       const xAOD::TrigEMClusterContainer& emROIs,
+                                                                       const xAOD::EmTauRoIContainer& tauROIs,
+                                                                       bool updateCaloRoIs=false) = 0;
       virtual const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs) = 0;
+      virtual const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result,
+                                                                           const std::vector<const xAOD::JetRoIContainer *> & jetContainers,
+                                                                           const std::vector<std::string> & jetThresholdFilters,
+                                                                           const std::vector<const xAOD::EnergySumRoI *> & metROIs,
+                                                                           const std::vector<std::string> & metThresholdFilters) = 0;
 
       virtual std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result) = 0;
      
@@ -213,12 +229,38 @@ namespace HLT {
        */
       const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false);
 
+      /** @brief Extract LVL1 EMTau-type RoIs and cache them internally
+       *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
+       *  @param emROIs reference to EM ROI container, holding LVL1 EM RoIs from eFEX
+       *  @param tauROIs reference to TAU ROI container, holding LVL1 TAU RoIs from eFEX
+       *
+       *  @return reference to vector holding all EMTau-RoI objects
+       */
+      const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result,
+                                                               const xAOD::TrigEMClusterContainer& emROIs,
+                                                               const xAOD::EmTauRoIContainer& tauROIs,
+                                                               bool updateCaloRoIs=false);
+
       /** @brief Extract LVL1 JetEnergy-type RoIs and cache them internally
        *  @param result reference to RoIBResul object, holding all LVL1 RoIs and items
        *
        *  @return reference to vector holding all JetEnergy-RoI objects
        */
       const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false);
+
+      /** @brief Extract LVL1 JetEnergy-type RoIs and cache them internally
+       *  @param result reference to RoIBResul object, holding all LVL1 RoIs and items
+       *  @param jJetROIs reference to jet ROI container, holding LVL1 jet RoIs from jFEX
+       *  @param jLJetROIs reference to jet ROI container, holding LVL1 large_R jet RoIs from jFEX
+       *  @param gJetROIs reference to jet ROI container, holding LVL1 jet RoIs from gFEX
+       *
+       *  @return reference to vector holding all JetEnergy-RoI objects
+       */
+      const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result,
+                                                                   const std::vector<const xAOD::JetRoIContainer *> & jetContainers,
+                                                                   const std::vector<std::string> & jetThresholdFilters,
+                                                                   const std::vector<const xAOD::EnergySumRoI *> & metROIs,
+                                                                   const std::vector<std::string> & metThresholdFilters);
 
       /** @brief Check if there was an overflow in the TOB transmission to CMX
        *  @param result reference to RoIBResul object
@@ -279,11 +321,20 @@ namespace HLT {
       std::vector< ConfigThreshold > m_tauCfg;            //!< vector holding all configured LVL1 TAU thresholds
       std::vector< ConfigJetEThreshold > m_jetCfg;        //!< vector holding all configured LVL1 jet thresholds
 
-      std::vector<TrigConf::TriggerThreshold*> m_emtauThresholds;
-      std::vector<TrigConf::TriggerThreshold*> m_jetThresholds;
+      std::map<std::string,unsigned int>  m_metThrCuts; //! map to look up MET threshold by name
+
+      std::vector<TrigConf::TriggerThreshold*> m_emtauThresholdsRun2;
+      std::vector<TrigConf::TriggerThreshold*> m_emtauThresholdsRun3;
+      std::vector<TrigConf::TriggerThreshold*> m_jetThresholdsRun2;
+      std::vector<TrigConf::TriggerThreshold*> m_jetThresholdsRun3;
 
       bool addJetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold );
       bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold, bool isRestrictedRange );
+
+      /**
+       * @brief helper function to add a MET threshold to an JetEnergyRoI if it passes the threshold energy cut 
+       */
+      bool addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold * thr, unsigned int thrVal);
     
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
    };
