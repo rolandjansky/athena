@@ -130,11 +130,11 @@ if opt.doJetSlice == True:
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        Chain(name='HLT_j420', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j260_320eta490', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
-        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J100",  ChainSteps=[step_a10_lcw_subjes]  ),
-        Chain(name='HLT_j460_a10r', Seed="L1_J100",  ChainSteps=[step_a10r]  ),
-        Chain(name='HLT_3j200', Seed="L1_J100",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j420', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j260_320eta490', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
+        Chain(name='HLT_j460_a10_lcw_subjes', Seed="L1_J20",  ChainSteps=[step_a10_lcw_subjes]  ),
+        Chain(name='HLT_j460_a10r', Seed="L1_J20",  ChainSteps=[step_a10r]  ),
+        Chain(name='HLT_3j200', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ),
         Chain(name='HLT_5j70_0eta240', Seed="L1_J20",  ChainSteps=[step_a4_emtopo]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported) 
         ]
 
