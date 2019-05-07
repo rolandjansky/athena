@@ -225,7 +225,6 @@ ToolSvc+=theCaloNoiseTool
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
     'HLT::HLTResult/HLTResult_L2',
