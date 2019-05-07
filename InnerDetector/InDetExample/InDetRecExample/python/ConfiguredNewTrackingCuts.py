@@ -708,8 +708,8 @@ class ConfiguredNewTrackingCuts :
 
     if mode == "PixelFourLayer":
       self.__extension        = "PixelFourLayer" # this runs after NewTracking
-      self.__minPT            = 10.0 * Units.GeV
-      self.__minClusters      = 3
+      self.__minPT            = 5.0 * Units.GeV
+      self.__minClusters      = 4
       self.__maxHoles         = 0
       self.__maxPixelHoles    = 0
       self.__maxSctHoles      = 0
