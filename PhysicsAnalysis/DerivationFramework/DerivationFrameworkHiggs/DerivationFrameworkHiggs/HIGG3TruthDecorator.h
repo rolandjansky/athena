@@ -41,6 +41,8 @@ namespace DerivationFramework {
     std::string m_inElContName;
     std::string m_inMuContName;
 
+    bool m_isSherpa;
+
   };
 
 }

@@ -24,6 +24,7 @@ namespace DerivationFramework {
 
     declareProperty( "InputElectronContainerName", m_inElContName  = "Electrons" );
     declareProperty( "InputMuonContainerName", m_inMuContName  = "Muons" );
+    declareProperty( "IsSherpa", m_isSherpa );
   }
 
   // Destructor
@@ -31,6 +32,12 @@ namespace DerivationFramework {
   }
 
   StatusCode HIGG3TruthDecorator::initialize() {
+    ATH_MSG_DEBUG ("Initializing " << name() << "...");
+    // Print the configuration to the log file
+    ATH_MSG_DEBUG( "Using InputElectronContainerName: " << m_inElContName );
+    ATH_MSG_DEBUG( "Using InputMuonContainerName: " << m_inMuContName );
+    ATH_MSG_DEBUG( "Using IsSherpa: " << m_isSherpa );
+
     return StatusCode::SUCCESS;
   }
 
@@ -54,16 +61,16 @@ namespace DerivationFramework {
     // will be fully cached
     static SG::AuxElement::Decorator<int>  decFlavourTag ("truthFlavourTag");
 
+    // Retrieve the truth event
+    const xAOD::TruthEventContainer* truthEvents(nullptr);
+    CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
+    const xAOD::TruthEvent * event = truthEvents->at(0);
+
     //---------------------------------------------//
     // Lepton truth flavour decorator as in Run-I  //
     //---------------------------------------------//
 
     // Store b, c, s and light truth objects (quarks and hadrons)
-
-    // Retrieve the truth collections
-    const xAOD::TruthEventContainer* truthEvents(nullptr);
-    CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
-    const xAOD::TruthEvent * event = truthEvents->at(0);
 
     std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
     std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
