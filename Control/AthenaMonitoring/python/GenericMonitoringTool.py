@@ -23,11 +23,12 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  @param varname  one (1D) or two (2D) variable names separated by comma
 #  @param type     histogram type
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
+#  @param weight   Name of the variable containing the fill weight
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
 def defineHistogram(varname, type='TH1F', path=None,
-                    title=None,
+                    title=None,weight='',
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
 
@@ -42,7 +43,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
         return ""
 
-    coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
+    coded = "%s, %s, %s, %s, %s, %d, %f, %f" % (path, type, weight, varname, title, xbins, xmin, xmax)
     if ybins is not None:
         coded += ", %d, %f, %f" % (ybins, ymin, ymax)
         if zmin is not None:
