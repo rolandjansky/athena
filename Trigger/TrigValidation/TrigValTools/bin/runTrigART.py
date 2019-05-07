@@ -49,6 +49,11 @@ def minimal_pattern(package):
             "Please select specific tests using the name patter (option -n).")
         exit(1)
 
+def duplicate_filename(list, filename):
+    for path in list:
+        if os.path.basename(path) == filename:
+            return True
+    return False
 
 def find_scripts(patterns):
     scripts = []
@@ -63,7 +68,7 @@ def find_scripts(patterns):
                 if re.search(patt, filename) is None:
                     matched = False
                     break
-            if matched:
+            if matched and not duplicate_filename(scripts,filename):
                 scripts.append(path+'/'+filename)
     scripts.sort()
     return scripts
