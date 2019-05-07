@@ -3,10 +3,8 @@
 #
 
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
-from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-from AthenaCommon.Constants import ERROR, DEBUG
+from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.Constants import ERROR
 
 
 def jetAthSequence(ConfigFlags):
