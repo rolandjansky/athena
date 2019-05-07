@@ -167,14 +167,14 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_Angle3D(0)
    , m_newTTC_AngleEta(0)
 
-   , m_MuonEntryLayer_Energy(0)
-   , m_MuonEntryLayer_Momentum_X(0)
-   , m_MuonEntryLayer_Momentum_Y(0)
-   , m_MuonEntryLayer_Momentum_Z(0)
-   , m_MuonEntryLayer_Position_X(0)
-   , m_MuonEntryLayer_Position_Y(0)
-   , m_MuonEntryLayer_Position_Z(0)
-   , m_MuonEntryLayer_PDG_Code(0)
+   , m_MuonEntryLayer_E(0)
+   , m_MuonEntryLayer_px(0)
+   , m_MuonEntryLayer_py(0)
+   , m_MuonEntryLayer_pz(0)
+   , m_MuonEntryLayer_x(0)
+   , m_MuonEntryLayer_y(0)
+   , m_MuonEntryLayer_z(0)
+   , m_MuonEntryLayer_pdg(0)
 
    , m_caloEntrance(0)
    , m_calo_tb_coord(0)
@@ -559,14 +559,14 @@ StatusCode ISF_HitAnalysis::initialize()
   m_newTTC_Angle3D = new std::vector<float>;
   m_newTTC_AngleEta = new std::vector<float>;
 
-  m_MuonEntryLayer_Energy = new std::vector<float>;
-  m_MuonEntryLayer_Momentum_X = new std::vector<float>;
-  m_MuonEntryLayer_Momentum_Y = new std::vector<float>;
-  m_MuonEntryLayer_Momentum_Z = new std::vector<float>;
-  m_MuonEntryLayer_Position_X = new std::vector<float>;
-  m_MuonEntryLayer_Position_Y = new std::vector<float>;
-  m_MuonEntryLayer_Position_Z = new std::vector<float>;
-  m_MuonEntryLayer_PDG_Code = new std::vector<int>;
+  m_MuonEntryLayer_E = new std::vector<float>;
+  m_MuonEntryLayer_px = new std::vector<float>;
+  m_MuonEntryLayer_py = new std::vector<float>;
+  m_MuonEntryLayer_pz = new std::vector<float>;
+  m_MuonEntryLayer_x = new std::vector<float>;
+  m_MuonEntryLayer_y = new std::vector<float>;
+  m_MuonEntryLayer_z = new std::vector<float>;
+  m_MuonEntryLayer_pdg = new std::vector<int>;
 
 
   // Optional branches
@@ -662,14 +662,14 @@ StatusCode ISF_HitAnalysis::initialize()
 
 
 
-  m_tree->Branch("muonEntryLayer_Energy",&m_MuonEntryLayer_Energy);
-  m_tree->Branch("muonEntryLayer_Momentum_X",&m_MuonEntryLayer_Momentum_X);
-  m_tree->Branch("muonEntryLayer_Momentum_Y",&m_MuonEntryLayer_Momentum_Y);
-  m_tree->Branch("muonEntryLayer_Momentum_Z",&m_MuonEntryLayer_Momentum_Z);
-  m_tree->Branch("muonEntryLayer_Position_X",&m_MuonEntryLayer_Position_X);
-  m_tree->Branch("muonEntryLayer_Position_Y",&m_MuonEntryLayer_Position_Y);
-  m_tree->Branch("muonEntryLayer_Position_Z",&m_MuonEntryLayer_Position_Z);
-  m_tree->Branch("muonEntryLayer_PDG_Code",&m_MuonEntryLayer_PDG_Code);
+  m_tree->Branch("MuonEntryLayer_E",&m_MuonEntryLayer_E);
+  m_tree->Branch("MuonEntryLayer_px",&m_MuonEntryLayer_px);
+  m_tree->Branch("MuonEntryLayer_py",&m_MuonEntryLayer_py);
+  m_tree->Branch("MuonEntryLayer_pz",&m_MuonEntryLayer_pz);
+  m_tree->Branch("MuonEntryLayer_x",&m_MuonEntryLayer_x);
+  m_tree->Branch("MuonEntryLayer_y",&m_MuonEntryLayer_y);
+  m_tree->Branch("MuonEntryLayer_z",&m_MuonEntryLayer_z);
+  m_tree->Branch("MuonEntryLayer_pdg",&m_MuonEntryLayer_pdg);
 
 
  }
@@ -870,13 +870,13 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_AngleEta->clear();
 
 
- m_MuonEntryLayer_Energy->clear();
- m_MuonEntryLayer_Momentum_X->clear();
- m_MuonEntryLayer_Momentum_Y->clear();
- m_MuonEntryLayer_Momentum_Z->clear();
- m_MuonEntryLayer_Position_X->clear();
- m_MuonEntryLayer_Position_Y->clear();
- m_MuonEntryLayer_Position_Z->clear();
+ m_MuonEntryLayer_E->clear();
+ m_MuonEntryLayer_x->clear();
+ m_MuonEntryLayer_y->clear();
+ m_MuonEntryLayer_z->clear();
+ m_MuonEntryLayer_px->clear();
+ m_MuonEntryLayer_py->clear();
+ m_MuonEntryLayer_pz->clear();
 
  //##########################
 
@@ -1143,14 +1143,14 @@ StatusCode ISF_HitAnalysis::execute()
  TrackRecordCollection::const_iterator itrMuonEntryLast = MuonEntry->end();
 
  for ( ; itrMuonEntry!=itrMuonEntryLast; ++itrMuonEntry){
-    m_MuonEntryLayer_Energy->push_back((*itrMuonEntry).GetEnergy());
-    m_MuonEntryLayer_Momentum_X->push_back((*itrMuonEntry).GetMomentum().getX());
-    m_MuonEntryLayer_Momentum_Y->push_back((*itrMuonEntry).GetMomentum().getY());
-    m_MuonEntryLayer_Momentum_Z->push_back((*itrMuonEntry).GetMomentum().getZ());
-    m_MuonEntryLayer_Position_X->push_back((*itrMuonEntry).GetPosition().getX());
-    m_MuonEntryLayer_Position_Y->push_back((*itrMuonEntry).GetPosition().getY());
-    m_MuonEntryLayer_Position_Z->push_back((*itrMuonEntry).GetPosition().getZ());
-    m_MuonEntryLayer_PDG_Code->push_back((*itrMuonEntry).GetPDGCode());
+    m_MuonEntryLayer_E->push_back((*itrMuonEntry).GetEnergy());
+    m_MuonEntryLayer_px->push_back((*itrMuonEntry).GetMomentum().getX());
+    m_MuonEntryLayer_py->push_back((*itrMuonEntry).GetMomentum().getY());
+    m_MuonEntryLayer_pz->push_back((*itrMuonEntry).GetMomentum().getZ());
+    m_MuonEntryLayer_x->push_back((*itrMuonEntry).GetPosition().getX());
+    m_MuonEntryLayer_y->push_back((*itrMuonEntry).GetPosition().getY());
+    m_MuonEntryLayer_z->push_back((*itrMuonEntry).GetPosition().getZ());
+    m_MuonEntryLayer_pdg->push_back((*itrMuonEntry).GetPDGCode());
  }
 
 
