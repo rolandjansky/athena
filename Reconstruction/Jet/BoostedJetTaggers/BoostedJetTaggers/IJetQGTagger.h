@@ -41,6 +41,15 @@ namespace CP {
     virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
     virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex* pv) const = 0;
     virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv, int mode) const = 0;
+
+      // functions for systematic variations
+    virtual bool isAffectedBySystematic(const SystematicVariation& var) const = 0;
+    virtual SystematicSet affectingSystematics() const = 0;
+    virtual SystematicSet recommendedSystematics() const = 0 ;
+    virtual SystematicCode applySystematicVariation(const SystematicSet& set) = 0;
+    virtual SystematicCode sysApplySystematicVariation(const SystematicSet&) = 0;
+
+
   };
 
 } // namespace CP

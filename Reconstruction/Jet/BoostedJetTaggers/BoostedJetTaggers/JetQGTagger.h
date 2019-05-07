@@ -60,11 +60,11 @@ namespace CP {
       virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv, int mode) const;
 
       // functions for systematic variations
-      bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
-      SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}
-      SystematicSet recommendedSystematics() const {return SystematicsTool::recommendedSystematics();}
-      SystematicCode applySystematicVariation(const SystematicSet& set) {return SystematicsTool::applySystematicVariation(set);}
-      SystematicCode sysApplySystematicVariation(const SystematicSet&);
+      virtual bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
+      virtual SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}
+      virtual SystematicSet recommendedSystematics() const {return SystematicsTool::recommendedSystematics();}
+      virtual SystematicCode applySystematicVariation(const SystematicSet& set) {return SystematicsTool::applySystematicVariation(set);}
+      virtual SystematicCode sysApplySystematicVariation(const SystematicSet&);
 
     private:
       JetQGTagger();

@@ -266,8 +266,8 @@ namespace CP {
     delete m_fake_hquark;
     delete m_fake_hgluon;
 
-    delete m_hquark;
-    delete m_hgluon;
+    //if(m_hquark) delete m_hquark;
+    //if(m_hgluon) delete m_hgluon;
     //delete m_hquark_reco;
     //delete m_hgluon_reco;
 
@@ -415,9 +415,6 @@ namespace CP {
       return StatusCode::SUCCESS;
      }
 
-
-    int numTrk = jet->getAttribute<int>("NumTrkPt500PV");
-
     // use the lookup tables loaded in initialize() to find the systematically shifted weights
     bool truthsyst = m_appliedSystEnum==QG_NCHARGEDEXP_UP || m_appliedSystEnum==QG_NCHARGEDME_UP || m_appliedSystEnum==QG_NCHARGEDPDF_UP || m_appliedSystEnum == QG_NCHARGEDEXP_DOWN || m_appliedSystEnum== QG_NCHARGEDME_DOWN || m_appliedSystEnum == QG_NCHARGEDPDF_DOWN;
     bool recosyst = m_appliedSystEnum==QG_TRACKEFFICIENCY || m_appliedSystEnum == QG_TRACKFAKES;
@@ -434,14 +431,14 @@ namespace CP {
         if(mymsg)
             std::cout << "truth jet pdgid: " << pdgid << " pt: " << tjetpt << std::endl;
         if ( pdgid<0 ) {
-          ATH_MSG_INFO("Undefined pdg ID: setting weight to 1");
+          ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
           return StatusCode::SUCCESS;
         }
 
         // if the jet is outside of the measurement fiducial region
         // the systematic uncertainty is set to 0
         if( tjetpt<m_jetPtMin*1e-3 || fabs(tjeteta)>m_jetEtaMax){
-          ATH_MSG_INFO("Outside of fiducial region: setting weight to 1");
+          ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
           return StatusCode::SUCCESS;
         }
 
@@ -469,7 +466,7 @@ namespace CP {
         if(mymsg)
             std::cout << "reco jet Pt: " << rjetpt << " eta: " << rjeteta << std::endl;
         if( rjetpt<m_jetPtMin*1e-3 || fabs(rjeteta)>m_jetEtaMax){
-          ATH_MSG_INFO("Outside of fiducial region: setting weight to 1");
+          ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
           return StatusCode::SUCCESS;
         }
 
@@ -577,7 +574,7 @@ namespace CP {
 
     int pdgid = jet->getAttribute<int>("PartonTruthLabelID");
     if ( pdgid<0 ) {
-      ATH_MSG_INFO("Undefined pdg ID: setting weight to 1");
+      ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
       return StatusCode::SUCCESS;
     }
 
@@ -611,7 +608,7 @@ namespace CP {
     double tjetpt = tjet->pt()*0.001;
     double tjeteta = tjet->eta();
     if( tjetpt<m_jetPtMin*1.0e-3 || fabs(tjeteta)>m_jetEtaMax){
-      ATH_MSG_INFO("Outside of fiducial region: setting weight to 1");
+      ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
       return StatusCode::SUCCESS;
     }
 
