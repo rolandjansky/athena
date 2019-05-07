@@ -513,17 +513,18 @@ StatusCode JetMETCPTools::setupMET()
   else {
     met::METMaker *metMaker = new met::METMaker("met::METMaker");
     top::check(metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name");
-    if (m_config->fwdJetAndMET() == "Tight")
-    {
+   
+    if(m_config->useParticleFlowJets()){
+      top::check(metMaker->setProperty("DoPFlow", true), "Failed to set METMaker DoPFlow to true");
+    }
+    if (m_config->fwdJetAndMET() == "Tight"){
       top::check(metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight");
     }
-    else if (m_config->fwdJetAndMET() == "fJVT")
-    {
+    else if (m_config->fwdJetAndMET() == "fJVT"){
       ATH_MSG_WARNING(" option fJVT no longer recommended, please use  fJVTTight. Option to be removed.");
       top::check(metMaker->setProperty("JetRejectionDec", "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT");
     }
-    else if ((m_config->fwdJetAndMET() == "fJVTTight"))
-    {
+    else if ((m_config->fwdJetAndMET() == "fJVTTight")){
       ATH_MSG_INFO("JetRejectionDec set to passFJVTTight");
       top::check(metMaker->setProperty("JetRejectionDec", "passFJVTTight"), "Failed to set METMaker JetRejectionDec to passFJVTTight");
     }
