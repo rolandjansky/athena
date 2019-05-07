@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigT2CaloCommon_TrigCaloDataAccessSvc_h
@@ -35,7 +35,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   virtual StatusCode finalize() override;
   
   virtual StatusCode loadCollections ( const EventContext& context,
-                                       const CaloBCIDAverage* avg,
                                        const IRoiDescriptor& roi,
                                        const DETID detID,
                                        const int sampling,
@@ -49,7 +48,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
-                                           const CaloBCIDAverage* avg,
                                            ConstDataVector<CaloCellContainer>& cont ) override;
   
  private:
@@ -110,8 +108,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   unsigned int lateInit();
   bool m_lateInitDone = false;
 
-  unsigned int convertROBs(const CaloBCIDAverage* avg,
-                           const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
   unsigned int convertROBs( const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell );
 
 
@@ -133,7 +130,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    * @brief LAr TT collections preparation code
    **/
   unsigned int prepareLArCollections( const EventContext& context,
-                                      const CaloBCIDAverage* avg,
 				const IRoiDescriptor& roi, 
 				const int sampling,
 				DETID detector );
@@ -142,11 +138,9 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 				const IRoiDescriptor& roi, 
 				DETID detector );
 
-  unsigned int prepareFullCollections( const EventContext& context,
-                                       const CaloBCIDAverage* avg );
+  unsigned int prepareFullCollections( const EventContext& context );
 
-  unsigned int prepareLArFullCollections( const EventContext& context,
-                                          const CaloBCIDAverage* avg );
+  unsigned int prepareLArFullCollections( const EventContext& context );
   unsigned int prepareTileFullCollections( const EventContext& context );
 
   std::vector<uint32_t> m_vrodid32fullDet;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
-#include "CaloEvent/CaloBCIDAverage.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "PhiComps.h"
 
@@ -95,7 +94,6 @@ class RingerReFex : public IReAlgToolCalo
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool"};
     SG::WriteHandleKey<xAOD::TrigRingerRingsContainer> m_ringerContainerKey {this, "RingerKey", "HLT_L2CaloRinger", "TrigRingerRings container key"};
     SG::ReadHandleKey<xAOD::TrigEMClusterContainer>    m_clusterContainerKey {this, "ClustersName", "HLT_L2CaloEMClusters", "TrigEMCluster container key"};
-    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
     Gaudi::Property<std::vector<float>>  m_etaBins  {this, "EtaBins", {}, "Eta bins range cover by the ringer reconstruction."};
     Gaudi::Property<bool>  m_global_center  {this, "GlobalCenter", false,  ""};
     Gaudi::Property<bool>  m_useHad  {this, "UseHad", true,  ""};
@@ -124,5 +122,6 @@ class RingerReFex : public IReAlgToolCalo
 
 
     void printRings( std::vector<RingSet> &, xAOD::TrigRingerRings * ) const;
+
 };
 #endif

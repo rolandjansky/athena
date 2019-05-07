@@ -3,6 +3,7 @@
 #
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from CaloTools.CaloLumiBCIDConfig import CaloLUMIBCIDToolCfg
 
 
 def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
@@ -16,6 +17,8 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
     from TileConditions.TileConditionsConfig import tileCondCfg
     acc.merge( tileCondCfg( flags ) )    
+
+    acc.merge( CaloLUMIBCIDToolCfg( flags ) ) # this tool is required by the LArCellCont - 
 
     # configure tools (this can be simplified further,
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex
