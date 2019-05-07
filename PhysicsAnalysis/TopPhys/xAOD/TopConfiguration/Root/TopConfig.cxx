@@ -205,7 +205,6 @@ namespace top{
     m_largeRJetEtacut(2.5),
     m_largeRJESUncertaintyConfig("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
-    m_largeRtoptaggingConfigFile("SetMe"),
 
     m_trackJetPtcut(7000.0),
     m_trackJetEtacut(2.5),
@@ -801,7 +800,6 @@ namespace top{
     this->largeRJetEtacut( std::stof(settings->value("LargeRJetEta")) );
     this->largeRJESUncertaintyConfig( settings->value("LargeRJESUncertaintyConfig") );
     this->largeRJESJMSConfig( settings->value("LargeRJESJMSConfig") );
-    this->largeRtoptaggingConfigFile( settings->value("LargeRToptaggingConfigFile") );
 
     this->trackJetPtcut( std::stof(settings->value("TrackJetPt")) );
     this->trackJetEtacut( std::stof(settings->value("TrackJetEta")) );
@@ -954,6 +952,26 @@ namespace top{
       m_lhapdf_options.doLHAPDFInNominalTrees = true;
     }
 
+    // now get all Boosted jet taggers from the config file.
+    std::string str_boostedJetTagger = settings->value( "BoostedJetTagging" );
+    std::vector<std::string> helpvec_str;
+    tokenize(str_boostedJetTagger,helpvec_str,",");
+    
+    std::vector<std::string> vec_boostedJetTaggers;
+    
+    for(const std::string& x : helpvec_str){
+      std::istringstream istr_boostedJetTaggers(x);
+      std::copy( std::istream_iterator<std::string>(istr_boostedJetTaggers),std::istream_iterator<std::string>(), std::back_inserter(vec_boostedJetTaggers) ); 
+    }
+    
+    for(const std::string& tagger : vec_boostedJetTaggers) {
+      
+      std::vector<std::string> helpvec;
+      tokenize(tagger,helpvec,":");
+      if ( helpvec.size() != 2 ) throw std::runtime_error{"TopConfig: Options in BoostedJetTagging should be of the form \'x:y\' where x is tagging type and y is shortened tagger name."};
+      m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0],helpvec[1]));
+      
+    }
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa

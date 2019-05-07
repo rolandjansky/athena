@@ -25,7 +25,6 @@ LargeRJESJMSConfig CaloMass
 LargeRJetPt 200000
 LargeRJetEta 2
 LargeJetSubstructure None
-LargeRToptaggingConfigFile NFC
 
 ### Reclustered jet configuration
 UseRCJets True
@@ -96,6 +95,9 @@ DoLoose Data
 # Turn on MetaData to pull IsAFII from metadata
 UseAodMetaData True
 #IsAFII False
+
+### Boosted jet taggers configuration
+BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
 BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60 MV2c10:Continuous DL1:Continuous
