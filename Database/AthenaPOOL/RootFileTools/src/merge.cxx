@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModel/Guid.h"
@@ -501,11 +501,11 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
                Long64_t src_entries = src_tree->GetEntries();
                m_output->cd();
                DbContainerSection s;
-               s.start = 0;
+               s.start  = 0;
                s.length = (int)src_entries;
                s.offset = (int)lnk_offset;
                DbContainerSection s0;
-               s0.start = 0;
+               s0.start  = 0;
                s0.length = 0;
                s0.offset = 0;
 
@@ -515,10 +515,9 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
                   if ( s_dbg ) cout << "+++ Created new Tree " << out_tree->GetName() << endl;
                } else {
                   m_output->GetObject(key->GetName(),out_tree);
+                  s.start = (int) out_tree->GetEntries();
                   if (name == "##Params") {
                      if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
-                     Long64_t out_entries = out_tree->GetEntries();
-                     s.start = (int)out_entries;
                      out_tree->CopyAddresses(src_tree);
                      for (Long64_t i=0; i<src_entries; i++) {
                         src_tree->GetEntry(i);
