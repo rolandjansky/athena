@@ -93,8 +93,6 @@ namespace DerivationFramework {
 
     ///////////////////////////////////////////////////////////////////////////
     // this part is from Pere on H removal in WWW events
-    int abs_pdgId;
-    int abs_parent_pdgId;
     int nWlep=0;
     int nWnu=0;
     int nWparents=0;
@@ -180,6 +178,117 @@ namespace DerivationFramework {
           }
         }
       } // Done with the stuff for the VBF mjj
+
+
+      // Back to the main part
+      if ( pdg==22 ) {
+        if ( status==1 ) {
+          if ( pt>10e3 && absEta<2.5 ) {
+            photons.push_back(truthPart);
+          }
+        }
+      }
+
+      // this is the block from Pere:
+      if( (absPdg==11) || (absPdg==12) || (absPdg==13) || (absPdg==14) || (absPdg==15) || (absPdg==16) ) {
+        nWparents = 0;
+        TLorentzVector Wboson;
+
+        //loop over parent truth particles
+        for(unsigned int j=0;j< truthPart->nParents();j++) {
+          const xAOD::TruthParticle* parent = truthPart->parent(j);
+          if (!parent) continue;
+          const int absParentPdg = std::abs(parent->pdgId());
+
+          //consider lepton or neutrino truth particles with W-boson parent
+          if( absParentPdg==24 ){
+            nWparents += 1;
+
+            //fill the parent map only for the lepton truth particles (avoid double counting)
+            if( (absPdg==11) || (absPdg==13) || (absPdg==15) ){
+              Wboson.SetPtEtaPhiM(parent->pt(), parent->eta(), parent->phi(), parent->m());
+              Wbosons.insert( std::map<float,TLorentzVector>::value_type(truthPart->charge()*(parent->m()), Wboson) );
+            }
+          }
+        }//end loop over parent truth particles
+      }
+
+      //count number of leptons in event with exactly one W-boson parent
+      if ( ((absPdg==11) || (absPdg==13) || (absPdg==15)) && (nWparents == 1) )  nWlep += 1;
+
+      //count number of neutrinos in event with exactly one W-boson parent
+      if( ((absPdg==12) || (absPdg==14) || (absPdg==16)) && (nWparents == 1) )   nWnu += 1;
+
+      //////////////// END of Pere's block
+
+
+      if ( m_isSherpa && status==11 && ( absPdg>10 && absPdg<17 ) ) {
+        /*
+        ATH_MSG_DEBUG( "  found a s11 with: " << truthPart->pt()
+                 << " , " << truthPart->eta()
+                 << " , " << truthPart->phi()
+                 << " , Status: " << truthPart->status()
+                 << " , barcode: " << truthPart->barcode()
+                 << "  ID: " <<  truthPart->pdgId() );// << std::endl;
+        */
+
+        if ( absPdg==12 || absPdg==14 || absPdg==16 ) {
+          m_neutrinosFromW.push_back( truthPart );
+          Nnu++;
+          if ( absPdg==12 ) CountSherpaLepton += -11;
+          if ( absPdg==14 ) CountSherpaLepton += -13;
+          if ( absPdg==16 ) CountSherpaLepton += -15;
+        }
+
+        if ( absPdg==11 || absPdg==13 || absPdg==15 ) {
+          // this is crazy but Sherpa is really impossible to understand!!!!!
+          if ( absPdg==15 &&  decvtx!=0) {
+            if (  decayIntoItself(truthPart, 11) ) continue;
+          }
+          CountSherpaLepton += absPdg;
+
+          if ( absPdg==11 )  {
+            Nem++;
+            NeDirect++;
+          }
+          if ( absPdg==13 )  {
+            Nem++;
+            NmDirect++;
+          }
+          if ( absPdg==15 ) {
+            leptonsFromWZwithTau.push_back(truthPart);
+            Ntau++;
+            //printRecursively(truthPart);
+            const xAOD::TruthParticle* lepton= lastOfKind(truthPart); // overwrite to avoid GenRecord crazyness
+            const xAOD::TruthVertex* decLepton = lepton->decayVtx();
+            if ( decLepton==0 ) {
+              ATH_MSG_DEBUG(" Found tau lepton with EMPTY decay vertex .... BAD!!!!");
+              continue;
+            }
+            for (unsigned int partT=0; partT<decLepton->nOutgoingParticles(); partT++) {
+              const xAOD::TruthParticle* lep2 = decLepton->outgoingParticle(partT);
+              if ( lep2==0 ) {
+                ATH_MSG_DEBUG(" Found child of tau lepton with NULL pointer!!!!");
+                continue;
+              }
+              const int PDGtau=lep2->pdgId();
+              ATH_MSG_DEBUG("Found a tau decay with: " << lep2->pt() << " , " << lep2->eta()
+                            << " , " << lep2->phi() << " , Status: " << lep2->status() << "  ID: " <<  lep2->pdgId() << "  barcode: " << lep2->barcode() );
+              if ( std::abs(PDGtau)==12 || std::abs(PDGtau)==14 || std::abs(PDGtau)==16 ) {
+                m_neutrinosFromW.push_back( lep2 );
+                Nnu++;
+              } else if ( std::abs(PDGtau)==11 || std::abs(PDGtau)==13 ) {
+                m_leptonsFromW.push_back(lep2);
+              }
+            }
+          } // end of tau block
+          if ( absPdg==11 || absPdg==13 ) {
+            m_leptonsFromW.push_back(truthPart);
+            leptonsFromWZwithTau.push_back(truthPart);
+          }
+        }
+      } ///end of Sherpa block
+
 
     } // end loop over all truth particles
 
