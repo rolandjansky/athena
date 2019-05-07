@@ -81,7 +81,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
     m_roadmaker("InDet::SiDetElementsRoadMaker_xk"),
     m_proptool("Trk::RungeKuttaPropagator/InDetPropagator"),
     m_updatorTool("Trk::KalmanUpdator_xk/InDetPatternUpdator"),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk", this),
     m_trtId(nullptr)
 {
   m_fieldmode    = "MapSolenoid"    ;   //Field Mode

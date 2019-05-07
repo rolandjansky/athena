@@ -1201,7 +1201,6 @@ if InDetFlags.doPattern():
                                                                         MagneticFieldMode     = "NoField",
                                                                         TrackQualityCut       = 9.3
                                                                         )
-        ToolSvc += InDetSiComTrackFinderDBM
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
@@ -1209,7 +1208,6 @@ if InDetFlags.doPattern():
     else:
       InDetSiComTrackFinder.SctSummaryTool = None
 
-    ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):
       print InDetSiComTrackFinder
       if InDetFlags.doDBM():
