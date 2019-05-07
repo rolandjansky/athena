@@ -220,10 +220,9 @@ namespace CP {
     ANA_CHECK( this->loadHist(m_pdf_hquark_down,m_pdffile,"h2dquark_down"));
     ANA_CHECK( this->loadHist(m_pdf_hgluon_up,  m_pdffile,"h2dgluon_up")  );
     ANA_CHECK( this->loadHist(m_pdf_hgluon_down,m_pdffile,"h2dgluon_down"));
-    std::cout << "about to load track syst histos" << std::endl;
-    std::cout << "trackeff file: " << m_trackefffile << std::endl;
+    ATH_MSG_INFO("about to load track syst histos");
+    ATH_MSG_INFO("trackeff file: " << m_trackefffile);
     ANA_CHECK( this->loadHist(m_trackeff_hquark,m_trackefffile,"track_syste_quark"));//REPLACE w/ right histo
-    std::cout << "here now" << std::endl;
     ANA_CHECK( this->loadHist(m_trackeff_hgluon,m_trackefffile,"track_syste_gluon"));//REPLACE w/ right histo
     ANA_CHECK( this->loadHist(m_fake_hquark,m_fakefile,"track_systf_quark"));//REPLACE w/ right histo
     ANA_CHECK( this->loadHist(m_fake_hgluon,m_fakefile,"track_systf_gluon"));//REPLACE w/ right histo
@@ -395,11 +394,8 @@ namespace CP {
     // initially set the weight to unity
     // this is the weight returned if you are *not* dealing with a systematic variation
     weight = 1.0;
-    bool mymsg = 0;
-    if(mymsg){
-        std::cout << "Getting the jet weight for systematic variation " << m_appliedSystEnum << std::endl;
-        std::cout << "made it into simplegetntrk" << std::endl;
-     }
+    ATH_MSG_DEBUG("Getting the jet weight for systematic variation " << m_appliedSystEnum);
+    ATH_MSG_DEBUG("made it into simplegetntrk");
 
     // if you are not dealing with a systematic variation, then exit
     if ( m_appliedSystEnum!=QG_NCHARGEDEXP_UP &&
@@ -419,17 +415,13 @@ namespace CP {
     bool truthsyst = m_appliedSystEnum==QG_NCHARGEDEXP_UP || m_appliedSystEnum==QG_NCHARGEDME_UP || m_appliedSystEnum==QG_NCHARGEDPDF_UP || m_appliedSystEnum == QG_NCHARGEDEXP_DOWN || m_appliedSystEnum== QG_NCHARGEDME_DOWN || m_appliedSystEnum == QG_NCHARGEDPDF_DOWN;
     bool recosyst = m_appliedSystEnum==QG_TRACKEFFICIENCY || m_appliedSystEnum == QG_TRACKFAKES;
 
-    //std::cout << "TRUTH SYST: " << truthsyst << std::endl;
-
-
     int ptbin, ntrkbin;
     int pdgid = jet->getAttribute<int>("truthjet_pdgid");
     if (truthsyst){
         int tntrk = jet->getAttribute<int>("truthjet_nCharged");
         float tjetpt = jet->getAttribute<float>("truthjet_pt")*0.001;
         float tjeteta = jet->getAttribute<float>("truthjet_eta");
-        if(mymsg)
-            std::cout << "truth jet pdgid: " << pdgid << " pt: " << tjetpt << std::endl;
+	ATH_MSG_DEBUG("truth jet pdgid: " << pdgid << " pt: " << tjetpt);
         if ( pdgid<0 ) {
           ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
           return StatusCode::SUCCESS;
@@ -463,8 +455,7 @@ namespace CP {
         float rjetpt = jet->pt()*1e-3;
         float rjeteta = jet->eta();
 
-        if(mymsg)
-            std::cout << "reco jet Pt: " << rjetpt << " eta: " << rjeteta << std::endl;
+	ATH_MSG_DEBUG("reco jet Pt: " << rjetpt << " eta: " << rjeteta);
         if( rjetpt<m_jetPtMin*1e-3 || fabs(rjeteta)>m_jetEtaMax){
           ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
           return StatusCode::SUCCESS;
@@ -482,8 +473,7 @@ namespace CP {
         }
     }
 
-    if(mymsg)
-        std::cout << "weight: " << weight << std::endl;
+    ATH_MSG_DEBUG("weight: " << weight);
 
     return StatusCode::SUCCESS;
 
@@ -732,7 +722,7 @@ namespace CP {
   StatusCode JetQGTagger::loadHist(TH2D *&hist,std::string fname,std::string histname){
 
     std::string filename = PathResolverFindCalibFile( (m_calibarea+fname).c_str() );
-    std::cout << "CALIB FILE: " << filename << " histo: " << histname << std::endl;
+    ATH_MSG_INFO("CALIB FILE: " << filename << " histo: " << histname);
     if (filename.empty()){
       ATH_MSG_WARNING ( "Could NOT resolve file name " << fname);
       return StatusCode::FAILURE;
@@ -742,7 +732,6 @@ namespace CP {
     }
     TFile* infile = TFile::Open(filename.c_str());
     hist = dynamic_cast<TH2D*>(infile->Get(histname.c_str()));
-    std::cout << "hist found" << std::endl;
     hist->SetDirectory(0);
     return StatusCode::SUCCESS;
   }
