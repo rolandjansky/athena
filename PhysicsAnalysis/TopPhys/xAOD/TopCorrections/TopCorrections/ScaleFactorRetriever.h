@@ -79,8 +79,7 @@ enum topSFSyst{nominal = 0,
                TAU_SF_RECO_AF2_DOWN, TAU_SF_RECO_AF2_UP,
                // Photon SFs
                PHOTON_IDSF_UP, PHOTON_IDSF_DOWN, PHOTON_EFF_ISO,
-               PHOTON_EFF_LOWPTISO_UP, PHOTON_EFF_TRKISO_UP,
-               PHOTON_EFF_LOWPTISO_DOWN, PHOTON_EFF_TRKISO_DOWN,
+	       PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
                // B-tagging SFs
                BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
                BTAG_SF_EIGEN_LIGHT,

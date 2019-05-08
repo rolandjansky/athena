@@ -420,12 +420,8 @@ private:
     float m_weight_photonSF_ID_UP = 0.;
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso = 0.;
-    float m_weight_photonSF_effLowPtIso_UP = 0.;
-    float m_weight_photonSF_effLowPtIso_DOWN = 0.;
-    float m_weight_photonSF_effTrkIso_UP = 0.;
-    float m_weight_photonSF_effTrkIso_DOWN = 0.;
-    float m_weight_photonSF_isoDDonoff_UP = 0.;
-    float m_weight_photonSF_isoDDonoff_DOWN = 0.;
+    float m_weight_photonSF_effIso_UP = 0.;
+    float m_weight_photonSF_effIso_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;
@@ -1083,12 +1079,8 @@ protected:
   const float& weight_photonSF_ID_UP () const { return m_weight_photonSF_ID_UP ;}
   const float& weight_photonSF_ID_DOWN () const { return m_weight_photonSF_ID_DOWN ;}
   const float& weight_photonSF_effIso () const { return m_weight_photonSF_effIso ;}
-  const float& weight_photonSF_effLowPtIso_UP () const { return m_weight_photonSF_effLowPtIso_UP ;}
-  const float& weight_photonSF_effLowPtIso_DOWN () const { return m_weight_photonSF_effLowPtIso_DOWN ;}
-  const float& weight_photonSF_effTrkIso_UP () const { return m_weight_photonSF_effTrkIso_UP ;}
-  const float& weight_photonSF_effTrkIso_DOWN () const { return m_weight_photonSF_effTrkIso_DOWN ;}
-  const float& weight_photonSF_isoDDonoff_UP () const { return m_weight_photonSF_isoDDonoff_UP ;}
-  const float& weight_photonSF_isoDDonoff_DOWN () const { return m_weight_photonSF_isoDDonoff_DOWN ;}
+  const float& weight_photonSF_effIso_UP () const { return m_weight_photonSF_effIso_UP ;}
+  const float& weight_photonSF_effIso_DOWN () const { return m_weight_photonSF_effIso_DOWN ;}
 
   // nominal b-tagging SF [WP]
   const std::unordered_map<std::string, float>& weight_bTagSF() const { return m_weight_bTagSF;}
