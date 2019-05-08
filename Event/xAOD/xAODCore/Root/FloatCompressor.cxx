@@ -6,8 +6,6 @@
 
 // System include(s):
 #include <cmath>
-#include <iostream>
-#include <bitset>
 
 // Local include(s):
 #include "xAODCore/tools/FloatCompressor.h"
@@ -39,10 +37,8 @@ namespace xAOD {
       // And now negate it to get the correct mask:
       m_mantissaBitmask = ~m_mantissaBitmask;
 
-      std::bitset<32> b(m_mantissaBitmask);
-      //std::cout << "JE m_mantissaBitmask = " << m_mantissaBitmask << " " << b << std::endl;
-      
-      for (int j = 0; j < 16; ++j ) {
+      // Now repeat procedure for vector of different precisions
+      for (int j = 0; j < 23; ++j ) {
 	m_mymantissaBitmask = 0;
 	// Fill up the lower N bits:
 	for( unsigned int i = 0; i < ( NMANTISSA - j ); ++i ) {
@@ -52,11 +48,7 @@ namespace xAOD {
 	m_mymantissaBitmask = ~m_mymantissaBitmask;
 	// Add it to the vector
 	m_mantissaBitmasks.push_back(m_mymantissaBitmask);
-	b =  m_mymantissaBitmask;
-	//std::cout << "JE m_mantissaBitmask = " << j << " " << m_mymantissaBitmask << " " << b << std::endl;
       }
-      //std::cout << "JE m_mantissaBitmasks.size() = "<< m_mantissaBitmasks.size() << std::endl;      
-
    }
 
    float FloatCompressor::reduceFloatPrecision( float value ) const {
@@ -92,7 +84,6 @@ namespace xAOD {
       if( m_mantissaBits == NMANTISSA ) {
          return value;
       }
-
 
       // Check for NaN, etc:
       if( ! std::isfinite( value ) ) {

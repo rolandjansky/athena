@@ -25,20 +25,17 @@ namespace SG {
 namespace DerivationFramework {
 
    /**
-    *  @short Algorithm reseting ElementLink objects to their default state
+    *  @short Algorithm for float compression of AUX containers or single AUX variables
     *
-    *         This algorithm can be used to make sure that during/after an
-    *         AODFix-like configuration EDM objects are not left with cached
-    *         pointers to no longer existing objects.
-    *
-    *         The algorithm can make sure that every ElementLink in some
-    *         selected container(s), or all containers that are in StoreGate,
-    *         are cleared of all cached information.
+    *         This algorithm is based on ElementLink resetting algorithm
+    *         in Event/xAOD/xAODCoreCnv/src/ElementLinkResetAlg.h
+    *         It allows a configurable compression of float and vector<float> in StoreGate
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+    * @author Kerim Suruliz <Kerim.Suruliz@cern.ch>
+    * @author Johannes Elmsheuser <Kerim.Suruliz@cern.ch>
+
     *
-    * $Revision: 788434 $
-    * $Date: 2016-12-07 15:46:53 +0100 (Wed, 07 Dec 2016) $
     */
    class FloatCompressionAlg : public AthAlgorithm {
 

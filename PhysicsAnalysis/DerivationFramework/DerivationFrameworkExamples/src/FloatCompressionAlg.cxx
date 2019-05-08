@@ -46,26 +46,7 @@ namespace DerivationFramework {
 
   StatusCode FloatCompressionAlg::execute() {
 
-    /*
-        std::cout << " Kerim In FloatCompressionAlg::execute " << std::endl;
-	
-	const SG::IConstAuxStore* store = nullptr;
-	
-	ATH_CHECK( evtStore()->retrieve( store, "AnalysisElectrons_NOSYSAux." ) );
-
-	const SG::auxid_set_t& auxids = store->getAuxIDs();
-	SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
-	for( auto auxid : auxids ) {
-	  std::string name = reg.getName( auxid );
-	  
-	  const std::string tname =
-	      SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
-
-	  std::cout << " kerim auxid " << auxid << " name " << name << " tname " << tname << std::endl;
-	}
-    */
-
-      // Collect all the container(s):
+      // Collect all the configured container(s):
       std::vector< std::pair< const SG::IConstAuxStore*, std::string > > stores;
       if( m_keys.size() ) {
          for( const std::string& key : m_keys ) {
@@ -73,15 +54,7 @@ namespace DerivationFramework {
             ATH_CHECK( evtStore()->retrieve( store, key ) );
             stores.push_back( std::make_pair( store, key ) );
          }
-      } /*else {
-         SG::ConstIterator< SG::IConstAuxStore > begin, end;
-         ATH_CHECK( evtStore()->retrieve( begin, end ) );
-         for( auto itr = begin; itr != end; ++itr ) {
-            const SG::IConstAuxStore* store = 0;
-            ATH_CHECK( evtStore()->retrieve( store, itr.key() ) );
-            stores.push_back( std::make_pair( store, itr.key() ) );
-         }
-	 } */
+      } 
       ATH_MSG_DEBUG( "Number of IConstAuxStore objects retrieved: "
                      << stores.size() );
 
@@ -120,14 +93,14 @@ namespace DerivationFramework {
 
       // Apply float compression in all the configured AUX containers
       for( const auto& storeKey : stores ) {
-         ATH_MSG_VERBOSE( "Reseting element links in store: "
+         ATH_MSG_VERBOSE( "Apply float compression of AUX containers in store: "
                           << storeKey.second );
          ATH_CHECK( reset( *( storeKey.first ), storeKey.second ) );
       }
 	       
       // Apply float compression in the configured AUX variables
       for( const auto& storeKey : stores_vars ) {
-         ATH_MSG_VERBOSE( "Reseting element links in store: "
+         ATH_MSG_VERBOSE( "Apply float compression of AUX variables in store: "
                           << storeKey.second );
          ATH_CHECK( resetVars( *( storeKey.first ), storeKey.second ) );
       }
@@ -166,8 +139,6 @@ namespace DerivationFramework {
 	if( ! m_typeCache[ auxid ].isSet ) {
 	    const std::string tname =
 	      SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
-	    
-	    // std::cout << "Kerim " << tname << std::endl;
 
             static const std::string pat1 = "float";
             static const std::string pat2 = "std::vector<float>";
@@ -182,29 +153,13 @@ namespace DerivationFramework {
                              << m_typeCache[ auxid ].isFloatVec );
          }
       
-      
-         // If it's not a float type, then don't bother:
-         //if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec ) )
-	
-	// if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec) )
-	// continue;
-	
-      
-	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
+	ATH_MSG_DEBUG( "key=" << key << ", name=" << reg.getName( auxid ) << ", type=" << tname << ", size=" << reg.getEltSize( auxid ) );
 
 	std::string name = reg.getName( auxid );
-
-	// if ( !(name=="NumTrkPt500" || name=="SumPtTrkPt500" || name=="NumTrkPt1000" || name=="TrackWidthPt1000") )
-	// continue;
-   
 	const size_t eltSize = reg.getEltSize( auxid );
-
 	void* ptr = const_cast< void* >( store.getData( auxid ) );
-
 	const size_t sz_i = store.size();
 	
-	
-
 	for( size_t i = 0; i < sz_i; ++i ) {
 	  
 	  void* eltPtr = reinterpret_cast< char* >( ptr ) + i * eltSize;
@@ -212,23 +167,18 @@ namespace DerivationFramework {
 	  
 	  if (m_typeCache[ auxid ].isFloat) {
 	    if (eltPtr) {
-
 	      float val = *(float *) eltPtr;
-	      //std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
-
 	      val = m_floatCompressor->reduceFloatPrecision( val );
-	    
 	      *(float *) eltPtr = val;
 	    }
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
 
-	    std::vector<float> &vals =  *( reinterpret_cast< std::vector<float>* >( eltPtr ) );
+	    std::vector<double> &vals =  *( reinterpret_cast< std::vector<double>* >( eltPtr ) );
 	    
 	    const size_t sz_j = vals.size();
 
 	    for( size_t j = 0; j < sz_j; ++j ) {
 	      vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j] );
-	      //std::cout << std::setprecision(15) << "JE vals[" << j << "] = " << vals[j] << std::endl;
 	    }	    
 
 	    // vals.erase( vals.begin()+2, vals.end() );
@@ -236,11 +186,8 @@ namespace DerivationFramework {
 	  }
 	  
 	}
-	
-	continue;
-	       	    
 
-         // If the pointer is null, then something dodgy happened with this
+	// If the pointer is null, then something dodgy happened with this
          // (dynamic) variable.
          if( ! ptr ) {
             // Check if this is a static variable. If it is, it's not an error
@@ -252,7 +199,7 @@ namespace DerivationFramework {
                dynamic_cast< const SG::IAuxStoreIO* >( &store );
             if( ( ! storeIO ) || ( storeIO->getDynamicAuxIDs().find( auxid ) !=
                                    storeIO->getDynamicAuxIDs().end() ) ) {
-               REPORT_MESSAGE( MSG::ERROR )
+               REPORT_MESSAGE( MSG::DEBUG )
                   << "Invalid pointer received for variable: " << key
                   << reg.getName( auxid );
             } else {
@@ -272,9 +219,9 @@ namespace DerivationFramework {
 					     const std::map<std::string, std::vector<std::pair<std::string,int>>> key ) {
     
       // If the container is empty, return right away:
-      //if( ! store.size() ) {
-      //   return StatusCode::SUCCESS;
-      //}
+      if( ! store.size() ) {
+         return StatusCode::SUCCESS;
+      }
       
       // Get all the IDs stored in this object:
       const SG::auxid_set_t& auxids = store.getAuxIDs();
@@ -288,19 +235,15 @@ namespace DerivationFramework {
 	const std::string tname =
 	  SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
 
-
 	// Check/cache its type:
 	if( m_typeCache.size() <= auxid ) {
 	  m_typeCache.resize( auxid + 1 );
 	}
-
 	
 	if( ! m_typeCache[ auxid ].isSet ) {
 	    const std::string tname =
 	      SG::normalizedTypeinfoName( *( reg.getType( auxid ) ) );
 	    
-	    // std::cout << "Kerim " << tname << std::endl;
-
             static const std::string pat1 = "float";
             static const std::string pat2 = "std::vector<float>";
             if( tname.substr( 0, pat1.size() ) == pat1 ) {
@@ -313,48 +256,27 @@ namespace DerivationFramework {
                              << m_typeCache[ auxid ].isFloat << ", isFloatVec = "
                              << m_typeCache[ auxid ].isFloatVec );
          }
-      
-      
-         // If it's not a float type, then don't bother:
-         //if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec ) )
-	
-	// if( ! ( m_typeCache[ auxid ].isFloat || m_typeCache[ auxid ].isFloatVec) )
-	// continue;
-	
-      
-	//std::cout << "Kerim key " << key << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 
+	ATH_MSG_DEBUG( "key=" << key << ", name=" << reg.getName( auxid ) << ", type=" << tname << ", size=" << reg.getEltSize( auxid ) );      
+	
 	std::string name = reg.getName( auxid );
-
-	// if ( !(name=="NumTrkPt500" || name=="SumPtTrkPt500" || name=="NumTrkPt1000" || name=="TrackWidthPt1000") )
-	// continue;
-   
 	const size_t eltSize = reg.getEltSize( auxid );
-
 	void* ptr = const_cast< void* >( store.getData( auxid ) );
-
 	const size_t sz_i = store.size();
 	
-	
-
 	for( size_t i = 0; i < sz_i; ++i ) {
 	  
 	  void* eltPtr = reinterpret_cast< char* >( ptr ) + i * eltSize;
-
-	  
 	  if (m_typeCache[ auxid ].isFloat) {
 	    if (eltPtr) {
 
 	      float val = *(float *) eltPtr;
 	      for( auto& mykey : key ) {
-		//std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
-		
 		for ( auto &myvar : mykey.second ) {
 		  std::string var = myvar.first;
 		  int prec = myvar.second;
 		  if (var == reg.getName( auxid )) {
 		    val = m_floatCompressor->reduceFloatPrecision( val, prec );
-		    //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		  }
 		}
 	      }
@@ -364,7 +286,6 @@ namespace DerivationFramework {
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
 
 	    for( auto& mykey : key ) {
-		//std::cout << "Kerim key " << mykey.first << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 	      for ( auto &myvar : mykey.second ) {
 		std::string var = myvar.first;
 		int prec = myvar.second;
@@ -375,7 +296,6 @@ namespace DerivationFramework {
 
 		  for( size_t j = 0; j < sz_j; ++j ) {
 		    vals[j] = m_floatCompressor->reduceFloatPrecision( vals[j], prec );
-		    //std::cout << "JE key " << var << " prec " << prec << " name " << reg.getName( auxid ) << " type " << tname << " size " << reg.getEltSize( auxid ) << std::endl;
 		  }	    
 		}
 	      }
@@ -386,9 +306,6 @@ namespace DerivationFramework {
 	  }
 	  
 	}
-	
-	continue;
-	       	    
 
          // If the pointer is null, then something dodgy happened with this
          // (dynamic) variable.
@@ -402,7 +319,7 @@ namespace DerivationFramework {
                dynamic_cast< const SG::IAuxStoreIO* >( &store );
             if( ( ! storeIO ) || ( storeIO->getDynamicAuxIDs().find( auxid ) !=
                                    storeIO->getDynamicAuxIDs().end() ) ) {
-               REPORT_MESSAGE( MSG::ERROR )
+               REPORT_MESSAGE( MSG::DEBUG )
                   << "Invalid pointer received for variable: " << key
                   << reg.getName( auxid );
             } else {
