@@ -154,12 +154,13 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            'MuonEfficiencyScaleFactorAlg' + postfix )
     addPrivateTool( alg, 'efficiencyScaleFactorTool',
                     'CP::MuonEfficiencyScaleFactors' )
-    alg.scaleFactorDecoration = 'muon_effSF' + postfix
+    alg.scaleFactorDecoration = 'muon_effSF' + postfix + "_%SYS%"
+    alg.scaleFactorDecorationRegex = '(^MUON_EFF_.*)'
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix
     alg.efficiencyScaleFactorTool.WorkingPoint = sfWorkingPoint
     if dataType != 'data':
-        seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
+        seq.append( alg, inputPropName = 'muons',
                     affectingSystematics = '(^MUON_EFF_.*)',
                     stageName = 'efficiency' )
 

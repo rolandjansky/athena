@@ -22,14 +22,15 @@ else:
     #ClassAccess is much faster than POOLAccess
     jps.AthenaCommonFlags.AccessMode = "ClassAccess"
 
+dataType = athArgs.data_type
+
 # Set up a histogram/tree output file for the job:
-jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:MuonAnalysisAlgorithmsTest.hist.root"]
+jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:MuonAnalysisAlgorithmsTest." + dataType + ".hist.root"]
 svcMgr.THistSvc.MaxFileSize=-1 #make job run faster by disabling file size check
 
 #set a default file and number of events to process
 #can override with standard athena command line options (--evtMax and --filesInput)
 jps.AthenaCommonFlags.EvtMax = 500
-dataType = athArgs.data_type
 
 if dataType=="data":
     testFile = os.getenv ('ASG_TEST_FILE_DATA')
