@@ -86,6 +86,10 @@ def ExampleMonitoringConfig(inputFlags):
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
+    myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6])
+    myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
     myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
                             path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
