@@ -35,7 +35,6 @@ def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs):
     kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("AllowReordering",False)
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
-    kwargs.setdefault("SpectrometerExtrapolator", getPublicTool('AtlasExtrapolator'))
     kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
     return CfgMgr.Trk__MaterialAllocator(name,**kwargs)
 

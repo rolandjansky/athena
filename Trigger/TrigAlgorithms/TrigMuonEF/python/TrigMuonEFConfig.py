@@ -126,7 +126,6 @@ def TMEF_MatchQuality(name='TMEF_MatchQuality',**kwargs):
 def TMEF_MaterialAllocator(name='TMEF_MaterialAllocator',**kwargs):
     kwargs.setdefault("AggregateMaterial", True)
     kwargs.setdefault("Extrapolator","TMEF_Extrapolator")
-    kwargs.setdefault("SpectrometerExtrapolator", "TMEF_Extrapolator")
     kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
     return CfgMgr.Trk__MaterialAllocator(name,**kwargs)
 
