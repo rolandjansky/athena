@@ -193,6 +193,25 @@ class TopConfig final {
   inline void setFakesMMDebug()
   {m_doFakesMMDebug = true;}
 
+  // Do fakes MM weight calculation using FakeBkgTools from IFF
+  inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
+
+  // Configurations for MM fake estimate using FakeBkgTools from IFF
+  inline std::string FakesMMConfigIFF() const {return m_FakesMMConfigIFF;}
+
+  // Debug mode for MM fake estimate using FakeBkgTools from IFF
+  inline bool FakesMMIFFDebug() const {return m_doFakesMMIFFDebug;}
+
+  // enables calculation of MM weights using FakeBkgTools from IFF
+  // only possible for data loose
+  // doing it on MC loose is explicitly forbidden
+  inline void setFakesMMWeightsCalculationIFF()
+  {m_doFakesMMWeightsIFF = true;}
+  inline void setFakesMMConfigIFF(const std::string& configIFF)
+  {m_FakesMMConfigIFF = configIFF;}
+  inline void setFakesMMIFFDebug()
+  {m_doFakesMMIFFDebug = true;} 
+
   // By default the top group does overlap removal on the tight lepton definitions
   // If you use this you are going off piste and need to report
   // your findings to the top reconstruction meeting
@@ -1028,6 +1047,13 @@ class TopConfig final {
   std::string m_FakesMMDir;
   // Debug mode?
   bool m_doFakesMMDebug;
+
+  // Do fakes MM weights calculation? - only for data loose
+  bool m_doFakesMMWeightsIFF;
+  // Configurations for MM fake estimate
+  std::string m_FakesMMConfigIFF;
+  // Debug mode?
+  bool m_doFakesMMIFFDebug;
 
   // By default the top group does overlap removal on
   // the tight lepton definitions.

@@ -462,6 +462,8 @@ private:
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
     /// m_fakesMM_weights[selection][configuration]
     std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
+    int m_fakesMM_IFF_size;
+    std::vector<float> m_fakesMM_IFF_weights;
 
     /// Weights for bootstrapping
     std::vector<int> m_weight_poisson;
