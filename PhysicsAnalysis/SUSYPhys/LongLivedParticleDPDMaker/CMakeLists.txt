@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/MuonID/MuonSelectorTools
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigObjectMatching
                           PRIVATE
@@ -35,7 +36,7 @@ atlas_add_component( LongLivedParticleDPDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps xAODCaloEvent xAODEgamma xAODMuon xAODTracking GaudiKernel MuonSelectorToolsLib TrigDecisionToolLib TrigObjectMatchingLib AthenaKernel EventBookkeeperMetaData EventInfo FourMomUtils xAODEventInfo xAODJet xAODMissingET )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps PATCoreLib xAODCaloEvent xAODEgamma xAODMuon xAODTracking GaudiKernel MuonSelectorToolsLib TrigDecisionToolLib TrigObjectMatchingLib AthenaKernel EventBookkeeperMetaData EventInfo FourMomUtils xAODEventInfo xAODJet xAODMissingET )
 
 # Install files from the package:
 atlas_install_headers( LongLivedParticleDPDMaker )
