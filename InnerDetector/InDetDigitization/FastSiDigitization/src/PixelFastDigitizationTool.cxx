@@ -613,9 +613,8 @@ StatusCode PixelFastDigitizationTool::digitize()
       double shiftX = isEndcap ? m_pixDiffShiftEndCX : m_pixDiffShiftBarrX;
       double shiftY = isEndcap ? m_pixDiffShiftEndCY : m_pixDiffShiftBarrY;
 
-//       std::cout<<"Thr "<<m_ThrConverted<<std::endl;
 
-      //New function to tune the cluster size
+      //Function to tune the cluster size
       Diffuse(localStartPosition, localEndPosition, shiftX, shiftY);
 	  
       const Amg::Vector3D localDirection(localEndPosition.x()-localStartPosition.x(), localEndPosition.y()-localStartPosition.y(), localEndPosition.z()-localStartPosition.z());
@@ -938,7 +937,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 	   Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
            InDet::PixelCluster* currentCluster = clusIter->second;
 	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
-	   double random= rand()%1000/1000.0;
+	   double random= rand()%10000/10000.0;
 	   
 	   //Apply an eta and mu dependent inefficiency SF
 	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),m_mu_val,isBarrel);
@@ -1106,7 +1105,6 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
     
     InDetDD::SiCellId cell(0,binsY/2);
     float LongPitch  =design->parameters(cell).width().xEta();
-    //std::cout<<"numberOfChip "<<numberOfChip<<" LongPitch "<<LongPitch<<std::endl;
 
     ATH_MSG_VERBOSE("Retrieving infos: halfThickness = " << halfThickness << " --- halfWidth = " << halfWidth << " --- halfLenght = " << halfLenght );
     ATH_MSG_VERBOSE("Retrieving infos: binsX = " << binsX << " --- binsY = " << binsY << " --- numberOfChip = " << numberOfChip);
@@ -1261,8 +1259,6 @@ double PixelFastDigitizationTool::RetrieveInefficiencySF(double eta,double mu, b
    pileup_level="endcap_"+pileup_level;
  }
    
-  //Ineff_scale_factors[pileup_level]->Print();
   int bin =  Ineff_scale_factors[pileup_level]->FindBin(eta);
-  //std::cout<<"pileup_level "<<pileup_level<<" bin "<<bin<<std::endl;
   return (Ineff_scale_factors[pileup_level]->GetBinContent(bin) - 1);
 }
