@@ -89,15 +89,32 @@ bool parsingLabeledWorks() {
 }
 
 bool parsingWeightedWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, Cut, Cut counter, 5, 0, 5");
-  VALUE ( def.ok )           EXPECTED ( true ) ;
-  VALUE ( def.path )         EXPECTED ( "EXPERT" );
-  VALUE ( def.type )         EXPECTED ( "TH1F" );
-  VALUE ( def.name.size() )  EXPECTED ( 1 );
-  VALUE ( std::string(def.name[0]) ) EXPECTED ( "Cut");
-  VALUE ( def.labels.size() )EXPECTED ( 5 );
-  VALUE ( def.weight )       EXPECTED ("Weight");
+  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, var, title, 5, 0, 5");
+  VALUE ( def.ok )                   EXPECTED ( true );
+  VALUE ( def.path )                 EXPECTED ( "EXPERT" );
+  VALUE ( def.type )                 EXPECTED ( "TH1F" );
+  VALUE ( def.weight )               EXPECTED ( "Weight" );
+  VALUE ( def.name.size() )          EXPECTED ( 1 );
+  VALUE ( std::string(def.name[0]) ) EXPECTED ( "var" );
 
+  return true;
+}
+
+bool parsing1DArrayWorks() {
+  auto def = HistogramDef::parse("EXPERT, TH1F, , var, title, 0:1:2:4:8");
+  VALUE ( def.ok )    EXPECTED ( true );
+  VALUE ( def.xbins ) EXPECTED ( 4 );
+  VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );
+  return true;
+}
+
+bool parsing2DArrayWorks() {
+  auto def = HistogramDef::parse("EXPERT, TH2F, , var1,var2, title, 0:1:2:4:8, 0:4:6:7");
+  VALUE ( def.ok )    EXPECTED ( true );
+  VALUE ( def.xbins ) EXPECTED ( 4 );
+  VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );
+  VALUE ( def.ybins ) EXPECTED ( 3 );
+  VALUE ( std::equal(def.yArray.begin(),def.yArray.end(),std::vector<double>({0,4,6,7}).begin()) ) EXPECTED ( true );
   return true;
 }
 
@@ -107,14 +124,17 @@ bool badDefGeneratesExecption() {
   return true;
 }
 
-
 int main() {
   assert( parsing1DWorks() );
   assert( parsing2DWorks() );
   assert( parsing2DWorks() );
   assert( parsing3DWorks() );
   assert( parsingLabeledWorks() );
+  assert( parsingWeightedWorks() );
+  assert( parsing1DArrayWorks() );
+  assert( parsing2DArrayWorks() );
   assert( badDefGeneratesExecption() );
+
   std::cout << "all ok" << std::endl;
   return 0;
 }

@@ -6,7 +6,7 @@
 
 ExampleMonitorAlgorithm::ExampleMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_doRandom(false)
+,m_doRandom(true)
 {}
 
 

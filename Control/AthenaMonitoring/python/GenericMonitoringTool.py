@@ -27,14 +27,18 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
+
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None,weight='',
                     xbins=100, xmin=0, xmax=1,
-                    ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
+                    ybins=None, ymin=None, ymax=None,
+                    zmin=None, zmax=None, opt='', labels=None):
 
     # Assert argument types
     assert path is not None, "path is required"
     assert labels is None or isinstance(labels, list), "labels must be of type list"
+    # assert labels is None or !isinstance(labels, list), \
+           # "Mixed use of variable bin widths and bin labels."
 
     if title is None:
         title = varname
@@ -43,9 +47,19 @@ def defineHistogram(varname, type='TH1F', path=None,
         log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
         return ""
 
-    coded = "%s, %s, %s, %s, %s, %d, %f, %f" % (path, type, weight, varname, title, xbins, xmin, xmax)
+    coded = "%s, %s, %s, %s, %s, " % (path, type, weight, varname, title) 
+
+    if not isinstance(xbins,list):
+        coded += '%d, %f, %f' % (xbins, xmin, xmax)
+    else:
+        # List of :-separated bins, plus two empty spaces for xmin and xmax
+        coded += ':'.join([str(xbin) for xbin in xbins])
+
     if ybins is not None:
-        coded += ", %d, %f, %f" % (ybins, ymin, ymax)
+        if not isinstance(ybins,list):
+            coded += ", %d, %f, %f" % (ybins, ymin, ymax)
+        else:
+            coded += ', ' + ':'.join([str(ybin) for ybin in ybins])
         if zmin is not None:
             coded += ", %f, %f" % (zmin, zmax)
 
