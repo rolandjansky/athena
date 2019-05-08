@@ -37,6 +37,7 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TriggerDecisionTool", m_trigDecisionTool);
+  declareProperty("EGammaSelectionTool", m_electronSelTool);
   declareProperty("TriggerMatchTool", m_trigMatchTool);
   declareProperty("Triggers", m_trigNames);
   declareProperty("TriggerMatchDeltaR", m_trigMatchDeltaR);
@@ -80,6 +81,13 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
     CHECK(m_trigMatchTool.retrieve());
     ATH_MSG_INFO("TrgMatchTool retrived successfully");
   }
+
+  // Electron selector tool
+  if( m_electronSelTool.empty()) {
+    ATH_MSG_FATAL("Electron selection tool not specified!");
+    return StatusCode::FAILURE;
+  }
+  CHECK(m_electronSelTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -176,8 +184,11 @@ bool DerivationFramework::KinkTrkZeeTagTool::checkEleClusPair(const xAOD::Electr
 
 bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Electron *ele) const
 {
-  if (ele->pt() < m_electronPtCut) return false;
-  if (fabs(ele->eta()) > m_electronEtaMax) return false;
+  if( ele->pt() < m_electronPtCut           ) return false;
+  if( fabs(ele->eta()) > m_electronEtaMax   ) return false;
+  if( !(bool)m_electronSelTool->accept(ele) ) return false;
+
+/*
   bool passID(false);
   for (unsigned int i=0; i<m_electronIDKeys.size(); i++) {
     if (ele->passSelection(passID, m_electronIDKeys[i])) {
@@ -187,6 +198,7 @@ bool DerivationFramework::KinkTrkZeeTagTool::passElectronQuality(const xAOD::Ele
     }
   }
   if (!passID) return false;
+*/
   return true;
 }
 

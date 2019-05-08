@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigObjectMatching/TrigMatchTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
@@ -55,6 +56,7 @@ namespace DerivationFramework {
 
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
     ToolHandle<TrigMatchTool> m_trigMatchTool;
+    ToolHandle<IAsgSelectionTool> m_electronSelTool;
     std::vector<std::string> m_trigNames;
     float m_trigMatchDeltaR;
     bool m_doTrigMatch;
