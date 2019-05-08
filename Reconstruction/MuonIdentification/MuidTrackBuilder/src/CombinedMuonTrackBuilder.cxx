@@ -4700,7 +4700,7 @@ CombinedMuonTrackBuilder::reallocateMaterial(const Trk::Track&	spectrometerTrack
     }
 
     // fit with various recovery strategies
-    const Trk::Track* spectrometerFit = fit(spectrometerMeasurements,*perigeeStartValue,true,Trk::muon);
+    Trk::Track* spectrometerFit = fit(spectrometerMeasurements,*perigeeStartValue,true,Trk::muon);
     if (! spectrometerFit)
     {
 	// ATH_MSG_INFO(" failur #1" );

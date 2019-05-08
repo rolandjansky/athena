@@ -1461,7 +1461,7 @@ MuidMatchMaker::buildCombinedTrack (const Trk::Track&	indetTrack,
 				    const Trk::Track&	spectrometerTrack) const
 {
     // build and fit the combined track
-    const Trk::Track* combinedTrack	= 0;
+    Trk::Track* combinedTrack	= 0;
     double	      combinedFitChi2	= 9999.;
     if (! m_trackBuilder.empty())
     {
@@ -1477,7 +1477,7 @@ MuidMatchMaker::buildCombinedTrack (const Trk::Track&	indetTrack,
     }
     if (combinedFitChi2 > m_badFitChi2 && ! m_outwardsBuilder.empty())
     {
-	const Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
+	  Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
 									 extrapolatedTrack,
 									 spectrometerTrack);
 	if (outwardsTrack &&
@@ -2180,7 +2180,7 @@ MuidMatchMaker::indetExtension (const Trk::Track&	indetTrack,
 	
     // fit the combined track
     double combinedFitChi2		= 9999.;
-    const Trk::Track* combinedTrack	= 0;
+    Trk::Track* combinedTrack	= 0;
     if (! m_trackBuilder.empty())
     {
 	combinedTrack			= m_trackBuilder->indetExtension(indetTrack,
@@ -2194,7 +2194,7 @@ MuidMatchMaker::indetExtension (const Trk::Track&	indetTrack,
     }
     if (combinedFitChi2 > m_badFitChi2 && ! m_outwardsBuilder.empty())
     {
-	const Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
+	 Trk::Track* outwardsTrack	= m_outwardsBuilder->combinedFit(indetTrack,
 									 spectrometerTrack,
 									 spectrometerTrack);
 	if (outwardsTrack &&

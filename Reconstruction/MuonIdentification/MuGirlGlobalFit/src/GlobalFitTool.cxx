@@ -495,9 +495,9 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
         if (msgLvl(MSG::DEBUG)) msg() << "Measurement set built. Size: " <<measurementSet.size()<< endmsg;
         SortMeasurementSet (measurementSet);
         if (msgLvl(MSG::DEBUG)) msg() << "Measurement set sorted " << endmsg;
-        const Trk::Track* RefittedTrack= NULL;
-	if (m_pRefittedTrkMeasurementSetSize > 2)
-	  RefittedTrack=m_trackFitter->indetExtension(*IDTrack,measurementSet);
+        Trk::Track* RefittedTrack= NULL;
+        if (m_pRefittedTrkMeasurementSetSize > 2)
+          RefittedTrack=m_trackFitter->indetExtension(*IDTrack,measurementSet);
         if (msgLvl(MSG::DEBUG)) msg() << "Global Fit done" << endmsg;
         if (RefittedTrack!=NULL)
         {

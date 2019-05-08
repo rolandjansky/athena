@@ -495,7 +495,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
       return ptrTrack;
     } else {
       // ok, done, create subtrack
-      const Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
+      Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
       if (!newTrack) {
         ATH_MSG_DEBUG ("=> Failed to create subtrack");
         if (m_monitorTracks && TrkCouldBeAccepted)	// otherwise (!TrkCouldBeAccepted) already rejected
@@ -1363,7 +1363,9 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   }
 
   if (m_monitorTracks) {
-    m_observerTool->updateHolesSharedHits(*ptrTrack, trackHitDetails.numPixelHoles, trackHitDetails.numSCTHoles, trackHitDetails.numSplitSharedPix, trackHitDetails.numSplitSharedSCT, trackHitDetails.numSharedOrSplit, trackHitDetails.numSharedOrSplitPixels, trackHitDetails.numShared);		// add holes, split/shared hits to observer tool
+    m_observerTool->updateHolesSharedHits(*ptrTrack, trackHitDetails.numPixelHoles, trackHitDetails.numSCTHoles, 
+                                          trackHitDetails.numSplitSharedPix, trackHitDetails.numSplitSharedSCT, trackHitDetails.numSharedOrSplit, 
+                                          trackHitDetails.numSharedOrSplitPixels, trackHitDetails.numShared);		// add holes, split/shared hits to observer tool
   }
 
   if(msgLvl(MSG::VERBOSE)){
@@ -1375,7 +1377,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
 
 
 //==========================================================================================
-const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const
+Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const
 {
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsosit=tsos.begin();
   int nmeas=0;
@@ -1403,7 +1405,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( co
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  const Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
   
   return newTrack;
 

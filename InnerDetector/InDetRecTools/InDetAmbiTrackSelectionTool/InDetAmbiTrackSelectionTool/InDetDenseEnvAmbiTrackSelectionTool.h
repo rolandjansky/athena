@@ -266,7 +266,7 @@ namespace InDet
      
       
       /** method to create a new track from a vector of TSOS's */
-      const Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
+      Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
       
       /** Fill the two structs TrackHitDetails & TSoS_Details full of information*/      
       void fillTrackDetails(const Trk::Track*, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails ) const; 
