@@ -617,8 +617,7 @@ def muEFCBRecoSequence( RoIs, name ):
   theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, MuonSystemExtensionTool=muonExtTool)
 
   #MuonCombinedCandidates
-  theCaloMeasTool = getPublicToolClone("TrigCaloMeasTool_"+name, "MuidCaloEnergyMeas", CaloNoiseTool="", UseCaloNoiseTool=False,CellContainerLocation="")
-  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool_"+name, "MuidCaloEnergyTool", CaloMeasTool = theCaloMeasTool, EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
+  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool_"+name, "MuidCaloEnergyTool", EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
 
   from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
   TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')

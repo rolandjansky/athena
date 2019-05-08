@@ -1,23 +1,6 @@
-#!/bin/sh
-# art-description: athenaMT trigger test using the full menu from TrigUpgradeTest job options
-# art-type: build
-# art-include: master/Athena
-# art-output: *.log
-# art-output: *.new
-# art-output: *.txt
-# art-output: *.root
+#!/bin/bash
 
-export NAME="TrigUpgradeTest_full_menu_build"
-export SKIPEVENTS=10
-export EVENTS=20
-export THREADS=1
-export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
-export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+# This test has been renamed to test_trigUpgr_full_menu_build.sh, but CI still invokes
+# the old name. Once the CI configuration is updated, this script can be deleted.
 
-# Find the regtest reference installed with the release
-export REGTESTREF=`find_data.py TrigUpgradeTest/full_menu_build.ref`
-
-source exec_TrigUpgradeTest_art_athenaMT.sh
-source exec_TrigUpgradeTest_art_post.sh
-
+test_trigUpgr_full_menu_build.sh

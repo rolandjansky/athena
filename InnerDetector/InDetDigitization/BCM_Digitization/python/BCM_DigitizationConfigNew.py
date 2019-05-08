@@ -5,6 +5,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from RngComps.RandomServices import RNG, AthEngines
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from BCM_Digitization.BCM_DigitizationConf import BCM_DigitizationTool, BCM_Digitization
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -15,7 +16,11 @@ def BCM_FirstXing():
 def BCM_LastXing():
     return 0
 
-def BCM_RangeCfg(flags, name="BCM_Range" , **kwargs):
+def BCM_ItemList():
+    """Return list of item names needed for BCM output"""
+    return ["InDetSimDataCollection#*", "BCM_RDO_Container#*"]
+
+def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
     """Return a BCM configured PileUpXingFolder tool"""
     kwargs.setdefault("FirstXing", BCM_FirstXing())
     kwargs.setdefault("LastXing",  BCM_LastXing())
@@ -62,6 +67,8 @@ def BCM_DigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
         tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
         kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
     return acc
 
 def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **kwargs):
@@ -75,5 +82,6 @@ def BCM_OverlayDigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags, **kwargs))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
+    acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
     return acc
 

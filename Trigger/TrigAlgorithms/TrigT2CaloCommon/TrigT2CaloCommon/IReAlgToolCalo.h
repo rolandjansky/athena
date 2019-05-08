@@ -34,6 +34,8 @@
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
+#include <memory>
+
 /** Base Class for Tools used for Egamma and Tau Feature Extraction Algorithms */
 class IReAlgToolCalo : public AthAlgTool {
 public:
@@ -64,7 +66,7 @@ protected:
 
   /** Objects will need T2Calibration. So far, a given tool will
   not need more than one of such objects. */
-  T2Calibration* m_calib{nullptr};
+  std::unique_ptr<T2Calibration> m_calib;
 
   /** Input objects to calibration. This will be changed in such
   a way the the calibration tool will have to know alone about

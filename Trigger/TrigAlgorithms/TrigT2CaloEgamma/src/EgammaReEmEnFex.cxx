@@ -26,12 +26,11 @@ EgammaReEmEnFex::EgammaReEmEnFex(const std::string& type, const std::string& nam
   declareProperty("QlCorrectionDimension", m_dimension);
   declareProperty("QlCorrection", m_correction);
   // Calibration object
-  m_calib = new T2CalibrationEgamma();
+  m_calib=std::make_unique<T2CalibrationEgamma>();
 }
 
 EgammaReEmEnFex::~EgammaReEmEnFex()
 {
-  delete m_calib;
 }
 
 StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,

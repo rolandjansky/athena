@@ -8,7 +8,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
-
 # combined tools
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
@@ -31,20 +30,14 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilder",'Combine
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauCandidateTrackBuilderTool","MuonStauCandidateTrackBuilderTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauInsideOutRecoTool","MuonStauInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauRecoTool","MuonStauRecoTool")
-
-
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
-
-pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = pcExtensionTool)
-
-addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool", ParticleCaloExtensionTool = pcExtensionTool)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagTool")
 addTool("Rec::MuonMomentumBalanceSignificanceTool","MuonMomentumBalanceSignificanceTool")
 addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignificanceTool")
+addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonMaterialProviderTool")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
@@ -60,6 +53,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreat
 
 # tracking tools
 addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "AtlasTrackSummaryTool" )
+addTool("Trk::ParticleCaloExtensionTool", "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
 
 # put this here until it is set in the appropriate package
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagMatchingTool","MuTagMatchingTool")
@@ -75,7 +69,6 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorT
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTrackSummaryTool","MuonCombinedTrackSummaryTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.MuonSimpleAmbiProcessorTool","MuonSimpleAmbiProcessorTool")
 
 #addTool("MuonCombinedRecExample.CombinedMuonTrackSummary.CombinedMuonTrackSummary","CombinedMuonTrackSummary")
 
@@ -87,10 +80,7 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.OutwardsSegmentRegionRecove
 ####### calo tag
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloTrkMuIdAlgTrackSelectorTool","CaloTrkMuIdAlgTrackSelectorTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.TrackEnergyInCaloTool","TrackEnergyInCaloTool")
-addTool("MuonCombinedRecExample.MuonCaloTagTool.TrackDepositInCaloTool","TrackDepositInCaloTool", 
-        ExtrapolatorHandle=AtlasExtrapolator(), 
-        ParticleCaloExtensionTool=pcExtensionTool,
-        ParticleCaloCellAssociationTool=caloCellAssociationTool)
+addTool("MuonCombinedRecExample.MuonCaloTagTool.TrackDepositInCaloTool","TrackDepositInCaloTool")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTagLoose","CaloMuonTagLoose")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTag","CaloMuonTag")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonLikelihoodTool","CaloMuonLikelihoodTool")

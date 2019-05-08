@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetDescr.h"
@@ -19,8 +19,10 @@
 
 // Class HECDetectorManager 
 
-HECDetectorManager::HECDetectorManager(bool isTestBeam)
-  :GeoVDetectorManager(),m_HVManager(NULL),m_isTestBeam(isTestBeam)
+HECDetectorManager::HECDetectorManager(const HECHVManager* hvManager, bool isTestBeam)
+  : GeoVDetectorManager()
+  , m_HVManager(hvManager)
+  , m_isTestBeam(isTestBeam)
 {
   setName("LArHEC");
 
@@ -165,18 +167,9 @@ void HECDetectorManager::addTreeTop (PVLink treeTop)
   treeTop->ref();
 }
 
-
-const HECHVManager * HECDetectorManager::getHVManager () const
+const HECHVManager& HECDetectorManager::getHVManager () const
 {
-
-  if (!m_HVManager) {
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
-    if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_HVManager=manager->getHECHVManager();
-    }
-  }
-  return m_HVManager;
+  return *m_HVManager;
 }
 
 

@@ -83,7 +83,7 @@ def ExampleMonitoringConfig(inputFlags):
     myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
                             path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
+                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
     myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',

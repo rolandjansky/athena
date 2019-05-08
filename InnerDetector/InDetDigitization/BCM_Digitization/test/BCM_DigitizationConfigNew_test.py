@@ -12,7 +12,6 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
@@ -31,12 +30,6 @@ ConfigFlags.lock()
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(BCM_DigitizationCfg(ConfigFlags))
-# Add configuration to write HITS pool file
-ItemList = [
-    "InDetSimDataCollection#*",
-    "BCM_RDO_Container#*",
-]
-acc.merge(OutputStreamCfg(ConfigFlags, "RDO", ItemList=ItemList))
 # Dump config
 acc.getService("StoreGateSvc").Dump=True
 acc.getService("ConditionStore").Dump = True

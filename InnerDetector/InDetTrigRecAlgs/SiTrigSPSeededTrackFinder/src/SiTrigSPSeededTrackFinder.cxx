@@ -349,7 +349,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       if(doTiming()) m_timerSeedProcessing->start();
       ++m_nseeds;
-      const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints());
+      std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(seed->spacePoints()));
       
       if (m_fastTracking){
 	      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -537,8 +537,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       
 	  
-	const std::list<Trk::Track*>& T = 
-	  m_trackmaker->getTracks(*perig, gpList);//dummyp); //
+      std::list<Trk::Track*> T = std::move(m_trackmaker->getTracks(*perig, gpList));//dummyp); //
 	  
 	  
 	if(doTiming()){

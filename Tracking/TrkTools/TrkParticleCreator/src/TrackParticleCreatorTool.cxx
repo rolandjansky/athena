@@ -372,28 +372,28 @@ namespace Trk
       }  
     }
     
-    const Trk::TrackSummary* summary;
-    if (m_trackSummaryTool!=0 && m_useTrackSummaryTool)
+    std::unique_ptr<const Trk::TrackSummary> summary;
+    if (m_trackSummaryTool.get()!=nullptr)
     {
       if (m_forceTrackSummaryUpdate)
       {
         // next lines are a bit ugly: we need to cast the const away to update the track and then get the new summary
         // and even clone it because it belongs to the track ...
+        // @TODO must not modify the track
         Trk::Track& nonConstTrack = const_cast<Trk::Track&>(*track);
 	m_trackSummaryTool->updateTrack(nonConstTrack); 
       } 
-      summary = m_trackSummaryTool->createSummary(*track); 
-      
-      if (summary == 0)
+      summary.reset( m_trackSummaryTool->createSummary(*track) );
+      if (summary.get() == nullptr)
       {
         ATH_MSG_DEBUG ("No proper TrackSummary was returned. Creating TrackParticle with a dummy TrackSummary");
-        summary = new Trk::TrackSummary;
+        summary.reset(new Trk::TrackSummary);
       } // else ATH_MSG_VERBOSE("Got Summary for Track" );
     } else{
       ATH_MSG_VERBOSE ("No proper TrackSummaryTool found. Creating TrackParticle with a dummy TrackSummary");
-      summary = new Trk::TrackSummary;
+      summary.reset( new Trk::TrackSummary);
     }
-    
+
     // find the first and the last hit in track
     // we do that the same way as in the track slimming tool!
     // that way it is also ok on not slimmed tracks!
@@ -441,7 +441,7 @@ namespace Trk
       for ( ; itTSoS != track->trackStateOnSurfaces()->end(); ++itTSoS)
       {
         if (! (**itTSoS).trackParameters())     continue;
-        
+
         if (! haveFirstMeasurementParameters
             && (**itTSoS).type(TrackStateOnSurface::Measurement)
             && ! (**itTSoS).type(TrackStateOnSurface::Outlier)
@@ -465,18 +465,18 @@ namespace Trk
         {
           parameters.push_back((**itTSoS).trackParameters()->clone());
         }
-        
+
         ATH_MSG_VERBOSE( " including perigee at R "
                         << (**itTSoS).trackParameters()->position().perp()
                         << ", Z " << (**itTSoS).trackParameters()->position().z() );
-        
+
         // we are not interested in keeping measurement parameters after any second perigee
         if (parameters.size() > 0) haveFirstMeasurementParameters = true;
       }
     }
-    
+
     const Trk::FitQuality* fitQuality = new FitQuality( (*track->fitQuality()) );
-    Rec::TrackParticle* tp = new Rec::TrackParticle(track, prtOrigin, vxCandidate, summary, parameters, aPer,  fitQuality);
+    Rec::TrackParticle* tp = new Rec::TrackParticle(track, prtOrigin, vxCandidate, summary.release(), parameters, aPer,  fitQuality);
     return tp;
   }
   
@@ -538,22 +538,24 @@ namespace Trk
 	parsToBeDeleted = result; 
 	aPer = result; 
       }
-    } 
-    
-    const Trk::TrackSummary* summary;
-    if (m_trackSummaryTool!=0 && m_useTrackSummaryTool) {
+    }
+    std::unique_ptr<const Trk::TrackSummary> cleanup_summary;
+    const Trk::TrackSummary *summary=cleanup_summary.get();
+    if (m_trackSummaryTool.get() != nullptr) {
       if(m_forceTrackSummaryUpdate){
         // next lines are a bit ugly: we need to cast the const away to update the track and then get the new summary
         // and even clone it because it belongs to the track ...
+        // @TODO must not modify the track
         Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
         m_trackSummaryTool->updateTrack(nonConstTrack);
       }
-      summary = m_trackSummaryTool->createSummary(track); 
+      cleanup_summary.reset( m_trackSummaryTool->createSummary(track));
+      summary = cleanup_summary.get();
     }else{
       ATH_MSG_VERBOSE ("No proper TrackSummaryTool found. Creating TrackParticle with a TrackSummary on track");
       summary = track.trackSummary();
     }
-    
+
     // find the first and the last hit in track
     // we do that the same way as in the track slimming tool!
     // that way it is also ok on not slimmed tracks!
@@ -775,7 +777,6 @@ namespace Trk
     }
     }
 
-    if (m_trackSummaryTool!=0 && m_useTrackSummaryTool) delete summary;
     delete parsToBeDeleted;
     return trackparticle;
 

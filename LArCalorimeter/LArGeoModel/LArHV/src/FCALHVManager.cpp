@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/FCALHVManager.h"
-#include "LArHV/FCALHVModule.h"
 #include "LArHV/FCALHVLine.h"
-#include "LArHV/FCALHVDescriptor.h"
 
 #include "FCALHVPayload.h"
 
@@ -25,53 +23,57 @@
 
 class FCALHVManager::Clockwork {
 public:
-  FCALHVDescriptor *descriptor;
-  FCALHVModuleConstLink linkArray[2][16][3];
+  Clockwork(const FCALHVManager* manager)
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iSector=0; iSector<16; ++iSector) {
+	for(int iSampling=0; iSampling<3; ++iSampling) {
+	  moduleArray[iSide][iSector][iSampling] = new FCALHVModule(manager,iSide,iSector,iSampling);
+	}
+      }
+    }
+  }
+  ~Clockwork()
+  {
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iSector=0; iSector<16; ++iSector) {
+	for(int iSampling=0; iSampling<3; ++iSampling) {
+	  delete moduleArray[iSide][iSector][iSampling];
+	}
+      }
+    }
+  }
+  const FCALHVModule* moduleArray[2][16][3];
   std::atomic<bool>          init{false};
   std::mutex                 mtx;
   std::vector<FCALHVPayload> payloadArray;
 };
 
-//##ModelId=47ABAE9302D3
-FCALHVManager::FCALHVManager():m_c(new Clockwork())
+FCALHVManager::FCALHVManager()
+  : m_c(new Clockwork(this))
 {
-  m_c->descriptor = new FCALHVDescriptor();
-  m_c->init=false;
 }
 
-
-//##ModelId=47ABAE930373
 FCALHVManager::~FCALHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-//##ModelId=47ABAF5E0079
-const FCALHVDescriptor *FCALHVManager::getDescriptor() const
-{
-  return m_c->descriptor;
-}
-
-//##ModelId=47ABAF5E0092
 unsigned int FCALHVManager::beginSideIndex() const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E009F
 unsigned int FCALHVManager::endSideIndex() const
 {
   return 2;
 }
 
-//##ModelId=47ABAF5E00AD
 unsigned int FCALHVManager::beginSectorIndex(unsigned int /*iSampling*/) const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E00BB
 unsigned int FCALHVManager::endSectorIndex(unsigned int iSampling) const
 {
   if (iSampling==0) return 16;
@@ -80,23 +82,19 @@ unsigned int FCALHVManager::endSectorIndex(unsigned int iSampling) const
   return 0;
 }
 
-//##ModelId=47ABAF5E00C9
 unsigned int FCALHVManager::beginSamplingIndex() const
 {
   return 0;
 }
 
-//##ModelId=47ABAF5E00D9
 unsigned int FCALHVManager::endSamplingIndex() const
 {
   return 3;
 }
 
-//##ModelId=47ABAF5E00E8
-FCALHVModuleConstLink FCALHVManager::getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const
+const FCALHVModule& FCALHVManager::getHVModule(unsigned int iSide, unsigned int iSector, unsigned int iSampling) const
 {
-  if (!m_c->linkArray[iSide][iSector][iSampling]) m_c->linkArray[iSide][iSector][iSampling]=FCALHVModuleConstLink(new FCALHVModule(this,iSide,iSector, iSampling));
-  return m_c->linkArray[iSide][iSector][iSampling];
+  return *(m_c->moduleArray[iSide][iSector][iSampling]);
 }
 
 void FCALHVManager::update() const {
@@ -200,10 +198,10 @@ void FCALHVManager::update() const {
 FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
   update();
   unsigned int lineIndex         = line.getLineIndex();
-  FCALHVModuleConstLink module = line.getModule();
-  unsigned int sectorIndex       = module->getSectorIndex();
-  unsigned int sideIndex         = module->getSideIndex();
-  unsigned int samplingIndex     = module->getSamplingIndex();
+  const FCALHVModule& module     = line.getModule();
+  unsigned int sectorIndex       = module.getSectorIndex();
+  unsigned int sideIndex         = module.getSideIndex();
+  unsigned int samplingIndex     = module.getSamplingIndex();
   unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
   //std::cout << "in Fcal getPayload: " << this << ' ' << index << ' ' << sideIndex << ' ' << sectorIndex << ' ' << samplingIndex << ' ' << lineIndex << std::endl;
   return &m_c->payloadArray[index];

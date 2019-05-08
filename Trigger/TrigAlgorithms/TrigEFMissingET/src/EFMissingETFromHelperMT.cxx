@@ -245,9 +245,9 @@ StatusCode EFMissingETFromHelperMT::update(xAOD::TrigMissingET *met, TrigEFMissi
       break;
     case 3:
       ATH_MSG_DEBUG("Save pufit clusters MET");
-      copier.addHelperCompToMET(TrigEFMissingEtComponent::TCPUC);
-      copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCPUC);
-      copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCPUCUnc);
+      copier.addHelperCompToMET(TrigEFMissingEtComponent::TCPufit);
+      copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCPufit);
+      copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCPufitUnc);
       copier.setMETCompFromHelper(2, TrigEFMissingEtComponent::Muons);
 
       break;

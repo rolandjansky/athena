@@ -4,8 +4,10 @@
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 
+from PrimaryDPDMaker.DxAODPixLumiJobProperties import DxAODPixLumiFlags
+
 # Select active sub-systems
-dumpPixInfo=True
+dumpPixInfo = DxAODPixLumiFlags.DumpPixelInfo()
 
 # Print settings for main tools
 printIdTrkDxAODConf = True
@@ -105,7 +107,7 @@ thinningTools = []
 
 if dumpPixInfo: 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
-    thinning_expression = "(PixelClusters.layer == 0) && ((PixelClusters.eta_module >= -10 && PixelClusters.eta_module <= -5) || (PixelClusters.eta_module >= 4 && PixelClusters.eta_module <= 9))"
+    thinning_expression = DxAODPixLumiFlags.ModulesSelection()
     IDPIXLUMIThinningTool = DerivationFramework__TrackMeasurementThinning( name = "IDPIXLUMIThinningTool",
         ThinningService = IDPIXLUMIThinningHelper.ThinningSvc(),
         SelectionString = thinning_expression,

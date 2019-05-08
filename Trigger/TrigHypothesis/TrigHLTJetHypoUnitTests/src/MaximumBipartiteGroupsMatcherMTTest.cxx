@@ -103,7 +103,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 
- 
   EXPECT_FALSE(pass);
 }
 
@@ -252,7 +251,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
 
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
-  auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
 
   bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 

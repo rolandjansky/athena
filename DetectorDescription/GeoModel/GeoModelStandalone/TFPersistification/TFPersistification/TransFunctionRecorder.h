@@ -33,7 +33,7 @@ class TransFunctionRecorder {
  private:
 
   // A pointer to the persistifier:
-  const TransFunctionPersistifier                               *persistifier;
+  const TransFunctionPersistifier                               *m_persistifier;
 
   // Deleted operations:
   TransFunctionRecorder(const TransFunctionRecorder &)               = delete;

@@ -174,13 +174,13 @@ class METAssocConfig:
                                                                   maxZ0SinTheta=3,
                                                                   maxD0=2,
                                                                   minPt=500)
-            if not hasattr(ToolSvc,self.trkseltool.name()):
-                ToolSvc += self.trkseltool
+            #if not hasattr(ToolSvc,self.trkseltool.name()):
+            #    ToolSvc += self.trkseltool
 
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
+        #if not hasattr(ToolSvc,self.trkisotool.name()):
+        #    ToolSvc += self.trkisotool
 
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool		
 	from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
@@ -191,8 +191,8 @@ class METAssocConfig:
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
+        #if not hasattr(ToolSvc,self.caloisotool.name()):
+        #    ToolSvc += self.caloisotool
 
         self.associators = {}
         self.assoclist = [] # need an ordered list

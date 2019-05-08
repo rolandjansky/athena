@@ -100,9 +100,8 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   , m_noise_burst_nChannel_thresholds( 8, 10 )
   , m_n_lumi_blocks( 1500 )
   , m_lar_online_id_ptr ( 0 )
-  , m_calo_description_mgr_ptr( 0 )
   , m_calo_id_mgr_ptr( 0 )
-  , m_cabel_service_tool ( "LArCablingLegacyService" )
+  , m_cable_service_tool ( "LArCablingLegacyService" )
   , m_masking_tool ( "BadLArRawChannelMask" )
   , m_atlas_ready( false )
   , m_lar_online_id_str_helper_ptr ( 0 )
@@ -176,74 +175,15 @@ StatusCode LArRawChannelMonTool::initialize()
 
   m_interval        = intervalStringToEnum( m_interval_str );
 
-  // --- non-trivial ManagedMonitorToolBase intialize routine ---
-  if ( ManagedMonitorToolBase::initialize().isSuccess() ) {
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
-    ATH_MSG_DEBUG( "initialized ManagedMonitorToolBase" );
+  ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
+  ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
+  ATH_CHECK( m_cable_service_tool.retrieve() );
+  ATH_CHECK( m_calo_noise_tool.retrieve() );
+  ATH_CHECK( m_masking_tool.retrieve() );
+  ATH_CHECK( m_filterAtlasReady_tools.retrieve() );
 
-  } else {
-
-    ATH_MSG_FATAL( "Unable to initialize ManagedMonitorToolBase"
-		    );
-    return StatusCode::FAILURE;
-
-  }
-
-  // --- get LArOnlineID ---
-  if ( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ).isSuccess() ) {
-
-    ATH_MSG_DEBUG( "connected non-tool: LArOnlineID" );
-
-  } else {
-
-    ATH_MSG_FATAL( "unable to connect non-tool: LArOnlineID" );
-    return StatusCode::FAILURE;
-
-  }
-
-
-
-  // --- get CaloDetDescrManager ---
-  if ( detStore()->retrieve( m_calo_description_mgr_ptr ).isSuccess() ) {
-
-    ATH_MSG_DEBUG( "connected non-tool: CaloDetDescrManager " );
-
-  } else {
-
-    ATH_MSG_FATAL( "unable to connect non-tool: CaloDetDescrMgr "
-	);
-    return StatusCode::FAILURE;
-
-  }
-
-  // --- get CaloIDManager ---
-  if ( detStore()->retrieve( m_calo_id_mgr_ptr ).isSuccess() ) {
-
-    ATH_MSG_DEBUG( "connected non-tool: CaloIdManager" );
-
-  } else {
-
-    ATH_MSG_FATAL( "unable to connect non-tool: CaloIdManager "
-	);
-    return StatusCode::FAILURE;
-
-  }
-
-
-  // --- get LArCablingService ---
-  if ( !RetrieveHandle( m_cabel_service_tool ) ) return StatusCode::FAILURE;
-
-  // --- get CaloNoiseTool ---
-  if ( !RetrieveHandle( m_calo_noise_tool ) ) return StatusCode::FAILURE;
-
-  // --- get bad channel mask ---
-  if ( !RetrieveHandle( m_masking_tool ) ) return StatusCode::FAILURE;
-
-   StatusCode sc = m_filterAtlasReady_tools.retrieve();
-   if( !sc ) {
-     ATH_MSG_ERROR("Could Not Retrieve AtlasFilterTool " << m_filterAtlasReady_tools);
-     return StatusCode::FAILURE;
-   }
   // ---
   // Get Michel's LArOnlineIDStrHelper: All names are Expert view
   m_lar_online_id_str_helper_ptr = new
@@ -1258,6 +1198,9 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   // --- check set in bookHistogram ---
   if ( !m_has_lar_raw_channels ) return StatusCode::SUCCESS;
 
+  const CaloDetDescrManager *ddman = nullptr;
+  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+
   // --- retrieve raw channels ---
   const LArRawChannelContainer *raw_channels = 0;
   if ( !evtStore()->retrieve( raw_channels, m_LArRawChannel_container_key ).isSuccess() ) {
@@ -1445,8 +1388,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
     try {
 
-      offline_id = m_cabel_service_tool->cnvToIdentifier( hardware_id );
-      calo_element_ptr   = m_calo_description_mgr_ptr->get_element( offline_id );
+      offline_id = m_cable_service_tool->cnvToIdentifier( hardware_id );
+      calo_element_ptr   = ddman->get_element( offline_id );
 
       // --- skip unconnected channels ---
       if ( !calo_element_ptr ) continue;

@@ -54,26 +54,26 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Main methods for road builder
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual void detElementsRoad
 	(const std::list<const Trk::SpacePoint*>&,
-	std::list<const InDetDD::SiDetectorElement*>&)=0;
+	std::list<const InDetDD::SiDetectorElement*>&) const=0;
 
       virtual void detElementsRoad
 	(std::list<Amg::Vector3D>&,
-	 std::list<const InDetDD::SiDetectorElement*>&)=0;
-    
+	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
+
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<const InDetDD::SiDetectorElement*>&)=0;
-      
+	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
+ 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-     
+
       virtual MsgStream&    dump(MsgStream&    out) const=0;
       virtual std::ostream& dump(std::ostream& out) const=0;
-     
+
     };
   
   ///////////////////////////////////////////////////////////////////

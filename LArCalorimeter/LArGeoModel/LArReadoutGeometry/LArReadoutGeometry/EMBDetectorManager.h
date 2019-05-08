@@ -43,7 +43,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief Destructor
    */
-  ~EMBDetectorManager();
+  virtual ~EMBDetectorManager() override;
   
   /**
    * @brief	Iterate over detector regions
@@ -69,12 +69,12 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Gets the ith tree top.
    */
-  virtual PVConstLink getTreeTop (unsigned int i) const;
+  virtual PVConstLink getTreeTop (unsigned int i) const override;
   
   /**
    * @brief	Gets the total number of tree tops.
    */
-  virtual unsigned int getNumTreeTops () const;
+  virtual unsigned int getNumTreeTops () const override;
   
   /**
    * @brief	Add a new Detector Region
@@ -84,7 +84,7 @@ class EMBDetectorManager : public GeoVDetectorManager
   /**
    * @brief	Add a Tree Top
    */
-  virtual void addTreeTop (PVLink treeTop);
+  void addTreeTop (PVLink treeTop);
   
   /**
    * @brief	Collection of useful numerical data for the description of the barrel cells.

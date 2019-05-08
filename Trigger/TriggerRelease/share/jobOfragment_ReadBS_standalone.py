@@ -29,7 +29,6 @@ if TriggerFlags.doEF() or TriggerFlags.doHLT():
         "RpcDigitContainer/RPC_DIGITS",
         "TgcDigitContainer/TGC_DIGITS",
         "CscDigitContainer/CSC_DIGITS",
-        "ROIB::RecRoIBResult/RecRoIBResult",
         "MuCTPI_RIO/MUCTPI_RIO",
         "CTP_RIO/CTP_RIO"
     ] 
@@ -41,7 +40,6 @@ if TriggerFlags.doEF() or TriggerFlags.doHLT():
 ByteStreamAddressProviderSvc.TypeNames += [ 
     "LArRawChannelContainer/LArRawChannels", 
     "TileRawChannelContainer/TileRawChannelCnt", 
-    "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",        
     "HLT::HLTResult/HLTResult_L2",
     "HLT::HLTResult/HLTResult_EF",

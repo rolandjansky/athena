@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,7 +54,7 @@ namespace Muon {
         , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
           , m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool")
             , m_trackBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")
-              , m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor")
+              , m_ambiTool("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor")
                 , m_mooBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")
                   , m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool")
                     , m_trackRefineTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")

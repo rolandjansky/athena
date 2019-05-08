@@ -271,6 +271,7 @@ private:
 
    bool m_run2;
    bool m_run2plus;
+   bool m_run3;
 
    int m_maxChannels;
    int m_maxGains;
@@ -288,7 +289,7 @@ public:
     inline int                 getCablingType()    const { return m_cablingType; }
     inline bool                isRun2Cabling()     const { return m_run2; }
     inline bool                isRun2PlusCabling() const { return m_run2plus; }
-
+    inline bool                isRun3Cabling()     const { return m_run3; }
 };
 
 #endif // TILECONDITIONS_TILECABLINGSERVICE_H

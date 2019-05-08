@@ -83,7 +83,6 @@ InDetTrigSiDetElementsRoadMakerCosmics = \
                                       useSCT       = DetFlags.haveRIO.SCT_on(),
                                       RoadWidth          = 75.     #wider for cosmics
                                       )
-ToolSvc += InDetTrigSiDetElementsRoadMakerCosmics
 # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
 if DetFlags.haveRIO.SCT_on():
   from AthenaCommon.AlgSequence import AthSequencer

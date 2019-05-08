@@ -85,9 +85,6 @@ if TriggerFlags.doMuon():
       "CscRawDataContainer/CSCRDO",
       "MuCTPI_RDO/MUCTPI_RDO"
       ]
-      
-ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RecRoIBResult/RecRoIBResult" ]
 
 # this must be in a fragment:
 if not hasattr(ServiceMgr,"ProxyProviderSvc"):                           

@@ -110,7 +110,7 @@ ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 1
 # increment of 3 minutes
 ServiceMgr.EventSelector.TimeStampInterval = 180
 
-theApp.EvtMax                   = 20
+theApp.EvtMax                   = 6
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

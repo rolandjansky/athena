@@ -89,7 +89,7 @@ namespace MuonCombined {
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
-    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonSimpleAmbiProcessorTool"),
+    m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
     m_muonDressingTool("MuonCombined::MuonDressingTool/MuonDressingTool"),
     m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignificanceTool"),

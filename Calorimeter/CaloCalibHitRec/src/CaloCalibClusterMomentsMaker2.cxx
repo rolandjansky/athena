@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -57,7 +57,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_calo_dd_man(0),
     m_calo_id(0),
     m_caloDM_ID(0),
     m_caloDmDescrManager(0),
@@ -230,14 +229,10 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
     m_doDeadEnergySharing = true;
   }
 
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance();
-
   // dead material identifier description manager
   m_caloDmDescrManager = CaloDmDescrManager::instance(); 
 
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
-
+  ATH_CHECK( detStore()->retrieve(m_calo_id, "CaloCell_ID") );
   ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
 
   // initialize distance tables
@@ -293,6 +288,8 @@ StatusCode
 CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
                                        xAOD::CaloClusterContainer *theClusColl) const
 {
+  const CaloDetDescrManager* calo_dd_man = nullptr;
+  ATH_CHECK( detStore()->retrieve (calo_dd_man, "CaloMgr") );
 
   bool foundAllContainers (true);
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
@@ -416,7 +413,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
 
   // reading particle information for later calcution of calibration enegry fraction caused
   // by particles of different types
-  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey, ctx);
 
   if (doCalibFrac && !truthParticleContainerReadHandle.isValid()){
     ATH_MSG_WARNING("Invalid read handle to TruthParticleContainer with key: " << m_truthParticleContainerKey.key());
@@ -494,7 +491,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           if(pos == cellInfo.end() ) {
             // hit is not inside any cluster
             const CaloDetDescrElement* myCDDE = 
-              m_calo_dd_man->get_element(myId);
+              calo_dd_man->get_element(myId);
             int pid(0);
             if(useParticleID) pid = (*chIter)->particleID();
             if ( myCDDE ) {

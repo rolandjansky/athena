@@ -22,10 +22,8 @@
 #include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
-#include "LArHV/HECHVSubgapConstLink.h"
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
 
 #include "LArHV/LArHVManager.h"
@@ -412,10 +410,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
       double wt = 1./nsubgaps;
       //std::cout << " nsubgaps " << nsubgaps << std::endl;
       for (unsigned int i=0;i<nsubgaps;i++) {
-          const HECHVSubgapConstLink subgap = cell->getSubgap(i);
+          const HECHVSubgap& subgap = cell->getSubgap(i);
           double hv;
           double curr;
-          subgap->voltage_current(hv,curr);
+          subgap.voltage_current(hv,curr);
           //std::cout << "     hv value " << hv << std::endl;
           if (hasPathology) {
              msg(MSG::DEBUG) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index]<<endmsg;
@@ -452,15 +450,15 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
       unsigned int nlines = tile->getNumHVLines();
       unsigned int nlines_found=0;
       for (unsigned int i=0;i<nlines;i++) {
-        const FCALHVLineConstLink line = tile->getHVLine(i);
+        const FCALHVLine* line = tile->getHVLine(i);
         if (line) nlines_found++;
       }
       //std::cout << " nlines " << nlines << " " << nlines_found << std::endl;
       if (nlines_found>0) {
         double wt = 1./nlines_found;
         for (unsigned int i=0;i<nlines;i++) {
-          const FCALHVLineConstLink line = tile->getHVLine(i);
-          if (!line) continue;
+	  const FCALHVLine* line = tile->getHVLine(i);
+	  if (!line) continue;
           //std::cout << " line " << line;
           double hv;
           double curr;

@@ -235,11 +235,6 @@ if InDetFlags.loadRotCreator():
 
     ToolSvc += InDetRotCreator
 
-    if InDetFlags.doStoreTrackSeeds():
-        from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
-        InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
-        ToolSvc += InDet_SeedToTrackConversion
-    
     if PixelClusterOnTrackToolDigital != None :
         InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
                                                          ToolPixelCluster = PixelClusterOnTrackToolDigital,
@@ -1206,7 +1201,6 @@ if InDetFlags.doPattern():
                                                                         MagneticFieldMode     = "NoField",
                                                                         TrackQualityCut       = 9.3
                                                                         )
-        ToolSvc += InDetSiComTrackFinderDBM
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
@@ -1214,7 +1208,6 @@ if InDetFlags.doPattern():
     else:
       InDetSiComTrackFinder.SctSummaryTool = None
 
-    ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):
       print InDetSiComTrackFinder
       if InDetFlags.doDBM():

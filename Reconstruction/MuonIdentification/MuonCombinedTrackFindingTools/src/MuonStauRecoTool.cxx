@@ -64,7 +64,7 @@ namespace MuonCombined {
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
     m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
-    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),

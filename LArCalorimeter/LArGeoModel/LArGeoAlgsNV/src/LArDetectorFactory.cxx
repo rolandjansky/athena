@@ -337,7 +337,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   
   try
   {
-    fcalDetectorManager = new FCALDetectorManager();
+    fcalDetectorManager = new FCALDetectorManager(&(m_hvManager->getFCALHVManager()));
     std::string fcalModName[2][3]={{"FCAL1_NEG","FCAL2_NEG","FCAL3_NEG"},
 				   {"FCAL1_POS","FCAL2_POS","FCAL3_POS"}};
     for (int e=0;e<2;e++) {
@@ -360,7 +360,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
   try
   {
-    hecDetectorManager = new  HECDetectorManager();
+    hecDetectorManager = new  HECDetectorManager(&(m_hvManager->getHECHVManager()));
     for (unsigned int s=0;s<4;s++) {
       for (unsigned int r=0;r<2;r++) {
 	unsigned int nPhi    = r==0? 2:1;

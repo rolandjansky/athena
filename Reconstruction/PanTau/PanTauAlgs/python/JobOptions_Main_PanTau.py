@@ -70,33 +70,33 @@ def getPanTau():
     python_Tool_InputConverter  = PanTau__Tool_InputConverter("PanTau_InputConverter",
                                                               Tool_InformationStore = python_Tool_InformationStore)
     python_Tool_InputConverter.OutputLevel = INFO
-    ToolSvc += python_Tool_InputConverter
+    #ToolSvc += python_Tool_InputConverter
     
     # ===> Tau Constituent Getter
     python_Tool_TauConstituentGetter = PanTau__Tool_TauConstituentGetter(   "PanTau_TauConstituentGetter",
                                                                             Tool_InformationStore = python_Tool_InformationStore,
                                                                             Tool_InputConverter   = python_Tool_InputConverter)
     python_Tool_TauConstituentGetter.OutputLevel = INFO
-    ToolSvc += python_Tool_TauConstituentGetter
+    #ToolSvc += python_Tool_TauConstituentGetter
     
     # ===> Tau Constituent Selector
     python_Tool_TauConstituentSelector = PanTau__Tool_TauConstituentSelector( "PanTau_TauConstituentSelector",
                                                                               Tool_InformationStore = python_Tool_InformationStore)
     python_Tool_TauConstituentSelector.OutputLevel = INFO
-    ToolSvc += python_Tool_TauConstituentSelector
+    #ToolSvc += python_Tool_TauConstituentSelector
     
     # ===> Tau Feature Extractor
     python_Tool_FeatureExtractor = PanTau__Tool_FeatureExtractor(   "PanTau_FeatureExtractor",
                                                                     Tool_InformationStore           = python_Tool_InformationStore
                                                                     )
     python_Tool_FeatureExtractor.OutputLevel = INFO
-    ToolSvc += python_Tool_FeatureExtractor
+    #ToolSvc += python_Tool_FeatureExtractor
     
     # ===> Details arranger tool
     python_Tool_DetailsArranger = PanTau__Tool_DetailsArranger( "PanTau_DetailsArranger",
                                                                 Tool_InformationStore           = python_Tool_InformationStore)
     python_Tool_DetailsArranger.OutputLevel = INFO
-    ToolSvc += python_Tool_DetailsArranger
+    #ToolSvc += python_Tool_DetailsArranger
 
 
 

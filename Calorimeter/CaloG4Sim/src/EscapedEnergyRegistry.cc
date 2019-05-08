@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EscapedEnergyRegistry
 // 15-Jul-2004 William Seligman
-
+// 12-Apr-2019 Marilena Bandieramonte
+//
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 #include "CaloG4Sim/VEscapedEnergyProcessing.h"
 
@@ -15,14 +16,24 @@
 
 namespace CaloG4
 {
+#ifdef G4MULTITHREADED
+EscapedEnergyRegistry::EERThreadMap_t EscapedEnergyRegistry::m_EERThreadMap;
+#endif
 
-  // Standard implementation of a singleton pattern.
-  EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
+EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
   {
+#ifdef G4MULTITHREADED
+    auto eer = getEER();
+    if (!eer) //nullpointer if it is not found
+      return setEER();
+    else return eer;
+#else
+    //Standard implementation of a Singleton Pattern
     static EscapedEnergyRegistry instance;
     return &instance;
+#endif
   }
-
+    
   EscapedEnergyRegistry::EscapedEnergyRegistry()
   {}
 
@@ -36,6 +47,26 @@ namespace CaloG4
       delete (*i).second;
     }
   }
+
+#ifdef G4MULTITHREADED
+  EscapedEnergyRegistry* EscapedEnergyRegistry::getEER()
+  {
+   // Get current thread-ID
+   const auto tid = std::this_thread::get_id();
+   auto eerPair = m_EERThreadMap.find(tid);
+   if(eerPair == m_EERThreadMap.end())
+     return nullptr; //if not found return null pointer
+   else return eerPair->second;
+  }
+
+  EscapedEnergyRegistry* EscapedEnergyRegistry::setEER()
+  {
+    EscapedEnergyRegistry* instance = new EscapedEnergyRegistry;
+    const auto tid = std::this_thread::get_id();
+    auto inserted = m_EERThreadMap.insert( std::make_pair(tid, instance)).first;
+    return (EscapedEnergyRegistry*) inserted->second;
+  }
+#endif
 
   void EscapedEnergyRegistry::AddAndAdoptProcessing( const G4String& name,
                                                      VEscapedEnergyProcessing* process )

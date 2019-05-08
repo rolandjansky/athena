@@ -14,7 +14,7 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
-                        eventInfoKey = "EventInfo" ):
+                        eventInfoKey = "EventInfo", decisionFilter="" ):
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -41,7 +41,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # build eventinfo attribute list
          from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
          svcMgr.ToolSvc += EventInfoAttListTool()
-         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey)
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing
@@ -91,3 +91,4 @@ def createOutputConditionStream( streamName, fileName = "" ):
 ## backward compat
 AthenaPoolOutputStream          = createOutputStream
 AthenaPoolOutputConditionStream = createOutputConditionStream
+

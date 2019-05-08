@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,11 +52,13 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigElectronContainer ); 
   INIT_XAOD( TrigPhotonContainer );
   INIT_XAOD( TrackParticleContainer );
+  INIT_XAOD( TrigMissingETContainer );
 
   INIT_XAOD( L2StandAloneMuonContainer );
   INIT_XAOD( L2CombinedMuonContainer );
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
+
 
 #undef INIT
 #undef INIT_XAOD
@@ -214,7 +216,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 	for ( ; viewCollKeyIter != handles.views.end(); ++viewCollKeyIter, ++inViewCollKeyIter ) {
 	  // get the views handle
 
-	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter );
+	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter, context );
 	  if ( viewsHandle.isValid() ) {	    
 	    ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
 	    CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *generator.data.get() ) );
@@ -223,7 +225,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
 	  }
 	}      
       }
-      auto writeHandle = SG::makeHandle( writeHandleKey );
+      auto writeHandle = SG::makeHandle( writeHandleKey, context );
       CHECK( generator.record( writeHandle ) );
     }     
   }
@@ -265,6 +267,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
   CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
+  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer )
 
   CREATE_XAOD( L2StandAloneMuonContainer, L2StandAloneMuonAuxContainer );
   CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );

@@ -239,6 +239,9 @@ PP="$PP"'|TrackCollectionCnv::initialize'
 # Ignore dumps from CondInputLoader.
 PP="$PP"'|ConditionStore\+/'
 
+# New messages from geometry...
+PP="$PP"'| TrackingGeometrySvc '
+
 
 test=$1
 if [ -z "$testStatus" ]; then

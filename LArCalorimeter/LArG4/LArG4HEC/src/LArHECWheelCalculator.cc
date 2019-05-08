@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHECWheelCalculator.h"
@@ -111,8 +111,8 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
   if (m_DetectorManager) {
     const HECDetectorRegion *hecRegion=m_DetectorManager->getDetectorRegion(zSide<0? 0: 1, sampling, region);
     HECCellConstLink cell=hecRegion->getHECCell(eta, phi);
-    HECHVSubgapConstLink subgap = cell->getSubgap(subgapIndex);
-    hdata[0].energy *= (pow(subgap->voltage()/1800.0,0.6));
+    const HECHVSubgap& subgap = cell->getSubgap(subgapIndex);
+    hdata[0].energy *= (pow(subgap.voltage()/1800.0,0.6));
   }
 
   return true;

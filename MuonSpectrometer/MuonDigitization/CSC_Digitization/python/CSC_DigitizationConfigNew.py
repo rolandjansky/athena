@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
 from CSC_Digitization.CSC_DigitizationConf import (
@@ -18,6 +19,10 @@ def CSC_FirstXing():
 
 def CSC_LastXing():
     return 175
+
+def CSC_ItemList():
+    """Return list of item names needed for CSC output"""
+    return ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO", "CscRawDataContainer#*"]
 
 def CSC_RangeToolCfg(flags, name="CSC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for CSC"""
@@ -57,6 +62,8 @@ def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     tool = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
     return acc
     
 def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**kwargs):
@@ -77,5 +84,7 @@ def CSC_OverlayDigitBuilderCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
     tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", CSC_ItemList()))
     return acc
 

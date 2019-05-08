@@ -99,11 +99,13 @@ def _CaloNoiseCondAlgData(noiseAlgName,noisetype):
                 pass
             pass
         else: #COMP200 case:
-            #The noise for runs before 2012 is a different folder:
+            #The noise for runs before 2012 is in different folders:
             theCaloNoiseAlg.CaloNoiseFolder="/CALO/Ofl/Noise/CellNoise"
-            theCaloNoiseAlg.LArNoiseFolder=""
-            theCaloNoiseAlg.TileNoiseFolder=""
+            theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
+            theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             conddb.addFolder("CALO_OFL","/CALO/Ofl/Noise/CellNoise",className="CondAttrListCollection")
+            conddb.addFolder("LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection")
+            conddb.addFolder("TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection")
             
 
         # for luminosity

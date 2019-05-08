@@ -79,6 +79,11 @@ namespace Trk{
       //! returns the global Position (interface from MeasurementBase)
       virtual const Amg::Vector3D& globalPosition() const override;
 
+      /** Extended method checking the type*/
+       virtual bool type(MeasurementBaseType::Type type) const override {
+         return (type==MeasurementBaseType::PseudoMeasurementOnTrack);
+       }
+
       //! produces logfile output about its content in MsgStream form. 
       virtual MsgStream&    dump( MsgStream& out ) const override;
       //! produces logfile output about its content in stdout form. 

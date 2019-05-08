@@ -56,7 +56,6 @@ class FactoryForStrategyC() :
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
              InDetTrigSiDetElementsRoadMaker_C = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_C')
              InDetTrigSiDetElementsRoadMaker_C.RoadWidth = self.settings[('RoadWidth',instName)]
-             ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
              if DetFlags.haveRIO.SCT_on():
                  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
@@ -79,7 +78,6 @@ class FactoryForStrategyC() :
                                                                   SCT_ClusterContainer = 'SCT_ClusterCache',
                                                                   PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                   SctSummaryTool = InDetTrigSCTConditionsSummaryTool)
-             ToolSvc += TrackFinder_C
              if DetFlags.haveRIO.SCT_on():
                  # Condition algorithm for SiCombinatorialTrackFinder_xk
                  from AthenaCommon.AlgSequence import AthSequencer

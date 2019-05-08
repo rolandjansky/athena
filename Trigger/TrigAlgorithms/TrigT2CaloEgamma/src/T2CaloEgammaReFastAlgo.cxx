@@ -187,3 +187,4 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 
   return StatusCode::SUCCESS;
 }
+

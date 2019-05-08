@@ -132,7 +132,6 @@ private:
     // configurables (svc/tools then options)
     ToolHandle<IExtrapolator>				m_extrapolator;
     mutable ToolHandle<IIntersector>			m_intersector;
-    ToolHandle<IExtrapolator>				m_spectrometerExtrapolator;
     mutable ServiceHandle<ITrackingGeometrySvc> 	m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
     PublicToolHandle<IPropagator>			m_stepPropagator
