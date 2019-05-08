@@ -210,12 +210,26 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
   // at least 1 isolated pixel tracklet OR standard track
   if(m_isolatedTrack){
-    //if(true){
+
     // Find IsolatedTracklet
-    bool passIsolatedTracklet = false;
     const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
     ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles") );
-    
+
+    const xAOD::VertexContainer* vertices(0);
+    ATH_CHECK( evtStore()->retrieve(vertices, "PrimaryVertices") );
+    const xAOD::Vertex* pv = 0;
+    for( auto v: *vertices ){
+      if( v->vertexType() == xAOD::VxType::PriVtx ){
+        pv = v;
+        break;
+      }
+    }
+    if( !pv ){
+      ATH_MSG_WARNING("Cannot find a PV in the event; reject it!");
+      return false;
+    }
+
+    bool passIsolatedTracklet = false;
     for(auto Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
@@ -231,6 +245,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       
       if(passIsolatedTracklet==false)
 	continue;
+
+      if( Tracklet->pt() < 20000.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      } 
       
       if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9){
 	passIsolatedTracklet = false;
@@ -242,7 +261,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	continue;
       }
 
-      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<4){
+      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<3){
 	passIsolatedTracklet = false;
 	continue;
       }
@@ -251,8 +270,16 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	passIsolatedTracklet = false;
 	continue;
       }
+
+      double z0SinTheta = (Tracklet->z0() + Tracklet->vz() - pv->z() ) * TMath::Sin(Tracklet->p4().Theta());
+      if( fabs(z0SinTheta) > 5.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      }
+
       
       if(passIsolatedTracklet)	break;
+
     }// for Tracklet
     
     if(passIsolatedTracklet==false){
