@@ -80,10 +80,6 @@ namespace CP {
       TH2D* m_hquark;
       TH2D* m_hgluon;
 
-      //TH2F* m_hquark_reco;
-      //TH2F* m_hgluon_reco;
-      //TH2D* m_reco;
-
       TH2D* m_topo_hquark;
 
       TH2D* m_exp_hquark_up;
@@ -101,8 +97,6 @@ namespace CP {
       TH2D* m_pdf_hgluon_up;
       TH2D* m_pdf_hgluon_down;
 
-      //TH2D* m_trackeff;
-      //TH2D* m_fake;
       TH2D* m_trackeff_hquark;
       TH2D* m_trackeff_hgluon;
       TH2D* m_fake_hquark;

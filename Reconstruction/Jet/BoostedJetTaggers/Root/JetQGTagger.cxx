@@ -23,9 +23,6 @@ namespace CP {
                   m_appliedSystEnum(QG_NONE),
                   m_hquark(nullptr),
                   m_hgluon(nullptr),
-                  //m_hquark_reco(nullptr),
-                  //m_hgluon_reco(nullptr),
-                  //m_reco(nullptr),
                   m_topo_hquark(nullptr),
                   m_exp_hquark_up(nullptr),
                   m_exp_hquark_down(nullptr),
@@ -264,11 +261,6 @@ namespace CP {
     delete m_trackeff_hgluon;
     delete m_fake_hquark;
     delete m_fake_hgluon;
-
-    //if(m_hquark) delete m_hquark;
-    //if(m_hgluon) delete m_hgluon;
-    //delete m_hquark_reco;
-    //delete m_hgluon_reco;
 
     return StatusCode::SUCCESS;
   }
