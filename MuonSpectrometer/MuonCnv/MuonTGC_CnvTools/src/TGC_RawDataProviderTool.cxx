@@ -36,6 +36,7 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
+  declareProperty("TgcContainerCacheKey", m_rdoContainerCacheKey, "Optional external cache for the TGC container");
 }
 
 //================ Destructor =================================================
@@ -163,6 +164,9 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
   }
 
   ATH_CHECK(m_rdoContainerKey.initialize());
+
+  // Initialise the container cache if available
+  ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
   
   //try to configure the cabling service
   sc = getCabling();
@@ -202,29 +206,42 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     // on the user experience
   }
 
-  SG::WriteHandle<TgcRdoContainer> handle(m_rdoContainerKey); 
-  if (handle.isPresent()) {
+  SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey); 
+  if (rdoContainerHandle.isPresent()) {
     return StatusCode::SUCCESS;
   }
-  auto tgc = std::make_unique<TgcRdoContainer>(m_maxhashtoUse);
+
+  // Split the methods to have one where we use the cache and one where we just setup the container
+  const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalCacheRDO){
+    ATH_CHECK( rdoContainerHandle.record( std::make_unique<TgcRdoContainer> (m_maxhashtoUse) ) );
+    ATH_MSG_DEBUG( "Created TGC container" );
+  }
+  else{
+    SG::UpdateHandle<TgcRdo_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainerHandle.record (std::make_unique<TgcRdoContainer>( update.ptr() )));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+
+  TgcRdoContainer* tgc = rdoContainerHandle.ptr();
  
   static int DecodeErrCount = 0;
 
-  ROBFragmentList::const_iterator itFrag   = vecRobs.begin();
-  ROBFragmentList::const_iterator itFrag_e = vecRobs.end();
-  for(; itFrag!=itFrag_e; itFrag++) {
-    if(m_decoder->fillCollection(**itFrag, *tgc).isFailure()) {
+  // Update to range based loop
+  for(const ROBFragment* fragment : vecRobs){
+    if(m_decoder->fillCollection(*fragment, *tgc).isFailure()) {
       if(DecodeErrCount < 100) {
-	ATH_MSG_INFO( "Problem with TGC ByteStream Decoding!" );
-	DecodeErrCount++;
-      } else if(100 == DecodeErrCount) {
-	ATH_MSG_INFO( "Too many Problems with TGC Decoding messages. Turning message off." );
-	DecodeErrCount++;
+        ATH_MSG_INFO( "Problem with TGC ByteStream Decoding!" );
+        DecodeErrCount++;
+      } 
+      else if(100 == DecodeErrCount) {
+        ATH_MSG_INFO( "Too many Problems with TGC Decoding messages. Turning message off." );
+        DecodeErrCount++;
       }
     }
   }
-
-  ATH_CHECK(handle.record(std::move(tgc)));
+  ATH_MSG_DEBUG("Size of TgcRdoContainer is " << rdoContainerHandle.ptr()->size());
   return StatusCode::SUCCESS;
 }
 

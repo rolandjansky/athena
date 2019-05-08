@@ -80,8 +80,128 @@ Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/By
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
 Py:ComponentAccumulator   DEBUG Adding algorithm MuonCacheCreator to a sequence AthAlgSeq
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/2a537dae079] -- built on [2019-05-02T1642]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-slc6-gcc8-opt] [iac_master_tgcrdo/6106f0150c] -- built on [2019-05-06T1007]
 Py:AthConfigFlags   DEBUG dynamically loading the flag Detector
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Calo.Cell.doLArHVCorr                    : False
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTopoClusterLocalCalib : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : False
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : False
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : [function]
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : [function]
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : [function]
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : [function]
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : [function]
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.IBLLayout                       : 'UNDEFINED'
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : 'RUN2'
+GeoModel.StripGeoType                    : 'GMX'
+GeoModel.Type                            : 'UNDEFINED'
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
+Output.doESD                             : False
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+LAr             :                          __lar : AthenaConfiguration/AllConfigFlags.py
+Muon            :                         __muon : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
@@ -360,6 +480,181 @@ Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvS
 Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
 Py:ComponentAccumulator   DEBUG Adding component MagField::AtlasFieldSvc/AtlasFieldSvc to the job
 Py:AthConfigFlags   DEBUG dynamically loading the flag Muon
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Calo.Cell.doLArHVCorr                    : False
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTopoClusterLocalCalib : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.isOnline                          : False
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : False
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : False
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : False
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : False
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : False
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : False
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : False
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.IBLLayout                       : 'UNDEFINED'
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : 'RUN2'
+GeoModel.StripGeoType                    : 'GMX'
+GeoModel.Type                            : 'UNDEFINED'
+IOVDb.DatabaseInstance                   : 'CONDBR2'
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : u'data17_13TeV'
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : False
+Muon.Align.UseALines                     : False
+Muon.Align.UseAsBuilt                    : False
+Muon.Align.UseBLines                     : 'none'
+Muon.Align.UseILines                     : False
+Muon.Calib.CscF001FromLocalFile          : False
+Muon.Calib.CscNoiseFromLocalFile         : False
+Muon.Calib.CscPSlopeFromLocalFile        : False
+Muon.Calib.CscPedFromLocalFile           : False
+Muon.Calib.CscRmsFromLocalFile           : False
+Muon.Calib.CscStatusFromLocalFile        : False
+Muon.Calib.CscT0BaseFromLocalFile        : False
+Muon.Calib.CscT0PhaseFromLocalFile       : False
+Muon.Calib.EventTag                      : 'MoMu'
+Muon.Calib.applyRtScaling                : True
+Muon.Calib.correctMdtRtForBField         : False
+Muon.Calib.correctMdtRtForTimeSlewing    : False
+Muon.Calib.correctMdtRtWireSag           : False
+Muon.Calib.mdtCalibrationSource          : 'MDT'
+Muon.Calib.mdtMode                       : 'ntuple'
+Muon.Calib.mdtPropagationSpeedBeta       : 0.85
+Muon.Calib.readMDTCalibFromBlob          : True
+Muon.Calib.useMLRt                       : True
+Muon.Chi2NDofCut                         : 20.0
+Muon.createTrackParticles                : True
+Muon.doCSCs                              : True
+Muon.doDigitization                      : True
+Muon.doFastDigitization                  : False
+Muon.doMDTs                              : True
+Muon.doMSVertex                          : False
+Muon.doMicromegas                        : False
+Muon.doPseudoTracking                    : False
+Muon.doRPCClusterSegmentFinding          : False
+Muon.doRPCs                              : True
+Muon.doSegmentT0Fit                      : False
+Muon.doTGCClusterSegmentFinding          : False
+Muon.doTGCs                              : True
+Muon.dosTGCs                             : False
+Muon.enableCurvedSegmentFinding          : False
+Muon.enableErrorTuning                   : False
+Muon.optimiseMomentumResolutionUsingChi2 : False
+Muon.patternsOnly                        : False
+Muon.prdToxAOD                           : False
+Muon.printSummary                        : False
+Muon.refinementTool                      : 'Moore'
+Muon.rpcRawToxAOD                        : False
+Muon.segmentOrigin                       : 'Muon'
+Muon.straightLineFitMomentum             : 2000.0
+Muon.strategy                            : []
+Muon.trackBuilder                        : 'Moore'
+Muon.updateSegmentSecondCoordinate       : [function]
+Muon.useAlignmentCorrections             : False
+Muon.useLooseErrorTuning                 : False
+Muon.useSegmentMatching                  : [function]
+Muon.useTGCPriorNextBC                   : False
+Muon.useTrackSegmentMatching             : True
+Muon.useWireSagCorrections               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
+Output.doESD                             : False
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+LAr             :                          __lar : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
 Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
@@ -380,59 +675,14 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
 Py:IOVDbSvc.CondDB   DEBUG Loading basic services for CondDBSetup...
 Py:ConfigurableDb   DEBUG loading confDb files...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libprofhelp.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthenaPoolTest.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIOVDbTestAlg.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthenaAuditors.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthExHive.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCLIDComps.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libGaudiHive.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libSCT_RawDataByteStreamCnv.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libInDetTrackHoleSearch.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTRT_TrackHoleSearch.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArMonTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArRawUtils.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAnalysisTest.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libRecBackgroundAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIsolationAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libegammaCaloTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libFastCaloSim.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libISF_Geant4Tools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkJiveXML.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigUpgradeTest.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthViewsDFlow.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthViewsAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArRecUtils.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libDerivationFrameworkExamples.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libDerivationFrameworkInDet.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libElectronPhotonTagTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrackToCalo.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libegammaPerformance.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkDeterministicAnnealingFilter.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkGaussianSumFilter.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkKalmanFitter.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigInterfaces.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloRec.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIOVDbSvc.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libPixelConditionsServices.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArCellRec.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIsolationTool.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libtauRecTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT2CaloCommon.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigConfigSvc.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigHLTJetHypo.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloClusterCorrection.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigCaloRec.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT2CaloEgamma.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libFTK_RecTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigInDetAnalysisExample.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/WorkDir.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/GAUDI/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Gaudi.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Athena.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/ppe/i/iconnell/projects/MuonTriggerAthenaMT/build_TGC/x86_64-slc6-gcc8-opt/lib/WorkDir.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/ppe/i/iconnell/projects/MuonTriggerAthenaMT/build_TGC/x86_64-slc6-gcc8-opt/lib/libMuonByteStream.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/home/ppe/i/iconnell/projects/MuonTriggerAthenaMT/build_TGC/x86_64-slc6-gcc8-opt/lib/libMuonTGC_CnvTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-05T2142/GAUDI/22.0.2/InstallArea/x86_64-slc6-gcc8-opt/lib/Gaudi.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-05T2142/Athena/22.0.2/InstallArea/x86_64-slc6-gcc8-opt/lib/Athena.confdb]...
 Py:ConfigurableDb   DEBUG loading confDb files... [DONE]
-Py:ConfigurableDb   DEBUG loaded 1101 confDb packages
-Py:ConfigurableDb    INFO Read module info for 5471 configurables from 50 genConfDb files
+Py:ConfigurableDb   DEBUG loaded 1100 confDb packages
+Py:ConfigurableDb    INFO Read module info for 5471 configurables from 5 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:ConfigurableDb   DEBUG : Found configurable <class 'GaudiCoreSvc.GaudiCoreSvcConf.MessageSvc'> in module GaudiCoreSvc.GaudiCoreSvcConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool...
@@ -501,7 +751,6 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Adding algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding algorithm MdtRawDataProvider to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
@@ -578,7 +827,6 @@ Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
 Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
-Py:ComponentAccumulator   DEBUG Adding algorithm MuonCacheCreator to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Adding component Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool to the job
 Py:ComponentAccumulator   DEBUG Adding algorithm CscRawDataProvider to a sequence AthAlgSeq
 Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
@@ -1192,24 +1440,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 |-AuditStop                               = False
 |-Cardinality                             = 0
 |-ContinueEventloopOnFPE                  = False
-|-DetStore                   @0x7fcae62c2950 = ServiceHandle('StoreGateSvc/DetectorStore')
+|-DetStore                   @0x7ffb74cbe810 = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                                  = True
 |-ErrorCounter                            = 0
 |-ErrorMax                                = 1
-|-EvtStore                   @0x7fcae62c28d0 = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                @0x7fcae47f5710 = []  (default: [])
-|-ExtraOutputs               @0x7fcae47f57a0 = []  (default: [])
+|-EvtStore                   @0x7ffb74cbe790 = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                @0x7ffb7326a6c8 = []  (default: [])
+|-ExtraOutputs               @0x7ffb7326a758 = []  (default: [])
 |-FilterCircularDependencies              = True
 |-IgnoreFilterPassed                      = False
 |-IsIOBound                               = False
-|-Members                    @0x7fcae47f5518 = ['MuonCacheCreator/MuonCacheCreator', 'Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
+|-Members                    @0x7ffb7326a4d0 = ['MuonCacheCreator/MuonCacheCreator', 'Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
 |                                            (default: [])
 |-ModeOR                                  = False
 |-MonitorService                          = 'MonitorSvc'
-|-NeededResources            @0x7fcae47f55f0 = []  (default: [])
+|-NeededResources            @0x7ffb7326a5a8 = []  (default: [])
 |-OutputLevel                             = 0
 |-RegisterForContextService               = False
-|-Sequential                 @0x7fcae86d1b00 = True  (default: False)
+|-Sequential                 @0x7ffb765b8b00 = True  (default: False)
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
 |-Timeline                                = True
@@ -1225,24 +1473,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 0
-| |-CscCacheKey                @0x7fcae5415d50 = 'CscCache'  (default: 'StoreGateSvc+')
-| |-DetStore                   @0x7fcae529e1d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-CscCacheKey                @0x7ffb73dc8d50 = 'CscCache'  (default: 'StoreGateSvc+')
+| |-DetStore                   @0x7ffb73c550d0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DisableViewWarning                      = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae529e150 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae49904d0 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae4990368 = []  (default: [])
+| |-EvtStore                   @0x7ffb73c55050 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326a488 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326a8c0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
-| |-MdtCsmCacheKey             @0x7fcae54154b0 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| |-MdtCsmCacheKey             @0x7ffb73dc8450 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae49900e0 = []  (default: [])
+| |-NeededResources            @0x7ffb7326a5f0 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
-| |-RpcCacheKey                @0x7fcae5415d80 = 'RpcCache'  (default: 'StoreGateSvc+')
-| |-TgcCacheKey                @0x7fcae5415db0 = 'TgcCache'  (default: 'StoreGateSvc+')
+| |-RpcCacheKey                @0x7ffb73dc8d80 = 'RpcCache'  (default: 'StoreGateSvc+')
+| |-TgcCacheKey                @0x7ffb73dc8db0 = 'TgcCache'  (default: 'StoreGateSvc+')
 | |-Timeline                                = True
 | \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
@@ -1257,24 +1505,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7fcae5281250 = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-DoSeededDecoding                        = False
+| |-DetStore                   @0x7ffb73c3a150 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           @0x7ffb765b8b00 = True  (default: False)
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae52811d0 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f5950 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f59e0 = []  (default: [])
+| |-EvtStore                   @0x7ffb73c3a0d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326aab8 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326aa70 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f57e8 = []  (default: [])
+| |-NeededResources            @0x7ffb7326aa28 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7fcae51accb0 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
+| |-ProviderTool               @0x7ffb73d6dcb0 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
 | |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
-| |-RegionSelectionSvc         @0x7fcae52812d0 = ServiceHandle('RegSelSvc')
+| |-RegionSelectionSvc         @0x7ffb73c3a1d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
-| |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |-RoIs                       @0x7ffb75e23030 = 'MURoIs'  (default: 'StoreGateSvc+OutputRoIs')
 | |-Timeline                                = True
 | |=/***** Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool *****
 | | |-AuditFinalize                       = False
@@ -1284,17 +1532,17 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                          = False
 | | |-AuditStop                           = False
 | | |-AuditTools                          = False
-| | |-Decoder                @0x7fcae5431af8 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
-| | |-DetStore               @0x7fcae4e23950 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore               @0x7fcae4e23910 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs            @0x7fcae4e20f38 = []  (default: [])
-| | |-ExtraOutputs           @0x7fcae4e20c68 = []  (default: [])
+| | |-Decoder                @0x7ffb73de9af8 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore               @0x7ffb737db850 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore               @0x7ffb737db890 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs            @0x7ffb738f8e18 = []  (default: [])
+| | |-ExtraOutputs           @0x7ffb738f8e60 = []  (default: [])
 | | |-MonitorService                      = 'MonitorSvc'
-| | |-OutputLevel            @   0xb341c0 = 2  (default: 0)
+| | |-OutputLevel            @   0x7321c0 = 2  (default: 0)
 | | |-RPCSec                              = 'StoreGateSvc+RPC_SECTORLOGIC'
 | | |-RdoLocation                         = 'StoreGateSvc+RPCPAD'
-| | |-RpcContainerCacheKey                = 'StoreGateSvc+'
-| | |-WriteOutRpcSectorLogic              = True
+| | |-RpcContainerCacheKey   @0x7ffb73dc8d80 = 'RpcCache'  (default: 'StoreGateSvc+')
+| | |-WriteOutRpcSectorLogic @0x7ffb765b8b20 = False  (default: True)
 | | |=/***** Private AlgTool Muon::RpcROD_Decoder/RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder *****
 | | | |-AuditFinalize                    = False
 | | | |-AuditInitialize                  = False
@@ -1304,10 +1552,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStop                        = False
 | | | |-AuditTools                       = False
 | | | |-DataErrorPrintLimit              = 1000
-| | | |-DetStore            @0x7fcae4e239d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore            @0x7fcae4e23a10 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs         @0x7fcae4e20d88 = []  (default: [])
-| | | |-ExtraOutputs        @0x7fcae4e20d40 = []  (default: [])
+| | | |-DetStore            @0x7ffb737db950 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            @0x7ffb737db990 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         @0x7ffb738f8bd8 = []  (default: [])
+| | | |-ExtraOutputs        @0x7ffb738f8b90 = []  (default: [])
 | | | |-MonitorService                   = 'MonitorSvc'
 | | | |-OutputLevel                      = 0
 | | | |-Sector13Data                     = False
@@ -1327,42 +1575,43 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7fcae5292210 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73c48110 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae5292190 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f5bd8 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f5d88 = []  (default: [])
+| |-EvtStore                   @0x7ffb73c48090 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326acb0 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326ae18 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f5cf8 = []  (default: [])
+| |-NeededResources            @0x7ffb7326ad88 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7fcae6315d70 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
+| |-ProviderTool               @0x7ffb73de9ce8 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
 | |                                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
-| |-RegionSelectionSvc         @0x7fcae5292290 = ServiceHandle('RegSelSvc')
+| |-RegionSelectionSvc         @0x7ffb73c48190 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool *****
-| | |-AuditFinalize                  = False
-| | |-AuditInitialize                = False
-| | |-AuditReinitialize              = False
-| | |-AuditRestart                   = False
-| | |-AuditStart                     = False
-| | |-AuditStop                      = False
-| | |-AuditTools                     = False
-| | |-Decoder           @0x7fcae6315e60 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
-| | |                                   (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
-| | |-DetStore          @0x7fcae4e400d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore          @0x7fcae4e40110 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs       @0x7fcae4d5c098 = []  (default: [])
-| | |-ExtraOutputs      @0x7fcae4d5c050 = []  (default: [])
-| | |-MonitorService                 = 'MonitorSvc'
-| | |-OutputLevel                    = 0
-| | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
+| | |-AuditFinalize                     = False
+| | |-AuditInitialize                   = False
+| | |-AuditReinitialize                 = False
+| | |-AuditRestart                      = False
+| | |-AuditStart                        = False
+| | |-AuditStop                         = False
+| | |-AuditTools                        = False
+| | |-Decoder              @0x7ffb74d158c0 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
+| | |                                      (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
+| | |-DetStore             @0x7ffb737cb0d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7ffb737cb110 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7ffb737ca560 = []  (default: [])
+| | |-ExtraOutputs         @0x7ffb737ca758 = []  (default: [])
+| | |-MonitorService                    = 'MonitorSvc'
+| | |-OutputLevel          @   0x7321c0 = 2  (default: 0)
+| | |-RdoLocation                       = 'StoreGateSvc+TGCRDO'
+| | |-TgcContainerCacheKey @0x7ffb73dc8db0 = 'TgcCache'  (default: 'StoreGateSvc+')
 | | |=/***** Private AlgTool Muon::TGC_RodDecoderReadout/TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder *****
 | | | |-AuditFinalize                  = False
 | | | |-AuditInitialize                = False
@@ -1371,10 +1620,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7fcae4e401d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7fcae4e40210 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7fcae4dcbcf8 = []  (default: [])
-| | | |-ExtraOutputs      @0x7fcae4dcbe60 = []  (default: [])
+| | | |-DetStore          @0x7ffb737cb1d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7ffb737cb210 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7ffb737ca368 = []  (default: [])
+| | | |-ExtraOutputs      @0x7ffb737ca4d0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ShowStatusWords                = False
@@ -1394,22 +1643,22 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7fcae5331290 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73d2b190 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae5331210 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f5cb0 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f5e60 = []  (default: [])
+| |-EvtStore                   @0x7ffb73d2b110 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326ac68 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326aef0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f5dd0 = []  (default: [])
+| |-NeededResources            @0x7ffb7326ae60 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7fcae51f7b50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
+| |-ProviderTool               @0x7ffb73cafc50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
 | |                                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
-| |-RegionSelectionSvc         @0x7fcae5331310 = ServiceHandle('RegSelSvc')
+| |-RegionSelectionSvc         @0x7ffb73d2b210 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1421,14 +1670,14 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CsmContainerCacheKey @0x7fcae54154b0 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
-| | |-Decoder              @0x7fcae4ca2230 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
-| | |-DetStore             @0x7fcae49631d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore             @0x7fcae4963210 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs          @0x7fcae498ae18 = []  (default: [])
-| | |-ExtraOutputs         @0x7fcae498ae60 = []  (default: [])
+| | |-CsmContainerCacheKey @0x7ffb73dc8450 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7ffb74d15d70 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             @0x7ffb73342150 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7ffb73342190 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7ffb7333acf8 = []  (default: [])
+| | |-ExtraOutputs         @0x7ffb7333add0 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
-| | |-OutputLevel          @   0xb341d8 = 1  (default: 0)
+| | |-OutputLevel          @   0x7321d8 = 1  (default: 0)
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
 | | |-ReadKey                           = 'ConditionStore+MuonMDT_CablingMap'
 | | |=/***** Private AlgTool MdtROD_Decoder/MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder *****
@@ -1439,10 +1688,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7fcae49632d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7fcae4963310 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7fcae498a998 = []  (default: [])
-| | | |-ExtraOutputs      @0x7fcae498a950 = []  (default: [])
+| | | |-DetStore          @0x7ffb73342250 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7ffb73342290 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7ffb7333abd8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7ffb7333ab90 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ReadKey                        = 'ConditionStore+MuonMDT_CablingMap'
@@ -1462,19 +1711,19 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7fcae52c9750 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73d1f390 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae52c9690 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f5ef0 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f5ea8 = []  (default: [])
+| |-EvtStore                   @0x7ffb73d1f310 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b050 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326af38 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f5d40 = []  (default: [])
+| |-NeededResources            @0x7ffb7326ad40 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7fcae51f7d50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
+| |-ProviderTool               @0x7ffb73cafe50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
 | |                                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
 | |-RegisterForContextService               = False
 | |-Timeline                                = True
@@ -1486,15 +1735,15 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CscContainerCacheKey @0x7fcae5415d50 = 'CscCache'  (default: 'StoreGateSvc+')
-| | |-Decoder              @0x7fcae4ca2410 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
-| | |-DetStore             @0x7fcae4864150 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-CscContainerCacheKey @0x7ffb73dc8d50 = 'CscCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7ffb7365a050 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             @0x7ffb733020d0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
-| | |-EvtStore             @0x7fcae4864190 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs          @0x7fcae485c488 = []  (default: [])
-| | |-ExtraOutputs         @0x7fcae485c5f0 = []  (default: [])
+| | |-EvtStore             @0x7ffb73302110 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7ffb733030e0 = []  (default: [])
+| | |-ExtraOutputs         @0x7ffb73303200 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
-| | |-OutputLevel          @   0xb341d8 = 1  (default: 0)
+| | |-OutputLevel          @   0x7321d8 = 1  (default: 0)
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
 | | |=/***** Private AlgTool Muon::CscROD_Decoder/CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder *****
 | | | |-AuditFinalize                  = False
@@ -1504,10 +1753,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7fcae4864250 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7fcae4864290 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7fcae485c128 = []  (default: [])
-| | | |-ExtraOutputs      @0x7fcae485c0e0 = []  (default: [])
+| | | |-DetStore          @0x7ffb733021d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7ffb73302210 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7ffb73303050 = []  (default: [])
+| | | |-ExtraOutputs      @0x7ffb732fbf80 = []  (default: [])
 | | | |-IsCosmics                      = False
 | | | |-IsOldCosmics                   = False
 | | | |-MonitorService                 = 'MonitorSvc'
@@ -1527,25 +1776,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7fcae495f198 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+| |-DecodingTool               @0x7ffb73313198 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
 | |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
-| |-DetStore                   @0x7fcae483bcd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73231b50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae483bc50 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f70e0 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f5c68 = []  (default: [])
+| |-EvtStore                   @0x7ffb73231ad0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b170 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326add0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f5f38 = []  (default: [])
+| |-NeededResources            @0x7ffb7326af80 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7fcae86d1b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7fcae483bd50 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7ffb765b8b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7ffb73231bd0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1558,16 +1807,16 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                                       = False
 | | |-AuditTools                                      = False
 | | |-DecodeData                                      = True
-| | |-DetStore                           @0x7fcae47a0e90 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore                           @0x7fcae47a0f10 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs                        @0x7fcae481e5f0 = []  (default: [])
-| | |-ExtraOutputs                       @0x7fcae481e6c8 = []  (default: [])
+| | |-DetStore                           @0x7ffb73299d10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           @0x7ffb73299d90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        @0x7ffb73308b90 = []  (default: [])
+| | |-ExtraOutputs                       @0x7ffb73308c68 = []  (default: [])
 | | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
 | | |-MonitorService                                  = 'MonitorSvc'
 | | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
 | | |-OutputLevel                                     = 0
 | | |-RPCInfoFromDb                                   = False
-| | |-RdoDecoderTool                     @0x7fcae525bd70 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
+| | |-RdoDecoderTool                     @0x7ffb73b99c90 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
 | | |                                                    (default: 'Muon::RpcRDO_Decoder')
 | | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
 | | |-etaphi_coincidenceTime                          = 20.0
@@ -1585,10 +1834,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7fcae47a0f90 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7fcae47a0fd0 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7fcae481e7e8 = []  (default: [])
-| | | |-ExtraOutputs      @0x7fcae481e7a0 = []  (default: [])
+| | | |-DetStore          @0x7ffb73299e10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7ffb73299e50 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7ffb73308d88 = []  (default: [])
+| | | |-ExtraOutputs      @0x7ffb73308d40 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool.Muon::RpcRDO_Decoder) -----
@@ -1606,25 +1855,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7fcae47c3180 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+| |-DecodingTool               @0x7ffb732b5050 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 | |                                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
-| |-DetStore                   @0x7fcae4793bd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb7324ba50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae4793b50 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f7098 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f5e18 = []  (default: [])
+| |-EvtStore                   @0x7ffb7324b9d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b098 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326b1b8 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f7128 = []  (default: [])
+| |-NeededResources            @0x7ffb7326b0e0 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+TGC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7fcae86d1b20 = False  (default: False)
-| |-RegionSelectorSvc          @0x7fcae4793c50 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7ffb765b8b20 = False  (default: False)
+| |-RegionSelectorSvc          @0x7ffb7324bad0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Setting                                 = 0
@@ -1638,10 +1887,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                                            = False
 | | |-AuditTools                                           = False
 | | |-DecodeData                                           = True
-| | |-DetStore                                @0x7fcae47ba3d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore                                @0x7fcae47ba490 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs                             @0x7fcae47c20e0 = []  (default: [])
-| | |-ExtraOutputs                            @0x7fcae47c2290 = []  (default: [])
+| | |-DetStore                                @0x7ffb732ab250 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                @0x7ffb732ab310 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             @0x7ffb732b4908 = []  (default: [])
+| | |-ExtraOutputs                            @0x7ffb732b4b00 = []  (default: [])
 | | |-FillCoinData                                         = True
 | | |-MonitorService                                       = 'MonitorSvc'
 | | |-OutputCoinCollection                                 = 'TrigT1CoinDataCollection'
@@ -1650,9 +1899,9 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-RDOContainer                                         = 'StoreGateSvc+TGCRDO'
 | | |-TGCHashIdOffset                                      = 26000
 | | |-dropPrdsWithZeroWidth                                = True
-| | |-outputCoinKey                           @0x7fcae47c2200 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |-outputCoinKey                           @0x7ffb732b4a70 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
-| | |-prepDataKeys                            @0x7fcae47c22d8 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |-prepDataKeys                            @0x7ffb732b4b48 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
@@ -1669,25 +1918,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7fcae87bde10 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+| |-DecodingTool               @0x7ffb75e7ee10 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 | |                                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
-| |-DetStore                   @0x7fcae482bb90 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73225a10 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae482bb10 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f7290 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f7050 = []  (default: [])
+| |-EvtStore                   @0x7ffb73225990 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b320 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326b128 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f7200 = []  (default: [])
+| |-NeededResources            @0x7ffb7326b290 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+MDT_DriftCircles'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7fcae86d1b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7fcae482bc10 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7ffb765b8b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7ffb73225a90 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1701,13 +1950,13 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditTools                           = False
 | | |-CalibratePrepData                    = True
 | | |-DecodeData                           = True
-| | |-DetStore                @0x7fcae47ba610 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-DetStore                @0x7ffb732ab210 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-DiscardSecondaryHitTwin              = False
 | | |-DoPropagationCorrection              = False
 | | |-DoTofCorrection                      = True
-| | |-EvtStore                @0x7fcae47ba650 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs             @0x7fcae47cd830 = []  (default: [])
-| | |-ExtraOutputs            @0x7fcae47cd7a0 = []  (default: [])
+| | |-EvtStore                @0x7ffb732ab290 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             @0x7ffb732bc680 = []  (default: [])
+| | |-ExtraOutputs            @0x7ffb732bc5f0 = []  (default: [])
 | | |-MonitorService                       = 'MonitorSvc'
 | | |-OutputCollection                     = 'StoreGateSvc+MDT_DriftCircles'
 | | |-OutputLevel                          = 0
@@ -1735,25 +1984,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-CscRdoToCscPrepDataTool    @0x7fcae5269c00 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+| |-CscRdoToCscPrepDataTool    @0x7ffb73b9f7c0 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 | |                                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
-| |-DetStore                   @0x7fcae4864b50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb73302990 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae4864ad0 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f7368 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f71b8 = []  (default: [])
+| |-EvtStore                   @0x7ffb73302910 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b3f8 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326b248 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f72d8 = []  (default: [])
+| |-NeededResources            @0x7ffb7326b368 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+CSC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7fcae86d1b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7fcae4864bd0 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7ffb765b8b20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7ffb73302a10 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1766,13 +2015,13 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
 | | |-CSCHashIdOffset                = 22000
-| | |-CscCalibTool      @0x7fcae47d4050 = PrivateToolHandle('CscCalibTool/CscCalibTool')
-| | |-CscRdoDecoderTool @0x7fcae47c1ed0 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
+| | |-CscCalibTool      @0x7ffb74131300 = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool @0x7ffb732a4b30 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
 | | |-DecodeData                     = True
-| | |-DetStore          @0x7fcae47ba350 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore          @0x7fcae47ba250 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs       @0x7fcae4e34878 = []  (default: [])
-| | |-ExtraOutputs      @0x7fcae4960d40 = []  (default: [])
+| | |-DetStore          @0x7ffb732ab610 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7ffb732ab190 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7ffb732bc368 = []  (default: [])
+| | |-ExtraOutputs      @0x7ffb733113b0 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputCollection               = 'StoreGateSvc+CSC_Measurements'
 | | |-OutputLevel                    = 0
@@ -1785,10 +2034,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                      = False
 | | | |-AuditStop                       = False
 | | | |-AuditTools                      = False
-| | | |-DetStore           @0x7fcae47ba310 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore           @0x7fcae47ba150 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs        @0x7fcae4e349e0 = []  (default: [])
-| | | |-ExtraOutputs       @0x7fcae4892fc8 = []  (default: [])
+| | | |-DetStore           @0x7ffb732ab090 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           @0x7ffb732ab150 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        @0x7ffb732bcf38 = []  (default: [])
+| | | |-ExtraOutputs       @0x7ffb733457a0 = []  (default: [])
 | | | |-IsOnline                        = True
 | | | |-Latency                         = 100.0
 | | | |-MonitorService                  = 'MonitorSvc'
@@ -1815,11 +2064,11 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-CscCalibTool      @0x7fcae47ba5d0 = PublicToolHandle('CscCalibTool')
-| | | |-DetStore          @0x7fcae47ba510 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7fcae47ba110 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7fcae4e347e8 = []  (default: [])
-| | | |-ExtraOutputs      @0x7fcae4e34b00 = []  (default: [])
+| | | |-CscCalibTool      @0x7ffb732ab510 = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          @0x7ffb732ab550 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7ffb732ab590 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7ffb73345050 = []  (default: [])
+| | | |-ExtraOutputs      @0x7ffb732bc248 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscRDO_Decoder) -----
@@ -1837,21 +2086,21 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7fcae472d710 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7ffb731a4710 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7fcae472d690 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7fcae47f7320 = []  (default: [])
-| |-ExtraOutputs               @0x7fcae47f7170 = []  (default: [])
+| |-EvtStore                   @0x7ffb731a4690 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7ffb7326b3b0 = []  (default: [])
+| |-ExtraOutputs               @0x7ffb7326b200 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7fcae47f73b0 = []  (default: [])
+| |-NeededResources            @0x7ffb7326b440 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
 | |-Timeline                                = True
-| |-cluster_builder            @0x7fcae4714090 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
+| |-cluster_builder            @0x7ffb732c9050 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
 | |                                            (default: 'CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
 | \----- (End of Algorithm CscThresholdClusterBuilder/CscThesholdClusterBuilder) ---------------------
 \----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
@@ -1883,9 +2132,9 @@ Py:Athena            INFO Save Config
 
 JOs reading stage finished, launching Athena from pickle file
 
-Thu May  2 21:17:57 CEST 2019
+Mon May  6 11:06:16 BST 2019
 Preloading tcmalloc_minimal.so
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/2a537dae079] -- built on [2019-05-02T1642]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-slc6-gcc8-opt] [iac_master_tgcrdo/6106f0150c] -- built on [2019-05-06T1007]
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -1893,13 +2142,13 @@ Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO now loading MuonRdoDecode_Cache.pkl  ... 
-Py:ConfigurableDb    INFO Read module info for 5471 configurables from 50 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5471 configurables from 5 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on lxplus705.cern.ch on Thu May  2 21:18:15 2019
+                                          running on ppevm02.ppe.gla.ac.uk on Mon May  6 11:06:38 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -1928,9 +2177,9 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus705.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-05T2142/Athena/22.0.2/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host ppevm02.ppe.gla.ac.uk [ATLF ]
 DBReplicaSvc         INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -2209,7 +2458,7 @@ MuGM:MuonFactory     INFO  *****************************************************
 
 MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1758/0
 MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
-GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 42844Kb 	 Time = 0.7S
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 41820Kb 	 Time = 0.98S
 GeoModelSvc.Muo...   INFO CondAttrListCollection not found in the DetectorStore
 GeoModelSvc.Muo...   INFO Unable to register callback on CondAttrListCollection for any folder in the list 
 GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and deformations from COOL 
@@ -2228,7 +2477,7 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
 ClassIDSvc           INFO  getRegistryEntries: read 1376 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 743 CLIDRegistry entries for module ALL
 RpcRawDataProvider   INFO RpcRawDataProvider::initialize
-RpcRawDataProvider   INFO  'DoSeededDecoding':False
+RpcRawDataProvider   INFO  'DoSeededDecoding':True
 ClassIDSvc           INFO  getRegistryEntries: read 1699 CLIDRegistry entries for module ALL
 RpcRawDataProvi...  DEBUG Property update for OutputLevel : new value = 2
 RpcRawDataProvi...  DEBUG Property update for OutputLevel : new value = 2
@@ -2253,18 +2502,27 @@ RpcRawDataProvi...   INFO  Tool = RpcRawDataProvider.RPC_RawDataProviderTool is 
 RpcRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
 RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderTool
 RpcRawDataProvi...  DEBUG Adding private ToolHandle tool RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder (Muon::RpcROD_Decoder)
+RegSelSvc            INFO Initializing RegSelSvc - package version RegionSelector-00-00-00
+RegSelSvc            INFO DetectorDescription version ATLAS-R2-2016-01-00-01 (obtained from GeoModelSvc)
+RegSelSvc            INFO DeltaZ = 168
+RegSelSvc            INFO detector switches: indet=disabled calo=disabled muon=disabled
+RegSelSvc            INFO  registered Listener with IncidentSvc
 TgcRawDataProvider   INFO TgcRawDataProvider::initialize
 TgcRawDataProvider   INFO  'DoSeededDecoding':False
-ClassIDSvc           INFO  getRegistryEntries: read 878 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 987 CLIDRegistry entries for module ALL
+TgcRawDataProvi...  DEBUG Property update for OutputLevel : new value = 2
+TgcRawDataProvi...  DEBUG Property update for OutputLevel : new value = 2
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder
 TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 TgcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 TgcRawDataProvi...   INFO  Tool = TgcRawDataProvider.TGC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
+TgcRawDataProvi...  DEBUG Could not find TrigConf::HLTJobOptionsSvc
 MuonTGC_CablingSvc   INFO for 1/12 sector initialize
 ToolSvc.TGCCabl...   INFO initialize
 ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0x20c5cc00]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0x32ecf600]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool
+TgcRawDataProvi...  DEBUG Adding private ToolHandle tool TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder (Muon::TGC_RodDecoderReadout)
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
 MdtRawDataProvider   INFO  'DoSeededDecoding':False
 ClassIDSvc           INFO  getRegistryEntries: read 922 CLIDRegistry entries for module ALL
@@ -2328,14 +2586,14 @@ ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for 
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
 ClassIDSvc           INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_PED]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_NOISE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_PSLOPE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_STAT]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_RMS]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_FTHOLD]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_T0BASE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3921ba00]+259 bound to CondAttrListCollection[CSC_T0PHASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_PSLOPE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x3683ba00]+259 bound to CondAttrListCollection[CSC_T0PHASE]
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
@@ -2482,6 +2740,8 @@ AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7729.99 to
 AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
 AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
 ClassIDSvc           INFO  getRegistryEntries: read 672 CLIDRegistry entries for module ALL
+RegSelSvc            INFO  handle incident type BeginRun
+RegSelSvc            INFO  >>>>>  detectors have been initialized
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLONL_MDT/CONDBR2
 IOVDbFolder          INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMapSchema_BMG_01 for folder /MDT/CABLING/MAP_SCHEMA
@@ -2492,508 +2752,508 @@ MuonMDT_CablingAlg   INFO Range of input is {[0,l:0] - [INVALID]}
 MuonMDT_CablingAlg   INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
 MuonMDT_CablingAlg   INFO Range of input is {[327264,l:4294640031] - [327265,l:4294640030]}
 MuonMDT_CablingAlg   INFO recorded new MuonMDT_CablingMap with range {[327264,t:0,l:4294640031] - [327265,l:4294640030]} into Conditions Store
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 216
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 217
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 218
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 219
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 220
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 221
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 222
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 223
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 224
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 225
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 226
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 227
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 228
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x0
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 216 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 217 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 218 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 219 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 220 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 221 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 222 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 223 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 224 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 225 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 226 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 227 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 228 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 229
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 230
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 231
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 232
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 233
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 234
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 235
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 236
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 237
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 238
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 239
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 240
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 241
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x1
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 235 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 236 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 237 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 238 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 239 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 240 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 241 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 229 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 230 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 231 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 232 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 233 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 234 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 242
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 243
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 244
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 245
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 246
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 247
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 248
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 249
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 250
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 251
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 252
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 253
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 254
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x2
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 242 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 243 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 244 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 245 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 246 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 247 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 248 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 249 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 250 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 251 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 252 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 253 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 254 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 255
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 256
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 257
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 258
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 259
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 260
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 261
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 262
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 263
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 264
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 265
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 266
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 267
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x3
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 261 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 262 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 263 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 264 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 265 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 266 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 267 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 255 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 256 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 257 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 258 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 259 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 260 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 268
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 269
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 270
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 271
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 272
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 273
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 274
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 275
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 276
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 277
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 278
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 279
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 280
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x4
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 268 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 269 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 270 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 271 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 272 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 273 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 274 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 275 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 276 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 277 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 278 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 279 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 280 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 281
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 282
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 283
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 284
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 285
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 286
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 287
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 288
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 289
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 290
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 291
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 292
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 293
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x5
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/3
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 287 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 288 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 289 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 290 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 291 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 292 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 293 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 281 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 282 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 283 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 284 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 285 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 286 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 294
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 295
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 296
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 297
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 298
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 299
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 300
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 301
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 302
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 303
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 304
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 305
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 306
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x6
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 294 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 295 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 296 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 297 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 298 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 299 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 300 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 301 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 302 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 303 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 304 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 305 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 306 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 307
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 308
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 309
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 310
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 311
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 312
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 313
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 314
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 315
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 316
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 317
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 318
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 319
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x7
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/3
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 313 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 314 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 315 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 316 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 317 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 318 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 319 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 307 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 308 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 309 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 310 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 311 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 312 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 320
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 321
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 322
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 323
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 324
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 325
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 326
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 327
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 328
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 329
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 330
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 331
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 332
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x8
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 320 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 321 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 322 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 323 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 324 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 325 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 326 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 327 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 328 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 329 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 330 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 331 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 332 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 333
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 334
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 335
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 336
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 337
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 338
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 339
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 340
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 341
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 342
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 343
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 344
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 345
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 13
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0x9
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 13/2/3
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 339 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 340 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 341 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 342 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 343 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 344 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 345 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 333 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 334 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 335 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 336 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 337 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 338 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 346
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 347
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 348
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 349
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 350
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 351
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 352
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 353
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 354
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 355
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 356
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 357
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 358
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 359
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 360
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 15
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0xa
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 15/2/3
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 346 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 347 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 348 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 349 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 350 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 351 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 352 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 353 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 354 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 356 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 359 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 355 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 357 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 358 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 360 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 361
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 362
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 363
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 364
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 365
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 366
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 367
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 368
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 369
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 370
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 371
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 372
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 373
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 374
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 375
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 15
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0xb
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 15/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 369 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 370 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 371 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 373 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 374 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 375 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 361 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 362 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 364 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 367 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 363 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 365 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 366 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 368 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 372 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 376
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 377
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 378
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 379
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 380
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 381
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 382
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 383
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 384
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 385
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 386
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 387
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 388
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 389
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 390
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 15
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0xc
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 15/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 376 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 377 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 378 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 380 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 381 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 382 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 383 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 384 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 386 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 389 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 385 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 387 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 388 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 390 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 379 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 391
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 392
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 393
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 394
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 395
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 396
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 397
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 398
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 399
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 400
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 401
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 402
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 403
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 404
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 405
-RpcRawDataProvi...  DEBUG In fillCollectionsFromRob_v302:
-RpcRawDataProvi...  DEBUG N. of pads requested for conversion = 15
-RpcRawDataProvi...  DEBUG subDetectorID = 0x65
-RpcRawDataProvi...  DEBUG rodID = 0xd
-RpcRawDataProvi...  DEBUG The side is 1
-RpcRawDataProvi...  DEBUG All pads requested are found and decoded
-RpcRawDataProvi...  DEBUG ... keep going to allow full SL decoding
-RpcRawDataProvi...  DEBUG End of FillCollectionsForRob_v302 | nPadsDecoded/SL/RX 15/2/2
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 399 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 400 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 401 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 402 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 403 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 404 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 405 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 391 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 392 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 394 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 397 to the RpcPad Container | size = 8
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 393 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 395 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 396 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Adding RpcPad collection with hash 398 to the RpcPad Container | size = 4
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 406
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 407
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 408
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 409
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 410
-RpcRawDataProvi...  DEBUG Created new Pad Collection Hash ID = 411
-RpcRawDataProvi...WARNING DEBUG message limit (500) reached for RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder. Suppressing further output.
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=1 (opt=0), hash = 0
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 2words
+TgcRawDataProvi...  DEBUG WORD0:80214124
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():1 roh.ldbId:0 roh.sbId:1 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80204044
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():1 roh.ldbId:0 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment8 2words
+TgcRawDataProvi...  DEBUG WORD0:12c080
+TgcRawDataProvi...  DEBUG WORD1:12e080
+TgcRawDataProvi...  DEBUG Decoded 4 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 0, source id = MUON_TGC_ENDCAP_A_SIDE, module=1 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=2 (opt=0), hash = 1
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 18words
+TgcRawDataProvi...  DEBUG WORD0:80508805
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:8 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80508806
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:8 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80308354
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80308330
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80308331
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:8050830c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:8030830b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:8030830c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD8:8030830d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:3 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD9:80508590
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDa:80508595
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDb:80508530
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDc:80508531
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDd:8050852b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDe:8050852c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDf:8050852d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD10:80508508
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD11:80508507
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():2 roh.ldbId:8 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 8words
+TgcRawDataProvi...  DEBUG WORD0:d0508000
+TgcRawDataProvi...  DEBUG WORD1:d0503020
+TgcRawDataProvi...  DEBUG WORD2:d0303020
+TgcRawDataProvi...  DEBUG WORD3:c0303080
+TgcRawDataProvi...  DEBUG WORD4:d0505000
+TgcRawDataProvi...  DEBUG WORD5:d0505020
+TgcRawDataProvi...  DEBUG WORD6:c05050c0
+TgcRawDataProvi...  DEBUG WORD7:c05050e0
+TgcRawDataProvi...  DEBUG fragment8 8words
+TgcRawDataProvi...  DEBUG WORD0:48020
+TgcRawDataProvi...  DEBUG WORD1:68001
+TgcRawDataProvi...  DEBUG WORD2:4a020
+TgcRawDataProvi...  DEBUG WORD3:6a001
+TgcRawDataProvi...  DEBUG WORD4:4c008
+TgcRawDataProvi...  DEBUG WORD5:6c001
+TgcRawDataProvi...  DEBUG WORD6:4e008
+TgcRawDataProvi...  DEBUG WORD7:6e001
+TgcRawDataProvi...  DEBUG Decoded 34 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 1, source id = MUON_TGC_ENDCAP_A_SIDE, module=2 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=3 (opt=0), hash = 2
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 14words
+TgcRawDataProvi...  DEBUG WORD0:8042450f
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80427818
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80427819
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:8042781a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80227818
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:80227819
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:8022781a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:8042490a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:9 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD8:80224909
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:9 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD9:8022490a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:9 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDa:8022490b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:1 roh.sbId:9 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDb:80280786
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:4 roh.sbId:7 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDc:80263193
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDd:80263093
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():3 roh.ldbId:3 roh.sbId:10 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 2words
+TgcRawDataProvi...  DEBUG WORD0:b043802e
+TgcRawDataProvi...  DEBUG WORD1:b023802e
+TgcRawDataProvi...  DEBUG fragment8 14words
+TgcRawDataProvi...  DEBUG WORD0:88020
+TgcRawDataProvi...  DEBUG WORD1:a8001
+TgcRawDataProvi...  DEBUG WORD2:108020
+TgcRawDataProvi...  DEBUG WORD3:128021
+TgcRawDataProvi...  DEBUG WORD4:48002
+TgcRawDataProvi...  DEBUG WORD5:68080
+TgcRawDataProvi...  DEBUG WORD6:8a020
+TgcRawDataProvi...  DEBUG WORD7:aa001
+TgcRawDataProvi...  DEBUG WORD8:10a020
+TgcRawDataProvi...  DEBUG WORD9:12a021
+TgcRawDataProvi...  DEBUG WORDa:4a002
+TgcRawDataProvi...  DEBUG WORDb:6a080
+TgcRawDataProvi...  DEBUG WORDc:8c008
+TgcRawDataProvi...  DEBUG WORDd:ac080
+TgcRawDataProvi...  DEBUG WORDe:10c008
+TgcRawDataProvi...  DEBUG WORDf:12c040
+TgcRawDataProvi...  DEBUG WORD10:8e008
+TgcRawDataProvi...  DEBUG WORD11:ae080
+TgcRawDataProvi...  DEBUG WORD12:10e008
+TgcRawDataProvi...  DEBUG WORD13:12e040
+TgcRawDataProvi...  DEBUG Decoded 36 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 2, source id = MUON_TGC_ENDCAP_A_SIDE, module=3 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=4 (opt=0), hash = 3
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 10words
+TgcRawDataProvi...  DEBUG WORD0:80404652
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:6 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80404653
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:6 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80204651
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:6 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80407158
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80407159
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:8040715a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:80407157
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:80207157
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD8:8022426a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:1 roh.sbId:2 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD9:8022413c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():4 roh.ldbId:1 roh.sbId:1 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 2words
+TgcRawDataProvi...  DEBUG WORD0:b0411094
+TgcRawDataProvi...  DEBUG WORD1:b0211094
+TgcRawDataProvi...  DEBUG fragment8 10words
+TgcRawDataProvi...  DEBUG WORD0:88002
+TgcRawDataProvi...  DEBUG WORD1:a8002
+TgcRawDataProvi...  DEBUG WORD2:108002
+TgcRawDataProvi...  DEBUG WORD3:128009
+TgcRawDataProvi...  DEBUG WORD4:8a002
+TgcRawDataProvi...  DEBUG WORD5:aa002
+TgcRawDataProvi...  DEBUG WORD6:10a002
+TgcRawDataProvi...  DEBUG WORD7:12a009
+TgcRawDataProvi...  DEBUG WORD8:ac008
+TgcRawDataProvi...  DEBUG WORD9:10c020
+TgcRawDataProvi...  DEBUG WORDa:12c020
+TgcRawDataProvi...  DEBUG WORDb:6c040
+TgcRawDataProvi...  DEBUG WORDc:ae008
+TgcRawDataProvi...  DEBUG WORDd:10e020
+TgcRawDataProvi...  DEBUG WORDe:12e020
+TgcRawDataProvi...  DEBUG WORDf:6e040
+TgcRawDataProvi...  DEBUG Decoded 28 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 3, source id = MUON_TGC_ENDCAP_A_SIDE, module=4 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=5 (opt=0), hash = 4
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 6words
+TgcRawDataProvi...  DEBUG WORD0:80508426
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80308426
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:804c335d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:6 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:804c335f
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:6 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:804c325d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:6 roh.sbId:12 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:804c325f
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():5 roh.ldbId:6 roh.sbId:12 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 2words
+TgcRawDataProvi...  DEBUG WORD0:d0504000
+TgcRawDataProvi...  DEBUG WORD1:d0304000
+TgcRawDataProvi...  DEBUG fragment8 awords
+TgcRawDataProvi...  DEBUG WORD0:a8001
+TgcRawDataProvi...  DEBUG WORD1:108008
+TgcRawDataProvi...  DEBUG WORD2:128080
+TgcRawDataProvi...  DEBUG WORD3:aa001
+TgcRawDataProvi...  DEBUG WORD4:10a008
+TgcRawDataProvi...  DEBUG WORD5:12a080
+TgcRawDataProvi...  DEBUG WORD6:10c002
+TgcRawDataProvi...  DEBUG WORD7:12c002
+TgcRawDataProvi...  DEBUG WORD8:10e002
+TgcRawDataProvi...  DEBUG WORD9:12e002
+TgcRawDataProvi...  DEBUG Decoded 18 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 4, source id = MUON_TGC_ENDCAP_A_SIDE, module=5 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=6 (opt=0), hash = 5
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 6words
+TgcRawDataProvi...  DEBUG WORD0:80424c3c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:1 roh.sbId:c rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80224c3c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:1 roh.sbId:c rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:8024491e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:2 roh.sbId:9 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80247815
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:2 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80247816
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:2 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:80247817
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():6 roh.ldbId:2 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 1words
+TgcRawDataProvi...  DEBUG WORD0:b0258028
+TgcRawDataProvi...  DEBUG fragment8 6words
+TgcRawDataProvi...  DEBUG WORD0:a8010
+TgcRawDataProvi...  DEBUG WORD1:aa010
+TgcRawDataProvi...  DEBUG WORD2:ac028
+TgcRawDataProvi...  DEBUG WORD3:12c004
+TgcRawDataProvi...  DEBUG WORD4:ae028
+TgcRawDataProvi...  DEBUG WORD5:12e004
+TgcRawDataProvi...  DEBUG Decoded 13 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 5, source id = MUON_TGC_ENDCAP_A_SIDE, module=6 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=7 (opt=0), hash = 6
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 2words
+TgcRawDataProvi...  DEBUG WORD0:80207112
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():7 roh.ldbId:0 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80204258
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():7 roh.ldbId:0 roh.sbId:2 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 1words
+TgcRawDataProvi...  DEBUG WORD0:b0211022
+TgcRawDataProvi...  DEBUG fragment8 2words
+TgcRawDataProvi...  DEBUG WORD0:a8020
+TgcRawDataProvi...  DEBUG WORD1:aa020
+TgcRawDataProvi...  DEBUG Decoded 5 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 6, source id = MUON_TGC_ENDCAP_A_SIDE, module=7 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=8 (opt=0), hash = 7
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 26words
+TgcRawDataProvi...  DEBUG WORD0:80427114
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:1 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80227113
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:1 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80227114
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:1 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80227115
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:1 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80424267
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:1 roh.sbId:2 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:80207943
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:80207944
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:80207945
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD8:8040791e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD9:8020791d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDa:8020791e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDb:8020791f
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDc:80204a60
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:a rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDd:80204a39
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:a rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDe:80204a15
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:0 roh.sbId:a rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDf:80508499
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD10:8050846c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD11:8030846c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD12:80508440
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD13:8030843f
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD14:8050841b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD15:8030841b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:8 roh.sbId:4 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD16:802c080b
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:6 roh.sbId:8 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD17:802c3402
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:6 roh.sbId:14 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD18:804e0a83
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:7 roh.sbId:a rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD19:804e3889
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():8 roh.ldbId:7 roh.sbId:18 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 9words
+TgcRawDataProvi...  DEBUG WORD0:d0504060
+TgcRawDataProvi...  DEBUG WORD1:c05040e0
+TgcRawDataProvi...  DEBUG WORD2:d0304060
+TgcRawDataProvi...  DEBUG WORD3:c03040e0
+TgcRawDataProvi...  DEBUG WORD4:b0431026
+TgcRawDataProvi...  DEBUG WORD5:b0231024
+TgcRawDataProvi...  DEBUG WORD6:b041903a
+TgcRawDataProvi...  DEBUG WORD7:b0219038
+TgcRawDataProvi...  DEBUG WORD8:a020a03b
+TgcRawDataProvi...  DEBUG fragment8 awords
+TgcRawDataProvi...  DEBUG WORD0:8c020
+TgcRawDataProvi...  DEBUG WORD1:ac008
+TgcRawDataProvi...  DEBUG WORD2:12c008
+TgcRawDataProvi...  DEBUG WORD3:4c020
+TgcRawDataProvi...  DEBUG WORD4:6c002
+TgcRawDataProvi...  DEBUG WORD5:8e020
+TgcRawDataProvi...  DEBUG WORD6:ae008
+TgcRawDataProvi...  DEBUG WORD7:12e008
+TgcRawDataProvi...  DEBUG WORD8:4e020
+TgcRawDataProvi...  DEBUG WORD9:6e002
+TgcRawDataProvi...  DEBUG Decoded 45 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 7, source id = MUON_TGC_ENDCAP_A_SIDE, module=8 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=9 (opt=0), hash = 8
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 24words
+TgcRawDataProvi...  DEBUG WORD0:80460208
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:2 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80460206
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:2 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80263140
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80263141
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80263142
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:80263143
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:80263144
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:80263138
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD8:80263139
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD9:8026313a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDa:8026313c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDb:8026313d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDc:80263131
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDd:80263137
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDe:8026312c
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORDf:80263127
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:3 roh.sbId:11 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD10:804c077e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:7 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD11:802c077e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:7 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD12:804d069e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:6 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD13:802d069e
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:6 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD14:804c3496
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:14 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD15:802c3496
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:14 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD16:804c3396
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD17:802c3396
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():9 roh.ldbId:6 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment8 14words
+TgcRawDataProvi...  DEBUG WORD0:88008
+TgcRawDataProvi...  DEBUG WORD1:a8001
+TgcRawDataProvi...  DEBUG WORD2:48008
+TgcRawDataProvi...  DEBUG WORD3:68020
+TgcRawDataProvi...  DEBUG WORD4:8a008
+TgcRawDataProvi...  DEBUG WORD5:aa001
+TgcRawDataProvi...  DEBUG WORD6:4a008
+TgcRawDataProvi...  DEBUG WORD7:6a020
+TgcRawDataProvi...  DEBUG WORD8:8c022
+TgcRawDataProvi...  DEBUG WORD9:ac001
+TgcRawDataProvi...  DEBUG WORDa:10c020
+TgcRawDataProvi...  DEBUG WORDb:12c020
+TgcRawDataProvi...  DEBUG WORDc:4c022
+TgcRawDataProvi...  DEBUG WORDd:6c020
+TgcRawDataProvi...  DEBUG WORDe:8e022
+TgcRawDataProvi...  DEBUG WORDf:ae001
+TgcRawDataProvi...  DEBUG WORD10:10e020
+TgcRawDataProvi...  DEBUG WORD11:12e020
+TgcRawDataProvi...  DEBUG WORD12:4e022
+TgcRawDataProvi...  DEBUG WORD13:6e020
+TgcRawDataProvi...  DEBUG Decoded 44 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 8, source id = MUON_TGC_ENDCAP_A_SIDE, module=9 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=10 (opt=0), hash = 9
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment8 24words
+TgcRawDataProvi...  DEBUG WORD0:88008
+TgcRawDataProvi...  DEBUG WORD1:a8080
+TgcRawDataProvi...  DEBUG WORD2:108008
+TgcRawDataProvi...  DEBUG WORD3:128004
+TgcRawDataProvi...  DEBUG WORD4:48008
+TgcRawDataProvi...  DEBUG WORD5:68010
+TgcRawDataProvi...  DEBUG WORD6:8a008
+TgcRawDataProvi...  DEBUG WORD7:aa080
+TgcRawDataProvi...  DEBUG WORD8:10a008
+TgcRawDataProvi...  DEBUG WORD9:12a004
+TgcRawDataProvi...  DEBUG WORDa:4a008
+TgcRawDataProvi...  DEBUG WORDb:6a010
+TgcRawDataProvi...  DEBUG WORDc:8c002
+TgcRawDataProvi...  DEBUG WORDd:ac080
+TgcRawDataProvi...  DEBUG WORDe:10c002
+TgcRawDataProvi...  DEBUG WORDf:12c004
+TgcRawDataProvi...  DEBUG WORD10:4c002
+TgcRawDataProvi...  DEBUG WORD11:6c010
+TgcRawDataProvi...  DEBUG WORD12:8e002
+TgcRawDataProvi...  DEBUG WORD13:ae080
+TgcRawDataProvi...  DEBUG WORD14:10e002
+TgcRawDataProvi...  DEBUG WORD15:12e004
+TgcRawDataProvi...  DEBUG WORD16:4e002
+TgcRawDataProvi...  DEBUG WORD17:6e010
+TgcRawDataProvi...  DEBUG Decoded 24 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 9, source id = MUON_TGC_ENDCAP_A_SIDE, module=10 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=11 (opt=0), hash = 10
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 8words
+TgcRawDataProvi...  DEBUG WORD0:80207941
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:0 roh.sbId:19 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80204a60
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:0 roh.sbId:a rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80508064
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80308064
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80508043
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD5:80508045
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD6:80508011
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD7:80308012
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():b roh.ldbId:8 roh.sbId:0 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment3 6words
+TgcRawDataProvi...  DEBUG WORD0:d0500040
+TgcRawDataProvi...  DEBUG WORD1:d0500060
+TgcRawDataProvi...  DEBUG WORD2:c05000c0
+TgcRawDataProvi...  DEBUG WORD3:d0300040
+TgcRawDataProvi...  DEBUG WORD4:c03000c0
+TgcRawDataProvi...  DEBUG WORD5:b0219037
+TgcRawDataProvi...  DEBUG Decoded 14 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 10, source id = MUON_TGC_ENDCAP_A_SIDE, module=11 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_A_SIDE, module=12 (opt=0), hash = 11
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 4words
+TgcRawDataProvi...  DEBUG WORD0:8048070d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():c roh.ldbId:4 roh.sbId:7 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:802a0539
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():c roh.ldbId:5 roh.sbId:5 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:802a331a
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():c roh.ldbId:5 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:804a330d
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():67 rdo.rodId():c roh.ldbId:5 roh.sbId:13 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG fragment8 7words
+TgcRawDataProvi...  DEBUG WORD0:a8008
+TgcRawDataProvi...  DEBUG WORD1:aa008
+TgcRawDataProvi...  DEBUG WORD2:122a5a
+TgcRawDataProvi...  DEBUG WORD3:122b5a
+TgcRawDataProvi...  DEBUG WORD4:12a010
+TgcRawDataProvi...  DEBUG WORD5:6c020
+TgcRawDataProvi...  DEBUG WORD6:6e020
+TgcRawDataProvi...  DEBUG Decoded 11 elements
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo done
+TgcRawDataProvi...  DEBUG  Adding TgcRdo collection with hash 11, source id = MUON_TGC_ENDCAP_A_SIDE, module=12 (opt=0) to the TgcRdo Container
+TgcRawDataProvi...  DEBUG  Created new collection with ID = MUON_TGC_ENDCAP_C_SIDE, module=1 (opt=0), hash = 12
+TgcRawDataProvi...  DEBUG Muon::TGC_RodDecoderReadout::byteStream2Rdo
+TgcRawDataProvi...  DEBUG fragment2 55words
+TgcRawDataProvi...  DEBUG WORD0:80447040
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():68 rdo.rodId():1 roh.ldbId:2 roh.sbId:10 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD1:80447041
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():68 rdo.rodId():1 roh.ldbId:2 roh.sbId:10 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD2:80447042
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():68 rdo.rodId():1 roh.ldbId:2 roh.sbId:10 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD3:80447043
+TgcRawDataProvi...  DEBUG  rdo.subDetectorId():68 rdo.rodId():1 roh.ldbId:2 roh.sbId:10 rdo.l1Id():e994 rdo.bcId():153
+TgcRawDataProvi...  DEBUG WORD4:80447044
+TgcRawDataProvi...WARNING DEBUG message limit (500) reached for TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder. Suppressing further output.
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG fillCollection: starting
@@ -4000,11 +4260,12 @@ CscRawDataProvi...  DEBUG     idColl clusHashid spuID stationId :: 12 57133  9  
 CscRawDataProvi...  DEBUG cluster location word 0x18f1c
 CscRawDataProvi...WARNING DEBUG message limit (500) reached for CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder. Suppressing further output.
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4014,11 +4275,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4028,11 +4290,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4042,11 +4305,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4056,11 +4320,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4070,11 +4335,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4084,11 +4350,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4098,11 +4365,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4112,11 +4380,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4126,11 +4395,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4140,11 +4410,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4154,11 +4425,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4168,11 +4440,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4182,11 +4455,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4196,11 +4470,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4210,11 +4485,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4224,11 +4500,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4238,11 +4515,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4252,11 +4530,12 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
-RpcRawDataProvi...  DEBUG Created RpcPadContainer
-RpcRawDataProvi...  DEBUG After processing, number of collections in container : 432
-RpcRawDataProvi...  DEBUG Writing out RpcSectorLogicContainer
+RpcRawDataProviderWARNING Cannot retrieve muonRoI MURoIs
+TgcRawDataProvi...  DEBUG Created container using cache for TgcCache
+TgcRawDataProvi...  DEBUG Size of TgcRdoContainer is 1578
 MdtRawDataProvi...VERBOSE convert(): 264 ROBFragments.
 MdtRawDataProvi...  DEBUG Created container using cache for MdtCsmCache
 MdtRawDataProvi...  DEBUG After processing numColls=1136
@@ -4266,6 +4545,7 @@ CscRawDataProvi...  DEBUG Created container using cache for CscCache
 CscRawDataProvi...  DEBUG Before processing numColls=0
 CscRawDataProvi...  DEBUG vector of ROB ID to decode: size = 32
 CscRawDataProvi...  DEBUG After processing numColls=32
+RpcRdoToRpcPrep...WARNING Retrieval of RPC RDO container failed !
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
@@ -4273,36 +4553,37 @@ IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 IncidentProcAlg2     INFO Finalize
 AtlasFieldSvc        INFO finalize() successful
+RegSelSvc            INFO Finalizing RegSelSvc
 EventInfoByteSt...   INFO finalize 
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.11 ))s
-IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.06 ))s
-IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     0.13 ))s
-IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.12 ))s
-IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     0.45 ))s
-IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.15 ))s
-IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.05 ))s
-IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.04 ))s
-IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.20 ))s
-IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     1.01 ))s
-IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3704 ((     0.05 ))s
-IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.39 ))s
-IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.91 ))s
-IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.18 ))s
-IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/353376 ((     0.20 ))s
-IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     2.38 ))s
-IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.96 ))s
-IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     2.90 ))s
-IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     1.17 ))s
-IOVDbSvc             INFO  bytes in ((     11.45 ))s
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.27 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.59 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     0.77 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.42 ))s
+IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     1.08 ))s
+IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.79 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.61 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.42 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.78 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     0.89 ))s
+IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3704 ((     0.56 ))s
+IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.65 ))s
+IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.50 ))s
+IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.50 ))s
+IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/353376 ((     0.48 ))s
+IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.51 ))s
+IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.47 ))s
+IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     0.47 ))s
+IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.37 ))s
+IOVDbSvc             INFO  bytes in ((     11.14 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     1.30 ))s
-IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.05 ))s
-IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.25 ))s
-IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.06 ))s
-IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.11 ))s
-IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.60 ))s
-IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     9.08 ))s
+IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     2.70 ))s
+IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.56 ))s
+IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.19 ))s
+IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.59 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.27 ))s
+IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.87 ))s
+IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     3.96 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
@@ -4327,7 +4608,7 @@ ToolSvc.TGCCabl...   INFO finalize
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
 cObj_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 20
-ChronoStatSvc        INFO Time User   : Tot= 9.25  [s]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 12.2  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
@@ -4338,6 +4619,6 @@ Listing sources of suppressed message:
 -----------------------------+---------+-------------
  CscRawDataProvider.CSC_RawDataProviderTool.CscROD_Decoder|   DEBUG |    35169
  MdtRawDataProvider.MDT_RawDataProviderTool.MdtROD_Decoder|   DEBUG |   854603
- RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder|   DEBUG |    22401
+ TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder|   DEBUG |    23003
 =====================================================
 Py:Athena            INFO leaving with code 0: "successful run"
