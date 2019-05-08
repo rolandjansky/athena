@@ -13,6 +13,12 @@
 
 // Helper includes
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "CxxUtils/fpcompare.h"
+
+bool xaodPtSorting(const xAOD::IParticle *part1,
+                   const xAOD::IParticle *part2) {
+  return CxxUtils::fpcompare::greater( part1->pt(), part2->pt() );
+}
 
 namespace DerivationFramework {
 
@@ -98,8 +104,9 @@ namespace DerivationFramework {
     int nWparents=0;
     std::map<float,TLorentzVector> Wbosons;
 
-    //// this is for the OR removal between W+jets and W+gamma samples
-    bool hasPhoton=false;
+    //// this is for the OR removal between V+jets and V+gamma samples
+    bool hasFSRPhoton=false;
+    bool hasFSRPhotonLargeDeltaR = false;
     std::vector<const xAOD::TruthParticle* > photons;
     std::vector<const xAOD::TruthParticle* > leptonsFromWZwithTau;
 
@@ -167,7 +174,7 @@ namespace DerivationFramework {
         }
 
         if (leptonic == 0) {
-          TLorentzVector nutau  = this->sumDaughterNeutrinos( tau );
+          TLorentzVector nutau  = sumDaughterNeutrinos( tau );
           TLorentzVector tauvis( tau->px() - nutau.Px(),
                                  tau->py() - nutau.Py(),
                                  tau->pz() - nutau.Pz(),
@@ -289,10 +296,252 @@ namespace DerivationFramework {
         }
       } ///end of Sherpa block
 
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+      // W/Z block
+      if ( ( absPdg==24 || absPdg==23 ) && !m_isSherpa && decvtx!=0 ) {
+
+        if ( decvtx->nOutgoingParticles()<2 ) {
+          ATH_MSG_VERBOSE("Found a W/Z not decaying in at least 2 particles ... " << truthPart->status() << " and barcode: " << truthPart->barcode() );
+          continue;
+        }
+
+        if ( absPdg==23 ) Nz++;
+
+        ATH_MSG_DEBUG( "  found a boson with: " << truthPart->pt() << " , " << eta
+                       << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );// << std::endl;
+
+        m_interestingParticles.push_back( truthPart );
+        for (unsigned int part=0; part<decvtx->nOutgoingParticles(); part++) {
+          const xAOD::TruthParticle* lepton = decvtx->outgoingParticle(part);
+          if (!lepton) {
+            ATH_MSG_DEBUG(" SOMETHING MUST BE REALLY REALLY WRONG HERE ... W/Z direct decay is NULL pointer ");
+            continue;
+          }
+          const int PDGlep = lepton->pdgId();
+          const xAOD::TruthVertex* decLepton = lepton->decayVtx();
+
+          if ( std::abs(PDGlep)==15 ||  std::abs(PDGlep)==13 ||  std::abs(PDGlep)==11 ){
+            leptonsFromWZwithTau.push_back(lepton);
+          }
+
+          /// case of taus
+          if ( std::abs(PDGlep)==15 ) {
+            Ntau++;
+            ATH_MSG_DEBUG( "  found a tau with: " << lepton->pt() << " , " << lepton->eta()
+                           << " , " << lepton->phi() << " , Status: " << lepton->status() << "  ID: " <<  lepton->pdgId() );
+            lepton = lastOfKind(lepton); // overwrite to avoid GenRecord crazyness
+            ATH_MSG_DEBUG( "  found a Final tau with: " << lepton->pt() << " , " << lepton->eta()
+                           << " , " << lepton->phi() << " , Status: " << lepton->status() << "  ID: " <<  lepton->pdgId() );
+            decLepton= lepton->decayVtx();
+            if ( !decLepton ) {
+              ATH_MSG_DEBUG(" Found tau lepton with EMPTY decay vertex .... BAD!!!!");
+              continue;
+            }
+            for (unsigned int partT=0; partT<decLepton->nOutgoingParticles(); partT++) {
+              const xAOD::TruthParticle* lep2 = decLepton->outgoingParticle(partT);
+              if ( !lep2 ) {
+                ATH_MSG_DEBUG(" Found child of tau lepton with NULL pointer!!!!");
+                continue;
+              }
+              const int PDGtau = lep2->pdgId();
+              ATH_MSG_DEBUG( "     found a tau decay with: " << lep2->pt() << " , " << lep2->eta()
+                             << " , " << lep2->phi() << " , Status: " << lep2->status() << "  ID: " <<  lep2->pdgId() << "  barcode: " << lep2->barcode() );
+              if ( std::abs(PDGtau)==12 || std::abs(PDGtau)==14 || std::abs(PDGtau)==16 ) {
+                m_neutrinosFromW.push_back( lep2 );
+                Nnu++;
+              } else if ( std::abs(PDGtau)==11 || std::abs(PDGtau)==13 ) {
+                m_leptonsFromW.push_back(lep2);
+              }
+            }
+          } // end of tau block
+          if ( std::abs(PDGlep)==11 || std::abs(PDGlep)==13 ) {
+            ATH_MSG_DEBUG( "     found a boson direct decay with: " << lepton->pt() << " , " << lepton->eta() << " , " << lepton->phi()
+                           << " , Status: " << lepton->status() << "  ID: " <<  lepton->pdgId() << "  barcode: " << lepton->barcode() );
+            //printRecursively( decvtx->outgoingParticle(part), "  ");
+            Nem++;
+            m_leptonsFromW.push_back( lepton );
+            //if ( std::abs(PDGlep)==13 ) {
+            //  const xAOD::TruthParticle* tmpPart2=lastOfKind(decvtx->outgoingParticle(part));
+            //  float tmpPtLoss= (tmpPart2->pt()-decvtx->outgoingParticle(part)->pt())/decvtx->outgoingParticle(part)->pt();
+            //  ptLoss.push_back(tmpPtLoss);
+            //}
+            if ( std::abs(PDGlep)==11 )  NeDirect++;
+            if ( std::abs(PDGlep)==13 )  NmDirect++;
+          }
+          if ( std::abs(PDGlep)==12 || std::abs(PDGlep)==14 || std::abs(PDGlep)==16 ) {
+            m_neutrinosFromW.push_back( lepton );
+            Nnu++;
+          }
+        }
+      } // end of W/Z block
+
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+      if ( absPdg==25 && decvtx!=0 ) {
+        if ( decvtx->nOutgoingParticles()<2 ) ATH_MSG_DEBUG("Found a Higgs boson with not decaying into at least 2 particles");
+        else {
+          ATH_MSG_DEBUG( "  found a Higgs boson with: " << truthPart->pt() << " , " << eta
+                         << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );// << std::endl;
+          m_interestingParticles.push_back( truthPart );
+        }
+      }
+      if ( absPdg==25 && truthPart->status() == 62 ) {
+        higgsBosons.push_back(truthPart);
+      }
+
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+
+      // Leptons for Sherpa 2.2 Z+jets re-weighting
+      if( pt>20e3 && absEta<4.5 && status==1 && (absPdg==13 || absPdg==11) && !decayIntoItself(truthPart) ) {
+        ORLeptons.push_back(truthPart);
+      }
+
+      if ( pt<5e3 )                  continue;
+      if ( absEta>2.5 )                continue;
+      if ( status!=1 )                 continue;
+      if ( absPdg!=13 && absPdg!=11 )  continue;
+      if ( decayIntoItself(truthPart) ) continue;
+
+      if ( absPdg==13 ) {
+        ATH_MSG_DEBUG( "  found a muon with: " << truthPart->pt() << " , " << truthPart->eta()
+                       << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );
+        m_interestingLeptons.push_back(truthPart);
+        if ( pt>20e3 ) Nem_acc++;
+      }
+
+      if ( absPdg==11 ) {
+        ATH_MSG_DEBUG("  found an electron with: " << truthPart->pt() << " , " << truthPart->eta() << " , " << truthPart->phi() << " , " << truthPart->barcode()
+                      << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );
+        m_interestingLeptons.push_back(truthPart);
+        if ( pt>20e3 ) Nem_acc++;
+      }
 
     } // end loop over all truth particles
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::sort( m_interestingLeptons.begin(), m_interestingLeptons.end(), xaodPtSorting);
+
+    for ( unsigned int iL=0; iL<m_interestingLeptons.size(); iL++) {
+      if (  !isFromW( m_interestingLeptons.at(iL), m_leptonsFromW ) ) {
+        //std::cout << " ... particle not coming from W " << std::endl;
+        if ( (m_interestingLeptons.at(iL))->pt()>20e3 ) Nem_acc--;
+      }
+    }
+
+    //// photon business
+    float minDR = 999.9;
+    if ( photons.size()>0 ) {
+      for (unsigned int iP=0; iP<photons.size(); iP++) {
+        const xAOD::TruthParticle* truthPhoton = photons.at(iP);
+        ATH_MSG_DEBUG( "--> photon with: " << truthPhoton->pt()
+            << " , " << truthPhoton->eta()
+            << " , " << truthPhoton->phi()
+            << " , Status: " << truthPhoton->status()
+            << " , barcode: " << truthPhoton->barcode()
+            << "  ID: " <<  truthPhoton->pdgId() << "    .... " <<  m_isSherpa );// << std::endl;
+
+        bool found=false;
+        const xAOD::TruthVertex* prodvtx = truthPhoton->prodVtx();
+        ATH_MSG_DEBUG( "--> incoming particle size: " << prodvtx->nIncomingParticles());
+        for (unsigned int moth=0; moth<prodvtx->nIncomingParticles(); moth++) {
+          const xAOD::TruthParticle* mother= prodvtx->incomingParticle(moth);
+          ATH_MSG_DEBUG( "--> lepton from W/Z decay size: " << leptonsFromWZwithTau.size());
+          ATH_MSG_DEBUG( "--> mother of photon id: " << mother->pdgId()  << ", status: " << mother->status() << ", barcode: " << mother->barcode());
+          if (  m_isSherpa ) {
+            if (fabs(mother->pdgId()) == 11 || fabs(mother->pdgId()) == 13 || fabs(mother->pdgId()) == 15) {
+              found = true;
+              ATH_MSG_DEBUG( "--> found photon from lepton ");
+              for ( unsigned int iL=0; iL<m_interestingLeptons.size(); iL++) {
+                const xAOD::TruthParticle* lepAfterRad = m_interestingLeptons.at(iL);
+                //if (fabs(mother->pdgId()) == lepAfterRad->pdgId()) {
+                ATH_MSG_DEBUG( "--> Delta R lepton after rad- photon: "<< (truthPhoton->p4()).DeltaR(lepAfterRad->p4()));
+                if (minDR > (truthPhoton->p4()).DeltaR(lepAfterRad->p4())) {
+                  minDR = (truthPhoton->p4()).DeltaR(lepAfterRad->p4());
+                }
+                //}
+              }
+            }
+          } else if (mother->pdgId()==24 ||  mother->pdgId()==23) { // for Powheg and Alpgen
+            found = true;
+            for (unsigned int ref=0; ref<leptonsFromWZwithTau.size(); ref++) {
+              const xAOD::TruthParticle* lepFromWZ = leptonsFromWZwithTau.at(ref);
+              //const xAOD::TruthVertex* lepprodvtx = lepFromWZ->prodVtx();
+              ATH_MSG_DEBUG( "--> lepton with: " << lepFromWZ->pt()
+                  << " , " << lepFromWZ->eta()
+                  << " , " << lepFromWZ->phi()
+                  << " , Status: " << lepFromWZ->status()
+                  << " , barcode: " << lepFromWZ->barcode()
+                  << "  ID: " <<  lepFromWZ->pdgId()  );// << std::endl;
+              /*for (unsigned int lep_moth=0; lep_moth<lepprodvtx->nIncomingParticles(); lep_moth++) {
+                const xAOD::TruthParticle* lep_mother= lepprodvtx->incomingParticle(lep_moth);
+                ATH_MSG_DEBUG( "--> mother of lepton id: " << lep_mother->pdgId()  << ", status: " << lep_mother->status() << ", barcode: " << lep_mother->barcode());
+              }*/
+              if (lepFromWZ->status() == 1) {
+                TLorentzVector status3lep(0,0,0,0);
+                status3lep+=truthPhoton->p4();
+                status3lep+=lepFromWZ->p4();
+                if (minDR > (truthPhoton->p4()).DeltaR(lepFromWZ->p4())){
+                  minDR = (truthPhoton->p4()).DeltaR(lepFromWZ->p4());
+                }
+                ATH_MSG_DEBUG( "--> lepton+photon with: " << status3lep.Pt() << ", " << status3lep.Eta() << ", " << status3lep.Phi() << ", Delta R "<< (truthPhoton->p4()).DeltaR(lepFromWZ->p4()));
+              }
+            }
+          }
+        } // end loop over mothers of photon
+        if ( found ) {
+          hasFSRPhoton=true;
+          if(minDR > 0.1) {
+            hasFSRPhotonLargeDeltaR = true;
+            ATH_MSG_DEBUG( "--> found photon from lepton with DR > 0.1");
+            break;
+          }
+        }
+      } // end loop over photons
+    } // end check on > 0 photons
+    // end photon business
+
+    bool isZ=false;
+    WWType WWtype=NOWW;
+
+    if ( Nz!=0 || CountSherpaLepton!=0 ) {
+      isZ=true;
+    } else if ( NeDirect+NmDirect+Ntau!=2 ) {
+      isZ=true;
+    } else {
+      if ( Ntau==2 )  WWtype=TAUTAU;
+      else if ( Ntau==1 )  {
+        if ( NeDirect==1 && NmDirect==0 )      WWtype=TAUE;
+        else if ( NeDirect==0 && NmDirect==1 ) WWtype=TAUM;
+        else ATH_MSG_ERROR( "  unrecognised configuration: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu );
+      } else if ( Ntau==0 &&  Nem==2 ) {
+        if ( NeDirect==2 && NmDirect==0 )      WWtype=EE;
+        else if ( NeDirect==0 && NmDirect==2 ) WWtype=MM;
+        else if ( NeDirect==1 && NmDirect==1 ) WWtype=EM;
+        else ATH_MSG_ERROR( "  unrecognised configuration: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu );
+      }
+    }
+    ATH_MSG_DEBUG( "  option: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu << " , " <<  CountSherpaLepton << "  TYPE: " <<   WWtype << "  ... truth: " << Nem_acc << "  ... leptons from W: " << m_leptonsFromW.size() );
+
+    eventInfo->auxdecor<char>("truth_isZZ")             = static_cast<char>(isZ);
+    eventInfo->auxdecor<int>("truth_WWtype")            = WWtype;
+    eventInfo->auxdecor<int>("truth_nTruthLep")         = Nem_acc;
+    eventInfo->auxdecor<char>("truth_hasFSRPhoton")     = static_cast<char>(hasFSRPhoton);
+    eventInfo->auxdecor<char>("truth_hasFSRPhotonDR01") = static_cast<char>(hasFSRPhotonLargeDeltaR);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -674,11 +923,11 @@ namespace DerivationFramework {
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  bool HIGG3TruthDecorator::isFromW( const xAOD::TruthParticle* part, const std::vector<  const xAOD::TruthParticle*>& Wlist) const {
+  bool HIGG3TruthDecorator::isFromW( const xAOD::TruthParticle* part, const std::vector<  const xAOD::TruthParticle*>& WLeptonlist) const {
     if (!part) return false;
     const xAOD::TruthParticle* tmpPart = firstOfKind(part);
-    for ( unsigned int iP=0; iP<Wlist.size(); ++iP) {
-      if ( tmpPart==Wlist.at(iP) ) return true;
+    for ( unsigned int iP=0; iP<WLeptonlist.size(); ++iP) {
+      if ( tmpPart==WLeptonlist.at(iP) ) return true;
     }
     return false;
   }

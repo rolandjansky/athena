@@ -87,6 +87,16 @@ namespace DerivationFramework {
 
     /// @}
 
+    enum WWType{
+      NOWW=0,
+      TAUTAU,
+      TAUE,
+      TAUM,
+      EE,
+      EM,
+      MM
+    };
+
   };
 
 }
