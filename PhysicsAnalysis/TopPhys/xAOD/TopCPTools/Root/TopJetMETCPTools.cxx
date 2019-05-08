@@ -35,24 +35,22 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
     m_jetJVT_ConfigFile("JVTlikelihood_20140805.root"),
 
     // Calibration strings for R21 only
-    m_jetAntiKt4_Data_ConfigFile("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config"),
+    m_jetAntiKt4_Data_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_Data_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu"),
 
-    m_jetAntiKt4_MCFS_ConfigFile("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config"),
+    m_jetAntiKt4_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config"),
     m_jetAntiKt4_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    // Not recommended to use JER smearing (derived from FS on AF2)
-    m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config"),
-    m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC"),
+    m_jetAntiKt4_MCAFII_ConfigFile("JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config"),
+    m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
     
-    // Not recommended to use JER smearing (derived from FS on AF2) 
-    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config"),
-    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC"),
+    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config"),
+    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config"),
+    m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC_Smear"),
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config"),
+    m_jetAntiKt4_Data_PFlow_ConfigFile("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"),
     m_jetAntiKt4_Data_PFlow_CalibSequence("JetArea_Residual_EtaJES_GSC_Insitu")
   {  
 
