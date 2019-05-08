@@ -316,6 +316,8 @@ namespace DerivationFramework {
     float vtxdEta = -999;
     float vtxdPhi = -999;
     float vtxE    = -999;
+    float vtxPhi  = -999;
+    float vtxEta  = -999;
 
     if( caloCluster && caloCluster->pt() > m_minET ){
       const xAOD::TrackParticle* trk1 = nullptr;
@@ -376,6 +378,8 @@ namespace DerivationFramework {
           
           xAOD::TrackParticle::FourMom_t vertex4P = m_V0Tools->V04Momentum(myVertex.get(), 0.511);
           vtxE = vertex4P.E();
+          vtxPhi = vertex4P.Phi();
+          vtxEta = vertex4P.Eta();
           double momentumScaleFactor = caloCluster->e() / vtxE;
 
           auto perigeeParameters = trk1->perigeeParameters();
@@ -420,6 +424,8 @@ namespace DerivationFramework {
     el->auxdecor<float>("vtxPt")   = vtxP;
     el->auxdecor<float>("vtxPterr")= vtxPerr;
     el->auxdecor<float>("vtxE")    = vtxE;
+    el->auxdecor<float>("vtxEta")  = vtxEta;
+    el->auxdecor<float>("vtxPhi")  = vtxPhi;
     el->auxdecor<int>("vtxTrkParticleIndex1") = vtxTrkParticleIndex1;
     el->auxdecor<int>("vtxTrkParticleIndex2") = vtxTrkParticleIndex2;
     el->auxdecor<float>("vtxTrkParticle1_dPhi2") = vtxTrkParticle1_dPhi2;
