@@ -18,6 +18,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 
 #include <vector>
+#include <atomic>
 #include <iostream>
 
 class MsgStream;
@@ -98,7 +99,7 @@ namespace Trk{
 
     /** return the detector element corresponding to this PRD
         The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-	virtual const TrkDetElementBase* detectorElement() const = 0;
+        virtual const TrkDetElementBase* detectorElement() const = 0;
 
     /** dump information about the PRD object. I would like to make this pure virtual, but I don't want to risk screwing up the muon classes for the moment*/
         virtual MsgStream&    dump( MsgStream&    stream) const;
@@ -131,7 +132,9 @@ namespace Trk{
         IdentContIndex m_indexAndHash;
 
     /** number of objects of this type in memory */
-        static unsigned int s_numberOfInstantiations;
+    
+     static std::atomic<unsigned int> s_numberOfInstantiations;
+
 
     };
 
