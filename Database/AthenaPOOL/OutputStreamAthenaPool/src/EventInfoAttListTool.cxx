@@ -30,7 +30,7 @@ Purpose : create a EventInfoAttList - The Tag information associated to the even
 /** the constructor */
 EventInfoAttListTool::EventInfoAttListTool (const std::string& type, const
 					std::string& name, const IInterface* parent) : 
-  AthAlgTool( type, name, parent ) 
+  AthAlgTool( type, name, parent )
 {
   declareInterface<EventInfoAttListTool>( this );
 }
