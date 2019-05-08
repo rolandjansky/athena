@@ -1335,7 +1335,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
   }
 
   // refit using first parameter, do outliers
-  const Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = 0;
 
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit))
   {
@@ -1397,7 +1397,7 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots( const
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  const Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = 0;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))

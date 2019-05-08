@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TRKTRACK_TRACKINFO_H
 #define TRKTRACK_TRACKINFO_H
@@ -18,7 +18,7 @@ class TrackParticleBaseCnv_p1;
 
 namespace Trk
 {
-    
+
 /**
  * @brief Contains information about the 'fitter' of this track. 
  *  Additionally there is some information about how the e.g. 
@@ -33,433 +33,442 @@ class TrackInfo
 {
 public:
 
-/** 
- * enums to identify who created this track and whic propertis does it have. 
- * N.B If you update this, don't forget to update the dump method!
- */
-    enum TrackFitter
-    {
-/**Track fitter not defined.*/  					
-      Unknown			   = 0, 			         
+  /** 
+   * enums to identify who created this track and whic propertis does it have. 
+   * N.B If you update this, don't forget to update the dump method!
+   */
+  enum TrackFitter
+  {
+    /**Track fitter not defined.*/  					
+    Unknown			   = 0, 			         
 
-/**tracks produced by iPat*/						
-      iPatTrackFitter		   = 1, 			         
+    /**tracks produced by iPat*/						
+    iPatTrackFitter		   = 1, 			         
 
-/**tracks produced by xKalman*/     				         
-      xKalman			   = 2, 			         
-  
-/**tracks produced by the Kalman Fitter*/       		         
-      KalmanFitter		   = 3, 			         
-     								        
-/**Tracks from Gaussian Sum Filter*/     			         
-      GaussianSumFilter 	   = 4, 			         
-     
-/**Track's from Thijs' global chi^2 fitter*/      		         
-      GlobalChi2Fitter  	   = 5, 			         
+    /**tracks produced by xKalman*/     				         
+    xKalman			   = 2, 			         
 
-/**Fast Kalman filter from HLT with simplified material effects*/        
-      DistributedKalmanFilter	   = 6, 			         
+    /**tracks produced by the Kalman Fitter*/       		         
+    KalmanFitter		   = 3, 			         
 
-/**Adpative track fitter with fuzzy hit assignment*/      	         
-      DeterministicAnnealingFilter = 7,
-      
-/** Kalman DNA Fitter*/      
-      KalmanDNAFitter	           = 8,		              		
+    /**Tracks from Gaussian Sum Filter*/     			         
+    GaussianSumFilter 	   = 4, 			         
 
-/** Track produced with Muonboy's internal fitter.*/
-      MuonboyFitter                = 9,						         
+    /**Track's from Thijs' global chi^2 fitter*/      		         
+    GlobalChi2Fitter  	   = 5, 			         
 
-/**maximum number of enums*/     				         
-      NumberOfTrackFitters	   = 10				         
-    };
-     
-    enum TrackProperties
-    {
-    
-/** A brem fit was performed on this track*/       
-     BremFit		     = 1, 	
-     
-/** A brem fit was performed on this track and this fit was successful*/
-     BremFitSuccessful       = 2,
-     
-/** A straight track*/      	 
-     StraightTrack	     = 3,	 
-     
-/** A slimmed track*/      
-     SlimmedTrack	     = 4,
-     
-/** A track with a kink or a hard scatter*/                	 
-     HardScatterOrKink       = 5,
+    /**Fast Kalman filter from HLT with simplified material effects*/        
+    DistributedKalmanFilter	   = 6, 			         
 
-/** A LowPt track */               	 
-     LowPtTrack 	     = 6,
+    /**Adpative track fitter with fuzzy hit assignment*/      	         
+    DeterministicAnnealingFilter = 7,
 
-/**maximum number of enums*/        
-     NumberOfTrackProperties = 7 
-    };
+    /** Kalman DNA Fitter*/      
+    KalmanDNAFitter	           = 8,		              		
 
-    enum TrackPatternRecoInfo
-    {    
-/**  Tracks from SiSPSeedFinder */             
-     SiSPSeededFinder             = 0,
-     
-/**  Tracks from SiCTBTracking */                 
-     SiCTBTracking                = 1,
-     
-/**  Tracks with InDetAmbiguitySolver used */            
-     InDetAmbiguitySolver         = 2,
-     
-/**  Tracks with InDetExtensionProcessor used */       
-     InDetExtensionProcessor      = 3,
-     
-/**  Tracks from TRT Seeded Track finder */       
-     TRTSeededTrackFinder         = 4,
-     
-/**  Tracks from MuonBoy */     
-     Muonboy                      = 5,
- 
-/**  Tracks from MuGirl not refitted with iPat */
-     MuGirlUnrefitted             = 6,
-     
-/**  Tracks produced by STACO */
-     STACO                        = 7,
-        
-/**  Tracks produced by StacoLowpt */
-     StacoLowPt                   = 8, 
-     
-/**  Tracks produced by MuTag */	
-     MuTag                        = 9,
+    /** Track produced with Muonboy's internal fitter.*/
+    MuonboyFitter                = 9,						         
 
-/**  Tracks produced by Moore */
-     MooreToTrackTool             = 10,  
-         
-/**  TrigInDetTracks produced by TrigIDSCAN, running at trigger LVL2*/
-     TrigIDSCAN                   = 11, 
+    /**maximum number of enums*/     				         
+    NumberOfTrackFitters	   = 10				         
+  };
 
-/**  TrigInDetTracks produced by TrigSiTrack, running at trigger LVL2*/
-     TrigSiTrack                  = 12, 
+  enum TrackProperties
+  {
 
-/**  TrigInDetTracks produced by TrigTRTxK, running at trigger LVL2*/
-     TrigTRTxK                    = 13,
+    /** A brem fit was performed on this track*/       
+    BremFit		     = 1, 	
 
-/**  TrigInDetTracks produced by TrigTRTLUT, running at trigger LVL2*/
-     TrigTRTLUT                   = 14,
-     
-/**  Track from FATRAS*/
-     Fatras                       = 15,
-     
-/**  Added because of compilation problems*/     
-     iPatLegacyCnv                = 16,
-     
-/**  Added because of compilation problems*/     
-     xKalmanLegacyCnv             = 17,
-     
-/**  Added because of compilation problems*/     
-     SimpleAmbiguityProcessorTool = 18,
-  
-/**  Added because of compilation problems*/    
-     InDetAmbiTrackSelectionTool  = 19,
-          
-/**  TRT Standalone */	  
-     TRTStandalone                = 20,
-    
-/**  MuidStandalone */     
-     MuidStandAlone               = 21,
-     
-/**  TRTSeededSingleSpTrackFinder */
-     TRTSeededSingleSpTrackFinder = 22,
-     
-/**  Back compatibility with old type of ESD */
-     MooreLegacyCnv               = 23,
-     
-/**  Back compatibility with older ESD versions */     
-     MuidComb                     = 24,
-     
-/**  Moore (MoMu) */ 
-     Moore                        = 25,    
-     
-/**  MuidCombined */     
-     MuidCombined	          = 26,
-         
-/**  MuidVertexAssociator */     
-     MuidVertexAssociator         = 27,
-         
-/**  MuGirl */     
-     MuGirl                       = 28,
-          
-/**  iPatRec */     
-     iPatRec                      = 29,
-     
-/**  MuGirlLowBeta */     
-     MuGirlLowBeta                = 30,
-     
-/**  Fatras Simulation */     
-     FatrasSimulation             = 31,     
+    /** A brem fit was performed on this track and this fit was successful*/
+    BremFitSuccessful       = 2,
 
-/** Track which has its hits behind it, e.g. a downward moving cosmic track which through the upper hemisphere of ATLAS will have a beamline perigee pointing 
-down, but many/all of its hits will be above. A downward moving cosmic track which is reconstructed across all of ATLAS could also have this flag set (i.e. 
-it does not mean that hits are ONLY behind the perigee.
-@warning This enum is the subject of some controversy and may be removed in the future. It would be safer to examine 
-the track and determine this for yourself (especially as not all Track builders are currently filling this flag). EJWM.
-*/
-     ReverseOrderedTrack         = 32,
+    /** A straight track*/      	 
+    StraightTrack	     = 3,	 
 
-/** Track which (physically) does not intersect the ID or Calo. i.e. not a partially reconstructed IP track, but a cosmic or beam halo track.
-@warning This enum is the subject of some controversy and may be removed in the future. It would be safer to examine
-the track and determine this for yourself (especially as not all Track builders are currently filling this flag). EJWM.
-*/
-     MuonNotHittingTileVolume    = 33,
-          
-/**
- * Entries allowing to distinguish different seed makers
- */     
-     SiSpacePointsSeedMaker_Cosmic          = 34,
-     SiSpacePointsSeedMaker_HeavyIon        = 35,
-     SiSpacePointsSeedMaker_LowMomentum     = 36,
-     SiSpacePointsSeedMaker_BeamGas         = 37,
-     SiSpacePointsSeedMaker_VeryLowMomentum = 38,
-     
-/** Muons found by the ID seeded muon recovery */
-     MuidMuonRecoveryTool        = 39,
+    /** A slimmed track*/      
+    SlimmedTrack	     = 4,
 
-/** Standalone muon that was obtained by refitting a combined muon using the calorimeter information of the combined and the muon measurements */
-     MuidStandaloneRefit         = 40,
+    /** A track with a kink or a hard scatter*/                	 
+    HardScatterOrKink       = 5,
 
-/** A track in a CaloROI */
-     TrackInCaloROI              = 41,    
+    /** A LowPt track */               	 
+    LowPtTrack 	     = 6,
 
-/**
- * Entries allowing to distinguish different seed makers
- */     
-     SiSpacePointsSeedMaker_ForwardTracks       = 42,
+    /**maximum number of enums*/        
+    NumberOfTrackProperties = 7 
+  };
 
-/**  L2Star strategies */
-     strategyA                                  = 43,
-     strategyB                                  = 44,
-     strategyC                                  = 45,
+  enum TrackPatternRecoInfo
+  {    
+    /**  Tracks from SiSPSeedFinder */             
+    SiSPSeededFinder             = 0,
 
+    /**  Tracks from SiCTBTracking */                 
+    SiCTBTracking                = 1,
 
-/**   for tracks from FTK */
-     FTK                                        = 46,
+    /**  Tracks with InDetAmbiguitySolver used */            
+    InDetAmbiguitySolver         = 2,
 
-/**  for tracks seeded by the FastTrackFinder */
-     FastTrackFinderSeed                        = 47,
+    /**  Tracks with InDetExtensionProcessor used */       
+    InDetExtensionProcessor      = 3,
 
-/**    for tracks processed by the trigger version of the SiSPSeededFinder */
-     SiSPSeededFinderSimple                     = 48,
+    /**  Tracks from TRT Seeded Track finder */       
+    TRTSeededTrackFinder         = 4,
 
-/**  Large d0 for displaced vertex searches */
-     SiSpacePointsSeedMaker_LargeD0             = 49,
+    /**  Tracks from MuonBoy */     
+    Muonboy                      = 5,
 
-/** SLHCConversion Track flag */
-     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+    /**  Tracks from MuGirl not refitted with iPat */
+    MuGirlUnrefitted             = 6,
 
-/** Pseudo-tracking flag */
-     Pseudotracking				= 51,
+    /**  Tracks produced by STACO */
+    STACO                        = 7,
+
+    /**  Tracks produced by StacoLowpt */
+    StacoLowPt                   = 8, 
+
+    /**  Tracks produced by MuTag */	
+    MuTag                        = 9,
+
+    /**  Tracks produced by Moore */
+    MooreToTrackTool             = 10,  
+
+    /**  TrigInDetTracks produced by TrigIDSCAN, running at trigger LVL2*/
+    TrigIDSCAN                   = 11, 
+
+    /**  TrigInDetTracks produced by TrigSiTrack, running at trigger LVL2*/
+    TrigSiTrack                  = 12, 
+
+    /**  TrigInDetTracks produced by TrigTRTxK, running at trigger LVL2*/
+    TrigTRTxK                    = 13,
+
+    /**  TrigInDetTracks produced by TrigTRTLUT, running at trigger LVL2*/
+    TrigTRTLUT                   = 14,
+
+    /**  Track from FATRAS*/
+    Fatras                       = 15,
+
+    /**  Added because of compilation problems*/     
+    iPatLegacyCnv                = 16,
+
+    /**  Added because of compilation problems*/     
+    xKalmanLegacyCnv             = 17,
+
+    /**  Added because of compilation problems*/     
+    SimpleAmbiguityProcessorTool = 18,
+
+    /**  Added because of compilation problems*/    
+    InDetAmbiTrackSelectionTool  = 19,
+
+    /**  TRT Standalone */	  
+    TRTStandalone                = 20,
+
+    /**  MuidStandalone */     
+    MuidStandAlone               = 21,
+
+    /**  TRTSeededSingleSpTrackFinder */
+    TRTSeededSingleSpTrackFinder = 22,
+
+    /**  Back compatibility with old type of ESD */
+    MooreLegacyCnv               = 23,
+
+    /**  Back compatibility with older ESD versions */     
+    MuidComb                     = 24,
+
+    /**  Moore (MoMu) */ 
+    Moore                        = 25,    
+
+    /**  MuidCombined */     
+    MuidCombined	          = 26,
+
+    /**  MuidVertexAssociator */     
+    MuidVertexAssociator         = 27,
+
+    /**  MuGirl */     
+    MuGirl                       = 28,
+
+    /**  iPatRec */     
+    iPatRec                      = 29,
+
+    /**  MuGirlLowBeta */     
+    MuGirlLowBeta                = 30,
+
+    /**  Fatras Simulation */     
+    FatrasSimulation             = 31,     
+
+    /** Track which has its hits behind it, e.g. a downward moving cosmic track which through the upper hemisphere of ATLAS will have a beamline perigee pointing 
+      down, but many/all of its hits will be above. A downward moving cosmic track which is reconstructed across all of ATLAS could also have this flag set (i.e. 
+      it does not mean that hits are ONLY behind the perigee.
+      @warning This enum is the subject of some controversy and may be removed in the future. It would be safer to examine 
+      the track and determine this for yourself (especially as not all Track builders are currently filling this flag). EJWM.
+      */
+    ReverseOrderedTrack         = 32,
+
+    /** Track which (physically) does not intersect the ID or Calo. i.e. not a partially reconstructed IP track, but a cosmic or beam halo track.
+      @warning This enum is the subject of some controversy and may be removed in the future. It would be safer to examine
+      the track and determine this for yourself (especially as not all Track builders are currently filling this flag). EJWM.
+      */
+    MuonNotHittingTileVolume    = 33,
+
+    /**
+     * Entries allowing to distinguish different seed makers
+     */     
+    SiSpacePointsSeedMaker_Cosmic          = 34,
+    SiSpacePointsSeedMaker_HeavyIon        = 35,
+    SiSpacePointsSeedMaker_LowMomentum     = 36,
+    SiSpacePointsSeedMaker_BeamGas         = 37,
+    SiSpacePointsSeedMaker_VeryLowMomentum = 38,
+
+    /** Muons found by the ID seeded muon recovery */
+    MuidMuonRecoveryTool        = 39,
+
+    /** Standalone muon that was obtained by refitting a combined muon using the calorimeter information of the combined and the muon measurements */
+    MuidStandaloneRefit         = 40,
+
+    /** A track in a CaloROI */
+    TrackInCaloROI              = 41,    
+
+    /**
+     * Entries allowing to distinguish different seed makers
+     */     
+    SiSpacePointsSeedMaker_ForwardTracks       = 42,
+
+    /**  L2Star strategies */
+    strategyA                                  = 43,
+    strategyB                                  = 44,
+    strategyC                                  = 45,
 
 
-/**  Maximum number of enums */   
-     NumberOfTrackRecoInfo                      = 52
-    };
-    
-    TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 
+    /**   for tracks from FTK */
+    FTK                                        = 46,
 
-/** 	           
- * Constructor     
- */	           
-    TrackInfo( const TrackFitter fitter, const ParticleHypothesis partHyp);
+    /**  for tracks seeded by the FastTrackFinder */
+    FastTrackFinderSeed                        = 47,
 
-    TrackInfo( const TrackFitter fitter,
-               const ParticleHypothesis partHyp,
-               const std::bitset<NumberOfTrackProperties>& properties,
-               const std::bitset<NumberOfTrackRecoInfo>& patternRecognition);
+    /**    for tracks processed by the trigger version of the SiSPSeededFinder */
+    SiSPSeededFinderSimple                     = 48,
 
-    TrackInfo( const TrackInfo& ); //!< copy constructor
+    /**  Large d0 for displaced vertex searches */
+    SiSpacePointsSeedMaker_LargeD0             = 49,
 
-    TrackInfo &operator= (const TrackInfo &); //!< assignment operator
+    /** SLHCConversion Track flag */
+    SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
 
-    virtual ~TrackInfo (); //!< destructor
-    
-    virtual TrackInfo* clone() const;
+    /** Pseudo-tracking flag */
+    Pseudotracking				= 51,
 
-//Various set methods
 
-/**
- * Methods setting the properties of track
- */
-   void setTrackProperties(const TrackProperties& properties) const;
+    /**  Maximum number of enums */   
+    NumberOfTrackRecoInfo                      = 52
+  };
 
-/**
- * Method setting the pattern recognition algorithm
- */
-   void setPatternRecognitionInfo(const TrackPatternRecoInfo& patternReco) const;
+  TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 
 
-/**
- * Method for re-setting a track fitter
- */
-   void setTrackFitter(const TrackFitter& fitter) const;
-  
-/**
- *  Method re-setting the ParticleHypothesis
- */  
-   void setParticleHypothesis(const ParticleHypothesis& hypothesis) const;
+  /** 	           
+   * Constructor     
+   */	           
+  TrackInfo( const TrackFitter fitter, const ParticleHypothesis partHyp);
 
-/**
- * Access methods for track fitter 
- */
-   TrackFitter& trackFitter() const;
-    
-/**
- * Access methods for track properties 
- */   
-   bool trackProperties(const TrackProperties& property) const;
+  TrackInfo( const TrackFitter fitter,
+             const ParticleHypothesis partHyp,
+             const std::bitset<NumberOfTrackProperties>& properties,
+             const std::bitset<NumberOfTrackRecoInfo>& patternRecognition);
 
-/**
- * Access method for pattern recognition algorithm
- */
-   bool  patternRecoInfo(const TrackPatternRecoInfo& pattern) const;
+  TrackInfo( const TrackInfo& ); //!< copy constructor
 
-/**
- * Method merging pattern recognition and track properties 
- * information from different Track infos.
- */
-   void addPatternRecoAndProperties(const TrackInfo&) const;
+  TrackInfo &operator= (const TrackInfo &); //!< assignment operator
 
-/**
- * A method adding just pattern recognition info without 
- * adding the actual properties
- */
-  void addPatternReco(const TrackInfo&) const;
+  virtual ~TrackInfo (); //!< destructor
 
-/** 							          
- * Returns a string with the name of the fitter of this track     
- * (i.e. corresponding to the enum reurned by fitter() )          
- */							          
-   std::string dumpInfo() const;
-    
-   std::string dumpBitsProperties() const;
-   
-   std::string dumpBitsPatternRecoInfo() const; 
-    
-/** 							     
- * Returns the particle hypothesis used for Track fitting     
- */							     
-   ParticleHypothesis particleHypothesis() const;
+  virtual TrackInfo* clone() const;
 
-   const  std::bitset<NumberOfTrackProperties>&   properties() const;
-   const  std::bitset<NumberOfTrackRecoInfo>&     patternRecognition() const;
- 
-  private:
-   friend class ::TrackCnv_p4;
-   friend class ::TrackParticleBaseCnv_p1;
+  //Various set methods
 
-/** 									     	 
- * This is an enum, which stores the identity of where the track was created 	 
- */									     	 
-    mutable TrackFitter         m_fitter;
-   
-/**
- * This is an enum, which stores the particle hypothesis (if any)    
- * used for the track fitting					     
- */								      
-    mutable ParticleHypothesis  m_particleHypo;   
-    
-/**						      
- * A bitset providing information on the properties    
- * of the track.				      			      
- */						        
-    mutable  std::bitset<NumberOfTrackProperties>     m_properties;
+  /**
+   * Methods setting the properties of track
+   */
+  void setTrackProperties(const TrackProperties& properties) ;
 
-/**						      
- * A bitset providing information on the 
- *  actual pattern recognition algotithm  			      
- */						        
-    mutable  std::bitset<NumberOfTrackRecoInfo>     m_patternRecognition;  
-          
- };//end of class definitions
+  /**
+   * Method setting the pattern recognition algorithm
+   */
+  void setPatternRecognitionInfo(const TrackPatternRecoInfo& patternReco) ;
+
+  /**
+   * Method for re-setting a track fitter
+   */
+  void setTrackFitter(const TrackFitter& fitter) ;
+
+  /**
+   *  Method re-setting the ParticleHypothesis
+   */  
+  void setParticleHypothesis(const ParticleHypothesis& hypothesis);
+
+  /**
+   * Access methods for track fitter 
+   */
+  const TrackFitter& trackFitter() const;
+
+  /**
+   * Access methods for track properties 
+   */   
+  bool trackProperties(const TrackProperties& property) const;
+
+  /**
+   * Access method for pattern recognition algorithm
+   */
+  bool  patternRecoInfo(const TrackPatternRecoInfo& pattern) const;
+
+  /**
+   * Method merging pattern recognition and track properties 
+   * information from different Track infos.
+   */
+  void addPatternRecoAndProperties(const TrackInfo&);
+
+  /**
+   * A method adding just pattern recognition info without 
+   * adding the actual properties
+   */
+  void addPatternReco(const TrackInfo&);
+
+  /** 							          
+   * Returns a string with the name of the fitter of this track     
+   * (i.e. corresponding to the enum reurned by fitter() )          
+   */							          
+  std::string dumpInfo() const;
+
+  std::string dumpBitsProperties() const;
+
+  std::string dumpBitsPatternRecoInfo() const; 
+
+  /** 							     
+   * Returns the particle hypothesis used for Track fitting     
+   */							     
+  ParticleHypothesis particleHypothesis() const;
+
+  const  std::bitset<NumberOfTrackProperties>&   properties() const;
+  const  std::bitset<NumberOfTrackRecoInfo>&     patternRecognition() const;
+
+private:
+  friend class ::TrackCnv_p4;
+  friend class ::TrackParticleBaseCnv_p1;
+
+  /** 									     	 
+   * This is an enum, which stores the identity of where the track was created 	 
+   */									     	 
+  TrackFitter         m_fitter;
+
+  /**
+   * This is an enum, which stores the particle hypothesis (if any)    
+   * used for the track fitting					     
+   */								      
+  ParticleHypothesis  m_particleHypo;   
+
+  /**						      
+   * A bitset providing information on the properties    
+   * of the track.				      			      
+   */						        
+  std::bitset<NumberOfTrackProperties>     m_properties;
+
+  /**						      
+   * A bitset providing information on the 
+   *  actual pattern recognition algotithm  			      
+   */						        
+  std::bitset<NumberOfTrackRecoInfo>     m_patternRecognition;  
+
+};//end of class definitions
 
 /** 
  * Overload of << operator for MsgStream for debug output 
  */ 
-  MsgStream& operator << ( MsgStream& sl, const TrackInfo& track);
+MsgStream& operator << ( MsgStream& sl, const TrackInfo& track);
 
 /** 
  * Overload of << operator for std::ostream for debug output
  */ 
-  std::ostream& operator << ( std::ostream& sl, const TrackInfo& track);
+std::ostream& operator << ( std::ostream& sl, const TrackInfo& track);
 
 //set methods  
-  inline void Trk::TrackInfo::setTrackProperties(const TrackProperties& property) const
-  {
-//   std::cout<<"Set track properties "<<std::endl;
-   m_properties.set(property);
-   if(property == BremFitSuccessful && m_particleHypo == undefined ) m_particleHypo = electron;
-  }
+inline void Trk::TrackInfo::setTrackProperties(const TrackProperties& property) 
+{
+  //   std::cout<<"Set track properties "<<std::endl;
+  m_properties.set(property);
+  if(property == BremFitSuccessful && m_particleHypo == undefined ) m_particleHypo = electron;
+}
 
-  inline void Trk::TrackInfo::setPatternRecognitionInfo(const TrackPatternRecoInfo& patternReco) const
-  {
-//   std::cout<<"Setting pattern reco "<<std::endl;
-  
-   m_patternRecognition.set(patternReco);
-  }
+inline void Trk::TrackInfo::setPatternRecognitionInfo(const TrackPatternRecoInfo& patternReco) 
+{
+  m_patternRecognition.set(patternReco);
+}
 
-  inline void Trk::TrackInfo::setTrackFitter(const TrackFitter& fitter) const
-  {
-    m_fitter = (fitter < NumberOfTrackFitters)? fitter : Unknown;  
-  }
+inline void Trk::TrackInfo::setTrackFitter(const TrackFitter& fitter) 
+{
+  m_fitter = (fitter < NumberOfTrackFitters)? fitter : Unknown;  
+}
 
-  inline void Trk::TrackInfo::setParticleHypothesis(const ParticleHypothesis& hypothesis) const
-  {
-   m_particleHypo = hypothesis;
-  }
+inline void Trk::TrackInfo::setParticleHypothesis(const ParticleHypothesis& hypothesis) 
+{
+  m_particleHypo = hypothesis;
+}
 
 //access methods
-  inline Trk::TrackInfo::TrackFitter& Trk::TrackInfo::trackFitter() const
-  {
-   return m_fitter;
-  }
+inline const Trk::TrackInfo::TrackFitter& Trk::TrackInfo::trackFitter() const
+{
+  return m_fitter;
+}
 
-  inline Trk::ParticleHypothesis  Trk::TrackInfo::particleHypothesis() const
-  {
-   return m_particleHypo;
-  }
+inline Trk::ParticleHypothesis  Trk::TrackInfo::particleHypothesis() const
+{
+  return m_particleHypo;
+}
 
-  inline bool Trk::TrackInfo::trackProperties(const TrackProperties& property) const
-  {
-   return m_properties.test(property);
-  }
-  
-  inline bool Trk::TrackInfo::patternRecoInfo(const TrackPatternRecoInfo& pattern) const
-  {
-   return m_patternRecognition.test(pattern);
-  }
-  
-  inline TrackInfo * TrackInfo::clone()const
-  {
-   return new TrackInfo(*this);
-  }
-  
-  inline std::string TrackInfo::dumpBitsProperties() const
-  {
-   return m_properties.to_string <char, std::char_traits<char>, std::allocator<char> >();
-  }
-   
-  inline std::string TrackInfo::dumpBitsPatternRecoInfo() const
-  {
-   return m_patternRecognition.to_string <char, std::char_traits<char>, std::allocator<char> >();
-  } 
-    
+inline bool Trk::TrackInfo::trackProperties(const TrackProperties& property) const
+{
+  return m_properties.test(property);
+}
 
-  inline
-  const  std::bitset<TrackInfo::NumberOfTrackProperties>&   TrackInfo::properties() const
-  {
-    return m_properties;
-  }
-  inline
-  const  std::bitset<TrackInfo::NumberOfTrackRecoInfo>&     TrackInfo::patternRecognition() const
-  {
-    return m_patternRecognition;
-  }
+inline bool Trk::TrackInfo::patternRecoInfo(const TrackPatternRecoInfo& pattern) const
+{
+  return m_patternRecognition.test(pattern);
+}
+
+inline TrackInfo * TrackInfo::clone()const
+{
+  return new TrackInfo(*this);
+}
+
+inline std::string TrackInfo::dumpBitsProperties() const
+{
+  return m_properties.to_string <char, std::char_traits<char>, std::allocator<char> >();
+}
+
+inline std::string TrackInfo::dumpBitsPatternRecoInfo() const
+{
+  return m_patternRecognition.to_string <char, std::char_traits<char>, std::allocator<char> >();
+} 
+
+inline const  std::bitset<TrackInfo::NumberOfTrackProperties>&   TrackInfo::properties() const
+{
+  return m_properties;
+}
+
+inline const  std::bitset<TrackInfo::NumberOfTrackRecoInfo>&     TrackInfo::patternRecognition() const
+{
+  return m_patternRecognition;
+}
+
+inline void TrackInfo::addPatternRecoAndProperties(const TrackInfo& rhs) 
+{
+//merging information by means of bitwise "or"
+  addPatternReco(rhs);
+  m_properties = m_properties | rhs.m_properties;
+}
+
+inline void TrackInfo::addPatternReco(const TrackInfo& rhs) 
+{
+//merging information by means of bitwise "or"
+  m_patternRecognition = m_patternRecognition | rhs.m_patternRecognition;
+}
 
 }//end of namespace Trk
 
