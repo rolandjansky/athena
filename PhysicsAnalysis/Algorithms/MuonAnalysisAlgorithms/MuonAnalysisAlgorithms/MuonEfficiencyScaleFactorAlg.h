@@ -65,7 +65,7 @@ namespace CP
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-    /// \brief the decoration for the muon efficiency
+    /// \brief the decoration for the muon scale factor
   private:
     std::string m_scaleFactorDecoration;
 

@@ -101,6 +101,13 @@ def addVRJetsForTop(algseq):
   addVRJets(algseq)
 
 #================
+# xbb tagging information
+#================
+def addXbbTaggerInformation(algseq, ToolSvc):
+  from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+  addRecommendedXbbTaggers(algseq, ToolSvc)
+
+#================
 # JET CALIBRATION
 #================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/trunk/python/ExtendedJetCommon.py

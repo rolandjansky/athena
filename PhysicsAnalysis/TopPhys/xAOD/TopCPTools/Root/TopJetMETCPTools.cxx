@@ -481,12 +481,13 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
     "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root": // pflow jets
     "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";      // default is EM jets
 
+  const std::string JVT_WP = m_config->getJVTWP();
+
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);
   } else {
     CP::JetJvtEfficiency* jetJvtTool = new CP::JetJvtEfficiency(jvt_tool_name);
-    // Medium WP default for EM or LC jets or PFlow jets (no longer special option)
-    top::check(jetJvtTool->setProperty("WorkingPoint", "Medium"),
+    top::check(jetJvtTool->setProperty("WorkingPoint", JVT_WP),
                 "Failed to set JVT WP");
     top::check(jetJvtTool->setProperty("SFFile", JVT_SFFile),
                 "Failed to set JVT SFFile name");
@@ -494,6 +495,8 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
                 "Failed to set JVT decoration name");
     top::check(jetJvtTool->setProperty("TruthLabel", "AnalysisTop_isHS"),
                 "Failed to set JVT TruthLabel decoration name");
+    top::check(jetJvtTool->setProperty("TruthJetContainerName", m_config->sgKeyTruthJets()),
+                "Failed to set JVT TruthJetContainerName decoration name");
     top::check(jetJvtTool->initialize(), "Failed to initialize JVT tool");
     m_jetJvtTool = jetJvtTool;
   }

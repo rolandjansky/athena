@@ -77,7 +77,7 @@ namespace CP
   private:
     uint32_t m_maxRunNumber;
 
-    /// \brief the decoration for the muon efficiency
+    /// \brief the decoration for the muon scale factor
   private:
     std::string m_scaleFactorDecoration;
 

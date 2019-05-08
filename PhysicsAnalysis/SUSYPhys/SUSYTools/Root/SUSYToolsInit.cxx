@@ -1578,6 +1578,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.boostedLeptons = (m_orDoBoostedElectron || m_orDoBoostedMuon);
     orFlags.outputPassValue = true;
     orFlags.linkOverlapObjects = m_orLinkOverlapObjects;
+    if (m_jetInputType == xAOD::JetInput::EMPFlow) orFlags.doMuPFJetOR = true;
     orFlags.doEleEleOR = false;
     orFlags.doElectrons = true;
     orFlags.doMuons = true;

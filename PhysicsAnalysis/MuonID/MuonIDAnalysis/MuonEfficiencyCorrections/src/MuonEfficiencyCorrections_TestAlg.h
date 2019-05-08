@@ -56,6 +56,7 @@ namespace CP {
             
             float m_pt_cut;
             float m_eta_cut;
+            int m_muon_quality;
             
             unsigned long long m_evNumber;
     };

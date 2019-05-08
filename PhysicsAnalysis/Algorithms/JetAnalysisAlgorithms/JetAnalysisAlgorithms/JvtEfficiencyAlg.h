@@ -79,13 +79,13 @@ namespace CP
   private:
     std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
-    /// \brief the decoration for the JVT efficiency
+    /// \brief the decoration for the JVT scale factor
   private:
-    std::string m_efficiency;
+    std::string m_scaleFactorDecoration;
 
-    /// \brief the accessor for \ref m_efficiency
+    /// \brief the accessor for \ref m_scaleFactorDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
 
     /// \brief whether to skip efficiency calculation if the selection failed
   private:
