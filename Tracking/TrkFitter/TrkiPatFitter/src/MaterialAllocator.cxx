@@ -41,7 +41,6 @@ namespace Trk
     :   AthAlgTool(type, name, parent),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
     m_intersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
-    m_spectrometerExtrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
     m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
     m_trackingVolumesSvc("Trk::TrackingVolumesSvc/TrackingVolumesSvc", name),
     m_aggregateMaterial(true),
@@ -63,7 +62,6 @@ namespace Trk
     declareInterface<IMaterialAllocator>(this);
     declareProperty("Extrapolator", m_extrapolator);
     declareProperty("Intersector", m_intersector);
-    declareProperty("SpectrometerExtrapolator", m_spectrometerExtrapolator);
     declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
     declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
     declareProperty("AggregateMaterial", m_aggregateMaterial);
@@ -113,14 +111,6 @@ namespace Trk
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    }
-    if (!m_spectrometerExtrapolator.empty()) {
-      if (m_spectrometerExtrapolator.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_spectrometerExtrapolator);
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Retrieved tool " << m_spectrometerExtrapolator);
-      }
     }
 
     // retrieve services
@@ -636,7 +626,7 @@ namespace Trk
                                       const TrackParameters& startParameters) const {
     // different strategies used for indet and muon spectrometer
     indetMaterial(measurements, particleHypothesis, startParameters);
-    if (!m_spectrometerExtrapolator.empty()) spectrometerMaterial(measurements,
+    if (!m_extrapolator.empty()) spectrometerMaterial(measurements,
                                                                   particleHypothesis,
                                                                   fitParameters,
                                                                   startParameters);
@@ -745,7 +735,7 @@ namespace Trk
     if (m_calorimeterVolume->inside(spectrometerParameters.position())) return 0;
 
     const TrackParameters* entranceParameters =
-      m_spectrometerExtrapolator->extrapolateToVolume(spectrometerParameters,
+      m_extrapolator->extrapolateToVolume(spectrometerParameters,
                                                       *m_spectrometerEntrance,
                                                       anyDirection,
                                                       Trk::nonInteracting);
@@ -763,7 +753,7 @@ namespace Trk
 
     const Surface& entranceSurface = entranceParameters->associatedSurface();
     const std::vector<const TrackStateOnSurface*>* extrapolatedTSOS =
-      extrapolatedMaterial(m_spectrometerExtrapolator,
+      extrapolatedMaterial(m_extrapolator,
                            spectrometerParameters,
                            entranceSurface,
                            anyDirection,
@@ -955,7 +945,7 @@ namespace Trk
          ++r) {
       if (!(**r).isMaterialDelimiter()) continue;
       const std::vector<const TrackStateOnSurface*>* spectrometerMaterial =
-        extrapolatedMaterial(m_spectrometerExtrapolator,
+        extrapolatedMaterial(m_extrapolator,
                              *trackParameters,
                              *(**r).surface(),
                              oppositeMomentum,
@@ -2346,7 +2336,7 @@ namespace Trk
                                                                              *innerMeasurement,
                                                                              false);
       if (!innerParameters) innerParameters = startParameters.clone();
-      entranceParameters = m_spectrometerExtrapolator->extrapolateToVolume(*innerParameters,
+      entranceParameters = m_extrapolator->extrapolateToVolume(*innerParameters,
                                                                            *m_spectrometerEntrance,
                                                                            anyDirection,
                                                                            Trk::nonInteracting);
@@ -2381,13 +2371,13 @@ namespace Trk
     if (!outerParameters) outerParameters = startParameters.clone();
     const Surface& endSurface = *measurements.back()->surface();
     const TrackParameters* endParameters =
-      m_spectrometerExtrapolator->extrapolate(*outerParameters,
+      m_extrapolator->extrapolate(*outerParameters,
                                               endSurface,
                                               anyDirection,
                                               false,
                                               particleHypothesis);
     if (!endParameters) {
-      endParameters = m_spectrometerExtrapolator->extrapolate(*outerParameters,
+      endParameters = m_extrapolator->extrapolate(*outerParameters,
                                                               endSurface,
                                                               anyDirection,
                                                               false,
@@ -2431,7 +2421,7 @@ namespace Trk
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();
-      spectrometerMaterial = extrapolatedMaterial(m_spectrometerExtrapolator,
+      spectrometerMaterial = extrapolatedMaterial(m_extrapolator,
                                                   *endParameters,
                                                   entranceSurface,
                                                   anyDirection,
@@ -2439,7 +2429,7 @@ namespace Trk
                                                   Trk::muon);
     } else {
       const Surface& entranceSurface = startParameters.associatedSurface();
-      spectrometerMaterial = extrapolatedMaterial(m_spectrometerExtrapolator,
+      spectrometerMaterial = extrapolatedMaterial(m_extrapolator,
                                                   *endParameters,
                                                   entranceSurface,
                                                   anyDirection,
