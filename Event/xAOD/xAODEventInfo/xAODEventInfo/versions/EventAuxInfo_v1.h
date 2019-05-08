@@ -73,7 +73,6 @@ namespace xAOD {
      void toTransient();
 
 
-   private:
       /// @name Basic event information
       /// @{
       uint32_t runNumber;
