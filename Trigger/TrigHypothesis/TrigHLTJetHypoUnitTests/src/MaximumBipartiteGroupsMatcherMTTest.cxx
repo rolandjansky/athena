@@ -55,14 +55,19 @@ public:
 
   ConditionsMT m_conditions;
   int m_nconditions;
-  bool m_debug{true};
+  bool m_debug{false};
 };
 
 HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
   CombinationsGrouper g(1);  // single jet groups
   return g.group(b, e);
 }
-                                 
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest, debugFlagIsFalse){
+  /* idiot tst to ensure dbug flag is of prior to commiting */
+   EXPECT_FALSE(m_debug);
+}
+
 TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
@@ -251,7 +256,7 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
 
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
-  auto visitor = std::unique_ptr<IConditionVisitor>(nullptr);
+  auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   bool pass = matcher.match(groups.begin(), groups.end(), visitor);
 

@@ -49,7 +49,7 @@ public:
 
   ConditionsMT m_conditions;
   int m_nconditions;
-  bool m_debug{true};
+  bool m_debug{false};
   
   HypoJetGroupVector makeJetGroupsMT(HypoJetIter b, HypoJetIter e){
     CombinationsGrouper g(2);  // dijet groups
@@ -99,6 +99,13 @@ HypoJetVector makeHypoJets(const std::vector<double>& etas) {
 
   return jets;
 }
+
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, debugFlagIsFalse){
+  /* idiot test to ensure dbug flag is of prior to commiting */
+   EXPECT_FALSE(m_debug);
+}
+
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
   /* (j0, j1) -> c0

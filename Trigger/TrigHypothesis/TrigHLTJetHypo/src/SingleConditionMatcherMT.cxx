@@ -20,10 +20,11 @@ SingleConditionMatcherMT::SingleConditionMatcherMT(const ConditionBridgeMT& cb):
   m_condition(cb){
 }
   
-bool SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
-                                     const HypoJetGroupCIter& jets_e,
-                                     const std::unique_ptr<ITrigJetHypoInfoCollector>& v,
-				     bool) {
+bool
+SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
+                                const HypoJetGroupCIter& jets_e,
+                                const std::unique_ptr<ITrigJetHypoInfoCollector>& v,
+				     bool) const {
 
   
   for(auto i=jets_b; i != jets_e; ++i){

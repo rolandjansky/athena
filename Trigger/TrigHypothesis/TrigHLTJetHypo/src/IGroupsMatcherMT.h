@@ -31,7 +31,7 @@ class IGroupsMatcherMT{
   virtual bool match(const HypoJetGroupCIter&,
                      const HypoJetGroupCIter&,
                      const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-		     bool debug=false) = 0;
+                     bool debug=false) const = 0;
   
   virtual ConditionsMT getConditions() const noexcept = 0;
   virtual std::string toString() const = 0;

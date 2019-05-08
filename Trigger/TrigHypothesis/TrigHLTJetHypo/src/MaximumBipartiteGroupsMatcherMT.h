@@ -18,7 +18,6 @@
 #include "./IGroupsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 #include <optional>
@@ -41,31 +40,28 @@ public:
   bool match(const HypoJetGroupCIter&,
              const HypoJetGroupCIter&,
              const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-	     bool debug=false) override;
+	     bool debug=false) const override;
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
 private:
   ConditionsMT m_conditions;
   bool m_compound;  // true if jet group size >1 
   bool m_pass;
-  FlowNetwork m_G;
 
   std::vector<std::shared_ptr<FlowEdge>> m_srcToCondEdges;
-
-  std::map<int, pHypoJet> m_nodeToJet; 
-
 
   std::optional<std::vector<std::vector<int>>>
     conditionGroupMatches(const HypoJetGroupCIter&,
 			  const HypoJetGroupCIter&,
-			  const std::unique_ptr<ITrigJetHypoInfoCollector>&);
+			  const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
 
   
   std::optional<std::vector<std::shared_ptr<FlowEdge>>>
     make_flowEdges(const HypoJetGroupCIter&,
-		   const HypoJetGroupCIter&,
-		   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-		   int&);
+                   const HypoJetGroupCIter&,
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+                   int&,
+                   std::map<int, pHypoJet>& nodeToJet) const;
   
 };
 

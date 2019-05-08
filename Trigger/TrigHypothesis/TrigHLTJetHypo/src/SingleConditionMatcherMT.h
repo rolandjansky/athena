@@ -38,7 +38,7 @@ public:
   bool match(const HypoJetGroupCIter&,
              const HypoJetGroupCIter&,
 	     const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-	     bool debug) override;
+	     bool debug) const override;
   
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;
