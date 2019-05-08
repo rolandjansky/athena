@@ -8,6 +8,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
@@ -77,7 +78,7 @@ namespace DerivationFramework {
 
     // Retrieve the truth event
     const xAOD::TruthEventContainer* truthEvents(nullptr);
-    CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
+    ATH_CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
     const xAOD::TruthEvent * event = truthEvents->at(0);
 
     std::vector<const xAOD::TruthParticle* > m_interestingLeptons;
@@ -118,8 +119,13 @@ namespace DerivationFramework {
     std::vector<const xAOD::TruthParticle* > MCTruthElectronList;
     std::vector<TLorentzVector > MCTruthTauList;
 
-    // Get the truth particles from the event and loop over them
     std::vector<float> ptLoss;
+
+    int nOutgoingPartons = 0;
+
+    std::vector<const xAOD::TruthParticle*> vTopList;
+
+    // Get the truth particles from the event and loop over them
     for(size_t p = 0; p < event->nTruthParticles(); p++) {
       const xAOD::TruthParticle* truthPart = event->truthParticle(p);
       if ( !truthPart ) continue;
@@ -133,6 +139,15 @@ namespace DerivationFramework {
       const double absEta = std::abs(eta);
       const xAOD::TruthVertex* decvtx = truthPart->decayVtx();
 
+      if(status==23 && !(absPdg>=11 && absPdg<=16) ){
+            nOutgoingPartons++;
+      }
+
+      // Top quarks
+      if ( absPdg == 6 ) {
+        if ( m_isPowPy8EvtGen && status == 62 ) vTopList.push_back(truthPart);
+        else if ( status == 3 ) vTopList.push_back(truthPart);
+      }
 
       // Select everything that is needed to get the VBF mjj variable correctly
 
@@ -303,7 +318,7 @@ namespace DerivationFramework {
       if ( ( absPdg==24 || absPdg==23 ) && !m_isSherpa && decvtx!=0 ) {
 
         if ( decvtx->nOutgoingParticles()<2 ) {
-          ATH_MSG_VERBOSE("Found a W/Z not decaying in at least 2 particles ... " << truthPart->status() << " and barcode: " << truthPart->barcode() );
+          ATH_MSG_VERBOSE("Found a W/Z not decaying in at least 2 particles ... status: " << truthPart->status() << " and barcode: " << truthPart->barcode() );
           continue;
         }
 
@@ -425,6 +440,8 @@ namespace DerivationFramework {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    eventInfo->auxdecor<int>("truth_nOutgoingPartons")   = nOutgoingPartons;
+
     std::sort( m_interestingLeptons.begin(), m_interestingLeptons.end(), xaodPtSorting);
 
     for ( unsigned int iL=0; iL<m_interestingLeptons.size(); iL++) {
@@ -534,20 +551,344 @@ namespace DerivationFramework {
     eventInfo->auxdecor<char>("truth_hasFSRPhoton")     = static_cast<char>(hasFSRPhoton);
     eventInfo->auxdecor<char>("truth_hasFSRPhotonDR01") = static_cast<char>(hasFSRPhotonLargeDeltaR);
 
+    float Mvv=0.0;
+    if ( m_neutrinosFromW.size()>1 ) {
+      TLorentzVector myMvv(0,0,0,0);
+      myMvv+=(m_neutrinosFromW.at(0))->p4();
+      myMvv+=(m_neutrinosFromW.at(1))->p4();
+      Mvv=myMvv.M();
+    }
+    eventInfo->auxdecor<float>("truth_mvv") = Mvv;
+
+    // Add the higgs pt
+    float higgsPt  = -1000.0;
+    float higgsY   = 0.0;
+    float higgsPhi = 0.0;
+    float higgsM   = 0.0;
+    std::size_t nHiggs = higgsBosons.size();
+    ATH_MSG_DEBUG("Found " << nHiggs << " Higgs bosons");
+    if (nHiggs>=2){
+      ATH_MSG_WARNING("Found apparently " << nHiggs << " Higgs bosons");
+    }
+    if (nHiggs){
+      higgsPt  = higgsBosons[0]->pt();
+      higgsY   = higgsBosons[0]->rapidity();
+      higgsPhi = higgsBosons[0]->phi();
+      higgsM   = higgsBosons[0]->m();
+    }
+    eventInfo->auxdecor<float>("truthHiggsPt")  = higgsPt;
+    eventInfo->auxdecor<float>("truthHiggsY")   = higgsY;
+    eventInfo->auxdecor<float>("truthHiggsPhi") = higgsPhi;
+    eventInfo->auxdecor<float>("truthHiggsM")   = higgsM;
+
+    /*
+    if ( ptLoss.size()>0 ) {
+      eventInfo->auxdecor<float>("truth_ptLoss_0")=ptLoss[0];
+      if ( ptLoss.size()>1 ) {
+        eventInfo->auxdecor<float>("truth_ptLoss_1")=ptLoss[1];
+      } else {
+        eventInfo->auxdecor<float>("truth_ptLoss_1")=1.;
+      }
+    } else {
+      eventInfo->auxdecor<float>("truth_ptLoss_0")=1.;
+      eventInfo->auxdecor<float>("truth_ptLoss_1")=1.;
+    }
+    */
+
+    // -----------------------------------------------------
+    // Calculate the di-boson invariant mass
+    // -----------------------------------------------------
+    float massVV = 0.0;
+    std::vector<const xAOD::TruthParticle*> vBosonList;
+    for ( const xAOD::TruthParticle* part : m_interestingParticles ){
+      const int absPDG = part->absPdgId();
+      if ( absPDG == 23 || absPDG==24 ){
+        vBosonList.push_back(part);
+      }
+    }
+    if ( vBosonList.size() == 2 ){
+      const xAOD::TruthParticle* partA = vBosonList[0];
+      const xAOD::TruthParticle* partB = vBosonList[1];
+      const double diBosonMass = ( partA->p4() + partB->p4() ).M();
+      massVV = static_cast<float>(diBosonMass);
+    }
+    eventInfo->auxdecor<float>("truth_VVMass") = massVV;
 
 
+    //default
+    float M01 = -999.;
+
+    // Pere's information
+    //consider events with exactly 3 leptons and 3 neutrions, each with exactly one W-boson parent (this selects 100% of events in Sherpa and VBFNLO)
+    if ( (nWlep==3) && (nWnu==3) ){
+      //get the information of the 3 W-bosons in the event (needed for the sorting)
+      TLorentzVector tmp_Wboson0;
+      TLorentzVector tmp_Wboson1;
+      TLorentzVector tmp_Wboson2;
+      float tmp_chargeMass0 = 0.0;
+      float tmp_chargeMass1 = 0.0;
+      float tmp_chargeMass2 = 0.0;
+
+      std::map<float,TLorentzVector>::iterator it = Wbosons.begin();
+      int Wb_count = 0;
+
+      while(it != Wbosons.end()){
+        if (Wb_count==0){
+          tmp_Wboson0 = (*it).second;
+          tmp_chargeMass0 = (*it).first;
+        }
+        else if (Wb_count==1){
+          tmp_Wboson1 = (*it).second;
+          tmp_chargeMass1 = (*it).first;
+        }
+        else if (Wb_count==2){
+          tmp_Wboson2 = (*it).second;
+          tmp_chargeMass2 = (*it).first;
+        }
+
+        Wb_count += 1;
+        ++it;
+
+      }
+
+      float tmp_chargeMass01 = tmp_chargeMass0*tmp_chargeMass1;
+      float tmp_chargeMass02 = tmp_chargeMass0*tmp_chargeMass2;
+      float tmp_chargeMass12 = tmp_chargeMass1*tmp_chargeMass2;
+
+      TLorentzVector tmp_Wboson01 = tmp_Wboson0 + tmp_Wboson1;
+      TLorentzVector tmp_Wboson02 = tmp_Wboson0 + tmp_Wboson2;
+      TLorentzVector tmp_Wboson12 = tmp_Wboson1 + tmp_Wboson2;
+      // TODO: The higgs mass is wrong here, no? It was generated with 125.0
+      float tmp_Higgs_mDiff01 = std::abs( (0.001*(tmp_Wboson01.M())) - 125.09 );
+      float tmp_Higgs_mDiff02 = std::abs( (0.001*(tmp_Wboson02.M())) - 125.09 );
+      float tmp_Higgs_mDiff12 = std::abs( (0.001*(tmp_Wboson12.M())) - 125.09 );
+
+      // now sort the W-bosons: tmp_Wboson0, tmp_Wboson1, tmp_Wboson2 --> Wboson0, Wboson1, Wboson2
+      TLorentzVector Wboson0;
+      TLorentzVector Wboson1;
+      TLorentzVector Wboson2;
+
+      if (tmp_chargeMass01 > 0){
+        Wboson0 = tmp_Wboson2;
+        if(tmp_Higgs_mDiff02 < tmp_Higgs_mDiff12){
+          Wboson1 = tmp_Wboson0;
+          Wboson2 = tmp_Wboson1;
+        }
+        else{
+          Wboson1 = tmp_Wboson1;
+          Wboson2 = tmp_Wboson0;
+        }
+      }
+      if (tmp_chargeMass02 > 0){
+        Wboson0 = tmp_Wboson1;
+        if(tmp_Higgs_mDiff01 < tmp_Higgs_mDiff12){
+          Wboson1 = tmp_Wboson0;
+          Wboson2 = tmp_Wboson2;
+        }
+        else{
+          Wboson1 = tmp_Wboson2;
+          Wboson2 = tmp_Wboson0;
+        }
+
+      }
+
+      if (tmp_chargeMass12 > 0){
+        Wboson0 = tmp_Wboson0;
+        if(tmp_Higgs_mDiff01 < tmp_Higgs_mDiff02){
+          Wboson1 = tmp_Wboson1;
+          Wboson2 = tmp_Wboson2;
+        }
+        else{
+          Wboson1 = tmp_Wboson2;
+          Wboson2 = tmp_Wboson1;
+        }
+      }
+
+      //now that we have sorted the 3 W-bosons, we can compute necessary things
+      TLorentzVector Wboson01 = Wboson0 + Wboson1;
+      TLorentzVector Wboson02 = Wboson0 + Wboson2;
+      TLorentzVector Wboson12 = Wboson1 + Wboson2;
+
+      M01 = 0.001*(Wboson01.M());
+
+    }// if a 3Wlep + 3Wnu event
+    eventInfo->auxdecor<float>("truth_mW0W1") =  M01;
 
 
+    // Filter based on rapidity acceptance and sort
+    std::vector<const xAOD::Jet* > filteredJets;
 
+    /// now the jets
+    const xAOD::JetContainer* truthjets = 0;
+    ATH_CHECK( evtStore()->retrieve( truthjets, "AntiKt4TruthJets") );
+    unsigned int numberOfTruthJets = 0;
+    for ( const auto* jet : *truthjets ) {
+      const double jetPt =  jet->pt();
+      // jet selection for the VBF mjj calculation
+      if ( jetPt < 15e3 ) continue;
+      const double absY  = std::abs(jet->rapidity());
+      if ( absY < 5.0 ) {
+        bool JetOverlapsWithPhoton   = false;
+        bool JetOverlapsWithElectron = false;
+        bool JetOverlapsWithTau      = false;
 
+        JetOverlapsWithPhoton   = checkOverlap(jet, MCTruthPhotonList  );
+        JetOverlapsWithElectron = checkOverlap(jet, MCTruthElectronList);
+        JetOverlapsWithTau      = checkOverlap(jet, MCTruthTauList     );
 
+        if (!JetOverlapsWithPhoton && !JetOverlapsWithElectron && !JetOverlapsWithTau ) {
+           filteredJets.push_back( jet );
+        }
+      } // End of the jet selection for the VBF mjj calculation
 
+      // Jet counting for Sherpa 2.2 Z+jets re-weighting
+      if( jet->pt()>20e3 && std::abs(jet->eta())<4.5 ){
+        float mindR=100;
+        for (unsigned int iL=0; iL<ORLeptons.size(); iL++) {
+          const xAOD::TruthParticle* lepton = ORLeptons.at(iL);
+          float tmpDR=(jet->p4()).DeltaR(lepton->p4());
+          if ( tmpDR<mindR ) mindR=tmpDR;
+        }
+        if ( mindR<0.2 ) continue;
+        numberOfTruthJets++;
+      }
+      //
+    }
+    // Truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting
+    eventInfo->auxdecor<unsigned int>("truth_nJet") = numberOfTruthJets;
 
+    // WZ truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting
+    const xAOD::JetContainer* truthWZJets = 0;
+    ATH_CHECK( evtStore()->retrieve( truthWZJets, "AntiKt4TruthWZJets" ) );
+    unsigned int numberOfTruthWZJets = 0;
+    for ( const auto* jet : *truthWZJets ) {
+      if( jet->pt()>20e3 && std::abs(jet->eta())<4.5 ){
+        float mindR=100;
+        for (unsigned int iL=0; iL<ORLeptons.size(); iL++) {
+          const xAOD::TruthParticle* lepton = ORLeptons.at(iL);
+          float tmpDR=(jet->p4()).DeltaR(lepton->p4());
+          if ( tmpDR<mindR ) mindR=tmpDR;
+        }
+        if ( mindR<0.2 ) continue;
+        numberOfTruthWZJets++;
+      }
+    }
+    eventInfo->auxdecor<unsigned int>("truth_nWZJet") = numberOfTruthWZJets;
 
+    // DressedWZ truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting, if requested
+    const xAOD::JetContainer* truthDressedWZJets = 0;
+    ATH_CHECK( evtStore()->retrieve( truthDressedWZJets, "AntiKt4TruthDressedWZJets" ) );
+    unsigned int numberOfTruthDressedWZJets = 0;
+    for ( const auto* jet : *truthDressedWZJets ) {
+      if( jet->pt()>20e3 && std::abs(jet->eta())<4.5 ){
+        float mindR=100;
+        for (unsigned int iL=0; iL<ORLeptons.size(); iL++) {
+          const xAOD::TruthParticle* lepton = ORLeptons.at(iL);
+          float tmpDR=(jet->p4()).DeltaR(lepton->p4());
+          if ( tmpDR<mindR ) mindR=tmpDR;
+        }
+        if ( mindR<0.2 ) continue;
+        numberOfTruthDressedWZJets++;
+      }
+    }
+    eventInfo->auxdecor<unsigned int>("truth_nDressedWZJet") = numberOfTruthDressedWZJets;
 
+    // Finally, calculate the VBF mjj
+    float truth_VBFMjj = -999.0;
+    if ( filteredJets.size()>=2) {
+      std::sort( filteredJets.begin(), filteredJets.end(), xaodPtSorting );
 
+      TLorentzVector DiJetSystem(filteredJets[0]->px() + filteredJets[1]->px(),
+                                 filteredJets[0]->py() + filteredJets[1]->py(),
+                                 filteredJets[0]->pz() + filteredJets[1]->pz(),
+                                 filteredJets[0]->e()  + filteredJets[1]->e() );
+      truth_VBFMjj = DiJetSystem.M();
+    }
+    eventInfo->auxdecor<float>("truth_VBFMjj")    = truth_VBFMjj;
 
+    // Truth ttbar pt and top pt
+    double ttbarpt = 0;
+    double toppt = 0;
+    if ( vTopList.size() == 2 ){
+      const xAOD::TruthParticle* top1 = vTopList[0];
+      const xAOD::TruthParticle* top2 = vTopList[1];
+      ttbarpt = ( top1->p4() + top2->p4() ).Pt();
+      if(top1->pdgId() == 6 && top2->pdgId() == -6) toppt = ( top1->p4() ).Pt();
+      else if(top1->pdgId() == -6 && top2->pdgId() == 6) toppt = ( top2->p4() ).Pt();
+    }
+    eventInfo->auxdecor<float>("truth_ttbarpt")          = ttbarpt;
+    eventInfo->auxdecor<float>("truth_toppt")            = toppt;
 
+    /// few add ons by Kathrin for truth MT and NNLOPS
+    // Block from Kathrin on Truth MT
+    // first, start with using dressed four vector
+    const xAOD::TruthParticleContainer* truthele = 0;
+    ATH_CHECK( evtStore()->retrieve( truthele, "TruthElectrons") );
+    std::vector<const xAOD::TruthParticle*> selEles;
+    unsigned int numberOfTruthEle = 0;
+    for(const xAOD::TruthParticle* electron : *truthele){
+        ATH_MSG_DEBUG( "--> electron with: " << electron->pt()
+           << " , " << electron->eta()
+           << " , " << electron->phi()
+           << " , Status: " << electron->status()
+           << " , barcode: " << electron->barcode()
+           << " , particle origin: " <<electron->auxdata<unsigned int>("classifierParticleOrigin")
+           << "  ID: " <<  electron->pdgId() );// << std::endl;
+        std::vector<ElementLink<xAOD::TruthParticleContainer> > parentLinks = electron->auxdata< std::vector<ElementLink<xAOD::TruthParticleContainer> > >("parentLinks");
+        if (parentLinks.size() > 0) {
+          if (parentLinks[0].isValid()) {
+            const xAOD::TruthParticle* parent = *parentLinks[0];
+            if (fabs(parent->pdgId()) <= 24 && electron->pt() > 5000.0) {
+              selEles.push_back( electron );
+              numberOfTruthEle++;
+            }
+          }
+        }
+    }
+    ATH_MSG_DEBUG( "Electrons: " << numberOfTruthEle );
+
+    const xAOD::TruthParticleContainer* truthmuon = 0;
+    ATH_CHECK( evtStore()->retrieve( truthmuon, "TruthMuons") );
+    unsigned int numberOfTruthMu = 0;
+    std::vector<const xAOD::TruthParticle*> selMus;
+    for(const xAOD::TruthParticle* muon : *truthmuon){
+        ATH_MSG_DEBUG( "--> muon with: " << muon->pt()
+           << " , " << muon->eta()
+           << " , " << muon->phi()
+           << " , Status: " << muon->status()
+           << " , barcode: " << muon->barcode()
+           << " , particle origin: " <<muon->auxdata<unsigned int>("classifierParticleOrigin")
+           << "  ID: " <<  muon->pdgId() );// << std::endl;
+        std::vector<ElementLink<xAOD::TruthParticleContainer> > parentLinks = muon->auxdata< std::vector<ElementLink<xAOD::TruthParticleContainer> > >("parentLinks");
+        if (parentLinks.size() > 0) {
+          if (parentLinks[0].isValid()) {
+            const xAOD::TruthParticle* parent = *parentLinks[0];
+            if (fabs(parent->pdgId()) <= 24 && muon->pt() > 5000.0) {
+              selMus.push_back( muon );
+              numberOfTruthMu++;
+            }
+          }
+        }
+    }
+    ATH_MSG_DEBUG( "Muons: " << numberOfTruthMu );
+
+    const xAOD::MissingETContainer* truthmets = 0;
+    ATH_CHECK( evtStore()->retrieve( truthmets, "MET_Truth") );
+    const xAOD::MissingET* met = (*truthmets)["NonInt"];
+    ATH_MSG_DEBUG( "--> met with: " << met->met()
+           << " , " << met->name());// << std::endl;
+    //setup to calculate MT here
+    double truthMT=-999.9;
+    if (numberOfTruthMu==1 && numberOfTruthEle==1)
+      truthMT=calculateMT(selEles.at(0),selMus.at(0), met);
+    else if (numberOfTruthMu==2 && numberOfTruthEle==0)
+      truthMT=calculateMT(selMus.at(0),selMus.at(1), met);
+    else if (numberOfTruthMu==0 && numberOfTruthEle==2)
+      truthMT=calculateMT(selEles.at(0),selEles.at(1), met);
+    else
+      ATH_MSG_DEBUG( "Either too few or too many leptons found!! Muons: " << numberOfTruthMu << " Electrons: "<< numberOfTruthEle );
+    ATH_MSG_DEBUG( "Truth MT: " << truthMT );
+    eventInfo->auxdecor<float>("truth_MT")    = truthMT;
 
 
     //---------------------------------------------//
