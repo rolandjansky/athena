@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,8 +37,6 @@ TileRawChannelContByteStreamTool::TileRawChannelContByteStreamTool(const std::st
     , m_tileHWID(0)
     , m_hid2re(0)
     , m_verbose(false)
-    , m_tileToolEmscale("TileCondToolEmscale")
-    , m_tileBadChanTool("TileBadChanTool")
     , m_channels(nullptr)
     , m_maxChannels(TileCalibUtils::MAX_CHAN)
 {

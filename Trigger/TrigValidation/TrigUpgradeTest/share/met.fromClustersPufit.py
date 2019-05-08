@@ -6,9 +6,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-import math
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 svcMgr += TrigCaloDataAccessSvc()
 
@@ -28,6 +26,7 @@ topSequence += clusterSequence
 #################################################
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromClustersPufitMT, EFMissingETFromHelperMT
+from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 clusterPufitTool = EFMissingETFromClustersPufitMT( name="METFromClustersPufitTool" )
 clusterPufitTool.ClustersCollection = clusterContainer
@@ -37,23 +36,8 @@ helperTool = EFMissingETFromHelperMT("theHelperTool")
 metAlg = EFMissingETAlgMT( name="EFMET" )
 metAlg.METTools=[ clusterPufitTool, helperTool ]
 metAlg.METContainerKey = "HLT_MET_ClustersPufit"
+metAlg.MonTool = getMETMonTool()
 
-metMon = GenericMonitoringTool("METMonTool")
-metMon.Histograms = [ defineHistogram( "TIME_Total", path='EXPERT', title="Time spent Alg", xbins=100, xmin=0, xmax=100 ),
-                      defineHistogram( "TIME_Loop", path='EXPERT', title="Time spent in Tools loop", xbins=100, xmin=0, xmax=100 )]
-from TrigEFMissingET.TrigEFMissingETMonitoring import ( hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log, 
-                                                 hMET_lin, hSumEt_lin, 
-                                                 hXS, hMETPhi, hMETStatus,
-                                                 hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE,
-                                                 hCompEt_lin, hCompSumEt_lin )
-
-metMon.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
-metMon.Histograms += [ hMET_lin, hSumEt_lin ]
-metMon.Histograms += [ hXS, hMETPhi, hMETStatus]
-metMon.Histograms += [ hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE ]
-metMon.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
-
-metAlg.MonTool = metMon
 topSequence += metAlg
 
 #################################################

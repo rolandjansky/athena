@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Header: /cvs/PF/pool/StorageSvc/src/DbStorageSvc.cpp,v 1.81 2010/05/05 11:43:26 frankb Exp $
 //  ====================================================================
 //
 //  DbStorageSvc.cpp
@@ -323,36 +322,21 @@ DbStatus DbStorageSvc::read( const FileDescriptor& fDesc,
     if ( m_domH.type() == typ ) {
       DbDatabase dbH(m_domH.type());
       const string& fid = fDesc.FID();
-      if ( dbH.open(m_domH, fDesc.PFN(), fid, mode).isSuccess() ) {
-        DbContainer cntH(dbH.type());
-        const DbTypeInfo* typ_info = dbH.objectShape(token.classID());
-        if ( cntH.open(dbH, dbH.cntName(token), typ_info, typ, dbH.openMode()).isSuccess() )  {
-          if ( typ_info && typ_info == shape ) {
-	    Token::OID_t link;
-	    if ( dbH.getRedirection(token,link).isSuccess() ) {
-	      Token* pt = const_cast<Token*>(&token);
-	      pt->oid() = link;
-              return ObjHandle::openEx(cntH, token, object, shape, mode);
-	    }
-          }
-          err = " The object shape "+token.classID().toString()+
-                " is unknown for this container!";
-        }
-        else  {
-          err = "The requested Database:"+token.dbID().toString()+" cannot be opened!";
-        }
+      if( dbH.open(m_domH, fDesc.PFN(), fid, mode).isSuccess() ) {
+         if( dbH.read( token, shape, object).isSuccess() ) {
+            return Success;
+         }
       }
-      else  {
-        err = "The requested Database:"+token.dbID().toString()+" cannot be opened!";
-      }
+      DbPrint log( name() );
+      log << DbPrintLvl::Error << "The requested Database: " << token.dbID().toString()
+          << " cannot be opened!" << DbPrint::endmsg;
     }
-    else  {
-      err = "Wait a minute...You cannot mix the technologies:"+
-        typ.storageName()+" and "+m_domH.type().storageName();
+    else {
+       DbPrint log( name());
+       log << DbPrintLvl::Error << "Wait a minute...You cannot mix the technologies:"
+           << typ.storageName() << " and " << m_domH.type().storageName() << DbPrint::endmsg;
     }
   }
-  DbPrint log( name());
-  log << DbPrintLvl::Error << err << DbPrint::endmsg;
   return Error;
 }
 

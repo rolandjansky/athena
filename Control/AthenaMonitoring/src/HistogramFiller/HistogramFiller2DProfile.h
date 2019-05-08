@@ -37,10 +37,20 @@ namespace Monitored {
       }*/
 
       //For now lets just consider the case in which all variables are of the same length
-      for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
-        histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
+        // Weighted fill
+        auto weightVector = m_monWeight->getVectorRepresentation();
+        double value1,value2,value3,weight;
+        for (const auto& zipped : boost::combine(valuesVector1,valuesVector2,valuesVector3,weightVector)) {
+          boost::tie(value1,value2,value3,weight) = zipped;
+          histogram->Fill(value1,value2,value3,weight);
+        }
+      } else {
+        // Unweighted fill
+        for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+          histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+        }
       }
-      
       return std::size(valuesVector1);
     }
   };

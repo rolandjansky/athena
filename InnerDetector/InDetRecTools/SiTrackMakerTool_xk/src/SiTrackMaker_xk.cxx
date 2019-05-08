@@ -132,10 +132,11 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
+MsgStream& InDet::SiTrackMaker_xk::dump(MsgStream& out) const
 {
+  EventData& data{getEventData()};
   out<<std::endl;
-  if (m_nprint) return dumpevent(out);
+  if (data.nprint) return dumpevent(data, out);
   return dumpconditions(out);
 }
 
@@ -143,7 +144,7 @@ MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
+MsgStream& InDet::SiTrackMaker_xk::dumpconditions(MsgStream& out) const
 {
 
   int n      = 62-m_tracksfinder.type().size();
@@ -205,15 +206,15 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiTrackMaker_xk::dumpevent( MsgStream& out ) const
+MsgStream& InDet::SiTrackMaker_xk::dumpevent(EventData& data, MsgStream& out) const
 {
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Number input seeds      | "<<std::setw(12)<<m_inputseeds
+  out<<"| Number input seeds      | "<<std::setw(12)<<data.inputseeds
      <<"                              |"<<std::endl;
-  out<<"| Number good  seeds      | "<<std::setw(12)<<m_goodseeds 
+  out<<"| Number good  seeds      | "<<std::setw(12)<<data.goodseeds 
      <<"                              |"<<std::endl;
-  out<<"| Number output tracks    | "<<std::setw(12)<<m_findtracks  
+  out<<"| Number output tracks    | "<<std::setw(12)<<data.findtracks  
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -224,7 +225,7 @@ MsgStream& InDet::SiTrackMaker_xk::dumpevent( MsgStream& out ) const
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::SiTrackMaker_xk::dump( std::ostream& out ) const
+std::ostream& InDet::SiTrackMaker_xk::dump(std::ostream& out) const
 {
   return out;
 }
@@ -234,7 +235,7 @@ std::ostream& InDet::SiTrackMaker_xk::dump( std::ostream& out ) const
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::operator    << 
-(MsgStream& sl,const InDet::SiTrackMaker_xk& se)
+(MsgStream& sl, const InDet::SiTrackMaker_xk& se)
 { 
   return se.dump(sl); 
 }
@@ -244,7 +245,7 @@ MsgStream& InDet::operator    <<
 ///////////////////////////////////////////////////////////////////
 
 std::ostream& InDet::operator << 
-(std::ostream& sl,const InDet::SiTrackMaker_xk& se)
+(std::ostream& sl, const InDet::SiTrackMaker_xk& se)
 {
   return se.dump(sl); 
 }   
@@ -253,15 +254,21 @@ std::ostream& InDet::operator <<
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
+void InDet::SiTrackMaker_xk::newEvent(bool PIX, bool SCT) const
 {
+  EventData& data{getEventData()};
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-  if (beamSpotHandle.isValid()) { m_xybeam[0] = beamSpotHandle->beamPos()[0]; m_xybeam[1] = beamSpotHandle->beamPos()[1]; }
-  else                          { m_xybeam[0] = 0.;                           m_xybeam[1] = 0.;                           }
+  if (beamSpotHandle.isValid()) {
+    data.xybeam[0] = beamSpotHandle->beamPos()[0];
+    data.xybeam[1] = beamSpotHandle->beamPos()[1];
+  } else {
+    data.xybeam[0] = 0.;
+    data.xybeam[1] = 0.;
+  }
   
-  m_pix          = PIX && m_usePix;
-  m_sct          = SCT && m_useSct;
-  bool simpleTrack  = false;
+  data.pix = PIX and m_usePix;
+  data.sct = SCT and m_useSct;
+  bool simpleTrack = false;
 
   InDet::TrackQualityCuts trackquality = std::move(setTrackQualityCuts(simpleTrack));
 
@@ -271,29 +278,29 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 
   // Erase cluster to track association
   //
-  if (m_seedsfilter) m_clusterTrack.clear();
+  if (m_seedsfilter) data.clusterTrack.clear();
 
   // Erase statistic information
   //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
+  data.inputseeds = 0;
+  data.goodseeds  = 0;
+  data.findtracks = 0;
 
   // Retrieve 
   //
   if (m_useBremModel && m_useCaloSeeds) {
 
-    m_caloF.clear();
-    m_caloR.clear();
-    m_caloZ.clear();
+    data.caloF.clear();
+    data.caloR.clear();
+    data.caloZ.clear();
 
     if (!m_caloCluster.key().empty()) {
       SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster);
       if (calo_cluster.isValid()) {
         for (const Trk::CaloClusterROI *c : * calo_cluster) {
-          m_caloF.push_back( c->globalPosition().phi ());
-          m_caloR.push_back( c->globalPosition().perp());
-          m_caloZ.push_back( c->globalPosition().z   ());
+          data.caloF.push_back( c->globalPosition().phi ());
+          data.caloR.push_back( c->globalPosition().perp());
+          data.caloZ.push_back( c->globalPosition().z   ());
         }
       }
     }
@@ -301,32 +308,33 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 
   if (!m_useSSSfilter && m_useHClusSeed) {
 
-    m_hadF.clear();
-    m_hadR.clear();
-    m_hadZ.clear();
+    data.hadF.clear();
+    data.hadR.clear();
+    data.hadZ.clear();
 
     if (!m_caloHad.key().empty()) {
       SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad);
       if (calo_had.isValid()) {
         for (const Trk::CaloClusterROI *c : * calo_had) {
-          m_hadF.push_back( c->globalPosition().phi ());
-          m_hadR.push_back( c->globalPosition().perp());
-          m_hadZ.push_back( c->globalPosition().z   ());
+          data.hadF.push_back( c->globalPosition().phi ());
+          data.hadR.push_back( c->globalPosition().perp());
+          data.hadZ.push_back( c->globalPosition().z   ());
         }
       }
     }
   }
-  if (m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo,m_patternName);
+  if (m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo, m_patternName);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
+void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX, bool SCT) const
 {
-  m_pix          = PIX && m_usePix;
-  m_sct          = SCT && m_useSct;
+  EventData& data{getEventData()};
+  data.pix          = PIX && m_usePix;
+  data.sct          = SCT && m_useSct;
   bool simpleTrack  = true;
 
   InDet::TrackQualityCuts trackquality = std::move(setTrackQualityCuts(simpleTrack));
@@ -337,28 +345,28 @@ void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
 
   // Erase cluster to track association
   //
-  if (m_seedsfilter) m_clusterTrack.clear(); 
+  if (m_seedsfilter) data.clusterTrack.clear(); 
 
   // Erase statistic information
   //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
+  data.inputseeds = 0;
+  data.goodseeds  = 0;
+  data.findtracks = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Finalize track finding tool for given event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::endEvent()
+void InDet::SiTrackMaker_xk::endEvent() const
 {
-
+  EventData& data{getEventData()};
   // End event for track finder tool
   //
   m_tracksfinder->endEvent();
 
   //correction to exclude memory fragmentation
-  m_clusterTrack.clear();
+  data.clusterTrack.clear();
 
   // end event for seed to track tool
   if (m_seedsegmentsWrite) m_seedtrack->endEvent();
@@ -366,7 +374,7 @@ void InDet::SiTrackMaker_xk::endEvent()
   // Print event information 
   //
   if (msgLevel()<=0) {
-    m_nprint=1;
+    data.nprint = 1;
     ATH_MSG_DEBUG(*this);
   }
 }
@@ -376,30 +384,28 @@ void InDet::SiTrackMaker_xk::endEvent()
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
-(const std::list<const Trk::SpacePoint*>& Sp)
+(const std::list<const Trk::SpacePoint*>& Sp) const
 {
-  ++m_inputseeds;
+  EventData& data{getEventData()};
+  ++data.inputseeds;
   std::list<Trk::Track*> tracks;
-  if (!m_pix && !m_sct) return tracks;
+  if (!data.pix && !data.sct) return tracks;
   
   bool good;
-  !m_seedsfilter ? good=true : good=newSeed(Sp);  
+  !m_seedsfilter ? good=true : good=newSeed(data, Sp);  
 
   if (!good) return tracks;
 
-  bool dbm = isDBMSeeds(*Sp.begin());
-  m_dbm = dbm; // Cache dbm for another getTracks method.
+  data.dbm = isDBMSeeds(*Sp.begin());
 
   // Get initial parameters estimation
   //
   bool sss = false;
-  std::array<double, 9> par;
   const Trk::TrackParameters* Tp = nullptr;
-  if (dbm) Tp = getAtaPlaneDBM(Sp, par);
-  else Tp = getAtaPlane(sss && m_useHClusSeed, Sp, par);
-  m_par = par; // Cache par for another getTracks method.
+  if (data.dbm) Tp = getAtaPlaneDBM(data, Sp);
+  else Tp = getAtaPlane(data, sss && m_useHClusSeed, Sp);
   if (!Tp) return tracks;
-  ++m_goodseeds;
+  ++data.goodseeds;
 
   // Get detector elements road
   //
@@ -407,7 +413,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   if (!m_cosmicTrack) m_roadmaker->detElementsRoad(*Tp,Trk::alongMomentum,   DE);
   else                m_roadmaker->detElementsRoad(*Tp,Trk::oppositeMomentum,DE);
 
-  if (!m_pix || !m_sct || m_dbm) detectorElementsSelection(DE, dbm);
+  if (!data.pix || !data.sct || data.dbm) detectorElementsSelection(data, DE);
 
   if ( static_cast<int>(DE.size())  <   m_nclusmin) {
     delete Tp;
@@ -419,27 +425,27 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Find possible list of tracks using space points space points information
   //
   if (!m_useBremModel) {
-    tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
+    tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,data.clusterTrack);
   } else if (!m_useCaloSeeds) {
-    tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,false);
-  } else if (isCaloCompatible(par)) {
-    tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,true);
+    tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,data.clusterTrack,false);
+  } else if (isCaloCompatible(data)) {
+    tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,data.clusterTrack,true);
   } else {
-    tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
+    tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,data.clusterTrack);
   }
   
   if (m_seedsfilter) {
     std::list<Trk::Track*>::iterator t = tracks.begin();
     while (t!=tracks.end()) {
-      if (!isNewTrack((*t), m_clusterTrack)) {
+      if (!isNewTrack(data, *t)) {
         delete (*t);
         tracks.erase(t++);
       } else {
-        clusterTrackMap((*t++), m_clusterTrack);
+        clusterTrackMap(data, *t++);
       }
     }
   }
-  m_findtracks+=tracks.size();
+  data.findtracks+=tracks.size();
 
   // Call seed to track execution
   //
@@ -454,13 +460,14 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
-(const Trk::TrackParameters& Tp,const std::list<Amg::Vector3D>& Gp)
+(const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const
 {
-  ++m_inputseeds;
+  EventData& data{getEventData()};
+  ++data.inputseeds;
   std::list<Trk::Track*> tracks;
-  if (!m_pix && !m_sct) return tracks;
+  if (!data.pix && !data.sct) return tracks;
 
-  ++m_goodseeds;
+  ++data.goodseeds;
 
   // Get detector elements road
   //
@@ -468,11 +475,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   if (!m_cosmicTrack) m_roadmaker->detElementsRoad(Tp,Trk::alongMomentum,   DE);
   else                m_roadmaker->detElementsRoad(Tp,Trk::oppositeMomentum,DE);
 
-  // In this method, isDBMSeeds method is not called and dbm is not determined.
-  // However, dbm is required for detectorElementsSelection.
-  // Cached value of dbm is used.
-  bool dbm = m_dbm;
-  if (!m_pix || !m_sct) detectorElementsSelection(DE, dbm);
+  if (!data.pix || !data.sct) detectorElementsSelection(data, DE);
 
   if (static_cast<int>(DE.size()) < m_nclusmin) return tracks; 
 
@@ -480,33 +483,28 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   //
   std::list<const Trk::SpacePoint*>  Sp;
   
-  // In this method, getAtaPlane method is not called and par is not determined.
-  // However, par is required for isCaloCompatible.
-  // Cached value of par is used.
-  std::array<double, 9> par = m_par;
-
   if (!m_useBremModel) {
-    tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,m_clusterTrack);
+    tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,data.clusterTrack);
   } else if (!m_useCaloSeeds) {
-    tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,false);
-  } else if (isCaloCompatible(par)) {
-    tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,true);
+    tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,data.clusterTrack,false);
+  } else if (isCaloCompatible(data)) {
+    tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,data.clusterTrack,true);
   } else {
-    tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,m_clusterTrack);
+    tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,data.clusterTrack);
   }
   
   if (m_seedsfilter) {
     std::list<Trk::Track*>::iterator t = tracks.begin();
     while (t!=tracks.end()) {
-      if (!isNewTrack((*t), m_clusterTrack)) {
+      if (!isNewTrack(data, *t)) {
         delete (*t);
         tracks.erase(t++);
       } else {
-        clusterTrackMap((*t++), m_clusterTrack);
+        clusterTrackMap(data, *t++);
       }
     }
   }
-  m_findtracks+=tracks.size();
+  data.findtracks += tracks.size();
   return tracks;
 }
 
@@ -515,7 +513,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
-(bool sss,const std::list<const Trk::SpacePoint*>& SP, std::array<double, 9>& par) const
+(EventData& data, bool sss, const std::list<const Trk::SpacePoint*>& SP) const
 {
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if (is==ise) return nullptr;
@@ -563,8 +561,8 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   
   double   d[3] = {x0-D[0],y0-D[1],z0-D[2]};
 
-  par[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
-  par[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
+  data.par[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
+  data.par[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
   if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
@@ -574,31 +572,31 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
     double H[3],gP[3] ={x0,y0,z0}; m_fieldServiceHandle->getFieldZR(gP,H);
 
     if (fabs(H[2])>.0001) {
-      par[2] = atan2(b+a*A,a-b*A);
-      par[3] = atan2(1.,T)       ;  
-      par[5] = -C/(300.*H[2])    ;
+      data.par[2] = atan2(b+a*A,a-b*A);
+      data.par[3] = atan2(1.,T)       ;  
+      data.par[5] = -C/(300.*H[2])    ;
     } else {
       T    =  z2*sqrt(r2)  ;
-      par[2] = atan2(y2,x2);
-      par[3] = atan2(1.,T) ;
-      par[5] = 1./m_pTmin  ;
+      data.par[2] = atan2(y2,x2);
+      data.par[3] = atan2(1.,T) ;
+      data.par[5] = 1./m_pTmin  ;
     }
   } else {
     T    = z2*sqrt(r2)   ;
-    par[2] = atan2(y2,x2);
-    par[3] = atan2(1.,T) ;
-    par[5] = 1./m_pTmin  ;
+    data.par[2] = atan2(y2,x2);
+    data.par[3] = atan2(1.,T) ;
+    data.par[5] = 1./m_pTmin  ;
   }
   
-  if (fabs(par[5])*m_pTmin > 1.1) return nullptr;
-  par[4] = par[5]/sqrt(1.+T*T);
-  par[6] = x0                              ;
-  par[7] = y0                              ;
-  par[8] = z0                              ;
+  if (fabs(data.par[5])*m_pTmin > 1.1) return nullptr;
+  data.par[4] = data.par[5]/sqrt(1.+T*T);
+  data.par[6] = x0                              ;
+  data.par[7] = y0                              ;
+  data.par[8] = z0                              ;
 
-  if (sss && !isHadCaloCompatible(par)) return nullptr;
+  if (sss && !isHadCaloCompatible(data)) return nullptr;
 
-  return pla->createTrackParameters(par[0],par[1],par[2],par[3],par[4],0); 
+  return pla->createTrackParameters(data.par[0],data.par[1],data.par[2],data.par[3],data.par[4],0); 
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -606,7 +604,7 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
-(const std::list<const Trk::SpacePoint*>& SP, std::array<double, 9>& par) const
+(EventData& data, const std::list<const Trk::SpacePoint*>& SP) const
 {
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if (is==ise) return nullptr;
@@ -625,8 +623,8 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
   double p0[3],p1[3],p2[3]; 
   if (!globalPositions((*is0),(*is1),(*is2),p0,p1,p2)) return nullptr;
 
-  double x0 = m_xybeam[0]-p0[0];
-  double y0 = m_xybeam[1]-p0[1];
+  double x0 = data.xybeam[0]-p0[0];
+  double y0 = data.xybeam[1]-p0[1];
   double x2 = p2[0]      -p0[0];
   double y2 = p2[1]      -p0[1];
   double z2 = p2[2]      -p0[2];
@@ -651,8 +649,8 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
   
   double   d[3] = {p0[0]-D[0],p0[1]-D[1],p0[2]-D[2]};
 
-  par[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
-  par[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
+  data.par[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
+  data.par[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
   if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
@@ -662,35 +660,35 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
     m_fieldServiceHandle->getFieldZR(gP,H);
 
     if (fabs(H[2])>.0001) {
-      par[2] = atan2(b+a*A,a-b*A);
-      par[3] = atan2(1.,T)       ;  
-      par[5] = -C/(300.*H[2])    ;
+      data.par[2] = atan2(b+a*A,a-b*A);
+      data.par[3] = atan2(1.,T)       ;  
+      data.par[5] = -C/(300.*H[2])    ;
     } else {
       T    =  z2*sqrt(r2)  ;
-      par[2] = atan2(y2,x2);
-      par[3] = atan2(1.,T) ;
-      par[5] = 1./1000.    ;
+      data.par[2] = atan2(y2,x2);
+      data.par[3] = atan2(1.,T) ;
+      data.par[5] = 1./1000.    ;
     }
   } else {
     T    = z2*sqrt(r2)   ;
-    par[2] = atan2(y2,x2);
-    par[3] = atan2(1.,T) ;
-    par[5] = 1./1000     ;
+    data.par[2] = atan2(y2,x2);
+    data.par[3] = atan2(1.,T) ;
+    data.par[5] = 1./1000     ;
   }
 
-  if (fabs(par[5])*20. > 1.1) return nullptr;
-  par[4] = par[5]/sqrt(1.+T*T);
-  par[6] = p0[0]                           ;
-  par[7] = p0[1]                           ;
-  par[8] = p0[2]                           ;
-  return pla->createTrackParameters(par[0],par[1],par[2],par[3],par[4],0); 
+  if (fabs(data.par[5])*20. > 1.1) return nullptr;
+  data.par[4] = data.par[5]/sqrt(1.+T*T);
+  data.par[6] = p0[0]                           ;
+  data.par[7] = p0[1]                           ;
+  data.par[8] = p0[2]                           ;
+  return pla->createTrackParameters(data.par[0],data.par[1],data.par[2],data.par[3],data.par[4],0); 
 }
 
 ///////////////////////////////////////////////////////////////////
 // Set track quality cuts
 ///////////////////////////////////////////////////////////////////
 
-InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleTrack)
+InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleTrack) const
 {
   InDet::TrackQualityCuts trackquality;
   // Integer cuts
@@ -725,17 +723,18 @@ InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleT
 // Detector elements selection
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>& DE, bool dbm) const
+void InDet::SiTrackMaker_xk::detectorElementsSelection(EventData& data,
+                                                       std::list<const InDetDD::SiDetectorElement*>& DE) const
 {
   std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
-  if (!dbm) {
+  if (!data.dbm) {
     while (d!=DE.end()) {
       if ((*d)->isPixel()) {
-        if (!m_pix) {
+        if (!data.pix) {
           d = DE.erase(d);
           continue;
         }
-      } else if (!m_sct) {
+      } else if (!data.sct) {
         d = DE.erase(d);
         continue;
       }
@@ -763,10 +762,10 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
 // New clusters comparison with clusters associated with track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp)
+bool InDet::SiTrackMaker_xk::newSeed(EventData& data, const std::list<const Trk::SpacePoint*>& Sp) const
 {
   std::multiset<const Trk::Track*> trackseed;
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = m_clusterTrack.end();
+  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = data.clusterTrack.end();
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
 
   int n = 0;
@@ -774,7 +773,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
 
     const Trk::PrepRawData* p = (*s)->clusterList().first; 
    
-    for (pt = m_clusterTrack.find(p); pt!=pte; ++pt) {
+    for (pt = data.clusterTrack.find(p); pt!=pte; ++pt) {
       if ((*pt).first!=p) break;
       trackseed.insert((*pt).second);
     }
@@ -783,7 +782,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     p = (*s)->clusterList().second;
     if (!p) continue;
 
-    for (pt = m_clusterTrack.find(p); pt!=pte; ++pt) {
+    for (pt = data.clusterTrack.find(p); pt!=pte; ++pt) {
       if ((*pt).first!=p) break;
       trackseed.insert((*pt).second);
     }
@@ -829,7 +828,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
 
   if ( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
-  if ( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
+  if ( !m_cosmicTrack && n==3 && data.sct && (*Sp.begin())->r() > 43. ) return true;
   if (t3 > 0) return false;
   return true;
 }
@@ -838,8 +837,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
 // Clusters-track multimap production
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiTrackMaker_xk::clusterTrackMap(Trk::Track* Tr,
-                                              std::multimap<const Trk::PrepRawData*, const Trk::Track*>& clusterTrack) const
+void  InDet::SiTrackMaker_xk::clusterTrackMap(EventData& data, Trk::Track* Tr) const
 {
   DataVector<const Trk::MeasurementBase>::const_iterator 
     m  = Tr->measurementsOnTrack()->begin(), 
@@ -847,7 +845,7 @@ void  InDet::SiTrackMaker_xk::clusterTrackMap(Trk::Track* Tr,
 
   for (; m!=me; ++m) {
     const Trk::PrepRawData* prd = static_cast<const Trk::RIO_OnTrack*>(*m)->prepRawData();
-    if (prd) clusterTrack.insert(std::make_pair(prd,Tr));
+    if (prd) data.clusterTrack.insert(std::make_pair(prd, Tr));
   }
 }
  
@@ -855,12 +853,11 @@ void  InDet::SiTrackMaker_xk::clusterTrackMap(Trk::Track* Tr,
 // Test is it new track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isNewTrack(Trk::Track* Tr,
-                                        const std::multimap<const Trk::PrepRawData*, const Trk::Track*>& clusterTrack) const
+bool InDet::SiTrackMaker_xk::isNewTrack(EventData& data, Trk::Track* Tr) const
 {
   const Trk::PrepRawData* prd   [100];
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
-    ti,t[100],te = m_clusterTrack.end();
+    ti,t[100],te = data.clusterTrack.end();
 
   int n = 0;
 
@@ -873,7 +870,7 @@ bool InDet::SiTrackMaker_xk::isNewTrack(Trk::Track* Tr,
     const Trk::PrepRawData* pr = static_cast<const Trk::RIO_OnTrack*>(*m)->prepRawData();
     if (pr) {
       prd[n] =pr;
-      t  [n] = clusterTrack.find(prd[n]);
+      t  [n] = data.clusterTrack.find(prd[n]);
       if (t[n]==te) return true;
       ++n;
     }
@@ -899,8 +896,8 @@ bool InDet::SiTrackMaker_xk::isNewTrack(Trk::Track* Tr,
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrackMaker_xk::globalPositions
-(const Trk::SpacePoint* s0,const Trk::SpacePoint* s1,const Trk::SpacePoint* s2,
- double* p0,double* p1,double* p2) const
+(const Trk::SpacePoint* s0, const Trk::SpacePoint* s1, const Trk::SpacePoint* s2,
+ double* p0, double* p1, double* p2) const
 {
 
   p0[0] = s0->globalPosition().x(); 
@@ -981,20 +978,20 @@ bool InDet::SiTrackMaker_xk::globalPosition
 // Test is it track with calo seed compatible
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isCaloCompatible(const std::array<double, 9>& par) const
+bool InDet::SiTrackMaker_xk::isCaloCompatible(EventData& data) const
 {
   const double pi = M_PI, pi2 = 2.*M_PI;
 
-  if (m_caloF.empty()) return false;   
+  if (data.caloF.empty()) return false;   
 
-  std::list<double>::const_iterator f = m_caloF.begin(), fe = m_caloF.end();
-  std::list<double>::const_iterator r = m_caloR.begin();
-  std::list<double>::const_iterator z = m_caloZ.begin();
+  std::list<double>::const_iterator f = data.caloF.begin(), fe = data.caloF.end();
+  std::list<double>::const_iterator r = data.caloR.begin();
+  std::list<double>::const_iterator z = data.caloZ.begin();
 
-  double F = par[2]                           ;
-  double E = -log(tan(.5*par[3]))             ;
-  double R = sqrt(par[6]*par[6]+par[7]*par[7]);
-  double Z = par[8]                           ;                           
+  double F = data.par[2]                           ;
+  double E = -log(tan(.5*data.par[3]))             ;
+  double R = sqrt(data.par[6]*data.par[6]+data.par[7]*data.par[7]);
+  double Z = data.par[8]                           ;                           
   
   for (; f!=fe; ++f) {
     double df = fabs(F-(*f));
@@ -1013,20 +1010,20 @@ bool InDet::SiTrackMaker_xk::isCaloCompatible(const std::array<double, 9>& par) 
 // Test track is compatible withi had calo seed
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isHadCaloCompatible(const std::array<double, 9>& par) const
+bool InDet::SiTrackMaker_xk::isHadCaloCompatible(EventData& data) const
 {
   const double pi = M_PI, pi2 = 2.*M_PI;
 
-  if (m_hadF.empty() || fabs(par[5])*m_pTminSSS > 1.) return false;   
+  if (data.hadF.empty() || fabs(data.par[5])*m_pTminSSS > 1.) return false;   
 
-  std::list<double>::const_iterator f = m_hadF.begin(), fe = m_hadF.end();
-  std::list<double>::const_iterator r = m_hadR.begin();
-  std::list<double>::const_iterator z = m_hadZ.begin();
+  std::list<double>::const_iterator f = data.hadF.begin(), fe = data.hadF.end();
+  std::list<double>::const_iterator r = data.hadR.begin();
+  std::list<double>::const_iterator z = data.hadZ.begin();
 
-  double F = par[2]                           ;
-  double E = -log(tan(.5*par[3]))             ;
-  double R = sqrt(par[6]*par[6]+par[7]*par[7]);
-  double Z = par[8]                           ;                           
+  double F = data.par[2]                           ;
+  double E = -log(tan(.5*data.par[3]))             ;
+  double R = sqrt(data.par[6]*data.par[6]+data.par[7]*data.par[7]);
+  double Z = data.par[8]                           ;                           
   
   for (; f!=fe; ++f) {
     double df = fabs(F-(*f));
@@ -1058,7 +1055,7 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s) const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiTrackMaker_xk::globalDirections
-(double* p0,double* p1,double* p2,double* d0,double* d1,double* d2) const
+(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const
 {
   double x01 = p1[0]-p0[0]      ;
   double y01 = p1[1]-p0[1]      ;
@@ -1092,4 +1089,38 @@ void InDet::SiTrackMaker_xk::globalDirections
   d0[0] = Sa   -Sb*A0; d0[1]= Sa*A0+Sb   ; d0[2]=Ce;  
   d1[0] = Sa   +Sb*A0; d1[1]= Sb   -Sa*A0; d1[2]=Ce;  
   d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
+}
+
+InDet::SiTrackMaker_xk::EventData& InDet::SiTrackMaker_xk::getEventData() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cache.size()) { // Need to extend vectors
+    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
+    m_eventData.resize(slot+1);
+  }
+  if (m_cache[slot]!=evt) { // New event
+    m_cache[slot] = evt;
+    // Initialization
+    m_eventData[slot].inputseeds = 0;
+    m_eventData[slot].goodseeds = 0;
+    m_eventData[slot].findtracks = 0;
+    m_eventData[slot].nprint = 0;
+    m_eventData[slot].clusterTrack.clear();
+    m_eventData[slot].par = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    m_eventData[slot].pix = false;
+    m_eventData[slot].sct = false;
+    m_eventData[slot].dbm = false;
+    m_eventData[slot].caloF.clear();
+    m_eventData[slot].caloR.clear();
+    m_eventData[slot].caloZ.clear();
+    m_eventData[slot].hadF.clear();
+    m_eventData[slot].hadR.clear();
+    m_eventData[slot].hadZ.clear();
+    m_eventData[slot].xybeam[0] = 0.;
+    m_eventData[slot].xybeam[1] = 0.;
+  }
+  return m_eventData[slot];
 }

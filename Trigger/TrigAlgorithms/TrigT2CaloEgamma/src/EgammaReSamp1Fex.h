@@ -21,8 +21,6 @@
 #define TRIGT2CALOEGAMMA_CALOSAMP1FEXEGAMMARE_H
 
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
-#include "CaloEvent/CaloBCIDAverage.h"
-#include "StoreGate/ReadHandleKey.h"
 
 class IRoiDescriptor;
 
@@ -31,8 +29,6 @@ class EgammaReSamp1Fex: public IReAlgToolCalo {
   public:
     EgammaReSamp1Fex(const std::string & type, const std::string & name,
                      const IInterface* parent);
-
-    virtual StatusCode initialize() override;
 
     /** @brief execute feature extraction for the EM Calorimeter
     *   second layer 
@@ -43,11 +39,6 @@ class EgammaReSamp1Fex: public IReAlgToolCalo {
                                const IRoiDescriptor& roi,
                                const CaloDetDescrElement*& caloDDE,
                                const EventContext& context ) const override;
-
-
-private:
-    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
-    { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 #endif

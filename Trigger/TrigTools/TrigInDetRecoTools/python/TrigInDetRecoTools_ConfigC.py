@@ -78,7 +78,6 @@ class FactoryForStrategyC() :
                                                                   SCT_ClusterContainer = 'SCT_ClusterCache',
                                                                   PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                   SctSummaryTool = InDetTrigSCTConditionsSummaryTool)
-             ToolSvc += TrackFinder_C
              if DetFlags.haveRIO.SCT_on():
                  # Condition algorithm for SiCombinatorialTrackFinder_xk
                  from AthenaCommon.AlgSequence import AthSequencer

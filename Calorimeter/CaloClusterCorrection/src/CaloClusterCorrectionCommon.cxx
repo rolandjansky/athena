@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloClusterCorrectionCommon.cxx,v 1.12 2008-08-30 05:43:22 ssnyder Exp $
@@ -77,199 +77,80 @@ int sampling (int region)
 }
 
 
-/**
- * @brief Find the detector descriptor element for a given position.
- * @param region A region code, as defined in the header.
- * @param dd_man Detector descriptor manager.
- * @param cluster The cluster being corrected.
- * @param eta    The @f$\eta@f$ coordinate to find.
- * @param phi    The @f$\phi@f$ coordinate to find.
- *
- * Looks up the DD element containing @c eta, @c phi in the region
- * specified by @c region.  Returns 0 if there's no such cell.
- */
-const CaloDetDescrElement* find_dd_elt1 (int region,
-                                         const CaloDetDescrManager* dd_man,
+} // anonymous namespace
+
+
+namespace CaloClusterCorr {
+
+
+class DDHelper
+{
+public:
+  /// Constructor.
+  DDHelper (const CaloDetDescrManager* dd_man);
+
+
+  /// Find the detector descriptor element for a given position,
+  /// correcting for DD edge bugs.
+  const CaloDetDescrElement*
+  find_dd_elt (int region,
+               const xAOD::CaloCluster* cluster,
+               float eta,
+               float phi) const;
+
+
+private:
+  /// Find the detector descriptor element for a given position.
+  const CaloDetDescrElement* find_dd_elt1 (int region,
+                                           const CaloCluster* cluster,
+                                           float eta,
+                                           float phi) const;
+
+
+  /// Work around innermost strip problem.
+  const CaloDetDescrElement*
+  dd_inner_strip_fixup (int region,
+                        float eta,
+                        float phi) const;
+
+
+  const CaloDetDescrElement* dd_try_gap (int region,
                                          const CaloCluster* cluster,
                                          float eta,
-                                         float phi)
-{
-  const CaloDetDescrElement* elt = 0;
+                                         float phi) const;
 
-  // Decode the region.
-  switch (region) {
-  case CaloClusterCorrectionCommon::EMB1:
-  case CaloClusterCorrectionCommon::EMB2:
-  case CaloClusterCorrectionCommon::EME1:
-  case CaloClusterCorrectionCommon::EME2:
-    // Simple case, it's a specific sampling.
-    elt = dd_man->get_element
-      (CaloCell_ID::LAREM, sampling (region), barrel_p (region), eta, phi);
-    break;
 
-  case CaloClusterCorrectionCommon::COMBINED2:
-  case CaloClusterCorrectionCommon::CLUSTER:
-    // We're combining both the barrel and endcap.
-    // Look for elements in both.
-    // If we actually get both, make the decision by choosing
-    // the one with the most energy in sampling 2.
-    {
-      const CaloDetDescrElement* elt_b = dd_man->get_element
-        (CaloCell_ID::LAREM, 2,  true, eta, phi);
-      const CaloDetDescrElement* elt_e = dd_man->get_element
-        (CaloCell_ID::LAREM, 2, false, eta, phi);
+  /// Construct dummy DDEs used to work around innermost strip problem.
+  void make_dummy_elts();
 
-      if (elt_b == 0)
-        elt = elt_e;
-      else if (elt_e == 0)
-        elt = elt_b;
-      else if (cluster->eSample (CaloSampling::EMB2) >
-               cluster->eSample (CaloSampling::EME2))
-        elt = elt_b;
-      else
-        elt = elt_e;      
-    }
-    break;
-  default:
-    abort();
-  }
 
-  return elt;
-}
+  /// The detector descriptor manager.
+  const CaloDetDescrManager* m_dd_man;
+
+
+  /// Collection of dummy elements.
+  std::vector<std::unique_ptr<const CaloDetDescrElement> > m_dummy_elts;
+};
 
 
 /**
- * @brief Construct dummy DDEs used to work around innermost strip problem
- *        (see below).
- * @param dd_man Detector descriptor manager.
+ * @brief Constructor.
+ * @param dd_man The detector descriptor manager.
  */
-std::vector<std::unique_ptr<const CaloDetDescrElement> >
-dd_make_dummy_elts (const CaloDetDescrManager* dd_man)
+DDHelper::DDHelper (const CaloDetDescrManager* dd_man)
+  : m_dd_man (dd_man)
 {
-  std::vector<std::unique_ptr<const CaloDetDescrElement> > elts;
-  const CaloDetDescriptor* descr = dd_man->get_descriptor (CaloCell_ID::LAREM,
-                                                           1, true, 0.05, 0);
-  if (descr) {
-    int nphi = descr->n_phi();
-    elts.resize (nphi*2);
-    for (int etasgn = 1; etasgn >= -1; etasgn -= 2) {
-      for (int iphi = 0; iphi < nphi; iphi++) {
-        // Make a new dummy cell.
-        // First, try to find the adjacent strip.  Punt if we can't
-        // find _that_!
-        const CaloCell_ID* cellid_mgr = dd_man->getCaloCell_ID();
-        Identifier cellId2 = cellid_mgr->cell_id (descr->identify(),
-                                                  1, iphi);
-        IdentifierHash cellIdHash2 = cellid_mgr->calo_cell_hash (cellId2);
-        // Verify that we don't have another nonexistent cell!
-        if (cellid_mgr->cell_id (cellIdHash2) != cellId2)
-          continue;
-        const CaloDetDescrElement* elt2 = dd_man->get_element (cellIdHash2);
-        if (!elt2) continue;
-
-        auto elt = CxxUtils::make_unique<DummyDetDescrElement>
-          (descr->subcalo_hash(),
-           0,
-           0,
-           descr);
-
-        // Copy geometry from the adjacent cell, shifting eta.
-        elt->set_cylindric_size (elt2->deta(),
-                                 elt2->dphi(),
-                                 elt2->dr());
-        elt->set_cylindric (elt2->eta() - etasgn * elt2->deta(),
-                            elt2->phi(),
-                            elt2->r());
-        elt->set_cylindric_raw (elt2->eta_raw() - etasgn * elt2->deta(),
-                                elt2->phi_raw(),
-                                elt2->r_raw());
-
-        int index = iphi;
-        if (etasgn < 0) index += nphi;
-        elts[index] = std::move(elt);
-      }
-    }
-  }
-  return elts;
+  make_dummy_elts();
 }
-
-
-/**
- * @brief Work around innermost strip problem.
- * @param region A region code, as defined in the header.
- * @param dd_man Detector descriptor manager.
- * @param eta    The @f$\eta@f$ coordinate to find.
- * @param phi    The @f$\phi@f$ coordinate to find.
- * @param dummy_elts Vector of dummy elements for the innermost strip.
- *
- * The innermost strip in sampling 1 in the barrel is disconnected.
- * However, CaloDetDescr doesn't really know about that.
- * If you ask for a cell in that region, it will instead return
- * you a cell for some completely different calorimeter region!
- * We call this in the case that we're unable to find a good
- * det descr element.  Here we check to see if we're actually
- * asking for a location in this innermost strip.  If so, then we
- * cons up a new dummy element and return that.
- */
-const CaloDetDescrElement*
-dd_inner_strip_fixup (int region,
-                      const CaloDetDescrManager* dd_man,
-                      float eta,
-                      float phi,
-                      const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts)
-{
-  if (region == CaloClusterCorrectionCommon::EMB1 && fabs(eta) < 0.1) {
-    const CaloDetDescriptor* descr = dd_man->get_descriptor (CaloCell_ID::LAREM,
-                                                             1, true, eta, phi);
-    if (!descr) return 0;
-    int ieta = descr->eta_channel (eta);
-    if (ieta == 0) {
-      // If we get here, then we're looking at one of the problematic cells.
-      int iphi = descr->phi_channel (phi);
-      if (iphi < 0) return 0;
-      unsigned int index = iphi;
-      if (eta < 0)
-        index += descr->n_phi();
-      if (dummy_elts.size() <= index)
-        return 0;
-      return dummy_elts[index].get();
-    }
-  }
-
-  return 0;
-}
-
-
-const CaloDetDescrElement* dd_try_gap (int region,
-                                       const CaloDetDescrManager* dd_man,
-                                       const CaloCluster* cluster,
-                                       float eta,
-                                       float phi)
-{
-  const CaloDetDescrElement* elt1 = find_dd_elt1 (region, dd_man, cluster,
-                                                  eta + 1e-4, phi);
-  if (!elt1) return 0;
-  const CaloDetDescrElement* elt2 = find_dd_elt1 (region, dd_man, cluster,
-                                                  eta - 1e-4, phi);
-  if (!elt2) return 0;
-  if (eta > 0)
-    return elt2;
-  return elt1;
-}
-
-
-} // anonymous namespace
 
 
 /**
  * @brief Find the detector descriptor element for a given position,
  *        correcting for DD edge bugs.
  * @param region A region code, as defined in the header.
- * @param dd_man Detector descriptor manager.
  * @param cluster The cluster being corrected.
  * @param eta    The @f$\eta@f$ coordinate to find.
  * @param phi    The @f$\phi@f$ coordinate to find.
- * @param dummy_elts Vector of dummy elements for the innermost strip.
  *
  * Looks up the DD element containing @c eta, @c phi in the region
  * specified by @c region.  Returns 0 if there's no such cell.
@@ -282,13 +163,10 @@ const CaloDetDescrElement* dd_try_gap (int region,
  * a cell and try again.
  */
 const CaloDetDescrElement*
-CaloClusterCorrectionCommon::find_dd_elt
-            (int region,
-             const CaloDetDescrManager* dd_man,
-             const CaloCluster* cluster,
-             float eta,
-             float phi,
-             const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts)
+DDHelper::find_dd_elt (int region,
+                       const CaloCluster* cluster,
+                       float eta,
+                       float phi) const
 {
   const CaloDetDescrElement* elt = 0;
   float eta_offs = 0;
@@ -297,13 +175,13 @@ CaloClusterCorrectionCommon::find_dd_elt
   int good = 0;
   
   while (good != 2) {
-    elt = find_dd_elt1 (region, dd_man, cluster,
+    elt = find_dd_elt1 (region, cluster,
                         eta + eta_offs, CaloPhiRange::fix (phi + phi_offs));
 
     if (!elt) {
-      elt = dd_inner_strip_fixup (region, dd_man, eta, phi, dummy_elts);
+      elt = dd_inner_strip_fixup (region, eta, phi);
       if (elt) return elt;
-      elt = dd_try_gap (region, dd_man, cluster, eta, phi);
+      elt = dd_try_gap (region, cluster, eta, phi);
       return elt;
     }
 
@@ -338,13 +216,190 @@ CaloClusterCorrectionCommon::find_dd_elt
       ++good;
 
     if (good != 2 && n == 1) {
-      elt = dd_inner_strip_fixup (region, dd_man, eta, phi, dummy_elts);
+      elt = dd_inner_strip_fixup (region, eta, phi);
       if (elt) break;
     }
   }
 
   return elt;
 }
+
+
+/**
+ * @brief Find the detector descriptor element for a given position.
+ * @param region A region code, as defined in the header.
+ * @param cluster The cluster being corrected.
+ * @param eta    The @f$\eta@f$ coordinate to find.
+ * @param phi    The @f$\phi@f$ coordinate to find.
+ *
+ * Looks up the DD element containing @c eta, @c phi in the region
+ * specified by @c region.  Returns 0 if there's no such cell.
+ */
+const CaloDetDescrElement*
+DDHelper::find_dd_elt1 (int region,
+                        const CaloCluster* cluster,
+                        float eta,
+                        float phi) const
+{
+  const CaloDetDescrElement* elt = 0;
+
+  // Decode the region.
+  switch (region) {
+  case CaloClusterCorrectionCommon::EMB1:
+  case CaloClusterCorrectionCommon::EMB2:
+  case CaloClusterCorrectionCommon::EME1:
+  case CaloClusterCorrectionCommon::EME2:
+    // Simple case, it's a specific sampling.
+    elt = m_dd_man->get_element
+      (CaloCell_ID::LAREM, sampling (region), barrel_p (region), eta, phi);
+    break;
+
+  case CaloClusterCorrectionCommon::COMBINED2:
+  case CaloClusterCorrectionCommon::CLUSTER:
+    // We're combining both the barrel and endcap.
+    // Look for elements in both.
+    // If we actually get both, make the decision by choosing
+    // the one with the most energy in sampling 2.
+    {
+      const CaloDetDescrElement* elt_b = m_dd_man->get_element
+        (CaloCell_ID::LAREM, 2,  true, eta, phi);
+      const CaloDetDescrElement* elt_e = m_dd_man->get_element
+        (CaloCell_ID::LAREM, 2, false, eta, phi);
+
+      if (elt_b == 0)
+        elt = elt_e;
+      else if (elt_e == 0)
+        elt = elt_b;
+      else if (cluster->eSample (CaloSampling::EMB2) >
+               cluster->eSample (CaloSampling::EME2))
+        elt = elt_b;
+      else
+        elt = elt_e;      
+    }
+    break;
+  default:
+    abort();
+  }
+
+  return elt;
+}
+
+
+/**
+ * @brief Work around innermost strip problem.
+ * @param region A region code, as defined in the header.
+ * @param dd_man Detector descriptor manager.
+ * @param eta    The @f$\eta@f$ coordinate to find.
+ * @param phi    The @f$\phi@f$ coordinate to find.
+ * @param dummy_elts Vector of dummy elements for the innermost strip.
+ *
+ * The innermost strip in sampling 1 in the barrel is disconnected.
+ * However, CaloDetDescr doesn't really know about that.
+ * If you ask for a cell in that region, it will instead return
+ * you a cell for some completely different calorimeter region!
+ * We call this in the case that we're unable to find a good
+ * det descr element.  Here we check to see if we're actually
+ * asking for a location in this innermost strip.  If so, then we
+ * cons up a new dummy element and return that.
+ */
+const CaloDetDescrElement*
+DDHelper::dd_inner_strip_fixup (int region,
+                                float eta,
+                                float phi) const
+{
+  if (region == CaloClusterCorrectionCommon::EMB1 && fabs(eta) < 0.1) {
+    const CaloDetDescriptor* descr =
+      m_dd_man->get_descriptor (CaloCell_ID::LAREM,
+                                1, true, eta, phi);
+    if (!descr) return 0;
+    int ieta = descr->eta_channel (eta);
+    if (ieta == 0) {
+      // If we get here, then we're looking at one of the problematic cells.
+      int iphi = descr->phi_channel (phi);
+      if (iphi < 0) return 0;
+      unsigned int index = iphi;
+      if (eta < 0)
+        index += descr->n_phi();
+      if (m_dummy_elts.size() <= index)
+        return 0;
+      return m_dummy_elts[index].get();
+    }
+  }
+
+  return 0;
+}
+
+
+const CaloDetDescrElement*
+DDHelper::dd_try_gap (int region,
+                      const CaloCluster* cluster,
+                      float eta,
+                      float phi) const
+{
+  const CaloDetDescrElement* elt1 = find_dd_elt1 (region, cluster,
+                                                  eta + 1e-4, phi);
+  if (!elt1) return 0;
+  const CaloDetDescrElement* elt2 = find_dd_elt1 (region, cluster,
+                                                  eta - 1e-4, phi);
+  if (!elt2) return 0;
+  if (eta > 0)
+    return elt2;
+  return elt1;
+}
+
+
+/**
+ * @brief Construct dummy DDEs used to work around innermost strip problem.
+ */
+void DDHelper::make_dummy_elts()
+{
+  const CaloDetDescriptor* descr = m_dd_man->get_descriptor (CaloCell_ID::LAREM,
+                                                             1, true, 0.05, 0);
+  if (descr) {
+    int nphi = descr->n_phi();
+    m_dummy_elts.resize (nphi*2);
+    for (int etasgn = 1; etasgn >= -1; etasgn -= 2) {
+      for (int iphi = 0; iphi < nphi; iphi++) {
+        // Make a new dummy cell.
+        // First, try to find the adjacent strip.  Punt if we can't
+        // find _that_!
+        const CaloCell_ID* cellid_mgr = m_dd_man->getCaloCell_ID();
+        Identifier cellId2 = cellid_mgr->cell_id (descr->identify(),
+                                                  1, iphi);
+        IdentifierHash cellIdHash2 = cellid_mgr->calo_cell_hash (cellId2);
+        // Verify that we don't have another nonexistent cell!
+        if (cellid_mgr->cell_id (cellIdHash2) != cellId2)
+          continue;
+        const CaloDetDescrElement* elt2 = m_dd_man->get_element (cellIdHash2);
+        if (!elt2) continue;
+
+        auto elt = std::make_unique<DummyDetDescrElement>
+          (descr->subcalo_hash(),
+           0,
+           0,
+           descr);
+
+        // Copy geometry from the adjacent cell, shifting eta.
+        elt->set_cylindric_size (elt2->deta(),
+                                 elt2->dphi(),
+                                 elt2->dr());
+        elt->set_cylindric (elt2->eta() - etasgn * elt2->deta(),
+                            elt2->phi(),
+                            elt2->r());
+        elt->set_cylindric_raw (elt2->eta_raw() - etasgn * elt2->deta(),
+                                elt2->phi_raw(),
+                                elt2->r_raw());
+
+        int index = iphi;
+        if (etasgn < 0) index += nphi;
+        m_dummy_elts[index] = std::move(elt);
+      }
+    }
+  }
+}
+
+
+} // namespace CaloClusterCorr
 
 
 /**
@@ -357,8 +412,7 @@ CaloClusterCorrectionCommon::CaloClusterCorrectionCommon
    (const std::string& type,
     const std::string& name,
     const IInterface* parent)
-     : CaloClusterCorrection (type, name, parent),
-       m_calo_dd_man (0)
+     : CaloClusterCorrection (type, name, parent)
 {
   // Fetch our calibration constants.
   declareConstant ("region",         m_region);
@@ -379,8 +433,6 @@ CaloClusterCorrectionCommon::~CaloClusterCorrectionCommon ()
  */
 StatusCode CaloClusterCorrectionCommon::initialize()
 {
-  m_calo_dd_man = CaloDetDescrManager::instance();
-  m_dummy_elts = dd_make_dummy_elts (m_calo_dd_man);
   return CaloClusterCorrection::initialize();
 }
 
@@ -471,10 +523,9 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
 
   // Look up the DD element.
   // Give up if we can't find one.
-  const CaloDetDescrElement* elt = find_dd_elt (m_region, m_calo_dd_man,
-                                                cluster,
-                                                eta, phi,
-                                                m_dummy_elts);
+  const CaloDetDescrElement* elt = ddhelper().find_dd_elt (m_region,
+                                                           cluster,
+                                                           eta, phi);
   if (!elt)
     return;
 
@@ -593,3 +644,19 @@ CaloClusterCorrectionCommon::energy_interpolation (float energy,
   return interpolate (corrtab, energy, energy_degree,
                       1, CaloRec::Array<1>(), n_good);
 }
+
+
+const CaloClusterCorr::DDHelper& CaloClusterCorrectionCommon::ddhelper() const
+{
+  const CaloClusterCorr::DDHelper* ddhelper = m_ddhelper.get();
+  if (!ddhelper) {
+    const CaloDetDescrManager* ddman = nullptr;
+    if (detStore()->retrieve (ddman, "CaloMgr").isFailure()) {
+      std::abort();
+    }
+    auto newhelper = std::make_unique<const CaloClusterCorr::DDHelper> (ddman);
+    ddhelper = m_ddhelper.set (std::move (newhelper));
+  }
+  return *ddhelper;
+}
+

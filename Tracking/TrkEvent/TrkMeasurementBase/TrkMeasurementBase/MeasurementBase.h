@@ -37,6 +37,23 @@ namespace Trk {
     @author Andreas.Salzburger@cern.ch
   
   */
+
+namespace MeasurementBaseType{
+/* The various kind of MeasurementBase 
+ * to avoid dynamic_cast via using the type method
+ */
+enum Type{
+  Segment                  =0,
+  SpacePoint               =1,
+  RIO_OnTrack              =2,
+  CompetingRIOsOnTrack     =3,
+  PseudoMeasurementOnTrack =4,
+  VertexOnTrack            =5,
+  CaloCluster_OnTrack      =6
+}; 
+}
+
+
   class MeasurementBase {
     
     public:
@@ -66,6 +83,9 @@ namespace Trk {
        
        /**Interface method to get the global Position*/
        virtual const Amg::Vector3D& globalPosition() const = 0;
+
+       /** Interface method checking the type*/
+       virtual bool type(MeasurementBaseType::Type type) const =0;  
        
        /**Interface method for output, to be overloaded by child classes* */
        virtual MsgStream&    dump( MsgStream& out ) const = 0;  

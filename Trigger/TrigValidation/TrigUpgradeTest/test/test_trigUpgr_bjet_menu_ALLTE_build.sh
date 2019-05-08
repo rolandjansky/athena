@@ -11,7 +11,7 @@ export SKIPEVENTS=0
 export EVENTS=100
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/bjet.menu.ALLTE.py"
+export JOBOPTION="TrigUpgradeTest/bjet_menu_ALLTE.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
 
 # Find the regtest reference installed with the release

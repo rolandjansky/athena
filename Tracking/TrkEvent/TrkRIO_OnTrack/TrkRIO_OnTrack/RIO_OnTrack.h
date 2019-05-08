@@ -70,21 +70,26 @@ namespace Trk {
       virtual ~RIO_OnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      virtual RIO_OnTrack* clone() const = 0;
+      virtual RIO_OnTrack* clone() const override = 0;
                 
      /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
-      virtual const Surface& associatedSurface() const = 0;
+      virtual const Surface& associatedSurface() const override = 0;
      
      /**Interface method to get the global Position
       - interface from MeasurementBase */
-      virtual const Amg::Vector3D& globalPosition() const = 0;
+      virtual const Amg::Vector3D& globalPosition() const override = 0;
+
+      /** Extended method checking the type*/
+       virtual bool type(MeasurementBaseType::Type type) const override {
+         return (type==MeasurementBaseType::RIO_OnTrack);
+       }
 
       /**returns the some information about this RIO_OnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const;  
+      virtual MsgStream&    dump( MsgStream& out ) const override;  
 
       /**returns the some information about this RIO_OnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
            
      /** returns the PrepRawData (also known as  RIO) object to which this RIO_OnTrack is associated.
       Can be null (in case where the Trk::PrepRawData is not persistified). 

@@ -22,8 +22,6 @@
 #include "GaudiKernel/AlgTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "CaloEvent/CaloBCIDAverage.h"
-#include "StoreGate/ReadHandleKey.h"
 
 class IRoiDesciptor;
 
@@ -32,10 +30,6 @@ class EgammaReSamp2Fex: public IReAlgToolCalo {
   public:
     EgammaReSamp2Fex(const std::string & type, const std::string & name,
                      const IInterface* parent);
-
-
-    virtual StatusCode initialize() override;
-
 
     /** @brief execute feature extraction for the EM Calorimeter
     *	second layer 
@@ -52,9 +46,6 @@ class EgammaReSamp2Fex: public IReAlgToolCalo {
 
     Gaudi::Property<float> m_maxHotCellDeta{this, "MaxDetaHotCell", 1.0};
     Gaudi::Property<float> m_maxHotCellDphi{this, "MaxDphiHotCell", 1.0};
-
-    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
-    { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 };
 
 inline double EgammaReSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{

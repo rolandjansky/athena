@@ -208,7 +208,9 @@ if jetFlags.useTracks():
   ungroomed_modifiers += ["trackassoc"]
   ungroomed_modifiers += [jtm.jetorigin_setpv]
 if jetFlags.useTruth():
-  ungroomed_modifiers += ["truthassoc"]
+  if jetFlags.detailLevel()>=JetContentDetail.Full:
+    # only at this detail level are the truth jets build. We can then schedule the TruthAssociation calculation :
+    ungroomed_modifiers += ["truthassoc"]
   if jtm.haveParticleJetTools:
     ungroomed_modifiers += [jtm.jetdrlabeler]
 

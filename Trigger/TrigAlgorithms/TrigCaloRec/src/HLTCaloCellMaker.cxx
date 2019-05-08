@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -42,7 +42,6 @@ StatusCode HLTCaloCellMaker::initialize() {
   else
     ATH_CHECK( m_cellContainerVKey.initialize() );
   ATH_CHECK( m_tileEMScaleKey.initialize() );
-  ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -52,8 +51,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
-
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   // datahandle 
   if ( m_roiMode ) {
@@ -65,7 +62,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
-        ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, avg.cptr(), *cdv ));
+        ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
 	cdv->setHasCalo(CaloCell_ID::LAREM);
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
@@ -76,14 +73,14 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	// TT EM PART
 	for(int sampling=0;sampling<4;sampling++){
 	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, TTEM, sampling, sel ));
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
 	}
 	cdv->setHasCalo(CaloCell_ID::LAREM);
 	// TT HEC PART
 	for(int sampling=0;sampling<4;sampling++){
 	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, TTHEC, sampling, sel ));
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTHEC, sampling, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
 	}
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
@@ -97,14 +94,14 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	// TT FCAL EM PART
 	{
 	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, FCALEM, 0, sel ));
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALEM, 0, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
 	}
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	// TT FCAL HAD PART
 	for(int sampling=0;sampling<2;sampling++){
 	LArTT_Selector<LArCellCont> sel;
-	ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, FCALHAD, sampling, sel ));
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALHAD, sampling, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
 	}
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
@@ -124,7 +121,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
-	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, avg.cptr(), *c ));
+	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
 		
       } else {
@@ -133,14 +130,14 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         // TT EM PART
         for(int sampling=0;sampling<4;sampling++){
         LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, TTEM, sampling, sel ));
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
         for( const auto cell : sel ) {c->push_back( cell ); }
         }
         c->setHasCalo(CaloCell_ID::LAREM);
         // TT HEC PART
         for(int sampling=0;sampling<4;sampling++){
         LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, TTHEC, sampling, sel ));
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTHEC, sampling, sel ));
         for( const auto cell : sel ) {c->push_back( cell ); }
         }
         c->setHasCalo(CaloCell_ID::LARHEC);
@@ -154,14 +151,14 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         // TT FCAL EM PART
         {
         LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, FCALEM, 0, sel ));
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALEM, 0, sel ));
         for( const auto cell : sel ) {c->push_back( cell ); }
         }
         c->setHasCalo(CaloCell_ID::LARFCAL);
         // TT FCAL HAD PART
         for(int sampling=0;sampling<2;sampling++){
         LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, avg.cptr(), *roiDescriptor, FCALHAD, sampling, sel ));
+        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, FCALHAD, sampling, sel ));
         for( const auto cell : sel ) {c->push_back( cell ); }
         }
         c->setHasCalo(CaloCell_ID::LARFCAL);

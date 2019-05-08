@@ -25,6 +25,7 @@ namespace Monitored {
     std::string path;              //!< booking path
     std::string title;             //!< title of the histogram
     std::string opt;               //!< options
+    std::string weight;            //!< names of weights
 
     int xbins{0};  //!< number of bins in X
     float xmin{0}; //!< left

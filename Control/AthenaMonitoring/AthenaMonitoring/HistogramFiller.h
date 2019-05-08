@@ -61,9 +61,21 @@ namespace Monitored {
     void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
       m_monVariables = monitoredVariables;
     }
+
+    /** 
+     * @brief Stores histogram weight
+     * @param monitoredWeight weight to use
+     */
+    void setMonitoredWeight(Monitored::IMonitoredVariable* monitoredWeight) {
+            m_monWeight = monitoredWeight;
+    }
   
     std::vector<std::string> histogramVariablesNames() const {
       return m_histDef->name;
+    }
+
+    std::string histogramWeightName() {
+      return m_histDef->weight;
     }
     
   protected:
@@ -76,6 +88,7 @@ namespace Monitored {
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
+    Monitored::IMonitoredVariable* m_monWeight;
     
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;

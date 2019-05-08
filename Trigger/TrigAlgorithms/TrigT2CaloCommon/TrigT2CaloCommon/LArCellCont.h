@@ -22,6 +22,7 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
+#include "CaloInterface/ICaloLumiBCIDTool.h"
 
 #include <vector>
 
@@ -29,7 +30,6 @@ class EventInfo;
 //class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadFebMasker;
-class CaloBCIDAverage;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -63,8 +63,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   /** method to apply correction based on the luminosity
   *  to the energy
   */
-  void applyBCIDCorrection(const CaloBCIDAverage* avg,
-                           const unsigned int& rodid);
+  void applyBCIDCorrection(const unsigned int& rodid);
 
   /** destructor */
   virtual ~LArCellCont() { };
@@ -77,6 +76,10 @@ class LArCellCont : public std::vector<LArCellCollection*>
   void eventNumber ( const unsigned int eN ) { m_event=eN; };
   /** sets LumiBlock and BCID */
   void lumiBlock_BCID(const unsigned int lumi_block, const unsigned int BCID);
+  /** has to retrieve the pointer before in TrigDataAccess */
+  void setCaloLumiBCIDPointer( ICaloLumiBCIDTool* caloLumiBCIDTool ) {
+    m_caloLumiBCIDTool = caloLumiBCIDTool;
+  }
   
   /** List of Missing ROBs */
   const std::vector<uint32_t>& MissingROBs( void ) {
@@ -114,7 +117,9 @@ private:
 	/** reference to the corrections for a given BCID */
 	std::vector<float>& m_corrBCIDref;
 	/** update BCID dependent correction table */
-	void updateBCID(const CaloBCIDAverage* avg);
+	void updateBCID();
+	/** CaloLumiBCIDTool pointer */
+	ICaloLumiBCIDTool* m_caloLumiBCIDTool;
 	/** index table */
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */

@@ -18,9 +18,6 @@
 #include "SGTools/TransientAddress.h"
 
 #include "PersistentDataModel/DataHeader.h"
-//----------------------
-// For update address
-#include "ByteStreamCnvSvcBase/ByteStreamAddressL1R.h"
 
 //------------------------------------------------------------------------------------
 /// Standard constructor

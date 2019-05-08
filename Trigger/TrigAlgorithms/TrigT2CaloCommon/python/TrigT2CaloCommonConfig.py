@@ -31,9 +31,11 @@ class TrigDataAccess(_TrigDataAccess):
                     svcMgr += LArFlatConditionSvc()
                     svcMgr.LArFlatConditionSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
                     svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
-
-                from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
-                CaloBCIDAvgAlgDefault()
+                    
+                from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+                theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
+                svcMgr.ToolSvc += theCaloLumiBCIDTool
+                self.CaloLumiBCIDTool = theCaloLumiBCIDTool
                 self.ApplyOffsetCorrection = True
             else:
                 log.info('Disable HLT calo offset correction')

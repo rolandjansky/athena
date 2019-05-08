@@ -940,7 +940,6 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
-  ToolSvc += InDetTrigSiComTrackFinder
   if DetFlags.haveRIO.SCT_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
     from AthenaCommon.AlgSequence import AthSequencer

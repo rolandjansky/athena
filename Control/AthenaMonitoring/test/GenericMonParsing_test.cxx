@@ -16,7 +16,7 @@ using namespace Monitored;
 
 
 bool parsing1DWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, Eta, #eta of Clusters; #eta; number of RoIs, 50, -2.500000, 2.500000");
+  auto def = HistogramDef::parse("EXPERT, TH1F, , Eta, #eta of Clusters; #eta; number of RoIs, 50, -2.500000, 2.500000");
   VALUE ( def.ok )          EXPECTED ( true );  
   VALUE ( def.path )        EXPECTED ( "EXPERT" );
   VALUE ( def.type )        EXPECTED ( "TH1F" );
@@ -30,7 +30,7 @@ bool parsing1DWorks() {
 }
 
 bool parsing2DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH2F, Eta,Phi, #eta vs #phi of Clusters; #eta; #phi, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000");
+  auto def = HistogramDef::parse("SHIFT, TH2F, , Eta,Phi, #eta vs #phi of Clusters; #eta; #phi, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TH2F" );
@@ -50,7 +50,7 @@ bool parsing2DWorks() {
 }
 
 bool parsing3DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TProfile2D, Eta,Phi,pt, title, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000, -1.000000, 1.000000");
+  auto def = HistogramDef::parse("SHIFT, TProfile2D, , Eta,Phi,pt, title, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000, -1.000000, 1.000000");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TProfile2D" );
@@ -72,7 +72,7 @@ bool parsing3DWorks() {
 }
 
 bool parsingLabeledWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH1D, Cut, Cut counter, 5, 0, 5, Cut1:Cut2:Eta:Pt:R");
+  auto def = HistogramDef::parse("SHIFT, TH1D, , Cut, Cut counter, 5, 0, 5, Cut1:Cut2:Eta:Pt:R");
   VALUE ( def.ok )           EXPECTED ( true ) ;
   VALUE ( def.path )         EXPECTED ( "SHIFT" );
   VALUE ( def.type )         EXPECTED ( "TH1D" );
@@ -88,9 +88,22 @@ bool parsingLabeledWorks() {
   return true;
 }
 
+bool parsingWeightedWorks() {
+  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, Cut, Cut counter, 5, 0, 5");
+  VALUE ( def.ok )           EXPECTED ( true ) ;
+  VALUE ( def.path )         EXPECTED ( "EXPERT" );
+  VALUE ( def.type )         EXPECTED ( "TH1F" );
+  VALUE ( def.name.size() )  EXPECTED ( 1 );
+  VALUE ( std::string(def.name[0]) ) EXPECTED ( "Cut");
+  VALUE ( def.labels.size() )EXPECTED ( 5 );
+  VALUE ( def.weight )       EXPECTED ("Weight");
+
+  return true;
+}
+
 bool badDefGeneratesExecption() {
   EXPECT_EXCEPTION( HistogramDefParseException,
-		    HistogramDef::parse("S, TH1D, x, 2.5, 0, 45") ); //2.5 bins can not be valid
+		    HistogramDef::parse("S, TH1D, , x, 2.5, 0, 45") ); //2.5 bins can not be valid
   return true;
 }
 

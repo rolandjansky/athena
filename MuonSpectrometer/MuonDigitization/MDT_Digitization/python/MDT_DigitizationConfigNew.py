@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from StoreGate.StoreGateConf import StoreGateSvc
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MDT_Digitization.MDT_DigitizationConf import (
     MdtDigitizationTool, MDT_Response_DigiTool, RT_Relation_DB_DigiTool, MDT_Digitizer
@@ -18,6 +19,10 @@ def MDT_FirstXing():
 def MDT_LastXing():
     # was 800 for large time window
     return 150
+
+def MDT_ItemList():
+    """Return list of item names needed for MDT output"""
+    return ["MuonSimDataCollection#*", "MdtCsmContainer#*"]
 
 def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for MDT"""
@@ -65,6 +70,8 @@ def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
     tool = acc.popToolsAndMerge(MDT_DigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
     return acc
 
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
@@ -84,5 +91,7 @@ def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
     tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
+    # FIXME once OutputStreamCfg merges correctly
+    #acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
     return acc
 

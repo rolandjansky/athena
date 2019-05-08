@@ -24,6 +24,7 @@ GeoModel.StripGeoType                    : 'GMX'
 GeoModel.Type                            : 'UNDEFINED'
 IOVDb.DatabaseInstance                   : [function]
 IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Collections                        : [function]
 Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Input.ProjectName                        : [function]
 Input.RunNumber                          : [function]
@@ -78,7 +79,7 @@ Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderS
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
 Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/199c6bbb319] -- built on [2019-04-19T1734]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/2a537dae079] -- built on [2019-05-02T1642]
 Py:AthConfigFlags   DEBUG dynamically loading the flag Detector
 Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
 Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
@@ -379,55 +380,58 @@ Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to th
 Py:IOVDbSvc.CondDB   DEBUG Loading basic services for CondDBSetup...
 Py:ConfigurableDb   DEBUG loading confDb files...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libprofhelp.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIOVDbTestAlg.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthenaAuditors.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libPerfMonComps.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthExHelloWorld.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libGaudiHive.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libISF_Geant4Tools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libSCT_RawDataByteStreamCnv.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthExHive.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigConfBaseTest.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthenaPoolTest.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloDetDescr.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIOVDbTestAlg.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthenaAuditors.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthExHive.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCLIDComps.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libGaudiHive.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libSCT_RawDataByteStreamCnv.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libInDetTrackHoleSearch.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTRT_TrackHoleSearch.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArMonTools.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArRawUtils.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIsolationAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkValAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT1CaloEvent.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAnalysisTest.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libRecBackgroundAlgs.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIsolationAlgs.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libegammaCaloTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libFastCaloSim.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libISF_Geant4Tools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkJiveXML.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigUpgradeTest.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloRec.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthViewsDFlow.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libAthViewsAlgs.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArCellRec.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libDerivationFrameworkExamples.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArRecUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libDerivationFrameworkExamples.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libDerivationFrameworkInDet.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libElectronPhotonTagTools.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrackToCalo.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigConfigSvc.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libegammaPerformance.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigHLTJetHypo.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT1CaloUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkDeterministicAnnealingFilter.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkGaussianSumFilter.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrkKalmanFitter.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigInterfaces.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloRec.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIOVDbSvc.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libPixelConditionsServices.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArCalibUtils.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libLArCellRec.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libIsolationTool.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libtauRecTools.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT2CaloCommon.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigMuonMonitoring.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT1CaloMonitoringTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigConfigSvc.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigHLTJetHypo.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libCaloClusterCorrection.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigCaloRec.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT2CaloEgamma.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libFTK_RecTools.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigInDetAnalysisExample.confdb]...
 Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/WorkDir.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigCaloRec.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT1CaloCalibTools.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/lib/libTrigT1CaloCalibUtils.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-04-18T2137/GAUDI/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Gaudi.confdb]...
-Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-04-18T2137/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Athena.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/GAUDI/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Gaudi.confdb]...
+Py:ConfigurableDb   DEBUG 	-loading [/cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/lib/Athena.confdb]...
 Py:ConfigurableDb   DEBUG loading confDb files... [DONE]
-Py:ConfigurableDb   DEBUG loaded 1100 confDb packages
-Py:ConfigurableDb    INFO Read module info for 5473 configurables from 47 genConfDb files
+Py:ConfigurableDb   DEBUG loaded 1101 confDb packages
+Py:ConfigurableDb    INFO Read module info for 5471 configurables from 50 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:ConfigurableDb   DEBUG : Found configurable <class 'GaudiCoreSvc.GaudiCoreSvcConf.MessageSvc'> in module GaudiCoreSvc.GaudiCoreSvcConf
 Py:loadBasicAthenaPool   DEBUG Loading basic services for AthenaPool...
@@ -1188,24 +1192,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 |-AuditStop                               = False
 |-Cardinality                             = 0
 |-ContinueEventloopOnFPE                  = False
-|-DetStore                   @0x7f49f0b54950 = ServiceHandle('StoreGateSvc/DetectorStore')
+|-DetStore                   @0x7f493dabd990 = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                                  = True
 |-ErrorCounter                            = 0
 |-ErrorMax                                = 1
-|-EvtStore                   @0x7f49f0b548d0 = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                @0x7f49ef0887a0 = []  (default: [])
-|-ExtraOutputs               @0x7f49ef088830 = []  (default: [])
+|-EvtStore                   @0x7f493dabd910 = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                @0x7f493bfee638 = []  (default: [])
+|-ExtraOutputs               @0x7f493bfee6c8 = []  (default: [])
 |-FilterCircularDependencies              = True
 |-IgnoreFilterPassed                      = False
 |-IsIOBound                               = False
-|-Members                    @0x7f49ef088440 = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'MuonCacheCreator/MuonCacheCreator', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
+|-Members                    @0x7f493bfee440 = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'MuonCacheCreator/MuonCacheCreator', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThesholdClusterBuilder']
 |                                            (default: [])
 |-ModeOR                                  = False
 |-MonitorService                          = 'MonitorSvc'
-|-NeededResources            @0x7f49ef088680 = []  (default: [])
+|-NeededResources            @0x7f493bfee518 = []  (default: [])
 |-OutputLevel                             = 0
 |-RegisterForContextService               = False
-|-Sequential                 @0x7f49f2f65b00 = True  (default: False)
+|-Sequential                 @0x7f493feccb00 = True  (default: False)
 |-StopOverride                            = False
 |-TimeOut                                 = 0.0
 |-Timeline                                = True
@@ -1221,22 +1225,22 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7f49ef70c610 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c66f910 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef70c590 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef088560 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef0889e0 = []  (default: [])
+| |-EvtStore                   @0x7f493c66f890 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bfee710 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfee830 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef0886c8 = []  (default: [])
+| |-NeededResources            @0x7f493bfee758 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7f49efb4baa0 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
+| |-ProviderTool               @0x7f493c9a7cb0 = PrivateToolHandle('Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool')
 | |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
-| |-RegionSelectionSvc         @0x7f49ef70c690 = ServiceHandle('RegSelSvc')
+| |-RegionSelectionSvc         @0x7f493c66f990 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1248,11 +1252,11 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                          = False
 | | |-AuditStop                           = False
 | | |-AuditTools                          = False
-| | |-Decoder                @0x7f49efcb4bf0 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
-| | |-DetStore               @0x7f49ef6b94d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore               @0x7f49ef6b9490 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs            @0x7f49ef6f2a28 = []  (default: [])
-| | |-ExtraOutputs           @0x7f49ef6f2758 = []  (default: [])
+| | |-Decoder                @0x7f493cc2caf8 = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore               @0x7f493c61a990 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore               @0x7f493c61a950 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs            @0x7f493c659b00 = []  (default: [])
+| | |-ExtraOutputs           @0x7f493c659830 = []  (default: [])
 | | |-MonitorService                      = 'MonitorSvc'
 | | |-OutputLevel                         = 0
 | | |-RPCSec                              = 'StoreGateSvc+RPC_SECTORLOGIC'
@@ -1268,10 +1272,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStop                        = False
 | | | |-AuditTools                       = False
 | | | |-DataErrorPrintLimit              = 1000
-| | | |-DetStore            @0x7f49ef6b9550 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore            @0x7f49ef6b9590 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs         @0x7f49ef6f2878 = []  (default: [])
-| | | |-ExtraOutputs        @0x7f49ef6f2830 = []  (default: [])
+| | | |-DetStore            @0x7f493c61aa10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            @0x7f493c61aa50 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         @0x7f493c659950 = []  (default: [])
+| | | |-ExtraOutputs        @0x7f493c659908 = []  (default: [])
 | | | |-MonitorService                   = 'MonitorSvc'
 | | | |-OutputLevel                      = 0
 | | | |-Sector13Data                     = False
@@ -1291,21 +1295,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7f49ef71e5d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c6818d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef71e550 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef088d88 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef088e60 = []  (default: [])
+| |-EvtStore                   @0x7f493c681850 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bfeeab8 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfeecb0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef088dd0 = []  (default: [])
+| |-NeededResources            @0x7f493bfeec20 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7f49f0bafc80 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
+| |-ProviderTool               @0x7f493db10d70 = PrivateToolHandle('Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool')
 | |                                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
+| |-RegionSelectionSvc         @0x7f493c681950 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
+| |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
 | |=/***** Private AlgTool Muon::TGC_RawDataProviderTool/TgcRawDataProvider.TGC_RawDataProviderTool *****
 | | |-AuditFinalize                  = False
@@ -1315,12 +1322,12 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                     = False
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
-| | |-Decoder           @0x7f49f0bafd70 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
+| | |-Decoder           @0x7f493db10e60 = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 | | |                                   (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
-| | |-DetStore          @0x7f49ef65ca90 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore          @0x7f49ef65cad0 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs       @0x7f49ef6686c8 = []  (default: [])
-| | |-ExtraOutputs      @0x7f49ef668518 = []  (default: [])
+| | |-DetStore          @0x7f493c5c0f50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f493c5c0f90 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f493c5c9a28 = []  (default: [])
+| | |-ExtraOutputs      @0x7f493c5c9878 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputLevel                    = 0
 | | |-RdoLocation                    = 'StoreGateSvc+TGCRDO'
@@ -1332,10 +1339,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7f49ef65cb90 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7f49ef65cbd0 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7f49ef668368 = []  (default: [])
-| | | |-ExtraOutputs      @0x7f49ef6684d0 = []  (default: [])
+| | | |-DetStore          @0x7f493c552090 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f493c5520d0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f493c5c96c8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f493c5c9830 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ShowStatusWords                = False
@@ -1355,24 +1362,24 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 0
-| |-CscCacheKey                @0x7f49efca5e10 = 'CscCache'  (default: 'StoreGateSvc+')
-| |-DetStore                   @0x7f49ef6aa3d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-CscCacheKey                @0x7f493cc10d50 = 'CscCache'  (default: 'StoreGateSvc+')
+| |-DetStore                   @0x7f493c68d890 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DisableViewWarning                      = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef6aa350 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef124e60 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef124950 = []  (default: [])
+| |-EvtStore                   @0x7f493c68d810 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493c089a70 = []  (default: [])
+| |-ExtraOutputs               @0x7f493c0899e0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
-| |-MdtCsmCacheKey             @0x7f49efca5480 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| |-MdtCsmCacheKey             @0x7f493cc104b0 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef124dd0 = []  (default: [])
+| |-NeededResources            @0x7f493c089518 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
-| |-RpcCacheKey                @0x7f49efca5e40 = 'RpcCache'  (default: 'StoreGateSvc+')
-| |-TgcCacheKey                @0x7f49efca5e70 = 'TgcCache'  (default: 'StoreGateSvc+')
+| |-RpcCacheKey                @0x7f493cc10d80 = 'RpcCache'  (default: 'StoreGateSvc+')
+| |-TgcCacheKey                @0x7f493cc10db0 = 'TgcCache'  (default: 'StoreGateSvc+')
 | |-Timeline                                = True
 | \----- (End of Algorithm MuonCacheCreator/MuonCacheCreator) ----------------------------------------
 |=/***** Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider ***************************************
@@ -1387,22 +1394,22 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7f49ef6e2650 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c64b950 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef6e25d0 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef088e18 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef088ea8 = []  (default: [])
+| |-EvtStore                   @0x7f493c64b8d0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bfeecf8 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfeec68 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef088ef0 = []  (default: [])
+| |-NeededResources            @0x7f493bfeed40 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7f49efc07c50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
+| |-ProviderTool               @0x7f493c9f2b50 = PrivateToolHandle('Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool')
 | |                                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
-| |-RegionSelectionSvc         @0x7f49ef6e26d0 = ServiceHandle('RegSelSvc')
+| |-RegionSelectionSvc         @0x7f493c64b9d0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1414,12 +1421,12 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CsmContainerCacheKey @0x7f49efca5480 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
-| | |-Decoder              @0x7f49ef533140 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
-| | |-DetStore             @0x7f49ef1341d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore             @0x7f49ef134210 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs          @0x7f49ef15bd88 = []  (default: [])
-| | |-ExtraOutputs         @0x7f49ef15bdd0 = []  (default: [])
+| | |-CsmContainerCacheKey @0x7f493cc104b0 = 'MdtCsmCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7f493c49b230 = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             @0x7f493c09b210 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             @0x7f493c09b250 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f493c0c3c68 = []  (default: [])
+| | |-ExtraOutputs         @0x7f493c0c3cb0 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+MDTCSM'
@@ -1432,10 +1439,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7f49ef1342d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7f49ef134310 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7f49ef15b908 = []  (default: [])
-| | | |-ExtraOutputs      @0x7f49ef15b8c0 = []  (default: [])
+| | | |-DetStore          @0x7f493c09b310 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f493c09b350 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f493c0c37e8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f493c0c37a0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | |-ReadKey                        = 'ConditionStore+MuonMDT_CablingMap'
@@ -1455,19 +1462,19 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7f49ef790b50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c65be50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef790a90 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b050 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef088f80 = []  (default: [])
+| |-EvtStore                   @0x7f493c65bd90 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bfeeea8 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfeee18 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef088c68 = []  (default: [])
+| |-NeededResources            @0x7f493bfeedd0 = []  (default: [])
 | |-OutputLevel                             = 0
-| |-ProviderTool               @0x7f49efc07e50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
+| |-ProviderTool               @0x7f493c9f2d50 = PrivateToolHandle('Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool')
 | |                                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
 | |-RegisterForContextService               = False
 | |-Timeline                                = True
@@ -1479,13 +1486,13 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStart                        = False
 | | |-AuditStop                         = False
 | | |-AuditTools                        = False
-| | |-CscContainerCacheKey @0x7f49efca5e10 = 'CscCache'  (default: 'StoreGateSvc+')
-| | |-Decoder              @0x7f49ef533320 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
-| | |-DetStore             @0x7f49ef1232d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-CscContainerCacheKey @0x7f493cc10d50 = 'CscCache'  (default: 'StoreGateSvc+')
+| | |-Decoder              @0x7f493c49b410 = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             @0x7f493c0581d0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EventInfoKey                      = 'StoreGateSvc+EventInfo'
-| | |-EvtStore             @0x7f49ef123310 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs          @0x7f49ef124710 = []  (default: [])
-| | |-ExtraOutputs         @0x7f49ef124878 = []  (default: [])
+| | |-EvtStore             @0x7f493c058210 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          @0x7f493c0892d8 = []  (default: [])
+| | |-ExtraOutputs         @0x7f493c089440 = []  (default: [])
 | | |-MonitorService                    = 'MonitorSvc'
 | | |-OutputLevel                       = 0
 | | |-RdoLocation                       = 'StoreGateSvc+CSCRDO'
@@ -1497,10 +1504,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7f49ef1233d0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7f49ef123410 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7f49ef1243b0 = []  (default: [])
-| | | |-ExtraOutputs      @0x7f49ef124368 = []  (default: [])
+| | | |-DetStore          @0x7f493c0582d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f493c058310 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f493c080f38 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f493c080ef0 = []  (default: [])
 | | | |-IsCosmics                      = False
 | | | |-IsOldCosmics                   = False
 | | | |-MonitorService                 = 'MonitorSvc'
@@ -1520,25 +1527,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7f49ef12e198 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+| |-DecodingTool               @0x7f493c096198 = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
 | |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
-| |-DetStore                   @0x7f49ef0cdd10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c036d90 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef0cdc90 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b1b8 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef088b90 = []  (default: [])
+| |-EvtStore                   @0x7f493c036d10 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bfeebd8 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfee9e0 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef08b0e0 = []  (default: [])
+| |-NeededResources            @0x7f493bfeeef0 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7f49f2f65b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7f49ef0cdd90 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7f493feccb20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f493c036e10 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1551,16 +1558,16 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                                       = False
 | | |-AuditTools                                      = False
 | | |-DecodeData                                      = True
-| | |-DetStore                           @0x7f49ef034ed0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore                           @0x7f49ef034f50 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs                        @0x7f49ef0ae320 = []  (default: [])
-| | |-ExtraOutputs                       @0x7f49ef0ae560 = []  (default: [])
+| | |-DetStore                           @0x7f493bf9cf50 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           @0x7f493bf9cfd0 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        @0x7f493c0164d0 = []  (default: [])
+| | |-ExtraOutputs                       @0x7f493c0165a8 = []  (default: [])
 | | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
 | | |-MonitorService                                  = 'MonitorSvc'
 | | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
 | | |-OutputLevel                                     = 0
 | | |-RPCInfoFromDb                                   = False
-| | |-RdoDecoderTool                     @0x7f49efaedc90 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
+| | |-RdoDecoderTool                     @0x7f493ca90d70 = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
 | | |                                                    (default: 'Muon::RpcRDO_Decoder')
 | | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
 | | |-etaphi_coincidenceTime                          = 20.0
@@ -1578,10 +1585,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-DetStore          @0x7f49ef034fd0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7f49ef04a050 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7f49ef0ae680 = []  (default: [])
-| | | |-ExtraOutputs      @0x7f49ef0ae638 = []  (default: [])
+| | | |-DetStore          @0x7f493bfb1090 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f493bfb10d0 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f493c0166c8 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f493c016680 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.RpcRdoToRpcPrepDataTool.Muon::RpcRDO_Decoder) -----
@@ -1599,25 +1606,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7f49ef053050 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+| |-DecodingTool               @0x7f493bfbc180 = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 | |                                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
-| |-DetStore                   @0x7f49ef027c10 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493bf8ec90 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef027b90 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b128 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef08b200 = []  (default: [])
+| |-EvtStore                   @0x7f493bf8ec10 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bff00e0 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfeed88 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef08b098 = []  (default: [])
+| |-NeededResources            @0x7f493bff0050 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+TGC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7f49f2f65b20 = False  (default: False)
-| |-RegionSelectorSvc          @0x7f49ef027c90 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7f493feccb20 = False  (default: False)
+| |-RegionSelectorSvc          @0x7f493bf8ed10 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Setting                                 = 0
@@ -1631,10 +1638,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                                            = False
 | | |-AuditTools                                           = False
 | | |-DecodeData                                           = True
-| | |-DetStore                                @0x7f49ef034dd0 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore                                @0x7f49ef034f10 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs                             @0x7f49ef04b830 = []  (default: [])
-| | |-ExtraOutputs                            @0x7f49ef04b998 = []  (default: [])
+| | |-DetStore                                @0x7f493bfb1490 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                @0x7f493bfb1550 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             @0x7f493bfbd050 = []  (default: [])
+| | |-ExtraOutputs                            @0x7f493bfbd0e0 = []  (default: [])
 | | |-FillCoinData                                         = True
 | | |-MonitorService                                       = 'MonitorSvc'
 | | |-OutputCoinCollection                                 = 'TrigT1CoinDataCollection'
@@ -1643,9 +1650,9 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-RDOContainer                                         = 'StoreGateSvc+TGCRDO'
 | | |-TGCHashIdOffset                                      = 26000
 | | |-dropPrdsWithZeroWidth                                = True
-| | |-outputCoinKey                           @0x7f49ef045f80 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |-outputCoinKey                           @0x7f493bfb9ea8 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
-| | |-prepDataKeys                            @0x7f49ef04b950 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |-prepDataKeys                            @0x7f493bfbd128 = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
 | | |                                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
 | | |-show_warning_level_invalid_A09_SSW6_hit              = False
 | | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool) -----
@@ -1662,25 +1669,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DecodingTool               @0x7f49f300bcb0 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+| |-DecodingTool               @0x7f493ffb8e10 = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 | |                                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
-| |-DetStore                   @0x7f49ef0bdbd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c025c50 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef0bdb50 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b368 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef08b170 = []  (default: [])
+| |-EvtStore                   @0x7f493c025bd0 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bff01b8 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bfeef38 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef08b2d8 = []  (default: [])
+| |-NeededResources            @0x7f493bfeefc8 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+MDT_DriftCircles'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7f49f2f65b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7f49ef0bdc50 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7f493feccb20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f493c025cd0 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1694,13 +1701,13 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditTools                           = False
 | | |-CalibratePrepData                    = True
 | | |-DecodeData                           = True
-| | |-DetStore                @0x7f49ef04a6d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-DetStore                @0x7f493bfb16d0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-DiscardSecondaryHitTwin              = False
 | | |-DoPropagationCorrection              = False
 | | |-DoTofCorrection                      = True
-| | |-EvtStore                @0x7f49ef04a710 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs             @0x7f49ef05bc68 = []  (default: [])
-| | |-ExtraOutputs            @0x7f49ef05b638 = []  (default: [])
+| | |-EvtStore                @0x7f493bfb1710 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             @0x7f493bfc7680 = []  (default: [])
+| | |-ExtraOutputs            @0x7f493bfc75f0 = []  (default: [])
 | | |-MonitorService                       = 'MonitorSvc'
 | | |-OutputCollection                     = 'StoreGateSvc+MDT_DriftCircles'
 | | |-OutputLevel                          = 0
@@ -1728,25 +1735,25 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-CscRdoToCscPrepDataTool    @0x7f49efaf3c00 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+| |-CscRdoToCscPrepDataTool    @0x7f493ca9bc00 = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 | |                                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
-| |-DetStore                   @0x7f49ef123cd0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493c058bd0 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding                        = False
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49ef123c50 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b440 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef08b290 = []  (default: [])
+| |-EvtStore                   @0x7f493c058b50 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bff0290 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bff0098 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef08b3b0 = []  (default: [])
+| |-NeededResources            @0x7f493bff0200 = []  (default: [])
 | |-OutputCollection                        = 'StoreGateSvc+CSC_Measurements'
 | |-OutputLevel                             = 0
 | |-PrintInputRdo                           = False
-| |-PrintPrepData              @0x7f49f2f65b20 = False  (default: False)
-| |-RegionSelectionSvc         @0x7f49ef123d50 = ServiceHandle('RegSelSvc')
+| |-PrintPrepData              @0x7f493feccb20 = False  (default: False)
+| |-RegionSelectionSvc         @0x7f493c058c50 = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService               = False
 | |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                                = True
@@ -1759,13 +1766,13 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | |-AuditStop                      = False
 | | |-AuditTools                     = False
 | | |-CSCHashIdOffset                = 22000
-| | |-CscCalibTool      @0x7f49ef066050 = PrivateToolHandle('CscCalibTool/CscCalibTool')
-| | |-CscRdoDecoderTool @0x7f49ef0644d8 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
+| | |-CscCalibTool      @0x7f493bfc5050 = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool @0x7f493bfc9050 = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
 | | |-DecodeData                     = True
-| | |-DetStore          @0x7f49ef04a750 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-EvtStore          @0x7f49ef04a610 = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs       @0x7f49ef78dcb0 = []  (default: [])
-| | |-ExtraOutputs      @0x7f49ef05bb48 = []  (default: [])
+| | |-DetStore          @0x7f493bfb1610 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          @0x7f493bfb1650 = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       @0x7f493c622560 = []  (default: [])
+| | |-ExtraOutputs      @0x7f493c568ef0 = []  (default: [])
 | | |-MonitorService                 = 'MonitorSvc'
 | | |-OutputCollection               = 'StoreGateSvc+CSC_Measurements'
 | | |-OutputLevel                    = 0
@@ -1778,10 +1785,10 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                      = False
 | | | |-AuditStop                       = False
 | | | |-AuditTools                      = False
-| | | |-DetStore           @0x7f49ef04a510 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore           @0x7f49ef04a550 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs        @0x7f49ef04b518 = []  (default: [])
-| | | |-ExtraOutputs       @0x7f49ef04b7e8 = []  (default: [])
+| | | |-DetStore           @0x7f493bfb15d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           @0x7f493bfb1350 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        @0x7f493bfc7e60 = []  (default: [])
+| | | |-ExtraOutputs       @0x7f493bfc7cf8 = []  (default: [])
 | | | |-IsOnline                        = True
 | | | |-Latency                         = 100.0
 | | | |-MonitorService                  = 'MonitorSvc'
@@ -1808,11 +1815,11 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-AuditStart                     = False
 | | | |-AuditStop                      = False
 | | | |-AuditTools                     = False
-| | | |-CscCalibTool      @0x7f49ef04a110 = PublicToolHandle('CscCalibTool')
-| | | |-DetStore          @0x7f49ef04a150 = ServiceHandle('StoreGateSvc/DetectorStore')
-| | | |-EvtStore          @0x7f49ef04a690 = ServiceHandle('StoreGateSvc')
-| | | |-ExtraInputs       @0x7f49ef78d248 = []  (default: [])
-| | | |-ExtraOutputs      @0x7f49ef78db90 = []  (default: [])
+| | | |-CscCalibTool      @0x7f493bfb1210 = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          @0x7f493bfb13d0 = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          @0x7f493bfb1190 = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       @0x7f493bfc7dd0 = []  (default: [])
+| | | |-ExtraOutputs      @0x7f493bfc7ef0 = []  (default: [])
 | | | |-MonitorService                 = 'MonitorSvc'
 | | | |-OutputLevel                    = 0
 | | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRdoToCscPrepData.CscRdoToCscPrepDataTool.CscRDO_Decoder) -----
@@ -1830,21 +1837,21 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                              = False
 | |-AuditStop                               = False
 | |-Cardinality                             = 1
-| |-DetStore                   @0x7f49eefc3750 = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DetStore                   @0x7f493bf28790 = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-Enable                                  = True
 | |-ErrorCounter                            = 0
 | |-ErrorMax                                = 1
-| |-EvtStore                   @0x7f49eefc36d0 = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                @0x7f49ef08b3f8 = []  (default: [])
-| |-ExtraOutputs               @0x7f49ef08b248 = []  (default: [])
+| |-EvtStore                   @0x7f493bf28710 = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                @0x7f493bff0248 = []  (default: [])
+| |-ExtraOutputs               @0x7f493bff0128 = []  (default: [])
 | |-FilterCircularDependencies              = True
 | |-IsIOBound                               = False
 | |-MonitorService                          = 'MonitorSvc'
-| |-NeededResources            @0x7f49ef08b488 = []  (default: [])
+| |-NeededResources            @0x7f493bff02d8 = []  (default: [])
 | |-OutputLevel                             = 0
 | |-RegisterForContextService               = False
 | |-Timeline                                = True
-| |-cluster_builder            @0x7f49eefaa0d0 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
+| |-cluster_builder            @0x7f493bf110d0 = PublicToolHandle('CscThresholdClusterBuilderTool/CscThesholdClusterBuilderTool')
 | |                                            (default: 'CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
 | \----- (End of Algorithm CscThresholdClusterBuilder/CscThesholdClusterBuilder) ---------------------
 \----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
@@ -1876,9 +1883,9 @@ Py:Athena            INFO Save Config
 
 JOs reading stage finished, launching Athena from pickle file
 
-Fri Apr 19 19:42:36 CEST 2019
+Thu May  2 21:12:09 CEST 2019
 Preloading tcmalloc_minimal.so
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/199c6bbb319] -- built on [2019-04-19T1734]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [atlas-work3/2a537dae079] -- built on [2019-05-02T1642]
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -1886,13 +1893,13 @@ Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
-Py:ConfigurableDb    INFO Read module info for 5473 configurables from 47 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5471 configurables from 50 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on lxplus715.cern.ch on Fri Apr 19 19:42:56 2019
+                                          running on lxplus705.cern.ch on Thu May  2 21:12:31 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -1922,8 +1929,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-04-18T2137/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus715.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-01T2135/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus705.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 DBReplicaSvc         INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -2202,7 +2209,7 @@ MuGM:MuonFactory     INFO  *****************************************************
 
 MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1758/0
 MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
-GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 42844Kb 	 Time = 0.68S
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 42844Kb 	 Time = 0.65S
 GeoModelSvc.Muo...   INFO CondAttrListCollection not found in the DetectorStore
 GeoModelSvc.Muo...   INFO Unable to register callback on CondAttrListCollection for any folder in the list 
 GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and deformations from COOL 
@@ -2218,7 +2225,7 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' ) 
-ClassIDSvc           INFO  getRegistryEntries: read 1373 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1376 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 743 CLIDRegistry entries for module ALL
 RpcRawDataProvider   INFO RpcRawDataProvider::initialize
 RpcRawDataProvider   INFO  'DoSeededDecoding':False
@@ -2243,6 +2250,7 @@ RpcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 RpcRawDataProvi...   INFO  Tool = RpcRawDataProvider.RPC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
 RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderTool
 TgcRawDataProvider   INFO TgcRawDataProvider::initialize
+TgcRawDataProvider   INFO  'DoSeededDecoding':False
 ClassIDSvc           INFO  getRegistryEntries: read 878 CLIDRegistry entries for module ALL
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool.TgcROD_Decoder
 TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
@@ -2251,7 +2259,7 @@ TgcRawDataProvi...   INFO  Tool = TgcRawDataProvider.TGC_RawDataProviderTool is 
 MuonTGC_CablingSvc   INFO for 1/12 sector initialize
 ToolSvc.TGCCabl...   INFO initialize
 ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0x12cb4200]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonTGC_CablingSvc[0x214f6c00]+219 bound to CondAttrListCollection[/TGC/CABLING/MAP_SCHEMA]
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderTool
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
 MdtRawDataProvider   INFO  'DoSeededDecoding':False
@@ -2302,14 +2310,14 @@ ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for 
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
 ClassIDSvc           INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_PED]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_NOISE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_PSLOPE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_STAT]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_RMS]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_FTHOLD]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_T0BASE]
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39c34e00]+259 bound to CondAttrListCollection[CSC_T0PHASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_PSLOPE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x39ab1a00]+259 bound to CondAttrListCollection[CSC_T0PHASE]
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
@@ -2513,34 +2521,34 @@ IncidentProcAlg2     INFO Finalize
 AtlasFieldSvc        INFO finalize() successful
 EventInfoByteSt...   INFO finalize 
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.36 ))s
-IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     1.28 ))s
-IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     1.18 ))s
-IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.53 ))s
-IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     0.93 ))s
-IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.75 ))s
-IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     1.13 ))s
-IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.90 ))s
-IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     1.21 ))s
-IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     1.37 ))s
-IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3704 ((     0.73 ))s
-IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.86 ))s
-IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     1.26 ))s
-IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.70 ))s
-IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/353376 ((     1.96 ))s
-IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.11 ))s
-IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.06 ))s
-IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     0.03 ))s
-IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.03 ))s
-IOVDbSvc             INFO  bytes in ((     15.38 ))s
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.43 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.15 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     1.39 ))s
+IOVDbFolder          INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.17 ))s
+IOVDbFolder          INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     1.61 ))s
+IOVDbFolder          INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.16 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     1.28 ))s
+IOVDbFolder          INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.23 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.25 ))s
+IOVDbFolder          INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     1.46 ))s
+IOVDbFolder          INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/3704 ((     1.22 ))s
+IOVDbFolder          INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.26 ))s
+IOVDbFolder          INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     2.06 ))s
+IOVDbFolder          INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     1.79 ))s
+IOVDbFolder          INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/353376 ((     0.06 ))s
+IOVDbFolder          INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.06 ))s
+IOVDbFolder          INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     6.07 ))s
+IOVDbFolder          INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((    10.71 ))s
+IOVDbFolder          INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.05 ))s
+IOVDbSvc             INFO  bytes in ((     29.43 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     4.61 ))s
-IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.73 ))s
-IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.71 ))s
-IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     1.28 ))s
-IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.36 ))s
-IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.69 ))s
-IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     5.00 ))s
+IOVDbSvc             INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     3.23 ))s
+IOVDbSvc             INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     1.22 ))s
+IOVDbSvc             INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.56 ))s
+IOVDbSvc             INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.15 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.43 ))s
+IOVDbSvc             INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     1.78 ))s
+IOVDbSvc             INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((    21.07 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()
@@ -2565,7 +2573,7 @@ ToolSvc.TGCCabl...   INFO finalize
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
 cObj_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 20
-ChronoStatSvc        INFO Time User   : Tot= 9.06  [s]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 8.99  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

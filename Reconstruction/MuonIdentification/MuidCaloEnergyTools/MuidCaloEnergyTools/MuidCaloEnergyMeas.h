@@ -23,11 +23,11 @@
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloConditions/CaloNoise.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class CaloCellContainer;
-class ICaloNoiseTool;
 class Identifier;
 class LArEM_ID;
 class LArHEC_ID;
@@ -90,8 +90,7 @@ private:
 						     double phi) const;
     
     // helpers, managers, tools
-    // FIXME: mutable
-    mutable ToolHandle<ICaloNoiseTool>		m_caloNoiseTool;
+    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
     ToolHandle<IMuidCaloEnergyParam>		m_caloParamTool;
 
     const TileID*				m_tileID;
@@ -108,7 +107,6 @@ private:
 
     double			m_sigmasAboveNoise;	// The minimum sigmas above the noise tool rms
     double			m_sigmasAboveNoiseCore;	// The minimum sigmas above the noise tool rms
-    bool			m_useCaloNoiseTool;	// use the CaloNoiseTool?  
 
     mutable int			m_totalCoreCellsEM;
     mutable int			m_totalCoreCellsHEC;
