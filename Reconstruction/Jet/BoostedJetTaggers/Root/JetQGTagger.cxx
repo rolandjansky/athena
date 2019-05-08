@@ -57,8 +57,7 @@ namespace CP {
     declareProperty( "DecorateJet",  m_decorate = true);
 
     declareProperty( "Tagger", m_taggername = "ntrack");
-   // declareProperty( "CalibArea",     m_calibarea = "BoostedJetTaggers/QGTagger/Moriond2017/");
-    declareProperty( "CalibArea",     m_calibarea = "/eos/atlas/unpledged/group-tokyo/users/tnobe/xAH/qgcalibfiles/");
+    declareProperty( "CalibArea",     m_calibarea = "BoostedJetTaggers/QGTagger/May2019/");
     declareProperty( "TopoWeightFile", m_topofile = "");
     declareProperty( "ExpWeightFile", m_expfile = "qgsyst_exp.root");
     declareProperty( "MEWeightFile",  m_mefile  = "qgsyst_me.root");
