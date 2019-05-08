@@ -21,6 +21,8 @@
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
+#include "FakeBkgTools/AsymptMatrixTool.h"
+
 namespace top {
 
   EventSaverFlatNtuple::EventSaverFlatNtuple() :
@@ -128,6 +130,8 @@ namespace top {
     m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
 
     m_fakesMM_weights(),
+    m_fakesMM_IFF_size(),
+    m_fakesMM_IFF_weights(),
 
     m_eventNumber(0),
     m_runNumber(0),
@@ -662,12 +666,23 @@ namespace top {
           }
         }
       }
-
+      
+      ///-- weights for matrix-method fakes estimate by IFF --///
+      if (!m_config->isMC() && systematicTree->name().find("Loose") != std::string::npos && m_config->doFakesMMWeightsIFF()) {
+	std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
+	while(asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size)) {
+	  fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size));
+	  ++m_fakesMM_IFF_size;
+	}
+	std::string MMweight_branch_name = "fakesMM_weight_IFF";
+	systematicTree->makeOutputVariable(m_fakesMM_IFF_weights, MMweight_branch_name);
+      }
+      
       /// Bootstrapping poisson weights
       if (m_config->saveBootstrapWeights()){
         systematicTree->makeOutputVariable(m_weight_poisson, "weight_poisson");
       }
-
+      
       //event info
       systematicTree->makeOutputVariable(m_eventNumber,     "eventNumber");
       systematicTree->makeOutputVariable(m_runNumber,       "runNumber");
@@ -1865,6 +1880,23 @@ namespace top {
       }
     }
 
+    ///-- weights for matrix-method fakes estimate by IFF --///
+    if (!m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
+      std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
+      for (int mmi = 0; mmi<m_fakesMM_IFF_size; ++mmi) {
+	fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+mmi));
+      }
+      std::string MMweight_branch_name = "fakesMM_weight_IFF";
+      std::string decorName = "MMWeight_IFF";
+      if( event.m_info->isAvailable<std::vector<float> >(decorName.c_str()) ) {
+	m_fakesMM_IFF_weights = event.m_info->auxdataConst<std::vector<float> >(decorName.c_str());
+      }
+      else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
+	std::vector<float> dummyMMweight(m_fakesMM_IFF_size, 1.);
+	m_fakesMM_IFF_weights = dummyMMweight;
+      }
+    }
+    
     //event info
     m_eventNumber = event.m_info -> eventNumber();
     m_runNumber   = event.m_info -> runNumber();

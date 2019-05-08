@@ -13,5 +13,8 @@
 #include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 #include "AsgAnalysisInterfaces/IObservableTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IFakeBkgTool.h"
+#include "AsgAnalysisInterfaces/ILinearFakeBkgTool.h"
+#include "AsgAnalysisInterfaces/IFakeBkgSystDescriptor.h"
 
 #endif // ASGANALYSISINTERFACES_ASGANALYSISINTERFACESDICT_H

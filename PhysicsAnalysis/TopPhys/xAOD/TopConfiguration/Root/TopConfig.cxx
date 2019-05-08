@@ -77,6 +77,12 @@ namespace top{
     m_FakesMMDir("$ROOTCOREBIN/data/TopFakes"),
     // Directory of efficiency files for MM fake estimate
     m_doFakesMMDebug(false),
+    // Do fakes MM weights calculation using FakeBkgTools from IFF
+    m_doFakesMMWeightsIFF(false),
+    // Configurations for MM fake estimate using FakeBkgTools from IFF
+    m_FakesMMConfigIFF("$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]"),
+    // Debug level for MM fake estimate using FakeBkgTools from IFF
+    m_doFakesMMIFFDebug(false),
     // Apply overlap removal on loose lepton definitons - not the top recommendation, for studies only
     m_doOverlapRemovalOnLooseLeptonDef(false),
     // do overlap removal also with large-R jets
@@ -631,6 +637,16 @@ namespace top{
             this->setFakesMMDir(dir);
           if (settings->value("FakesMMDebug") == "True")
             this->setFakesMMDebug();
+        }
+	if (settings->value("FakesMMWeightsIFF") == "True") {
+          this->setFakesMMWeightsCalculationIFF();
+          std::string configIFF = settings->value("FakesMMConfigIFF");
+          if (configIFF != "") {
+            this->setFakesMMConfigIFF(configIFF);
+	  }
+          if (settings->value("FakesMMIFFDebug") == "True") {
+            this->setFakesMMIFFDebug();
+	  }
         }
       }
       m_doTightEvents = (settings->value("DoTight") == "Data" || settings->value("DoTight") == "Both");

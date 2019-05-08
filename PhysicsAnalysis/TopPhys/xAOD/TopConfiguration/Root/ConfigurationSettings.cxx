@@ -214,6 +214,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
     registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
 
+    registerParameter("FakesMMWeightsIFF","Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)", "False");
+    registerParameter("FakesMMConfigIFF",
+		      "Configurations for fake leptons estimate using FakeBkgTools from IFF: - default is $ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]. Use as \n <ROOT/XML FILE>:<DEFNINITION>:<PROCESS>;<ROOT/XML FILE 2>:<DEFNINITION 2>:<PROCESS 2>; ...", 
+		      "$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]");
+    registerParameter("FakesMMIFFDebug","Enables debug mode for matrix-method weight calculation using FakeBkgTools from IFF: True, False (default)", "False");
+
     registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");
     registerParameter("DoSysts","Run systematics on given selection: Both (default), Tight, Loose", "Both");
