@@ -36,7 +36,8 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
      for(unsigned i=0;i<t_size;i++){
         const xAOD::JGTower*tower = towers->at(i);
         std::vector<int> SC_indices = tower->SCIndex();
-        if(SC_indices.size()==0) continue;
+	bool isTile = (fabs(tower->eta())<1.5 && tower->sampling()==1); 
+        if(SC_indices.size()==0 && !isTile)  continue;
 
         // only want EM towers as centres of barrel seeds (overlap in position with hadronic ones). 0 = barrel EM. 1 = barrel had
         if(tower->sampling()==1) continue;
@@ -53,7 +54,6 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
 
         if( candi_eta<tmp && seed_candi_eta.size()==0) { tmp=candi_eta; t_eta = candi_eta;}
         else if( candi_eta > t_eta && candi_eta<tmp )  {  tmp = candi_eta; }
-
      }
      t_eta = tmp;
      seed_candi_eta.push_back(t_eta);
@@ -72,7 +72,8 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
            const xAOD::JGTower*tower = towers->at(t);
            t++;
            std::vector<int> SC_indices = tower->SCIndex();
-           if(SC_indices.size()==0) continue;
+	   bool isTile = (fabs(tower->eta())<1.5 && tower->sampling()==1);
+           if(SC_indices.size()==0 && !isTile) continue;
            float eta = tower->eta()-tower->deta()/2;
            if(tower->eta()<0) eta = tower->eta()+tower->deta()/2;
            if(fabs(tower->eta())>3.2)  eta = tower->eta();
@@ -149,6 +150,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
     float tower_eta   = tower->eta();
     float tower_et    = tower->et();
     float tower_noise = 0;
+    bool isTile = (fabs(tower_eta) <1.5 && tower->sampling()==1);
 
     if(noise.size() < t) {
       ATH_REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"JetAlg::SeedFinding") << "the noise vector is smaller (at " << noise.size() << " entries) than the tower number " << t << " that you are attempting to use";
@@ -176,8 +178,14 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
   	  continue;
 
   	seeds->noise.at(i).at(ii) += tower_noise;
-  	if( tower_et > tower_noise * seed_tower_noise_multiplier )
-  	  seeds->et.at(i).at(ii) += tower_et;
+	bool applyNoise=true;
+	if(isTile)applyNoise=false;
+	if(applyNoise){
+	  if( tower_et > tower_noise * seed_tower_noise_multiplier )
+	    seeds->et.at(i).at(ii) += tower_et;
+	  //If it's not tile, or fwd then apply noise cut
+	}
+	else seeds->et.at(i).at(ii) += tower_et; //otherwise for tile seed anyway
       }
     }
     if (seedOnTower) {
@@ -220,7 +228,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         if(fabs(seeds->eta.at(i)-seeds->eta.at(iseed_eta))>range) break;
         for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
 
-          float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii));
+          float dphi = fabs(deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii)));
           if(dphi>range) continue;
           if(seeds->et.at(iseed_eta).at(iseed_phi) < seeds->et.at(i).at(ii)){
             eta_p = false;
@@ -233,7 +241,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
         if(i<0) break;
         if(fabs(seeds->eta.at(iseed_eta)-seeds->eta.at(i))>range) break;
         for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
-          float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii));
+          float dphi = fabs(deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii)));
           if(dphi>range) continue;
           if(seeds->et.at(iseed_eta).at(iseed_phi) < seeds->et.at(i).at(ii)){
             eta_n = false;
@@ -244,7 +252,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
 
       for(unsigned ii=0; ii<seeds->phi.at(iseed_eta).size(); ii++){
         if(ii==iseed_phi) continue;
-        float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(iseed_eta).at(ii));
+        float dphi = fabs(deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(iseed_eta).at(ii)));
         if(dphi>range) continue;
         if(seeds->et.at(iseed_eta).at(iseed_phi) < seeds->et.at(iseed_eta).at(ii)){
           eta_0 = false;
@@ -285,6 +293,8 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
           if(fabs(deta) > range)
             continue;
           float dphi = deltaPhi(seeds->phi.at(iiseed_eta).at(iiseed_phi), seeds->phi.at(iseed_eta).at(iseed_phi));
+	  //This dphi should not be absolute value, as we need the sign below! 
+	  //The correct usage in deltaPhi is the following function from root: TVector2::Phi_mpi_pi(phi1,phi2)
           if(fabs(dphi) > range)
             continue;
           
@@ -367,10 +377,7 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
     float pt_cone = blocks[b].Pt();
 
     float j_Et = 0;
-    float j_totalnoise = 0;
-    //std::cout << "cone pT : " << pt_cone << std::endl; 
     if(pt_cone > pt_cone_cut){
-      //std::cout << "cone pT : " << pt_cone << std::endl;
       for(unsigned int t = 0; t < towers.size(); t++){
 	const xAOD::JGTower* tower = towers.at(t);
 	if(fabs(tower->et()) < noise.at(t) * jet_tower_noise_multiplier)  continue;
@@ -492,8 +499,11 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
 
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
-           if(fabs(tower->et()) < noise.at(t)*jet_tower_noise_multiplier) continue;
-           if(!withinRadius(eta, tower->eta(), phi, tower->phi(), jet_r)) continue;
+	   bool isTile = (fabs(tower->eta()) <1.5 && tower->sampling()==1);
+	   bool applyNoise = true;
+	   if(isTile) applyNoise=false; 
+           if(applyNoise && fabs(tower->et()) < noise.at(t)*jet_tower_noise_multiplier) continue;
+           if(!withinRadius(eta, tower->eta(), phi, tower->phi(), jet_r,1)) continue;
            j_et += tower->et();
            j_totalnoise += noise.at(t);
            ATH_REPORT_MESSAGE_WITH_CONTEXT(MSG::DEBUG,"JetAlg::BuildRoundJet") << "   adding tower at (eta,phi)=("<<tower->eta()<<","<<tower->phi()<<")";

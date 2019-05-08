@@ -411,6 +411,16 @@ def defineMenu():
         '0INVM70-27DPHI32-EM10his1-EM10his6',
         '0INVM70-27DPHI32-EM10his1-EM12his6',
 
+        #ATR-19720
+        '8INVM15-0DR22-2MU6ab',
+        '2INVM9-2DR15-2MU6ab',
+        '2INVM9-0DR15-MU6ab-MU4ab',
+        '8INVM15-0DR22-MU6ab-MU4ab',
+        '2INVM9-0DR15-2MU4ab',
+
+        #ATR-19510
+        '5DETA99-5DPHI99-2MU4ab',
+
         ]
 
     
@@ -813,6 +823,13 @@ def defineMenu():
         'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
 
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6',
+        'L1_BPH-2M9-2DR15-2MU6',
+        'L1_BPH-2M9-0DR15-MU6MU4',
+        'L1_BPH-8M15-0DR22-MU6MU4-BO',
+        'L1_BPH-2M9-0DR15-2MU4',
+
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR3-EM7J15',
         'L1_BPH-0M9-EM7-EM5_MU6',
@@ -899,6 +916,9 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4',
         ]
     
 
@@ -1393,6 +1413,16 @@ def defineMenu():
         #ATR-19302: 
         'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
+
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6' : 205,
+        'L1_BPH-2M9-2DR15-2MU6' : 206,
+        'L1_BPH-2M9-0DR15-MU6MU4' : 207,
+        'L1_BPH-8M15-0DR22-MU6MU4-BO' : 208,
+        'L1_BPH-2M9-0DR15-2MU4' : 209,
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4' : 199,
 
 }
 

@@ -2,7 +2,7 @@
 
 from AthenaCommon.Include import include  # to include old style job options
 
-def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
+def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence = False):
 
     ## print some information about the conditions the simulation
     ## is running in
@@ -138,15 +138,21 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False):
         from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
         enableCTPEmulation(l1simAlgSeq)
 
-    #algSequence = AthSequencer("AthAlgSeq")
+    if useAlgSequence:
+        sequence = AthSequencer("AthAlgSeq") # everything is added to the AthAlqSequence (which is then put in front of everything) 
+    else:
+        sequence = AlgSequence() # everything is added to the topSequence
+
     for alg in l1simAlgSeq:
-        topSequence += alg
+        sequence += alg
     l1simAlgSeq.removeAll()
+
+
 
     if simflags.EnableDebugOutput():
         log.debug("Algorithm sequence after L1 simulation setup")
         from AthenaCommon.AlgSequence import dumpSequence
-        dumpSequence(topSequence)
+        dumpSequence(sequence)
 
 
     ## Configure the output content

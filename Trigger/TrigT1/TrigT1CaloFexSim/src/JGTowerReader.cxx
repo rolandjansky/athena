@@ -424,7 +424,7 @@ StatusCode JGTowerReader::ProcessObjects(){
     (*acc_mht)(*METCont) = met->mht;
     (*acc_mst)(*METCont) = met->mst;
     CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));
-    CHECK(evtStore()->record(METContAux,Form("%s_METAux",it->first.Data())));
+    CHECK(evtStore()->record(METContAux,Form("%s_METAux.",it->first.Data())));
     ATH_MSG_DEBUG("Recording EnergySumRoI with name " << it->first.Data() << "_MET");
 
   }
