@@ -170,6 +170,7 @@ StatusCode TrigSignatureMoniMT::execute()  {
   for (const TrigCompositeUtils::Decision* decisionObject : *finalDecisionsHandle) {
     if (decisionObject->name() == "HLTPassRaw") {
       TrigCompositeUtils::decisionIDs(decisionObject, finalIDs);
+      break;
     }
   }
   ATH_CHECK( fillPass( finalIDs, row ) );

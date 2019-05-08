@@ -20,6 +20,7 @@ extern "C" {
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
+#include "xAODBase/IParticleContainer.h"
 
 namespace TrigCompositeUtils{ 
    typedef unsigned int DecisionID;
@@ -95,8 +96,8 @@ namespace xAOD {
       template< class CONTAINER >
       bool setObjectLink( const std::string& name,
                           const ElementLink< CONTAINER >& link );
-      /// Check if a link to an object with a given name exists
-      bool hasObjectLink( const std::string& name ) const;
+      /// Check if a link to an object with a given name and type exists. CLID_NULL to not check type.
+      bool hasObjectLink( const std::string& name, const CLID clid = CLID_NULL ) const;
       /// Get the link with the requested name
       template< class CONTAINER >
       ElementLink< CONTAINER >
@@ -113,8 +114,8 @@ namespace xAOD {
       template< class CONTAINER >
       bool addObjectCollectionLinks( const std::string& collectionName,
                                      const ElementLinkVector< CONTAINER >& links );
-      /// Check if links exist to a collection of objects with given name
-      bool hasObjectCollectionLinks( const std::string& collectionName ) const;
+      /// Check if links exist to a collection of objects with given name and type. CLID_NULL to not check type.
+      bool hasObjectCollectionLinks( const std::string& collectionName, const CLID clid = CLID_NULL) const;
       /// Get a vector of all element links from the collection
       template< class CONTAINER >
       ElementLinkVector< CONTAINER >
@@ -205,6 +206,14 @@ namespace xAOD {
 
       /// Helper function, copy one link into this object
       void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);
+
+      /// Helper function. Check if the requested type can be down cast to an IParticle transient interface
+      bool derivesFromIParticle(const CLID clid) const;
+
+      /// Helper function. Contains type logic check for use during actual link retrieval. Throws on error. 
+      template< class CONTAINER >
+      void checkTypes(const CLID storedCLID, const std::string& name) const;
+
 
       static const std::string s_collectionSuffix;
 

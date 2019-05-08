@@ -4021,6 +4021,11 @@ StatusCode TrigEDMChecker::dumpTDT() {
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
     ATH_MSG_INFO("  HLT Item " << item << " passed raw? " << passed);
+    // TODO Enable this section after !22102 is merged 
+    // if (passed) {
+    //   ElementLinkVector<IParticleContainer> features = m_trigDec->features<IParticleContainer>(item);
+    //   ATH_MSG_INFO("    " << item << " features size: " << features.size());
+    // }
   }
   ATH_MSG_INFO( "REGTEST ==========END of TDT DUMP===========" );
   return StatusCode::SUCCESS;
@@ -4046,13 +4051,13 @@ StatusCode TrigEDMChecker::dumpTrigComposite() {
       ATH_MSG_WARNING("Absent TrigCompositeContainer: " << key );
       continue;
     }
-    ATH_MSG_DEBUG( " #################### Dumping container of : " << key );
+    ATH_MSG_DEBUG( "#################### Dumping container of : " << key );
     const xAOD::TrigCompositeContainer* cont= nullptr;
     ATH_CHECK( evtStore()->retrieve( cont, key ) );
     
     size_t count = 0;
     for ( auto tc: *cont ) {
-      ATH_MSG_DEBUG(" ########## ELEMENT " << count++);
+      ATH_MSG_DEBUG("########## ELEMENT " << count++);
       ATH_MSG_DEBUG(*tc);
       // Get the objects we know of
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) ATH_CHECK(checkTrigCompositeElementLink(tc, i));
@@ -4106,6 +4111,8 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
 
 StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue) {
 
+  using namespace TrigCompositeUtils;
+
   // This constexpr is evaluated at compile time
   const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
   std::vector<std::string> keys;
@@ -4120,7 +4127,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
 
   // First retrieve them all (this should not be needed in future)
-  const xAOD::TrigCompositeContainer* container = nullptr;
+  const DecisionContainer* container = nullptr;
   for (const std::string key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
 
   std::stringstream ss;
@@ -4144,20 +4151,23 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
     }
     if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
-    size_t index = 0;
     ss << "  subgraph " << key << " {" << std::endl;
     ss << "    label=\"" << key << "\"" << std::endl;
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
-    for (const xAOD::TrigComposite* tc : *container ) {
-      // Output my name
-      ss << "    \"" << tc << "\" [label=\"Container=" << typeNameTC; 
+    for (const Decision* tc : *container ) {
+      // Output my ID in the graph. 
+      const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
+      const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
+      const uint32_t selfKey = selfEL.key();
+      const uint32_t selfIndex = selfEL.index();
+      ss << "    \"" << selfKey << "_" << selfIndex << "\" [label=\"Container=" << typeNameTC; 
       if (tc->name() != "") ss << "\\nName=" << tc->name();
-      ss << "\\nKey=" << key << "\\nIndex=" << std::to_string(index);
-      std::vector<unsigned> decisions;
-      if (tc->getDetail("decisions", decisions) && decisions.size() > 0) {
+      ss << "\\nKey=" << key << "\\nIndex=" << selfIndex;
+      const std::vector<DecisionID> decisions = tc->decisions();
+      if (decisions.size() > 0) {
         ss << "\\nPass=";
         for (unsigned decisionID : decisions) {
-          ss << std::hex << decisionID << "," ;
+          ss << std::hex << decisionID << std::dec << "," ;
         }
       }
       ss << "\"]" << std::endl;
@@ -4165,8 +4175,9 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
         if (link == "seed" || link == "seed__COLL") {
-          const xAOD::TrigComposite* seed = tc->object<xAOD::TrigComposite>(link);
-          ss << "    \"" << tc << "\" -> \"" << seed << "\" [label=\"seed\"]" << std::endl; // Print ptr address
+          const uint32_t seedKey = tc->linkColKeys().at(i);
+          const uint32_t seedIndex = tc->linkColIndices().at(i);
+          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << seedKey << "_" << seedIndex << "\" [label=\"seed\"]" << std::endl;
         } else {
           // Start with my class ID
           const CLID linkCLID = static_cast<CLID>( tc->linkColClids().at(i) );
@@ -4186,14 +4197,13 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
               << ". We were expecting " << linkCLID << " [" << tname << "]");
           }
           // Print
-          ss << "    \"" << tc << "\" -> \""; // Print ptr address
+          ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"";
           ss << "Container=" << tname << "\\nKey=";
           if (keyStr != nullptr) ss << *keyStr;
           else ss << "[KEY "<< key <<" NOT IN STORE]"; 
           ss << "\\nIndex=" << index << "\" [label=\"" << link << "\"]" << std::endl; 
         }
       }
-      ++index;
     }
     ss << "  }" << std::endl;
   }
