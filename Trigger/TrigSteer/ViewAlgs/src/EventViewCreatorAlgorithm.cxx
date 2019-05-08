@@ -96,6 +96,8 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           int iview = roiIt - RoIsFromDecision.begin();
           outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
+	  auto theview = viewVector->at(iview);
+	  ATH_CHECK( linkViewToParent( inputDecision, theview ) );
         }
       }// loop over previous inputs
     } // loop over decisions   

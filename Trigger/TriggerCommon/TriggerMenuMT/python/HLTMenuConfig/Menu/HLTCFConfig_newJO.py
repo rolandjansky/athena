@@ -121,3 +121,11 @@ def generateDecisionTree(chains):
     all_DataFlow_to_dot(mainSequenceName, allCFSequences)
 
     return acc
+
+
+
+def createControlFlowNewJO(HLTNode, CFseq_list):
+    """ Creates Control Flow Tree starting from the CFSequences in newJO"""
+    
+ 
+    return

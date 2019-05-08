@@ -36,6 +36,7 @@ atlas_add_test( ViewSchedule2  SCRIPT test/test_view_schedule.sh ENVIRONMENT THR
 atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=64 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( merge SCRIPT test/test_merge.sh PROPERTIES TIMEOUT 1000 POST_EXEC_SCRIPT nopost.sh )
 
+
 # Helper to define unit tests running in a separate directory
 # The test name is derived from the test script name: test/test_${name}.sh
 function( _add_test name )
@@ -49,5 +50,7 @@ function( _add_test name )
       ${ARGN} )
 endfunction( _add_test )
 
+
 _add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh ) # should be moved to the L1Decoder package
-_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*" ) # should be moved to TriggerMenuMT
+_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
+

@@ -312,7 +312,7 @@ class GenerateMenuMT(object):
             for step in cc.steps:
                 log.info(step)
 
-        makeHLTTree(finalListOfChainConfigs, self.triggerConfigHLT)
+        makeHLTTree(HLTChains=finalListOfChainConfigs, newJO=False, triggerConfigHLT = self.triggerConfigHLT)
         # the return values used for debugging, might be removed later
         return finalListOfChainConfigs
             

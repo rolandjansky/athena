@@ -85,16 +85,28 @@ if opt.doMuonSlice == True:
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
 
 
+    # 2muons
+    step1_2mufast= ChainStep("Step1_2muFast", [ muFastSequence(),   muFastSequence()])
+    step2_2muComb= ChainStep("Step1_2muComb", [ muCombSequence(),   muCombSequence()])
+    step3_2muEFSA= ChainStep("Step3_2muEFSA", [ muEFSASequence(),   muEFSASequence()])
+    step4_2muEFCB= ChainStep("Step4_2muEFCB", [ muEFCBSequence(),   muEFCBSequence()])
+    
+
+    emptyStep=ChainStep("Step2_empty")
+
     ## single muon trigger  
     MuonChains += [Chain(name='HLT_mu6fast',   Seed="L1_MU6",  ChainSteps=[ step1mufast ])]
     MuonChains += [Chain(name='HLT_mu6Comb',   Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb ])]
-    #MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step3muEFSA ])] # removed due to muEFSA isuue(?)
     MuonChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
-    MuonChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
+    MuonChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
+    MuonChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
     # multi muon trigger 
     MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
     MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]        
+
+  ##  MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_2MU6", ChainSteps=[ step1_2mufast, step2_2muComb ])]
+  ##  MuonChains += [Chain(name='HLT_2mu6',     Seed="L1_2MU6", ChainSteps=[ step1_2mufast, step2_2muComb, step3_2muEFSA, step4_2muEFCB ])]        
 
     #FS Muon trigger
     MuonChains += [Chain(name='HLT_mu6nol1', Seed="L1_MU6", ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
