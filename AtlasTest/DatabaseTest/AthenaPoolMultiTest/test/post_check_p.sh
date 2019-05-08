@@ -30,6 +30,8 @@ else
              -e 'ERROR' \
              -e 'Error' \
              ${joblog} | 
+             grep -v 'StreamAll2' |
+             grep -v 'RootDatabase.open' |
              grep -v 'Handler' |
              grep -v 'EventSelectorAthenaPool' |\
              grep -v 'CLIDRegistry' |\
