@@ -758,11 +758,8 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
 	    //int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
 	    //int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
             bool pass = ((unsigned int) (jet->et8x8()/1000.)) > confThr->triggerThresholdValue( ieta, iphi )->ptcut();
-            if (confThr->name() == "jJ15.31ETA49") {
-               std::cout << "JJJ ieta " << ieta << " iphi " << iphi << " eta " << eta << " phi " << phi << " et " << ((unsigned int) (jet->et8x8()/1000.)) << " thr " << confThr->triggerThresholdValue( ieta, iphi )->ptcut() << ( pass ? "  --> pass" : "") << std::endl;
-            } 
-	    multiplicity += pass ? 1 : 0;
-	 }
+	          multiplicity += pass ? 1 : 0;
+	       }
       }
    }
 
