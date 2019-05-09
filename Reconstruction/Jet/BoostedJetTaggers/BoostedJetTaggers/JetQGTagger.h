@@ -46,11 +46,10 @@ namespace CP {
 
     public:
 
-      JetQGTagger( const std::string& name);
-
+      JetQGTagger( const std::string& name); 
+      virtual ~JetQGTagger(); // destructor
 
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize();
 
       // Implement IJetSelectorTool interface
       virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;

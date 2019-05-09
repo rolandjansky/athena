@@ -242,7 +242,7 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetQGTagger::finalize(){
+  JetQGTagger::~JetQGTagger(){
 
     delete m_topo_hquark;
     delete m_exp_hquark_up;
@@ -262,7 +262,6 @@ namespace CP {
     delete m_fake_hquark;
     delete m_fake_hgluon;
 
-    return StatusCode::SUCCESS;
   }
 
 
