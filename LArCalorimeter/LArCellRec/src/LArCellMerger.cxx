@@ -71,7 +71,7 @@ StatusCode LArCellMerger::process (CaloCellContainer* theCont,
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
 
   unsigned nReplaced=0;
