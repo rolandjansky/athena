@@ -235,20 +235,24 @@ TrackStateOnSurface::isSane() const {
 }
 
 
-  void TrackStateOnSurface::setHint( const TrackStateOnSurfaceType& type ) const {
+  void TrackStateOnSurface::setHint ATLAS_NOT_THREAD_SAFE ( const TrackStateOnSurfaceType& type ) const {
     if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
       // allowed to modify persistification flags although this is const
-      m_typeFlags.set(type);
+      
+      /* Fixing this needs revisiting the slimming code*/ 
+      (const_cast< std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&> (this->m_typeFlags)).reset(type);
     }
     else {
       throw std::logic_error("Can only use TrackStateOnSurface::mark to set persistification flags");
     }
   }
 
-  void TrackStateOnSurface::resetHint( const TrackStateOnSurfaceType& type ) const {
+  void TrackStateOnSurface::resetHint ATLAS_NOT_THREAD_SAFE ( const TrackStateOnSurfaceType& type ) const {
     if (type>=PartialPersistification && type<=PersistifySlimCaloDeposit) {
       // allowed to modify persistification flags although this is const
-      m_typeFlags.reset(type);
+      
+      /* Fixing this needs revisiting the slimming code*/
+      (const_cast< std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&> (this->m_typeFlags)).reset(type);
     }
     else {
       throw std::logic_error("Can only use TrackStateOnSurface::mark to set persistification flags");
