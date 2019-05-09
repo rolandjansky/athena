@@ -77,7 +77,7 @@ private:
   void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
   //----- Electron START -----//
-  void doEleTriggerTP(const xAOD::Electron*,const xAOD::Electron*, bool, bool);
+  void doEleTriggerTP(const xAOD::Electron* el1, const xAOD::Electron* el2, bool os, bool ss);
   void doEleTP(const xAOD::Electron*, const xAOD::Electron*, const xAOD::Vertex*, const xAOD::EventInfo*, bool);
   void doEleContainerTP(std::vector<const xAOD::Electron*>, std::vector<const xAOD::Electron*>);
 

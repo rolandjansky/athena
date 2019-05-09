@@ -297,7 +297,6 @@ if fout:
     fout.Close()
 
 c1 = ROOT.TCanvas()
-c1.SetBatch(ROOT.kTRUE)
 c1.SetTickx()
 c1.SetTicky()
 leg = ROOT.TLegend(0.6, 0.75, 0.89, 0.88)
@@ -312,7 +311,6 @@ c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
-c1.SetBatch(ROOT.kTRUE)
 lumiplot_m_ratio.Draw()
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))

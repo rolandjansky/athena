@@ -21,7 +21,6 @@ runnum = args.infile.split('_')[0]
 # f = ROOT.TFile.Open(sys.argv[1], 'UPDATE')
 f = ROOT.TFile.Open(os.path.join(args.indir, args.infile), 'UPDATE')
 c1 = ROOT.TCanvas()
-c1.SetBatch(ROOT.kTRUE)
 lumitree = f.lumitree
 #get range
 runs=[0,1]; fills=[0,1]

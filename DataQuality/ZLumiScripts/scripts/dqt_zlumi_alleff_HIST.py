@@ -361,7 +361,6 @@ tl.Write()
 print 'Done'
 
 c1 = ROOT.TCanvas()
-c1.SetBatch(ROOT.kTRUE)
 effcya.SetMarkerStyle(21)
 effcya.SetMarkerColor(ROOT.kBlue)
 effcya.GetYaxis().SetRangeUser(0, 0.4)
