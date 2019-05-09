@@ -49,22 +49,19 @@ namespace CP {
       JetQGTagger( const std::string& name);
 
 
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
       // Implement IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const { return tag(jet, 0, 0); }
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const { return tag(jet, pv, 0); }
-
-      // Implement IJetQGTagger interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv, int mode) const;
+      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;
+      virtual Root::TAccept tag(const xAOD::Jet& jet) const override { return tag(jet, NULL); }
 
       // functions for systematic variations
-      virtual bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
-      virtual SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}
-      virtual SystematicSet recommendedSystematics() const {return SystematicsTool::recommendedSystematics();}
-      virtual SystematicCode applySystematicVariation(const SystematicSet& set) {return SystematicsTool::applySystematicVariation(set);}
-      virtual SystematicCode sysApplySystematicVariation(const SystematicSet&);
+      virtual bool isAffectedBySystematic(const SystematicVariation& var) const override {return SystematicsTool::isAffectedBySystematic(var);}
+      virtual SystematicSet affectingSystematics() const override {return SystematicsTool::affectingSystematics();}
+      virtual SystematicSet recommendedSystematics() const override {return SystematicsTool::recommendedSystematics();}
+      virtual SystematicCode applySystematicVariation(const SystematicSet& set) override {return SystematicsTool::applySystematicVariation(set);}
+      virtual SystematicCode sysApplySystematicVariation(const SystematicSet&) override;
 
     private:
       JetQGTagger();
@@ -120,6 +117,7 @@ namespace CP {
       double m_slope;
       double m_intercept;
       std::string m_cuttype;
+      int m_mode;
 
       asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
       asg::AnaToolHandle<InDet::IInDetTrackTruthFilterTool> m_trkTruthFilterTool;

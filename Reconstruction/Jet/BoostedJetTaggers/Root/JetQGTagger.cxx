@@ -51,10 +51,11 @@ namespace CP {
 
     declareProperty( "ConfigFile",   m_configFile="");
     declareProperty( "NTrackCut",    m_NTrackCut=-1);
-    declareProperty( "cuttype",    m_cuttype="log_pt");
-    declareProperty( "slope",    m_slope=9.779);
+    declareProperty( "cuttype",      m_cuttype="log_pt");
+    declareProperty( "slope",        m_slope=9.779);
     declareProperty( "intercept",    m_intercept=-32.28);
     declareProperty( "DecorateJet",  m_decorate = true);
+    declareProperty( "UseJetVars",   m_mode = 0); // 0 uses the tracks. 1 uses variables from the jets
 
     declareProperty( "Tagger", m_taggername = "ntrack");
     declareProperty( "CalibArea",     m_calibarea = "BoostedJetTaggers/QGTagger/May2019/");
@@ -265,9 +266,9 @@ namespace CP {
   }
 
 
-  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv, int mode) const {
+  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
-    if(mode ==0){ //do tagging assuming relevant track particle, PV, etc containers exist
+    if(m_mode ==0){ //do tagging assuming relevant track particle, PV, etc containers exist
         if (pv)
           ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
         else
@@ -364,7 +365,7 @@ namespace CP {
         else if(m_cuttype=="threshold" && jetNTrack<m_NTrackCut) m_accept.setCutResult("QuarkJetTag", true);
     }
 
-    if(mode==1){ //only calculating uncertainty using given jet info (nTrk already calculated, etc)
+    if(m_mode==1){ //only calculating uncertainty using given jet info (nTrk already calculated, etc)
         double jetWeight = -1;
         checkAndThrow(simplegetNTrackWeight(&jet, jetWeight) );
 
