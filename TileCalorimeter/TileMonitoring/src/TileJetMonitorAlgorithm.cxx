@@ -91,7 +91,7 @@ StatusCode TileJetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     ATH_MSG_DEBUG("::fillHistograms(), event accepted ");
   }
 
-  SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetContainerKey);
+  SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetContainerKey, ctx);
   if (!jetContainer.isValid()) {
     ATH_MSG_WARNING("Can't retrieve Jet Container: " << m_jetContainerKey.key());
     return StatusCode::SUCCESS;
