@@ -78,7 +78,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
 
   // Get beam geometry
   //
-  ATH_CHECK(m_beamSpotKey.initialize());
+  if (not m_beamSpotKey.empty()) {
+    ATH_CHECK(m_beamSpotKey.initialize());
+  }
 
   // Get magnetic field service
   //
@@ -141,7 +143,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   m_dzdrmax =  m_dzdrmax0;
   m_umax    =  100.      ;
   if (!m_iteration) {
-    buildBeamFrameWork();
+    if (not m_beamSpotKey.empty()) {
+      buildBeamFrameWork();
+    }
 
     double f[3], gP[3] ={10.,10.,0.};
     if (m_fieldServiceHandle->solenoidOn()) {
@@ -308,7 +312,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   m_dzdrmax =  m_dzdrmax0;
   m_umax    =  100.      ;
 
-  buildBeamFrameWork();
+  if (not m_beamSpotKey.empty()) {
+    buildBeamFrameWork();
+  }
 
   double f[3], gP[3] ={10.,10.,0.};
 

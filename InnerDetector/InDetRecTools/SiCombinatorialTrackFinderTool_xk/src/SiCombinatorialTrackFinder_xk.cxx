@@ -76,7 +76,11 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
 
   // Get tool for track-prd association
   //
-  ATH_CHECK(m_assoTool.retrieve());
+  if (m_usePIX) {
+    ATH_CHECK(m_assoTool.retrieve());
+  } else {
+    m_assoTool.disable();
+  }
 
   if (m_usePIX) {  
     if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
@@ -120,14 +124,15 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
   
   // register the Callback
   //
-  StatusCode sc = detStore()->regFcn(&InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction,
-				     this, tagInfoH, m_callbackString);
-
-  if (sc==StatusCode::SUCCESS) {
-    ATH_MSG_INFO("Registered callback for geometry " << name());
-  } else {
-    ATH_MSG_ERROR("Could not book callback for geometry " << name ());
-    return StatusCode::FAILURE;
+  if (m_usePIX) {
+    StatusCode sc = detStore()->regFcn(&InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction,
+                                       this, tagInfoH, m_callbackString);
+    if (sc==StatusCode::SUCCESS) {
+      ATH_MSG_INFO("Registered callback for geometry " << name());
+    } else {
+      ATH_MSG_ERROR("Could not book callback for geometry " << name ());
+      return StatusCode::FAILURE;
+    }
   }
 
   if ( !m_fieldServiceHandle.retrieve() ) {
@@ -144,12 +149,16 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
 
-  ATH_CHECK( m_pixcontainerkey.initialize() );
-  ATH_CHECK( m_sctcontainerkey.initialize() );
-  ATH_CHECK( m_boundarySCTKey.initialize() );
-  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  if (m_usePIX) {
+    ATH_CHECK( m_pixcontainerkey.initialize() );
+  }
+  if (m_useSCT) {
+    ATH_CHECK( m_sctcontainerkey.initialize() );
+    ATH_CHECK( m_boundarySCTKey.initialize() );
+    ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -217,10 +226,12 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   for (int i=0; i<n; ++i) s8.append(" ");
   s8.append("|");
 
-  n     = 62-m_assoTool.type().size();
   std::string s9;
-  for (int i=0; i<n; ++i) s9.append(" ");
-  s9.append("|");
+  if (m_usePIX) {
+    n     = 62-m_assoTool.type().size();
+    for (int i=0; i<n; ++i) s9.append(" ");
+    s9.append("|");
+  }
 
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -234,7 +245,9 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
   out<<"| Tool for rio  on track  | "<<m_riocreator .type()<<s5<<std::endl;
-  out<<"| Tool for track-prd assos| "<<m_assoTool   .type()<<s9<<std::endl;
+  if (m_usePIX) {
+    out<<"| Tool for track-prd assos| "<<m_assoTool   .type()<<s9<<std::endl;
+  }
   out<<"| Magnetic field mode     | "<<fieldmode[mode]     <<s3<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -701,17 +714,13 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction 
 (IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 {
-  StatusCode sc;
-
   // Get  Pixel Detector Manager
   //
   const InDetDD::PixelDetectorManager* pixmgr = nullptr;
-  if (m_usePIX) {
-    sc = detStore()->retrieve(pixmgr, m_pixm);
-    if (sc.isFailure() || !pixmgr) {
-      ATH_MSG_FATAL("Could not get PixelDetectorManager  !");
+  StatusCode sc = detStore()->retrieve(pixmgr, m_pixm);
+  if (sc.isFailure() || !pixmgr) {
+    ATH_MSG_FATAL("Could not get PixelDetectorManager  !");
       return StatusCode::FAILURE;
-    }
   }
 
   // check if the string is ESD for guaranteeing that misalignment has been introduced already
@@ -730,7 +739,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
   
   const PixelID* IDp = nullptr;
 
-  if (m_usePIX && detStore()->retrieve(IDp, "PixelID").isFailure()) {
+  if (detStore()->retrieve(IDp, "PixelID").isFailure()) {
     ATH_MSG_FATAL("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   }
@@ -906,7 +915,9 @@ InDet::SiCombinatorialTrackFinder_xk::EventData& InDet::SiCombinatorialTrackFind
 
     // Set SiTools and conditions
     //
-    m_eventData[slot].tools.setTools(&*m_proptool, &*m_updatortool, &*m_riocreator, &*m_assoTool, &*m_fieldServiceHandle);
+    m_eventData[slot].tools.setTools(&*m_proptool, &*m_updatortool, &*m_riocreator,
+                                     (m_usePIX ? &*m_assoTool : nullptr),
+                                     &*m_fieldServiceHandle);
     m_eventData[slot].tools.setTools(&*m_pixelCondSummaryTool, &*m_sctCondSummaryTool);    
     m_eventData[slot].tools.setTools(m_fieldprop);
 
