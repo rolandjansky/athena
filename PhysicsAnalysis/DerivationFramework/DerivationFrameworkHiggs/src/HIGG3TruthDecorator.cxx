@@ -72,7 +72,7 @@ namespace DerivationFramework {
       return StatusCode::SUCCESS;
     }
 
-    // Define the decorators outside of the loop as static, such that they
+    // Define the lepton decorator outside of the loop as static, such that it
     // will be fully cached
     static SG::AuxElement::Decorator<int>  decFlavourTag ("truthFlavourTag");
 
@@ -81,11 +81,11 @@ namespace DerivationFramework {
     ATH_CHECK(evtStore()->retrieve(truthEvents, "TruthEvents"));
     const xAOD::TruthEvent * event = truthEvents->at(0);
 
-    std::vector<const xAOD::TruthParticle* > m_interestingLeptons;
+    std::vector<const xAOD::TruthParticle* > interestingLeptons;
     std::vector<const xAOD::TruthParticle* > ORLeptons;
-    std::vector<const xAOD::TruthParticle* > m_interestingParticles;
-    std::vector<const xAOD::TruthParticle* > m_neutrinosFromW;
-    std::vector<const xAOD::TruthParticle* > m_leptonsFromW;
+    std::vector<const xAOD::TruthParticle* > interestingParticles;
+    std::vector<const xAOD::TruthParticle* > neutrinosFromW;
+    std::vector<const xAOD::TruthParticle* > leptonsFromW;
     int Nz=0;
     int Nem =0;
     int Ntau=0;
@@ -255,7 +255,7 @@ namespace DerivationFramework {
         */
 
         if ( absPdg==12 || absPdg==14 || absPdg==16 ) {
-          m_neutrinosFromW.push_back( truthPart );
+          neutrinosFromW.push_back( truthPart );
           Nnu++;
           if ( absPdg==12 ) CountSherpaLepton += -11;
           if ( absPdg==14 ) CountSherpaLepton += -13;
@@ -297,15 +297,15 @@ namespace DerivationFramework {
               ATH_MSG_DEBUG("Found a tau decay with: " << lep2->pt() << " , " << lep2->eta()
                             << " , " << lep2->phi() << " , Status: " << lep2->status() << "  ID: " <<  lep2->pdgId() << "  barcode: " << lep2->barcode() );
               if ( std::abs(PDGtau)==12 || std::abs(PDGtau)==14 || std::abs(PDGtau)==16 ) {
-                m_neutrinosFromW.push_back( lep2 );
+                neutrinosFromW.push_back( lep2 );
                 Nnu++;
               } else if ( std::abs(PDGtau)==11 || std::abs(PDGtau)==13 ) {
-                m_leptonsFromW.push_back(lep2);
+                leptonsFromW.push_back(lep2);
               }
             }
           } // end of tau block
           if ( absPdg==11 || absPdg==13 ) {
-            m_leptonsFromW.push_back(truthPart);
+            leptonsFromW.push_back(truthPart);
             leptonsFromWZwithTau.push_back(truthPart);
           }
         }
@@ -327,7 +327,7 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG( "  found a boson with: " << truthPart->pt() << " , " << eta
                        << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );// << std::endl;
 
-        m_interestingParticles.push_back( truthPart );
+        interestingParticles.push_back( truthPart );
         for (unsigned int part=0; part<decvtx->nOutgoingParticles(); part++) {
           const xAOD::TruthParticle* lepton = decvtx->outgoingParticle(part);
           if (!lepton) {
@@ -364,10 +364,10 @@ namespace DerivationFramework {
               ATH_MSG_DEBUG( "     found a tau decay with: " << lep2->pt() << " , " << lep2->eta()
                              << " , " << lep2->phi() << " , Status: " << lep2->status() << "  ID: " <<  lep2->pdgId() << "  barcode: " << lep2->barcode() );
               if ( std::abs(PDGtau)==12 || std::abs(PDGtau)==14 || std::abs(PDGtau)==16 ) {
-                m_neutrinosFromW.push_back( lep2 );
+                neutrinosFromW.push_back( lep2 );
                 Nnu++;
               } else if ( std::abs(PDGtau)==11 || std::abs(PDGtau)==13 ) {
-                m_leptonsFromW.push_back(lep2);
+                leptonsFromW.push_back(lep2);
               }
             }
           } // end of tau block
@@ -376,7 +376,7 @@ namespace DerivationFramework {
                            << " , Status: " << lepton->status() << "  ID: " <<  lepton->pdgId() << "  barcode: " << lepton->barcode() );
             //printRecursively( decvtx->outgoingParticle(part), "  ");
             Nem++;
-            m_leptonsFromW.push_back( lepton );
+            leptonsFromW.push_back( lepton );
             //if ( std::abs(PDGlep)==13 ) {
             //  const xAOD::TruthParticle* tmpPart2=lastOfKind(decvtx->outgoingParticle(part));
             //  float tmpPtLoss= (tmpPart2->pt()-decvtx->outgoingParticle(part)->pt())/decvtx->outgoingParticle(part)->pt();
@@ -386,7 +386,7 @@ namespace DerivationFramework {
             if ( std::abs(PDGlep)==13 )  NmDirect++;
           }
           if ( std::abs(PDGlep)==12 || std::abs(PDGlep)==14 || std::abs(PDGlep)==16 ) {
-            m_neutrinosFromW.push_back( lepton );
+            neutrinosFromW.push_back( lepton );
             Nnu++;
           }
         }
@@ -400,7 +400,7 @@ namespace DerivationFramework {
         else {
           ATH_MSG_DEBUG( "  found a Higgs boson with: " << truthPart->pt() << " , " << eta
                          << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );// << std::endl;
-          m_interestingParticles.push_back( truthPart );
+          interestingParticles.push_back( truthPart );
         }
       }
       if ( absPdg==25 && truthPart->status() == 62 ) {
@@ -425,14 +425,14 @@ namespace DerivationFramework {
       if ( absPdg==13 ) {
         ATH_MSG_DEBUG( "  found a muon with: " << truthPart->pt() << " , " << truthPart->eta()
                        << " , " << truthPart->phi() << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );
-        m_interestingLeptons.push_back(truthPart);
+        interestingLeptons.push_back(truthPart);
         if ( pt>20e3 ) Nem_acc++;
       }
 
       if ( absPdg==11 ) {
         ATH_MSG_DEBUG("  found an electron with: " << truthPart->pt() << " , " << truthPart->eta() << " , " << truthPart->phi() << " , " << truthPart->barcode()
                       << " , Status: " << truthPart->status() << "  ID: " <<  truthPart->pdgId() );
-        m_interestingLeptons.push_back(truthPart);
+        interestingLeptons.push_back(truthPart);
         if ( pt>20e3 ) Nem_acc++;
       }
 
@@ -442,12 +442,12 @@ namespace DerivationFramework {
 
     eventInfo->auxdecor<int>("truth_nOutgoingPartons")   = nOutgoingPartons;
 
-    std::sort( m_interestingLeptons.begin(), m_interestingLeptons.end(), xaodPtSorting);
+    std::sort( interestingLeptons.begin(), interestingLeptons.end(), xaodPtSorting);
 
-    for ( unsigned int iL=0; iL<m_interestingLeptons.size(); iL++) {
-      if (  !isFromW( m_interestingLeptons.at(iL), m_leptonsFromW ) ) {
+    for ( unsigned int iL=0; iL<interestingLeptons.size(); iL++) {
+      if (  !isFromW( interestingLeptons.at(iL), leptonsFromW ) ) {
         //std::cout << " ... particle not coming from W " << std::endl;
-        if ( (m_interestingLeptons.at(iL))->pt()>20e3 ) Nem_acc--;
+        if ( (interestingLeptons.at(iL))->pt()>20e3 ) Nem_acc--;
       }
     }
 
@@ -474,8 +474,8 @@ namespace DerivationFramework {
             if (fabs(mother->pdgId()) == 11 || fabs(mother->pdgId()) == 13 || fabs(mother->pdgId()) == 15) {
               found = true;
               ATH_MSG_DEBUG( "--> found photon from lepton ");
-              for ( unsigned int iL=0; iL<m_interestingLeptons.size(); iL++) {
-                const xAOD::TruthParticle* lepAfterRad = m_interestingLeptons.at(iL);
+              for ( unsigned int iL=0; iL<interestingLeptons.size(); iL++) {
+                const xAOD::TruthParticle* lepAfterRad = interestingLeptons.at(iL);
                 //if (fabs(mother->pdgId()) == lepAfterRad->pdgId()) {
                 ATH_MSG_DEBUG( "--> Delta R lepton after rad- photon: "<< (truthPhoton->p4()).DeltaR(lepAfterRad->p4()));
                 if (minDR > (truthPhoton->p4()).DeltaR(lepAfterRad->p4())) {
@@ -543,7 +543,7 @@ namespace DerivationFramework {
         else ATH_MSG_ERROR( "  unrecognised configuration: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu );
       }
     }
-    ATH_MSG_DEBUG( "  option: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu << " , " <<  CountSherpaLepton << "  TYPE: " <<   WWtype << "  ... truth: " << Nem_acc << "  ... leptons from W: " << m_leptonsFromW.size() );
+    ATH_MSG_DEBUG( "  option: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu << " , " <<  CountSherpaLepton << "  TYPE: " <<   WWtype << "  ... truth: " << Nem_acc << "  ... leptons from W: " << leptonsFromW.size() );
 
     eventInfo->auxdecor<char>("truth_isZZ")             = static_cast<char>(isZ);
     eventInfo->auxdecor<int>("truth_WWtype")            = WWtype;
@@ -552,10 +552,10 @@ namespace DerivationFramework {
     eventInfo->auxdecor<char>("truth_hasFSRPhotonDR01") = static_cast<char>(hasFSRPhotonLargeDeltaR);
 
     float Mvv=0.0;
-    if ( m_neutrinosFromW.size()>1 ) {
+    if ( neutrinosFromW.size()>1 ) {
       TLorentzVector myMvv(0,0,0,0);
-      myMvv+=(m_neutrinosFromW.at(0))->p4();
-      myMvv+=(m_neutrinosFromW.at(1))->p4();
+      myMvv+=(neutrinosFromW.at(0))->p4();
+      myMvv+=(neutrinosFromW.at(1))->p4();
       Mvv=myMvv.M();
     }
     eventInfo->auxdecor<float>("truth_mvv") = Mvv;
@@ -600,7 +600,7 @@ namespace DerivationFramework {
     // -----------------------------------------------------
     float massVV = 0.0;
     std::vector<const xAOD::TruthParticle*> vBosonList;
-    for ( const xAOD::TruthParticle* part : m_interestingParticles ){
+    for ( const xAOD::TruthParticle* part : interestingParticles ){
       const int absPDG = part->absPdgId();
       if ( absPDG == 23 || absPDG==24 ){
         vBosonList.push_back(part);
