@@ -105,6 +105,8 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert(pClassIDSvc->getIDOfTypeName("Blu", id).isSuccess());
   assert(id == 9943);
   assert(pClassIDSvc->getIDOfTypeName("NotExist", id).isFailure());
+  assert(pClassIDSvc->getIDOfTypeName("12345", id).isSuccess());
+  assert(id == 12345);
 
   assert(pClassIDSvc->isIDInUse(9942));
   //  assert(!pClassIDSvc->isIDInUse(9945));

@@ -32,6 +32,15 @@ namespace {
     boost::replace_all(s, string(";"), string());
   }
 
+  bool tryNumeric (const std::string& s, CLID& clid)
+  {
+    clid = CLID_NULL;
+    char* endptr = nullptr;
+    clid = strtol (s.c_str(), &endptr, 10);
+    return clid != CLID_NULL && endptr == (s.c_str() + s.size());
+  }
+  
+
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
 #define ATH_MSG_LVL(lvl, x) \
    do {                                      \
@@ -356,6 +365,10 @@ ClassIDSvc::getIDOfTypeNameInternal(const std::string& typeName, CLID& id) const
   if (iID != m_nameMap.end()) {
     id = iID->second;
     ATH_CONST_MSG_VERBOSE( "getIDOfTypeName(" << typeName << ") CLID is " << id);
+    sc = StatusCode::SUCCESS;
+  }
+  else if (tryNumeric (typeName, id)) {
+    ATH_CONST_MSG_VERBOSE( "getIDOfTypeName(" << typeName << ") is a numeric CLID");
     sc = StatusCode::SUCCESS;
   }
   else {
