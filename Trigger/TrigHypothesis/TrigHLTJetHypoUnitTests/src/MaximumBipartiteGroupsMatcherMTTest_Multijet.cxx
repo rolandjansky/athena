@@ -7,6 +7,7 @@
 #include "TrigHLTJetHypo/../src/ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/../src/conditionsFactoryMT.h"
 #include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
+#include "TrigHLTJetHypo/../src/MultijetFlowNetworkBuilder.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
 #include "./MockJetWithLorentzVector.h"
@@ -104,6 +105,159 @@ HypoJetVector makeHypoJets(const std::vector<double>& etas) {
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, debugFlagIsFalse){
   /* idiot test to ensure dbug flag is of prior to commiting */
    EXPECT_FALSE(m_debug);
+}
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
+  /* (j0, j1) -> c0                                                                                        
+     (j0, j2) -> c0                                                                                        
+     (j0, j1) -> c1                                                                                        
+     Fails - j0 is shared.                                                                                 
+  */
+
+  auto out = std::make_unique<std::ofstream>(nullptr);
+  if (m_debug){out.reset(new std::ofstream("mj_flowNetworkBuilder_0.log"));}
+
+  std::vector<double> detaMins{3.6, 5.5};
+
+  std::vector<double> detaMaxs{
+    std::numeric_limits<double>::max(),
+      std::numeric_limits<double>::max(),
+      };
+  makeConditions(detaMins, detaMaxs);
+
+
+  if(out){
+    for(const auto& c : m_conditions){*out << c.toString();}
+  }
+
+
+  std::vector<double> etas{-5.0, 1.0, -1.0, -2.5};
+  EXPECT_TRUE(etas.size() == 4);
+
+  auto jets = makeHypoJets(etas);
+  EXPECT_TRUE(jets.size() == 4);
+  if(m_debug){
+    for(const auto & j: jets){*out<< j << " " << j->toString() <<'\n';}
+  }
+  EXPECT_TRUE(m_conditions.size() == 2);
+  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
+  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::map<int, pHypoJet> nodeToJet;
+
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  EXPECT_TRUE(groups.size() == 6);
+
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();                                          
+  collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_0"));   
+
+  auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
+  EXPECT_FALSE(G.has_value());
+
+  for(auto j : jets){delete j;}
+}
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
+  /* (j0, j1) -> c0                                                                                        
+     (j0, j1) -> c1                                                                                        
+     (j3, j4) -> c1                                                                                        
+     Passes.                                                                                               
+  */
+
+  auto out = std::make_unique<std::ofstream>(nullptr);
+  if (m_debug){out.reset(new std::ofstream("mj_flowNetworkBuilder_1.log"));}
+
+  std::vector<double> detaMins{0., 0.};
+
+  std::vector<double> detaMaxs{1.0, 2.0};
+  makeConditions(detaMins, detaMaxs);
+
+
+  if(out){
+    for(const auto& c : m_conditions){*out << c.toString();}
+  }
+
+  std::vector<double> etas{-5.0, -4.9, 3.9, 5.0};
+  EXPECT_TRUE(etas.size() == 4);
+
+  auto jets = makeHypoJets(etas);
+  EXPECT_TRUE(jets.size() == 4);
+  if(m_debug){
+    for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
+  }
+  EXPECT_TRUE(m_conditions.size() == 2);
+
+  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
+  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::map<int, pHypoJet> nodeToJet;
+
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  EXPECT_TRUE(groups.size() == 6);
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+  collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_1_collector"));
+
+  auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
+  EXPECT_TRUE(G.has_value());
+
+  if(m_debug){
+    std::stringstream ss;
+    ss << **G << '\n'; 
+    collector->collect("FlowNetwork", ss.str());
+    collector->write();
+  }
+
+  EXPECT_TRUE((*G)->V() == 14);
+  EXPECT_TRUE(((*G)->edges()).size() == 13);
+
+  for(auto j : jets){delete j;}
+}
+
+TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
+  /* (j0, j1) -> c0                                                                                        
+     (j0, j1) -> c1                                                                                        
+     (j3, j4) -> c1                                                                                        
+     Passes.                                                                         
+     Test with no collector                      
+  */
+
+  auto out = std::make_unique<std::ofstream>(nullptr);
+  if (m_debug){out.reset(new std::ofstream("mj_flowNetworkBuilder_2.log"));}
+
+  std::vector<double> detaMins{0., 0.};
+
+  std::vector<double> detaMaxs{1.0, 2.0};
+  makeConditions(detaMins, detaMaxs);
+
+
+  if(out){
+    for(const auto& c : m_conditions){*out << c.toString();}
+  }
+
+  std::vector<double> etas{-5.0, -4.9, 3.9, 5.0};
+  EXPECT_TRUE(etas.size() == 4);
+
+  auto jets = makeHypoJets(etas);
+  EXPECT_TRUE(jets.size() == 4);
+  if(m_debug){
+    for(const auto & j: jets){*out<<j<< " " << j->toString() <<'\n';}
+  }
+  EXPECT_TRUE(m_conditions.size() == 2);
+
+  auto builder = std::unique_ptr<IFlowNetworkBuilder>(nullptr);
+  builder.reset(new MultijetFlowNetworkBuilder(m_conditions));
+  std::map<int, pHypoJet> nodeToJet;
+
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  EXPECT_TRUE(groups.size() == 6);
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+  // collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_2_collector"));
+
+  auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
+  EXPECT_TRUE(G.has_value());
+
+  EXPECT_TRUE((*G)->V() == 14);
+  EXPECT_TRUE(((*G)->edges()).size() == 13);
+
+  for(auto j : jets){delete j;}
 }
 
 

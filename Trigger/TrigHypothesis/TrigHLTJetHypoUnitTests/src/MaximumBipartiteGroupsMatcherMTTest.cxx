@@ -72,12 +72,15 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   /* test with 0 jets - fails, no passed for failed jets */
 
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
-
+  EXPECT_TRUE(true);
   HypoJetVector jets;
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
+  EXPECT_TRUE(true);
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
+  EXPECT_TRUE(true);
   
-  bool pass = matcher.match(groups.begin(), groups.end(), visitor);
+  bool pass = matcher.match(groups.begin(), groups.end(), visitor, false);
+  EXPECT_TRUE(true);
   
   EXPECT_FALSE(pass);
 }
@@ -104,10 +107,12 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
   HypoJetVector jets{&jet0, &jet1};
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
-
+  if(m_debug){
+    visitor.reset(new DebugInfoCollector("toofewselctedjets"));
+  }
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
   bool pass = matcher.match(groups.begin(), groups.end(), visitor);
-
+  if(visitor){visitor->write();}
   EXPECT_FALSE(pass);
 }
 
@@ -153,8 +158,8 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   auto groups_b = groups.begin();
   auto groups_e = groups.end();
   MaximumBipartiteGroupsMatcherMT matcher(m_conditions);
-  bool pass = matcher.match(groups_b, groups_e, collector, true);
-  collector->write();
+  bool pass = matcher.match(groups_b, groups_e, collector);
+  if(m_debug){collector->write();}
   EXPECT_FALSE(pass);
 }
 
