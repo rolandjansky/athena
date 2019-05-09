@@ -1368,7 +1368,7 @@ unsigned int DumpGeoModelActionLocal::addRecord(std::vector<QStringList>* contai
 QVariant DumpGeoModelActionLocal::addMaterial(const QString name)
 {
 	qDebug() << "DumpGeoModelActionLocal::addMaterial(QString*) - name:" << name;
-	std::vector<QStringList>* container = &_materials;
+	std::vector<QStringList>* container = &m_materials;
 	QStringList values;
 	values << name;
 	return QVariant( addRecord(container, values) );
@@ -1377,7 +1377,7 @@ QVariant DumpGeoModelActionLocal::addMaterial(const QString name)
 QVariant DumpGeoModelActionLocal::addNameTag(const QString name)
 {
 	qDebug() << "DumpGeoModelActionLocal::addNameTag(QString*) - name:" << name;
-	std::vector<QStringList>* container = &_nameTags;
+	std::vector<QStringList>* container = &m_nameTags;
 	QStringList values;
 	values << name;
 	return QVariant( addRecord(container, values) );
@@ -1386,7 +1386,7 @@ QVariant DumpGeoModelActionLocal::addNameTag(const QString name)
 QVariant DumpGeoModelActionLocal::addSerialDenominator(const QString &baseName)
 {
 	qDebug() << "DumpGeoModelActionLocal::addSerialDenominator(QString*) - basename:" << baseName;
-	std::vector<QStringList>* container = &_serialDenominators;
+	std::vector<QStringList>* container = &m_serialDenominators;
 	QStringList values;
 	values << baseName;
 	return QVariant( addRecord(container, values) );
@@ -1396,7 +1396,7 @@ QVariant DumpGeoModelActionLocal::addSerialDenominator(const QString &baseName)
 QVariant DumpGeoModelActionLocal::addFunction(const QString expression)
 {
 	qDebug() << "DumpGeoModelActionLocal::addFunction(QString*) - expression:" << expression;
-	std::vector<QStringList>* container = &_functions;
+	std::vector<QStringList>* container = &m_functions;
 	QStringList values;
 	values << expression;
 	return QVariant( addRecord(container, values) );
@@ -1406,7 +1406,7 @@ QVariant DumpGeoModelActionLocal::addFunction(const QString expression)
 QVariant DumpGeoModelActionLocal::addAlignableTransform(const std::vector<double> params)
 {
 	qDebug() << "DumpGeoModelActionLocal::addAlignableTransform(QString*)";
-	std::vector<QStringList>* container = &_alignableTransforms;
+	std::vector<QStringList>* container = &m_alignableTransforms;
 	QStringList values;
 	foreach(double par, params) {
 		values << QString::number(par);
@@ -1419,7 +1419,7 @@ QVariant DumpGeoModelActionLocal::addAlignableTransform(const std::vector<double
 QVariant DumpGeoModelActionLocal::addTransform(const std::vector<double> params)
 {
 	qDebug() << "DumpGeoModelActionLocal::addTransform(QString*)";
-	std::vector<QStringList>* container = &_transforms;
+	std::vector<QStringList>* container = &m_transforms;
 	QStringList values;
 	foreach(double par, params) {
 		values << QString::number(par);
@@ -1439,7 +1439,7 @@ QString DumpGeoModelActionLocal::getIdFromNodeType( QString nodeType )
 QVariant DumpGeoModelActionLocal::addSerialTransformer(const QVariant &funcId, const QVariant &physvolId, const QString volType, const unsigned int &copies)
 {
 	qDebug() << "DumpGeoModelActionLocal::addSerialTransformer()";
-	std::vector<QStringList>* container = &_serialTransformers;
+	std::vector<QStringList>* container = &m_serialTransformers;
 	QString volTypeID = getIdFromNodeType(volType);
 
 	QStringList values;
@@ -1450,7 +1450,7 @@ QVariant DumpGeoModelActionLocal::addSerialTransformer(const QVariant &funcId, c
 
 QVariant DumpGeoModelActionLocal::addShape(const QString &type, const QString &parameters)
 {
-	std::vector<QStringList>* container = &_shapes;
+	std::vector<QStringList>* container = &m_shapes;
 	QStringList values;
 	values << type << parameters;
 	return QVariant( addRecord(container, values) );
@@ -1459,7 +1459,7 @@ QVariant DumpGeoModelActionLocal::addShape(const QString &type, const QString &p
 
 QVariant DumpGeoModelActionLocal::addPhysVol(const QVariant &logVolId, const QVariant &parentPhysVolId, bool isRootVolume)
 {
-	std::vector<QStringList>* container = &_physVols;
+	std::vector<QStringList>* container = &m_physVols;
 
 	QStringList values;
 	values << logVolId.toString() << parentPhysVolId.toString(); // TODO: we should remove the parent info: it's not complete because the type is missing (PhysVol or FullPhysVol) and it's redundant, because we store the childrenPositions. It's only useful for quick visual debug, by dumping the PhysVol DB table
@@ -1469,7 +1469,7 @@ QVariant DumpGeoModelActionLocal::addPhysVol(const QVariant &logVolId, const QVa
 	if (isRootVolume) {
 		QStringList rootValues;
 		rootValues << QString::number(idx) << "GeoPhysVol";
-		_rootVolume = rootValues;
+		m_rootVolume = rootValues;
 	}
 	return QVariant(idx);
 }
@@ -1477,7 +1477,7 @@ QVariant DumpGeoModelActionLocal::addPhysVol(const QVariant &logVolId, const QVa
 
 QVariant DumpGeoModelActionLocal::addFullPhysVol(const QVariant &logVolId, const QVariant &parentPhysVolId, bool isRootVolume)
 {
-	std::vector<QStringList>* container = &_fullPhysVols;
+	std::vector<QStringList>* container = &m_fullPhysVols;
 
 	QStringList values;
 	values << logVolId.toString() << parentPhysVolId.toString(); // TODO: we should remove the parent info: it's not complete because the type is missing (PhysVol or FullPhysVol) and it's redundant, because we store the childrenPositions. It's only useful for quick visual debug, by dumping the PhysVol DB table
@@ -1487,14 +1487,14 @@ QVariant DumpGeoModelActionLocal::addFullPhysVol(const QVariant &logVolId, const
 	if (isRootVolume) {
 		QStringList rootValues;
 		rootValues << QString::number(idx) << "GeoFullPhysVol";
-		_rootVolume = rootValues;
+		m_rootVolume = rootValues;
 	}
 	return QVariant(idx);
 }
 
 QVariant DumpGeoModelActionLocal::addLogVol(const QString &name, const QVariant &shapeId, const QVariant &materialId)
 {
-	std::vector<QStringList>* container = &_logVols;
+	std::vector<QStringList>* container = &m_logVols;
 	QStringList values;
 	values << name << shapeId.toString() << materialId.toString();
 	return QVariant( addRecord(container, values) );
@@ -1504,7 +1504,7 @@ QVariant DumpGeoModelActionLocal::addLogVol(const QString &name, const QVariant 
 // OLD // FIXME: to be removed when all objects will be migrated to the new version
 void DumpGeoModelActionLocal::addChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int childPos, const QString childType)
 {
-	std::vector<QStringList>* container = &_childrenPositions;
+	std::vector<QStringList>* container = &m_childrenPositions;
 
 	QString parentTableID = getIdFromNodeType(parentType);
 	QString childTableID = getIdFromNodeType(childType);
@@ -1519,7 +1519,7 @@ void DumpGeoModelActionLocal::addChildPosition(const QVariant parentId, const QS
 // NEW
 void DumpGeoModelActionLocal::addChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int parentCopyN, const unsigned int childPos, const QString childType, const unsigned int childCopyN)
 {
-	std::vector<QStringList>* container = &_childrenPositions;
+	std::vector<QStringList>* container = &m_childrenPositions;
 
 	QString parentTableID = getIdFromNodeType(parentType);
 	QString childTableID = getIdFromNodeType(childType);
@@ -1536,20 +1536,20 @@ void DumpGeoModelActionLocal::saveToDB()
 	qDebug() << "DumpGeoModelActionLocal::savetoDB()";
     std::cout << "saving to file: " << m_dbpath.toStdString() << std::endl;
 
-	m_dbManager->addListOfRecords("GeoMaterial", _materials);
-	m_dbManager->addListOfRecords("GeoNameTag", _nameTags);
-	m_dbManager->addListOfRecords("GeoAlignableTransform", _alignableTransforms);
-	m_dbManager->addListOfRecords("GeoTransform", _transforms);
-	m_dbManager->addListOfRecords("Function", _functions);
-	m_dbManager->addListOfRecords("GeoSerialTransformer", _serialTransformers);
-	m_dbManager->addListOfRecords("GeoShape", _shapes);
-	m_dbManager->addListOfRecords("GeoSerialDenominator", _serialDenominators);
-	m_dbManager->addListOfRecords("GeoPhysVol", _physVols);
-	m_dbManager->addListOfRecords("GeoFullPhysVol", _fullPhysVols);
-	m_dbManager->addListOfRecords("GeoLogVol", _logVols);
+	m_dbManager->addListOfRecords("GeoMaterial", m_materials);
+	m_dbManager->addListOfRecords("GeoNameTag", m_nameTags);
+	m_dbManager->addListOfRecords("GeoAlignableTransform", m_alignableTransforms);
+	m_dbManager->addListOfRecords("GeoTransform", m_transforms);
+	m_dbManager->addListOfRecords("Function", m_functions);
+	m_dbManager->addListOfRecords("GeoSerialTransformer", m_serialTransformers);
+	m_dbManager->addListOfRecords("GeoShape", m_shapes);
+	m_dbManager->addListOfRecords("GeoSerialDenominator", m_serialDenominators);
+	m_dbManager->addListOfRecords("GeoPhysVol", m_physVols);
+	m_dbManager->addListOfRecords("GeoFullPhysVol", m_fullPhysVols);
+	m_dbManager->addListOfRecords("GeoLogVol", m_logVols);
 
-	m_dbManager->addListOfChildrenPositions(_childrenPositions);
-	m_dbManager->addRootVolume(_rootVolume);
+	m_dbManager->addListOfChildrenPositions(m_childrenPositions);
+	m_dbManager->addRootVolume(m_rootVolume);
 
 	return;
 }
