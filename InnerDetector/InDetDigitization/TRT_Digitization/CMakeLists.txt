@@ -46,7 +46,7 @@ atlas_add_component( TRT_Digitization
 
 atlas_add_test( TRT_DigitizationConfigNew_test
                 SCRIPT test/TRT_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
+                PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
 atlas_install_headers( TRT_Digitization )
