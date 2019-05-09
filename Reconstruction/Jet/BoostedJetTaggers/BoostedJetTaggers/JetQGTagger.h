@@ -50,7 +50,7 @@ namespace CP {
 
 
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize() override;
+      virtual StatusCode finalize();
 
       // Implement IJetSelectorTool interface
       virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;
