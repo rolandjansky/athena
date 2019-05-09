@@ -29,7 +29,7 @@
 //Track Record
 #include "TrackRecord/TrackRecordCollection.h"
 
-#include "G4SimTPCnv/TrackRecordCollection_p2.h"
+//#include "G4SimTPCnv/TrackRecordCollection_p2.h"
 //CaloCell
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -1131,28 +1131,25 @@ StatusCode ISF_HitAnalysis::execute()
 
 
  //Retrieve and save MuonEntryLayer information 
- const TrackRecordCollection *MuonEntry = 0;
- sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
+ const TrackRecordCollection *MuonEntry = nullptr;
+ ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
  if (sc.isFailure())
  {
  ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
  //return NULL;
  }
-
- TrackRecordCollection::const_iterator itrMuonEntry = MuonEntry->begin();
- TrackRecordCollection::const_iterator itrMuonEntryLast = MuonEntry->end();
-
- for ( ; itrMuonEntry!=itrMuonEntryLast; ++itrMuonEntry){
-    m_MuonEntryLayer_E->push_back((*itrMuonEntry).GetEnergy());
-    m_MuonEntryLayer_px->push_back((*itrMuonEntry).GetMomentum().getX());
-    m_MuonEntryLayer_py->push_back((*itrMuonEntry).GetMomentum().getY());
-    m_MuonEntryLayer_pz->push_back((*itrMuonEntry).GetMomentum().getZ());
-    m_MuonEntryLayer_x->push_back((*itrMuonEntry).GetPosition().getX());
-    m_MuonEntryLayer_y->push_back((*itrMuonEntry).GetPosition().getY());
-    m_MuonEntryLayer_z->push_back((*itrMuonEntry).GetPosition().getZ());
-    m_MuonEntryLayer_pdg->push_back((*itrMuonEntry).GetPDGCode());
+ else{
+  for ( const TrackRecord &record : *MuonEntry){
+    m_MuonEntryLayer_E->push_back((record).GetEnergy());
+    m_MuonEntryLayer_px->push_back((record).GetMomentum().getX());
+    m_MuonEntryLayer_py->push_back((record).GetMomentum().getY());
+    m_MuonEntryLayer_pz->push_back((record).GetMomentum().getZ());
+    m_MuonEntryLayer_x->push_back((record).GetPosition().getX());
+    m_MuonEntryLayer_y->push_back((record).GetPosition().getY());
+    m_MuonEntryLayer_z->push_back((record).GetPosition().getZ());
+    m_MuonEntryLayer_pdg->push_back((record).GetPDGCode());
+  }
  }
-
 
 
  //Get reco cells if available
