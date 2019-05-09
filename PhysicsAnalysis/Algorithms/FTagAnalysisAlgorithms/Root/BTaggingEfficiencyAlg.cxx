@@ -52,6 +52,7 @@ namespace CP
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_selectionHandle.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -60,6 +61,8 @@ namespace CP
   StatusCode BTaggingEfficiencyAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
         xAOD::JetContainer *jets = nullptr;

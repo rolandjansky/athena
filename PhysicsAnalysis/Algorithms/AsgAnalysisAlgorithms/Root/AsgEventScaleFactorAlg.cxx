@@ -49,6 +49,8 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorOutputDecoration.preExecute (m_systematicsList));
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
       xAOD::EventInfo *eventInfo = nullptr;
       ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));

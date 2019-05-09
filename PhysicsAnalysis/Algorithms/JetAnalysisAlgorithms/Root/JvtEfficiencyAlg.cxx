@@ -66,6 +66,8 @@ namespace CP
   StatusCode JvtEfficiencyAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
         xAOD::JetContainer *jets = nullptr;
