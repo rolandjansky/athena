@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test on MC running only L1 simulation algorithms
+# art-description: athenaMT trigger test on MC running L1 simulation and no HLT menu
 # art-type: build
 # art-include: master/Athena
 # art-output: *.log
@@ -11,8 +11,8 @@ export EVENTS=10
 export THREADS=1
 export SLOTS=1
 export INPUT="run2mc_ttbar"
-export JOBOPTION="TrigUpgradeTest/testHLT_MT.py"
-export EXTRA="doL1Sim=True"
+export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export EXTRA="doL1Sim=True;doEmptyMenu=True"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"
