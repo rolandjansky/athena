@@ -31,31 +31,6 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
 }
 
 ///////////////////////////////////////////////////////////////////
-// Destructor  
-///////////////////////////////////////////////////////////////////
-
-InDet::SiSpacePointsSeedMaker_Cosmic::~SiSpacePointsSeedMaker_Cosmic()
-{
-  delete [] m_r_index ;
-  delete [] m_r_map   ;
-  delete [] m_r_Sorted;
-
-  // Delete space points for reconstruction
-  //
-  for (InDet::SiSpacePointForSeed* spforseed: m_l_spforseed) {
-    delete spforseed;
-  }
-
-  delete [] m_SP;
-  delete [] m_R ;
-  delete [] m_Tz;
-  delete [] m_Er;
-  delete [] m_U ;
-  delete [] m_V ;
-  delete [] m_seeds;
-}
-
-///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
@@ -121,7 +96,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
 {
   if (!m_pixel && !m_sct) return;
   erase();
-  m_i_spforseed   = m_l_spforseed.begin();
+  m_i_spforseed = m_l_spforseed.begin();
 
   float irstep = 1./m_r_rstep;
   float errorsc[4] = {16.,16.,100.,16.};
@@ -536,30 +511,26 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
   // Build radius sorted containers
   //
   m_r_size = static_cast<int>((m_r_rmax+.1)/m_r_rstep)*2;
-  m_r_Sorted = new std::list<InDet::SiSpacePointForSeed*>[m_r_size];
-  m_r_index  = new int[m_r_size];
-  m_r_map    = new int[m_r_size];
+  m_r_Sorted.resize(m_r_size);
+  m_r_index.resize(m_r_size, 0);
+  m_r_map.resize(m_r_size, 0);
   m_nr = 0;
-  for (int i=0; i!=m_r_size; ++i) {
-    m_r_index[i]=0;
-    m_r_map[i]=0;
-  }
 
   // Build radius-azimuthal sorted containers
   //
-  const float pi2     = 2.*M_PI            ;
-  const int   NFmax    = 53                ;
-  const float sFmax   = static_cast<float>(NFmax )/pi2;
-  const float sFmin = 50./60.           ;
+  constexpr float pi2 = 2.*M_PI;
+  const int   NFmax = SizeRF;
+  const float sFmax = static_cast<float>(NFmax)/pi2;
+  const float sFmin = 50./60.;
 
-  m_sF        = 50./60. ;
+  m_sF = 50./60.;
   if (m_sF    >sFmax ) m_sF    = sFmax  ;
   else if (m_sF < sFmin) m_sF = sFmin;
   m_fNmax     = static_cast<int>(pi2*m_sF);
   if (m_fNmax >=NFmax) m_fNmax = NFmax-1;
 
   m_nrf = 0;
-  for (int i=0; i!= 53; ++i) {
+  for (int i=0; i<SizeRF; ++i) {
     m_rf_index[i]=0;
     m_rf_map[i]=0;
   }
@@ -567,7 +538,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
   // Build radius-azimuthal-Z sorted containers
   //
   m_nrfz = 0;
-  for (int i=0; i!=583; ++i) {
+  for (int i=0; i!=SizeRFZ; ++i) {
     m_rfz_index[i]=0;
     m_rfz_map[i]=0;
   }
@@ -581,11 +552,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
     
     // For each azimuthal region loop through all Z regions
     //
-    for (int z=0; z!=11; ++z) {
+    for (int z=0; z<SizeZ; ++z) {
  
-      int a        = f *11+z;
-      int b        = fb*11+z;
-      int c        = ft*11+z;
+      int a        = f *SizeZ+z;
+      int b        = fb*SizeZ+z;
+      int c        = ft*SizeZ+z;
       m_rfz_b [a]    = 3; m_rfz_t [a]    = 3;
       m_rfz_ib[a][0] = a; m_rfz_it[a][0] = a;
       m_rfz_ib[a][1] = b; m_rfz_it[a][1] = b;
@@ -643,13 +614,13 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
     }
   }
   
-  if (!m_SP) m_SP       = new InDet::SiSpacePointForSeed*[m_maxsizeSP];
-  if (!m_R ) m_R        = new                      float[m_maxsizeSP];
-  if (!m_Tz) m_Tz       = new                      float[m_maxsizeSP];
-  if (!m_Er) m_Er       = new                      float[m_maxsizeSP];
-  if (!m_U ) m_U        = new                      float[m_maxsizeSP];
-  if (!m_V ) m_V        = new                      float[m_maxsizeSP];
-  if (!m_seeds) m_seeds = new InDet::SiSpacePointsSeed[m_maxsize+5];
+  m_SP.resize(m_maxsizeSP, nullptr);
+  m_R.resize(m_maxsizeSP, 0.);
+  m_Tz.resize(m_maxsizeSP, 0.);
+  m_Er.resize(m_maxsizeSP, 0.);
+  m_U.resize(m_maxsizeSP, 0.);
+  m_V.resize(m_maxsizeSP, 0.);
+  m_seeds.resize(m_maxsize+5);
 }
    
 ///////////////////////////////////////////////////////////////////
@@ -658,7 +629,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists() 
 {
-  const float pi2 = 2.*M_PI;
+  constexpr float pi2 = 2.*M_PI;
   std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i!= m_r_size;  ++i) {
@@ -688,7 +659,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
       } else {
 	Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
       }
-      int n = f*11+z;
+      int n = f*SizeZ+z;
       ++m_nsaz;
       m_rfz_Sorted[n].push_back(*r);
       if (!m_rfz_map[n]++) m_rfz_index[m_nrfz++] = n;
@@ -762,7 +733,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp()
   float ipt = 100000000.;
   if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
 
-  const int   ZI[11]= {5,6,7,8,9,10,4,3,2,1,0};
+  const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
 
   // Loop thorugh all azimuthal regions
@@ -774,9 +745,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp()
     int z = 0;
     if (!m_endlist) z = m_zMin;
 
-    for (; z!=11; ++z) {
+    for (; z<SizeZ; ++z) {
 
-      int a = f *11+ZI[z];
+      int a = f *SizeZ+ZI[z];
       if (!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
       for (int i=0; i!=m_rfz_b[a]; ++i) {
@@ -809,7 +780,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField()
 
   float ipt = 100000000.;
   if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
-  const int   ZI[11]= {5,6,7,8,9,10,4,3,2,1,0};
+  const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
 
   // Loop thorugh all azimuthal regions
@@ -821,9 +792,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField()
     int z = 0;
     if (!m_endlist) z = m_zMin;
 
-    for (; z!=11; ++z) {
+    for (; z<SizeZ; ++z) {
 
-      int a  = f *11+ZI[z];
+      int a  = f *SizeZ+ZI[z];
       if (!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
       for (int i=0; i!=m_rfz_b[a]; ++i) {
@@ -1153,11 +1124,11 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
                 static_cast<float>(sp->globalPosition().z())};
 
   if (m_i_spforseed!=m_l_spforseed.end()) {
-    sps = (*m_i_spforseed++);
+    sps = &(*m_i_spforseed++);
     sps->set(sp, r);
   } else {
-    sps = new InDet::SiSpacePointForSeed(sp, r);
-    m_l_spforseed.push_back(sps);
+    m_l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r));
+    sps = &(m_l_spforseed.back());
     m_i_spforseed = m_l_spforseed.end();
   }
       
@@ -1179,11 +1150,11 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
   r[2]=sp->globalPosition().z();
 
   if (m_i_spforseed!=m_l_spforseed.end()) {
-    sps = (*m_i_spforseed++);
+    sps = &(*m_i_spforseed++);
     sps->set(sp, r, sc);
   } else {
-    sps = new InDet::SiSpacePointForSeed(sp, r, sc);
-    m_l_spforseed.push_back(sps);
+    m_l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r, sc));
+    sps = &(m_l_spforseed.back());
     m_i_spforseed = m_l_spforseed.end();
   }
       
@@ -1203,7 +1174,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newSeed
     m_seeds[m_nseeds].add       (p1);
     m_seeds[m_nseeds].add       (p2);
     m_seeds[m_nseeds].setZVertex(0.);
-    m_l_seeds.insert(std::make_pair(z,m_seeds+m_nseeds));
+    m_l_seeds.insert(std::make_pair(z, &(m_seeds[m_nseeds])));
     ++m_nseeds;
   } else {
     std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = m_l_seeds.rbegin();
@@ -1233,7 +1204,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newSeed
     m_seeds[m_nseeds].add       (p2);
     m_seeds[m_nseeds].add       (p3);
     m_seeds[m_nseeds].setZVertex(0.);
-    m_l_seeds.insert(std::make_pair(z,m_seeds+m_nseeds));
+    m_l_seeds.insert(std::make_pair(z, &(m_seeds[m_nseeds])));
     ++m_nseeds;
   } else {
     std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator l = m_l_seeds.rbegin();
