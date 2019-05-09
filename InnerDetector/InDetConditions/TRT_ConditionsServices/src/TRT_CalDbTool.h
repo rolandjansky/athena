@@ -18,7 +18,6 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 // Storegate
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
@@ -88,7 +87,6 @@ class TRT_CalDbTool: public extends<AthAlgTool, ITRT_CalDbTool>
   
  private:
   const TRT_ID* m_trtId;                 //!< id helper
-  ServiceHandle<StoreGateSvc> m_detstore;
 
   /// mutex to protect cache updates
   mutable std::mutex m_mutex;
