@@ -125,6 +125,15 @@ namespace DerivationFramework {
 
     std::vector<const xAOD::TruthParticle*> vTopList;
 
+    // Store b, c, s and light truth objects (quarks and hadrons) as well as the truth leptons
+    // used for the decoration of reco leptons with truthFlavourTag
+    std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
+    std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
+    std::vector<const xAOD::TruthParticle*> sTruth; sTruth.clear();
+    std::vector<const xAOD::TruthParticle*> lTruth; lTruth.clear();
+    std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
+    std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
+
     // Get the truth particles from the event and loop over them
     for(size_t p = 0; p < event->nTruthParticles(); p++) {
       const xAOD::TruthParticle* truthPart = event->truthParticle(p);
@@ -147,6 +156,37 @@ namespace DerivationFramework {
       if ( absPdg == 6 ) {
         if ( m_isPowPy8EvtGen && status == 62 ) vTopList.push_back(truthPart);
         else if ( status == 3 ) vTopList.push_back(truthPart);
+      }
+
+      if (pt > 5000) {
+        //Classify the truth particle for truthFlavourTag calculation
+        bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
+        int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
+
+        if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
+        else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
+        else if (q1 == 5) hasBottom = 1; //Bottom baryon
+        else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
+
+        else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
+        else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
+        else if (q1 == 4) hasCharm = 1; //Charmed baryon
+        else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
+
+        else if (q1 == 3) hasStrange = 1; //Strange baryon
+        else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
+        else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
+
+        else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
+        else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
+        else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
+
+        if (hasBottom) bTruth.push_back(truthPart);
+        if (hasCharm) cTruth.push_back(truthPart);
+        if (hasStrange) sTruth.push_back(truthPart);
+        if (hasLight) lTruth.push_back(truthPart);
+        if (fabs(pdg) == 11) eTruth.push_back(truthPart);
+        if (fabs(pdg) == 13) mTruth.push_back(truthPart);
       }
 
       // Select everything that is needed to get the VBF mjj variable correctly
@@ -895,57 +935,11 @@ namespace DerivationFramework {
     // Lepton truth flavour decorator as in Run-I  //
     //---------------------------------------------//
 
-    // Store b, c, s and light truth objects (quarks and hadrons)
-
-    std::vector<const xAOD::TruthParticle*> bTruth; bTruth.clear();
-    std::vector<const xAOD::TruthParticle*> cTruth; cTruth.clear();
-    std::vector<const xAOD::TruthParticle*> sTruth; sTruth.clear();
-    std::vector<const xAOD::TruthParticle*> lTruth; lTruth.clear();
-    std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
-    std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
-
-    for (size_t p=0; p < event->nTruthParticles(); ++p) {
-      const xAOD::TruthParticle* truthPart = event->truthParticle(p);
-      if (!truthPart) continue; // Protection against null ptrs
-      long int pdg = truthPart->pdgId();
-      if (truthPart->pt() <= 5000) continue;
-
-      //Classify the truth particle
-      bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
-      int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
-
-      if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
-      else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
-      else if (q1 == 5) hasBottom = 1; //Bottom baryon
-      else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
-
-      else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
-      else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
-      else if (q1 == 4) hasCharm = 1; //Charmed baryon
-      else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
-
-      else if (q1 == 3) hasStrange = 1; //Strange baryon
-      else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
-      else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
-
-      else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
-      else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
-      else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
-
-      if (hasBottom) bTruth.push_back(truthPart);
-      if (hasCharm) cTruth.push_back(truthPart);
-      if (hasStrange) sTruth.push_back(truthPart);
-      if (hasLight) lTruth.push_back(truthPart);
-      if (fabs(pdg) == 11) eTruth.push_back(truthPart);
-      if (fabs(pdg) == 13) mTruth.push_back(truthPart);
-    }
-
-
     // Open the input electron container
     const xAOD::ElectronContainer *inElCont(nullptr);
     ATH_CHECK( evtStore()->retrieve( inElCont, m_inElContName ) );
 
-    //Now classify the electrons
+    //Now classify the electrons with truthFlavourTag
     for ( const xAOD::Electron* electron : *inElCont) {
       int flavTag = -1;
 
@@ -1056,7 +1050,7 @@ namespace DerivationFramework {
     const xAOD::MuonContainer *inMuCont(nullptr);
     ATH_CHECK( evtStore()->retrieve( inMuCont, m_inMuContName ) );
 
-    //Now classify the muons
+    //Now classify the muons with truthFlavourTag
     for ( const xAOD::Muon* muon : *inMuCont) {
       int flavTag = -1;
 
