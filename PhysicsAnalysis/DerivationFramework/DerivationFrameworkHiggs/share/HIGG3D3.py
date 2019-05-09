@@ -569,6 +569,8 @@ higg3d3PreSeq = CfgMgr.AthSequencer("HIGG3d3PreSelectionSequence")
 #====================================================================
 # needed for non-prompt lepton tagging below
 reducedJetList = ["AntiKt4PV0TrackJets"]
+if globalflags.DataSource()=='geant4':
+    reducedJetList += ["AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 
 #===================================================================
