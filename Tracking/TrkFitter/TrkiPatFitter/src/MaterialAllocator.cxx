@@ -56,7 +56,6 @@ namespace Trk
     m_calorimeterVolume(0),
     m_indetVolume(0),
     m_spectrometerEntrance(0),
-    m_temporaryTSOS(0),
     m_messageHelper(0) {
     m_messageHelper = new MessageHelper(*this);
     declareInterface<IMaterialAllocator>(this);
@@ -155,7 +154,6 @@ namespace Trk
     delete m_calorimeterVolume;
     delete m_indetVolume;
     delete m_messageHelper;
-    delete m_temporaryTSOS;
     return StatusCode::SUCCESS;
   }
 
@@ -639,19 +637,6 @@ namespace Trk
   }
 
   void
-  MaterialAllocator::clear(void) {
-    if (m_temporaryTSOS) {
-      for (std::vector<const TrackStateOnSurface*>::const_iterator s = m_temporaryTSOS->begin();
-           s != m_temporaryTSOS->end();
-           ++s)
-        delete *s;
-
-      delete m_temporaryTSOS;
-      m_temporaryTSOS = 0;
-    }
-  }
-
-  void
   MaterialAllocator::initializeScattering(std::vector<FitMeasurement*>& measurements) const {
     // loop over scatterers to include log term corresponding to integral thickness
     bool integrate = false;
@@ -1101,15 +1086,9 @@ namespace Trk
 
   void
   MaterialAllocator::deleteMaterial(const std::vector<const TrackStateOnSurface*>* material) const {
-    if (!m_temporaryTSOS) m_temporaryTSOS = new std::vector<const TrackStateOnSurface*>;
-    unsigned size = m_temporaryTSOS->size();
     if (material) {
-      size += material->size();
-      m_temporaryTSOS->reserve(size);
-      for (std::vector<const TrackStateOnSurface*>::const_iterator s = material->begin();
-           s != material->end();
-           ++s) {
-        m_temporaryTSOS->push_back(*s);
+      for (auto m : *material) {
+        delete m;
       }
       delete material;
     }

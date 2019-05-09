@@ -82,9 +82,6 @@ public:
     bool	reallocateMaterial (std::vector<FitMeasurement*>&	measurements,
 				    const FitParameters&		fitParameters) const;
 
-    // clear temporary TSOS
-    void	clear (void);
-
 private:
     // add material delimiters to control aggregation
     void	addSpectrometerDelimiters (std::vector<FitMeasurement*>&	measurements) const;
@@ -157,9 +154,6 @@ private:
 
     // constant initialized the first time it's needed
     mutable const Trk::TrackingVolume*			m_spectrometerEntrance;
-
-    // memory management
-    mutable std::vector<const TrackStateOnSurface*>*	m_temporaryTSOS;
 
     // count warnings
     mutable MessageHelper*				m_messageHelper;
