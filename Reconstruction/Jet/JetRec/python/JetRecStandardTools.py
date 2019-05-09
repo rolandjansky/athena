@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -384,7 +384,39 @@ jtm += PFlowPseudoJetGetter(
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
+  GhostScale = 0.0,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
+)
+
+# EM-scale pflow - z0sinTheta sideband
+jtm += PFlowPseudoJetGetter(
+  "empflowpusbget",
+  Label = "EMPFlowPUSB",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowPUSB",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = True,
+)
+
+# EM-scale pflow - neutral objects only
+jtm += PFlowPseudoJetGetter(
+  "empflowneutget",
+  Label = "EMPFlowNeut",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetEMPFlowNeut",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0,
+  UseCharged = False,
+  UseNeutral = True,
+  UseChargedPV = False,
+  UseChargedPUsideband = False,
 )
 
 # AntiKt2 track jets.
