@@ -5,6 +5,8 @@
 # art-include: master/Athena
 # art-athena-mt: 4
 
+unset ATHENA_PROC_NUMBER
+    
 art.py createpoolfile
 
 athena --threads=2 RecExRecoTest/RecExRecoTest_ART_caloTopoClustering_fromESD.py
