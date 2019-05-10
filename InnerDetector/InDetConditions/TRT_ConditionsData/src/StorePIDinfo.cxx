@@ -85,8 +85,6 @@ int StorePIDinfo::GetBin	( float input  ) const {
 	else{
 		float dr = (m_max-m_min)/m_nbins;
 		unsigned int bin = int (                       (input - m_min)/dr    ) ;
-                MsgStream log(Athena::getMessageSvc(),"StorePIDinfo");
-		log << MSG::ERROR << "  Bin number is larger than number of bins!" << endmsg;
 		return bin;
 	}
 	return 0;
