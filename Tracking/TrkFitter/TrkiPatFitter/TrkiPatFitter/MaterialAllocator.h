@@ -22,6 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include <mutex>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -128,6 +129,9 @@ private:
 				      ParticleHypothesis		particleHypothesis,
 				      const FitParameters&		fitParameters,
 				      const TrackParameters&		startParameters) const;
+
+    // Makes sure m_spectrometerEntrance is created, once only, and thread-safe
+    void createSpectrometerEntranceOnce() const;
     
     // configurables (svc/tools then options)
     ToolHandle<IExtrapolator>				m_extrapolator;
@@ -156,7 +160,8 @@ private:
     Trk::MagneticFieldProperties                        m_stepField;
 
     // constant initialized the first time it's needed
-    mutable const Trk::TrackingVolume*			m_spectrometerEntrance;
+    mutable const Trk::TrackingVolume* m_spectrometerEntrance;
+    mutable std::once_flag m_spectrometerEntranceOnceFlag;
 
     // memory management
     mutable std::vector<const TrackStateOnSurface*>*	m_temporaryTSOS;
