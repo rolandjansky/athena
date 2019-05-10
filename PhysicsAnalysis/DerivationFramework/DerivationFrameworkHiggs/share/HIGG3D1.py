@@ -248,8 +248,8 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d1Seq)
 #====================================================================
 # QG tagging
 #====================================================================
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d1Seq,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToolPFAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d1Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d1Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets')
 
 #====================================================================
 # Add non-prompt lepton tagging
