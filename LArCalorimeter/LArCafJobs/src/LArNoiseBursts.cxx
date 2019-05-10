@@ -51,11 +51,9 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
 #include "LArHV/EMBHVElectrode.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
 #include "LArHV/HECHVSubgap.h"
@@ -1433,8 +1431,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
         return 0;
       }
       const EMBCellConstLink cell = embElement->getEMBCell();
-      const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule();
-      for(igap=0;igap<2;igap++) tmplines.push_back(hvmodule->hvLineNo(igap));
+      const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule();
+      for(igap=0;igap<2;igap++) tmplines.push_back(hvmodule.hvLineNo(igap));
 
     } else {
       
@@ -1442,8 +1440,8 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       if (!emecElement)
         return 0;
       const EMECCellConstLink cell = emecElement->getEMECCell();
-      const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
-      for(igap=0;igap<2;igap++) tmplines.push_back(hvmodule->hvLineNo(igap));
+      const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
+      for(igap=0;igap<2;igap++) tmplines.push_back(hvmodule.hvLineNo(igap));
 
     }
   } else {

@@ -28,8 +28,6 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "LArHV/LArHVManager.h"
-#include "LArHV/EMBPresamplerHVManager.h"
-#include "LArHV/EMECPresamplerHVManager.h"
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
@@ -70,10 +68,7 @@ LArDetectorToolNV::~LArDetectorToolNV()
 StatusCode LArDetectorToolNV::create()
 { 
   // Initialize the HV System:
-  const EMBPresamplerHVManager *embPSHV = new EMBPresamplerHVManager();
-  const EMECPresamplerHVManager *emecPSHV = new EMECPresamplerHVManager();
-
-  LArHVManager *hvManager= new LArHVManager(embPSHV, emecPSHV);
+  LArHVManager *hvManager= new LArHVManager();
 
   ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));  
 

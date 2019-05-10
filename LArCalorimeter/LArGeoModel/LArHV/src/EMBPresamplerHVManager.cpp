@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -30,38 +30,48 @@
 
 class EMBPresamplerHVManager::Clockwork {
 public:
-  EMBPresamplerHVDescriptor      *descriptor;
-  EMBPresamplerHVModuleConstLink  linkArray[2][4][32];
+  Clockwork(const EMBPresamplerHVManager* manager) {
+    CellPartitioning etaPartitioning;
+    for (unsigned int i= 0; i<4; i++)  etaPartitioning.addValue(i*0.4);
+    etaPartitioning.addValue(1.525);
+    descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));
+
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<4; ++iEta) {
+	for(int iPhi=0; iPhi<32; ++iPhi) {
+	  moduleArray[iSide][iEta][iPhi] = new EMBPresamplerHVModule(manager, iSide, iEta,iPhi);
+	}
+      }
+    }
+  }
+  ~Clockwork() {
+    delete descriptor;
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<4; ++iEta) {
+	for(int iPhi=0; iPhi<32; ++iPhi) {
+	  delete moduleArray[iSide][iEta][iPhi];
+	}
+      }
+    }
+  }
+  EMBPresamplerHVDescriptor*      descriptor;
+  const EMBPresamplerHVModule*    moduleArray[2][4][32];
   std::atomic<bool>               init{false};
   std::mutex                      mtx;
   std::vector<EMBPresamplerHVPayload> payloadArray;
 };
 
-
-
-
-
 EMBPresamplerHVManager::EMBPresamplerHVManager()
-:m_c(new Clockwork)
+  : m_c(new Clockwork(this))
 {
-
-  CellPartitioning etaPartitioning;
-  for (unsigned int i= 0; i<4; i++)  etaPartitioning.addValue(i*0.4);
-  etaPartitioning.addValue(1.525);
-  
-  m_c->descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));	
-  m_c->init=false;
-
 }
-
 
 EMBPresamplerHVManager::~EMBPresamplerHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-const EMBPresamplerHVDescriptor *EMBPresamplerHVManager::getDescriptor() const
+const EMBPresamplerHVDescriptor* EMBPresamplerHVManager::getDescriptor() const
 {
   return m_c->descriptor;
 }
@@ -86,10 +96,9 @@ unsigned int EMBPresamplerHVManager::endEtaIndex() const
   return m_c->descriptor->getEtaPartitioning().getFirstDivisionNumber() + m_c->descriptor->getEtaPartitioning().getNumDivisions();
 }
 
-EMBPresamplerHVModuleConstLink EMBPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi) const
+const EMBPresamplerHVModule& EMBPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi) const
 {
-  if (!m_c->linkArray[iSide][iEta][iPhi]) m_c->linkArray[iSide][iEta][iPhi] = EMBPresamplerHVModuleConstLink(new EMBPresamplerHVModule(this, iSide, iEta,iPhi));
-  return m_c->linkArray[iSide][iEta][iPhi];
+  return *(m_c->moduleArray[iSide][iEta][iPhi]);
 }
 
 unsigned int EMBPresamplerHVManager::beginSideIndex() const

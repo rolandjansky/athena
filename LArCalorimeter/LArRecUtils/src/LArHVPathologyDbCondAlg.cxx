@@ -5,6 +5,8 @@
 #include "LArHVPathologyDbCondAlg.h" 
 #include "LArRecConditions/LArHVPathologiesDb.h"
 #include "LArRecConditions/LArHVPathology.h"
+#include "LArHV/EMBPresamplerHVModule.h"
+#include "LArHV/EMECPresamplerHVModule.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -226,12 +228,12 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
      if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
        if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id))) {
         const EMBCellConstLink cell = embElement->getEMBCell();
-        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
+        const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
         for(auto hwid:hwlineId) {
           list.clear();
           HVline = m_hvlineHelper->hv_line(hwid);
           for (unsigned int igap=0;igap<2;igap++) {
-            if ((unsigned)hvmodule->hvLineNo(igap)==HVline) {
+            if ((unsigned)hvmodule.hvLineNo(igap)==HVline) {
               list.push_back(igap);
             }
           }
@@ -244,12 +246,12 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id))) {
        const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
        for(auto hwid:hwlineId) {
          list.clear();
          HVline = m_hvlineHelper->hv_line(hwid);
          for (unsigned int igap=0;igap<2;igap++) {
-           if ((unsigned)hvmodule->hvLineNo(igap)==HVline) {
+           if ((unsigned)hvmodule.hvLineNo(igap)==HVline) {
              list.push_back(igap);
            }
          }

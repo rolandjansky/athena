@@ -17,11 +17,9 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
 #include "LArHV/EMBHVElectrode.h"
-#include "LArHV/EMBPresamplerHVModuleConstLink.h"
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "LArReadoutGeometry/EMECCell.h"
 #include "LArHV/EMECHVElectrode.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "LArReadoutGeometry/HECCell.h"
 #include "LArHV/HECHVSubgap.h"
@@ -237,14 +235,14 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (!embElement) std::abort();
       const EMBCellConstLink cell = embElement->getEMBCell();
-      const EMBPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      const EMBPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
+      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
     } else {
       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (!emecElement) std::abort();
       const EMECCellConstLink cell = emecElement->getEMECCell();
-      const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
+      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
     }
   }
 

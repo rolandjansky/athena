@@ -28,8 +28,10 @@ public:
 
 };
 
-EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager)
+EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager
+				       , const EMBPresamplerHVManager& presamplerHVManager)
   : m_hvManager(hvManager)
+  , m_presamplerHVManager(presamplerHVManager)
 {
   setName("LArEMB");
 
@@ -45,7 +47,6 @@ EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager)
 
   m_basicReadoutNumbers = new EMBBasicReadoutNumbers();
   m_accordionDetails    = NULL;
-  m_presamplerHVManager = NULL;
 }
 
 
@@ -113,15 +114,7 @@ const EMBHVManager& EMBDetectorManager::getHVManager () const
 }
 
 
-const EMBPresamplerHVManager * EMBDetectorManager::getPresamplerHVManager () const
+const EMBPresamplerHVManager&  EMBDetectorManager::getPresamplerHVManager () const
 {
-
-  if (!m_presamplerHVManager) {
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    const LArHVManager *manager = NULL;
-    if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_presamplerHVManager=manager->getEMBPresamplerHVManager();
-    }
-  } 
   return m_presamplerHVManager;
 }
