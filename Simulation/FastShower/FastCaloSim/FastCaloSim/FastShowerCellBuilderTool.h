@@ -57,7 +57,6 @@ namespace Trk {
   class TrackingVolume;
 }
 
-class ICaloSurfaceHelper;
 class ICaloCoordinateTool;
 class CaloDepthTool;
 class ParticleEnergyParametrization;
@@ -160,7 +159,6 @@ private:
   /** The Extrapolator setup */
   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator; //public tool
 
-  ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper; //public tool
   ToolHandle<ICaloCoordinateTool>  m_calo_tb_coord; //public tool
 
   bool                           m_jo_interpolate{false}; //ATA: make marjorie's iterpolation optional

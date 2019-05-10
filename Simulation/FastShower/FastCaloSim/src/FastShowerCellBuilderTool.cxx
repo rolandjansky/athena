@@ -52,7 +52,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/DiscBounds.h"
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 //#include "TruthHelper/PileUpType.h"
@@ -118,7 +117,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   , m_partPropSvc("PartPropSvc", name)
   , m_rndmSvc("AthRNGSvc", name)
   , m_extrapolator("")
-  , m_caloSurfaceHelper("")
   , m_calo_tb_coord("TBCaloCoordinate")
   , m_sampling_energy_reweighting(CaloCell_ID_FCS::MaxSample,1.0)
   , m_invisibles(0)
@@ -147,7 +145,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
 
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
-  declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
   declareProperty("CaloCoordinateTool",             m_calo_tb_coord);
 
   declareProperty("StoreFastShowerInfo",            m_storeFastShowerInfo);
@@ -396,9 +393,6 @@ StatusCode FastShowerCellBuilderTool::initialize()
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
   }
-
-  // Get CaloSurfaceHelper
-  ATH_CHECK(m_caloSurfaceHelper.retrieve());
 
   ATH_CHECK(m_calo_tb_coord.retrieve());
   ATH_MSG_INFO("retrieved " << m_calo_tb_coord.name());
