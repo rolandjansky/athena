@@ -1837,11 +1837,10 @@ double Trk::RungeKuttaPropagator::stepReduction(const double* E) const
 // Ro and Po - output  coordinate and momentum after propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-void Trk::RungeKuttaPropagator::propagateStep
-( const Amg::Vector3D& Ri,const  Amg::Vector3D& Pi,
- double Charge,double Step,
- Amg::Vector3D& Ro, Amg::Vector3D& Po, 
- const MagneticFieldProperties& Mag)
+void Trk::RungeKuttaPropagator::propagateStep( const Amg::Vector3D& Ri,const  Amg::Vector3D& Pi,
+                                               double Charge,double Step,
+                                               Amg::Vector3D& Ro, Amg::Vector3D& Po, 
+                                               const MagneticFieldProperties& Mag) const
 {
 
   Cache cache{};
