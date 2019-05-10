@@ -36,14 +36,8 @@ def metCellRecoSequence():
     #///////////////////////////////////////////
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCellsMT
     cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
-
-    ### WARNING: this setting does not work for the scheduler: the variable is set, but the scheduler retrieves the default one
     cellTool.CellsCollection = CellsName
-
-    
-    metAlg.METTools.append(cellTool)
-    metAlg.METTools.append(helperTool)
-    metAlg.METTools.append(flagsTool)
+    metAlg.METTools += [cellTool, helperTool, flagsTool]
 
     metCellRecoSequence += metAlg
 
