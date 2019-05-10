@@ -127,7 +127,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   bool doHVData=false;
   bool doAffected=false;
 
-  SG::WriteCondHandle<LArHVData> writeHandle{m_hvDataKey};
+  SG::WriteCondHandle<LArHVData> writeHandle{m_hvDataKey, ctx};
   if(m_doHV || m_doAffectedHV) {
     if (writeHandle.isValid()) {
       ATH_MSG_DEBUG("Found valid write LArHVData handle");
@@ -136,7 +136,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     }
   } 
 
-  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_outKey};
+  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_outKey, ctx};
   if(m_doAffected){
     if (writeAffectedHandle.isValid()) {
       ATH_MSG_DEBUG("Found valid write LArAffectedRegions handle");
@@ -281,13 +281,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   } // doHVData
 
   if(doAffected) {
-       SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey};
+       SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey, ctx};
        const LArBadFebCont* bfCont{*readBFHandle};
        if(!bfCont){
          ATH_MSG_WARNING(" Do not have Bad FEBs info, will be not filled " << m_BFKey.key() );
        }
 
-       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
        const LArOnOffIdMapping* cabling{*cablingHdl};
        if(!cabling) {
          ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
