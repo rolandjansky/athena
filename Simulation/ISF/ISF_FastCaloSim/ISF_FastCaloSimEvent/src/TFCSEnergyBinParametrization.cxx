@@ -81,7 +81,7 @@ void TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(int id,std::ve
 }
 
 
-void TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name)
+bool TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name)
 {
   add_pdgid(id);
   
@@ -110,7 +110,7 @@ void TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int
    if((unsigned int)pcabinprobvector->GetNoElements()!=m_pdgid_Ebin_probability[id].size())
    {
      ATH_MSG_ERROR("TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(): size of prob array does not match! in.size()=" << pcabinprobvector->GetNoElements() << " instance=" << m_pdgid_Ebin_probability[id].size());
-     return;
+     return false;
    }
    
    prob=pcabinprobvector->GetMatrixArray();
@@ -128,6 +128,7 @@ void TFCSEnergyBinParametrization::load_pdgid_Ekin_bin_probability_from_file(int
 
   if(prob) delete prob; 
   
+  return true;
 }
 
 void TFCSEnergyBinParametrization::Print(Option_t *option) const
