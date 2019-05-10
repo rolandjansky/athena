@@ -13,11 +13,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigObjectMatching/TrigMatchTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "PATCore/IAsgSelectionTool.h"
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+#include "xAODEgamma/ElectronContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include<string>
