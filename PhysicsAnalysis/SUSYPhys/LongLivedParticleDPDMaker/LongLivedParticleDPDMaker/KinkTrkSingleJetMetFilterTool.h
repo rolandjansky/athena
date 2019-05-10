@@ -14,7 +14,6 @@
 // Gaudi & Athena basics
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "PATCore/IAsgSelectionTool.h"
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
@@ -43,7 +42,6 @@ namespace DerivationFramework {
     mutable unsigned int m_npass;
 
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-    ToolHandle<IAsgSelectionTool> m_electronSelTool;
 
     bool m_passAll;
     bool m_LeptonVeto;

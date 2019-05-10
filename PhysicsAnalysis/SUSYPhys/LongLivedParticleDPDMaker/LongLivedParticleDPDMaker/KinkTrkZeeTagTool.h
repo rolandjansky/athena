@@ -18,7 +18,6 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
-#include "xAODEgamma/ElectronContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include<string>
@@ -56,7 +55,6 @@ namespace DerivationFramework {
 
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
     ToolHandle<TrigMatchTool> m_trigMatchTool;
-    ToolHandle<IAsgSelectionTool> m_electronSelTool;
     std::vector<std::string> m_trigNames;
     float m_trigMatchDeltaR;
     bool m_doTrigMatch;

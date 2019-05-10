@@ -15,8 +15,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
-from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
-from ROOT import LikeEnum
 
 #import AthenaCommon.SystemOfUnits as Units
 jetContainer = primRPVLLDESDM.KinkedTrack_containerFlags.jetCollectionName
@@ -36,17 +34,6 @@ def KinkTrkTriggerFilterString(flags):
     return selectionString
 
 #====================================================================
-# Electron selection tool
-#====================================================================
-
-# Tight
-ElectronLHSelectorTight = ConfiguredAsgElectronLikelihoodTool("ElectronLHSelectorTight", LikeEnum.Tight)
-ElectronLHSelectorTight.primaryVertexContainer = "PrimaryVertices"
-ToolSvc += ElectronLHSelectorTight
-
-
-
-#====================================================================
 # JetMetFilter
 #====================================================================
 #KinkTrkJetTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
@@ -60,7 +47,6 @@ ToolSvc += KinkTrkJetTriggerFilterTool
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkSingleJetMetFilterTool
 KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkSingleJetMetFilterTool",
                                                                                    LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
-                                                                                   EGammaSelectionTool  = ElectronLHSelectorTight,
                                                                                    IsolatedTrack        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.requireIsolatedTrack,
                                                                                    JetContainerKey      = jetContainer,
                                                                                    ElectronContainerKey = electronContainer,
@@ -95,7 +81,6 @@ RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 # Multi-jets filter
 KinkTrkMultiJetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkMultiJetFilterTool",
                                                                                LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
-                                                                               EGammaSelectionTool  = ElectronLHSelectorTight,
                                                                                IsolatedTrack        = False,
                                                                                JetContainerKey      = jetContainer,
                                                                                ElectronContainerKey = electronContainer,
@@ -131,7 +116,6 @@ RPVLLfilterNames.extend(["RPVLL_KinkedTrackMultiJetFilterKernel"])
 KinkTrkStubletFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkStubletFilterTool",
                                                                               LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
                                                                               IsolatedTrack        = False,
-                                                                              EGammaSelectionTool  = ElectronLHSelectorTight,
                                                                               JetContainerKey      = jetContainer,
                                                                               ElectronContainerKey = electronContainer,
                                                                               ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
@@ -170,7 +154,6 @@ RPVLLfilterNames.extend(["RPVLL_KinkedTrackStubletFilterKernel"])
 #====================================================================
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZeeTagTool
 KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 = "KinkTrkZeeTagTool",
-                                                           EGammaSelectionTool  = ElectronLHSelectorTight,
                                                            Triggers             = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames,
                                                            TriggerMatchDeltaR   = 0.1,
                                                            RequireTriggerMatch  = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.doTriggerMatch,

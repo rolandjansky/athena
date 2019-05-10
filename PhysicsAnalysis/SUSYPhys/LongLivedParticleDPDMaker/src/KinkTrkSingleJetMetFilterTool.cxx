@@ -26,7 +26,6 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_ntot(0),
   m_npass(0),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-  m_electronSelTool(""),
   m_passAll(false),
   m_LeptonVeto(false),
   m_isolatedTrack(false),
@@ -37,7 +36,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_muonSGKey("Muons"),
   m_muonIDKey("Medium"),
   m_electronSGKey("ElectronCollection"),
-  m_electronIDKey("Tight"),
+  m_electronIDKey("LHTight"),
   m_metCut(-1),
   m_jetPtCuts(std::vector<float>()),
   m_jetEtaMax(3.2),
@@ -48,7 +47,6 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_leptonEtaMax(2.5)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("EGammaSelectionTool", m_electronSelTool);
     declareProperty("passAll", m_passAll); 
     declareProperty("LeptonVeto", m_LeptonVeto);
     declareProperty("IsolatedTrack", m_isolatedTrack);
@@ -82,13 +80,6 @@ StatusCode DerivationFramework::KinkTrkSingleJetMetFilterTool::initialize()
 
   // Muon selection
   CHECK(m_muonSelectionTool.retrieve());
-
-  // Electron selection
-  if( m_electronSelTool.empty()) {
-    ATH_MSG_FATAL("Electron selection tool not specified!");
-    return StatusCode::FAILURE;
-  }
-  CHECK(m_electronSelTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -209,8 +200,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
     for (auto ele: *electrons) {
       bool passID(false);
-      if( (bool)m_electronSelTool->accept(ele) ){
-        passID = true;
+      if( !ele->passSelection(passID,m_electronIDKey) ){
+        ATH_MSG_WARNING("Cannot find the electron quality flag " << m_electronIDKey);
       }
       if (ele->pt() > m_leptonPtCut && fabs(ele->eta()) < m_leptonEtaMax && passID) {
         return acceptEvent; 
