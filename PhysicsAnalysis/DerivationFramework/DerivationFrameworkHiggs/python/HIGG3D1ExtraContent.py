@@ -22,8 +22,8 @@ HIGG3D1ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLin
                                "AntiKt4TruthDressedWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinalCount.GhostTausFinalPt.ActiveArea.ActiveArea4vec_m.ActiveArea4vec_pt.ActiveArea4vec_eta.ActiveArea4vec_phi",
                                "AntiKt4EMPFlowJets.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID"]
 
-HIGG3D1TruthDecoratorVariables = [ "Electrons.truthFlavourTag",
-                                   "Muons.truthFlavourTag",
+HIGG3D1TruthDecoratorVariables = [ "Electrons.HIGG3DX_truthFlavourTag",
+                                   "Muons.HIGG3DX_truthFlavourTag",
                                    ]
 
 HIGG3D1ExtraContainers = [ ]

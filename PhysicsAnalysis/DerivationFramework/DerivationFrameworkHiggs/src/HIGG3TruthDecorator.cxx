@@ -74,7 +74,7 @@ namespace DerivationFramework {
 
     // Define the lepton decorator outside of the loop as static, such that it
     // will be fully cached
-    static SG::AuxElement::Decorator<int>  decFlavourTag ("truthFlavourTag");
+    static SG::AuxElement::Decorator<int>  decFlavourTag ("HIGG3DX_truthFlavourTag");
 
     // Retrieve the truth event
     const xAOD::TruthEventContainer* truthEvents(nullptr);
@@ -480,7 +480,7 @@ namespace DerivationFramework {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    eventInfo->auxdecor<int>("truth_nOutgoingPartons")   = nOutgoingPartons;
+    eventInfo->auxdecor<int>("HIGG3DX_truth_nOutgoingPartons")   = nOutgoingPartons;
 
     std::sort( interestingLeptons.begin(), interestingLeptons.end(), xaodPtSorting);
 
@@ -585,11 +585,11 @@ namespace DerivationFramework {
     }
     ATH_MSG_DEBUG( "  option: Ntau: " << Ntau << "   ,  Nlep: " << Nem << " (" << NeDirect << "," << NmDirect << ") , neutrinos: " << Nnu << " , " <<  CountSherpaLepton << "  TYPE: " <<   WWtype << "  ... truth: " << Nem_acc << "  ... leptons from W: " << leptonsFromW.size() );
 
-    eventInfo->auxdecor<char>("truth_isZZ")             = static_cast<char>(isZ);
-    eventInfo->auxdecor<int>("truth_WWtype")            = WWtype;
-    eventInfo->auxdecor<int>("truth_nTruthLep")         = Nem_acc;
-    eventInfo->auxdecor<char>("truth_hasFSRPhoton")     = static_cast<char>(hasFSRPhoton);
-    eventInfo->auxdecor<char>("truth_hasFSRPhotonDR01") = static_cast<char>(hasFSRPhotonLargeDeltaR);
+    eventInfo->auxdecor<char>("HIGG3DX_truth_isZZ")             = static_cast<char>(isZ);
+    eventInfo->auxdecor<int>("HIGG3DX_truth_WWtype")            = WWtype;
+    eventInfo->auxdecor<int>("HIGG3DX_truth_nTruthLep")         = Nem_acc;
+    eventInfo->auxdecor<char>("HIGG3DX_truth_hasFSRPhoton")     = static_cast<char>(hasFSRPhoton);
+    eventInfo->auxdecor<char>("HIGG3DX_truth_hasFSRPhotonDR01") = static_cast<char>(hasFSRPhotonLargeDeltaR);
 
     float Mvv=0.0;
     if ( neutrinosFromW.size()>1 ) {
@@ -598,7 +598,7 @@ namespace DerivationFramework {
       myMvv+=(neutrinosFromW.at(1))->p4();
       Mvv=myMvv.M();
     }
-    eventInfo->auxdecor<float>("truth_mvv") = Mvv;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_mvv") = Mvv;
 
     // Add the higgs pt
     float higgsPt  = -1000.0;
@@ -616,22 +616,22 @@ namespace DerivationFramework {
       higgsPhi = higgsBosons[0]->phi();
       higgsM   = higgsBosons[0]->m();
     }
-    eventInfo->auxdecor<float>("truthHiggsPt")  = higgsPt;
-    eventInfo->auxdecor<float>("truthHiggsY")   = higgsY;
-    eventInfo->auxdecor<float>("truthHiggsPhi") = higgsPhi;
-    eventInfo->auxdecor<float>("truthHiggsM")   = higgsM;
+    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsPt")  = higgsPt;
+    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsY")   = higgsY;
+    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsPhi") = higgsPhi;
+    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsM")   = higgsM;
 
     /*
     if ( ptLoss.size()>0 ) {
-      eventInfo->auxdecor<float>("truth_ptLoss_0")=ptLoss[0];
+      eventInfo->auxdecor<float>("HIGG3DX_truth_ptLoss_0")=ptLoss[0];
       if ( ptLoss.size()>1 ) {
-        eventInfo->auxdecor<float>("truth_ptLoss_1")=ptLoss[1];
+        eventInfo->auxdecor<float>("HIGG3DX_truth_ptLoss_1")=ptLoss[1];
       } else {
-        eventInfo->auxdecor<float>("truth_ptLoss_1")=1.;
+        eventInfo->auxdecor<float>("HIGG3DX_truth_ptLoss_1")=1.;
       }
     } else {
-      eventInfo->auxdecor<float>("truth_ptLoss_0")=1.;
-      eventInfo->auxdecor<float>("truth_ptLoss_1")=1.;
+      eventInfo->auxdecor<float>("HIGG3DX_truth_ptLoss_0")=1.;
+      eventInfo->auxdecor<float>("HIGG3DX_truth_ptLoss_1")=1.;
     }
     */
 
@@ -652,7 +652,7 @@ namespace DerivationFramework {
       const double diBosonMass = ( partA->p4() + partB->p4() ).M();
       massVV = static_cast<float>(diBosonMass);
     }
-    eventInfo->auxdecor<float>("truth_VVMass") = massVV;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_VVMass") = massVV;
 
 
     //default
@@ -752,7 +752,7 @@ namespace DerivationFramework {
       M01 = 0.001*(Wboson01.M());
 
     }// if a 3Wlep + 3Wnu event
-    eventInfo->auxdecor<float>("truth_mW0W1") =  M01;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_mW0W1") =  M01;
 
 
     // Filter based on rapidity acceptance and sort
@@ -795,7 +795,7 @@ namespace DerivationFramework {
       //
     }
     // Truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting
-    eventInfo->auxdecor<unsigned int>("truth_nJet") = numberOfTruthJets;
+    eventInfo->auxdecor<unsigned int>("HIGG3DX_truth_nJet") = numberOfTruthJets;
 
     // WZ truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting
     const xAOD::JetContainer* truthWZJets = 0;
@@ -813,7 +813,7 @@ namespace DerivationFramework {
         numberOfTruthWZJets++;
       }
     }
-    eventInfo->auxdecor<unsigned int>("truth_nWZJet") = numberOfTruthWZJets;
+    eventInfo->auxdecor<unsigned int>("HIGG3DX_truth_nWZJet") = numberOfTruthWZJets;
 
     // DressedWZ truth jet multiplicity for Sherpa 2.2 Z+jets re-weighting, if requested
     const xAOD::JetContainer* truthDressedWZJets = 0;
@@ -831,7 +831,7 @@ namespace DerivationFramework {
         numberOfTruthDressedWZJets++;
       }
     }
-    eventInfo->auxdecor<unsigned int>("truth_nDressedWZJet") = numberOfTruthDressedWZJets;
+    eventInfo->auxdecor<unsigned int>("HIGG3DX_truth_nDressedWZJet") = numberOfTruthDressedWZJets;
 
     // Finally, calculate the VBF mjj
     float truth_VBFMjj = -999.0;
@@ -844,7 +844,7 @@ namespace DerivationFramework {
                                  filteredJets[0]->e()  + filteredJets[1]->e() );
       truth_VBFMjj = DiJetSystem.M();
     }
-    eventInfo->auxdecor<float>("truth_VBFMjj")    = truth_VBFMjj;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_VBFMjj")    = truth_VBFMjj;
 
     // Truth ttbar pt and top pt
     double ttbarpt = 0;
@@ -856,8 +856,8 @@ namespace DerivationFramework {
       if(top1->pdgId() == 6 && top2->pdgId() == -6) toppt = ( top1->p4() ).Pt();
       else if(top1->pdgId() == -6 && top2->pdgId() == 6) toppt = ( top2->p4() ).Pt();
     }
-    eventInfo->auxdecor<float>("truth_ttbarpt")          = ttbarpt;
-    eventInfo->auxdecor<float>("truth_toppt")            = toppt;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_ttbarpt")          = ttbarpt;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_toppt")            = toppt;
 
     /// few add ons by Kathrin for truth MT and NNLOPS
     // Block from Kathrin on Truth MT
@@ -928,7 +928,7 @@ namespace DerivationFramework {
     else
       ATH_MSG_DEBUG( "Either too few or too many leptons found!! Muons: " << numberOfTruthMu << " Electrons: "<< numberOfTruthEle );
     ATH_MSG_DEBUG( "Truth MT: " << truthMT );
-    eventInfo->auxdecor<float>("truth_MT")    = truthMT;
+    eventInfo->auxdecor<float>("HIGG3DX_truth_MT")    = truthMT;
 
 
     //---------------------------------------------//
