@@ -10,7 +10,7 @@
 export EVENTS=10
 export THREADS=1
 export SLOTS=1
-export INPUT="run2mc_ttbar"
+export INPUT="ttbar"
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export EXTRA="doL1Sim=True;doEmptyMenu=True"
 
