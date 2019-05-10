@@ -379,7 +379,9 @@ if DetFlags.haveRIO.TRT_on():
 
     # Dead/Noisy Straw Service
     useOldStyle = False
-    if DetFlags.simulate.any_on() or athenaCommonFlags.EvtMax==1:
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
          useOldStyle = True
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
     InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",

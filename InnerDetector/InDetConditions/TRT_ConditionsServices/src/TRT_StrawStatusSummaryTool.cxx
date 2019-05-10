@@ -30,8 +30,6 @@
 
 TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_detStore("DetectorStore",name),
-    m_toolsvc("ToolSvc",name),
     m_par_strawstatuscontainerkey("/TRT/Cond/Status"),
     m_par_strawstatuspermanentcontainerkey("/TRT/Cond/StatusPermanent"),
     m_par_strawstatusHTcontainerkey("/TRT/Cond/StatusHT"),
@@ -46,7 +44,6 @@ TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type,
     m_strawstatusHTG4(nullptr)
 
 {
-  declareProperty("ToolSvc",m_toolsvc);
   declareProperty("isGEANT4",m_isGEANT4);
 
   // initialise event id cache
@@ -67,21 +64,8 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
 {
   ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialize method called");
 
-
-  // Retrieve the DetectorStore
-  if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
-    ATH_MSG_FATAL("Could not retrieve " << m_detStore);
-    return StatusCode::FAILURE;
-  }
-
-  // Find ToolService
-  if (StatusCode::SUCCESS!=m_toolsvc.retrieve()) {
-    ATH_MSG_FATAL("ToolSvc not found");
-    return StatusCode::FAILURE;
-  }
-
   // Get the TRT ID helper
-  if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtId,"TRT_ID")) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_trtId,"TRT_ID")) {
     ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
   }
@@ -98,7 +82,7 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
   if(m_isGEANT4) {
     // processing GEANT4 simulation - revert to old non-MT style cond access
 
-      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
+    if(StatusCode::SUCCESS!=detStore()->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatusHTcontainerkey);
         return StatusCode::FAILURE;
       }

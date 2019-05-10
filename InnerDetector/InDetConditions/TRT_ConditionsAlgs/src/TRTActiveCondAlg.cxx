@@ -7,7 +7,7 @@
 
 TRTActiveCondAlg::TRTActiveCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
-  : ::AthReentrantAlgorithm(name,pSvcLocator),
+  : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
     m_detManager(nullptr),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
@@ -45,13 +45,13 @@ StatusCode TRTActiveCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TRTActiveCondAlg::execute(const EventContext& ctx) const 
+StatusCode TRTActiveCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
 
-  SG::WriteCondHandle<TRTCond::ActiveFraction> writeHandle{m_strawWriteKey,ctx};
+  SG::WriteCondHandle<TRTCond::ActiveFraction> writeHandle{m_strawWriteKey};
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
@@ -191,7 +191,7 @@ StatusCode TRTActiveCondAlg::execute(const EventContext& ctx) const
   //__________ Assign range of writeCdo to that of the ReadHandle___________ 
   EventIDRange rangeW;
 
-    SG::ReadCondHandle<StrawStatusContainer> strawReadHandle{m_strawReadKey,ctx};
+    SG::ReadCondHandle<StrawStatusContainer> strawReadHandle{m_strawReadKey};
     const StrawStatusContainer* strawContainer{*strawReadHandle};
     if(strawContainer==nullptr) {
         ATH_MSG_ERROR("Null pointer to the straw status container");

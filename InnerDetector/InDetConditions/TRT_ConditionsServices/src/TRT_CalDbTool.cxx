@@ -23,7 +23,6 @@
 TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
     m_trtId(0),
-    m_detstore("DetectorStore",name),
     m_mutex{},
     m_Rtcache{},
     m_T0cache{},
@@ -39,7 +38,6 @@ TRT_CalDbTool::TRT_CalDbTool( const std::string& type, const std::string& name, 
     m_slopeContainerG4(nullptr),
     m_t0ContainerG4(nullptr)
 {
-  declareProperty("DetectorStore",m_detstore);
   declareProperty("isGEANT4",m_isGEANT4);
 }
 
@@ -48,14 +46,9 @@ StatusCode TRT_CalDbTool::initialize()
 {
   ATH_MSG_DEBUG( " in initialize " );
 
-  // Get StoreGate access to DetectorStore
-  if (StatusCode::SUCCESS!=m_detstore.retrieve()) {
-    ATH_MSG_FATAL("Unable to retrieve " << m_detstore.name());
-    return StatusCode::FAILURE;
-  }
 
   // Get the TRT ID helper
-  StatusCode sc = m_detstore->retrieve(m_trtId,"TRT_ID");
+  StatusCode sc = detStore()->retrieve(m_trtId,"TRT_ID");
   if(sc.isFailure()) {
     ATH_MSG_FATAL("Problem retrieving TRTID helper");
     return StatusCode::FAILURE;
@@ -72,34 +65,34 @@ StatusCode TRT_CalDbTool::initialize()
     // processing GEANT4 simulation - revert to old non-MT style cond access
 
       ATH_MSG_INFO("TRT_CalDbTool::initialize for simulation");
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_rtContainerG4,m_par_rtcontainerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_rtContainerG4,m_par_rtcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_rtcontainerkey);
         return StatusCode::FAILURE;
       }
 
 
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_errcontainerkey);
         return StatusCode::FAILURE;
       }
 
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_slopecontainerkey);
         return StatusCode::FAILURE;
       }
 
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_t0ContainerG4,m_par_t0containerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_t0ContainerG4,m_par_t0containerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_t0containerkey);
         return StatusCode::FAILURE;
       }
 
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_slopeContainerG4,m_par_slopecontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_slopecontainerkey);
         return StatusCode::FAILURE;
       }
 
 
-      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
+      if(StatusCode::SUCCESS!=detStore()->retrieve(m_errContainerG4,m_par_errcontainerkey)) {
         ATH_MSG_FATAL("Could not retrieve folder " << m_par_errcontainerkey);
         return StatusCode::FAILURE;
       }

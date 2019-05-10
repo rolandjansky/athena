@@ -13,7 +13,6 @@
 //Gaudi
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -61,8 +60,6 @@ class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSum
 
 
  private:
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IToolSvc> m_toolsvc; 
   std::string m_par_strawstatuscontainerkey;
   std::string m_par_strawstatuspermanentcontainerkey;
   std::string m_par_strawstatusHTcontainerkey;
