@@ -32,6 +32,11 @@ StatusCode
 makeAuditor( const std::string& audName, IAuditorSvc* audSvc,
              MsgStream& msg )
 {
+  msg << MSG::INFO << "SERHAN" << endmsg;
+  msg << MSG::INFO << "SERHAN" << endmsg;
+  msg << MSG::INFO << "SERHAN" << endmsg;
+  msg << MSG::INFO << "SERHAN" << endmsg;
+
   if ( 0 == audSvc ) {
     msg << MSG::ERROR << "Null pointer to IAuditorSvc !!" << endmsg;
     return StatusCode::FAILURE;
