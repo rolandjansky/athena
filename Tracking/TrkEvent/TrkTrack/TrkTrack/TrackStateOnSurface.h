@@ -269,13 +269,13 @@ namespace Trk
              * Use this method to set persistification hints.
              * @throw logic_error if the type is not a persistification flag.
              */
-            void setHint ATLAS_NOT_THREAD_SAFE ( const TrackStateOnSurfaceType& type ) const;
+            void setHint  ( const TrackStateOnSurfaceType& type ) ;
 
             /**
              * Use this method to clear persistification hint flag.
              * @throw logic_error if the type is not a persistification flag.
              */
-            void resetHint ATLAS_NOT_THREAD_SAFE ( const TrackStateOnSurfaceType& type ) const;
+            void resetHint ( const TrackStateOnSurfaceType& type ) ;
 
               
             /** returns a string with the expanded type of the object (i.e. if it has several type bits set, they all will be returned)*/
