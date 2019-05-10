@@ -336,12 +336,12 @@ namespace InDetAlignment
 					m_HumanReadableID = m_sctIdHelper->barrel_ec(SCT_ModuleID)*(m_HumanReadableID + 10000000);
 				}
 				
-				msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endreq;
+				msg(MSG::DEBUG) << "-- Human Readable ID: " << m_HumanReadableID << endreq;
 				
 				m_VisualizationLookupTree->Fill();
 				
 				// Syntax is (ID, Level) where Level is from 1 to 3 (3 is single module level)
-				if (msgLvl(MSG::INFO)) {
+				if (msgLvl(MSG::DEBUG)) {
           HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(SCT_ModuleID,3));
 					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,0,'/') << endreq;
 					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endreq;
@@ -389,11 +389,11 @@ namespace InDetAlignment
 						m_HumanReadableID = m_pixelIdHelper->barrel_ec(Pixel_ModuleID)*(m_HumanReadableID + 10000000);
 					}
 					
-					msg(MSG::INFO) << "Human Readable ID: " << m_HumanReadableID << endreq;
+					msg(MSG::DEBUG) << "-- Human Readable ID: " << m_HumanReadableID << endreq;
 					
 					m_VisualizationLookupTree->Fill();
 					
-					if (msgLvl(MSG::INFO)) {
+					if (msgLvl(MSG::DEBUG)) {
             HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(Pixel_ModuleID,3));
 						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,0,'/') << endreq;
 						msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endreq;
@@ -583,7 +583,13 @@ namespace InDetAlignment
 			double r = center.rho(); //distance from beampipe
 			double phi = center.phi();
 			double z = center.z();
-			
+
+			msg(MSG::DEBUG) << " Center of the module: radius:"<< r
+                                       << "   phi: " << phi
+                                       << "   x: " << r * cos(phi)
+                                       << "   y: " << r * sin(phi)
+                                       << "   z: " << z << endreq;
+
 			HepGeom::Transform3D parameterizedTrafo;
 			HepGeom::Transform3D alignmentTrafo;
 			
@@ -591,7 +597,7 @@ namespace InDetAlignment
 			// prepare scale factor for different subsystems:
                         double ScaleFactor = 1.;
 
-                        if (m_idHelper->is_pixel(ModuleID))
+                        if (m_idHelper->is_pixel(ModuleID)) // pixel modules
                           {
                             if (m_pixelIdHelper->is_barrel(ModuleID))   {
                               ScaleFactor=m_ScalePixelBarrel;
@@ -605,8 +611,8 @@ namespace InDetAlignment
                             if (m_pixelIdHelper->is_dbm(ModuleID))   {    // DBM
                               ScaleFactor=m_ScalePixelDBM;
                             }
-
-                          } else if (m_idHelper->is_sct(ModuleID))
+                          } 
+			else if (m_idHelper->is_sct(ModuleID)) // sct modules
                           {
                             if (m_sctIdHelper->is_barrel(ModuleID)) {
                               ScaleFactor=m_ScaleSCTBarrel;
@@ -614,8 +620,9 @@ namespace InDetAlignment
                             else {
                               ScaleFactor=m_ScaleSCTEndcap;
                             }
-
-                          } else if (m_idHelper->is_trt(ModuleID))
+			    
+                          } 
+			else if (m_idHelper->is_trt(ModuleID)) // trt modules
                           {
                             if (m_trtIdHelper->is_barrel(ModuleID)) {
                               ScaleFactor=m_ScaleTRTBarrel;
@@ -738,19 +745,33 @@ namespace InDetAlignment
 			
 			else { // systematic misalignments
 				if (m_MisalignmentMode/10==1) {
-					//radial misalignments
-					double deltaR;
-					if (m_MisalignmentMode==11) {
-						//R deltaR = radial expansion
-						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
-							//radial mode cannot handle TRT endcap, sorry
-							deltaR = 0.;
-							if (msgLvl(MSG::DEBUG)) msg() << "will not move TRT endcap for radial distortion " << endreq;
-						} else {
-							//deltaR = 0.5 * cos ( 2*phi ) * r/maxRadius * maxDeltaR;
-							deltaR = r/maxRadius * maxDeltaR; //scale linearly in r
-						}
-					} else if (m_MisalignmentMode==12) {
+				  //R deltaR = radial expansion                                                                                                                 
+				  double deltaR;
+				  // 11: radial misalignments
+				  // 10/ May /2019 Salva --> allow radial distortion only of the barrel elements   
+				  if (m_MisalignmentMode==11) {
+				    //R deltaR = radial expansion
+				    if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
+				      //radial mode cannot handle TRT endcap, sorry
+				      deltaR = 0.;
+				      if (msgLvl(MSG::DEBUG)) msg() << " -> will not move TRT endcap for radial distortion " << endreq;
+				    } 
+				    else if (m_idHelper->is_pixel(ModuleID) && !m_pixelIdHelper->is_barrel(ModuleID)) {
+				      deltaR = 0.;
+				      if (msgLvl(MSG::DEBUG)) msg() << " -> will not move PIX endcap for radial distortion (mode "
+								    << m_MisalignmentMode << ")" << endreq;
+				    }
+				    else if (m_idHelper->is_sct(ModuleID) && !m_sctIdHelper->is_barrel(ModuleID)) {
+				      deltaR = 0.;
+				      if (msgLvl(MSG::DEBUG)) msg() << " -> will not move SCT endcap for radial distortion (mode "
+								    << m_MisalignmentMode << ")" << endreq;
+				    }
+				    else {
+				      //deltaR = 0.5 * cos ( 2*phi ) * r/maxRadius * maxDeltaR;
+				      deltaR = r/maxRadius * maxDeltaR; //scale linearly in r
+				    }
+				    // end of radial (mode 11) 
+				  } else if (m_MisalignmentMode==12) {
 						//Phi deltaR = elliptical (egg-shape)
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//elliptical mode cannot handle TRT endcap, sorry
