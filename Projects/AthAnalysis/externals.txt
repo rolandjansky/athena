@@ -6,4 +6,4 @@
 # forbidden.
 
 AthAnalysisExternalsVersion = 1.0.50
-GaudiVersion = v27r1.018
+GaudiVersion = v27r1.020
