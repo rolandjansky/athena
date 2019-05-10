@@ -7,6 +7,7 @@
 
 #include "PerfMonComps/PerfMonMTSvc.h"
 #include "PerfMonComps/PerfMonMTAlg.h"
+#include "PerfMonComps/PerfMonMTAuditor.h"
   
 DECLARE_COMPONENT( PerfMonSvc )
 DECLARE_COMPONENT( Athena::PerfMonAuditor )
@@ -18,3 +19,4 @@ DECLARE_COMPONENT( PerfMon::StorePayloadMon )
 
 DECLARE_COMPONENT( PerfMonMTSvc )
 DECLARE_COMPONENT( PerfMonMTAlg )
+DECLARE_COMPONENT( PerfMonMTAuditor )

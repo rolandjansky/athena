@@ -28,10 +28,8 @@ PerfMonMTAuditor::PerfMonMTAuditor( const std::string& name,
  */
 StatusCode PerfMonMTAuditor::initialize()
 {
-  //ATH_MSG_INFO("Initialize");
 
   if ( !m_perfMonMTSvc.retrieve().isSuccess() ) {
-    //ATH_MSG_ERROR("Could not retrieve PerfMonMTSvc!");
     return StatusCode::FAILURE;
   }
 

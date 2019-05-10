@@ -1,12 +1,26 @@
 ###############################
-# Load PerfMonMTSvc
+# Print what we're doing
+###############################
+from AthenaCommon.Logging import logging
+log = logging.getLogger("PerfMonMTSvc_jobOptions.py")
+log.info("Setting up PerfMonMT...")
+
+###############################
+# Configure AuditorSvc if needed
 ###############################
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+if not hasattr(svcMgr, 'AuditorSvc'):
+    from GaudiSvc.GaudiSvcConf import AuditorSvc
+    svcMgr += AuditorSvc()
+
+###############################
+# Load PerfMonMTSvc
+###############################
 if not hasattr(svcMgr, "PerfMonMTSvc"):
     from PerfMonComps.PerfMonCompsConf import PerfMonMTSvc
     svcMgr += PerfMonMTSvc("PerfMonMTSvc")
     pass
-           
+
 ###############################
 # Load PerfMonMTAlg
 ###############################
@@ -17,9 +31,3 @@ if not hasattr(topSequence, "PerfMonMTSvcAlg"):
     topSequence += PerfMonMTAlg("PerfMonMTAlg")
     pass
 
-###############################
-# Print what we did 
-###############################
-from AthenaCommon.Logging import logging
-log = logging.getLogger("PerfMonMTSvc_jobOptions.py")
-log.info("Setting up PerfMonMT...")
