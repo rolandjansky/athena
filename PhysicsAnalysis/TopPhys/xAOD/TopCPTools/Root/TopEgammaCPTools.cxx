@@ -259,14 +259,17 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Charge ID cannot use maps at the moment so we default to the old method
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile      = electronSFFilePath("ChargeID", electronID,      electronIsolation);
-    m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
+    m_electronEffSFChargeIDFile        = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    if(m_config->applyTightSFsInLooseTree()) // prevent crash on-supported loose electron WPs with ECIDS
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    else
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
     std::vector<std::string> inChargeIDLoose {m_electronEffSFChargeIDLooseFile};
     // Charge Id efficiency scale factor
-    if ( m_electronEffSFChargeIDFile      != "disableTool" ) m_electronEffSFChargeID      = setupElectronSFTool(elSFPrefix + "ChargeID",      inChargeID, dataType);
-    if ( m_electronEffSFChargeIDLooseFile != "disableTool" ) m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
+    m_electronEffSFChargeID      = setupElectronSFTool(elSFPrefix + "ChargeID",      inChargeID, dataType);
+    m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
   }
   // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
   CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections      = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
@@ -356,14 +359,8 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   } else if (type == "triggerEff") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ChargeID") {
-    if (ID != "MediumLLH" && ID != "TightLLH") {
-      ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ChargeID SFs! Try TightLH or MediumLH instead. Disabling tool for now.");
-      return "disableTool";
-    }
-    if (ISO != "FCTight" && ISO != "Gradient") {
-      ATH_MSG_WARNING("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight or Gradient instead. Disabling tool for now.");
-      return "disableTool";
-    }
+    if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_ERROR("The requested ID WP (" + ID + ") is not supported for electron ChargeID SFs! Try TightLH or MediumLH instead.");
+    if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_ERROR("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight or Gradient instead.");
     file_path += "additional/efficiencySF.ChargeID.";
     file_path += ID;
     file_path += "_d0z0_v13_";
