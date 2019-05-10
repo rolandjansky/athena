@@ -1001,7 +1001,7 @@ if (m_useMdtData>0) {
 	if (m_tgcRawDataProvider->convert( tgc_hash_ids ).isSuccess()) {
 	  ATH_MSG_DEBUG("TGC BS conversion for hashID-based seeded PRD decoding done successfully");
 	} else {
-	  ATH_MSG_WARNING("TGC BS conversion for hasID-based seeded PRD decoding failed");
+	  ATH_MSG_WARNING("TGC BS conversion for hashID-based seeded PRD decoding failed");
 	}
       }
       
