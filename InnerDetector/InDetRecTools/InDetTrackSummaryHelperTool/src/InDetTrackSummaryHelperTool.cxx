@@ -207,18 +207,22 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	     }
 	   }
 
-	   if ( ( m_pixelId->is_barrel(id) ) ) { 
-	     int offset = m_pixelId->layer_disk(id);  
-	     if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
-	     hitPattern.set(offset); // assumes numbered consecutively 
+	   if(!m_ITkGeometry){
+
+	     if ( ( m_pixelId->is_barrel(id) ) ) { 
+	       int offset = m_pixelId->layer_disk(id);  
+	       if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
+	       hitPattern.set(offset); // assumes numbered consecutively 
+	     } 
+	     else { 
+	       int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc 
+	       offset    += m_pixelId->layer_disk(id); 
+	       if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
+	       hitPattern.set(offset); // assumes numbered consecutively 
+	     }
 	   } 
-	   else { 
-	     int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc 
-	     offset    += m_pixelId->layer_disk(id); 
-	     if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
-	     hitPattern.set(offset); // assumes numbered consecutively 
-	   }
-	 } 
+	   
+	 }
 	 
 	 // re-updating counters for ITk geometry
 	 if (m_ITkGeometry) {
