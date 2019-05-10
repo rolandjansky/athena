@@ -32,7 +32,7 @@ monitoringAllTracks = True
 useGRL = False
 
 # MC
-MC_bool = False
+MC_bool = True
 
 # do Trigger
 DoTrigger = False
@@ -41,15 +41,15 @@ DoTrigger = False
 grid_bool = True
 
 # handle input constants
-readPool = False # default True
+readPool = True # default True
 readLocalDynamicDB = False # default False
 
-#inputConstants = "step8_Iter1_AlignmentConstants.root"
-#inputdb = "step8_Iter1_mycool.db"
-inputConstants = "ReAlign_2018_L6_Step28_L3.root"
+#inputConstants = "ReAlign_2018_L6_Step28_L3.root"
+#inputConstants = "step27_358395_AlignmentConstants_Iter0_Block00.root"
+inputConstants = "MisalignmentSet11_p01.pool.root"
 inputdb = "Javi_Test_mycool.db"
-#inputConstants = "MisalignmentSet11_p01.pool.root"
-#inputConstants = "AlignmentConstants_Galo_2018BaseLine.root"
+#inputdb = "step8_Iter1_mycool.db"
+
 if (readPool):
     print " readPool = True file: %s" %(inputConstants)
     import socket
@@ -87,7 +87,8 @@ print ' ========= runzmumu === config == end == '
 #include("InDetSimpleVisual/GetDetectorPositions.py")
 
 if (grid_bool):
-    PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
+    # PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
+    PoolInput = ["/eos/user/m/martis/data/data18_13TeV/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
 if (MC_bool): 
     PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
 
@@ -189,6 +190,7 @@ DetFlags.Calo_setOff()
 DetFlags.Muon_setOn()
 
 
+print " == runzmumu == user may define his favourite alignment == start == "
 from IOVDbSvc.CondDB import conddb
 if (useIDADynamicFolders):
     if (False):
@@ -196,7 +198,7 @@ if (useIDADynamicFolders):
         conddb.addOverride("/Indet/AlignL1/ID" ,"IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
         conddb.addOverride("/Indet/AlignL2/PIX" ,"IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
         conddb.addOverride("/Indet/AlignL2/SCT" ,"IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL3" ,"IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL3" ,"IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
         conddb.addOverride("/Indet/IBLDist", "IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
         conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
         conddb.addOverride("/TRT/AlignL2", "TRTAlignL2-R2dynamic_2018_ReAlign_Initial")
@@ -228,19 +230,56 @@ if (useIDADynamicFolders):
             conddb.blockFolder("/Indet/AlignL3")
             conddb.blockFolder("/TRT/AlignL2")
         
+    if (False):
+        print (" == runzmumu == configuring 2018 ReAlign family (using RunSet2)") 
+        conddb.addOverride("/Indet/AlignL1/ID" ,"InDetAlignL1_ID_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX" ,"InDetAlignL2PIX_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT" ,"InDetAlignL2SCT_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/IBLDist", "InDetAlignIBLDist_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1_R2dynamic_data18_2ndBatch_Initial")
+        #conddb.blockFolder("/Indet/AlignL3")
+        #conddb.blockFolder("/TRT/AlignL2")
+        #conddb.addOverride("/Indet/AlignL3" ,"IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
+        #conddb.addOverride("/Indet/AlignL3" ,"InDetAlignL3_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2_R2dynamic_data18_2ndBatch_Initial")
+
+    if (True):
+        print (" == runzmumu == configuring 2018 Salva test")
+        conddb.addOverride("/Indet/AlignL1/ID", "IndetAlignL1ID-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/Indet/IBLDist", "IndetAlignIBLDIST-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/Indet/AlignL3", "IndetAlignL3-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1-R2dynamic-SALVA-2018-step27-TEST0")
+        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2-R2dynamic-SALVA-2018-step27-TEST0")
+        if readPool and False:
+            print " == runzmumu == configuring 2018 Salva test == conddb.blockFolder(/Indet/AlignL3)"
+            conddb.blockFolder("/Indet/AlignL3")
+            conddb.blockFolder("/TRT/AlignL2")
+    if (False):
+        print (" == runzmumu == configuring 2018 Stefano test")
+        conddb.addOverride("/Indet/AlignL1/ID",  "InDetAlignL1_ID_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX", "InDetAlignL2PIX_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT", "InDetAlignL2SCT_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/IBLDist",     "InDetAlignIBLDist_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/Indet/AlignL3",     "InDetAlignL3_R2dynamic_data18_2ndBatch_Initial") 
+        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_R2dynamic_data18_2ndBatch_Initial")
+        conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2_R2dynamic_data18_2ndBatch_Initial") 
+        if readPool and False:
+            conddb.blockFolder("/Indet/AlignL3")
+            conddb.blockFolder("/TRT/AlignL2")
+print " == runzmumu == user may define his favourite alignment == completed == "
 ##
 
 
-blocked_folders = [
-     '/LAR/ElecCalibMC/AutoCorr',
-     ]
+blocked_folders = ['/LAR/ElecCalibMC/AutoCorr']
 for f in blocked_folders:
     conddb.blockFolder (f)
     print " == runzmumu == folder ",f," --> blocked "
 
 
 inputCollectons =[]
-if 'inputConstants' in dir():
+if 'inputConstants' in dir() and readPool:
     inputCollections = [inputConstants]
     print " == runzmumu == inputConstants in dir() == ", inputConstants
 
