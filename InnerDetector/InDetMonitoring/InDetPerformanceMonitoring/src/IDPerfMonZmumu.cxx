@@ -96,9 +96,9 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   declareProperty("doIPSelection",     m_doIPSelection = true );
   declareProperty("isMC",              m_isMC = false);
   declareProperty("doRefit",           m_doRefit = false);
-  declareProperty("doIPextrToPV"       , m_doIP = false);
-  declareProperty("BeamCondSvc", m_beamSpotSvc);
-  declareProperty ( "Extrapolator", m_extrapolator );
+  declareProperty("doIPextrToPV",      m_doIP = false);
+  declareProperty("BeamCondSvc",       m_beamSpotSvc);
+  declareProperty("Extrapolator",      m_extrapolator );
   declareProperty("MassWindowLow",     m_MassWindowLow = 60.0, "Lower cut in mu+mu- invariant mass" );
   declareProperty("MassWindowHigh",    m_MassWindowHigh = 120.0, "Upper cut in mu+mu- invariant mass" );
   declareProperty("OpeningAngle",      m_OpeningAngleCut = 0.2, "Opening angle between the two muons (in radians)");
@@ -165,7 +165,7 @@ StatusCode IDPerfMonZmumu::initialize()
     ATH_MSG_FATAL("Unable to retrieve " << m_TrackRefitter1 );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("Retrieved tool" << m_TrackRefitter1 );
+    ATH_MSG_INFO("Retrieved tool m_TrackRefitter1: " << m_TrackRefitter1 );
   }
 
   // Retrieve the second fitter
@@ -173,15 +173,15 @@ StatusCode IDPerfMonZmumu::initialize()
     ATH_MSG_FATAL("Unable to retrieve " << m_TrackRefitter2 );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("Retrieved tool" << m_TrackRefitter2 );
+    ATH_MSG_INFO("Retrieved tool m_TrackRefitter2: " << m_TrackRefitter2 );
   }
 
 
   if (m_trackToVertexTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve " << m_trackToVertexTool );
+    ATH_MSG_FATAL("Unable to retrieve m_trackToVertexTool " << m_trackToVertexTool );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("Retrieved tool" << m_trackToVertexTool );
+    ATH_MSG_INFO("Retrieved tool m_trackToVertexTool " << m_trackToVertexTool );
   }
 
   if(m_useTrackSelectionTool){
@@ -209,6 +209,7 @@ StatusCode IDPerfMonZmumu::initialize()
     m_defaultTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
     m_defaultTree->Branch("eventNumber"    ,  &m_evtNumber,  "eventNumber/I");
     m_defaultTree->Branch("lumi_block"     ,  &m_lumi_block,  "lumi_block/I");
+    m_defaultTree->Branch("mu"             ,  &m_event_mu,  "mu/I");
 
     m_defaultTree->Branch("Negative_Px",  &m_negative_px,  "Negative_Px/D");
     m_defaultTree->Branch("Negative_Py",  &m_negative_py,  "Negative_Py/D");
@@ -225,8 +226,7 @@ StatusCode IDPerfMonZmumu::initialize()
     m_defaultTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
     m_defaultTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
     
-    if(m_doIP){
-
+    if (m_doIP) {
       m_defaultTree->Branch("Negative_d0_PV",      &m_negative_d0_PV   ,  "Negative_d0_PV/D");
       m_defaultTree->Branch("Negative_z0_PV",      &m_negative_z0_PV   ,  "Negative_z0_PV/D");
       m_defaultTree->Branch("Positive_z0_PV",      &m_positive_z0_PV,  "Positive_z0_PV/D");
@@ -236,6 +236,11 @@ StatusCode IDPerfMonZmumu::initialize()
       m_defaultTree->Branch("Negative_z0_PVerr",   &m_negative_z0_PVerr,  "Negative_z0_PVerr/D");
       m_defaultTree->Branch("Positive_z0_PVerr",   &m_positive_z0_PVerr,  "Positive_z0_PVerr/D");
       m_defaultTree->Branch("Positive_d0_PVerr",   &m_positive_d0_PVerr,  "Positive_d0_PVerr/D");
+
+      m_defaultTree->Branch("pv_x",      &m_pv_x   ,  "pv_x/D");
+      m_defaultTree->Branch("pv_y",      &m_pv_y   ,  "pv_y/D");
+      m_defaultTree->Branch("pv_z",      &m_pv_z   ,  "pv_z/D");
+      m_defaultTree->Branch("nTrkInVtx", &m_nTrkInVtx,  "nTrkInVrx/I");
     }
   }
   
@@ -246,7 +251,8 @@ StatusCode IDPerfMonZmumu::initialize()
     
     m_IDTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
     m_IDTree->Branch("eventNumber"    ,  &m_evtNumber,  "eventNumber/I");
-    m_IDTree->Branch("lumi_block"     ,  &m_lumi_block,  "lumi_block/I");
+    m_IDTree->Branch("lumi_bLock"     ,  &m_lumi_block,  "lumi_block/I");
+    m_IDTree->Branch("mu"             ,  &m_event_mu,  "mu/I");
 
     m_IDTree->Branch("Negative_Px",  &m_negative_px,  "Negative_Px/D");
     m_IDTree->Branch("Negative_Py",  &m_negative_py,  "Negative_Py/D");
@@ -274,10 +280,12 @@ StatusCode IDPerfMonZmumu::initialize()
       m_IDTree->Branch("Negative_z0_PVerr",   &m_negative_z0_PVerr,  "Negative_z0_PVerr/D");
       m_IDTree->Branch("Positive_z0_PVerr",   &m_positive_z0_PVerr,  "Positive_z0_PVerr/D");
       m_IDTree->Branch("Positive_d0_PVerr",   &m_positive_d0_PVerr,  "Positive_d0_PVerr/D");
-    }
-    
 
-    
+      m_IDTree->Branch("pv_x",      &m_pv_x   ,  "pv_x/D");
+      m_IDTree->Branch("pv_y",      &m_pv_y   ,  "pv_y/D");
+      m_IDTree->Branch("pv_z",      &m_pv_z   ,  "pv_z/D");
+      m_IDTree->Branch("nTrkInVtx", &m_nTrkInVtx,  "nTrkInVrx/I");
+    }
   }
   
   if( m_doRefit && m_refit1Tree == 0){
@@ -288,6 +296,7 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit1Tree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
     m_refit1Tree->Branch("eventNumber"    ,  &m_evtNumber,  "eventNumber/I");
     m_refit1Tree->Branch("lumi_block"     ,  &m_lumi_block,  "lumi_block/I");
+    m_refit1Tree->Branch("mu"             ,  &m_event_mu,  "mu/I");
     m_refit1Tree->Branch("preScale"       ,  &m_triggerPrescale, "preScale/I");
 
     m_refit1Tree->Branch("Negative_Px",  &m_negative_px,  "Negative_Px/D");
@@ -318,9 +327,12 @@ StatusCode IDPerfMonZmumu::initialize()
       m_refit1Tree->Branch("Negative_z0_PVerr",      &m_negative_z0_PVerr   ,  "Negative_z0_PVerr/D");
       m_refit1Tree->Branch("Positive_z0_PVerr",     &m_positive_z0_PVerr,     "Positive_z0_PVerr/D");
       m_refit1Tree->Branch("Positive_d0_PVerr",     &m_positive_d0_PVerr,     "Positive_d0_PVerr/D");
-    }
-    
 
+      m_refit1Tree->Branch("pv_x",      &m_pv_x   ,  "pv_x/D");
+      m_refit1Tree->Branch("pv_y",      &m_pv_y   ,  "pv_y/D");
+      m_refit1Tree->Branch("pv_z",      &m_pv_z   ,  "pv_z/D");
+      m_refit1Tree->Branch("nTrkInVtx", &m_nTrkInVtx,  "nTrkInVrx/I");
+    }    
   }
 
   if( m_doRefit && m_refit2Tree == 0){
@@ -331,6 +343,7 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit2Tree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
     m_refit2Tree->Branch("eventNumber"    ,  &m_evtNumber,  "eventNumber/I");
     m_refit2Tree->Branch("lumi_block"     ,  &m_lumi_block,  "lumi_block/I");
+    m_refit2Tree->Branch("mu"             ,  &m_event_mu,  "mu/I");
     m_refit2Tree->Branch("preScale"       ,  &m_triggerPrescale, "preScale/I");
 
     m_refit2Tree->Branch("Negative_Px",  &m_negative_px,  "Negative_Px/D");
@@ -363,11 +376,13 @@ StatusCode IDPerfMonZmumu::initialize()
       m_refit2Tree->Branch("Negative_d0_PVerr",  &m_negative_d0_PVerr,  "Negative_d0_PVerr/D");
       m_refit2Tree->Branch("Positive_z0_PVerr",  &m_positive_z0_PVerr,  "Positive_z0_PVerr/D");
       m_refit2Tree->Branch("Positive_d0_PVerr",  &m_positive_d0_PVerr,  "Positive_d0_PVerr/D");
-    }
 
+      m_refit2Tree->Branch("pv_x",      &m_pv_x   ,  "pv_x/D");
+      m_refit2Tree->Branch("pv_y",      &m_pv_y   ,  "pv_y/D");
+      m_refit2Tree->Branch("pv_z",      &m_pv_z   ,  "pv_z/D");
 
-
-    
+      m_refit2Tree->Branch("nTrkInVtx", &m_nTrkInVtx,  "nTrkInVrx/I");
+    }    
   }
   
   //  if( m_meStacoTree == 0){
@@ -400,6 +415,7 @@ StatusCode IDPerfMonZmumu::initialize()
     m_combTree->Branch("runNumber"      ,  &m_runNumber,  "runNumber/I");
     m_combTree->Branch("eventNumber"      ,  &m_evtNumber,  "eventNumber/I");
     m_combTree->Branch("lumi_block"      ,  &m_lumi_block,  "lumi_block/I");
+    m_combTree->Branch("mu"             ,  &m_event_mu,  "mu/I");
     m_combTree->Branch("preScale"       ,  &m_triggerPrescale, "preScale/I");
 
     m_combTree->Branch("Negative_Px",  &m_negative_px,  "Negative_Px/D");
@@ -430,6 +446,12 @@ StatusCode IDPerfMonZmumu::initialize()
       m_combTree->Branch("Negative_d0_PVerr",  &m_negative_d0_PVerr,  "Negative_d0_PVerr/D");
       m_combTree->Branch("Positive_z0_PVerr",  &m_positive_z0_PVerr,  "Positive_z0_PVerr/D");
       m_combTree->Branch("Positive_d0_PVerr",  &m_positive_d0_PVerr,  "Positive_d0_PVerr/D");
+
+      m_combTree->Branch("pv_x",      &m_pv_x   ,  "pv_x/D");
+      m_combTree->Branch("pv_y",      &m_pv_y   ,  "pv_y/D");
+      m_combTree->Branch("pv_z",      &m_pv_z   ,  "pv_z/D");
+
+      m_combTree->Branch("nTrkInVtx", &m_nTrkInVtx,  "nTrkInVrx/I");
     }
   }
 
@@ -558,13 +580,14 @@ StatusCode IDPerfMonZmumu::execute()
 
   ATH_MSG_DEBUG("Retrieving event info.");
   const EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure())
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve event info.");
-  else
-  {
+  }
+  else {
     m_runNumber = eventInfo->event_ID()->run_number();
     m_evtNumber = eventInfo->event_ID()->event_number();
     m_lumi_block = eventInfo->event_ID()->lumi_block();
+    m_event_mu = eventInfo->actualInteractionsPerCrossing();
     ATH_MSG_DEBUG(" Execute() starting on --> Run: " << m_runNumber << "  event: " << m_evtNumber);
   }
 
@@ -932,7 +955,7 @@ bool IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp, cons
   }
 
   if (m_doRemoval && !trackp_for_unbias){
-    return false;
+    return StatusCode::FAILURE;
   }
     
   
@@ -965,18 +988,26 @@ bool IDPerfMonZmumu::FillRecParametersTP(const xAOD::TrackParticle* trackp, cons
   //z0res = -99;   //Absolutely need to get the covariance matrix
   z0res = trackp->definingParametersCovMatrix()(1,1);
   
-  
-  if(m_doIP){
+  if (vertex == NULL) {
+    ATH_MSG_INFO("in FillRecParametersTP. WARNING: Vertex is NULL");
+    return false;
+  }
+  if (m_trackToVertexIPEstimator == 0) {
+    ATH_MSG_INFO("in FillRecParametersTP. WARNING: m_trackToVertexIPEstimator is NULL");
+    return false;
+  }
+  if(m_doIP && vertex != NULL && m_trackToVertexIPEstimator != 0){
     const Trk::ImpactParametersAndSigma* iPandSigma(NULL);
     ATH_MSG_INFO("using the trackToVertexIPEstimator");
     
     //Calling the estimate(trackp,newtrackp,vertex,doRemoval)
-    //The first track is used to unbias the vertex, the second to get the estrapolation
-    iPandSigma = m_trackToVertexIPEstimator->estimate(trackp_for_unbias,trackp,vertex,m_doRemoval);
+    //The first track is used to unbias the vertex, the second to get the extrapolation
+    iPandSigma = m_trackToVertexIPEstimator->estimate(trackp_for_unbias, trackp, vertex, m_doRemoval);
+    ATH_MSG_INFO("return from the trackToVertexIPEstimator->estimate()");
     
-    if( iPandSigma==0 ){
+    if( iPandSigma == NULL ){
       ATH_MSG_WARNING ("FillRecParametersTP::trackToVertexIPEstimator failed !");
-      return false;
+      return StatusCode::FAILURE;
     }
     else{
       ATH_MSG_DEBUG("FillRecParametersTP::trackToVertexIPEstimator success !");
@@ -1042,6 +1073,10 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
 
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
   const Trk::Perigee* trk_for_unbiasPerigee = &(trackp_for_unbias->perigeeParameters());
+  //  const AmgSymMatrix(5)* covariance = trkPerigee ? trkPerigee->covariance() : NULL;
+  //  if (covariance == NULL) {
+  //    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq;
+  //  }
 
   double px = 0;
   double py = 0;
@@ -1059,7 +1094,8 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
   
   
 
-  if(trkPerigee){
+  if (trkPerigee != NULL){
+    //    std::cout << "################## >>> does not fail trkperigee" << std::endl;
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
     if (qOverP) {
       px = trkPerigee->momentum().x();
@@ -1092,10 +1128,9 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
     //    std::cout << " -- atBL -- px: " << px << "  py: " << py << "  pz: " << pz << "  d0: "<< d0 << "   z0: "<< z0 << std::endl;
     delete atBL;
   }
-  else 
-    {
-      ATH_MSG_WARNING("FillRecParameters::Failed extrapolation to the BeamLine");
-    }
+  else {
+    ATH_MSG_WARNING("FillRecParameters::Failed extrapolation to the BeamLine");
+  }
   
   if(m_doIP && vertex && track->perigeeParameters()){ //I assume that the vertex is the same of the original track
     const Trk::ImpactParametersAndSigma* iPandSigma(NULL);
@@ -1108,8 +1143,15 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
       ATH_MSG_DEBUG("FillRecParameters::trackToVertexIPEstimator success !");
       PVd0 = iPandSigma->IPd0;
       PVd0res = iPandSigma->PVsigmad0;
+      //d0res = iPandSigma->sigmad0;  //-> ? 
       PVz0 = iPandSigma->IPz0;
       PVz0res = iPandSigma->PVsigmaz0;
+      //z0res = iPandSigma->sigmaz0;  //-> ?
+      
+      m_pv_x = vertex->x();
+      m_pv_y = vertex->y();
+      m_pv_z = vertex->z();
+      m_nTrkInVtx = vertex->nTrackParticles();
     }
   }
     
@@ -1144,6 +1186,10 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
       m_negative_d0_PVerr = PVd0res;
     }
     ATH_MSG_DEBUG("(Filled charge == -1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<<z0 );
+  }
+
+  if (m_doIP && false){
+    m_event_mu = 0.;
   }
 
   return true;
