@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_H
@@ -41,7 +41,7 @@ namespace Trk
      * - Trk::FitQuality          - the fit quality of a track
      * - A DataVector of Trk::TrackStateOnSurface
      *
-     * A TrackStateOnSurface is sub-container, which holds
+     * A TrackStateOnSurface is a sub-container, which holds
      * various properties defining a Track, on a particular surface.
      * It can contain:
      * - Trk::FitQualityOnSurface
