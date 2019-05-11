@@ -98,7 +98,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   
   if(collector){
     std::stringstream ss;
-    ss << "Νο of matched jets in matched groups: " << jets.size() << " " 
+    ss << " No of matched jets in matched groups: " << jets.size() << " " 
        << static_cast<int>(jets.size())+ "\n";
 						      
 	 
