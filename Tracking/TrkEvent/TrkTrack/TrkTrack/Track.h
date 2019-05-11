@@ -36,28 +36,50 @@ namespace Trk
      * allowing a Track to be incomplete (and in general a Track WILL be
      * incomplete).
      *
-     * A Track can contain:
+     * A Track typically is constructed via
      *
      * - Trk::FitQuality          - the fit quality of a track
-     * - Trk::TrackStateOnSurface - this is a sub-container, which holds
-     *                              various properties defining a Track,
-     *                              on a particular surface. It can contain:
+     * - A DataVector of Trk::TrackStateOnSurface
+     *
+     * A TrackStateOnSurface is sub-container, which holds
+     * various properties defining a Track, on a particular surface.
+     * It can contain:
      * - Trk::FitQualityOnSurface
      * - Trk::TrackParameters 
      * - Trk::MeasurementBase
      * - Trk::MaterialEffectsOnTrack
      * - Trk::ScatteringAngleOnTrack
-     * - Trk::TrackInfo
      * 
-     * - Trk::TrackSummary - used to cash TrackSummary. Might be 0!
-     *                       One still needs to use the TrackSummaryTool to create it.
-     *                       SummaryTool will return the cashed pointer if it exists.
+     * This class provides convenient helpers to retrieve and cache
+     * DataVectors (VIEW ELEMENTs) to 
+     * - TrackParameters
+     * - Measurements
+     * - Outliers
+     * from the TrackStateOnSurface DataVector
+     *
+     * It also allows for retrieving/caching 
+     * the Track Parameter at perigee
+     *
+     *
+     *  Furthermore a Track can contain 
+     * - Trk::TrackInfo
+     * - Trk::TrackSummary - used to cache the TrackSummary. Might be 0! 
+     * 
+     * They can be modified for a non-const Track 
+     * But not for a const one
+     *  
+     * For the TrackSummary one still needs 
+     * to use the TrackSummaryTool to create it.
+     *The SummaryTool will return the cashed pointer if it exists.
+     *  
      *
      * Please look at the mainpage of this package (see the link at the top
      * of the page) for more information.
      *
      * @author edward.moyse@cern.ch
      * @author Kirill.Prokofiev@cern.ch
+     *
+     * MT modification Christos
      */
     
     class Track
@@ -159,23 +181,29 @@ namespace Trk
          return m_trackStateVector;
        }
        /**									            
-        * returns the const info of the track for const tracks.           
+        * returns a const info for const tracks.           
         */									            
        const TrackInfo& info() const{
          return m_trackInfo;
        }
 
        /**									            
-        * returns the info of the track for non-const tracks.           
+        * returns the info (non-const) for non-const tracks.           
         */									            
        TrackInfo& info() {
          return m_trackInfo;
        }
         											            
        /**									            
-        * Returns  A pointer to the Trk::TrackSummary owned by this track (could be 0)     
+        * Returns  a const pointer to the Trk::TrackSummary owned by this const track (could be 0)     
         */									            
        const Trk::TrackSummary* trackSummary() const{
+         return m_trackSummary;
+       }
+       /**									            
+        * Returns a  pointer to the Trk::TrackSummary owned by this  track (could be 0)     
+        */									            
+       Trk::TrackSummary* trackSummary() {
          return m_trackSummary;
        }
         	
@@ -261,7 +289,7 @@ namespace Trk
        /**									   
         * Datamember to cache the TrackSummary  				   
         */									   
-       const Trk::TrackSummary* m_trackSummary; 
+       Trk::TrackSummary* m_trackSummary; 
        
        /**									   
         * This is aclass which stores the identity of where the track 	   
@@ -275,7 +303,7 @@ namespace Trk
        private:
        /**
         * find PerigeeImpl. 
-        * Assumes that Perigee parameters are currently inValid
+        * Assumes that Perigee parameters are currently inValid.
         */
        void findPerigeeImpl() const;						   
              
