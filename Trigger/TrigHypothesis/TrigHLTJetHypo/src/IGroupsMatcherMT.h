@@ -28,10 +28,11 @@ class IGroupsMatcherMT{
  public:
 // Abstract interface used by a factory function
   virtual ~IGroupsMatcherMT(){}
-  virtual bool match(const HypoJetGroupCIter&,
-                     const HypoJetGroupCIter&,
-                     const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-                     bool debug=false) const = 0;
+  virtual std::optional<bool>
+    match(const HypoJetGroupCIter&,
+	  const HypoJetGroupCIter&,
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	  bool debug=false) const = 0;
   
   virtual ConditionsMT getConditions() const noexcept = 0;
   virtual std::string toString() const = 0;

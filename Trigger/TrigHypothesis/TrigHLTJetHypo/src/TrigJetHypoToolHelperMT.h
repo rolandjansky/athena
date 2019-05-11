@@ -77,7 +77,7 @@ Gaudi::Property<bool>
 
  void collectData(const std::string& exetime,
                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-                  bool pass) const;
+                  const std::optional<bool>& pass) const;
 
  std::string toString() const;
 };

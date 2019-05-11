@@ -72,22 +72,10 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
                                                      unitCapacity));
           if(collector){
             std::stringstream ss;
-            ss << jgnode << "->" << jnode << '\n';
-            collector->collect("MatcherMT", ss.str());
+            ss << "new edge " << jgnode + jg_offset << "->" << jnode << '\n';
+            collector->collect("MultijetFlowNetworkBuilder", ss.str());
           }
         }
-        /*
-        else {
-        edges.push_back(std::make_shared<FlowEdge>(jgnode +jg_offset,
-        iter->second,
-                                                     unitCapacity));
-          if(collector){
-            std::stringstream ss;
-            ss << jgnode + jg_offset<< "->" << iter->second << '\n';
-            collector->collect("MatcherMT", ss.str());
-          }
-        }
-        */
       }
     }
   }
@@ -107,12 +95,16 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     }
     return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
   }
-
-  if(collector){
-    collector->collect("MultijetFlowNetworkBuilder - fn before",
-		       "Νο of matched jets in matched groups: " + std::to_string(jets.size())+ "\n");
-  }
   
+  if(collector){
+    std::stringstream ss;
+    ss << "Νο of matched jets in matched groups: " << jets.size() << " " 
+       << static_cast<int>(jets.size())+ "\n";
+						      
+	 
+	  collector->collect("MultijetFlowNetworkBuilder", ss.str());
+  }
+      
   V = jnode + 2;  // now we have all the nodes, can index the sink
 
   // finally add the jet - sink edges.
@@ -121,17 +113,18 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
       edges.push_back(std::make_shared<FlowEdge>(j.second,
 						 V-1,
 						 unitCapacity));
+      if(collector){
+        std::stringstream ss;
+        ss <<"new edge " << j.second << "->" << V-1 << '\n';
+        collector->collect("MultijetFlowNetworkBuilder", ss.str());
+      }
 
       // fill the node to jet map - to be used to identify jets
       // contirbuting to hypo success.
       //
       // NB: relies on the having no duplicates  in the values
       nodeToJet[j.second] = j.first;
-      if(collector){
-        std::stringstream ss;
-        ss << j.first << "->" << V-1 << '\n';
-        collector->collect("MatcherMT", ss.str());
-      }
+
   }
 
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);

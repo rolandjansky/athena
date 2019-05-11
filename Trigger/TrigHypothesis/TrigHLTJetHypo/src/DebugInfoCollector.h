@@ -7,6 +7,7 @@
 
 #include "./ITrigJetHypoInfoCollector.h"
 #include <map>
+#include <vector>
 
 class DebugInfoCollector: public ITrigJetHypoInfoCollector {
     
@@ -18,8 +19,7 @@ public:
   virtual void write() const override;
 
  private:
-  std::map<std::string, std::string> m_info;
-  std::map<std::string, std::size_t> m_calls;
+  std::map<std::string, std::vector<std::string>> m_info;
   std::string m_name;
 
 };

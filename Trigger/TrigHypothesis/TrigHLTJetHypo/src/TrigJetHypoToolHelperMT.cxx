@@ -24,7 +24,6 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
   auto conditions = m_config->getConditions();
   m_grouper  = std::move(m_config->getJetGrouper());
   m_matcher = std::move(groupsMatcherFactoryMT(conditions));
-  // std::string s = toString();
 
   return StatusCode::SUCCESS;
 }
@@ -32,7 +31,7 @@ StatusCode TrigJetHypoToolHelperMT::initialize() {
 void
 TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
                                      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
-                                     bool pass) const {
+                                     const std::optional<bool>& pass) const {
   if(!collector){return;}
   auto helperInfo = nodeIDPrinter(name(),
                                   m_nodeID,
@@ -71,11 +70,15 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
   }
 
   auto jetGroups = m_grouper->group(begin, end);
-  bool pass = m_matcher->match(jetGroups.begin(), jetGroups.end(), collector);
+  auto pass = m_matcher->match(jetGroups.begin(), jetGroups.end(), collector);
+  
   timer.stop();
 
   collectData(timer.readAndReset(), collector, pass);
-  return pass;
+  if(pass.has_value()){
+    return *pass;
+  }
+  return false;
 }
   
 std::string TrigJetHypoToolHelperMT::toString() const {

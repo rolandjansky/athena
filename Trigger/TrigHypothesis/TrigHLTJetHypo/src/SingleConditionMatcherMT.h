@@ -35,10 +35,12 @@ class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 public:
   SingleConditionMatcherMT(const ConditionBridgeMT&);
   ~SingleConditionMatcherMT(){}
-  bool match(const HypoJetGroupCIter&,
-             const HypoJetGroupCIter&,
-	     const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-	     bool debug) const override;
+
+  virtual std::optional<bool>
+    match(const HypoJetGroupCIter&,
+	  const HypoJetGroupCIter&,
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	  bool debug) const override;
   
   std::string toString() const noexcept override;
   ConditionsMT getConditions() const noexcept override;

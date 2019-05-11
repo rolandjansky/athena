@@ -49,7 +49,7 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
 
   std::vector<std::vector<int>> result;
   // result.reserve(m_conditions.size());
-  if(collector){collector->collect("MatcherMT", "start satisfsaction checks");}
+  if(collector){collector->collect("FlowNetworkBuilder", "start satisfsaction checks");}
      
   for(const auto& cond : m_conditions){
     std::vector<int> groups;
@@ -61,9 +61,9 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
     for (auto jg = groups_b; jg != groups_e; ++jg){
       if (cond.isSatisfied(*jg, collector)){
 	if (collector){
-	  collector->collect("MultijetFlowNetworkBuilder",
-			     "Satisfied Condition " + std::to_string(ijg) + " " +
-			     cond.toString());
+	  collector->collect("FlowNetworkBuilder",
+			     "Satisfied Condition jet node "
+			     + std::to_string(ijg) + " " + cond.toString());
 	}
 	groups.push_back(ijg);
 	// add source-condition link if condition satisfied
@@ -72,7 +72,7 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
     }
     if(groups.empty()){
       if(collector){
-        collector->collect("MultijetFlowNetworkBuilder",
+        collector->collect("FlowNetworkBuilder",
                            "Unsatisfied Condition" + cond.toString());
       }
       return std::optional<std::vector<std::vector<int>>>();     

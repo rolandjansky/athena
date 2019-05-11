@@ -63,12 +63,12 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
    if(collector){
      std::stringstream ss;
      const void* address = static_cast<const void*>(this);
-     ss << "Condition: " << address << " "
+     ss << "DijetConditionMT: " << address << " "
         << dphi <<  " " <<  mass <<  " "  << adeta <<  " " 
-        <<std::boolalpha << pass <<  " jets: ";
+        <<std::boolalpha << pass <<  " jet group: \n";
      for(auto ip : ips){
        address = static_cast<const void*>(ip);
-       ss << address << " " << ip->eta() << " ";
+       ss << "    "  << address << " " << ip->eta() << "\n";
      }
      ss << '\n';
      collector->collect("DijetConditionMT", ss.str());
