@@ -61,7 +61,7 @@ namespace InDet
     private:
       
       /** method to create a new track from a vector of TSOS's */
-      const Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
+      Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
       
       /**Association tool - used to work out which (if any) PRDs are shared between 
        tracks*/

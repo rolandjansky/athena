@@ -57,7 +57,7 @@ namespace InDet {
 
     SiSpacePointsSeedMaker_LowMomentum
     (const std::string&,const std::string&,const IInterface*);
-    virtual ~SiSpacePointsSeedMaker_LowMomentum();
+    virtual ~SiSpacePointsSeedMaker_LowMomentum() = default;
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
@@ -107,6 +107,11 @@ namespace InDet {
     virtual std::ostream& dump(std::ostream& out) const;
 
   private:
+    enum Size {SizeRF=20,
+               SizeZ=11,
+               SizeRFZ=SizeRF*SizeZ,
+               SizeI=9};
+
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
@@ -157,19 +162,21 @@ namespace InDet {
     int m_r_size   {};
     int m_rf_size   {};
     int m_rfz_size   {};
-    std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted{nullptr};
-    std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted [  220];
-    std::list<InDet::SiSpacePointForSeed*>  m_l_spforseed;
-    std::list<InDet::SiSpacePointForSeed*>::iterator m_i_spforseed;
+    std::vector<std::list<InDet::SiSpacePointForSeed*>> m_r_Sorted;
+    std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted [SizeRFZ];
+    std::list<InDet::SiSpacePointForSeed> m_l_spforseed;
+    std::list<InDet::SiSpacePointForSeed>::iterator m_i_spforseed;
     std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin;
   
     int m_ns{},m_nsaz  {};
     int m_fNmax  {};
     int m_fNmin  {};
     int m_zMin  {};
-    int  m_nr  {}; int* m_r_index{nullptr}; int* m_r_map{nullptr};
-    int  m_nrfz {}  , m_rfz_index  [220], m_rfz_map  [220];
-    int m_rfz_b[220],m_rfz_t[220],m_rfz_ib[220][9],m_rfz_it[220][9];
+    int  m_nr  {};
+    std::vector<int> m_r_index;
+    std::vector<int> m_r_map;
+    int  m_nrfz {}  , m_rfz_index  [SizeRFZ], m_rfz_map  [SizeRFZ];
+    int m_rfz_b[SizeRFZ],m_rfz_t[SizeRFZ],m_rfz_ib[SizeRFZ][SizeI],m_rfz_it[SizeRFZ][SizeI];
     float m_sF {};
 
     ///////////////////////////////////////////////////////////////////
@@ -177,20 +184,20 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
      
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
-    InDet::SiSpacePointForSeed** m_SP{nullptr};
-    float                *  m_R{nullptr};
-    float                *  m_Tz{nullptr};
-    float                *  m_Er{nullptr};
-    float                *  m_U{nullptr};
-    float                *  m_V{nullptr};
-    float                *  m_Zo{nullptr};
+    std::vector<InDet::SiSpacePointForSeed*> m_SP;
+    std::vector<float> m_R;
+    std::vector<float> m_Tz;
+    std::vector<float> m_Er;
+    std::vector<float> m_U;
+    std::vector<float> m_V;
+    std::vector<float> m_Zo;
 
-    std::list<InDet::SiSpacePointsSeed*>           m_l_seeds;
-    std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seed;
-    std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seede;
+    std::list<InDet::SiSpacePointsSeed>           m_l_seeds;
+    std::list<InDet::SiSpacePointsSeed>::iterator m_i_seed;
+    std::list<InDet::SiSpacePointsSeed>::iterator m_i_seede;
 
     std::multimap<float,InDet::SiSpacePointsSeed*> m_mapOneSeeds;
-    InDet::SiSpacePointsSeed*                       m_OneSeeds{nullptr};
+    std::vector<InDet::SiSpacePointsSeed> m_OneSeeds;
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
     int                                             m_nOneSeeds {};
     std::list<float>                                m_l_vertex;

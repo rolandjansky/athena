@@ -39,7 +39,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 {
   // Get beam geometry
   //
-  ATH_CHECK( m_beamSpotKey.initialize() );
+  if (not m_beamSpotKey.empty()) {
+    ATH_CHECK( m_beamSpotKey.initialize() );
+  }
 
   // Get magnetic field service
   //
@@ -257,13 +259,15 @@ std::ostream& InDet::operator <<
 void InDet::SiTrackMaker_xk::newEvent(bool PIX, bool SCT) const
 {
   EventData& data{getEventData()};
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-  if (beamSpotHandle.isValid()) {
-    data.xybeam[0] = beamSpotHandle->beamPos()[0];
-    data.xybeam[1] = beamSpotHandle->beamPos()[1];
-  } else {
-    data.xybeam[0] = 0.;
-    data.xybeam[1] = 0.;
+
+  data.xybeam[0] = 0.;
+  data.xybeam[1] = 0.;
+  if (not m_beamSpotKey.empty()) {
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if (beamSpotHandle.isValid()) {
+      data.xybeam[0] = beamSpotHandle->beamPos()[0];
+      data.xybeam[1] = beamSpotHandle->beamPos()[1];
+    }
   }
   
   data.pix = PIX and m_usePix;

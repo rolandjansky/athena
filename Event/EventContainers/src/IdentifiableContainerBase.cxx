@@ -4,6 +4,7 @@
 #include "EventContainers/IdentifiableContainerBase.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
   IdentifiableContainerBase::IdentifiableContainerBase(EventContainers::IdentifiableCacheBase *cache, bool online)
   {
@@ -95,14 +96,14 @@
   }
 
   StatusCode IdentifiableContainerBase::fetchOrCreate(IdentifierHash hashId){
-    if(!m_cacheLink->IMakerPresent()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!m_cacheLink->IMakerPresent())) return StatusCode::FAILURE;
     auto ptr = m_cacheLink->get(hashId);
     m_mask[hashId] = ptr !=nullptr;
     return StatusCode::SUCCESS;
   }
 
   StatusCode IdentifiableContainerBase::fetchOrCreate(const std::vector<IdentifierHash> &hashIds){
-    if(!m_cacheLink->IMakerPresent()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!m_cacheLink->IMakerPresent())) return StatusCode::FAILURE;
     m_cacheLink->createSet(hashIds, m_mask);
     return StatusCode::SUCCESS;
   }

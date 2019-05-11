@@ -92,10 +92,6 @@ def CaloNoiseToolCfg(configFlags):
             from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
             result.merge( LArHVScaleCfg(configFlags) )
 
-            from LArCondUtils.LArCondUtilsConf import LArHVToolDB
-            theLArHVToolDB = LArHVToolDB("LArHVToolDB")
-            result.addPublicTool( theLArHVToolDB )
-
             from LArCellRec.LArCellRecConf import LArCellHVCorr
             theLArCellHVCorr = LArCellHVCorr("LArCellHVCorr")
             result.addPublicTool( theLArCellHVCorr )

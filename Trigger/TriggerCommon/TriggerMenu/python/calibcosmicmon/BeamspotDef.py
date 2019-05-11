@@ -154,13 +154,13 @@ class L2EFChain_Beamspot(L2EFChainDef):
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
            [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
-        if 'mon' in self.chainPart['addInfo']:
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
+        elif 'mon' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
         teaddition = 'trkFTK'
 
      elif ('FTKRefit' in self.l2IDAlg):
@@ -185,10 +185,10 @@ class L2EFChain_Beamspot(L2EFChainDef):
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
            [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
         else: 
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
            teaddition = 'trkFTKRefit'
 
      else:

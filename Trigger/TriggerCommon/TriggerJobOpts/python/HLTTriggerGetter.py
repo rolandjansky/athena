@@ -138,7 +138,11 @@ class HLTSimulationGetter(Configured):
         if ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
             from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
             topSequence += xAODMaker__EventInfoCnvAlg()
-	        
+
+        # Schedule RoIBResult conversion from ByteStream
+        if jobproperties.Global.InputFormat() == 'bytestream':
+            from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
+            topSequence += RoIBResultByteStreamDecoderAlg()
 
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr

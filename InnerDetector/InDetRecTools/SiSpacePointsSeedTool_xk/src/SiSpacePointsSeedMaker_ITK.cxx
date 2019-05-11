@@ -32,40 +32,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
 }
 
 ///////////////////////////////////////////////////////////////////
-// Destructor  
-///////////////////////////////////////////////////////////////////
-
-InDet::SiSpacePointsSeedMaker_ITK::~SiSpacePointsSeedMaker_ITK()
-{
-  delete [] m_r_index ;
-  delete [] m_r_map   ;
-  delete [] m_r_Sorted;
-
-  // Delete seeds
-  //
-  for (InDet::SiSpacePointsProSeedITK* seed: m_l_seeds) {
-    delete seed;
-  }
-  // Delete space points for reconstruction
-  //
-  for (InDet::SiSpacePointForSeedITK* spforseed: m_l_spforseed) {
-    delete spforseed;
-  }
-  delete m_seedOutput;
-
-  delete [] m_SP;
-  delete [] m_R ;
-  delete [] m_X ;
-  delete [] m_Y ;
-  delete [] m_Tz;
-  delete [] m_Er;
-  delete [] m_U ;
-  delete [] m_V ;
-  delete [] m_Zo;
-  delete [] m_OneSeeds;
-}
-
-///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
@@ -401,7 +367,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv
   
   if (newv || !m_state || m_nspoint!=2 || m_mode!=mode || m_nlist) {
 
-    m_i_seede   = m_l_seeds.begin();
+    m_i_seede = m_l_seeds.begin();
     m_state   = 1   ;
     m_nspoint = 2   ;
     m_nlist   = 0   ;
@@ -412,7 +378,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv
     m_zMin    = 0   ;
     production2Sp ();
   }
-  m_i_seed  = m_l_seeds.begin();
+  m_i_seed = m_l_seeds.begin();
   
   if (m_outputlevel<=0) {
     m_nprint=1;
@@ -435,7 +401,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
   bool newv = newVertices(lv);
 
   if (newv || !m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
-    m_i_seede   = m_l_seeds.begin() ;
+    m_i_seede = m_l_seeds.begin();
     m_state   = 1               ;
     m_nspoint = 3               ;
     m_nlist   = 0               ;
@@ -446,8 +412,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
     m_zMin    = 0               ;
     production3Sp();
   }
-  m_i_seed  = m_l_seeds.begin();
-  m_seed  = m_seeds.begin();
+  m_i_seed = m_l_seeds.begin();
+  m_seed = m_seeds.begin();
 
   if (m_outputlevel<=0) {
     m_nprint=1;
@@ -471,7 +437,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
   bool newv = newVertices(lv);
 
   if (newv || !m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
-    m_i_seede   = m_l_seeds.begin() ;
+    m_i_seede = m_l_seeds.begin();
     m_state   = 1               ;
     m_nspoint = 3               ;
     m_nlist   = 0               ;
@@ -482,8 +448,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::find3Sp(const std::list<Trk::Vertex>& lv
     m_zMin    = 0               ;
     production3Sp();
   }
-  m_i_seed  = m_l_seeds.begin();
-  m_seed  = m_seeds.begin();
+  m_i_seed = m_l_seeds.begin();
+  m_seed = m_seeds.begin();
 
   if (m_outputlevel<=0) {
     m_nprint=1;
@@ -508,7 +474,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::findVSp (const std::list<Trk::Vertex>& l
   
   if (newv || !m_state || m_nspoint!=4 || m_mode!=mode || m_nlist) {
 
-    m_i_seede   = m_l_seeds.begin() ;
+    m_i_seede = m_l_seeds.begin();
     m_state   = 1               ;
     m_nspoint = 4               ;
     m_nlist   = 0               ;
@@ -519,8 +485,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::findVSp (const std::list<Trk::Vertex>& l
     m_zMin    = 0               ;
     production3Sp();
   }
-  m_i_seed  = m_l_seeds.begin();
-  m_seed  = m_seeds.begin();
+  m_i_seed = m_l_seeds.begin();
+  m_seed = m_seeds.begin();
 
   if (m_outputlevel<=0) {
     m_nprint=1;
@@ -747,8 +713,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::findNext ()
   else if (m_mode==2 || m_mode==3) production3Sp ();
   else if (m_mode==5 || m_mode==6) production3Sp ();
 
-  m_i_seed  = m_l_seeds.begin();
-  m_seed  = m_seeds.begin();
+  m_i_seed = m_l_seeds.begin();
+  m_seed = m_seeds.begin();
   ++m_nlist;
 }                       
 
@@ -808,20 +774,16 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   // Build radius sorted containers
   //
   m_r_size = static_cast<int>((m_r_rmax+.1)/m_r_rstep);
-  m_r_Sorted = new std::list<InDet::SiSpacePointForSeedITK*>[m_r_size];
-  m_r_index  = new int[m_r_size];
-  m_r_map    = new int[m_r_size];
+  m_r_Sorted.resize(m_r_size);
+  m_r_index.resize(m_r_size, 0);
+  m_r_map.resize(m_r_size, 0);
   m_nr = 0;
-  for (int i=0; i!=m_r_size; ++i) {
-    m_r_index[i]=0;
-    m_r_map[i]=0;
-  }
 
   // Build radius-azimuthal sorted containers
   //
-  const float pi2     = 2.*M_PI            ;
-  const int   NFmax    = 53                ;
-  const float sFmax   = static_cast<float>(NFmax )/pi2;
+  constexpr float pi2 = 2.*M_PI;
+  const int   NFmax = SizeRF;
+  const float sFmax = static_cast<float>(NFmax)/pi2;
   const float sFmin = 100./60.          ;
 
   float ptm = 400.;
@@ -837,21 +799,21 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   // Build radius-azimuthal-Z sorted containers
   //
   m_nrfz  = 0;
-  for (int i=0; i!=583; ++i) {
+  for (int i=0; i<SizeRFZ; ++i) {
     m_rfz_index [i]=0;
     m_rfz_map [i]=0;
   }
 
   // Build radius-azimuthal-Z sorted containers for Z-vertices
   //
-  const int   NFtmax  = 100               ;
+  const int   NFtmax = SizeRFV;
   const float sFvmax = static_cast<float>(NFtmax)/pi2;
   m_sFv       = m_ptmin/120.;
   if (m_sFv>sFvmax)  m_sFv = sFvmax; 
   m_fvNmax    = static_cast<int>(pi2*m_sFv);
   if (m_fvNmax>=NFtmax) m_fvNmax = NFtmax-1;
   m_nrfzv = 0;
-  for (int i=0; i!=300; ++i) {
+  for (int i=0; i<SizeRFZV; ++i) {
     m_rfzv_index[i]=0;
     m_rfzv_map[i]=0;
   }
@@ -865,11 +827,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
     
     // For each azimuthal region loop through all Z regions
     //
-    for (int z=0; z!=11; ++z) {
+    for (int z=0; z<SizeZ; ++z) {
  
-      int a        = f *11+z;
-      int b        = fb*11+z;
-      int c        = ft*11+z;
+      int a        = f *SizeZ+z;
+      int b        = fb*SizeZ+z;
+      int c        = ft*SizeZ+z;
       m_rfz_b [a]    = 3; m_rfz_t [a]    = 3;
       m_rfz_ib[a][0] = a; m_rfz_it[a][0] = a;
       m_rfz_ib[a][1] = b; m_rfz_it[a][1] = b;
@@ -938,11 +900,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
     
     // For each azimuthal region loop through central Z regions
     //
-    for (int z=0; z!=3; ++z) {
+    for (int z=0; z<SizeZV; ++z) {
       
-      int a  = f *3+z;
-      int b  = fb*3+z;
-      int c  = ft*3+z;
+      int a  = f *SizeZV+z;
+      int b  = fb*SizeZV+z;
+      int c  = ft*SizeZV+z;
       m_rfzv_n[a]    = 3;
       m_rfzv_i[a][0] = a;
       m_rfzv_i[a][1] = b;
@@ -960,19 +922,17 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
       }
     }
   }
-  
-  if (!m_SP) m_SP   = new InDet::SiSpacePointForSeedITK*[m_maxsizeSP];
-  if (!m_R ) m_R    = new                          float[m_maxsizeSP];
-  if (!m_X ) m_X    = new                          float[m_maxsizeSP];
-  if (!m_Y ) m_Y    = new                          float[m_maxsizeSP];
-  if (!m_Tz) m_Tz   = new                          float[m_maxsizeSP];
-  if (!m_Er) m_Er   = new                          float[m_maxsizeSP];
-  if (!m_U ) m_U    = new                          float[m_maxsizeSP];
-  if (!m_V ) m_V    = new                          float[m_maxsizeSP];
-  if (!m_Zo) m_Zo   = new                          float[m_maxsizeSP];
-  if (!m_OneSeeds) m_OneSeeds  = new InDet::SiSpacePointsProSeedITK[m_maxOneSize];
 
-  if (!m_seedOutput) m_seedOutput = new InDet::SiSpacePointsSeed();
+  m_SP.resize(m_maxsizeSP, nullptr);
+  m_R.resize(m_maxsizeSP, 0.);
+  m_X.resize(m_maxsizeSP, 0.);
+  m_Y.resize(m_maxsizeSP, 0.);
+  m_Tz.resize(m_maxsizeSP, 0.);
+  m_Er.resize(m_maxsizeSP, 0.);
+  m_U.resize(m_maxsizeSP, 0.);
+  m_V.resize(m_maxsizeSP, 0.);
+  m_Zo.resize(m_maxsizeSP, 0.);
+  m_OneSeeds.resize(m_maxOneSize);
 
   m_i_seed  = m_l_seeds.begin();
   m_i_seede = m_l_seeds.end  ();
@@ -1070,7 +1030,7 @@ void  InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork
 
 void InDet::SiSpacePointsSeedMaker_ITK::fillLists() 
 {
-  const float pi2 = 2.*M_PI;
+  constexpr float pi2 = 2.*M_PI;
   std::list<InDet::SiSpacePointForSeedITK*>::iterator r,re;
 
   int  ir0 =0;
@@ -1106,7 +1066,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
 	Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
       }
 
-      int n = f*11+z;
+      int n = f*SizeZ+z;
       ++m_nsaz;
       m_rfz_Sorted[n].push_back(*r);
       if (!m_rfz_map[n]++) m_rfz_index[m_nrfz++] = n;
@@ -1280,7 +1240,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp()
   if (m_nsaz<3) return;
   m_seeds.clear();
 
-  const int   ZI[11]= {5,6,7,8,9,10,4,3,2,1,0};
+  const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::list<InDet::SiSpacePointForSeedITK*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
@@ -1293,9 +1253,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp()
     int z = 0;
     if (!m_endlist) z = m_zMin;
 
-    for (; z!=11; ++z) {
+    for (; z<SizeZ; ++z) {
 
-      int a  = f *11+ZI[z];
+      int a  = f *SizeZ+ZI[z];
       if (!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
       for (int i=0; i!=m_rfz_b[a]; ++i) {
@@ -1768,7 +1728,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
   std::list<InDet::SiSpacePointForSeedITK*>::iterator r0=rb[0],r;
   if (!m_endlist) {r0 = m_rMin; m_endlist = true;}
 
-  const float pi = M_PI, pi2 = 2.*pi;
+  constexpr float pi2 = 2.*M_PI;
 
   float ipt2K = m_ipt2K   ;
   float ipt2C = m_ipt2C   ;
@@ -1920,7 +1880,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpTrigger
 	float y  = 1.;
 	float x  = 2.*B*R-A;
 	float df = fabs(atan2(ay*y-ax*x,ax*y+ay*x)-m_ftrig);
-	if (df > pi      ) df=pi2-df;
+	if (df > M_PI) df=pi2-df;
 	if (df > m_ftrigW) continue;
 	m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t]));
         m_SP[t]->setParam(Im);
@@ -1949,7 +1909,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeed
   if (m_nOneSeeds < m_maxOneSize) {
 
     m_OneSeeds[m_nOneSeeds].set(p1,p2,p3,z);
-    m_mapOneSeeds.insert(std::make_pair(q,m_OneSeeds+m_nOneSeeds));
+    m_mapOneSeeds.insert(std::make_pair(q, &(m_OneSeeds[m_nOneSeeds])));
     ++m_nOneSeeds;
   } else {
     std::multimap<float,InDet::SiSpacePointsProSeedITK*>::reverse_iterator 
@@ -2062,11 +2022,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds ()
     if (!s->setQuality(w)) continue;
     
     if (m_i_seede!=m_l_seeds.end()) {
-      s  = (*m_i_seede++);
+      s  = &(*m_i_seede++);
       *s = *(*l).second;
     } else {
-      s = new SiSpacePointsProSeedITK(*(*l).second);
-      m_l_seeds.push_back(s);
+      m_l_seeds.push_back(SiSpacePointsProSeedITK(*(*l).second));
+      s = &(m_l_seeds.back());
       m_i_seede = m_l_seeds.end();
     }
     
@@ -2088,15 +2048,15 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ITK::next()
         if (m_i_seed==m_i_seede) return nullptr;
       }
       ++m_i_seed;
-    } while (!(*m_seed++).second->set3(*m_seedOutput));
-    return m_seedOutput;
+    } while (!(*m_seed++).second->set3(m_seedOutput));
+    return &m_seedOutput;
   } else {
     if (m_i_seed==m_i_seede) {
       findNext();
       if (m_i_seed==m_i_seede) return nullptr;
     } 
-    (*m_i_seed++)->set2(*m_seedOutput);
-    return m_seedOutput;
+    (*m_i_seed++).set2(m_seedOutput);
+    return &m_seedOutput;
   }
   return nullptr;
 }
@@ -2139,11 +2099,11 @@ InDet::SiSpacePointForSeedITK* InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint
   }
 
   if (m_i_spforseed!=m_l_spforseed.end()) {
-    sps = (*m_i_spforseed++);
+    sps = &(*m_i_spforseed++);
     sps->set(sp, r);
   } else {
-    sps = new InDet::SiSpacePointForSeedITK(sp, r);
-    m_l_spforseed.push_back(sps);
+    m_l_spforseed.push_back(InDet::SiSpacePointForSeedITK(sp, r));
+    sps = &(m_l_spforseed.back());
     m_i_spforseed = m_l_spforseed.end();
   }
       
@@ -2160,10 +2120,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::newSeed
   InDet::SiSpacePointForSeedITK* p3 = nullptr;
 
   if (m_i_seede!=m_l_seeds.end()) {
-    InDet::SiSpacePointsProSeedITK* s = (*m_i_seede++);
+    InDet::SiSpacePointsProSeedITK* s = &(*m_i_seede++);
     s->set(p1,p2,p3,z);
   } else {
-    m_l_seeds.push_back(new InDet::SiSpacePointsProSeedITK(p1,p2,p3,z));
+    m_l_seeds.push_back(InDet::SiSpacePointsProSeedITK(p1, p2, p3, z));
     m_i_seede = m_l_seeds.end();
   }
 }

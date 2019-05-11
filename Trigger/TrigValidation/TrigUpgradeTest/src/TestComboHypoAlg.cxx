@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -107,8 +107,8 @@ namespace HLTTest {
     }
     ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle2->size() <<" implicit "<<previousDecisionsHandle2.key()<<" for previous decisions of input 2");
     
-    auto recoInput1 = SG::makeHandle(m_recoInput1);
-    auto recoInput2 = SG::makeHandle(m_recoInput2);
+    auto recoInput1 = SG::makeHandle(m_recoInput1, context);
+    auto recoInput2 = SG::makeHandle(m_recoInput2, context);
 
     ATH_MSG_DEBUG( "and with "<< recoInput1->size() <<" reco1 inputs, and "<<recoInput2->size() <<" reco2 inputs");
     

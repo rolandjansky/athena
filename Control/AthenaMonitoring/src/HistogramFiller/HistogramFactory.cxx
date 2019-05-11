@@ -59,26 +59,57 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
 
 template<class H> 
 TH1* HistogramFactory::create1D(const HistogramDef& def) {
-  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
+  if ( def.xArray.size()!=0 ) {
+    return create<H,TH1>(def, def.xbins, &(def.xArray)[0]);
+  } else {
+    return create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
+  }
 }
 
 template<class H> 
 TH1* HistogramFactory::create1DProfile(const HistogramDef& def) {
-  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ymin, def.ymax);
+  if (def.xArray.size()!=0) {
+    return create<H,TH1>(def, def.xbins, &(def.xArray)[0],
+                              def.ymin, def.ymax);
+  } else {
+    return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ymin, def.ymax);
+  }
 }
 
 template<class H> 
 TH2* HistogramFactory::create2D(const HistogramDef& def) {
-  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ybins, def.ymin, def.ymax);
+  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.xArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, def.ymin, def.ymax);
+  } else {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
+                              def.ybins, def.ymin, def.ymax);
+  }
 }
 
 template<class H> 
 TH2* HistogramFactory::create2DProfile(const HistogramDef& def) {
-  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ybins, def.ymin, def.ymax, 
-                            def.zmin, def.zmax);
+  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.xArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, def.ymin, def.ymax);
+  } else {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ybins, def.ymin, def.ymax, 
+                              def.zmin, def.zmax);
+  }
 }
 
 TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {    

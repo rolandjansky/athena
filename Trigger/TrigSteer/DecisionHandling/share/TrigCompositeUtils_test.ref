@@ -41,7 +41,7 @@ el2 1042135810 1
 d3: TrigComposite_v1 name:''
   N Lnks:1
     Link Name:seed__COLL, Key:1042135810, Index:1, CLID:1333228823
-  N Decisions: '2
+  N Decisions:2
     95, 99, 
 d4: TrigComposite_v1 name:''
   N Lnks:1

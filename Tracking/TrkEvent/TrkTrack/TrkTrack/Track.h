@@ -67,9 +67,7 @@ namespace Trk
        friend class TrackSummaryTool;						     	    
        friend class TrackSlimmingTool;  					     	    
  
-
        Track (); //!<needed by POOL. DO NOT USE YOURSELF!			            
-
        /**									            
         * Full constructor							            
         *									            
@@ -101,7 +99,9 @@ namespace Trk
         * return fit quality. this pointer is NULL (==0) if no FitQuality	            
         * is assigned to the Track						            
         */									            
-       const FitQuality* fitQuality () const;					            
+       const FitQuality* fitQuality () const	{ 
+         return m_fitQuality;
+       }
 
        /**									            
         * return Perigee. this pointer is NULL (==0) if no perigee parameters	            
@@ -155,17 +155,29 @@ namespace Trk
         * The pointer will be NULL (==0) if the track was created without	            
         * TrackStateOnSurfaces. 						            
         */									            
-       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const;           
+       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const{
+         return m_trackStateVector;
+       }
+       /**									            
+        * returns the const info of the track for const tracks.           
+        */									            
+       const TrackInfo& info() const{
+         return m_trackInfo;
+       }
 
        /**									            
-        * returns the info of the track.           
+        * returns the info of the track for non-const tracks.           
         */									            
-       const TrackInfo& info() const;					            
+       TrackInfo& info() {
+         return m_trackInfo;
+       }
         											            
        /**									            
         * Returns  A pointer to the Trk::TrackSummary owned by this track (could be 0)     
         */									            
-       const Trk::TrackSummary* trackSummary() const;				            
+       const Trk::TrackSummary* trackSummary() const{
+         return m_trackSummary;
+       }
         	
        /**
         * reset all caches
@@ -282,19 +294,8 @@ namespace Trk
 
 }//end of namespace definitions
 
-inline const Trk::FitQuality* Trk::Track::fitQuality() const
-{
-    return m_fitQuality;
-}
-
-inline const Trk::TrackSummary* Trk::Track::trackSummary() const
-{
-    return m_trackSummary;
-}     
-
 inline const Trk::Perigee* Trk::Track::perigeeParameters() const
 {
-
     if(!m_perigeeParameters.isValid()){
     //findPerigee performs the setting of the parameters
     //i.e does the CachedValue set
@@ -302,16 +303,6 @@ inline const Trk::Perigee* Trk::Track::perigeeParameters() const
     }
     //Here the cached value type is a pointer 
     return *(m_perigeeParameters.ptr());
-}
-
-inline const DataVector<const Trk::TrackStateOnSurface>* Trk::Track::trackStateOnSurfaces() const
-{
-    return m_trackStateVector;
-}
-
-inline const Trk::TrackInfo& Trk::Track::info() const
-{
-    return m_trackInfo;
 }
 
 #endif

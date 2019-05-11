@@ -276,8 +276,7 @@ def addTC(name):
 for tc in decisionsNotPointingtoViews + ["EgammaCaloDecisions", "ElectronL2Decisions"]:
    addTC( tc )
 
-      
-   
+addTC("HLTSummary")
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
                         "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",

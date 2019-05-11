@@ -543,10 +543,10 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
       return ptrTrack;
     } else {
       // ok, done, create subtrack
-      const Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
+      Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
       if (!newTrack) {
-	ATH_MSG_DEBUG ("=> Failed to create subtrack");
-	return 0;
+        ATH_MSG_DEBUG ("=> Failed to create subtrack");
+        return 0;
       }
 	
       Trk::TrackInfo info;
@@ -567,7 +567,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
 
 //==========================================================================================
 
-const Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const
+Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const
 {
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsosit=tsos.begin();
   int nmeas=0;
@@ -595,7 +595,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std:
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  const Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
+  Trk::Track* newTrack = new Trk::Track(info, vecTsos,0);
   
   return newTrack;
 

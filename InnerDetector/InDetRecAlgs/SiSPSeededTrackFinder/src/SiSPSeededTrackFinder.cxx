@@ -25,8 +25,12 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
 StatusCode InDet::SiSPSeededTrackFinder::initialize() 
 {
   ATH_CHECK(m_evtKey.initialize());
-  ATH_CHECK(m_SpacePointsSCTKey.initialize());
-  ATH_CHECK(m_SpacePointsPixelKey.initialize());
+  if (not m_SpacePointsPixelKey.empty()) {
+    ATH_CHECK(m_SpacePointsPixelKey.initialize());
+  }
+  if (not m_SpacePointsSCTKey.empty()) {
+    ATH_CHECK(m_SpacePointsSCTKey.initialize());
+  }
   ATH_CHECK(m_outputTracksKey.initialize());
 
   // Get tool for space points seed maker
@@ -403,28 +407,32 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
   // Test total number pixels space points
   //
   unsigned int nsp = 0;
-  SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey};
-  if (not spacePointsPixel.isValid()) {
-    for (const SpacePointCollection* spc: *spacePointsPixel) {
-      nsp += spc->size();
-    }
-    if (static_cast<int>(nsp) > m_maxPIXsp) {
-      ATH_MSG_WARNING("Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding");
-      return false;
+  if (not m_SpacePointsPixelKey.empty()) {
+    SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey};
+    if (not spacePointsPixel.isValid()) {
+      for (const SpacePointCollection* spc: *spacePointsPixel) {
+        nsp += spc->size();
+      }
+      if (static_cast<int>(nsp) > m_maxPIXsp) {
+        ATH_MSG_WARNING("Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding");
+        return false;
+      }
     }
   }
  
   // Test total number sct space points
   //
   nsp = 0;
-  SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey};
-  if (not spacePointsSCT.isValid()) {
-    for (const SpacePointCollection* spc: *spacePointsSCT) {
-      nsp += spc->size();
-    }
-    if (static_cast<int>(nsp) > m_maxSCTsp) {
-      ATH_MSG_WARNING("Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding");
-      return false;
+  if (not m_SpacePointsSCTKey.empty()) {
+    SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey};
+    if (not spacePointsSCT.isValid()) {
+      for (const SpacePointCollection* spc: *spacePointsSCT) {
+        nsp += spc->size();
+      }
+      if (static_cast<int>(nsp) > m_maxSCTsp) {
+        ATH_MSG_WARNING("Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding");
+        return false;
+      }
     }
   }
 

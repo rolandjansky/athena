@@ -717,6 +717,13 @@ namespace Trk
     }
   }
 
+  void
+  MaterialAllocator::createSpectrometerEntranceOnce() const {
+    std::call_once(m_spectrometerEntranceOnceFlag, [&](){
+      m_spectrometerEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("MuonSpectrometerEntrance");
+    });
+  }
+
   std::vector<const TrackStateOnSurface*>*
   MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters) const {
     // make sure the spectrometer entrance volume is available
@@ -726,8 +733,7 @@ namespace Trk
         m_messageHelper->printWarning(0);
         return 0;
       } else {
-        m_spectrometerEntrance = m_trackingGeometrySvc->trackingGeometry()->
-                                  trackingVolume("MuonSpectrometerEntrance");
+        createSpectrometerEntranceOnce();
       }
     }
 
@@ -2322,8 +2328,7 @@ namespace Trk
         m_messageHelper->printWarning(2);
         return;
       } else {
-        m_spectrometerEntrance = m_trackingGeometrySvc->trackingGeometry()->
-                                  trackingVolume("MuonSpectrometerEntrance");
+        createSpectrometerEntranceOnce();
       }
     }
 
