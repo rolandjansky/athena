@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -45,6 +45,10 @@ namespace CP
       ANA_MSG_ERROR ("selection and selectionNCuts properties need to be the same size");
       return StatusCode::FAILURE;
     }
+
+    // Total label
+    m_labels.push_back ("total");
+
     for (std::size_t iter = 0, end = m_selection.size(); iter != end; ++ iter)
     {
       const unsigned ncuts = m_selectionNCuts[iter];
@@ -61,6 +65,10 @@ namespace CP
       std::unique_ptr<ISelectionAccessor> accessor;
       ANA_CHECK (makeSelectionAccessor (m_selection[iter], accessor));
       m_accessors.push_back (std::make_pair (std::move (accessor), ncuts));
+      for (unsigned i = 1; i <= ncuts; i++)
+      {
+        m_labels.push_back (m_accessors.back().first->label() + std::to_string(i));
+      }
       m_allCutsNum += ncuts;
     }
 
@@ -87,6 +95,11 @@ namespace CP
           m_hist.insert (std::make_pair (sys, hist (name)));
           histIter = m_hist.find (sys);
           assert (histIter != m_hist.end());
+
+          for (unsigned i = 0; i < m_allCutsNum+1; i++)
+          {
+            histIter->second->GetXaxis()->SetBinLabel(i + 1, m_labels[i].c_str());
+          }
         }
 
         for (const xAOD::IParticle *particle : *input)

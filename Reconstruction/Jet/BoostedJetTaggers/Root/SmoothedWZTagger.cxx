@@ -28,8 +28,6 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   declareProperty( "Decoration",   m_decorationName="XX");
   declareProperty( "DecorateJet",  m_decorate=true);
 
-  declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
-  declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
   declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
 
   declareProperty( "MassCutLowFunc",      m_strMassCutLow="" , "");
@@ -100,8 +98,12 @@ StatusCode SmoothedWZTagger::initialize(){
       m_strNtrkCut=configReader.GetValue((m_wkpt+".NtrkCut").c_str() ,"");
     }
 
+    // get min and max jet pt
+    m_jetPtMin = configReader.GetValue("pTCutLow", 200.0);
+    m_jetPtMax = configReader.GetValue("pTCutHigh", 4000.0);
+
     // get the decoration name
-    m_decorationName = configReader.GetValue("DecorationName" ,"");
+    m_decorationName = configReader.GetValue("DecorationName" , "");
 
     // get the scale factor configuration
     m_calcSF = configReader.GetValue("CalcSF", false);
@@ -173,6 +175,8 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "truthLabelDecorationName: "<<m_truthLabelDecorationName );
     
   }
+  ATH_MSG_INFO( "  Pt cut low      : "<< m_jetPtMin );
+  ATH_MSG_INFO( "  Pt cut high     : "<< m_jetPtMax );
 
   //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
@@ -230,17 +234,22 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   m_accept.setCutResult( "ValidEtaRange"   , true);
   m_accept.setCutResult( "ValidJetContent" , true);
 
+  // counter for pt range warnings
+  const static int maxNWarn = 10;
+  static int nWarn = 0;
+
   // check basic kinematic selection
   if (std::fabs(jet.eta()) > m_jetEtaMax) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
   }
-  if (jet.pt() < m_jetPtMin) {
+  if (jet.pt()/1.e3 < m_jetPtMin) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeLow", false);
   }
-  if (jet.pt() > m_jetPtMax) {
-    ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
+  if (jet.pt()/1.e3 > m_jetPtMax) {
+    if(nWarn++ < maxNWarn) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
+    else ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
     m_accept.setCutResult("ValidPtRangeHigh", false);
   }
 
@@ -343,7 +352,7 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
             m_accept.setCutResult("PassNtrk",true);
         }
         else{
-	  m_accept.setCutResult("ValidJetContent", false);
+          m_accept.setCutResult("ValidJetContent", false);
         }
       }
       else{

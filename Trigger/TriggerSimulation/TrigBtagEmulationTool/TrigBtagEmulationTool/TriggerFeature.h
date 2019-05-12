@@ -100,6 +100,13 @@ namespace Trig {
     static constexpr double MV2C1070    = 0.58  ;
     static constexpr double MV2C1077    = 0.162 ;
     static constexpr double MV2C1085    = -0.494;
+
+    static constexpr double MV2C0040    = 0.973 ;
+    static constexpr double MV2C0050    = 0.939 ;
+    static constexpr double MV2C0060    = 0.835 ;
+    static constexpr double MV2C0070    = 0.588 ;
+    static constexpr double MV2C0077    = 0.192 ;
+    static constexpr double MV2C0085    = -0.402;
   };
 
   // *** ANTI-B-TAG

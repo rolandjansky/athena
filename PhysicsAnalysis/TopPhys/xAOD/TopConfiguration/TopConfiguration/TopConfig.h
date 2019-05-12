@@ -103,6 +103,10 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // List of branches to be removed
+  inline std::vector<std::string> filterBranches() const {return m_filterBranches;}
+  inline void setFilterBranches(const std::vector<std::string>& value) {if(!m_configFixed){m_filterBranches = value;}}
+
   // Generators name
   inline std::string getGenerators() const {return m_generators;}
   inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
@@ -188,6 +192,25 @@ class TopConfig final {
   {m_FakesMMDir = dir;}
   inline void setFakesMMDebug()
   {m_doFakesMMDebug = true;}
+
+  // Do fakes MM weight calculation using FakeBkgTools from IFF
+  inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
+
+  // Configurations for MM fake estimate using FakeBkgTools from IFF
+  inline std::string FakesMMConfigIFF() const {return m_FakesMMConfigIFF;}
+
+  // Debug mode for MM fake estimate using FakeBkgTools from IFF
+  inline bool FakesMMIFFDebug() const {return m_doFakesMMIFFDebug;}
+
+  // enables calculation of MM weights using FakeBkgTools from IFF
+  // only possible for data loose
+  // doing it on MC loose is explicitly forbidden
+  inline void setFakesMMWeightsCalculationIFF()
+  {m_doFakesMMWeightsIFF = true;}
+  inline void setFakesMMConfigIFF(const std::string& configIFF)
+  {m_FakesMMConfigIFF = configIFF;}
+  inline void setFakesMMIFFDebug()
+  {m_doFakesMMIFFDebug = true;} 
 
   // By default the top group does overlap removal on the tight lepton definitions
   // If you use this you are going off piste and need to report
@@ -506,12 +529,10 @@ class TopConfig final {
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
   inline virtual void largeRJESUncertaintyConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESUncertaintyConfig = largeR_config;}}
   inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESJMSConfig = largeR_config;}}
-  inline virtual void largeRtoptaggingConfigFile(const std::string& topTagging_config) {if(!m_configFixed){m_largeRtoptaggingConfigFile = topTagging_config;}}
   inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
   inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
   inline virtual const std::string& largeRJESUncertaintyConfig() const {return m_largeRJESUncertaintyConfig;}
   inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
-  inline virtual const std::string& largeRtoptaggingConfigFile() const {return m_largeRtoptaggingConfigFile;}
 
   inline virtual void trackJetPtcut(const float pt)    {if(!m_configFixed){m_trackJetPtcut = pt;}}
   inline virtual void trackJetEtacut(const float eta)  {if(!m_configFixed){m_trackJetEtacut = eta;}}
@@ -568,8 +589,14 @@ class TopConfig final {
   inline virtual void jetCalibSequence( const std::string& s ){if(!m_configFixed){m_jetCalibSequence = s;}}
   inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
 
+  inline virtual void jetStoreTruthLabels( bool b ){if(!m_configFixed){m_jetStoreTruthLabels = b;}}
+  inline virtual bool jetStoreTruthLabels() const {return m_jetStoreTruthLabels;}
+
   inline virtual void doJVTinMET( const bool& doJVT ){if(!m_configFixed){m_doJVTInMETCalculation = doJVT;}}
   inline virtual bool doJVTinMET() const {return m_doJVTInMETCalculation;}
+
+  inline const std::string& getJVTWP() const {return m_JVTWP;}
+  inline void  setJVTWP(const std::string& value) {m_JVTWP = value;}
 
   inline virtual float  JSF() const{return m_JSF;}
   inline virtual float bJSF() const{return m_bJSF;}
@@ -742,6 +769,8 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
+  
+  const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const { return m_chosen_boostedJetTaggers;}
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
   const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
@@ -904,6 +933,14 @@ class TopConfig final {
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
 
+  // Switch to use BadBatmanCleaning
+  inline bool useBadBatmanCleaning() const { return m_useBadBatmanCleaning; }
+  inline void setUseBadBatmanCleaning(const bool value) { m_useBadBatmanCleaning = value; }
+  inline unsigned int badBatmanCleaningMin() const { return m_badBatmanCleaningMin; }
+  inline void setBadBatmanCleaningMin(const unsigned int value) { m_badBatmanCleaningMin = value; }
+  inline unsigned int badBatmanCleaningMax() const { return m_badBatmanCleaningMax; }
+  inline void setBadBatmanCleaningMax(const unsigned int value) { m_badBatmanCleaningMax = value; }
+
   // Switch to use event-level jet cleaning tool for studies
   inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
   inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
@@ -995,6 +1032,7 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::vector<std::string> m_filterBranches;
   std::string m_generators;
   std::string m_AMITag;
   bool m_isPrimaryxAOD;
@@ -1009,6 +1047,13 @@ class TopConfig final {
   std::string m_FakesMMDir;
   // Debug mode?
   bool m_doFakesMMDebug;
+
+  // Do fakes MM weights calculation? - only for data loose
+  bool m_doFakesMMWeightsIFF;
+  // Configurations for MM fake estimate
+  std::string m_FakesMMConfigIFF;
+  // Debug mode?
+  bool m_doFakesMMIFFDebug;
 
   // By default the top group does overlap removal on
   // the tight lepton definitions.
@@ -1164,7 +1209,9 @@ class TopConfig final {
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple
   std::string m_jetCalibSequence; // GCC or JMS
+  bool m_jetStoreTruthLabels; // True or False
   bool m_doJVTInMETCalculation;
+  std::string m_JVTWP;
 
   // Large R jet configuration
   float m_largeRJetPtcut; // large R jet object selection pT cut
@@ -1172,7 +1219,6 @@ class TopConfig final {
   std::string m_largeRJESUncertaintyConfig; // large R jet JES uncertainty configuration file
   // see: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015PrerecLargeR
   std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
-  std::string m_largeRtoptaggingConfigFile;
 
   // Track jet configuration
   float m_trackJetPtcut; // track jet object selection pT cut
@@ -1284,6 +1330,9 @@ class TopConfig final {
   // Options for upgrade studies
   bool m_HLLHC;
   bool m_HLLHCFakes;
+
+  // Boosted jet taggers requested by user
+  std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1545,6 +1594,11 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
+
+  // Switch to use BadBatmanCleaning
+  bool m_useBadBatmanCleaning;
+  unsigned int m_badBatmanCleaningMin;
+  unsigned int m_badBatmanCleaningMax;
 
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;

@@ -146,7 +146,7 @@ HLT::RoICacheHistory::QuestionScope::QuestionScope()
 
 
 //-----------------------------------------------------------------------------
-HLT::RoICacheHistory::QuestionScope::~QuestionScope()
+HLT::RoICacheHistory::QuestionScope::~QuestionScope() noexcept(false)
 {
   if ( !m_start ) 
     return;

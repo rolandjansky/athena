@@ -4,6 +4,7 @@
   <namespace name="ORUtils" />
   <class name="ORUtils::IOverlapTool" />
   <class name="ORUtils::IOverlapRemovalTool" />
+  <class name="ORUtils::IParticleAssociator" />
   <class name="ORUtils::BaseOverlapTool" />
   <class name="ORUtils::OverlapRemovalTool" />
   <class name="ORUtils::DeltaROverlapTool" />
@@ -11,6 +12,7 @@
   <class name="ORUtils::EleJetOverlapTool" />
   <class name="ORUtils::EleMuSharedTrkOverlapTool" />
   <class name="ORUtils::MuJetOverlapTool" />
+  <class name="ORUtils::MuPFJetOverlapTool" />
   <class name="ORUtils::AltMuJetOverlapTool" />
   <class name="ORUtils::TauLooseEleOverlapTool" />
   <class name="ORUtils::TauLooseMuOverlapTool" />

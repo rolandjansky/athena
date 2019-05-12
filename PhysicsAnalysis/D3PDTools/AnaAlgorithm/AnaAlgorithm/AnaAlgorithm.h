@@ -1,3 +1,4 @@
+// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -11,15 +12,18 @@
 
 #include <AnaAlgorithm/Global.h>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <AsgTools/AsgMessaging.h>
 #include <AsgTools/SgTEvent.h>
+#include <AsgTools/SgTEventMeta.h>
 #include <memory>
 #include <vector>
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
 #include <AsgTools/MessageCheck.h>
+#include <StoreGate/StoreGateSvc.h>
 #include <GaudiKernel/IIncidentListener.h>
+#include <GaudiKernel/ServiceHandle.h>
 #endif
 
 class TH1;
@@ -27,7 +31,7 @@ class TH2;
 class TH3;
 class TTree;
 class ISvcLocator;
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 class Property;
 class PropertyMgr;
 #else
@@ -35,7 +39,7 @@ class PropertyMgr;
 
 namespace EL
 {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   class IWorker;
 #endif
 
@@ -70,7 +74,7 @@ namespace EL
   /// never tested for dual-use (or even in-athena compilation).
 
   class AnaAlgorithm
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     : public asg::AsgMessaging, public INamedInterface
 #else
     : public AthHistogramAlgorithm, virtual public IIncidentListener
@@ -106,7 +110,20 @@ namespace EL
     // services interface
     //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
+    /// Type of the metadata store pointer in standalone mode
+    typedef asg::SgTEventMeta* MetaStorePtr_t;
+#else
+    /// Type of the metadata store pointer in standalone mode
+    typedef ServiceHandle< StoreGateSvc >& MetaStorePtr_t;
+#endif // XAOD_STANDALONE
+
+    /// Accessor for the input metadata store
+    MetaStorePtr_t inputMetaStore() const;
+    /// Accessor for the output metadata store
+    MetaStorePtr_t outputMetaStore() const;
+
+#ifdef XAOD_STANDALONE
     /// \brief get the (main) event store for this algorithm
     ///
     /// \par Guarantee
@@ -253,7 +270,7 @@ namespace EL
     // properties interface
     //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief declare an algorithm property
     /// \par Guarantee
     ///   strong
@@ -365,7 +382,7 @@ namespace EL
     // framework interface
     //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief call \ref initialize
   public:
     ::StatusCode sysInitialize ();
@@ -456,7 +473,7 @@ namespace EL
 #endif
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     /// \brief receive the given incident
     /// \par Guarantee
     ///   basic
@@ -471,7 +488,7 @@ namespace EL
     // inherited interface
     //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   public:
     virtual const std::string& name () const final;
 #endif
@@ -482,31 +499,47 @@ namespace EL
     // private interface
     //
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the name of the algorithm
   private:
     std::string m_name;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the property manager
   private:
     std::unique_ptr<PropertyMgr> m_properties;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref evtStore
   private:
     asg::SgTEvent *m_evtStore = nullptr;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
+    /// Type of the metadata store variable in standalone mode
+    typedef asg::SgTEventMeta MetaStore_t;
+#else
+    /// Type of the metadata store variable in Athena
+    typedef ServiceHandle< StoreGateSvc > MetaStore_t;
+#endif // XAOD_STANDALONE
+
+    /// \brief Object accessing the input metadata store
+  private:
+    mutable MetaStore_t m_inputMetaStore;
+
+    /// \brief Object accessing the output metadata store
+  private:
+    mutable MetaStore_t m_outputMetaStore;
+
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref histogramWorker
   private:
     IHistogramWorker *m_histogramWorker = nullptr;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref treeWorker
   private:
     ITreeWorker *m_treeWorker = nullptr;
@@ -515,31 +548,31 @@ namespace EL
     std::string m_treeStreamName;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref filterWorker
   private:
     IFilterWorker *m_filterWorker = nullptr;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref wk
   private:
     IWorker *m_wk = nullptr;
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasFileExecute
   private:
     bool m_hasFileExecute {false};
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
 #endif
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     /// \brief a list of objects to clean up when releasing the
     /// algorithm
   private:

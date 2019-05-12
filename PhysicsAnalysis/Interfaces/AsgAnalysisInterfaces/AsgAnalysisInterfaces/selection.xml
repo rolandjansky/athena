@@ -5,4 +5,7 @@
   <class name="CP::IPileupReweightingTool" />
   <class name="IGoodRunsListSelectionTool" />
   <class name="IObservableTool" />
+  <class name="CP::IFakeBkgTool" />
+  <class name="CP::ILinearFakeBkgTool" />
+  <class name="CP::IFakeBkgSystDescriptor" />
 </lcgdict>

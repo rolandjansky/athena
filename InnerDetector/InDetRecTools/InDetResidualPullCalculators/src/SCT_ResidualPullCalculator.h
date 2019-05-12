@@ -54,6 +54,9 @@ public:
         const Trk::ResidualPull::ResidualType resType,
         const Trk::TrackState::MeasurementType) const;
 
+      // this prevents the compiler warning about hiding functions
+      using IResidualPullCalculator::residualPull;
+
     /** This function is a light-weight version of the function above, designed for track fitters
      * where speed is critical. The user has to provide a std::vector of size 5, which gets
      * filled with the residuals. If the size of the vector is not 5, it will be resized

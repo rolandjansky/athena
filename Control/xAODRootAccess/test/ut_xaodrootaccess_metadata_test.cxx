@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -12,6 +12,7 @@
 #include <TTree.h>
 
 // EDM that the package uses anyway:
+#include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "xAODCore/AuxContainerBase.h"
@@ -72,6 +73,10 @@ int main() {
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
    Info( APP_NAME, "Opened file: %s", FNAME.c_str() );
+
+   // Make sure that event data is not accessible at this point.
+   const SG::AuxElement* ei = nullptr;
+   SIMPLE_ASSERT( event.retrieve( ei, "EventInfo" ).isSuccess() == false );
 
    // Try to retrieve some objects:
    const SG::AuxVectorBase* v = 0;

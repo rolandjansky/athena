@@ -19,13 +19,13 @@
 #include <TH3.h>
 #include <stdexcept>
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include <AnaAlgorithm/IFilterWorker.h>
 #include <AnaAlgorithm/IHistogramWorker.h>
 #include <AnaAlgorithm/ITreeWorker.h>
 #endif
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include <GaudiKernel/IIncidentSvc.h>
 #include <GaudiKernel/ServiceHandle.h>
 #endif
@@ -39,19 +39,23 @@ namespace EL
   AnaAlgorithm ::
   AnaAlgorithm (const std::string& name, 
                 ISvcLocator*
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
                 pSvcLocator
 #endif
                 )
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     : AsgMessaging (name)
     , m_name (name)
     , m_properties (new PropertyMgr)
+    , m_inputMetaStore  (asg::SgTEventMeta::InputStore, nullptr)
+    , m_outputMetaStore (asg::SgTEventMeta::OutputStore, nullptr)
 #else
     : AthHistogramAlgorithm (name, pSvcLocator)
+    , m_inputMetaStore  ("StoreGateSvc/InputMetaDataStore", name)
+    , m_outputMetaStore ("StoreGateSvc/MetaDataStore", name)
 #endif
   {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     msg().declarePropertyFor (*this);
     declareProperty ("RootStreamName", m_treeStreamName = "ANALYSIS",
                      "Name of the stream to put trees into");
@@ -68,7 +72,29 @@ namespace EL
 
 
 
-#ifdef ROOTCORE
+  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::inputMetaStore() const
+  {
+#ifdef XAOD_STANDALONE
+     return &m_inputMetaStore;
+#else
+     return m_inputMetaStore;
+#endif // XAOD_STANDALONE
+  }
+
+
+
+  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::outputMetaStore() const
+  {
+#ifdef XAOD_STANDALONE
+     return &m_outputMetaStore;
+#else
+     return m_outputMetaStore;
+#endif // XAOD_STANDALONE
+  }
+
+
+
+#ifdef XAOD_STANDALONE
   asg::SgTEvent *AnaAlgorithm ::
   evtStore () const
   {
@@ -197,7 +223,7 @@ namespace EL
   StatusCode AnaAlgorithm ::
   requestFileExecute ()
   {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     m_hasFileExecute = true;
     return StatusCode::SUCCESS;
 #else
@@ -211,7 +237,7 @@ namespace EL
   StatusCode AnaAlgorithm ::
   requestBeginInputFile ()
   {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     m_hasBeginInputFile = true;
 #else
     // Connect to the IncidentSvc:
@@ -274,7 +300,7 @@ namespace EL
 
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   ::StatusCode AnaAlgorithm ::
   sysInitialize ()
   {
@@ -339,6 +365,10 @@ namespace EL
     if (m_evtStore)
       throw std::logic_error ("set evtStore twice on algorithm " + name());
     m_evtStore = val_evtStore;
+    m_inputMetaStore = asg::SgTEventMeta (asg::SgTEventMeta::InputStore,
+                                          val_evtStore->event());
+    m_outputMetaStore = asg::SgTEventMeta (asg::SgTEventMeta::OutputStore,
+                                           val_evtStore->event());
   }
 
 
@@ -418,7 +448,7 @@ namespace EL
 
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   void AnaAlgorithm ::
   handle (const Incident& inc)
   {

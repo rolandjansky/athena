@@ -16,6 +16,8 @@ class BTagJetAugmenter
 public:
   typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
   BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
+  ~BTagJetAugmenter();
+  BTagJetAugmenter(BTagJetAugmenter&&);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 private:

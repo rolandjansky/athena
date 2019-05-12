@@ -5,6 +5,8 @@
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
@@ -29,7 +31,11 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     // get the graph
-    std::ifstream input_stream(nn_file_name);
+    std::string nn_path = PathResolverFindCalibFile(nn_file_name);
+    if (nn_path.size() == 0) {
+      throw std::runtime_error("no file found at '" + nn_file_name + "'");
+    }
+    std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
 
     // __________________________________________________________________
@@ -37,7 +43,7 @@ namespace FlavorTagDiscriminants {
     //
 
     // type and default value-finding regexes are hardcoded for now
-    // TODO: these will have to be updated with the new schema.
+    // TODO: these are all deprecated now.
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
       {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
@@ -46,15 +52,35 @@ namespace FlavorTagDiscriminants {
       {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
       {".*_isDefaults"_r, EDMType::UCHAR},
       {"(JetFitter_|SV1_).*|secondaryVtx_L.*"_r, EDMType::FLOAT},
+      {"(softMuon_).*"_r, EDMType::FLOAT},
       };
+
+    // the new versions of DL1 need some modification
+    if (schema == EDMSchema::FEB_2019) {
+      type_regexes = {
+        {".*_isDefaults"_r, EDMType::UCHAR},
+        {"(IP[23]D_|SV[12]_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
+        {"(rnnip|iprnn)_p(b|c|u|tau)"_r, EDMType::DOUBLE}, // TODO: to float
+        {"(minimum|maximum|average)TrackRelativeEta"_r, EDMType::FLOAT},
+        {"(JetFitter|SV1|JetFitterSecondaryVertex)_[Nn].*"_r, EDMType::INT},
+        {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
+        {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
+        {"softMuon_.*"_r, EDMType::FLOAT},
+      };
+    }
+
     StringRegexes default_flag_regexes{
       {"IP2D_.*"_r, "IP2D_isDefaults"},
       {"IP3D_.*"_r, "IP3D_isDefaults"},
       {"SV1_.*"_r, "SV1_isDefaults"},
       {"JetFitter_.*"_r, "JetFitter_isDefaults"},
-      {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"},
-      {".*_trk_flightDirRelEta"_r, ""},
+      {"secondaryVtx_.*"_r, "secondaryVtx_isDefaults"}, // depreciated
+      {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
+      {".*_trk_flightDirRelEta"_r, ""}, // deprecated
+      {".*TrackRelativeEta"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"iprnn_.*"_r, ""},
+      {"softMuon_.*"_r, "softMuon_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
     std::vector<DL2InputConfig> input_config;
@@ -88,6 +114,11 @@ namespace FlavorTagDiscriminants {
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
+    // We have a number of special naming conventions to sort and
+    // filter tracks. The track nodes should be named according to
+    //
+    // tracks_<selection>_<sort-order>
+    //
     SortRegexes trk_sort_regexes {
       {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
       {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},

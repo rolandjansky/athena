@@ -80,7 +80,7 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
   typedef SG::AuxElement::Decorator<double> ADD;
   typedef SG::AuxElement::Decorator<char> ADC;
   typedef SG::AuxElement::Decorator<int> ADI;
-  if (s == EDMSchema::FEB_2019) {
+  if (s != EDMSchema::WINTER_2018) {
     pt_uncalib = ADD("pt_btagJes");
     eta_uncalib = ADD("eta_btagJes");
     abs_eta_uncalib = ADD("absEta_btagJes");
@@ -93,9 +93,14 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
 
 }
 
+BTagJetAugmenter::~BTagJetAugmenter() = default;
+BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
+
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   pt_uncalib(btag) = uncalibrated_jet.pt();
   eta_uncalib(btag) = uncalibrated_jet.eta();
@@ -106,7 +111,9 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrat
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   if (ip2d_weightBOfTracks(btag).size() > 0) {
     ip2d_isDefaults(btag) = 0;

@@ -91,7 +91,7 @@ GoodRunsListSelectorTool::initialize()
 {
   ATH_MSG_DEBUG ("initialize() ");
 
-  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(outputLevel()));
+  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(msgLevel()));
 
   /// reset pass-through mode
   if (!m_goodrunslistVec.empty() || !m_blackrunslistVec.empty() || m_usecool)

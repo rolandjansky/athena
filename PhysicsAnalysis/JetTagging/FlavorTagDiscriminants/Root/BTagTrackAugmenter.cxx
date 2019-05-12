@@ -29,7 +29,7 @@ BTagTrackAugmenter::BTagTrackAugmenter(FlavorTagDiscriminants::EDMSchema s):
   using namespace FlavorTagDiscriminants;
   typedef SG::AuxElement::ConstAccessor<float> AEF;
   typedef SG::AuxElement::ConstAccessor<std::vector<float>> AEVF;
-  if (s == EDMSchema::FEB_2019) {
+  if (s != EDMSchema::WINTER_2018) {
     m_ip_d0 = AEF("btagIp_d0");
     m_ip_d0_sigma = AEF("btagIp_d0Uncertainty");
     m_ip_z0 = AEF("btagIp_z0SinTheta");
@@ -83,6 +83,9 @@ double BTagTrackAugmenter::d0Uncertainty(const xAOD::TrackParticle &track)
   return m_ip_d0_sigma(track);
 }
 double BTagTrackAugmenter::z0SinTheta(const xAOD::TrackParticle &track) const {
+  return m_ip_z0(track);
+}
+double BTagTrackAugmenter::z0SinThetaUncertainty(const xAOD::TrackParticle &track) const {
   return m_ip_z0(track);
 }
 

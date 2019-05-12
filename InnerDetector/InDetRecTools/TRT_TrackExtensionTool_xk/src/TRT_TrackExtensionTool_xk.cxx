@@ -225,7 +225,10 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::finalize()
 MsgStream& InDet::TRT_TrackExtensionTool_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)
+    return dumpEvent(out);
+  else
+    return dumpConditions(out);
 }
 
 

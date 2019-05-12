@@ -175,8 +175,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   // If we don't want isolation then we don't need the tool
   if (m_config->muonIsolationSF() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
+    // Add LowPt_ as prefix only if the muon quality is LowPt
     std::string muon_isolation = m_config->muonIsolationSF();
-    muon_isolation += "Iso";
+    muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") +muon_isolation+ "Iso";
+
     m_muonEfficiencyCorrectionsToolIso = 
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
@@ -185,9 +187,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   // Do we have isolation on our loose muons? If not no need for the tool...
   if (m_config->muonIsolationSFLoose() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
+    // Add LowPt_ as prefix only if the muon quality is LowPt
     // Note: now loose isolation
     std::string muon_isolation = m_config->muonIsolationSFLoose();
-    muon_isolation += "Iso";
+    muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") +muon_isolation+ "Iso";
     m_muonEfficiencyCorrectionsToolLooseIso =
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
                       muon_isolation);
@@ -217,7 +220,7 @@ StatusCode MuonCPTools::setupScaleFactors() {
 CP::IMuonSelectionTool*
 MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta) {
   std::map<std::string, int> muon_quality_map = {
-    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPtEfficiency", 5}};
+    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPt", 5}};
   int qual_int;
   try {
     qual_int = muon_quality_map.at(quality);
@@ -230,7 +233,7 @@ MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& 
                   " \n\t- Loose"
                   " \n\t- VeryLoose"
 		  " \n\t- HighPt"
-		  " \n\t- LowPtEfficiency");
+		  " \n\t- LowPt");
     throw;  // Re-throw
   }
 

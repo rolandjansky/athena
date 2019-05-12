@@ -1,7 +1,7 @@
 // for editors : this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_SMOOTHEDWZTAGGER_H_
@@ -47,10 +47,6 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     std::string m_configFile;
     std::string m_weightConfigPath;
 
-    // variables to be used for making selection
-    // float m_mass;
-    // float m_D2;
-
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;
@@ -84,7 +80,6 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     SG::AuxElement::Decorator<float>    m_dec_d2cut;
     SG::AuxElement::Decorator<float>    m_dec_ntrkcut;
     SG::AuxElement::Decorator<float> m_dec_weight;
-
 
 };
 

@@ -175,6 +175,7 @@ namespace CP {
             bool m_init;
             bool m_seperateSystBins;
             bool m_breakDownSyst;
+            bool m_applyKineDepSys;
             CP::MuonEfficiencyType m_Type;
     };
 

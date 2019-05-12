@@ -27,6 +27,7 @@ from BTagging.BTaggingConfiguration_IP2DNegTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcTag import *
 from BTagging.BTaggingConfiguration_IP2DTag import *
+from BTagging.BTaggingConfiguration_IP2DTrigHybridTag import *
 #from BTagging.BTaggingConfiguration_IP3DFlipTag import *
 from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DPosTag import *
@@ -35,6 +36,7 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
+from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
 from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
@@ -94,6 +96,7 @@ from BTagging.BTaggingConfiguration_MV1cFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c00Tag import *
 from BTagging.BTaggingConfiguration_MV2c00FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10Tag import *
+from BTagging.BTaggingConfiguration_MV2c10TrigHybridTag import *
 from BTagging.BTaggingConfiguration_MV2c10FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
@@ -115,6 +118,7 @@ from BTagging.BTaggingConfiguration_ExKtbbTag import *
 # MultivariateTagManager
 from BTagging.BTaggingConfiguration_MultivariateTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
+from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import *
 
 # DL1 tagger
 from BTagging.BTaggingConfiguration_DL1Tag import *
@@ -512,6 +516,11 @@ class Configuration:
           options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
+          # GhostTag not in the jetcol name given by jetAuthor
+          if ("GhostTag" in jetcol):
+              options.setdefault('JetCollectionName', jetcol.replace('GhostTag',''))
+          else:
+              options.setdefault('JetCollectionName', jetcol)
           options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
           options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
           options.setdefault('BTagSVName', self._OutputFilesSVname)
@@ -1347,7 +1356,13 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              if (JetCollection == "AntiKt4EMPFlow"):
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              else:
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              
               if not JetCollection in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]
           return btagtool

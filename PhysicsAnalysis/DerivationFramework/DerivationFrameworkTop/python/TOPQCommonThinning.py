@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ thinning
@@ -68,6 +68,21 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   #thinningTools.append(TOPQTPThinningTool)
   #print TOPQname+".py", TOPQname+"TPThinningTool: ", TOPQTPThinningTool
 
+
+  # All tracks (for TOPQ6)
+  if TOPQname == 'TOPQ6':
+    thinning_expression = "(InDetTrackParticles.pt > 0.1*GeV)"
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+    TOPQTPThinningTool = DerivationFramework__TrackParticleThinning( name                    = TOPQname + "TPThinningTool",
+                                                                     ThinningService         = TOPQThinningSvc,
+                                                                     SelectionString         = thinning_expression,
+                                                                     InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                     ApplyAnd                = False )
+    ToolSvc += TOPQTPThinningTool
+    thinningTools.append(TOPQTPThinningTool)
+    print TOPQname+".py", TOPQname+"TPThinningTool: ", TOPQTPThinningTool
+
+
   # Tracks associated to Muons
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/MuonTrackParticleThinning.cxx
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -136,15 +151,16 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   print TOPQname+".py", TOPQname+"JetTPThinningTool: ", TOPQJetTPThinningTool
   
   # Tracks associated to Large Jet AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-  TOPQLargeJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = TOPQname + "LargeJetTPThinningTool",
-                                                                              ThinningService         = TOPQThinningSvc,
-                                                                              JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                              SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV",
-                                                                              ApplyAnd                = False )
-  ToolSvc += TOPQLargeJetTPThinningTool
-  thinningTools.append(TOPQLargeJetTPThinningTool)
-  print TOPQname+".py", TOPQname+"LargeJetTPThinningTool: ", TOPQLargeJetTPThinningTool
+  if not TOPQname == 'TOPQ6':
+    TOPQLargeJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = TOPQname + "LargeJetTPThinningTool",
+                                                                                ThinningService         = TOPQThinningSvc,
+                                                                                JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV",
+                                                                                ApplyAnd                = False )
+    ToolSvc += TOPQLargeJetTPThinningTool
+    thinningTools.append(TOPQLargeJetTPThinningTool)
+    print TOPQname+".py", TOPQname+"LargeJetTPThinningTool: ", TOPQLargeJetTPThinningTool
   
   # Tracks associated to AntiKt4EMTopoJets btagged SV1
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__SV1TrackThinning
@@ -175,16 +191,18 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   print TOPQname+".py", TOPQname+"AK4CCThinningTool: ", TOPQAK4CCThinningTool
 
   # CaloCalTopoClusters to Large Jets AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-  from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-  TOPQLargeJetCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = TOPQname + "LargeJetCCThinningTool",
-                                                                           ThinningService         = TOPQThinningSvc,
-                                                                           SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                           TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                           SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
-                                                                           AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"] )
-  ToolSvc += TOPQLargeJetCCThinningTool
-  thinningTools.append(TOPQLargeJetCCThinningTool)
-  print TOPQname+".py", TOPQname+"LargeJetCCThinningTool: ", TOPQLargeJetCCThinningTool
+  # Apply this to all derivations but TOPQ6 as it does not contain large-R jets.
+  if not TOPQname == 'TOPQ6':
+    from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+    TOPQLargeJetCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = TOPQname + "LargeJetCCThinningTool",
+                                                                             ThinningService         = TOPQThinningSvc,
+                                                                             SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                                                             TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                             SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
+                                                                             AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"] )
+    ToolSvc += TOPQLargeJetCCThinningTool
+    thinningTools.append(TOPQLargeJetCCThinningTool)
+    print TOPQname+".py", TOPQname+"LargeJetCCThinningTool: ", TOPQLargeJetCCThinningTool
 
 
   #===============================

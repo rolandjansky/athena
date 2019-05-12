@@ -62,11 +62,11 @@ namespace met{
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
 
     StatusCode extractPFOHR(const xAOD::IParticle* obj,
-                            std::vector<const xAOD::IParticle*> hardObjs,
+                            std::vector<const xAOD::IParticle*> /*hardObjs*/,
                             std::vector<const xAOD::IParticle*>& pfolist,
                             const met::METAssociator::ConstitHolder& constits,
                             std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-                            float& UEcorr) const final {
+                            float& /*UEcorr*/) const final {
       // use the standard extractPFO method
       return this->METTauAssociator::extractPFO(obj, pfolist, constits, momenta);
     }

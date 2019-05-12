@@ -91,6 +91,7 @@ namespace met {
       m_GeV(1.0e3),
       m_softTermParam(met::Random),
       m_jerRun1(false),
+      m_jerForEMu(false),
       m_jetPtThr(-1.0),
       m_jetEtaThr(-1.0),
       m_significance(0.0),
@@ -119,12 +120,14 @@ namespace met {
       declareProperty("TreatPUJetsOld",       m_treatPUJetsOld= false        );
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
       declareProperty("ApplyBias",            m_applyBias     = false       );
+      declareProperty("DoJerForEMu",          m_jerForEMu     = false       );// run jet resolution for all electrons and muons
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("JetPtThr",             m_jetPtThr      = -1.0        );
       declareProperty("JetEtaThr",            m_jetEtaThr     = -1.0        );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
       declareProperty("JetResoAux",           m_JetResoAux            = "" ); // relative pT resolution in addition to normal JES
+      declareProperty("EMuResoAux",           m_EMuResoAux            = "" ); // aux string sets a bool for the leptons to run the jet resolation
       declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
       // properties to delete eventually
@@ -312,7 +315,7 @@ namespace met {
 	  const IParticle* obj(*el);
 	  float pt_reso=0.0, phi_reso=0.0;
 	  if(obj->type()==xAOD::Type::Muon){
-	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso));
+	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=4;
 	  }else if(obj->type()==xAOD::Type::Jet){
 
@@ -322,7 +325,7 @@ namespace met {
 	    ATH_CHECK(AddJet(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=1;
 	  }else if(obj->type()==xAOD::Type::Electron){
-	    AddElectron(obj, pt_reso, phi_reso);
+	    ATH_CHECK(AddElectron(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=3;
 	  }else if(obj->type()==xAOD::Type::Photon){
 	    AddPhoton(obj, pt_reso, phi_reso);
@@ -487,7 +490,7 @@ namespace met {
   //
   // Muon propagation of resolution
   //
-  StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
+  StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu){
     const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj));
 
     int dettype = 0;
@@ -509,13 +512,27 @@ namespace met {
     if(m_doPhiReso) phi_reso = muon->pt()*0.001;
     ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
 
+    // run the jet resolution for muons. for validation region extrapolation
+    bool DoEMuReso = false;
+    if(m_EMuResoAux!=""){
+      static SG::AuxElement::Accessor<bool> acc_EMReso(m_EMuResoAux);
+      DoEMuReso = acc_EMReso.isAvailable(*muon) ? acc_EMReso(*muon) : false;
+    }
+
+    if(m_jerForEMu || DoEMuReso){
+      bool treatPUJets = m_treatPUJets;
+      m_treatPUJets=false; //turn off pileup jet treatement for this electron
+      ATH_CHECK(AddJet(obj, pt_reso, phi_reso, avgmu));
+      m_treatPUJets = treatPUJets; // reset value
+    }
+
     return StatusCode::SUCCESS;
   }
 
   //
   // Electron propagation of resolution
   //
-  void METSignificance::AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
+  StatusCode METSignificance::AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu){
 
     const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj));
     const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
@@ -523,6 +540,20 @@ namespace met {
     if(m_doPhiReso) phi_reso = ele->pt()*0.004;
     ATH_MSG_VERBOSE("el: " << pt_reso << " " << ele->pt() << " " << ele->p4().Eta() << " " << ele->p4().Phi());
 
+    // run the jet resolution for muons. for validation region extrapolation
+    bool DoEMuReso = false;
+    if(m_EMuResoAux!=""){
+      static SG::AuxElement::Accessor<bool> acc_EMReso(m_EMuResoAux);
+      DoEMuReso = acc_EMReso.isAvailable(*ele) ? acc_EMReso(*ele) : false;
+    }
+
+    if(m_jerForEMu || DoEMuReso){
+      bool treatPUJets = m_treatPUJets;
+      m_treatPUJets=false; //turn off pileup jet treatement for this electron
+      ATH_CHECK(AddJet(obj, pt_reso, phi_reso, avgmu));
+      m_treatPUJets = treatPUJets; // reset value
+    }
+    return StatusCode::SUCCESS;
   }
 
   //

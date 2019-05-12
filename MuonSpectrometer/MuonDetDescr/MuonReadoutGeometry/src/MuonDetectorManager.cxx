@@ -157,16 +157,16 @@ MuonDetectorManager::~MuonDetectorManager() {
         }
 
   for (unsigned int i=0; i<MdtDetElMaxHash; ++i) {
-    if (m_mdtDEArray[i]) delete m_mdtDEArray[i]; m_mdtDEArray[i] = 0;
+    delete m_mdtDEArray[i]; m_mdtDEArray[i] = 0;
   }
   for (unsigned int i=0; i<RpcDetElMaxHash; ++i) {
-    if (m_rpcDEArray[i]) delete m_rpcDEArray[i]; m_rpcDEArray[i] = 0;
+    delete m_rpcDEArray[i]; m_rpcDEArray[i] = 0;
   }
   for (unsigned int i=0; i<CscDetElMaxHash; ++i) {
-    if (m_cscDEArray[i]) delete m_cscDEArray[i]; m_cscDEArray[i] = 0;
+    delete m_cscDEArray[i]; m_cscDEArray[i] = 0;
   }
   for (unsigned int i=0; i<TgcDetElMaxHash; ++i) {
-    if (m_tgcDEArray[i]) delete m_tgcDEArray[i]; m_tgcDEArray[i] = 0;
+    delete m_tgcDEArray[i]; m_tgcDEArray[i] = 0;
   }
   for (std::map< std::string, MuonStation * >::iterator i =
            m_MuonStationMap.begin(); i != m_MuonStationMap.end(); ++i)

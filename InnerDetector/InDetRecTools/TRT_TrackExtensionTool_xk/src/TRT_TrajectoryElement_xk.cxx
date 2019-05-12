@@ -506,7 +506,7 @@ const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
     (&(m_link[l].cluster()->detectorElement())->surface(m_link[l].cluster()->identify()));
   Trk::AtaStraightLine Tp(m_link[l].impact(),m_link[l].zlocal(),1.,1.,1.,*line);
   if(m_status==2)  return m_riomakerD->correct(*m_link[l].cluster(),Tp);
-                   return m_riomakerN->correct(*m_link[l].cluster(),Tp);
+  else             return m_riomakerN->correct(*m_link[l].cluster(),Tp);
 }
 
 ///////////////////////////////////////////////////////////////////

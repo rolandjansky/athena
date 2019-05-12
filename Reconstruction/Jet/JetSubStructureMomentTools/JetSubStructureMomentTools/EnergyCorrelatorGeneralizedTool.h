@@ -6,6 +6,7 @@
 #define jetsubstructuremomenttools_energycorrelatorgeneralizedtool_header
 
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
+#include "JetSubStructureMomentTools/ECFHelper.h"
 
 class EnergyCorrelatorGeneralizedTool :
   public JetSubStructureMomentToolsBase {
@@ -15,13 +16,17 @@ class EnergyCorrelatorGeneralizedTool :
       // Constructor and destructor
       EnergyCorrelatorGeneralizedTool(std::string name);
 
+      StatusCode initialize();
+
       int modifyJet(xAOD::Jet &injet) const;
 
     private:
       float m_Beta;
       bool m_doN3;
       bool m_doLSeries;
-};
+      std::vector<float> m_betaVals;
+      std::vector<float> betaVals; // Local vector for cleaned up inputs
 
+};
 
 #endif

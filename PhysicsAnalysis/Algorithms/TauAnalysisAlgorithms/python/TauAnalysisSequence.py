@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
@@ -79,7 +79,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
         ( selTool.getType(), selTool.getName() )
     seq.addPublicTool( selTool )
-    alg.efficiencyDecoration = 'tau_eff' + postfix
+    alg.scaleFactorDecoration = 'tau_effSF' + postfix
     # alg.outOfValidity = 2 #silent
     # alg.outOfValidityDeco = "bad_eff"
     seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.deriv.DAOD_JETM6.e3749_s3126_r9364_r9315_p3260/DAOD_JETM6.12133401._000005.pool.root.1";
+  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -161,7 +161,9 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
   //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
-  m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat");
+  m_Tagger.setProperty( "CalibArea",    "SmoothedWZTaggers/Rel21");
+  m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  //m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat");
   m_Tagger.retrieve();
 
   ////////////////////////////////////////////////////
@@ -192,8 +194,10 @@ int main( int argc, char* argv[] ) {
 
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
       const Root::TAccept& res = m_Tagger->tag( *jet );
+      if(verbose) std::cout<<"jet pt              = "<<jet->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"result d2pass       = "<<res.getCutResult("PassD2")<<std::endl;
+      if(verbose) std::cout<<"result ntrkpass     = "<<res.getCutResult("PassNtrk")<<std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
 

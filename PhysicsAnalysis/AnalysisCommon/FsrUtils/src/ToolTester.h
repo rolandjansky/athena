@@ -35,8 +35,10 @@ namespace FSR {
       virtual StatusCode execute();
 
    private:
-      /// StoreGate key for the muon container to investigate
-      std::string m_sgKey;
+      /// StoreGate keys for the muon, photon and electron containers to investigate
+      std::string m_sgMuonKey;
+      std::string m_sgPhotonKey;
+      std::string m_sgElectronKey;
 
       /// Connection to the fsr tool
       ToolHandle< IFsrPhotonTool > m_fsrTool;

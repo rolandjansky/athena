@@ -14,6 +14,7 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
 
@@ -79,13 +80,10 @@ namespace CP
   private:
     std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
-    /// \brief the decoration for the JVT efficiency
+    /// \brief the decoration for the JVT scale factor
   private:
-    std::string m_efficiency;
-
-    /// \brief the accessor for \ref m_efficiency
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_efficiencyAccessor;
+    SysDecorationHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the JVT efficiency scale factor"};
 
     /// \brief whether to skip efficiency calculation if the selection failed
   private:

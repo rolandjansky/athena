@@ -60,14 +60,14 @@
 namespace InDet
 {
 
-namespace {
-void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) {
-    if (IsToDelete) {
-      delete WhatToDelete;
-      WhatToDelete=0;
-    }
-  }
-}
+// namespace {
+// void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) {
+//     if (IsToDelete) {
+//       delete WhatToDelete;
+//       WhatToDelete=0;
+//     }
+//   }
+// }
 
 InDetAdaptivePriVxFinderTool::InDetAdaptivePriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p)
         : AthAlgTool(t,n,p),

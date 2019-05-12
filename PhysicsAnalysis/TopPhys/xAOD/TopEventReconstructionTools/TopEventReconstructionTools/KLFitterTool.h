@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: KLFitterTool.h 788027 2016-12-04 18:30:45Z aknue $
@@ -55,7 +55,10 @@ namespace top{
   
   /// Some additional enums
   namespace KLFitterJetSelection{
-    enum JetSelectionMode{ kLeadingThree ,  kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets};
+    enum JetSelectionMode{ kLeadingThree ,  kLeadingFour , kLeadingFive , kLeadingSix ,
+                           kLeadingSeven , kLeadingEight , kBtagPriorityThreeJets ,
+                           kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets ,
+                           kBtagPrioritySevenJets, kBtagPriorityEightJets};
   }
         
 
@@ -83,6 +86,7 @@ namespace top{
       bool  setJetskLeadingFive(const top::Event&,KLFitter::Particles* inputParticles);
       bool  setJetskLeadingSix(const top::Event&,KLFitter::Particles* inputParticles);
       bool  setJetskLeadingSeven(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingEight(const top::Event&,KLFitter::Particles* inputParticles);
 
       bool  setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int);
 
@@ -92,6 +96,7 @@ namespace top{
       bool  setJetskBtagPriorityFiveJets(const top::Event&,KLFitter::Particles* inputParticles);
       bool  setJetskBtagPrioritySixJets(const top::Event&,KLFitter::Particles* inputParticles);
       bool  setJetskBtagPrioritySevenJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPriorityEightJets(const top::Event&,KLFitter::Particles* inputParticles);
 
       bool  setJetskBtagPriority(const top::Event&,KLFitter::Particles* inputParticles,const unsigned int maxJets);
       
@@ -99,6 +104,7 @@ namespace top{
       std::shared_ptr<top::TopConfig> m_config;
       float m_massTop;   
       float m_bTagCutValue;
+      bool m_isWorkingPoint;
       bool findOption(std::vector<std::string> full_options, std::string option, std::string& op_value);
 
       // Tools and functions for btagging                                                                                                                                               

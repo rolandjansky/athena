@@ -300,7 +300,8 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   //Non-collision background & cosmics
   const bool useLLP = (LooseBadLLP == m_cutLevel); // LLP cleaning cannot use emf...
   const bool isTrigger = (LooseBadTrigger == m_cutLevel); // trigger cannot use chf
-  if (!useLLP) {
+  const bool useSuperLLP = (SuperLooseBadLLP == m_cutLevel); // other LLP cleaning...
+  if (!useLLP && !useSuperLLP) {
     if(!isTrigger && emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return m_accept;
     if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
   }
@@ -312,8 +313,10 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   // LLP cleaning uses negative energy cut
   // (https://indico.cern.ch/event/472320/contribution/8/attachments/1220731/1784456/JetTriggerMeeting_20160102.pdf)
   if (useLLP && std::fabs(negE*0.001)>4 && fmax >0.85) return m_accept;
-  
-  if (LooseBad==m_cutLevel || LooseBadLLP==m_cutLevel || LooseBadTrigger==m_cutLevel){
+  // another LLP cleaning cutting softer on negative energy
+  if (useSuperLLP && std::fabs(negE*0.001)>60) return m_accept;
+
+  if (LooseBad==m_cutLevel || LooseBadLLP==m_cutLevel || SuperLooseBadLLP==m_cutLevel || LooseBadTrigger==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept;
   }
@@ -430,6 +433,7 @@ bool JetCleaningTool::containsHotCells( const xAOD::Jet& jet, const unsigned int
 /** Helpers for cut names */
 JetCleaningTool::CleaningLevel JetCleaningTool::getCutLevel( const std::string s ) const
 {
+  if (s=="SuperLooseBadLLP") return SuperLooseBadLLP;
   if (s=="VeryLooseBadLLP") return VeryLooseBadLLP;
   if (s=="LooseBad")     return LooseBad;
   if (s=="LooseBadLLP")     return LooseBadLLP;
@@ -441,6 +445,7 @@ JetCleaningTool::CleaningLevel JetCleaningTool::getCutLevel( const std::string s
 
 std::string JetCleaningTool::getCutName( const CleaningLevel c) const
 {
+  if (c==SuperLooseBadLLP) return "SuperLooseBadLLP";
   if (c==VeryLooseBadLLP) return "VeryLooseBadLLP";
   if (c==LooseBad)     return "LooseBad";
   if (c==LooseBadLLP)     return "LooseBadLLP";

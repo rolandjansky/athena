@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # System import(s):
 import copy
@@ -7,6 +7,7 @@ import re
 
 # ATLAS import(s):
 from AnaAlgorithm.AlgSequence import AlgSequence
+from AnaAlgorithm.AnaAlgorithmMeta import AnaAlgorithmMeta
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 class AnaAlgSequence( AlgSequence ):
@@ -34,10 +35,7 @@ class AnaAlgSequence( AlgSequence ):
         super( AnaAlgSequence, self ).__init__( name )
 
         # Set up the sequence's member variables:
-        self._inputPropNames = []
-        self._outputPropNames = []
-        self._stageNames = []
-        self._affectingSystematics = []
+        self._algorithmMeta = []
         self._outputAffectingSystematics = None
 
         return
@@ -96,10 +94,7 @@ class AnaAlgSequence( AlgSequence ):
 
         # Make sure that all internal variables are of the same size:
         nAlgs = len( self )
-        if len( self._inputPropNames ) != nAlgs or \
-                len( self._outputPropNames ) != nAlgs or \
-                len( self._affectingSystematics ) != nAlgs or \
-                len( self._stageNames ) != nAlgs:
+        if len( self._algorithmMeta ) != nAlgs:
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
 
@@ -125,17 +120,15 @@ class AnaAlgSequence( AlgSequence ):
             pass
         tmpIndex = {}
         systematicsUsed = False
-        for alg, inName, outName, syst in zip( self, self._inputPropNames,
-                                               self._outputPropNames,
-                                               self._affectingSystematics ):
+        for alg, meta in zip( self, self._algorithmMeta ):
 
             # If there is no input defined for the algorithm (because it may
             # be a public tool), then skip doing anything with it:
-            if not inName:
+            if not meta.inputPropName:
                 continue
 
             # Set the input name(s):
-            for inputLabel, inputPropName in inName.iteritems():
+            for inputLabel, inputPropName in meta.inputPropName.iteritems():
                 if not inputLabel in currentInputs.keys():
                     continue
                 setattr( alg, inputPropName, currentInputs[ inputLabel ] )
@@ -147,7 +140,7 @@ class AnaAlgSequence( AlgSequence ):
                 pass
 
             # Set up the output name(s):
-            if outName:
+            if meta.outputPropName:
 
                 # Make a temporary deep copy of the affectingSystematics
                 # dictionary, which we'll be able to use in the following
@@ -157,7 +150,7 @@ class AnaAlgSequence( AlgSequence ):
                   copy.deepcopy( affectingSystematics )
 
                 # Loop over the outputs of the algorithm.
-                for outputLabel, outputPropName in outName.iteritems():
+                for outputLabel, outputPropName in meta.outputPropName.iteritems():
                     if outputLabel not in tmpIndex.keys():
                         tmpIndex[ outputLabel ] = 1
                         pass
@@ -186,7 +179,7 @@ class AnaAlgSequence( AlgSequence ):
 
                     # Assume that the variation on *all* of the inputs affect
                     # all of the outputs.
-                    for label in inName.keys():
+                    for label in meta.inputPropName.keys():
                         # Don't do a self-check.
                         if label == outputLabel:
                             continue
@@ -209,17 +202,17 @@ class AnaAlgSequence( AlgSequence ):
 
                     # And of course variations applied by this algorithm itself
                     # do affect all outputs.
-                    if syst and outputLabel in syst.keys():
+                    if meta.affectingSystematics and outputLabel in meta.affectingSystematics.keys():
                         affectingSystematics[ outputLabel ] += \
-                          '|%s' % syst[ outputLabel ]
+                          '|%s' % meta.affectingSystematics[ outputLabel ]
                         pass
 
                     pass
                 pass
 
             # Set up the systematic behaviour of the algorithm:
-            if syst:
-                alg.systematicsRegex = '|'.join( syst.values() )
+            if meta.affectingSystematics:
+                alg.systematicsRegex = '|'.join( meta.affectingSystematics.values() )
                 systematicsUsed = True
                 pass
 
@@ -239,8 +232,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set the output name(s) of the last algorithm (that provides output)
         # to the requested value:
         currentOutputs = copy.deepcopy( outputNameDict )
-        for alg, inName, outName in reversed( zip( self, self._inputPropNames,
-                                                   self._outputPropNames ) ):
+        for alg, meta in reversed( zip( self, self._algorithmMeta ) ):
 
             # Stop the loop if we're already done.
             if len( currentOutputs ) == 0:
@@ -248,8 +240,8 @@ class AnaAlgSequence( AlgSequence ):
 
             # If the algorithm has (an) output(s), set them up appropriately.
             # Remembering which "final" output still needs to be set.
-            if outName:
-                for outputLabel, outputKey in outName.iteritems():
+            if meta.outputPropName:
+                for outputLabel, outputKey in meta.outputPropName.iteritems():
                     if outputLabel in currentOutputs.keys():
                         setattr( alg, outputKey, currentOutputs[ outputLabel ] )
                         del currentOutputs[ outputLabel ]
@@ -259,7 +251,7 @@ class AnaAlgSequence( AlgSequence ):
 
             # Set up the input name(s) of the algorithm correctly, in case this
             # is needed...
-            for inputLabel, inputKey in inName.iteritems():
+            for inputLabel, inputKey in meta.inputPropName.iteritems():
                 if inputLabel in currentOutputs.keys():
                     setattr( alg, inputKey, currentOutputs[ inputLabel ] )
                     pass
@@ -292,39 +284,9 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        if not stageName in self.allowedStageNames() :
-            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
-
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
         self += alg
-        if isinstance( inputPropName, dict ):
-            self._inputPropNames.append( inputPropName )
-        else:
-            if inputPropName:
-                self._inputPropNames.append( { "default" : inputPropName } )
-            else:
-                self._inputPropNames.append( None )
-                pass
-            pass
-        if isinstance( outputPropName, dict ):
-            self._outputPropNames.append( outputPropName )
-        else:
-            if outputPropName:
-                self._outputPropNames.append( { "default" : outputPropName } )
-            else:
-                self._outputPropNames.append( None )
-                pass
-            pass
-        if isinstance( affectingSystematics, dict ):
-            self._affectingSystematics.append( affectingSystematics )
-        else:
-            if affectingSystematics:
-                self._affectingSystematics.append( { "default" :
-                                                     affectingSystematics } )
-            else:
-                self._affectingSystematics.append( None )
-                pass
-            pass
-        self._stageNames.append( stageName )
+        self._algorithmMeta.append( meta )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
@@ -349,43 +311,9 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        if not stageName in self.allowedStageNames() :
-            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
-
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
         super( AnaAlgSequence, self ).insert( index, alg )
-        if isinstance( inputPropName, dict ):
-            self._inputPropNames.insert( index, inputPropName )
-        else:
-            if inputPropName:
-                self._inputPropNames.insert( index,
-                                             { "default" : inputPropName } )
-            else:
-                self._inputPropNames.insert( index, None )
-                pass
-            pass
-        if isinstance( outputPropName, dict ):
-            self._outputPropNames.insert( index, outputPropName )
-        else:
-            if outputPropName:
-                self._outputPropNames.insert( index,
-                                              { "default" : outputPropName } )
-            else:
-                self._outputPropNames.insert( index, None )
-                pass
-            pass
-        if isinstance( affectingSystematics, dict ):
-            self._affectingSystematics.insert( index, affectingSystematics )
-        else:
-            if affectingSystematics:
-                self._affectingSystematics.insert( index,
-                                                   { "default" :
-                                                     affectingSystematics } )
-            else:
-                self._affectingSystematics.insert( index, None )
-                pass
-            pass
-        self._stageNames.insert( index, stageName )
-
+        self._algorithmMeta.insert( index, meta )
         return self
 
     def addPublicTool( self, tool ):
@@ -441,10 +369,7 @@ class AnaAlgSequence( AlgSequence ):
         super( AnaAlgSequence, self ).__delattr__( name )
 
         # Now remove the elements from the member lists of this class:
-        del self._inputPropNames[ algIndex ]
-        del self._outputPropNames[ algIndex ]
-        del self._affectingSystematics[ algIndex ]
-        del self._stageNames[ algIndex ]
+        del self._algorithmMeta[ algIndex ]
         pass
 
     def removeStage( self, stageName ):
@@ -460,8 +385,8 @@ class AnaAlgSequence( AlgSequence ):
         # safety check that we actually know the stages of all
         # algorithms
         if stageName != "undefined" :
-            for name in self._stageNames :
-                if name == "undefined" :
+            for meta in self._algorithmMeta :
+                if meta.stageName == "undefined" :
                     raise ValueError ("can not remove stages from an algorithm sequence if some algorithms belong to an undefined stage")
                 pass
             pass
@@ -472,13 +397,10 @@ class AnaAlgSequence( AlgSequence ):
             pass
         iter = 0
         while iter < len( self ):
-            if self._stageNames[iter] == stageName :
+            if self._algorithmMeta[iter].stageName == stageName :
                 super( AnaAlgSequence, self ).__delattr__( names[iter] )
                 del names[iter]
-                del self._inputPropNames[ iter ]
-                del self._outputPropNames[ iter ]
-                del self._affectingSystematics[ iter ]
-                del self._stageNames[ iter ]
+                del self._algorithmMeta[ iter ]
                 pass
             else :
                 iter = iter + 1
@@ -488,7 +410,7 @@ class AnaAlgSequence( AlgSequence ):
 
     @staticmethod
     def allowedStageNames():
-        return ["calibration", "selection", "efficiency", "undefined"]
+        return AnaAlgorithmMeta.allowedStageNames ()
 
     pass
 

@@ -183,9 +183,10 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
+    alg.scaleFactorDecoration = 'effSF' + postfix + '_%SYS%'
+    alg.scaleFactorDecorationRegex = '(^EL_EFF_Reco.*)'
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
-    alg.efficiencyDecoration = 'effCor' + postfix
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
           ROOT.PATCore.ParticleDataType.Fast
@@ -197,11 +198,8 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.outOfValidityDeco = 'bad_eff' + postfix
     if dataType != 'data':
         seq.append( alg, inputPropName = 'electrons',
-                    outputPropName = 'electronsOut',
-                    affectingSystematics = '(^EL_EFF_.*)',
+                    affectingSystematics = '(^EL_EFF_Reco.*)',
                     stageName = 'efficiency' )
-        selectionDecorNames.append( alg.outOfValidityDeco )
-        selectionDecorCount.append( 1 )
         pass
 
     # Set up an algorithm used for debugging the electron selection:

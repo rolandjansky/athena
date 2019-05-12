@@ -245,6 +245,8 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 
 	  }
     }
+    
+	  if(clusters.size() != 0) {    
 	    fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
 	     std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
      
@@ -370,11 +372,12 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 	    
 	  }// end of if useAdditional JSS
     
+	  }//end of check on cluster size
 	    
 	} // end rcjet loop
       } // //m_useJSS || m_useAdditionalJSS
 	
-	
+      
     } //if (!evtStore()->contains<xAOD::JetContainer>(m_OutputJetContainer)) 
 
     

@@ -1219,27 +1219,32 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
   // fix exit for outer layers
   const Trk::Surface* lpos =  CreateLastSurface(CaloCell_ID::TileBar2,0.,1.);
   const Trk::Surface* lneg =  CreateLastSurface(CaloCell_ID::TileBar2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn);
+  if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileBar2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileExt2,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileExt2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn); lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn);
+  lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileExt2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileGap2,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileGap2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn);
+  if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileGap2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileGap3,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileGap3,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn);
+  if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileGap3]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::HEC3,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::HEC3,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn);
+  if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::HEC3]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
 }

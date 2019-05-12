@@ -960,7 +960,7 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
       if (reLog().level() <= MSG::VERBOSE)
 	reLog() << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" creating deform-trasf as identity for tLayer, tube "<<tubelayer<<" "<<tube
 		<<" globalIndex = "<<0<<" pointer "<<(uintptr_t)transf<<endreq;
-	return *transf;
+      return *transf;
     }
   
    

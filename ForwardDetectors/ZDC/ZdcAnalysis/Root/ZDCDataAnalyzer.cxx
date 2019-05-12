@@ -8,10 +8,11 @@
 #include <sstream>
 
 ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
-				 const ZDCModuleFloatArray& peak2ndDerivMinSamples, 
-				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG, 
+				 const ZDCModuleFloatArray& peak2ndDerivMinSamples,
+				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
-				 bool forceLG) : 
+				 bool forceLG) :
+  m_msg (val_msg),
   m_nSample(nSample), m_deltaTSample(deltaTSample), m_preSampleIdx(preSampleIdx),
   m_fitFunction(fitFunction),
   m_forceLG(forceLG),
@@ -20,14 +21,13 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
   m_haveT0Calib(false),
   m_currentLB(-1),
   m_moduleMask(0),
-  m_moduleSum({{0, 0}}), 
-  m_moduleSumErrSq({{0, 0}}), 
+  m_moduleSum({{0, 0}}),
+  m_moduleSumErrSq({{0, 0}}),
   m_moduleSumPreSample({{0,0}}),
-  m_calibModuleSum({{0, 0}}), 
+  m_calibModuleSum({{0, 0}}),
   m_calibModuleSumErrSq({{0,0}}),
-  m_averageTime({{0, 0}}), 
-  m_fail({{false, false}}),
-  m_msg (val_msg)
+  m_averageTime({{0, 0}}),
+  m_fail({{false, false}})
 {
   m_moduleDisabled[0] = {{false, false, false, false}};
   m_moduleDisabled[1] = {{false, false, false, false}};
@@ -37,7 +37,7 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
 
   m_calibAmplitude[0] = {{0, 0, 0, 0}};
   m_calibAmplitude[1] = {{0, 0, 0, 0}};
-  
+
   m_calibTime[0] = {{0, 0, 0, 0}};
   m_calibTime[1] = {{0, 0, 0, 0}};
 
@@ -51,10 +51,10 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
   //
   m_HGGains[0] = {{10, 10, 10, 10}};
   m_HGGains[1] = {{10, 10, 10, 10}};
-  
+
   m_pedestals[0] = {{100, 100, 100, 100}};
   m_pedestals[1] = {{100, 100, 100, 100}};
-  
+
   // Default "calibrations"
   //
   m_currentECalibCoeff = {{{{1, 1, 1, 1}}, {{1, 1, 1, 1}}}};
@@ -68,10 +68,10 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
     for (size_t module : {0, 1, 2, 3}) {
       std::ostringstream moduleTag;
       moduleTag << "_s" << side << "_m" << module;
-      
-      m_moduleAnalyzers[side][module].reset (new ZDCPulseAnalyzer(&msg(), moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx, 
-							    m_pedestals[side][module], m_HGGains[side][module], m_fitFunction, 
-							    peak2ndDerivMinSamples[side][module], 
+
+      m_moduleAnalyzers[side][module].reset (new ZDCPulseAnalyzer(&msg(), moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx,
+							    m_pedestals[side][module], m_HGGains[side][module], m_fitFunction,
+							    peak2ndDerivMinSamples[side][module],
 							    peak2ndDerivMinThresholdsHG[side][module],
                                                                   peak2ndDerivMinThresholdsLG[side][module]));
       if (m_forceLG) m_moduleAnalyzers[side][module]->SetForceLG(true);
@@ -86,7 +86,7 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSa
     ZDCPulseAnalyzer::SetQuietFits(true);
 }
 
-ZDCDataAnalyzer::~ZDCDataAnalyzer() 
+ZDCDataAnalyzer::~ZDCDataAnalyzer()
 {
 }
 
@@ -109,8 +109,10 @@ bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
 
 void ZDCDataAnalyzer::EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
 {
+  int delayedOrder = deltaT < 0 ? -1 : 1;
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
+      m_delayedOrder[side][module] = delayedOrder;
       m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(deltaT), undelayedDelayedPedestalDiff[side][module]);
     }
   }
@@ -123,7 +125,7 @@ void ZDCDataAnalyzer::EnableDelayed(const ZDCModuleFloatArray& delayDeltaTArray,
       if (delayDeltaTArray[side][module] < 0) m_delayedOrder[side][module] = -1;
       else m_delayedOrder[side][module] = 1;
 
-      ANA_MSG_DEBUG ("Enabling use of delayed samples on side, module = " << side << ", " << module << ", delta t = " 
+      ANA_MSG_DEBUG ("Enabling use of delayed samples on side, module = " << side << ", " << module << ", delta t = "
                      << delayDeltaTArray[side][module]);
 
       m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(delayDeltaTArray[side][module]), undelayedDelayedPedestalDiff[side][module]);
@@ -148,19 +150,19 @@ void ZDCDataAnalyzer::SetFitTimeMax(float tmax) {
   }
 }
 
-void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZDCModuleBoolArray& fixTau2, 
-				     const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2, 
+void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZDCModuleBoolArray& fixTau2,
+				     const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
 				     const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG)
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      m_moduleAnalyzers[side][module]->SetTauT0Values(fixTau1[side][module], fixTau2[side][module], 
+      m_moduleAnalyzers[side][module]->SetTauT0Values(fixTau1[side][module], fixTau2[side][module],
 						     tau1[side][module], tau2[side][module], t0HG[side][module], t0LG[side][module]);
     }
   }
 }
 
-void ZDCDataAnalyzer::SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC, 
+void ZDCDataAnalyzer::SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC,
 						const ZDCModuleFloatArray& LGOverflowADC)
 {
   for (size_t side : {0, 1}) {
@@ -171,13 +173,13 @@ void ZDCDataAnalyzer::SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOve
 }
 
 void ZDCDataAnalyzer::SetCutValues(const ZDCModuleFloatArray& chisqDivAmpCutHG, const ZDCModuleFloatArray& chisqDivAmpCutLG,
-				   const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG, 
+				   const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG,
 				   const ZDCModuleFloatArray&  deltaT0MinLG, const ZDCModuleFloatArray& deltaT0MaxLG)
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
       m_moduleAnalyzers[side][module]->SetCutValues(chisqDivAmpCutHG[side][module], chisqDivAmpCutLG[side][module],
-						   deltaT0MinHG[side][module], deltaT0MaxHG[side][module], 
+						   deltaT0MinHG[side][module], deltaT0MaxHG[side][module],
 						   deltaT0MinLG[side][module], deltaT0MaxLG[side][module]);
     }
   }
@@ -188,7 +190,7 @@ void ZDCDataAnalyzer::SetTimingCorrParams(const std::array<std::array<std::vecto
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      m_moduleAnalyzers[side][module]->SetTimingCorrParams(HGParamArr.at(side).at(module), LGParamArr.at(side).at(module)); 
+      m_moduleAnalyzers[side][module]->SetTimingCorrParams(HGParamArr.at(side).at(module), LGParamArr.at(side).at(module));
     }
   }
 
@@ -203,7 +205,7 @@ void ZDCDataAnalyzer::SetNonlinCorrParams(const std::array<std::array<std::vecto
   }
 }
 
-void ZDCDataAnalyzer::StartEvent(int lumiBlock) 
+void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 {
   ANA_MSG_DEBUG ("Starting new event, event index = " << m_eventCount);
 
@@ -219,8 +221,8 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 	for (size_t module : {0, 1, 2, 3}) {
 	  float splineLBMin = m_LBDepEcalibSplines[side][module]->GetXmin();
 	  float splineLBMax = m_LBDepEcalibSplines[side][module]->GetXmax();
-	  
-	  if (lumiBlock >= splineLBMin && lumiBlock <= splineLBMax) { 
+
+	  if (lumiBlock >= splineLBMin && lumiBlock <= splineLBMax) {
 	    m_currentECalibCoeff[side][module] = m_LBDepEcalibSplines[side][module]->Eval(lumiBlock);
 	  }
 	  else if (lumiBlock < splineLBMin) {
@@ -240,8 +242,8 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 	for (size_t module : {0, 1, 2, 3}) {
 	  float splineLBMin = m_T0HGOffsetSplines[side][module]->GetXmin();
 	  float splineLBMax = m_T0HGOffsetSplines[side][module]->GetXmax();
-	  
-	  if (lumiBlock >= splineLBMin && lumiBlock <= splineLBMax) { 
+
+	  if (lumiBlock >= splineLBMin && lumiBlock <= splineLBMax) {
 	    m_currentT0OffsetsHG[side][module] = m_T0HGOffsetSplines[side][module]->Eval(lumiBlock);
 	    m_currentT0OffsetsLG[side][module] = m_T0LGOffsetSplines[side][module]->Eval(lumiBlock);
 	  }
@@ -295,7 +297,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   }
 
   ANA_MSG_DEBUG ("/n Loading data for event index " << m_eventCount << ", side, module = " << side << ", " << module);
-    
+
   ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
   if (msgLvl (MSG::VERBOSE)) {
     for (size_t sample = 0; sample < HGSamples.size(); sample++) {
@@ -312,7 +314,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
     if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq()) {
       int moduleMaskBit = 4*side + module;
       m_moduleMask |= 1<< moduleMaskBit;
-      
+
       float amplitude = pulseAna_p->GetAmplitude();
       float ampError = pulseAna_p->GetAmpError();
 
@@ -360,13 +362,13 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   }
 
   if (m_delayedOrder[side][module] == 0) {
-    ANA_MSG_INFO ("Handling of delayed pulses not enabled, on side, module = " <<  side << ", " << module 
+    ANA_MSG_INFO ("Handling of delayed pulses not enabled, on side, module = " <<  side << ", " << module
                   << ", skipping processing for event index " << m_eventCount);
     return;
   }
 
   ANA_MSG_DEBUG ("Loading undelayed and delayed data for event index " << m_eventCount << ", side, module = " << side << ", " << module);
-    
+
   if (msgLvl (MSG::VERBOSE)) {
     ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
     for (size_t sample = 0; sample < HGSamples.size(); sample++) {
@@ -394,7 +396,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
     if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq()) {
       int moduleMaskBit = 4*side + module;
       m_moduleMask |= 1<< moduleMaskBit;
-      
+
       float amplitude = pulseAna_p->GetAmplitude();
       float ampError = pulseAna_p->GetAmpError();
 
@@ -439,10 +441,10 @@ bool ZDCDataAnalyzer::FinishEvent()
       if (!m_dataLoaded[side][module] && !m_moduleDisabled[side][module]) return false;
     }
 
-    // Divide the average times by the calibrated module sums  
+    // Divide the average times by the calibrated module sums
     //
     if (m_calibModuleSum[side] > 1e-6) {
-      m_averageTime[side] /= m_calibModuleSum[side]; 
+      m_averageTime[side] /= m_calibModuleSum[side];
     }
     else {
       m_averageTime[side] = 0;

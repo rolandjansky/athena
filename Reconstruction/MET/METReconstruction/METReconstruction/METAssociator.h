@@ -118,12 +118,12 @@ namespace met {
 				  const met::METAssociator::ConstitHolder& constits,
 				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
 
-    virtual StatusCode extractPFOHR(const xAOD::IParticle* obj,
-                                    std::vector<const xAOD::IParticle*> hardObjs,
-                                    std::vector<const xAOD::IParticle*>& pfolist,
-                                    const met::METAssociator::ConstitHolder& constits,
-                                    std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-                                    float& UEcorr) const
+    virtual StatusCode extractPFOHR(const xAOD::IParticle* /*obj*/,
+                                    std::vector<const xAOD::IParticle*> /*hardObjs*/,
+                                    std::vector<const xAOD::IParticle*>& /*pfolist*/,
+                                    const met::METAssociator::ConstitHolder& /*constits*/,
+                                    std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/,
+                                    float& /*UEcorr*/) const
     {return StatusCode::FAILURE;}
 
     StatusCode GetUEcorr(const met::METAssociator::ConstitHolder& constits,  

@@ -33,7 +33,7 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
     m_electronMediumEMSelector ("AsgElectronIsEMSelector/ElectronMediumEMSelector",this),
     m_electronLooseLHSelector ("AsgElectronLikelihoodTool/ElectronLooseLHSelector",this),
     m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this),
-    m_zdcAnalysisTool("ZdcAnalysisTool",this)
+    m_zdcAnalysisTool("ZDC::ZdcAnalysisTool/ZdcAnalysisTool",this)
     //m_photonLooseIsEMSelector ("AsgPhotonIsEMSelector/PhotonLooseEMSelector",this),
     //m_photonMediumIsEMSelector ("AsgPhotonIsEMSelector/PhotonMediumEMSelector",this)
     //m_isoTool("CP::IsolationSelectionTool/IsolationSelector",this);
@@ -87,6 +87,9 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("upc2016C",  upc2016C = false, "comment");
   declareProperty("upc2018",  upc2018 = false, "comment");
   declareProperty("mboverlay2016",  mboverlay2016 = false, "comment");
+  declareProperty("zdcConfig", zdcConfig = "PbPb2018", "argument to configure ZdcAnalysisTool");
+  declareProperty("doZdcCalib", doZdcCalib = false, "perform ZDC energy calibration");
+
   m_zdcAnalysisTool.declarePropertyFor (this, "zdcAnalysisTool");
   
   m_jetContainerNames.clear();
@@ -225,6 +228,9 @@ StatusCode ZdcNtuple :: initialize ()
       m_outputTree->Branch("zdc_ZdcModuleCalibTime",&t_ZdcModuleCalibTime,"zdc_ZdcModuleCalibTime[2][4]/F");
       m_outputTree->Branch("zdc_ZdcModuleBkgdMaxFraction",&t_ZdcModuleBkgdMaxFraction,"zdc_ZdcModuleBkgdMaxFraction[2][4]/F");
       m_outputTree->Branch("zdc_ZdcModuleAmpError",&t_ZdcModuleAmpError,"zdc_ZdcModuleAmpError[2][4]/F");
+      m_outputTree->Branch("zdc_ZdcModuleMinDeriv2nd",&t_ZdcModuleMinDeriv2nd,"zdc_ZdcModuleMinDeriv2nd[2][4]/F");
+      m_outputTree->Branch("zdc_ZdcModulePresample",&t_ZdcModulePresample,"zdc_ZdcModulePresample[2][4]/F");
+      m_outputTree->Branch("zdc_ZdcModulePreSampleAmp",&t_ZdcModulePreSampleAmp,"zdc_ZdcModulePreSamplemp[2][4]/F");
       
       if (!(zdcCalib||zdcLaser))
 	{
@@ -585,7 +591,7 @@ StatusCode ZdcNtuple :: initialize ()
   ANA_MSG_DEBUG("initialize: Initialize!");
 
   // Event
-  ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));  
+  //ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));   // Now 
 
   if (enableTrigger)
     {
@@ -815,17 +821,34 @@ StatusCode ZdcNtuple :: initialize ()
   //m_zdcRecTool = new ZDC::ZdcRecTool("ZdcRecTool");
   if (reprocZdc)
     {
-      m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
+
       m_zdcAnalysisTool.setProperty("FlipEMDelay",flipDelay);
       m_zdcAnalysisTool.setProperty("LowGainOnly",zdcLowGainOnly);
-      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
-      //m_zdcAnalysisTool.setProperty("T0",68);
+      m_zdcAnalysisTool.setProperty("DoCalib",doZdcCalib);
+      m_zdcAnalysisTool.setProperty("Configuration",zdcConfig);
       m_zdcAnalysisTool.setProperty("AuxSuffix",auxSuffix);
-      m_zdcAnalysisTool.setProperty("DoCalib",false);
+      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
+
+      if (zdcConfig=="PbPb2018")
+	{
+	  m_zdcAnalysisTool.setProperty("T0",68); 
+	  m_zdcAnalysisTool.setProperty("DoTrigEff",false); // for now
+	  m_zdcAnalysisTool.setProperty("DoTimeCalib",false); // for now
+	}
+      else if (zdcConfig=="pPb2016")
+	{
+	  m_zdcAnalysisTool.setProperty("Configuration","pPb2016");	  
+	}
+      else if (zdcConfig=="PbPb2015")
+	{
+	  m_zdcAnalysisTool.setProperty("Configuration","PbPb2015");
+	}
+
       if (flipDelay) 
 	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
       else
 	ANA_MSG_INFO("NO FLIP ZDC DELAY IN EM MODULES");
+
       ANA_CHECK(m_zdcAnalysisTool.initialize());
 
       /*
@@ -1073,7 +1096,8 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  t_ZdcModuleAmp[iside][imod]=0;t_ZdcModuleTime[iside][imod]=0;t_ZdcModuleStatus[iside][imod]=0;t_ZdcTrigEff[iside]=0;
 	  t_ZdcModuleCalibAmp[iside][imod]=0;t_ZdcModuleCalibTime[iside][imod]=0;t_ZdcModuleChisq[iside][imod]=0;t_ZdcModuleFitAmp[iside][imod]=0;
 	  t_ZdcModuleFitT0[iside][imod] =0;t_ZdcModuleBkgdMaxFraction[iside][imod]=0;t_ZdcModuleAmpError[iside][imod]=0;
-	}
+	  t_ZdcModuleMinDeriv2nd[iside][imod]=0;t_ZdcModulePresample[iside][imod]=0;t_ZdcModulePreSampleAmp[iside][imod]=0;
+	}    
     }
 
   t_ZdcModuleMask=0;
@@ -1129,8 +1153,9 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  t_ZdcModuleAmpError[iside][imod] = zdcMod->auxdataConst<float>("FitAmpError"+auxSuffix);
 	  t_ZdcModuleFitT0[iside][imod] = zdcMod->auxdataConst<float>("FitT0"+auxSuffix);
 	  t_ZdcModuleBkgdMaxFraction[iside][imod] = zdcMod->auxdataConst<float>("BkgdMaxFraction"+auxSuffix);
-	  
-	  
+	  t_ZdcModuleMinDeriv2nd[iside][imod] = zdcMod->auxdataConst<float>("MinDeriv2nd"+auxSuffix);
+	  t_ZdcModulePresample[iside][imod] = zdcMod->auxdataConst<float>("Presample"+auxSuffix);	  
+	  t_ZdcModulePreSampleAmp[iside][imod] = zdcMod->auxdataConst<float>("PreSampleAmp"+auxSuffix);	  
 	}
     }
   else

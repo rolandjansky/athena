@@ -253,11 +253,11 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       tfGirderMother = new GeoTransform(HepGeom::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*CLHEP::cm/2, 0.,
 						       (m_dbManager->TILBrmax()-rminb)*CLHEP::cm/2));
 
-      mother->add(tfGirderMother);
-      mother->add(pvGirderMother); 
+    mother->add(tfGirderMother);
+    mother->add(pvGirderMother); 
 
-      if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: GirderMother Ok "<< endreq;
+    if(m_log->level()<=MSG::DEBUG)
+      (*m_log) << MSG::DEBUG <<" _fillSection: GirderMother Ok "<< endreq;
 
   } // End Girder
 

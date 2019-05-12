@@ -48,13 +48,12 @@ namespace CP {
         if (is_up) syst_bit_map |= EffiCollection::UpVariation;
         /// Use a lambda function to assign the maps easily
         std::function< std::shared_ptr<EffiCollection::CollectionContainer>(CollectionType)>  make_variation = [this,&ref_tool, Nominal, syst_bit_map, syst](CollectionType type){
-                if (syst_bit_map & type) return std::make_shared<CollectionContainer>(ref_tool,
-                                                                                 Nominal->retrieveContainer(type).get(),
-                                                                                 syst,
-                                                                                 syst_bit_map);
-                if (syst_bit_map &(CollectionType::OwnFallBack|CollectionType::Central)){
-return m_central_eff;
-                }
+                if (syst_bit_map & type) {
+                    return std::make_shared<CollectionContainer>(ref_tool,
+                                                                 Nominal->retrieveContainer(type).get(),
+                                                                 syst, syst_bit_map);                                                                             }
+                /// Only the Z reconstruction analysis has different files for bulk / calo-tag / low-pt and forward eta
+                if (ref_tool.measurement() != MuonEfficiencyType::Reco) return m_central_eff;
                 return Nominal->retrieveContainer(type);
             };
         m_central_eff = make_variation(CollectionType::Central);
@@ -62,6 +61,8 @@ return m_central_eff;
         m_calo_eff = make_variation(CollectionType::Calo);
         m_lowpt_central_eff = make_variation(CollectionType::CentralLowPt);
         m_lowpt_calo_eff = make_variation(CollectionType::CaloLowPt);
+        
+        
     }
     
     std::shared_ptr<EffiCollection::CollectionContainer> EffiCollection::retrieveContainer(CollectionType Type) const {
