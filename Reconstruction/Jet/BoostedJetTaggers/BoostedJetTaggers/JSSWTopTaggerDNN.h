@@ -7,7 +7,6 @@
 #define JSSWTOPTAGGERDNN_H_
 
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-#include "BoostedJetTaggers/IJetTagger.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
 

@@ -43,7 +43,7 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "WeightFile",                m_weightFileName = "");
     declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
     declareProperty( "WeightFlavors",             m_weightFlavors = "");
-    declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "WTopContainmentTruthLabel");
+    declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "FatjetTruthLabel");
     declareProperty( "TruthJetContainerName",   m_truthJetContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
     declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
     declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
@@ -67,7 +67,11 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    if ( m_calibarea.compare("Local") == 0 ){
+      configPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/"+m_configFile).c_str());
+    } else {
+      configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    }
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
@@ -199,7 +203,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea.compare("Local")==0){
+  else if(m_calibarea_keras.compare("Local")==0){
     std::string localCalibArea = "${WorkDir_DIR}/data/BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
@@ -348,12 +352,12 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   float jet_weight=1.0;
   if( (jet_score > cut_score) && m_calcSF) {
-    SG::AuxElement::ConstAccessor<WTopLabel> WTopContainmentTruthLabel(m_truthLabelDecorationName);
+    SG::AuxElement::ConstAccessor<FatjetTruthLabel> FatjetTruthLabel(m_truthLabelDecorationName);
     try{
-      WTopContainmentTruthLabel(jet);
+      FatjetTruthLabel(jet);
       jet_weight = getWeight(jet);
     } catch (...) {
-      ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"WTopContainmentTruthLabel\" to your jet before calling tag(..)");
+      ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"FatjetTruthLabel\" to your jet before calling tag(..)");
     }
   }
 
@@ -414,18 +418,18 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
     if ( jet.pt() < 200e3 || fabs(jet.eta())>2.0 ) return 1.0;
 
     std::string truthLabelStr;
-    WTopLabel jetContainment=jet.auxdata<WTopLabel>(m_truthLabelDecorationName);
-    if( jetContainment==WTopLabel::t ){
+    FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
+    if( jetContainment==FatjetTruthLabel::t ){
       truthLabelStr="t_qqb";
-    }else if( jetContainment==WTopLabel::W || jetContainment==WTopLabel::Z){
-      truthLabelStr="W_qq";
+    }else if( jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::Z){
+      truthLabelStr="V_qq";
     }else{
       truthLabelStr="q";
     }
 
-    double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
-    //std::cout << "debug " << truthLabelStr << " " << jet.pt()*0.001 << " " << log10(jet.m()/jet.pt()) << std::endl;
-    int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log10(jet.m()/jet.pt()));
+    //double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
+    //SF for pT>1TeV is provided by overflow bin in the config histogram
+    int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
     double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
 
     if ( SF < 1e-3 ) return 1.0;

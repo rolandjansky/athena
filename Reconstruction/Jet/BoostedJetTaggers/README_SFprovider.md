@@ -9,39 +9,39 @@ Step 1: Decprate the truth labeling
 ===================
 
 SF is provided according to the jet truth labels.
-Truth labels are defined as enum in BoostedJetTaggers/JSSTaggerBase.h
+Truth labels are defined as enum in BoostedJetTaggers/FatjetTruthLabel.h
 ```
-enum class WTopLabel : int {t = 1, W = 2, Z = 3, b = 4, other = 5, notruth = 6, unknown = -1};
-const WTopLabel WTopLabel_types [] = {WTopLabel::t, WTopLabel::W, WTopLabel::Z, WTopLabel::b, WTopLabel::other, WTopLabel::notruth, WTopLabel::unknown};
+enum class FatjetTruthLabel : int {t = 1, W = 2, Z = 3, b = 4, other = 5, notruth = 6, unknown = -1};
+const FatjetTruthLabel FatjetTruthLabel_types [] = {FatjetTruthLabel::t, FatjetTruthLabel::W, FatjetTruthLabel::Z, FatjetTruthLabel::b, FatjetTruthLabel::other, FatjetTruthLabel::notruth, FatjetTruthLabel::unknown};
 ```
 
 
 It is decorated to the given jet by decorateTruthLabel( ) function in BoostedJetTaggers/JSSTaggerBase.h, which is called inside the tag() function.
 * First of all, DecorateMatchedTruthJet( ) function, defined in BoostedJetTaggers/JSSTaggerBase.h, is called to decorate trimmed truth jet associated with the given jet by dR<0.75. The function automatically identifies the format of the truth particle container (TRUTH1 or TRUTH3).
-* If the matching to truth jet is failed, WTopLabel::notruth is docorated as the truth label.
+* If the matching to truth jet is failed, FatjetTruthLabel::notruth is docorated as the truth label.
 * Then getWTopContainment( ) function is called to decorate truth labeling according to the definitions below.
 
 Details of truth definitions
 -----------------------------------
-* WTopLabel::t
+* FatjetTruthLabel::t
 1. Associated trimmed truth jet is matched to truth top quark by dR<0.75
 2. GhostBHadronsFinalCount is greater than 0
 3. Trimmed truth jet mass satisfies 140 < mJ < 200GeV
 
-* WTopLabel::W
+* FatjetTruthLabel::W
 1. Associated trimmed truth jet is matched to truth W boson by dR<0.75
 2. GhostBHadronsFinalCount is equal to 0
 3. Trimmed truth jet mass satisfies 50 < mJ < 100GeV
 
-* WTopLabel::Z
+* FatjetTruthLabel::Z
 1. Associated trimmed truth jet is matched to truth Z boson by dR<0.75
 2. Trimmed truth jet mass satisfies 60 < mJ < 110GeV
 
-* WTopLabel::other
-If trimmed truth jet is matched to truth top quark, W, or Z boson, but does not satisfy the additional requirements above, WTopLabel::other is decorated.
+* FatjetTruthLabel::other
+If trimmed truth jet is matched to truth top quark, W, or Z boson, but does not satisfy the additional requirements above, FatjetTruthLabel::other is decorated.
 
-* WTopLabel::unknown
-All jets not satisfying the above are defined as WTopLabel::unknown.
+* FatjetTruthLabel::unknown
+All jets not satisfying the above are defined as FatjetTruthLabel::unknown.
 
 It is implemented in Root/JSSTaggerBase.cxx.
 

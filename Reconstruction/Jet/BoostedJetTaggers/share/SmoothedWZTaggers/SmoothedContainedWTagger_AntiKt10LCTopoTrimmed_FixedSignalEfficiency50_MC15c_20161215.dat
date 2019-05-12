@@ -33,5 +33,5 @@ CalcSF: true
 WeightFile: test2.root
 WeightDecorationName: SF
 WeightHistogramName: weightHistogram
-WeightFlavors: t_qqb,W_qq,q
-TruthLabelDecorationName: WTopContainmentTruthLabel
+WeightFlavors: t_qqb,V_qq,q
+TruthLabelDecorationName: FatjetTruthLabel
