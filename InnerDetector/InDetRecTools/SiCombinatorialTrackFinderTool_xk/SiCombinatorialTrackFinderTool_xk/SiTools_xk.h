@@ -35,14 +35,14 @@ namespace InDet{
       
       SiTools_xk();
       SiTools_xk(const SiTools_xk&) = default;
-      ~SiTools_xk();
+      ~SiTools_xk() = default;
       SiTools_xk& operator  = (const SiTools_xk&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
       ///////////////////////////////////////////////////////////////////
       
-      const Trk::MagneticFieldProperties& fieldTool  () const {return m_fieldtool  ;}
+      const Trk::MagneticFieldProperties& fieldTool  () const {return *m_fieldtool  ;}
 
       const Trk::IPatternParametersPropagator*  propTool   () const {return m_proptool   ;}
       const Trk::IPatternParametersUpdator*     updatorTool() const {return m_updatortool;}
@@ -68,15 +68,15 @@ namespace InDet{
       const bool&                         heavyion   () const {return m_heavyion   ;}
 
       void setTools
-	(Trk::IPatternParametersPropagator* ,
-	 Trk::IPatternParametersUpdator*    , 
-	 Trk::IRIO_OnTrackCreator*          , 
-	 Trk::IPRD_AssociationTool*         ,
+	(const Trk::IPatternParametersPropagator* ,
+	 const Trk::IPatternParametersUpdator*    , 
+	 const Trk::IRIO_OnTrackCreator*          , 
+	 const Trk::IPRD_AssociationTool*         ,
 	 MagField::IMagFieldSvc* 
 	 );  
       
-      void setTools(const Trk::MagneticFieldProperties&);
-      void setTools(IInDetConditionsTool*,IInDetConditionsTool*);
+      void setTools(const Trk::MagneticFieldProperties*);
+      void setTools(const IInDetConditionsTool*, const IInDetConditionsTool*);
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
@@ -90,14 +90,14 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      Trk::IPRD_AssociationTool*      m_assoTool   ;  // PRD-Track assosiation tool
-      Trk::MagneticFieldProperties    m_fieldtool  ;  // Magnetic field properties
+      const Trk::IPRD_AssociationTool* m_assoTool   ; // PRD-Track assosiation tool
+      const Trk::MagneticFieldProperties* m_fieldtool; // Magnetic field properties
       MagField::IMagFieldSvc*        m_fieldService;  // Magnetic field service 
-      Trk::IPatternParametersPropagator* m_proptool;  // Propagator tool
-      Trk::IPatternParametersUpdator* m_updatortool;  // Updator    tool
-      Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
-      IInDetConditionsTool*           m_pixcond    ;  // Condtionos for pixels 
-      IInDetConditionsTool*           m_sctcond    ;  // Conditions for sct
+      const Trk::IPatternParametersPropagator* m_proptool; // Propagator tool
+      const Trk::IPatternParametersUpdator* m_updatortool; // Updator    tool
+      const Trk::IRIO_OnTrackCreator* m_riotool    ;  // RIOonTrack creator
+      const IInDetConditionsTool*     m_pixcond    ;  // Condtionos for pixels 
+      const IInDetConditionsTool*     m_sctcond    ;  // Conditions for sct
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -126,13 +126,14 @@ namespace InDet{
 
   inline SiTools_xk::SiTools_xk()
     {
-      m_assoTool    = 0   ;
-      m_fieldService= 0    ;
-      m_proptool    = 0   ;
-      m_updatortool = 0   ;
-      m_riotool     = 0   ;  
-      m_pixcond     = 0   ;
-      m_sctcond     = 0   ;
+      m_assoTool    = nullptr;
+      m_fieldtool   = nullptr;
+      m_fieldService= nullptr;
+      m_proptool    = nullptr;
+      m_updatortool = nullptr;
+      m_riotool     = nullptr;  
+      m_pixcond     = nullptr;
+      m_sctcond     = nullptr;
       m_xi2max      = 9.  ;
       m_xi2maxBrem  = 15. ;
       m_xi2maxlink  = 200.;
@@ -149,15 +150,11 @@ namespace InDet{
       m_heavyion    = false;
     }
 
-  
-
-  inline SiTools_xk::~SiTools_xk() {}
-
   inline void SiTools_xk::setTools
-    (Trk::IPatternParametersPropagator*  PR,
-     Trk::IPatternParametersUpdator*     UP, 
-     Trk::IRIO_OnTrackCreator*           RO,
-     Trk::IPRD_AssociationTool*          AS,
+    (const Trk::IPatternParametersPropagator*  PR,
+     const Trk::IPatternParametersUpdator*     UP, 
+     const Trk::IRIO_OnTrackCreator*           RO,
+     const Trk::IPRD_AssociationTool*          AS,
      MagField::IMagFieldSvc*             MS     
      )    
     {
@@ -169,12 +166,14 @@ namespace InDet{
     }
 
   inline void SiTools_xk::setTools
-    (const Trk::MagneticFieldProperties& MF)
+    (const Trk::MagneticFieldProperties* MF)
     {
-      m_fieldtool   = MF;
+      m_fieldtool = MF;
     }
 
-  inline void SiTools_xk::setTools (IInDetConditionsTool* pix,IInDetConditionsTool* sct)
+  inline void SiTools_xk::setTools
+    (const IInDetConditionsTool* pix,
+     const IInDetConditionsTool* sct)
     {
       m_pixcond = pix;
       m_sctcond = sct;
