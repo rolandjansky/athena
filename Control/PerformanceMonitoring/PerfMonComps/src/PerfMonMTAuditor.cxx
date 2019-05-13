@@ -40,7 +40,9 @@ StatusCode PerfMonMTAuditor::initialize()
  * Implementation of base class methods
  */
 void PerfMonMTAuditor::before( StandardEventType etype, INamedInterface* component ) {
-  return m_perfMonMTSvc->startAud( toStr(etype) , component->name() );
+  if( component->name() == "HelloWorld" ) // only for testing
+    return m_perfMonMTSvc->startAud( toStr(etype) , component->name() );
+  else return;
 }
 
 void PerfMonMTAuditor::before( StandardEventType, const std::string& ) {
@@ -58,7 +60,9 @@ void PerfMonMTAuditor::before( CustomEventTypeRef, const std::string& ) {
 }
 
 void PerfMonMTAuditor::after( StandardEventType etype, INamedInterface* component, const StatusCode& ) {
-  return m_perfMonMTSvc->stopAud( toStr(etype), component->name() );
+  if( component->name() == "HelloWorld" ) // only for testing...
+    return m_perfMonMTSvc->stopAud( toStr(etype), component->name() );
+  else return;
 }
 
 void PerfMonMTAuditor::after( StandardEventType, const std::string&, const StatusCode& ) {

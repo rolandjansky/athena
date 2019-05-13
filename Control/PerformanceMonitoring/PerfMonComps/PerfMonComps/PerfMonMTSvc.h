@@ -5,8 +5,10 @@
 #ifndef PERFMONCOMPS_PERFMONMTSVC_H
 #define PERFMONCOMPS_PERFMONMTSVC_H
 
+// Framework includes
 #include "AthenaBaseComps/AthService.h"
 
+// PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
 
 
