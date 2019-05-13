@@ -57,7 +57,7 @@ class SLHC_Setup_XMLReader :
         AddBCL = False
         if kwargs.has_key("addBCL"): AddBCL = kwargs["addBCL"]
         
-        PIXMODULEFILE = "ITK_PixelModules.xml"
+        PIXMODULEFILE = str(kwargs["PixelModules"]) + ".xml"
         PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
         PIXBARRELFILE = str(kwargs["PixelLayout"]) + "_PixelBarrel.xml"
         PIXENDCAPFILE = str(kwargs["PixelLayout"]) + "_PixelEndcap.xml"
