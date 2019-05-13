@@ -58,16 +58,25 @@ StatusCode StreamSelectorTool::postNext() const {
       float weight = (*attrList)["EventWeight"].data<float>();
       // Search for stream name in attribute list, and check flag
       if ( attrList->specification().exists(m_streamName) ) {
-         if ((*attrList)[m_streamName].data<bool>()!=true) {
+         bool dec(false);
+         try {
+           dec = (*attrList)[m_streamName].data<bool>();
+         }
+         catch (...) {
+           ATH_MSG_WARNING("Unable to access " << m_streamName << " decision");
+         }
+         if (dec!=true) {
             retc = StatusCode::RECOVERABLE;
-            ATH_MSG_INFO("Rejecting event");
+            ATH_MSG_DEBUG("Rejecting event");
          } else {
             // Accepting event
+            ATH_MSG_DEBUG("Accepting event");
             m_cutflow->addEvent(m_cutid,weight);
          }  
       } else {
          ATH_MSG_ERROR("Stream decision for " << m_streamName << " does not exist in input");
       }
+      //const std::pair<unsigned int, unsigned long long> re = std::make_pair(run,ev);
       // Get pointer to metadata store
       ServiceHandle<StoreGateSvc> mstore("StoreGateSvc/MetaDataStore",this->name());
       ATH_CHECK(mstore.retrieve());
