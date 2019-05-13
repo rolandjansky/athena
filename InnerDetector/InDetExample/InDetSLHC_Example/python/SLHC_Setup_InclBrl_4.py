@@ -20,9 +20,10 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        if (SLHC_Flags.LayoutOption == "LightBrlv2" ):
+        if (SLHC_Flags.LayoutOption == "Light" ):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_Light",
                                  PixelEndcapLayout = "ECRing4Ref_Light",
+                                 PixelModules = "ITK_Step3_PixelModules",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
                                  dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                                  createXML = True,
@@ -80,8 +81,9 @@ class SLHC_Setup_XMLReader :
                                  )
 
         elif (SLHC_Flags.LayoutOption == "InclinedAlternative"):
-            SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_InclinedAlternative",
-                                 PixelEndcapLayout = "ECRing4Ref_InclinedAlternative",
+            SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_IA",
+                                 PixelEndcapLayout = "ECRing4Ref_IA",
+                                 PixelModules = "ITK_Step3_PixelModules",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
                                  dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                                  createXML = True,
@@ -150,16 +152,16 @@ class SLHC_Setup :
         # GeoModelConfiguration 
 
         xmlFileDict={}
-        if (SLHC_Flags.LayoutOption == "LightBrlv2" ):
+        if (SLHC_Flags.LayoutOption == "Light" ):
             xmlFileDict["Pixel"]={
-                "PIXELGENERAL":"InclBrl4_PixelGeneral",
+                "PIXELGENERAL":"InclBrl4_PixelGeneral_Light",
                 "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
-                "SILICONMODULES":"ITK_PixelModules",
+                "SILICONMODULES":"ITK_Step3_PixelModules",
                 "SILICONREADOUT":"PixelModuleReadout",
-                "STAVESUPPORT":"InclBrl4_Light_StaveSupport",
+                "STAVESUPPORT":"InclBrl4_SlimStaveSupport_Light",
                 "PIXELDISCSUPPORT":"InclBrl4_Light_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
-                "PIXELROUTINGSERVICE":"InclBrl4_Light_PixelRoutingService",
+                #"PIXELROUTINGSERVICE":"InclBrl4_Light_PixelRoutingService",
                 }
         elif (SLHC_Flags.LayoutOption == "LightBrl" ):
             xmlFileDict["Pixel"]={
@@ -229,12 +231,12 @@ class SLHC_Setup :
             xmlFileDict["Pixel"]={
                 "PIXELGENERAL":"InclBrl4_PixelGeneral_InclinedAlternative",
                 "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
-                "SILICONMODULES":"ITK_PixelModules",
+                "SILICONMODULES":"ITK_Step3_PixelModules",
                 "SILICONREADOUT":"PixelModuleReadout",
                 "STAVESUPPORT":"InclBrl4_SlimStaveSupport_InclinedAlternative",
                 "PIXELDISCSUPPORT":"InclBrl4_InclinedAlternative_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
-                "PIXELROUTINGSERVICE":"InclBrl4_InclinedAlternative_PixelRoutingService",
+                #"PIXELROUTINGSERVICE":"InclBrl4_InclinedAlternative_PixelRoutingService",
                 }
         else:
             xmlFileDict["Pixel"]={
@@ -285,6 +287,25 @@ class SLHC_Setup :
         #toolSvc+=validTool
         
         if SLHC_Flags.LayoutOption == "InclinedAlternative":
+          print "******************************************************************************************"
+          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
+          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
+          toolSvc+=geoLayerOuterTool
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
+          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
+          toolSvc+=geoLayerInnerTool
+  
+          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
+          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
+          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
+          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
+          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
+          geoBarrelTool.MaxInnerLayerMax = 2
+          geoBarrelTool.PixelServicesTool = serviceTool
+          toolSvc+=geoBarrelTool
+        
+        elif SLHC_Flags.LayoutOption == "Light":
           print "******************************************************************************************"
           print "PixelGeoModel - import GeoPixelLayerInclRefTool"
           from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
