@@ -1193,3 +1193,17 @@ PixelID::test_wafer_packing     (void) const
     }
 }
 
+bool        
+PixelID::is_blayer       (const Identifier& id) const 
+{
+    bool isSLHC = (m_dict && m_dict->m_version.find("SLHC") != std::string::npos); 
+
+    // Updated definition takes into account upgrade layouts
+    if(is_barrel(id) || isSLHC) {
+      return (0 == layer_disk(id));
+    }
+    else {
+      return (false);
+    }
+
+}

@@ -618,19 +618,6 @@ PixelID::layer_disk      (const Identifier& id) const
 }
 
 //----------------------------------------------------------------------------
-inline bool        
-PixelID::is_blayer       (const Identifier& id) const 
-{
-    // Check if it is pixel id
-    if(is_barrel(id)) {
-        return (0 == layer_disk(id));
-    }
-    else {
-        return (false);
-    }
-}
-
-//----------------------------------------------------------------------------
 inline int         
 PixelID::phi_module      (const Identifier& id) const
 {
