@@ -365,6 +365,14 @@ class ESDEDMSet(JobProperty):
 
 _flags.append(ESDEDMSet)
 
+class doNavigationSlimming(JobProperty):
+    """Enable the trigger navigation slimming"""
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doNavigationSlimming)
+
 class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """
     statusOn=True
