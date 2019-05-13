@@ -287,9 +287,10 @@ else:
                                                                    True)
 
 
+        import copy
         include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
         InDetPhaseTRTSegementFinding = ConfiguredTRTSegmentFinding("",
-                                                                   InputCombinedInDetTracks,
+                                                                   copy.copy(InputCombinedInDetTracks),
                                                                    InDetNewTrackingCuts,
                                                                    InDetKeys.TRT_Segments_Phase(),
                                                                    None,
@@ -308,7 +309,7 @@ else:
         from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
         InDetTRTonly_PRD_AssociationPhase = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_AssociationPhase',
                                                                         AssociationTool = InDetPrdAssociationTool,
-                                                                        TracksName      = TrackCollectionKeys) 
+                                                                        TracksName      = copy.copy(TrackCollectionKeys)) 
         topSequence += InDetTRTonly_PRD_AssociationPhase
         if (InDetFlags.doPrintConfigurables()):
           print InDetTRTonly_PRD_AssociationPhase
@@ -563,8 +564,9 @@ else:
     if InDetFlags.doTRTStandalone():
 
       include ("InDetRecExample/ConfiguredTRTStandalone.py")
+      import copy
       InDetRecTRTStandalone = ConfiguredTRTStandalone ("",
-                                                       InputCombinedInDetTracks,
+                                                       copy.copy(InputCombinedInDetTracks),
                                                        InDetNewTrackingCuts,
                                                        InDetKeys.TRT_Segments(),
                                                   #     InDetKeys.TRT_Segments_EC(),
