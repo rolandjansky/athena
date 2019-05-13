@@ -20,6 +20,9 @@
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+// Additional tool includes
+#include "GammaORTools/IVGammaORTool.h"
+
 // EDM includes
 #include "xAODTruth/TruthParticleFwd.h"
 #include "xAODBase/IParticle.h"
@@ -86,6 +89,8 @@ namespace DerivationFramework {
     bool m_isPowPy8EvtGen;
 
     /// @}
+
+    ToolHandle<IVGammaORTool> m_GamORTool;
 
     enum WWType{
       NOWW=0,

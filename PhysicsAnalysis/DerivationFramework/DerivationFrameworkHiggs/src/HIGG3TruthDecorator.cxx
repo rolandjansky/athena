@@ -27,7 +27,8 @@ namespace DerivationFramework {
   HIGG3TruthDecorator::HIGG3TruthDecorator(const std::string& t,
                                            const std::string& n,
                                            const IInterface* p) :
-    AthAlgTool(t, n, p)
+    AthAlgTool(t, n, p),
+    m_GamORTool("VGammaORTool/HIGG3TruthDecoratorVGammaORTool", this)
   {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -36,6 +37,7 @@ namespace DerivationFramework {
     declareProperty( "InputMuonContainerName", m_inMuContName  = "Muons" );
     declareProperty( "IsSherpa", m_isSherpa = false );
     declareProperty( "isPowPy8EvtGen", m_isPowPy8EvtGen = false );
+    declareProperty( "GamORTool", m_GamORTool );
   }
 
   // Destructor
@@ -1155,6 +1157,20 @@ namespace DerivationFramework {
       decFlavourTag(*muon) = flavTag;
 
     } // end: loop over muons for Run1 truth flavour decoration
+
+
+
+    // Official Vgamma/Vjet overlap removal
+    bool in_vy_overlap;
+    ATH_CHECK( m_GamORTool->inOverlap(in_vy_overlap) );
+    eventInfo->auxdecor<char>("HIGG3DX_inVGammaOverlap") = static_cast<char>(in_vy_overlap);
+
+    // also store pT of photons which fall in overlap region
+    // useful for varying the photon pT threshold downstream
+    std::unique_ptr<std::vector<float> > photon_pts(new std::vector<float>());
+    ATH_CHECK( m_GamORTool->photonPtsOutsideDr(*photon_pts.get()) );
+    ATH_CHECK( evtStore()->record(std::move(photon_pts), "HIGG3DX_overlapPhoton_pTs") );
+
 
     return StatusCode::SUCCESS;
   } // end: addBranches() method

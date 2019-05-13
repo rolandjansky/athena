@@ -14,7 +14,7 @@ logger = logging.getLogger( 'HIGG3DxAugmentation' )
 # for debugging output
 from AthenaCommon.Constants import INFO,WARNING,DEBUG,VERBOSE
 
-def getHIGG3TruthDecoratorTool(toolNamePrefix = "HIGG3DX"):
+def getHIGG3TruthDecoratorTool(outputStream, toolNamePrefix = "HIGG3DX"):
 
     import PyUtils.AthFile as af
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -45,14 +45,24 @@ def getHIGG3TruthDecoratorTool(toolNamePrefix = "HIGG3DX"):
             pass
         pass
 
+    from AthenaCommon import CfgMgr
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += CfgMgr.VGammaORTool("HWWVGammaORTool",
+                                   photon_pT_cuts = [10e3]
+                                   )
+
+
     toolName = toolNamePrefix+"TruthDecoratorTool"
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
-    HIGG3DTruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name          = toolName,
-                                                                        OutputLevel   = VERBOSE,
-                                                                        IsSherpa      = isFromSherpa,
+    HIGG3DTruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name           = toolName,
+                                                                        OutputLevel    = VERBOSE,
+                                                                        IsSherpa       = isFromSherpa,
                                                                         isPowPy8EvtGen = isFromPowPy8EvtGen,
+                                                                        GamORTool      = ToolSvc.HWWVGammaORTool
                                                                         )
     logger.info("Created HIGG3TruthDecorator with name {}".format(toolName))
+    # add auxiliary photon pTs to the output stream, computed by the GamORTool
+    outputStream.AddItem("std::vector<float>#HIGG3DX_overlapPhoton_pTs")
     return HIGG3DTruthDecoratorTool
 
 
