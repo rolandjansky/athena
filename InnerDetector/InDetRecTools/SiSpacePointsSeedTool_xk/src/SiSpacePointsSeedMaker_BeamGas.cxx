@@ -75,9 +75,12 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if (m_outputlevel<=0) {
-    m_nprint=0;
+    EventData& data{getEventData()};
+    data.nprint=0;
     ATH_MSG_DEBUG(*this);
   }
+
+  m_initialized = true;
 
   return sc;
 }
@@ -97,20 +100,22 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::finalize()
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 {
+  EventData& data{getEventData()};
+
   if (!m_pixel && !m_sct) return;
-  erase();
-  buildBeamFrameWork();
+  erase(data);
+  buildBeamFrameWork(data);
 
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
     m_fieldServiceHandle->getFieldZR(gP,f);
-    m_K = 2./(300.*f[2]);
+    data.K = 2./(300.*f[2]);
   } else {
-    m_K = 2./(300.* 5. );
+    data.K = 2./(300.* 5. );
   }
 
-  m_i_spforseed = m_l_spforseed.begin();
+  data.i_spforseed = data.l_spforseed.begin();
 
   float irstep = 1./m_r_rstep;
   
@@ -128,11 +133,11 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 	  if (m_useassoTool &&  isUsed(sp)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint(sp);
-	  m_r_Sorted[ir].push_back(sps);
-          ++m_r_map[ir];
-	  if (m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
+	  data.r_Sorted[ir].push_back(sps);
+          ++data.r_map[ir];
+	  if (data.r_map[ir]==1) data.r_index[data.nr++] = ir;
+	  ++data.ns;
 	}
       }
     }
@@ -152,11 +157,11 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 	  if (m_useassoTool && isUsed(sp)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint(sp);
-	  m_r_Sorted[ir].push_back(sps);
-          ++m_r_map[ir];
-	  if (m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
+	  data.r_Sorted[ir].push_back(sps);
+          ++data.r_map[ir];
+	  if (data.r_map[ir]==1) data.r_index[data.nr++] = ir;
+	  ++data.ns;
 	}
       }
     }
@@ -175,16 +180,16 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 	  if (m_useassoTool && isUsed(sp)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint(sp);
-	  m_r_Sorted[ir].push_back(sps);
-          ++m_r_map[ir];
-	  if (m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
+	  data.r_Sorted[ir].push_back(sps);
+          ++data.r_map[ir];
+	  if (data.r_map[ir]==1) data.r_index[data.nr++] = ir;
+	  ++data.ns;
 	}
       }
     }
   }
-  fillLists();
+  fillLists(data);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -194,21 +199,22 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
+  EventData& data{getEventData()};
 
   if (!m_pixel && !m_sct) return;
-  erase();
-  buildBeamFrameWork();
+  erase(data);
+  buildBeamFrameWork(data);
 
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
     m_fieldServiceHandle->getFieldZR(gP,f);
-    m_K = 2./(300.*f[2]);
+    data.K = 2./(300.*f[2]);
   } else {
-    m_K = 2./(300.* 5. );
+    data.K = 2./(300.* 5. );
   }
 
-  m_i_spforseed = m_l_spforseed.begin();
+  data.i_spforseed = data.l_spforseed.begin();
 
   float irstep = 1./m_r_rstep;
 
@@ -230,11 +236,11 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 	  int ir = static_cast<int>(r*irstep);
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint(sp);
-	  m_r_Sorted[ir].push_back(sps);
-          ++m_r_map[ir];
-	  if (m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
+	  data.r_Sorted[ir].push_back(sps);
+          ++data.r_map[ir];
+	  if (data.r_map[ir]==1) data.r_index[data.nr++] = ir;
+	  ++data.ns;
 	}
       }
     }
@@ -258,16 +264,16 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 	  int ir = static_cast<int>(r*irstep);
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint(sp);
-	  m_r_Sorted[ir].push_back(sps);
-          ++m_r_map[ir];
-	  if (m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
+	  data.r_Sorted[ir].push_back(sps);
+          ++data.r_map[ir];
+	  if (data.r_map[ir]==1) data.r_index[data.nr++] = ir;
+	  ++data.ns;
 	}
       }
     }
   }
-  fillLists();
+  fillLists(data);
 }
 
 
@@ -288,25 +294,26 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::find2Sp(const std::list<Trk::Vertex>& lv) 
 {
-  int mode;
-  lv.begin()!=lv.end() ?  mode = 1 : mode = 0;
-  
-  if (!m_state || m_nspoint!=2 || m_mode!=mode || m_nlist) {
+  EventData& data{getEventData()};
 
-    m_i_seede = m_l_seeds.begin();
-    m_state   = 1   ;
-    m_nspoint = 2   ;
-    m_nlist   = 0   ;
-    m_mode    = mode;
-    m_endlist = true;
-    m_fNmin   = 0   ;
-    m_zMin    = 0   ;
-    production2Sp ();
+  int mode = 0;
+  if (lv.begin()!=lv.end()) mode = 1;
+  
+  if (!data.state || data.nspoint!=2 || data.mode!=mode || data.nlist) {
+    data.i_seede = data.l_seeds.begin();
+    data.state   = 1;
+    data.nspoint = 2;
+    data.nlist   = 0;
+    data.mode    = mode;
+    data.endlist = true;
+    data.fNmin   = 0;
+    data.zMin    = 0;
+    production2Sp(data);
   }
-  m_i_seed = m_l_seeds.begin();
+  data.i_seed = data.l_seeds.begin();
   
   if (m_outputlevel<=0) {
-    m_nprint=1;
+    data.nprint=1;
     ATH_MSG_DEBUG(*this);
   }
 }
@@ -318,25 +325,26 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::find2Sp(const std::list<Trk::Vertex>
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(const std::list<Trk::Vertex>& lv) 
 {
-  int mode;
-  lv.begin()!=lv.end() ? mode = 3 : mode = 2;
+  EventData& data{getEventData()};
 
-  if (!m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
+  int mode = 2;
+  if (lv.begin()!=lv.end()) mode = 3;
 
-    m_i_seede = m_l_seeds.begin();
-    m_state   = 1               ;
-    m_nspoint = 3               ;
-    m_nlist   = 0               ;
-    m_mode    = mode            ;
-    m_endlist = true            ;
-    m_fNmin   = 0               ;
-    m_zMin    = 0               ;
-    production3Sp();
+  if (!data.state || data.nspoint!=3 || data.mode!=mode || data.nlist) {
+    data.i_seede = data.l_seeds.begin();
+    data.state   = 1;
+    data.nspoint = 3;
+    data.nlist   = 0;
+    data.mode    = mode;
+    data.endlist = true;
+    data.fNmin   = 0;
+    data.zMin    = 0;
+    production3Sp(data);
   }
-  m_i_seed = m_l_seeds.begin();
+  data.i_seed = data.l_seeds.begin();
 
   if (m_outputlevel<=0) {
-    m_nprint=1;
+    data.nprint=1;
     ATH_MSG_DEBUG(*this);
   }
 }
@@ -353,25 +361,26 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(const std::list<Trk::Vertex>
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::findVSp (const std::list<Trk::Vertex>& lv)
 {
-  int mode;
-  lv.begin()!=lv.end() ? mode = 6 : mode = 5;
-  
-  if (!m_state || m_nspoint!=4 || m_mode!=mode || m_nlist) {
+  EventData& data{getEventData()};
 
-    m_i_seede = m_l_seeds.begin();
-    m_state   = 1               ;
-    m_nspoint = 4               ;
-    m_nlist   = 0               ;
-    m_mode    = mode            ;
-    m_endlist = true            ;
-    m_fNmin   = 0               ;
-    m_zMin    = 0               ;
-    production3Sp();
+  int mode  = 5;
+  if (lv.begin()!=lv.end()) mode = 6;
+  
+  if (!data.state || data.nspoint!=4 || data.mode!=mode || data.nlist) {
+    data.i_seede = data.l_seeds.begin();
+    data.state   = 1;
+    data.nspoint = 4;
+    data.nlist   = 0;
+    data.mode    = mode;
+    data.endlist = true;
+    data.fNmin   = 0;
+    data.zMin    = 0;
+    production3Sp(data);
   }
-  m_i_seed = m_l_seeds.begin();
+  data.i_seed = data.l_seeds.begin();
 
   if (m_outputlevel<=0) {
-    m_nprint=1;
+    data.nprint=1;
     ATH_MSG_DEBUG(*this);
   }
 }
@@ -382,15 +391,17 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::findVSp (const std::list<Trk::Vertex
 
 MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dump( MsgStream& out ) const
 {
-  if (m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
+  EventData& data{getEventData()};
+
+  if (data.nprint) return dumpEvent(data, out);
+  return dumpConditions(data, out);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions( MsgStream& out ) const
+MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions(EventData& data, MsgStream& out) const
 {
   int n = 42-m_spacepointsPixel.key().size();
   std::string s2; for (int i=0; i<n; ++i) s2.append(" "); s2.append("|");
@@ -481,28 +492,28 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions( MsgStream& out
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
   out<<"| Beam X center           | "
-     <<std::setw(12)<<std::setprecision(5)<<m_xbeam[0]
+     <<std::setw(12)<<std::setprecision(5)<<data.xbeam[0]
      <<"                              |"<<endmsg;
   out<<"| Beam Y center           | "
-     <<std::setw(12)<<std::setprecision(5)<<m_ybeam[0]
+     <<std::setw(12)<<std::setprecision(5)<<data.ybeam[0]
      <<"                              |"<<endmsg;
   out<<"| Beam Z center           | "
-     <<std::setw(12)<<std::setprecision(5)<<m_zbeam[0]
+     <<std::setw(12)<<std::setprecision(5)<<data.zbeam[0]
      <<"                              |"<<endmsg;
   out<<"| Beam X-axis direction   | "
-     <<std::setw(12)<<std::setprecision(5)<<m_xbeam[1]
-     <<std::setw(12)<<std::setprecision(5)<<m_xbeam[2]
-     <<std::setw(12)<<std::setprecision(5)<<m_xbeam[3]
+     <<std::setw(12)<<std::setprecision(5)<<data.xbeam[1]
+     <<std::setw(12)<<std::setprecision(5)<<data.xbeam[2]
+     <<std::setw(12)<<std::setprecision(5)<<data.xbeam[3]
      <<"      |"<<endmsg;
   out<<"| Beam Y-axis direction   | "
-     <<std::setw(12)<<std::setprecision(5)<<m_ybeam[1]
-     <<std::setw(12)<<std::setprecision(5)<<m_ybeam[2]
-     <<std::setw(12)<<std::setprecision(5)<<m_ybeam[3]
+     <<std::setw(12)<<std::setprecision(5)<<data.ybeam[1]
+     <<std::setw(12)<<std::setprecision(5)<<data.ybeam[2]
+     <<std::setw(12)<<std::setprecision(5)<<data.ybeam[3]
      <<"      |"<<endmsg;
   out<<"| Beam Z-axis direction   | "
-     <<std::setw(12)<<std::setprecision(5)<<m_zbeam[1]
-     <<std::setw(12)<<std::setprecision(5)<<m_zbeam[2]
-     <<std::setw(12)<<std::setprecision(5)<<m_zbeam[3]
+     <<std::setw(12)<<std::setprecision(5)<<data.zbeam[1]
+     <<std::setw(12)<<std::setprecision(5)<<data.zbeam[2]
+     <<std::setw(12)<<std::setprecision(5)<<data.zbeam[3]
      <<"      |"<<endmsg;
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -513,18 +524,18 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions( MsgStream& out
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent(EventData& data, MsgStream& out) const
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
-  out<<"| m_ns                    | "
-     <<std::setw(12)<<m_ns
+  out<<"| ns                    | "
+     <<std::setw(12)<<data.ns
      <<"                              |"<<endmsg;
-  out<<"| m_nsaz                  | "
-     <<std::setw(12)<<m_nsaz
+  out<<"| nsaz                  | "
+     <<std::setw(12)<<data.nsaz
      <<"                              |"<<endmsg;
   out<<"| seeds                   | "
-     <<std::setw(12)<<m_l_seeds.size()
+     <<std::setw(12)<<data.l_seeds.size()
      <<"                              |"<<endmsg;
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -564,17 +575,17 @@ std::ostream& InDet::operator <<
 // Find next set space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::findNext () 
+void InDet::SiSpacePointsSeedMaker_BeamGas::findNext(EventData& data) const
 {
-  if (m_endlist) return;
+  if (data.endlist) return;
 
-  m_i_seede = m_l_seeds.begin();
-  if      (m_mode==0 || m_mode==1) production2Sp ();
-  else if (m_mode==2 || m_mode==3) production3Sp ();
-  else if (m_mode==5 || m_mode==6) production3Sp ();
+  data.i_seede = data.l_seeds.begin();
+  if      (data.mode==0 || data.mode==1) production2Sp(data);
+  else if (data.mode==2 || data.mode==3) production3Sp(data);
+  else if (data.mode==5 || data.mode==6) production3Sp(data);
 
-  m_i_seed = m_l_seeds.begin();
-  ++m_nlist;
+  data.i_seed = data.l_seeds.begin();
+  ++data.nlist;
 }                       
 
 ///////////////////////////////////////////////////////////////////
@@ -583,43 +594,31 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::findNext ()
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork() 
 {
-  m_ptmin     = fabs(m_ptmin)                  ;  if (m_ptmin < 300.) m_ptmin = 300.;
-  m_rapcut    = fabs(m_rapcut)                 ;
+  m_ptmin     = fabs(m_ptmin);
+  if (m_ptmin < 300.) m_ptmin = 300.;
+  m_rapcut    = fabs(m_rapcut);
   m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut)));
-  m_dzdrmin   =-m_dzdrmax                      ;
-  m_COF       =  134*.05*9.                    ;
-  m_ipt       = 1./fabs(.9*m_ptmin)            ;
-  m_ipt2      = m_ipt*m_ipt                    ;
-  m_K         = 0.                             ;
-
-  m_ns = m_nsaz = m_nr = m_nrf = m_nrfz = 0;
+  m_dzdrmin   =-m_dzdrmax;
+  m_COF       =  134*.05*9.;
+  m_ipt       = 1./fabs(.9*m_ptmin);
+  m_ipt2      = m_ipt*m_ipt;
 
   // Build radius sorted containers
   //
   m_r_size = static_cast<int>((m_r_rmax+.1)/m_r_rstep);
-  m_r_Sorted.resize(m_r_size);
-  m_r_index.resize(m_r_size, 0);
-  m_r_map.resize(m_r_size, 0);
-  m_nr = 0;
 
   // Build radius-azimuthal sorted containers
   //
   constexpr float pi2 = 2.*M_PI;
   const int   NFmax = SizeRF;
   const float sFmax   = static_cast<float>(NFmax)/pi2;
-  const float sFmin = 100./60.          ;
+  const float sFmin = 100./60.;
 
-  m_sF        = m_ptmin /60. ;
-  if (m_sF    >sFmax ) m_sF    = sFmax  ;
+  m_sF = m_ptmin /60.;
+  if (m_sF    >sFmax ) m_sF    = sFmax;
   else if (m_sF < sFmin) m_sF = sFmin;
   m_fNmax     = static_cast<int>(pi2*m_sF);
   if (m_fNmax >=NFmax) m_fNmax = NFmax-1;
-
-  m_nrf   = 0; for (int i=0; i<SizeRF; ++i) {m_rf_index  [i]=0; m_rf_map  [i]=0;}
-
-  // Build radius-azimuthal-Z sorted containers
-  //
-  m_nrfz  = 0; for (int i=0; i<SizeRFZ; ++i) {m_rfz_index [i]=0; m_rfz_map [i]=0;}
 
   // Build maps for radius-azimuthal-Z sorted collections 
   //
@@ -641,7 +640,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork()
       m_rfz_ib[a][2] = c; m_rfz_it[a][2] = c;
       if     (z==5) {
 
-	m_rfz_t [a]    = 9 ;   m_rfz_b [a]    = 9 ;
+	m_rfz_t [a]    = 9;   m_rfz_b [a]    = 9;
 	m_rfz_it[a][3] = a+1;  m_rfz_ib[a][3] = a+1;
 	m_rfz_it[a][4] = b+1;  m_rfz_ib[a][4] = b+1;
 	m_rfz_it[a][5] = c+1;  m_rfz_ib[a][5] = c+1;
@@ -650,28 +649,28 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork()
 	m_rfz_it[a][8] = c-1;  m_rfz_ib[a][8] = c-1;
       } else if (z> 5) {
 
-	m_rfz_b [a]    = 6 ;   m_rfz_t [a]    = 6  ;
+	m_rfz_b [a]    = 6;   m_rfz_t [a]    = 6;
 	m_rfz_ib[a][3] = a-1;  m_rfz_it[a][3] = a-1;
 	m_rfz_ib[a][4] = b-1;  m_rfz_it[a][4] = b-1;
 	m_rfz_ib[a][5] = c-1;  m_rfz_it[a][5] = c-1;
 
 	if (z<10) {
 
-	  m_rfz_t [a]    = 9 ;  m_rfz_b [a]    = 9  ;
+	  m_rfz_t [a]    = 9;  m_rfz_b [a]    = 9;
 	  m_rfz_it[a][6] = a+1; m_rfz_ib[a][6] = a+1;
 	  m_rfz_it[a][7] = b+1; m_rfz_ib[a][7] = b+1;
 	  m_rfz_it[a][8] = c+1; m_rfz_ib[a][8] = c+1;
 	}
       } else {
 
-	m_rfz_b [a]    = 6  ;   m_rfz_t [a]    = 6 ;
+	m_rfz_b [a]    = 6;   m_rfz_t [a]    = 6;
 	m_rfz_ib[a][3] = a+1;   m_rfz_it[a][3] = a+1;
 	m_rfz_ib[a][4] = b+1;   m_rfz_it[a][4] = b+1;
 	m_rfz_ib[a][5] = c+1;   m_rfz_it[a][5] = c+1;
 
 	if (z>0) {
 
-	  m_rfz_t [a]    = 9  ; m_rfz_b [a]    = 9 ;
+	  m_rfz_t [a]    = 9; m_rfz_b [a]    = 9;
 	  m_rfz_it[a][6] = a-1; m_rfz_ib[a][6] = a-1;
 	  m_rfz_it[a][7] = b-1; m_rfz_ib[a][7] = b-1;
 	  m_rfz_it[a][8] = c-1; m_rfz_ib[a][8] = c-1;
@@ -679,25 +678,13 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork()
       }
     }
   }
-  
-  m_SP.resize(m_maxsizeSP, nullptr);
-  m_R.resize(m_maxsizeSP, 0.);
-  m_Tz.resize(m_maxsizeSP, 0.);
-  m_Er.resize(m_maxsizeSP, 0.);
-  m_U.resize(m_maxsizeSP, 0.);
-  m_V.resize(m_maxsizeSP, 0.);
-  m_Zo.resize(m_maxsizeSP, 0.);
-  m_OneSeeds.resize(m_maxOneSize);
-
-  m_i_seed  = m_l_seeds.begin();
-  m_i_seede = m_l_seeds.end  ();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Initiate beam frame work for seed generator
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork() 
+void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork(EventData& data) const
 { 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
@@ -712,20 +699,20 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork()
   double sinp = sin(ph);
   double cosp = cos(ph);
   
-  m_xbeam[0] = static_cast<float>(cb.x())                  ;
-  m_xbeam[1] = static_cast<float>(cost*cosp*cosp+sinp*sinp);
-  m_xbeam[2] = static_cast<float>(cost*sinp*cosp-sinp*cosp);
-  m_xbeam[3] =-static_cast<float>(sint*cosp               );
+  data.xbeam[0] = static_cast<float>(cb.x());
+  data.xbeam[1] = static_cast<float>(cost*cosp*cosp+sinp*sinp);
+  data.xbeam[2] = static_cast<float>(cost*sinp*cosp-sinp*cosp);
+  data.xbeam[3] =-static_cast<float>(sint*cosp               );
   
-  m_ybeam[0] = static_cast<float>(cb.y())                  ;
-  m_ybeam[1] = static_cast<float>(cost*cosp*sinp-sinp*cosp);
-  m_ybeam[2] = static_cast<float>(cost*sinp*sinp+cosp*cosp);
-  m_ybeam[3] =-static_cast<float>(sint*sinp               );
+  data.ybeam[0] = static_cast<float>(cb.y());
+  data.ybeam[1] = static_cast<float>(cost*cosp*sinp-sinp*cosp);
+  data.ybeam[2] = static_cast<float>(cost*sinp*sinp+cosp*cosp);
+  data.ybeam[3] =-static_cast<float>(sint*sinp               );
   
-  m_zbeam[0] = static_cast<float>(cb.z())                  ;
-  m_zbeam[1] = static_cast<float>(sint*cosp)               ;
-  m_zbeam[2] = static_cast<float>(sint*sinp)               ;
-  m_zbeam[3] = static_cast<float>(cost)                    ;
+  data.zbeam[0] = static_cast<float>(cb.z());
+  data.zbeam[1] = static_cast<float>(sint*cosp);
+  data.zbeam[2] = static_cast<float>(sint*sinp);
+  data.zbeam[3] = static_cast<float>(cost);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -733,32 +720,32 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_BeamGas::convertToBeamFrameWork
-(const Trk::SpacePoint*const& sp,float* r) 
+(EventData& data, const Trk::SpacePoint*const& sp,float* r) const
 {
-  
-  float x = static_cast<float>(sp->globalPosition().x())-m_xbeam[0];
-  float y = static_cast<float>(sp->globalPosition().y())-m_ybeam[0];
-  float z = static_cast<float>(sp->globalPosition().z())-m_zbeam[0];
-  r[0]     = m_xbeam[1]*x+m_xbeam[2]*y+m_xbeam[3]*z;
-  r[1]     = m_ybeam[1]*x+m_ybeam[2]*y+m_ybeam[3]*z;
-  r[2]     = m_zbeam[1]*x+m_zbeam[2]*y+m_zbeam[3]*z;
+  float x = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
+  float y = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
+  float z = static_cast<float>(sp->globalPosition().z())-data.zbeam[0];
+  r[0]     = data.xbeam[1]*x+data.xbeam[2]*y+data.xbeam[3]*z;
+  r[1]     = data.ybeam[1]*x+data.ybeam[2]*y+data.ybeam[3]*z;
+  r[2]     = data.zbeam[1]*x+data.zbeam[2]*y+data.zbeam[3]*z;
 }
    
 ///////////////////////////////////////////////////////////////////
 // Initiate space points seed maker
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists() 
+void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
+
   std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i!= m_r_size;  ++i) {
 
-    if (!m_r_map[i]) continue;
-    r = m_r_Sorted[i].begin();
+    if (!data.r_map[i]) continue;
+    r = data.r_Sorted[i].begin();
 
-    while (r!=m_r_Sorted[i].end()) {
+    while (r!=data.r_Sorted[i].end()) {
       
       // Azimuthal angle sort
       //
@@ -768,7 +755,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists()
       if (f < 0) f = m_fNmax;
       else if (f > m_fNmax) f = 0;
 
-      m_rf_Sorted[f].push_back(*r); if (!m_rf_map[f]++) m_rf_index[m_nrf++] = f;
+      data.rf_Sorted[f].push_back(*r);
+      if (!data.rf_map[f]++) data.rf_index[data.nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -779,61 +767,66 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists()
       } else {
 	Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
       }
-      int n = f*SizeZ+z; ++m_nsaz;
-      m_rfz_Sorted[n].push_back(*r); if (!m_rfz_map[n]++) m_rfz_index[m_nrfz++] = n;
-      m_r_Sorted[i].erase(r++);
+      int n = f*SizeZ+z;
+      ++data.nsaz;
+      data.rfz_Sorted[n].push_back(*r);
+      if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
+      data.r_Sorted[i].erase(r++);
     }
-    m_r_map[i] = 0;
+    data.r_map[i] = 0;
   }
-  m_nr    = 0;
-  m_state = 0;
+  data.nr    = 0;
+  data.state = 0;
 }
  
 ///////////////////////////////////////////////////////////////////
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::erase()
+void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) const
 {
-  for (int i=0; i!=m_nr;    ++i) {
-    int n = m_r_index[i]; m_r_map[n] = 0;
-    m_r_Sorted[n].erase(m_r_Sorted[n].begin(),m_r_Sorted[n].end());
+  for (int i=0; i!=data.nr;    ++i) {
+    int n = data.r_index[i];
+    data.r_map[n] = 0;
+    data.r_Sorted[n].erase(data.r_Sorted[n].begin(), data.r_Sorted[n].end());
   }
 
-  for (int i=0; i!=m_nrf;   ++i) {
-    int n = m_rf_index[i]; m_rf_map[n] = 0;
-    m_rf_Sorted[n].erase(m_rf_Sorted[n].begin(),m_rf_Sorted[n].end());
+  for (int i=0; i!=data.nrf;   ++i) {
+    int n = data.rf_index[i];
+    data.rf_map[n] = 0;
+    data.rf_Sorted[n].erase(data.rf_Sorted[n].begin(), data.rf_Sorted[n].end());
   }
 
-  for (int i=0; i!=m_nrfz;  ++i) {
-    int n = m_rfz_index[i]; m_rfz_map[n] = 0;
-    m_rfz_Sorted[n].erase(m_rfz_Sorted[n].begin(),m_rfz_Sorted[n].end());
+  for (int i=0; i!=data.nrfz;  ++i) {
+    int n = data.rfz_index[i];
+    data.rfz_map[n] = 0;
+    data.rfz_Sorted[n].erase(data.rfz_Sorted[n].begin(), data.rfz_Sorted[n].end());
   }
 
-  m_state = 0;
-  m_ns    = 0;
-  m_nsaz  = 0;
-  m_nr    = 0;
-  m_nrf   = 0;
-  m_nrfz  = 0;
+  data.state = 0;
+  data.ns    = 0;
+  data.nsaz  = 0;
+  data.nr    = 0;
+  data.nrf   = 0;
+  data.nrfz  = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 // 2 space points seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp()
+void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp(EventData& data) const
 {
-  m_endlist = true;
+  data.endlist = true;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Production 3 space points seeds 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp()
+void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp(EventData& data) const
 { 
-  if (m_nsaz<3) return;
+  if (data.nsaz<3) return;
 
   const int ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
   std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
@@ -841,34 +834,39 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp()
 
   // Loop thorugh all azimuthal regions
   //
-  for (int f=m_fNmin; f<=m_fNmax; ++f) {
+  for (int f=data.fNmin; f<=m_fNmax; ++f) {
     
     // For each azimuthal region loop through all Z regions
     //
-    int z = 0; if (!m_endlist) z = m_zMin;
+    int z = 0;
+    if (!data.endlist) z = data.zMin;
 
     for (; z!=SizeZ; ++z) {
 
-      int a  = f *SizeZ+ZI[z];  if (!m_rfz_map[a]) continue;
+      int a  = f *SizeZ+ZI[z];  if (!data.rfz_map[a]) continue;
       int NB = 0, NT = 0;
       for (int i=0; i!=m_rfz_b[a]; ++i) {
 	
 	int an =  m_rfz_ib[a][i];
-	if (!m_rfz_map[an]) continue;
-	rb [NB] = m_rfz_Sorted[an].begin();
-        rbe[NB++] = m_rfz_Sorted[an].end();
+	if (!data.rfz_map[an]) continue;
+	rb [NB] = data.rfz_Sorted[an].begin();
+        rbe[NB++] = data.rfz_Sorted[an].end();
       } 
       for (int i=0; i!=m_rfz_t[a]; ++i) {
 	
 	int an =  m_rfz_it[a][i];
-	if (!m_rfz_map[an]) continue; 
-	rt [NT] = m_rfz_Sorted[an].begin(); rte[NT++] = m_rfz_Sorted[an].end();
+	if (!data.rfz_map[an]) continue; 
+	rt [NT] = data.rfz_Sorted[an].begin();
+        rte[NT++] = data.rfz_Sorted[an].end();
       } 
-      production3Sp(rb,rbe,rt,rte,NB,NT,nseed);
-      if (!m_endlist) {m_fNmin=f; m_zMin = z; return;} 
+      production3Sp(data, rb, rbe, rt, rte, NB, NT, nseed);
+      if (!data.endlist) {
+        data.fNmin = f;
+        data.zMin = z; return;
+      }
     }
   }
-  m_endlist = true;
+  data.endlist = true;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -876,21 +874,25 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp()
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
-( std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
-  std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
-  std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
-  std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-  int NB, int NT, int& nseed) 
+(EventData& data,
+ std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ int NB, int NT, int& nseed) const
 {
   std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
-  if (!m_endlist) {r0 = m_rMin; m_endlist = true;}
+  if (!data.endlist) {
+    r0 = data.rMin;
+    data.endlist = true;
+  }
 
   // Loop through all trigger space points
   //
   for (; r0!=rbe[0]; ++r0) {
 
-    m_nOneSeeds = 0;
-    m_mapOneSeeds.erase(m_mapOneSeeds.begin(), m_mapOneSeeds.end());
+    data.nOneSeeds = 0;
+    data.mapOneSeeds.erase(data.mapOneSeeds.begin(), data.mapOneSeeds.end());
 	
     float R = (*r0)->radius();
     if (R<m_r2min) continue;
@@ -901,10 +903,10 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
     bool pix = true;
     if (SP0->clusterList().second) pix = false;
     const Trk::Surface* sur0 = (*r0)->sur();
-    float               X    = (*r0)->x()  ;
-    float               Y    = (*r0)->y()  ;
-    float               Z    = (*r0)->z()  ;
-    int                 Nb   = 0           ;
+    float               X    = (*r0)->x();
+    float               Y    = (*r0)->y();
+    float               Z    = (*r0)->z();
+    int                 Nb   = 0;
 
     // Bottom links production
     //
@@ -933,7 +935,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
 	  float Zo = Z-R*Tz;
           if (!isZCompatible(Zo)) continue;
 	}
-	m_SP[Nb] = (*r); if (++Nb==m_maxsizeSP) goto breakb;
+	data.SP[Nb] = (*r); if (++Nb==m_maxsizeSP) goto breakb;
       }
     }
   breakb:
@@ -962,92 +964,98 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
 	if (pix) {
 	  float Zo = Z-R*Tz; if (!isZCompatible(Zo)) continue;
 	}
-	m_SP[Nt] = (*r); if (++Nt==m_maxsizeSP) goto breakt;
+	data.SP[Nt] = (*r); if (++Nt==m_maxsizeSP) goto breakt;
       }
     }
     
   breakt:
     if (!(Nt-Nb)) continue;
 
-    float covr0 = (*r0)->covr ();
-    float covz0 = (*r0)->covz ();
+    float covr0 = (*r0)->covr();
+    float covz0 = (*r0)->covz();
 
     float ax   = X/R;
     float ay   = Y/R;
     
     for (int i=0; i!=Nt; ++i) {
 
-      InDet::SiSpacePointForSeed* sp = m_SP[i];
+      InDet::SiSpacePointForSeed* sp = data.SP[i];
 
-      float dx  = sp->x()-X   ;
-      float dy  = sp->y()-Y   ;
-      float dz  = sp->z()-Z   ;
-      float x   = dx*ax+dy*ay ;
-      float y   =-dx*ay+dy*ax ;
+      float dx  = sp->x()-X;
+      float dy  = sp->y()-Y;
+      float dz  = sp->z()-Z;
+      float x   = dx*ax+dy*ay;
+      float y   =-dx*ay+dy*ax;
       float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2)    ;
-      float tz  = dz*dr       ; if (i < Nb) tz = -tz;
+      float dr  = sqrt(r2);
+      float tz  = dz*dr; if (i < Nb) tz = -tz;
 
-      m_Tz[i]   = tz                                            ;
-      m_Zo[i]   = Z-R*tz                                        ;
-      m_R [i]   = dr                                            ;
-      m_U [i]   = x*r2                                          ;
-      m_V [i]   = y*r2                                          ;
-      m_Er[i]   = (covz0+sp->covz()+tz*tz*(covr0+sp->covr()))*r2;
+      data.Tz[i] = tz;
+      data.Zo[i] = Z-R*tz;
+      data.R [i] = dr;
+      data.U [i] = x*r2;
+      data.V [i] = y*r2;
+      data.Er[i] = (covz0+sp->covz()+tz*tz*(covr0+sp->covr()))*r2;
     }
 
-    float imc   = m_diver   ;
+    float imc   = m_diver;
     float imcs  = m_diverpps;
-    float ipt2  = m_ipt2    ;
-    float K     = m_K       ;
-    float K2    = K*K       ;
-    float COF   = m_COF     ;
-    float ipt2K = ipt2/K2   ;
-    float ipt2C = ipt2*COF  ;
-    float COFK  = COF*K2    ;
-    covr0      *= 2.        ;
-    covz0      *= 2.        ;
+    float ipt2  = m_ipt2;
+    float K     = data.K;
+    float K2    = K*K;
+    float COF   = m_COF;
+    float ipt2K = ipt2/K2;
+    float ipt2C = ipt2*COF;
+    float COFK  = COF*K2;
+    covr0      *= 2.;
+    covz0      *= 2.;
     
     // Three space points comparison
     //
     for (int b=0; b!=Nb; ++b) {
     
-      const Trk::SpacePoint* SPb = m_SP[b]->spacepoint;
+      const Trk::SpacePoint* SPb = data.SP[b]->spacepoint;
  
-      float  Zob  = m_Zo[b]      ;
-      float  Tzb  = m_Tz[b]      ;
-      float  Rb2r = m_R [b]*covr0;
-      float  Rb2z = m_R [b]*covz0;
-      float  Erb  = m_Er[b]      ;
-      float  Vb   = m_V [b]      ;
-      float  Ub   = m_U [b]      ;
-      float  Tzb2 = (1.+Tzb*Tzb) ;
-      float  CSA  = Tzb2*COFK    ;
-      float ICSA  = Tzb2*ipt2C   ;
+      float  Zob  = data.Zo[b];
+      float  Tzb  = data.Tz[b];
+      float  Rb2r = data.R [b]*covr0;
+      float  Rb2z = data.R [b]*covz0;
+      float  Erb  = data.Er[b];
+      float  Vb   = data.V [b];
+      float  Ub   = data.U [b];
+      float  Tzb2 = (1.+Tzb*Tzb);
+      float  CSA  = Tzb2*COFK;
+      float ICSA  = Tzb2*ipt2C;
 
       for (int t=Nb;  t!=Nt; ++t) {
 	
-	float Ts  = .5*(Tzb+m_Tz[t])                          ;
-	float dt  =     Tzb-m_Tz[t]                           ;
-	float dT  = dt*dt-Erb-m_Er[t]-m_R[t]*(Ts*Ts*Rb2r+Rb2z);
+	float Ts  = .5*(Tzb+data.Tz[t]);
+	float dt  =     Tzb-data.Tz[t];
+	float dT  = dt*dt-Erb-data.Er[t]-data.R[t]*(Ts*Ts*Rb2r+Rb2z);
 	if ( dT > ICSA) continue;
-	float dU  = m_U[t]-Ub; if (dU == 0. ) continue;
-	float A   = (m_V[t]-Vb)/dU                   ;
-	float S2  = 1.+A*A                           ;
-	float B   = Vb-A*Ub                          ;
-	float B2  = B*B                              ;
+	float dU  = data.U[t]-Ub; if (dU == 0. ) continue;
+	float A   = (data.V[t]-Vb)/dU;
+	float S2  = 1.+A*A;
+	float B   = Vb-A*Ub;
+	float B2  = B*B;
 	if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
-	float Im  = fabs((A-B*R)*R)                  ;
+	float Im  = fabs((A-B*R)*R);
 	
 	if (pix) {
 	  if (                                             Im > imc ) continue;
-	  if (m_SP[t]->spacepoint->clusterList().second && Im > imcs) continue;
+	  if (data.SP[t]->spacepoint->clusterList().second && Im > imcs) continue;
 	}
-	newOneSeed(SPb,SP0,m_SP[t]->spacepoint,Zob,Im);
+	newOneSeed(data, SPb, SP0, data.SP[t]->spacepoint, Zob, Im);
       }
     }
-    nseed += m_mapOneSeeds.size(); fillSeeds();
-    if (nseed>=m_maxsize) {m_endlist=false; ++r0; m_rMin = r0;  return;} 
+    nseed += data.mapOneSeeds.size();
+    fillSeeds(data);
+    if (nseed>=m_maxsize) {
+      data.endlist=false;
+      ++r0;
+      data.rMin = r0;
+      return;
+    } 
   }
 }
 
@@ -1055,7 +1063,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
 // Test is space point used
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSpacePointsSeedMaker_BeamGas::isUsed(const Trk::SpacePoint* sp)
+bool InDet::SiSpacePointsSeedMaker_BeamGas::isUsed(const Trk::SpacePoint* sp) const
 {
   const Trk::PrepRawData* d = sp->clusterList().first;
   if (!d || !m_assoTool->isUsed(*d)) return false;
@@ -1071,49 +1079,52 @@ bool InDet::SiSpacePointsSeedMaker_BeamGas::isUsed(const Trk::SpacePoint* sp)
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newOneSeed
-(const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3,const float& z,const float& q) 
+(EventData& data,
+ const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
+ const Trk::SpacePoint*& p3,const float& z,const float& q) const
 {
-  if (m_nOneSeeds < m_maxOneSize) {
-
-    m_OneSeeds [m_nOneSeeds].erase     (  );
-    m_OneSeeds [m_nOneSeeds].add       (p1);
-    m_OneSeeds [m_nOneSeeds].add       (p2);
-    m_OneSeeds [m_nOneSeeds].add       (p3);
-    m_OneSeeds [m_nOneSeeds].setZVertex(static_cast<double>(z));
-    m_mapOneSeeds.insert(std::make_pair(q, &(m_OneSeeds[m_nOneSeeds])));
-    ++m_nOneSeeds;
+  if (data.nOneSeeds < m_maxOneSize) {
+    data.OneSeeds[data.nOneSeeds].erase();
+    data.OneSeeds[data.nOneSeeds].add(p1);
+    data.OneSeeds[data.nOneSeeds].add(p2);
+    data.OneSeeds[data.nOneSeeds].add(p3);
+    data.OneSeeds[data.nOneSeeds].setZVertex(static_cast<double>(z));
+    data.mapOneSeeds.insert(std::make_pair(q, &(data.OneSeeds[data.nOneSeeds])));
+    ++data.nOneSeeds;
   } else {
     std::multimap<float,InDet::SiSpacePointsSeed*>::reverse_iterator 
-      l = m_mapOneSeeds.rbegin();
+      l = data.mapOneSeeds.rbegin();
     if ((*l).first <= q) return;
-    
     InDet::SiSpacePointsSeed* s = (*l).second;
-    s->erase     (  );
-    s->add       (p1);
-    s->add       (p2);
-    s->add       (p3);
+    s->erase();
+    s->add(p1);
+    s->add(p2);
+    s->add(p3);
     s->setZVertex(static_cast<double>(z));
     std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
-      i = m_mapOneSeeds.insert(std::make_pair(q,s));
+      i = data.mapOneSeeds.insert(std::make_pair(q, s));
 	
-    for (++i; i!=m_mapOneSeeds.end(); ++i) {
-      if ((*i).second==s) {m_mapOneSeeds.erase(i); return;}
+    for (++i; i!=data.mapOneSeeds.end(); ++i) {
+      if ((*i).second==s) {
+        data.mapOneSeeds.erase(i);
+        return;
+      }
     }
   }
 }
 
 const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_BeamGas::next()
 {
-  if (m_i_seed==m_i_seede) {
-    findNext();
-    if (m_i_seed==m_i_seede) return nullptr;
+  EventData& data{getEventData()};
+
+  if (data.i_seed==data.i_seede) {
+    findNext(data);
+    if (data.i_seed==data.i_seede) return nullptr;
   } 
-  return &(*m_i_seed++);
+  return &(*data.i_seed++);
 }
     
-bool InDet::SiSpacePointsSeedMaker_BeamGas::isZCompatible  
-(float& Zv)
+bool InDet::SiSpacePointsSeedMaker_BeamGas::isZCompatible(float& Zv) const
 {
   return Zv > m_zmin && Zv < m_zmax;
 }
@@ -1123,63 +1134,65 @@ bool InDet::SiSpacePointsSeedMaker_BeamGas::isZCompatible
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
-(const Trk::SpacePoint*const& sp) 
+(EventData& data, const Trk::SpacePoint*const& sp) const
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
   float r[3];
-  convertToBeamFrameWork(sp, r);
+  convertToBeamFrameWork(data, sp, r);
 
-  if (m_i_spforseed!=m_l_spforseed.end()) {
-    sps = &(*m_i_spforseed++);
+  if (data.i_spforseed!=data.l_spforseed.end()) {
+    sps = &(*data.i_spforseed++);
     sps->set(sp, r);
   } else {
-    m_l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r));
-    sps = &(m_l_spforseed.back());
-    m_i_spforseed = m_l_spforseed.end();
+    data.l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r));
+    sps = &(data.l_spforseed.back());
+    data.i_spforseed = data.l_spforseed.end();
   }
       
   return sps;
 }
 
 ///////////////////////////////////////////////////////////////////
-// New 2 space points seeds 
+// New 2 space points seeds (not used)
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
-(const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const float& z) 
+(EventData& data,
+ const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
+ const float& z) const
 {
-  if (m_i_seede!=m_l_seeds.end()) {
-    InDet::SiSpacePointsSeed* s = &(*m_i_seede++);
+  if (data.i_seede!=data.l_seeds.end()) {
+    InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
     s->erase     (  );
     s->add       (p1);
     s->add       (p2);
     s->setZVertex(static_cast<double>(z));
   } else {
-    m_l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, z));
-    m_i_seede = m_l_seeds.end();
+    data.l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, z));
+    data.i_seede = data.l_seeds.end();
   }
 }
 
 ///////////////////////////////////////////////////////////////////
-// New 3 space points seeds 
+// New 3 space points seeds (not used)
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
-(const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3,const float& z) 
+(EventData& data,
+ const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
+ const Trk::SpacePoint*& p3,const float& z) const
 {
-  if (m_i_seede!=m_l_seeds.end()) {
-    InDet::SiSpacePointsSeed* s = &(*m_i_seede++);
+  if (data.i_seede!=data.l_seeds.end()) {
+    InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
     s->erase     (  );
     s->add       (p1);
     s->add       (p2);
     s->add       (p3);
     s->setZVertex(static_cast<double>(z));
   } else {
-    m_l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, p3, z));
-    m_i_seede = m_l_seeds.end();
+    data.l_seeds.push_back(InDet::SiSpacePointsSeed(p1, p2, p3, z));
+    data.i_seede = data.l_seeds.end();
   }
 }
 
@@ -1187,20 +1200,67 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds ()
+void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) const
 {
   std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
-    l  = m_mapOneSeeds.begin(),
-    le = m_mapOneSeeds.end  ();
+    l  = data.mapOneSeeds.begin(),
+    le = data.mapOneSeeds.end  ();
 
   for (; l!=le; ++l) {
-    if (m_i_seede!=m_l_seeds.end()) {
-      InDet::SiSpacePointsSeed* s = &(*m_i_seede++);
+    if (data.i_seede!=data.l_seeds.end()) {
+      InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
       *s = *(*l).second;
     } else {
-      m_l_seeds.push_back(InDet::SiSpacePointsSeed(*(*l).second));
-      m_i_seede = m_l_seeds.end();
+      data.l_seeds.push_back(InDet::SiSpacePointsSeed(*(*l).second));
+      data.i_seede = data.l_seeds.end();
     }
   }
 }
-  
+
+InDet::SiSpacePointsSeedMaker_BeamGas::EventData&
+InDet::SiSpacePointsSeedMaker_BeamGas::getEventData() const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  if (not m_initialized) slot = 0;
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cache.size()) { // Need to extend vectors
+    static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement
+    m_eventData.resize(slot+1);
+  }
+  if (m_cache[slot]!=evt) { // New event
+    m_cache[slot] = evt;
+    // Initialization
+    m_eventData[slot] = EventData{}; // This will be improved later.
+
+    m_eventData[slot].r_Sorted.resize(m_r_size);
+    m_eventData[slot].r_index.resize(m_r_size, 0);
+    m_eventData[slot].r_map.resize(m_r_size, 0);
+
+    m_eventData[slot].SP.resize(m_maxsizeSP, nullptr);
+    m_eventData[slot].R.resize(m_maxsizeSP, 0.);
+    m_eventData[slot].Tz.resize(m_maxsizeSP, 0.);
+    m_eventData[slot].Er.resize(m_maxsizeSP, 0.);
+    m_eventData[slot].U.resize(m_maxsizeSP, 0.);
+    m_eventData[slot].V.resize(m_maxsizeSP, 0.);
+    m_eventData[slot].Zo.resize(m_maxsizeSP, 0.);
+
+    m_eventData[slot].OneSeeds.resize(m_maxOneSize);
+
+    for (int i=0; i<SizeRF; ++i) {
+      m_eventData[slot].rf_index[i] = 0;
+      m_eventData[slot].rf_map[i] = 0;
+    }
+    // Build radius-azimuthal-Z sorted containers
+    for (int i=0; i<SizeRFZ; ++i) {
+      m_eventData[slot].rfz_index[i] = 0;
+      m_eventData[slot].rfz_map[i] = 0;
+    }
+
+    m_eventData[slot].i_seed  = m_eventData[slot].l_seeds.begin();
+    m_eventData[slot].i_seede = m_eventData[slot].l_seeds.end();
+  }
+
+  return m_eventData[slot]; 
+}
