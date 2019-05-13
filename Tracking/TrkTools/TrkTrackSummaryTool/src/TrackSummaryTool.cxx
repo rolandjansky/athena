@@ -369,7 +369,7 @@ void Trk::TrackSummaryTool::updateSharedHitCount(Track& track) const
       createSummary( track, true );
       return;
   } 
-  Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
+  Trk::TrackSummary* tSummary = track.m_trackSummary;
   m_idTool->updateSharedHitCount(track, *tSummary);
   return;
 }
@@ -381,7 +381,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
       createSummary( track, true );
       return;
   } 
-  Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
+  Trk::TrackSummary* tSummary = track.m_trackSummary;
   
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5); 
