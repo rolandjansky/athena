@@ -51,5 +51,8 @@ StatusCode PerfMonMTAlg::execute( const EventContext& /*ctx*/ ) const {
   // Call startAud
   m_perfMonMTSvc->startAud("","");
 
+  // Call stopAud
+  m_perfMonMTSvc->stopAud("","");
+
   return StatusCode::SUCCESS;
 } 

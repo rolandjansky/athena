@@ -31,3 +31,11 @@ if not hasattr(topSequence, "PerfMonMTSvcAlg"):
     topSequence += PerfMonMTAlg("PerfMonMTAlg")
     pass
 
+###############################
+# Turn-on monitoring only for
+# algorithms for testing
+###############################
+from AthenaCommon.AppMgr import theApp
+theApp.AuditAlgorithms = True
+theApp.AuditTools      = False
+theApp.AuditServices   = False

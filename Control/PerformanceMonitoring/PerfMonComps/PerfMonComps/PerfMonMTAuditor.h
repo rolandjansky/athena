@@ -18,7 +18,7 @@ class IPerfMonMTSvc;
 
 class PerfMonMTAuditor : public Auditor
 {
-  /* 
+  /*
   using Auditor::before;
   using Auditor::after;
   */

@@ -16,8 +16,8 @@
 /*
  * Constructor
  */
-PerfMonMTSvc::PerfMonMTSvc( const std::string& name, 
-                            ISvcLocator* pSvcLocator ) 
+PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
+                            ISvcLocator* pSvcLocator )
   : AthService( name, pSvcLocator ) {
 }
 
@@ -70,12 +70,12 @@ StatusCode PerfMonMTSvc::finalize() {
 /*
  * Start Auditing
  */
-void PerfMonMTSvc::startAud( const std::string& /*stepName*/, 
-                             const std::string& /*compName*/ ) {
-  ATH_MSG_INFO("Starting Auditing");
+void PerfMonMTSvc::startAud( const std::string& stepName,
+                             const std::string& compName ) {
+  ATH_MSG_INFO("Starting Auditing " << stepName << " " << compName);
   const EventContext ctx = Gaudi::Hive::currentContext();
   if(ctx.valid()) {
-    ATH_MSG_INFO("Current event number is " << ctx.evt() << 
+    ATH_MSG_INFO("Current event number is " << ctx.evt() <<
                  " slot number is " << ctx.slot());
   }
 
@@ -88,7 +88,7 @@ void PerfMonMTSvc::startAud( const std::string& /*stepName*/,
 /*
  * Stop Auditing
  */
-void PerfMonMTSvc::stopAud( const std::string& /*stepName*/, 
-                             const std::string& /*compName*/ ) {
-  ATH_MSG_INFO("Stopping Auditing");
+void PerfMonMTSvc::stopAud( const std::string& stepName,
+                            const std::string& compName ) {
+  ATH_MSG_INFO("Stopping Auditing " << stepName << " " << compName);
 }
