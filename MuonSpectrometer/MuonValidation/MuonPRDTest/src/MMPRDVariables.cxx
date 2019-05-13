@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMPRDVariables.h"
@@ -108,6 +108,10 @@ StatusCode MMPRDVariables::fillVariables()
         
       }
 
+      m_NSWMM_prd_uTPCAngle->push_back(prd->angle());  
+      m_nsw_prd_uTPCChiSqProb->push_back(prd->chisqProb());
+
+
 
 
 
@@ -143,6 +147,10 @@ void MMPRDVariables::deleteVariables()
   delete m_NSWMM_prd_rdos_channel;
   delete m_NSWMM_prd_nRdos;
 
+  delete m_NSWMM_prd_uTPCAngle;  
+  delete m_nsw_prd_uTPCChiSqProb;
+
+
 
   m_NSWMM_nPRDs    = 0;
   
@@ -166,6 +174,10 @@ void MMPRDVariables::deleteVariables()
   m_NSWMM_prd_rdos_time=nullptr;
   m_NSWMM_prd_rdos_channel=nullptr;
   m_NSWMM_prd_nRdos=nullptr;
+
+  m_NSWMM_prd_uTPCAngle=nullptr;
+  m_nsw_prd_uTPCChiSqProb=nullptr;
+
   ATH_MSG_DEBUG("end of deleteVariables()");
 
   return;
@@ -196,6 +208,10 @@ StatusCode MMPRDVariables::clearVariables()
   m_NSWMM_prd_rdos_time->clear();
   m_NSWMM_prd_rdos_channel->clear();
   m_NSWMM_prd_nRdos->clear();
+  m_NSWMM_prd_uTPCAngle->clear();  
+  m_nsw_prd_uTPCChiSqProb->clear();
+
+
   ATH_MSG_DEBUG("end of clearVariables()");
 
   return StatusCode::SUCCESS;
@@ -227,6 +243,10 @@ StatusCode MMPRDVariables::initializeVariables()
   m_NSWMM_prd_rdos_channel = new std::vector<std::vector<int>>();
   m_NSWMM_prd_nRdos = new std::vector<int>();
 
+  m_NSWMM_prd_uTPCAngle   = new std::vector<double>();
+  m_nsw_prd_uTPCChiSqProb = new std::vector<double>();
+
+
   ATH_MSG_DEBUG("did init of vars initializeVariables()");
 
   if(m_tree) {
@@ -252,6 +272,10 @@ StatusCode MMPRDVariables::initializeVariables()
     m_tree->Branch("PRD_MM_rdos_time", &m_NSWMM_prd_rdos_time);
     m_tree->Branch("PRD_MM_rdos_channel", &m_NSWMM_prd_rdos_channel);
     m_tree->Branch("PRD_MM_nRdos", &m_NSWMM_prd_nRdos);
+
+    m_tree->Branch("PRD_MM_uTPCAngle",&m_NSWMM_prd_uTPCAngle);
+    m_tree->Branch("PRD_MM_uTPCChiSqProb",&m_nsw_prd_uTPCChiSqProb);
+
   
     ATH_MSG_DEBUG("did init of tree initializeVariables()");
 
