@@ -19,6 +19,8 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include <ostream>
+#include <atomic>
+
 class MsgStream;
 class RIO_OnTrackCnv_p1;
 class RIO_OnTrackCnv_p2;
@@ -125,7 +127,7 @@ namespace Trk {
       Identifier m_identifier; 
 
       /** number of objects of this type in memory */
-      static unsigned int s_numberOfInstantiations;
+      static std::atomic<unsigned int> s_numberOfInstantiations;
   };
   
   inline Identifier RIO_OnTrack::identify() const     
