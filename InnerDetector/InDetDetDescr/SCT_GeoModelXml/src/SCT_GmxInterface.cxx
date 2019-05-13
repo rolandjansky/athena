@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModelXml/SCT_GmxInterface.h"
@@ -7,12 +7,7 @@
 #include <cstdlib>
 #include <sstream>
 
-//#define CANNOT_DEPEND_ON_INDETSIMEVENT
-//#ifdef CANNOT_DEPEND_ON_INDETSIMEVENT
-#include "SCT_GeoModelXml/SiHitIdGmx.h"
-//#else
-//#include "InDetSimEvent/SiHitIdHelper.h"
-//#endif
+#include "InDetSimEvent/SiHitIdHelper.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -48,19 +43,8 @@ SCT_GmxInterface::~SCT_GmxInterface() {
 
 int SCT_GmxInterface::sensorId(map<string, int> &index) {
 //
-//    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
-//
-//#ifdef CANNOT_DEPEND_ON_INDETSIMEVENT
-    const SiHitIdGmx id(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], index["eta_module"], index["phi_module"], 
-                        index["side"]);
-    *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
-                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
-    *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << id.id() << std::dec << endmsg;
-    *m_log << MSG::DEBUG << "\n" << id.print() << endmsg;
-
-    return id.id(); 
-    //#else
-    /*
+//    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "O
+    
     int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], 
                                                               index["eta_module"], index["phi_module"], index["side"]);
 
@@ -73,19 +57,7 @@ int SCT_GmxInterface::sensorId(map<string, int> &index) {
                                       " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
                                       " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg; 
     return hitIdOfWafer;
-    */
-    //#endif
-
-/* Not offline compact id's:
-    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
-    Identifier id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
-                                          index["eta_module"], index["side"]);
-    return id.get_identifier32().get_compact();
-*/
-/* Not hashes:
-    IdentifierHash hashId = sctIdHelper->wafer_hash(id);
-    return hashId;
-*/
+    
 }
 
 
