@@ -170,7 +170,7 @@ namespace Trk
     ElementLink< VxContainer >                  m_elVxCandidate; 
     
     /** DataVector of TrackParameters stored inside this TrackParticle. (This TrackParticleBase owns all the TrackParameters, and will delete them in the destructor)*/
-    mutable std::vector<const TrackParameters*> m_trackParameters; 
+    std::vector<const TrackParameters*> m_trackParameters; 
     
     /** the summary of this TrackParticle. Owned by this object.*/
     const TrackSummary*                    m_trackSummary; 
@@ -269,7 +269,7 @@ namespace Trk
   void TrackParticleBase::setTrackLink ( const TrackCollection *  cont, const Track * track) 
   {
      if ( m_originalTrack.isValid() ) m_originalTrack.reset();
-     m_originalTrack.toContainedElement( *cont,  const_cast<Track*> (track));
+     m_originalTrack.toContainedElement( *cont, track);
   }
   
   inline const TrackInfo& TrackParticleBase::info() const
