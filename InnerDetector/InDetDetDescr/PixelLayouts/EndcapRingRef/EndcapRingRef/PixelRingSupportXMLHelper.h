@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
 #ifndef PixelRingSupportXMLHelper_H
 #define PixelRingSupportXMLHelper_H
 
@@ -20,7 +17,7 @@ class PixelRingSupportXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   PixelRingSupportXMLHelper(const PixelGeoBuilderBasics* basics);
   ~PixelRingSupportXMLHelper();
 
-  int getNbSupport(int layer);
+  int getNbSupport(int layer, int ring=0);
   double getRingSupportRMin(int iSupport) const;
   double getRingSupportRMax(int iSupport) const;
   double getRingSupportThickness(int iSupport) const;

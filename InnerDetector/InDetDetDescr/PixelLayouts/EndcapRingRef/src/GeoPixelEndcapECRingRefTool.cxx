@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "EndcapRingRef/GeoPixelEndcapECRingRefTool.h"
 #include "EndcapRingRef/GeoPixelLayerECRingRefTool.h"
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
@@ -218,8 +219,19 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
       ecPhys = new GeoFullPhysVol(endcapLog);
   }
 
-    basics->getDetectorManager()->numerology().setNumDisks(m_nlayers);
 
+  // Set numerology ( ST: xml based layer split) 
+  //basics->getDetectorManager()->numerology().setNumDisks(m_nlayers);
+  m_numberOfReadoutLayers = m_nlayers;
+       	 
+  for (int il = 0 ; il < m_nlayers; il++) {
+    InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(il);
+    for (auto sl : discTmp->readoutSublayers) {
+      if (sl.layer > m_numberOfReadoutLayers-1) m_numberOfReadoutLayers = sl.layer+1;
+    }
+  }
+ 		
+  basics->getDetectorManager()->numerology().setNumDisks(m_numberOfReadoutLayers);
 
   // Retrieve the PixelServiceTool
   StatusCode sc = m_IDserviceTool.retrieve(); 

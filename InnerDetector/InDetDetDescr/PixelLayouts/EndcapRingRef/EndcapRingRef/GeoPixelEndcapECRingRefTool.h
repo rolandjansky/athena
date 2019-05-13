@@ -61,7 +61,8 @@ class GeoPixelEndcapECRingRefTool : virtual public IGeoPixelEndcapTool, public A
 
   double m_endcapRMin;
   double m_endcapRMax;
-  double m_nlayers;
+  int m_nlayers;
+  int m_numberOfReadoutLayers;
 
   bool m_bPrebuild;
  

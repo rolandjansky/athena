@@ -123,6 +123,9 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   std::vector<std::string> v_moduleType = discTmp->modtype;
   std::vector<std::string> v_splitMode = discTmp->splitMode;
   std::vector<double> v_splitOffset = discTmp->splitOffset;
+  std::vector<std::string> v_readoutRegion = discTmp->readoutRegion;
+  std::vector<int> v_readoutLayer = discTmp->readoutLayer;
+  std::vector<int> v_readoutEta = discTmp->readoutEta;
 
   int nrings = (int)v_ringPosition.size();
 
@@ -151,6 +154,10 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     
     SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,iRing));
 
+    std::string roRegion = getValueFromVector(v_readoutRegion, iRing);
+    int roLayer = getValueFromVector(v_readoutLayer, iRing);
+    int roEta = getValueFromVector(v_readoutEta, iRing);
+
     ATH_MSG_DEBUG("                            - # modules & module type"<<numModules<<"  -  "<<moduleType<<"   ");
     
     int iSide = getValueFromVector(v_discSide,iRing);
@@ -158,6 +165,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     // Forward ring
     GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode);
     ringF.preBuild(basics);
+    ringF.readoutId(roRegion,roLayer,roEta);
     m_ringListF.push_back(ringF);
     m_ringPos.push_back(ringPosition-halfZoffset+ringF.getRingZShift());
 
@@ -169,6 +177,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     // Backward ring
     GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode);
     ringB.preBuild(basics);
+    ringB.readoutId(roRegion,roLayer,roEta);
     m_ringListB.push_back(ringB);
     m_ringPos.push_back(ringPosition+halfZoffset-ringB.getRingZShift());
     
@@ -190,15 +199,17 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     zLayerMax = std::max(zLayerMax,z[1]);
   }
 
-  nbSvcSupport = ringHelper.getNbSupport(m_layer);
-  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
-    double rmin = ringHelper.getRingSupportRMin(iSvc);
-    double rmax = ringHelper.getRingSupportRMax(iSvc);
+  for(int iRing=0; iRing<nrings; iRing++){
 
-    rLayerMin = std::min(rLayerMin,rmin);
-    rLayerMax = std::max(rLayerMax,rmax);
+    nbSvcSupport = ringHelper.getNbSupport(m_layer,iRing);
+    for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
+      double rmin = ringHelper.getRingSupportRMin(iSvc);
+      double rmax = ringHelper.getRingSupportRMax(iSvc);
+
+      rLayerMin = std::min(rLayerMin,rmin);
+      rLayerMax = std::max(rLayerMax,rmax);
+    }
   }
-  
 
   // Further layer parameters...
   m_layerPosition = (zLayerMin+zLayerMax)*.5;
@@ -232,7 +243,8 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   std::vector<double> v_splitOffset    = discTmp->splitOffset;
    
   // Set numerology
-  basics->getDetectorManager()->numerology().setNumRingsForDisk(layer,nrings);
+  for (auto sublay :  discTmp->readoutSublayers)
+ 	basics->getDetectorManager()->numerology().setNumRingsForDisk(sublay.layer,sublay.rings.size());
 
   // Build rings defined in preBuild function
   for(int iRing=0; iRing<nrings; iRing++){
@@ -257,15 +269,10 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     
     }
     
-    // Set numerology
+    // Set numerology  : customized readout region disabled / if needed, update of SiNumerology required
     int numModules = getValueFromVector(v_numModules, iRing);
-
-    int tmp_layer = layer; 
-    int tmp_ring = iRing;
-   
-    basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(tmp_layer,tmp_ring,numModules);
+    basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(discTmp->readoutLayer[iRing],discTmp->readoutEta[iRing],numModules);
  
-
   }
    
   
@@ -283,7 +290,6 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 
   // Read ring supports (defined in xml file)
   PixelRingSupportXMLHelper ringHelper(basics);
-  int nbSvcSupport = ringHelper.getNbSupport(m_layer);
 
   // Place the ring in the layer envelpoe
   // i runs over rings here and for all positions etc vectors, but for phys vol
@@ -352,8 +358,10 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       
       }
 
+      int nbSvcSupport = ringHelper.getNbSupport(m_layer,int(floor(i/2)));
+
       if(nbSvcSupport>0){      
-	if (splitMode==NONE && i==0) {	  
+	if (splitMode==NONE && (i%2==0)) {	  
 	  // Add ring supports
 	  for (int iSvc = 0; iSvc < nbSvcSupport; iSvc++){
 	    double rminSvc = ringHelper.getRingSupportRMin(iSvc);
@@ -386,7 +394,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    }
 	  }
 	}
-	
+
 	if (splitMode!=NONE && i%2==0){
 	  // here starts if we have the 2 tubs when we split the rings
 	  int iSvc = i/2<nbSvcSupport ? i/2 : nbSvcSupport-1;
@@ -395,6 +403,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  double thick = ringHelper.getRingSupportThickness(iSvc);
 	  std::string matName = ringHelper.getRingSupportMaterial(iSvc);	
 
+	  // here starts if we have the 2 tubs when we split the rings
 	  double SphiTwd  = 90.*CLHEP::deg;
 	  double DphiTwd  = 180.*CLHEP::deg;
 	  double SphiAway = 270.*CLHEP::deg;
@@ -472,8 +481,6 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
     return ecPhys;
 }
-
-
 
 
 double GeoPixelLayerECRingRefTool::getValueFromVector(std::vector<double> v, int i)

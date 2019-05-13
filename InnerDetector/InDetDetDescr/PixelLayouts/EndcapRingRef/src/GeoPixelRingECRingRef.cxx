@@ -55,6 +55,9 @@ GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringR
     m_moduleType(moduleType),
     m_diskId(diskId),
     m_front_back(back_front),
+    m_readoutRegion("EC"),
+    m_readoutLayer(iLayer),
+    m_readoutEta(iRing),
     m_pixelModuleSvc("PixelModuleSvc","PixelModuleSvc"),
     m_pixelDesignSvc("PixelDesignSvc","PixelDesignSvc")
 {
@@ -111,6 +114,13 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   if(m_front_back==-1) m_ringId++;
 
   m_bPrebuild = true;  
+}
+
+void GeoPixelRingECRingRef::readoutId(std::string region, int lay, int etaIndex )
+{
+  m_readoutRegion = region;
+  m_readoutLayer = lay;
+  m_readoutEta = etaIndex;
 }
 
 GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, int endcapSide )
@@ -182,28 +192,30 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
       // Rotate the module to switch to a radial plane
       HepGeom::Transform3D initModule = HepGeom::RotateY3D(90.*CLHEP::deg);
       if(m_front_back==1 || m_ringSide<0 ) initModule = HepGeom::RotateX3D(180.*CLHEP::deg) * initModule;
+
+      // synchronize the sim/reco identification
+      if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
+      m_ringId = 2*m_readoutEta;
+      if(m_front_back==-1) m_ringId++;
       
       HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
       HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;
      
       // Build and place the module - 600 is the new geoTagId for ITk endcap ring sensors
       std::ostringstream modName;
-      modName<<"_"<<2*endcapSide<<"_"<<m_layer<<"_"<<phiId<<"_"<<m_ring;
+      modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_ringId;
       GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrf);
-      GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_layer, phiId, m_ringId, 600, modName.str());
+      GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_readoutLayer, phiId, m_ringId, 600, modName.str());
 
       std::ostringstream ostr;
-      ostr << "Layer" << m_layer << "_Sector" << m_ringId;
+      ostr << "Layer" << m_readoutLayer << "_Sector" << m_ringId;
       ringPhys->add(new GeoNameTag(ostr.str()));
       ringPhys->add(new GeoIdentifierTag(phiId));
       ringPhys->add(xform);
       ringPhys->add(modulePhys);
 
-      int tmp_layer = m_layer; 
-      int tmp_ring = m_ring; 
-      int tmp_endcapId = endcapId;
-
-      Identifier idwafer = basics->getIdHelper()->wafer_id(tmp_endcapId, tmp_layer, phiId, tmp_ring);
+      // Build and store DetectorElement
+      Identifier idwafer = basics->getIdHelper()->wafer_id(endcapId, m_readoutLayer, phiId, m_readoutEta);
       InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, ringModuleDesign,
                                                                             modulePhys, basics->getCommonItems());
       basics->getDetectorManager()->addDetectorElement(element);
@@ -333,14 +345,19 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
       
       HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
       HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;  
+    
+      // synchronize the sim/reco identification
+      if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
+      m_ringId = 2*m_readoutEta;
+      if(m_front_back==-1) m_ringId++;
   
       // Build and place the module - 600 is the new geoTagId for ITk endcap ring sensors
       std::ostringstream modName; 
-      modName<<"_"<<2*endcapSide<<"_"<<m_layer<<"_"<<phiId<<"_"<<m_ring;
+      modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_readoutEta;
       GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrf);
-      GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_layer, phiId, m_ringId, 600, modName.str());
+      GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_readoutLayer, phiId, m_ringId, 600, modName.str());
       std::ostringstream ostr; 
-      ostr << "Layer" << m_layer << "_Sector" << m_ringId << "_Module" << modName.str(); 
+      ostr << "Layer" << m_readoutLayer << "_Sector" << m_ringId;
       
       if (isTwd) {
 	ringPhysTwdBS->add(new GeoNameTag(ostr.str()));
@@ -356,12 +373,8 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
       }
      
       // Build and store DetectorElement
-      
-      int tmp_layer = m_layer; 
-      int tmp_ring = m_ring; 
-      int tmp_endcapId = endcapId;
+      Identifier idwafer = basics->getIdHelper()->wafer_id(endcapId, m_readoutLayer, phiId, m_readoutEta);
 
-      Identifier idwafer = basics->getIdHelper()->wafer_id(tmp_endcapId, tmp_layer, phiId, tmp_ring);
       InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, ringModuleDesign, 
                     modulePhys, basics->getCommonItems());
       basics->getDetectorManager()->addDetectorElement(element);
