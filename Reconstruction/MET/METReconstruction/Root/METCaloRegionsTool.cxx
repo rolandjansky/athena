@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METCaloRegionsTool.cxx 
@@ -71,13 +71,12 @@ namespace met {
   {
     ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-    StatusCode sc = StatusCode::SUCCESS;
     #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     #else
     ATH_CHECK( m_noiseCDOKey.initialize() );
     #endif
 
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode METCaloRegionsTool::finalize()
@@ -238,16 +237,15 @@ namespace met {
     SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
     const CaloNoise* noiseCDO=*noiseHdl;
     // Loop over all cells
-    for( CaloCellContainer::const_iterator iCell=caloCellContainer->begin();
-       iCell!=caloCellContainer->end(); ++iCell ) {
+    for (const CaloCell* cell : *caloCellContainer) {
 
       // Retrieve the sampling 
-      CaloSampling::CaloSample sample = (CaloSampling::CaloSample) (*iCell)->caloDDE()->getSampling();
+      CaloSampling::CaloSample sample = (CaloSampling::CaloSample) cell->caloDDE()->getSampling();
 
       // Calculate Et/phi
-      double e_cell   = (*iCell)->energy();
-      double et_cell  = e_cell/cosh((*iCell)->eta());
-      double phi_cell = (*iCell)->phi();
+      double e_cell   = cell->energy();
+      double et_cell  = e_cell/cosh(cell->eta());
+      double phi_cell = cell->phi();
      
       // Find the associated MET 
       MissingET* metTerm  = findMetTerm(metContainer, sample); 
@@ -266,7 +264,7 @@ namespace met {
         #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
         double noise_cell = 0;
         #else
-        double noise_cell = noiseCDO->getNoise((*iCell)->ID(),(*iCell)->gain());
+        double noise_cell = noiseCDO->getNoise(cell->ID(),cell->gain());
         #endif
         // All cells
         metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),
