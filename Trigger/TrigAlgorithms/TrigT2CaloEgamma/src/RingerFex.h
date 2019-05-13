@@ -123,7 +123,7 @@ public:
                              const CaloDetDescrElement*& /*caloDDE*/) override;
   virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
                              const CaloDetDescrElement*& /*caloDDE*/,
-                             const EventContext* /*context*/);
+                             const EventContext& context);
 
 private: // Representation
   
