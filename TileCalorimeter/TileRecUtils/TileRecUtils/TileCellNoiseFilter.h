@@ -16,10 +16,11 @@
 // Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -70,7 +71,8 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     void setCMSEnergy(const cmdata_t& commonMode, TileCell *cell) const;
 
     // calculate common-mode for all the motherboards
-    int calcCM(const CaloCellContainer *cellcoll, cmdata_t& commonMode) const;
+    int calcCM(const CaloNoise* caloNoise,
+               const CaloCellContainer *cellcoll, cmdata_t& commonMode) const;
 
     // derive a value of common-mode shift
     float getCMShift(const cmdata_t& commonMode,
@@ -88,7 +90,9 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile noise sample tool"};
 
-    ToolHandle<ICalorimeterNoiseTool> m_noiseTool;       //!< Calo Noise tool
+    SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey{this, "CaloNoise",
+                                                    "",
+                                                    "CaloNoise object to read, or null to use the DB directly"};
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
@@ -97,7 +101,6 @@ class TileCellNoiseFilter: public extends<AthAlgTool, ICaloCellMakerTool> {
     float m_truncationThresholdOnAbsEinSigma;
     float m_minimumNumberOfTruncatedChannels;
     bool m_useTwoGaussNoise;
-    bool m_useTileNoiseDB;
 
     static const CaloCell_ID::SUBCALO s_caloIndex = CaloCell_ID::TILE;
 

@@ -15,6 +15,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 // Atlas includes
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -36,19 +37,14 @@ TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
     : base_class(type, name, parent)
     , m_tileID(0)
     , m_tileHWID(0)
-    , m_noiseTool("CaloNoiseTool")
     , m_truncationThresholdOnAbsEinSigma(4.0) // 4 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
-    , m_useTileNoiseDB(true)         // Tile DB with ADC HF noise by defaul
 {
 
   declareInterface<TileCellNoiseFilter>(this);
 
-  declareProperty("CaloNoiseTool", m_noiseTool);
-
   declareProperty("UseTwoGaussNoise", m_useTwoGaussNoise);
-  declareProperty("UseTileNoiseDB", m_useTileNoiseDB);
   declareProperty("TruncationThresholdOnAbsEinSigma", m_truncationThresholdOnAbsEinSigma);
   declareProperty("MinimumNumberOfTruncatedChannels", m_minimumNumberOfTruncatedChannels);
   declareProperty("MaxNoiseSigma", m_maxNoiseSigma = 5.0, "Channels with noise more than that value are igonred in calculation of correction");
@@ -65,18 +61,15 @@ StatusCode TileCellNoiseFilter::initialize() {
   //=== get TileCondToolEmscale
   ATH_CHECK( m_tileToolEmscale.retrieve() );
 
-  if (m_useTileNoiseDB) {
+  if (m_caloNoiseKey.empty()) {
     //=== get TileCondToolNoiseSample
     ATH_CHECK( m_tileToolNoiseSample.retrieve());
 
     //=== get TileBadChanTool
     ATH_CHECK( m_tileBadChanTool.retrieve() );
 
-    m_noiseTool.disable();
-
   } else {
-    //=== CaloNoiseTool
-    ATH_CHECK( m_noiseTool.retrieve());
+    ATH_CHECK( m_caloNoiseKey.initialize());
 
     m_tileToolNoiseSample.disable();
     m_tileBadChanTool.disable();
@@ -88,7 +81,7 @@ StatusCode TileCellNoiseFilter::initialize() {
 // ============================================================================
 // process container
 StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll,
-                                         const EventContext& /*ctx*/) const
+                                         const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("in process()");
 
@@ -98,10 +91,16 @@ StatusCode TileCellNoiseFilter::process (CaloCellContainer* cellcoll,
     return StatusCode::SUCCESS;
   }
 
+  const CaloNoise* caloNoise = nullptr;
+  if (!m_caloNoiseKey.empty()) {
+    SG::ReadCondHandle<CaloNoise> noiseH (m_caloNoiseKey, ctx);
+    caloNoise = noiseH.cptr();
+  }
+
   // common-mode shift calculation
   ATH_MSG_DEBUG("Calculating common-mode shift...");
   cmdata_t commonMode = {{{0}}};
-  int ncorr = this->calcCM(cellcoll, commonMode);
+  int ncorr = this->calcCM(caloNoise, cellcoll, commonMode);
   if (ncorr <= 0) {
     ATH_MSG_DEBUG( "Failed to calculate common-mode shift - no corrections applied");
     return StatusCode::SUCCESS;
@@ -190,11 +189,10 @@ void TileCellNoiseFilter::setCMSEnergy(const cmdata_t& commonMode,
 
 // ============================================================================
 // calculate correction
-int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll,
+int TileCellNoiseFilter::calcCM(const CaloNoise* caloNoise,
+                                const CaloCellContainer* cellcoll,
                                 cmdata_t& commonMode) const
 {
-  bool useCaloNoise = (!m_useTileNoiseDB);
-
   int nEmptyChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
   int nGoodChan[s_maxPartition][s_maxDrawer][s_maxMOB] = {{{0}}};
 
@@ -209,14 +207,12 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll,
 
     float noise_sigma = 1.5, significance = 0.0;
 
-    if (useCaloNoise) {
+    if (caloNoise) {
       if (m_useTwoGaussNoise) {
-        noise_sigma = m_noiseTool->getEffectiveSigma(cell
-                                                     , ICalorimeterNoiseTool::MAXSYMMETRYHANDLING
-                                                     , ICalorimeterNoiseTool::ELECTRONICNOISE);
+        noise_sigma = caloNoise->getEffectiveSigma(cell->ID(), cell->gain(), cell->energy());
 
       } else {
-        noise_sigma = m_noiseTool->getNoise(cell, ICalorimeterNoiseTool::ELECTRONICNOISE);
+        noise_sigma = caloNoise->getNoise(cell->ID(), cell->gain());
       }
 
       significance = (noise_sigma != 0.0) ? fabs(cell->energy() / noise_sigma) : 999.999;
@@ -259,7 +255,7 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll,
           amp = tilecell->ene1() / chanCalMeV;
         }
 
-        if (m_useTileNoiseDB) {
+        if (!caloNoise) {
           if (m_useTwoGaussNoise) {
             // nothing for the moment - keep 1.5 ADC counts
           } else {
@@ -312,7 +308,7 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll,
           amp = tilecell->ene2() / chanCalMeV;
         }
 
-        if (m_useTileNoiseDB) {
+        if (!caloNoise) {
           if (m_useTwoGaussNoise) {
             // nothing for the moment - keep 1.5 ADC counts
           } else {
