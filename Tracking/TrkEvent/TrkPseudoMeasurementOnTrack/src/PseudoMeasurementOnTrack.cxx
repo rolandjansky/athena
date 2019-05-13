@@ -125,9 +125,7 @@ Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(PseudoMe
 
 const Amg::Vector3D& Trk::PseudoMeasurementOnTrack::globalPosition() const
 {
-  if (m_globalPosition!=nullptr) {  
-    return *m_globalPosition;
-  }
+  if (m_globalPosition) { return *m_globalPosition;}
   return INVALID_VECTOR3D;
 }
 
