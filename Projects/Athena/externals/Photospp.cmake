@@ -2,6 +2,6 @@
 # File specifying the location of Photos++ to use.
 #
 
-set( PHOTOSPP_VERSION 3.61 )
-set( PHOTOSPP_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/photos++/${PHOTOSPP_VERSION}/${LCG_PLATFORM} )
+set( PHOTOSPP_LCGVERSION 3.61 )
+set( PHOTOSPP_LCGROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/photos++/${PHOTOSPP_LCGVERSION}/${LCG_PLATFORM} )
