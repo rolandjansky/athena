@@ -8,6 +8,7 @@
 #include "TrigT1CTP/CTPTriggerThreshold.h"
 #include "TrigT1CTP/CTPTriggerItem.h"
 #include "TrigT1CTP/BunchGroupTrigger.h"
+#include "TrigT1CTP/RandomTrigger.h"
 #include "TrigT1CTP/CTPUtil.h"
 
 #include "TrigT1Result/CTP_RDO.h"
@@ -32,6 +33,7 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    AthAlgorithm ( name, pSvcLocator ), 
    m_histSvc ("THistSvc", name),
    m_configSvc ("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+   m_rndmSvc("AtRndmGenSvc",name),
    m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
    m_itemCountsSumTBP(512,0),
    m_itemCountsSumTAP(512,0),
@@ -107,14 +109,38 @@ LVL1CTP::CTPEmulation::createInternalTriggerMap() {
 
    unsigned int ctpVersion ( 4 );
 
-   m_internalTrigger = new InternalTriggerMap();
-
    // declare bunch group internal triggers
    const std::vector<TrigConf::BunchGroup> & bunchGroups(m_configSvc->ctpConfig()->bunchGroupSet().bunchGroups());
    ATH_MSG_DEBUG("Defining bunch group internal trigger");
    for (size_t i(0); i < bunchGroups.size(); ++i) {
       InternalTriggerMap::key_type trigtype = std::make_pair(TrigConf::L1DataDef::BGRP,i);
-      (*m_internalTrigger)[trigtype] = new LVL1CTP::BunchGroupTrigger(i, bunchGroups[i].bunches(),ctpVersion);
+      m_internalTrigger[trigtype] = new LVL1CTP::BunchGroupTrigger(i, bunchGroups[i].bunches(),ctpVersion);
+   }
+
+
+   // get random engine
+   CHECK(m_rndmSvc.retrieve());
+   CLHEP::HepRandomEngine* rndmEngine = m_rndmSvc->GetEngine("CTPEmulation");
+   if ( rndmEngine == nullptr ) {
+      ATH_MSG_ERROR("Could not find RndmEngine CTPEmulation");
+      return StatusCode::FAILURE;
+   }
+   const TrigConf::Random random(m_configSvc->ctpConfig()->random());
+   ATH_MSG_DEBUG("Random trigger definition: " << random.name()
+                 << std::setw(8) << random.cuts(0)
+                 << std::setw(8) << random.cuts(1)
+                 << std::setw(8) << random.cuts(2)
+                 << std::setw(8) << random.cuts(3));
+
+   for(int rndmIdx = 0; rndmIdx<4; rndmIdx++) {
+      uint32_t cut = random.cuts(rndmIdx);
+      if(cut>=0x1000000) { cut = 0xFFFFFF; }
+      if(cut==0) { cut = 0x1; }
+      double prescale = double(0xFFFFFF) / (0x1000000-cut);
+      ATH_MSG_INFO("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << std::hex << cut << std::dec << " (" << cut << ")");
+      ATH_MSG_INFO("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
+      ATH_MSG_INFO("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
+      m_internalTrigger[ std::make_pair(TrigConf::L1DataDef::RNDM,rndmIdx)] = new RandomTrigger(rndmIdx, (unsigned int)prescale, ctpVersion, rndmEngine);
    }
 
    return StatusCode::SUCCESS;
@@ -135,7 +161,7 @@ LVL1CTP::CTPEmulation::printConfiguration() const {
                      << std::setw( 8 ) << m_thrMap->decision( threshold )->endBit() << "   |");
    }
    ATH_MSG_DEBUG("          |--------------------------------------------------------|");
-   for (InternalTriggerMap::value_type internalThr : *m_internalTrigger) {
+   for (InternalTriggerMap::value_type internalThr : m_internalTrigger) {
       ATH_MSG_DEBUG("REGTEST - |   " << std::setw( 20 ) << L1DataDef::typeAsString(internalThr.first.first) << internalThr.first.second << "   |   " 
                     << std::setw( 8 ) << internalThr.second->pit() << "   |   " << std::setw( 8 ) << internalThr.second->pit() << "   |");
    }
@@ -314,6 +340,29 @@ LVL1CTP::CTPEmulation::bookHists() {
    CHECK ( createMultiplicityHist( "em", L1DataDef::EM) );
    CHECK ( createMultiplicityHist( "tau", L1DataDef::TAU) );
 
+   // Topo
+   histpath = histBasePath() + "/input/topo/";
+   TH1* hTopo0 = new TH1I("L1TopoDecision0","L1Topo Decision Cable 0", 64, 0, 64);
+   TH1* hTopo1 = new TH1I("L1TopoDecision1","L1Topo Decision Cable 1", 64, 0, 64);
+   for(const TIP * tip : m_configSvc->ctpConfig()->menu().tipVector() ) {
+      if ( tip->tipNumber() < 384 )
+         continue;
+      unsigned int tipNumber = (unsigned int) ( tip->tipNumber() - 384 );
+      switch(tipNumber / 64) {
+      case 0:
+         hTopo0->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
+         break;
+      case 1:
+         hTopo1->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
+         break;
+      default:
+         break;
+      }
+   }
+   CHECK( m_histSvc->regHist( histpath + "l1Topo0", hTopo0) );
+   CHECK( m_histSvc->regHist( histpath + "l1Topo1", hTopo1) );
+
+
 
    // item decision
    histpath = histBasePath() + "/output/";
@@ -425,7 +474,7 @@ LVL1CTP::CTPEmulation::retrieveCollections() {
 StatusCode
 LVL1CTP::CTPEmulation::fillInputHistograms() {
 
-   TH1 *h (nullptr ), *h1 ( nullptr ), *h2 ( nullptr ), *h3 ( nullptr ),
+   TH1 *h (nullptr ), *h0 ( nullptr ),  *h1 ( nullptr ), *h2 ( nullptr ), *h3 ( nullptr ),
       *h4 ( nullptr ), *h5 ( nullptr ),  *h6 ( nullptr ), *h7 ( nullptr );
 
    // counts
@@ -609,6 +658,23 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
       }
    }
 
+   // topo
+   {
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/topo/l1Topo0",  h0 ) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/topo/l1Topo1",  h1 ) );
+      for(unsigned int i=0; i<32; ++i) {
+         uint32_t mask = 0x1; mask <<= i;
+         if( (m_topoCTP->cableWord1(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0
+         if( (m_topoCTP->cableWord1(1) & mask) != 0 ) h0->Fill(32 + i); // cable 0, clock 1
+         if( (m_topoCTP->cableWord2(0) & mask) != 0 ) h1->Fill(i); // cable 1, clock 0
+         if( (m_topoCTP->cableWord2(1) & mask) != 0 ) h1->Fill(32 + i); // cable 1, clock 1
+      }
+      ATH_MSG_DEBUG("Retrieved input from L1Topo from StoreGate with key " << m_topoCTPLoc);
+      ATH_MSG_DEBUG("L1Topo0 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(0));
+      ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(1));
+      ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(0));
+      ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(1));
+   }
 
    return StatusCode::SUCCESS;
 }
@@ -962,6 +1028,13 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
             }
          }
       }
+   } else if ( confThr->name().find("XS")==0 ) {
+      // old XS
+      if ( m_energyCTP.isValid() ) {
+         if ( confThr->cableName() == "EN1" ) {
+            multiplicity = CTPUtil::getMult( m_energyCTP->cableWord0(), confThr->cableStart(), confThr->cableEnd() );
+         }
+      }
    } else {
       // new XE 
       // input depends on the name of the threshold
@@ -1017,6 +1090,34 @@ LVL1CTP::CTPEmulation::calculateMuonMultiplicity( const TrigConf::TriggerThresho
 }
 
 
+unsigned int
+LVL1CTP::CTPEmulation::calculateTopoMultiplicity( const TrigConf::TriggerThreshold * confThr ) const {
+   unsigned int multiplicity = 0;
+
+   // topo
+   if ( m_topoCTP.isValid() ) {
+      uint64_t cable = 0;
+      if ( confThr->cableName() == "TOPO1" ) {
+         cable = ( (uint64_t)m_topoCTP->cableWord1( 1 ) << 32) + m_topoCTP->cableWord1( 0 );
+      } else {
+         cable = ( (uint64_t)m_topoCTP->cableWord2( 1 ) << 32) + m_topoCTP->cableWord2( 0 );
+      }
+
+      ATH_MSG_DEBUG( " ---> Topo input " << confThr->name() << " on module " << confThr->cableName() << " with clock " << confThr->clock()
+                     << ", cable start " << confThr->cableStart() << " and end " << confThr->cableEnd()
+                     << " double word 0x" << std::setw(16) << std::setfill('0') << std::hex << cable << std::dec << std::setfill(' ') );
+
+      multiplicity = CTPUtil::getMultTopo( cable, confThr->cableStart(), confThr->cableEnd(), confThr->clock() );
+
+   }
+
+   TH1 * h { nullptr };
+   CHECK( m_histSvc->getHist( histBasePath() + "/multi/muon", h) ); h->Fill(confThr->mapping(), multiplicity);
+
+   ATH_MSG_DEBUG("TOPO MU calculated decision bit for threshold " << confThr->name() << " : " << multiplicity);
+   return multiplicity;
+}
+
 
 unsigned int
 LVL1CTP::CTPEmulation::calculateMultiplicity( const TrigConf::TriggerThreshold * confThr ) const {
@@ -1024,11 +1125,8 @@ LVL1CTP::CTPEmulation::calculateMultiplicity( const TrigConf::TriggerThreshold *
 
    if( confThr->cableName() == "CTPCAL" || 
        confThr->cableName() == "ALFA" || 
-       confThr->cableName() == "TOPO1" || 
-       confThr->cableName() == "TOPO2" || 
        confThr->cableName() == "NIM1" || 
        confThr->cableName() == "NIM2" || 
-       confThr->type() == "XS" ||
        confThr->type() == "NIM") {
       return 0;
    }
@@ -1043,7 +1141,8 @@ LVL1CTP::CTPEmulation::calculateMultiplicity( const TrigConf::TriggerThreshold *
       multiplicity = calculateTauMultiplicity( confThr );
 
    } else if ( confThr->ttype() == TrigConf::L1DataDef::XE ||
-               confThr->ttype() == TrigConf::L1DataDef::TE ) {
+               confThr->ttype() == TrigConf::L1DataDef::TE ||
+               confThr->ttype() == TrigConf::L1DataDef::XS ) {
 
       multiplicity = calculateMETMultiplicity( confThr );
 
@@ -1055,6 +1154,10 @@ LVL1CTP::CTPEmulation::calculateMultiplicity( const TrigConf::TriggerThreshold *
 
       multiplicity = calculateMuonMultiplicity( confThr );
 
+   } else if ( confThr->ttype() == TrigConf::L1DataDef::TOPO ) {
+
+      multiplicity = calculateTopoMultiplicity( confThr );
+
    }
    return multiplicity;
 }
@@ -1062,11 +1165,11 @@ LVL1CTP::CTPEmulation::calculateMultiplicity( const TrigConf::TriggerThreshold *
 StatusCode
 LVL1CTP::CTPEmulation::simulateItems() {
 
-   m_itemMap->updatePrescaleCounters( m_thrMap, m_internalTrigger );
+   m_itemMap->updatePrescaleCounters( m_thrMap, & m_internalTrigger );
 
    unsigned int ctpVersion = 4;
    unsigned int readoutWindow = 1;
-   m_resultBuilder = new ResultBuilder( ctpVersion, m_configSvc->ctpConfig(), m_thrMap, m_itemMap, m_internalTrigger, readoutWindow);
+   m_resultBuilder = new ResultBuilder( ctpVersion, m_configSvc->ctpConfig(), m_thrMap, m_itemMap, & m_internalTrigger, readoutWindow);
 
 
    // create CTP output format and store in the event
