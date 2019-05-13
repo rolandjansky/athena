@@ -919,7 +919,7 @@ InDet::SiCombinatorialTrackFinder_xk::EventData& InDet::SiCombinatorialTrackFind
                                      (m_usePIX ? &*m_assoTool : nullptr),
                                      &*m_fieldServiceHandle);
     m_eventData[slot].tools.setTools(&*m_pixelCondSummaryTool, &*m_sctCondSummaryTool);    
-    m_eventData[slot].tools.setTools(m_fieldprop);
+    m_eventData[slot].tools.setTools(&m_fieldprop);
 
     // Set tool to trajectory
     //
