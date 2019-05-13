@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // VarHandleBase.cxx 
@@ -794,7 +794,7 @@ namespace SG {
       return nullptr;
     }
 
-    SG::DataObjectSharedPtr<DataObject> sptr (dobj.release());
+    SG::DataObjectSharedPtr<DataObject> sptr (std::move (dobj));
     unsigned int initRefCount = sptr->refCount();
     SG::DataProxy* new_proxy = 
       store->recordObject (sptr, this->name(), allowMods, returnExisting);

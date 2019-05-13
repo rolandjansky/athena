@@ -111,8 +111,16 @@ atlas_add_test( ReadHandleKey_test
    SOURCES test/ReadHandleKey_test.cxx
    LINK_LIBRARIES SGtests )
 
+atlas_add_test( WriteHandleKey_test
+   SOURCES test/WriteHandleKey_test.cxx
+   LINK_LIBRARIES SGtests )
+
 atlas_add_test( UpdateHandleKey_test
    SOURCES test/UpdateHandleKey_test.cxx
+   LINK_LIBRARIES SGtests )
+
+atlas_add_test( TypelessWriteHandleKey_test
+   SOURCES test/TypelessWriteHandleKey_test.cxx
    LINK_LIBRARIES SGtests )
 
 atlas_add_test( VarHandleBase_test
@@ -138,6 +146,11 @@ atlas_add_test( ReadHandle_test
 atlas_add_test( UpdateHandle_test
    SOURCES test/UpdateHandle_test.cxx
    LINK_LIBRARIES SGtests
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( TypelessWriteHandle_test
+   SOURCES test/TypelessWriteHandle_test.cxx
+   LINK_LIBRARIES SGtests AthContainers
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DecorKeyHelpers_test
