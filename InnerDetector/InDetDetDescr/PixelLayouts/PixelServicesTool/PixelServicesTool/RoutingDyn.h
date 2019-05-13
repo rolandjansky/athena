@@ -96,7 +96,7 @@ private:
   ServiceDynMaterial computeRouteMaterial(const PixelGeoBuilderBasics* basics, DetTypeDyn::Type layerType, DetTypeDyn::Part layerPart, 
 					  int layerNumber, int staveTmpNumber,
 					  std::vector<int> modulePerStave, std::vector<int> chipPerModule,
-					  bool scalePerHalf, bool onStave=1, std::string ctype="", double length = 1., double volume = 1.);
+					  bool scalePerHalf, bool onStave=true, std::string ctype="", double length = 1., double volume = 1.);
   std::string constructName( DetTypeDyn::Type type, DetTypeDyn::Part part, int layer) const;
   int decodeStaveCableNumber(std::string pattern, int nbStave, int modulePerStave, int chipPerModule);
   MinMaxHelper getLayerMinMaxBox(bool barrel, std::vector<int> layerIndices, std::vector<double> EOScardLength, double EOSlength);

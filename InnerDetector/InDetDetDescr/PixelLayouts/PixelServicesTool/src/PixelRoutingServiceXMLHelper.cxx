@@ -120,15 +120,16 @@ bool PixelRoutingServiceXMLHelper::isPhiRouting(std::string ctype, int layer) co
   for(int irt=0; irt<nbRoute; irt++) {
     std::string t = getRouteType(irt);
     if(t == ctype){
-      std::vector<int> routeList = getRouteLayerList(irt);
-      for(std::vector<int>::iterator it=routeList.begin(); it!=routeList.end(); ++it)
-	if(*it==layer) {
+      std::vector<int> routeLayerList = getRouteLayerList(irt);
+      for(unsigned int il=0; il<routeLayerList.size(); il++){
+	if(routeLayerList[il]==layer) {
 	  if(getChildCount("PixelSvcRoute",irt,"isPhiRouting") > 0){
 	    return getInt("PixelSvcRoute",irt,"isPhiRouting");
 	  }
 	  else
 	    return false;
 	}
+      }
     }
   }
   return false;
@@ -146,9 +147,9 @@ int PixelRoutingServiceXMLHelper::getServiceSetIndex(std::string ctype, int laye
   for(int irt=0; irt<nbRoute; irt++) {
     std::string t = getRouteType(irt);
     if(t == ctype){
-      std::vector<int> routeList = getRouteLayerList(irt);
-      for(std::vector<int>::iterator it=routeList.begin(); it!=routeList.end(); ++it){
-	if(*it==layer){
+      std::vector<int> routeLayerList = getRouteLayerList(irt);
+      for(unsigned int il=0; il<routeLayerList.size(); il++){
+	if(routeLayerList[il]==layer){
 	  std::string serviceClass = "service_L"; serviceClass += std::to_string(layer);
 	  std::vector<std::string> serviceName;
 	  if (getChildCount("PixelSvcRoute",irt,serviceClass.c_str()) > 0)

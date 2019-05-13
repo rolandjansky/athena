@@ -837,17 +837,21 @@ void RoutingDyn::addRouteMaterial(const PixelGeoBuilderBasics* basics)
   typedef  std::vector<ServiceDynVolume*>::iterator VolumeIter;
   for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); iv++) {
     std::string ctype = (**iv).name();
-    ctype=ctype.substr(3,ctype.find("_")-3);
     
+    ctype=ctype.substr(3,ctype.find("_")-3);
     if (ctype.compare("Ec")==0)
       ctype="endcap";
     else if (ctype.compare("Brl")==0)
-      ctype="barrel";
-    
-    if (ctype.find("Ec")==0)
+      ctype="barrel";    
+    else if (ctype.find("Ec")==0)
       ctype="endcap_"+ctype.substr(2, ctype.size());
     else if (ctype.find("Brl")==0)
       ctype="barrel_"+ctype.substr(3, ctype.size());
+    else{
+      msg(MSG::ERROR) << "service type " <<ctype<<" is not allowed (it must contain either 'Ec' or 'Brl')" <<endreq;
+      continue;
+    }
+      
     
     msg(MSG::DEBUG) << "*** Service material for volume : "<<(**iv).name()<<"  add material "<<endreq;
     
