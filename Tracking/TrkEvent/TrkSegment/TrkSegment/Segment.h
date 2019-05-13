@@ -19,7 +19,7 @@
 
 #include "AthContainers/DataVector.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-
+#include <atomic>
 class MsgStream;
 class SegmentCnv_p1;
 
@@ -98,9 +98,9 @@ class FitQuality;
       virtual Segment* clone() const override = 0;
       
       /** Extended method checking the type*/
-       virtual bool type(MeasurementBaseType::Type type) const override {
-         return (type==MeasurementBaseType::Segment);
-       }
+      virtual bool type(MeasurementBaseType::Type type) const override {
+        return (type==MeasurementBaseType::Segment);
+      }
 
       /** returns the vector of Trk::MeasurementBase objects 
         - specific for this TrackSegment: Trk::MeasurementBase (generic)
@@ -139,7 +139,7 @@ class FitQuality;
       DataVector<const MeasurementBase>* m_containedMeasBases;   
   
       /** number of objects of this type in memory */
-      static unsigned int  s_numberOfInstantiations;
+      static std::atomic<unsigned int>  s_numberOfInstantiations;
 
       /** segment author */
       Author m_author;

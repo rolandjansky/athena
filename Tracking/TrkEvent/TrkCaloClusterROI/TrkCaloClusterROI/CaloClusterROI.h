@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKCALOCLUSTERROI_H
@@ -40,26 +40,25 @@ namespace Trk {
                       const double  widthEta = 0.1);
     
       /** Destructor */
-      virtual ~CaloClusterROI();
+      ~CaloClusterROI();
 
-      /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      virtual CaloClusterROI* clone() const;
+      /** Pseudo-constructor*/
+      CaloClusterROI* clone() const;
             
       /** returns the LocalParameters */
-      virtual const LocalParameters& localParameters() const;
+      const LocalParameters& localParameters() const;
         
       /** returns the surface for the local to global transformation */
-      virtual const Surface& associatedSurface() const;
+      const Surface& associatedSurface() const;
      
       /** method to get the global Position */
-      virtual const Amg::Vector3D globalPosition() const;
+      const Amg::Vector3D globalPosition() const;
  
- 
-      virtual double energy() const;
+      double energy() const;
       
-      virtual double phiWidth() const;
+      double phiWidth() const;
       
-      virtual double etaWidth() const;
+      double etaWidth() const;
       
 
     private:
@@ -97,7 +96,5 @@ inline double Trk::CaloClusterROI::phiWidth() const
 
 inline double Trk::CaloClusterROI::etaWidth() const
 { return m_etaWidth; }
-
-
 
 #endif //TRKCaloClusterROI_H

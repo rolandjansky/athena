@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKCaloCluster_OnTrack_H
@@ -47,7 +47,7 @@ namespace Trk {
       virtual ~CaloCluster_OnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      virtual CaloCluster_OnTrack* clone() const override;
+      virtual CaloCluster_OnTrack* clone() const override final;
             
       /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
@@ -55,21 +55,21 @@ namespace Trk {
      
       /** Interface method to get the global Position
       - interface from MeasurementBase */
-      virtual const Amg::Vector3D& globalPosition() const override ;
+      virtual const Amg::Vector3D& globalPosition() const override final;
 
       /** Extended method to get the EnergyLoss */
       const Trk::EnergyLoss* energyLoss() const;
 
       /** Extended method checking the type*/
-       virtual bool type(MeasurementBaseType::Type type) const override {
+       virtual bool type(MeasurementBaseType::Type type) const override final{
          return (type==MeasurementBaseType::CaloCluster_OnTrack);
        }
 
-      /**returns the some information about this RIO_OnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const override;  
+      /**returns the some information about this CaloCluster_OnTrack. */
+      virtual MsgStream&    dump( MsgStream& out ) const override final;  
 
-      /**returns the some information about this RIO_OnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const override;
+      /**returns the some information about this CaloCluster_OnTrack. */
+      virtual std::ostream& dump( std::ostream& out ) const override final;
  
 
     protected:

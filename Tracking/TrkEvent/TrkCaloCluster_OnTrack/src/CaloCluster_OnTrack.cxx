@@ -14,9 +14,10 @@
 #include <limits>
 #include <ostream>
 
-static const double NaN(std::numeric_limits<double>::quiet_NaN());
-static const Amg::Vector3D INVALID_VECTOR3D(NaN, NaN, NaN);
-
+namespace{
+const double NaN(std::numeric_limits<double>::quiet_NaN());
+alignas(16) const Amg::Vector3D INVALID_VECTOR3D(NaN, NaN, NaN);
+}
 
 Trk::CaloCluster_OnTrack::CaloCluster_OnTrack(  const Trk::LocalParameters& locpars,
                                                 const Amg::MatrixX& locerr,
