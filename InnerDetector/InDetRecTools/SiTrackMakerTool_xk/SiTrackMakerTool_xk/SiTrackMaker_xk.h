@@ -50,7 +50,7 @@ namespace InDet{
   */
 
   class SiTrackMaker_xk : 
-    virtual public ISiTrackMaker, public AthAlgTool
+    public extends<AthAlgTool, ISiTrackMaker>
     {
 
       ///////////////////////////////////////////////////////////////////
