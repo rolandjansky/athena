@@ -36,8 +36,6 @@ class MsgStream;
 
 namespace InDet{
 
-  static const InterfaceID IID_ISiZvertexMaker("InDet::ISiZvertexMaker",1,0);
-
   class ISiZvertexMaker : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -46,14 +44,8 @@ namespace InDet{
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
-      virtual ~ISiZvertexMaker(){};
+      // InterfaceID
+      DeclareInterfaceID(ISiZvertexMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initialize tool for new event or region
@@ -84,11 +76,6 @@ namespace InDet{
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiZvertexMaker::interfaceID()
-    {
-      return IID_ISiZvertexMaker;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream

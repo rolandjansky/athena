@@ -38,7 +38,7 @@ class MsgStream;
 
 namespace InDet {
 
-  class SiZvertexMaker_xk : virtual public ISiZvertexMaker, public AthAlgTool
+  class SiZvertexMaker_xk : public extends<AthAlgTool, ISiZvertexMaker>
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
