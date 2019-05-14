@@ -10,6 +10,7 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -97,6 +98,7 @@ namespace LVL1CTP {
       unsigned int calculateTauMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
       unsigned int calculateMETMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
       unsigned int calculateMuonMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
+      unsigned int calculateTopoMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
 
       StatusCode simulateItems();
 
@@ -112,6 +114,7 @@ namespace LVL1CTP {
       // Needed services
       ServiceHandle<ITHistSvc> m_histSvc;
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
       ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool; //!< tool to create L1 ROIs from ROIBResult
 
       // Inputs from the new L1Calo
@@ -179,7 +182,7 @@ namespace LVL1CTP {
       // internal
       ThresholdMap*       m_thrMap { nullptr };
       ItemMap*            m_itemMap { nullptr };
-      InternalTriggerMap* m_internalTrigger { nullptr };
+      InternalTriggerMap  m_internalTrigger;
       ResultBuilder*      m_resultBuilder { nullptr };  
 
       // results
