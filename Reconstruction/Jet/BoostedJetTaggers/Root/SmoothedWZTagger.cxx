@@ -231,7 +231,10 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   ATH_MSG_DEBUG( ": Obtaining Smooth WZ result" );
 
   // decorate truth label for SF provider
-  decorateTruthLabel(jet, m_truthLabelDecorationName);
+  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
+  if ( !acc_truthLabel.isAvailable(jet) ){
+    decorateTruthLabel(jet, m_truthLabelDecorationName);
+  }
 
   //reset the TAccept cut results to false
   m_accept.clear();
@@ -376,9 +379,9 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   if ( m_calcSF && m_decorate ){
     if ( m_accept ) {
       // pass tagger
-      SG::AuxElement::ConstAccessor<FatjetTruthLabel> FatjetTruthLabel(m_truthLabelDecorationName);
+      SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
       try{
-	FatjetTruthLabel(jet);
+	acc_truthLabel(jet);
 	m_dec_weight(jet) = getWeight(jet);
       } catch (...) {
 	ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"FatjetTruthLabel\" to your jet before calling tag(..)");

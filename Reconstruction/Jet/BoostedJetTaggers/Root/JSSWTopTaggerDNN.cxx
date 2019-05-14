@@ -307,7 +307,10 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   ATH_MSG_DEBUG( ": Obtaining DNN result" );
 
   // decorate truth label for SF provider
-  decorateTruthLabel(jet, m_truthLabelDecorationName);
+  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
+  if ( !acc_truthLabel.isAvailable(jet) ){
+    decorateTruthLabel(jet, m_truthLabelDecorationName);
+  }
 
   //clear all accept values
   m_accept.clear();
@@ -352,9 +355,9 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   float jet_weight=1.0;
   if( (jet_score > cut_score) && m_calcSF) {
-    SG::AuxElement::ConstAccessor<FatjetTruthLabel> FatjetTruthLabel(m_truthLabelDecorationName);
+    SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
     try{
-      FatjetTruthLabel(jet);
+      acc_truthLabel(jet);
       jet_weight = getWeight(jet);
     } catch (...) {
       ATH_MSG_FATAL("If you want to calculate SF (calcSF=true), please call decorateTruthLabel(...) function or decorate \"FatjetTruthLabel\" to your jet before calling tag(..)");
