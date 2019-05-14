@@ -53,7 +53,7 @@ namespace InDet {
 
   class SiCombinatorialTrackFinder_xk : 
 
-    virtual public ISiCombinatorialTrackFinder, public AthAlgTool
+    public extends<AthAlgTool, ISiCombinatorialTrackFinder>
     {
       friend class SiTrajectory_xk;
 
