@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
@@ -39,12 +39,13 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::CscPrepDataContainer> m_CSC_ContainerName{this,"CSCPrepDataLocation","CSC_Clusters","CSC prep data"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_RPC_ContainerName{this,"RPCPrepDataLocation","RPC_Measurements","RPC prep data"};
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_TGC_ContainerName{this,"TGCPrepDataLocation","TGC_Measurements","TGC prep data"};
-  SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_sTGC_ContainerName{this,"sTGCPrepDataLocation","sTGC_Clusters","sTGC prep data"};
-  SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MM_ContainerName{this,"MMPrepDataLocation","MM_Clusters","MM prep data"};
+  SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_sTGC_ContainerName{this,"sTGCPrepDataLocation","STGC_Measurements","sTGC prep data"};
+  SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MM_ContainerName{this,"MMPrepDataLocation","MM_Measurements","MM prep data"};
   SG::WriteHandleKey<MuonCombined::InDetCandidateToTagMap> m_tagMap{this,"TagMap","muGirlTagMap","tag map"};
   SG::WriteHandleKey<TrackCollection> m_combTracks{this,"CombinedTrackCollection","MuGirlCombinedTracks","combined track collection"};
   SG::WriteHandleKey<TrackCollection> m_METracks{this,"METrackCollection","MuGirlMETracks","ME track collection"};
   SG::WriteHandleKey<Trk::SegmentCollection> m_segments{this,"SegmentCollection","MuGirlSegments","Segment collection"};
+
   bool m_usePRDs;
   bool m_useNSW;
 };
