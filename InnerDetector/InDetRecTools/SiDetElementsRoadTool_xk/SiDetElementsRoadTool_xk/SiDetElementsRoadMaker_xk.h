@@ -51,8 +51,7 @@ namespace InDet{
 
 
   class SiDetElementsRoadMaker_xk : 
-
-    virtual public ISiDetElementsRoadMaker, public AthAlgTool
+    public extends<AthAlgTool, ISiDetElementsRoadMaker>
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
