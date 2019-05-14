@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,13 +15,15 @@
 #ifndef ISiCombinatorialTrackFinder_H
 #define ISiCombinatorialTrackFinder_H
 
-#include <list>
-#include <map>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
+#include <map>
 
 class MsgStream;
 
@@ -33,9 +35,6 @@ namespace InDet {
 
   class TrackQualityCuts;
 
-  static const InterfaceID IID_ISiCombinatorialTrackFinder
-    ("InDet::ISiCombinatorialTrackFinder",1,0);
-
   class ISiCombinatorialTrackFinder : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -44,13 +43,8 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiCombinatorialTrackFinder, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
@@ -103,11 +97,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiCombinatorialTrackFinder::interfaceID()
-    {
-      return IID_ISiCombinatorialTrackFinder;
-    }
 
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream
