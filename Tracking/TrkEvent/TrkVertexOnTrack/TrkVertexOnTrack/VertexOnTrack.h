@@ -90,10 +90,10 @@ namespace Trk{
 
     protected:
       /** Perigee surface of the VoT*/
-      mutable const PerigeeSurface* m_associatedSurface;
+      const PerigeeSurface* m_associatedSurface;
 
       /** Global position of the VoT*/
-      mutable const Amg::Vector3D*  m_globalPosition;
+      const Amg::Vector3D*  m_globalPosition;
   };
 
   inline VertexOnTrack* VertexOnTrack::clone() const 
@@ -102,11 +102,6 @@ namespace Trk{
   inline const PerigeeSurface& VertexOnTrack::associatedSurface() const
   { return *m_associatedSurface; }
 
-  inline const Amg::Vector3D& VertexOnTrack::globalPosition() const
-  {
-    if (m_globalPosition == 0) {m_globalPosition = new Amg::Vector3D();}
-    return *m_globalPosition;
-  }
 
 }
 

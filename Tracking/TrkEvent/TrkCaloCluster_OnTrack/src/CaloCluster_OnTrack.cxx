@@ -78,8 +78,8 @@ Trk::CaloCluster_OnTrack& Trk::CaloCluster_OnTrack::operator=(const Trk::CaloClu
 
 const Amg::Vector3D& Trk::CaloCluster_OnTrack::globalPosition() const
 {
-  if (!m_globalpos) {return INVALID_VECTOR3D;} 
-  return *m_globalpos;
+  if (m_globalpos) { return *m_globalpos;}
+  return INVALID_VECTOR3D;
 }
 
 MsgStream& Trk::CaloCluster_OnTrack::dump( MsgStream& sl ) const
