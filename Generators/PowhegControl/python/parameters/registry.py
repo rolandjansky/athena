@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import atlas_common
 import collections
@@ -450,6 +450,8 @@ class Registry(object):
         self.add_default("vdecaymodew1", None, description="first W decay mode.")
         self.add_default("vdecaymodew2", None, description="second W decay mode.")
         self.add_default("vdecaymodeW2", None, description="second W decay mode.")
+        self.add_default("vdecaymodeWp", None, description="W+ decay mode.")
+        self.add_default("vdecaymodeWm", None, description="W- decay mode.")
         self.add_default("vdecaymodeZ", None, description="Z-boson decay mode.")
         self.add_default("verytinypars", 0, description="set all ISR/FSR grid parameters to 1e-12. [1:enabled]")
         self.add_default("virtonly", -1, description="[-1:use Powheg default]")
@@ -507,6 +509,7 @@ class Registry(object):
         self.add_default("WWlvqq", 0, hidden=True, description="WW decay mode: W->lnu W->qq. [1:enabled]")
         self.add_default("WWmuvtauv", 0, hidden=True, description="WW decay mode: W->munu W->taunu. [1:enabled]")
         self.add_default("WWqqqq", 0, hidden=True, description="WW decay mode: W->qq W->qq. [1:enabled]")
+        self.add_default("ww_res_type", 0, description="Control over Higgs -> W+W- resonance. [0:resonant AND non-resonant production (only recommended for a heavy Higgs with mass > 200 GeV); 1:non-resonant W+W- continuum production only; 2:resonant Higgs->W+W- production only]")
         self.add_default("WZevee", 0, hidden=True, description="WZ decay mode: Z->e(+)e(-) W->e(+/-)nu. [1:enabled]")
         self.add_default("WZevmumu", 0, hidden=True, description="WZ decay mode: Z->mu(+)mu(-) W->e(+/-)nu. [1:enabled]")
         self.add_default("WZevtautau", 0, hidden=True, description="WZ decay mode: Z->tau(+)tau(-) W->e(+/-)nu. [1:enabled]")
