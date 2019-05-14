@@ -5,6 +5,7 @@
 // STL includes
 #include <pthread.h>
 #include <time.h>
+#include <ctime>
 
 // Framework includes
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -82,7 +83,13 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
   // Get thread's clock id
   clockid_t thread_cid;
   pthread_getcpuclockid(pthread_self(),&thread_cid);
-  ATH_MSG_INFO("Current threads' CPU clock id is " << thread_cid);
+  ATH_MSG_INFO("START :: Current thread's CPU clock id is " << thread_cid);
+
+  // Read the CPU time for the clock id
+  struct timespec ctime;
+  clock_gettime(thread_cid, &ctime);
+  ATH_MSG_INFO("START :: Current thread's CPU clock time is " << ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6 << " [ms]");
+  ATH_MSG_INFO("START :: Current std::clock time is " << std::clock()/CLOCKS_PER_SEC*1.e3 << " [ms]");
 }
 
 /*
@@ -91,4 +98,15 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
   ATH_MSG_INFO("Stopping Auditing " << stepName << " " << compName);
+
+  // Get thread's clock id
+  clockid_t thread_cid;
+  pthread_getcpuclockid(pthread_self(),&thread_cid);
+  ATH_MSG_INFO("STOP :: Current thread's CPU clock id is " << thread_cid);
+
+  // Read the CPU time for the clock id
+  struct timespec ctime;
+  clock_gettime(thread_cid, &ctime);
+  ATH_MSG_INFO("STOP :: Current thread's CPU clock time is " << ctime.tv_sec*1.e3 + ctime.tv_nsec*1.e-6 << " [ms]");
+  ATH_MSG_INFO("STOP :: Current std::clock time is " << std::clock()/CLOCKS_PER_SEC*1.e3 << " [ms]");
 }
