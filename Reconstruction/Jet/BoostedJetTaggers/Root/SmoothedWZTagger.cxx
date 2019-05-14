@@ -406,8 +406,9 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
     truthLabelStr="q";
   }
   
-  double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
-  int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log10(jet.m()/jet.pt()));
+  //double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
+  //SF for pT>1TeV is provided by overflow bin in the config histogram
+  int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log(jet.m()/jet.pt()));
   double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
   
   std::cout << "SF = " << SF << std::endl;

@@ -7,6 +7,7 @@
 
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "AsgTools/AsgTool.h"
 
 #include <string>
@@ -257,7 +258,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         bool checkIfRecommendedSystematic(const jet::UncertaintyGroup& systematic) const;
         virtual CP::SystematicCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
         virtual CP::SystematicCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
-        virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);
+        virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);	
 };
     
 
