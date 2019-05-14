@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,12 +21,10 @@ InDet::ZVTOP_AmbiguitySolver::ZVTOP_AmbiguitySolver(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_TrkProbTubeCalc("InDet::ZVTOP_TrkProbTubeCalc"),
   m_VtxProbCalc("InDet::ZVTOP_VtxProbCalc")
 {
-  declareInterface<IZVTOP_AmbiguitySolver>(this);
-
   //  template for property decalration
   declareProperty("TrkProbTubeCalcTool",m_TrkProbTubeCalc);
   declareProperty("VtxProbCalcTool",m_VtxProbCalc);
@@ -50,7 +48,7 @@ StatusCode InDet::ZVTOP_AmbiguitySolver::initialize()
   return StatusCode::SUCCESS;
 }
 
-std::vector<xAOD::Vertex*> InDet::ZVTOP_AmbiguitySolver::solveAmbiguities(std::vector<xAOD::Vertex*> VertexContainer)
+std::vector<xAOD::Vertex*> InDet::ZVTOP_AmbiguitySolver::solveAmbiguities(std::vector<xAOD::Vertex*> VertexContainer) const
 {
   std::vector<xAOD::Vertex*> newVertexContainer;
   std::vector<xAOD::Vertex*>::iterator itr = VertexContainer.begin();

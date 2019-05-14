@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,10 +14,8 @@ InDet::ZVTOP_SimpleVtxProbCalc::ZVTOP_SimpleVtxProbCalc(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  base_class(t,n,p)
 {
-  declareInterface<IZVTOP_SimpleVtxProbCalc>(this);
-
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
 }
@@ -32,12 +30,8 @@ InDet::ZVTOP_SimpleVtxProbCalc::~ZVTOP_SimpleVtxProbCalc()
 
 StatusCode InDet::ZVTOP_SimpleVtxProbCalc::initialize()
 {
-  
-  StatusCode sc = AlgTool::initialize();
-
-  if (sc.isFailure()) return sc;
-
-  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  ATH_CHECK( AlgTool::initialize() );
+  ATH_MSG_INFO ( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
 }
 
@@ -45,12 +39,11 @@ StatusCode InDet::ZVTOP_SimpleVtxProbCalc::initialize()
 
 StatusCode InDet::ZVTOP_SimpleVtxProbCalc::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return AlgTool::finalize();
 }
 
 //============================================================================================
-double InDet::ZVTOP_SimpleVtxProbCalc::calcVtxProb(double & trk_func_sum, double & trk_func_sum2)
+double InDet::ZVTOP_SimpleVtxProbCalc::calcVtxProb(double & trk_func_sum, double & trk_func_sum2) const
 {
   double vtx_prob = 0.;
   if (trk_func_sum != 0.) vtx_prob = trk_func_sum - trk_func_sum2/trk_func_sum;
