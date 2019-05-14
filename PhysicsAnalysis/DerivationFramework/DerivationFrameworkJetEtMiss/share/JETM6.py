@@ -10,6 +10,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+from DerivationFrameworkFlavourTag.HbbCommon import *
+
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
 if DerivationFrameworkIsMonteCarlo:
@@ -261,6 +263,12 @@ addCSSKSoftDropJets(jetm6Seq, "JETM6")
 
 addSoftDropJets("AntiKt", 1.0, "PV0Track", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6")
 
+LargeRJetColls = ["AntiKt10LCTopo",
+                  "AntiKt10TrackCaloCluster",
+                 ]
+
+addVRJets(jetm6Seq, outputGroup="JETM6", largeRColls=LargeRJetColls)
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -291,7 +299,8 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-					"BTagging_AntiKt2Track",
+                                        "BTagging_AntiKt2Track",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt4EMPFlow"
                                         ]
@@ -304,19 +313,6 @@ JETM6SlimmingHelper.AllVariables = [
 
 JETM6SlimmingHelper.ExtraVariables = [
     'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0],NewTrigVars["Photons"][0]]
-
-JETM6SlimmingHelper.AppendToDictionary = {
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-}
-JETM6SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
-
-if DerivationFrameworkIsMonteCarlo:
-  JETM6SlimmingHelper.AppendToDictionary = {
-    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-  }
-  JETM6SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 addOriginCorrectedClusters(JETM6SlimmingHelper,writeLC=True,writeEM=True)
 

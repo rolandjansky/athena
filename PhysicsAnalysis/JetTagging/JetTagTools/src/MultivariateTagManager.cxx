@@ -19,7 +19,6 @@
 
 #include "JetTagCalibration/CalibrationBroker.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagTools/MultivariateTagManager.h"
 #include "JetTagTools/BTagVariables.h"
 
@@ -93,12 +92,12 @@ namespace Analysis {
   // _______________________________________________________________________
   // MultivariateTagManager functions
 
-  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
-    std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag); // determine the jet's channel
-    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
+    // jetName to determine the jet's channel
+    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetName );
 
-    if ( jetauthor.empty() ) {
+    if ( jetName.empty() ) {
       ATH_MSG_WARNING(" #BTAG# Hypothesis or jetauthor is empty."
           " No likelihood value given back. ");
     }
@@ -137,7 +136,7 @@ namespace Analysis {
 
     for (auto& itr: m_MultivariateTaggerHandleArray) {
 
-      itr->assignProbability(BTag, inputs, jetauthor);
+      itr->assignProbability(BTag, inputs, jetName);
 
     }
 

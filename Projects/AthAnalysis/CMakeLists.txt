@@ -9,11 +9,6 @@ set( ATHANALYSIS_PROJECT_VERSION ${_version}
    CACHE STRING "Version of the AthAnalysis project to build" )
 unset( _version )
 
-# Set the versions of the TDAQ externals to pick up for the build:
-set( TDAQ-COMMON_VERSION "02-02-00" )
-set( TDAQ-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
-
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
@@ -27,6 +22,7 @@ find_package( GSL )
 find_package( Davix )
 find_package( PNG )
 find_package( BLAS )
+find_package( VDT )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries

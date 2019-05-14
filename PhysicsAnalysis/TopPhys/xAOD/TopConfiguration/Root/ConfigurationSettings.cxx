@@ -60,8 +60,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
     registerParameter("PhotonID","Type of photon. Definition to use : Tight, Loose and None.","Tight");
     registerParameter("PhotonIDLoose","Type of photon for background. Definition to use : Tight, Loose, None.","Loose");
-    registerParameter("PhotonIsolation","Isolation to use : FixedCutTight, FixedCutLoose, None.","FixedCutTight");
-    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTight, FixedCutLoose, None.","FixedCutLoose");
+    registerParameter("PhotonIsolation","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutTight");
+    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutLoose");
     registerParameter("PhotonUseRadiativeZ", "True/False. Set to True to enable photon radiative Z up to 100 GeV.", "False");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
@@ -98,6 +98,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("StoreJetTruthLabels","Flag to store truth labels for jets - True (default) or False","True");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
+    registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).", "Default" );
 
     registerParameter("JSF",  "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
@@ -110,10 +111,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
                       "CombMass");
-    registerParameter("LargeRToptaggingConfigFile",
-                      "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
-                      "(alternative not optimized on large-R jet containing a truth top)",
-                      "default");
+    registerParameter("BoostedJetTagging",
+                      "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
+                      " By default, no tagger is used.",
+                      " ");
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
@@ -212,6 +213,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
     registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
+
+    registerParameter("FakesMMWeightsIFF","Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)", "False");
+    registerParameter("FakesMMConfigIFF",
+		      "Configurations for fake leptons estimate using FakeBkgTools from IFF: - default is $ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]. Use as \n <ROOT/XML FILE>:<DEFNINITION>:<PROCESS>;<ROOT/XML FILE 2>:<DEFNINITION 2>:<PROCESS 2>; ...", 
+		      "$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]");
+    registerParameter("FakesMMIFFDebug","Enables debug mode for matrix-method weight calculation using FakeBkgTools from IFF: True, False (default)", "False");
 
     registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");

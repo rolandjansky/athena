@@ -73,7 +73,7 @@ class AODFix_r210(AODFix_base):
             if "phIso" not in oldMetadataList:
                 self.phIso_postSystemRec(topSequence)
                 pass
-            if "elPflowIso" not in oldMetadataList:
+            if "elPflowIso" not in oldMetadataList and not self.isHI:
                 self.elPflowIso_postSystemRec(topSequence)
                 pass
 

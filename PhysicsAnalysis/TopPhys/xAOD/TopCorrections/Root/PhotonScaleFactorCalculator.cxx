@@ -19,10 +19,8 @@ PhotonScaleFactorCalculator::PhotonScaleFactorCalculator(const std::string& name
   m_systNominal(CP::SystematicSet()),
   m_systEffIDUp("PH_EFF_ID_Uncertainty__1up"),
   m_systEffIDDown("PH_EFF_ID_Uncertainty__1down"),
-  m_systEffLowPtIsoUp("PH_EFF_LOWPTISO_Uncertainty__1up"),
-  m_systEffLowPtIsoDown("PH_EFF_LOWPTISO_Uncertainty__1down"),
-  m_systEffTrkIsoUp("PH_EFF_TRKISO_Uncertainty__1up"),
-  m_systEffTrkIsoDown("PH_EFF_TRKISO_Uncertainty__1down"),
+  m_systEffIsoUp("PH_EFF_ISO_Uncertainty__1up"),
+  m_systEffIsoDown("PH_EFF_ISO_Uncertainty__1down"),
   m_photonEffSF("AsgPhotonEfficiencyCorrectionTool"),
   m_photonIsoSF(),
   m_photonLooseIsoSF(),
@@ -157,81 +155,46 @@ StatusCode PhotonScaleFactorCalculator::execute() {
       ph_effIDDown_dec(*photonPtr) = effSF_down;
 
       // isolation systematic uncertainties
-      double effLowPtIsoSF_up(1.), effTrkIsoSF_up(1.);
-      double effLowPtIsoSF_down(1.), effTrkIsoSF_down(1.);
-      double effLowPtLooseIsoSF_up(1.), effTrkLooseIsoSF_up(1.);
-      double effLowPtLooseIsoSF_down(1.), effTrkLooseIsoSF_down(1.);
+      double effIsoSF_up(1.), effIsoSF_down(1.);
+      double effLooseIsoSF_up(1.), effLooseIsoSF_down(1.);
       if (m_photonIsoSF_exists) {
-	top::check(m_photonIsoSF->applySystematicVariation(m_systEffLowPtIsoUp),
+	top::check(m_photonIsoSF->applySystematicVariation(m_systEffIsoUp),
 		   "Failed to set photon efficiency SF tool to"
-		   " Radiative Z (low ET) up systematic ");
-	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effLowPtIsoSF_up),
+		   " isolation up systematic");
+	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effIsoSF_up),
 		   "Failed to get photon efficiency SF:"
-		   " up systematic Radiative Z (low ET)");
-	top::check(m_photonIsoSF->applySystematicVariation(m_systEffLowPtIsoDown),
+		   " up systematic isolation");
+	top::check(m_photonIsoSF->applySystematicVariation(m_systEffIsoDown),
 		   "Failed to set photon efficiency SF tool to"
-		   " Radiative Z (low ET) down systematic");
-	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effLowPtIsoSF_down),
+		   " isolation down systematic");
+	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effIsoSF_down),
 		   "Failed to get photon efficiency SF:"
-		   " down systematic Radiative Z (low ET)");
-
-	top::check(m_photonIsoSF->applySystematicVariation(m_systEffTrkIsoUp),
-		   "Failed to set photon efficiency SF tool to"
-		   " Track isolation (ptcone, intermediate and high ET) up systematic");
-	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effTrkIsoSF_up),
-		   "Failed to get photon efficiency SF:"
-		   " up systematic Track isolation (ptcone, intermediate and high ET)");
-	top::check(m_photonIsoSF->applySystematicVariation(m_systEffTrkIsoDown),
-		   "Failed to set photon efficiency SF tool to"
-		   " Track isolation (ptcone, intermediate and high ET) down systematic");
-	top::check(m_photonIsoSF->getEfficiencyScaleFactor(*photonPtr, effTrkIsoSF_down),
-		   "Failed to get photon efficiency SF:"
-		   " down systematic Track isolation (ptcone, intermediate and high ET)");
+		   " down systematic isolation");
       }
       if (m_photonLooseIsoSF_exists) {
-	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffLowPtIsoUp),
+	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffIsoUp),
 		   "Failed to set photon efficiency SF tool to"
-		   " Radiative Z (low ET) up systematic ");
-	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effLowPtLooseIsoSF_up),
+		   " isolation up systematic");
+	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effLooseIsoSF_up),
 		   "Failed to get photon efficiency SF:"
-		   " up systematic Radiative Z (low ET)");
-	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffLowPtIsoDown),
+		   " up systematic isolation");
+	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffIsoDown),
 		   "Failed to set photon efficiency SF tool to"
-		   " Radiative Z (low ET) down systematic");
-	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effLowPtLooseIsoSF_down),
+		   " isolation down systematic");
+	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effLooseIsoSF_down),
 		   "Failed to get photon efficiency SF:"
-		   " down systematic Radiative Z (low ET)");
-
-	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffTrkIsoUp),
-		   "Failed to set photon efficiency SF tool to"
-		   " Track isolation (ptcone, intermediate and high ET) up systematic");
-	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effTrkLooseIsoSF_up),
-		   "Failed to get photon efficiency SF:"
-		   " up systematic Track isolation (ptcone, intermediate and high ET)");
-	top::check(m_photonLooseIsoSF->applySystematicVariation(m_systEffTrkIsoDown),
-		   "Failed to set photon efficiency SF tool to"
-		   " Track isolation (ptcone, intermediate and high ET) down systematic");
-	top::check(m_photonLooseIsoSF->getEfficiencyScaleFactor(*photonPtr, effTrkLooseIsoSF_down),
-		   "Failed to get photon efficiency SF:"
-		   " down systematic Track isolation (ptcone, intermediate and high ET)");
+		   " down systematic isolation");
       }
 
-      static SG::AuxElement::Decorator<float> ph_effLowPtIsoUp_dec(m_decor_isoSF+"_LOWPT_UP");
-      static SG::AuxElement::Decorator<float> ph_effLowPtIsoDown_dec(m_decor_isoSF+"_LOWPT_DOWN");
-      static SG::AuxElement::Decorator<float> ph_effTrkIsoUp_dec(m_decor_isoSF+"_TRK_UP");
-      static SG::AuxElement::Decorator<float> ph_effTrkIsoDown_dec(m_decor_isoSF+"_TRK_DOWN");
-      static SG::AuxElement::Decorator<float> ph_effLowPtLooseIsoUp_dec(m_decor_isoSF_loose+"_LOWPT_UP");
-      static SG::AuxElement::Decorator<float> ph_effLowPtLooseIsoDown_dec(m_decor_isoSF_loose+"_LOWPT_DOWN");
-      static SG::AuxElement::Decorator<float> ph_effTrkLooseIsoUp_dec(m_decor_isoSF_loose+"_TRK_UP");
-      static SG::AuxElement::Decorator<float> ph_effTrkLooseIsoDown_dec(m_decor_isoSF_loose+"_TRK_DOWN");
-      ph_effLowPtIsoUp_dec(*photonPtr) = effLowPtIsoSF_up;
-      ph_effLowPtIsoDown_dec(*photonPtr) = effLowPtIsoSF_down;
-      ph_effTrkIsoUp_dec(*photonPtr) = effTrkIsoSF_up;
-      ph_effTrkIsoDown_dec(*photonPtr) = effTrkIsoSF_down;
-      ph_effLowPtLooseIsoUp_dec(*photonPtr) = effLowPtLooseIsoSF_up;
-      ph_effLowPtLooseIsoDown_dec(*photonPtr) = effLowPtLooseIsoSF_down;
-      ph_effTrkLooseIsoUp_dec(*photonPtr) = effTrkLooseIsoSF_up;
-      ph_effTrkLooseIsoDown_dec(*photonPtr) = effTrkLooseIsoSF_down;
+      static SG::AuxElement::Decorator<float> ph_effIsoUp_dec(m_decor_isoSF+"_UP");
+      static SG::AuxElement::Decorator<float> ph_effIsoDown_dec(m_decor_isoSF+"_DOWN");
+      static SG::AuxElement::Decorator<float> ph_effLooseIsoUp_dec(m_decor_isoSF_loose+"_UP");
+      static SG::AuxElement::Decorator<float> ph_effLooseIsoDown_dec(m_decor_isoSF_loose+"_DOWN");
+
+      ph_effIsoUp_dec(*photonPtr) = effIsoSF_up;
+      ph_effIsoDown_dec(*photonPtr) = effIsoSF_down;
+      ph_effLooseIsoUp_dec(*photonPtr) = effLooseIsoSF_up;
+      ph_effLooseIsoDown_dec(*photonPtr) = effLooseIsoSF_down;
     }
   }
   return StatusCode::SUCCESS;

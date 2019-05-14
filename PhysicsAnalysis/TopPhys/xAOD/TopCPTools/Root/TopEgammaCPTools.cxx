@@ -103,7 +103,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-				"ESModel", "es2017_R21_v1"),
+				"ESModel", "es2018_R21_v0"),
 	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
@@ -259,8 +259,11 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Charge ID cannot use maps at the moment so we default to the old method
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile      = electronSFFilePath("ChargeID", electronID,      electronIsolation);
-    m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
+    m_electronEffSFChargeIDFile        = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    if(m_config->applyTightSFsInLooseTree()) // prevent crash on-supported loose electron WPs with ECIDS
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    else
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
     std::vector<std::string> inChargeIDLoose {m_electronEffSFChargeIDLooseFile};

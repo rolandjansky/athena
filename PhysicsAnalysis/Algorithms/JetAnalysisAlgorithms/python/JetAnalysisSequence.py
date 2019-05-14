@@ -235,7 +235,8 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
         alg.efficiencyTool.WorkingPoint = 'Medium'
         alg.selection = 'jvt_selection'
-        alg.scaleFactorDecoration = 'jvt_effSF'
+        alg.scaleFactorDecoration = 'jvt_effSF_%SYS%'
+        alg.scaleFactorDecorationRegex = jvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if dataType == 'data':
@@ -244,7 +245,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+        seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = jvtSysts, stageName = 'selection' )
             
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
@@ -254,7 +255,8 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
-        alg.scaleFactorDecoration = 'fjvt_effSF'
+        alg.scaleFactorDecoration = 'fjvt_effSF_%SYS%'
+        alg.scaleFactorDecorationRegex = fjvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if dataType == 'data':
@@ -263,7 +265,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_fjvt'
         alg.skipBadEfficiency = 0
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+        seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = fjvtSysts, stageName = 'selection')
         pass
 
