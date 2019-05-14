@@ -65,6 +65,13 @@ config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 config.sigmaRecommended = 1
 job.algsAdd( config )
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
+
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
 jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
@@ -74,14 +81,17 @@ print( jetSequence ) # For debugging
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
 jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer )
-jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo',
+jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
                                      'jets'      : 'AnalysisJetsBase_%SYS%' },
-                       outputName = { 'eventInfo' : 'EventInfo_%SYS%',
-                                      'jets'      : 'AnalysisJets_%SYS%' },
-                       affectingSystematics = { 'jets' : '(^$)|(^JET_.*)' } )
+                       outputName = { 'jets'      : 'AnalysisJets_%SYS%' },
+                       affectingSystematics = { 'jets' : jetSequence.affectingSystematics() } )
 print( jvtSequence ) # For debugging
 
 # Add all algorithms to the job:
+for alg in pileupSequence:
+    job.algsAdd( alg )
+    pass
+
 for alg in jetSequence:
     job.algsAdd( alg )
     pass
@@ -101,12 +111,12 @@ ntupleMaker.Branches = [
 ]
 if dataType != 'data':
     ntupleMaker.Branches += [
-        'EventInfo_%SYS%.jvt_effSF -> jvtSF_%SYS%',
-        'EventInfo_%SYS%.fjvt_effSF -> fjvtSF_%SYS%',
-        'AnalysisJets_%SYS%.jvt_effSF -> jet_%SYS%_jvtEfficiency',
-        'AnalysisJets_%SYS%.fjvt_effSF -> jet_%SYS%_fjvtEfficiency',
+        # 'EventInfo.jvt_effSF_%SYS% -> jvtSF_%SYS%',
+        # 'EventInfo.fjvt_effSF_%SYS% -> fjvtSF_%SYS%',
+        'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
+        'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
     ]
-ntupleMaker.systematicsRegex = '.*'
+ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
 job.algsAdd( ntupleMaker )
 
 # Set up an output file for the job:

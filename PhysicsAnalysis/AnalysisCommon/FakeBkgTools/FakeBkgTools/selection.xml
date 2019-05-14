@@ -1,0 +1,6 @@
+
+<lcgdict>
+   <class name="CP::ApplyFakeFactor" />
+   <class name="CP::AsymptMatrixTool" />
+   <class name="CP::LhoodMM_tools" />
+</lcgdict>

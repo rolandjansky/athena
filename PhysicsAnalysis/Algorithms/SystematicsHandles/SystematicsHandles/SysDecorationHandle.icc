@@ -1,0 +1,123 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgTools/MessageCheck.h>
+#include <AsgTools/StatusCode.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> inline MsgStream& SysDecorationHandle<T> ::
+  msg () const
+  {
+    assert (m_msg != nullptr);
+    return *m_msg;
+  }
+
+
+
+  template<typename T> inline MsgStream& SysDecorationHandle<T> ::
+  msg (MSG::Level lvl) const
+  {
+    assert (m_msg != nullptr);
+    *m_msg << lvl;
+    return *m_msg;
+  }
+
+
+
+  template<typename T> template<typename T2> SysDecorationHandle<T> ::
+  SysDecorationHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : m_inputName (propertyValue)
+    , m_msg (&owner->msg())
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+  }
+
+
+
+  template<typename T> bool SysDecorationHandle<T> ::
+  empty () const noexcept
+  {
+    return m_inputName.empty();
+  }
+
+
+
+  template<typename T> SysDecorationHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_inputName.empty();
+  }
+
+
+
+  template<typename T> const std::string& SysDecorationHandle<T> ::
+  getName (const CP::SystematicSet& sys) const
+  {
+    const auto& data = getData (sys);
+    return std::get<0> (data);
+  }
+
+
+
+  template<typename T> const T& SysDecorationHandle<T> ::
+  get (const SG::AuxElement& object,
+       const CP::SystematicSet& sys) const
+  {
+    const auto& data = getData (sys);
+    return std::get<1> (data) (object);
+  }
+
+
+
+  template<typename T> void SysDecorationHandle<T> ::
+  set (SG::AuxElement& object, const T& value,
+       const CP::SystematicSet& sys) const
+  {
+    const auto& data = getData (sys);
+    std::get<2> (data) (object) = value;
+  }
+
+
+
+  template<typename T> std::string SysDecorationHandle<T> ::
+  getInputAffecting () const
+  {
+    return m_affectingRegex;
+  }
+
+
+
+  template<typename T> const std::tuple<std::string,SG::AuxElement::ConstAccessor<T>,SG::AuxElement::Accessor<T> >&
+  SysDecorationHandle<T> ::
+  getData (const CP::SystematicSet& sys) const
+  {
+    auto cache = m_dataCache.find (sys);
+    if (cache == m_dataCache.end())
+    {
+      std::string newName = makeSystematicsName
+        (m_inputName, m_affectingRegex, sys);
+      ANA_MSG_DEBUG ("SysDecorationHandle: " << newName << " (" << sys.name() << ")");
+      m_dataCache.insert (std::make_pair (sys, std::make_tuple (newName, newName, newName)));
+      cache = m_dataCache.find (sys);
+      assert (cache != m_dataCache.end());
+    }
+    return cache->second;
+  }
+}

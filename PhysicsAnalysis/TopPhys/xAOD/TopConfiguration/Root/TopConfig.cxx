@@ -77,6 +77,12 @@ namespace top{
     m_FakesMMDir("$ROOTCOREBIN/data/TopFakes"),
     // Directory of efficiency files for MM fake estimate
     m_doFakesMMDebug(false),
+    // Do fakes MM weights calculation using FakeBkgTools from IFF
+    m_doFakesMMWeightsIFF(false),
+    // Configurations for MM fake estimate using FakeBkgTools from IFF
+    m_FakesMMConfigIFF("$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]"),
+    // Debug level for MM fake estimate using FakeBkgTools from IFF
+    m_doFakesMMIFFDebug(false),
     // Apply overlap removal on loose lepton definitons - not the top recommendation, for studies only
     m_doOverlapRemovalOnLooseLeptonDef(false),
     // do overlap removal also with large-R jets
@@ -199,12 +205,12 @@ namespace top{
     m_jetCalibSequence("GSC"),
     m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
+    m_JVTWP("Default"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
     m_largeRJESUncertaintyConfig("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
-    m_largeRtoptaggingConfigFile("SetMe"),
 
     m_trackJetPtcut(7000.0),
     m_trackJetEtacut(2.5),
@@ -357,6 +363,9 @@ namespace top{
     m_systAllTTreeLooseIndex(nullptr),
     m_saveBootstrapWeights(false),
     m_BootstrapReplicas(100),
+    m_useBadBatmanCleaning(true),
+    m_badBatmanCleaningMin(276262),
+    m_badBatmanCleaningMax(311481),
     m_useEventLevelJetCleaningTool(false)
   {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string>> ( new std::vector<std::string> );
@@ -629,8 +638,60 @@ namespace top{
           if (settings->value("FakesMMDebug") == "True")
             this->setFakesMMDebug();
         }
+	if (settings->value("FakesMMWeightsIFF") == "True") {
+          this->setFakesMMWeightsCalculationIFF();
+          std::string configIFF = settings->value("FakesMMConfigIFF");
+          if (configIFF != "") {
+            this->setFakesMMConfigIFF(configIFF);
+	  }
+          if (settings->value("FakesMMIFFDebug") == "True") {
+            this->setFakesMMIFFDebug();
+	  }
+        }
       }
       m_doTightEvents = (settings->value("DoTight") == "Data" || settings->value("DoTight") == "Both");
+    }
+
+    // Switch to set event BadBatman cleaning
+    if(settings->value("UseBadBatmanCleaning") == "False"){
+      this->setUseBadBatmanCleaning(false);
+    } else if (settings->value("UseBadBatmanCleaning") == "True"){
+      this->setUseBadBatmanCleaning(true);
+    } else {
+      throw std::invalid_argument{"TopConfig: Option UseBadBatmanCleaning unknown value, only True or False (default) is allowed"};
+    }
+
+    // now check the ranges of the batman cleaning
+    {
+      std::vector<std::string> tokens;
+      tokenize(settings->value("BadBatmanCleaningRange"), tokens, ":");
+      if (tokens.size() != 2) {
+        throw std::runtime_error{"TopConfig: Option BadBatmanCleaningRange should be of the form \'RunNumber1:RunNumber2\'"};
+      }
+      unsigned int minRunNumber = 999999;
+      unsigned int maxRunNumber = 0;
+      try { // convert the values from string to unsigned int
+        minRunNumber = std::stoul(tokens.at(0));
+        maxRunNumber = std::stoul(tokens.at(1));
+      } catch (...) {
+        throw std::invalid_argument{"TopConfig: Option BadBatmanCleaningRange cannot convert the RunNumbers into unsigned int"};
+      }
+
+      // check if the first value is not larger than the second value
+      if (maxRunNumber < minRunNumber){
+        throw std::invalid_argument{"TopConfig: Option BadBatmanCleaningRange: the first RunNumber cannot be larger than the second!"};
+      }
+
+      // check if there is an overlap with data 2017 as this option should not be used for this period
+      static const unsigned int data17_begin = 325713;
+      static const unsigned int data17_end   = 348835;
+
+      if (std::max(minRunNumber, data17_begin) <= std::min(maxRunNumber, data17_end)){
+        throw std::invalid_argument{"TopConfig: Option BadBatmanCleaningRange cannot include RunNumbers from 2017 data taking (325713-348835)"};
+      }
+
+      this->setBadBatmanCleaningMin(minRunNumber);
+      this->setBadBatmanCleaningMax(maxRunNumber);
     }
 
     // Switch to set event level jet cleaning tool [false by default]
@@ -748,13 +809,13 @@ namespace top{
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
+    this->setJVTWP( settings->value("JVTWP") );
     this->m_largeRSmallRCorrelations = settings->value("LargeRSmallRCorrelations") == "True" ? true : false;
 
     this->largeRJetPtcut( std::stof(settings->value("LargeRJetPt")) );
     this->largeRJetEtacut( std::stof(settings->value("LargeRJetEta")) );
     this->largeRJESUncertaintyConfig( settings->value("LargeRJESUncertaintyConfig") );
     this->largeRJESJMSConfig( settings->value("LargeRJESJMSConfig") );
-    this->largeRtoptaggingConfigFile( settings->value("LargeRToptaggingConfigFile") );
 
     this->trackJetPtcut( std::stof(settings->value("TrackJetPt")) );
     this->trackJetEtacut( std::stof(settings->value("TrackJetEta")) );
@@ -907,6 +968,26 @@ namespace top{
       m_lhapdf_options.doLHAPDFInNominalTrees = true;
     }
 
+    // now get all Boosted jet taggers from the config file.
+    std::string str_boostedJetTagger = settings->value( "BoostedJetTagging" );
+    std::vector<std::string> helpvec_str;
+    tokenize(str_boostedJetTagger,helpvec_str,",");
+    
+    std::vector<std::string> vec_boostedJetTaggers;
+    
+    for(const std::string& x : helpvec_str){
+      std::istringstream istr_boostedJetTaggers(x);
+      std::copy( std::istream_iterator<std::string>(istr_boostedJetTaggers),std::istream_iterator<std::string>(), std::back_inserter(vec_boostedJetTaggers) ); 
+    }
+    
+    for(const std::string& tagger : vec_boostedJetTaggers) {
+      
+      std::vector<std::string> helpvec;
+      tokenize(tagger,helpvec,":");
+      if ( helpvec.size() != 2 ) throw std::runtime_error{"TopConfig: Options in BoostedJetTagging should be of the form \'x:y\' where x is tagging type and y is shortened tagger name."};
+      m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0],helpvec[1]));
+      
+    }
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
@@ -1639,7 +1720,7 @@ namespace top{
                                   m_jetGhostTrackSystematics.end());
           m_jetGhostTrackSystematics.erase(last,
                                         m_jetGhostTrackSystematics.end());
-					
+
 	  m_list_systHashAll->sort();
 	  m_list_systHashAll->unique();
       }
@@ -1912,7 +1993,7 @@ namespace top{
       for (Itr i=m_systMapJetGhostTrack->begin();i!=m_systMapJetGhostTrack->end();++i) {
         m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
       }
-    
+
     }
     for (Itr i=m_systMapMET->begin();i!=m_systMapMET->end();++i) {
       m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );

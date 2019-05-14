@@ -201,8 +201,8 @@ namespace FlavorTagDiscriminants {
       internal::TracksFromJet tracksFromJet;
       std::vector<internal::SeqFromTracks> sequencesFromTracks;
     };
-    typedef SG::AuxElement::Decorator<float> OutputDecorator;
-    typedef std::vector<std::pair<std::string, OutputDecorator > > OutNode;
+    typedef std::function<void(const SG::AuxElement&, double)> OutputSetter;
+    typedef std::vector<std::pair<std::string, OutputSetter > > OutNode;
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;

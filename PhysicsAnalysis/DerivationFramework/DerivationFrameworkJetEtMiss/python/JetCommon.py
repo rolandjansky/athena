@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -56,7 +56,7 @@ else:
 ##################################################################
 
 def defineEDAlg(R=0.4, inputtype="LCTopo"):
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
 
     from JetRec.JetRecStandard import jtm
@@ -64,14 +64,17 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
     # map a getter to the input argument
     inputgetter = { "LCTopo" : jtm.lcget,
                     "EMTopo" : jtm.emget,
+                    "LCTopoOrigin" : jtm.lcoriginget,
+                    "EMTopoOrigin" : jtm.emoriginget,
                     "EMPFlow": jtm.empflowget,
-                    "EMCPFlow": jtm.emcpflowget,
+                    "EMPFlowPUSB": jtm.empflowpusbget,
+                    "EMPFlowNeut": jtm.empflowneutget,
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
     t.OutputLevel = 3
     ToolSvc += t
-    return EventDensityAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
+    return EventDensityAthAlg( "EventDensityAthAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
 
 ##################################################################
 

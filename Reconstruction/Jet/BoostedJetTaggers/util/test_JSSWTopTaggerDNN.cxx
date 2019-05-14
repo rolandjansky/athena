@@ -164,8 +164,8 @@ int main( int argc, char* argv[] ) {
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   //m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
   //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
-  m_Tagger.setProperty("CalibArea", "Local");
-  m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat"); // to be updated!!
+   m_Tagger.setProperty("CalibArea", "Local");
+   m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat");
   m_Tagger.retrieve();
 
 
@@ -198,14 +198,15 @@ int main( int argc, char* argv[] ) {
     for(const xAOD::Jet* jet : * myJets ){      
 
       if(verbose) std::cout<<"Testing DNN W/top Tagger "<<std::endl;
-      const Root::TAccept& res = m_Tagger->tag( *jet ); 
+
+      const Root::TAccept& res = m_Tagger->tag( *jet );
       if(verbose) std::cout<<"jet pt              = "<<jet->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-
       truthLabel = (int)jet->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
+
       pass = res;
       sf = jet->auxdata<float>("DNNTaggerTopQuark80_SF");
       pt = jet->pt();

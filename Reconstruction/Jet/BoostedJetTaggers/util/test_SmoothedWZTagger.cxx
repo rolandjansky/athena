@@ -164,7 +164,8 @@ int main( int argc, char* argv[] ) {
   //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   //m_Tagger.setProperty( "CalibArea",    "SmoothedWZTaggers/Rel21");
-  m_Tagger.setProperty( "CalibArea",    "Local");
+  //m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  m_Tagger.setProperty( "CalibArea",   "Local");
   m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC15c_20161215.dat");
   m_Tagger.retrieve();
 
@@ -263,6 +264,7 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
 
       pass = res;
+
       pt = (*jet_itr)->pt();
       m = (*jet_itr)->m();
       eta = (*jet_itr)->eta();

@@ -45,10 +45,10 @@ namespace DerivationFramework {
 
     void fillMatchDetails( std::vector<float>& trkMatchTrk, const  xAOD::TrackParticle* tp, const xAOD::CaloCluster* cluster) const;
     int  nSiHits( const xAOD::TrackParticle * tp ) const;
-    void fillTrackDetails(const xAOD::Electron* el) const;
+    void fillTrackDetails(const xAOD::Electron* el, bool isMC) const;
     void fillVertexDetails(const xAOD::Electron* el) const;
     void fillClusterDetails(const xAOD::Electron* el) const;
-
+    void fillTruthDetails( std::vector<float>& trkMatchTrk, const xAOD::TrackParticle* tp, const xAOD::CaloCluster* cluster) const;
 
     ToolHandle<IEMExtrapolationTools> m_emExtrapolationTool;
     ToolHandle<Trk::IVertexFitter>    m_VertexFitter;

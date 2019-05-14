@@ -58,6 +58,10 @@ namespace CP
   public:
     virtual void setBool (SG::AuxElement& element,
                           bool selection) const = 0;
+
+  /// \brief get the label of the accessor
+  public:
+    virtual std::string label () const = 0;
   };
 
 
