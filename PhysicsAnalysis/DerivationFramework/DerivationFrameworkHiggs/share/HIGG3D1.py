@@ -179,9 +179,6 @@ mmSelection_symdilepton = '((count('+muonsRequirements+') >= 2) && (count('+lead
 
 emSelection = '(((count('+electronRequirements+') >= 1) && (count('+muonsRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 
-#preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection
-
-# Adding in the new category
 preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection+' || '+mmSelection_symdilepton
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
