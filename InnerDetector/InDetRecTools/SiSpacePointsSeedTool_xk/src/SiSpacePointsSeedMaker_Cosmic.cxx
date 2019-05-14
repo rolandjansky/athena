@@ -120,8 +120,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(int)
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 
-	  int   ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
-
+	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
 	  data.r_Sorted[ir].push_back(sps);
           ++data.r_map[ir];
@@ -146,8 +145,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(int)
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 	  
-	  int   ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
-
+	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
 	  data.r_Sorted[ir].push_back(sps);
           ++data.r_map[ir];
@@ -170,8 +168,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent(int)
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 
-	  int   ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
-
+	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
 	  data.r_Sorted[ir].push_back(sps);
           ++data.r_map[ir];
@@ -218,7 +215,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
           if (r<0. || r>=m_r_rmax) continue;
 	  if (m_useassoTool && isUsed(sp)) continue;
 
-	  int   ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
+	  int ir = static_cast<int>((sp->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp, errorsc);
 	  data.r_Sorted[ir].push_back(sps);
           ++data.r_map[ir];
@@ -539,14 +536,12 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
   // Build maps for radius-azimuthal-Z sorted collections 
   //
   for (int f=0; f<=m_fNmax; ++f) {
-
     int fb = f-1; if (fb<0      ) fb=m_fNmax;
     int ft = f+1; if (ft>m_fNmax) ft=0;
     
     // For each azimuthal region loop through all Z regions
     //
     for (int z=0; z<SizeZ; ++z) {
- 
       int a        = f *SizeZ+z;
       int b        = fb*SizeZ+z;
       int c        = ft*SizeZ+z;
@@ -617,8 +612,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists(EventData& data) const
   constexpr float pi2 = 2.*M_PI;
   std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
-  for (int i=0; i!= m_r_size;  ++i) {
-
+  for (int i=0; i<m_r_size; ++i) {
     if (!data.r_map[i]) continue;
     r = data.r_Sorted[i].begin();
 
@@ -634,11 +628,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists(EventData& data) const
       data.rf_Sorted[f].push_back(*r);
       if (!data.rf_map[f]++) data.rf_index[data.nrf++] = f;
 
-      int z;
       float Z = (*r)->z();
-
       // Azimuthal angle and Z-coordinate sort
       //
+      int z;
       if (Z>0.) {
 	Z< 250.?z=5:Z< 450.?z=6:Z< 925.?z=7:Z< 1400.?z=8:Z< 2500.?z=9:z=10;
       } else {
@@ -662,19 +655,19 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists(EventData& data) const
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::erase(EventData& data) const
 {
-  for (int i=0; i!=data.nr;    ++i) {
+  for (int i=0; i<data.nr; ++i) {
     int n = data.r_index[i];
     data.r_map[n] = 0;
     data.r_Sorted[n].erase(data.r_Sorted[n].begin(), data.r_Sorted[n].end());
   }
 
-  for (int i=0; i!=data.nrf;   ++i) {
+  for (int i=0; i>data.nrf; ++i) {
     int n = data.rf_index[i];
     data.rf_map[n] = 0;
     data.rf_Sorted[n].erase(data.rf_Sorted[n].begin(), data.rf_Sorted[n].end());
   }
 
-  for (int i=0; i!=data.nrfz;  ++i) {
+  for (int i=0; i<data.nrfz; ++i) {
     int n = data.rfz_index[i];
     data.rfz_map[n] = 0;
     data.rfz_Sorted[n].erase(data.rfz_Sorted[n].begin(), data.rfz_Sorted[n].end());
@@ -724,26 +717,23 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp(EventData& data) const
   // Loop thorugh all azimuthal regions
   //
   for (int f=data.fNmin; f<=m_fNmax; ++f) {
-    
     // For each azimuthal region loop through all Z regions
     //
     int z = 0;
     if (!data.endlist) z = data.zMin;
 
     for (; z<SizeZ; ++z) {
-
       int a = f *SizeZ+ZI[z];
       if (!data.rfz_map[a]) continue;
       int NB = 0, NT = 0;
-      for (int i=0; i!=m_rfz_b[a]; ++i) {
+      for (int i=0; i<m_rfz_b[a]; ++i) {
 	
 	int an =  m_rfz_ib[a][i];
 	if (!data.rfz_map[an]) continue;
 	rb [NB] = data.rfz_Sorted[an].begin();
         rbe[NB++] = data.rfz_Sorted[an].end();
       } 
-      for (int i=0; i!=m_rfz_t[a]; ++i) {
-	
+      for (int i=0; i<m_rfz_t[a]; ++i) {
 	int an =  m_rfz_it[a][i];
 	if (!data.rfz_map[an]) continue;
 	rt [NT] = data.rfz_Sorted[an].begin();
@@ -771,27 +761,23 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField(EventData& 
   // Loop thorugh all azimuthal regions
   //
   for (int f=data.fNmin; f<=m_fNmax; ++f) {
-    
     // For each azimuthal region loop through all Z regions
     //
     int z = 0;
     if (!data.endlist) z = data.zMin;
 
     for (; z<SizeZ; ++z) {
-
       int a  = f *SizeZ+ZI[z];
       if (!data.rfz_map[a]) continue;
       int NB = 0, NT = 0;
-      for (int i=0; i!=m_rfz_b[a]; ++i) {
-	
-	int an =  m_rfz_ib[a][i];
+      for (int i=0; i<m_rfz_b[a]; ++i) {
+	int an = m_rfz_ib[a][i];
 	if (!data.rfz_map[an]) continue;
 	rb [NB] = data.rfz_Sorted[an].begin();
         rbe[NB++] = data.rfz_Sorted[an].end();
       } 
-      for (int i=0; i!=m_rfz_t[a]; ++i) {
-	
-	int an =  m_rfz_it[a][i];
+      for (int i=0; i<m_rfz_t[a]; ++i) {
+	int an = m_rfz_it[a][i];
 	if (!data.rfz_map[an]) continue;
 	rt [NT] = data.rfz_Sorted[an].begin();
         rte[NT++] = data.rfz_Sorted[an].end();
@@ -822,29 +808,24 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 
   // Loop through all trigger space points
   //
-  for (; r0!=rbe[0]; ++r0) {
-	
-    bool              pix   = true;
+  for (; r0!=rbe[0]; ++r0) {	
+    bool  pix   = true;
     if ((*r0)->spacepoint->clusterList().second) pix = false;
-    float              R    = (*r0)->radius();
+    float R     = (*r0)->radius();
     const Trk::Surface* sur0 = (*r0)->sur();
-    float              X    = (*r0)->x()    ;
-    float              Y    = (*r0)->y()    ;
-    float              Z    = (*r0)->z()    ;
-    float              ax   = X/R           ;
-    float              ay   = Y/R           ;
-    float             covr0 = (*r0)->covr ();
-    float             covz0 = (*r0)->covz ();
-
-    int                 Nb   = 0;
+    float X     = (*r0)->x()    ;
+    float Y     = (*r0)->y()    ;
+    float Z     = (*r0)->z()    ;
+    float ax    = X/R           ;
+    float ay    = Y/R           ;
+    float covr0 = (*r0)->covr ();
+    float covz0 = (*r0)->covz ();
+    int   Nb    = 0;
 
     // Bottom links production
     //
-    for (int i=0; i!=NB; ++i) {
-
+    for (int i=0; i<NB; ++i) {
       for (r=rb[i]; r!=rbe[i]; ++r) {
-	
-	
 	float dy = (*r)->y()-Y ;
 	if (-dy < m_drmin) break;
 	if (-dy > m_drmax || (*r)->sur()==sur0) continue;
@@ -878,10 +859,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     
     // Top   links production
     //
-    for (int i=0; i!=NT; ++i) {
-      
+    for (int i=0; i<NT; ++i) {
       for (r=rt[i]; r!=rte[i]; ++r) {
-	
 	float dy = (*r)->y()-Y ;
 	if (dy < m_drmin) {rt[i]=r; continue;}
 	if (dy>m_drmax) break;
@@ -916,11 +895,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     // Three space points comparison
     //
     for (int b=Nb-1; b>=0; --b) {
-      
       float SA  = 1.+data.Tz[b]*data.Tz[b];
-      
-      for (int t=Nb;  t!=Nt; ++t) {
-
+      for (int t=Nb; t<Nt; ++t) {
 	float Ts = .5*(data.Tz[b]+data.Tz[t]);
 	float dt =  data.Tz[b]-data.Tz[t]    ;
 	float dT = dt*dt-data.Er[b]-data.Er[t]-2.*data.R[b]*data.R[t]*(Ts*Ts*covr0+covz0);
@@ -962,8 +938,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 
   // Loop through all trigger space points
   //
-  for (; r0!=rbe[0]; ++r0) {
-	
+  for (; r0!=rbe[0]; ++r0) {	
     bool                pix  = true;
     if ((*r0)->spacepoint->clusterList().second) pix = false;
     const Trk::Surface* sur0 = (*r0)->sur()  ;
@@ -977,11 +952,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 
     // Bottom links production
     //
-    for (int i=0; i!=NB; ++i) {
-
+    for (int i=0; i<NB; ++i) {
       for (r=rb[i]; r!=rbe[i]; ++r) {
-	
-	
 	float dy = Y-(*r)->y() ;
 	if ( dy < m_drmin) break;
 	if ( dy > m_drmax || (*r)->sur()==sur0) continue;
@@ -1011,10 +983,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     
     // Top   links production
     //
-    for (int i=0; i!=NT; ++i) {
-      
+    for (int i=0; i<NT; ++i) {
       for (r=rt[i]; r!=rte[i]; ++r) {
-	
 	float dy = (*r)->y()-Y ;
 	if (dy < m_drmin) {rt[i]=r; continue;}
 	if (dy>m_drmax) break;
@@ -1046,11 +1016,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     // Three space points comparison
     //
     for (int b=Nb-1; b>=0; --b) {
-      
-      float SA  = 1.+data.Tz[b]*data.Tz[b];
-
-      for (int t=Nb;  t!=Nt; ++t) {
-
+      float SA = 1.+data.Tz[b]*data.Tz[b];
+      for (int t=Nb; t<Nt; ++t) {
 	// Azimuth angle cut
 	//
 	float dF = data.U[b]*data.U[t]+data.V[b]*data.V[t];
@@ -1114,7 +1081,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
     sps = &(*data.i_spforseed++);
     sps->set(sp, r);
   } else {
-    data.l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r));
+    data.l_spforseed.emplace_back(InDet::SiSpacePointForSeed(sp, r));
     sps = &(data.l_spforseed.back());
     data.i_spforseed = data.l_spforseed.end();
   }
@@ -1140,7 +1107,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
     sps = &(*data.i_spforseed++);
     sps->set(sp, r, sc);
   } else {
-    data.l_spforseed.push_back(InDet::SiSpacePointForSeed(sp, r, sc));
+    data.l_spforseed.emplace_back(InDet::SiSpacePointForSeed(sp, r, sc));
     sps = &(data.l_spforseed.back());
     data.i_spforseed = data.l_spforseed.end();
   }
@@ -1237,7 +1204,7 @@ InDet::SiSpacePointsSeedMaker_Cosmic::getEventData() const {
       m_eventData[slot].rf_map[i]=0;
     }
     // Build radius-azimuthal-Z sorted containers
-    for (int i=0; i!=SizeRFZ; ++i) {
+    for (int i=0; i<SizeRFZ; ++i) {
       m_eventData[slot].rfz_index[i]=0;
       m_eventData[slot].rfz_map[i]=0;
     }
