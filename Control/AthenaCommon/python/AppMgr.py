@@ -75,6 +75,14 @@ def iadd( self, tool ):
       tool = (tool,)
 
  # only add once (allow silently)
+   if self.configurableRun3Behavior:
+      # But if duplicates may not be the same Configurable instances,
+      # need to force the owner to prevent errors about public tools
+      # not in ToolSvc when old configuration fragments are imported
+      # in new configurations.
+      dups = [t for t in tool if t in self.getChildren()]
+      for t in dups:
+         t.setParent (self.name())
    tool = [t for t in tool if t not in self.getChildren()]
    if len(tool)==0: return self
 
