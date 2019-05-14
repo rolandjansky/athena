@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
  /*
@@ -36,13 +36,13 @@ StatusCode HLTCaloCellSumMaker::initialize() {
         return StatusCode::SUCCESS;
 }
 
-StatusCode HLTCaloCellSumMaker::execute( const EventContext& /*context*/ ) const {
+StatusCode HLTCaloCellSumMaker::execute( const EventContext& context ) const {
 
 
   if ( m_roiMode ) {
   int cc=0;
   // datahandle
-  auto roisHandle = SG::makeHandle( m_cellContainerKey );
+  auto roisHandle = SG::makeHandle( m_cellContainerKey, context );
   const CaloCellContainer* roiCollection = roisHandle.cptr();
   if ( !roiCollection ){
   	ATH_MSG_INFO( "empty container"); 
@@ -53,7 +53,7 @@ StatusCode HLTCaloCellSumMaker::execute( const EventContext& /*context*/ ) const
   ATH_MSG_INFO ( "Executing " << name() << "..." << "RoIToSum Single : " << cc << " " << sum );
 
   } else {
-  auto roisHandle = SG::makeHandle( m_cellContainerVKey );
+  auto roisHandle = SG::makeHandle( m_cellContainerVKey, context );
   const ConstDataVector<CaloCellContainerVector>* roiCollection = roisHandle.cptr();
 
   int cc=0;
