@@ -248,20 +248,29 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
 hypos = collectHypos(topSequence)
 filters = collectFilters(topSequence)
+
+# try to find L1Decoder
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
-decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, 'L1Decoder') )
-print decObj
+l1decoder = findAlgorithm(topSequence,'L1Decoder')
+if not l1decoder:
+    l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
 
-from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
-ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-ItemList += [ "xAOD::EventInfo#EventInfo" ]
+if l1decoder:
+    decObj = collectDecisionObjects( hypos, filters, l1decoder )
+    print decObj
 
-ItemList = list(set(ItemList))
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
+    ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
+    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
+    ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
+    ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+    ItemList += [ "xAOD::EventInfo#EventInfo" ]
 
+    ItemList = list(set(ItemList))
+
+else:
+    ItemList = []
 
 
 import AthenaPoolCnvSvc.WriteAthenaPool

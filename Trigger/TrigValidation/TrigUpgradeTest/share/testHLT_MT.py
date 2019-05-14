@@ -275,12 +275,20 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.ShowDataDependencies( True )
     AlgScheduler.EnableVerboseViews( True )
 
-# EventInfo creation if needed
-from RecExConfig.ObjKeyStore import objKeyStore
-if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
+#--------------------------------------------------------------
+# Event Info setup
+#--------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file or we are reading BS, schedule conversion from old EventInfo
+if globalflags.InputFormat.is_pool():
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence += xAODMaker__EventInfoCnvAlg()
-
 
 # ----------------------------------------------------------------
 # Detector geometry 

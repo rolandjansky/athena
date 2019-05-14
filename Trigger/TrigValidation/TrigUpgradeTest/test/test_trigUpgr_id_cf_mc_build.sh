@@ -11,7 +11,7 @@ export SKIPEVENTS=0
 export EVENTS=10
 export THREADS=1
 export SLOTS=1
-export INPUT="run2mc_ttbar"
+export INPUT="ttbar"
 export JOBOPTION="TrigUpgradeTest/IDCalo.py"
 export EXTRA="doCalo=False"
 
