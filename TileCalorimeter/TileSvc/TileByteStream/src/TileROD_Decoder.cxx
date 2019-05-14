@@ -33,41 +33,15 @@ static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& name,
                                  const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_hid2re(0)
-  , m_hid2reHLT(0)
+  , m_of2Default(true)
+  , m_MBTS(nullptr)
+  , m_hid2re(nullptr)
+  , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
-  , m_fullTileRODs(320000) // default 2017 full mode
   , m_checkMaskedDrawers(false)
 {
   declareInterface<TileROD_Decoder>(this);
-  
-  declareProperty("useFrag0", m_useFrag0 = true);
-  declareProperty("useFrag1", m_useFrag1 = true);
-  declareProperty("useFrag4", m_useFrag4 = true);
-  declareProperty("useFrag5Raw", m_useFrag5Raw = false);
-  declareProperty("useFrag5Reco", m_useFrag5Reco = false);
-  declareProperty("ignoreFrag4HLT", m_ignoreFrag4HLT = false);
-  
-  declareProperty("TileCellEthresholdMeV", m_TileCellEthreshold = -100000.);
-  declareProperty("TileDefaultChannelBuilder", m_TileDefaultChannelBuilder = "TileRawChannelBuilderFlatFilter/TileROD_RCBuilder");
 
-  declareProperty("VerboseOutput", m_verbose = false);
-  declareProperty("calibrateEnergy", m_calibrateEnergy = true); // convert ADC counts to pCb for RawChannels
-  declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
-  declareProperty("maskBadDigits", m_maskBadDigits = false); // put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0
-  declareProperty("MaxWarningPrint", m_maxWarningPrint = 1000);
-  declareProperty("MaxErrorPrint", m_maxErrorPrint = 100);
-
-  declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
-  declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
-  declareProperty("fullTileMode", m_fullTileRODs); // run from which to take the cabling (for the moment, either 320000 - full 2017 mode - or 0 - 2016 mode)
-
-  updateAmpThreshold(15.);
-  m_timeMinThresh = -25;
-  m_timeMaxThresh = 25;
-
-  m_of2Default = true;
-  m_MBTS = NULL;
   m_WarningCounter = 0;
   m_ErrorCounter = 0;
   
@@ -76,8 +50,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   }
 }
 
-void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
-  m_ampMinThresh = ampMinThresh;
+void TileROD_Decoder::updateAmpThreshold() {
   m_ampMinThresh_pC = m_ampMinThresh * (12.5 / 1023.);
   m_ampMinThresh_MeV = m_ampMinThresh * (12.5 / 1023. / 1.05 * 1000.);
 }
@@ -115,6 +88,8 @@ int TileROD_Decoder::getErrorCounter() {
 
 StatusCode TileROD_Decoder::initialize() {
   
+  updateAmpThreshold();
+
   m_rc2bytes5.setVerbose(m_verbose);
   m_rc2bytes2.setVerbose(m_verbose);
   m_rc2bytes.setVerbose(m_verbose);
@@ -145,14 +120,6 @@ StatusCode TileROD_Decoder::initialize() {
     ATH_CHECK( m_tileBadChanTool.retrieve() );
   }
 
-  // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
-  //ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
-  //ListItem algRC(m_TileDefaultChannelBuilder);
-  //ATH_CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
-  
-  //ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
-  //ATH_CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
-  
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
   m_Rw2Cell[0].reserve(m_maxChannels);
@@ -3530,7 +3497,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       ATH_MSG_ERROR("TileROD_Decderr::make_copyHLT is not MT-safe but used in "
                     "a MT job.  Results will likely be wrong.");
     }
-    if (m_MBTS != NULL && MBTS_chan >= 0) {
+    if (m_MBTS && MBTS_chan >= 0) {
       auto it = m_mapMBTS.find (frag_id);
       unsigned int idx = it != m_mapMBTS.end() ? it->second : 0u;
       if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)
