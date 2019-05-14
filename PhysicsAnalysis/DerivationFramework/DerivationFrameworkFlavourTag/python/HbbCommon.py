@@ -256,6 +256,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
