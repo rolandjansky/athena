@@ -182,13 +182,13 @@ StatusCode TrigTauRecMergedMT::execute()
   auto beamspot_x         = Monitored::Scalar<float>("EF_beamspot_x",-999.9);
   auto beamspot_y         = Monitored::Scalar<float>("EF_beamspot_y",-999.9);
   auto beamspot_z         = Monitored::Scalar<float>("EF_beamspot_z",-999.9);
-  auto EtaL1                 = Monitored::Scalar<float>("EtaL1",-99.9);
-  auto PhiL1                 = Monitored::Scalar<float>("PhiL1",-99.9);
-  auto EtaEF                 = Monitored::Scalar<float>("EtaEF",-99.9);
-  auto PhiEF                 = Monitored::Scalar<float>("PhiEF",-99.9);
+  auto EtaL1              = Monitored::Scalar<float>("EtaL1",-99.9);
+  auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
+  auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
+  auto PhiEF              = Monitored::Scalar<float>("PhiEF",-99.9);
 
-  auto EF_calo_errors        = Monitored::Collection("calo_errors",calo_errors);
-  auto EF_track_errors       = Monitored::Collection("track_errors",track_errors);
+  auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
+  auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
 				     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
