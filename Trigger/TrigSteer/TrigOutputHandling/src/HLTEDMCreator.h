@@ -41,6 +41,9 @@
 #include "xAODTrigMuon/L2IsoMuonAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+
 
 /**
  * @class Tool capable of creating collections missing (early rejection) after HLT processing
@@ -105,6 +108,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( L2CombinedMuonContainer );
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
+  DEF_XAOD_KEY( TauJetContainer );
 
 #undef DEF_VIEWS
 #undef DEF_KEY
