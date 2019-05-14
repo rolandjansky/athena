@@ -45,7 +45,7 @@
  
      NnClusterizationFactory(const std::string& name,
                      const std::string& n, const IInterface* p);
-     ~NnClusterizationFactory();
+     ~NnClusterizationFactory() = default;
      
      virtual StatusCode initialize();
      virtual StatusCode finalize();

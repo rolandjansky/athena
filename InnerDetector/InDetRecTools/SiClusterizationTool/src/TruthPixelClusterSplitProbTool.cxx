@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,21 +25,9 @@ namespace InDet
   
 
   TruthPixelClusterSplitProbTool::TruthPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
-          :AthAlgTool(t,n,p),
-           m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this)
+    :base_class(t,n,p)
   {
-
-    m_priorMultiplicityContent.push_back(2793337);
-    m_priorMultiplicityContent.push_back(82056);
-    m_priorMultiplicityContent.push_back(19944);
-
-
     declareInterface<IPixelClusterSplitProbTool>(this);
-
-    declareProperty("NnClusterizationFactory",m_truthClusterizationFactory);
-    declareProperty("PriorMultiplicityContent",m_priorMultiplicityContent);
-
-
   }
   
 
