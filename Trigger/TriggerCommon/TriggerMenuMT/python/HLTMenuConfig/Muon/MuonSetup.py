@@ -650,7 +650,7 @@ def muEFCBRecoSequence( RoIs, name ):
   theMuonCandidateAlgCB=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlgCB_"+name,MuonCandidateTool=theCandidateToolCB,MuonCandidateLocation="MuonCandidates", MSOnlyExtrapolatedTrackLocation="MSOnlyMuonTracksForCB")
 
   #Create xAOD Muons
-  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB_"+name, "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, DoCaloNoiseCut=False, UseCaloCells=False)
+  thecreatortoolCB= getPublicToolClone("MuonCreatorTool_triggerCB_"+name, "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False)
 
   themuoncbcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgCB_"+name, MuonCandidateLocation="CombinedMuonCandidates")
   themuoncbcreatoralg.MuonCreatorTool=thecreatortoolCB
