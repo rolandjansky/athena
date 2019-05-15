@@ -257,7 +257,7 @@ ToolSvc += TMEF_MooTrackBuilderCosmic
 
 #from MuonCombiTrackMaker.MuonCombiTrackMakerConf import Muon__MuonChamberHoleRecoveryTool
 TMEF_MuonChamberHoleRecoveryToolCosmic = CfgMgr.Muon__MuonChamberHoleRecoveryTool("TMEF_MuonChamberHoleRecoveryToolCosmic",
-                                                                           CscRotCreator = None,
+                                                                           CscRotCreator = "",
                                                                            MdtRotCreator = TMEF_MdtDriftCircleOnTrackCreatorCosmic
                                                                            )
 ToolSvc += TMEF_MuonChamberHoleRecoveryToolCosmic
@@ -327,7 +327,7 @@ ToolSvc += TMEF_MuonAmbiProcessorCosmic
 # particle creation, Analysis::Muon building and CBNT filling need summary helpers
 # indet and muon TrackSummaryHelper's: take existing public instances when available
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-MuonTrackSummaryHelperTool    = MuonRecTools.getPublicTool("MuonTrackSummaryHelper")
+MuonTrackSummaryHelperTool    = MuonRecTools.getPublicTool("MuonTrackSummaryHelperTool")
 
 
 from AthenaCommon.DetFlags import DetFlags
@@ -356,7 +356,7 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
     def __init__( self, name="TrigMuonEFSegmentFinderCosmic" ):
         super( TrigMuonEFSegmentFinderCosmicConfig, self ).__init__( name )
 
-        self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
+        if muonRecFlags.doCSCs(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         from MuonRecExample.MooreTools import MooSegmentCombinationFinder        
         self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic",

@@ -160,6 +160,8 @@ namespace Muon {
     /** @brief return sector number 1-16, odd=large, even=small */
     int sector( const Identifier& id ) const;
 
+    bool UseCSC() const;
+
   private:
     const RpcIdHelper*                  m_rpcIdHelper;
     const TgcIdHelper*                  m_tgcIdHelper;
