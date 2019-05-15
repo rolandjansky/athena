@@ -265,6 +265,12 @@ class doVeryLowPt(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doLowPtEWW(InDetFlagsJobProperty):
+    """Turn running of doLowPt tracking for exclusive WW (just a copy of doLowPt) second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doSLHCConversionFinding(InDetFlagsJobProperty):
     """Turn running of doSLHCConversionFinding second pass on and off"""
     statusOn     = True
@@ -1263,6 +1269,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False)
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , True )
        self.checkThenSet(self.doBeamHalo             , True )
@@ -1287,6 +1294,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1321,6 +1329,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useZvertexTool         , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
@@ -1358,6 +1367,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, True )
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1394,6 +1404,7 @@ class InDetJobProperties(JobPropertyContainer):
        #self.checkThenSet(self.doNewTracking          , True )
        #self.checkThenSet(self.doLowPt                , False)
        #self.checkThenSet(self.doVeryLowPt            , False)
+       #self.checkThenSet(self.doLowPtEWW             , False)
        #self.checkThenSet(self.doBeamGas              , False)
        #self.checkThenSet(self.doBeamHalo             , False)
        #self.checkThenSet(self.doxKalman              , False)
@@ -1421,6 +1432,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1450,6 +1462,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1489,6 +1502,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtEWW             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1528,6 +1542,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False )
        self.checkThenSet(self.doLowPt                , False )
        self.checkThenSet(self.doVeryLowPt            , False )
+       self.checkThenSet(self.doLowPtEWW             , False )
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doForwardTracks        , False )
        self.checkThenSet(self.doBeamGas              , False )
@@ -1651,6 +1666,7 @@ class InDetJobProperties(JobPropertyContainer):
           # --- run soft tracking, but not low-pt
           self.checkThenSet(self.doLowPt             , True )    
           self.checkThenSet(self.doVeryLowPt         , False )
+          self.checkThenSet(self.doLowPtEWW          , False )    
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
@@ -1778,6 +1794,8 @@ class InDetJobProperties(JobPropertyContainer):
       self.doLowPt       = self.doLowPt() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
+      # no low pt tracking exclusiveWW if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
+      self.doLowPtEWW    = self.doLowPtEWW() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       #
       self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
@@ -2008,7 +2026,7 @@ class InDetJobProperties(JobPropertyContainer):
 
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
-           or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
+           or self.doLowPt() or self.doVeryLowPt() or self.doLowPtEWW() or self.doTRTStandalone() \
            or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()
 
   def doNewTrackingSegments(self):
@@ -2069,6 +2087,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doTrtSegments             = False
        self.doLowPt                   = False  
        self.doVeryLowPt               = False  
+       self.doLowPtEWW                = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
        self.doLowPtLargeD0            = False
@@ -2108,6 +2127,7 @@ class InDetJobProperties(JobPropertyContainer):
 
      if self.doRobustReco() and jobproperties.Beam.beamType()=="collisions":
         self.doLowPt                = False
+        self.doLowPtEWW             = False
         self.useHVForSctDCS         = True
         self.primaryVertexSetup     = "DefaultFullFinding"
         self.primaryVertexCutSetup  = "StartUp"
@@ -2135,6 +2155,7 @@ class InDetJobProperties(JobPropertyContainer):
      # [ switch off the other modes
      self.doLowPt                  = False
      self.doVeryLowPt              = False
+     self.doLowPtEWW               = False
      self.doForwardTracks          = False
      self.doBeamGas                = False
      self.doBeamHalo               = False
@@ -2376,6 +2397,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '* LowPtTracking is ON'
        if self.doVeryLowPt() :
           print '* and VeryLowPtTracking is ON'
+    # -----------------------------------------
+    if self.doLowPtEWW() :
+       print '*'
+       print '* LowPtTracking for exclusive WW is ON'
     # -----------------------------------------
     if self.doSLHCConversionFinding() :
        print '*'
@@ -2691,6 +2716,7 @@ _list_InDetJobProperties = [Enabled,
                             doBackTracking,
                             doLowPt,
                             doVeryLowPt,
+                            doLowPtEWW,
                             doSLHCConversionFinding,
                             doForwardTracks,
                             doLowPtLargeD0,

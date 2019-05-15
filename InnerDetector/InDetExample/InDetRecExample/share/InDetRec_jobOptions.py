@@ -529,6 +529,44 @@ else:
 
     # ------------------------------------------------------------
     #
+    # --- Low Pt option for exclusive WW (after BackTracking)
+    #
+    # ------------------------------------------------------------
+
+    if InDetFlags.doLowPtEWW():
+      #
+      # --- configure cuts for Low Pt tracking
+      #
+      if (not 'InDetNewTrackingCutsLowPtEWW' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsLowPtEWW not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsLowPtEWW = ConfiguredNewTrackingCuts("LowPtEWW")
+      InDetNewTrackingCutsLowPtEWW.printInfo()
+      #
+      # --- now run Si pattern for Low Pt
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetLowPtEWWSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                           InDetKeys.ResolvedLowPtEWWTracks(),
+                                                           InDetKeys.SiSpSeededLowPtEWWTracks(),
+                                                           InDetNewTrackingCutsLowPtEWW,
+                                                           TrackCollectionKeys,
+                                                           TrackCollectionTruthKeys)
+      #
+      # --- do the TRT pattern
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetLowPtEWWTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsLowPtEWW,
+                                                                 InDetLowPtEWWSiPattern.SiTrackCollection(),
+                                                                 InDetKeys.ExtendedLowPtEWWTracks(),
+                                                                 InDetKeys.ExtendedTracksMapLowPtEWW(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
+      # --- add into list for combination
+      InputCombinedInDetTracks += [ InDetLowPtEWWTRTExtension.ForwardTrackCollection() ]
+
+    # ------------------------------------------------------------
+    #
     # --- Very Low Pt option (after LowPt)
     #
     # ------------------------------------------------------------
@@ -1427,6 +1465,8 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
+      elif InDetFlags.doLowPtEWW():
+        cuts = InDetNewTrackingCutsLowPtEWW
       elif InDetFlags.doSLHCConversionFinding():
         cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
