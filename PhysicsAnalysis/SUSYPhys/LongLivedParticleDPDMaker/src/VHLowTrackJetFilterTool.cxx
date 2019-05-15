@@ -164,21 +164,6 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  //muon portion
-  int qflag=0;
-  if (m_muonIDKey == "VeryLoose") {
-    qflag = xAOD::Muon::VeryLoose;
-  } else if (m_muonIDKey == "Loose") {
-    qflag = xAOD::Muon::Loose;
-  } else if (m_muonIDKey == "Medium") {
-    qflag = xAOD::Muon::Medium;
-  } else if (m_muonIDKey == "Tight") {
-    qflag = xAOD::Muon::Tight;
-  } else {
-    ATH_MSG_FATAL("Cannot find the muon quality flag " << m_muonIDKey << ".");
-    return false;
-  }
-  
   const xAOD::MuonContainer* muons(0);
   sc = evtStore()->retrieve(muons,m_muonSGKey);
   if (sc.isFailure()) {
