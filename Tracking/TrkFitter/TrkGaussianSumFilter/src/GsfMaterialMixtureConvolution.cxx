@@ -361,8 +361,10 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
 
   // Exclude material effects on the perigee surface
   const Trk::Surface* associatedSurface     = &(combinedState->associatedSurface());
-  const Trk::PerigeeSurface* perigeeSurface = dynamic_cast<const Trk::PerigeeSurface*>(associatedSurface);
-    
+  const Trk::PerigeeSurface* perigeeSurface = nullptr;
+  if(associatedSurface && associatedSurface->type()==Trk::Surface::Perigee){
+    perigeeSurface = static_cast<const Trk::PerigeeSurface*>(associatedSurface);
+  } 
   if ( perigeeSurface ){
     if (m_outputlevel < 0)
       msg(MSG::VERBOSE) << "Material effects excluded at perigee surface" << endmsg;
