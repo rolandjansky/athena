@@ -728,10 +728,16 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool DivideByL, bool useHThit
 	else SwitchOffRSCorrection();
 
 	if(DivideByL) SwitchOnDivideByL();
-	else SwitchOffDivideByL();
+	else{
+	  ATH_MSG_Warning("dEdx(): DivideByL=false is an obsolete option. DivideByL is set to true.");
+	  SwitchOnDivideByL();
+	}
 
 	if(useHThits) SwitchOnUseHThits();
-	else SwitchOffUseHThits();
+	else{
+	  ATH_MSG_Warning("dEdx(): useHThits=false is an obsolete option. useHThits is set to true.");
+	  SwitchOnUseHThits();
+	}
 
 	return dEdx(track);
 }
@@ -909,11 +915,17 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
 
 double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool DivideByL, bool useHThits)
 {
-	if(DivideByL) 	SwitchOnDivideByL();
-	else			SwitchOffDivideByL();
+        if(DivideByL) SwitchOnDivideByL();
+	else{
+	  ATH_MSG_Warning("dEdx(): DivideByL=false is an obsolete option. DivideByL is set to true.");
+	  SwitchOnDivideByL();
+	}
 
-	if(useHThits) 	SwitchOnUseHThits();
-	else			SwitchOffUseHThits();
+	if(useHThits) SwitchOnUseHThits();
+	else{
+	  ATH_MSG_Warning("dEdx(): useHThits=false is an obsolete option. useHThits is set to true.");
+	  SwitchOnUseHThits();
+	}
 
 	return usedHits(track);
 }
