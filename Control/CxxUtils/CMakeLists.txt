@@ -110,7 +110,8 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       exctrace1_test bitscan_test ConcurrentRangeMap_test
       CachedValue_test CachedPointer_test CachedUniquePtr_test
       atomic_fetch_minmax_test
-      MurmurHash2_test bitmask_test crc64_test Ring_test )
+      MurmurHash2_test bitmask_test crc64_test Ring_test
+      restrict_test vectorize_test get_unaligned_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       EXTRA_PATTERNS "no version information available"
