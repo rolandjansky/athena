@@ -80,12 +80,14 @@ def _loadBasicEventInfoMgt():
 
     # Add TagInfoMgr as cnv svc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
-    svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
+    if not hasattr (svcMgr, 'EventPersistencySvc'):
+        svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
     svcMgr.EventPersistencySvc.CnvServices += [ "TagInfoMgr" ]
 
     # Set TagInfoMgr as proxy provider
     from AthenaCommon.ConfigurableDb import getConfigurable
-    svcMgr += getConfigurable("ProxyProviderSvc")()
+    if not hasattr (svcMgr, 'ProxyProviderSvc'):
+        svcMgr += getConfigurable("ProxyProviderSvc")()
     svcMgr.ProxyProviderSvc.ProviderNames += [ "TagInfoMgr" ]
 
     msg.debug( "Loading basic services for EventInfoMgt... [DONE]" )
