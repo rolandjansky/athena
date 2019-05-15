@@ -513,7 +513,6 @@ class Configuration:
           from os.path import splitext, basename
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap:
-              print '##DAN## found pretag match for jc {}'.format(jetcol)
               aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
               ToolSvc += aug
               options['preBtagToolModifiers'].append(aug)
@@ -527,7 +526,6 @@ class Configuration:
           # add dl1 tools
           options.setdefault("postBtagToolModifiers", [])
           if jetcol in postTagDL2JetToTrainingMap:
-              print '##DAN## found posttag match for jc {}'.format(jetcol)
               modifiers = options['postBtagToolModifiers']
               aug = AugTool(
                   name=get_training_name('BTagAugmenterTool'),

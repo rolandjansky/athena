@@ -77,10 +77,14 @@ class AODFix_r210(AODFix_base):
                 self.elPflowIso_postSystemRec(topSequence)
                 pass
 
-            # TODO: this should run whenever btagging runs, which
-            # means before the btagging fix, but also whenever we run
-            # derivations
-            self.btagTracking_postSystemRec(topSequence)
+            # this should run whenever btagging requires some
+            # information before the main b-tagging sequence, since
+            # this generally means that additional tracking
+            # infromation is needed.
+            from BTagging.JetCollectionToTrainingMaps import (
+                preTagDL2JetToTrainingMap)
+            if preTagDL2JetToTrainingMap:
+                self.btagTracking_postSystemRec(topSequence)
 
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
