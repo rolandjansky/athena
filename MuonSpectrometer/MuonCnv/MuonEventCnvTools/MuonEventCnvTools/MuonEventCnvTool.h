@@ -25,6 +25,7 @@ namespace Trk {
 }
 
 namespace Muon {
+    class MuonIdHelperTool;
 
     /**Tool used in the persisency convertors to help rebuild EDM objects*/
     class MuonEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTool   {
@@ -66,6 +67,8 @@ namespace Muon {
     private:
 
         const MuonGM::MuonDetectorManager* m_muonMgr;                 //!<Muon detector manager
+
+        ToolHandle<MuonIdHelperTool> m_idHelperTool;
 
         std::string m_rpcClusContName;
         std::string m_cscClusContName;

@@ -2277,12 +2277,14 @@ namespace Muon {
     }
 
     // loop over all available CSC collection identifiers and order them per sector
-    it = m_idHelper->cscIdHelper().module_begin();
-    it_end = m_idHelper->cscIdHelper().module_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->cscIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (&(m_idHelper->cscIdHelper())) {
+        it = m_idHelper->cscIdHelper().module_begin();
+        it_end = m_idHelper->cscIdHelper().module_end();
+        for( ;it!=it_end; ++it ){
+            IdentifierHash hash;
+            m_idHelper->cscIdHelper().get_module_hash(*it,hash);
+            insertHash(hash,*it);
+        }
     }
 
     // loop over all available MM collection identifiers and order them per sector
