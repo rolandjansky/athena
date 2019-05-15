@@ -547,6 +547,11 @@ class Configuration:
           options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
+          # GhostTag not in the jetcol name given by jetAuthor
+          if ("GhostTag" in jetcol):
+              options.setdefault('JetCollectionName', jetcol.replace('GhostTag',''))
+          else:
+              options.setdefault('JetCollectionName', jetcol)
           options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
           options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
           options.setdefault('BTagSVName', self._OutputFilesSVname)
@@ -1382,7 +1387,13 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              if (JetCollection == "AntiKt4EMPFlow"):
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              else:
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              
               if not JetCollection in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]
           return btagtool

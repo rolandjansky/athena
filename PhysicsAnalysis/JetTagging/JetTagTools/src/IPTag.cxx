@@ -23,7 +23,6 @@
 #include "Navigation/NavigationToken.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
@@ -407,12 +406,13 @@ namespace Analysis {
   }
 
 
-  StatusCode IPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode IPTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
     ATH_MSG_VERBOSE("#BTAG# m_impactParameterView = " << m_impactParameterView );
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author;
     if (m_doForcedCalib) author = m_ForcedCalibName;
+    else author = jetName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /** for the reference mode we need the true label: */

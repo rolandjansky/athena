@@ -48,7 +48,6 @@ namespace Analysis {
     StatusCode finalize();
     void finalizeHistos() {};
 
-    //StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);
     void assignProbability(xAOD::BTagging* BTag, const std::map<std::string,double>& inputs, const std::string& jetauthor);
 
   private:
