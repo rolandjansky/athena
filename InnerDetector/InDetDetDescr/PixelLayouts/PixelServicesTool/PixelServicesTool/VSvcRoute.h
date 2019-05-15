@@ -32,20 +32,7 @@ class VSvcRoute : public SvcRoute {
   virtual void addVolume( ServiceDynVolume* vol) {m_volumes.push_back(vol);}
 
   virtual void setNextRoute( SvcRoute* nr) {m_next = nr;}
-  /*
-  virtual ServiceDynVolume* entryVolume( double pos) const {
-    // FIXME - too simple, for tests only
-    if (volumes().empty()) return 0;
-    if (volumes().front()->contains(pos)) return volumes().front();
-    else if (volumes().back()->contains(pos)) return volumes().back();
-    else {
-      //should iterate to find exit volume
-      return 0; // FIXME
-    }
-  }
 
-  virtual ServiceDynVolume* exitVolume() const;
-  */
 private:
 
   double m_zPos;

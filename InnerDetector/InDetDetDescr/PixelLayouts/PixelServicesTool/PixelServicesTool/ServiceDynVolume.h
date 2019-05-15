@@ -66,7 +66,7 @@ public:
   }
 
   double volume() const{
-    return M_PI*fabs( (zMax()-zMin()) * (rMax()*rMax()-rMin()*rMin()) );
+    return M_PI*std::fabs( (zMax()-zMin()) * (rMax()*rMax()-rMin()*rMin()) );
   }
 
   const std::string& name() const {return m_name;}

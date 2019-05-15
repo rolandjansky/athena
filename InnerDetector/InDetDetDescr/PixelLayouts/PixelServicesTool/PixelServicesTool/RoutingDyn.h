@@ -4,15 +4,14 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #ifndef RoutingDyn_H
 #define RoutingDyn_H
 
-#include "PixelServicesTool/ServicesDynTracker.h"
-#include "PixelServicesTool/VSvcRoute.h"
-#include "PixelServicesTool/HSvcRoute.h"
-#include "PixelServicesTool/ServiceDynVolume.h"
-
 #include "PixelServicesTool/DetTypeDyn.h"
-
 #include "AthenaKernel/MsgStreamMember.h"
 #include <vector>
+
+class ServicesDynTracker;
+class VSvcRoute;
+class HSvcRoute;
+class ServiceDynVolume;
 
 class PixelSimpleServiceXMLHelper;
 class PixelGeneralXMLHelper;
@@ -29,6 +28,7 @@ public:
   typedef ServicesDynTracker::Layer2DContainer  Layer2DContainer;
 
   RoutingDyn(const Athena::MsgStreamMember&, const PixelGeoBuilderBasics* basics);
+  ~RoutingDyn();
 
   void createRoutingVolumes(ServicesDynTracker& tracker);
   void addRouteMaterial(const PixelGeoBuilderBasics* basics);
@@ -82,14 +82,14 @@ private:
   void createEndOfStaveSegment(const RouteParameter &param);
   void createHorizontalRoute(const RouteParameter &param);
   void createVerticalRoute(const RouteParameter &param);
-  void organizePredefinedRouteSegment(HSvcRoute route);
-  void organizePredefinedRouteSegment(VSvcRoute route);
+  void organizePredefinedRouteSegment(const HSvcRoute& route);
+  void organizePredefinedRouteSegment(const VSvcRoute& route);
   void checkVolumesOverlap();
 
   double DecodeLayerRadialPosition(std::string r, int layer, double rMin=-99999., double rMax=99999.);
   double DecodeLayerZPosition(std::string z, int layer,  double zShift, double zMin=-99999., double zMax=99999.);
-  double DecodeLayerRadialShiftPosition(std::string r, double svcThick);
-  double DecodeLayerMarginPosition(std::string r);
+  double DecodeLayerRadialShiftPosition(const std::string& r, double svcThick);
+  double DecodeLayerMarginPosition(const std::string& r);
   void   AddRGap(std::string& r, int routeId);
 
   void createRoutes(ServicesDynTracker& tracker);

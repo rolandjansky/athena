@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/ 
- 
+*/  
 #include "PixelServicesTool/PixelDynamicServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
@@ -109,12 +108,6 @@ std::string PixelDynamicServiceXMLHelper::EndcapDiscRoute(int discRoute) const
   std::vector<std::string>nodeList = getNodeList("PixelEndcapRoute");
   
   if(nodeList.size()<1) return "StdRoute";
-
-//   for(int i=0 ; i<(int)nodeList.size(); i++){
-
-//     std::vector<int> discIndices = getVectorInt("PixelEndcapRoute",0,nodeList[i].c_str());
-//     for(int j=0; j<(int)discIndices.size(); j++) if(discRoute==discIndices[j]) return nodeList[i];
-//   }
 
   for(auto& it : nodeList){
     std::vector<int> discIndices = getVectorInt("PixelEndcapRoute",0,it.c_str());
