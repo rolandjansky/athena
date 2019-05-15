@@ -47,11 +47,13 @@ void SiHitIdHelper::Initialize() {
   }
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
+  bool isInclinedAlternative = (pix !=0 &&  pix->dictionaryVersion() == "SLHC_InclinedAlternative");
 
   InitializeField("PixelSCT",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
-  InitializeField("LayerDisk",0,20);
+  if(isInclinedAlternative) InitializeField("LayerDisk",0,32);
+  else InitializeField("LayerDisk",0,20);
   if (isSLHC) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
   InitializeField("PhiModule",0,200);
