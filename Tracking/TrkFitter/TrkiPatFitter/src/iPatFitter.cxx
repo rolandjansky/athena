@@ -1164,8 +1164,7 @@ namespace Trk
       m_measurements = 0;
       m_parameters = 0;
     }
-    m_materialAllocator->clear();
-
+    
     return fittedTrack;
   }
 
