@@ -15,6 +15,8 @@
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
+#include <mutex>
+
 class AtlasDetectorID;
 
 namespace MagField {
@@ -375,6 +377,8 @@ namespace Trk {
      
     bool isMuonTrack(const Track &) const;
 
+    void incrementFitStatus(enum FitterStatusType) const;
+
     ToolHandle < IRIO_OnTrackCreator > m_ROTcreator;
     ToolHandle < IRIO_OnTrackCreator > m_broadROTcreator;
     ToolHandle < IUpdator > m_updator;
@@ -428,7 +432,14 @@ namespace Trk {
     MagneticFieldProperties *m_fieldpropfullfield;
     ParticleMasses m_particleMasses;
 
-    mutable std::array<std::atomic<unsigned int>, __S_MAX_VALUE> m_fit_status = {};
+    /*
+     * The following members are mutable. They keep track of the number of
+     * fits that have returned with a certain status. Since this must be
+     * shared across threads, we protect the array with a mutex, and we mark
+     * these members as thread_safe for the ATLAS G++ plugin.
+     */
+    mutable std::mutex m_fit_status_lock ATLAS_THREAD_SAFE;
+    mutable std::array<unsigned int, __S_MAX_VALUE> m_fit_status ATLAS_THREAD_SAFE = {};
   };
 }
 #endif
