@@ -35,6 +35,7 @@
 #include <iosfwd>
 #include <list>
 #include <map>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -56,7 +57,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
 
     SiSpacePointsSeedMaker_ATLxk(const std::string&, const std::string&, const IInterface*);
-    virtual ~SiSpacePointsSeedMaker_ATLxk();
+    virtual ~SiSpacePointsSeedMaker_ATLxk() = default;
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
@@ -106,6 +107,15 @@ namespace InDet {
     virtual std::ostream& dump(std::ostream& out) const;
 
   private:
+    enum Size {SizeRF=53,
+               SizeZ=11,
+               SizeRFZ=SizeRF*SizeZ,
+               SizeI=9,
+               SizeRFV=100,
+               SizeZV=3,
+               SizeRFZV=SizeRFV*SizeZV,
+               SizeIV=6};
+
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
@@ -153,7 +163,7 @@ namespace InDet {
     FloatProperty m_divermax{this, "maxdImpactForDecays", 20.};
     FloatProperty m_ptmin{this, "pTmin", 500.};
 
-    // Properties, which can be updated in newEvent method
+    // Properties, which can be updated in newEvent method. checketa is prepared in EventData.
     BooleanProperty m_checketa{this, "checkEta", false};
 
     // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ATLxk class
@@ -171,6 +181,7 @@ namespace InDet {
 
     // Updated only in initialize
     int m_outputlevel{0};
+    bool m_initialized{false};
 
     // Updated only in buildFrameWork in initialize
     float m_dzdrmin0{0.};
@@ -181,100 +192,104 @@ namespace InDet {
     int m_r_size{0};
     int m_fNmax{0};
     int m_fvNmax{0};
-    int m_rfz_b[583];
-    int m_rfz_t[583];
-    int m_rfz_ib[583][9];
-    int m_rfz_it[583][9];
-    int m_rfzv_n[300];
-    int m_rfzv_i[300][6];
+    int m_rfz_b[SizeRFZ];
+    int m_rfz_t[SizeRFZ];
+    int m_rfz_ib[SizeRFZ][SizeI];
+    int m_rfz_it[SizeRFZ][SizeI];
+    int m_rfzv_n[SizeRFZV];
+    int m_rfzv_i[SizeRFZV][SizeIV];
     float m_sF{0};
     float m_sFv{0};
 
-    // Updated in buildFramework, newEvent, newRegion methods
-    float m_K{0.};
-    int m_ns{0};
-    int m_nr{0};
-    int* m_r_index{nullptr};
-    int* m_r_map{nullptr};
-    std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted{nullptr};
-
-    // Updated in buildFramework and other many mthods
-    int m_nsaz{0};
-    int m_nsazv{0};
-    int m_nrfz{0};
-    int m_rfz_index[583];
-    int m_rfz_map[583];
-    int m_nrfzv{0};
-    int m_rfzv_index[300];
-    int m_rfzv_map[300];
-    std::list<InDet::SiSpacePointsProSeed*>           m_l_seeds;
-    std::list<InDet::SiSpacePointsProSeed*>::iterator m_i_seed;
-    std::list<InDet::SiSpacePointsProSeed*>::iterator m_i_seede;
-    InDet::SiSpacePointsSeed* m_seedOutput{nullptr};
-    InDet::SiSpacePointsProSeed* m_OneSeeds{nullptr};
-    ///////////////////////////////////////////////////////////////////
-    // Tables for 3 space points seeds search
-    // Updated in buildFramework and other many mthods
-    ///////////////////////////////////////////////////////////////////
-    InDet::SiSpacePointForSeed** m_SP{nullptr};
-    float* m_Zo{nullptr};
-    float* m_Tz{nullptr};
-    float* m_R{nullptr};
-    float* m_U{nullptr};
-    float* m_V{nullptr};
-    float* m_Er{nullptr};
-
-    // Updated only in newEvent and newRegion
-    float m_dzdrmin{0.}; // Always equals to m_dzdrmin0
-    float m_dzdrmax{0.}; // Always equals to m_dzdrmax0
-    float m_ipt2C{0.}; // Always equals to m_ipt2*m_COF
-    bool m_trigger{false};
-    int m_iteration{0};
-    float m_ipt2K{0.};
-    float m_COFK{0.};
-    int m_r_first{0};
-
-    ///////////////////////////////////////////////////////////////////
-    // Beam geometry
-    // Updated only in buildBeamFrameWork,
-    // which is called by newEvent and newRegion
-    ///////////////////////////////////////////////////////////////////
-    float m_xbeam[4]{0., 1., 0., 0.}; // x,ax,ay,az - center and x-axis direction
-    float m_ybeam[4]{0., 0., 1., 0.}; // y,ax,ay,az - center and y-axis direction
-    float m_zbeam[4]{0., 0., 0., 1.}; // z,ax,ay,az - center and z-axis direction
-
-    // Updated in many methods
-    bool m_endlist{true};
-    bool m_isvertex{false};
+    // Updated in initialize and other many methods. nprint is prepared in EventData.
     int m_nprint{0};
-    int m_state{0};
-    int m_nspoint{2};
-    int m_mode{0};
-    int m_nlist{0};
-    float m_zminU{0.};
-    float m_zmaxU{0.};
-    float m_zminB{0.};
-    float m_zmaxB{0.};
-    float m_ftrig{0.};
-    float m_ftrigW{0.};
-    float m_umax{0.};
-    std::list<InDet::SiSpacePointForSeed*> m_rfz_Sorted[583];
-    std::list<InDet::SiSpacePointForSeed*> m_rfzv_Sorted[300];
-    std::list<InDet::SiSpacePointForSeed*> m_l_spforseed;
-    std::list<InDet::SiSpacePointForSeed*>::iterator m_i_spforseed;
-    std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin;
-    int m_fNmin{0};
-    int m_fvNmin{0};
-    int m_zMin{0};
 
-    std::multimap<float,InDet::SiSpacePointsProSeed*> m_seeds;
-    std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator m_seed;
+    mutable std::mutex m_mutex;
+    mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    struct EventData { // To hold event dependent data
+      // Updated only in newEvent and newRegion
+      bool trigger{false};
+      int iteration{0};
+      int r_first{0};
+      int ns{0};
+      int nr{0};
+      int nsaz{0};
+      int nsazv{0};
+      int nrfz{0};
+      int nrfzv{0};
+      float K{0.};
+      float dzdrmin{0.}; // Always equals to m_dzdrmin0
+      float dzdrmax{0.}; // Always equals to m_dzdrmax0
+      float ipt2C{0.}; // Always equals to m_ipt2*m_COF
+      float ipt2K{0.};
+      float COFK{0.};
+      std::vector<int> r_index;
+      std::vector<int> r_map;
+      std::vector<std::list<InDet::SiSpacePointForSeed*>> r_Sorted;
 
-    std::multimap<float,InDet::SiSpacePointsProSeed*> m_mapOneSeeds;
-    int m_nOneSeeds{};
-    int m_fillOneSeeds{};
-    std::set<float> m_l_vertex;
-    std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> m_CmSp;
+      ///////////////////////////////////////////////////////////////////
+      // Beam geometry
+      // Updated only in buildBeamFrameWork,
+      // which is called by newEvent and newRegion
+      ///////////////////////////////////////////////////////////////////
+      float xbeam[4]{0., 1., 0., 0.}; // x,ax,ay,az - center and x-axis direction
+      float ybeam[4]{0., 0., 1., 0.}; // y,ax,ay,az - center and y-axis direction
+      float zbeam[4]{0., 0., 0., 1.}; // z,ax,ay,az - center and z-axis direction
+
+      ///////////////////////////////////////////////////////////////////
+      // Tables for 3 space points seeds search
+      // Updated in many mthods
+      ///////////////////////////////////////////////////////////////////
+      std::vector<InDet::SiSpacePointForSeed*> SP;
+      std::vector<float> Zo;
+      std::vector<float> Tz;
+      std::vector<float> R;
+      std::vector<float> U;
+      std::vector<float> V;
+      std::vector<float> Er;
+
+      // Updated in many methods
+      InDet::SiSpacePointsSeed seedOutput;
+      std::vector<InDet::SiSpacePointsProSeed> OneSeeds;
+      std::list<InDet::SiSpacePointForSeed> l_spforseed;
+      std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> CmSp;
+      bool endlist{true};
+      bool isvertex{false};
+      bool checketa{false};
+      int state{0};
+      int nspoint{2};
+      int mode{0};
+      int nlist{0};
+      int fNmin{0};
+      int fvNmin{0};
+      int zMin{0};
+      int nOneSeeds{0};
+      int fillOneSeeds{};
+      int nprint{0};
+      float zminU{0.};
+      float zmaxU{0.};
+      float zminB{0.};
+      float zmaxB{0.};
+      float ftrig{0.};
+      float ftrigW{0.};
+      float umax{0.};
+      int rfz_index[SizeRFZ];
+      int rfz_map[SizeRFZ];
+      int rfzv_index[SizeRFZV];
+      int rfzv_map[SizeRFZV];
+      std::list<InDet::SiSpacePointForSeed*> rfz_Sorted[SizeRFZ];
+      std::list<InDet::SiSpacePointForSeed*> rfzv_Sorted[SizeRFZV];
+      std::list<InDet::SiSpacePointForSeed>::iterator i_spforseed;
+      std::list<InDet::SiSpacePointForSeed*>::iterator rMin;
+      std::multimap<float,InDet::SiSpacePointsProSeed*> seeds;
+      std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator seed;
+      std::multimap<float,InDet::SiSpacePointsProSeed*> mapOneSeeds;
+      std::set<float> l_vertex;
+      std::list<InDet::SiSpacePointsProSeed>           l_seeds;
+      std::list<InDet::SiSpacePointsProSeed>::iterator i_seed;
+      std::list<InDet::SiSpacePointsProSeed>::iterator i_seede;
+    };
+    mutable std::vector<EventData> m_eventData ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
@@ -287,43 +302,48 @@ namespace InDet {
     SiSpacePointsSeedMaker_ATLxk &operator=(const SiSpacePointsSeedMaker_ATLxk&) = delete;
     //@}
 
-    MsgStream& dumpConditions(MsgStream& out) const;
-    MsgStream& dumpEvent     (MsgStream& out) const;
+    EventData& getEventData() const;
+
+    MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
+    MsgStream& dumpEvent     (EventData& data, MsgStream& out) const;
 
     void buildFrameWork();
-    void buildBeamFrameWork();
+    void buildBeamFrameWork(EventData& data) const;
 
-    SiSpacePointForSeed* newSpacePoint(const Trk::SpacePoint*const& sp);
-    void newSeed(SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2, float z);
+    SiSpacePointForSeed* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
+    void newSeed(EventData& data, SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2, float z) const;
 
-    void newOneSeed(SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2,
-                    SiSpacePointForSeed*& p3, float z, float q);
+    void newOneSeed(EventData& data,
+                    SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2,
+                    SiSpacePointForSeed*& p3, float z, float q) const;
 
     void newOneSeedWithCurvaturesComparison
-    (SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob);
+    (EventData& data, SiSpacePointForSeed*& SPb, SiSpacePointForSeed*& SP0, float Zob) const;
 
-    void fillSeeds();
-    void fillLists();
-    void erase();
-    void production2Sp();
-    void production3Sp();
+    void fillSeeds(EventData& data) const;
+    void fillLists(EventData& data) const;
+    void erase(EventData& data) const;
+    void production2Sp(EventData& data) const;
+    void production3Sp(EventData& data) const;
     void production3Sp
-    (std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
+    (EventData& data,
+     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed);
+     int NB, int NT, int& nseed) const;
     void production3SpTrigger
-    (std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
+    (EventData& data,
+     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
      std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed);
+     int NB, int NT, int& nseed) const;
  
-    bool newVertices(const std::list<Trk::Vertex>& lV);
-    void findNext();
-    bool isZCompatible(float& Zv, float& R, float& T) const;
-    void convertToBeamFrameWork(const Trk::SpacePoint*const& sp, float* r) const;
+    bool newVertices(EventData& data, const std::list<Trk::Vertex>& lV) const;
+    void findNext(EventData& data) const;
+    bool isZCompatible(EventData& data, float& Zv, float& R, float& T) const;
+    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
     bool isUsed(const Trk::SpacePoint* sp) const;
   };
 
