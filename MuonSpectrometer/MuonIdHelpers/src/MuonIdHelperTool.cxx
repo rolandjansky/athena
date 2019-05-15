@@ -681,4 +681,7 @@ namespace Muon {
     if( !isSmallChamber( id ) ) --sect;
     return sect;
   }
+  bool MuonIdHelperTool::UseCSC() const {
+    return m_useCSC;
+  }
 }

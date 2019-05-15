@@ -131,6 +131,8 @@ private:
         std::string  m_trackingGeometryName;
 	const MuonGM::MuonDetectorManager*  m_detMgr;
 
+    bool m_useCSC;
+
     };
     
 }

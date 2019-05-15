@@ -18,7 +18,7 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 beamFlags                      = jobproperties.Beam
 
 atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
-muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelper')
+muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
 # load InDetHoleSearchTool

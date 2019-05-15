@@ -117,8 +117,8 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
             kwargs.setdefault( "Csc2dSegmentMaker","Csc2dSegmentMaker" )
             kwargs.setdefault( "Csc4dSegmentMaker", "Csc4dSegmentMaker" )
         else:
-            kwargs.setdefault( "Csc2dSegmentMaker", None )
-            kwargs.setdefault( "Csc4dSegmentMaker", None )
+            kwargs.setdefault( "Csc2dSegmentMaker", "" )
+            kwargs.setdefault( "Csc4dSegmentMaker", "" )
         if muonStandaloneFlags.printSummary():
             kwargs.setdefault( "DoSummary", True )
 
@@ -334,7 +334,7 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
 
 def MuonRefitTool(name,**kwargs):
     if not muonRecFlags.doCSCs():
-        kwargs["CscRotCreator"] = None	   
+        kwargs["CscRotCreator"] = ""
     # To activate the tuning of meas. errors using alignment constants from DB
     # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
     # kwargs.setdefault("DeweightBEE", False)
@@ -351,7 +351,8 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
     fitter=getattr(extraFlags,"Fitter",None)
     if fitter is not None:
         cloneArgs["Fitter"] = fitter
-
+    if not muonRecFlags.doCSCs():
+        cloneArgs["CscRotCreator"] = ""
     if "RefitTool" not in kwargs:
         if namePrefix or namePostfix:
             cloneName = namePrefix+"MuonRefitTool"+namePostfix
@@ -382,14 +383,15 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     if doSegmentT0Fit:
         kwargs.setdefault("AddMeasurements", False)
 
-    if muonRecFlags.doCSCs:
+    if muonRecFlags.doCSCs():
         if muonRecFlags.enableErrorTuning() or globalflags.DataSource() == 'data':
             kwargs.setdefault("CscRotCreator","CscBroadClusterOnTrackCreator")
         else:
             kwargs.setdefault("CscRotCreator","CscClusterOnTrackCreator")
     else: # no CSCs
         # switch off whatever is set
-        kwargs["CscRotCreator"] = None
+        kwargs["CscRotCreator"] = ""
+        kwargs["CscPrepDataContainer"] = ""
 
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
@@ -488,7 +490,10 @@ getPublicTool("MCTBSLFitter")
 getPublicTool("MCTBFitterMaterialFromTrack")
 getPublicTool("MCTBSLFitterMaterialFromTrack")
 getPublicTool("MuonSeededSegmentFinder")
-getPublicTool("MuonChamberHoleRecoveryTool")
+mCHRT = getPublicTool("MuonChamberHoleRecoveryTool")
+if not muonRecFlags.doCSCs():
+    mCHRT.CscRotCreator = ""
+    mCHRT.CscPrepDataContainer = ""
 getPublicTool("MuonTrackSelectorTool")
 getPublicTool("MuonTrackExtrapolationTool")
 getPublicTool("MuonSegmentRegionRecoveryTool")

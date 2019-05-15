@@ -188,7 +188,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") )
+    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if muonRecFlags.doCSCs() else "") )
     kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
     kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -229,7 +229,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") )
+    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if muonRecFlags.doCSCs() else "") )
     kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
     kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -274,8 +274,10 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
                                                                   RecreateStartingParameters = False,
                                                                   RefitTool = getPublicToolClone("MuidRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = useAlignErrs,
-                                                                                                 Fitter = getPublicTool("iPatFitter"))))
+                                                                                                 AlignmentErrors = useAlignErrs,
+                                                                                                 Fitter = getPublicTool("iPatFitter"),
+                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else "")
+                                                                                                 )))
 
 
     if muonRecFlags.doSegmentT0Fit():
@@ -337,8 +339,10 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
                                                                   PrepareForFit=False,RecreateStartingParameters=False,
                                                                   RefitTool = getPublicToolClone("OutwardsRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = False,
-                                                                                                 Fitter = getPublicTool("MuonCombinedTrackFitter"))))
+                                                                                                 AlignmentErrors = False,
+                                                                                                 Fitter = getPublicTool("MuonCombinedTrackFitter"),
+                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else "")
+                                                                                                 )))
 
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)
     # tools for ID/MS match quality and recovery of incorrect spectrometer station association	
