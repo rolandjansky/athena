@@ -130,8 +130,10 @@ namespace top {
     m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
 
     m_fakesMM_weights(),
-    m_fakesMM_IFF_size(),
-    m_fakesMM_IFF_weights(),
+    m_ASMsize(0.),
+    m_ASMweights(),
+    m_ASMweights_Syst(),
+    m_ASMweights_Systname(),
 
     m_eventNumber(0),
     m_runNumber(0),
@@ -668,14 +670,24 @@ namespace top {
       }
       
       ///-- weights for matrix-method fakes estimate by IFF --///
-      if (!m_config->isMC() && systematicTree->name().find("Loose") != std::string::npos && m_config->doFakesMMWeightsIFF()) {
+      if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
 	std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-	while(asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size)) {
-	  fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size));
-	  ++m_fakesMM_IFF_size;
+	while(asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_ASMsize)) {
+	  fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_ASMsize));
+	  ++m_ASMsize;
 	}
-	std::string MMweight_branch_name = "fakesMM_weight_IFF";
-	systematicTree->makeOutputVariable(m_fakesMM_IFF_weights, MMweight_branch_name);
+	std::string ASMweights_branch_name = "ASM_weight";
+	std::string ASMweights_Syst_branch_name = "ASM_weight_Syst";
+	std::string ASMweights_Systname_branch_name = "ASM_weight_Systname";
+	systematicTree->makeOutputVariable(m_ASMweights, ASMweights_branch_name);
+	// systematicTree->makeOutputVariable(m_ASMweights_Syst, ASMweights_Syst_branch_name);
+	// systematicTree->makeOutputVariable(m_ASMweights_Systname, ASMweights_Systname_branch_name);
+	m_ASMweights_Syst.resize(m_ASMsize);
+	m_ASMweights_Systname.resize(m_ASMsize);
+	for(int mmi=0; mmi<m_ASMsize; ++mmi) {
+	  systematicTree->makeOutputVariable(m_ASMweights_Syst[mmi], ASMweights_Syst_branch_name + "_" + std::to_string(mmi));
+	  systematicTree->makeOutputVariable(m_ASMweights_Systname[mmi], ASMweights_Systname_branch_name + "_" + std::to_string(mmi));
+	}
       }
       
       /// Bootstrapping poisson weights
@@ -1881,20 +1893,28 @@ namespace top {
     }
 
     ///-- weights for matrix-method fakes estimate by IFF --///
-    if (!m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
+    if (event.m_hashValue == m_config->nominalHashValue() && !m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
       std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-      for (int mmi = 0; mmi<m_fakesMM_IFF_size; ++mmi) {
+      for (int mmi = 0; mmi<m_ASMsize; ++mmi) {
 	fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+mmi));
       }
-      std::string MMweight_branch_name = "fakesMM_weight_IFF";
-      std::string decorName = "MMWeight_IFF";
+      std::string ASMweights_branch_name = "ASMWeight";
+      std::string decorName = "ASMWeight";
       if( event.m_info->isAvailable<std::vector<float> >(decorName.c_str()) ) {
-	m_fakesMM_IFF_weights = event.m_info->auxdataConst<std::vector<float> >(decorName.c_str());
+	m_ASMweights      = event.m_info->auxdataConst<std::vector<float> >(decorName.c_str());
+	if( event.m_info->isAvailable<std::vector<std::vector<float> > >((decorName+"_Syst").c_str()) ) {
+	  m_ASMweights_Syst = event.m_info->auxdataConst<std::vector<std::vector<float> > >((decorName+"_Syst").c_str());
+	  m_ASMweights_Systname = event.m_info->auxdataConst<std::vector<std::vector<std::string> > >((decorName+"_Systname").c_str());
+	}
       }
       else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
-	std::vector<float> dummyMMweight(m_fakesMM_IFF_size, 1.);
-	m_fakesMM_IFF_weights = dummyMMweight;
-      }
+	std::vector<float> dummyASMweight(m_ASMsize, 1.);
+	std::vector<std::vector<float> > dummyASMweight_Syst(m_ASMsize, std::vector<float>(1, 1.));
+	std::vector<std::vector<std::string> > dummyASMweight_Systname(m_ASMsize, std::vector<std::string>(1,""));
+	m_ASMweights      = dummyASMweight;
+	m_ASMweights_Syst = dummyASMweight_Syst;
+	m_ASMweights_Systname = dummyASMweight_Systname;
+      }     
     }
     
     //event info
