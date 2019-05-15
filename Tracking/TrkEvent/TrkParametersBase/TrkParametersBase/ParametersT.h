@@ -53,7 +53,9 @@ namespace Trk
   class ParametersT : public ParametersBase<DIM,T>
   {
   public:
-    /** default constructor only for POOL and dervied classes */
+    /** 
+     * default constructor ONLY for POOL and derived classes 
+     */
     ParametersT();
     
     /** Constructor with local arguments - uses global <-> local for parameters */
