@@ -5,32 +5,32 @@
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def _algoTauRoiUpdater(inputEDM="EMRoIs"):
+def _algoTauRoiUpdater(inputRoIs="EMRoIs"):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("CaloRoiUpdater")
     algo.RoIInputKey  = "TAUCaloRoIs"
     algo.RoIOutputKey = "RoiForTau"
     return algo
 
-def _algoTauCaloOnly(inputEDM="EMRoIs"):
+def _algoTauCaloOnly(inputRoIs="EMRoIs"):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnly
-    roiUpdateAlgo = _algoTauRoiUpdater(inputEDM)
+    roiUpdateAlgo = _algoTauRoiUpdater(inputRoIs)
     algo = TrigTauRecMerged_TauCaloOnly()
-    algo.RoIInputKey         = inputEDM
+    algo.RoIInputKey         = inputRoIs
     algo.L1RoIKey            = roiUpdateAlgo.RoIInputKey
     algo.clustersKey         = "caloclusters"
-    algo.TrigTauRecOutputKey = "taujets"
+    algo.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged")
     return algo
 
 def tauCaloRecoSequence(InViewRoIs):
     # lc sequence
     (lcTopoInViewSequence, sequenceOut) = HLTLCTopoRecoSequence(InViewRoIs)
-    tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputEDM=InViewRoIs)
-    tauCaloOnlyAlg       = _algoTauCaloOnly(inputEDM=InViewRoIs)
+    tauCaloRoiUpdaterAlg = _algoTauRoiUpdater(inputRoIs = InViewRoIs)
+    tauCaloOnlyAlg       = _algoTauCaloOnly(inputRoIs   = InViewRoIs)
     RecoSequence = parOR( 'tauCaloInViewSequence', [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyAlg] )
-    sequenceOut = tauCaloOnlyAlg.TrigTauRecOutputKey
-    return (RecoSequence, sequenceOut)
+    return (RecoSequence, tauCaloOnlyAlg.TrigTauRecOutputKey)
 
 def tauCaloSequence(ConfigFlags):
     """ Creates L2 Fast Calo sequence for Taus"""

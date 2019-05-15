@@ -58,6 +58,7 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( L2CombinedMuonContainer );
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
+  INIT_XAOD( TauJetContainer );
 
 
 #undef INIT
@@ -273,6 +274,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );
   CREATE_XAOD( L2IsoMuonContainer, L2IsoMuonAuxContainer );
   CREATE_XAOD( MuonContainer, MuonAuxContainer );
+  CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
 
   // After view collections are merged, need to update collection links
   if ( m_fixLinks ) {
