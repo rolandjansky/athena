@@ -25,6 +25,7 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 #include <boost/bimap/multiset_of.hpp>
 
 #include <map>
+#include <limits>
 
 typedef boost::bimap<boost::bimaps::multiset_of<float>, boost::bimaps::set_of<int>> bimap_t;
 
@@ -373,7 +374,7 @@ std::pair<int,int> Trk::QuickCloseComponentsMultiStateMerger::getMinDistanceIndi
 
   IndexDistanceMap::iterator idIter = indexDistanceMap.begin();
 
-  float minDistance(10E10);
+  float minDistance(std::numeric_limits<float>::max());
   for (; idIter != indexDistanceMap.end(); ++idIter) {
 
     if (idIter == indexDistanceMap.end()-1) continue;
@@ -642,7 +643,7 @@ const Trk::MultiComponentState* Trk::QuickCloseComponentsMultiStateMerger::merge
   }
 
   for(int i = 0; i < nn2; ++i ){
-    distances[i] = 1e30;
+    distances[i] = std::numeric_limits<float>::max();
     indexToI[i] = -1;
     indexToJ[i] = -1;
   }
@@ -825,12 +826,12 @@ void Trk::QuickCloseComponentsMultiStateMerger::resetDistances( floatPtrRestrict
   int j = mini;
   int indexConst = (j+1)*j/2;
   for( int i = 0; i < j; ++i ){
-    distances[ indexConst+ i ] = 1e30;
+    distances[ indexConst+ i ] = std::numeric_limits<float>::max();
   }
 
   for( int i = j; i < n; ++i ){
     int index =  (i+1)*i/2+j;
-    distances[ index ] = 1e30;
+    distances[ index ] = std::numeric_limits<float>::max();
   }
 
 }
@@ -874,10 +875,11 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
   int indexConst = (j+1)*j/2;
 
   int minIndex = 0; // The distance will always be 1e30 for this entry;
+  float  minDistance = std::numeric_limits<float>::max();
 
   for( int i = 0; i < j; ++i ){
     if(qonpCov[i] == 0){
-      distances[indexConst + i] = 1e30;
+      distances[indexConst + i] = std::numeric_limits<float>::max();
       continue;
     }
     float parametersDifference = qonp[i] - qonp[j];
@@ -886,14 +888,18 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
     float G_sum        = qonpG[i] + qonpG[j];
     int index = indexConst + i;
     distances[ index ] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
-    if(distances[ index ]< distances[ minIndex ] )
+    if(distances[ index ]< minDistance )
+    {  
       minIndex  = index;
+      minDistance = distances[ index ];
+    }
+
   }
 
   for( int i = j+1; i < n; ++i ){
     int index =  (i+1)*i/2+j;
     if(qonpCov[i] == 0){
-      distances[index] = 1e30;
+      distances[index] = std::numeric_limits<float>::max();
       continue;
     }
     float parametersDifference = qonp[i] - qonp[j];
@@ -901,8 +907,10 @@ int Trk::QuickCloseComponentsMultiStateMerger::recalculateDistances( floatPtrRes
     float G_difference = qonpG[j] - qonpG[i];
     float G_sum        = qonpG[i] + qonpG[j];
     distances[ index ] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
-    if(distances[ index ]< distances[ minIndex ] )
+    if(distances[ index ]< minDistance ){
       minIndex  = index;
+      minDistance = distances[ index ];
+    }
   }
   return minIndex;
 }
@@ -914,11 +922,13 @@ std::pair<int, int>  Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
   int mini  = 0; // always 1e30
   int mini2 = -1;
+  float minDistance = std::numeric_limits<float>::max(); 
 
   for( int i = 0; i < n; ++i ){
-    if( distances[ i ] < distances[ mini ] ){
+    if( distances[ i ] < minDistance ){
       mini2 = mini;
       mini  = i;
+      minDistance = distances[ i ];
     }
   }
 
@@ -931,7 +941,7 @@ std::pair<int, int> Trk::QuickCloseComponentsMultiStateMerger::findMinimumPair( 
 
   float *distances = (float*)__builtin_assume_aligned(distancesIn, 32);
 
-  double minDistance = 1e20;
+  double minDistance = std::numeric_limits<float>::max();
   int mini = 0;
   int minj = 0;
 
