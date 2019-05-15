@@ -265,7 +265,7 @@ namespace Trk
     }
     
     //Update the surface given the new position
-    // delete surface if is there and owned 
+    // delete surface if is there and not owned 
     if(this->m_surface && this->m_surface->isFree()) delete this->m_surface;
     //create new one
     this->m_surface=new S(this->m_position,curvilinearFrame());
