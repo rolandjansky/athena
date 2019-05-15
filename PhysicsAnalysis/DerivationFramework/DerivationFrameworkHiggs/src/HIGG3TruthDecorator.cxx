@@ -113,9 +113,6 @@ namespace DerivationFramework {
     std::vector<const xAOD::TruthParticle* > photons;
     std::vector<const xAOD::TruthParticle* > leptonsFromWZwithTau;
 
-    // For the truth Higgs bosons
-    std::vector<const xAOD::TruthParticle* > higgsBosons;
-
     // Define some containers of selected objects that are needed for the VBF mjj flag
     std::vector<const xAOD::TruthParticle* > MCTruthPhotonList;
     std::vector<const xAOD::TruthParticle* > MCTruthElectronList;
@@ -445,9 +442,6 @@ namespace DerivationFramework {
           interestingParticles.push_back( truthPart );
         }
       }
-      if ( absPdg==25 && truthPart->status() == 62 ) {
-        higgsBosons.push_back(truthPart);
-      }
 
       /////////////////////////////////////////////////////////////////////////////
       /////////////////////////////////////////////////////////////////////////////
@@ -601,27 +595,6 @@ namespace DerivationFramework {
       Mvv=myMvv.M();
     }
     eventInfo->auxdecor<float>("HIGG3DX_truth_mvv") = Mvv;
-
-    // Add the higgs pt
-    float higgsPt  = -1000.0;
-    float higgsY   = 0.0;
-    float higgsPhi = 0.0;
-    float higgsM   = 0.0;
-    std::size_t nHiggs = higgsBosons.size();
-    ATH_MSG_DEBUG("Found " << nHiggs << " Higgs bosons");
-    if (nHiggs>=2){
-      ATH_MSG_WARNING("Found apparently " << nHiggs << " Higgs bosons");
-    }
-    if (nHiggs){
-      higgsPt  = higgsBosons[0]->pt();
-      higgsY   = higgsBosons[0]->rapidity();
-      higgsPhi = higgsBosons[0]->phi();
-      higgsM   = higgsBosons[0]->m();
-    }
-    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsPt")  = higgsPt;
-    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsY")   = higgsY;
-    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsPhi") = higgsPhi;
-    eventInfo->auxdecor<float>("HIGG3DX_truthHiggsM")   = higgsM;
 
     /*
     if ( ptLoss.size()>0 ) {
