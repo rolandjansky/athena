@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #from AthenaCommon import CfgMgr
+from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
+
 
 #todo - think about the flow, do we need if statements?!
 
@@ -42,7 +44,12 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
 
 def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
+    #add Services to G4AtlasAlg
+    acc, DetGeoSvc = DetectorGeometrySvcCfg(ConfigFlags)
+    kwargs.setdefault('DetGeoSvc', DetGeoSvc)
+    result.merge(acc)
+
+    kwargs.setdefault("InputTruthCollection", "BeamTruthEvent") #tocheck -are these string inputs?
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
     if ConfigFlags.Sim.ReleaseGeoModel:
@@ -128,9 +135,8 @@ if __name__ == '__main__':
 
   #add the algorithm
   acc, Alg  = G4AtlasAlgCfg(ConfigFlags)
-  cfg.addEventAlgo(Alg) #Event algo?
-  #cfg.merge(acc)
-  #cfg.addPublicTool(Alg)
+  cfg.addEventAlgo(Alg) 
+  cfg.merge(acc)
 
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True
