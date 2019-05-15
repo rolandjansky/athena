@@ -186,11 +186,9 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
 
     for (auto muon: *muons) {
-      bool passID(false);
-      if (m_muonSelectionTool->getQuality(*muon) <= qflag) {
-        passID = true;
-      }
-      if (muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax && passID) {
+      if( !m_muonSelectionTool->passedMuonCuts(*muon) ) continue;
+      if( muon->muonType() != xAOD::Muon::Combined    ) continue;
+      if(muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax ) {
         return acceptEvent; 
       }
     }

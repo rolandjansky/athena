@@ -189,8 +189,10 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for(auto muon : *muons){
     if (muon->pt()<m_muonPtCut) continue;
     if (fabs(muon->eta())>2.5) continue;
-    if (!(m_muonSelectionTool->getQuality(*muon) <= qflag)) continue;
-    if (muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3) continue;
+
+    if( !m_muonSelectionTool->passedMuonCuts(*muon)             ) continue;
+    if( muon->muonType() != xAOD::Muon::Combined                ) continue;
+    if( muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3 ) continue;
     
     for (auto vertex : *vertices) {	// Select good primary vertex
       if (vertex->vertexType() == xAOD::VxType::PriVtx) {
