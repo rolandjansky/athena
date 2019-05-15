@@ -158,7 +158,10 @@ private:
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool
   {this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
-  // These std::atomi_bool are not really used.
+  // These std::atomic_bool may be dropped.
+  // m_issueErrorA and m_issueErrorB are changed in pixelCluster but do not affect any computation.
+  // The default values of m_forceErrorStrategy1A and m_forceErrorStrategy1B are unchanged.
+  // If they are changed in event processing and affect some computation, they are not thread-safe.
   mutable std::atomic_bool m_issueErrorA{true};
   mutable std::atomic_bool m_forceErrorStrategy1A{false};
   mutable std::atomic_bool m_issueErrorB{true};
