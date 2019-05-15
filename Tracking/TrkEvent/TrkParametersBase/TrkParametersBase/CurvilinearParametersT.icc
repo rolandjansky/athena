@@ -35,7 +35,7 @@ namespace Trk
     this->m_parameters[qOverP] = parameters[6]/this->momentum().mag();
 
     /* we need all the above to be there for the surfac*/ 
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
   
   // Constructor with TP arguments
@@ -69,7 +69,7 @@ namespace Trk
     this->m_momentum = Amg::Vector3D(p*cos(tphi)*sin(ttheta),p*sin(tphi)*sin(ttheta),p*cos(ttheta));
 
     /* we need all the above for the surface*/
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
 
   // full global constructor
@@ -99,7 +99,7 @@ namespace Trk
     this->m_momentum = mom;
   
     /* we need all the above to be there for the surfac*/ 
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
   }
 
   // copy constructor
@@ -264,11 +264,8 @@ namespace Trk
       this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
     }
     
-    //Update the surface given the new position
-    // delete surface if is there and not owned 
-    if(this->m_surface && this->m_surface->isFree()) delete this->m_surface;
-    //create new one
-    this->m_surface=new S(this->m_position,curvilinearFrame());
+    //Reset also the surface
+    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
     
   }
 } // end of namespace Trk
