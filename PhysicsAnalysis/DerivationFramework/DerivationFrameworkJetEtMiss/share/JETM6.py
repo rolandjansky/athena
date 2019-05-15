@@ -263,11 +263,12 @@ addCSSKSoftDropJets(jetm6Seq, "JETM6")
 
 addSoftDropJets("AntiKt", 1.0, "PV0Track", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6")
 
-LargeRJetColls = ["AntiKt10LCTopo",
-                  "AntiKt10TrackCaloCluster",
-                 ]
+addVRJets(jetm6Seq)
 
-addVRJets(jetm6Seq, outputGroup="JETM6", largeRColls=LargeRJetColls)
+addVRJetsTCC(jetm6Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
+             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 #====================================================================
 # SET UP STREAM
