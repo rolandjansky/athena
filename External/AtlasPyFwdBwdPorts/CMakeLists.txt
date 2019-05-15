@@ -79,12 +79,6 @@ function( _setup_python_package name file md5 )
 
 endfunction( _setup_python_package )
 
-# Install extensions:
-_setup_python_package( extensions
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/extensions-0.4.tar.gz
-   e498fe6da146aefb677c3e8a210fbb29
-   SINGLE_VERSION )
-
 # Install futures:
 _setup_python_package( futures
    ${CMAKE_CURRENT_SOURCE_DIR}/src/futures-2.1.2.tar.gz
