@@ -87,7 +87,7 @@ namespace Muon
     double angle() const;
 
     /** @brief Returns the microTPC chisq Prob. */
-    int chisqProb() const;
+    double chisqProb() const;
 
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
@@ -140,7 +140,7 @@ namespace Muon
     return m_angle;
   }
 
-  inline int MMPrepData::chisqProb() const 
+  inline double MMPrepData::chisqProb() const 
   {
     return m_chisqProb;
   }
