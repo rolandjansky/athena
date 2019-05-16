@@ -729,15 +729,23 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool DivideByL, bool useHThit
 
 	if(DivideByL) SwitchOnDivideByL();
 	else{
-	  ATH_MSG_Warning("dEdx(): DivideByL=false is an obsolete option. DivideByL is set to true.");
+	  ATH_MSG_Warning("dEdx(): DivideByL=false is an unused option. DivideByL is set to true.");
 	  SwitchOnDivideByL();
 	}
 
 	if(useHThits) SwitchOnUseHThits();
 	else{
-	  ATH_MSG_Warning("dEdx(): useHThits=false is an obsolete option. useHThits is set to true.");
+	  ATH_MSG_Warning("dEdx(): useHThits=false is an unused option. useHThits is set to true.");
 	  SwitchOnUseHThits();
 	}
+
+	if (m_toolScenario!=kAlgReweightTrunkOne){
+	  ATH_MSG_WARNING("dEdx(): m_toolScenario is set to default kAlgReweightTrunkOne.");
+	  m_toolScenario=kAlgReweightTrunkOne;
+	}
+
+	m_trackConfig_minRtrack=0.15;
+	m_trackConfig_maxRtrack=1.85;
 
 	return dEdx(track);
 }
@@ -917,15 +925,23 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool DivideByL, bool useH
 {
         if(DivideByL) SwitchOnDivideByL();
 	else{
-	  ATH_MSG_Warning("dEdx(): DivideByL=false is an obsolete option. DivideByL is set to true.");
+	  ATH_MSG_Warning("usedHits(): DivideByL=false is an unused option. DivideByL is set to true.");
 	  SwitchOnDivideByL();
 	}
 
 	if(useHThits) SwitchOnUseHThits();
 	else{
-	  ATH_MSG_Warning("dEdx(): useHThits=false is an obsolete option. useHThits is set to true.");
+	  ATH_MSG_Warning("usedHits(): useHThits=false is an unused option. useHThits is set to true.");
 	  SwitchOnUseHThits();
 	}
+
+	if (m_toolScenario!=kAlgReweightTrunkOne){
+	  ATH_MSG_WARNING("usedHits(): m_toolScenario is set to default kAlgReweightTrunkOne.");
+	  m_toolScenario=kAlgReweightTrunkOne;
+	}
+
+	m_trackConfig_minRtrack=0.15;
+	m_trackConfig_maxRtrack=1.85;
 
 	return usedHits(track);
 }
