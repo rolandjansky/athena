@@ -554,7 +554,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             TrackMaker_FTF.useBremModel = True
   
           if remapped_type=="cosmics":
-            TrackMaker_FTF.RoadTool.CosmicTrack=True
+            TrackMaker_FTF.CosmicTrack=True
 
           ToolSvc += TrackMaker_FTF
           self.initialTrackMaker = TrackMaker_FTF
