@@ -10,16 +10,12 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServiceDynMaterial.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include <vector>
-#include <map>
-#include <string>
-
-#include "PixelServicesTool/DetTypeDyn.h"
 #include "PixelServicesTool/ServiceDynVolume.h"
 #include "PixelServicesTool/ServicesDynLayer.h"
 
-//class ServiceDynVolume;
-//class ServicesDynLayer;
+#include <vector>
+#include <map>
+#include <string>
 
 class ServicesDynTracker : public PixelGeoBuilder {
 public:
@@ -53,10 +49,10 @@ public:
   void setServiceDynVolumes( const std::vector<ServiceDynVolume*> vc) {m_volumes=vc;}
 
   // methods called by Builder 
-  void constructBarrelLayer( double radius, double zHalfLength, 
+  void constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 			     DetTypeDyn::Type type, int num, int iStaveTmp,int nstaves, const std::string& suffix,
 			     int nModulesPerStave, int nChipsPerModule);
-  void constructBarrelLayer( double radius, double zHalfLength, 
+  void constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 			     DetTypeDyn::Type type, int num, int iStaveTmp, int nstaves, const std::string& suffix,
 			     std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule);
   void constructEndcapLayer( double zpos, double rmin, double rmax, 

@@ -14,9 +14,9 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
 
  public:
   PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
-  PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(const std::string& envName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
-
+  
     double rmin(int index) const;
     double rmax(int index) const;
     double rmin2(int index) const;
@@ -36,13 +36,13 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     std::string materialName(int index) const;
 
     unsigned int numElements() const;
-    int getServiceIndex( std::string srvName) const;
+    int getServiceIndex( const std::string& srvName) const;
     
-    bool SupportTubeExists(std::string srvName) const;
-    double SupportTubeRMin(std::string srvName) const;
-    double SupportTubeRMax(std::string srvName) const;
-    double SupportTubeZMin(std::string srvName) const;
-    double SupportTubeZMax(std::string srvName) const;
+    bool SupportTubeExists(const std::string& srvName) const;
+    double SupportTubeRMin(const std::string& srvName) const;
+    double SupportTubeRMax(const std::string& srvName) const;
+    double SupportTubeZMin(const std::string& srvName) const;
+    double SupportTubeZMax(const std::string& srvName) const;
 
  private:
 

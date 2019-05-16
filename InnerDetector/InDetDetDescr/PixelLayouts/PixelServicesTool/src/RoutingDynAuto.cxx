@@ -35,7 +35,9 @@ RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg, const PixelGe
 
   m_ISTexists = false;
 
-  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML",basics);
+  InDetDD::SimpleServiceVolumeSchema schema;
+  schema.setPixelSchema();
+  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML", schema, basics);
   m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
   m_svcOtherXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
 
@@ -172,12 +174,12 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
   //  double bsVertRouteRmin = bpHorRouteR + 0.5*c_ServiceCylinderThickness + c_safetyGap;
   //  double bsVertRouteRmax = bslc.back()->radius() + c_ServiceCylinderThickness;                //approx
   
-  m_bpVSvcRoute = VSvcRoute( bpVertRouteZpos, bpVertRouteRmin, bpVertRouteRmax, bpVertRouteRmax, "OuterPixelRPath");
+  m_bpVSvcRoute = VSvcRoute( bpVertRouteZpos, bpVertRouteRmin, bpVertRouteRmax, bpVertRouteRmax, ServiceDynVolume::R, "OuterPixelRPath");
 
   if (m_pixelAlongBarrelStrip)
-    m_bpHSvcRoute = HSvcRoute( bpHorRouteR, bpHSvcRouteZmin, bpHSvcRouteZmax, bsVertRouteZpos,"OuterPixelZPath"); //different if along PST
+    m_bpHSvcRoute = HSvcRoute( bpHorRouteR, bpHSvcRouteZmin, bpHSvcRouteZmax, bsVertRouteZpos, ServiceDynVolume::Z, "OuterPixelZPath"); //different if along PST
   else 
-    m_bpHSvcRoute = HSvcRoute( bpHorRouteR, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax,"OuterPixelZPath");
+    m_bpHSvcRoute = HSvcRoute( bpHorRouteR, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, ServiceDynVolume::Z, "OuterPixelZPath");
 
   m_epHSvcRoute = m_bpHSvcRoute;  //different if along PST
   //  m_bsVSvcRoute = VSvcRoute( bsVertRouteZpos, bsVertRouteRmin, bsVertRouteRmax, bsVertRouteRmax,"BarrelStripRPath");
@@ -189,19 +191,19 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
   // Additional Routes:
   //  Outside MSTOuter
   double bpMSTO_R =  m_simpleSrvXMLHelper->SupportTubeRMax("MSTO") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
-  m_MSTO_HSvcRoute = HSvcRoute( bpMSTO_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, "MSTOPixelZPath"); 
+  m_MSTO_HSvcRoute = HSvcRoute( bpMSTO_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, ServiceDynVolume::Z, "MSTOPixelZPath"); 
 
   //  Outside MSTMiddle
   double bpMSTM_R =  m_simpleSrvXMLHelper->SupportTubeRMax("MSTM") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
-  m_MSTM_HSvcRoute = HSvcRoute( bpMSTM_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, "MSTMPixelZPath"); 
+  m_MSTM_HSvcRoute = HSvcRoute( bpMSTM_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, ServiceDynVolume::Z, "MSTMPixelZPath"); 
 
   //  Outside MSTInner
   double bpMSTI_R =  m_simpleSrvXMLHelper->SupportTubeRMax("MSTI") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
-  m_MSTI_HSvcRoute = HSvcRoute( bpMSTI_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, "MSTIPixelZPath"); 
+  m_MSTI_HSvcRoute = HSvcRoute( bpMSTI_R, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, ServiceDynVolume::Z, "MSTIPixelZPath"); 
 
   //  Inside MSTMiddle
   double bpMSTM_RI =  m_simpleSrvXMLHelper->SupportTubeRMin("MSTM") - c_safetyGap - 0.5*c_ServiceCylinderThickness;
-  m_MSTM_HSvcRouteInner = HSvcRoute( bpMSTM_RI, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, "MSTMPixelZPathInner"); 
+  m_MSTM_HSvcRouteInner = HSvcRoute( bpMSTM_RI, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, ServiceDynVolume::Z, "MSTMPixelZPathInner"); 
 
 
   //  Exit route for pixel
@@ -223,10 +225,10 @@ void RoutingDynAuto::createOuterPixelRoutes(ServicesDynTracker& /*tracker*/)
     //double zpos = 0.5 * (tracker.endcapPixelLayers().back()->zPos() + tracker.endcapStripLayers().front()->zPos());
     double zpos = m_epHSvcRoute.zMax() + c_ServiceDiskThickness/2 + c_safetyGap;
 
-    m_pixelV2Route = VSvcRoute( zpos, routeRadius, m_bpHSvcRoute.radius(), routeRadius, "OuterPixelRPath2");
+    m_pixelV2Route = VSvcRoute( zpos, routeRadius, m_bpHSvcRoute.radius(), routeRadius, ServiceDynVolume::R, "OuterPixelRPath2");
 
     double pstLen = m_simpleSrvXMLHelper->SupportTubeZMax("PST");
-    m_pixelH2Route = HSvcRoute( routeRadius, zpos + c_ServiceDiskThickness/2 + c_safetyGap, pstLen, pstLen,"OuterPixelZPath2");
+    m_pixelH2Route = HSvcRoute( routeRadius, zpos + c_ServiceDiskThickness/2 + c_safetyGap, pstLen, pstLen, ServiceDynVolume::Z, "OuterPixelZPath2");
     m_epHSvcRoute.setNextRoute( &m_pixelV2Route);
     m_pixelV2Route.setNextRoute( &m_pixelH2Route);
   }
@@ -261,11 +263,11 @@ void RoutingDynAuto::createRoutesInIST(ServicesDynTracker& tracker)
   }
 
   double istVSvcRouteRmax = istRmin - 0.5*c_ServiceCylinderThickness - c_safetyGap;
-  m_istVSvcRoute = VSvcRoute( istVSvcRouteZpos, istVSvcRouteRmin, istVSvcRouteRmax, istVSvcRouteRmax, "InnerPixelRPath");
+  m_istVSvcRoute = VSvcRoute( istVSvcRouteZpos, istVSvcRouteRmin, istVSvcRouteRmax, istVSvcRouteRmax, ServiceDynVolume::R, "InnerPixelRPath");
 
   double istHSvcRouteZmin = istVSvcRouteZpos + 0.5*c_ServiceDiskThickness + c_safetyGap;
   double istHSvcRouteZmax = istZmax;
-  m_istHSvcRoute = HSvcRoute( istVSvcRouteRmax, istHSvcRouteZmin, istHSvcRouteZmax, istHSvcRouteZmax, "InnerPixelZPath");
+  m_istHSvcRoute = HSvcRoute( istVSvcRouteRmax, istHSvcRouteZmin, istHSvcRouteZmax, istHSvcRouteZmax, ServiceDynVolume::Z, "InnerPixelZPath");
   m_istVSvcRoute.setNextRoute(&m_istHSvcRoute);
   
 }
@@ -388,7 +390,7 @@ void RoutingDynAuto::routeBarrelLayer(Layer2DContainer::const_iterator bl,
 		      << (*(*bl)[0]).radius() << endreq;
   }
   double halfEosThick = eosHalfThickness( (*bl)[0]->type(), DetTypeDyn::Barrel);
-  ServiceDynVolume* eosCylinder = new ServiceDynVolume( ServiceDynVolume::Cylinder,
+  ServiceDynVolume* eosCylinder = new ServiceDynVolume( ServiceDynVolume::Cylinder, ServiceDynVolume::Z,
 							(*bl)[0]->radius()-halfEosThick,
 							(*bl)[0]->radius()+halfEosThick,
 							zEosMin, zEosMax, (*(*bl)[0]).name() + "EOS");
@@ -407,7 +409,7 @@ void RoutingDynAuto::routeBarrelLayer(Layer2DContainer::const_iterator bl,
   }
   else rMax = route.rExit();
 
-  ServiceDynVolume* newDisk = new ServiceDynVolume( ServiceDynVolume::Disk, rMin, rMax, 
+  ServiceDynVolume* newDisk = new ServiceDynVolume( ServiceDynVolume::Disk, ServiceDynVolume::R, rMin, rMax, 
 					      route.zPos()-0.5*c_ServiceDiskThickness,
 					      route.zPos()+0.5*c_ServiceDiskThickness,
 					      nextVolumeName(route));
@@ -511,7 +513,7 @@ void RoutingDynAuto::routeEndcapLayer(LayerContainer::const_iterator bl,
   eosName<< (**bl).name() + "EOS";
   if(iLayer>-1) eosName <<iLayer;
 
-  ServiceDynVolume* eosVol = new ServiceDynVolume( ServiceDynVolume::Disk, rEosMin, rEosMax,
+  ServiceDynVolume* eosVol = new ServiceDynVolume( ServiceDynVolume::Disk, ServiceDynVolume::R, rEosMin, rEosMax,
 						   (*bl)->zPos()-halfEosThick+ EOSZOffset,
 						   (*bl)->zPos()+halfEosThick+ EOSZOffset,
 						   eosName.str());
@@ -524,7 +526,7 @@ void RoutingDynAuto::routeEndcapLayer(LayerContainer::const_iterator bl,
   if (route.volumes().empty()) {
     zMin = (*bl)->zPos() + EOSZOffset;
     if ( zMin - route.zMin() > c_EosTolerance) { // FIXME use specific tolerance
-      ServiceDynVolume* beg = new ServiceDynVolume( ServiceDynVolume::Cylinder,  
+      ServiceDynVolume* beg = new ServiceDynVolume( ServiceDynVolume::Cylinder, ServiceDynVolume::Z,
 						    route.radius()-0.5*c_ServiceCylinderThickness,
 						    route.radius()+0.5*c_ServiceCylinderThickness,
 						    route.zMin(), zMin - c_safetyGap,
@@ -559,7 +561,7 @@ void RoutingDynAuto::routeEndcapLayer(LayerContainer::const_iterator bl,
   //  if (route.zExit() < (**bl).zPos()) {
   if (route.zExit() < zMin) {
     // create a dedicated exit volume with zero length
-    ServiceDynVolume* exitVol = new ServiceDynVolume( ServiceDynVolume::Cylinder,  
+    ServiceDynVolume* exitVol = new ServiceDynVolume( ServiceDynVolume::Cylinder, ServiceDynVolume::Z, 
 						route.radius()-0.5*c_ServiceCylinderThickness,
 						route.radius()+0.5*c_ServiceCylinderThickness,
 						route.zExit(), route.zExit(),
@@ -572,7 +574,7 @@ void RoutingDynAuto::routeEndcapLayer(LayerContainer::const_iterator bl,
     reverse = true;
   }
 
-  ServiceDynVolume* newCyl = new ServiceDynVolume( ServiceDynVolume::Cylinder,  
+  ServiceDynVolume* newCyl = new ServiceDynVolume( ServiceDynVolume::Cylinder, ServiceDynVolume::Z,
 					     route.radius()-0.5*c_ServiceCylinderThickness,
 					     route.radius()+0.5*c_ServiceCylinderThickness,
 					     zMin, zMax, nextVolumeName(route));
@@ -622,14 +624,14 @@ ServiceDynVolume* RoutingDynAuto::createSingleRouteVolume( SvcRoute& rt)
   ServiceDynVolume* vol(0);
   HSvcRoute* hrt = dynamic_cast<HSvcRoute*>(&rt);
   if (hrt != 0) {
-    vol = new ServiceDynVolume( ServiceDynVolume::Cylinder,  
+    vol = new ServiceDynVolume( ServiceDynVolume::Cylinder, ServiceDynVolume::Z,
 			     rt.position()-0.5*c_ServiceCylinderThickness,
 			     rt.position()+0.5*c_ServiceCylinderThickness,
 			     hrt->zMin(), hrt->zMax(), rt.name());
   }
   else {
     VSvcRoute* vrt = dynamic_cast<VSvcRoute*>(&rt);
-    if(vrt) vol = new ServiceDynVolume( ServiceDynVolume::Disk, vrt->rMin(), vrt->rMax(),
+    if(vrt) vol = new ServiceDynVolume( ServiceDynVolume::Disk, ServiceDynVolume::R, vrt->rMin(), vrt->rMax(),
 				     rt.position()-0.5*c_ServiceDiskThickness,
 				     rt.position()+0.5*c_ServiceDiskThickness, rt.name());
   }

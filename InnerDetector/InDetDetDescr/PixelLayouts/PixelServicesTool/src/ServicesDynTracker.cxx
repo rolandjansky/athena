@@ -4,11 +4,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServicesDynTracker.h"
 #include "PixelServicesTool/PixelDynamicServiceXMLHelper.h"
 
-#include "PixelServicesTool/ServicesDynLayer.h"
 #include "PixelServicesTool/RoutingDynAuto.h"
 #include "PixelServicesTool/RoutingDyn.h"
-
-//#include "InDetServMatGeoModel/LinearService.h"
 
 #include "PixelServicesTool/ComputeDynStaveServices.h"
 #include "PixelServicesTool/ConvertDynStaveServices.h"
@@ -45,16 +42,15 @@ ServicesDynTracker::~ServicesDynTracker()
 
 }
 
-void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, 
+void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 					       DetTypeDyn::Type type,  int layerNum, int staveTmpNum,
 					       int nstaves, const std::string& suffix,
 					       int nModulesPerStave, int nChipsPerModule)
 {
-   ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, nstaves,
+  ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, staveZOffset, nstaves,
 						type, DetTypeDyn::Barrel, layerNum, staveTmpNum, suffix,
 						nModulesPerStave, nChipsPerModule);
 
-   // m_barrelLayers.push_back(nl);
    if (layerNum+1>int(m_barrelLayers.size())) {
      LayerContainer lay;
      lay.push_back(nl);
@@ -75,18 +71,15 @@ void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength
    }
 }
 
-void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, 
+void ServicesDynTracker::constructBarrelLayer( double radius, double zHalfLength, double staveZOffset,
 					       DetTypeDyn::Type type, int layerNum, int staveTmpNum,
 					       int nstaves, const std::string& suffix,
 					       std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule)
 {
-   ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, nstaves,
+  ServicesDynLayer* nl = new ServicesDynLayer( radius, zHalfLength, staveZOffset, nstaves,
 						type, DetTypeDyn::Barrel, layerNum, staveTmpNum, suffix,
 						nModulesPerStave, nChipsPerModule);
    
-   //m_barrelLayers.push_back(nl);
-   //if (type == DetTypeDyn::Pixel) m_barrelPixelLayers.push_back(nl);
-   //else                        m_barrelStripLayers.push_back(nl);
    if (layerNum+1>int(m_barrelLayers.size())) {
      LayerContainer lay;
      lay.push_back(nl);
@@ -170,7 +163,7 @@ void ServicesDynTracker::finaliseServices()
 
     msg(MSG::INFO) << "-- Volume : "<<(**iv).name()<<"  add material "<<endreq;
 
-    std::vector<ServiceDynMaterial> result; // = (**iv).materials(); // preserve already present mat. (EOS)
+    std::vector<ServiceDynMaterial> result; // preserve already present mat. (EOS)
     if ((**iv).isEOS()) addEosMaterial(**iv, result);
     
     msg(MSG::INFO) << "-- volume :  loop over layers "<<endreq;
@@ -192,12 +185,7 @@ void ServicesDynTracker::finaliseServices()
 	layerMat.multiply( layer.nStaves()); // scale from one stave to full layer
 	
 	// add cooling, with possibility for manifilding
-	staveConverter.addCooling( layer.type(), layer.part(), layer.number(), layer.nStaves(), layerMat);
-	
-// 	if(msgLvl(MSG::DEBUG)){
-// 	  msg(MSG::DEBUG) <<"Dumping services for layer " << layer.number()<< endreq;
-// 	  layerMat.dump(cout);
-// 	}
+	staveConverter.addCooling( layer.type(), layer.part(), layer.number(), layer.nStaves(), layerMat);	
 	layerMaterial[*il] = layerMat;
       }
       result.push_back( layerMat);
@@ -222,7 +210,6 @@ void ServicesDynTracker::addEosMaterial( const ServiceDynVolume& vol, std::vecto
   ServiceDynMaterial::Entry eos( name, layer->nStaves(), 0);
   ServiceDynMaterial::EntryContainer entries( 1, eos);
   result.push_back( ServiceDynMaterial( name, entries));
-  // msg(MSG::INFO) << "Added EOS material to volume " << vol.name() << endreq;
 }
 
 /*

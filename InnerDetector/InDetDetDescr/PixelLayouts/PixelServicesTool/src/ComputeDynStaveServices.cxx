@@ -74,38 +74,11 @@ StaveDynServices ComputeDynStaveServices::compute( DetTypeDyn::Type type, DetTyp
   return StaveDynServices( type, part, layerNumber, nHV, nDCS, nData, lvg);
 }
 
-/*
-int computeLVGauge( int nModules, double moduleCurrent, double moduleVoltage, int poweringScheme, 
-		    double poweringLoss, double lossInCable, double cableLen)
-{
-  // poweringSheme: 0 for serial, 1 for DC-DC
-  if (poweringScheme == 0) { 
-    // serial powering
-    double cableCurrent = moduleCurrent;
-    double staveVoltage = moduleVoltage * nModules / (1.-poweringLoss);
-    double stavePower = cableCurrent*staveVoltage;
-    double cablePowerDissipation = stavePower * lossInCable;
-    double cableResistivity = cablePowerDissipation / (cableCurrent*cableCurrent);
-    double resistivityPerMeter = cableResistivity / (2*cableLen);
-
-  }
-}
-*/
-
 int ComputeDynStaveServices::computeLVGaugeSerial( DetTypeDyn::Type type, DetTypeDyn::Part part, 
 						   int layerNumber,
 						   int nModules, double moduleCurrent, double moduleVoltage,
 						   double poweringLoss, double lossInCable, double cableLen) const
 {
-  /*
-  cout << "computeLVGaugeSerial: nModules = " << nModules
-       << " moduleCurrent " << moduleCurrent
-       << " moduleVoltage " << moduleVoltage
-       << " poweringLoss " << poweringLoss
-       << " lossInCable " << lossInCable
-       << " cableLen " << cableLen 
-       << endl;
-  */
   // serial powering
   double cableCurrent = moduleCurrent;
   double staveVoltage = moduleVoltage * nModules / (1.-poweringLoss);
@@ -120,7 +93,6 @@ int ComputeDynStaveServices::computeLVGaugeSerial( DetTypeDyn::Type type, DetTyp
 
   msg(MSG::DEBUG) << DetTypeDyn::name( type, part) << " layer " << layerNumber
 		  << " SP loop power " << stavePower << " [W], current " << moduleCurrent 
-    // << " [A], cablePowerLoss " << cablePowerDissipation 
 		  << " [W], desired resistivity " << resistivityPerMeter 
 		  << " [Ohm/m], closest gauge " << gauge << endl;
 

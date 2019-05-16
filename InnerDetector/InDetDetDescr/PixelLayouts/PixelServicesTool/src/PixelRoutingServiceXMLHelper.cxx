@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
- 
 #include "PixelServicesTool/PixelRoutingServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
@@ -9,14 +8,13 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "CLHEP/Evaluator/Evaluator.h"
 
-PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
+PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics)  
 {
 
   msg(MSG::DEBUG)<<"XML helper - PixelRoutingServiceXMLHelper"<<endmsg;
     
-  std::string envName = envFileName;
   msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
@@ -65,7 +63,7 @@ std::vector<int> PixelRoutingServiceXMLHelper::getRouteLayerList( int index) con
 
 bool PixelRoutingServiceXMLHelper::isBarrelRoute(int index) const
 {
-  return (getString("PixelSvcRoute",index,"type")=="barrel");
+  return (getString("PixelSvcRoute",index,"type").find("barrel")==0);
 
 }
 
@@ -79,8 +77,8 @@ int PixelRoutingServiceXMLHelper::getRouteServiceMaterialIndex(int index, int iL
 
   std::vector<int> layerList = getRouteLayerList(index);
   int iCmpt=0;
-  for(std::vector<int>::iterator it=layerList.begin(); it!=layerList.end(); ++it){
-    if(*it==iLayer)
+  for (auto & layer:layerList){
+    if(layer==iLayer)
       return getChildValue_Index("ServiceSet","name",-1,svcList[iCmpt]);
     iCmpt++;
   }
@@ -92,7 +90,6 @@ double PixelRoutingServiceXMLHelper::getRouteThickness( int index) const
 {
   return getDouble("PixelSvcRoute",index,"thickness");  
 }
-
 
 std::vector<std::string> PixelRoutingServiceXMLHelper::getRouteRadialPositions(int index) const
 {
@@ -109,52 +106,64 @@ std::string PixelRoutingServiceXMLHelper::getRouteType(int index) const
   return getString("PixelSvcRoute",index,"type");  
 }
 
+bool PixelRoutingServiceXMLHelper::isPhiRouting(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"isPhiRouting") > 0)
+    return getInt("PixelSvcRoute",index,"isPhiRouting");
+  return false;
+}
 
-int PixelRoutingServiceXMLHelper::getEndcapServiceSetIndex(int layer) const
+bool PixelRoutingServiceXMLHelper::isPhiRouting(const std::string& ctype, int layer) const
 {
   int nbRoute = getRouteNumber();
-  for(int irt=0; irt<nbRoute; irt++)
-    {
-      std::string t = getRouteType(irt);
-      if(t=="endcap"){
-	std::vector<int> routeList = getRouteLayerList(irt);
-	for(std::vector<int>::iterator it=routeList.begin(); it!=routeList.end(); ++it)
-	  if(*it==layer){
-	    std::string serviceName = getString("PixelSvcRoute",irt,"service");
-	    return getChildValue_Index("ServiceSet","name",-1,serviceName);
+  for(int irt=0; irt<nbRoute; irt++) {
+    std::string t = getRouteType(irt);
+    if(t == ctype){
+      std::vector<int> routeLayerList = getRouteLayerList(irt);
+      for (auto & routeLayer:routeLayerList){
+	if(routeLayer==layer) {
+	  if(getChildCount("PixelSvcRoute",irt,"isPhiRouting") > 0){
+	    return getInt("PixelSvcRoute",irt,"isPhiRouting");
 	  }
+	  else
+	    return false;
+	}
       }
     }
-  return -1;
-}
-
-int PixelRoutingServiceXMLHelper::getBarrelServiceBeyondPP0Check() const
-{
-  std::vector<std::string> nodeList=getNodeList("PixelRoutingServices");
-  for(unsigned int in=0; in<nodeList.size(); in++){
-    if(nodeList.at(in).find("BeyondPP0ServiceSet")!=std::string::npos)
-      return 1;
   }
-
-  return 0;
+  return false;
 }
 
-int PixelRoutingServiceXMLHelper::getBarrelServiceSetIndex(int layer, int module) const
+int PixelRoutingServiceXMLHelper::getServiceSetIndex(const std::string& ctype, int layer, int module) const
 {
-  int brlSvcTypeIndex = getChildValue_Index("PixelBarrelSvcType","layer",layer);
+  if(ctype == "barrel"){
+    int brlSvcTypeIndex = getChildValue_Index("PixelBarrelSvcType","layer",layer);   
+    std::vector<std::string> tmp = getVectorString("PixelBarrelSvcType",brlSvcTypeIndex,"service");
+    return getChildValue_Index("ServiceSet","name",-1,tmp[module]);
+  }
   
-  std::vector<std::string> tmp = getVectorString("PixelBarrelSvcType",brlSvcTypeIndex,"service");  
-  return getChildValue_Index("ServiceSet","name",-1,tmp[module]);
-}
-
-int PixelRoutingServiceXMLHelper::getBarrelBeyondPP0ServiceSetIndex(int layer, int module) const
-{
-  if(!getBarrelServiceBeyondPP0Check()) return getBarrelServiceSetIndex(layer, module);
-  
-  int brlSvcTypeIndex = getChildValue_Index("PixelBarrelSvcType","layer",layer);
-  
-  std::vector<std::string> tmp = getVectorString("PixelBarrelSvcType",brlSvcTypeIndex,"service");
-  return getChildValue_Index("BeyondPP0ServiceSet","name",-1,tmp[module]);
+  int nbRoute = getRouteNumber();
+  for(int irt=0; irt<nbRoute; irt++) {
+    std::string t = getRouteType(irt);
+    if(t == ctype){
+      std::vector<int> routeLayerList = getRouteLayerList(irt);
+      for (auto & routeLayer:routeLayerList){
+	if(routeLayer==layer) {
+	  std::string serviceClass = "service_L"; serviceClass += std::to_string(layer);
+	  std::vector<std::string> serviceName;
+	  if (getChildCount("PixelSvcRoute",irt,serviceClass.c_str()) > 0)
+	    serviceName = getVectorString("PixelSvcRoute",irt,serviceClass.c_str());
+	  else if (getChildCount("PixelSvcRoute",irt,"service") > 0)
+	    serviceName = getVectorString("PixelSvcRoute",irt,"service");
+	  else
+	    return getServiceSetIndex("barrel", layer, module);
+	  
+	  return getChildValue_Index("ServiceSet","name",-1,serviceName[module]);
+	}
+      }
+    }
+  }
+  return -1;
 }
 
 std::vector<std::string> PixelRoutingServiceXMLHelper::getServiceSetContent(int index) const
@@ -172,42 +181,17 @@ std::vector<std::string> PixelRoutingServiceXMLHelper::getServiceSetContent(int 
   return res;
 }
 
-std::vector<std::string> PixelRoutingServiceXMLHelper::getBeyondPP0ServiceSetContent(int index) const
-{
-  if(!getBarrelServiceBeyondPP0Check()) return getServiceSetContent(index);
-
-  std::vector<std::string> res;
-
-  int nbSvc=getChildCount("BeyondPP0ServiceSet",index,"Service");
-  if (nbSvc<=0)
-    return getServiceSetContent(index); 
-  for(int i=0; i<nbSvc; i++)
-    res.push_back( "svc "+getString("BeyondPP0ServiceSet",index,"Service",i));  
-
-  nbSvc=getChildCount("BeyondPP0ServiceSet",index,"Cooling");  
-  for(int i=0; i<nbSvc; i++)
-    res.push_back( "cooling "+getString("BeyondPP0ServiceSet",index,"Cooling",i));  
-
-  return res;
-}
-
 std::string PixelRoutingServiceXMLHelper::getServiceSetName(int index) const
 {
   return getString("ServiceSet",index,"name");  
 }
 
-std::string PixelRoutingServiceXMLHelper::getBeyondPP0ServiceSetName(int index) const
-{
-  if(!getBarrelServiceBeyondPP0Check()) return getServiceSetName(index);
-
-  return getString("BeyondPP0ServiceSet",index,"name");  
-}
 std::string PixelRoutingServiceXMLHelper::getServiceSetNameId(int index) const
 {
   return getString("ServiceSet",index,"id");  
 }
 
-std::vector<std::string> PixelRoutingServiceXMLHelper::getTypeMaterialNames( int layer, std::string pattern)
+std::vector<std::string> PixelRoutingServiceXMLHelper::getTypeMaterialNames( int layer, const std::string& pattern) const
 {
   std::vector<std::string> matNameList;
   int brlSvcTypeIndex = getChildValue_Index("PixelBarrelSvcType","layer",layer);
@@ -300,7 +284,7 @@ double PixelRoutingServiceXMLHelper::getMaterialFudgeSvcEc(int iLayer) const
   return getMaterialFudgeGeneric(targetString.str(), "MaterialFudgeSvcEc");
 }
 
-double PixelRoutingServiceXMLHelper::getMaterialFudgeGeneric(const std::string Layer, const std::string node) const
+double PixelRoutingServiceXMLHelper::getMaterialFudgeGeneric(const std::string& Layer, const std::string& node) const
 {
 
   std::ostringstream targetString;

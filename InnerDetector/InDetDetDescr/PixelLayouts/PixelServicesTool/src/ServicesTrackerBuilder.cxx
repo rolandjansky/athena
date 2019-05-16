@@ -74,20 +74,23 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
       
       double layerRadius =  layerTmp->radius;
       double layerLength =  staveTmp[is]->support_halflength;
+      double staveZOffset = layerTmp->stave_zoffset;
       int nSectors = 1.*layerTmp->stave_n/staveTmp.size();                             // number of sectors built from 1 stave template
       
       msg<< MSG::DEBUG << "Created new ServicesDynTracker() : barrel layer " << i<<" "<<layerRadius<<"with " <<nSectors << " sectors, stave template "<< is <<" # modules "<<modulesPerStave<<"  // length : "<<layerLength<<endmsg;
       
-      if(endcapModuleNumber==0)
-	tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(),
+      if(endcapModuleNumber==0){
+	tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(), staveZOffset,
 				       DetTypeDyn::Pixel, i, is, nSectors, suffix,
 				       modulesPerStave, nChipsPerModule);
+      }
       else {
 	std::vector<int> modulesPerStave_vec;
 	std::vector<int> nChipsPerModule_vec;
 	modulesPerStave_vec.push_back(modulesPerStave);
-	if(transModuleNumber>0)
+	if(transModuleNumber>0){
 	  modulesPerStave_vec.push_back(transModuleNumber);
+	}
 	modulesPerStave_vec.push_back(endcapModuleNumber);
 	
 	nChipsPerModule_vec.push_back(nChipsPerModule);
@@ -102,7 +105,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	int nChipsPerModule = module->ChipNumber();
 	nChipsPerModule_vec.push_back(nChipsPerModule);
 	
-	tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(),
+	tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(), staveZOffset,
 				       DetTypeDyn::Pixel, i, is, nSectors, suffix,
 				       modulesPerStave_vec, nChipsPerModule_vec);
       }
@@ -148,12 +151,13 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	  rMin = std::min(rMin,rInner[j]);
 
 	  msg<<MSG::DEBUG<<"ServicesTrackerBuilder - build disc : "<<iDisc<<"  "<<modType[j]<<endmsg;
-
+	  
 	  GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[j]);
 	  nbModTot += nSectors[j];
 	  nbChipTot += nSectors[j]*endcapModule->ChipNumber();
-	  //	  rMax = std::max(rMax,rInner[j]+endcapModule->Length());
-	  rMax=ComputeRMax(rMin, 0.0001, endcapModule->Length(), endcapModule->Width());
+
+	  rMax=std::max(rMax, ComputeRMax(rInner[j], 0.0001, endcapModule->Length(), endcapModule->Width()));
+
 	}
 	
 	tracker->constructEndcapLayer( zPos, rMin, rMax,

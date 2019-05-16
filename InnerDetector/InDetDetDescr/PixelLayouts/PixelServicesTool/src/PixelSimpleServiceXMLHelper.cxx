@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/ 
- 
+*/  
 #include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
@@ -50,15 +49,15 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     }
 }
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
+  m_schema(schema),
   m_bXMLdefined(true)
 {
 
   msg(MSG::DEBUG)<<"XML helper - PixelSimpleServiceXMLHelper"<<endmsg;
     
-  std::string envName = envFileName;
   msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
   
   std::string fileName;
@@ -213,8 +212,9 @@ unsigned int PixelSimpleServiceXMLHelper::numElements() const
 }
 
 
-int PixelSimpleServiceXMLHelper::getServiceIndex( std::string srvName) const
+int PixelSimpleServiceXMLHelper::getServiceIndex( const std::string& srvName) const
 {
+
   int srvIndex = getChildValue_Index("SimpleService",
 				     m_schema.volName().c_str(),
 				     -1,
@@ -224,7 +224,7 @@ int PixelSimpleServiceXMLHelper::getServiceIndex( std::string srvName) const
 
 
 
-bool PixelSimpleServiceXMLHelper::SupportTubeExists(std::string srvName) const
+bool PixelSimpleServiceXMLHelper::SupportTubeExists(const std::string& srvName) const
 {
   int index=getServiceIndex(srvName);
   if(index<0) return false;
@@ -232,7 +232,7 @@ bool PixelSimpleServiceXMLHelper::SupportTubeExists(std::string srvName) const
   return true;
 }
 
-double PixelSimpleServiceXMLHelper::SupportTubeRMin(std::string srvName) const
+double PixelSimpleServiceXMLHelper::SupportTubeRMin(const std::string& srvName) const
 {
 
   int index=getServiceIndex(srvName);
@@ -241,7 +241,7 @@ double PixelSimpleServiceXMLHelper::SupportTubeRMin(std::string srvName) const
   return rmin(index);
 }
 
-double PixelSimpleServiceXMLHelper::SupportTubeRMax(std::string srvName) const
+double PixelSimpleServiceXMLHelper::SupportTubeRMax(const std::string& srvName) const
 {
 
   int index=getServiceIndex(srvName);
@@ -250,7 +250,7 @@ double PixelSimpleServiceXMLHelper::SupportTubeRMax(std::string srvName) const
   return rmax(index);
 }
 
-double PixelSimpleServiceXMLHelper::SupportTubeZMin(std::string srvName) const
+double PixelSimpleServiceXMLHelper::SupportTubeZMin(const std::string& srvName) const
 {
 
   int index=getServiceIndex(srvName);
@@ -259,7 +259,7 @@ double PixelSimpleServiceXMLHelper::SupportTubeZMin(std::string srvName) const
   return zmin(index);
 }
 
-double PixelSimpleServiceXMLHelper::SupportTubeZMax(std::string srvName) const
+double PixelSimpleServiceXMLHelper::SupportTubeZMax(const std::string& srvName) const
 {
 
   int index=getServiceIndex(srvName);

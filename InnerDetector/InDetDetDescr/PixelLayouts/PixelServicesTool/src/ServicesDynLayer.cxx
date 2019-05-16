@@ -7,11 +7,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <string>
 #include <sstream>
 
-ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, int nStaves,
+ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, double staveZOffset, int nStaves,
 				    DetTypeDyn::Type type, DetTypeDyn::Part part, int num, int numStaveTmp,
 			      const std::string& suffix,
 			      int nModulesPerStave, int nChipsPerModule) :
-  m_radius(radius), m_zPos(0.), m_rMin(0.), m_rMax(0.), m_halfLength(halfLength), m_nStaves(nStaves),
+  m_radius(radius), m_zPos(0.), m_rMin(0.), m_rMax(0.), m_halfLength(halfLength), m_staveZOffset(staveZOffset), m_nStaves(nStaves),
   m_type(type), m_part(part), m_number(num), m_numStaveTmp(numStaveTmp),
   m_lastVolume(0), m_suffix(suffix)
 {
@@ -28,11 +28,11 @@ ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, int nStave
   }
 }
 
-ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, int nStaves,
+ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, double staveZOffset, int nStaves,
 				    DetTypeDyn::Type type, DetTypeDyn::Part part, int num, int numStaveTmp,
 				    const std::string& suffix,
 				    std::vector<int> nModulesPerStave, std::vector<int> nChipsPerModule) :
-  m_radius(radius), m_zPos(0.), m_rMin(0.), m_rMax(0.), m_halfLength(halfLength), m_nStaves(nStaves),
+  m_radius(radius), m_zPos(0.), m_rMin(0.), m_rMax(0.), m_halfLength(halfLength), m_staveZOffset(staveZOffset), m_nStaves(nStaves),
   m_type(type), m_part(part), m_number(num), m_numStaveTmp(numStaveTmp),
   m_lastVolume(0), m_suffix(suffix), 
   m_nModulesPerStave(nModulesPerStave), m_nChipsPerModule(nChipsPerModule)

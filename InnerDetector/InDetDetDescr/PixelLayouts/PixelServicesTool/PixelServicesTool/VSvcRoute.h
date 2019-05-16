@@ -7,17 +7,14 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "SvcRoute.h"
 #include <vector>
 
-class ServiceDynVolume;
-
 class VSvcRoute : public SvcRoute {
-public:
+ public:
 
   typedef std::vector<ServiceDynVolume*>   VolumeContainer;
-
-  VSvcRoute() : SvcRoute() {}
-    VSvcRoute( double z, double rmi, double rma, double rexit, const std::string& name):
-      SvcRoute(name), 
-      m_zPos(z), m_rMin(rmi), m_rMax(rma), m_rExit(rexit), m_next(0){}
+  
+ VSvcRoute() : SvcRoute() {}
+ VSvcRoute( double z, double rmi, double rma, double rexit, ServiceDynVolume::Routing routing, const std::string& name):
+  SvcRoute(routing, name), m_zPos(z), m_rMin(rmi), m_rMax(rma), m_rExit(rexit), m_next(0){}
       
   double rMin() const {return m_rMin;}
   double rMax() const {return m_rMax;}
@@ -35,20 +32,7 @@ public:
   virtual void addVolume( ServiceDynVolume* vol) {m_volumes.push_back(vol);}
 
   virtual void setNextRoute( SvcRoute* nr) {m_next = nr;}
-  /*
-  virtual ServiceDynVolume* entryVolume( double pos) const {
-    // FIXME - too simple, for tests only
-    if (volumes().empty()) return 0;
-    if (volumes().front()->contains(pos)) return volumes().front();
-    else if (volumes().back()->contains(pos)) return volumes().back();
-    else {
-      //should iterate to find exit volume
-      return 0; // FIXME
-    }
-  }
 
-  virtual ServiceDynVolume* exitVolume() const;
-  */
 private:
 
   double m_zPos;

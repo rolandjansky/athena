@@ -10,11 +10,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelLayoutUtils/GeoXMLUtils.h"
 
 class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
-
+  
  public:
-  PixelRoutingServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
+  PixelRoutingServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics);
   ~PixelRoutingServiceXMLHelper();
-
+  
   int getRouteNumber() const;
   std::vector<int> getRouteLayerList(int) const;
   bool isBarrelRoute(int) const;
@@ -25,17 +25,14 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
   std::vector<std::string> getRouteRadialPositions(int) const;
   std::vector<std::string> getRouteZPositions(int) const;
 
-  int getBarrelServiceBeyondPP0Check() const;
-  int getEndcapServiceSetIndex(int layer) const;
-  int getBarrelServiceSetIndex(int layer, int module) const;
-  int getBarrelBeyondPP0ServiceSetIndex(int layer, int module) const;
+  bool isPhiRouting(int index) const;
+  bool isPhiRouting(const std::string& ctype, int layer) const;
+  int getServiceSetIndex(const std::string& ctype, int layer, int module=0) const;
   std::vector<std::string> getServiceSetContent(int index) const;
-  std::vector<std::string> getBeyondPP0ServiceSetContent(int index) const;
   std::string getServiceSetName(int index) const;
-  std::string getBeyondPP0ServiceSetName(int index) const;
   std::string getServiceSetNameId(int index) const;
   std::string getRouteType(int index) const;
-  std::vector<std::string> getTypeMaterialNames( int layer, std::string pattern);
+  std::vector<std::string> getTypeMaterialNames( int layer, const std::string& pattern) const;
 
   std::vector<double> EOScardLength(int iRoute) const;
   double getEOSsvcLength(int iRoute) const;
@@ -47,10 +44,9 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
 
   double getMaterialFudgeModuleSvc(int iLayer) const;
   double getMaterialFudgeSvcEc(int iLayer) const;
-  double getMaterialFudgeGeneric(const std::string Layer, const std::string node) const;
+  double getMaterialFudgeGeneric(const std::string& Layer, const std::string& node) const;
 
  private:
 
 };
-
 #endif

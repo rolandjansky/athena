@@ -172,7 +172,7 @@ void ServiceStaticBuilder::initialize(const std::string & a)
   InDetDD::SimpleServiceVolumeSchema schema;
   std::string label;
   if (a=="simple") {
-    schema.setSimpleSchema();
+    schema.setPixelSchema();
     label = "Svc";
   } else if (a=="barrel") { // Not used yet. initializeOld() is used instead
     schema.setPixelSchema();
