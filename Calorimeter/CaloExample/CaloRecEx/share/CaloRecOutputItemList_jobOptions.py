@@ -17,9 +17,9 @@ CaloClusterItemList=[]
 CaloClusterKeys=[]
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
-CaloClusterKeys+=["CaloCalTopoTowers"]
+##CaloClusterKeys+=["CaloCalTopoTowers"]
 ##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
-CaloClusterKeys+=["CaloCalTopoSignals"]
+##CaloClusterKeys+=["CaloCalTopoSignals"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -83,8 +83,8 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 
 #List of AOD moments: (copied from CaloClusterTopoGetter)
 
-AODMoments=["LATERAL"
-            ,"LONGITUDINAL"
+AODMoments=[#"LATERAL"
+            #,"LONGITUDINAL"
             ,"SECOND_R" 
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
@@ -95,18 +95,18 @@ AODMoments=["LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
-            ,"ENG_BAD_HV_CELLS"
-            ,"N_BAD_HV_CELLS"
+            ,#"ENG_BAD_HV_CELLS"
+            ,#"N_BAD_HV_CELLS"
             ,"ENG_POS"
-            ,"SIGNIFICANCE"
-            ,"CELL_SIGNIFICANCE"
-            ,"CELL_SIG_SAMPLING"
+            ,#"SIGNIFICANCE"
+            ,#"CELL_SIGNIFICANCE"
+            ,#"CELL_SIG_SAMPLING"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
-            ,"PTD"
+            ,#"PTD"
             ,"BadChannelList"
-            ,"MASS"
+            ,#"MASS"
             ]
 try:
     from Digitization.DigitizationFlags import digitizationFlags
@@ -152,9 +152,9 @@ CaloClusterKeys=[]
 
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
-CaloClusterKeys+=["CaloCalTopoTowers"]
+##CaloClusterKeys+=["CaloCalTopoTowers"]
 ##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
-CaloClusterKeys+=["CaloCalTopoSignals"]
+##CaloClusterKeys+=["CaloCalTopoSignals"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
