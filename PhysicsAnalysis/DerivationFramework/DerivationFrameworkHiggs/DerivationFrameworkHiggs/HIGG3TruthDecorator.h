@@ -84,6 +84,14 @@ namespace DerivationFramework {
 
     std::string m_inElContName;
     std::string m_inMuContName;
+    std::string m_inEMTopoJetContName;
+    std::string m_inPFlowJetContName;
+
+    /// The minimum pt threshold for a truth-jet to be considered for matching
+    double m_truthJetPtMin;
+
+    /// The maximum deltaR (using rapidity and NOT eta) distance for a successful truth match
+    double m_maxDeltaR;
 
     bool m_isSherpa;
     bool m_isPowPy8EvtGen;

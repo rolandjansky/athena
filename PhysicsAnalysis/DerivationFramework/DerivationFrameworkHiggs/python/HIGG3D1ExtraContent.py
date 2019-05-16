@@ -24,6 +24,8 @@ HIGG3D1ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLin
 
 HIGG3D1TruthDecoratorVariables = [ "Electrons.HIGG3DX_truthFlavourTag",
                                    "Muons.HIGG3DX_truthFlavourTag",
+                                   "AntiKt4EMTopoJets.HIGG3DX_truthOrigin",
+                                   "AntiKt4EMPFlowJets.HIGG3DX_truthOrigin"
                                    ]
 
 HIGG3D1ExtraContainers = [ ]

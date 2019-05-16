@@ -4,6 +4,9 @@
 
 #include "DerivationFrameworkHiggs/HIGG3TruthDecorator.h"
 
+// FrameWork includes
+#include "GaudiKernel/SystemOfUnits.h"
+
 // EDM includes
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -15,6 +18,8 @@
 // Helper includes
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "CxxUtils/fpcompare.h"
+
+using Gaudi::Units::GeV;
 
 bool xaodPtSorting(const xAOD::IParticle *part1,
                    const xAOD::IParticle *part2) {
@@ -28,16 +33,28 @@ namespace DerivationFramework {
                                            const std::string& n,
                                            const IInterface* p) :
     AthAlgTool(t, n, p),
+    m_inElContName("Electrons"),
+    m_inMuContName("Muons"),
+    m_inEMTopoJetContName("AntiKt4EMTopoJets"),
+    m_inPFlowJetContName("AntiKt4EMPFlowJets"),
+    m_isSherpa(false),
+    m_isPowPy8EvtGen(false),
+    m_truthJetPtMin(10.0*GeV),
+    m_maxDeltaR(0.3),
     m_GamORTool("VGammaORTool/HIGG3TruthDecoratorVGammaORTool", this)
   {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
-    declareProperty( "InputElectronContainerName", m_inElContName  = "Electrons" );
-    declareProperty( "InputMuonContainerName", m_inMuContName  = "Muons" );
-    declareProperty( "IsSherpa", m_isSherpa = false );
-    declareProperty( "isPowPy8EvtGen", m_isPowPy8EvtGen = false );
-    declareProperty( "GamORTool", m_GamORTool );
+    declareProperty( "InputElectronContainerName",  m_inElContName, "Input reco electron container name" );
+    declareProperty( "InputMuonContainerName",      m_inMuContName, "Input reco muon container name" );
+    declareProperty( "InputEMTopoJetContainerName", m_inEMTopoJetContName, "Input reco jet container name (EMTopo)" );
+    declareProperty( "InputPFlowJetContainerName",  m_inPFlowJetContName, "Input reco jet container name (PFlow)" );
+    declareProperty( "IsSherpa",                    m_isSherpa, "Whether or not the sample is treated as Sherpa" );
+    declareProperty( "isPowPy8EvtGen",              m_isPowPy8EvtGen, "Whether or not the sample is treated as PowPy8EvtGen" );
+    declareProperty( "TruthJetMinPt",               m_truthJetPtMin, "The minimum pt threshold for a truth-jet to be considered for matching" );
+    declareProperty( "TruthMatchMaxDeltaR",         m_maxDeltaR, "The maximum deltaR (using rapidity and NOT eta) distance for a successful truth match" );
+    declareProperty( "GamORTool",                   m_GamORTool, "The tool used for determining the Vgamma/V+jets overlap" );
   }
 
   // Destructor
@@ -47,13 +64,15 @@ namespace DerivationFramework {
   StatusCode HIGG3TruthDecorator::initialize() {
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
-
-
     // Print the configuration to the log file
     ATH_MSG_DEBUG( "Using InputElectronContainerName: " << m_inElContName );
     ATH_MSG_DEBUG( "Using InputMuonContainerName: " << m_inMuContName );
+    ATH_MSG_DEBUG( "Using InputEMTopoJetContainerName: " << m_inEMTopoJetContName );
+    ATH_MSG_DEBUG( "Using InputPFlowJetContainerName: " << m_inPFlowJetContName );
     ATH_MSG_DEBUG( "Using IsSherpa: " << m_isSherpa );
     ATH_MSG_DEBUG( "Using isPowPy8EvtGen: " << m_isPowPy8EvtGen );
+
+    ATH_CHECK( m_GamORTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -74,9 +93,10 @@ namespace DerivationFramework {
       return StatusCode::SUCCESS;
     }
 
-    // Define the lepton decorator outside of the loop as static, such that it
+    // Define the decorators outside of any loop as static, such that they
     // will be fully cached
-    static SG::AuxElement::Decorator<int>  decFlavourTag ("HIGG3DX_truthFlavourTag");
+    static SG::AuxElement::Decorator<int> decFlavourTag ("HIGG3DX_truthFlavourTag"); // used for reco leptons
+    static SG::AuxElement::Decorator<int> decTruthOrigin("HIGG3DX_truthOrigin"); // used for reco jets
 
     // Retrieve the truth event
     const xAOD::TruthEventContainer* truthEvents(nullptr);
@@ -133,6 +153,11 @@ namespace DerivationFramework {
     std::vector<const xAOD::TruthParticle*> eTruth; eTruth.clear();
     std::vector<const xAOD::TruthParticle*> mTruth; mTruth.clear();
 
+    // for truthOrigin of jets
+    std::vector<const xAOD::TruthParticle*> selectedTruthWZBosons;
+    std::vector<const xAOD::TruthParticle*> selectedTruthHiggsBosons;
+    std::vector<bool> wzBosonIsFromHiggs;
+
     // Get the truth particles from the event and loop over them
     for(size_t p = 0; p < event->nTruthParticles(); p++) {
       const xAOD::TruthParticle* truthPart = event->truthParticle(p);
@@ -157,36 +182,59 @@ namespace DerivationFramework {
         else if ( status == 3 ) vTopList.push_back(truthPart);
       }
 
+      //Classify the truth particle for truthFlavourTag calculation
       if (pt > 5000) {
-        //Classify the truth particle for truthFlavourTag calculation
         bool hasBottom = 0; bool hasCharm = 0; bool hasStrange = 0; bool hasLight = 0;
-        int q1 = (abs(pdg)/1000)%10; int q2 = (abs(pdg)/100)%10; int q3 = (abs(pdg)/10)%10;
+        int q1 = (absPdg/1000)%10; int q2 = (absPdg/100)%10; int q3 = (absPdg/10)%10;
 
         if (q1 == 0 && q2 == 5 && q3 == 5) hasBottom = 1; //BBbar meson
         else if (q1 == 0 && q3 < 5 && q3 > 0 && q2 == 5 ) hasBottom = 1; //Bottom meson
         else if (q1 == 5) hasBottom = 1; //Bottom baryon
-        else if (abs(pdg) == 5) hasBottom = 1; //Bottom quark
+        else if (absPdg == 5) hasBottom = 1; //Bottom quark
 
         else if (q1 == 0 && q3 == 4 && q2 == 4) hasCharm = 1; //CCbar meson
         else if (q1 == 0 && q3 < 4 && q3 > 0 && q2 == 4) hasCharm = 1; //Charmed meson
         else if (q1 == 4) hasCharm = 1; //Charmed baryon
-        else if (abs(pdg) == 4) hasCharm = 1; //Charm quark
+        else if (absPdg == 4) hasCharm = 1; //Charm quark
 
         else if (q1 == 3) hasStrange = 1; //Strange baryon
-        else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| abs(pdg) == 130) hasStrange = 1; //Strange meson
-        else if (abs(pdg) == 3) hasStrange = 1; //Strange quark
+        else if ((q1 == 0 && q2 == 3 && q3 < 3 && q3 > 0)|| absPdg == 130) hasStrange = 1; //Strange meson
+        else if (absPdg == 3) hasStrange = 1; //Strange quark
 
         else if (q1 == 2 || q1 == 1) hasLight = 1; //Light baryon
         else if ((q1==0 && (q3 == 1 || q3 == 2) && (q2 == 1|| q2 == 2)) || (q1 == 0&& q3 == 3 && q2 == 3)) hasLight = 1; //Light meson
-        else if (abs(pdg) == 2 || abs(pdg) == 1) hasLight = 1; //u,d quarks
+        else if (absPdg == 2 || absPdg == 1) hasLight = 1; //u,d quarks
 
         if (hasBottom) bTruth.push_back(truthPart);
         if (hasCharm) cTruth.push_back(truthPart);
         if (hasStrange) sTruth.push_back(truthPart);
         if (hasLight) lTruth.push_back(truthPart);
-        if (fabs(pdg) == 11) eTruth.push_back(truthPart);
-        if (fabs(pdg) == 13) mTruth.push_back(truthPart);
+        if (absPdg == 11) eTruth.push_back(truthPart);
+        if (absPdg == 13) mTruth.push_back(truthPart);
       }
+
+      // selected W,Z,H for jet truthOrigin decoration
+      if (absPdg == 23 || absPdg == 24 || absPdg == 25) {
+        const std::size_t nChildren = truthPart->nChildren();
+        if (nChildren >= 2 ) {
+          const xAOD::TruthParticle* truthChildA = truthPart->child(0);
+          if (truthChildA) {
+            const int childAbsPdgId = std::abs(truthChildA->pdgId());
+            // Select the interesting particles
+            ATH_MSG_VERBOSE("When searching for W,Z,H got a truth particle with status " << status << ", PdgID " << pdg
+                            << ", nChildren " << nChildren << ", child0 PdgID " << truthChildA->pdgId()
+                            << ", child0 status " << truthChildA->status() );
+            if ( (truthPart->isW() || truthPart->isZ()) && nChildren >=2 && childAbsPdgId <= 18 ){
+              ATH_MSG_VERBOSE("Found a truth W or Z boson");
+              selectedTruthWZBosons.push_back(truthPart);
+            }
+            else if ( truthPart->isHiggs() && nChildren >=2 && ( childAbsPdgId==23 || childAbsPdgId==24 ) ){
+              ATH_MSG_VERBOSE("Found a truth Higgs boson");
+              selectedTruthHiggsBosons.push_back(truthPart);
+            }
+          } // end check on valid child pointer
+        } // end check on nChildren
+      } // end check for W,Z,H
 
       // Select everything that is needed to get the VBF mjj variable correctly
 
@@ -475,6 +523,12 @@ namespace DerivationFramework {
     } // end loop over all truth particles
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // open the truth jet container
+    const xAOD::JetContainer* truthJets = 0;
+    ATH_CHECK( evtStore()->retrieve( truthJets, "AntiKt4TruthJets") );
 
     eventInfo->auxdecor<int>("HIGG3DX_truth_nOutgoingPartons")   = nOutgoingPartons;
 
@@ -734,10 +788,8 @@ namespace DerivationFramework {
     std::vector<const xAOD::Jet* > filteredJets;
 
     /// now the jets
-    const xAOD::JetContainer* truthjets = 0;
-    ATH_CHECK( evtStore()->retrieve( truthjets, "AntiKt4TruthJets") );
     unsigned int numberOfTruthJets = 0;
-    for ( const auto* jet : *truthjets ) {
+    for ( const auto* jet : *truthJets ) {
       const double jetPt =  jet->pt();
       // jet selection for the VBF mjj calculation
       if ( jetPt < 15e3 ) continue;
@@ -834,8 +886,12 @@ namespace DerivationFramework {
     eventInfo->auxdecor<float>("HIGG3DX_truth_ttbarpt")          = ttbarpt;
     eventInfo->auxdecor<float>("HIGG3DX_truth_toppt")            = toppt;
 
-    /// few add ons by Kathrin for truth MT and NNLOPS
-    // Block from Kathrin on Truth MT
+
+
+    //-----------------------//
+    // Truth MT calculation  //
+    //-----------------------//
+
     // first, start with using dressed four vector
     const xAOD::TruthParticleContainer* truthele = 0;
     ATH_CHECK( evtStore()->retrieve( truthele, "TruthElectrons") );
@@ -904,6 +960,7 @@ namespace DerivationFramework {
       ATH_MSG_DEBUG( "Either too few or too many leptons found!! Muons: " << numberOfTruthMu << " Electrons: "<< numberOfTruthEle );
     ATH_MSG_DEBUG( "Truth MT: " << truthMT );
     eventInfo->auxdecor<float>("HIGG3DX_truth_MT")    = truthMT;
+
 
 
     //---------------------------------------------//
@@ -1133,7 +1190,163 @@ namespace DerivationFramework {
 
 
 
-    // Official Vgamma/Vjet overlap removal
+    //-------------------------------------//
+    // Determine truthOrigin of reco jets  //
+    //-------------------------------------//
+
+    // First check which W/Z bosons are from a Higgs boson decay
+    ATH_MSG_DEBUG("Now going to check if we have a Higgs boson as ancestor");
+    for ( const xAOD::TruthParticle* truthPart : selectedTruthWZBosons ){
+      if ( selectedTruthHiggsBosons.size() == 0 ){
+        wzBosonIsFromHiggs.push_back(false);
+        continue;
+      }
+      bool foundHiggs(false);
+      while ( truthPart ){
+        if (truthPart->nParents() != 1 ) break;
+        truthPart = truthPart->parent();
+        if (truthPart->isHiggs()){
+          foundHiggs = true;
+          break;
+        }
+      }
+      wzBosonIsFromHiggs.push_back(foundHiggs);
+    }
+
+    const double maxDR2 = m_maxDeltaR*m_maxDeltaR;
+
+    // EMTopo jets
+
+    // Open the input container
+    const xAOD::JetContainer *inEMTopoJetCont(nullptr);
+    ATH_CHECK( evtStore()->retrieve( inEMTopoJetCont, m_inEMTopoJetContName ) );
+
+    for ( const xAOD::Jet* jet : *inEMTopoJetCont ) {
+      // determine if there is a truth jet which best matches the reco jet
+      const xAOD::Jet* bestTruthJet = nullptr;
+      for ( const xAOD::Jet* truthJet : * truthJets ) {
+        const double dr2 = xAOD::P4Helpers::deltaR2( *jet, *truthJet, true );
+        if ( truthJet->pt() > m_truthJetPtMin ) {
+          if ( dr2 >= 0.0 && dr2 < maxDR2 ) {
+            bestTruthJet = truthJet;
+          }
+        }
+      } // End: loop over truth jets
+
+      // Now, try to figure out the truth origin
+      ATH_MSG_DEBUG("Now going to try to figure out the EMTopo jet truth origin");
+      int truthOrigin = 0;
+      if (bestTruthJet) {
+        ATH_MSG_VERBOSE("Have a truth jet with pt " << 0.001*(bestTruthJet->pt())
+                        << ", eta " << bestTruthJet->eta() << ", phi " << bestTruthJet->phi());
+        const double maxDeltaRSquared = 0.6*0.6;
+        for ( std::size_t i=0; i < selectedTruthWZBosons.size(); ++i ) {
+          const xAOD::TruthParticle* truthWZPart = selectedTruthWZBosons.at(i);
+          if (!truthWZPart){
+            ATH_MSG_WARNING("Got a zero pointer to a truth particle... something went wrong");
+            continue;
+          }
+          const bool isFromHiggs = wzBosonIsFromHiggs.at(i);
+          // Iterate over the children and find the best deltaR match within DeltaR=0.6
+          double minDeltaR2 = maxDeltaRSquared;
+          bool foundMatch = false;
+          for ( std::size_t iChild=0; iChild < truthWZPart->nChildren(); ++iChild ) {
+            const xAOD::TruthParticle* truthWZChild = truthWZPart->child(iChild);
+            if (!truthWZChild) continue;
+            const int childAbsPdgId = std::abs(truthWZChild->pdgId());
+            if ( childAbsPdgId > 6 && childAbsPdgId != 21 ) continue; // we don't have a hadronic decay
+            const double childPt = truthWZChild->pt();
+            if ( childPt < 1000.0 ){
+              ATH_MSG_DEBUG("Got a truth child with pt " << 0.001*childPt << " GeV");
+              continue;
+            }
+            ATH_MSG_VERBOSE("Have a truth W or Z child with pt " << 0.001*childPt
+                            << " GeV, eta " << truthWZChild->eta() << ", phi " << truthWZChild->phi()
+                            << ", pdgID " << truthWZChild->pdgId() << ", status " << truthWZChild->status());
+            const double dr2 = xAOD::P4Helpers::deltaR2( *truthWZChild, *bestTruthJet, true );
+            if ( dr2 < minDeltaR2 ) {
+              minDeltaR2 = dr2;
+              foundMatch = true;
+            }
+          }
+          // If we found a match
+          if ( foundMatch ){
+            truthOrigin = truthWZPart->pdgId() * ( isFromHiggs ? 25 : 1 );
+          }
+        } // End: loop over truth WZ bosons
+      } // End: best truth jet found
+      decTruthOrigin(*jet) = truthOrigin;
+    } // End: loop over EMTopo jets
+
+    // PFlow jets
+
+    // Open the input container
+    const xAOD::JetContainer *inPFlowJetCont(nullptr);
+    ATH_CHECK( evtStore()->retrieve( inPFlowJetCont, m_inPFlowJetContName ) );
+
+    for ( const xAOD::Jet* jet : *inPFlowJetCont ) {
+      // determine if there is a truth jet which best matches the reco jet
+      const xAOD::Jet* bestTruthJet = nullptr;
+      for ( const xAOD::Jet* truthJet : * truthJets ) {
+        const double dr2 = xAOD::P4Helpers::deltaR2( *jet, *truthJet, true );
+        if ( truthJet->pt() > m_truthJetPtMin ) {
+          if ( dr2 >= 0.0 && dr2 < maxDR2 ) {
+            bestTruthJet = truthJet;
+          }
+        }
+      } // End: loop over truth jets
+
+      // Now, try to figure out the truth origin
+      ATH_MSG_DEBUG("Now going to try to figure out the PFlow jet truth origin");
+      int truthOrigin = 0;
+      if (bestTruthJet) {
+        ATH_MSG_VERBOSE("Have a truth jet with pt " << 0.001*(bestTruthJet->pt())
+                        << ", eta " << bestTruthJet->eta() << ", phi " << bestTruthJet->phi());
+        const double maxDeltaRSquared = 0.6*0.6;
+        for ( std::size_t i=0; i < selectedTruthWZBosons.size(); ++i ) {
+          const xAOD::TruthParticle* truthWZPart = selectedTruthWZBosons.at(i);
+          if (!truthWZPart){
+            ATH_MSG_WARNING("Got a zero pointer to a truth particle... something went wrong");
+            continue;
+          }
+          const bool isFromHiggs = wzBosonIsFromHiggs.at(i);
+          // Iterate over the children and find the best deltaR match within DeltaR=0.6
+          double minDeltaR2 = maxDeltaRSquared;
+          bool foundMatch = false;
+          for ( std::size_t iChild=0; iChild < truthWZPart->nChildren(); ++iChild ) {
+            const xAOD::TruthParticle* truthWZChild = truthWZPart->child(iChild);
+            if (!truthWZChild) continue;
+            const int childAbsPdgId = std::abs(truthWZChild->pdgId());
+            if ( childAbsPdgId > 6 && childAbsPdgId != 21 ) continue; // we don't have a hadronic decay
+            const double childPt = truthWZChild->pt();
+            if ( childPt < 1000.0 ){
+              ATH_MSG_DEBUG("Got a truth child with pt " << 0.001*childPt << " GeV");
+              continue;
+            }
+            ATH_MSG_VERBOSE("Have a truth W or Z child with pt " << 0.001*childPt
+                            << " GeV, eta " << truthWZChild->eta() << ", phi " << truthWZChild->phi()
+                            << ", pdgID " << truthWZChild->pdgId() << ", status " << truthWZChild->status());
+            const double dr2 = xAOD::P4Helpers::deltaR2( *truthWZChild, *bestTruthJet, true );
+            if ( dr2 < minDeltaR2 ) {
+              minDeltaR2 = dr2;
+              foundMatch = true;
+            }
+          }
+          // If we found a match
+          if ( foundMatch ){
+            truthOrigin = truthWZPart->pdgId() * ( isFromHiggs ? 25 : 1 );
+          }
+        } // End: loop over truth WZ bosons
+      } // End: best truth jet found
+      decTruthOrigin(*jet) = truthOrigin;
+    } // End: loop over PFlow jets
+
+
+
+    //---------------------------------------//
+    // Official Vgamma/Vjet overlap removal  //
+    //---------------------------------------//
+
     bool in_vy_overlap;
     ATH_CHECK( m_GamORTool->inOverlap(in_vy_overlap) );
     eventInfo->auxdecor<char>("HIGG3DX_inVGammaOverlap") = static_cast<char>(in_vy_overlap);
@@ -1143,7 +1356,6 @@ namespace DerivationFramework {
     std::unique_ptr<std::vector<float> > photon_pts(new std::vector<float>());
     ATH_CHECK( m_GamORTool->photonPtsOutsideDr(*photon_pts.get()) );
     ATH_CHECK( evtStore()->record(std::move(photon_pts), "HIGG3DX_overlapPhoton_pTs") );
-
 
     return StatusCode::SUCCESS;
   } // end: addBranches() method
