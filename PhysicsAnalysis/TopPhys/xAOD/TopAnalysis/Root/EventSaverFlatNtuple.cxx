@@ -680,8 +680,6 @@ namespace top {
 	std::string ASMweights_Syst_branch_name = "ASM_weight_Syst";
 	std::string ASMweights_Systname_branch_name = "ASM_weight_Systname";
 	systematicTree->makeOutputVariable(m_ASMweights, ASMweights_branch_name);
-	// systematicTree->makeOutputVariable(m_ASMweights_Syst, ASMweights_Syst_branch_name);
-	// systematicTree->makeOutputVariable(m_ASMweights_Systname, ASMweights_Systname_branch_name);
 	m_ASMweights_Syst.resize(m_ASMsize);
 	m_ASMweights_Systname.resize(m_ASMsize);
 	for(int mmi=0; mmi<m_ASMsize; ++mmi) {
@@ -1907,14 +1905,6 @@ namespace top {
 	  m_ASMweights_Systname = event.m_info->auxdataConst<std::vector<std::vector<std::string> > >((decorName+"_Systname").c_str());
 	}
       }
-      else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
-	std::vector<float> dummyASMweight(m_ASMsize, 1.);
-	std::vector<std::vector<float> > dummyASMweight_Syst(m_ASMsize, std::vector<float>(1, 1.));
-	std::vector<std::vector<std::string> > dummyASMweight_Systname(m_ASMsize, std::vector<std::string>(1,""));
-	m_ASMweights      = dummyASMweight;
-	m_ASMweights_Syst = dummyASMweight_Syst;
-	m_ASMweights_Systname = dummyASMweight_Systname;
-      }     
     }
     
     //event info

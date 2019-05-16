@@ -29,7 +29,6 @@
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
 #include "FakeBkgTools/AsymptMatrixTool.h"
-//#include "FakeBkgTools/FakeBkgInternals.h"
 
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
 
@@ -844,7 +843,7 @@ int main(int argc, char** argv) {
 
 		    std::vector<float> asmWgt_var(topfakesMMWeightsIFF[mmi]->affectingSystematics().size());
 		    std::vector<std::string> asmWgt_varname(topfakesMMWeightsIFF[mmi]->affectingSystematics().size());
-		    for(auto& sysvar : topfakesMMWeightsIFF[mmi]->affectingSystematics()) {
+		    for(const auto& sysvar : topfakesMMWeightsIFF[mmi]->affectingSystematics()) {
 		      float mmweight_syst;
 		      top::check( topfakesMMWeightsIFF[mmi]->applySystematicVariation({sysvar}) , "Failed to execute fakes mmweight IFF applySystematicVariation()");
 		      top::check( topfakesMMWeightsIFF[mmi]->getEventWeight(mmweight_syst, FakesMMConfigIFF[mmi][1], FakesMMConfigIFF[mmi][2]) , "Failed to execute fakes mmweight IFF getEventWeight()");
