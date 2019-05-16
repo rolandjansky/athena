@@ -99,6 +99,10 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Muon_setOn()
 DetFlags.detdescr.ID_setOn()
 DetFlags.detdescr.Calo_setOn()
+
+# We're reading PRDs etc from ESD so tell the configuration this.
+DetFlags.readRIOPool.all_setOn()
+
 if hasattr(DetFlags,'BField_on'): DetFlags.detdescr.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
@@ -110,7 +114,6 @@ from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
 from TileGeoModel.TileGeoModelConf import TileDetectorTool
 
 ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
-
 
 import AthenaPoolCnvSvc.ReadAthenaPool  #Maybe better to break up to get rid of MetaData stuff
 
@@ -138,6 +141,8 @@ InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
 InDetNewTrackingCuts.printInfo()
 include ("InDetRecExample/InDetRecConditionsAccess.py")
 include ("InDetRecExample/InDetRecLoadTools.py")
+
+# ToolSvc.InDetBroadInDetRotCreator.OutputLevel=VERBOSE
 
 from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
 #MMyReFitTrack = Trk__ReFitTrack (name           = "MyRefitTrack",
@@ -170,6 +175,7 @@ print StreamESD.ItemList
 include ( "RecExRecoTest/RecExRecoTest_EgammaHiveRenames.py" )
 
 ServiceMgr.MessageSvc.enableSuppression = False
+ServiceMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 
 print "==========================================================================================\n"
 
