@@ -1,9 +1,9 @@
 #!/usr/bin/env python                                                                                         
 
-# art-description: DxAOD MC16d TOPQ1 FullSim 410470 Actual Mu Pileup Reweighting
+# art-description: DxAOD MC16d TOPQ1 AtlFast2 410470 using top-xaod-v2
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
-# art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_s3126_r10201_p3554.ART.v2
+# art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_a875_r10201_p3554.ART.v2
 # art-input-nfiles: 2
 # art-include: 21.2/AnalysisTop
 
@@ -15,7 +15,7 @@ import subprocess, sys, shlex, random, shutil, os
 os.system('art.py createpoolfile')
 
 # -- Settings --
-cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
+cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace("v2.py",".txt")
 
 try:  
    inputfilenames=os.environ["ArtInFile"]
@@ -49,7 +49,7 @@ print f.read()
 f.close()
 
 # -- Run top-xaod --
-cmd  = "top-xaod %s input.txt"%(cutfilename)
+cmd  = "top-xaod-v2 %s input.txt"%(cutfilename)
 proc = subprocess.Popen(shlex.split(cmd))
 proc.wait()
 
