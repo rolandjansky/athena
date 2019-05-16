@@ -176,7 +176,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MergeTruthJetsTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeTruthJetsTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InTimeOutputTruthJetCollKey', 'LastXing', 'OutOfTimeTruthJetCollKey']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InTimeOutputTruthJetCollKey', 'LastXing', 'OutOfTimeTruthJetCollKey', 'PileUpMergeSvc']
         expected_nonstring_properties = {'LastXing': '100', 'FirstXing': '-500'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -188,7 +188,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MergeMuonEntryLayerTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeMuonEntryLayerTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'TrackRecordCollKey', 'TrackRecordCollOutputKey']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUpMergeSvc', 'TrackRecordCollKey', 'TrackRecordCollOutputKey']
         expected_nonstring_properties = {'LastXing': '1', 'FirstXing': '-1'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -200,7 +200,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MergeCalibHitsTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MergeCalibHitsTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUpMergeSvc']
         expected_nonstring_properties = {'LastXing': '1', 'FirstXing': '-1'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -224,7 +224,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___SignalOnlyMcEventCollTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.SignalOnlyMcEventCollTool'
-        expected_property_list = ['KeepUnstable', 'SaveInTimeMinBias', 'AddBackgroundCollisionVertices', 'zRange', 'TruthCollInputKey', 'TruthCollOutputKey', 'OnlySaveSignalTruth', 'OutOfTimeAbsEtaMax', 'rRange', 'CompressOutputCollection', 'ExtraOutputs', 'AbsEtaMax', 'LastXing', 'SaveOutOfTimeMinBias', 'ExtraInputs', 'DetStore', 'SaveCavernBackground', 'FirstXing', 'SaveRestOfMinBias', 'EvtStore', 'HighTimeToKeep', 'LowTimeToKeep']
+        expected_property_list = ['KeepUnstable', 'SaveInTimeMinBias', 'AddBackgroundCollisionVertices', 'zRange', 'TruthCollInputKey', 'TruthCollOutputKey', 'OnlySaveSignalTruth', 'OutOfTimeAbsEtaMax', 'PileUpMergeSvc', 'rRange', 'CompressOutputCollection', 'ExtraOutputs', 'AbsEtaMax', 'LastXing', 'SaveOutOfTimeMinBias', 'ExtraInputs', 'DetStore', 'SaveCavernBackground', 'FirstXing', 'SaveRestOfMinBias', 'EvtStore', 'HighTimeToKeep', 'LowTimeToKeep']
         expected_nonstring_properties = {'KeepUnstable': 'False', 'SaveInTimeMinBias': 'True', 'AddBackgroundCollisionVertices': 'True', 'zRange': '200.0', 'OnlySaveSignalTruth': 'True', 'OutOfTimeAbsEtaMax': '3.0', 'rRange': '20.0', 'CompressOutputCollection': 'False', 'ExtraOutputs': '[]', 'AbsEtaMax': '5.0', 'LastXing': '0', 'SaveOutOfTimeMinBias': 'True', 'ExtraInputs': '[]', 'SaveCavernBackground': 'True', 'FirstXing': '0', 'SaveRestOfMinBias': 'False', 'HighTimeToKeep': '50.5', 'LowTimeToKeep': '-50.5'}
         expected_string_properties = {'TruthCollInputKey': 'TruthEvent', 'TruthCollOutputKey': 'TruthEvent'}
         self._detailed_ConfigurablePropertiesCheck(

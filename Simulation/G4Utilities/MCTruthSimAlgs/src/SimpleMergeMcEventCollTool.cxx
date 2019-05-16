@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleMergeMcEventCollTool.h"
@@ -13,7 +13,6 @@ SimpleMergeMcEventCollTool::SimpleMergeMcEventCollTool(const std::string& type,
                                                        const IInterface *parent) :
   PileUpToolBase(type, name, parent)
 {
-  declareProperty("TruthCollInputKey",   m_truthCollInputKey);
 }
 
 StatusCode SimpleMergeMcEventCollTool::initialize()
@@ -36,7 +35,7 @@ StatusCode SimpleMergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
   if (0 == m_nInputMcEventColls)
      {
       ATH_MSG_ERROR("prepareEvent: TimedTruthList with key "
-                    << m_truthCollInputKey.value() << " is empty");
+                    << m_truthCollInputKey << " is empty");
       return StatusCode::RECOVERABLE;
     }
   ATH_MSG_DEBUG( "prepareEvent: there are " << m_nInputMcEventColls << " subevents in this event.");
@@ -67,7 +66,7 @@ StatusCode SimpleMergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
     {
       StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       const McEventCollection *pMEC(nullptr);
-      ATH_CHECK(seStore.retrieve(pMEC, m_truthCollInputKey.value()));
+      ATH_CHECK(seStore.retrieve(pMEC, m_truthCollInputKey));
       ATH_MSG_DEBUG ("processBunchXing: SubEvt McEventCollection from StoreGate " << seStore.name() );
       ATH_CHECK(this->processEvent(pMEC, m_outputMcEventCollection.ptr()));
       ++iEvt;
@@ -97,7 +96,7 @@ StatusCode SimpleMergeMcEventCollTool::processAllSubEvents()
   //first get the list of McEventCollections
   typedef PileUpMergeSvc::TimedList<McEventCollection>::type TimedTruthList;
   TimedTruthList truthList;
-  ATH_CHECK(m_pMergeSvc->retrieveSubEvtsData(m_truthCollInputKey.value(), truthList));
+  ATH_CHECK(m_pMergeSvc->retrieveSubEvtsData(m_truthCollInputKey, truthList));
 
   m_nBkgEventsReadSoFar=0;
 
@@ -105,7 +104,7 @@ StatusCode SimpleMergeMcEventCollTool::processAllSubEvents()
   m_nInputMcEventColls=truthList.size();
   if (0 == m_nInputMcEventColls)
     {
-      ATH_MSG_ERROR("TimedTruthList with key " << m_truthCollInputKey.value() << " is empty.");
+      ATH_MSG_ERROR("TimedTruthList with key " << m_truthCollInputKey << " is empty.");
       return StatusCode::RECOVERABLE;
     }
 
