@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -31,11 +31,11 @@ void SimpleView::linkParent( const IProxyDict* parent ) {
  * Find an exact match; no handling of aliases, etc.
  * Returns 0 to flag failure.
  */
-SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
+SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t /*sgkey*/ ) const
 {
-  cout << "Not implemented: SimpleView::proxy_exact" << endl;
+  //cout << "Not implemented: SimpleView::proxy_exact" << endl;
   //TODO - view rename
-  return m_store->proxy_exact( sgkey );
+  return nullptr;
 }
 
 
