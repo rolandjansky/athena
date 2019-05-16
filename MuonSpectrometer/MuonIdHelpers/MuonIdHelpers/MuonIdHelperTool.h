@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONIDHELPERTOOL_H
@@ -167,6 +167,7 @@ namespace Muon {
     const MdtIdHelper*                  m_mdtIdHelper;
     const MmIdHelper*                   m_mmIdHelper;
     const sTgcIdHelper*                 m_stgcIdHelper;
+    bool                                m_useCSC;
 
     struct StationNameData {
       std::string stationName;
