@@ -113,7 +113,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
   bool ZVE = false;
   if (m_useZvertexTool) {
-    std::list<Trk::Vertex> vertices = std::move(m_zvertexmaker->newEvent());
+    std::list<Trk::Vertex> vertices = m_zvertexmaker->newEvent();
     if (not vertices.empty()) ZVE = true;
     m_seedsmaker->find3Sp(vertices);
   } else {
