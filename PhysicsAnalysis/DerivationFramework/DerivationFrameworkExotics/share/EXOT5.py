@@ -28,6 +28,9 @@ file_name = buildFileName(derivationFlags.WriteDAOD_EXOT5Stream)
 EXOT5Stream = MSMgr.NewPoolRootStream(stream_name, file_name)
 EXOT5Stream.AcceptAlgs(['EXOT5Kernel'])
 
+# add output stream for histograms
+jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:output.root"]
+
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT5ThinningHelper = ThinningHelper('EXOT5ThinningHelper')
 thinningTools = []
@@ -241,6 +244,9 @@ if DerivationFrameworkIsMonteCarlo:
         particleIDsToDress    = [13])
     ToolSvc += EXOT5TruthMuonDressingTool
     augmentationTools.append(EXOT5TruthMuonDressingTool)
+
+    # Truth jets
+    #addAntiKt4TruthJets(exot5Seq,"EXOT5")
 
 #====================================================================
 # SKIMMING TOOLS
@@ -526,7 +532,6 @@ else:
 
 # BC ID info
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BCDistanceAugmentationTool
-
 EXOT5BCDistanceAugmentationTool = DerivationFramework__BCDistanceAugmentationTool(name="EXOT5BCDistanceAugmentationTool")
 
 if isMC:
@@ -537,6 +542,11 @@ ToolSvc += EXOT5BCDistanceAugmentationTool
 
 augmentationTools.append(EXOT5BCDistanceAugmentationTool)
 
+# add filtering information
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCTool
+EXOT5MergeMCTool = DerivationFramework__MergeMCTool(name="EXOT5MergeMCTool")
+exot5Seq += EXOT5MergeMCTool 
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
@@ -546,10 +556,8 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
-#addJetPtAssociation(jetalg="AntiKt4EMTopo",truthjetalg="AntiKt4TruthJets",sequence=exot5Seq,algname="JetPtAssociationToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') #truthjetalg="AntiKt4TruthJets"
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolPFAlg",truthjetalg='AntiKt4TruthJets') 
 
 #========================================
 # Add the containers to the output stream
