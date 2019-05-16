@@ -153,9 +153,9 @@ namespace Muon {
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonLayerHoughTool; }
 
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     MuonPatternCombinationCollection* analyse( const MdtPrepDataContainer*  mdtCont,  
 					       const CscPrepDataContainer*  cscCols,  
@@ -165,11 +165,11 @@ namespace Muon {
 					       const MMPrepDataContainer*  mmCont ) const;
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
-    MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+    virtual MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
 					    const std::vector<const CscPrepDataCollection*>& cscCols,  
 					    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 					    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-					    const MuonSegmentCombinationCollection* ) const;
+					    const MuonSegmentCombinationCollection* ) const override;
     void reset() const;
 
     void getSectors( const Amg::Vector3D& pos, std::vector<int>& sectors ) const;
@@ -182,17 +182,28 @@ namespace Muon {
 
     int sublay( const Identifier& id, float z = 0 ) const; // the z value is only used for the tgcs
 
-    const MuonHough::MuonDetectorHough& houghTransforms() const { return m_detectorHoughTransforms; }
-    const HoughDataPerSectorVec&        houghData() const { return m_houghDataPerSectorVec; }
+    //const MuonHough::MuonDetectorHough& houghTransforms() const { return m_detectorHoughTransforms; }
+    //const HoughDataPerSectorVec&        houghData() const { return m_houghDataPerSectorVec; }
 
     /**  incident service handle for EndEvent */
-    void handle(const Incident& inc);// maybe in the future clear per event
+    virtual void handle(const Incident& inc) override;// maybe in the future clear per event
 
   private:
 
-    MuonPatternCombinationCollection* analyse() const;
+    struct State {
+      MaximumVec seedMaxima;
+      MuonHough::MuonDetectorHough detectorHoughTransforms;
+      HoughDataPerSectorVec houghDataPerSectorVec;
+      std::set<Identifier> truthHits;
+      std::set<Identifier> foundTruthHits;
+      std::set<Identifier> outputTruthHits;
+      std::vector<TgcHitClusteringObj*> tgcClusteringObjs;
+    };
+  
+    MuonPatternCombinationCollection* analyse(State& state) const;
 
-    void fillHitsPerSector(  const CollectionsPerSector& hashes,
+    void fillHitsPerSector(  State& state, 
+           const CollectionsPerSector& hashes,
 			     const MdtPrepDataContainer*  mdtCont,  
 			     const CscPrepDataContainer*  /*cscCont*/,  
 			     const TgcPrepDataContainer*  tgcCont,  
@@ -201,16 +212,18 @@ namespace Muon {
 			     const MMPrepDataContainer*   mmCont,
 			     HoughDataPerSector& houghData ) const;
 
-    void fill( const MdtPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
-    void fill( const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
-    void fill( const MMPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( State& state, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( State& state, const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( State& state, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
+    void fill( State& state, const MMPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( State& state, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
 
-    bool findMaxima( MuonHough::MuonLayerHough& hough,
+    bool findMaxima( State& state, 
+         MuonHough::MuonLayerHough& hough,
 		     HitVec& hits, 
 		     MaximumVec& maxima ) const ;
-    bool findMaxima( MuonHough::MuonPhiLayerHough& hough,
+    bool findMaxima( State& state,
+         MuonHough::MuonPhiLayerHough& hough,
 		     PhiHitVec& hits, 
 		     PhiMaximumVec& maxima,
 		     int sector ) const;
@@ -222,7 +235,7 @@ namespace Muon {
 
     void associateMaximaInNeighbouringSectors( HoughDataPerSector& houghData, std::vector<HoughDataPerSector>& houghDataPerSectorVec ) const;
 
-    void extendSeed( Road& road, HoughDataPerSector& sectorData ) const; // const;
+    void extendSeed(State& state, Road& road, HoughDataPerSector& sectorData ) const; // const;
     void associatePhiMaxima( Road& road, PhiMaximumVec& phiMaxima ) const;
 
     double combinedPeakheight( double ph,  double ph1,  double ph2, double phn, double rot, int layer, int /*region*/ ) const;
@@ -231,7 +244,7 @@ namespace Muon {
     void createPatternCombinations( std::vector< MaximumVec >& maxima,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
-    void createPatternCombinations( std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
+    void createPatternCombinations(State& state, std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
     void fillNtuple( HoughDataPerSectorVec& houghDataPerSectorVec ) const;
@@ -239,23 +252,19 @@ namespace Muon {
     void insertHash( const IdentifierHash& hash, const Identifier& id );
     void insertHash( int sector, const IdentifierHash& hash, const Identifier& id );
 
-    void matchTruth( const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
+    void matchTruth( State& state, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
     void initializeSectorMapping();
     void getTruth() const;
     void printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const;
 
-    void buildRoads( std::vector<Road>& roads ) const;
+    void buildRoads(State& state, std::vector<Road>& roads ) const;
     void mergePhiMaxima( Road& road ) const;
 
-    mutable MaximumVec m_seedMaxima;
     bool m_useSeeds;
-
-    mutable MuonHough::MuonDetectorHough m_detectorHoughTransforms;
-    mutable HoughDataPerSectorVec        m_houghDataPerSectorVec;
 
     ToolHandle<MuonIdHelperTool> m_idHelper;
     ToolHandle<MuonEDMPrinterTool> m_printer;
-    mutable ToolHandle<Muon::IMuonTruthSummaryTool>         m_truthSummaryTool;
+    mutable ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
 
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
@@ -268,10 +277,6 @@ namespace Muon {
     SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames; 
     SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey;
     SG::ReadHandleKey<xAOD::MuonSegmentContainer>       m_MuonTruthSegmentsKey;
-
-    mutable std::set<Identifier>            m_truthHits;
-    mutable std::set<Identifier>            m_foundTruthHits;
-    mutable std::set<Identifier>            m_outputTruthHits;
     
     bool m_useRpcTimeVeto;
     bool m_requireTriggerConfirmationNSW;
@@ -284,7 +289,6 @@ namespace Muon {
 
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
-    mutable std::vector<TgcHitClusteringObj*> m_tgcClusteringObjs;
 
     ServiceHandle< IIncidentSvc >  m_incidentSvc;
     MuonSectorMapping              m_sectorMapping;
