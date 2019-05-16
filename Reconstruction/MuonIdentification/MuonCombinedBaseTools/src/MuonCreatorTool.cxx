@@ -394,6 +394,22 @@ namespace MuonCombined {
       return 0;
     }
 
+    //make sure we can extrapolate the track back through the calo, otherwise it's not a muon
+    //shouldn't above requirement that an extrapolated track exist do this, though?
+    //difference between different ways of extrapolating probably needs to be investigated
+    //the muons that are rejected by this all seem to be useless low-pT SA muons with 2 precision layers that would never make it into analyses, though
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(**muon->extrapolatedMuonSpectrometerTrackParticleLink());
+    if(!caloExtension){
+      ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
+    if( caloExtension->caloLayerIntersections().empty()){
+      ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
+
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
     if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
