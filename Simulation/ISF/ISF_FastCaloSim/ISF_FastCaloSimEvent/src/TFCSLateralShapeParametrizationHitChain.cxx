@@ -62,7 +62,8 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
   }
 
   int ihit=0;
-  TFCSLateralShapeParametrizationHitBase::Hit hit; 
+  TFCSLateralShapeParametrizationHitBase::Hit hit;
+  hit.reset_center();
   do {
     hit.reset();
     hit.E()=Ehit;

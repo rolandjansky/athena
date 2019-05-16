@@ -41,16 +41,19 @@ public:
       m_useXYZ=true;
     }
 
+    inline void reset_center(){
+      m_center_r=0;
+      m_center_z=0;
+      m_center_eta=0;
+      m_center_phi=0;
+    }
+
     inline void reset(){
       m_eta_x=0.;
       m_phi_y=0.;
       m_z=0.;
       m_E=0.;
       m_useXYZ=false;
-      m_center_r=0;
-      m_center_z=0;
-      m_center_eta=0;
-      m_center_phi=0;
     }
 
     inline float& eta() {return m_eta_x;};
