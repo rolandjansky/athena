@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -69,12 +69,6 @@ namespace { // utility functions used here
   inline float
   safelyGetEta(const T& pTrk, const float safePtThreshold = 0.1) {
     return (pTrk->pt() > safePtThreshold) ? (pTrk->eta()) : std::nan("");
-  }
-
-  // Convert to GeV from the default MeV
-  constexpr float
-  operator "" _GeV (long double energy) {
-    return energy * 0.001;
   }
 
   constexpr float
@@ -184,7 +178,7 @@ InDetPhysValMonitoringTool::initialize() {
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
-  m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
+  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder);
   m_monPlots->SetFillExtraTIDEPlots(m_fillExtraTIDEPlots);
 
   ATH_CHECK( m_trkParticleName.initialize() );
