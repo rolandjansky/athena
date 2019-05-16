@@ -735,8 +735,6 @@ void FTKClusteringEngine::realisticPixelDecoder(hitVector &currentHits)
     std::stack<std::unique_ptr<FTKRawHit>> lifo;
     std::queue<std::unique_ptr<FTKRawHit>> fifo;
     bool getIsIBL = hitOnIBLmodule(*currentHits.front());
-    if (getIsIBL)
-        std::cout << "yep, ibl module" << std::endl;
 
     if(!getIsIBL) {
         if (currentHits.size() > 1)
