@@ -120,7 +120,7 @@ atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfi
               )
 
 atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
-                PROPERTIES TIMEOUT 1000 
+                PROPERTIES TIMEOUT 4000 
               )
 
 #----------------------------------
