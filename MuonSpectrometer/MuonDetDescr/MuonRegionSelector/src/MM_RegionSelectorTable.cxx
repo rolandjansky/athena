@@ -117,6 +117,7 @@ StatusCode MM_RegionSelectorTable::createTable() {
       p_IdHelper->get_hash( Id, hashId, &ModuleContext );
 
       const MuonGM::MMReadoutElement* mm = p_MuonMgr->getMMReadoutElement(Id);
+      if (!mm) continue;
 
       int multilayer = p_IdHelper->multilayer(Id);
 
