@@ -52,16 +52,18 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
 
   from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-  CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
-                                                ProviderTool = MuonCscRawDataProviderTool )
+  CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
+                                                ProviderTool = MuonCscRawDataProviderTool,
+                                                DoSeededDecoding        = not forFullScan,
+                                                RoIs                    = "MURoIs")
 
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-  CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThesholdClusterBuilderTool" )
+  CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThresholdClusterBuilderTool" )
   ToolSvc += CscClusterBuilderTool
 
   #CSC cluster building
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-  CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
+  CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
                                                  cluster_builder = CscClusterBuilderTool)
 
   eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
@@ -214,48 +216,35 @@ def muFastRecoSequence( RoIs ):
       TgcRawDataProviderAlg = alg
     if 'TgcRdoToTgc' in alg.name():
       TgcRdoToPrdAlg = alg
+    if 'CscRawData' in alg.name():
+      CscRawDataProviderAlg = alg
+    if 'CscRdoToCsc' in alg.name():
+      CscRdoToPrdAlg = alg
+    if 'CscThresholdClusterBuilder' in alg.name():
+      CscClusterAlg = alg
 
   # Schedule BS->RDO only if needed (not needed on MC RDO files)
   if DetFlags.readRDOBS.MDT_on():
     muFastRecoSequence += MdtRawDataProviderAlg
+  if DetFlags.readRDOBS.TGC_on():
     muFastRecoSequence += TgcRawDataProviderAlg
+  if DetFlags.readRDOBS.CSC_on():
+    muFastRecoSequence += CscRawDataProviderAlg
   # Always need RDO->PRD
   muFastRecoSequence += MdtRdoToPrdAlg
   muFastRecoSequence += TgcRdoToPrdAlg
+  muFastRecoSequence += CscRdoToPrdAlg
+  # and Csc clustering alg
+  muFastRecoSequence += CscClusterAlg
 
-  ### These configurations for decoding tools should be removed. ###
-  ### CSC RDO data ###
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
-  CSCRodDecoder = Muon__CscROD_Decoder(name		= "CscROD_Decoder_L2SA",
-                                       IsCosmics	= False,
-                                       IsOldCosmics 	= False)
-  ToolSvc += CSCRodDecoder
-
-
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "CSC_RawDataProviderTool_L2SA",
-                                                             RdoLocation = "CSCRDO_L2SA",
-                                                             Decoder     = CSCRodDecoder)
-  ToolSvc += MuonCscRawDataProviderTool
-
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool_L2SA",
-                                                          RDOContainer        = MuonCscRawDataProviderTool.RdoLocation,
-                                                          OutputCollection    = "CSC_Measurements_L2SA")
-  ToolSvc += CscRdoToCscPrepDataTool
-
-
-  from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-  CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThesholdClusterBuilderTool_L2SA",
-                                                         digit_key   = CscRdoToCscPrepDataTool.OutputCollection,
-                                                         cluster_key = "CSC_Clusters_L2SA")
-  ToolSvc += CscClusterBuilderTool
-
+  # Configure the L2 CSC data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(CscRawDataProvider   = MuonCscRawDataProviderTool,
-                                                        CscPrepDataProvider  = CscRdoToCscPrepDataTool,
-                                                        CscClusterProvider   = CscClusterBuilderTool,
-                                                        CSCPrepDataContainer = CscClusterBuilderTool.cluster_key)
+  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator",
+                                                        DecodeBS = False,
+                                                        DoDecoding = False,
+                                                        CscRawDataProvider   = "",
+                                                        CscPrepDataProvider  = "",
+                                                        CscClusterProvider   = "")
   ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
@@ -424,13 +413,16 @@ def muEFSARecoSequence( RoIs, name ):
   if name != 'FS':
     # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT and TGC PRDs to be available
     efAlgs.append( CfgMgr.AthViews__ViewDataVerifier(name = "EFMuonViewDataVerifier",
-                                                     DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                                                    ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )])
+                                                     DataObjects = [( 'Muon::MdtPrepDataContainer'      , 'StoreGateSvc+MDT_DriftCircles' ),
+                                                                    ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
+                                                                    ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements'),
+                                                                    ( 'Muon::CscPrepDataContainer'      , 'StoreGateSvc+CSC_Clusters') ] )
+
                  )
   for viewAlg_MuonPRD in viewAlgs_MuonPRD:
-    # we now try to share the MDT and TGC data preparation algorithms with L2, so only add those if we are running full-scane
+    # we now try to share the MDT, CSC and TGC data preparation algorithms with L2, so only add those if we are running full-scane
     # this is slightly ugly, should be improved in new JO setup
-    if ('Mdt' not in viewAlg_MuonPRD.name() and 'Tgc' not in  viewAlg_MuonPRD.name()) or name == 'FS':
+    if ('Mdt' not in viewAlg_MuonPRD.name() and 'Tgc' not in  viewAlg_MuonPRD.name() and 'Csc' not in viewAlg_MuonPRD.name()) or name == 'FS':
       efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
