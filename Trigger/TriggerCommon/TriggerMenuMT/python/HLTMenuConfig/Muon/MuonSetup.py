@@ -3,6 +3,7 @@
 #
 
 from AthenaCommon.Logging import logging
+from AthenaCommon.GlobalFlags import globalflags
 log = logging.getLogger('MuonSetup')
 
 ### Output data name ###
@@ -65,7 +66,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                                  cluster_builder = CscClusterBuilderTool)
 
   eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
-  viewAlgs_MuonPRD.append( CscRawDataProvider )
+  if globalflags.InputFormat.is_bytestream():
+    viewAlgs_MuonPRD.append( CscRawDataProvider )
   viewAlgs_MuonPRD.append( CscRdoToCscPrepData )
   viewAlgs_MuonPRD.append( CscClusterBuilder )
 
@@ -101,7 +103,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                                 )
 
   eventAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
-  viewAlgs_MuonPRD.append( MdtRawDataProvider )
+  if globalflags.InputFormat.is_bytestream():
+    viewAlgs_MuonPRD.append( MdtRawDataProvider )
   viewAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
 
 
@@ -133,9 +136,10 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                                 DoSeededDecoding = not forFullScan,
                                                 RoIs = "MURoIs")
 
-  eventAlgs_MuonPRD.append( RpcRawDataProvider )
+  if globalflags.InputFormat.is_bytestream():
+    eventAlgs_MuonPRD.append( RpcRawDataProvider )
+    viewAlgs_MuonPRD.append( RpcRawDataProvider )
   eventAlgs_MuonPRD.append( RpcRdoToRpcPrepData )
-  viewAlgs_MuonPRD.append( RpcRawDataProvider )
   viewAlgs_MuonPRD.append( RpcRdoToRpcPrepData )
 
 
@@ -166,9 +170,10 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                                 DoSeededDecoding = not forFullScan,
                                                 RoIs             = "MURoIs" )
 
-  eventAlgs_MuonPRD.append( TgcRawDataProvider )
+  if globalflags.InputFormat.is_bytestream():
+    eventAlgs_MuonPRD.append( TgcRawDataProvider )
+    viewAlgs_MuonPRD.append( TgcRawDataProvider )
   eventAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
-  viewAlgs_MuonPRD.append( TgcRawDataProvider )
   viewAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -572,10 +577,12 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
-                                 ( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
                                  ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
-                                 ( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
+
+    if globalflags.InputFormat.is_bytestream():
+      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                    ( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
     muEFCBRecoSequence += ViewVerifyTrk
 
 
