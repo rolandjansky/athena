@@ -171,20 +171,6 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
     ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey) );	
-    int qflag(0);
-    if (m_muonIDKey == "VeryLoose") {
-      qflag = xAOD::Muon::VeryLoose;
-    } else if (m_muonIDKey == "Loose") {
-      qflag = xAOD::Muon::Loose;
-    } else if (m_muonIDKey == "Medium") {
-      qflag = xAOD::Muon::Medium;
-    } else if (m_muonIDKey == "Tight") {
-      qflag = xAOD::Muon::Tight;
-    } else {
-      ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKey << ". Use Medium instead.");
-      qflag = xAOD::Muon::Medium;
-    }
-
     for (auto muon: *muons) {
       if( !m_muonSelectionTool->passedMuonCuts(*muon) ) continue;
       if( muon->muonType() != xAOD::Muon::Combined    ) continue;
@@ -217,7 +203,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     const xAOD::VertexContainer* vertices(0);
     ATH_CHECK( evtStore()->retrieve(vertices, "PrimaryVertices") );
     const xAOD::Vertex* pv = 0;
-    for( auto v: *vertices ){
+    for( const auto& v: *vertices ){
       if( v->vertexType() == xAOD::VxType::PriVtx ){
         pv = v;
         break;
@@ -229,7 +215,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
 
     bool passIsolatedTracklet = false;
-    for(auto Tracklet : *pixelTrackletContainer){
+    for(const auto& Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
 	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
@@ -288,7 +274,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
       ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles") );
       
-      for(auto StdTrack : *standardTrackContainer){
+      for(const auto& StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)
 	  continue;
 
