@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AthenaPool_jobOptions.py
 ## @brief Core job options file for AthenaPOOL to setup the basic sercives.
@@ -26,7 +26,8 @@ def _loadBasicAthenaPool():
     msg = logging.getLogger( 'loadBasicAthenaPool' )
     msg.debug( "Loading basic services for AthenaPool..." )
 
-    svcMgr += CfgMgr.PoolSvc()
+    if not hasattr (svcMgr, 'PoolSvc'):
+        svcMgr += CfgMgr.PoolSvc()
     svcMgr.PoolSvc.MaxFilesOpen = 0
     #if in AthAnalysisBase, we will set the outputlevel of PoolSvc to ERROR, to silence warnings about missing reflex types
     #detect AthAnalysisBase by looking at the CMTEXTRATAGS env var, if it contains 'ManaCore' then we are in AthAnalysisBase
