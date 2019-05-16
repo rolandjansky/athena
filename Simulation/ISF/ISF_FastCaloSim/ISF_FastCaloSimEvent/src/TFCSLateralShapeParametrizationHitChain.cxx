@@ -92,6 +92,10 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     }
     sumEhit+=hit.E();
     ++ihit;
+    if(ihit>10*nhit) {
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): aborting hit chain, iterated " << 10*nhit << " times, expected " << nhit<<" times. Deposited E("<<calosample()<<")="<<sumEhit);
+      break;
+    }  
   } while (sumEhit<Elayer);
 
   return FCSSuccess;
