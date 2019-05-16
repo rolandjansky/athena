@@ -18,6 +18,7 @@
 #include "ISF_FastCaloSimEvent/TFCS2DFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h"
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h"
