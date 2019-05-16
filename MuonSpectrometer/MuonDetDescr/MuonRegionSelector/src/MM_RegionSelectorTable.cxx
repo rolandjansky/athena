@@ -1,14 +1,6 @@
-//
-//   @file    MM_RegionSelectorTable.cxx         
-//   
-//
-//                   
-// 
-//   Copyright (x1C) 2007 M.Sutton (sutt@cern.ch)    
-//
-//   $Id: MM_RegionSelectorTable.cxx, v0.0   Tue  4 Aug 2009 16:38:38 BST sutt $
-
-
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "MuonRegionSelector/MM_RegionSelectorTable.h"
 #include "CLHEP/Units/SystemOfUnits.h"
