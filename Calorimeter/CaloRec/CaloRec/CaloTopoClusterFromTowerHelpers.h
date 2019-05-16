@@ -264,7 +264,7 @@ inline CaloSampling::CaloSample CaloRec::Lookup::getSamplingId(const std::string
 inline bool               CaloRec::Lookup::haveMomentType(const std::string& momentName) { return clusterMomentTypes.find(momentName) != clusterMomentTypes.end(); }
 inline const std::string& CaloRec::Lookup::getMomentName(xAOD::CaloCluster::MomentType momentType) { return clusterMomentNames.at(momentType); }
 inline bool               CaloRec::Lookup::getMomentType(const std::string& momentName,xAOD::CaloCluster::MomentType& momentType) {
-  xAOD::CaloCluster::MomentType mtype; bool isOk(haveMomentType(momentName)); if ( isOk ) { momentType = clusterMomentTypes.at(momentName); } return isOk;
+  bool isOk(haveMomentType(momentName)); if ( isOk ) { momentType = clusterMomentTypes.at(momentName); } return isOk;
 }
 
  
