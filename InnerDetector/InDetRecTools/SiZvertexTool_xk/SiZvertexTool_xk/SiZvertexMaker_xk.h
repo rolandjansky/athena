@@ -61,12 +61,12 @@ namespace InDet {
     // Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
 
-    virtual std::list<Trk::Vertex> newEvent();
+    virtual std::list<Trk::Vertex> newEvent() const;
     virtual std::list<Trk::Vertex> newRegion(const std::vector<IdentifierHash>&,
-                                             const std::vector<IdentifierHash>&);
+                                             const std::vector<IdentifierHash>&) const;
     virtual std::list<Trk::Vertex> newRegion(const std::vector<IdentifierHash>&,
                                              const std::vector<IdentifierHash>&,
-                                             const IRoiDescriptor&);
+                                             const IRoiDescriptor&) const;
 
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
@@ -95,7 +95,7 @@ namespace InDet {
     // Protected methods
     ///////////////////////////////////////////////////////////////////
 
-    std::list<Trk::Vertex> production();
+    std::list<Trk::Vertex> production() const;
     MsgStream& dumpConditions(MsgStream& out) const;
   };
   MsgStream&    operator << (MsgStream&   , const SiZvertexMaker_xk&);

@@ -44,7 +44,7 @@ namespace Trk {
 namespace InDet {
 
   class SiSpacePointsSeedMaker_LowMomentum : 
-    virtual public ISiSpacePointsSeedMaker, public AthAlgTool
+    public extends<AthAlgTool, ISiSpacePointsSeedMaker>
   {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -66,24 +66,24 @@ namespace InDet {
     // Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
 
-    virtual void newEvent(int iteration);
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT);
-    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& IRD);
+    virtual void newEvent(int iteration) const;
+    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const;
+    virtual void newRegion(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor& iRD) const;
        
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with two space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find2Sp(const std::list<Trk::Vertex>& lv);
+    virtual void find2Sp(const std::list<Trk::Vertex>& lv) const;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
     // with three space points with or without vertex constraint
     ///////////////////////////////////////////////////////////////////
 
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv);
-    virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* ZVertex);
+    virtual void find3Sp(const std::list<Trk::Vertex>& lv) const;
+    virtual void find3Sp(const std::list<Trk::Vertex>& lv, const double* zVertex) const;
 
     ///////////////////////////////////////////////////////////////////
     // Methods to initilize different strategies of seeds production
@@ -91,14 +91,14 @@ namespace InDet {
     // Variable means (2,3,4,....) any number space points
     ///////////////////////////////////////////////////////////////////
  
-    virtual void findVSp(const std::list<Trk::Vertex>& lv);
+    virtual void findVSp(const std::list<Trk::Vertex>& lv) const;
       
     ///////////////////////////////////////////////////////////////////
     // Iterator through seeds pseudo collection produced accordingly
     // methods find    
     ///////////////////////////////////////////////////////////////////
       
-    virtual const SiSpacePointsSeed* next();
+    virtual const SiSpacePointsSeed* next() const;
       
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status

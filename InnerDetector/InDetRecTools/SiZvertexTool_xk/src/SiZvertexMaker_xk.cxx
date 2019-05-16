@@ -57,7 +57,7 @@ StatusCode InDet::SiZvertexMaker_xk::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent()
+std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent() const
 {
   m_seedsgenerator->newEvent();
   return production();
@@ -68,7 +68,7 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent()
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
+(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   m_seedsgenerator->newRegion(vPixel, vSCT);
   return production();
@@ -79,7 +79,7 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,const IRoiDescriptor& PhEt)
+(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,const IRoiDescriptor& PhEt) const
 {
   m_seedsgenerator->newRegion(vPixel, vSCT, PhEt);
   return production();
@@ -89,7 +89,7 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
 // Get list vertices Z-coordinates
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production()
+std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production() const
 {
   std::list<Trk::Vertex> vertices;
 
