@@ -30,6 +30,8 @@
 //#include "TrigT1RPCmonitoring/TrigEfficiency.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
 
 #define DEFAULT_L1MuctpiStoreLocationRPC "L1MuctpiStoreRPC"
 
@@ -88,6 +90,8 @@ private:
   ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
   const IRPCcablingSvc*                m_cabling;
 
+  SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RPCDigitContainer", "RPC_DIGITS", "RPC Digit Input Container"};
+  SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", DEFAULT_L1MuctpiStoreLocationRPC, "Location of muctip for Rpc"};
 };
 
 

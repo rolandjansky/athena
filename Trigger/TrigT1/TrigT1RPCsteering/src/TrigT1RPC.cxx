@@ -100,6 +100,8 @@ StatusCode TrigT1RPC::initialize(){
     CHECK(m_cabling_getter.retrieve());
     CHECK(m_cabling_getter->giveCabling(m_cabling));
     
+    ATH_CHECK(m_rpcDigitKey.initialize());
+    ATH_CHECK(m_muctpiKey.initialize());
     
   return StatusCode::SUCCESS;
 }
@@ -165,8 +167,10 @@ StatusCode TrigT1RPC::execute() {
   ////////////////////////////////////////////////////////////////////////
 
   ///// Access the SL word and fill the MuCTPInterface ///////////////////
-  LVL1MUONIF::Lvl1MuCTPIInput * ctpiInRPC =                             //
-                                    new LVL1MUONIF::Lvl1MuCTPIInput;    //
+  SG::WriteHandle<LVL1MUONIF::Lvl1MuCTPIInput> wh_muctpiRpc(m_muctpiKey);
+  ATH_CHECK(wh_muctpiRpc.record(std::make_unique<LVL1MUONIF::Lvl1MuCTPIInput>()));
+
+  LVL1MUONIF::Lvl1MuCTPIInput * ctpiInRPC = wh_muctpiRpc.ptr();         //
                                                                         //
   SLdata::PatternsList sectors_patterns = sectors.give_patterns();      //
   SLdata::PatternsList::iterator SLit = sectors_patterns.begin();       //
@@ -195,9 +199,10 @@ StatusCode TrigT1RPC::execute() {
       }
                                                                         //
       ++SLit;                                                           //
-  }                                                                     //
+  }          
+
+                                                           //
                                                                         //
-  CHECK(evtStore()->record(ctpiInRPC,DEFAULT_L1MuctpiStoreLocationRPC));  //
   
   ATH_MSG_DEBUG ("put RPC Lvl1MuCTPIInput into SG" ); //
   
@@ -312,9 +317,12 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
     typedef RpcDigitContainer::const_iterator collection_iterator;
     typedef RpcDigitCollection::const_iterator digit_iterator;
 
-    string key = "RPC_DIGITS";
-    const DataHandle <RpcDigitContainer> container;
-    CHECK(evtStore()->retrieve(container,key));
+    SG::ReadHandle<RpcDigitContainer> rh_rpcDigits(m_rpcDigitKey);
+    if(!rh_rpcDigits.isValid()){
+      ATH_MSG_WARNING("No RPC digits container found");
+      return StatusCode::SUCCESS;
+    }
+    const RpcDigitContainer* container = rh_rpcDigits.cptr();
 
 
     collection_iterator it1_coll= container->begin(); 
