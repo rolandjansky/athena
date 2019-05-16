@@ -106,8 +106,7 @@ namespace xAODMaker {
       // Set new link as a decoration of the new GSF track particle
       if(newLink.isValid()){
         newLink.toPersistent();
-        xAOD::TrackParticle* gsfTrack = const_cast<xAOD::TrackParticle*> (*xaod);
-        gsfTrack->auxdata< ElementLink< xAOD::TrackParticleContainer > >( "originalTrackParticle" ) = newLink;
+        (*xaod)->auxdecor< ElementLink< xAOD::TrackParticleContainer > >( "originalTrackParticle" ) = newLink;
       }
     }
 
