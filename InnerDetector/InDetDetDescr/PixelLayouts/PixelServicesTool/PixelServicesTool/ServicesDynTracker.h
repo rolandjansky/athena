@@ -10,16 +10,12 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServiceDynMaterial.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include <vector>
-#include <map>
-#include <string>
-
-#include "PixelServicesTool/DetTypeDyn.h"
 #include "PixelServicesTool/ServiceDynVolume.h"
 #include "PixelServicesTool/ServicesDynLayer.h"
 
-//class ServiceDynVolume;
-//class ServicesDynLayer;
+#include <vector>
+#include <map>
+#include <string>
 
 class ServicesDynTracker : public PixelGeoBuilder {
 public:

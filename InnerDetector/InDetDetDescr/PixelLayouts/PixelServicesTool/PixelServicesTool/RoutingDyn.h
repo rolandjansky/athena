@@ -6,9 +6,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "PixelServicesTool/DetTypeDyn.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "PixelServicesTool/ServicesDynTracker.h"
+
 #include <vector>
 
-class ServicesDynTracker;
+class SvcRoute;
 class VSvcRoute;
 class HSvcRoute;
 class ServiceDynVolume;
