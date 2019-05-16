@@ -552,6 +552,7 @@ else:
                                                            InDetNewTrackingCutsLowPtEWW,
                                                            TrackCollectionKeys,
                                                            TrackCollectionTruthKeys)
+      
       #
       # --- do the TRT pattern
       #
@@ -562,8 +563,6 @@ else:
                                                                  InDetKeys.ExtendedTracksMapLowPtEWW(),
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
-      # --- add into list for combination
-      InputCombinedInDetTracks += [ InDetLowPtEWWTRTExtension.ForwardTrackCollection() ]
 
     # ------------------------------------------------------------
     #
@@ -1247,6 +1246,33 @@ else:
 
        if (InDetFlags.doPrintConfigurables()):
          print TrkTrackCollectionMerger_pixThreeLayer
+
+      # Dummy Merger to fill additional info for all LowPtEWW tracks
+      if InDetFlags.doLowPtEWW():
+       DummyCollectionLowPtRoI = []
+       DummyCollectionLowPtRoI += [ InDetKeys.ExtendedLowPtEWWTracks()]
+       TrkTrackCollectionMerger_LowPtRoI = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_LowPtRoI",
+                                                                           TracksLocation          = DummyCollectionLowPtRoI,
+                                                                           OutputTracksLocation    = InDetKeys.LowPtEWWTracks(),
+                                                                           AssoTool                = InDetPrdAssociationTool,
+                                                                           UpdateSharedHitsOnly    = False,
+                                                                           UpdateAdditionalInfo    = True,
+                                                                           SummaryTool             = InDetTrackSummaryToolSharedHits)
+       #TrkTrackCollectionMerger_LowPtRoI.OutputLevel = VERBOSE
+       topSequence += TrkTrackCollectionMerger_LowPtRoI
+
+       
+       if InDetFlags.doTruth():
+          # set up the truth info for this container
+          #
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.LowPtEWWTracks(),
+                                                         InDetKeys.LowPtEWWDetailedTracksTruth(),
+                                                         InDetKeys.LowPtEWWTracksTruth())
+    
+
+       if (InDetFlags.doPrintConfigurables()):
+         print TrkTrackCollectionMerger_LowPtRoI
 
     # ------------------------------------------------------------
     #

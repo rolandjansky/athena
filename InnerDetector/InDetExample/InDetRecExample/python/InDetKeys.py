@@ -582,6 +582,24 @@ class SiSpSeededSCTTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededSCTTracks'
 
+class LowPtEWWTracks(JobProperty):
+    """StoreGate key for LowPtEWW tracks """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'LowPtEWWTracks'
+
+class LowPtEWWDetailedTracksTruth(JobProperty):
+    """StoreGate key for DetailedTrackTruth  (doLowPtEWW)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedLowPtEWWTrackDetailedTruth'
+
+class LowPtEWWTracksTruth(JobProperty):
+    """StoreGate key for TracksTruth  (doLowPtEWW)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedLowPtEWWTrackTruthCollection'
+
 class PixelTracks(JobProperty):
     """StoreGate key for resolved pixel standalone tracks """
     statusOn     = True
@@ -1149,6 +1167,12 @@ class xAODPseudoTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetPseudoTrackParticles"
 
+class xAODLowPtEWWTrackParticleContainer(JobProperty):
+    """xAOD TrackParticle for LowPtEWW"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "LowPtEWWTrackParticles"
+
 class xAODPixelTrackParticleContainer(JobProperty):
     """xAOD PixelTrackParticle"""
     statusOn = True
@@ -1315,6 +1339,9 @@ jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelPrdAssociationTr
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelFourLayerTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelThreeLayerTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(LowPtEWWTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(LowPtEWWTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(LowPtEWWDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
@@ -1412,6 +1439,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODSecVertexDecayContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLowPtEWWTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)

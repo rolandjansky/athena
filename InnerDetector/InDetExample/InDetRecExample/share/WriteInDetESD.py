@@ -90,6 +90,11 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
       InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
       InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
 
+# add LowPtEWW tracks
+if InDetFlags.doLowPtEWW():
+   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList += ["TrackCollection#"+InDetKeys.LowPtEWWTracks()]
+
 # add the forward tracks for combined muon reconstruction
 if InDetFlags.doForwardTracks():
    if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
@@ -211,6 +216,10 @@ if InDetFlags.doxAOD():
   if InDetFlags.doPseudoTracking():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doLowPtEWW():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLowPtEWWTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtEWWTrackParticleContainer()+'Aux.' + excludedAuxData]
+     
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetESDList directly
 # added to InDetRec_all.py after include WriteInDetESD!
 #StreamESD.ItemList += InDetESDList
