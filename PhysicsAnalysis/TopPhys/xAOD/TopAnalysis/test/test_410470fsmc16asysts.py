@@ -8,14 +8,13 @@
 
 import ROOT
 from PathResolver import PathResolver
-import subprocess, sys, shlex, random, shutil, os, glob
+import subprocess, sys, shlex, random, shutil, os
 
 # Create empty PoolFileCatalog
 os.system('art.py createpoolfile')
 
 # -- Settings --
 cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
-#inputfilenames = glob.glob("*.root*")
 
 try:  
    inputfilenames=os.environ["ArtInFile"]
