@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.acmdlib
 # @purpose a library to ease the writing of sub-command scripts
@@ -16,14 +16,12 @@ __all__ = [
     'command',
     'argument',
     'register',
-    'register_file',
     ]
 
 ### imports -------------------------------------------------------------------
-import sys
-import extensions as ext_plugins
 import argparse
 import textwrap
+import importlib
 
 ### globals -------------------------------------------------------------------
 ACMD_GROUPNAME = 'acmdlib.commands'
@@ -60,11 +58,7 @@ class Command(object):
         self.parser = self._make_parser(**kwargs)
         self._init_arguments()
         plugin_name = kwargs.get('name') or self.name
-        register(
-            plugin_name,
-            '%s:%s' % (self.fct.__module__, self.fct.__name__)
-            )
-        return
+        register(plugin_name, self.fct.__module__)
 
     @property
     def name(self):
@@ -110,7 +104,6 @@ class Command(object):
             name = names[idx]
             if name in node.choices:
                 return node.choices[name]
-            full_name = ' '.join(names[:idx+1])
             args = {
                 'name' : name,
                 'help' : 'a group of sub-commands',
@@ -136,6 +129,33 @@ class Command(object):
                 self.add_argument(*args, **kwargs)
         
     pass # Command
+
+class Plugins(object):
+    """A simple plugin registration.
+    """
+    _plugins = {}
+
+    @classmethod
+    def register(cls, name, value):
+        """Register plugin
+        """
+        cls._plugins[name] = value
+
+    @classmethod
+    def load(cls, name):
+        """Load given plugin and return it
+        """
+        try:
+            return importlib.import_module(cls._plugins[name])
+        except Exception as err:
+            print("** could not load command [%s]:\n%s" % (name, err))
+
+    @classmethod
+    def loadAll(cls):
+        """Load all plugins
+        """
+        for k in cls._plugins.keys():
+            cls.load(k)
 
 ### functions -----------------------------------------------------------------
 
@@ -168,63 +188,4 @@ def register(name, value):
 
     ex: register('check-file', 'PyUtils.CheckFileLib:fct')
     """
-    group = ACMD_GROUPNAME
-    return ext_plugins.register(group, name, value)
-
-def register_file(path):
-    """Registers a config-like file"""
-    from ConfigParser import ConfigParser
-    parser = ConfigParser()
-    parser.read([path])
-    for group in parser.sections():
-        for name in parser.options(group):
-            value = parser.get(group, name)
-            ext_plugins.register(group, name, value)
-
-# add a special command to list all registered commands
-@command
-@argument('-d','--detailed', action='store_true', default=False,
-          help='print full help of each command')
-def list_commands(args):
-    """a special command to list all the commands 'acmd' can run
-    """
-    cmds = list(ext_plugins.get(group=ACMD_GROUPNAME))
-    if len(cmds) == 0:
-        print "::: no command found in registry"
-        return 1
-    print "::: found [%i] command%s" % (len(cmds),
-                                        "s" if len(cmds)>1 else "")
-    cmds.sort(cmp=lambda x,y: cmp(x.name, y.name))
-    cmds = [cmd for cmd in cmds if cmd.name != 'list-commands']
-    for i, cmd in enumerate(cmds):
-        if args.detailed:
-            print "="*80
-        print " - %s" % (' '.join(cmd.name.split('.')),)
-        if args.detailed:
-            try:
-                cmd.load().parser.print_help()
-            except Exception,err:
-                print "** could not inspect command [%s]:\n%s" % (
-                    cmd.name,
-                    err)
-            print "="*80
-            print ""
-    return 0
-#acmdlib.register('list-commands', 'PyUtils.acmdlib:list_commands')
-
-# an argument to force the loading of all available commands
-ACMD_PARSER.add_argument(
-    '--load-commands',
-    action='store_true',
-    default=False,
-    help='force the loading of all available commands')
-def _load_commands():
-    cmds = list(ext_plugins.get(group=ACMD_GROUPNAME))
-    for cmd in cmds:
-        try:
-            cmd.load()
-        except Exception,err:
-            print "** could not load command [%s]:\n%s" % (
-                cmd.name,
-                err)
-
+    return Plugins.register(name, value)
