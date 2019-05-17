@@ -64,6 +64,10 @@ def setupMenu():
     TriggerFlags.METSlice.signatures = [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
+#        ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
+        #waiting for merging strategy of chain parts
+        #ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
     ]
 
     TriggerFlags.JetSlice.signatures = [
