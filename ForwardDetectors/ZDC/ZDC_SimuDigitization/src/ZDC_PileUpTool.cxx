@@ -21,22 +21,8 @@
 ZDC_PileUpTool::ZDC_PileUpTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_mergeSvc    ("PileUpMergeSvc", name), 
-  m_atRndmGenSvc("AtRndmGenSvc", name),
-  m_rndEngine(0),
-  m_ScaleStrip(3e-4),
-  m_ScalePixel(5e-3),
-  m_Pedestal(100),
-  m_MaxTimeBin(5),
-  m_SigmaNoiseHG_Strip(1.5),
-  m_SigmaNoiseHG_Pixel(1.0),
-  m_SigmaNoiseLG_Strip(1.0),
-  m_SigmaNoiseLG_Pixel(1.0),
-  m_DumpStrip(false),
-  m_DumpPixel(false)
+  PileUpToolBase(type, name, parent)
 {
- 
   // NOTE: The following variables are actually re-initialized by ZDC_DigiTop::initialize() or ZDC_PileUpTool::initialize()
   m_GainRatio_Strip[0] = 10.0; m_GainRatioError_Strip[0] = 0.5;
   m_GainRatio_Strip[1] = 10.0; m_GainRatioError_Strip[1] = 0.5;
@@ -48,33 +34,7 @@ ZDC_PileUpTool::ZDC_PileUpTool(const std::string& type,
   m_GainRatio_Strip[7] = 10.0; m_GainRatioError_Strip[7] = 0.5;
   m_GainRatio_Pixel      = 10.0;
   m_GainRatioError_Pixel = 0.5;
-
-  m_digitContainer = 0; // initializing to null pointer
-
   // end of ToolBox variables
-
-  m_SimStripHitCollectionName = "ZDC_SimStripHit_Collection";
-  m_SimPixelHitCollectionName = "ZDC_SimPixelHit_Collection";
-  m_ZdcDigitsContainerName    = "ZdcDigitsCollection";
-
-  m_mergedStripHitList = 0; // initialized to null pointer
-  m_mergedPixelHitList = 0;
-
-  declareProperty("SimStripHitCollection" , m_SimStripHitCollectionName, "Name of the input Collection of the simulated Strip Hits");
-  declareProperty("SimPixelHitCollection" , m_SimPixelHitCollectionName, "Name of the input Collection of the simulated Pixel Hits");
-  declareProperty("ZdcDigitsContainerName", m_ZdcDigitsContainerName,    "Name of the Container to hold the output from the ZDC digitization");
-  declareProperty("RndmSvc",                m_atRndmGenSvc,              "Random Number Service used in ZDC digitization" );
-  declareProperty("mergeSvc",               m_mergeSvc,                  "Store to hold the pile-ups");
- 
-  declareProperty("ScaleStrip", m_ScaleStrip);
-  declareProperty("ScalePixel", m_ScalePixel);
-  declareProperty("MaxTimeBin", m_MaxTimeBin);
-  declareProperty("Pedestal"  , m_Pedestal);
-
-  declareProperty("SigmaNoiseHG_Strip",  m_SigmaNoiseHG_Strip);
-  declareProperty("SigmaNoiseHG_Pixel",  m_SigmaNoiseHG_Pixel);
-  declareProperty("SigmaNoiseLG_Strip",  m_SigmaNoiseLG_Strip);
-  declareProperty("SigmaNoiseLG_Pixel",  m_SigmaNoiseLG_Pixel);
 }
 
 StatusCode ZDC_PileUpTool::initialize() {
@@ -86,13 +46,10 @@ StatusCode ZDC_PileUpTool::initialize() {
 		 << " MaxTimeBin: " << m_MaxTimeBin << endmsg
 		 << " Pedestal  : " << m_Pedestal   );
   
-  if (m_atRndmGenSvc.retrieve().isFailure()) { 
-    ATH_MSG_FATAL ( "Could not retrieve RandomNumber Service!" ); 
-    return StatusCode::FAILURE; 
-  }
-  else { 
-    ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" ); 
-  }
+  ATH_CHECK(m_atRndmGenSvc.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved RandomNumber Service" );
+
+  ATH_CHECK(m_mergeSvc.retrieve());
 
   m_mergedStripHitList = new ZDC_SimStripHit_Collection("mergedStripHitList");
   m_mergedPixelHitList = new ZDC_SimPixelHit_Collection("mergedPixelHitList");
@@ -103,16 +60,6 @@ StatusCode ZDC_PileUpTool::initialize() {
 StatusCode ZDC_PileUpTool::processAllSubEvents() {
 
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::processAllSubEvents()" );
-
-  //retrieve the PileUpMergeSvc if necessary
-  if(!m_mergeSvc) {
-    if(!m_mergeSvc.retrieve().isSuccess() || !m_mergeSvc) {
-      ATH_MSG_FATAL("digitize: Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_DEBUG("digitize: retrieved PileUpMergeSvc");
-  }
-  else ATH_MSG_DEBUG("digitize: PileUpMergeSvc already available"); 
 
   typedef PileUpMergeSvc::TimedList<ZDC_SimStripHit_Collection>::type TimedStripHitCollList;
   typedef PileUpMergeSvc::TimedList<ZDC_SimPixelHit_Collection>::type TimedPixelHitCollList;
