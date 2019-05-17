@@ -140,18 +140,11 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
       ///
       /// compute the difference and shift it by one bit in order to remain within the 16-bits 
       unsigned int diff = clusIdCompact - collIdCompact;
-      std::cout << ">>>>>>>>> clusIdCompact: 0x" << std::hex << clusIdCompact << std::dec << std::endl; 
-      std::cout << ">>>>>>>>> collIdCompact: 0x" << std::hex << collIdCompact << std::dec << std::endl; 
-      std::cout << ">>>>>>>>> diffIdCompact: 0x" << std::hex << diff << std::dec << std::endl; 
 
       if ( (diff & 0x1) != 0 ) {
 	log << MSG::WARNING << "The least significant bit is used: information will be lost in persistifying " << endmsg;
       } 
       diff = diff >> 1;
-
-      std::cout << ">>>>>>>>> diff after shift: 0x" << std::hex << diff << std::dec << " 0x" << std::hex 
-		<< sizeof(unsigned short) << std::dec << std::endl; 
-
 
       if ( diff > 0xffff ) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endmsg;
 
@@ -241,8 +234,6 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       /// also need to go from the 32 bits identifier to the 64-bits one
       unsigned int diff = persCont->m_prdDeltaId[pchanIndex] << 1;
       Identifier clusId( (pcoll.m_id + diff) );
-      
-      std::cout << "Cluster ID in persToTrans: 0x" << std::hex << clusId << std::endl;
       
       const MuonGM::MMReadoutElement* detEl =
         m_muonDetMgr->getMMReadoutElement(clusId);
