@@ -23,7 +23,6 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include <xAODJet/JetContainer.h>
-#include <xAODTruth/TruthParticleContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
@@ -34,7 +33,7 @@
 
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetInterface/IJetSelector.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 using namespace std;
@@ -109,6 +108,7 @@ int main( int argc, char* argv[] ) {
     Info( APP_NAME, "Argument (-v) : Setting verbose");
   }
 
+
   ////////////////////////////////////////////////////
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
@@ -133,16 +133,10 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  TFile* outputFile = TFile::Open( "output_JSSWTopTaggerDNN.root", "recreate" );
-  int pass,truthLabel;
-  float sf,pt,eta,m;
+  TFile* outputFile = TFile::Open( "output_BoostedXbbTagger.root", "recreate" );
+  int pass;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
-  Tree->Branch( "sf", &sf, "sf/F" );
-  Tree->Branch( "pt", &pt, "pt/F" );
-  Tree->Branch( "m", &m, "m/F" );
-  Tree->Branch( "eta", &eta, "eta/F" );
-  Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -157,15 +151,9 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
-  m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
-  //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
-  m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
-
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  //m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
-  //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
-   m_Tagger.setProperty("CalibArea", "Local");
-   m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat");
+  m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
+  m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
   m_Tagger.retrieve();
 
 
@@ -192,32 +180,22 @@ int main( int argc, char* argv[] ) {
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
-      continue;
+      continue ;
 
     // Loop over jet container
-    for(const xAOD::Jet* jet : * myJets ){      
+    for(const xAOD::Jet* jet : * myJets ){
 
-      if(verbose) std::cout<<"Testing DNN W/top Tagger "<<std::endl;
-
+      if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
       const Root::TAccept& res = m_Tagger->tag( *jet );
       if(verbose) std::cout<<"jet pt              = "<<jet->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = (int)jet->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
 
       pass = res;
-      sf = jet->auxdata<float>("DNNTaggerTopQuark80_SF");
-      pt = jet->pt();
-      m  = jet->m();
-      eta = jet->eta();
 
       Tree->Fill();
-
-      if ( jet->pt() > 200e3 && fabs(jet->eta()) < 2.0 && pass ) {
-	std::cout << "Nominal SF : " << jet->auxdata<float>("DNNTaggerTopQuark80_SF") << std::endl;
-      }
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
