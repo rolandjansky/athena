@@ -46,6 +46,7 @@ namespace FlavorTagDiscriminants {
     // TODO: these are all deprecated now.
     TypeRegexes type_regexes{
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
+      {"iprnn_p(b|c|u|tau)"_r, EDMType::FLOAT},
       {"max_trk_flightDirRelEta"_r, EDMType::DOUBLE},
       {"secondaryVtx_[mEa].*|(min_|max_|avg_)trk_.*"_r, EDMType::DOUBLE},
       {"(JetFitter_|secondaryVtx_|SV1_)[Nn].*"_r, EDMType::INT},
