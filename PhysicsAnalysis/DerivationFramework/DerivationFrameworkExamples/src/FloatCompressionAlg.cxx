@@ -173,7 +173,7 @@ namespace DerivationFramework {
 	    }
 	  } else if  (m_typeCache[ auxid ].isFloatVec) {
 
-	    std::vector<double> &vals =  *( reinterpret_cast< std::vector<double>* >( eltPtr ) );
+	    std::vector<float> &vals =  *( reinterpret_cast< std::vector<float>* >( eltPtr ) );
 	    
 	    const size_t sz_j = vals.size();
 
