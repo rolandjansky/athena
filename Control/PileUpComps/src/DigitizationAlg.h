@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPCOMPS_DIGITIZATIONALG_H
@@ -14,8 +14,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-class IPileUpTool;
+#include "PileUpTools/IPileUpTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +26,7 @@ public:
   StatusCode finalize();
 
 private:
-  ToolHandleArray<IPileUpTool> m_puTools;
+  ToolHandleArray<IPileUpTool> m_puTools{this,"PileUpTools",{},"IPileUpTools to be run for each event"};
 };
 
 
