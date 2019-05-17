@@ -12,7 +12,7 @@ print ' == runzmumu == Rel21 init command: ',theCommand
 print '                output: ', theOutput
 #
 WorkDir_PLATFORM = "x86_64-slc6-gcc62-opt"
-Athena_VERSION = "21.0.68"
+Athena_VERSION = "21.0.69"
 try:
     WorkDir_PLATFORM= os.getenv("WorkDir_PLATFORM")
 except:
@@ -20,7 +20,7 @@ except:
 try:
     Athena_VERSION = os.getenv("Athena_VERSION")
 except:
-    Athena_VERSION = "21.0.68"
+    Athena_VERSION = "21.0.69"
 ###############################
 # enable outputs
 zmumuval = True
@@ -38,14 +38,16 @@ MC_bool = False
 DoTrigger = False
 
 # where to run
-grid = True
+grid_bool = True
 
 # handle input constants
-readPool = True
-readLocalDynamicDB = True
+readPool = False # default True
+readLocalDynamicDB = False # default False
 
-inputConstants = "step7_Iter1_AlignmentConstants.root"
-inputdb = "step7_Iter1_mycool.db"
+#inputConstants = "step8_Iter1_AlignmentConstants.root"
+#inputdb = "step8_Iter1_mycool.db"
+inputConstants = "ReAlign_2018_L6_Step28_L3.root"
+inputdb = "Javi_Test_mycool.db"
 #inputConstants = "MisalignmentSet11_p01.pool.root"
 #inputConstants = "AlignmentConstants_Galo_2018BaseLine.root"
 if (readPool):
@@ -68,12 +70,12 @@ if (MC_bool): useIDADynamicFolders = False # dynamic folders must be disabled in
 
 print ' ========= runzmumu === config == start == '
 print ' == MC_bool =', MC_bool
+print ' == grid_bool =', grid_bool
 print ' == globalAlignmentMon = ', globalAlignmentMon
 print ' == useConfigConditions = ', useConfigConditions
 print ' == useWeightInMonitoring =', useWeightInMonitoring
 print ' == useIDADynamicFolders =', useIDADynamicFolders
 print ' == useGRL =', useGRL
-print ' == grid =',grid
 print ' == readPool =',readPool
 if (readPool): 
     print ' == inputConstants =',inputConstants
@@ -84,33 +86,13 @@ print ' ========= runzmumu === config == end == '
 
 #include("InDetSimpleVisual/GetDetectorPositions.py")
 
-if grid == True:
-    #PoolInput = [ "/afs/cern.ch/work/w/wollrath/private/IDAlignment/inputFiles/data16_13TeV/AOD.11063137._018527.pool.root.1" ]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._000001.pool.root.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data15_5TeV/DESDM_ZMUMU.11207033._000001.pool.root.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_ZMUMU/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00349977.physics_Main.merge.DESDM_MCP.f933_m1964._0027.1"]
-    #PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0027.1",
-    #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0028.1",
-    #              "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350013.physics_Main.merge.DESDM_MCP.f933_m1964._0029.1"]
-    PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350923.physics_Main.merge.DESDM_MCP.f937_m1976._0027.1",
-                  "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data18_13TeV/DESDM_MCP/data18_13TeV.00350923.physics_Main.merge.DESDM_MCP.f937_m1976._0127.1"]
-else:
-    #PoolInput = [ "/home/jw1095/storage/IDAlignment/inputFiles/data17_13TeV/data17_13TeV.00327265.physics_Main.merge.DESDM_ZMUMU.f832_m1616_f832_m1816._0518.1" ]
-    if (MC_bool): 
-        PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._000001.pool.root.1"
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001884.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001883.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001300.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001200.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001100.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001101.pool.root.1",
-                      "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/mc15_13TeV/ESD.09385287._001000.pool.root.1"]
-    else:
-        PoolInput = [ "/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/data16_13TeV/data16_13TeV.00303338.physics_Main.merge.DESDM_MCP.f716_m1624._0001.1"]
+if (grid_bool):
+    PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
+if (MC_bool): 
+    PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
 
-EvtMax= -1
-#EvtMax= 100
+#EvtMax= -1
+EvtMax= 100
 SkipEvents = 0
 
 
@@ -145,7 +127,8 @@ myConditionsTag = "auto-configured"
 if (useConfigConditions):
     if not MC_bool: # --> real data 
         #myConditionsTag = "CONDBR2-BLKPA-2016-21" # Hide 21/03/17 
-        myConditionsTag = "CONDBR2-BLKPA-2018-07" 
+        #myConditionsTag = "CONDBR2-BLKPA-2018-07" 
+        myConditionsTag = "CONDBR2-BLKPA-2018-04" # For Javi test (27/August/2018)
         print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
         globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
     #else:
@@ -209,19 +192,18 @@ DetFlags.Muon_setOn()
 from IOVDbSvc.CondDB import conddb
 if (useIDADynamicFolders):
     if (False):
-        print (" == runzmumu == configuring data17_1stBatch_Initial family ") 
-        conddb.addOverride("/Indet/AlignL1/ID" ,"InDetAlignL1_ID_R2dynamic_data17_1stBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/PIX" ,"InDetAlignL2PIX_R2dynamic_data17_1stBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/SCT" ,"InDetAlignL2SCT_R2dynamic_data17_1stBatch_Initial")
-        conddb.addOverride("/Indet/AlignL3" ,"InDetAlignL3_R2dynamic_data17_1stBatch_Initial")
-        conddb.addOverride("/Indet/IBLDist", "InDetAlignIBLDist_R2dynamic_data17_2ndBatch_Initial")
-        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1_R2dynamic_data17_1stBatch_Initial")
-        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2_R2dynamic_data17_1stBatch_Initial")
-    if (True):
+        print (" == runzmumu == configuring 2018 ReAlign family ") 
+        conddb.addOverride("/Indet/AlignL1/ID" ,"IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX" ,"IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT" ,"IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL3" ,"IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/IBLDist", "IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2-R2dynamic_2018_ReAlign_Initial")
+    if (False):
         if readPool :
             conddb.blockFolder("/Indet/AlignL3")
             conddb.blockFolder("/TRT/AlignL2")
-
         if readLocalDynamicDB :
             conddb.blockFolder("/Indet/AlignL1/ID")
             conddb.blockFolder("/Indet/AlignL2/PIX")
@@ -234,6 +216,18 @@ if (useIDADynamicFolders):
             conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/AlignL2/SCT','IndetL2SCTTest',True);
             conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/TRT/AlignL1/TRT','IndetL1TRTTest',True);
             conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True); 
+
+    if (False): # --> ReAlign 2018 default True
+        print (" == runzmumu == tags + SiL3 + TRTL2.... ") 
+        conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
+        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
+        if readPool :
+            conddb.blockFolder("/Indet/AlignL3")
+            conddb.blockFolder("/TRT/AlignL2")
+        
 ##
 
 
@@ -306,7 +300,7 @@ if zmumuval == True:
                                     OutputTracksName =  "SelectedMuons",
                                     isMC = MC_bool, # If set to True, the truth parameters will be filled, have a look into FillTruthParameters
                                     doRefit = True, #True for evaluation of new alignment constants / False for update of weak mode recommendations -- refits tracks according to provided conditions db and/or external root file containing alignment constants
-                                    doIPextrToPV = False, # True for IP resolution studies, extrapolates IP parameters to primary vertex
+                                    doIPextrToPV = True, # True for IP resolution studies, extrapolates IP parameters to primary vertex
                                     UseTrackSelectionTool = False, # If set to True, it will use the specified TrackSelectionTool in the next Line
                                     TrackSelectionTool = m_TrackSelectorTool_TightPrimary,
                                     TrackParticleName = 'InnerDetectorTrackParticles', # Currently does not do anything, code fills IndetTrackParticles and CombinedTrackParticles Trees
@@ -318,10 +312,10 @@ if zmumuval == True:
                                     doIsoSelection = True,
                                     doIPSelection = True,
                                     #loose selection to have Z and JPsi in the n tuple
-                                    MassWindowLow = 50.,
-                                    MassWindowHigh = 140.,
-                                    PtLeadingMuon = 15.,
-                                    PtSecondMuon = 15.,
+                                    MassWindowLow = 1.,
+                                    MassWindowHigh = 180.,
+                                    PtLeadingMuon = 4., #15.,
+                                    PtSecondMuon = 4., #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     OutputLevel = INFO)
     job += iDPerfMonZmumu
@@ -339,8 +333,8 @@ if zmumuval == True:
         ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
                             resonName = "Zmumu",
                             minInvmass = 10.,
-                            maxInvmass = 120.,
-                            nMassBins = 60,
+                            maxInvmass = 180.,
+                            nMassBins = 80,
                             triggerChainName = "NoTrig",
                             regions = ["All","BB","EAEA","ECEC"],
                             varsVSmean = varsVSmeanZmumu,
@@ -389,3 +383,4 @@ if (zmumuval and globalAlignmentMon):
     StoreGateSvc = Service("StoreGateSvc")
     StoreGateSvc.Dump = False # True in case of debug ** WARNING ** very large output
     include("InDetPerformanceMonitoring/TrackMonitoring.py")
+    #include("TrackMonitoring.py")
