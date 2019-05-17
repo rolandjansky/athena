@@ -412,9 +412,9 @@ class ConfiguredNewTrackingCuts :
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
 
-    # --- change defaults for low pt tracking for exclusive WW
-    if mode == "LowPtEWW":
-      self.__extension        = "LowPtEWW" # this runs parallel to NewTracking
+    # --- change defaults for low pt tracking within selected roi
+    if mode == "LowPtRoI":
+      self.__extension        = "LowPtRoI" # this runs parallel to NewTracking
       self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
       self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 5
@@ -1110,7 +1110,7 @@ class ConfiguredNewTrackingCuts :
     print '* max eta                     :  ', self.__maxEta
     if self.__mode=="LowPt":
       print '* max PT                      :  ', self.__maxPT, ' MeV'
-    if self.__mode=="LowPtEWW":
+    if self.__mode=="LowPtRoI":
       print '* max PT                      :  ', self.__maxPT, ' MeV'
     print '*'
     print '* NewTracking cuts:'

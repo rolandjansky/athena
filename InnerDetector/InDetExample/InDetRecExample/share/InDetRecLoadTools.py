@@ -684,7 +684,7 @@ if InDetFlags.loadFitter():
         #
         # ----------- Global Chi2 Fitter for Low-Pt with different settings 
         #
-        if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or InDetFlags.doLowPtEWW() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+        if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or InDetFlags.doLowPtRoI() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             InDetTrackFitterLowPt = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitterLowPt',
                                                           ExtrapolationTool     = InDetExtrapolator,
                                                           NavigatorTool         = InDetNavigator,
@@ -818,7 +818,7 @@ if InDetFlags.loadFitter():
             ToolSvc += InDetTrackFitterTRT
             if (InDetFlags.doPrintConfigurables()):
                 print InDetTrackFitterTRT
-        if InDetFlags.doLowPt() or InDetFlags.doLowPtEWW() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+        if InDetFlags.doLowPt() or InDetFlags.doLowPtRoI() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             ToolSvc+=InDetTrackFitterLowPt
             if (InDetFlags.doPrintConfigurables()):
                 print InDetTrackFitterLowPt

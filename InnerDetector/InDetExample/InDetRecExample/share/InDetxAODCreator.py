@@ -254,15 +254,15 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doParticleCreation():
  #xAODSeedsTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODTrkCanTrackParticleCnvAlg
 
-# Store track candidates created if InDetFlags.doLowPtEWW() into separate collection
-if InDetFlags.doLowPtEWW() and InDetFlags.doParticleCreation():
+# Store track candidates created if InDetFlags.doLowPtRoI() into separate collection
+if InDetFlags.doLowPtRoI() and InDetFlags.doParticleCreation():
  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
- xAODLowPtRoITrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.xAODLowPtEWWTrackParticleContainer() ) 
- xAODLowPtRoITrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODLowPtEWWTrackParticleContainer()
- xAODLowPtRoITrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODLowPtEWWTrackParticleContainer()
+ xAODLowPtRoITrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.xAODLowPtRoITrackParticleContainer() ) 
+ xAODLowPtRoITrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODLowPtRoITrackParticleContainer()
+ xAODLowPtRoITrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODLowPtRoITrackParticleContainer()
  xAODLowPtRoITrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
- xAODLowPtRoITrackParticleCnvAlg.TrackContainerName = InDetKeys.LowPtEWWTracks()
- xAODLowPtRoITrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.LowPtEWWTracksTruth()
+ xAODLowPtRoITrackParticleCnvAlg.TrackContainerName = InDetKeys.LowPtRoITracks()
+ xAODLowPtRoITrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.LowPtRoITracksTruth()
  xAODLowPtRoITrackParticleCnvAlg.ConvertTrackParticles = False
  xAODLowPtRoITrackParticleCnvAlg.ConvertTracks = True
  xAODLowPtRoITrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()

@@ -53,9 +53,9 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsTRT():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
-  if InDetFlags.doLowPtEWW():
-    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLowPtEWWTrackParticleContainer()]
-    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtEWWTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doLowPtRoI():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
