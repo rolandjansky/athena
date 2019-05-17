@@ -441,8 +441,8 @@ LVL1CTP::CTPEmulation::retrieveCollections() {
       CHECK ( evtStore()->retrieve( m_energyCTP, m_energyCTPLoc ) );
       ATH_MSG_DEBUG( "Retrieved 'LVL1::EnergyCTP#" << m_energyCTPLoc << "'");
 
-      // CHECK ( evtStore()->retrieve( m_topoCTP, m_topoCTPLoc ) );
-      // ATH_MSG_DEBUG( "Retrieved 'LVL1::FrontPanelCTP#" << m_topoCTPLoc << "'");
+      CHECK ( evtStore()->retrieve( m_topoCTP, m_topoCTPLoc ) );
+      ATH_MSG_DEBUG( "Retrieved 'LVL1::FrontPanelCTP#" << m_topoCTPLoc << "'");
 
       if ( m_useROIBOutput ) {
          CHECK ( evtStore()->retrieve( m_roibResult ) );
@@ -660,6 +660,11 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
 
    // topo
    {
+      ATH_MSG_DEBUG("Retrieved input from L1Topo from StoreGate with key " << m_topoCTPLoc);
+      ATH_MSG_DEBUG("L1Topo0 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(0));
+      ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(1));
+      ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(0));
+      ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(1));
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/topo/l1Topo0",  h0 ) );
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/topo/l1Topo1",  h1 ) );
       for(unsigned int i=0; i<32; ++i) {
@@ -669,11 +674,6 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
          if( (m_topoCTP->cableWord2(0) & mask) != 0 ) h1->Fill(i); // cable 1, clock 0
          if( (m_topoCTP->cableWord2(1) & mask) != 0 ) h1->Fill(32 + i); // cable 1, clock 1
       }
-      ATH_MSG_DEBUG("Retrieved input from L1Topo from StoreGate with key " << m_topoCTPLoc);
-      ATH_MSG_DEBUG("L1Topo0 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(0));
-      ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord1(1));
-      ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(0));
-      ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_topoCTP->cableWord2(1));
    }
 
    return StatusCode::SUCCESS;

@@ -99,7 +99,7 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += L1Muctpi()
 
         ## L1 Topo
-        if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
+        if (not TriggerFlags.fakeLVL1()) and ( TriggerFlags.doLVL1() or TriggerFlags.doLVL1PhaseI() ):
             if TriggerFlags.doL1Topo():
                 log.info("adding l1topo simulation to the topSequence")
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
