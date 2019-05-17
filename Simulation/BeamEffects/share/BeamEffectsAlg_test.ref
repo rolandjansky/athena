@@ -1,4 +1,4 @@
-[==========] Running 6 tests from 1 test case.
+[==========] Running 7 tests from 1 test case.
 [----------] Global test environment set-up.
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
@@ -11,14 +11,17 @@ EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-[----------] 6 tests from BeamEffectsAlg_test
+[----------] 7 tests from BeamEffectsAlg_test
 [ RUN      ] BeamEffectsAlg_test.empty_alg_execute
 ClassIDSvc           INFO  getRegistryEntries: read 1507 CLIDRegistry entries for module ALL
 BeamEffectsAlg      FATAL No input McEventCollection called GEN_EVENT in StoreGate.
 [       OK ] BeamEffectsAlg_test.empty_alg_execute (179 ms)
 [ RUN      ] BeamEffectsAlg_test.set_properties
 ClassIDSvc           INFO  getRegistryEntries: read 359 CLIDRegistry entries for module ALL
-[       OK ] BeamEffectsAlg_test.set_properties (2 ms)
+[       OK ] BeamEffectsAlg_test.set_properties (1 ms)
+[ RUN      ] BeamEffectsAlg_test.patchSignalProcessVertex_empty_GenEvent
+BeamEffectsAlg    WARNING No signal_process_vertex found. Empty GenEvent!
+[       OK ] BeamEffectsAlg_test.patchSignalProcessVertex_empty_GenEvent (0 ms)
 [ RUN      ] BeamEffectsAlg_test.signal_process_vertex_exists
 [       OK ] BeamEffectsAlg_test.signal_process_vertex_exists (1 ms)
 [ RUN      ] BeamEffectsAlg_test.add_signal_process_vertex_atlasG4
@@ -26,9 +29,9 @@ ClassIDSvc           INFO  getRegistryEntries: read 359 CLIDRegistry entries for
 [ RUN      ] BeamEffectsAlg_test.add_signal_process_vertex_isfG4
 [       OK ] BeamEffectsAlg_test.add_signal_process_vertex_isfG4 (0 ms)
 [ RUN      ] BeamEffectsAlg_test.execute_pass_through
-[       OK ] BeamEffectsAlg_test.execute_pass_through (1 ms)
-[----------] 6 tests from BeamEffectsAlg_test (183 ms total)
+[       OK ] BeamEffectsAlg_test.execute_pass_through (0 ms)
+[----------] 7 tests from BeamEffectsAlg_test (19 ms total)
 
 [----------] Global test environment tear-down
-[==========] 6 tests from 1 test case ran. (572 ms total)
-[  PASSED  ] 6 tests.
+[==========] 7 tests from 1 test case ran. (75 ms total)
+[  PASSED  ] 7 tests.

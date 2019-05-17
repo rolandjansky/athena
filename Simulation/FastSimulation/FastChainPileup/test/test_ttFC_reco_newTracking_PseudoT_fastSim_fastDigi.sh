@@ -2,10 +2,7 @@
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_newTracking_PseudoT_fastSim_fastDigi
 # art-type: grid
 # specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
 
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \

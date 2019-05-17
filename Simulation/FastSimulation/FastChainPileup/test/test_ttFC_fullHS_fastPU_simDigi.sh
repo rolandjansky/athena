@@ -6,11 +6,8 @@
 # Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 #
 # specify branches of athena that are being targeted: 
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 #                                                                           
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
 
 FastChain_tf.py --simulator G4HS_FastPileup \
     --digiSteeringConf "SplitNoMergeSF" \

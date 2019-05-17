@@ -138,11 +138,11 @@ else:
 
     # ------------------------------------------------------------
     # 
-    # -----------ROI seeding for SSS seeds
+    # -----------ROI seeding for SSS seeds or Ambi
     #
     # ------------------------------------------------------------
     #
-    if InDetFlags.doHadCaloSeededSSS() and DetFlags.detdescr.Calo_allOn():
+    if (InDetFlags.doHadCaloSeededSSS() or InDetFlags.doCaloSeededAmbi() or InDetFlags.doCaloSeededRefit()) and DetFlags.detdescr.Calo_allOn():
       include ("InDetRecExample/InDetRecHadCaloSeededROISelection.py")
 
     # ------------------------------------------------------------

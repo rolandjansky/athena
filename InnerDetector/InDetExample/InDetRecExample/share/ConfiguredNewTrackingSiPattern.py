@@ -365,11 +365,14 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
            InDetAmbiTrackSelectionTool.minUniqueSCTHits          = 4
            InDetAmbiTrackSelectionTool.minTrackChi2ForSharedHits = 3
-           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()
-           InDetAmbiTrackSelectionTool.doHadCaloSeed             = False   #Only split in cluster in region of interest
+           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet"
+           InDetAmbiTrackSelectionTool.doHadCaloSeed             = InDetFlags.doCaloSeededAmbi()   #Do special cuts in region of interest
            InDetAmbiTrackSelectionTool.minPtSplit                = InDetFlags.pixelClusterSplitMinPt()       #Only allow split clusters on track withe pt greater than this MeV
-           InDetAmbiTrackSelectionTool.phiWidth                  = 0.2     #Split cluster ROI size
-           InDetAmbiTrackSelectionTool.etaWidth                  = 0.2     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.maxSharedModulesInROI     = 3     #Maximum number of shared modules for tracks in ROI
+           InDetAmbiTrackSelectionTool.minNotSharedInROI         = 2     #Minimum number of unique modules for tracks in ROI
+           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 7  #Minimum number of Si hits to allow splittings for tracks in ROI
+           InDetAmbiTrackSelectionTool.phiWidth                  = 0.1     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.etaWidth                  = 0.1     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
            InDetAmbiTrackSelectionTool.doEmCaloSeed              = False   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
@@ -464,7 +467,10 @@ class  ConfiguredNewTrackingSiPattern:
 	                                                 caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
 	                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
 	                                                 RefitPrds          = True, 
+                                                     doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
+                                                     InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet",
 	                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
+           #We hadded doHadCaloSeed and InputHadClusterContainerName
          else:
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),

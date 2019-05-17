@@ -41,6 +41,7 @@
 #include "RecoPhotonHistograms.h"
 #include "IHistograms.h"
 #include "ShowerShapesHistograms.h"
+#include "ClusterHistograms.h"
 #include "EfficiencyPlot.h"
 
 #include "IsolationHistograms.h"
@@ -63,6 +64,14 @@ class EgammaMonitoring : public AthAlgorithm
 //  egammaMonitoring::EffIDPlots  Eff_ID  ;
 //  egammaMonitoring::EffRecPlots Eff_Reco;
 
+
+
+
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterAll;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> cluster10GeV;
+ 
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPromptAll;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPrompt10GeV;
 
 
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapesAll;
