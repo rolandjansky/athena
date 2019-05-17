@@ -17,7 +17,7 @@ InputMakerAlg.InputMakerInputDecisions=["L1MET"]
 InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
 topSequence += InputMakerAlg
 
-from TriggerMenuMT.HLTMenuConfig.MET.metDefs import metCellRecoSequence
+from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence
 cellRecoSeq, METkey = metCellRecoSequence(InputMakerAlg.RoIs)
 topSequence += cellRecoSeq
 

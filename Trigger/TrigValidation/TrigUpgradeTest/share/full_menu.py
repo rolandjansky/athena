@@ -191,7 +191,7 @@ if opt.doTauSlice == True:
 # MET chains
 ##################################################################
 if opt.doMETSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.MET.metMenuDefs import metCellMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence
 
     metCellSeq = metCellMenuSequence()
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
