@@ -230,12 +230,6 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth WZ result" );
 
-  // decorate truth label for SF provider
-  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
-  if ( !acc_truthLabel.isAvailable(jet) ){
-    decorateTruthLabel(jet, m_truthLabelDecorationName);
-  }
-
   //reset the TAccept cut results to false
   m_accept.clear();
 
@@ -373,6 +367,15 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
     }
     else{
       m_accept.setCutResult("ValidEventContent", false);
+    }
+  }
+
+  // decorate truth label for SF provider
+  static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
+  if ( !acc_truthLabel.isAvailable(jet) ){
+    if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
+      ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
+      return m_accept;
     }
   }
 
