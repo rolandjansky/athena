@@ -360,6 +360,11 @@ namespace top {
 
     }
 
+    if (m_config->useLargeRJets()) {
+    for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
+        m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
+    }
+
     //loop over systematics and attach variables
     for (auto systematicTree : m_treeManagers) {
 
@@ -398,12 +403,6 @@ namespace top {
             systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF[tagWP] , "weight_trackjet_bTagSF_"+shortBtagWP(tagWP));
           }
         }
-
-	m_boostedJetTaggersNames.clear();
-	if (m_config->useLargeRJets()) {
-	  for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
-	    m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
-	}
 
 
         systematicTree->makeOutputVariable(m_weight_jvt, "weight_jvt");
