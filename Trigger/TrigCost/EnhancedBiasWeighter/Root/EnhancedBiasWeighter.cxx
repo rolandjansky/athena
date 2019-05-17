@@ -386,6 +386,25 @@ int32_t EnhancedBiasWeighter::getEventEBID(const xAOD::EventInfo* eventInfo) con
   } 
 }
 
+int32_t EnhancedBiasWeighter::getEventEBID(const EventContext& context) const
+{
+  const uint64_t eventNumber = context.eventID().event_number();
+
+  const auto mapIterator = m_eventNumberToIdMap.find(eventNumber);
+  if (mapIterator != m_eventNumberToIdMap.end()) {
+    return mapIterator->second;
+  }
+  // Unfortunately, earlier weighting XMLs have 32 bit signed event number. Hence we also have to try this option
+  const int32_t eventNumber32 = static_cast<int32_t>(eventNumber);
+  const auto mapIterator32 = m_eventNumberToIdMap.find(eventNumber32);
+  if (mapIterator32 != m_eventNumberToIdMap.end()) {
+    return mapIterator32->second;
+  } else {
+    ATH_MSG_ERROR( "Couldn't find enhanced bias info for event " << eventNumber);
+    return -1;
+  } 
+}
+
 double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
 {
 
@@ -421,6 +440,53 @@ double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
 
   }
 }
+
+
+double EnhancedBiasWeighter::getEBWeight(const EventContext& context) const
+{
+
+  if (m_enforceEBGRL && !isGoodLB(context)) {
+    return 0;
+  }
+
+  ATH_CHECK( trackAverages(context), 0 );
+
+  if (m_calculateWeightingData) {
+
+    if (m_isMC) {
+
+      ATH_MSG_ERROR( "Cannot use EventContext based getEBWeight with MC. Needs full EventInfo.");
+      return 0.;
+
+    } else { // isData
+
+      int32_t ebID = getEventEBID(context);
+      const auto mapIterator = m_idToWeightMap.find(ebID);
+      if (mapIterator == m_idToWeightMap.end() ) {
+        ATH_MSG_ERROR( "Couldn't find enhanced bias weight for event with ID " << ebID);
+        return 0;
+      }
+      return mapIterator->second;
+
+    } // isData
+
+  } else {
+
+      ATH_MSG_ERROR( "Cannot use EventContext based getEBWeight unless calculating it. Needs full EventInfo.");
+      return 0.;
+
+  }
+}
+
+
+StatusCode EnhancedBiasWeighter::trackAverages(const EventContext& context) const 
+{
+  std::lock_guard<std::mutex> scopeLock(m_mutex);
+  m_lumiAverageNum += getLBLumi(context);
+  ++m_averageDenom;
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode EnhancedBiasWeighter::trackAverages(const xAOD::EventInfo* eventInfo) const 
 {
@@ -481,6 +547,52 @@ double EnhancedBiasWeighter::getEBLiveTime(const xAOD::EventInfo* eventInfo) con
   }
 }
 
+double EnhancedBiasWeighter::getEBLiveTime(const EventContext& context) const
+{
+
+
+  if (m_calculateWeightingData) {
+
+      if (m_isMC) {
+
+        ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime with MC. Needs full EventInfo.");
+        return 0.;
+
+      } else {
+
+        uint32_t lumiBlock = context.eventID().lumi_block();
+        std::lock_guard<std::mutex> scopeLock(m_mutex);
+
+        // Check the cache
+        const auto inCacheIterator = m_eventLivetime.find( lumiBlock );
+        if (inCacheIterator != m_eventLivetime.end()) return inCacheIterator->second;
+
+        // Else calculate
+        const auto mapIterator = m_eventsPerLB.find(lumiBlock);
+        if (mapIterator == m_eventsPerLB.end() ) {
+          ATH_MSG_ERROR( "Couldn't find LB info for LB: " << lumiBlock );
+          return 0;
+        } 
+        const int32_t eventsInThisLB = mapIterator->second;
+        const double lbLength = m_readLumiBlock.getLumiBlockLength(lumiBlock, msg());
+        // This event is one in eventsInThisLB, so has an effective temporal contribution of:
+        double eventLivetime = 0;
+        if (eventsInThisLB > 0 && fabs(lbLength) > 1e-10) eventLivetime = (1. / static_cast<double>(eventsInThisLB)) * lbLength;
+        // Cache this (mutable)
+        m_eventLivetime[lumiBlock] = eventLivetime;
+        return eventLivetime;
+
+      } // isData
+
+  } else {
+
+      ATH_MSG_ERROR( "Cannot use EventContext based getEBLiveTime unless calculating it. Needs full EventInfo.");
+      return 0.;
+
+  }
+}
+
+
 bool EnhancedBiasWeighter::isUnbiasedEvent(const xAOD::EventInfo* eventInfo) const
 {
   if (m_calculateWeightingData) {
@@ -536,6 +648,35 @@ bool EnhancedBiasWeighter::isGoodLB(const xAOD::EventInfo* eventInfo) const
   }
 }
 
+bool EnhancedBiasWeighter::isGoodLB(const EventContext& context) const
+{
+  if (m_calculateWeightingData) {
+
+    if (m_isMC) {
+      
+      return true;
+
+    } else { // isData
+
+      uint32_t lumiBlock = context.eventID().lumi_block();
+
+      const auto mapIterator = m_goodLB.find(lumiBlock);
+      if (mapIterator == m_goodLB.end() ) {
+        ATH_MSG_ERROR( "Couldn't find LB good/bad info for LB: " << lumiBlock );
+        return false;
+      }
+      return static_cast<bool>(mapIterator->second);
+
+    } // isData
+
+  } else {
+
+    ATH_MSG_ERROR( "Cannot use EventContext based isGoodLB unless calculating it. Needs full EventInfo.");
+    return false;
+
+  }
+}
+
 double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
 {
   if (m_calculateWeightingData) {
@@ -560,6 +701,35 @@ double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
   } else {
 
     return eventInfo->auxdata<double>("LBLumi");
+
+  }
+}
+
+double EnhancedBiasWeighter::getLBLumi(const EventContext& context) const
+{
+  if (m_calculateWeightingData) {
+
+    if (m_isMC) {
+
+      ATH_MSG_ERROR( "Cannot use EventContext based getLBLumi with MC. Needs full EventInfo.");
+      return 0.;
+
+    } else { // isData
+
+      uint32_t lumiBlock = context.eventID().lumi_block();
+      const auto mapIterator = m_lumiPerLB.find(lumiBlock);
+      if (mapIterator == m_lumiPerLB.end() ) {
+        ATH_MSG_ERROR( "Couldn't find lumi info for LB: " << lumiBlock );
+        return 0.;
+      }
+      return mapIterator->second;
+
+    } // isData
+
+  } else {
+
+    ATH_MSG_ERROR( "Cannot use EventContext based getLBLumi unless calculating it. Needs full EventInfo.");
+    return 0;
 
   }
 }
