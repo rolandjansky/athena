@@ -59,7 +59,7 @@ public:
   /// implementation of IAppMgrUI::nextEvent
   virtual StatusCode nextEvent(int maxevt);
   /// implementation of IEventProcessor::executeEvent(void* par)
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent( EventContext &&ctx );
 
   /// Seek to a given event
   virtual StatusCode seek(int evt);
@@ -82,7 +82,7 @@ private:
   StatusCode setupStreams();
 
   /// Run the algorithms for the current event
-  virtual StatusCode executeAlgorithms();
+  virtual StatusCode executeAlgorithms(const EventContext& ctx);
 
   /// Run the algorithms beginRun hook
   StatusCode beginRunAlgorithms();
@@ -175,8 +175,6 @@ private:
   int m_ncurevt;
   bool m_skipExecAlgs;
   bool m_loadProxies;
-
-  EventContext* m_eventContext;
 
   /// property: flag to control extra checks for embedding jobs.
   Gaudi::Property<bool> m_isEmbedding;

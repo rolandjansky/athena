@@ -152,7 +152,7 @@ protected:
   virtual StatusCode executeAlgorithms(const EventContext&);
 
   /// Fire BeginRun Incident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms();
+  StatusCode beginRunAlgorithms(const EventContext& ctx);
 
   /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
   StatusCode endRunAlgorithms();
@@ -175,8 +175,8 @@ public:
   virtual StatusCode finalize();
   /// implementation of IAppMgrUI::nextEvent. maxevt==0 returns immediately
   virtual StatusCode nextEvent(int maxevt);
-  /// implementation of IEventProcessor::executeEvent(void* par)
-  virtual StatusCode executeEvent(void* par);
+  /// implementation of IEventProcessor::executeEvent(EventContext&& ctx)
+  virtual StatusCode executeEvent( EventContext && ctx );
   /// implementation of IEventProcessor::executeRun(int maxevt)
   virtual StatusCode executeRun(int maxevt);
   /// Seek to a given event.
@@ -195,15 +195,12 @@ public:
   //FIXME hack to workaround pylcgdict problem...
   virtual const std::string& name() const { return Service::name(); } //FIXME 
 
-  /// Return the current event context.
-  //  const EventContext& eventContext() const { return *m_eventContext; }
-
 private:
   AthenaEventLoopMgr(); ///< no implementation
   AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
   AthenaEventLoopMgr& operator= (const AthenaEventLoopMgr&); ///< no implementation
 
-  StatusCode installEventContext (const EventID& pEvent,
+  StatusCode installEventContext (EventContext& ctx, const EventID& pEvent,
                                   unsigned int conditionsRun);
 
   int m_nevt;
@@ -217,11 +214,9 @@ private:
   bool m_useTools;
   StoreGateSvc* eventStore() const;
 
-   EventContext m_eventContext;
-   bool m_doChrono = false;
-   ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
-
-   ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
+  bool m_doChrono = false;
+  ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
+  ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
 };
 
 #endif // STOREGATE_ATHENAEVENTLOOPMGR_H
