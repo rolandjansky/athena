@@ -99,3 +99,9 @@ if( NOT SIMULATIONBASE )
     		    SCRIPT python -m TileConditions.TileConditionsConfig
 		        POST_EXEC_SCRIPT nopost.sh )
 endif()
+
+
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
