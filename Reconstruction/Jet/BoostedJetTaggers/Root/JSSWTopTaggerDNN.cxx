@@ -429,11 +429,7 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
 
     //double jetPt=(jet.pt()<1e6)?jet.pt():999e3; // set pt=1TeV if pT>1TeV
     //SF for pT>1TeV is provided by overflow bin in the config histogram
-<<<<<<< HEAD
-    int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jetPt*0.001, log(jet.m()/jet.pt()));
-=======
     int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
->>>>>>> f77c89fcc6bf72b77571814ffb00a787b7c20917
     double SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
 
     if ( SF < 1e-3 ) return 1.0;

@@ -101,7 +101,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual bool        getComponentScalesD2Beta1(const size_t index)  const;
         virtual bool        getComponentScalesC2Beta1(const size_t index)  const;
         virtual bool        getComponentScalesQw(const size_t index)       const;
-        virtual bool        getComponentScalesSF(const size_t index)  const;
+        virtual bool        getComponentScalesTagScaleFactor(const size_t index)  const;
         virtual bool        getComponentScalesMultiple(const size_t index) const;
         virtual std::set<jet::CompScaleVar::TypeEnum> getComponentScaleVars(const size_t index) const;
         virtual jet::JetTopology::TypeEnum            getComponentTopology( const size_t index) const;
@@ -189,7 +189,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_analysisFile;
         std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
-	std::string m_name_SF;
+	std::string m_name_TagScaleFactor;
         // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
@@ -251,7 +251,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateC2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
-        StatusCode updateSF(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTagScaleFactor(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions
