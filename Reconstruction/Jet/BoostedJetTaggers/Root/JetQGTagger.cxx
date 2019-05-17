@@ -407,11 +407,11 @@ namespace CP {
     bool recosyst = m_appliedSystEnum==QG_TRACKEFFICIENCY || m_appliedSystEnum == QG_TRACKFAKES;
 
     int ptbin, ntrkbin;
-    int pdgid = jet->getAttribute<int>("truthjet_pdgid");
+    int pdgid = jet->getAttribute<int>("PartonTruthLabelID");
     if (truthsyst){
-        int tntrk = jet->getAttribute<int>("truthjet_nCharged");
-        float tjetpt = jet->getAttribute<float>("truthjet_pt")*0.001;
-        float tjeteta = jet->getAttribute<float>("truthjet_eta");
+        int tntrk = jet->getAttribute<int>("DFCommonJets_QGTagger_truthjet_nCharged");
+        float tjetpt = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_pt")*0.001;
+        float tjeteta = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_eta");
 	ATH_MSG_DEBUG("truth jet pdgid: " << pdgid << " pt: " << tjetpt);
         if ( pdgid<0 ) {
           ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
