@@ -399,6 +399,7 @@ namespace top {
           }
         }
 
+	m_boostedJetTaggersNames.clear();
 	if (m_config->useLargeRJets()) {
 	  for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
 	    m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
