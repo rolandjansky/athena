@@ -57,6 +57,9 @@ public:
 					  const FitParameters&		fitParameters,
 					  const TrackParameters&	startParameters) const = 0;
 
+    /**IMaterialAllocator interface: clear temporary TSOS*/
+    virtual void	clear (void) = 0;
+
     /**IMaterialAllocator interface: initialize scattering (needs to know X0 integral) */
     virtual void	initializeScattering (std::vector<FitMeasurement*>& measurements) const = 0;
 
