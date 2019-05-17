@@ -43,8 +43,8 @@ def setupMenu():
         ChainProp(name='HLT_2mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu6_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6noL1_L1MU6', groups=SingleMuonGroup),
-        # ms-only does not currently work while other muon chains included
-        #ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu6_msonly_L1MU6', groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
