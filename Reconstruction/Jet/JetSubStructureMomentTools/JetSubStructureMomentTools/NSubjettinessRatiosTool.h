@@ -16,6 +16,9 @@ class NSubjettinessRatiosTool :
       NSubjettinessRatiosTool(std::string name);
 
       int modifyJet(xAOD::Jet &jet) const;
+
+    private:
+      bool m_doDichroic;
 };
 
 

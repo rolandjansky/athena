@@ -110,7 +110,8 @@ namespace InDet{
   template<class Tem> void TRT_TrackSegmentsUtils_xk::findStraightLine
     (int Np, Tem* par, const Tem* X, const Tem* Y)
     {
-      if(m_size<2 || Np<2 ) return; if(Np>m_size) Np = m_size;
+      if(m_size<2 || Np<2 ) return;
+      if(Np>m_size) Np = m_size;
  
       Tem A    =      par[0];
       Tem B    =      par[1];
@@ -171,7 +172,8 @@ namespace InDet{
 	  i-=2;
 	} 
     
-	if(m<=4) break; sort(m_F,m_NA,m);
+	if(m<=4) break;
+        sort(m_F,m_NA,m);
 
 	int   nm = 0; s = 0; sm=-1000;
 	for(int i=0; i!=m-1; ++i) {
@@ -208,7 +210,8 @@ namespace InDet{
       if(j-i>1) {
 	int ip=(j+i)>>1, q=j; Tem ta=a[ip]; a[ip]=a[i]; int tb=b[ip]; b[ip]=b[i];
 	for(int k =i+1; k<=q; ++k) {
-	  if(a[k]<=ta) continue; int l=q;
+	  if(a[k]<=ta) continue;
+          int l=q;
 	  while(1) {
 	    if(a[l]<ta) {
 	      Tem x=a[k]; a[k]=a[l]; a[l]=x;
@@ -226,7 +229,8 @@ namespace InDet{
 	  Tem  x=a[i]; a[i]=a[j]; a[j]=x;
 	  int  y=b[i]; b[i]=b[j]; b[j]=y; 
 	}
-	if(--m<0) return; i=lt[m]; j=mt[m];
+	if(--m<0) return;
+        i=lt[m]; j=mt[m];
       }
     }
   }

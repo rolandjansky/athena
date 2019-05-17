@@ -34,7 +34,7 @@ namespace EL
 
 
     ::StatusCode FileExecutedModule ::
-    postInitialize (ModuleData& /*data*/)
+    onInitialize (ModuleData& /*data*/)
     {
       m_fileExecutedTree = std::make_unique<TTree>
         ("EventLoop_FileExecuted", "executed files");

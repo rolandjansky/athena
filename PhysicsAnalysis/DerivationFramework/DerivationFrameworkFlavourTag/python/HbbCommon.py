@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # import Common Algs
@@ -201,7 +201,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_opts, **opts):
     from AthenaCommon import Logging
 
     if logger is None:
@@ -214,10 +214,10 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
 
-    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger)
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger)
     linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
 
-def buildVRJets(sequence, do_ghost, logger):
+def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     from JetRec.JetRecStandard import jtm
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
@@ -226,7 +226,7 @@ def buildVRJets(sequence, do_ghost, logger):
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 2000,
+        ghostArea = 0 , ptmin = 4000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
@@ -250,6 +250,7 @@ def buildVRJets(sequence, do_ghost, logger):
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -258,7 +259,7 @@ def buildVRJets(sequence, do_ghost, logger):
                  "BTagSVName"   : "SecVtx",
         },
         SetupScheme = "",
-        TaggerList = BTaggingFlags.StandardTaggers,
+        TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 

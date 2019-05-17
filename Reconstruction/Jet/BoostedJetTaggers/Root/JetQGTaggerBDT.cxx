@@ -20,7 +20,8 @@ namespace CP {
     JSSTaggerBase( name ),
     m_name(name),
     m_APP_NAME(APP_NAME),
-    m_BDTmethod("BDT_method")
+    m_BDTmethod("BDT_method"),
+    m_trkSelectionTool(name+"_trackselectiontool", this)
     {
 
       declareProperty( "ConfigFile",   m_configFile="");
@@ -45,7 +46,6 @@ namespace CP {
 
     // initialize decorators as decorationName+_decorator
     ATH_MSG_INFO( "Decorators that will be attached to jet :" );
-
 
     if( ! m_configFile.empty() ) {
       ATH_MSG_INFO( "Using config file : "<< m_configFile );
@@ -318,11 +318,6 @@ namespace CP {
     //    ATH_MSG_DEBUG(TString::Format("n_trk: %g, w_trk: %g, C_1,trk: %g, pT: %g, eta: %g",m_ntracks,m_trackwidth,m_trackC1,m_pt,m_eta) );
 
     return;
-  }
-
-  StatusCode JetQGTaggerBDT::finalize(){
-      /* Delete or clear anything */
-      return StatusCode::SUCCESS;
   }
 
 } /* namespace CP */

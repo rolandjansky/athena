@@ -8,6 +8,7 @@
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
@@ -23,6 +24,7 @@
 
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgFlagSelectionTool)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgEventScaleFactorAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgViewFromSelectionAlg)
@@ -38,6 +40,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysListLoaderAlg)
 DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgPtEtaSelectionTool)
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgFlagSelectionTool)
+  DECLARE_NAMESPACE_ALGORITHM (CP, AsgEventScaleFactorAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgLeptonTrackSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgViewFromSelectionAlg)

@@ -69,6 +69,8 @@ elif not HIDerivationFlags.isPP():
         topSequence.EGammaCommonKernel.AugmentationTools.remove(tool)
 else:
     triggers += ['HLT_e15_lhloose_L1EM13VH']
+    triggers += ['HLT_e15_lhloose_L1EM12']
+    triggers += ['HLT_e15_lhloose_nod0_L1EM12']
     triggers += ['HLT_mu14']
     triggers += ['HLT_g30_loose']    
     triggers += ['HLT_g35_loose_L1EM15']    
@@ -113,6 +115,8 @@ HION5Stream.AcceptAlgs(["HION5Kernel"])
 # Plug in the required triggers
 
 thinningTools = []
+#Jet constituents for SEB
+thinningTools.append(addJetClusterThinningTool('DFAntiKt4HIJets','HION5',20))
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HION5ThinningHelper = ThinningHelper( "HION5ThinningHelper" )
@@ -171,7 +175,7 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'AntiKt2HIJets_Seed1']
 
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -209,10 +213,18 @@ HION5SlimmingHelper.SmartCollections = ["InDetTrackParticles",
                                        ]
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMTopo", "AntiKt4EMTopoJets"]
 
-for collection in JetCollectionList :
-    for j in HIJetBranches :
-        ExtraContentAll.append(collection+'.'+j)
+ExtraContentAll=[]
+for collection in JetCollectionList :  
+    if "Seed" not in collection:    
+        for j in HIJetBranches: 
+            ExtraContentAll.append(collection+'.'+j)
+    else:
+        for j in HISeedBranches: 
+            ExtraContentAll.append(collection+'.'+j)        
+        
 HION5SlimmingHelper.ExtraVariables = ExtraContentAll
+
+for v in HIClusterVars : HION5SlimmingHelper.ExtraVariables.append(v)
 
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HION5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent

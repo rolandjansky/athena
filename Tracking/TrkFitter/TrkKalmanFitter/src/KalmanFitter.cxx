@@ -146,7 +146,7 @@ Trk::KalmanFitter::~KalmanFitter()
 StatusCode Trk::KalmanFitter::initialize()
 {
   AthAlgTool::initialize().ignore();
-  m_log.setLevel(outputLevel());            // individual outputlevel not known before initialise
+  m_log.setLevel(msgLevel());            // individual outputlevel not known before initialise
   m_outputlevel = m_log.level()-MSG::DEBUG; // save the threshold for debug printout in member
   
   // get all the track fitter sub-tools (REQUIRED tools, obviously)

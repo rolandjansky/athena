@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import unittest
 import ROOT
@@ -182,7 +182,7 @@ class TestSUSYTools(unittest.TestCase):
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root'
 
     # The lumicalc file
-    theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root'
+    theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root'
 
     #Working points
     EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
@@ -191,7 +191,7 @@ class TestSUSYTools(unittest.TestCase):
     MU_ISO_WP = ['FCLoose']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
-    BTAG_WP   = ['FixedCutBEff_77'] #,'FixedCutBEff_85']
+    BTAG_WP   = ['FixedCutBEff_77']
     #...
 
     #default settings

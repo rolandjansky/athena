@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 import TopExamples.grid
 import DerivationTags
 import Data_rel21
@@ -55,6 +55,7 @@ names = ['Data15_TOPQ1',
          'Data16_TOPQ1', 
          'Data17_TOPQ1']
 samples = TopExamples.grid.Samples(names)
+TopExamples.ami.check_sample_status(samples)  # Call with (samples, True) to halt on error
 TopExamples.grid.submit(config, samples)
 
 ###############################################################################
@@ -73,5 +74,6 @@ names = ['TOPQ1_ttbar_PowPy8',
          'TOPQ1_ttV',    
          ]
 samples = TopExamples.grid.Samples(names)
+TopExamples.ami.check_sample_status(samples)  # Call with (samples, True) to halt on error
 TopExamples.grid.submit(config, samples)
 

@@ -41,6 +41,10 @@
          <field name="m_p4"         transient="true"/>
          <field name="m_p4Cached"   transient="true"/>
   </class>
+  <!-- TrackCaloCluster_v2 dictionaries: -->
+  
+  <class name="xAOD::TrackCaloClusterAuxContainer_v2"
+         id="2F39C8C4-D2F2-4C35-91BE-F81AC9054C9F"/>
 
   <read sourceClass="xAOD::TrackCaloCluster_v1" version="[1-]"
         targetClass="xAOD::TrackCaloCluster_v1" source="" target="m_p4Cached" >

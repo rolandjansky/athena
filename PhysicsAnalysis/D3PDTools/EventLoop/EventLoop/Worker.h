@@ -410,6 +410,11 @@ namespace EL
     std::string m_segmentName;
 
 
+    /// \brief whether the algorithms are initialized
+  private:
+    bool m_algorithmsInitialized {false};
+
+
     /// \brief whether we are still to process the first event
   private:
     bool m_firstEvent {true};

@@ -33,7 +33,7 @@ namespace EL
       virtual ~FileExecutedModule () noexcept;
 
     public:
-      virtual ::StatusCode postInitialize (ModuleData& data) override;
+      virtual ::StatusCode onInitialize (ModuleData& data) override;
 
     public:
       virtual ::StatusCode onFileExecute (ModuleData& data) override;

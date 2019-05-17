@@ -29,6 +29,7 @@
 #include "xAODPFlow/versions/PFOAuxContainer_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterContainer_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v2.h"
 #include "xAODPFlow/PFODefs.h"
 
 namespace {

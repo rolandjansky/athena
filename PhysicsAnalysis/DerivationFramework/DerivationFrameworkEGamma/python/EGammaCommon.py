@@ -128,6 +128,7 @@ PhotonIsEMSelectorTightPtIncl = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelec
 ToolSvc += PhotonIsEMSelectorTightPtIncl
 
 
+
 #====================================================================
 # RECTANGULAR CLUSTER TOOLS
 #====================================================================
@@ -328,6 +329,16 @@ else:
 ToolSvc += PhotonPassCleaning
 print PhotonPassCleaning
 
+# decorate central electrons and photons with a flag to tell the the candidates are affected by the crack bug in mc16a and data 2015+2016
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGCrackVetoCleaningTool as DF_EGCVCT
+PhotonPassCrackVeto = DF_EGCVCT(name               = "PhotonPassCrackVeto",
+                                StoreGateEntryName = "DFCommonCrackVetoCleaning",
+                                ContainerName      = "Photons")
+ElectronPassCrackVeto = DF_EGCVCT(name               = "ElectronPassCrackVeto",
+                                  StoreGateEntryName = "DFCommonCrackVetoCleaning",
+                                  ContainerName      = "Electrons")
+ToolSvc += [PhotonPassCrackVeto,ElectronPassCrackVeto]
+
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
@@ -335,8 +346,8 @@ EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
-                       PhotonPassCleaning]
-
+                       PhotonPassCleaning,
+                       PhotonPassCrackVeto,ElectronPassCrackVeto]
 
 #==================================================
 # Truth Related tools 

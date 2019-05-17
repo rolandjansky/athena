@@ -258,6 +258,8 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
                                         'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config',
                                                               'EtaJES_JMS'),
+                      'AntiKt2LCTopo':('JES_2015_2016_data_Rscan2LC_18Dec2018_R21.config',
+                                       'JetArea_Residual_EtaJES_GSC'),
                       }
         if fatjetconfig=='calo': #Choose JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
             configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config',
@@ -303,7 +305,7 @@ def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrame
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20',sequence=None):
-    supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20']
+    supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt2LCTopo']
     if not jetalg in supportedJets:
         extjetlog.warning('*** Calibration requested for unsupported jet collection! ***')
         extjetlog.warning('Supported custom jets: '+supportedJets)
@@ -408,8 +410,8 @@ def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 ### Schedule Q/G-tagging decorations ### QGTaggerTool #####
-def addQGTaggerTool(jetalg, sequence, algname ):
-    jetaugtool = getJetAugmentationTool(jetalg)
+def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
+    jetaugtool = getJetAugmentationTool(jetalg,'_qgTag')
     if(jetaugtool==None):
         extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
 
@@ -422,6 +424,15 @@ def addQGTaggerTool(jetalg, sequence, algname ):
         trackselectiontool.CutLevel = "Loose"
         ToolSvc += trackselectiontool
         jetaugtool.TrackSelectionTool = trackselectiontool
+
+    if truthjetalg!=None:
+        jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg+'_'+jetalg
+        if hasattr(ToolSvc,jetptassociationtoolname):
+            jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
+        else:
+            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+            ToolSvc += jetptassociationtool
+            jetaugtool.JetPtAssociationTool = jetptassociationtool
 
     extjetlog.info('ExtendedJetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
     applyJetAugmentation(jetalg, algname, sequence, jetaugtool)
@@ -502,6 +513,23 @@ def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFr
                 CleaningLevel="VeryLooseBadLLP",
                 doEvent=False) #Save the event level decoration
     sequence += algCleanVeryLooseLLP
+
+def eventCleanSuperLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    jetcleaningtoolname = "EventCleaningTool_SuperLooseLLP"
+    prefix = "DFCommonJets_"
+    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
+    ecToolSuperLooseLLP = EventCleaningTool('EventCleaningTool_SuperLooseLLP',CleaningLevel='SuperLooseBadLLP')
+    ecToolSuperLooseLLP.JetCleanPrefix = prefix
+    ecToolSuperLooseLLP.JetCleaningTool = getJetCleaningTool("SuperLooseBadLLP")
+    algCleanSuperLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_SuperLooseLLP',
+                            EventCleaningTool=ecToolSuperLooseLLP,
+                            JetCollectionName="AntiKt4EMTopoJets",
+                EventCleanPrefix=prefix,
+                CleaningLevel="SuperLooseBadLLP",
+                doEvent=False) #Save the event level decoration
+    sequence += algCleanSuperLooseLLP
 
 def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
     jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
@@ -594,6 +622,7 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
 
 ##################################################################

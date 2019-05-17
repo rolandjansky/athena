@@ -82,6 +82,9 @@ HIGG4D2Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"S
 # fat/trimmed jet building (after skimming)
 DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D2Sequence, HIGG4D2SlimmingHelper)
 
+# NonPrompt Lepton Tagger
+DerivationFrameworkHiggs.HIGG4DxAugmentation.addJetTagNonPromptLepton(DAOD_StreamID, HIGG4D2Sequence)
+
 # thinning
 HIGG4D2Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools)
 

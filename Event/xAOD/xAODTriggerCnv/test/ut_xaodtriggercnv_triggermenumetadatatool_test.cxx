@@ -200,13 +200,13 @@ int main() {
    // Check the merging in the most ideal setup possible:
    //
    {
+      // Set up the event object:
+      xAOD::TEvent event;
+
       // Set up a chain with the input files:
       ::TChain chain( "CollectionTree" );
       chain.Add( "trigMenuFile1.root" );
       chain.Add( "trigMenuFile2.root" );
-
-      // Set up the event object:
-      xAOD::TEvent event;
 
       // Set up the metadata tool:
       xAODMaker::TriggerMenuMetaDataTool tool( "MergeTool1" );
@@ -239,13 +239,13 @@ int main() {
       // Close the output file:
       R_CHECK( event.finishWritingTo( ofile.get() ) );
       ofile->Close();
-
-      // Test that the output file is healthy:
-      R_CHECK( checkMergedFile( "trigMenuFileMerged.root" ) );
-
-      // Remove the merged file:
-      gSystem->Unlink( "trigMenuFileMerged.root" );
    }
+
+   // Test that the output file is healthy:
+   R_CHECK( checkMergedFile( "trigMenuFileMerged.root" ) );
+
+   // Remove the merged file:
+   gSystem->Unlink( "trigMenuFileMerged.root" );
 
    //
    // Check the merging in the way that it is done inside EventLoop jobs:
@@ -309,13 +309,13 @@ int main() {
       // Close the output file:
       R_CHECK( event.finishWritingTo( ofile.get() ) );
       ofile->Close();
-
-      // Test that the output file is healthy:
-      R_CHECK( checkMergedFile( "trigMenuFileMerged.root" ) );
-
-      // Remove the merged file:
-      gSystem->Unlink( "trigMenuFileMerged.root" );
    }
+
+   // Test that the output file is healthy:
+   R_CHECK( checkMergedFile( "trigMenuFileMerged.root" ) );
+
+   // Remove the merged file:
+   gSystem->Unlink( "trigMenuFileMerged.root" );
 
    // Remove the test files:
    gSystem->Unlink( "trigMenuFile1.root" );

@@ -116,6 +116,7 @@ from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
+from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
@@ -127,6 +128,8 @@ addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
 addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
 # add VR jets
 addVRJetsForTop(TOPQ1Sequence)
+# add Xbb tagger information
+addXbbTaggerInformation(TOPQ1Sequence, ToolSvc)
 # apply jet calibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)

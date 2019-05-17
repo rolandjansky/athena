@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
 # Ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
+# dataType = "data"
+dataType = "mc"
 #dataType = "afii"
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
@@ -27,14 +27,50 @@ sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 algSeq += sysLoader
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
+
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
 jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase' )
 print( jetSequence ) # For debugging
 
-# Add the sequence to the job:
+# Include, and then set up the jet analysis algorithm sequence:
+from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
+jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer )
+jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
+                                     'jets'      : 'AnalysisJetsBase_%SYS%' },
+                       outputName = { 'jets'      : 'AnalysisJets_%SYS%' },
+                       affectingSystematics = { 'jets' : jetSequence.affectingSystematics() } )
+print( jvtSequence ) # For debugging
+
+# Add the sequences to the job:
+algSeq += pileupSequence
 algSeq += jetSequence
+algSeq += jvtSequence
+
+# Set up an ntuple to check the job with:
+ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+ntupleMaker.TreeName = 'jets'
+ntupleMaker.Branches = [
+    'EventInfo.runNumber   -> runNumber',
+    'EventInfo.eventNumber -> eventNumber',
+    'AnalysisJets_%SYS%.pt -> jet_%SYS%_pt',
+]
+if dataType != 'data':
+    ntupleMaker.Branches += [
+        # 'EventInfo.jvt_effSF_%SYS% -> jvtSF_%SYS%',
+        # 'EventInfo.fjvt_effSF_%SYS% -> fjvtSF_%SYS%',
+        'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
+        'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
+    ]
+ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
+algSeq += ntupleMaker
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

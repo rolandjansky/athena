@@ -342,7 +342,7 @@ void AFP_GeoModelFactory::AddHorizontalArm(const char* pszStationName, const int
     bool bAddSepPart=false;
     double fTaperPartXDim=0.0*CLHEP::mm;
     GeoShape* pSolHorzBar=NULL;
-    GeoBox* pSolHorzBar1=NULL, *pSolHorzBar2=NULL;
+    GeoBox* pSolHorzBar1=NULL;//, *pSolHorzBar2=NULL;
 
     if((LQBarDims.eType==ELBT_HYBRID || LQBarDims.eType==ELBT_HYBRIDMETALELBOW) && LQBarDims.bSepHorzBarInTaper)
     {
@@ -353,7 +353,7 @@ void AFP_GeoModelFactory::AddHorizontalArm(const char* pszStationName, const int
         //if(LQBarDims.fHorzBarXDim-fTaperPartXDim<0) throw G4Exception("CMyDetectorConstruction::AddHorizontalArm","",RunMustBeAborted,"Cannot create taper, insufficient length of horizontal arm");
 
         pSolHorzBar1=new GeoBox(0.5*fTaperPartXDim,0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
-        pSolHorzBar2=new GeoBox(0.5*(LQBarDims.fHorzBarXDim-fTaperPartXDim),0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
+        // pSolHorzBar2=new GeoBox(0.5*(LQBarDims.fHorzBarXDim-fTaperPartXDim),0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
         bAddSepPart=true;
     }
     else
@@ -375,7 +375,11 @@ void AFP_GeoModelFactory::AddHorizontalArm(const char* pszStationName, const int
 
         HepGeom::Transform3D TransCutWnd=HepGeom::Transform3D(Rot,vecCutShift);
         GeoShapeShift* pMoveCutWnd=new GeoShapeShift(pSolAux, TransCutWnd);
-        GeoShapeSubtraction* pSolHorzBar=new GeoShapeSubtraction(pSolHorzBar1, pMoveCutWnd);
+        // should this be a scope-local variable?
+        // it isn't used, and it has the same name as a variable
+        // in the outer scope
+        //GeoShapeSubtraction* pSolHorzBar=new GeoShapeSubtraction(pSolHorzBar1, pMoveCutWnd);
+        pSolHorzBar=new GeoShapeSubtraction(pSolHorzBar1, pMoveCutWnd);
         //pSolHorzBar=new G4SubtractionSolid("SolHorzBarWithTaper",pSolHorzBar1,pSolAux,pRot,vecCutShift);
     }
     else

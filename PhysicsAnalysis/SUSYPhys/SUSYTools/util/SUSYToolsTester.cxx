@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: SUSYToolsTester_opt.cxx 696994 2015-09-26 20:40:26Z khoo $
@@ -241,7 +241,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/physics_25ns_21.0.19.xml"));
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20180129/physics_25ns_21.0.19.xml"));
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.xml"));
-    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20181111/physics_25ns_Triggerno17e33prim.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20190219/physics_25ns_Triggerno17e33prim.xml"));
 
     ANA_CHECK( m_grl.setProperty("GoodRunsListVec", myGRLs) );
     ANA_CHECK( m_grl.setProperty("PassThrough", false) );
@@ -305,14 +305,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   //// GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
   ////
   //// For mc16e:
-  //// GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root
+  //// GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
   ////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
     ANA_CHECK( objTool.setProperty( "mcCampaign", "mc16e" ) );
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root"));
   } else {
     prw_lumicalc = getTokens(ilumicalc_file,",");
   }
@@ -1059,6 +1059,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           std::cout << "e17_lhloose_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0"))
           std::cout << " 2e17_lhvloose_nod0 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0_L12EM15VHI"))
+          std::cout << " 2e17_lhvloose_nod0_L12EM15VHI SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14"))
           std::cout << " e17_lhloose_nod0_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24"))

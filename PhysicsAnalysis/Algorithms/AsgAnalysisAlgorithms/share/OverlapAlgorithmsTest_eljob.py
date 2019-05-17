@@ -133,11 +133,11 @@ overlapSequence.configure(
       'jets'      : 'AnalysisJetsOR_%SYS%',
       'taus'      : 'AnalysisTauJetsOR_%SYS%' },
     affectingSystematics = {
-      'electrons' : '(^$)|(^EG_.*)|(^EL_.*)',
-      'photons'   : '(^$)|(^EG_.*)|(^PH_.*)',
-      'muons'     : '(^$)|(^MUON_.*)',
-      'jets'      : '(^$)|(^JET_.*)',
-      'taus'      : '(^$)|(^TAUS_.*)' } )
+      'electrons' : electronSequence.affectingSystematics(),
+      'photons'   : photonSequence.affectingSystematics(),
+      'muons'     : muonSequence.affectingSystematics(),
+      'jets'      : jetSequence.affectingSystematics(),
+      'taus'      : tauSequence.affectingSystematics() } )
 algSeq += overlapSequence
 
 # Set up an ntuple to check the job with:

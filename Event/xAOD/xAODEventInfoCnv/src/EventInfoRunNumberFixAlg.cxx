@@ -54,9 +54,9 @@ namespace xAOD {
     xAOD::EventInfo* eventInfo=nullptr;
     if (proxy->isConst()) {
       eventInfo = new xAOD::EventInfo();
-      *eventInfo = *originalEventInfo;
       auto store = CxxUtils::make_unique<xAOD::EventAuxInfo>();
       eventInfo->setStore (store.get());
+      *eventInfo = *originalEventInfo;
       eventInfo->setMCChannelNumber(m_mcChannelNumber);
       ATH_CHECK( evtStore()->overwrite (eventInfo,
                                     m_containerName,

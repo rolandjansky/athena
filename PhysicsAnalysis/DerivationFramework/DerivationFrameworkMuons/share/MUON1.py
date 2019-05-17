@@ -327,6 +327,9 @@ if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
     JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON1Seq,"MUON1")
     MUON1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
+from DerivationFrameworkMuons import ConstituentPileupIso
+ConstituentPileupIso.ConstituentPileupIso(MUON1Seq)
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

@@ -73,6 +73,7 @@ private:
   bool m_bApplyMVATES;
   bool m_bApplyMVATESQualityCheck;
   bool m_bApplyCombinedTES;
+  bool m_bApplyInsituCorrection;
 
 }; // class TauSmearingTool
 

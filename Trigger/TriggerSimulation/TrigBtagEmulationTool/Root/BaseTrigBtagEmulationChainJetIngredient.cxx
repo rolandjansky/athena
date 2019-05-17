@@ -413,7 +413,9 @@ std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_HLT::setIN
 void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) {
 
   std::string m_bjetTagger = "";
-  if( input.find("mv2c10") != std::string::npos )  
+  if( input.find("hmv2c10") != std::string::npos )
+    m_bjetTagger = "MV2c00";
+  else if( input.find("mv2c10") != std::string::npos )  
     m_bjetTagger = "MV2c10";
   else if( input.find("mv2c20") != std::string::npos )  
     m_bjetTagger = "MV2c20";
@@ -435,6 +437,13 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) 
   else if ( input.find("mv2c2070")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2070 ;
   else if ( input.find("mv2c2077")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2077 ;
   else if ( input.find("mv2c2085")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C2085 ;
+  // MV2c00 (Hybrid MV2c10) Tagger
+  else if ( input.find("hmv2c1040")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0040 ;
+  else if ( input.find("hmv2c1050")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0050 ;
+  else if ( input.find("hmv2c1060")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0060 ;
+  else if ( input.find("hmv2c1070")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0070 ;
+  else if ( input.find("hmv2c1077")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0077 ;
+  else if ( input.find("hmv2c1085")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C0085 ;
   // MV2c10 Tagger
   else if ( input.find("mv2c1040")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1040 ;
   else if ( input.find("mv2c1050")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::MV2C1050 ;

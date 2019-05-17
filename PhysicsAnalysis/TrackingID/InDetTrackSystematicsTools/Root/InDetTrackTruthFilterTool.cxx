@@ -6,6 +6,8 @@
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "CxxUtils/make_unique.h"
 
 #include <TH2.h>
@@ -28,7 +30,8 @@ namespace InDet {
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_GLOBAL],
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_IBL],
       InDet::TrackSystematicMap[TRK_EFF_TIGHT_PP0],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PHYSMODEL]
+      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PHYSMODEL],
+      InDet::TrackSystematicMap[TRK_FAKE_RATE_LOOSE_ROBUST]
     };
 
   InDetTrackTruthFilterTool::InDetTrackTruthFilterTool(const string& name) :
@@ -141,12 +144,45 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track) const {
+  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track, float mu) const {
 
-    int origin = m_trackOriginTool->getTrackOrigin(track);
+    
+    //this is only really useful if you are using the "robust" systematic version, otherwise the mu set can't do anything
+    if(isActive( TRK_FAKE_RATE_LOOSE_ROBUST )){
+      
+      //calcuate probability for this to be a fake, and then roll random numbers to decide if it is one, and if it should not be accepted
+      float fakeProb = pseudoFakeProbability(track,mu);
+      if(dropPseudoFake(fakeProb)) return false;
+
+      //otherwise, pass the track
+      return true;
+
+    }
+
+    else{
+      ATH_MSG_ERROR("User-specified mu value cannot be applied due to using wrong systematic version - select TRK_FAKE_RATE_LOOSE_ROBUST is you want to use this");
+      return true; //if you're not using the robust version, do nothing
+    }
+ }
+
+  bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track) const {
 
     float pt = track->pt();
     float eta = track->eta();
+
+
+    //Do robust version without using truth first if selected, as this is relatively decoupled from the rest
+    if(isActive( TRK_FAKE_RATE_LOOSE_ROBUST )){
+      const xAOD::EventInfo* ei = 0;
+      float mu = 20;//sensible mu default
+      ATH_CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
+      mu = ei->averageInteractionsPerCrossing();
+      
+      if (not accept(track,mu)) return false;
+    }
+    //now, back to using truth...
+
+    int origin = m_trackOriginTool->getTrackOrigin(track);
 
     // we unimplemented histograms for these, so only flat defaults will be used.
     float fPrim = getFractionDropped(m_fPrim, m_fPrimHistogram, pt, eta);
@@ -161,7 +197,7 @@ namespace InDet {
     if(InDet::TrkOrigin::isFromD(origin) && m_rnd->Uniform(0, 1) > fFromC) return false;
     float fFromB = getFractionDropped(m_fFromB, m_fFromBHistogram, pt, eta);
     if(InDet::TrkOrigin::isFromB(origin) && m_rnd->Uniform(0, 1) > fFromB) return false;
-  
+
     if ( InDet::TrkOrigin::isFake(origin) ) {
       bool isActiveLoose = isActive( TRK_FAKE_RATE_LOOSE );
       bool isActiveTight = isActive( TRK_FAKE_RATE_TIGHT );
@@ -276,5 +312,61 @@ namespace InDet {
     return InDetTrackSystematicsTool::applySystematicVariation(systs);
   }
 
+  // this is where the calculation of the fake probability is done if you are not using  truth info to determine whether a track is fake
+
+ float InDetTrackTruthFilterTool::pseudoFakeProbability(const xAOD::TrackParticle* track, float mu) const {
+    
+    float pt = track->pt();
+    float d0 = track->d0();   
+
+      //make a function to determine which tracks we will classify as fake, parameters determined from fit to full-truth MC16e ttbar
+      float fakeProb = 0.01;
+      //this is the mu dependence part
+      if(mu>20){
+	float p0 = 0.008645;
+	float p1 = 0.0001114;
+	float p2 = 9.299e-6;
+	fakeProb = p0 + (p1*mu) + (p2*mu*mu);
+      }
+      
+      //now we add the pT term
+      float pTcorr = 0.02;
+      if(pt<50000){
+	float p0 = 0.02;
+	float p1 = -3.564;
+	float p2 = -0.0005982;
+	float param = p1 + (p2 * pt);
+	pTcorr = p0 + exp(param); 
+      }
+      
+      fakeProb*=pTcorr;
+      
+      float d0corr = 1;
+      d0corr = tanh(abs(d0));
+      
+      fakeProb*=d0corr;
+      
+      //multiply by empirical ad hoc rescaling factor 
+      //to give correct overall probability
+      fakeProb*=309.602;
+      
+      return fakeProb;
+    
+  }
+
+bool InDetTrackTruthFilterTool::dropPseudoFake(float prob) const {
+ 
+  bool isFake = false;
+  if(m_rnd->Uniform(0, 1) < prob) isFake=true;
+  
+  //Now, if we've decided if this is a fake, we apply the uncertainty
+  if(isFake){
+    if(m_rnd->Uniform(0, 1) < m_fFakeLoose) return true; //drop this track
+  }
+  
+
+  return false;
+
+}
 
 } // namespace InDet

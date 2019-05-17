@@ -23,9 +23,9 @@ namespace Trk
      
  MvfFitInfo::~MvfFitInfo()
  { 
-  if (m_constraintVertex!=0) delete m_constraintVertex; m_constraintVertex=0;
-  if (m_seedVertex!=0) delete m_seedVertex; m_seedVertex=0;
-  if (m_linearizationVertex!=0) delete m_linearizationVertex; m_linearizationVertex=0;
+   delete m_constraintVertex;
+   delete m_seedVertex;
+   delete m_linearizationVertex;
  }//end of destructor
  
   MvfFitInfo::MvfFitInfo(const MvfFitInfo& rhs):

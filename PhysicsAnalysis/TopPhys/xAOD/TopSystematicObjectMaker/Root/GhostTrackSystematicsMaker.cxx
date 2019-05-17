@@ -47,6 +47,8 @@ namespace top {
 
     StatusCode GhostTrackSystematicsMaker::initialize(){
         ATH_MSG_INFO(" top::GhostTrackSystematicsMaker initialize" );
+	
+	ATH_MSG_WARNING("Usage of ghost tracks in AnalysisTop is purely EXPERIMENTAL!\n");
         
         m_runPeriods = m_config->runPeriodsJetGhostTrack();
 
@@ -82,8 +84,9 @@ namespace top {
 	
 	
 	m_jetPtCut=m_config->jetPtGhostTracks();
+	m_jetEtaCut=m_config->jetEtacut();
 
-	ATH_MSG_INFO(" top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut << " MeV.");
+	ATH_MSG_INFO(" top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut << " MeV and eta <= " << m_jetEtaCut << ".");
 	
         ATH_MSG_INFO(" top::GhostTrackSystematicsMaker completed initialize" );
         return StatusCode::SUCCESS;
@@ -93,12 +96,25 @@ namespace top {
                                                                const CP::SystematicSet & syst) const {
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
-	    if( jet->pt()<m_jetPtCut )continue;
+	    if ( (jet->pt()<m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut) ) continue;
             // Copy nominal ghost track container into the systematic variation.
-            const auto & nominalGhostTracks =
+	    
+	    const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
+            std::vector<const xAOD::IParticle *> newGhosts;
+	    
+	    for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
+		if (ghostTracks[iGhost]==nullptr) continue;
+		
+                // We can re-use the existing xAOD::IParticle.
+                newGhosts.push_back(ghostTracks[iGhost]);
+            }
+	    
+	    if ( newGhosts.size()==0 ) ATH_MSG_WARNING("in GhostTrackSystematicsMaker: All ghost tracks are null pointers. There may be something wrong with your configuration or derivation. Jet pt: " << jet->pt() << " Jet eta: " << jet->eta());
+	    
             jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()),
-                                      nominalGhostTracks);
+                                      newGhosts);
         }
 
         return StatusCode::SUCCESS;
@@ -113,19 +129,14 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
-	    if( jet->pt()<m_jetPtCut )continue;
+	    if ( (jet->pt()<m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut) ) continue;
             const auto & ghostTracks =
                 jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING( "Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
-
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
 		
+		if (ghostTracks[iGhost]==nullptr) continue;
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -153,18 +164,14 @@ namespace top {
 
         ///-- Loop over the xAOD Container --///
         for(const auto & jet : * nominal ){
-	    if( jet->pt()<m_jetPtCut )continue;
+	    if ( (jet->pt()<m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut) ) continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
             std::vector<const xAOD::IParticle *> newGhosts;
 
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
-
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+		
+		if (ghostTracks[iGhost]==nullptr) continue;
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks[iGhost])};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -205,18 +212,15 @@ namespace top {
         newTrackParticles->setStore(newTrackParticlesAux);
 
         for (const auto & jet : * nominal){
-	    if( jet->pt()<m_jetPtCut )continue;
+	    if ( (jet->pt()<m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut) ) continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
-	    
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+	      
+		if (ghostTracks[iGhost]==nullptr) continue;
+		
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks.at(iGhost))};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -260,18 +264,15 @@ namespace top {
 
         for (const auto & jet : * nominal){
 	  
-	    if( jet->pt()<m_jetPtCut )continue;
+	    if ( (jet->pt()<m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut) ) continue;
             const auto & ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
             std::vector<const xAOD::IParticle *> newGhosts;
-	    	    
-	    if( std::find(ghostTracks.begin(),ghostTracks.end(), nullptr ) !=  ghostTracks.end()){
-		ATH_MSG_WARNING("Warning in GhostTrackSystematicsMaker: Found nullptr in ghostTrack vector. Systematic variations won't be calculated for this jet.");
-		ATH_MSG_WARNING("Jet pt: " << jet->pt() << " eta: " << jet->eta());
-		continue;
-	    }
 
             for (std::size_t iGhost=0; iGhost<ghostTracks.size(); ++iGhost){
+	      
+		if (ghostTracks[iGhost]==nullptr) continue;
+	      
                 const xAOD::TrackParticle *
                     tp{dynamic_cast<const xAOD::TrackParticle*>(ghostTracks.at(iGhost))};
                 top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
@@ -294,7 +295,18 @@ namespace top {
     StatusCode GhostTrackSystematicsMaker::execute(bool executeNominal){
         ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker execute:" );
 
-        // We don't want to do anything on Data -> bail early so that we can
+        
+        ///-- Get nominal jets --///
+        xAOD::JetContainer * nominalJets(nullptr);
+        top::check(evtStore()->retrieve(nominalJets,
+                                        m_config->sgKeyJetsStandAlone(m_nominalSystematicSet.hash())),
+                   "Failed to retrieve Jets");
+
+	// applyNoOpSystematic is used just to remove ghost track vector from thinned jets
+	top::check(applyNoOpSystematic(nominalJets, m_nominalSystematicSet),
+                               "Failure to apply GhostTrackSystematic");
+
+	// We don't want to do anything on Data -> bail early so that we can
         // rely on the inputs to be MC.
         if (not m_config->isMC()){
             return StatusCode::SUCCESS;
@@ -302,12 +314,6 @@ namespace top {
 
         ///-- Only run this on the systematic execution --///
         if(executeNominal) return StatusCode::SUCCESS;
-        
-        ///-- Get nominal jets --///
-        xAOD::JetContainer * nominalJets(nullptr);
-        top::check(evtStore()->retrieve(nominalJets,
-                                        m_config->sgKeyJetsStandAlone(m_nominalSystematicSet.hash())),
-                   "Failed to retrieve Jets");
 
 
         ///-- SMEARING --///
@@ -539,7 +545,7 @@ namespace top {
         
         return StatusCode::SUCCESS;
     }
-
+    
 }
 
 

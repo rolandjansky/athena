@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.h 
@@ -104,15 +104,23 @@ private:
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
+  bool m_useNjetInResidual;
+  float m_nJetPtThreshold;
+  std::string m_nJetContainerName;
   std::string m_dir;
   std::string m_eInfoName;
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
+  bool m_doOnlyResidual;
+  std::string m_vertexContainerName;
+  bool m_insituCombMassCalib;
+  std::vector<TString> m_insituCombMassConfig;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
   std::vector<TEnv*> m_globalTimeDependentConfigs;
+  std::vector<TEnv*> m_globalInsituCombMassConfig;
 
   //Bools/enums to avoid string comparisons at run time
   jetScale m_jetScale;
@@ -133,6 +141,8 @@ private:
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
   JetSmearingCorrection* m_jetSmearCorr;
+  JMSCorrection *InsituCombMassCorr;
+  std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
 
 }; 
 

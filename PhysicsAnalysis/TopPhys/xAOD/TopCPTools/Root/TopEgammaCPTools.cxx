@@ -37,7 +37,9 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
     m_electronEffSFIsoFile("SetMe"),
     m_electronEffSFIsoLooseFile("SetMe"),
     m_electronEffSFChargeIDFile("SetMe"),
-    m_electronEffSFChargeMisIDFile("SetMe") {
+    m_electronEffSFChargeIDLooseFile("SetMe"),
+    m_electronEffSFChargeMisIDFile("SetMe"),
+    m_electronEffSFChargeMisIDLooseFile("SetMe") {
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -52,6 +54,7 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
   declareProperty( "ElectronEffIso" , m_electronEffSFIso );
   declareProperty( "ElectronEffIsoLoose" , m_electronEffSFIsoLoose );
   declareProperty( "ElectronEffChargeID" , m_electronEffSFChargeID );
+  declareProperty( "ElectronEffChargeIDLoose", m_electronEffSFChargeIDLoose );
 
   declareProperty( "PhotonIsEMSelectorLoose" ,  m_photonLooseIsEMSelector);
   declareProperty( "PhotonIsEMSelectorMedium" , m_photonMediumIsEMSelector);
@@ -100,7 +103,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-				"ESModel", "es2017_R21_v1"),
+				"ESModel", "es2018_R21_v0"),
 	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
@@ -254,23 +257,30 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
 
   // Charge ID cannot use maps at the moment so we default to the old method
-  // for the moment only for MediumLH and FixedCutTight isolation
-  // either at Tight or Loose level
-  // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "");
+    m_electronEffSFChargeIDFile        = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    if(m_config->applyTightSFsInLooseTree()) // prevent crash on-supported loose electron WPs with ECIDS
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronID,      electronIsolation);
+    else
+      m_electronEffSFChargeIDLooseFile = electronSFFilePath("ChargeID", electronIDLoose, electronIsolationLoose);
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
+    std::vector<std::string> inChargeIDLoose {m_electronEffSFChargeIDLooseFile};
     // Charge Id efficiency scale factor
-    m_electronEffSFChargeID = setupElectronSFTool(elSFPrefix + "ChargeID", inChargeID, dataType);
-    // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
-    CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
-    //top::check( ChargeMisIDCorrections->setProperty("OutputLevel",  MSG::VERBOSE ) , "Failed to setProperty" );
-    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
-    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) , "Failed to setProperty" );
-    top::check( ChargeMisIDCorrections->initialize() , "Failed to setProperty" );
+    m_electronEffSFChargeID      = setupElectronSFTool(elSFPrefix + "ChargeID",      inChargeID, dataType);
+    m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
   }
+  // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
+  CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections      = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
+  CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
+  m_electronEffSFChargeMisIDFile      = electronSFFilePath("ChargeMisID", electronID,      electronIsolation);
+  m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
+  top::check( ChargeMisIDCorrections     ->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) ,      "Failed to setProperty" );
+  top::check( ChargeMisIDCorrections     ->initialize() , "Failed to setProperty" );
+  top::check( ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDLooseFile) , "Failed to setProperty" );
+  top::check( ChargeMisIDCorrectionsLoose->initialize() , "Failed to setProperty" );
+
   return StatusCode::SUCCESS;
 }
 
@@ -334,9 +344,9 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, std::string ISO) {
 
-  const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/";
+  const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
   std::string file_path;
 
@@ -349,16 +359,31 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   } else if (type == "triggerEff") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ChargeID") {
-    if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
-    file_path = "charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolFixedCutTight_MediumCFT.root";
-    file_path = el_calib_path + file_path;
-  } else if (type == "ChargeMisID") {
-    file_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/";
-    file_path += "chargeEfficiencySF.";
+    if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_ERROR("The requested ID WP (" + ID + ") is not supported for electron ChargeID SFs! Try TightLH or MediumLH instead.");
+    if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_ERROR("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight or Gradient instead.");
+    file_path += "additional/efficiencySF.ChargeID.";
     file_path += ID;
     file_path += "_d0z0_v13_";
     file_path += ISO;
+    file_path += "_ECIDSloose.root";
+    file_path  = el_calib_path + file_path;
+  } else if (type == "ChargeMisID") {
+    // Protect against "None" Iso key
+    if (ISO=="None") ISO="";
+    // Protect against Loose ID + any Iso
+    if (ID=="LooseAndBLayerLLH") ISO="";
+    file_path  = "charge_misID/";
+    file_path += "chargeEfficiencySF.";
+    file_path += ID;
+    file_path += "_d0z0_v13";
+    if (ISO!="") file_path += "_" + ISO;
+    if (m_config->useElectronChargeIDSelection()) {
+      if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
+      else if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + ISO + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
+      else file_path += "_ECIDSloose";
+    }
     file_path += ".root";
+    file_path  = el_calib_path + file_path;
   } else {
     ATH_MSG_ERROR("Unknown electron SF type");
   }
@@ -385,6 +410,9 @@ std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");
+    }
+    else if(type == "ChargeMisID") {
+      ATH_MSG_ERROR("Use electronSFFilePath method until ChargeMisID is supported by maps");
     }
     else{
       ATH_MSG_ERROR("Unknown electron SF type");

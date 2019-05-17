@@ -14,11 +14,14 @@
 #include "TFile.h"
 #include <cmath>
 #include <iostream>
+#include <regex>
 #include <boost/algorithm/string.hpp>
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
+
+#include "FakeBkgTools/AsymptMatrixTool.h"
 
 namespace top {
 
@@ -127,6 +130,8 @@ namespace top {
     m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
 
     m_fakesMM_weights(),
+    m_fakesMM_IFF_size(),
+    m_fakesMM_IFF_weights(),
 
     m_eventNumber(0),
     m_runNumber(0),
@@ -203,6 +208,8 @@ namespace top {
     m_extraBranches = extraBranches;
     m_selectionDecisions.resize(m_extraBranches.size());
 
+    // set the branch filters
+    branchFilters().push_back(std::bind(&EventSaverFlatNtuple::filterBranches, this, std::placeholders::_1, std::placeholders::_2));
 
     // fixed-R re-clustering (RC)
     if (config->useRCJets()){
@@ -391,6 +398,12 @@ namespace top {
             systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF[tagWP] , "weight_trackjet_bTagSF_"+shortBtagWP(tagWP));
           }
         }
+
+	if (m_config->useLargeRJets()) {
+	  for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
+	    m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
+	}
+
 
         systematicTree->makeOutputVariable(m_weight_jvt, "weight_jvt");
 
@@ -583,14 +596,10 @@ namespace top {
                                                "weight_photonSF_ID_DOWN");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso,
                                                "weight_photonSF_effIso");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effLowPtIso_UP,
-                                               "weight_photonSF_effLowPtIso_UP");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effLowPtIso_DOWN,
-                                               "weight_photonSF_effLowPtIso_DOWN");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effTrkIso_UP,
-                                               "weight_photonSF_effTrkIso_UP");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effTrkIso_DOWN,
-                                               "weight_photonSF_effTrkIso_DOWN");
+            systematicTree->makeOutputVariable(m_weight_photonSF_effIso_UP,
+                                               "weight_photonSF_effIso_UP");
+            systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
+                                               "weight_photonSF_effIso_DOWN");
           }
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
@@ -657,12 +666,23 @@ namespace top {
           }
         }
       }
-
+      
+      ///-- weights for matrix-method fakes estimate by IFF --///
+      if (!m_config->isMC() && systematicTree->name().find("Loose") != std::string::npos && m_config->doFakesMMWeightsIFF()) {
+	std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
+	while(asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size)) {
+	  fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+m_fakesMM_IFF_size));
+	  ++m_fakesMM_IFF_size;
+	}
+	std::string MMweight_branch_name = "fakesMM_weight_IFF";
+	systematicTree->makeOutputVariable(m_fakesMM_IFF_weights, MMweight_branch_name);
+      }
+      
       /// Bootstrapping poisson weights
       if (m_config->saveBootstrapWeights()){
         systematicTree->makeOutputVariable(m_weight_poisson, "weight_poisson");
       }
-
+      
       //event info
       systematicTree->makeOutputVariable(m_eventNumber,     "eventNumber");
       systematicTree->makeOutputVariable(m_runNumber,       "runNumber");
@@ -759,7 +779,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_jet_ip3dsv1, "jet_ip3dsv1");
         systematicTree->makeOutputVariable(m_jet_jvt,     "jet_jvt");
         systematicTree->makeOutputVariable(m_jet_passfjvt,"jet_passfjvt");
-        if (m_config->isMC()) {
+        if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
           systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
           systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
@@ -812,12 +832,11 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_e,    "ljet_e");
         systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
         systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
-        systematicTree->makeOutputVariable(m_ljet_isTopTagged_50, "ljet_isTopTagged_50");
-        systematicTree->makeOutputVariable(m_ljet_isTopTagged_80, "ljet_isTopTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isWTagged_80, "ljet_isWTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isWTagged_50, "ljet_isWTagged_50");
-        systematicTree->makeOutputVariable(m_ljet_isZTagged_80, "ljet_isZTagged_80");
-        systematicTree->makeOutputVariable(m_ljet_isZTagged_50, "ljet_isZTagged_50");
+	
+	for(const std::string& taggerName : m_boostedJetTaggersNames){
+	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
+	}
+	
       }
 
       //track jets
@@ -863,11 +882,10 @@ namespace top {
           systematicTree->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
           systematicTree->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
-
           systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
           systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
           systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
-
+          systematicTree->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
         }
         if(m_useRCAdditionalJSS){
 
@@ -1317,6 +1335,8 @@ namespace top {
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+        m_particleLevelTreeManager->makeOutputVariable(m_rcjet_nconstituent_clstr,  "rcjet_nconstituent_clstr");
 
       }
       if (m_useRCAdditionalJSS){
@@ -1781,10 +1801,8 @@ namespace top {
           m_weight_photonSF_ID_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_UP);
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO);
-          m_weight_photonSF_effLowPtIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_LOWPTISO_UP);
-          m_weight_photonSF_effLowPtIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_LOWPTISO_DOWN);
-          m_weight_photonSF_effTrkIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRKISO_UP);
-          m_weight_photonSF_effTrkIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRKISO_DOWN);
+          m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
+          m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
         }
 
 
@@ -1862,6 +1880,23 @@ namespace top {
       }
     }
 
+    ///-- weights for matrix-method fakes estimate by IFF --///
+    if (!m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
+      std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
+      for (int mmi = 0; mmi<m_fakesMM_IFF_size; ++mmi) {
+	fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_"+mmi));
+      }
+      std::string MMweight_branch_name = "fakesMM_weight_IFF";
+      std::string decorName = "MMWeight_IFF";
+      if( event.m_info->isAvailable<std::vector<float> >(decorName.c_str()) ) {
+	m_fakesMM_IFF_weights = event.m_info->auxdataConst<std::vector<float> >(decorName.c_str());
+      }
+      else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
+	std::vector<float> dummyMMweight(m_fakesMM_IFF_size, 1.);
+	m_fakesMM_IFF_weights = dummyMMweight;
+      }
+    }
+    
     //event info
     m_eventNumber = event.m_info -> eventNumber();
     m_runNumber   = event.m_info -> runNumber();
@@ -2115,6 +2150,15 @@ namespace top {
 
       // ghost tracks
       if( m_config->useJetGhostTrack() ){
+	m_jet_ghostTrack_pt    .clear();
+	m_jet_ghostTrack_eta   .clear();
+	m_jet_ghostTrack_phi   .clear();
+	m_jet_ghostTrack_e     .clear();
+	m_jet_ghostTrack_d0    .clear();
+	m_jet_ghostTrack_z0    .clear();
+	m_jet_ghostTrack_qOverP.clear();
+
+
         m_jet_ghostTrack_pt.resize(event.m_jets.size());
         m_jet_ghostTrack_eta.resize(event.m_jets.size());
         m_jet_ghostTrack_phi.resize(event.m_jets.size());
@@ -2193,10 +2237,6 @@ namespace top {
 
           const auto & ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue) );
 
-          const auto & ghostTracksNominal = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(m_config->nominalHashValue()) );
-
-
-
           const unsigned int nghostTracks=ghostTracks.size();
 
           m_jet_ghostTrack_pt[i].resize(nghostTracks);
@@ -2208,7 +2248,10 @@ namespace top {
           m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
-            m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+
+	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+
+	    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
             m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
@@ -2332,18 +2375,16 @@ namespace top {
     //large-R jets
     if (m_config->useLargeRJets()) {
       unsigned int i(0);
-      m_ljet_pt.resize(event.m_largeJets.size());
-      m_ljet_eta.resize(event.m_largeJets.size());
-      m_ljet_phi.resize(event.m_largeJets.size());
-      m_ljet_e.resize(event.m_largeJets.size());
-      m_ljet_m.resize(event.m_largeJets.size());
-      m_ljet_sd12.resize(event.m_largeJets.size());
-      m_ljet_isTopTagged_50.resize(  event.m_largeJets.size() );
-      m_ljet_isTopTagged_80.resize(  event.m_largeJets.size() );
-      m_ljet_isWTagged_80.resize(   event.m_largeJets.size() );
-      m_ljet_isWTagged_50.resize( event.m_largeJets.size() );
-      m_ljet_isZTagged_80.resize(   event.m_largeJets.size() );
-      m_ljet_isZTagged_50.resize( event.m_largeJets.size() );
+      const unsigned int nLargeRJets=event.m_largeJets.size();
+      m_ljet_pt.resize(nLargeRJets);
+      m_ljet_eta.resize(nLargeRJets);
+      m_ljet_phi.resize(nLargeRJets);
+      m_ljet_e.resize(nLargeRJets);
+      m_ljet_m.resize(nLargeRJets);
+      m_ljet_sd12.resize(nLargeRJets);
+      
+      for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
@@ -2355,12 +2396,10 @@ namespace top {
         jetPtr->getAttribute("Split12", Split12);
         m_ljet_sd12[i] = Split12;
 
-        try { m_ljet_isTopTagged_50[i]  = jetPtr->getAttribute<char>("isTopTagged_50" );} catch (...) { }
-        try { m_ljet_isTopTagged_80[i]  = jetPtr->getAttribute<char>("isTopTagged_80" );} catch (...) { }
-        try { m_ljet_isWTagged_80[i] = jetPtr->getAttribute<char>("isWTagged_80");} catch (...) { }
-        try { m_ljet_isWTagged_50[i] = jetPtr->getAttribute<char>("isWTagged_50");} catch (...) { }
-        try { m_ljet_isZTagged_80[i] = jetPtr->getAttribute<char>("isZTagged_80"); } catch (...) { }
-        try { m_ljet_isZTagged_50[i] = jetPtr->getAttribute<char>("isZTagged_50"); } catch (...) { }
+	
+	for (const std::string& taggerName : m_boostedJetTaggersNames ) { 
+	  try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
+	}
 
         ++i;
       }
@@ -2434,6 +2473,7 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
@@ -2489,6 +2529,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
       m_rcjet_gECF322_clstr.clear();
@@ -2532,6 +2573,8 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);
+
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -2586,6 +2629,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
@@ -3532,6 +3576,8 @@ namespace top {
       static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
       static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
       static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
+
       static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
       static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
@@ -3582,6 +3628,7 @@ namespace top {
       m_rcjet_d12_clstr.clear();
       m_rcjet_d23_clstr.clear();
       m_rcjet_Qw_clstr.clear();
+      m_rcjet_nconstituent_clstr.clear();
 
       m_rcjet_gECF332_clstr.clear();
       m_rcjet_gECF461_clstr.clear();
@@ -3627,6 +3674,7 @@ namespace top {
         m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	m_rcjet_nconstituent_clstr.resize(sizeOfRCjets,-999.);
       }
       if (m_useRCAdditionalJSS){
         m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
@@ -3679,6 +3727,7 @@ namespace top {
           m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+          m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
         }
         if (m_useRCAdditionalJSS){
           m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
@@ -4550,5 +4599,24 @@ namespace top {
     return prompt;
   }
 
+  int EventSaverFlatNtuple::filterBranches(const top::TreeManager*, const std::string& variable) {
+    const std::vector<std::string>& filteredBranches = m_config->filterBranches();
 
+    // lambda to test a wildcard on the variable
+    auto matches_wildcard = [&variable] (const std::string& wildcard) {
+      std::smatch match;
+      std::regex_search(variable, match, std::regex(wildcard));
+      if (!match.empty()) return true;
+      return false;
+    };
+
+    for (std::string filter : filteredBranches){
+      // replace "*" with ".*"
+      filter = regex_replace(filter,std::regex("\\*"),".*");
+      // check for a match
+      if (matches_wildcard(("^"+filter).c_str())) return 0;
+    }
+
+    return -1;
+  }
 } // namespace

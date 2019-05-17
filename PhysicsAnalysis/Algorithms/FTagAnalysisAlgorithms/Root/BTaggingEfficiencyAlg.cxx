@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -25,7 +25,6 @@ namespace CP
     , m_efficiencyTool ("BTaggingEfficiencyTool", this)
   {
     declareProperty ("efficiencyTool", m_efficiencyTool, "the calibration and smearing tool we apply");
-    declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the b-tagging efficiency");
     declareProperty ("onlyInefficiency", m_onlyInefficiency, "whether only to calculate inefficiencies");
   }
 
@@ -40,12 +39,11 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    if (m_efficiencyDecoration.empty())
+    if (m_scaleFactorDecoration.empty())
     {
-      ANA_MSG_ERROR ("no efficiency decoration name set");
+      ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiencyDecoration);
 
     ANA_CHECK (m_efficiencyTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
@@ -70,7 +68,7 @@ namespace CP
         {
           if (m_preselection.getBool (*jet))
           {
-            float eff = 0;
+            float sf = 0;
 
             // The efficiency tool can calculate both efficiencies and
             // inefficiencies.  This setup can calculate either, or
@@ -84,12 +82,14 @@ namespace CP
             // for all the other CP algorithms.
             if (!m_onlyInefficiency && m_selectionHandle.getBool (*jet))
             {
-              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getScaleFactor (*jet, eff));
+              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getScaleFactor (*jet, sf));
             } else
             {
-              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, eff));
+              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, sf));
             }
-            (*m_efficiencyAccessor) (*jet) = eff;
+            m_scaleFactorDecoration.set (*jet, sf, sys);
+          } else {
+            m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);
           }
         }
         return StatusCode::SUCCESS;

@@ -58,7 +58,7 @@ namespace HLT {
     public:
       QuestionScope(const TriggerElement *te, CLID clid, const std::string& label, NavigationCore *navig, bool issingle=false);  
       QuestionScope();
-      ~QuestionScope();
+      ~QuestionScope() noexcept (false);
     private:      
       const TriggerElement *m_start;
     };

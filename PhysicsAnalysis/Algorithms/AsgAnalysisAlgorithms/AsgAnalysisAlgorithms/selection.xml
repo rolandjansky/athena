@@ -2,6 +2,7 @@
 
    <class name="CP::AsgPtEtaSelectionTool" />
    <class name="CP::AsgFlagSelectionTool" />
+   <class name="CP::AsgEventScaleFactorAlg" />
    <class name="CP::AsgLeptonTrackSelectionAlg" />
    <class name="CP::AsgSelectionAlg" />
    <class name="CP::AsgViewSelectionAlg" />

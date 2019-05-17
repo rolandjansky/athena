@@ -139,7 +139,7 @@ namespace top {
 
     private:
         std::shared_ptr<top::TopConfig> m_config;
-	double m_jetPtCut;
+	double m_jetPtCut,m_jetEtaCut;
         std::vector<std::uint32_t> m_runPeriods;
 
         std::list<CP::SystematicSet> m_specifiedSystematics;

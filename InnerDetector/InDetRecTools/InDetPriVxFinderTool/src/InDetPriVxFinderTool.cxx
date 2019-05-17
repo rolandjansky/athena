@@ -57,16 +57,16 @@
 namespace InDet
 {
 
-  namespace {
-    void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) 
-    {
-      if (IsToDelete) 
-      {
-	delete WhatToDelete;
-	WhatToDelete=0;
-      }
-    }
-  }
+  // namespace {
+  //   void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) 
+  //   {
+  //     if (IsToDelete) 
+  //     {
+  //       delete WhatToDelete;
+  //       WhatToDelete=0;
+  //     }
+  //   }
+  // }
 
 
   InDetPriVxFinderTool::InDetPriVxFinderTool ( const std::string& t, const std::string& n, const IInterface*  p )
@@ -753,7 +753,7 @@ namespace InDet
               origParameters.erase ( origParameters.begin() + ( * ( indexOfSortedChi2.end()-1 ) ) );
 
               // delete old xAOD::Vertex first
-              if ( myxAODVertex!=0 ) delete myxAODVertex; myxAODVertex=0; 
+              delete myxAODVertex; myxAODVertex=0; 
               
 	 
               if(msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endreq;

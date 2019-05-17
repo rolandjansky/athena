@@ -41,7 +41,7 @@ Trk::KalmanWeightUpdator::~KalmanWeightUpdator() {}
 // initialize
 StatusCode Trk::KalmanWeightUpdator::initialize() {
     // pass individual outputlevel to message stream
-    m_log.setLevel(outputLevel());
+    m_log.setLevel(msgLevel());
     m_outputlevel = m_log.level()-MSG::DEBUG;
 
     if (m_weight.size() < 5) {

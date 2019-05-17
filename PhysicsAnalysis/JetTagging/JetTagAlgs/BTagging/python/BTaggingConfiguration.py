@@ -27,6 +27,7 @@ from BTagging.BTaggingConfiguration_IP2DNegTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcTag import *
 from BTagging.BTaggingConfiguration_IP2DTag import *
+from BTagging.BTaggingConfiguration_IP2DTrigHybridTag import *
 #from BTagging.BTaggingConfiguration_IP3DFlipTag import *
 from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DPosTag import *
@@ -35,6 +36,7 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
+from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
 from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
@@ -94,6 +96,7 @@ from BTagging.BTaggingConfiguration_MV1cFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c00Tag import *
 from BTagging.BTaggingConfiguration_MV2c00FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10Tag import *
+from BTagging.BTaggingConfiguration_MV2c10TrigHybridTag import *
 from BTagging.BTaggingConfiguration_MV2c10FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
@@ -115,6 +118,7 @@ from BTagging.BTaggingConfiguration_ExKtbbTag import *
 # MultivariateTagManager
 from BTagging.BTaggingConfiguration_MultivariateTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
+from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import *
 
 # DL1 tagger
 from BTagging.BTaggingConfiguration_DL1Tag import *
@@ -391,7 +395,7 @@ class Configuration:
       if JetCollection in self._BTaggingConfig_JetBTaggerTools:
           self.setupJetBTaggerTools(JetCollections=JetCollection)
 
-  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True, TrackAssociatorName="MatchedTracks"):
+  def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True, TrackAssociatorName="MatchedTracks", preTagDL2JetToTrainingMap={}):
       """Convenience function which takes only a single jet collection and returns an instance instead
       of a list; see setupJetBTaggerTools for more info. This function is mainly here for easy calling for BTagging from JetRec.
 
@@ -403,10 +407,10 @@ class Configuration:
           elif Verbose:
               print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
           JetCollection = JetCollection[:-4]
-      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName)
+      btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme, TrackAssociatorName, preTagDL2JetToTrainingMap)
       return btagger[0]
 
-  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks"):
+  def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = "", TrackAssociatorName="MatchedTracks", preTagDL2JetToTrainingMap={}):
       """Sets up JetBTaggerTool tools and adds them to the topSequence (one per jet collection). This function just updates
       the tool if such a tool already exists for the specified jet collections. This function should only be used for
       jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
@@ -491,12 +495,32 @@ class Configuration:
 
           self._BTaggingConfig_MainAssociatorTools[jetcol] = assoc
           options.setdefault('BTagTrackAssocTool', assoc)
+
+          # add the RNN tool
+          from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
+              FlavorTagDiscriminants__DL2Tool as DL2Tool)
+          from os.path import splitext, basename
+          options.setdefault("preBtagToolModifiers", [])
+          if jetcol in preTagDL2JetToTrainingMap:
+              for nn_file in preTagDL2JetToTrainingMap[jetcol]:
+                  training_name = nn_file.replace('/','_')
+                  rnn = DL2Tool(
+                      name=training_name + self.GeneralToolSuffix(),
+                      nnFile=nn_file)
+                  ToolSvc += rnn
+                  options['preBtagToolModifiers'].append(rnn)
+
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
           # setup the secondary vertexing tool
           options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
+          # GhostTag not in the jetcol name given by jetAuthor
+          if ("GhostTag" in jetcol):
+              options.setdefault('JetCollectionName', jetcol.replace('GhostTag',''))
+          else:
+              options.setdefault('JetCollectionName', jetcol)
           options.setdefault('BTagName', self.getOutputFilesPrefix() + jetcol)
           options.setdefault('BTagJFVtxName', self._OutputFilesJFVxname)
           options.setdefault('BTagSVName', self._OutputFilesSVname)
@@ -505,7 +529,10 @@ class Configuration:
           # Setup the associator tool
           # -- add tool to topSequence
           if not topSequence is None:
+
+              # now add the btagger tool
               topSequence += jetbtaggertool
+
           # -- add tool to ToolSvc
           if AddToToolSvc:
               ToolSvc += jetbtaggertool
@@ -1329,7 +1356,13 @@ class Configuration:
               print(self.BTagTag()+" - WARNING - "+JetCollection+" is not a supported jet collection for b-tagging! Some taggers may crash!")
           btagtool = self.setupBTagTool(JetCollection, ToolSvc, Verbose = Verbose, options=options)
           if btagtool:
-              self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              if (JetCollection == "AntiKt4EMPFlow"):
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201810", Verbose)
+                self.RegisterOutputContainersForJetCollection(JetCollection+"_201903", Verbose)
+              else:
+                self.RegisterOutputContainersForJetCollection(JetCollection, Verbose)
+              
               if not JetCollection in BTaggingFlags.Jets:
                   BTaggingFlags.Jets += [JetCollection, ]
           return btagtool

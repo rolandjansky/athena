@@ -56,6 +56,10 @@ class AODFix_r210(AODFix_base):
                 self.trklinks_postSystemRec(topSequence)
                 pass
 
+            if "egammaClusLinks" not in oldMetadataList:
+                self.egammaClusLinks_postSystemRec(topSequence)
+                pass
+
             if "egammaStrips" not in oldMetadataList and not self.isHI:
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
@@ -68,6 +72,9 @@ class AODFix_r210(AODFix_base):
                 pass
             if "phIso" not in oldMetadataList:
                 self.phIso_postSystemRec(topSequence)
+                pass
+            if "elPflowIso" not in oldMetadataList and not self.isHI:
+                self.elPflowIso_postSystemRec(topSequence)
                 pass
 
             if "btagging" not in oldMetadataList and not self.isHI:
@@ -196,6 +203,14 @@ class AODFix_r210(AODFix_base):
         topSequence += \
             CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = containers )
 
+    def egammaClusLinks_postSystemRec(self, topSequence):
+        """This fixes the links to constituent clusters in egammaClusters
+        JIRA: https://its.cern.ch/jira/browse/ATLASG-1460
+        """
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_egammaClusLinks", 
+                                              Containers = ["egammaClustersAux."] )
+
     def btagging_postSystemRec(self, topSequence):
         """
         This fixes the uptodate BTagging calibration conditions tag.
@@ -269,6 +284,9 @@ class AODFix_r210(AODFix_base):
     def phIso_postSystemRec (self, topSequence):
         from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
         isoAODFixGetter("Photons")
+    def elPflowIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.PFlowIsoAODFixGetter import pflowIsoAODFixGetter
+        pflowIsoAODFixGetter()
 
     def tauid_postSystemRec(self, topSequence):
         """

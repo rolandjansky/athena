@@ -188,7 +188,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   //dec_passBaseID(input) = true;
 
   // calibrate the electron 4-vector here only if within eta window
-  if (fabs(input.caloCluster()->eta()) >= etacut) return StatusCode::SUCCESS;
+  if (fabs(input.caloCluster()->etaBE(2)) >= etacut) return StatusCode::SUCCESS;
 
   if (m_eleBaselineCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
@@ -283,9 +283,9 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   if (input.p4().Perp2() <= etcut * etcut || input.p4().Perp2() == 0) return false; // eT cut (might be necessary for leading electron to pass trigger)
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.eta()) > m_eleEta ) return false;
+    if(fabs(input.caloCluster()->etaBE(2)) > m_eleEta ) return false;
   }
-  else if ( fabs(input.eta()) > etacut ) return false;
+  else if ( fabs(input.caloCluster()->etaBE(2)) > etacut ) return false;
 
   if (m_eleCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {

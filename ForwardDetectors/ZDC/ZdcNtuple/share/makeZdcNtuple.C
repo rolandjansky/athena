@@ -21,7 +21,8 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   bool eos_mode = 0;
   bool eoslsf_mode = 0;
   bool grid_mode = 0;
-
+  bool isMC = 0;
+  
   if (readDir.find("file:")==0)
     {
       fileDir = readDir.substr(5); // remove file:
@@ -80,7 +81,7 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   
   bool zdcCalib = false;
   if (enableStr.find("debug")!=std::string::npos) { zdcAna.setProperty("debug", true); }
-  if (enableStr.find("isMC")!=std::string::npos) { zdcAna.setProperty("isMC", true); }
+  if (enableStr.find("isMC")!=std::string::npos) { zdcAna.setProperty("isMC", true); isMC = true;}
   if (enableStr.find("slimmed")!=std::string::npos) { zdcAna.setProperty("slimmed", true); }
   if (enableStr.find("tree")!=std::string::npos) { zdcAna.setProperty("enableOutputTree", true); }
   if (enableStr.find("samples")!=std::string::npos) { zdcAna.setProperty("enableOutputSamples", true); }
@@ -116,6 +117,12 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   if (enableStr.find("upc2016C")!=std::string::npos) { zdcAna.setProperty("upc2016C", true);}
   if (enableStr.find("mboverlay2016")!=std::string::npos) { zdcAna.setProperty("mboverlay2016", true);}
   if (enableStr.find("upc2018")!=std::string::npos) { zdcAna.setProperty("upc2018", true);}
+  if (enableStr.find("mb2018")!=std::string::npos) { zdcAna.setProperty("mb2018", true);}
+
+  if (enableStr.find("zdc2015")!=std::string::npos) { zdcAna.setProperty("zdcConfig","PbPb2015");zdcAna.setProperty("doZdcCalib",true); }
+  if (enableStr.find("zdc2016")!=std::string::npos) { zdcAna.setProperty("zdcConfig","pPb2016");zdcAna.setProperty("doZdcCalib",false); }
+  if (enableStr.find("zdc2018")!=std::string::npos) { zdcAna.setProperty("zdcConfig","PbPb2018");zdcAna.setProperty("doZdcCalib",true); }
+
   if (enableStr.find("writeOnlyTriggers")!=std::string::npos) { zdcAna.setProperty("writeOnlyTriggers", true);}
    if (grlOption != "")
     {
@@ -150,9 +157,13 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
     {
       // Run the job using the local/direct driver:
       EL::DirectDriver driver;
+      if (zdcCalib||isMC) 
+	{
+	  std::cout << "Setting athena access mode" << std::endl;
+	  job.options()->setString(EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
+	}
       driver.submit( job, submitDir );
       //if (zdcAna->zdcCalib) job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_branch);
-      if (zdcCalib) job.options()->setString(EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
     }
   
   if (grid_mode)
