@@ -169,7 +169,7 @@ int process_histos(string p_ofile, string p_infile) {
 
   // process histograms and efficiencies, that can be summed directly
   bool second_pass = false;
-  for (auto obj : all_objects) {
+  for (auto & obj : all_objects) {
     if (PRINTDBG > 2)
       cout << "running object  " << obj << endl;
     int ret = process_object(obj, ofile, infile, second_pass);
@@ -179,7 +179,7 @@ int process_histos(string p_ofile, string p_infile) {
   }
   // process TProfiles, that require pre-summed 2d-histograms
   second_pass = true;
-  for (auto obj : all_objects) {
+  for (auto & obj : all_objects) {
     if (PRINTDBG > 2)
       cout << "running object 2nd pass " << obj;
     int ret = process_object(obj, ofile, infile, second_pass);
@@ -263,7 +263,7 @@ int main(int ac, char *av[]) {
   }
 
   int processed = 0;
-  for (auto infile : infiles) {
+  for (auto & infile : infiles) {
     if (0 == processed) {
       if (!file_exists(infile)) {
         cout << " postProcessIDPVMHistos: Error: input file does not exist: " << infile
