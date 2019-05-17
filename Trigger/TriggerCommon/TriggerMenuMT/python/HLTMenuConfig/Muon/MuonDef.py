@@ -75,7 +75,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "Comb":[self.getmuFast(), self.getmuComb()],
             "ivar":[self.getmuFast(), self.getmuComb(), self.getmuIso()],
             "noL1":[self.getFSmuEFSA(), self.getFSmuEFCB()],
-            "msonly":[self.getmuFast(), self.getmuEFMS()],
+            "msonly":[self.getmuFast(), self.getmuMSEmpty(), self.getmuEFMS()],
             "ivarmedium":[self.getmuFast(), self.getmuComb(), self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()],
         }
 
@@ -151,6 +151,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring step " + stepName)
         muSeq = RecoFragmentsPool.retrieve( muEFIsoSequenceCfg, None)
         return ChainStep(stepName, [muSeq])
+
+    #--------------------
+    def getmuMSEmpty(self):
+        stepName = 'Step_muMS_empty'
+        log.debug("Configuring empty step")
+        return ChainStep(stepName)
 
 
 
