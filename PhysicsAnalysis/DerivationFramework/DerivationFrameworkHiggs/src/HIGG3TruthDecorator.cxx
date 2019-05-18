@@ -62,15 +62,15 @@ namespace DerivationFramework {
   }
 
   StatusCode HIGG3TruthDecorator::initialize() {
-    ATH_MSG_DEBUG ("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Print the configuration to the log file
-    ATH_MSG_DEBUG( "Using InputElectronContainerName: " << m_inElContName );
-    ATH_MSG_DEBUG( "Using InputMuonContainerName: " << m_inMuContName );
-    ATH_MSG_DEBUG( "Using InputEMTopoJetContainerName: " << m_inEMTopoJetContName );
-    ATH_MSG_DEBUG( "Using InputPFlowJetContainerName: " << m_inPFlowJetContName );
-    ATH_MSG_DEBUG( "Using IsSherpa: " << m_isSherpa );
-    ATH_MSG_DEBUG( "Using isPowPy8EvtGen: " << m_isPowPy8EvtGen );
+    ATH_MSG_INFO( "Using InputElectronContainerName: " << m_inElContName );
+    ATH_MSG_INFO( "Using InputMuonContainerName: " << m_inMuContName );
+    ATH_MSG_INFO( "Using InputEMTopoJetContainerName: " << m_inEMTopoJetContName );
+    ATH_MSG_INFO( "Using InputPFlowJetContainerName: " << m_inPFlowJetContName );
+    ATH_MSG_INFO( "Using IsSherpa: " << m_isSherpa );
+    ATH_MSG_INFO( "Using isPowPy8EvtGen: " << m_isPowPy8EvtGen );
 
     ATH_CHECK( m_GamORTool.retrieve() );
 

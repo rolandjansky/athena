@@ -55,7 +55,7 @@ def getHIGG3TruthDecoratorTool(outputStream, toolNamePrefix = "HIGG3DX"):
     toolName = toolNamePrefix+"TruthDecoratorTool"
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__HIGG3TruthDecorator
     HIGG3DTruthDecoratorTool = DerivationFramework__HIGG3TruthDecorator(name           = toolName,
-                                                                        OutputLevel    = VERBOSE,
+                                                                        #OutputLevel    = VERBOSE,
                                                                         IsSherpa       = isFromSherpa,
                                                                         isPowPy8EvtGen = isFromPowPy8EvtGen,
                                                                         GamORTool      = ToolSvc.HWWVGammaORTool
