@@ -150,7 +150,6 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
 
       persCont->m_prdDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
 
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<clusIdCompact<<"\t pers Id:"<<pchan->m_id<<std::dec<<endmsg;
       // std::cout <<"Trans id:"<<chan->m_clusId<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
       //check! 
@@ -239,7 +238,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         m_muonDetMgr->getMMReadoutElement(clusId);
       if (!detEl) {
         if (log.level() <= MSG::WARNING) 
-          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<pchan->m_id<<". Skipping."<<endmsg;
+          log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<< m_MMId->show_to_string(clusId) <<". Skipping."<<endmsg;
         continue;
       }
 
