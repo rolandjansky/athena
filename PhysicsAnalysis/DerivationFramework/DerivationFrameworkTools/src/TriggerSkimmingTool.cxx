@@ -63,8 +63,7 @@ namespace DerivationFramework {
     bool pass(false);
     pass = passAND || passOR;
     if (m_triggerListAND.size()==0) pass = passOR;
-    if (m_triggerListOR.size()==0) pass = passAND;
-   
+    if (m_triggerListOR.size()==0) pass = passAND; 
     
     return pass;
   }  
