@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,16 +9,17 @@
 #ifndef SCT_ConditionsSummaryTool_h
 #define SCT_ConditionsSummaryTool_h
 
-//STL includes
-#include <vector>
-#include <string>
-//Gaudi Includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
-//local includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
+//Gaudi Includes
+#include "GaudiKernel/ToolHandle.h"
+
+//STL includes
+#include <string>
+#include <vector>
 
 //forward declarations
 class ISCT_ConditionsTool;
@@ -52,7 +53,7 @@ public:
 private:
   StringArrayProperty m_reportingTools; //!< list of tools to be used
   ToolHandleArray<ISCT_ConditionsTool> m_toolHandles;
-  bool m_noReports;
+  bool m_noReports{true};
 };
 
 #endif // SCT_ConditionsSummaryTool_h

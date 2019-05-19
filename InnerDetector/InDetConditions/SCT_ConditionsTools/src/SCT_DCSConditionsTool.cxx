@@ -18,15 +18,8 @@ const float SCT_DCSConditionsTool::s_defaultHV{-30.};
 const float SCT_DCSConditionsTool::s_defaultTemperature{-40.};
 
 SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_pHelper{nullptr}
+  base_class(type, name, parent)
 { 
-    //declare variables which will be filled by jobOptions
-    declareProperty("ReadAllDBFolders", m_readAllDBFolders=true);
-    declareProperty("ReturnHVTemp", m_returnHVTemp=true);
-    declareProperty("TempBarrelCorrection", m_barrel_correction=-3.7);
-    declareProperty("TempEcInnerCorrection", m_ecInner_correction=-13.1);
-    declareProperty("TempEcOuterCorrection", m_ecOuter_correction=-15.5);
 }
 
 StatusCode SCT_DCSConditionsTool::initialize() {

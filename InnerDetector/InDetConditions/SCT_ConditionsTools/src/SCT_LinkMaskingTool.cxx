@@ -8,9 +8,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
-SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string &type, const std::string &name, const IInterface *parent) : 
-  base_class(type, name, parent),
-  m_sctHelper{nullptr}
+SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string& type, const std::string& name, const IInterface* parent) : 
+  base_class(type, name, parent)
 { 
 }
 
