@@ -63,9 +63,11 @@ public:
   virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const override;
 
  private:
-  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds;
+  // SCT_FlaggedCondData created by SCT_Clusterization
+  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionTool
+  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
 
-  const SCT_ID* m_sctID; //!< ID helper for SCT
+  const SCT_ID* m_sctID{nullptr}; //!< ID helper for SCT
 
   const SCT_FlaggedCondData* getCondData(const EventContext& ctx) const;
 };

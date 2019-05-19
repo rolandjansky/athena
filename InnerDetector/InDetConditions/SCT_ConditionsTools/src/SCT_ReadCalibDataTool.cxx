@@ -14,9 +14,9 @@
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_id_sct{nullptr} {
-  }
+  base_class(type, name, parent)
+{
+}
 
 //----------------------------------------------------------------------
 StatusCode SCT_ReadCalibDataTool::initialize() {

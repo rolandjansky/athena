@@ -9,13 +9,8 @@
 
 // Constructor
 SCT_FlaggedConditionTool::SCT_FlaggedConditionTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_badIds{"SCT_FlaggedCondData"},
-  // SCT_FlaggedCondData created by SCT_Clusterization
-  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionTool
-  m_sctID{nullptr}
+  base_class(type, name, parent)
 {
-  declareProperty("SCT_FlaggedCondData", m_badIds, "SCT flagged conditions data");
 }
 
 // Initialize
