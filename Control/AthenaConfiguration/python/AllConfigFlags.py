@@ -103,6 +103,11 @@ def _createCfgFlags():
         return createLArConfigFlags()
     _addFlagsCategory(acf, "LAr", __lar, 'LArConfiguration' ) 
 
+    def __tile():
+        from TileConfiguration.TileConfigFlags import createTileConfigFlags
+        return createTileConfigFlags()
+    _addFlagsCategory(acf, 'Tile', __tile, 'TileConfiguration' )
+
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
     acf.addFlag("Calo.Noise.useCaloNoiseLumi",True)
