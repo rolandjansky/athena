@@ -198,7 +198,7 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-            alg.addgeneric('JetSize', 2)
+            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', 21)
             tm.registerAlgo(alg)
