@@ -32,7 +32,6 @@ namespace DerivationFramework {
     private:
       std::vector<std::string> m_triggerListAND;
       std::vector<std::string> m_triggerListOR;
-      std::vector<std::string> m_triggerListORHLTOnly;
       ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
   }; 
