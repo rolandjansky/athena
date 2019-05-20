@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -325,17 +325,18 @@ namespace Trk
                                         *track.trackStateOnSurfaces());
 
     // allocate material
+    Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
       m_materialAllocator->allocateMaterial(*measurements,
                                             particleHypothesis,
                                             *m_parameters,
-                                            *perigee);
+                                            *perigee, garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
     trackInfo.addPatternReco(track.info());
-    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
     if (perigeeSurface) {
       delete perigeeSurface;
       delete perigee;
@@ -405,12 +406,14 @@ namespace Trk
     addMeasurements(*measurements,
                     measurementSet,
                     *m_parameters);
+    Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
       const TrackParameters& endParams = *(track.trackStateOnSurfaces()->back()->trackParameters());
       m_materialAllocator->allocateMaterial(*measurements,
                                             particleHypothesis,
                                             *m_parameters,
-                                            endParams);
+                                            endParams,
+                                            garbage);
     }
 
     // perform fit and return fitted track
@@ -421,7 +424,8 @@ namespace Trk
                       particleHypothesis,
                       trackInfo,
                       track.trackStateOnSurfaces(),
-                      track.fitQuality());
+                      track.fitQuality(),
+                      garbage);
   }
 
   Track*
@@ -446,16 +450,18 @@ namespace Trk
     // set up the measurements (and material)
     std::vector<FitMeasurement*>* measurements = measurementList();
     addMeasurements(*measurements, measurementSet, *m_parameters);
+    Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
       m_materialAllocator->allocateMaterial(*measurements,
                                             particleHypothesis,
                                             *m_parameters,
-                                            perigeeStartValue);
+                                            perigeeStartValue,
+                                            garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
-    return performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+    return performFit(measurements, m_parameters, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
   }
 
   Track*
@@ -525,13 +531,15 @@ namespace Trk
                          *m_parameters,
                          particleHypothesis,
                          *spectrometerTrack.trackStateOnSurfaces())) haveMaterial = false;
+    Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
       Perigee* startingPerigee = m_parameters->startingPerigee();
       if (startingPerigee) {
         m_materialAllocator->allocateMaterial(*measurements,
                                               particleHypothesis,
                                               *m_parameters,
-                                              *startingPerigee);
+                                              *startingPerigee,
+                                              garbage);
         delete startingPerigee;
       }
     }
@@ -541,7 +549,7 @@ namespace Trk
     trackInfo.addPatternReco(indetTrack.info());
     trackInfo.addPatternReco(spectrometerTrack.info());
     if (m_fullCombinedFit) {
-      Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+      Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
 
       // validation
       for (int i = 0; i < m_forcedRefitsForValidation; ++i)
@@ -561,7 +569,8 @@ namespace Trk
                                            particleHypothesis,
                                            trackInfo,
                                            indetTrack.trackStateOnSurfaces(),
-                                           indetTrack.fitQuality());
+                                           indetTrack.fitQuality(),
+                                           garbage);
 
       // validation
       for (int i = 0; i < m_forcedRefitsForValidation; ++i)
@@ -989,7 +998,8 @@ namespace Trk
                          const ParticleHypothesis particleHypothesis,
                          const TrackInfo& trackInfo,
                          const DataVector<const TrackStateOnSurface>* leadingTSOS,
-                         const FitQuality* perigeeQuality) const {
+                         const FitQuality* perigeeQuality,
+                         Garbage_t& garbage) const {
     // initialize the scattering centres
     m_materialAllocator->initializeScattering(*measurements);
 
@@ -1019,7 +1029,7 @@ namespace Trk
 //  }
 
       // include leading material
-      m_materialAllocator->addLeadingMaterial(*measurements, particleHypothesis, *parameters);
+      m_materialAllocator->addLeadingMaterial(*measurements, particleHypothesis, *parameters, garbage);
 
 
       // construct the fitted track
@@ -1164,8 +1174,7 @@ namespace Trk
       m_measurements = 0;
       m_parameters = 0;
     }
-    m_materialAllocator->clear();
-
+    
     return fittedTrack;
   }
 
@@ -1268,17 +1277,19 @@ namespace Trk
                                         *track.trackStateOnSurfaces());
 
     // allocate material
+    Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
       m_materialAllocator->allocateMaterial(*measurements,
                                             particleHypothesis,
                                             *m_parameters,
-                                            *perigee);
+                                            *perigee,
+                                            garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
     trackInfo.addPatternReco(track.info());
-    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
     if (perigeeSurface) {
       delete perigeeSurface;
       delete perigee;

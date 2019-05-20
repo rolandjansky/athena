@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -22,6 +22,7 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
@@ -284,8 +285,10 @@ TrackFitter::fitProcedure (State& state,
 	state.m_fitCode		= state.m_fitProcedureQuality->fitCode();
 	
 	// include leading material
-	if (status != three_point && ! state.m_fitCode)
-	    m_materialAllocator->addLeadingMaterial(state.m_measurements,Trk::pion,*state.m_parameters);
+	if (status != three_point && ! state.m_fitCode) {
+            Trk::IMaterialAllocator::Garbage_t garbage;
+	    m_materialAllocator->addLeadingMaterial(state.m_measurements,Trk::pion,*state.m_parameters,garbage);
+        }
 	
     }
 }
