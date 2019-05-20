@@ -30,7 +30,7 @@ Muon::CscRawDataProvider::~CscRawDataProvider(){
 // Initialize
 StatusCode Muon::CscRawDataProvider::initialize() {
   ATH_MSG_VERBOSE(" in initialize()");
-  ATH_MSG_INFO( m_seededDecoding );
+  ATH_MSG_VERBOSE( m_seededDecoding );
 
   ATH_CHECK( m_roiCollectionKey.initialize(m_seededDecoding) );// pass the seeded decoding flag - this marks the RoI collection flag as not used for the case when we decode the full detector
 
