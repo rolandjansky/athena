@@ -2046,6 +2046,10 @@ class ItemDef:
                         LVL1MenuItem('L1_SC85').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)           # noqa: F821
 
                     LVL1MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( HA60 & TOPO_0DR28_TAU20abi_TAU12abi & physcond)    # noqa: F821
+                    if '_v8' in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_CEP-CJ60').setLogic( TOPO_CEP_CJ60s6 & physcond ) # noqa: F821
+                        LVL1MenuItem('L1_CEP-CJ50').setLogic( TOPO_CEP_CJ50s6 & physcond ) # noqa: F821
+                        LVL1MenuItem('L1_CEP-CJ50.ETA21').setLogic( TOPO_CEP_CJ50s6ETA21 & physcond ) # noqa: F821
 
             except Exception, ex:
                     print "Creation of L1Topo item failed, will abort! Exception is : " , ex

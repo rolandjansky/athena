@@ -193,8 +193,16 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', _etamax)
             alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg)
+            
+            alg = AlgConf.JetSort( name = 'CJs.ETA21', inputs = 'JetTobArray', outputs = 'CJs.ETA21', algoId = currentAlgoId); currentAlgoId += 1
+            alg.addgeneric('InputWidth',  HW.InputWidthJET)
+            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
+            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
+            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
+            alg.addvariable('MinEta', 0)
+            alg.addvariable('MaxEta', 21)
+            tm.registerAlgo(alg)
 
-        
         # Sorted J lists:
         for jet_type in ['AJ', 'FJ']:
             jetabseta = _etamax
@@ -224,7 +232,7 @@ class TopoAlgoDef:
                 alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
 
-        for jet_type in ['J']:
+        for jet_type in ['J','CJ']:
             jetabseta = _etamax
             _minet = 25
             if jet_type=='J':
@@ -2038,3 +2046,28 @@ class TopoAlgoDef:
             alg.addgeneric('DeltaRMin', 0)
             alg.addgeneric('DeltaRMax', 15*15)
             tm.registerAlgo(alg)
+            
+        if usev8:
+          for x in [50,60]:
+            toponame = "CEP-CJ%is6" % x 
+            log.info("Define %s" % toponame)
+            
+            inputList = ['CJs']
+            
+            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+            alg.addvariable('MinET1', x)
+            alg.addvariable('MinXi', 0.02)
+            alg.addvariable('MaxXi', 0.05)
+            tm.registerAlgo(alg)
+            
+          x = 50
+          toponame = "CEP-CJ%is6ETA21" % x 
+          log.info("Define %s" % toponame)
+            
+          inputList = ['CJs.ETA21']
+            
+          alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+          alg.addvariable('MinET1', x)
+          alg.addvariable('MinXi', 0.02)
+          alg.addvariable('MaxXi', 0.05)
+          tm.registerAlgo(alg)
