@@ -284,6 +284,7 @@ namespace InDetDD {
       double sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const;
     
       /// Element Surface
+      virtual Trk::Surface & surface();
       virtual const Trk::Surface & surface() const;
     
       //@}
@@ -645,7 +646,7 @@ namespace InDetDD {
       mutable double m_minPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
       mutable double m_maxPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
 
-      CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
+      CxxUtils::CachedUniquePtrT<Trk::Surface> m_surface;
       mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
       const GeoAlignmentStore* m_geoAlignStore{};
