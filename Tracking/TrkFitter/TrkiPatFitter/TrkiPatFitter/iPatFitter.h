@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkiPatFitterUtils/IMaterialAllocator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
@@ -52,6 +53,8 @@ class iPatFitter: public AthAlgTool,
 		  virtual public ITrackFitter
 {
 public:
+    typedef IMaterialAllocator::Garbage_t Garbage_t;
+
     // standard AlgTool methods
     iPatFitter		(const std::string& type, 
 			 const std::string& name,
@@ -134,8 +137,9 @@ private:
 			   FitParameters*				parameters,
 			   const ParticleHypothesis			particleHypothesis,
 			   const TrackInfo&				trackInfo,
-			   const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0,
-			   const FitQuality*				perigeeQuality = 0) const;
+			   const DataVector<const TrackStateOnSurface>*	leadingTSOS,
+			   const FitQuality*				perigeeQuality,
+                           Garbage_t&                                   garbage) const;
 
     
     // print TSOS on a track (debugging aid)
