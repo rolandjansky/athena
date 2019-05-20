@@ -306,7 +306,7 @@ namespace Trk {
        /** set material layer 
        * Athena MT note : This should not be really used
        * as it  modifies a const object.
-       * The non-const overload below is fine.
+       * The non-const overload above is fine.
        */ 
       void setMaterialLayer ATLAS_NOT_THREAD_SAFE (const Layer& mlay) const 
       { const_cast<Surface*> (this)->m_materialLayer = (&mlay); }
@@ -335,12 +335,9 @@ namespace Trk {
      
       /* Athena MT note : This should not be really used
        * as it  modifies a const object.
-       * The non-const overload below is fine.
-       * ATLAS_NOT_THREAD_SAFE
-       * comments due to
-       * ATLASRECTS-4957
+       * The non-const overload above is fine
        */ 
-      void associateLayer /*ATLAS_NOT_THREAD_SAFE*/ (const Layer& lay) const
+      void associateLayer ATLAS_NOT_THREAD_SAFE (const Layer& lay) const
       { const_cast<Surface*> (this)->m_associatedLayer = (&lay); }
             
   protected:
