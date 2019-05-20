@@ -23,7 +23,6 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include <xAODJet/JetContainer.h>
-#include <xAODTruth/TruthParticleContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
@@ -36,6 +35,7 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "JetInterface/IJetSelector.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+#include "JetUncertainties/JetUncertaintiesTool.h"
 
 using namespace std;
 
@@ -109,6 +109,7 @@ int main( int argc, char* argv[] ) {
     Info( APP_NAME, "Argument (-v) : Setting verbose");
   }
 
+
   ////////////////////////////////////////////////////
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
@@ -144,6 +145,27 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "eta", &eta, "eta/F" );
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
+  std::string jetAlg = "AntiKt10LCTopoTrimmedPtFrac5SmallR20";
+  std::string jetUnc_FJ_base = "rel21/Moriond2018/";
+  std::string MCType = "MC16a"; //recommendations are for MC16a
+  JetUncertaintiesTool* m_jetUncToolSF = new JetUncertaintiesTool(("JetUncProvider_SF"));
+  m_jetUncToolSF->setProperty("JetDefinition", jetAlg);
+  m_jetUncToolSF->setProperty("Path", "/data/data7/zp/tnobe/testBJT4/build/x86_64-slc6-gcc62-opt/share/JetUncertainties/test/");
+  m_jetUncToolSF->setProperty("ConfigFile", (jetUnc_FJ_base+"testSF.config").c_str());
+  m_jetUncToolSF->setProperty("MCType", MCType);
+  m_jetUncToolSF->initialize();
+
+  std::vector<std::string> pulls = {"__1down", "__1up"};
+  CP::SystematicSet jetUnc_sysSet2 = m_jetUncToolSF->recommendedSystematics();
+  const std::set<std::string> sysNames2 = jetUnc_sysSet2.getBaseNames();
+  std::vector<CP::SystematicSet> m_jetUnc_sysSets2;
+  for (auto sysName: sysNames2) {
+    for (auto pull : pulls) {
+      std::string sysPulled = sysName + pull;
+      m_jetUnc_sysSets2.push_back(CP::SystematicSet(sysPulled));
+    }
+  }
+
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
   ////////////////////////////////////////////
@@ -157,15 +179,14 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
-  m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
-  //m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets");
-  m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
-
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   //m_Tagger.setProperty( "CalibArea",    "JSSWTopTaggerDNN/Rel21");
   //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_50Eff.dat");
-   m_Tagger.setProperty("CalibArea", "Local");
-   m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC15c_20170824_BOOSTSetup80Eff.dat");
+  m_Tagger.setProperty( "CalibArea",    "Local");
+  m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/Rel21/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_80Eff.dat");
+  //m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/Rel21/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_50Eff.dat");
+  m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
+  m_Tagger.setProperty("DSID", 410470); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   m_Tagger.retrieve();
 
 
@@ -192,33 +213,47 @@ int main( int argc, char* argv[] ) {
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
-      continue;
+      continue ;
 
     // Loop over jet container
-    for(const xAOD::Jet* jet : * myJets ){      
-
-      if(verbose) std::cout<<"Testing DNN W/top Tagger "<<std::endl;
-
-      const Root::TAccept& res = m_Tagger->tag( *jet );
-      if(verbose) std::cout<<"jet pt              = "<<jet->pt()<<std::endl;
+    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *myJets );
+    xAOD::JetContainer::iterator jet_itr = (jets_shallowCopy.first)->begin();
+    xAOD::JetContainer::iterator jet_end = (jets_shallowCopy.first)->end();    
+    for( ; jet_itr != jet_end; ++ jet_itr ){
+      
+      if(verbose) std::cout<<"Testing top Tagger "<<std::endl;
+      const Root::TAccept& res = m_Tagger->tag( **jet_itr );
+      if(verbose) std::cout<<"jet pt              = "<<(*jet_itr)->pt()<<std::endl;
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
-      if(verbose) std::cout<<"Printing jet score : " << jet->auxdata<float>("DNNTaggerTopQuark80_Score") << std::endl;
+      if(verbose) std::cout<<"Printing jet score : " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_Score") << std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = (int)jet->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
+      truthLabel = (int)(*jet_itr)->auxdata<FatjetTruthLabel>("FatjetTruthLabel");
 
       pass = res;
-      sf = jet->auxdata<float>("DNNTaggerTopQuark80_SF");
-      pt = jet->pt();
-      m  = jet->m();
-      eta = jet->eta();
+      sf = (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF");
+      //sf = (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkInclusive50_SF");
+      pt = (*jet_itr)->pt();
+      m  = (*jet_itr)->m();
+      eta = (*jet_itr)->eta();
 
       Tree->Fill();
-
-      if ( jet->pt() > 200e3 && fabs(jet->eta()) < 2.0 && pass ) {
-	std::cout << "Nominal SF : " << jet->auxdata<float>("DNNTaggerTopQuark80_SF") << std::endl;
+      
+      if ( (*jet_itr)->pt() > 350e3 && fabs((*jet_itr)->eta()) < 2.0 && pass ) {
+        std::cout << "Nominal SF : " << sf  << std::endl;
+	bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
+	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
+	validForUncTool &= (fabs(eta) < 2);
+	if( validForUncTool ){
+	  for ( auto sysSet : m_jetUnc_sysSets2 ){
+	    std::cout << "Nominal SF " << sf << std::endl;
+	    m_jetUncToolSF->applySystematicVariation(sysSet);
+	    m_jetUncToolSF->applyCorrection(**jet_itr);
+	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
+	  }
+	}
       }
-    }
+   }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }

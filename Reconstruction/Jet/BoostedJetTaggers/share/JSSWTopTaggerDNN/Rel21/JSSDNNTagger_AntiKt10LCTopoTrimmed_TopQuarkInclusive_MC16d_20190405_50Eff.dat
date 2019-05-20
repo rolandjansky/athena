@@ -1,0 +1,42 @@
+####################################################################################
+# Title :
+# DNN Top Tagger Config
+#
+# Author :
+# # Chris Delitzsch <chris.malena.delitzsch@cern.ch>
+#
+# Description :
+# This configuration selects inclusive top quark jets using a selection on the DNN
+# score and a selection of mComb>40 GeV which is the same used in the training.  Note that no
+# additional tuned selection on jet mass is performed.  The selection on the DNN score is tuned
+# to give a flat signal efficiency as a function of jet pT of 50%
+#
+####################################################################################
+
+TaggerType: TopQuark
+
+DecorationName: DNNTaggerTopQuarkInclusive50
+
+#CalibAreaKeras: BoostedJetTaggers/JSSWTopTaggerDNN/Rel21/
+CalibAreaKeras: Local
+
+KerasConfigFile: dnn_inclusive_top_April04.json
+
+KerasOutput: dnn_inclusive_top
+
+MassCutLow: 40.0
+
+MassCutHigh: 999999999.0
+
+pTCutLow: 350.0
+pTCutHigh: 4000.0
+
+ScoreCut: (0.674568)*pow(x,0)+(0.00023139)*pow(x,1)+(-1.13909e-07)*pow(x,2)+(2.55624e-11)*pow(x,3)+(-2.37976e-15)*pow(x,4)
+
+CalcSF: true
+WeightFile: TagSF_JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_50Eff.root
+WeightDecorationName: SF
+WeightHistogramName: weightHistogram
+WeightFlavors: t,q
+TruthLabelDecorationName: FatjetTruthLabel
+

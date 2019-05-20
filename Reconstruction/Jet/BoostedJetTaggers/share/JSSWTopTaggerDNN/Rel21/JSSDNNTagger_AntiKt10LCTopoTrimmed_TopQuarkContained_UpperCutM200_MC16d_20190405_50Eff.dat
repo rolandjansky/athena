@@ -1,0 +1,35 @@
+####################################################################################
+# Title :
+# DNN Top Tagger Config
+#
+# Author :
+# Chris Delitzsch <chris.malena.delitzsch@cern.ch>
+#
+# Description :
+# This configuration selects fully contained top quark jets using a selection on the DNN
+# score and a selection of mComb>40 GeV which is the same used in the training.  Note that no
+# additional tuned selection on jet mass is performed.  The selection on the DNN score is tuned
+# to give a flat signal efficiency as a function of jet pT of 50%. The containment criteria
+# requires m_truth > 140 GeV, m_truth < 200 GeV and at least one ghost-associated b-hadron
+#
+####################################################################################
+
+TaggerType: TopQuark
+
+DecorationName: DNNTaggerTopQuarkContained50UpperTruthMass200
+
+CalibAreaKeras: BoostedJetTaggers/JSSWTopTaggerDNN/Rel21/
+#CalibAreaKeras: Local
+
+KerasConfigFile: dnn_contained_top_m200_April04.json
+
+KerasOutput: dnn_contained_top_m200
+
+MassCutLow: 40.0
+
+MassCutHigh: 999999999.0
+
+pTCutLow: 350.0
+pTCutHigh: 4000.0
+
+ScoreCut: (0.668396)*pow(x,0)+(0.000988515)*pow(x,1)+(-1.31267e-06)*pow(x,2)+(7.72812e-10)*pow(x,3)+(-1.53274e-13)*pow(x,4)+(-3.09028e-17)*pow(x,5)+(1.17969e-20)*pow(x,6)+(2.49209e-24)*pow(x,7)+(-1.27562e-27)*pow(x,8)+(1.26518e-31)*pow(x,9)
