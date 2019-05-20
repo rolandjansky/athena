@@ -67,7 +67,15 @@ public:
   void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
   //
   void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted);
-  //
+
+  // Helper function to populate a log-linear bin array. 
+  // Will set up nBins bins from absXmin to absXmax with an even bin size in logarithmic scale. 
+  // The symmetriseAroundZero option will add a mirrored set of bins 
+  // along the negative x axis and two addiional bins to fill the gap 
+  // between -absXmin and absXmin. In this case, you will get a total of 
+  // (2 x nBins + 1) bins.
+  std::vector<Double_t> populateLogLinearBinning(int nBins, double absXmin, double absXmax, bool symmetriseAroundZero = false);
+
 protected:
   /// book, for use by macro
   template <class T>
