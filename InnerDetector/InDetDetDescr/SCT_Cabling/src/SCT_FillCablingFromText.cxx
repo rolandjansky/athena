@@ -57,8 +57,7 @@ namespace{
 
 // Constructor
 SCT_FillCablingFromText::SCT_FillCablingFromText(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_filled{false} {
+  base_class(type, name, parent) {
   //nop
 }
 

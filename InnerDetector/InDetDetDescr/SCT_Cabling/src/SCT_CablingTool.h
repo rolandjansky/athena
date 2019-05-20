@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -95,8 +97,8 @@ class SCT_CablingTool: public extends<AthAlgTool, ISCT_CablingTool> {
  private:
   SG::ReadCondHandleKey<SCT_CablingData> m_data{this, "SCT_CablingData", "SCT_CablingData", "SCT_CablingData created by SCT_CablingCondAlgFromCoraCool"};
   StringProperty m_cablingDataSource; //!< the name of the data source
-  const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
-  bool m_usingDatabase;
+  const SCT_ID* m_idHelper{nullptr}; //!< helper for offlineId/hash conversions
+  bool m_usingDatabase{true};
 
   const SCT_CablingData* getData(const EventContext& ctx) const;
 };
