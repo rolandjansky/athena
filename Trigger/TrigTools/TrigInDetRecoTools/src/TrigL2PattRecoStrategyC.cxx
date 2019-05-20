@@ -283,7 +283,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
     if(m_timers) m_timer[9]->start();
 
-    VZ = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,roi));
+    VZ = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,roi);
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();
     if (outputLevel <= MSG::DEBUG) 
@@ -438,7 +438,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   if( m_useZvertexTool ) {    
 
     if(m_timers) m_timer[9]->start();
-    VZ = std::move(m_zvertexmaker->newEvent());
+    VZ = m_zvertexmaker->newEvent();
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();   
     if (outputLevel <= MSG::DEBUG) 
