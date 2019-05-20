@@ -223,9 +223,9 @@ namespace Trk {
     protected: //!< data members
       template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
     
-      mutable SharedObject<const SurfaceBounds>  m_bounds;                  //!< bounds (shared)
-      mutable Amg::Vector3D*                     m_referencePoint;          //!< reference Point on the Surface
-      static NoBounds                            s_boundless;               //!< static member for boundless approach
+      SharedObject<const SurfaceBounds>          m_bounds;                  //!< bounds (shared)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>  m_referencePoint;          //!< reference Point on the Surface
+      static const NoBounds                      s_boundless;               //!< static member for boundless approach
  };
   
   inline DiscSurface* DiscSurface::clone() const
