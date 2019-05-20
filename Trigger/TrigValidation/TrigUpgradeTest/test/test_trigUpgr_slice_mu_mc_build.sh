@@ -12,12 +12,11 @@ export THREADS=1
 export SLOTS=1
 export INPUT="run2mc_ttbar"
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doL1Sim=True;doEmptyMenu=True;doMuonSlice=True"
 
-# This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
-export REGTESTEXP="leaving with code"
-export REGTESTREF=`find_data.py TrigUpgradeTest/dummy_regtest.ref`
-
+# Find the regtest reference installed with the release
+export REGTESTREF=`find_data.py TrigUpgradeTest/slice_mu_mc.ref`
 
 
 source exec_TrigUpgradeTest_art_athenaMT.sh
