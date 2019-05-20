@@ -65,10 +65,10 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     }
     else {
       etamin = std::max(-2.5, m_l1eta - m_etaWidth);
-      etamax = std::min(2.5, m_l1eta + m_etaWidth);
+      etamax = std::min(2.5, static_cast<double>(m_l1eta) + m_etaWidth);
 
       phimin = HLT::wrap_phi(m_l1phi - m_phiWidth);
-      phimax = HLT::wrap_phi(m_l1phi + m_phiWidth);
+      phimax = HLT::wrap_phi(static_cast<double>(m_l1phi) + m_phiWidth);
 
       etaL1 = m_l1eta;
       phiL1 = m_l1phi;
