@@ -52,8 +52,6 @@
 #include "MuGirlInterfaces/CandidateSummary.h"
 
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
-#include "RecoToolInterfaces/IParticleCaloClusterAssociationTool.h"
-#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"

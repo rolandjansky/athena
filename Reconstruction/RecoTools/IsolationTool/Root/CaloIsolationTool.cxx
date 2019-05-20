@@ -632,8 +632,8 @@ namespace xAOD {
 
     /// start the calculation 
     ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
-    const Rec::ParticleCellAssociation* association = 0;
-    if( !m_assoTool->particleCellAssociation(tp,association,maxConeSize,container) ){
+    std::unique_ptr<const Rec::ParticleCellAssociation> association=m_assoTool->particleCellAssociation(tp,maxConeSize,container);
+    if( !association) {
       ATH_MSG_DEBUG("failed to obtain the ParticleCellAssociation");
       return false;
     }
