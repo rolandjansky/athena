@@ -1,6 +1,6 @@
 #====================================================================
 # BPHY18.py
-# B0 -> K*ee wheeeee 
+# B0 -> K*ee 
 # It requires the reductionConf flag BPHY18 in Reco_tf.py   
 #====================================================================
 
@@ -98,9 +98,14 @@ triggerList = ["HLT_e5_lhvloose_nod0_bBeexM6000t_2mu4_nomucomb_L1BPH-0DR3-EM7J15
 "HLT_e5_lhvloose_nod0_bBeexM6000t"  #37,143,877
 ]	# Seeded + Unseeded BeeX triggers
 
+triggerList_unseeded = ["HLT_2e5_lhvloose_nod0_bBeexM6000t",  #37,143,877  inb
+"HLT_e5_lhvloose_nod0_bBeexM6000t"  #37,143,877
+]
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 BPHY18TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY18TriggerSkim",
-                                                            TriggerListOR = triggerList )
+                                                            TriggerListOR = triggerList,
+							    TriggerListORHLTOnly = triggerList_unseeded )
 
 ToolSvc += BPHY18TriggerSkim
 print BPHY18TriggerSkim
