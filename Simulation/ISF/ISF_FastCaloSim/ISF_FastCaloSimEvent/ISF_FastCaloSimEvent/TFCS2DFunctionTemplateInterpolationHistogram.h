@@ -47,11 +47,16 @@ template <typename Txvec, typename Tyvec, typename Tz ,typename Trandom=float> c
       if(ibiny>0) {
         Trandom fracprev=m_HistoContents.get_fraction(ibin-1);
         dfrac=frac-fracprev;
-        if(ibiny>1) dfracprev=fracprev-m_HistoContents.get_fraction(ibin-2);
-         else dfracprev=fracprev;
+        if(ibiny>1) {
+          dfracprev=fracprev-m_HistoContents.get_fraction(ibin-2);
+        } else {
+          dfracprev=fracprev;
+          if(ibinx>0) dfracprev-=m_HistoContents.get_fraction(ibin-2);
+        }  
         lprev=m_HistoBordersy.GetBinLength(ibiny-1);
       } else {
         dfrac=frac;
+        if(ibinx>0) dfrac-=m_HistoContents.get_fraction(ibin-1);
         dfracprev=dfrac;
       }
       
@@ -73,13 +78,9 @@ template <typename Txvec, typename Tyvec, typename Tz ,typename Trandom=float> c
         m=(mnext+mprev)*l*l/dfrac;
       } else m=0;
       
-      //std::cout<<"fbin="<<ibin<<" fx="<<m_HistoBorders.GetBinLowEdge(ibin)<<" frac="<<m_HistoContents.get_fraction(ibin)<<" dfracprev="<<dfracprev<<" dfrac="<<dfrac<<" dfracnext="<<dfracnext<<" dfracprev-dfrac="<<dfracprev-dfrac<<" dfracnext-dfrac="<<dfracnext-dfrac<<" m="<<m<<" residual_rnd="<<residual_rnd<<std::endl;
       valuey = m_HistoBordersy.position(ibiny,m,residual_rnd);
       valuex = m_HistoBordersx.position(ibinx, rnd2);
     }
-
-
-
 
   ClassDef(TFCS2DFunctionTemplateInterpolationHistogram,1)  //TFCS1DFunctionTemplateInterpolationHistogram
 };

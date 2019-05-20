@@ -167,7 +167,9 @@ template<typename T,typename Trandom=float> class TFCS1DFunction_HistogramConten
 
     ///Get the matching bin for a given random value in the range [0,1). 
     ///A residual random number to calculate a position inside this bin is returned in residual_rnd
-    size_t get_bin(const Trandom& drnd,Trandom& residual_rnd) const {
+    size_t get_bin(Trandom drnd,Trandom& residual_rnd) const {
+      if(drnd<=0) drnd=0;
+      if(drnd>=1) drnd=std::nextafter((Trandom)1.0,(Trandom)0.0);
       if(size()==0) {
         residual_rnd=drnd;
         return 0;
@@ -183,7 +185,8 @@ template<typename T,typename Trandom=float> class TFCS1DFunction_HistogramConten
 
       T dcont=fullcont-basecont;
       if(dcont>0) {
-        residual_rnd=(TFCS1DFunction_Numeric<T,Trandom>::MaxValueFloat*drnd-basecont) / dcont;
+        residual_rnd=((Trandom)(rnd-basecont))/dcont;
+        if(residual_rnd>1) residual_rnd=std::nextafter((Trandom)1.0,(Trandom)0.0);
       } else {
         residual_rnd=0.5;
       }
@@ -353,7 +356,7 @@ template<typename T,typename Tint,typename Trandom=float> class TFCS1DFunction_H
     inline T position(size_t pos,Trandom m,const Trandom& drnd) const {
       if(m>2) m=2;
       if(m<-2) m=-2;
-      Trandom x=(0.5*std::sqrt(m*(m+8*drnd-4)+4)-1)/m+0.5;
+      Trandom x=fabs(m)>0.001 ? (0.5*std::sqrt(m*(m+8*drnd-4)+4)-1)/m+0.5 : drnd;
       T pos1=GetBinLowEdge(pos);
       T pos2=GetBinLowEdge(pos+1);
       return (1-x)*pos1 + x*pos2;
