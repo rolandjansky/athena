@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -27,7 +29,7 @@ class StatusCode;
 class SCT_ID;
 
 /**
- * SCT_TestCablingAlg exercises the routines of the SCT cabling service
+ * SCT_TestCablingAlg exercises the routines of the SCT cabling tool
  **/
 class SCT_TestCablingAlg:public AthReentrantAlgorithm {
  public:
@@ -42,7 +44,7 @@ class SCT_TestCablingAlg:public AthReentrantAlgorithm {
 
  private:
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
+  const SCT_ID* m_idHelper{nullptr}; //!< helper for offlineId/hash conversions
   std::string coordString(const Identifier& offlineId) const;
 
 };
