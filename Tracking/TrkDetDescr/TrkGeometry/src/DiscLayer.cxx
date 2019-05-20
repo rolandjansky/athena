@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -142,19 +142,29 @@ double Trk::DiscLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm
 }
 
 void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
+       /*
+        * AthenaMT note . This method
+        * should not be probably const
+        * const_cast / mutable kind of issue
+        * Looks like a const "setter" 
+        */
        Amg::Transform3D transf = shift * (*m_transform);
-       delete m_transform;
-       m_transform = new Amg::Transform3D(transf);
-       delete m_center;
-       m_center = new Amg::Vector3D(m_transform->translation());
-       delete m_normal; 
-       m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
+       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
        // rebuild that - deletes the current one
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();       
 }
 
 void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
+     /*
+      *  AthenaMT note . This method
+      *  should not be probably const
+      *  const_cast / mutable kind of issue
+      *  Looks like a const "setter" 
+      */
+
     // only do this if the volume bounds a CylinderVolumeBounds
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&bounds);
     if (cvb){
@@ -163,7 +173,8 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         double rOuter = cvb->outerRadius();
         // (0) first, resize the layer itself
         Trk::DiscBounds* rDiscBounds = new Trk::DiscBounds(rInner+envelope,rOuter-envelope);
-        Trk::DiscSurface::m_bounds = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
+        const_cast<Trk::SharedObject<const Trk::SurfaceBounds>&> (Trk::DiscSurface::m_bounds) 
+        = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
         // (1) resize the material properties by updating the BinUtility, assuming r/phi binning
         if (Trk::Layer::m_layerMaterialProperties.getPtr() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
@@ -261,7 +272,13 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
 }
 
 void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope) const {
-    // resize first of all
+  /*
+        * AthenaMT note . This method
+        * should not be probably const
+        * const_cast / mutable kind of issue
+        * Looks like a const "setter" 
+        */
+     // resize first of all
     resizeLayer(vBounds,envelope);
     // now reposition to the potentially center if necessary, do not change layers with no transform
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&vBounds);
@@ -272,12 +289,10 @@ void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const
                                                          Amg::Vector3D( vCenter + Amg::Vector3D(0.,0.,hLengthZ-0.5*thickness()) );
         if (center().isApprox(nDiscCenter)) return;
         // else set to the new volume center
-        delete Trk::DiscSurface::m_transform;
-        Trk::DiscSurface::m_transform = new Amg::Transform3D;
-        (*Trk::DiscSurface::m_transform) = Amg::Translation3D(nDiscCenter);
+        Trk::DiscSurface::m_transform.set(std::make_unique<Amg::Transform3D> (Amg::Translation3D(nDiscCenter)));
         // delete derived and the cache
-        delete Trk::DiscSurface::m_center; Trk::DiscSurface::m_center = new Amg::Vector3D(nDiscCenter);
-        delete Trk::DiscSurface::m_normal; Trk::DiscSurface::m_normal = 0;
+        Trk::DiscSurface::m_center.set(std::make_unique<Amg::Vector3D>(nDiscCenter));
+        Trk::DiscSurface::m_normal.set(nullptr);
     }
     // rebuild the approaching layer 
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 

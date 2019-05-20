@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -234,8 +234,8 @@ namespace Trk {
     protected: //!< data members
       template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
 
-      mutable SharedObject<const SurfaceBounds>  m_bounds;      //!< bounds (shared)        
-      static NoBounds                            s_boundless;   //!< NoBounds as return object when no bounds are declared
+      SharedObject<const SurfaceBounds>  m_bounds;      //!< bounds (shared)        
+      static const NoBounds              s_boundless;   //!< NoBounds as return object when no bounds are declared
 
     };
 

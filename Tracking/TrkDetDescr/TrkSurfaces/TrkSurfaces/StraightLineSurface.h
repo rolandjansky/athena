@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -220,9 +220,9 @@ namespace Trk {
     protected: //!< data members
       template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
 
-      mutable Amg::Vector3D*                      m_lineDirection;  //!< cache of the line direction (speeds up)
+      CxxUtils::CachedUniquePtrT<Amg::Vector3D>    m_lineDirection;  //!< cache of the line direction (speeds up)
       SharedObject<const CylinderBounds>          m_bounds;         //!< bounds (shared)
-      static NoBounds                             s_boundless;      //!< NoBounds as return object when no bounds are declared
+      static const NoBounds                       s_boundless;      //!< NoBounds as return object when no bounds are declared
 
   };
   
@@ -253,7 +253,7 @@ namespace Trk {
   
  inline const Amg::Vector3D& StraightLineSurface::lineDirection() const {
       if (!m_lineDirection) {
-          m_lineDirection = new Amg::Vector3D(transform().rotation().col(2));
+          m_lineDirection.set(std::make_unique<Amg::Vector3D>(transform().rotation().col(2)));
       }
       return (*m_lineDirection);
   }
