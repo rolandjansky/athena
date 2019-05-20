@@ -96,49 +96,49 @@
 
     } else if (m_fluence == 1) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_0_20V.root")); 
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0_20V.root")); 
 
         fluence_layers.push_back(1e-10);
 
     } else if (m_fluence == 2) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e14_20V.root"));
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e14_20V.root"));
 
         fluence_layers.push_back(1e14);
 
     } else if (m_fluence == 3) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_2e14_30V.root"));
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2e14_30V.root"));
 
         fluence_layers.push_back(2e14);
 
     } else if (m_fluence == 4) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_5e14_40V.root")); 
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e14_40V.root")); 
 
         fluence_layers.push_back(5e14);
 
     } else if (m_fluence == 5) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e15_50V.root"));
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e15_50V.root"));
 
         fluence_layers.push_back(1e15); 
 
     } else if (m_fluence == 6) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_5e15_160V.root"));
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"));
 
         fluence_layers.push_back(5e15);
 
     } else if (m_fluence == 7) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_6e15_190V_new.root"));       
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_6e15_190V_new.root"));       
 
         fluence_layers.push_back(6e15);
 
     } else if (m_fluence == 8) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e16_260V_new.root"));
+        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e16_260V_new.root"));
 
         fluence_layers.push_back(1e16);
     }
@@ -249,7 +249,7 @@ StatusCode SensorSim3DTool::finalize() {
 StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiChargedDiodeCollection & chargedDiodes,
     const InDetDD::SiDetectorElement & Module,
     const InDetDD::PixelModuleDesign & p_design, std::vector < std::pair < double, double > > & trfHitRecord, std::vector < double > & initialConditions) {
-
+return StatusCode::SUCCESS;
     if (!Module.isBarrel()) {
         return StatusCode::SUCCESS;
     }
@@ -286,7 +286,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
     double ncharges = initialConditions[6];
     double iTotalLength = initialConditions[7];
     ncharges = 50;
-    temperature = 300; // K 
+    temperature = 263.2; // K 
 
     ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
     double sensorThickness = Module.design().thickness();
