@@ -152,6 +152,10 @@
 + Control/DataModelRoot
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
++ Control/PerformanceMonitoring/PerfMonComps
++ Control/PerformanceMonitoring/PerfMonEvent
++ Control/PerformanceMonitoring/PerfMonKernel
++ Control/PerformanceMonitoring/PerfMonGPerfTools
 + Control/Navigation
 
 #scripts package contains useful commands like get_files
