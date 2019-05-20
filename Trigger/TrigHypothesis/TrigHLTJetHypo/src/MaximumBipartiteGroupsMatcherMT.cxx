@@ -22,7 +22,6 @@
 
 MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(const ConditionsMT& cs):
   m_conditions(cs), 
-  m_pass(false),
   m_G(FlowNetwork(0)){
 }
   
@@ -110,7 +109,6 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& jets_b,
            << m_conditions.size()
            << " pass: "
            << std::boolalpha
-           << m_pass
            << '\n';
   */
   // record which jets participate in the pass decision
