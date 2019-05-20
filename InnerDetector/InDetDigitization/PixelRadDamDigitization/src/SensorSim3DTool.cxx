@@ -249,7 +249,7 @@ StatusCode SensorSim3DTool::finalize() {
 StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiChargedDiodeCollection & chargedDiodes,
     const InDetDD::SiDetectorElement & Module,
     const InDetDD::PixelModuleDesign & p_design, std::vector < std::pair < double, double > > & trfHitRecord, std::vector < double > & initialConditions) {
-return StatusCode::SUCCESS;
+
     if (!Module.isBarrel()) {
         return StatusCode::SUCCESS;
     }
@@ -286,7 +286,7 @@ return StatusCode::SUCCESS;
     double ncharges = initialConditions[6];
     double iTotalLength = initialConditions[7];
     ncharges = 50;
-    temperature = 263.2; // K 
+    temperature = 300; // K 
 
     ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
     double sensorThickness = Module.design().thickness();
