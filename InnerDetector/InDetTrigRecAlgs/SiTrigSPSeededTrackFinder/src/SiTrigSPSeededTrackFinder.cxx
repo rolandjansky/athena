@@ -259,14 +259,14 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  vertices = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,*roi));
+	  vertices = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds,*roi);
 	}
 	else {
-	  vertices = std::move(m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds));
+	  vertices = m_zvertexmaker->newRegion(listOfPixIds,listOfSCTIds);
 	}
       }
       else{
-	vertices = std::move(m_zvertexmaker->newEvent());
+	vertices = m_zvertexmaker->newEvent();
       }
       
       if(doTiming()) m_timerZVertexTool->stop();
