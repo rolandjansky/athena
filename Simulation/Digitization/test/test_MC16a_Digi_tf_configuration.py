@@ -272,7 +272,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+        expected_property_list = ['DetStore', 'DigitContainer', 'DoDigiTruthReconstruction', 'EmBarrelHitContainerName', 'EmEndCapHitContainerName', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'ForWardHitContainerName', 'HecHitContainerName', 'HighGainThreshFCAL', 'LastXing', 'MaskingTool', 'NoiseOnOff', 'Nsamples', 'PileUpMergeSvc', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
         expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4', 'EmBarrelHitContainerName': '["LArHitEMB"]', 'EmEndCapHitContainerName': '["LArHitEMEC"]', 'ForWardHitContainerName': '["LArHitFCAL"]', 'HecHitContainerName': '["LArHitHEC"]'}
         expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
