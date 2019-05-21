@@ -1270,12 +1270,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
-  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config");
-  configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config");
-  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config");
-  configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/Rel21/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/Rel21/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config");
+  configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config");
+  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config");
+  configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config");
   configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
   configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config");
   configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
