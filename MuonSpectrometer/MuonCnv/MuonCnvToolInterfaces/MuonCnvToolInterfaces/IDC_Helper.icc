@@ -17,16 +17,18 @@ Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHEL
     }
     
     typename IDC::IDENTIFIABLE* collection=0;
-    typename IDC::const_iterator collIt = idc->indexFind(idHash);
-    if (collIt==idc->end()) {
+    auto collptr = idc->indexFindPtr(idHash);
+    if (collptr == nullptr) {
         collection = new typename IDC::IDENTIFIABLE(idHash);
         collection->setIdentifier(collId);
         StatusCode status = idc->addCollection(collection, idHash );
         if (status.isFailure())
             log << MSG::ERROR << "Couldn't add collection to IDC" << endmsg;
-    } else {  
-        collection = const_cast<typename IDC::IDENTIFIABLE*>( &(**collIt) );
-        //cscHashId = collection->identifyHash();
+    } else {
+        //Use naughtyRetrieve to protect external caches from modification 
+        StatusCode status = idc->naughtyRetrieve(idHash, collection);
+        if (status.isFailure())
+          log << MSG::ERROR << "Attempt to get unsafe access to external cache" << endmsg;
     }
     return collection;
 }
