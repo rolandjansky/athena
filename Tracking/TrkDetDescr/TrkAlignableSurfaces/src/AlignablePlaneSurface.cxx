@@ -13,7 +13,7 @@
 Trk::AlignablePlaneSurface::AlignablePlaneSurface() :
  Trk::PlaneSurface(),
  Trk::AlignableSurface(),
- m_nominalSurface(0)
+ m_nominalSurface(nullptr)
 {}
 
 Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::PlaneSurface& psf, Amg::Transform3D* htrans) :
@@ -72,7 +72,6 @@ void Trk::AlignablePlaneSurface::setAlignableTransform(Amg::Transform3D& trans)
 {
   Trk::Surface::m_transform  = std::make_unique<Amg::Transform3D>(trans);
   m_center.store(nullptr);
-  m_normal.store(nullptr);
-  
+  m_normal.store(nullptr); 
 }
 
