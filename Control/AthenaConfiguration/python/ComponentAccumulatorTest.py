@@ -19,7 +19,7 @@ class TestComponentAccumulator( unittest.TestCase ):
 
         # trivial case without any nested sequences
 
-        Configurable.configurableRun3Behavior+=1
+        Configurable.configurableRun3Behavior=1
 
         log.setLevel(DEBUG)
 
@@ -262,6 +262,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
 
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):
+        Configurable.configurableRun3Behavior=1        
         topCA = ComponentAccumulator()
 
         def badMerge():
@@ -326,7 +327,8 @@ class TestDeduplication( unittest.TestCase ):
         from IOVDbSvc.IOVDbSvcConf import IOVDbSvc #Test de-duplicating folder-list
         result1=ComponentAccumulator()
         result1.addService(IOVDbSvc(Folders=["/foo"]))
-
+        result1.wasMerged()
+        
         result2=ComponentAccumulator()
         result2.addService(IOVDbSvc(Folders=["/bar"]))
         result2.merge(result1)
@@ -348,7 +350,8 @@ class TestDeduplication( unittest.TestCase ):
         svc3.Folders+=["/fooo"]
         self.assertIn("/fooo",result2.getService("IOVDbSvc").Folders)
 
-
+        result2.wasMerged()
+        
         #Trickier case: Recursive de-duplication of properties of tools in a Tool-handle array
         from AthenaConfiguration.TestDriveDummies import dummyService, dummyTool
         result3=ComponentAccumulator()
@@ -392,7 +395,7 @@ class TestDeduplication( unittest.TestCase ):
         
         with  self.assertRaises(DeduplicationFailed):
             result3.addService(dummyService(AString="blaOther"))
-
+        result3.wasMerged()
 
 class TestMergeComponentsFromDifferentBranches( unittest.TestCase ):
 
