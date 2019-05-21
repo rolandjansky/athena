@@ -157,6 +157,11 @@ reducedJetList = [
 ]
 replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot19Seq)
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
