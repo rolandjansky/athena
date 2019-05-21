@@ -217,8 +217,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     # Look for view algs in the whole event context
     for viewAlgName in viewAlgs:
         if viewAlgName in wholeEventAlgs:
-            log.error( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
-            exit()
+            raise RuntimeError( viewAlgName + " is attached to an EventView node, but also runs in the whole event context" )
 
 
 def matrixDisplay( allSeq ):
