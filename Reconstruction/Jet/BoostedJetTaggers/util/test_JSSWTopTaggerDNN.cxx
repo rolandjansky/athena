@@ -240,13 +240,14 @@ int main( int argc, char* argv[] ) {
       Tree->Fill();
       
       if ( (*jet_itr)->pt() > 350e3 && fabs((*jet_itr)->eta()) < 2.0 && pass ) {
-        std::cout << "Nominal SF : " << sf  << std::endl;
 	bool validForUncTool = (pt >= 150e3 && pt < 3000e3);
 	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
 	validForUncTool &= (fabs(eta) < 2);
+	std::cout << "Nominal SF " << sf << std::endl;
 	if( validForUncTool ){
 	  for ( auto sysSet : m_jetUnc_sysSets2 ){
-	    std::cout << "Nominal SF " << sf << std::endl;
+	    m_Tagger->tag( **jet_itr );
+	    std::cout << "Nominal SF " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << " " << sf << std::endl;
 	    m_jetUncToolSF->applySystematicVariation(sysSet);
 	    m_jetUncToolSF->applyCorrection(**jet_itr);
 	    std::cout << sysSet.name() << " " << (*jet_itr)->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;

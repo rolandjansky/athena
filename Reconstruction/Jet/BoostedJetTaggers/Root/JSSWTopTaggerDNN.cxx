@@ -349,7 +349,7 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   // decorate truth label for SF provider
   static const SG::AuxElement::ConstAccessor<FatjetTruthLabel> acc_truthLabel(m_truthLabelDecorationName);
-  if ( !acc_truthLabel.isAvailable(jet) ){
+  if ( !acc_truthLabel.isAvailable(jet) || (int)jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName)==0 ){
     if ( decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE ){
       ATH_MSG_WARNING("decorateTruthLabel(...) is failed. Please check the truth container names.");
       return m_accept;
@@ -421,28 +421,20 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
     FatjetTruthLabel jetContainment=jet.auxdata<FatjetTruthLabel>(m_truthLabelDecorationName);
     if( m_weightHistograms.count("t_qqb") ) {
       // full-contained top tagger
-      if( jetContainment==FatjetTruthLabel::t ){
+      if( jetContainment==FatjetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
-      }else if( jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::Z){
-	truthLabelStr="V_qq";
-      }else{
-	truthLabelStr="q";
-      }
-    }else if (m_weightHistograms.count("V_qq") ){
-      // W/Z tagger
-      if( jetContainment==FatjetTruthLabel::t || jetContainment==FatjetTruthLabel::other){
-	truthLabelStr="t";
-      }else if( jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::Z){
-	truthLabelStr="V_qq";
-      }else{
+      //}else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq ){
+	//truthLabelStr="V_qq";
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
 	truthLabelStr="q";
       }
     }else{
-      if( jetContainment==FatjetTruthLabel::t || jetContainment==FatjetTruthLabel::W || jetContainment==FatjetTruthLabel::other){
+      // W/Z tagger or inclusive top tagger
+      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::Wqq_From_t || jetContainment==FatjetTruthLabel::other_From_t ){
 	truthLabelStr="t";
-      }else if( jetContainment==FatjetTruthLabel::Z){
+      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
 	truthLabelStr="V_qq";
-      }else{
+      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::unknown ) {
 	truthLabelStr="q";
       }
     }
