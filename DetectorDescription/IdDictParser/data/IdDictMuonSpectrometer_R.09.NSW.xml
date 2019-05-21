@@ -28,11 +28,7 @@
     <label name="T2E" value="44" />
     <label name="T3F" value="45" />
     <label name="T3E" value="46" />
-    <label name="T4F" value="47" />
     <label name="T4E" value="48" />
-    <label name="EIS" value="49" />
-    <label name="CSS" value="50" />
-    <label name="CSL" value="51" />
     <label name="BIM" value="52" />
     <label name="BMG" value="54" />
     <label name="MMS" value="55" />
