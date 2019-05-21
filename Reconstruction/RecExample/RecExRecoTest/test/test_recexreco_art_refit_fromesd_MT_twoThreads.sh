@@ -3,10 +3,12 @@
 # art-description: Athena runs topoclustering from an ESD file
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 
-art.py createpoolfile
+unset ATHENA_PROC_NUMBER
 
-athena --threads=1 RecExRecoTest/RecExRecoTest_ART_noAlgs_fromESD.py | tee temp.log
+athena --threads=2 RecExRecoTest/RecExRecoTest_ART_refit_fromESD.py | tee temp.log
 echo "art-result: ${PIPESTATUS[0]}"
 
 test_postProcessing_Errors.sh temp.log
+
