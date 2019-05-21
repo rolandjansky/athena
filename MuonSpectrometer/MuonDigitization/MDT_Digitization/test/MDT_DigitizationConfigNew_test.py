@@ -12,7 +12,6 @@ from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
-from OverlayCommonAlgs.OverlayConfigFlags import createOverlayCfgFlags
 # MDT imports
 from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerCfg
 # Set up logging and new style config
@@ -23,7 +22,6 @@ ConfigFlags.Input.Files = defaultTestFiles.HITS_SPECIAL
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.join(createDigitizationCfgFlags())
-ConfigFlags.join(createOverlayCfgFlags())
 ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()

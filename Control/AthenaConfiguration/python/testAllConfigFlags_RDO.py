@@ -15,6 +15,15 @@ except ImportError:
 if havesim:
     ConfigFlags._loadDynaFlags("Sim")
 
+# Don't fail just because OverlayConfiguration isn't present in this build.
+haveOverlay = True
+try:
+    import OverlayConfiguration # noqa: F401
+except ImportError:
+    haveOverlay = False
+if haveOverlay:
+    ConfigFlags._loadDynaFlags("Overlay")
+
 ConfigFlags.initAll()
 ConfigFlags.dump()
 

@@ -83,6 +83,12 @@ def _createCfgFlags():
         return createSimConfigFlags()
     _addFlagsCategory (acf, "Sim", __simulation, 'G4AtlasApps' )
 
+#Overlay Flags:
+    def __overlay():
+        from OverlayConfiguration.OverlayConfigFlags import createOverlayConfigFlags
+        return createOverlayConfigFlags()
+    _addFlagsCategory(acf, "Overlay", __overlay, 'OverlayConfiguration' )
+
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
