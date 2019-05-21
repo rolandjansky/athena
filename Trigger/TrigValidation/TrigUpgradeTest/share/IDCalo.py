@@ -97,7 +97,6 @@ if TriggerFlags.doID:
   from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
   InDetTrigMTxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name =  "InDetTrigMTxAODParticleCreatorTool",
                                                                      Extrapolator = InDetTrigExtrapolator,
-                                                                     #ForceTrackSummaryUpdate = False,
                                                                      #TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits) 
                                                                      TrackSummaryTool = InDetTrigTrackSummaryTool)
 

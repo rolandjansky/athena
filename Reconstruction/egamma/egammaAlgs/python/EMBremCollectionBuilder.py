@@ -179,8 +179,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                          KeepParameters          = True,
                                                                          Extrapolator            = GSFBuildInDetExtrapolator,
                                                                          TrackSummaryTool        = GSFBuildInDetTrackSummaryTool,
-                                                                         UseTrackSummaryTool     = False,
-                                                                         ForceTrackSummaryUpdate = False)
+                                                                         UseTrackSummaryTool     = False)
         #
         #  do track slimming
         #

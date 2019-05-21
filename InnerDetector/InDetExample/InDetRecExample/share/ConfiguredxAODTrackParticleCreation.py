@@ -35,7 +35,6 @@ class ConfiguredxAODTrackParticleCreation:
                                                                       Extrapolator            = InDetExtrapolator,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                       BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
-                                                                      ForceTrackSummaryUpdate = False,
                                                                       KeepParameters          = True,
                                                                       KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
                                                                       PerigeeExpression       = _perigee_expression)
