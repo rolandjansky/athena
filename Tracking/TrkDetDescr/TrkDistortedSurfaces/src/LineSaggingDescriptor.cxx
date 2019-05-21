@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,13 +13,13 @@
 #include <ostream>
 
 // static gravity direction
-Amg::Vector3D Trk::LineSaggingDescriptor::s_gravityDirection = -1 * Amg::Vector3D::UnitY();
+const Amg::Vector3D Trk::LineSaggingDescriptor::s_gravityDirection = -1 * Amg::Vector3D::UnitY();
 
 // a reference direction
-Amg::Vector3D Trk::LineSaggingDescriptor::s_referenceDirection(1./sqrt(3.),1./sqrt(3.),1./sqrt(3.));
+const Amg::Vector3D Trk::LineSaggingDescriptor::s_referenceDirection(1./sqrt(3.),1./sqrt(3.),1./sqrt(3.));
 
 // and a electro static scale factor
-double Trk::LineSaggingDescriptor::s_elecStatFactor(1.);
+const double Trk::LineSaggingDescriptor::s_elecStatFactor(1.);
 
 Trk::LineSaggingDescriptor::LineSaggingDescriptor(double wireLength,
                                                   double wireTension,
