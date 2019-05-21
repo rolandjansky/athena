@@ -321,13 +321,12 @@ def muFastRecoSequence( RoIs ):
 
   return muFastRecoSequence, sequenceOut
 
-
-def muCombRecoSequence( RoIs ):
+def muonIDFastTrackingSequence( RoIs ):
 
   from AthenaCommon.CFElements import parOR
   import AthenaCommon.CfgMgr as CfgMgr
 
-  muCombRecoSequence = parOR("l2muCombViewNode")
+  muonIDFastTrackingSequence = parOR("l2muCombViewNode")
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
@@ -347,7 +346,7 @@ def muCombRecoSequence( RoIs ):
   global TrackParticlesName
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
-      muCombRecoSequence += viewAlg
+      muonIDFastTrackingSequence += viewAlg
       if "RoIs" in viewAlg.properties():
           viewAlg.RoIs = RoIs
       if "roiCollectionName" in viewAlg.properties():
@@ -355,10 +354,16 @@ def muCombRecoSequence( RoIs ):
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
           TrackParticlesName = viewAlg.TrackParticlesName
 
+  return muonIDFastTrackingSequence, eventAlgs, TrackParticlesName, theFTF_Muon.getName()
+
+def muCombRecoSequence( RoIs ):
+
+  muCombRecoSequence, eventAlgs, TrackParticlesName, theFTF_Muon_Name = muonIDFastTrackingSequence( RoIs )
+
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon", theFTF_Muon.getName())
+  muCombAlg = TrigmuCombMTConfig("Muon", theFTF_Muon_Name)
   muCombAlg.L2StandAloneMuonContainerName = muFastInfo
   muCombAlg.TrackParticlesContainerName = TrackParticlesName
   muCombAlg.L2CombinedMuonContainerName = muCombInfo

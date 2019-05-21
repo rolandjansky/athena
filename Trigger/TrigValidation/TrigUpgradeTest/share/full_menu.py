@@ -203,11 +203,30 @@ if opt.doMETSlice == True:
     testChains += metChains
 
 ##################################################################
-# B-physics and light states chains, placeholder for now
+# B-physics and light states chains
 ##################################################################
-if opt.doBLSSlice == True:
-  pass
-  
+if opt.doBphysicsSlice == True:
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muEFSASequence, muEFCBSequence
+    from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence
+	
+    BphysChains  = []
+
+    step1mufast=ChainStep("Step1_muFast",  [muFastSequence()])
+    step2L2Dimu=ChainStep("Step2_L2Dimu",  [dimuL2Sequence()])
+    
+    #still to come
+    #step3muEFSA=ChainStep("Step3_muEFSA",   [ muEFSASequence() ])
+    #step4muEFCB=ChainStep("Step4_muEFCB",   [ muEFCBSequence() ])
+    #step5EFJpsi=ChainStep("Step5_L2Jpsimumu",[jpsimumuEFSequence()])
+
+    BphysChains += [Chain(name='HLT_2mu6_bJpsimumu_L12MU6', Seed="L1_MU6", ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bBmumu_L12MU4',    Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bUpsimumu_L12MU4', Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains += [Chain(name='HLT_2mu4_bJpsimumu_L12MU4', Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
+
+    #BphysChains += [Chain(name='HLT_mu6_mu4_bJpsimumu_L1MU6_2MU4', Seed="L1_MU4", ChainSteps=[ step1mufast, step2L2Dimu])]
+                                        #to come: step3muEFSA, step4muEFCB, step5EFJpsi])]
+    testChains += BphysChains  
 
 ##################################################################
 # combined chains
