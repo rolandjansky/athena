@@ -142,8 +142,7 @@ from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorT
 InDetTrigTrackParticleCreatorToolFTK = Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTK",
                                                                       Extrapolator = InDetTrigExtrapolator,
                                                                       TrackSummaryTool = InDetTrigTrackSummaryToolFTK,
-                                                                      KeepParameters = True,
-                                                                      ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
+                                                                      KeepParameters = True
                                                                       )
         
 ToolSvc += InDetTrigTrackParticleCreatorToolFTK

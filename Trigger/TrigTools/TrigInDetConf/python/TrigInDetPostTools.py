@@ -52,7 +52,6 @@ InDetTrigParticleCreatorTool = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = False,
-                                   ForceTrackSummaryUpdate = False,
                                    )
 
 ToolSvc += InDetTrigParticleCreatorTool
@@ -89,7 +88,6 @@ InDetTrigParticleCreatorToolParams = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = False,
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolParams

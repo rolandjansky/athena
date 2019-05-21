@@ -66,6 +66,5 @@ InDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetParticleCr
                                                          KeepParameters = True,
                                                          Extrapolator = InDetExtrapolator,
                                                          TrackSummaryTool = InDetTrackSummaryTool,
-                                                         UseTrackSummaryTool = True,
-                                                         ForceTrackSummaryUpdate = False)
+                                                         UseTrackSummaryTool = True)
 ToolSvc += InDetParticleCreatorTool

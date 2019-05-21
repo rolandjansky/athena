@@ -132,7 +132,6 @@ if makeSplitTracks:
     InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool", 
                                                                       Extrapolator            = InDetExtrapolator,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                                      ForceTrackSummaryUpdate = False,
                                                                       KeepParameters          = True)
     ToolSvc += InDetxAODSplitParticleCreatorTool
     # The following adds truth information, but needs further testing
