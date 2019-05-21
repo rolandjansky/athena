@@ -83,6 +83,12 @@ def _createCfgFlags():
         return createSimConfigFlags()
     _addFlagsCategory (acf, "Sim", __simulation, 'G4AtlasApps' )
 
+#Digitization Flags:
+    def __digitization():
+        from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
+        return createDigitizationCfgFlags()
+    _addFlagsCategory(acf, "Digitization", __digitization, 'Digitization' )
+
 #Overlay Flags:
     def __overlay():
         from OverlayConfiguration.OverlayConfigFlags import createOverlayConfigFlags

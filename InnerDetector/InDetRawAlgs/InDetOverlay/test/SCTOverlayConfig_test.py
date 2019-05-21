@@ -11,7 +11,6 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 from OverlayCommonAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 
@@ -21,7 +20,6 @@ nThreads = 1
 # Configure
 Configurable.configurableRun3Behavior = True
 
-ConfigFlags.join(createDigitizationCfgFlags())
 ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
 ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"

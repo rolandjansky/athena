@@ -22,13 +22,11 @@ from PixelDigitization.PixelDigitizationConfigNew import (
     PixelDigitizationSplitNoMergePUToolCfg, PixelDigitizationOverlayToolCfg, PixelRangeCfg,
     PixelDigitizationHSCfg, PixelDigitizationPUCfg, PixelDigitizationOverlayCfg,
 )
-from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.join(createDigitizationCfgFlags())
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False

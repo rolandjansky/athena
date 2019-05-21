@@ -13,13 +13,11 @@ from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationHSCfg
-from Digitization.DigitizationConfigFlags import createDigitizationCfgFlags
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 # Configure
-ConfigFlags.join(createDigitizationCfgFlags())
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False

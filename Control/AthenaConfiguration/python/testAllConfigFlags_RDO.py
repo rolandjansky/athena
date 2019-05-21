@@ -15,6 +15,15 @@ except ImportError:
 if havesim:
     ConfigFlags._loadDynaFlags("Sim")
 
+# Don't fail just because Digitization isn't present in this build.
+haveDigi = True
+try:
+    import Digitization # noqa: F401
+except ImportError:
+    haveDigi = False
+if haveDigi:
+    ConfigFlags._loadDynaFlags("Digitization")
+
 # Don't fail just because OverlayConfiguration isn't present in this build.
 haveOverlay = True
 try:
