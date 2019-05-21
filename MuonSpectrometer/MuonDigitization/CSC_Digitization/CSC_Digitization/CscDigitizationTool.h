@@ -101,7 +101,6 @@ private:
   std::list<CSCSimHitCollection*> m_cscHitCollList; // only for pileup events..
   //pileup truth veto
   bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
 
   double m_timeWindowLowerOffset;
   double m_timeWindowUpperOffset;

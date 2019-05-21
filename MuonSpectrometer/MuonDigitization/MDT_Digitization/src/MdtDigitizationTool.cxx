@@ -62,10 +62,6 @@
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 #include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
   , m_idHelper(0)
@@ -74,7 +70,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_digiTool("MDT_Response_DigiTool", this)
   , m_inv_c_light(1./(CLHEP::c_light))
   , m_thpcMDT(0)
-  , m_vetoThisBarcode(crazyParticleBarcode) 
   , m_BMGpresent(false)
   , m_BMGid(-1)
   , m_mergeSvc(0)
@@ -125,7 +120,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   declareProperty("UseOffSet2",          m_useOffSet2          =  true);
   //Truth
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 
