@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,8 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 //STL
 #include <ext/algorithm>
+#include <stdexcept>
+
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -37,9 +39,7 @@ namespace Trk {
    *     comparison function, or relational definition, for
    *     sorting MeasurementBase objects
    */
-  class MeasurementBaseComparisonFunction 
-    : public std::binary_function<const Trk::MeasurementBase*,
-                                  const Trk::MeasurementBase*, bool> {
+  class MeasurementBaseComparisonFunction {
   public:
 
     /** Default Constructor, default will be sorting towards radius of 0 */
@@ -112,47 +112,60 @@ namespace Trk {
       // --- flexible sorting along a predicted direction
       else {
         double path1 = 0;
-        const Trk::Surface&              sf1 = one->associatedSurface();
-        const Trk::PlaneSurface*        opsf = dynamic_cast <const Trk::PlaneSurface*>(&sf1);
-        const Trk::StraightLineSurface* ossf = 0;
-        const Trk::DiscSurface*         odsf = 0; // } dyncast only when necessary
-        const Trk::CylinderSurface*     ocsf = 0;
-        const Trk::PerigeeSurface*      ogsf = 0;
-        if (opsf) {
+        const Trk::Surface* sf1 = &(one->associatedSurface());
+        const Trk::Surface::SurfaceType surfType1  = ( (sf1!=nullptr)  ? sf1->type() : Trk::Surface::Other); 
+        
+        if (surfType1==Trk::Surface::Plane) {
+          const Trk::PlaneSurface*  opsf = static_cast <const Trk::PlaneSurface*>(sf1);
           path1 = this->pathIntersectWithPlane(*opsf);
-        } else if ((ossf = dynamic_cast< const Trk::StraightLineSurface* >(&sf1)) && ossf) {
+        } 
+        else if (surfType1==Trk::Surface::Line) {
+          const Trk::StraightLineSurface* ossf =  static_cast <const Trk::StraightLineSurface*>(sf1);
           path1 = this->pathIntersectWithLine (*ossf);
-        } else if ((odsf = dynamic_cast <const Trk::DiscSurface*> (&sf1)) && odsf) {
+        } 
+        else if (surfType1==Trk::Surface::Disc) {
+          const Trk::DiscSurface*   odsf = static_cast <const Trk::DiscSurface*> (sf1); 
           path1 = this->pathIntersectWithDisc (*odsf);
-        } else if ((ocsf = dynamic_cast <const Trk::CylinderSurface*> (&sf1)) && ocsf) {
+        } 
+        else if (surfType1==Trk::Surface::Cylinder) {
+          const Trk::CylinderSurface*  ocsf = static_cast <const Trk::CylinderSurface*> (sf1);
           path1 = this->pathIntersectWithCylinder(*ocsf, one->globalPosition());
-        } else if ((ogsf = dynamic_cast< const Trk::PerigeeSurface* >(&sf1)) && ogsf) {
+        } 
+        else if (surfType1==Trk::Surface::Perigee) {
+          const Trk::PerigeeSurface*  ogsf = static_cast< const Trk::PerigeeSurface* >(sf1);
           path1 = this->pathIntersectWithLine (*ogsf);
-        }else {
-          std::cout << "MeasurementBaseComparisonFunction: surface type error for Sf1!" << std::endl;
+        }
+        else {
+          throw std::runtime_error( "MeasurementBaseComparisonFunction: surface type error for Sf1!");
         }
 
         // --- identify the 2nd surface type and get intersection path for surface 1
-        //
         double path2 = 0;
-        const Trk::Surface&              sf2 = two->associatedSurface();
-        const Trk::PlaneSurface*        tpsf = dynamic_cast< const Trk::PlaneSurface* >(&sf2);
-        const Trk::StraightLineSurface* tssf = 0;
-        const Trk::DiscSurface*         tdsf = 0; // dyncast only when necessary
-        const Trk::CylinderSurface*     tcsf = 0;
-        const Trk::PerigeeSurface*      tgsf = 0;
-        if (tpsf) {
+        const Trk::Surface* sf2 = &(two->associatedSurface());
+        const Trk::Surface::SurfaceType surfType2  = ( (sf2!=nullptr)  ? sf2->type() : Trk::Surface::Other); 
+        
+        if (surfType2==Trk::Surface::Plane) {
+          const Trk::PlaneSurface*  tpsf = static_cast <const Trk::PlaneSurface*>(sf2);
           path2 = this->pathIntersectWithPlane(*tpsf);
-        } else if ((tssf = dynamic_cast< const Trk::StraightLineSurface* >(&sf2)) && tssf) {
+        } 
+        else if (surfType2==Trk::Surface::Line) {
+          const Trk::StraightLineSurface* tssf =  static_cast <const Trk::StraightLineSurface*>(sf2);
           path2 = this->pathIntersectWithLine (*tssf);
-        } else if ((tdsf = dynamic_cast< const Trk::DiscSurface* > (&sf2)) && tdsf) {
+        } 
+        else if (surfType2==Trk::Surface::Disc) {
+          const Trk::DiscSurface*   tdsf = static_cast <const Trk::DiscSurface*> (sf2); 
           path2 = this->pathIntersectWithDisc (*tdsf);
-        } else if ((tcsf = dynamic_cast <const Trk::CylinderSurface*> (&sf2)) && tcsf) {
+        } 
+        else if (surfType2==Trk::Surface::Cylinder) {
+          const Trk::CylinderSurface*  tcsf = static_cast <const Trk::CylinderSurface*> (sf2);
           path2 = this->pathIntersectWithCylinder(*tcsf, two->globalPosition());
-        } else if ((tgsf = dynamic_cast< const Trk::PerigeeSurface* >(&sf2)) && tgsf) {
+        } 
+        else if (surfType2==Trk::Surface::Perigee) {
+          const Trk::PerigeeSurface*  tgsf = static_cast< const Trk::PerigeeSurface* >(sf2);
           path2 = this->pathIntersectWithLine (*tgsf);
-        } else {
-          std::cout << "MeasurementBaseComparisonFunction: surface type error for Sf2!" << std::endl;
+        }
+        else {
+          throw std::runtime_error("MeasurementBaseComparisonFunction: surface type error for Sf2!");
         }
         
         return path1 < path2;
