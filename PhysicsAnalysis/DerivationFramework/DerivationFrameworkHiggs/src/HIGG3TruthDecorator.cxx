@@ -37,10 +37,10 @@ namespace DerivationFramework {
     m_inMuContName("Muons"),
     m_inEMTopoJetContName("AntiKt4EMTopoJets"),
     m_inPFlowJetContName("AntiKt4EMPFlowJets"),
-    m_isSherpa(false),
-    m_isPowPy8EvtGen(false),
     m_truthJetPtMin(10.0*GeV),
     m_maxDeltaR(0.3),
+    m_isSherpa(false),
+    m_isPowPy8EvtGen(false),
     m_GamORTool("VGammaORTool/HIGG3TruthDecoratorVGammaORTool", this)
   {
 
