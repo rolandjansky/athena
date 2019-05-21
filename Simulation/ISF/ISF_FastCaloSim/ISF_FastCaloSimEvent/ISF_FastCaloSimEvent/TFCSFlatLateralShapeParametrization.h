@@ -14,32 +14,32 @@ class TH2;
 class TFCSFlatLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
   TFCSFlatLateralShapeParametrization(const char* name=nullptr, const char* title=nullptr);
-  ~TFCSFlatLateralShapeParametrization();
+  virtual ~TFCSFlatLateralShapeParametrization();
 
   /// set the integral of the histogram to the desired number of hits
   void set_number_of_hits(float nhits);
 
-  float get_number_of_expected_hits() const {return m_nhits;};
+  float get_number_of_expected_hits() const;
 
   /// default for this class is to simulate poisson(integral histogram) hits
-  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   /// set the radius in which hits should be generated
-  void set_dR(float _dR) {m_dR=_dR;};
+  void set_dR(float _dR);
 
-  float dR() const {return m_dR;};
+  float dR() const;
 
   /// set the radius in which hits should be generated
-  void set_scale(float _scale) {m_scale=_scale;};
+  void set_scale(float _scale);
 
-  float scale() const {return m_scale;};
+  float scale() const;
 
   /// simulated one hit position with weight that should be put into simulstate
   /// sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   /// someone also needs to map all hits into cells
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
-  void Print(Option_t *option = "") const override;
+  virtual void Print(Option_t *option = "") const override;
 protected:
   /// Simulate hits flat in radius dR
   float m_dR;
@@ -50,6 +50,21 @@ private:
 
   ClassDefOverride(TFCSFlatLateralShapeParametrization,1)  //TFCSFlatLateralShapeParametrization
 };
+
+inline float TFCSFlatLateralShapeParametrization::get_number_of_expected_hits() const 
+{
+  return m_nhits;
+}
+
+inline float TFCSFlatLateralShapeParametrization::dR() const 
+{
+  return m_dR;
+}
+
+inline float TFCSFlatLateralShapeParametrization::scale() const 
+{
+  return m_scale;
+}
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSFlatLateralShapeParametrization+;

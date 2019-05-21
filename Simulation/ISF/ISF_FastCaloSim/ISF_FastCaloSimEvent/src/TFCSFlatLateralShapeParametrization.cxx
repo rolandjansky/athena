@@ -41,6 +41,16 @@ void TFCSFlatLateralShapeParametrization::set_number_of_hits(float nhits)
   m_nhits=nhits;
 }
 
+void TFCSFlatLateralShapeParametrization::set_dR(float _dR) 
+{
+  m_dR=_dR;
+}
+
+void TFCSFlatLateralShapeParametrization::set_scale(float _scale)
+{
+  m_scale=_scale;
+}
+
 FCSReturnCode TFCSFlatLateralShapeParametrization::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   if (!simulstate.randomEngine()) {

@@ -15,6 +15,14 @@
 //======= TFCSHistoLateralShapeWeightHitAndMiss =========
 //=============================================
 
+TFCSHistoLateralShapeWeightHitAndMiss::TFCSHistoLateralShapeWeightHitAndMiss(const char* name, const char* title):TFCSHistoLateralShapeWeight(name,title)
+{
+}
+
+TFCSHistoLateralShapeWeightHitAndMiss::~TFCSHistoLateralShapeWeightHitAndMiss()
+{
+}
+
 FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   if (!simulstate.randomEngine()) {

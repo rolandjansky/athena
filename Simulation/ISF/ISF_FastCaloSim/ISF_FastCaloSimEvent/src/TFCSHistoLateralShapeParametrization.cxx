@@ -33,6 +33,8 @@ TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
 
 double TFCSHistoLateralShapeParametrization::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
+  //Limit to factor 1000 fluctuations
+  if(m_nhits<0.001) return 1000;
   return 1.0/m_nhits;
 }
 

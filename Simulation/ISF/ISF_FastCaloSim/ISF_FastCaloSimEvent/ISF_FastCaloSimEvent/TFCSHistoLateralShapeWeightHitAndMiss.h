@@ -11,15 +11,15 @@ class TH1;
 
 class TFCSHistoLateralShapeWeightHitAndMiss:public TFCSHistoLateralShapeWeight {
 public:
-  TFCSHistoLateralShapeWeightHitAndMiss(const char* name=nullptr, const char* title=nullptr):TFCSHistoLateralShapeWeight(name,title) {};
-  ~TFCSHistoLateralShapeWeightHitAndMiss() {};
+  TFCSHistoLateralShapeWeightHitAndMiss(const char* name=nullptr, const char* title=nullptr);
+  virtual ~TFCSHistoLateralShapeWeightHitAndMiss();
 
   /// weight the energy of one hit in order to generate fluctuations. If the hit energy is 0, discard the hit
-  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
 private:
 
-  ClassDef(TFCSHistoLateralShapeWeightHitAndMiss,1)  //TFCSHistoLateralShapeWeightHitAndMiss
+  ClassDefOverride(TFCSHistoLateralShapeWeightHitAndMiss,1)  //TFCSHistoLateralShapeWeightHitAndMiss
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
