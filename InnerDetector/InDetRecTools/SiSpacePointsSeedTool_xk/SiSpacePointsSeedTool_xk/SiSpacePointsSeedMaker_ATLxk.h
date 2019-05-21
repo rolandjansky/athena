@@ -201,9 +201,6 @@ namespace InDet {
     float m_sF{0};
     float m_sFv{0};
 
-    // Updated in initialize and other many methods. nprint is prepared in EventData.
-    int m_nprint{0};
-
     mutable std::mutex m_mutex;
     mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
     struct EventData { // To hold event dependent data

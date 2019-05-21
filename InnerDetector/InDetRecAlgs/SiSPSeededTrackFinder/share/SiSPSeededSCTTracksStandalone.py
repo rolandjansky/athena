@@ -339,8 +339,8 @@ InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDe
                                                           BeamSpotKey = "")
 if doPrint:
     print InDetSiSPSeededTrackFinder
-# if numThreads >= 2:
-#     InDetSiSPSeededTrackFinder.Cardinality = numThreads
+if numThreads >= 2:
+    InDetSiSPSeededTrackFinder.Cardinality = numThreads
 topSequence += InDetSiSPSeededTrackFinder
 
 # Print algorithms
@@ -354,7 +354,8 @@ theApp.EvtMax = -1
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
+# Gaudi/GaudiKernel/GaudiKernel/Message.h
+ServiceMgr.MessageSvc.Format = "% F%50W%S% F%3W%s%7W%R%T %0W%M"
 
 if numThreads >= 2:
     from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
