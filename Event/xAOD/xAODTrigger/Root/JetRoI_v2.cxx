@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetRoI_v2.cxx 579914 2014-01-24 10:15:15Z krasznaa $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -61,10 +60,10 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetRoI_v2, float, et8x8, setEt8x8 )
 
    /// Accessor for the names of the passed thresholds
-   static SG::AuxElement::Accessor< std::vector< std::string > >
+   static const SG::AuxElement::Accessor< std::vector< std::string > >
       names( "thrNames" );
    /// Accessor for the values (in MeV) of the passed thresholds
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       values( "thrValues" );
 
    /// @param name The name of the passed threshold

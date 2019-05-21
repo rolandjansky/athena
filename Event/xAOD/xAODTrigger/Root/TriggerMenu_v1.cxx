@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenu_v1.cxx 647153 2015-02-16 13:34:19Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -45,7 +44,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::itemCtpIdsAvailable() const {
 
-      static Accessor< std::vector< uint16_t > > acc( "itemCtpIds" );
+      static const Accessor< std::vector< uint16_t > > acc( "itemCtpIds" );
       return acc.isAvailable( *this );
    }
 
@@ -55,7 +54,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::itemNamesAvailable() const {
 
-      static Accessor< std::vector< std::string > > acc( "itemNames" );
+      static const Accessor< std::vector< std::string > > acc( "itemNames" );
       return acc.isAvailable( *this );
    }
 
@@ -64,7 +63,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::itemPrescalesAvailable() const {
 
-      static Accessor< std::vector< float > > acc( "itemPrescales" );
+      static const Accessor< std::vector< float > > acc( "itemPrescales" );
       return acc.isAvailable( *this );
    }
 
@@ -81,7 +80,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainIdsAvailable() const {
 
-      static Accessor< std::vector< uint16_t > > acc( "chainIds" );
+      static const Accessor< std::vector< uint16_t > > acc( "chainIds" );
       return acc.isAvailable( *this );
    }
 
@@ -91,7 +90,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainNamesAvailable() const {
 
-      static Accessor< std::vector< std::string > > acc( "chainNames" );
+      static const Accessor< std::vector< std::string > > acc( "chainNames" );
       return acc.isAvailable( *this );
    }
 
@@ -101,7 +100,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainParentNamesAvailable() const {
 
-      static Accessor< std::vector< std::string > > acc( "chainParentNames" );
+      static const Accessor< std::vector< std::string > > acc( "chainParentNames" );
       return acc.isAvailable( *this );
    }
 
@@ -110,7 +109,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainPrescalesAvailable() const {
 
-      static Accessor< std::vector< float > > acc( "chainPrescales" );
+      static const Accessor< std::vector< float > > acc( "chainPrescales" );
       return acc.isAvailable( *this );
    }
 
@@ -120,7 +119,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainRerunPrescalesAvailable() const {
 
-      static Accessor< std::vector< float > > acc( "chainRerunPrescales" );
+      static const Accessor< std::vector< float > > acc( "chainRerunPrescales" );
       return acc.isAvailable( *this );
    }
 
@@ -130,7 +129,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainPassthroughPrescalesAvailable() const {
 
-      static Accessor< std::vector< float > >
+      static const Accessor< std::vector< float > >
          acc( "chainPassthroughPrescales" );
       return acc.isAvailable( *this );
    }
@@ -140,7 +139,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainSignatureCountersAvailable() const {
 
-      static Accessor< std::vector< std::vector< uint32_t> > > acc( "chainSignatureCounters" );
+      static const Accessor< std::vector< std::vector< uint32_t> > > acc( "chainSignatureCounters" );
       return acc.isAvailable( *this );
    }
 
@@ -149,7 +148,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainSignatureLogicsAvailable() const {
 
-      static Accessor< std::vector< std::vector< int > > > acc( "chainSignatureLogics" );
+      static const Accessor< std::vector< std::vector< int > > > acc( "chainSignatureLogics" );
       return acc.isAvailable( *this );
    }
   
@@ -158,7 +157,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainSignatureOutputTEsAvailable() const {
      
-    static Accessor< std::vector<std::vector< std::vector< std::string> > > > acc( "chainSignatureOutputTEs" );
+    static const Accessor< std::vector<std::vector< std::vector< std::string> > > > acc( "chainSignatureOutputTEs" );
      return acc.isAvailable( *this );
    }
 
@@ -167,7 +166,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainSignatureLabelsAvailable() const {
 
-      static Accessor< std::vector< std::vector< std::string > > > acc( "chainSignatureLabels" );
+      static const Accessor< std::vector< std::vector< std::string > > > acc( "chainSignatureLabels" );
       return acc.isAvailable( *this );
    }
 
@@ -186,7 +185,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::sequenceInputTEsAvailable() const {
 
-      static Accessor< std::vector< std::vector< std::string > > > acc( "sequenceInputTEs" );
+      static const Accessor< std::vector< std::vector< std::string > > > acc( "sequenceInputTEs" );
       return acc.isAvailable( *this );
    }
 
@@ -195,7 +194,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::sequenceOutputTEsAvailable() const {
 
-      static Accessor< std::vector< std::string > > acc( "sequenceOutputTEs" );
+      static const Accessor< std::vector< std::string > > acc( "sequenceOutputTEs" );
       return acc.isAvailable( *this );
    }
 
@@ -204,7 +203,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::sequenceAlgorithmsAvailable() const {
      
-     static Accessor< std::vector<std::vector< std::string > > > acc( "sequenceAlgorithms" );
+     static const Accessor< std::vector<std::vector< std::string > > > acc( "sequenceAlgorithms" );
      return acc.isAvailable( *this );
    }
 
@@ -225,7 +224,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::bunchGroupBunchesAvailable() const {
 
-      static Accessor< BunchGroup_t > acc( "bunchGroupBunches" );
+      static const Accessor< BunchGroup_t > acc( "bunchGroupBunches" );
       return acc.isAvailable( *this );
    }
 

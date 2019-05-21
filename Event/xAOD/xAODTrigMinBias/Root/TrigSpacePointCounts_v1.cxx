@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,7 +35,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigSpacePointCounts_v1, unsigned int, sctSpEndcapA, setSctSpEndcapA)
   
   double TrigSpacePointCounts_v1::pixelClusBarrelSumEntries(float value_x, float value_y, int cutType) const{
-    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusBarrel" );
+    static const Accessor< std::vector<float> > acc_contents( "contentsPixelClusBarrel" );
     return xAOD::sumEntries(acc_contents(*this),
 			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
 			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
@@ -43,7 +43,7 @@ namespace xAOD {
   }
     //
   double TrigSpacePointCounts_v1::pixelClusEndcapASumEntries(float value_x, float value_y, int cutType) const{
-    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapA" );
+    static const Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapA" );
     return xAOD::sumEntries(acc_contents(*this),
 			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
 			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
@@ -51,7 +51,7 @@ namespace xAOD {
   }
     //
   double TrigSpacePointCounts_v1::pixelClusEndcapCSumEntries(float value_x, float value_y, int cutType) const{
-    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapC" );
+    static const Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapC" );
     return xAOD::sumEntries(acc_contents(*this),
 			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
 			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
