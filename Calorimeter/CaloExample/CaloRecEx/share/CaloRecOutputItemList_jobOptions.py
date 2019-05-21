@@ -17,9 +17,11 @@ CaloClusterItemList=[]
 CaloClusterKeys=[]
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
-##CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
+    CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
+    CaloClusterKeys+=["CaloCalTopoSignals"]
 ##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
-##CaloClusterKeys+=["CaloCalTopoSignals"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -83,9 +85,9 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 
 #List of AOD moments: (copied from CaloClusterTopoGetter)
 
-AODMoments=[#"LATERAL"
+AODMoments=["SECOND_R"
+            #,"LATERAL"
             #,"LONGITUDINAL"
-            ,"SECOND_R" 
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
             ,"CENTER_LAMBDA"
@@ -95,47 +97,66 @@ AODMoments=[#"LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
-            ,#"ENG_BAD_HV_CELLS"
-            ,#"N_BAD_HV_CELLS"
+            #,"ENG_BAD_HV_CELLS"
+            #,"N_BAD_HV_CELLS"
             ,"ENG_POS"
-            ,#"SIGNIFICANCE"
-            ,#"CELL_SIGNIFICANCE"
-            ,#"CELL_SIG_SAMPLING"
+            #,"SIGNIFICANCE"
+            #,"CELL_SIGNIFICANCE"
+            #,"CELL_SIG_SAMPLING"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
-            ,#"PTD"
+            #,"PTD"
             ,"BadChannelList"
-            ,#"MASS"
+            #,"MASS"
             ]
+
+if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
+    AODMoments += ["LATERAL"
+                   ,"ENG_BAD_HV_CELLS"
+                   ,"N_BAD_HV_CELLS"
+                   ,"SIGNIFICANCE"
+                   ,"CELL_SIGNIFICANCE"
+                   ,"CELL_SIG_SAMPLING"
+                   ,"PTD"
+                   ,"MASS"
+                   ]
 try:
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doDigiTruth():
 
-      AODMoments+=["SECOND_R_DigiHSTruth"
-                ,"SECOND_LAMBDA_DigiHSTruth"
-                ,"CENTER_MAG_DigiHSTruth"
-                ,"CENTER_LAMBDA_DigiHSTruth"
-                ,"FIRST_ENG_DENS_DigiHSTruth"
-                ,"ENG_FRAC_MAX_DigiHSTruth"
-                ,"ISOLATION_DigiHSTruth"
-                ,"ENG_BAD_CELLS_DigiHSTruth"
-                ,"N_BAD_CELLS_DigiHSTruth"
-                ,"BADLARQ_FRAC_DigiHSTruth"
-                #,"ENG_BAD_HV_CELLS_Truth"
-                #,"N_BAD_HV_CELLS_Truth"
-                ,"ENG_POS_DigiHSTruth"
-                #,"SIGNIFICANCE_Truth"
-                #,"CELL_SIGNIFICANCE_Truth"
-                #,"CELL_SIG_SAMPLING_Truth"
-                ,"AVG_LAR_Q_DigiHSTruth"
-                ,"AVG_TILE_Q_DigiHSTruth"
-                ,"EM_PROBABILITY_DigiHSTruth"
-                #,"PTD_Truth"
-                ,"ENERGY_DigiHSTruth"
-                ,"ETA_DigiHSTruth"
-                ,"PHI_DigiHSTruth"
-                ]
+        AODMoments+=["SECOND_R_DigiHSTruth"
+                     ,"SECOND_LAMBDA_DigiHSTruth"
+                     ,"CENTER_MAG_DigiHSTruth"
+                     ,"CENTER_LAMBDA_DigiHSTruth"
+                     ,"FIRST_ENG_DENS_DigiHSTruth"
+                     ,"ENG_FRAC_MAX_DigiHSTruth"
+                     ,"ISOLATION_DigiHSTruth"
+                     ,"ENG_BAD_CELLS_DigiHSTruth"
+                     ,"N_BAD_CELLS_DigiHSTruth"
+                     ,"BADLARQ_FRAC_DigiHSTruth"
+                     #,"ENG_BAD_HV_CELLS_Truth"
+                     #,"N_BAD_HV_CELLS_Truth"
+                     ,"ENG_POS_DigiHSTruth"
+                     #,"SIGNIFICANCE_Truth"
+                     #,"CELL_SIGNIFICANCE_Truth"
+                     #,"CELL_SIG_SAMPLING_Truth"
+                     ,"AVG_LAR_Q_DigiHSTruth"
+                     ,"AVG_TILE_Q_DigiHSTruth"
+                     ,"EM_PROBABILITY_DigiHSTruth"
+                     #,"PTD_Truth"
+                     ,"ENERGY_DigiHSTruth"
+                     ,"ETA_DigiHSTruth"
+                     ,"PHI_DigiHSTruth"
+                 ]
+        if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
+            AODMoments+=["ENG_BAD_HV_CELLS_Truth"
+                         ,"N_BAD_HV_CELLS_Truth"
+                         ,"SIGNIFICANCE_Truth"
+                         ,"CELL_SIGNIFICANCE_Truth"
+                         ,"CELL_SIG_SAMPLING_Truth"
+                         ,"PTD_Truth"
+                 ]
 except:
     log = logging.getLogger('CaloRecOutputItemList')
     log.info('Unable to import DigitizationFlags in CaloRecOutputItemList_jobOptions. Expected in AthenaP1')
@@ -152,9 +173,11 @@ CaloClusterKeys=[]
 
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
-##CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
+    CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
+    CaloClusterKeys+=["CaloCalTopoSignals"]
 ##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
-##CaloClusterKeys+=["CaloCalTopoSignals"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
