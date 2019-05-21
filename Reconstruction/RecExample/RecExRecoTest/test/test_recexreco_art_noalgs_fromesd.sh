@@ -8,5 +8,8 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 
-athena RecExRecoTest/RecExRecoTest_ART_noAlgs_fromESD.py
-echo "art-result: $?"
+athena RecExRecoTest/RecExRecoTest_ART_noAlgs_fromESD.py | tee temp.log
+echo "art-result: ${PIPESTATUS[0]}"
+
+test_postProcessing_Errors.sh temp.log
+
