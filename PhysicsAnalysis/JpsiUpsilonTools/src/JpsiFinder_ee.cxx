@@ -262,7 +262,6 @@ namespace Analysis {
             }
         }
         
-        std::vector<const xAOD::TrackParticleContainer*>::iterator muTrkCollItr;
         if (m_elel) {
             for (jpsiItr=jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end(); ++jpsiItr) {
                 if ( m_useTrackMeasurement ) {
