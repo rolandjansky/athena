@@ -117,8 +117,6 @@ private:
   */
   void SetupRdoOutputType(Property&);
 
-  static constexpr unsigned int s_crazyParticleBarcode{std::numeric_limits<int32_t>::max()};
-
   FloatProperty m_tfix{this, "FixedTime", -999., "Fixed time for Cosmics run selection"};
   BooleanProperty m_enableHits{this, "EnableHits", true, "Enable hits"};
   BooleanProperty m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
@@ -129,7 +127,6 @@ private:
   IntegerProperty  m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, "Control pileup & signal splitting. Process all SiHit or just those from signal or background events"};
   BooleanProperty m_WriteSCT1_RawData{this, "WriteSCT1_RawData", false, "Write out SCT1_RawData rather than SCT3_RawData"};
   StringProperty m_inputObjectName{this, "InputObjectName", "", "Input Object name of the sub event  hit collections"};
-  IntegerProperty m_vetoThisBarcode{this, "ParticleBarcodeVeto", s_crazyParticleBarcode, "Barcode of particle to ignore"};
 
   SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "OutputObjectName", "SCT_RDOs", "Output Object name"};

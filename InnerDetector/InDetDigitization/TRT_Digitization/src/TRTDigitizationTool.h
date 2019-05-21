@@ -172,7 +172,6 @@ private:
   int m_UseGasMix;
   double m_cosmicEventPhase;     // local replacement for the comTime service
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
-  IntegerProperty m_vetoThisBarcode;
 
 };
 

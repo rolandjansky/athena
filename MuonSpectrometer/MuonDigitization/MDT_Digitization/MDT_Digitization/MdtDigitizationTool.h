@@ -228,7 +228,6 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   //pileup truth veto
   bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
 
   bool m_BMGpresent;
   int m_BMGid;

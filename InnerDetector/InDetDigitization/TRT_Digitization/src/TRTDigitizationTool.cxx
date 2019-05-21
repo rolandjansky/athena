@@ -56,8 +56,6 @@
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include <limits>
 #include <cstdint>
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
 
 // Random Number Generation
 #include "AthenaKernel/RNGWrapper.h"
@@ -117,7 +115,6 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
   declareProperty("UseGasMix",                     m_UseGasMix);
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
-  declareProperty("ParticleBarcodeVeto",           m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 
 }
 

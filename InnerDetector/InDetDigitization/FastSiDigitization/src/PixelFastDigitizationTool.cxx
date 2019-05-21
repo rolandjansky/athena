@@ -68,9 +68,6 @@
 using namespace InDetDD;
 using namespace InDet;
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
-
 // Constructor with parameters:
 PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, const std::string &name,
                                                      const IInterface* parent):
@@ -89,7 +86,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_mergeSvc("PileUpMergeSvc",name),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_pixelClusterMap(nullptr),
   m_prdTruthNamePixel("PRD_MultiTruthPixel"),
   m_pixPrdTruth(nullptr),
@@ -142,7 +138,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixelErrorStrategy"             , m_pixErrorStrategy);
   declareProperty("PixelClusterAmbiguitiesMapName" , m_pixelClusterAmbiguitiesMapName);
   declareProperty("HardScatterSplittingMode"       , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty("DigitizationStepper",     m_digitizationStepper);
   declareProperty("PixDiffShiftBarrX", m_pixDiffShiftBarrX);
   declareProperty("PixDiffShiftBarrY", m_pixDiffShiftBarrY);
