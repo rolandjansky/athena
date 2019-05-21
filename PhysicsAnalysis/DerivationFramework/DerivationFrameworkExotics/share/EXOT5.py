@@ -28,8 +28,11 @@ file_name = buildFileName(derivationFlags.WriteDAOD_EXOT5Stream)
 EXOT5Stream = MSMgr.NewPoolRootStream(stream_name, file_name)
 EXOT5Stream.AcceptAlgs(['EXOT5Kernel'])
 
+#print "stream_name: ",stream_name," file_name:",file_name
+
 # add output stream for histograms
-jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:output.root"]
+#jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:outputZnnN23New.root"]
+jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:"+file_name.replace('pool','ana')]
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT5ThinningHelper = ThinningHelper('EXOT5ThinningHelper')
@@ -542,17 +545,17 @@ ToolSvc += EXOT5BCDistanceAugmentationTool
 
 augmentationTools.append(EXOT5BCDistanceAugmentationTool)
 
-# add filtering information
-from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCTool
-EXOT5MergeMCTool = DerivationFramework__MergeMCTool(name="EXOT5MergeMCTool")
-exot5Seq += EXOT5MergeMCTool 
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel_skim', SkimmingTools=skimmingTools)
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
+
+# add filtering information
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__MergeMCTool
+EXOT5MergeMCTool = DerivationFramework__MergeMCTool(name="EXOT5MergeMCTool")
+exot5Seq += EXOT5MergeMCTool 
 
 # Augment AntiKt4 jets with QG tagging variables
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
