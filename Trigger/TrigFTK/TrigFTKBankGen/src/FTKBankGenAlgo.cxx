@@ -6,7 +6,7 @@
 #include "TrigFTKBankGen/FTKPattKDTree.h"
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTK_SGHitInput.h"
-#include "TrigFTKSim/atlClustering.h"
+#include "TrigFTKSim/FTKClusteringEngine.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -388,12 +388,12 @@ StatusCode FTKBankGenAlgo::initialize(){
       m_tree[i]->Branch("tmpPhi", &m_tmpPhi,"tmpPhi/D");
       m_tree[i]->Branch("tmpCoto", &m_tmpCoto,"tmpCoto/D");
       m_tree[i]->Branch("tmpZ", &m_tmpZ,"tmpZ/D");
-      m_tree[i]->Branch("tmpxC2", m_tmpxC,"tmpxC2[ndim]/D");
-      m_tree[i]->Branch("tmpxD2", m_tmpxD,"tmpxD2[ndim]/D");
-      m_tree[i]->Branch("tmpxPhi2", m_tmpxPhi,"tmpxPhi2[ndim]/D");
-      m_tree[i]->Branch("tmpxCoto2", m_tmpxCoto,"tmpxCoto2[ndim]/D");
-      m_tree[i]->Branch("tmpxZ2", m_tmpxZ,"tmpxZ2[ndim]/D");
-      m_tree[i]->Branch("tmpcovx2", m_tmpcovx,"tmpcovx2[ndim2]/D");
+      m_tree[i]->Branch("tmpxC", m_tmpxC,"tmpxC[ndim]/D");
+      m_tree[i]->Branch("tmpxD", m_tmpxD,"tmpxD[ndim]/D");
+      m_tree[i]->Branch("tmpxPhi", m_tmpxPhi,"tmpxPhi[ndim]/D");
+      m_tree[i]->Branch("tmpxCoto", m_tmpxCoto,"tmpxCoto[ndim]/D");
+      m_tree[i]->Branch("tmpxZ", m_tmpxZ,"tmpxZ[ndim]/D");
+      m_tree[i]->Branch("tmpcovx", m_tmpcovx,"tmpcovx[ndim2]/D");
     
       m_intc= new std::vector<short>;
       m_intphi= new std::vector<short>;
@@ -497,7 +497,6 @@ StatusCode FTKBankGenAlgo::execute() {
       m_trainingtracks.push_back(m_truth_track[i]);
       // prepare the entry in the map of hits
       m_maphits[m_truth_track[i].getBarcode()] = vector<FTKHit>();
-
       m_monval[2]++;
     }
   }
@@ -650,7 +649,7 @@ StatusCode FTKBankGenAlgo::execute() {
                 }
 
                 // sector overlap is a perfectly reasonable situation with forward disks
-                // m_eta and phi will differ in general in this case
+                // eta and phi will differ in general in this case
                 // Take the lower-z hit preferentially (right thing to do? d0/pT tradeoff)
                 // But something fishy is going on if we've got two hits on the same disk.
               }
@@ -761,22 +760,6 @@ StatusCode FTKBankGenAlgo::execute() {
         nregion=-999;
       } else {
 
-        // use sectorID as Identifier Hash
-	/* tkaji
-        if (m_UseIdentifierHash){
-          for(int i=0;i<m_nplanes;++i) {
-            log << MSG::DEBUG << "getsector " <<sechit[i].sector_HW<< endmsg;
-            m_p_ss[i]=sechit[i].sector_HW;
-          }
-        }
-        else {
-          for(int i=0;i<m_nplanes;++i) {
-            log << MSG::DEBUG << "getsector " <<sechit[i].sector<< endmsg;
-            m_p_ss[i]=sechit[i].sector;
-          }
-        }
-	*/
-
 	for(int i=0;i<m_nplanes;i++){
 	  m_p_hashss[i] = sechit[i].sector_HW;
 	  m_p_ss[i] = sechit[i].sector;
@@ -828,7 +811,7 @@ StatusCode FTKBankGenAlgo::execute() {
                   else if (refeta==1&&cureta==2&&sechit[m_nplanes-1].originalhit.getEtaCode()>=6) nregion = itwr;
                 }
                 else {
-                  /* If the the current and reference towers are in the same m_eta
+                  /* If the the current and reference towers are in the same eta
                    * region, the greater index is preferred. The exception is to
                    * consider refphi=0 preferred to curphi=15, to restore the simmetry
                    */
@@ -856,7 +839,7 @@ StatusCode FTKBankGenAlgo::execute() {
                   else if (refeta==1&&cureta==2&&sechit[m_nplanes-1].originalhit.getEtaCode()>=6) nregion = itwr;
                 }
                 else {
-                  /* If the the current and reference towers are in the same m_eta
+                  /* If the the current and reference towers are in the same eta
                    * region, the greater index is preferred. The exception is to
                    * consider refphi=0 preferred to curphi=7, to restore the simmetry
                    */
@@ -892,8 +875,8 @@ StatusCode FTKBankGenAlgo::execute() {
             int phi = sechit[i].sector/1000;
             result[i]=0;
 
-            if(sechit[i].sector%1000<20){//section and m_eta definition
-              //	    if(sechit[i].sector_ref%1000<20){//section and m_eta definition
+            if(sechit[i].sector%1000<20){//section and eta definition
+              //	    if(sechit[i].sector_ref%1000<20){//section and eta definition
               section=0;
             }else{
               section=sechit[i].sector%10;
@@ -953,7 +936,7 @@ StatusCode FTKBankGenAlgo::execute() {
           static int *result_eta;
           static int allocated_eta = 0;
           int region_eta = -1;
-          // total tower id's where we switch tower-m_eta
+          // total tower id's where we switch tower-eta
           const int t0 = 0;
           const int t1 = m_rmap->getNumRegionsPhi()*1;
           const int t2 = m_rmap->getNumRegionsPhi()*2;
@@ -1046,7 +1029,7 @@ StatusCode FTKBankGenAlgo::execute() {
           int tow0_OK;
           int j;
 
-          if(-1 != region_eta){//m_eta is defined
+          if(-1 != region_eta){//eta is defined
             if(!allocated_phi) {
               allocated_phi = 1;
               if((result_phi = (int *)calloc(m_nplanes,sizeof(int))) == NULL)
@@ -1102,7 +1085,7 @@ StatusCode FTKBankGenAlgo::execute() {
               }
             }
 
-          }//m_eta is defined
+          }//eta is defined
 
           /////////////////////
           //  which region?? //

@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkTrackSummaryTool
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigEvent/TrigCaloEvent
@@ -37,6 +38,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRawEvent/InDetSimData
+                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           TileCalorimeter/TileIdentifier
 			  Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkEvent/TrkRIO_OnTrack

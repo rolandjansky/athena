@@ -40,7 +40,6 @@ if not hasattr(runArgs, "ITkMode") :
     setattr(runArgs, "ITkMode", False)
 FTKConstGenAlgo.ITkMode= runArgs.ITkMode
 
-
 if not hasattr(runArgs, "bankregion") :
     setattr(runArgs, "bankregion", 0)
 FTKConstGenAlgo.region=runArgs.bankregion # if the previous option is True this line is not important

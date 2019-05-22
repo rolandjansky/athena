@@ -66,6 +66,8 @@ protected:
    virtual ~FTKLogger();
    static void SetLogger(FTKLogger *ftkLogger);
    void SetType(int type,int printLevel,int abortLevel);
+   int getLoggerMsgType(void) const { return m_type; }
+   std::string getLoggerMsg(void) const { return m_buffer->str(); }
    //FTKLogger() : fLevel(0) { }
    virtual std::streamsize xsputn ( const char * s, std::streamsize n ); 
    virtual int overflow (int c);

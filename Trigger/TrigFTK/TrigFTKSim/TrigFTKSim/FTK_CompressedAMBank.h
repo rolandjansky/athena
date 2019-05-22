@@ -10,6 +10,8 @@
 #include "TrigFTKSim/FTKPattern.h"
 #include "TrigFTKSim/FTKRoad.h"
 #include "TrigFTKSim/FTK_AMsimulation_base.h"
+#include "TrigFTKSim/FTK_CompressedSectorPatternList.h"
+#include "TrigFTKSim/FTK_HitMask.h"
 #include <inttypes.h>
 #include <vector>
 #include <map>
@@ -33,6 +35,8 @@ class FTKHitPatternCompare;
 class FTKPatternOneSector;
 class FTKPatternBySectorReader;
 
+#define ROAD_CAND_AS_VECTOR
+
 //#include <boost/container/map.hpp>
 //#include <boost/container/vector.hpp>
 //#include <boost/container/list.hpp>
@@ -43,56 +47,6 @@ class FTKPatternBySectorReader;
 #define VECTOR std::vector
 #define LIST std::list
 
-#define OPTIMIZED_VECTORMAP
-
-#ifdef OPTIMIZED_VECTORMAP
-// this map has a parallel linear stucture for fast loops
-//   using the type "const_ptr" rather than "const_iterator"
-template<class T> class VECTORMAP : public MAP<int,T> {
- public:
-   VECTORMAP() : m_data(0),m_size(0) { }
-   virtual ~VECTORMAP() { if(m_data) delete [] m_data; }
-   class const_ptr {
-   public:
-      inline const_ptr(typename std::pair<const int,T> const **p=0) : m_ptr(p) {
-      }
-      inline typename std::pair<const int,T> const &operator*(void) {
-         return **m_ptr;
-      }
-      inline bool operator!=(const_ptr const &cp) { return m_ptr!=cp.m_ptr; }
-      inline const_ptr &operator++(void) { ++m_ptr; return *this; }
-   protected:
-      typename std::pair<const int,T> const **m_ptr;
-   };
-   int getMemoryEstimate(void) const {
-      // size of the class
-      // data and four pointers (data,prev,next,child) per node
-      // plus array of pointers for fast access using "const_ptr"
-      return
-         ((uint8_t const *)(this+1)-(uint8_t const *)this)+
-         (sizeof(typename std::pair<int, T>)+4*sizeof(void *))
-         *MAP<int,T>::size()
-         +sizeof(void *)*m_size;
-   }
-   inline const_ptr beginPtr(void) const { return m_data; }
-   inline const_ptr endPtr(void) const { return m_data+m_size; }
-   inline void pack() {
-      if(m_data) { delete [] m_data; m_data=0; }
-      m_size=MAP<int,T>::size();
-      if(m_size) {
-         m_data=new typename std::pair<const int,T> const * [m_size];
-         unsigned k=0;
-         for(typename MAP<int,T>::const_iterator i=MAP<int,T>::begin();
-             i!=MAP<int,T>::end();i++) {
-            m_data[k++]=&(*i);
-         }
-      }
-   }
- protected:
-   typename std::pair<const int,T> const **m_data;
-   unsigned m_size;
-};
-#else
 template<class T> class VECTORMAP : public MAP<int,T> {
 public:
    typedef typename MAP<int,T>::const_iterator const_ptr;
@@ -108,7 +62,6 @@ public:
           +4*sizeof(void *))*MAP<int,T>::size();
    }
 };
-#endif
 
 class FTK_CompressedAMBank : public FTKLogging , public FTK_AMsimulation_base {
 public:
@@ -119,6 +72,21 @@ public:
                         FTKSSMap *ssMapTSP=0,
                         int hwmodeid_TSP=-1,int hwmodeid_DC=-1,
                         char const *name="FTK_CompressedAMBank");
+
+   // set compression scheme
+  //
+  // compression scheme
+  enum COMPRESSION {
+     COMPRESSION_SKIP=-1,   // skip "finalize step"
+     COMPRESSION_DEFAULT=0, // use default compression scheme
+
+     COMPRESSION_U7=FTK_CompressedPatternList::ENCODING_U7,
+     COMPRESSION_U32=FTK_CompressedPatternList::ENCODING_U32,
+     COMPRESSION_DELTA=FTK_CompressedPatternList::ENCODING_DELTA,
+     COMPRESSION_BIT4=FTK_CompressedPatternList::ENCODING_BIT4
+  };
+   void setCompressionScheme(int scheme);
+   inline int getCompressionScheme(void) const { return m_compressionScheme; };
 
    // set parameters for TSP import
    void setNDCmax(int ndc);
@@ -152,7 +120,7 @@ public:
    // write root file (reasonaby fast)
    int writeCCachedBankFile(char const *cachedBankFile,int flatFormat=0) const;
    int writeCCachedBankFile(TDirectory *out) const;
-  
+
    // full comparison of two pattern banks
    int compare(FTK_CompressedAMBank const *bank) const;
 
@@ -189,12 +157,12 @@ public:
    // argument is SSID w/o dc bits
    // returns vector with dc-bit as index, contains TSP-SSID
    // (note, the dc-bits possibly are gray-coded)
-   std::vector<int> const &getTSPssidVector(int layer,int sector,int dcSSID);
-   inline int getTSPssid(int layer,int sector,int dcSSID,int tspXY) {
-      return getTSPssidVector(layer,sector,dcSSID)[tspXY];
+   std::vector<int> const &getTSPssidVector(int layer,int dcSSID);
+   inline int getTSPssid(int layer,int dcSSID,int tspXY) {
+      return getTSPssidVector(layer,dcSSID)[tspXY];
    }
    // returns pair(SSID w/o dc bits , dc bits)
-   std::pair<int,int> const &getDCssid(int layer,int sector,int tspSSID);
+   std::pair<int,int> const &getDCssid(int layer,int tspSSID);
    int getDCssidConst(int layer,int tspSSID) const;
 
    // read root file (sector-ordered), one subregion
@@ -221,17 +189,15 @@ public:
 
    bool isReservedPatternId(int patternID) const;
 
-   int readBANKjson(char const *jsonFile);
-   int writeBANKjson(char const *jsonFile) const;
-
    void printStrips(int plane=-1) const;
 
-protected:
    // read root file (pcache)
    int readPCachedBank(TDirectory *pcache,int nsub=0);
 
    // read root file (Compressed cache)
    int readCCachedBank(TDirectory *ccache);
+
+protected:
 
    // convert sector-ordered DC bank (in memory) to TSP-bank
    void importDCpatterns
@@ -253,42 +219,57 @@ protected:
 
    VECTOR<MAP<int,int> > m_badModules;
 
-   // hold pattern data for a given layer,SSID,sector (all patterns)
-   //
-   // loop over packed pattern data
-   //
-   // packed pattern data - store delta to preceeding pattern
-   //   0x00-0x7f : delta=1..128
-   //   0x8x : store bit  7..10 if delta-1>0x0000007f
-   //   0x9x : store bit 11..14 if delta-1>0x000007ff
-   //    ...
-   //   0xDx : store bit 27..30 if delta-1>0x07ffffff
-   //   0xE1 : store bit 31     if delta-1>0x7fffffff
-   //   0xE4..0xE7 : store length (1..4 byte, big-endian)
-   //   0xE8..0xEB : store nPatterns (1..4 byte, big-endian)
-   //   0xEC..0xEF : store firstPattern address relative to sector start
-   //                  (1..4 byte, big-endian)
-   //   0xFx : encode repeated occurance of delta=1 (repeat=2..17)
-   template<class A>
-      inline void patternLoop(A &a,uint8_t const * __restrict ptr,
-                              uint32_t firstPattern,int nPattern) const;
-   struct SectorData {
-      //
-      // first pattern ID
-      uint32_t m_FirstPattern;
-      //
-      // number of patterns (unpacked)
-      uint32_t m_NPattern;
-      uint32_t m_offset;
-      uint32_t m_length;
-   };
-
    //
    // holds pattern data for a given layer (all SSIDs and all sectors)
    //    the index is the SSID number (in TSP space)
-   typedef VECTORMAP<SectorData> PatternBySector_t;
-   typedef VECTORMAP<PatternBySector_t> PatternBySectorSSidMap_t;
-   //    the index is the sector number
+   typedef VECTORMAP<FTK_CompressedSectorPatternList> PatternBySectorSSidMap_t;
+
+   //
+   // store SSID and ternary bits by pattern ID for one layer
+   struct SSIDternaryByPattern {
+      //
+      // dcSSID IDs by sector (for unpacking pattern data)
+      //    m_dcSSIDtable[sector][i]  is an SSID (in dc-space)
+      VECTOR<VECTOR<int> > m_dcSSIDbySectorIndex;
+      //
+      // the data
+      std::vector<uint8_t> m_pattern8DataPacked;
+      std::vector<uint16_t> m_pattern16DataPacked;
+      //
+      // offset for unpacking ternary bits
+      uint32_t m_offsetTernary;
+      //
+      // method to extract packed data
+      inline uint16_t getPackedData(uint32_t patternID) const {
+         uint16_t data;
+         if(patternID<m_pattern8DataPacked.size())
+            data=m_pattern8DataPacked[patternID];
+         else data=m_pattern16DataPacked[patternID];
+         return data;
+      }
+      //
+      // method to unpack SSID
+      inline int getSSID(uint32_t sector,uint32_t patternID) const {
+         uint32_t data=getPackedData(patternID);
+         uint32_t indexSSID=(data-1)/m_offsetTernary;
+         return m_dcSSIDbySectorIndex[sector][indexSSID];
+      }
+      //
+      // method to unpack ternary bits
+      //   return.first : DC bits
+      //   return .second : HB bits
+      inline std::pair<uint16_t,uint16_t> getDCHB(int patternID)
+         const {
+         std::pair<uint16_t,uint16_t> r(std::make_pair(0,0));
+         uint32_t data=(getPackedData(patternID)-1)%m_offsetTernary;
+         for(int bits3=m_offsetTernary/3;bits3;bits3/=3) {
+            int t=(data/bits3)%3;
+            r.second = (r.second<<1)|(t &1);
+            r.first = (r.first<<1)|(t>>1);
+         }
+         return r;
+      }
+   };
    //
    // holds patterndata and auxillary data for a given layer
    struct LayerData {
@@ -298,13 +279,28 @@ protected:
       //          list of patterns for this SSID,sector combination
       PatternBySectorSSidMap_t m_SSidData;
       //
-      // dcSSID IDs by sector (for unpacking pattern data)
-      //    m_dcSSIDtable[sector][i]  is an SSID (in dc-space)
-      VECTOR<VECTOR<int> > m_dcSSIDbySectorIndex;
-      //
-      // this holds the byte-compressed pattern delta data by sector
-      VECTOR<VECTOR<uint8_t> > m_CompressedDeltaBySector;
+      // this holds the Pattern data, ordered by patternID 
+      //  each word is packed as:
+      //     DC*m_offsetTernary+TERNARY
+      // TERNARY is packed using {0,1,X} <-> {0,1,2}
+      struct SSIDternaryByPattern m_SSIDternaryByPattern;
   };
+   class Range {
+   public:
+      inline Range(void) : m_head(0),m_tail(0) { }
+      inline int First(void) const {return m_head; }
+      inline int Last(void) const {return m_tail-1; }
+      inline int Size(void) const { return m_tail-m_head; }
+      inline void SetRange(int first,int last) {
+         m_head=first; m_tail=last+1; }
+      inline void UpdateRange(int first,int last) {
+         if(Size()<=0) SetRange(first,last);
+         else {
+            if(first<m_head) m_head=first;
+            if(last>=m_tail) m_tail=last+1; } }
+   protected:
+      int m_head,m_tail;
+   };
    //
   // hold a full pattern bank
   struct PatternBank {
@@ -315,39 +311,43 @@ protected:
      //       returns the coresponding struct SectorData
      VECTOR<LayerData> m_PatternByLayer;
      //
-     // this holds the Pattern data, ordered by patternID (bit-packed)
-     //   the bit number is given by iPattern*m_PatternBitsTotal
-     VECTOR<std::vector<uint8_t> > m_pattern8Data;
-     VECTOR<std::vector<uint16_t> > m_pattern16Data;
      //
      // this holds auxillary information (if available)
      //  number of TSP patterns per pattern
      //  integrated coverage per pattern
      VECTOR<uint32_t> m_numTSP,m_coverage;
+     //
+     // for each sector, give the pattern range
+     VECTOR<Range> m_PatternRangeBySector;
   };
   void erase();
   //
   // holds all pattern data
   PatternBank m_bank;
-  MAP<int,std::pair<int,int> > m_SectorFirstLastPattern;
+  MAP<int,bool> m_tooFew;
+
+  //
+  // types to hold hit-mask for a pattern
   //
   // hold wildcards (layer mask) per sector
-  typedef uint8_t HitPattern_t;
-  VECTOR<HitPattern_t> m_SectorWC;
+  VECTOR<FTK_HitMask> m_SectorWC;
   //
   // TSP-SSIDs 
   std::vector<std::list<int> > m_tspSSID;
   //
   // used sectors
-  VECTOR<HitPattern_t> m_sectorUsage;
+  VECTOR<FTK_HitMask> m_sectorUsage;
   //
   // hit patterns 
-  VECTOR<HitPattern_t> m_hitPatterns;
+  FTK_HitMaskVector m_hitMask;
   //
   // road candidates
-  static int const MAX_NROAD;
-  unsigned m_nRoadCand;
-  VECTOR<std::pair<uint32_t,uint32_t> > m_roadCand;
+#ifdef ROAD_CAND_AS_VECTOR
+  static int const MAX_ROADCAND;
+  std::vector<std::pair<uint32_t,uint32_t> > m_roadCand;
+#else
+  VECTORMAP<uint32_t> m_roadCandMap;
+#endif
   //
   // minimum number of hits
   uint8_t m_nhWCmin;
@@ -365,9 +365,9 @@ protected:
   // these methods are used to populate tables to translate
   //   tspSSID to dcSSID and back
   //   (this should be moved to another class?)
-  int getTSPssidSlow(int layer,int sector,int ssid,int tspXY);
-  int getDCssidSlow(int layer,int sector,int tspSSID,int *moduleID);
-  void insertSSID(int layer,int sector,int tspSSID,int dcSSID);
+  int getTSPssidSlow(int layer,int ssid,int tspXY);
+  int getDCssidSlow(int layer,int tspSSID,int *moduleID);
+  void insertSSID(int layer,int tspSSID,int dcSSID);
   void invalidateSSIDtables(void);
 
   //
@@ -378,11 +378,9 @@ protected:
   VECTOR<MAP<int,std::pair<int,int> > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
-  //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
   //    m_dcMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
   //    m_hbMaskLookup[layer][dcHBbits]  returns the HB bits for this layer
   // here, dcHBbits is extracted from bits inside m_Bank.m_PatternBitData[]
-  VECTOR<VECTOR<int> > m_subSSmask;
   VECTOR<VECTOR<int> > m_dcMaskLookup;
   VECTOR<VECTOR<int> > m_hbMaskLookup;
   // lookup-tables to get encoded (DC,HB) bits given the subindex of TSP wrt DC
@@ -429,10 +427,7 @@ protected:
   // identifier for wildcard SS
   static int const s_WILDCARDid;
   static int const s_INVALIDid;
-  //
-  // for generating HUF table
-  void SplitlistHUF(uint64_t code,int *i2char,int *integral,int i0,int i1,
-                    VECTOR<int> &huftable,VECTOR<uint64_t> &hufcode) const;
+  int m_compressionScheme;
 };
 
 #endif

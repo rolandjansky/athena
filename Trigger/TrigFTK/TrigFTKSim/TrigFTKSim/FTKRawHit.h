@@ -257,7 +257,6 @@ public:
   const float IBL_3D_column_scaling =
     (10*ftk::lengthOfIblModuleIn250umPixels)/ftk::numberOfEtaPixelsInIblModule; // (10*163.2)/160);
 
-
   ClassDef(FTKRawHit,4)
 };
 

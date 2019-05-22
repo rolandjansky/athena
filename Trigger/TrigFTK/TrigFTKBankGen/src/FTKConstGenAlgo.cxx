@@ -137,7 +137,7 @@ StatusCode FTKConstGenAlgo::initialize(){
 
     // These 6 counters will evolve in each step of map building
     // to generalize to 1st/2nd stage extrapolation.
-    m_endcap_inversion = new bool[m_nplane];
+    m_endcap_inversion = new bool[12];
 
     m_plane_index_1st_stage = 0;
     m_plane_index_2nd_stage = 0;
@@ -879,7 +879,6 @@ void FTKConstGenAlgo::constantgen()
   maxvals[2]= maxvals[2]*M_PI;
   minvals[2]= minvals[2]*M_PI;
 
-  // Hardcoded resolutions need to be fixed
   double resolutions[14] = {0.04, 0.08265625, 0.04, 0.08265625, 0.04, 0.08265625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625};
 #ifdef DEBUG_NOISE
   float n[30];
@@ -1201,23 +1200,23 @@ void FTKConstGenAlgo::constantgen()
     gco.real = gc.real;
 
     for(int i=0;i<ndim-NPARS;i++) {
-      m_pr = proj(gc.Vd,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      m_pr =  proj(gc.Vd,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
       for(int j=0;j<ndim;j++) gco.Vd[j] += -gc.kernel[i][j]*m_pr;
       gco.Cd += -gc.kaverages[i]*m_pr;
       
-      m_pr = proj(gc.Vc,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      m_pr =  proj(gc.Vc,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
       for(int j=0;j<ndim;j++) gco.Vc[j] += - gc.kernel[i][j]*m_pr;
       gco.Cc += -gc.kaverages[i]*m_pr;
 	  
-      m_pr = proj(gc.Vf,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      m_pr =  proj(gc.Vf,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
       for(int j=0;j<ndim;j++) gco.Vf[j] += -gc.kernel[i][j]*m_pr;
       gco.Cf += -gc.kaverages[i]*m_pr;
 
-      m_pr = proj(gc.Vz0,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      m_pr =  proj(gc.Vz0,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
       for(int j=0;j<ndim;j++) gco.Vz0[j] += -gc.kernel[i][j]*m_pr;
       gco.Cz0 += -gc.kaverages[i]*m_pr;
 
-      m_pr = proj(gc.Vo,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
+      m_pr =  proj(gc.Vo,gc.kernel[i],ndim)/proj(gc.kernel[i],gc.kernel[i],ndim);
       for(int j=0;j<ndim;j++) gco.Vo[j] += -gc.kernel[i][j]*m_pr;
       gco.Co += -gc.kaverages[i]*m_pr;
       
@@ -1479,7 +1478,7 @@ void FTKConstGenAlgo::extract_1stStage()
   TTree *slice_tree = (TTree*) Lfile->Get("slice");
 
   for(int idx=0; idx<(int)m_vec_plane_index_2nd_stage.size(); idx++){
-    log << MSG::INFO <<"2nd stage layer :" << m_vec_plane_index_2nd_stage[idx] << ", 1st stage layer: "<< m_vec_plane_index_1st_stage[idx] << ", doInvert: " << m_vec_doInvert[idx] << ", coord 2nd stage: " << m_vec_coord_index_2nd_stage[idx] << ", coord 1st stage: " << m_vec_coord_index_1st_stage[idx] << endmsg;
+    log << MSG::INFO <<"2nd stage layer :" << m_vec_plane_index_2nd_stage[idx] << ", 1st stage layer: "<< m_vec_plane_index_1st_stage[idx] << ", m_doInvert: " << m_vec_doInvert[idx] << ", coord 2nd stage: " << m_vec_coord_index_2nd_stage[idx] << ", coord 1st stage: " << m_vec_coord_index_1st_stage[idx] << endmsg;
   }
 
   // prepare the pointers to retrieve the data from the TTrees
@@ -1505,8 +1504,8 @@ void FTKConstGenAlgo::extract_1stStage()
   double *tmpxZ;
   double *tmpcovx;
 
-  int ndim8 = m_pmap_8L->getTotalDim();
-  int ndim2_8 = ndim8*ndim8;
+  int ndim8 = m_pmap_8L->getTotalDim(); //11;
+  int ndim2_8 = ndim8*ndim8; //11*11;
   int nth_dim8 = 0;
   int nth_dim8_2 = 0;
   int idx_cov8 = 0;
@@ -1649,16 +1648,10 @@ void FTKConstGenAlgo::extract_1stStage()
       Mtmp.Coto=tmpCoto, Mtmp.Z=tmpZ,Mtmp.nhit=nhit;
 
       // check if the module belongs to endcap (for endcap inversion.).
-      std::vector<bool> isEndcap (m_nplane);
+      bool isEndcap[12]={0};
 
       for(int plane_idx_2nd_stage = 0;plane_idx_2nd_stage<m_nplane;plane_idx_2nd_stage++){
-	if(m_ITkMode){
-	  if((sectorID[plane_idx_2nd_stage]%100) / 10 != 2 ){
-	    isEndcap[plane_idx_2nd_stage]=true;
-	  }
-	}else{
-	  if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
-	}
+      	if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
       }
 
       // main function extract 1st stage (8L) from 2nd stage (12L)
@@ -1670,9 +1663,9 @@ void FTKConstGenAlgo::extract_1stStage()
 	  if(m_vec_plane_index_2nd_stage[idx_layer] % 2 == 0) m_inversion = 1;
 	  else m_inversion = -1;
 
-	}else{// if no m_inversion
+	}else{// if no inversion
 	  m_inversion = 0;
-	}// endcap m_inversion
+	}// endcap inversion
 
 	sectorID8[idx_layer] = sectorID[m_vec_plane_index_2nd_stage[idx_layer] + m_inversion];
 	hashID8[idx_layer] = hashID[m_vec_plane_index_2nd_stage[idx_layer] + m_inversion];
@@ -1699,9 +1692,9 @@ void FTKConstGenAlgo::extract_1stStage()
 		if(m_vec_plane_index_2nd_stage[idx2_layer] % 2 == 0) m_inversion2 = 1;
 		else m_inversion2 = -1;
 		
-	      }else{// if no m_inversion
+	      }else{// if no inversion
 		m_inversion2 = 0;
-	      }// endcap m_inversion
+	      }// endcap inversion
 
 	      nth_dim2   = m_vec_coord_index_2nd_stage[idx2_layer] + ndm2;
 	      nth_dim8_2 = m_vec_coord_index_1st_stage[idx2_layer] + ndm2;
@@ -1857,11 +1850,11 @@ void FTKConstGenAlgo::extract_1stStage()
     m_extract_intz0= new std::vector<short>;
     m_extract_inteta= new std::vector<short>;
 
-    tree->Branch("tmpintc", &m_extract_intc);
-    tree->Branch("tmpintphi", &m_extract_intphi);
-    tree->Branch("tmpintd0", &m_extract_intd0);
-    tree->Branch("tmpintz0", &m_extract_intz0);
-    tree->Branch("tmpinteta", &m_extract_inteta);
+    mtree->Branch("tmpintc", &m_extract_intc);
+    mtree->Branch("tmpintphi", &m_extract_intphi);
+    mtree->Branch("tmpintd0", &m_extract_intd0);
+    mtree->Branch("tmpintz0", &m_extract_intz0);
+    mtree->Branch("tmpinteta", &m_extract_inteta);
 
     bank_order = b - b_int;
 

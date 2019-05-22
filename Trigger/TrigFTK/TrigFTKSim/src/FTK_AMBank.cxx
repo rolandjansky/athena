@@ -636,7 +636,6 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
             m_patternCoverage[patternID] = coverage;
             m_totalCoverage += coverage;
             (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
-	 //cout<<sector<<" "<<coverage<<" "<<endl; //hier
 
             patternID++; // increment the global pattern ID
          } // end for (patterns)

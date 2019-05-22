@@ -57,6 +57,14 @@ import os.path
 
 FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKMergedTracksStream"
 FTK_RDO_CreatorAlgo.mergedTrackPaths = inputNTUP_FTKFile
+# By definition the direction of IBL locX is:
+#      RAW      : reversed
+#      NTUP_FTK : reversed
+#      RDO      : normal
+#      AOD      : normal
+#  This FTK_RDO_CreatorAlgo is getting the FTK tracks from NTUP_FTK and writing RDO so
+#  the direction of IBL locX needs to be reversed 
+FTK_RDO_CreatorAlgo.ReverseIBLlocX=True 
 
 from RecExConfig.RecFlags import rec
 rec.doCBNT.set_Value_and_Lock(False)

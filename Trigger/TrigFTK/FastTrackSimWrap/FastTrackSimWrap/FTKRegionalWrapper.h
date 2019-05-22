@@ -16,7 +16,8 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 
@@ -69,20 +70,22 @@ private:
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
   const AtlasDetectorID* m_idHelper;
-  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
 
+  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
+  std::unique_ptr<FTKClusteringEngine> m_clusteringEngine = nullptr;
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL
   bool m_fixEndcapL0; //fix for endcap L0 in clustering
   bool m_ITkMode; //  global FTK setup variable to toggle ITk geometry
   std::string m_pmap_path; //  path of the PMAP file
-  FTKPlaneMap *m_pmap; //  pointer to the pmap object
+  std::unique_ptr<FTKPlaneMap> m_pmap = nullptr; //  pointer to the pmap object
 
   // variables to manage the region maps
   std::string m_rmap_path; //  path of the region-map file
-  FTKRegionMap *m_rmap; //  pointer to the RMAP object
+  std::unique_ptr<FTKRegionMap> m_rmap = nullptr; //  pointer to the RMAP object
   int m_ntowers;
   int m_nplanes;
  
@@ -147,18 +150,17 @@ private:
   std::vector<std::string> m_spix_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
   std::vector<std::string> m_ssct_rodIdlist;  /** List of RodIDs to be used to emulate DF output*/
 
-  bool dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rmap);
-
+  bool dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRegionMap *rmap);
 
   //Added for cluster conversion
   std::string m_FTKPxlClu_CollName;  /** default name for the FTK pixel ID Cluster container */
-  InDet::PixelClusterContainer *m_FTKPxlCluContainer;   /**  FTK pixel ID Cluster container */
+  std::unique_ptr<InDet::PixelClusterContainer> m_FTKPxlCluContainer;   /**  FTK pixel ID Cluster container */
   std::string m_FTKSCTClu_CollName;  /** default name for the FTK sct ID Cluster container */
-  InDet::SCT_ClusterContainer *m_FTKSCTCluContainer;   /**  FTK pixel ID Cluster container */
+  std::unique_ptr<InDet::SCT_ClusterContainer> m_FTKSCTCluContainer;   /**  FTK pixel ID Cluster container */
 
 
-  PRD_MultiTruthCollection* m_ftkPixelTruth; /** FTK Pixel ID Truth collection */
-  PRD_MultiTruthCollection* m_ftkSctTruth; /** FTK SCT ID Truth collection */
+  std::unique_ptr<PRD_MultiTruthCollection> m_ftkPixelTruth; /** FTK Pixel ID Truth collection */
+  std::unique_ptr<PRD_MultiTruthCollection> m_ftkSctTruth; /** FTK SCT ID Truth collection */
   const McEventCollection*  m_mcEventCollection; /** Truth collection */
 
   std::string m_ftkPixelTruthName;  /** name of FTK Pixel ID Truth collection */
@@ -170,8 +172,8 @@ private:
   //offline clusters
   std::vector<float>   *m_offline_locX;
   std::vector<float>   *m_offline_locY;
-  std::vector<int>     *m_offline_isPixel;
-  std::vector<int>     *m_offline_isBarrel;
+  std::vector<bool>    *m_offline_isPixel;
+  std::vector<bool>    *m_offline_isBarrel;
   std::vector<int>     *m_offline_layer;
   std::vector<int>     *m_offline_resAssociatedTrack;
   std::vector<int>     *m_offline_clustID;
@@ -181,7 +183,6 @@ private:
   std::vector<float>   *m_offline_pt;
   std::vector<float>   *m_offline_eta;
   std::vector<float>   *m_offline_phi;
-
 
   TTree *m_offline_cluster_tree;
 

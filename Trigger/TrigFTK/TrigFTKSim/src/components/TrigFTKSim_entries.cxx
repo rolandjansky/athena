@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrigFTKSim/FTKRoadFinderAlgo.h"
 #include "TrigFTKSim/FTKDumpCondAlgo.h"
 #include "TrigFTKSim/FTKTrackFitterAlgo.h"

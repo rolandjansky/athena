@@ -348,8 +348,6 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
 }
 #else
 
-const uint64_t FTKPatternBySectorWriter::PATTERN_CHUNK=20000000;
-
 
 int FTKPatternBySectorWriter::AppendMergedPatterns
 (FTKPatternBySectorReader &source,int minCoverage) {
@@ -369,7 +367,7 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
    int readSector=source.GetFirstSector();
    while(readSector>=0) {
       std::list<FTKPatternOneSector *> sectorList;
-      readSector=source.ReadRaw(readSector,sectorList,PATTERN_CHUNK);
+      readSector=source.ReadRaw(readSector,sectorList,s_pattern_chunk);
       int nSector=0;
       int nPattern=0;
       for(std::list<FTKPatternOneSector *>::iterator iSector=sectorList.begin();
@@ -536,10 +534,8 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader(FTKRootFileChain 
 }
 
 bool FTKPatternBySectorForestReader::CheckConsistency
-(FTKSSMap *ssMap,int tower,int hwmodeid) const {
-   if(ssMap &&(tower>=0) &&(hwmodeid>=0)) {
-      Warning("CheckConsistency")<<"not implemented\n";
-   }
+(FTKSSMap *,int,int) const {
+   Warning("CheckConsistency")<<"not implemented\n";
    return true;
 }
 

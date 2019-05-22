@@ -34,10 +34,11 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_chi2cut(17),
   m_chi2cut_maj(14),
   m_chi2cut_vetmaj(-1),
-  m_chi2dofcut(4),
+  m_chi2dofcutAux(4),
+  m_chi2dofcutSSB(4),
   m_doAuxFW(false),
   m_HitWarrior(2),
-  m_HitWarrior_first(1),
+  m_AuxDoctor(false),
   m_KeepRejected(0), 
   m_FitRemoved(0),
   m_DoMajority(1),
@@ -57,6 +58,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_SSF_TR_min_eta(1.0),
   m_SSF_TR_max_eta(1.4),
   m_save_1stStageTrks(false),
+  m_save_StepByStepTrks(false),
   m_doTrackFile(false),
   m_addRoads(false),
   m_trackfilepath("./"), 
@@ -79,10 +81,11 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("Chi2Cut",m_chi2cut);
   declareProperty("Chi2Cut_Maj",m_chi2cut_maj);
   declareProperty("Chi2Cut_VetoMaj",m_chi2cut_vetmaj);
-  declareProperty("Chi2DofCut",m_chi2dofcut);
+  declareProperty("Chi2DofCutAux",m_chi2dofcutAux);
+  declareProperty("Chi2DofCutSSB",m_chi2dofcutSSB);
   declareProperty("doAuxFW", m_doAuxFW);
   declareProperty("HitWarrior", m_HitWarrior);
-  declareProperty("FirstStageHitWarrior", m_HitWarrior_first);
+  declareProperty("AuxDoctor", m_AuxDoctor);
   declareProperty("KeepRejected", m_KeepRejected);
   declareProperty("FitRemoved", m_FitRemoved);
   declareProperty("DoMajority",m_DoMajority);
@@ -112,6 +115,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("ssmapunused_path",m_ssmapunused_path);
   declareProperty("TRACKFITTER_MODE",m_SSF_TFMode);
   declareProperty("Save1stStageTrks",m_save_1stStageTrks);
+  declareProperty("SaveStepByStepTrks",m_save_StepByStepTrks);
   declareProperty("SSFMultiConnection",m_SSF_multiconn);
   declareProperty("SSFNConnections",m_SSF_maxnconn);
   declareProperty("SSFAllowExtraMiss",m_SSF_allow_extramiss);
@@ -283,6 +287,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     
 
     // std::size_t replace_index = m_trackfilename.find(".root");
+
     // string pre_hw_trackfilename = m_trackfilename;
     // if (replace_index != std::string::npos) pre_hw_trackfilename.insert(replace_index, "_pre_hw");  
     // ftkouttrackmodule_pre_hw->setMultiOut(false);
@@ -342,10 +347,11 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   // set parameter object to TrackFitter
   m_tfpobj->setChi2Cut(m_chi2cut);
   m_tfpobj->setHitWarrior(m_HitWarrior);
-  m_tfpobj->setHitWarriorFirst(m_HitWarrior_first);
+  m_tfpobj->setAuxDoctor(m_AuxDoctor);
   m_tfpobj->setChi2Cut_maj(m_chi2cut_maj);
   m_tfpobj->setChi2Cut_vetomaj(m_chi2cut_vetmaj);
-  m_tfpobj->setChi2DofCut(m_chi2dofcut);
+  m_tfpobj->setChi2DofCutAux(m_chi2dofcutAux);
+  m_tfpobj->setChi2DofCutSSB(m_chi2dofcutSSB);
   m_tfpobj->setKeepRejected(m_KeepRejected); 
   m_tfpobj->setFitRemoved(m_FitRemoved);
   m_tfpobj->setHWNDiff(m_HWNDiff);
@@ -355,6 +361,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
   m_tfpobj->setRequireFirst(0);
   m_tfpobj->setOnePerRoad(m_OnePerRoad);
+
+  if (m_save_StepByStepTrks) m_tfpobj->setSaveStepByStepTracks(true);
+  else m_tfpobj->setSaveStepByStepTracks(false);
 
   //std::cout << "chi2cut "        << m_tfpobj->getChi2Cut()         << std::endl;
   //std::cout << "hitwarr "        << m_tfpobj->getHitWarrior()      << std::endl;
@@ -395,9 +404,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     else
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(false);
     if (m_save_1stStageTrks)
-      dynamic_cast<TrackFitter*>(m_tfpobj)->setSaveIncompleteTracks(true);
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(true);
     else
-      dynamic_cast<TrackFitter*>(m_tfpobj)->setSaveIncompleteTracks(false);
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(false);
 
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseSectorDB(true);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseMultipleConn(m_SSF_multiconn);
@@ -470,10 +479,10 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
 	log << MSG::INFO << "*** Printing EXP and TF constants in a txt file ****" << endmsg;
 
-        std::ofstream myfile;
+	std::ofstream myfile;
 	myfile.open (Form("EXPConstants_reg%d.txt",ir));
 
-        std::ofstream myfileTF;
+	std::ofstream myfileTF;
 	myfileTF.open (Form("TFConstants_reg%d.txt",ir));
 
 	std::vector<std::map <int, int> > vecOfMapSecID;
@@ -482,7 +491,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	vecOfMapNconn.clear();
 
 	log << MSG::INFO << "*** Reading the connection file and mapping 8L -> 12L " << endmsg;
-        std::vector<std::vector<int>> moduleIDvec;
+	std::vector<std::vector<int>> moduleIDvec;
 	moduleIDvec.clear();
 
 	Int_t Max_1stStage_sectors = 16383;
@@ -500,7 +509,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	    Map_temp[TwelveLsecid] = (int)sector->getNSimilarSectors(isec) ;
 	    vecOfMapNconn.push_back(Map_temp);
 	    vecOfMapSecID.push_back(Map_secid_Nconn);
-            std::vector<int> module_temp;
+	    std::vector<int> module_temp;
 	    module_temp.clear();
 	    for (int ip=0; ip!=(m_pmap_complete->getNPlanes()-m_pmap->getNPlanes()); ++ip) {
 	      module_temp.push_back(sector->getSimilarStereoIDs(isec,Nconn)[ip]);

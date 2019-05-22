@@ -126,6 +126,7 @@ private:
   
   std::string m_sector_dir_path;//for const test
   std::string m_gcon_dir_path;//for const test
+
   char m_c_sector_dir_path[200];
   char m_c_gcon_dir_path[200];
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKDEFS_H
@@ -55,7 +55,7 @@ namespace ftk {
   const float numberOfPhiPixelsInIblModule = 336.; ///< Number of rows in an IBL module
 
   /**
-   * \namespace ftk::clustering 
+   * \namespace ftk::clustering
    * \brief Default values used for the centroid calculation of a cluster.
    */
   namespace clustering {
@@ -65,7 +65,7 @@ namespace ftk {
       const float xScaleFactorIbl = 8.; ///<TODO
       const float pixelEndCapRPhiCorrection = 25.4*micrometer/phiPitch; ///< TODO - Lorentz angle?
       const float pixelIblRPhiCorrection = 7*micrometer/phiPitch; ///< TODO - Lorentz angle?
-      const float radiusIbl = 35.78; ///< IBL (from fig5 in IBL TDR: (33.25 + 38.31)/2)   
+      const float radiusIbl = 35.78; ///< IBL (from fig5 in IBL TDR: (33.25 + 38.31)/2)
       const float radii[4] = {35.78, 50.5, 88.5, 122.5}; ///< Radii of the 4 layers, starting with IBL, B-Layer, etc.
       const int feChipsInRowPixel = 8; ///< Number of Front-End chips in each pixel module row
       const int rowsInFEChipPerPixelModuleRow = 164; ///<Number of rows in a FE chip of a pixel module
@@ -73,6 +73,14 @@ namespace ftk {
       const int rowsInFEChipPerIblModuleRow = 336; ///<Number of rows in a FE chip of a IBL module
       const int colsInFEChipPerIblModuleRow = 80;///<Number of columns in a FE chip of a IBL module
 
+  }
+
+  namespace pcm {
+    const int PIXEL_CLUSTERING_IDEAL=1;
+    const int PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX=2;
+    const int PIXEL_CLUSTERING_MIXED=100;
+    const int PIXEL_CLUSTERING_REALISTIC=101;
+    const int PIXEL_CLUSTERING_HARDWARE = 200;
   }
 
   const int MOD_ADLER = 65521;
